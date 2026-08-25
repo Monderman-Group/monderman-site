@@ -59,14 +59,20 @@
     .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line-strong)}
     .divider span{font-size:.78rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted)}
 
-    /* ---- email magic-link ---- */
-    .email-form{display:grid;gap:12px}
+    /* ---- email verification ---- */
+    .email-form,.otp-form{display:grid;gap:12px}
     .email-label{font-size:.82rem;font-weight:600;color:var(--ink-soft)}
     .email-input{width:100%;min-height:52px;padding:0 16px;border-radius:14px;border:1px solid var(--line-strong);background:#fff;color:var(--ink);font-size:.98rem;transition:border-color .18s ease,box-shadow .18s ease}
     .email-input:focus{outline:none;border-color:rgba(12,110,120,.4);box-shadow:0 0 0 4px rgba(12,110,120,.08)}
+    .otp-input{text-align:center;font-size:1.2rem;font-weight:700;letter-spacing:.24em;font-variant-numeric:tabular-nums}
+    .otp-help{font-size:.84rem;line-height:1.5;color:var(--ink-soft)}
     .email-submit{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:52px;border-radius:14px;border:1px solid rgba(12,110,120,.28);background:var(--accent-dark);color:#fff;font-size:.98rem;font-weight:600;cursor:pointer;transition:background .18s ease,transform .18s ease}
     .email-submit:hover,.email-submit:focus-visible{background:#26496f;transform:translateY(-1px);outline:none}
     .email-submit:disabled{opacity:.55;cursor:wait;transform:none}
+    .otp-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .otp-secondary{min-height:44px;border:1px solid var(--line-strong);border-radius:12px;background:#fff;color:var(--ink-soft);font-size:.86rem;font-weight:600;cursor:pointer}
+    .otp-secondary:hover,.otp-secondary:focus-visible{border-color:rgba(12,110,120,.4);color:var(--ink);box-shadow:0 0 0 4px rgba(12,110,120,.06);outline:none}
+    .otp-secondary:disabled{opacity:.55;cursor:wait;box-shadow:none}
 
     /* ---- status messages ---- */
     .signin-status{margin:18px 0 0;font-size:.9rem;line-height:1.55;padding:12px 14px;border-radius:12px;display:none}
@@ -152,11 +158,22 @@
 
       <div class="divider"><span>or</span></div>
 
-      <!-- Email magic link -->
+      <!-- Scanner-safe email verification -->
       <form class="email-form" id="emailForm" novalidate>
         <label class="email-label" for="emailInput">Continue with email</label>
         <input class="email-input" id="emailInput" type="email" inputmode="email" autocomplete="email" placeholder="you@organization.com" />
-        <button class="email-submit" id="emailSubmit" type="submit">Email me a sign-in link</button>
+        <button class="email-submit" id="emailSubmit" type="submit">Email me a sign-in code</button>
+      </form>
+
+      <form class="otp-form" id="otpForm" hidden novalidate>
+        <label class="email-label" for="otpInput">Six-digit sign-in code</label>
+        <input class="email-input otp-input" id="otpInput" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" aria-describedby="otpHelp" placeholder="000000" />
+        <p class="otp-help" id="otpHelp">Enter the six-digit code from your Monderman email. The code is verified only after you submit it here.</p>
+        <button class="email-submit" id="otpSubmit" type="submit">Verify and continue</button>
+        <div class="otp-actions">
+          <button class="otp-secondary" id="otpResend" type="button">Send a new code</button>
+          <button class="otp-secondary" id="otpBack" type="button">Use a different email</button>
+        </div>
       </form>
 
       <div class="signin-status" id="signinStatus" role="status" aria-live="polite"></div>
@@ -214,9 +231,12 @@
 
     const INVITE_STORAGE_KEY = "monderman.pendingInviteToken";
     const AUTH_CONTEXT_STORAGE_KEY = "monderman.pendingAuthContext";
+    const OTP_STORAGE_KEY = "monderman.pendingEmailOtp";
     const AUTH_CONTEXT_TTL_MS = 15 * 60 * 1000;
+    const OTP_CONTEXT_TTL_MS = 15 * 60 * 1000;
     const initialParams = new URLSearchParams(window.location.search);
     let storedAuthContext = null;
+    let storedOtpContext = null;
     try {
       storedAuthContext = JSON.parse(sessionStorage.getItem(AUTH_CONTEXT_STORAGE_KEY) || "null");
       if (!storedAuthContext || Date.now() - Number(storedAuthContext.saved_at || 0) > AUTH_CONTEXT_TTL_MS) {
@@ -224,6 +244,16 @@
         sessionStorage.removeItem(AUTH_CONTEXT_STORAGE_KEY);
       }
     } catch (error) { storedAuthContext = null; }
+    try {
+      storedOtpContext = JSON.parse(sessionStorage.getItem(OTP_STORAGE_KEY) || "null");
+      if (!storedOtpContext || !storedOtpContext.email || Date.now() - Number(storedOtpContext.saved_at || 0) > OTP_CONTEXT_TTL_MS) {
+        storedOtpContext = null;
+        sessionStorage.removeItem(OTP_STORAGE_KEY);
+      }
+    } catch (error) {
+      storedOtpContext = null;
+      try { sessionStorage.removeItem(OTP_STORAGE_KEY); } catch (storageError) {}
+    }
     const requestedAcceptanceSource = initialParams.get("acceptance_source") || storedAuthContext?.source || "";
     let pendingInviteToken = initialParams.get("invite_token") || "";
     if (pendingInviteToken) {
@@ -262,14 +292,18 @@
         : (providerSource || requested || "signup");
       return { source, inviteToken: source === "invite" ? pendingInviteToken : "" };
     }
-    function authReturnUrl(providerSource){
-      const base = window.location.origin + window.location.pathname;
+    function rememberAuthContext(providerSource){
       const current = acceptanceContext(providerSource);
-      const params = new URLSearchParams({ next: nextTarget, acceptance_source: current.source });
-      if (current.inviteToken) params.set("invite_token", current.inviteToken);
       try {
         sessionStorage.setItem(AUTH_CONTEXT_STORAGE_KEY, JSON.stringify({ source: current.source, next: nextTarget, saved_at: Date.now() }));
       } catch (error) {}
+      return current;
+    }
+    function authReturnUrl(providerSource){
+      const base = window.location.origin + window.location.pathname;
+      const current = rememberAuthContext(providerSource);
+      const params = new URLSearchParams({ next: nextTarget, acceptance_source: current.source });
+      if (current.inviteToken) params.set("invite_token", current.inviteToken);
       return `${base}?${params.toString()}`;
     }
 
@@ -282,6 +316,12 @@
       emailForm: document.getElementById("emailForm"),
       emailInput: document.getElementById("emailInput"),
       emailSubmit: document.getElementById("emailSubmit"),
+      otpForm: document.getElementById("otpForm"),
+      otpInput: document.getElementById("otpInput"),
+      otpHelp: document.getElementById("otpHelp"),
+      otpSubmit: document.getElementById("otpSubmit"),
+      otpResend: document.getElementById("otpResend"),
+      otpBack: document.getElementById("otpBack"),
       status: document.getElementById("signinStatus"),
       legalAcceptance: document.getElementById("legalAcceptance"),
       legalAcceptanceHeading: document.getElementById("legalAcceptanceHeading"),
@@ -315,6 +355,40 @@
       ui.google.disabled = locked;
       ui.emailSubmit.disabled = locked;
     }
+    let pendingEmail = storedOtpContext?.email || "";
+    function savePendingOtp(email){
+      pendingEmail = email;
+      try { sessionStorage.setItem(OTP_STORAGE_KEY, JSON.stringify({ email, saved_at: Date.now() })); } catch (error) {}
+    }
+    function clearPendingOtp(){
+      pendingEmail = "";
+      storedOtpContext = null;
+      try { sessionStorage.removeItem(OTP_STORAGE_KEY); } catch (error) {}
+    }
+    function lockOtpButtons(locked){
+      ui.otpInput.disabled = locked;
+      ui.otpSubmit.disabled = locked;
+      ui.otpResend.disabled = locked;
+      ui.otpBack.disabled = locked;
+    }
+    function showOtpForm(email, focus=true){
+      if (email) pendingEmail = email;
+      ui.google.hidden = true;
+      document.querySelector(".divider").hidden = true;
+      ui.emailForm.hidden = true;
+      ui.otpForm.hidden = false;
+      ui.otpHelp.textContent = `Enter the six-digit code sent to ${pendingEmail}. The code is verified only after you submit it here.`;
+      if (focus) ui.otpInput.focus();
+    }
+    function showEmailForm({ clearOtp=true } = {}){
+      if (clearOtp) clearPendingOtp();
+      ui.otpForm.hidden = true;
+      ui.google.hidden = false;
+      document.querySelector(".divider").hidden = false;
+      ui.emailForm.hidden = false;
+      ui.otpForm.reset();
+      ui.emailInput.focus();
+    }
 
     // ---- If already signed in (or just returned from OAuth), forward on ----
     let revealed = false;
@@ -323,12 +397,14 @@
       if (revealed || forwarded) return;
       revealed = true;
       ui.sessionCheck.classList.add("hidden");
+      if (pendingEmail) showOtpForm(pendingEmail, false);
     }
     function forwardOn(){
       if (forwarded) return;
       forwarded = true;
       try { sessionStorage.removeItem(INVITE_STORAGE_KEY); } catch (error) {}
       try { sessionStorage.removeItem(AUTH_CONTEXT_STORAGE_KEY); } catch (error) {}
+      clearPendingOtp();
       window.location.replace(nextTarget);
     }
 
@@ -357,6 +433,7 @@
     async function continueAfterAuth(session){
       if (forwarded || acceptanceCheckStarted || !session?.user) return;
       acceptanceCheckStarted = true;
+      clearPendingOtp();
       pendingSession = session;
       const context = acceptanceContext();
       const query = new URLSearchParams({ source: context.source });
@@ -379,6 +456,7 @@
         ui.google.hidden = true;
         document.querySelector(".divider").hidden = true;
         ui.emailForm.hidden = true;
+        ui.otpForm.hidden = true;
         ui.legalAcceptance.classList.add("show");
         ui.legalAgree.focus();
         setStatus("");
@@ -403,6 +481,7 @@
       pendingSession = null;
       currentDocuments = null;
       acceptanceCheckStarted = false;
+      clearPendingOtp();
       ui.invitationRecovery.classList.remove("show");
       ui.invitationRecovery.disabled = false;
       setStatus("Signed out. Continue with the email address that received the invitation.", "info");
@@ -427,6 +506,7 @@
         acceptanceCheckStarted = false;
         try { sessionStorage.removeItem(INVITE_STORAGE_KEY); } catch (error) {}
         try { sessionStorage.removeItem(AUTH_CONTEXT_STORAGE_KEY); } catch (error) {}
+        clearPendingOtp();
         window.location.replace("index.html");
       }catch(error){
         ui.legalAgree.disabled = false;
@@ -531,8 +611,14 @@
 
     ui.google.addEventListener("click", () => signInWithProvider("google"));
 
-    // ---- Email magic link ----
+    // ---- Scanner-safe email code ----
     const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
+    async function sendEmailCode(email){
+      rememberAuthContext(acceptanceContext().source === "invite" ? "invite" : "signup");
+      const { error } = await supabase.auth.signInWithOtp({ email });
+      if (error) throw error;
+      savePendingOtp(email);
+    }
     ui.emailForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = (ui.emailInput.value || "").trim();
@@ -545,24 +631,76 @@
       lockButtons(true);
       ui.emailSubmit.textContent = "Sending…";
       try{
-        const { error } = await supabase.auth.signInWithOtp({
-          email,
-          options: { emailRedirectTo: authReturnUrl(acceptanceContext().source === "invite" ? "invite" : "signup") }
-        });
-        if (error) throw error;
+        await sendEmailCode(email);
+        showOtpForm(email);
         setStatus(invitationMode
-          ? `Check your inbox — we sent a secure sign-in link to ${email}. Use it to return to this invitation.`
-          : `Check your inbox — we sent a sign-in link to ${email}. It expires shortly, so use it soon.`, "ok");
+          ? `Check your inbox — we sent a six-digit sign-in code to ${email}. Enter it here to return to this invitation.`
+          : `Check your inbox — we sent a six-digit sign-in code to ${email}. Enter it here to continue.`, "ok");
         ui.emailForm.reset();
       }catch(err){
         setStatus(invitationMode
-          ? "We couldn’t send the sign-in link. Your invitation has not been changed. Check your connection and try again."
-          : "We couldn’t send the sign-in link. Email sign-in may not be configured yet — try Google, or contact us.", "error");
-        console.warn("Magic-link error:", err?.message || err);
+          ? "We couldn’t send the sign-in code. Your invitation has not been changed. Check your connection and try again."
+          : "We couldn’t send the sign-in code. Try again, use Google, or contact us.", "error");
+        console.warn("Email-code error:", err?.message || err);
       }finally{
         lockButtons(false);
-        ui.emailSubmit.textContent = invitationMode ? "Continue with email" : "Email me a sign-in link";
+        ui.emailSubmit.textContent = invitationMode ? "Continue with email" : "Email me a sign-in code";
       }
+    });
+
+    ui.otpInput.addEventListener("input", () => {
+      ui.otpInput.value = ui.otpInput.value.replace(/\D/g, "").slice(0, 6);
+    });
+    ui.otpForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const code = (ui.otpInput.value || "").replace(/\D/g, "");
+      if (!pendingEmail || !/^\d{6}$/.test(code)) {
+        setStatus("Enter the complete six-digit code from your email.", "error");
+        ui.otpInput.focus();
+        return;
+      }
+      setStatus("");
+      lockOtpButtons(true);
+      ui.otpSubmit.textContent = "Verifying…";
+      try {
+        const { data, error } = await supabase.auth.verifyOtp({ email: pendingEmail, token: code, type: "email" });
+        if (error) throw error;
+        let session = data?.session;
+        if (!session?.user) {
+          const current = await supabase.auth.getSession();
+          session = current.data?.session;
+        }
+        if (!session?.user) throw new Error("email_code_session_missing");
+        await continueAfterAuth(session);
+      } catch (err) {
+        setStatus("That code is invalid or has expired. Request a new code and try again.", "error");
+        console.warn("Email-code verification error:", err?.message || err);
+      } finally {
+        lockOtpButtons(false);
+        ui.otpSubmit.textContent = "Verify and continue";
+      }
+    });
+    ui.otpResend.addEventListener("click", async () => {
+      if (!pendingEmail) { showEmailForm(); return; }
+      setStatus("");
+      lockOtpButtons(true);
+      ui.otpResend.textContent = "Sending…";
+      try {
+        await sendEmailCode(pendingEmail);
+        ui.otpForm.reset();
+        setStatus(`A new six-digit code was sent to ${pendingEmail}.`, "ok");
+        ui.otpInput.focus();
+      } catch (err) {
+        setStatus("We couldn’t send a new code yet. Wait a moment and try again.", "error");
+        console.warn("Email-code resend error:", err?.message || err);
+      } finally {
+        lockOtpButtons(false);
+        ui.otpResend.textContent = "Send a new code";
+      }
+    });
+    ui.otpBack.addEventListener("click", () => {
+      setStatus("");
+      showEmailForm();
     });
 
     // ---- Boot ----
