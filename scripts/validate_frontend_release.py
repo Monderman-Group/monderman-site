@@ -93,7 +93,7 @@ else:
   '.sample-depth-tile',
   '.sdt-exposure-grid',
   'grid-template-columns:repeat(2,minmax(0,1fr))',
-  '@container (max-width:379px)',
+  '@container (max-width:259px)',
   '.hero-report-proof.has-sample-depth-tile',
   '.hero-report-proof.has-sample-depth-tile .hero-report-link{display:block;}',
  ]:
