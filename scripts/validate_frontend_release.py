@@ -102,10 +102,14 @@ if not lure_tile_css:
 else:
  for token in [
   '#monderman-depth-lure-composite',
-  'grid-template-columns:120px minmax(0,1fr)',
+  'width:min(100%,580px)',
+  'grid-template-columns:112px minmax(0,1fr)',
+  'grid-template-columns:repeat(2,minmax(0,1fr))',
   'left:60.76%',
   'left:77.22%',
   'grid-template-columns:92px minmax(130px,1fr) 136px',
+  '.md-foot{',
+  'display:none',
   '@container monderman-composite (max-width:520px)',
  ]:
   if token not in lure_tile_css:e.append('in-chat source sample tile contract '+token)
