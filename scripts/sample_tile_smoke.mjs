@@ -13,8 +13,10 @@ const placements = [
   { name: 'platform-brief', route: '/Monderman_Platform_Brief.html' },
 ];
 const viewports = [
-  { name: 'mobile', width: 390, height: 844, expectedColumns: 1 },
+  { name: 'narrow-mobile', width: 320, height: 844, expectedColumns: 1 },
+  { name: 'mobile', width: 390, height: 844, expectedColumns: 2 },
   { name: 'tablet', width: 768, height: 1024, expectedColumns: 2 },
+  { name: 'tablet-landscape', width: 1024, height: 900, expectedColumns: 2 },
   { name: 'desktop', width: 1440, height: 1000, expectedColumns: 2 },
 ];
 
