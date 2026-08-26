@@ -18,6 +18,48 @@ try {
     });
     await page.goto(`${base}/index.html`, { waitUntil: 'networkidle', timeout: 90000 });
 
+    // The accessible main landmark owns the homepage editorial sequence. Keep
+    // the retired legacy sections hidden and preserve one white "second read"
+    // section at every supported viewport.
+    const editorial = await page.evaluate(() => {
+      const main = document.querySelector('#main-content');
+      const legacy = main?.querySelector(':scope > .differentiators-compact');
+      const measurementLoop = main?.querySelector(':scope > .measurement-loop');
+      const visibleSecondReadHeadings = [...document.querySelectorAll('h2')].filter((heading) => {
+        if (heading.textContent.trim() !== 'Built for the second read, not just the first.') return false;
+        const section = heading.closest('section');
+        return section && getComputedStyle(section).display !== 'none';
+      });
+      const visibleSections = [...(main?.querySelectorAll(':scope > section') || [])]
+        .filter((section) => getComputedStyle(section).display !== 'none')
+        .sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top)
+        .map((section) => section.classList[0]);
+      return {
+        mainExists: Boolean(main),
+        legacyDisplay: legacy ? getComputedStyle(legacy).display : null,
+        measurementDisplay: measurementLoop ? getComputedStyle(measurementLoop).display : null,
+        measurementBackground: measurementLoop ? getComputedStyle(measurementLoop).backgroundColor : null,
+        visibleSecondReadHeadings: visibleSecondReadHeadings.length,
+        visibleSections,
+      };
+    });
+    assert.equal(editorial.mainExists, true, `${viewport.name}: homepage main landmark missing`);
+    assert.equal(editorial.legacyDisplay, 'none', `${viewport.name}: retired deep-cream differentiator section is visible`);
+    assert.equal(editorial.measurementDisplay, 'block', `${viewport.name}: intended measurement loop is not visible`);
+    assert.equal(editorial.measurementBackground, 'rgb(255, 255, 255)', `${viewport.name}: intended second-read section is not white`);
+    assert.equal(editorial.visibleSecondReadHeadings, 1, `${viewport.name}: duplicate second-read headings are visible`);
+    assert.deepEqual(editorial.visibleSections, [
+      'hero',
+      'proof-band',
+      'mxidx-band',
+      'systems-analysis-bridge',
+      'approach',
+      'measurement-loop',
+      'book-band',
+      'latest',
+      'connect',
+    ], `${viewport.name}: homepage editorial sequence changed`);
+
     const launcher = page.locator('#mnd-launcher');
     const connect = page.locator('.mdn-cn-launch');
     await launcher.waitFor({ state: 'visible' });
