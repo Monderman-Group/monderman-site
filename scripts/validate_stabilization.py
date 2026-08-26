@@ -52,7 +52,8 @@ for token in [
     "organization_selection_required",
     "Workspace for this trial",
     "This Pattern trial will start for",
-    "JSON.stringify({organization_id:organizationId})",
+    "JSON.stringify({organization_id:organizationId,invitation_code:invitationCode})",
+    'id="pilotInvitationCode"',
     'source:"trial",organization_id:organizationId',
 ]:
     assert token in trial, f"Pattern organization selection contract missing {token}"

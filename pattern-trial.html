@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>30-day Pattern beta trial | Monderman</title>
+  <title>Private 30-day Pattern pilot | Monderman</title>
   <link rel="canonical" href="https://www.monderman.com/pattern-trial.html" />
   <meta name="robots" content="noindex" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -22,16 +22,16 @@
     .msg{display:none;margin-top:16px;border-radius:9px;padding:12px 14px;font-size:13.5px;line-height:1.55}.msg.err{display:block;background:#FBEBE9;color:#7A2A22}.msg.ok{display:block;background:#EAF4EE;color:#285D43}
     .fine{font-size:12.5px;line-height:1.55;color:#8A8B90;text-align:center;margin:15px 0 0}
     .confirm{display:flex;gap:10px;align-items:flex-start;margin:18px 0 4px;padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:#FCFBF8;font-size:13px;line-height:1.5;color:#4E5054}.confirm input{margin-top:3px;flex:0 0 auto}.confirm a{color:var(--accent-d);font-weight:600}
-    .workspace-choice{margin:18px 0;padding:14px 16px;border:1px solid var(--line);border-radius:11px;background:#FCFBF8}.workspace-choice label{display:block;margin-bottom:7px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--deep)}.workspace-choice select{width:100%;padding:11px 12px;border:1px solid #D8D4CA;border-radius:8px;background:#fff;color:var(--ink);font:500 14px 'Neue Haas Grotesk',sans-serif}.workspace-choice p{margin:0;font-size:14px;line-height:1.5;color:var(--ink)}
+    .workspace-choice,.pilot-invitation{margin:18px 0;padding:14px 16px;border:1px solid var(--line);border-radius:11px;background:#FCFBF8}.workspace-choice label,.pilot-invitation label{display:block;margin-bottom:7px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--deep)}.workspace-choice select,.pilot-invitation input{width:100%;padding:11px 12px;border:1px solid #D8D4CA;border-radius:8px;background:#fff;color:var(--ink);font:500 16px 'Neue Haas Grotesk',sans-serif}.workspace-choice select:focus-visible,.pilot-invitation input:focus-visible{outline:3px solid rgba(12,110,120,.18);border-color:var(--accent)}.workspace-choice p,.pilot-invitation p{margin:0;font-size:14px;line-height:1.5;color:var(--ink)}.pilot-invitation p{margin-top:7px;font-size:12.5px;color:var(--muted)}
   </style>
   <link rel="stylesheet" href="visual-polish.css?v=20260823-4">
 </head>
 <body class="transaction-surface">
   <header><a class="brand" href="index.html">Monderman<span class="brand-dot"></span></a><a href="plan-pattern.html">&larr; Pattern details</a></header>
   <main><div class="card">
-    <p class="eyebrow">Pattern &middot; 30-day Beta trial</p>
+    <p class="eyebrow">Pattern &middot; Private 30-day pilot</p>
     <h1>Use the full Pattern Workspace for 30 days.</h1>
-    <p class="lead">A one-time beta evaluation for an eligible account whose Workspace is currently on the standard Trial level. No card is required to start, and the trial does not renew automatically.</p>
+    <p class="lead">A private, invitation-only evaluation for an eligible account whose Workspace is currently on the standard Trial level. No card is required to start, and the pilot does not renew automatically.</p>
     <ul>
       <li>All four Diagnostics, standard depths and participant perspectives</li>
       <li>Diagnostic campaigns and up to 500 participant responses</li>
@@ -45,10 +45,15 @@
       <select id="organizationSelect" hidden></select>
       <p id="organizationName"></p>
     </div>
+    <div class="pilot-invitation">
+      <label for="pilotInvitationCode">Pilot invitation code</label>
+      <input id="pilotInvitationCode" name="pilot-invitation-code" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="96" aria-describedby="pilotInvitationHelp" />
+      <p id="pilotInvitationHelp">Enter the reusable invitation code provided directly by Monderman. It is checked securely when you start the pilot and is not stored in browser storage.</p>
+    </div>
     <label class="confirm"><input type="checkbox" id="ackStart" disabled><span>I understand this one-time 30-day beta evaluation starts immediately when I continue and remains used for this account identity even if the Workspace is later deleted or replaced. I agree to the <a href="terms.html" id="trialTermsLink" target="_blank" rel="noopener">Terms of Service</a> and acknowledge the <a href="privacy.html" id="trialPrivacyLink" target="_blank" rel="noopener">Privacy Notice</a>. I understand that financial, time, capacity, productivity and recovery figures are directional estimates, not guaranteed outcomes, and that my organization is responsible for its data, decisions, implementation and results.</span></label>
     <button id="startBtn" disabled>Start my 30-day Pattern trial</button>
     <div id="msg" class="msg" role="status" aria-live="polite"></div>
-    <p class="fine">One Pattern trial per eligible account identity. Deleting or replacing a Workspace does not reset eligibility. An organization admin must start the trial.</p>
+    <p class="fine">Invitation required. One Pattern pilot per eligible account identity. Deleting or replacing a Workspace does not reset eligibility. An organization admin must start the pilot.</p>
   </div></main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
@@ -56,12 +61,12 @@
     const { createClient } = window.supabase;
     const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co", "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz", { auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"} });
     const API_BASE = "https://monderman-api.onrender.com";
-    const btn = document.getElementById("startBtn"), msg = document.getElementById("msg"), ack = document.getElementById("ackStart");
+    const btn = document.getElementById("startBtn"), msg = document.getElementById("msg"), ack = document.getElementById("ackStart"), pilotInvitationCode = document.getElementById("pilotInvitationCode");
     const trialTermsLink = document.getElementById("trialTermsLink"), trialPrivacyLink = document.getElementById("trialPrivacyLink");
     const choice = document.getElementById("workspaceChoice"), organizationSelect = document.getElementById("organizationSelect"), organizationName = document.getElementById("organizationName");
     let sessionReady=false, organizationId=null, currentDocuments=null;
     function show(text, kind="err"){ msg.textContent=text; msg.className="msg "+kind; }
-    function syncStart(){ btn.disabled=!(sessionReady && ack.checked); }
+    function syncStart(){ btn.disabled=!(sessionReady && ack.checked && pilotInvitationCode.value.trim().length>=12); }
     function denyStart(text){ sessionReady=false; ack.checked=false; ack.disabled=true; syncStart(); show(text); }
     function legalDocumentPath(kind, version){
       const normalized=String(version||"");
@@ -121,6 +126,7 @@
       }catch(e){ denyStart("We couldn’t verify this Workspace’s trial eligibility. Please try again."); }
     }
     ack.addEventListener("change",syncStart);
+    pilotInvitationCode.addEventListener("input",syncStart);
     btn.addEventListener("click", async()=>{
       btn.disabled=true; btn.textContent="Starting your trial…"; msg.className="msg";
       try{
@@ -141,7 +147,8 @@
           const acceptance = await acceptanceResponse.json().catch(()=>({}));
           if(!acceptanceResponse.ok || !acceptance.ok) throw new Error(acceptance.error || "legal_acceptance_failed");
         }
-        const res = await fetch(API_BASE+"/api/billing/start-pattern-trial", {method:"POST", headers:{"content-type":"application/json","authorization":"Bearer "+(s?.session?.access_token||"")}, body:JSON.stringify({organization_id:organizationId})});
+        const invitationCode=pilotInvitationCode.value;
+        const res = await fetch(API_BASE+"/api/billing/start-pattern-trial", {method:"POST", headers:{"content-type":"application/json","authorization":"Bearer "+(s?.session?.access_token||"")}, body:JSON.stringify({organization_id:organizationId,invitation_code:invitationCode})});
         const out = await res.json().catch(()=>({}));
         if(res.ok && out.ok){ show("Pattern is active. Opening your Workspace…","ok"); setTimeout(()=>location.href="workspace.html",700); return; }
         const messages={
@@ -151,9 +158,12 @@
           trial_requires_admin:"Only an organization admin can start the Pattern trial.",
           organization_access_denied:"You do not have billing authority for the selected Workspace.",
           organization_selection_required:"Choose the Workspace that should receive this Pattern trial.",
+          pattern_invitation_invalid:"That pilot invitation code is not valid. Check the code supplied by Monderman and try again.",
+          pattern_invitation_rate_limited:"Too many invalid invitation-code attempts. Please wait before trying again.",
           trial_unavailable:"The Pattern trial is temporarily unavailable. Please try again shortly."
         };
         show(messages[out.error] || "The Pattern trial could not be started. Nothing was charged.");
+        if(out.error==="pattern_invitation_invalid" || out.error==="pattern_invitation_rate_limited"){ pilotInvitationCode.select(); pilotInvitationCode.focus(); }
       }catch(e){
         show(e?.message==="legal_documents_changed"
           ? "The Terms or Privacy Notice changed while this page was open. Review the current documents, select the acknowledgement again, and continue."
