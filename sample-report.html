@@ -316,6 +316,7 @@
       border-radius: 20px;
       box-shadow: 0 20px 54px rgba(8,56,62,.07);
     }
+    .sample-library-heading { color:var(--text-dark); font-size:clamp(2rem,4vw,3rem); line-height:1; letter-spacing:-.04em; font-weight:700; }
 
     /* Right rail TOC */
     .toc-rail {
@@ -1575,6 +1576,7 @@
 <link rel="stylesheet" href="sample-report-production.css?v=20260824-sample-alignment">
 </head>
 <body class="canonical-green-shell canonical-solid-header page-report">
+<a class="skip-link" href="#main-content">Skip to main content</a>
 
 <header class="header" id="siteHeader">
     <div class="header-inner">
@@ -1592,6 +1594,8 @@
     </div>
   </header>
 
+<main id="main-content">
+
 <div class="meta-bar">
   <div class="meta-bar-inner">
     <p class="meta-bar-label" id="meta-label">Sample Report · Operational Systems Diagnostic</p>
@@ -1607,7 +1611,7 @@
 <div class="intro-pin">
 <div style="margin:0 auto 30px;max-width:1100px;padding:0 28px;box-sizing:border-box;">
         <p class="syn-gauge-band" style="margin-top:0;">Monderman &middot; Sample library</p>
-        <h1 style="margin:8px 0 14px;">Sample Executive Reports</h1>
+        <p class="sample-library-heading" role="heading" aria-level="2" style="margin:8px 0 14px;">Sample Executive Reports</p>
         <p style="margin:0 0 12px;">Monderman has four Diagnostics &mdash; Operational Systems, Decision Velocity, Structural Clarity, and Institutional Performance &mdash; plus two Synthesis products: Depth Synthesis and Cross-Lens Synthesis. Each Diagnostic remains a distinct measurement. Eligible Included runs can later support Synthesis in Analysis.</p>
         <p style="margin:0;">The four Diagnostic tabs preserve the current executive-report hierarchy for one Diagnostic lens: condition, dimensions, bounded burden, governance implications, participant evidence, remedies, evidence basis, and interpretation limits. The Synthesis tabs preserve the current evidence rules: Depth Synthesis publishes the <strong>Median Diagnostic Score</strong> and distribution from eligible same-Diagnostic runs; Cross-Lens Synthesis keeps every lens separate and publishes a <strong>Cross-Lens Composite Score</strong> only when the declared coherence controls pass. Otherwise the Composite Score is withheld with the exact reason and the evidence that could unlock it.</p>
       </div>
@@ -1669,7 +1673,7 @@
     </select>
   </div>
   <div class="doc-shell">
-  <main class="doc">
+  <div class="doc">
 
     <section class="cover" id="os-cover">
       <div class="cover-dark">
@@ -1854,7 +1858,7 @@
       <div class="method-box"><p class="muted" style="margin:0;font-size:.85rem;"><sup>*</sup><strong>Representative sample.</strong> The organization and scenario are hypothetical and are not customer data. The values are illustrative of the kinds of scores, burden estimates, classifications, evidence notes, and action paths the current Operational Systems Diagnostic can return. A customer Executive Report reflects only the answers and context supplied for that run, under the same deterministic scoring and claim-bounding rules.</p></div>
     </section>
 
-  </main>
+  </div>
 
   <aside class="toc-rail" aria-label="Table of contents">
     <p class="toc-rail-label">Contents</p>
@@ -1891,7 +1895,7 @@
     </select>
   </div>
   <div class="doc-shell">
-  <main class="doc">
+  <div class="doc">
 
     <section class="cover" id="dv-cover">
       <div class="cover-dark">
@@ -2075,7 +2079,7 @@
       <div class="method-box"><p class="muted" style="margin:0;font-size:.85rem;"><sup>*</sup><strong>Representative sample.</strong> The organization and scenario are hypothetical and are not customer data. The values are illustrative of the kinds of scores, burden estimates, classifications, evidence notes, and action paths the current Decision Velocity Diagnostic can return. A customer Executive Report reflects only the answers and context supplied for that run, under the same deterministic scoring and claim-bounding rules.</p></div>
     </section>
 
-  </main>
+  </div>
 
 <aside class="toc-rail" aria-label="Table of contents">
     <p class="toc-rail-label">Contents</p>
@@ -2112,7 +2116,7 @@
     </select>
   </div>
   <div class="doc-shell">
-  <main class="doc">
+  <div class="doc">
 
     <section class="cover" id="sc-cover">
       <div class="cover-dark">
@@ -2296,7 +2300,7 @@
       <div class="method-box"><p class="muted" style="margin:0;font-size:.85rem;"><sup>*</sup><strong>Representative sample.</strong> The organization and scenario are hypothetical and are not customer data. The values are illustrative of the kinds of scores, burden estimates, classifications, evidence notes, and action paths the current Structural Clarity Diagnostic can return. A customer Executive Report reflects only the answers and context supplied for that run, under the same deterministic scoring and claim-bounding rules.</p></div>
     </section>
 
-  </main>
+  </div>
 
   <aside class="toc-rail" aria-label="Table of contents">
     <p class="toc-rail-label">Contents</p>
@@ -2333,7 +2337,7 @@
     </select>
   </div>
   <div class="doc-shell">
-  <main class="doc">
+  <div class="doc">
 
     <section class="cover" id="ip-cover">
       <div class="cover-dark">
@@ -2517,7 +2521,7 @@
       <div class="method-box"><p class="muted" style="margin:0;font-size:.85rem;"><sup>*</sup><strong>Representative sample.</strong> The organization and scenario are hypothetical and are not customer data. The values are illustrative of the kinds of scores, burden estimates, classifications, evidence notes, and action paths the current Institutional Performance Diagnostic can return. A customer Executive Report reflects only the answers and context supplied for that run, under the same deterministic scoring and claim-bounding rules.</p></div>
     </section>
 
-  </main>
+  </div>
 
   <aside class="toc-rail" aria-label="Table of contents">
     <p class="toc-rail-label">Contents</p>
@@ -2550,6 +2554,8 @@
     <aside class="toc-rail synthesis-toc" id="depthToc" aria-label="Depth Synthesis contents"><p class="toc-rail-label">Contents</p><ol></ol></aside>
   </div>
 </section>
+
+</main>
 
 <script src="monderman-report.js?v=20260824-composite-label-fit"></script>
 <script src="sample-report-production.js?v=20260824-sample-alignment2"></script>
@@ -2874,6 +2880,7 @@
         var on = t.getAttribute('data-target') === key;
         t.classList.toggle('is-active', on);
         t.setAttribute('aria-selected', on ? 'true' : 'false');
+        t.tabIndex = on ? 0 : -1;
       });
       order.forEach(function (k) { if (shells[k]) shells[k].hidden = (k !== key); });
       if (label) label.textContent = 'Sample Report · ' + titles[key];
@@ -2887,6 +2894,21 @@
         show(key, true);
         try { if (history && history.pushState) history.pushState({ report: key }, '', '#' + key); } catch (e) { /* sandboxed preview */ }
       });
+      t.addEventListener('keydown', function (event) {
+        var current = tabs.indexOf(t);
+        var next = current;
+        if (event.key === 'ArrowRight' || event.key === 'ArrowDown') next = (current + 1) % tabs.length;
+        else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') next = (current - 1 + tabs.length) % tabs.length;
+        else if (event.key === 'Home') next = 0;
+        else if (event.key === 'End') next = tabs.length - 1;
+        else return;
+        event.preventDefault();
+        var nextTab = tabs[next];
+        var key = nextTab.getAttribute('data-target');
+        show(key, false);
+        nextTab.focus();
+        try { if (history && history.pushState) history.pushState({ report: key }, '', '#' + key); } catch (e) { /* sandboxed preview */ }
+      });
     });
 
     var initial = (location.hash || '').replace('#', '');
@@ -2897,7 +2919,7 @@
     });
 
     // Active TOC tracking (scoped naturally: hidden shells' sections never intersect)
-    var sections = document.querySelectorAll('main .section, main .cover');
+    var sections = document.querySelectorAll('.doc .section, .doc .cover');
     var links = document.querySelectorAll('.toc-rail a');
     if (sections.length && links.length) {
       var byId = {};

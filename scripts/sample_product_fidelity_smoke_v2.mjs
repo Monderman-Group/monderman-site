@@ -29,6 +29,19 @@ page.on('console', message => {
 
 await page.goto(`${base}/sample-report.html#os`, { waitUntil: 'networkidle', timeout: 90000 });
 await page.locator('body.production-samples-ready').waitFor({ state: 'attached', timeout: 30000 });
+assert(await page.locator('main').count() === 1, 'sample library must expose exactly one main landmark');
+assert(await page.locator('h1:visible').count() === 1, 'active sample must expose exactly one visible h1');
+assert(await page.locator('.skip-link').getAttribute('href') === '#main-content', 'sample library skip link is missing');
+
+await page.locator('#tab-os').focus();
+await page.keyboard.press('ArrowRight');
+assert(await page.locator('#tab-dv').getAttribute('aria-selected') === 'true', 'ArrowRight does not activate the next report tab');
+assert(await page.locator('#tab-dv').getAttribute('tabindex') === '0', 'active report tab is not the roving tab stop');
+assert(await page.locator('.dx-tab[tabindex="0"]').count() === 1, 'report tabs expose more than one roving tab stop');
+await page.keyboard.press('End');
+assert(await page.locator('#tab-depth').getAttribute('aria-selected') === 'true', 'End does not activate the final report tab');
+await page.keyboard.press('Home');
+assert(await page.locator('#tab-os').getAttribute('aria-selected') === 'true', 'Home does not activate the first report tab');
 
 for (const [key, contract] of Object.entries(expected)) {
   await page.locator(`#tab-${key}`).click();

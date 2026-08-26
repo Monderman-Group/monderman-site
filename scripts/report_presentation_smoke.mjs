@@ -21,7 +21,7 @@ await page.locator('body.production-samples-ready').waitFor({ state: 'attached',
 const hostTypography = await page.evaluate(() => ({
   body: getComputedStyle(document.body).fontFamily,
   brand: getComputedStyle(document.querySelector('.brand')).fontFamily,
-  intro: getComputedStyle(document.querySelector('.intro-pin h1')).fontFamily,
+  intro: getComputedStyle(document.querySelector('.sample-library-heading')).fontFamily,
 }));
 for (const [where, font] of Object.entries(hostTypography)) {
   assert(!isActualSerif(font), `${where} contaminated by shared report serif CSS: ${font}`);
@@ -169,7 +169,7 @@ await depthChart.screenshot({ path: path.join(out, 'depth-chart.png') });
 const afterTypography = await page.evaluate(() => ({
   body: getComputedStyle(document.body).fontFamily,
   brand: getComputedStyle(document.querySelector('.brand')).fontFamily,
-  intro: getComputedStyle(document.querySelector('.intro-pin h1')).fontFamily,
+  intro: getComputedStyle(document.querySelector('.sample-library-heading')).fontFamily,
 }));
 for (const [where, font] of Object.entries(afterTypography)) {
   assert(!isActualSerif(font), `${where} contaminated after report render: ${font}`);

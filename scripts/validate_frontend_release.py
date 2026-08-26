@@ -36,10 +36,19 @@ if release_channel in {'production','outside-beta'}:
    for match in pattern.finditer(public_text):
     e.append(name+': unresolved production legal drafting marker '+match.group(0))
 s=(r/'sample-report.html').read_text()
-if len(re.findall(r'<h1\b',s,re.I))!=1:e.append('sample h1')
+if re.search(r'<h1\b',s,re.I):e.append('sample static h1 competes with generated report title')
+if 'class="sample-library-heading" role="heading" aria-level="2"' not in s:e.append('sample library heading hierarchy')
+if '<h1 class="mr-cover-title">' not in (r/'monderman-report.js').read_text(errors='ignore'):e.append('generated report h1')
 if s.count('aria-label="Jump to report section"')<4:e.append('sample selects')
 for k in ['os','dv','sc','ip','synthesis','depth']:
  if f'aria-controls="report-{k}"' not in s or f'role="tabpanel"' not in s:e.append('sample tabs '+k)
+for token in ["t.tabIndex = on ? 0 : -1", "event.key === 'ArrowRight'", "event.key === 'ArrowLeft'", "event.key === 'Home'", "event.key === 'End'", 'nextTab.focus()']:
+ if token not in s:e.append('sample roving tab behavior '+token)
+
+for name in ['index.html','sample-report.html','roi.html','privacy.html','security.html']:
+ t=(r/name).read_text(errors='ignore')
+ if len(re.findall(r'<main\b',t,re.I))!=1 or len(re.findall(r'</main>',t,re.I))!=1:e.append(name+': single main landmark')
+ if 'class="skip-link" href="#main-content"' not in t or 'id="main-content"' not in t:e.append(name+': keyboard skip link')
 site=(r/'sitemap.xml').read_text()
 for x in ['roi.html','plan-signal.html','plan-pattern.html','plan-enterprise.html']:
  if x not in site:e.append('sitemap '+x)
@@ -52,6 +61,19 @@ if 'payment,,' in (r/'security.html').read_text():e.append('double comma')
 idx=(r/'index.html').read_text(errors='ignore')
 if '<body class="canonical-green-shell">' not in idx:
  e.append('homepage canonical shell scope missing')
+for stale in ['exactly as the engine renders it','Every read returns the result in your numbers','Monderman is the instrument that surfaces where these losses originate']:
+ if stale in idx:e.append('homepage unsupported claim '+stale)
+for required in ['measured operating conditions associated with observed administrative burden','when supported by disclosed sizing inputs','When the required sizing inputs are present and valid']:
+ if required not in idx:e.append('homepage bounded claim '+required)
+signal=(r/'plan-signal.html').read_text(errors='ignore')
+enterprise=(r/'plan-enterprise.html').read_text(errors='ignore')
+for stale in ['What no study and no chatbot can do','A cadence no study can match']:
+ if stale in signal:e.append('Signal competitive absolute '+stale)
+if 'calibration, validation, and comparability requirements defined explicitly' not in enterprise:
+ e.append('Enterprise bespoke-instrument qualification')
+diagnostics=(r/'diagnostics.html').read_text(errors='ignore')
+for stale in ['Under Development','Privacy Policy']:
+ if stale in diagnostics:e.append('Diagnostics stale public state '+stale)
 
 # The two compact promotional report placements must remain a defensible
 # composite of generated Depth output. Keep the data contract, the responsive
@@ -170,6 +192,10 @@ if re.search(r'<img[^>]*?/\s+loading="lazy">',idx,re.I):
  e.append('malformed homepage lazy-load img markup')
 for name in ['decision-velocity.html','operational-systems.html','structural-clarity.html','institutional-performance.html']:
  t=(r/name).read_text(errors='ignore')
+ if 'This usually takes about one to two minutes.' not in t or 'Please allow up to two minutes and keep this window open.' not in t:
+  e.append(name+': truthful finalization expectation')
+ if 'takes just a few seconds' in t or 'This usually takes a few seconds' in t:
+  e.append(name+': stale finalization expectation')
  for url in ['chart.js@4.5.1/dist/chart.umd.min.js','html2canvas/1.4.1/html2canvas.min.js','jspdf/2.5.1/jspdf.umd.min.js','@supabase/supabase-js@2.111.0']:
   tags=[m.group(0) for m in re.finditer(r'<script\s+[^>]*src="[^"]*'+re.escape(url)+r'[^"]*"[^>]*>',t,re.I)]
   if not tags or not any('integrity=' in tag and 'crossorigin=' in tag and re.search(r'\bdefer\b',tag,re.I) for tag in tags):
@@ -220,10 +246,10 @@ for name in ['sample-report.html','decision-velocity.html','operational-systems.
 
 # Public beta privacy/security disclosures must match current architecture and trial rules.
 privacy=(r/'privacy.html').read_text(errors='ignore')
-for token in ['Last updated: August 24, 2026','currently in public beta','one-time Pattern-trial anti-abuse record','survive Workspace deletion','Anthropic\'s commercial API','not used to train its models by default','automatically deleted from its backend within 30 days','Stripe handles payment details','does not receive or store your full card number','anonymous campaign responses','authorized Monderman personnel','first-party browser storage for Supabase authentication','not directed to children']:
+for token in ['Last updated: August 26, 2026','currently in public beta','one-time Pattern-trial anti-abuse record','survive Workspace deletion','Anthropic\'s commercial API','not used to train its models by default','automatically deleted from its backend within 30 days','Stripe handles payment details','does not receive or store your full card number','anonymous campaign responses','authorized Monderman personnel','first-party browser storage for Supabase authentication','not directed to children','a South Dakota limited liability company','41 W Highway 14, Unit #1225','Spearfish, SD 57783']:
  if token.lower() not in privacy.lower():e.append('privacy disclosure '+token)
 security=(r/'security.html').read_text(errors='ignore')
-for token in ['currently in public beta','Ordinary Diagnostics require a signed-in member session','Directed campaign assignment links','All public Postgres tables currently have row-level security enabled','public publishable key','service-role database credentials','Anthropic\'s commercial API','durable one-time redemption record','Deleting a Workspace therefore does not create another trial','does not currently claim SOC 2','four-hour cutoff','durable Supabase snapshot','plan, usage, billing and stored Diagnostic result fields remain server-managed','request-size and rate limits']:
+for token in ['currently in public beta','Ordinary Diagnostics require a signed-in member session','Directed campaign assignment links','All public Postgres tables currently have row-level security enabled','public publishable key','service-role database credentials','Anthropic\'s commercial API','durable one-time redemption record','Deleting a Workspace therefore does not create another trial','does not currently claim SOC 2','four-hour cutoff','durable Supabase snapshot','plan, usage, billing and stored Diagnostic result fields remain server-managed','request-size and rate limits','Controlled release checks currently cover current Chrome/Chromium and automated WebKit rendering','Native Safari and browser-managed print dialogs remain beta and best-effort']:
  if token.lower() not in security.lower():e.append('security disclosure '+token)
 for stale in ['A person can run a scored Diagnostic without signing in','an unauthenticated request holds no read or write permission on any table']:
  if stale in security:e.append('security stale claim '+stale)
@@ -283,7 +309,7 @@ for name in ['index.html','why-monderman.html']:
 
 # Public beta Terms must exist and remain wired at acceptance points.
 terms=(r/'terms.html').read_text(errors='ignore')
-for token in ['Public Beta Terms of Use','Version 2026-08-24-beta','does not auto-renew','once per eligible account identity','not legal, medical, accounting, investment, safety, employment','not designed, validated or offered as employee-selection procedures','must not attempt to identify an anonymous Participant','The Customer will defend, indemnify and hold harmless Monderman','connect@monderman.com','privacy.html','security.html']:
+for token in ['Public Beta Terms of Use','Version 2026-08-26-beta','does not auto-renew','once per eligible account identity','not legal, medical, accounting, investment, safety, employment','not designed, validated or offered as employee-selection procedures','must not attempt to identify an anonymous Participant','The Customer will defend, indemnify and hold harmless Monderman','a South Dakota limited liability company','41 W Highway 14, Unit #1225','Spearfish, SD 57783','connect@monderman.com','privacy.html','security.html']:
  if token not in terms:e.append('public beta terms '+token)
 trial=(r/'pattern-trial.html').read_text(errors='ignore')
 for token in ['href="terms.html"','href="privacy.html"','I agree to the']:

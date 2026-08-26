@@ -2805,7 +2805,7 @@
 
 <div class="data-line" role="note" aria-label="Data handling">
   <p>
-    <strong>Diagnostics run in your browser.</strong> Generating your read involves secure processing by Monderman and its subprocessors; your data is handled in confidence, not sold, and processed only as described in the Privacy Policy. <a href="privacy.html">Read the data policy →</a>
+    <strong>Diagnostics run in your browser.</strong> Generating your read involves secure processing by Monderman and its subprocessors; your data is handled in confidence, not sold, and processed only as described in the Privacy Notice. <a href="privacy.html">Read the data notice →</a>
   </p>
 </div>
 
@@ -2980,17 +2980,6 @@
   </main>
   </div>
   <script>document.getElementById("legacyDiagnosticsPage")?.remove();</script>
-
-  <div class="under-development-modal" id="underDevelopmentModal" aria-hidden="true">
-    <div class="under-development-panel" role="dialog" aria-modal="true" aria-labelledby="underDevelopmentTitle">
-      <p class="under-development-kicker">Diagnostic portal</p>
-      <h3 id="underDevelopmentTitle">Under Development</h3>
-      <p id="underDevelopmentCopy">This diagnostic is currently under development and is not yet available.</p>
-      <div class="under-development-actions">
-        <button class="btn btn-accent" id="underDevelopmentCloseBtn" type="button">Return</button>
-      </div>
-    </div>
-  </div>
 
   <div id="turnstilePreload" aria-hidden="true" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;"></div>
   <div class="cf-modal" id="turnstileModal" aria-hidden="true">
@@ -3663,7 +3652,6 @@
       "structural-clarity.html",
       "institutional-performance.html"
     ]);
-    const UNDER_DEVELOPMENT_PATHS = new Map([]);
     const TURNSTILE_TOKEN_KEY = "mondermanTurnstileTokenV1";
     const TURNSTILE_TIMEOUT_MS = 10000;
     const TURNSTILE_SESSION_MS = 25 * 60 * 1000;
@@ -3673,10 +3661,6 @@
     const turnstilePreload = document.getElementById("turnstilePreload");
     const turnstileStatus = document.getElementById("turnstileStatus");
     const turnstileCancelBtn = document.getElementById("turnstileCancelBtn");
-    const underDevelopmentModal = document.getElementById("underDevelopmentModal");
-    const underDevelopmentTitle = document.getElementById("underDevelopmentTitle");
-    const underDevelopmentCopy = document.getElementById("underDevelopmentCopy");
-    const underDevelopmentCloseBtn = document.getElementById("underDevelopmentCloseBtn");
 
     let pendingDiagnosticUrl = "";
     let visibleTurnstileId = null;
@@ -3747,22 +3731,6 @@
     function onTurnstileUnavailable() {
       turnstileScriptFailed = true;
       setTurnstileStatus("Verification service unavailable. Please try again in a moment or contact support.", "error");
-    }
-    function openUnderDevelopmentModal(toolName) {
-      if (!underDevelopmentModal) return;
-      if (underDevelopmentTitle) underDevelopmentTitle.textContent = "Under Development";
-      if (underDevelopmentCopy) {
-        underDevelopmentCopy.textContent = `${toolName || "This diagnostic"} is currently under development and is not yet available from the hub.`;
-      }
-      underDevelopmentModal.classList.add("show");
-      underDevelopmentModal.setAttribute("aria-hidden", "false");
-      document.body.style.overflow = "hidden";
-    }
-    function closeUnderDevelopmentModal() {
-      if (!underDevelopmentModal) return;
-      underDevelopmentModal.classList.remove("show");
-      underDevelopmentModal.setAttribute("aria-hidden", "true");
-      document.body.style.overflow = "";
     }
     function navigateToProtectedDiagnostic(target) {
       if (!target) return;
@@ -3867,18 +3835,6 @@
       });
     }
 
-    if (underDevelopmentCloseBtn) {
-      underDevelopmentCloseBtn.addEventListener("click", closeUnderDevelopmentModal);
-    }
-
-    if (underDevelopmentModal) {
-      underDevelopmentModal.addEventListener("click", (event) => {
-        if (event.target === underDevelopmentModal) {
-          closeUnderDevelopmentModal();
-        }
-      });
-    }
-
     if (turnstileModal) {
       turnstileModal.addEventListener("click", (event) => {
         if (event.target === turnstileModal) {
@@ -3893,19 +3849,11 @@
         pendingDiagnosticUrl = "";
         closeTurnstileModal();
       }
-      if (event.key === "Escape" && underDevelopmentModal && underDevelopmentModal.classList.contains("show")) {
-        closeUnderDevelopmentModal();
-      }
     });
 
     document.querySelectorAll("a.diagnostic-link[href]").forEach((link) => {
       link.addEventListener("click", (event) => {
         const href = link.getAttribute("href") || "";
-        if (UNDER_DEVELOPMENT_PATHS.has(href)) {
-          event.preventDefault();
-          openUnderDevelopmentModal(UNDER_DEVELOPMENT_PATHS.get(href));
-          return;
-        }
         if (!PROTECTED_DIAGNOSTIC_PATHS.has(href)) return;
 
         // Always intercept a protected diagnostic; decide sign-in vs. proceed.
