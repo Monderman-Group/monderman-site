@@ -1691,7 +1691,7 @@ if (_ma && _ma.active && _ma.active() && !_ma.showsResults()) {
 message = "Please keep this window open — closing it now will discard your responses.";
 var _h3 = document.querySelector("#processingStage .processing-card h3");
 if (_h3) _h3.textContent = "Submitting your responses";
-if (processingHelp) processingHelp.textContent = "Your responses are being scored and recorded for your organization. This takes just a few seconds.";
+if (processingHelp) processingHelp.textContent = "Your responses are being scored and recorded for your organization. Please allow up to two minutes and keep this window open.";
 processingItems.forEach(function (it, i) { it.style.display = i === 0 ? "" : "none"; });
 var _lbl = processingItems[0] && processingItems[0].querySelector("span:last-child");
 if (_lbl) _lbl.textContent = "Recording your responses securely";
@@ -1705,7 +1705,7 @@ item.classList.toggle("is-complete", idx < index);
 
 function resetProcessingUI() {
 if (processingHelp) {
-processingHelp.textContent = "This usually takes a few seconds. The adaptive engine is finalizing scoring, checking contradiction and bypass signals, estimating directional exposure, and assembling the final readout.";
+processingHelp.textContent = "This usually takes about one to two minutes. The adaptive engine is finalizing scoring, checking contradiction and bypass signals, estimating directional exposure, and assembling the final readout.";
 }
 setProcessingStep(-1, "Initializing output sequence...");
 }

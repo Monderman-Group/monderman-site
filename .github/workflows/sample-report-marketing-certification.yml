@@ -146,6 +146,7 @@ jobs:
           node --check scripts/homepage_assistant_smoke.mjs
           node --check scripts/sample_tile_smoke.mjs
           node --check scripts/mobile_site_presentation_smoke.mjs
+          node --check scripts/cross_browser_public_release_smoke.mjs
           node scripts/diagnostic_draft_recovery_smoke.mjs
           node scripts/signin_email_otp_smoke.mjs
           node scripts/workspace_legal_gate_smoke.mjs
@@ -160,7 +161,7 @@ jobs:
       - name: Install browser tooling
         run: |
           npm install --no-save --package-lock=false playwright@1.55.0
-          npx playwright install --with-deps chromium
+          npx playwright install --with-deps chromium webkit
 
       - name: Serve candidate
         run: |
@@ -197,6 +198,9 @@ jobs:
         env:
           REPORT_OUT: /tmp/report-presentation-smoke
         run: node scripts/report_pdf_smoke.mjs
+
+      - name: Verify Chromium and WebKit public release surfaces
+        run: node scripts/cross_browser_public_release_smoke.mjs
 
       - name: Upload rendered evidence
         if: always()

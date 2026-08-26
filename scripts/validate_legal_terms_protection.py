@@ -5,7 +5,7 @@ import re
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TERMS_VERSION = "2026-08-24-beta"
+TERMS_VERSION = "2026-08-26-beta"
 ACKNOWLEDGEMENT = (
     "financial, time, capacity, productivity and recovery figures are directional estimates, "
     "not guaranteed outcomes, and that my organization is responsible for its data, decisions, "
@@ -70,8 +70,13 @@ def validate():
         "requires fresh affirmative acceptance"
     ], "protective Terms")
 
-    if "South Dakota" in terms:
-        raise AssertionError("protective Terms changed the reviewed Alabama governing-law choice")
+    require(terms, [
+        "a South Dakota limited liability company",
+        "41 W Highway 14, Unit #1225",
+        "Spearfish, SD 57783",
+        "laws of the State of Alabama",
+        "courts serving Madison County, Alabama"
+    ], "entity identity and unchanged governing-law choice")
     if re.search(r"<input[^>]+(?:checked|value=[\"']?true)", signin, re.I):
         raise AssertionError("sign-in legal acceptance must not be preselected")
     require(signin, [
@@ -138,8 +143,8 @@ def validate():
             raise AssertionError(f"legal document manifest {key} does not match reviewed content")
 
     document_manifest = manifest.get("documents") or {}
-    if set(document_manifest) != {"2026-08-20-beta", TERMS_VERSION}:
-        raise AssertionError("legal document manifest must retain exactly the prior and current beta versions")
+    if set(document_manifest) != {"2026-08-20-beta", "2026-08-24-beta", TERMS_VERSION}:
+        raise AssertionError("legal document manifest must retain every prior and current beta version")
     for version, files in document_manifest.items():
         for file_key, hash_key in [
             ("terms_file", "terms_file_sha256"),

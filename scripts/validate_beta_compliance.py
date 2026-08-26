@@ -92,9 +92,9 @@ def validate():
 
     privacy = (ROOT / "privacy.html").read_text(errors="ignore")
     require(privacy, [
-        "Version 2026-08-24-beta", "Subprocessors and infrastructure page",
+        "Version 2026-08-26-beta", "Subprocessors and infrastructure page",
         "does not currently display a nonessential-cookie opt-in banner",
-        "Monderman, LLC", "Alabama, United States", "generally acts as the controller or business",
+        "Monderman, LLC", "a South Dakota limited liability company", "41 W Highway 14, Unit #1225", "Spearfish, SD 57783", "generally acts as the controller or business",
         "generally acts as the customer's processor or service provider",
         "performance of a contract", "legitimate interests", "does not treat a participant's acknowledgement",
         "In-progress Diagnostic recovery sessions expire after four hours",
@@ -111,11 +111,11 @@ def validate():
     assert_no_drafting_markers(privacy, "Privacy Notice")
     terms = (ROOT / "terms.html").read_text(errors="ignore")
     require(terms, [
-        "Version 2026-08-24-beta", "affirmative agreement", "Terms version",
+        "Version 2026-08-26-beta", "affirmative agreement", "Terms version",
         "Privacy Notice version", "database-server timestamp", "source/context",
         "normalized account email verified at acceptance", "organization name verified at acceptance",
         "seven-year legal-acceptance retention period",
-        "Monderman, LLC", "Alabama, United States", "requires no payment card, ends automatically",
+        "Monderman, LLC", "a South Dakota limited liability company", "41 W Highway 14, Unit #1225", "Spearfish, SD 57783", "requires no payment card, ends automatically",
         "does not convert to a paid subscription", "non-refundable except where applicable law requires",
         "Cancellation prevents a future renewal", "“as is” and “as available”",
         "12 months immediately preceding", "US $100 if the claim relates only to free beta use",
