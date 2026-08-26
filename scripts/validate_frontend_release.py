@@ -225,12 +225,12 @@ for name in ['decision-velocity.html','operational-systems.html','structural-cla
 
 # Pattern beta trial contract: no card, identity-scoped one-use, non-renewing.
 trial=(r/'pattern-trial.html').read_text(errors='ignore')
-for token in ['Use the full Pattern Workspace for 30 days.','No card is required to start','does not renew automatically','/api/billing/start-pattern-trial','pattern_trial_already_used','trial_requires_admin','Nothing was charged','One Pattern trial per eligible account identity','Deleting or replacing a Workspace does not reset eligibility','ackStart','starts immediately when I continue','Your saved work is retained. Standard Trial access limits apply after day 30','Pattern &middot; 30-day Beta trial']:
+for token in ['Use the full Pattern Workspace for 30 days.','No card is required to start','does not renew automatically','/api/billing/start-pattern-trial','pattern_trial_already_used','trial_requires_admin','Nothing was charged','One Pattern pilot per eligible account identity','Deleting or replacing a Workspace does not reset eligibility','ackStart','starts immediately when I continue','Your saved work is retained. Standard Trial access limits apply after day 30','Pattern &middot; Private 30-day pilot','id="pilotInvitationCode"','autocomplete="off"','invitation_code:invitationCode','pattern_invitation_invalid','pattern_invitation_rate_limited','is not stored in browser storage']:
  if token not in trial:e.append('pattern trial contract '+token)
 for stale in ['One Pattern trial per Workspace','starts immediately for this Workspace','This Workspace has already used its one-time Pattern trial']:
  if stale in trial:e.append('pattern trial stale scope '+stale)
 pattern=(r/'plan-pattern.html').read_text(errors='ignore')
-for token in ['href="pattern-trial.html"','Start free 30-day Beta trial','No card required','does not renew automatically','One trial per eligible account identity','Deleting or replacing a Workspace does not reset eligibility','Pattern &middot; Public Beta']:
+for token in ['href="pattern-trial.html"','Enter pilot invitation','A Monderman pilot invitation code is required','No card required','does not renew automatically','One pilot per eligible account identity','Deleting or replacing a Workspace does not reset eligibility','Pattern &middot; Public Beta']:
  if token not in pattern:e.append('pattern trial entry '+token)
 shell=(r/'workspace-shell.js').read_text(errors='ignore')
 for token in ['subscription_status','pattern_trial_ends_at','org.subscription_status === "trialing"','Pattern trial · ${days} day']:
