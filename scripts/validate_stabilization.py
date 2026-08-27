@@ -52,12 +52,17 @@ for token in [
     "organization_selection_required",
     "Workspace for this trial",
     "This Pattern trial will start for",
-    "JSON.stringify({organization_id:organizationId,invitation_code:invitationCode})",
-    'id="pilotInvitationCode"',
+    "/api/billing/pattern-pilot-invitation",
+    'id="workspaceName"',
+    'sb.rpc("bootstrap_my_workspace"',
+    "JSON.stringify({organization_id:organizationId})",
+    "pattern_pilot_invitation_required",
     'source:"trial",organization_id:organizationId',
 ]:
     assert token in trial, f"Pattern organization selection contract missing {token}"
 assert ".limit(1)" not in trial
+for stale in ['id="pilotInvitationCode"', "invitation_code:invitationCode", "reusable invitation code"]:
+    assert stale not in trial, f"Pattern personalized invitation contract retained {stale}"
 
 checkout = (ROOT / "checkout.html").read_text()
 for token in [
