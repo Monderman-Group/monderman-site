@@ -236,6 +236,42 @@ shell=(r/'workspace-shell.js').read_text(errors='ignore')
 for token in ['subscription_status','pattern_trial_ends_at','org.subscription_status === "trialing"','Pattern trial · ${days} day']:
  if token not in shell:e.append('pattern trial shell '+token)
 
+# Private pilot feedback must remain identity-scoped, optional, context-light,
+# and visibly distinct from the public/general feedback channel.
+pilot_feedback=(r/'pilot-feedback.html').read_text(errors='ignore') if (r/'pilot-feedback.html').exists() else ''
+feedback_widget=(r/'feedback-widget.js').read_text(errors='ignore')
+if not pilot_feedback:
+ e.append('private pilot feedback page missing')
+else:
+ for token in [
+  'name="robots" content="noindex,nofollow,noarchive"',
+  '/api/pilot-feedback/access',
+  '/api/pilot-feedback',
+  'sb.auth.getUser()',
+  'sb.auth.getSession()',
+  'location.replace("signin.html?next="',
+  'id="feedbackForm" hidden',
+  'Pilot feedback is not available for this account.',
+  'is available only to verified Pattern pilot Workspace members',
+  'Diagnostic answers, scores, reports, billing information, and authentication data are never attached.',
+  'source_path:location.pathname',
+  'idempotency_key:idempotencyKey',
+ ]:
+  if token not in pilot_feedback:e.append('private pilot feedback contract '+token)
+ for forbidden in ['name="email"','access_token:','session_id:','diagnostic_answers:','report_content:','billing_details:']:
+  if forbidden in pilot_feedback:e.append('private pilot feedback forbidden browser field '+forbidden)
+ if 'pilot-feedback.html' in site:e.append('private pilot feedback page leaked into public sitemap')
+for token in [
+ 'https://monderman-api.onrender.com/api/feedback',
+ 'https://monderman-api.onrender.com/api/pilot-feedback/access',
+ 'function isWorkspaceSurface()',
+ 'function markPilotFeedbackEntry()',
+ "label.textContent = 'Pilot feedback'",
+ "location.href = 'pilot-feedback.html?surface='",
+ 'window.mondermanOpenFeedback = openFeedbackExperience',
+]:
+ if token not in feedback_widget:e.append('pilot feedback Workspace entry '+token)
+
 # Restrained Beta labeling belongs to the app shell and plan/trial pages, not outputs.
 for name in ['workspace.html','workspace-diagnostics.html','workspace-analysis.html','workspace-actions.html','workspace-settings.html']:
  if 'ws-beta-release' not in (r/name).read_text(errors='ignore'):

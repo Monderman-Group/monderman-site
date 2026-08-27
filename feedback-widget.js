@@ -18,6 +18,7 @@
   // The Render backend. The site is static (GitHub Pages), so this must be the
   // absolute API origin — exactly like the diagnostics and the site assistant.
   var API_URL = "https://monderman-api.onrender.com/api/feedback";
+  var PILOT_ACCESS_URL = "https://monderman-api.onrender.com/api/pilot-feedback/access";
 
   if (window.__mondermanFeedbackLoaded) return;   // never inject twice
   window.__mondermanFeedbackLoaded = true;
@@ -121,6 +122,54 @@
   var rating = 0;
   var open = false;
   var lastFocus = null;
+  var pilotAccessPromise = null;
+
+  function isWorkspaceSurface() {
+    return /\/(?:workspace(?:-[a-z-]+)?\.html)$/.test(location.pathname);
+  }
+
+  function pilotSurface() {
+    var page = location.pathname.split('/').pop() || '';
+    if (page === 'workspace-diagnostics.html') return 'diagnostics';
+    if (page === 'workspace-analysis.html') return 'analysis';
+    if (page === 'workspace-actions.html') return 'action_plans';
+    if (page === 'workspace-settings.html') return 'workspace';
+    return 'workspace';
+  }
+
+  async function pilotFeedbackAccess() {
+    if (!isWorkspaceSurface()) return false;
+    if (pilotAccessPromise) return pilotAccessPromise;
+    pilotAccessPromise = (async function () {
+      try {
+        var client = null;
+        if (typeof window.mondermanGetSupabaseClient === 'function') {
+          client = await window.mondermanGetSupabaseClient();
+        } else if (window.__mondermanSB) {
+          client = window.__mondermanSB;
+        }
+        if (!client) return false;
+        var sessionResult = await client.auth.getSession();
+        var token = sessionResult && sessionResult.data && sessionResult.data.session && sessionResult.data.session.access_token;
+        if (!token) return false;
+        var response = await fetch(PILOT_ACCESS_URL, { headers: { authorization: 'Bearer ' + token } });
+        return response.ok;
+      } catch (_error) {
+        return false;
+      }
+    })();
+    return pilotAccessPromise;
+  }
+
+  function markPilotFeedbackEntry() {
+    launch.setAttribute('aria-label', 'Share private pilot feedback');
+    var label = launch.querySelector('span');
+    if (label) label.textContent = 'Pilot feedback';
+    document.querySelectorAll('button[title="Send feedback"] span').forEach(function (railLabel) {
+      railLabel.textContent = 'Pilot feedback';
+      if (railLabel.parentElement) railLabel.parentElement.title = 'Share private pilot feedback';
+    });
+  }
 
   // --- build DOM --------------------------------------------------------------
   var root = document.createElement('div');
@@ -186,6 +235,11 @@
   function mount() {
     document.body.appendChild(root);
     wire();
+    if (isWorkspaceSurface()) {
+      pilotFeedbackAccess().then(function (allowed) {
+        if (allowed) markPilotFeedbackEntry();
+      });
+    }
   }
   if (document.body) mount();
   else document.addEventListener('DOMContentLoaded', mount);
@@ -255,7 +309,22 @@
       if (open && !panel.contains(e.target) && !launch.contains(e.target)) closePanel();
     }
 
-    launch.addEventListener('click', function () { open ? closePanel() : openPanel(); });
+    async function openFeedbackExperience() {
+      if (open) { closePanel(); return; }
+      launch.disabled = true;
+      try {
+        if (await pilotFeedbackAccess()) {
+          location.href = 'pilot-feedback.html?surface=' + encodeURIComponent(pilotSurface());
+          return;
+        }
+      } finally {
+        launch.disabled = false;
+      }
+      openPanel();
+    }
+
+    launch.addEventListener('click', openFeedbackExperience);
+    window.mondermanOpenFeedback = openFeedbackExperience;
     xBtn.addEventListener('click', closePanel);
     comment.addEventListener('input', function () { errComment.classList.remove('mdn-fb-show'); });
     email.addEventListener('input', function () { errEmail.classList.remove('mdn-fb-show'); });
@@ -337,5 +406,6 @@
         try { new MutationObserver(sync).observe(chatPanel, { attributes: true, attributeFilter: ['class'] }); } catch (e) {}
       }
     })();
+
   }
 })();

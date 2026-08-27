@@ -24,6 +24,8 @@ on:
       - 'research.html'
       - 'assistant.js'
       - 'connect-widget.js'
+      - 'feedback-widget.js'
+      - 'pilot-feedback.html'
       - 'self-diagnostic-draft.js'
       - 'workspace-access-gate.js'
       - 'workspace.html'
@@ -43,6 +45,7 @@ on:
       - 'scripts/workspace_legal_gate_smoke.mjs'
       - 'scripts/signin_email_otp_smoke.mjs'
       - 'scripts/signup_package_smoke.mjs'
+      - 'scripts/pilot_feedback_browser_smoke.mjs'
       - 'scripts/homepage_assistant_smoke.mjs'
       - 'scripts/sample_tile_smoke.mjs'
       - 'scripts/mobile_site_presentation_smoke.mjs'
@@ -82,6 +85,8 @@ on:
       - 'research.html'
       - 'assistant.js'
       - 'connect-widget.js'
+      - 'feedback-widget.js'
+      - 'pilot-feedback.html'
       - 'self-diagnostic-draft.js'
       - 'workspace-access-gate.js'
       - 'workspace.html'
@@ -101,6 +106,7 @@ on:
       - 'scripts/workspace_legal_gate_smoke.mjs'
       - 'scripts/signin_email_otp_smoke.mjs'
       - 'scripts/signup_package_smoke.mjs'
+      - 'scripts/pilot_feedback_browser_smoke.mjs'
       - 'scripts/homepage_assistant_smoke.mjs'
       - 'scripts/sample_tile_smoke.mjs'
       - 'scripts/mobile_site_presentation_smoke.mjs'
@@ -148,6 +154,7 @@ jobs:
           node --check scripts/mobile_site_presentation_smoke.mjs
           node --check scripts/cross_browser_public_release_smoke.mjs
           node --check scripts/personalized_pattern_pilot_browser_smoke.mjs
+          node --check scripts/pilot_feedback_browser_smoke.mjs
           node scripts/diagnostic_draft_recovery_smoke.mjs
           node scripts/signin_email_otp_smoke.mjs
           node scripts/workspace_legal_gate_smoke.mjs
@@ -182,6 +189,9 @@ jobs:
 
       - name: Verify personalized Pattern pilot acceptance
         run: node scripts/personalized_pattern_pilot_browser_smoke.mjs
+
+      - name: Verify private Pattern pilot feedback
+        run: node scripts/pilot_feedback_browser_smoke.mjs
 
       - name: Verify responsive generated-output sample tiles
         env:
