@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Private Pattern pilot feedback | Monderman</title>
+  <link rel="canonical" href="https://www.monderman.com/pilot-feedback.html" />
+  <meta name="robots" content="noindex,nofollow,noarchive" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <style>
+    @font-face{font-family:'Neue Haas Grotesk';src:url('55font.woff2') format('woff2'),url('55font.woff') format('woff');font-weight:400;font-style:normal;font-display:swap}
+    @font-face{font-family:'Neue Haas Grotesk';src:url('65font.woff2') format('woff2'),url('65font.woff') format('woff');font-weight:500;font-style:normal;font-display:swap}
+    @font-face{font-family:'Neue Haas Grotesk';src:url('75font.woff2') format('woff2'),url('75font.woff') format('woff');font-weight:700;font-style:normal;font-display:swap}
+    :root{--ink:#18191C;--deep:#08383E;--accent:#0C6E78;--accent-d:#0A5B63;--cream:#F7F4EC;--line:#E7E2D6;--muted:#686B70;--error:#8A3027;--error-bg:#FBEBE9;--ok:#285D43;--ok-bg:#EAF4EE}
+    *{box-sizing:border-box}html{background:var(--cream)}body{margin:0;background:var(--cream);color:var(--ink);font-family:'Neue Haas Grotesk',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+    .skip-link{position:fixed;left:14px;top:10px;z-index:1000;transform:translateY(-160%);background:#fff;color:var(--deep);padding:10px 14px;border-radius:7px;font-weight:700}.skip-link:focus{transform:none}
+    header{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 34px;background:var(--deep);border-bottom:1px solid rgba(255,255,255,.08)}
+    header a{color:rgba(245,241,232,.86);text-decoration:none;font-size:.9375rem;line-height:1.2;font-weight:500}header a:hover,header a:focus-visible{color:#fff}.brand{display:inline-flex;align-items:center;font-size:1.32rem!important;font-weight:700!important;letter-spacing:-.02em;color:#fff!important}.brand-dot{width:6px;height:6px;margin-left:10px;background:var(--accent);border-radius:1px;display:inline-block;transform:translateY(-1px)}
+    main{width:min(760px,100%);margin:34px auto 72px;padding:0 22px}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:34px;box-shadow:0 10px 34px rgba(8,56,62,.07)}
+    .eyebrow{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;margin:0 0 9px}h1{margin:0 0 12px;font-size:clamp(28px,5vw,36px);line-height:1.08;letter-spacing:-.035em;color:var(--deep)}.lead{font-size:15.5px;line-height:1.65;color:var(--muted);margin:0 0 22px;max-width:660px}
+    .access{display:flex;align-items:flex-start;gap:12px;margin:20px 0 0;padding:15px 16px;border:1px solid rgba(12,110,120,.25);border-radius:11px;background:#EDF4F4;color:#33484B;font-size:13.5px;line-height:1.55}.access strong{display:block;color:var(--deep);margin-bottom:2px}.access-dot{width:9px;height:9px;margin-top:6px;border-radius:50%;background:var(--accent);flex:0 0 auto}.access[data-state="denied"]{border-color:#D8A59F;background:var(--error-bg);color:var(--error)}.access[data-state="denied"] .access-dot{background:#B4473B}
+    form{margin-top:28px}.field{margin:0 0 22px}.label,legend{display:block;padding:0;margin:0 0 8px;color:var(--deep);font-size:13px;font-weight:700;line-height:1.4}.hint{display:block;margin-top:4px;color:var(--muted);font-size:12.5px;font-weight:400;line-height:1.45}.optional{color:var(--muted);font-weight:500}
+    select,textarea{width:100%;border:1px solid #D8D4CA;border-radius:10px;background:#fff;color:var(--ink);font:500 16px/1.45 'Neue Haas Grotesk',sans-serif;padding:12px 13px}textarea{min-height:110px;resize:vertical}select:focus,textarea:focus,input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid rgba(12,110,120,.22);outline-offset:2px;border-color:var(--accent)}
+    fieldset{min-width:0;margin:0 0 22px;padding:0;border:0}.rating{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}.rating input{position:absolute;opacity:0;pointer-events:none}.rating label{display:grid;place-items:center;min-height:48px;border:1px solid #D8D4CA;border-radius:9px;background:#FCFBF8;color:var(--deep);font-weight:700;cursor:pointer}.rating input:checked+label{border-color:var(--accent);background:#DCEBEC;box-shadow:inset 0 0 0 1px var(--accent)}.rating input:focus-visible+label{outline:3px solid rgba(12,110,120,.22);outline-offset:2px}
+    .intent{display:flex;flex-wrap:wrap;gap:8px}.intent input{position:absolute;opacity:0;pointer-events:none}.intent label{display:inline-flex;align-items:center;min-height:42px;padding:9px 14px;border:1px solid #D8D4CA;border-radius:999px;background:#FCFBF8;color:var(--deep);font-size:14px;font-weight:600;cursor:pointer}.intent input:checked+label{border-color:var(--accent);background:#DCEBEC}.intent input:focus-visible+label{outline:3px solid rgba(12,110,120,.22);outline-offset:2px}
+    .follow{display:flex;gap:11px;align-items:flex-start;margin:4px 0 20px;padding:14px 15px;border:1px solid var(--line);border-radius:10px;background:#FCFBF8;color:#45494D;font-size:13.5px;line-height:1.5}.follow input{width:18px;height:18px;margin:1px 0 0;accent-color:var(--accent);flex:0 0 auto}
+    .privacy{margin:0 0 18px;color:var(--muted);font-size:12.5px;line-height:1.55}.privacy strong{color:#4A4E52}.actions{display:flex;align-items:center;gap:14px}.submit{min-width:180px;border:0;border-radius:9px;background:var(--accent);color:#fff;padding:14px 20px;font:700 15px 'Neue Haas Grotesk',sans-serif;cursor:pointer}.submit:hover{background:var(--accent-d)}.submit:disabled{opacity:.55;cursor:default}.cancel{color:var(--deep);font-size:14px;font-weight:600}
+    .msg{display:none;margin:0 0 18px;border-radius:9px;padding:13px 14px;font-size:13.5px;line-height:1.55}.msg.err{display:block;background:var(--error-bg);color:var(--error)}.msg.ok{display:block;background:var(--ok-bg);color:var(--ok)}.done{padding:28px 0 12px}.done h2{margin:0 0 8px;color:var(--deep);font-size:25px}.done p{margin:0 0 18px;color:var(--muted);line-height:1.6}.done a{color:var(--accent-d);font-weight:700}
+    [hidden]{display:none!important}
+    @media(max-width:640px){header{min-height:64px;padding:12px 18px}header .back-label{display:none}main{margin:22px auto 50px;padding:0 14px}.card{padding:24px 18px;border-radius:13px}.rating{gap:6px}.rating label{min-height:46px}.actions{align-items:stretch;flex-direction:column}.submit{width:100%}.cancel{text-align:center;padding:8px}.intent{gap:7px}.intent label{padding:8px 12px}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+  <link rel="stylesheet" href="visual-polish.css?v=20260823-4" />
+</head>
+<body class="transaction-surface">
+  <a class="skip-link" href="#main-content">Skip to feedback form</a>
+  <header><a class="brand" href="workspace.html">Monderman<span class="brand-dot"></span></a><a href="workspace.html">&larr; <span class="back-label">Back to </span>Workspace</a></header>
+  <main id="main-content">
+    <section class="card" aria-labelledby="pageTitle">
+      <p class="eyebrow">Pattern &middot; Private pilot</p>
+      <h1 id="pageTitle">Help us make Monderman better.</h1>
+      <p class="lead">Share what created value and what got in the way. The form takes about a minute, is optional, and is available only to verified Pattern pilot Workspace members.</p>
+      <div class="access" id="accessState" data-state="checking" role="status" aria-live="polite"><span class="access-dot" aria-hidden="true"></span><div><strong id="accessTitle">Verifying pilot access…</strong><span id="accessDetail">Please wait while Monderman confirms your pilot Workspace.</span></div></div>
+
+      <form id="feedbackForm" hidden novalidate>
+        <div class="msg" id="formMessage" role="alert" tabindex="-1"></div>
+        <div class="field">
+          <label class="label" for="surface">What were you working with?</label>
+          <select id="surface" name="surface" required>
+            <option value="">Select one…</option>
+            <option value="diagnostics">Diagnostics</option>
+            <option value="analysis">Analysis</option>
+            <option value="synthesis">Depth or Cross-Lens Synthesis</option>
+            <option value="reports">Reports or exports</option>
+            <option value="action_plans">Action Plans</option>
+            <option value="workspace">Workspace navigation or administration</option>
+            <option value="onboarding">Pilot onboarding</option>
+            <option value="other">Something else</option>
+          </select>
+        </div>
+
+        <fieldset>
+          <legend>How useful was this?<span class="hint">1 means not useful; 5 means extremely useful.</span></legend>
+          <div class="rating" id="usefulnessRating">
+            <input type="radio" name="usefulness" id="useful1" value="1"><label for="useful1">1</label>
+            <input type="radio" name="usefulness" id="useful2" value="2"><label for="useful2">2</label>
+            <input type="radio" name="usefulness" id="useful3" value="3"><label for="useful3">3</label>
+            <input type="radio" name="usefulness" id="useful4" value="4"><label for="useful4">4</label>
+            <input type="radio" name="usefulness" id="useful5" value="5"><label for="useful5">5</label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>How confident are you about what to do next?<span class="hint">1 means not confident; 5 means completely clear.</span></legend>
+          <div class="rating" id="confidenceRating">
+            <input type="radio" name="confidence" id="confident1" value="1"><label for="confident1">1</label>
+            <input type="radio" name="confidence" id="confident2" value="2"><label for="confident2">2</label>
+            <input type="radio" name="confidence" id="confident3" value="3"><label for="confident3">3</label>
+            <input type="radio" name="confidence" id="confident4" value="4"><label for="confident4">4</label>
+            <input type="radio" name="confidence" id="confident5" value="5"><label for="confident5">5</label>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <label class="label" for="whatWorked">What was most valuable? <span class="optional">(optional if you answer the next question)</span></label>
+          <textarea id="whatWorked" maxlength="2000" placeholder="The part you would keep, repeat, or use again."></textarea>
+        </div>
+        <div class="field">
+          <label class="label" for="whatBlocked">What was unclear, missing, or got in your way? <span class="optional">(optional if you answered above)</span></label>
+          <textarea id="whatBlocked" maxlength="2000" placeholder="The single biggest friction point is enough."></textarea>
+        </div>
+
+        <fieldset>
+          <legend>Would you consider continuing with Monderman? <span class="optional">(optional)</span></legend>
+          <div class="intent">
+            <input type="radio" name="continueIntent" id="continueYes" value="yes"><label for="continueYes">Yes</label>
+            <input type="radio" name="continueIntent" id="continueMaybe" value="maybe"><label for="continueMaybe">Maybe</label>
+            <input type="radio" name="continueIntent" id="continueNo" value="no"><label for="continueNo">No</label>
+            <input type="radio" name="continueIntent" id="continueNotSure" value="not_sure"><label for="continueNotSure">Too early to say</label>
+          </div>
+        </fieldset>
+        <div class="field">
+          <label class="label" for="continueReason">What would make continuing an obvious yes? <span class="optional">(optional)</span></label>
+          <textarea id="continueReason" maxlength="2000" placeholder="A capability, improvement, proof point, or outcome."></textarea>
+        </div>
+
+        <label class="follow"><input type="checkbox" id="followUp"><span><strong>Monderman may contact me about this feedback.</strong><br>Your sign-in email is included only when you select this option.</span></label>
+        <p class="privacy"><strong>Private, not anonymous.</strong> Monderman records your account, Workspace, role, pilot day, and the product area selected so the feedback has context. Diagnostic answers, scores, reports, billing information, and authentication data are never attached.</p>
+        <div class="actions"><button class="submit" id="submitBtn" type="submit">Send private feedback</button><a class="cancel" href="workspace.html">Return to Workspace</a></div>
+      </form>
+
+      <div class="done" id="doneState" hidden role="status" tabindex="-1"><h2>Thank you. We received it.</h2><p>Your feedback has been saved securely and sent to the Monderman team.</p><a href="workspace.html">Return to your Workspace</a></div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
+  <script type="module">
+    const SB_URL="https://ptkxrzgmeldalrkfruth.supabase.co";
+    const SB_KEY="sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
+    const API_BASE="https://monderman-api.onrender.com";
+    const sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});
+    const accessState=document.getElementById("accessState"),accessTitle=document.getElementById("accessTitle"),accessDetail=document.getElementById("accessDetail");
+    const form=document.getElementById("feedbackForm"),message=document.getElementById("formMessage"),submitBtn=document.getElementById("submitBtn"),done=document.getElementById("doneState");
+    const allowedSurfaces=new Set(["diagnostics","analysis","synthesis","reports","action_plans","workspace","onboarding","other"]);
+    let token="";
+    let idempotencyKey=crypto.randomUUID();
+    function deny(title,detail){accessState.dataset.state="denied";accessTitle.textContent=title;accessDetail.textContent=detail;form.hidden=true;}
+    function showError(text){message.textContent=text;message.className="msg err";message.focus();}
+    function selected(name){return form.querySelector(`input[name="${name}"]:checked`)?.value||null;}
+    function safeSurface(){const requested=new URLSearchParams(location.search).get("surface")||"";return allowedSurfaces.has(requested)?requested:"";}
+    try{
+      const [{data:userData},{data:sessionData}]=await Promise.all([sb.auth.getUser(),sb.auth.getSession()]);
+      token=sessionData?.session?.access_token||"";
+      if(!userData?.user||!token){
+        location.replace("signin.html?next="+encodeURIComponent("pilot-feedback.html"+(location.search||"")));
+      }else{
+        const response=await fetch(API_BASE+"/api/pilot-feedback/access",{headers:{authorization:"Bearer "+token}});
+        const result=await response.json().catch(()=>({}));
+        if(response.status===401){location.replace("signin.html?next="+encodeURIComponent("pilot-feedback.html"+(location.search||"")));}
+        else if(!response.ok||!result.ok){deny("Pilot feedback is not available for this account.","This private page is limited to verified Pattern pilot Workspace members during the pilot and seven-day follow-up window.");}
+        else{
+          const access=result.access||{};
+          accessState.dataset.state="verified";
+          accessTitle.textContent=`Verified for ${access.organizationName||"your pilot Workspace"}`;
+          accessDetail.textContent=Number(access.trialDay)>30?"Post-pilot feedback window":`Pilot day ${access.trialDay||"—"} · ${access.role||"member"}`;
+          form.hidden=false;
+          const surface=safeSurface();if(surface)document.getElementById("surface").value=surface;
+        }
+      }
+    }catch(_error){deny("Pilot access could not be verified.","Please reload the page. If the problem continues, email connect@monderman.com.");}
+
+    form.addEventListener("submit",async(event)=>{
+      event.preventDefault();message.className="msg";
+      const surface=document.getElementById("surface").value;
+      const usefulness=selected("usefulness"),confidence=selected("confidence");
+      const whatWorked=document.getElementById("whatWorked").value.trim(),whatBlocked=document.getElementById("whatBlocked").value.trim();
+      if(!surface||!usefulness||!confidence){showError("Choose a product area and both ratings before sending.");return;}
+      if(!whatWorked&&!whatBlocked){showError("Add one short note about what was valuable or what got in your way.");return;}
+      submitBtn.disabled=true;submitBtn.textContent="Sending…";
+      try{
+        const response=await fetch(API_BASE+"/api/pilot-feedback",{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+token},body:JSON.stringify({
+          surface,usefulness:Number(usefulness),confidence:Number(confidence),what_worked:whatWorked||null,what_blocked:whatBlocked||null,
+          continue_intent:selected("continueIntent"),continue_reason:document.getElementById("continueReason").value.trim()||null,
+          follow_up_requested:document.getElementById("followUp").checked,source_path:location.pathname,idempotency_key:idempotencyKey
+        })});
+        const result=await response.json().catch(()=>({}));
+        if(!response.ok||!result.ok)throw new Error(result.error||"pilot_feedback_failed");
+        form.hidden=true;accessState.hidden=true;done.hidden=false;done.focus();
+      }catch(error){
+        const rateLimited=error?.message==="pilot_feedback_rate_limited";
+        showError(rateLimited?"Several notes were sent recently. Please wait a few minutes and try again.":"Feedback could not be sent just now. Nothing was lost from Monderman. Please try again or email connect@monderman.com.");
+        submitBtn.disabled=false;submitBtn.textContent="Send private feedback";
+      }
+    });
+  </script>
+</body>
+</html>
