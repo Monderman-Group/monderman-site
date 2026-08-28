@@ -1817,6 +1817,9 @@
   justify-items: start;
   width: 100%;
   max-width: 100%;
+  position: relative;
+  z-index: 2;
+  padding-top: 28px;
 }
 .placeholder-cover-subline {
   display: block;
@@ -1844,6 +1847,7 @@
   --category-title: #FFFFFF;
   --category-subline: #9CC4C9;
   --category-label: #9CC4C9;
+  --category-motif: #A9D0D4;
 }
 .latest-card.category-brief {
   --category-accent: #0C6E78;
@@ -1851,6 +1855,7 @@
   --category-title: #0E3A44;
   --category-subline: #46656B;
   --category-label: #0C5D66;
+  --category-motif: #0C6E78;
 }
 .latest-card.category-perspective {
   --category-accent: #A86416;
@@ -1858,6 +1863,7 @@
   --category-title: #27221B;
   --category-subline: #725B3F;
   --category-label: #925914;
+  --category-motif: #8D632E;
 }
 .latest-card.category-research {
   --category-accent: #C9821F;
@@ -1885,14 +1891,73 @@
 .latest-card .placeholder-cover-subline { color: var(--category-subline); }
 .placeholder-cover-type {
   position: absolute;
-  right: 0;
-  bottom: 2px;
+  top: 0;
+  left: 0;
+  z-index: 3;
   color: var(--category-label);
   font-size: 0.61rem;
   line-height: 1;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+}
+.placeholder-cover-motif {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--category-motif);
+  opacity: 0.4;
+  pointer-events: none;
+}
+.placeholder-cover-motif-primary,
+.placeholder-cover-motif-secondary,
+.placeholder-cover-motif-construction,
+.placeholder-cover-motif-node,
+.placeholder-cover-motif-open-node {
+  vector-effect: non-scaling-stroke;
+}
+.placeholder-cover-motif-primary {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+.placeholder-cover-motif-secondary {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.75;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  opacity: 0.8;
+}
+.placeholder-cover-motif-construction {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.65;
+  stroke-dasharray: 2.5 4;
+  opacity: 0.55;
+}
+.placeholder-cover-motif-node {
+  fill: currentColor;
+  stroke: none;
+}
+.placeholder-cover-motif-open-node {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.05;
+}
+@media (max-width: 760px) {
+  .placeholder-cover:has(.placeholder-cover-chip) .placeholder-cover-stack {
+    gap: 5px;
+    padding-top: 20px;
+  }
+  .placeholder-cover:has(.placeholder-cover-chip) .placeholder-cover-subline {
+    font-size: 0.7rem;
+    line-height: 1.15;
+  }
 }
 .latest-card .latest-card-kicker { color: var(--category-accent); }
 .latest-card:hover { border-color: color-mix(in srgb, var(--category-accent) 24%, transparent); }
@@ -2905,6 +2970,32 @@
     </div>
   </div>
 </section>
+<svg aria-hidden="true" width="0" height="0" style="position:absolute;overflow:hidden">
+<defs>
+<symbol id="carousel-motif-register" viewBox="0 0 320 164">
+<path class="placeholder-cover-motif-construction" d="M198 143H315M280 62V159"></path>
+<path class="placeholder-cover-motif-primary" d="M219 133H291V79M291 96H314"></path>
+<path class="placeholder-cover-motif-secondary" d="M268 78V151M205 145H304"></path>
+<circle class="placeholder-cover-motif-open-node" cx="291" cy="79" r="10"></circle>
+<circle class="placeholder-cover-motif-node" cx="291" cy="133" r="2.1"></circle>
+</symbol>
+<symbol id="carousel-motif-tangent" viewBox="0 0 320 164">
+<path class="placeholder-cover-motif-construction" d="M193 149H314M304 58V159"></path>
+<path class="placeholder-cover-motif-primary" d="M219 149A85 85 0 0 1 304 64"></path>
+<path class="placeholder-cover-motif-secondary" d="M249 149A55 55 0 0 1 304 94M219 139H315M294 64V158"></path>
+<circle class="placeholder-cover-motif-open-node" cx="304" cy="64" r="6.5"></circle>
+<circle class="placeholder-cover-motif-node" cx="249" cy="149" r="2"></circle>
+</symbol>
+<symbol id="carousel-motif-aperture" viewBox="0 0 320 164">
+<path class="placeholder-cover-motif-construction" d="M200 151H315M307 59V159"></path>
+<circle class="placeholder-cover-motif-primary" cx="280" cy="119" r="29"></circle>
+<path class="placeholder-cover-motif-primary" d="M224 148H307V72"></path>
+<path class="placeholder-cover-motif-secondary" d="M211 136H294V59M280 82V155M242 119H315"></path>
+<circle class="placeholder-cover-motif-node" cx="280" cy="119" r="2.2"></circle>
+<circle class="placeholder-cover-motif-open-node" cx="307" cy="72" r="5.5"></circle>
+</symbol>
+</defs>
+</svg>
 <section aria-labelledby="latest-title" class="latest section-with-bar snap-anchor" id="latest">
 <div aria-hidden="true" class="section-bar">Latest from Monderman</div>
 <div class="latest-inner">
@@ -3292,6 +3383,26 @@
     const latestPrev = document.getElementById("latestPrev");
     const latestNext = document.getElementById("latestNext");
     const latestDots = document.getElementById("latestDots");
+    const latestMotifByCategory = {
+      insight: "carousel-motif-aperture",
+      brief: "carousel-motif-tangent",
+      perspective: "carousel-motif-register"
+    };
+    if (latestTrack) {
+      latestTrack.querySelectorAll(".latest-card").forEach((card) => {
+        const motifId = latestMotifByCategory[card.dataset.category];
+        const cover = card.querySelector(".placeholder-cover");
+        if (!motifId || !cover) return;
+        const motif = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+        motif.classList.add("placeholder-cover-motif");
+        motif.setAttribute("viewBox", "0 0 320 164");
+        motif.setAttribute("aria-hidden", "true");
+        use.setAttribute("href", `#${motifId}`);
+        motif.appendChild(use);
+        cover.appendChild(motif);
+      });
+    }
     const latestCards = latestTrack ? Array.from(latestTrack.querySelectorAll(".latest-card")) : [];
     const latestCardCount = latestCards.length;
     let latestTrackCards = latestCards;
