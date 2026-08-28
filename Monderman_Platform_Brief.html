@@ -46,6 +46,15 @@ details.detail{margin-top:18px;max-width:740px;border-top:1px solid var(--line);
 <link rel="stylesheet" href="sample-report-tile.css?v=20260824-depth4">
 <link rel="stylesheet" href="monderman-depth-lure-tile.css?v=20260825-mobile4">
 <link rel="stylesheet" href="mobile-site-polish.css?v=20260825-2">
+<style>
+/* The shared public-page polish reserves space for ordinary anchored sections.
+   Brief slides already account for the fixed header in their own padding, so
+   those shared offsets would make every snap target land 200px too early. */
+html{scroll-padding-top:0}
+.deck>.slide{scroll-margin-top:0;scroll-snap-stop:normal}
+@media(min-width:641px){html{scroll-snap-type:y proximity}}
+@media(prefers-reduced-motion:reduce){html{scroll-snap-type:none}}
+</style>
 </head>
 <body class="canonical-green-shell page-report">
 <a class="skip-link" href="#slide-1">Skip to brief</a>
