@@ -76,6 +76,14 @@ else:
   if token not in latest:e.append('homepage Built to Please card '+token)
 for token in ['linear-gradient(180deg, #103B44 0%, #0B343D 55%, #04282F 100%)','color: #9CC4C9;','background: #0E3A44;']:
  if token not in idx:e.append('homepage canonical research tile style '+token)
+for forbidden in [
+ '.latest-track .latest-card:nth-child(n+4){display:none;}',
+ '.latest-controls,.latest-dots{display:none!important;}',
+ 'grid-template-columns:repeat(3,minmax(0,1fr))!important;',
+]:
+ if forbidden in idx:e.append('homepage research carousel disabled by '+forbidden)
+if 'justify-items: start;' not in idx or 'text-align: left;' not in idx:
+ e.append('homepage research tile top-left editorial alignment')
 
 research=(r/'research.html').read_text(errors='ignore')
 for token in ['AI and Institutions','Three papers, one story.','Part 1','Part 2','Part 3','15 items · Updated August 2026','PDF · 8 documents']:
@@ -94,7 +102,7 @@ for token in ['border-left: 4px solid #0E3A44;','linear-gradient(90deg, #103B44 
 built_pdf=r/'Monderman_Insight_Built_to_Please_2026-08-27.pdf'
 if not built_pdf.exists():
  e.append('Built to Please PDF missing')
-elif hashlib.sha256(built_pdf.read_bytes()).hexdigest()!='3135b89bcbd6791fdb110dcd56e944789d3d3c5dbc2a9782a29272a3fa40673a':
+elif hashlib.sha256(built_pdf.read_bytes()).hexdigest()!='d60f33ee6e346abd365632f2ca185af321d1a7c517e6d530378bca1916e5ce13':
  e.append('Built to Please canonical PDF bytes changed')
 for stale in ['exactly as the engine renders it','Every read returns the result in your numbers','Monderman is the instrument that surfaces where these losses originate']:
  if stale in idx:e.append('homepage unsupported claim '+stale)

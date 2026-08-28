@@ -81,6 +81,33 @@ def validate(path: Path) -> None:
         )
         if not close(insight["x0"], 60.0):
             raise AssertionError("cover label does not begin at the 60-point margin")
+        insight_rules = [
+            line for line in cover.lines
+            if close(line["x0"], 59.976)
+            and close(line["x1"], 111.747)
+            and close(line["linewidth"], 2.0)
+            and tuple(line.get("stroking_color") or ()) == (1.0, 1.0, 1.0)
+        ]
+        if not insight_rules:
+            raise AssertionError("cover INSIGHT underline is not the specified 2-point white rule")
+        footer_rules = [
+            line for line in cover.lines
+            if close(line["x0"], 59.976)
+            and close(line["x1"], 552.024)
+            and close(line["linewidth"], 1.0)
+            and tuple(line.get("stroking_color") or ()) == (0.243137, 0.372549, 0.403922)
+        ]
+        if not footer_rules:
+            raise AssertionError("cover footer rule is not the specified 1 point")
+        bleed_fixes = [
+            rect for rect in cover.rects
+            if close(rect["x0"], 0.0)
+            and close(rect["x1"], 612.0)
+            and close(rect["bottom"], 792.0)
+            and tuple(rect.get("non_stroking_color") or ()) == (0.015686, 0.156863, 0.184314)
+        ]
+        if not bleed_fixes:
+            raise AssertionError("cover background does not reach the bottom media-box edge")
         require_word(
             cover, "Monderman", size=14.5, font_fragment="NHGX-Bold", color=(1.0, 1.0, 1.0)
         )
@@ -111,10 +138,23 @@ def validate(path: Path) -> None:
 
         references = document.pages[10]
         require_word(
-            references, "REFERENCES", size=10.0, font_fragment="NHGX-Bold", color=(0.078431, 0.094118, 0.105882)
+            references, "REFERENCES", size=10.0, font_fragment="75Bd", color=(0.078431, 0.094118, 0.105882)
         )
         require_word(
-            references, "1.", size=8.6, font_fragment="NHGX", color=(0.227451, 0.262745, 0.282353)
+            references, "1.", size=8.6, font_fragment="55Rg", color=(0.227451, 0.262745, 0.282353)
+        )
+        require_word(
+            references, "6.", size=8.6, font_fragment="55Rg", color=(0.227451, 0.262745, 0.282353)
+        )
+        references_continued = document.pages[11]
+        require_word(
+            references_continued, "REFERENCES", size=10.0, font_fragment="75Bd", color=(0.078431, 0.094118, 0.105882)
+        )
+        require_word(
+            references_continued, "7.", size=8.6, font_fragment="55Rg", color=(0.227451, 0.262745, 0.282353)
+        )
+        require_word(
+            references_continued, "12.", size=8.6, font_fragment="55Rg", color=(0.227451, 0.262745, 0.282353)
         )
 
         back = document.pages[12]
