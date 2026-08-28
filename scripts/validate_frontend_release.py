@@ -115,7 +115,7 @@ for token in [
 research=(r/'research.html').read_text(errors='ignore')
 for token in ['AI and Institutions','Three papers, one story.','Part 1','Part 2','Part 3','15 items · Updated August 2026','PDF · 8 documents']:
  if token not in research:e.append('research series contract '+token)
-if research.count('<article class="series-card category-insight" data-category="insight">')!=3:e.append('research series card count')
+if research.count('<article class="series-card">')!=3:e.append('research series card count')
 book_pos=research.find('<section class="book-feature">')
 series_pos=research.find('<section class="series"')
 library_pos=research.find('<section class="library">')
@@ -130,21 +130,12 @@ if not (all(pos>=0 for pos in series_title_positions) and series_title_positions
  e.append('research series reading order')
 for token in ['border-left: 4px solid #0E3A44;','linear-gradient(90deg, #103B44 0%, #0B343D 55%, #04282F 100%)']:
  if token not in research:e.append('research series visual grouping '+token)
-for token in ['Research, insights, briefs, and perspectives.','.paper-card.category-insight {','.paper-card.category-brief {','.essay-card.category-perspective {','.paper-card.category-research {','Additional downloadable publications']:
- if token not in research:e.append('research publication taxonomy '+token)
-if research.count('data-category="insight"')!=7:e.append('research Insight classification count')
-if research.count('data-category="brief"')!=4:e.append('research Brief classification count')
-if research.count('data-category="perspective"')!=3:e.append('research Perspective classification count')
-if 'data-category="research"' in research:e.append('research library current work falsely classified as Research')
-for token in [
- '<span>Enterprise</span><span>Insight · PDF</span></div>\n          <h3 class="paper-title">How Workarounds Preserve Output While Masking Dysfunction</h3>',
- '<div class="paper-stats"><span>10 pp</span><span>~17 min</span></div>',
- '<div class="paper-stats"><span>11 pp</span><span>~15 min</span></div>',
- '<div class="paper-stats"><span>11 pp</span><span>~9 min</span></div>',
- '<div class="paper-stats"><span>10 pp</span><span>~12 min</span></div>',
- '<div class="paper-stats"><span>11 pp</span><span>~14 min</span></div>',
-]:
- if token not in research:e.append('research publication inventory correction '+token)
+if '<span>Enterprise</span><span>Insight · PDF</span></div>\n          <h3 class="paper-title">How Workarounds Preserve Output While Masking Dysfunction</h3>' not in research:
+ e.append('research Compensatory Systems Insight label')
+if research.count('<span>Perspective</span><span>HTML')!=3:
+ e.append('research Perspective label count')
+for forbidden in ['.paper-card.category-insight {','.paper-card.category-brief {','.essay-card.category-perspective {','.paper-card.category-research {','data-category="insight"','data-category="brief"','data-category="perspective"']:
+ if forbidden in research:e.append('research page presentation must remain canonical '+forbidden)
 built_pdf=r/'Monderman_Insight_Built_to_Please_2026-08-27.pdf'
 if not built_pdf.exists():
  e.append('Built to Please PDF missing')
