@@ -16,6 +16,66 @@
 
   var API_URL = "https://monderman-api.onrender.com/api/connect/send";
 
+  // Shared footer collision boundary. This is duplicated here so the Connect
+  // widget remains a true drop-in on pages that do not load the assistant.
+  function ensureFooterDock() {
+    if (window.__mondermanFooterDockController) return window.__mondermanFooterDockController;
+    var frame = 0;
+    var root = document.documentElement;
+    function visible(node) {
+      return node && window.getComputedStyle(node).display !== "none";
+    }
+    function stackBottom() {
+      var width = window.innerWidth;
+      var bottoms = [];
+      var assistantLauncher = document.getElementById("mnd-launcher");
+      var connectLauncher = document.querySelector(".mdn-cn-launch");
+      var assistantPanel = document.getElementById("mnd-panel");
+      if (visible(assistantLauncher)) bottoms.push(width <= 480 ? 16 : 20);
+      if (visible(connectLauncher)) bottoms.push(width <= 640 ? 84 : 90);
+      if (width > 480 && assistantPanel && assistantPanel.classList.contains("mnd-open") && visible(assistantPanel)) bottoms.push(90);
+      return bottoms.length ? Math.min.apply(Math, bottoms) : null;
+    }
+    function render() {
+      frame = 0;
+      var footer = document.querySelector(".mond-footer");
+      var base = stackBottom();
+      var viewportHeight = window.innerHeight || root.clientHeight;
+      var gap = window.innerWidth <= 640 ? 12 : 16;
+      var lift = footer && base != null
+        ? Math.max(0, Math.ceil(viewportHeight - footer.getBoundingClientRect().top - base + gap))
+        : 0;
+      var width = window.innerWidth;
+      var assistantLauncher = document.getElementById("mnd-launcher");
+      var connectLauncher = document.querySelector(".mdn-cn-launch");
+      var assistantPanel = document.getElementById("mnd-panel");
+      var connectPanel = document.getElementById("mdn-cn-panel");
+      if (assistantLauncher) assistantLauncher.style.setProperty("bottom", (width <= 480 ? 16 : 20) + lift + "px", "important");
+      if (connectLauncher) connectLauncher.style.setProperty("bottom", (width <= 640 ? 84 : 90) + lift + "px", "important");
+      if (assistantPanel) {
+        if (width <= 480) assistantPanel.style.removeProperty("bottom");
+        else assistantPanel.style.setProperty("bottom", 90 + lift + "px", "important");
+      }
+      if (connectPanel) connectPanel.style.setProperty("bottom", (width <= 640 ? 142 : 148) + lift + "px", "important");
+    }
+    function update() {
+      if (!frame) frame = window.requestAnimationFrame(render);
+    }
+    var controller = { update: update };
+    window.__mondermanFooterDockController = controller;
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update, { passive: true });
+    window.addEventListener("orientationchange", update, { passive: true });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", update, { passive: true });
+      window.visualViewport.addEventListener("scroll", update, { passive: true });
+    }
+    update();
+    return controller;
+  }
+
+  var footerDock = ensureFooterDock();
+
   var CSS = [
     '#mdn-cn-root,#mdn-cn-root *{box-sizing:border-box;}',
     '#mdn-cn-root{',
@@ -151,6 +211,7 @@
       '</div>');
 
     root.appendChild(launch); root.appendChild(panel); document.body.appendChild(root);
+    footerDock.update();
 
     var $ = function (id) { return panel.querySelector('#' + id); };
     var step1 = $('mdncn-step1'), step2 = $('mdncn-step2'), lbl = $('mdncn-steplabel'), status = $('mdncn-status');
@@ -164,6 +225,7 @@
     function setOpen(open) {
       panel.classList.toggle('mdn-cn-open', open);
       launch.setAttribute('aria-expanded', String(open));
+      footerDock.update();
       if (open) { var f = panel.querySelector('input, textarea'); f && f.focus(); }
     }
     function v(id) { var n = $('mdncn-' + id); return n ? String(n.value || '').trim() : ''; }

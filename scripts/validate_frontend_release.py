@@ -218,7 +218,7 @@ else:
   '@container monderman-composite (max-width:520px)',
  ]:
   if token not in lure_tile_css:e.append('in-chat source sample tile contract '+token)
-if '<script src="assistant.js" defer></script>' not in idx:
+if '<script src="assistant.js?v=20260828-footer-dock4" defer></script>' not in idx:
  e.append('homepage assistant loader missing')
 if re.search(r'^\s*#mnd-launcher\s*\{[^}]*display\s*:\s*none',idx,re.I|re.M):
  e.append('homepage assistant launcher hidden')

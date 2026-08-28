@@ -55,6 +55,67 @@
   var API_URL    = "https://monderman-api.onrender.com/api/site-assistant";
   var STORAGE_KEY = "mndAssistantHistory";              // survives page-to-page within a tab
   var GREETING   = "Hi — I can help you find your way around Monderman. Ask about the four diagnostics, how to run one, or where something lives on the site.";
+
+  // Keep the floating controls out of the footer. The lowest visible widget is
+  // treated as the bottom of one shared stack; when the footer reaches it, the
+  // stack rises with the footer and then leaves the viewport with the page.
+  function ensureFooterDock() {
+    if (window.__mondermanFooterDockController) return window.__mondermanFooterDockController;
+    var frame = 0;
+    var root = document.documentElement;
+    function visible(node) {
+      return node && window.getComputedStyle(node).display !== "none";
+    }
+    function stackBottom() {
+      var width = window.innerWidth;
+      var bottoms = [];
+      var assistantLauncher = document.getElementById("mnd-launcher");
+      var connectLauncher = document.querySelector(".mdn-cn-launch");
+      var assistantPanel = document.getElementById("mnd-panel");
+      if (visible(assistantLauncher)) bottoms.push(width <= 480 ? 16 : 20);
+      if (visible(connectLauncher)) bottoms.push(width <= 640 ? 84 : 90);
+      if (width > 480 && assistantPanel && assistantPanel.classList.contains("mnd-open") && visible(assistantPanel)) bottoms.push(90);
+      return bottoms.length ? Math.min.apply(Math, bottoms) : null;
+    }
+    function render() {
+      frame = 0;
+      var footer = document.querySelector(".mond-footer");
+      var base = stackBottom();
+      var viewportHeight = window.innerHeight || root.clientHeight;
+      var gap = window.innerWidth <= 640 ? 12 : 16;
+      var lift = footer && base != null
+        ? Math.max(0, Math.ceil(viewportHeight - footer.getBoundingClientRect().top - base + gap))
+        : 0;
+      var width = window.innerWidth;
+      var assistantLauncher = document.getElementById("mnd-launcher");
+      var connectLauncher = document.querySelector(".mdn-cn-launch");
+      var assistantPanel = document.getElementById("mnd-panel");
+      var connectPanel = document.getElementById("mdn-cn-panel");
+      if (assistantLauncher) assistantLauncher.style.setProperty("bottom", (width <= 480 ? 16 : 20) + lift + "px", "important");
+      if (connectLauncher) connectLauncher.style.setProperty("bottom", (width <= 640 ? 84 : 90) + lift + "px", "important");
+      if (assistantPanel) {
+        if (width <= 480) assistantPanel.style.removeProperty("bottom");
+        else assistantPanel.style.setProperty("bottom", 90 + lift + "px", "important");
+      }
+      if (connectPanel) connectPanel.style.setProperty("bottom", (width <= 640 ? 142 : 148) + lift + "px", "important");
+    }
+    function update() {
+      if (!frame) frame = window.requestAnimationFrame(render);
+    }
+    var controller = { update: update };
+    window.__mondermanFooterDockController = controller;
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update, { passive: true });
+    window.addEventListener("orientationchange", update, { passive: true });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", update, { passive: true });
+      window.visualViewport.addEventListener("scroll", update, { passive: true });
+    }
+    update();
+    return controller;
+  }
+
+  var footerDock = ensureFooterDock();
   /* ---- styles (scoped under #mnd-*) --------------------------------------- */
   var css = ''
     + '#mnd-launcher{position:fixed;right:20px;bottom:20px;z-index:2147483000;width:58px;height:58px;border:none;border-radius:999px;background:#0C6E78;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(24,22,18,.22);transition:transform .18s ease,background .18s ease}'
@@ -106,6 +167,7 @@
     + '<div id="mnd-foot"><textarea id="mnd-input" rows="1" placeholder="Ask about Monderman…" aria-label="Type your question"></textarea><button id="mnd-send">Send</button></div>';
   document.body.appendChild(launcher);
   document.body.appendChild(panel);
+  footerDock.update();
   // On the diagnostic tool pages, the run's own status messages sit bottom-right.
   // Dock the assistant bottom-left there so it never covers them. Detected by the
   // diagnostic's status container (#toastStack), which only those pages have —
@@ -156,8 +218,8 @@
     addMsg("assistant", GREETING);                      // greeting is client-only, never sent to the API
     history.forEach(function (m) { addMsg(m.role, m.content); });
   }
-  function open()  { panel.classList.add("mnd-open");  launcher.style.display = "none"; inputEl.focus(); }
-  function close() { panel.classList.remove("mnd-open"); launcher.style.display = ""; }
+  function open()  { panel.classList.add("mnd-open");  launcher.style.display = "none"; footerDock.update(); inputEl.focus(); }
+  function close() { panel.classList.remove("mnd-open"); launcher.style.display = ""; footerDock.update(); }
   async function send() {
     var text = inputEl.value.trim();
     if (!text || busy) return;
