@@ -1197,25 +1197,10 @@
         background: transparent;
       }
       .book-feature-cover { padding: 30px; border-right: 1px solid var(--card-line); display: flex; align-items: center; }
-      .bf-jacket { width: 178px; display: block; border-radius: 3px; box-shadow: 0 18px 36px rgba(148,94,18,0.22), 0 4px 10px rgba(24,22,18,0.14); }
+      .bf-jacket { width: 178px; height: auto; aspect-ratio: 2 / 3; object-fit: cover; display: block; border-radius: 3px; box-shadow: 0 18px 36px rgba(148,94,18,0.22), 0 4px 10px rgba(24,22,18,0.14); }
       .bf-cover-link { display: inline-block; transition: transform 200ms ease; }
       .bf-cover-link:hover { transform: translateY(-3px); }
       .bf-cover-link:focus-visible { outline: 2px solid #0C6E78; outline-offset: 4px; }
-      .bf-cover {
-        width: 178px; aspect-ratio: 5 / 7.6; position: relative;
-        background: linear-gradient(135deg,#D9953B 0%,#C9821F 55%,#A86A14 100%);
-        border-radius: 2px 6px 6px 2px; color: #18191C;
-        box-shadow: 0 18px 36px rgba(148,94,18,0.22), 0 4px 10px rgba(24,22,18,0.14);
-        display: flex; flex-direction: column; justify-content: space-between;
-        padding: 20px 18px 16px;
-      }
-      .bf-cover::before { content:""; position:absolute; left:8px; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.28); }
-      .bf-cover::after { content:""; position:absolute; right:-4px; top:5px; bottom:5px; width:4px; background:repeating-linear-gradient(90deg,#F4EFE6 0 1px,#D9D4C8 1px 2px); border-radius:0 2px 2px 0; }
-      .bf-cover-author { font-size:9px; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:rgba(24,25,28,0.64); }
-      .bf-cover-title { font-size:15px; font-weight:700; letter-spacing:-.02em; line-height:1.22; display:block; }
-      .bf-cover-rule { width:28px; height:2px; background:#18191C; margin:10px 0; display:block; }
-      .bf-cover-sub { font-size:9.5px; line-height:1.5; color:rgba(24,25,28,0.74); display:block; }
-      .bf-cover-imprint { font-size:9px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:rgba(24,25,28,0.55); }
       .book-feature-main { padding: 34px 32px; }
       .bf-title { margin: 0; font-size: clamp(1.5rem, 2.3vw, 2.05rem); line-height: 1.08; letter-spacing: -0.04em; color: var(--ink); }
       .bf-subtitle { margin: 8px 0 0; font-size: 1rem; color: rgba(24,22,18,0.66); letter-spacing: -0.01em; }
@@ -1233,15 +1218,7 @@
     <div class="book-feature-inner">
       <div class="book-feature-cover">
         <a class="bf-cover-link" href="https://www.routledge.com/Governance-Bureaucracy-and-Organization-Stewardship-Drift-and-Administrative-Capacity/Adamson/p/book/9781041403296" target="_blank" rel="noopener noreferrer" aria-label="View Governance, Bureaucracy and Organization at Routledge">
-        <div class="bf-cover" aria-hidden="true">
-          <span class="bf-cover-author">Jason Adamson</span>
-          <span>
-            <span class="bf-cover-title">Governance,<br/>Bureaucracy and<br/>Organization</span>
-            <span class="bf-cover-rule"></span>
-            <span class="bf-cover-sub">Stewardship, Drift, and<br/>Administrative Capacity</span>
-          </span>
-          <span class="bf-cover-imprint">Routledge</span>
-        </div>
+          <img class="bf-jacket" src="assets/books/governance-bureaucracy-organization-cover.png" width="720" height="1080" loading="lazy" decoding="async" alt="Governance, Bureaucracy and Organization: Stewardship, Drift, and Administrative Capacity by Jason Adamson">
         </a>
       </div>
       <div class="book-feature-main">
