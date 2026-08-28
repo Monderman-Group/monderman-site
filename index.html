@@ -439,10 +439,10 @@
     .latest-card-image--placeholder {
       position: relative;
       display: flex;
-      align-items: flex-end;
-      justify-content: flex-start;
-      padding: 20px;
-      background: #0C4A50;
+      align-items: stretch;
+      justify-content: stretch;
+      padding: 24px;
+      background: linear-gradient(180deg, #103B44 0%, #0B343D 55%, #04282F 100%);
       color: #FFFFFF;
       overflow: hidden;
     }
@@ -450,26 +450,51 @@
       display: none;
     }
     .latest-card-image--culture {
-      background: #0C4A50 !important;
+      background: linear-gradient(180deg, #103B44 0%, #0B343D 55%, #04282F 100%) !important;
     }
     .placeholder-cover {
       position: relative;
       z-index: 1;
       width: 100%;
-      display: flex;
-      align-items: flex-end;
+      display: grid;
+      align-content: start;
+      justify-items: end;
       min-height: 100%;
+      text-align: right;
     }
     .placeholder-cover-title {
       margin: 0;
-      max-width: 72%;
+      max-width: 16ch;
       font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-size: 1.78rem;
-      line-height: 0.96;
-      letter-spacing: -0.04em;
+      font-size: 1.5rem;
+      line-height: 1;
+      letter-spacing: -0.035em;
       font-weight: 700;
       text-wrap: balance;
       color: #FFFFFF;
+    }
+    .placeholder-cover-title.is-long {
+      max-width: 22ch;
+      font-size: 1.2rem;
+      line-height: 1.04;
+    }
+    .placeholder-cover-chip {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 0 10px;
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 4px;
+      background: #0E3A44;
+      color: #FFFFFF;
+      font-size: 0.64rem;
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
     }
     .placeholder-cover-top,
     .placeholder-cover-main,
@@ -1165,21 +1190,22 @@
       left: 0;
       height: 3px;
       width: 0%;
-      background: #C9821F;
+      background: #0E3A44;
       transition: width 420ms cubic-bezier(0.22,1,0.36,1);
       pointer-events: none;
       z-index: 2;
     }
     .latest-card:hover {
       transform: translateY(-3px);
-      border-color: rgba(12,110,120,0.14);
+      border-color: rgba(14,58,68,0.24);
       box-shadow: none;
     }
     .latest-card:hover::before { width: 100%; }
     .latest-card-image {
+      position: relative;
       aspect-ratio: 16 / 8.2;
       overflow: hidden;
-      background: #E0DCD2;
+      background: linear-gradient(180deg, #103B44 0%, #0B343D 55%, #04282F 100%);
     }
     .latest-card-image img {
       width: 100%;
@@ -1197,7 +1223,7 @@
       line-height: 1;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--accent);
+      color: #0E3A44;
     }
     .latest-card-title {
       margin: 0 0 9px;
@@ -1225,7 +1251,7 @@
     }
     .latest-card-link:hover,
     .latest-card-link:focus-visible {
-      color: var(--accent-dark);
+      color: #0E3A44;
       transform: translateX(1px);
       outline: none;
     }
@@ -1248,7 +1274,7 @@
     }
     .latest-dot.is-active {
       width: 22px;
-      background: var(--accent);
+      background: #0E3A44;
     }
     .connect {
       position: relative;
@@ -1761,6 +1787,7 @@
 .placeholder-cover-stack,
 .placeholder-cover-title,
 .placeholder-cover-subline,
+.placeholder-cover-chip,
 .placeholder-cover-top,
 .placeholder-cover-main,
 .placeholder-cover-brand,
@@ -1773,27 +1800,30 @@
   font-family: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 }
 
-/* Editorial carousel tile subtitle alignment */
+/* Canonical editorial tile: cover gradient with top-right title system. */
 .placeholder-cover {
-  align-items: flex-end;
+  align-content: start;
+  justify-items: end;
+  text-align: right;
 }
 .placeholder-cover-stack {
   display: grid;
-  gap: 10px;
-  align-items: end;
-  max-width: 84%;
+  gap: 8px;
+  justify-items: end;
+  width: 100%;
+  max-width: 100%;
 }
 .placeholder-cover-subline {
   display: block;
   margin: 0;
-  max-width: none;
-  font-size: 0.84rem;
-  line-height: 1.34;
+  max-width: 31ch;
+  font-size: 0.82rem;
+  line-height: 1.3;
   letter-spacing: -0.01em;
-  color: rgba(255,255,255,0.82);
+  color: #9CC4C9;
 }
 .placeholder-cover-title {
-  max-width: 100%;
+  max-width: 16ch;
 }
         .footer {
       position: relative;
@@ -2827,6 +2857,23 @@
 <div class="latest-viewport" id="latestViewport">
 <div class="latest-track" id="latestTrack">
 <article class="latest-card">
+<div aria-hidden="true" class="latest-card-image latest-card-image--placeholder">
+<div class="placeholder-cover">
+<div class="placeholder-cover-stack">
+<h3 class="placeholder-cover-title">Built to Please</h3>
+<p class="placeholder-cover-subline">Why Consumer AI Tells You What You Want to Hear,<br/>and What Serious Users Build Around It</p>
+</div>
+<span class="placeholder-cover-chip">Series, Part 3</span>
+</div>
+</div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Artificial Intelligence · Insight</p>
+<h3 class="latest-card-title">Built to Please</h3>
+<p class="latest-card-text">The consumer chat products are trained on approval, and the training leans them toward the person asking. This paper shows the lean, why instructions cannot remove it, and the checks serious users build around the model so its answers can be trusted.</p>
+<a class="latest-card-link" href="Monderman_Insight_Built_to_Please_2026-08-27.pdf" rel="noopener noreferrer" target="_blank">Download paper →</a>
+</div>
+</article>
+<article class="latest-card">
 <div aria-hidden="true" class="latest-card-image latest-card-image--placeholder latest-card-image--culture">
 <div class="placeholder-cover">
 <div class="placeholder-cover-stack">
@@ -2859,7 +2906,14 @@
 </div>
 </article>
 <article class="latest-card">
-<div class="latest-card-image"><img alt="Washington, D.C. skyline for Monderman defense research" src="Washington DC.jpg" loading="lazy" width="1800" height="1201" /></div>
+<div aria-hidden="true" class="latest-card-image latest-card-image--placeholder">
+<div class="placeholder-cover">
+<div class="placeholder-cover-stack">
+<h3 class="placeholder-cover-title is-long">Accumulated Drag in the Department of War</h3>
+<p class="placeholder-cover-subline">How administrative burden accumulates<br/>inside a complex public institution.</p>
+</div>
+</div>
+</div>
 <div class="latest-card-body">
 <p class="latest-card-kicker">Defense · Brief</p>
 <h3 class="latest-card-title">Accumulated Drag in the Department of War</h3>
@@ -2868,7 +2922,14 @@
 </div>
 </article>
 <article class="latest-card">
-<div class="latest-card-image"><img alt="Healthcare costs graphic for Monderman healthcare research" src="Healthcare costs.jpg" loading="lazy" width="1800" height="1200" /></div>
+<div aria-hidden="true" class="latest-card-image latest-card-image--placeholder">
+<div class="placeholder-cover">
+<div class="placeholder-cover-stack">
+<h3 class="placeholder-cover-title is-long">Quarter-Trillion Friction in U.S. Healthcare</h3>
+<p class="placeholder-cover-subline">How administrative burden compounds<br/>into structural cost.</p>
+</div>
+</div>
+</div>
 <div class="latest-card-body">
 <p class="latest-card-kicker">Healthcare · Brief</p>
 <h3 class="latest-card-title">Quarter-Trillion Friction in U.S. Healthcare</h3>
@@ -2893,7 +2954,14 @@
 </div>
 </article>
 <article class="latest-card">
-<div class="latest-card-image"><img alt="Tree canopy image for Monderman perspective on compensatory systems" src="Trees.jpg" loading="lazy" width="1800" height="1131" /></div>
+<div aria-hidden="true" class="latest-card-image latest-card-image--placeholder">
+<div class="placeholder-cover">
+<div class="placeholder-cover-stack">
+<h3 class="placeholder-cover-title is-long">How Workarounds Preserve Output While Masking Institutional Dysfunction</h3>
+<p class="placeholder-cover-subline">Why compensation can preserve output<br/>while the system deteriorates.</p>
+</div>
+</div>
+</div>
 <div class="latest-card-body">
 <p class="latest-card-kicker">Enterprise · Brief</p>
 <h3 class="latest-card-title">How Workarounds Preserve Output While Masking Institutional Dysfunction</h3>
@@ -2902,7 +2970,14 @@
 </div>
 </article>
 <article class="latest-card">
-<div class="latest-card-image"><img alt="Kodak aperture image for Monderman research brief" src="apature.jpg" loading="lazy" width="1800" height="1279" /></div>
+<div aria-hidden="true" class="latest-card-image latest-card-image--placeholder">
+<div class="placeholder-cover">
+<div class="placeholder-cover-stack">
+<h3 class="placeholder-cover-title is-long">How the Collapse of Eastman Kodak Is Misunderstood</h3>
+<p class="placeholder-cover-subline">Why Kodak's failure was administrative,<br/>not technological.</p>
+</div>
+</div>
+</div>
 <div class="latest-card-body">
 <p class="latest-card-kicker">Enterprise · Brief</p>
 <h3 class="latest-card-title">How the Collapse of Eastman Kodak Is Misunderstood</h3>
@@ -2943,7 +3018,14 @@
 </div>
 </article>
 <article class="latest-card">
-<div class="latest-card-image"><img alt="Abstract institutional image for Monderman insight" src="iStock-511677736.jpg" loading="lazy" width="1118" height="938" /></div>
+<div aria-hidden="true" class="latest-card-image latest-card-image--placeholder">
+<div class="placeholder-cover">
+<div class="placeholder-cover-stack">
+<h3 class="placeholder-cover-title">Governing Complexity</h3>
+<p class="placeholder-cover-subline">Why institutions fail when complexity<br/>outruns their structures.</p>
+</div>
+</div>
+</div>
 <div class="latest-card-body">
 <p class="latest-card-kicker">Insight</p>
 <h3 class="latest-card-title">Governing Complexity</h3>
@@ -2952,7 +3034,14 @@
 </div>
 </article>
 <article class="latest-card">
-<div class="latest-card-image"><img alt="Decision velocity visual for Monderman insight" src="Decision Velocity.jpg" loading="lazy" width="1800" height="1013" /></div>
+<div aria-hidden="true" class="latest-card-image latest-card-image--placeholder">
+<div class="placeholder-cover">
+<div class="placeholder-cover-stack">
+<h3 class="placeholder-cover-title">Designing for Decision Velocity</h3>
+<p class="placeholder-cover-subline">How governance, pathways, and role clarity<br/>keep judgment moving.</p>
+</div>
+</div>
+</div>
 <div class="latest-card-body">
 <p class="latest-card-kicker">Insight</p>
 <h3 class="latest-card-title">Designing for Decision Velocity</h3>

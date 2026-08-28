@@ -1,0 +1,439 @@
+/*
+ * Monderman PDF house style
+ * Canonical reference: Monderman Insight — Built to Please (2026-08-27)
+ * Intended for paged-media rendering at US Letter size.
+ */
+
+@font-face {
+  font-family: "Neue Haas Grotesk TX Pro";
+  src: url("../55font.woff2") format("woff2"), url("../55font.woff") format("woff");
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Neue Haas Grotesk TX Pro";
+  src: url("../56font.woff2") format("woff2"), url("../56font.woff") format("woff");
+  font-style: italic;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Neue Haas Grotesk TX Pro";
+  src: url("../65font.woff2") format("woff2"), url("../65font.woff") format("woff");
+  font-style: normal;
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "Neue Haas Grotesk TX Pro";
+  src: url("../75font.woff2") format("woff2"), url("../75font.woff") format("woff");
+  font-style: normal;
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "Neue Haas Grotesk TX Pro";
+  src: url("../76font.woff2") format("woff2"), url("../76font.woff") format("woff");
+  font-style: italic;
+  font-weight: 700;
+}
+
+:root {
+  --pdf-cover-top: #103B44;
+  --pdf-cover-middle: #0B343D;
+  --pdf-cover-bottom: #04282F;
+  --pdf-teal: #0E3A44;
+  --pdf-teal-light: #9CC4C9;
+  --pdf-cover-copy: #DCE3E4;
+  --pdf-cover-rule: #3E5F67;
+  --pdf-ink: #14181B;
+  --pdf-ink-strong: #101417;
+  --pdf-body: #23282C;
+  --pdf-muted: #556268;
+  --pdf-caption: #69767C;
+  --pdf-small: #6C7A80;
+  --pdf-author: #4A555A;
+  --pdf-panel: #C6DCDF;
+  --pdf-separator: #DDE3E4;
+  --pdf-pullquote: #0C1113;
+  --pdf-paper: #FFFFFF;
+  font-family: "Neue Haas Grotesk TX Pro", "Helvetica Neue", Arial, sans-serif;
+}
+
+@page {
+  size: Letter;
+  margin: 60pt;
+
+  @bottom-left {
+    content: string(publication-date);
+    color: var(--pdf-small);
+    font-family: "Neue Haas Grotesk TX Pro", sans-serif;
+    font-size: 8pt;
+    font-weight: 400;
+  }
+
+  @bottom-right {
+    content: counter(page);
+    color: var(--pdf-ink);
+    font-family: "Neue Haas Grotesk TX Pro", sans-serif;
+    font-size: 8pt;
+    font-weight: 700;
+  }
+}
+
+@page cover {
+  margin: 0;
+
+  @bottom-left { content: none; }
+  @bottom-right { content: none; }
+}
+
+* { box-sizing: border-box; }
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--pdf-paper);
+  color: var(--pdf-body);
+  font-family: "Neue Haas Grotesk TX Pro", "Helvetica Neue", Arial, sans-serif;
+  font-size: 10pt;
+  line-height: 15.2pt;
+}
+
+p {
+  margin: 0 0 9pt;
+  text-align: left;
+}
+
+strong,
+b { font-weight: 700; }
+
+em,
+i { font-style: italic; }
+
+.publication-date {
+  string-set: publication-date content();
+}
+
+.cover {
+  page: cover;
+  position: relative;
+  width: 612pt;
+  height: 792pt;
+  padding: 55pt 60pt 45pt;
+  overflow: hidden;
+  color: #FFFFFF;
+  background: linear-gradient(
+    to bottom,
+    var(--pdf-cover-top) 0%,
+    var(--pdf-cover-middle) 55%,
+    var(--pdf-cover-bottom) 100%
+  );
+  break-after: page;
+}
+
+.cover-type {
+  display: inline-block;
+  margin: 0;
+  padding: 0 0 7pt;
+  border-bottom: 2pt solid #FFFFFF;
+  font-size: 8.5pt;
+  line-height: 8.5pt;
+  font-weight: 700;
+  letter-spacing: 3pt;
+  text-transform: uppercase;
+}
+
+.cover-lockup {
+  display: flex;
+  align-items: center;
+  gap: 5.2pt;
+  margin-top: 43pt;
+  color: #FFFFFF;
+  font-size: 14.5pt;
+  line-height: 14.5pt;
+  font-weight: 700;
+  letter-spacing: -0.29pt;
+}
+
+.cover-lockup svg {
+  display: block;
+  width: 15.1pt;
+  height: 15.1pt;
+  fill: none;
+  stroke: currentColor;
+}
+
+.cover-kicker {
+  margin: 62pt 0 0;
+  color: #FFFFFF;
+  font-size: 9pt;
+  line-height: 9pt;
+  font-weight: 700;
+  letter-spacing: 5pt;
+  text-transform: uppercase;
+}
+
+.cover-title {
+  margin: 22pt 0 0;
+  color: #FFFFFF;
+  font-size: 28pt;
+  line-height: 30pt;
+  font-weight: 700;
+  letter-spacing: -0.65pt;
+}
+
+.cover-subtitle {
+  max-width: 440pt;
+  margin: 14pt 0 0;
+  color: var(--pdf-teal-light);
+  font-size: 15.5pt;
+  line-height: 18pt;
+  font-weight: 500;
+  letter-spacing: -0.12pt;
+}
+
+.cover-standfirst {
+  max-width: 492pt;
+  margin: 28pt 0 0;
+  color: var(--pdf-cover-copy);
+  font-size: 11.5pt;
+  line-height: 17.25pt;
+  font-weight: 400;
+}
+
+.cover-byline {
+  display: flex;
+  align-items: baseline;
+  gap: 8pt;
+  margin-top: 25pt;
+}
+
+.cover-byline-label {
+  color: var(--pdf-teal-light);
+  font-size: 7pt;
+  line-height: 7pt;
+  font-weight: 700;
+  letter-spacing: 2pt;
+  text-transform: uppercase;
+}
+
+.cover-byline-name {
+  color: #FFFFFF;
+  font-size: 11pt;
+  line-height: 11pt;
+  font-weight: 700;
+}
+
+.cover-footer {
+  position: absolute;
+  right: 60pt;
+  bottom: 45pt;
+  left: 60pt;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: 12pt;
+  border-top: 1pt solid var(--pdf-cover-rule);
+}
+
+.cover-footer-date {
+  color: #FFFFFF;
+  font-size: 8pt;
+  line-height: 8pt;
+  font-weight: 700;
+}
+
+.cover-footer-contact {
+  color: #C2CDD0;
+  font-size: 8pt;
+  line-height: 8pt;
+  font-weight: 400;
+}
+
+.frontmatter-heading,
+.references-heading,
+.backmatter-heading {
+  margin: 0 0 11pt;
+  color: var(--pdf-ink);
+  font-weight: 700;
+  letter-spacing: 1.2pt;
+  text-transform: uppercase;
+}
+
+.frontmatter-heading { font-size: 10.5pt; line-height: 12.5pt; }
+.references-heading { font-size: 10pt; line-height: 12pt; }
+.backmatter-heading { font-size: 9.5pt; line-height: 11.5pt; }
+
+.section-number {
+  display: block;
+  margin: 0 0 5pt;
+  color: var(--pdf-ink);
+  font-size: 11pt;
+  line-height: 11pt;
+  font-weight: 500;
+}
+
+.section-title {
+  margin: 0 0 16pt;
+  color: var(--pdf-ink-strong);
+  font-size: 20.5pt;
+  line-height: 22pt;
+  font-weight: 700;
+  letter-spacing: -0.32pt;
+}
+
+.subhead {
+  margin: 16pt 0 8pt;
+  color: var(--pdf-ink);
+  font-size: 11.6pt;
+  line-height: 14pt;
+  font-weight: 700;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 20pt 0 27pt;
+}
+
+.stat {
+  min-width: 0;
+  padding: 0 16pt;
+  border-left: 0.6pt solid var(--pdf-separator);
+}
+
+.stat:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.stat:last-child { padding-right: 0; }
+
+.stat-head {
+  margin: 0 0 7pt;
+  color: var(--pdf-teal);
+  font-size: 21pt;
+  line-height: 22pt;
+  font-weight: 700;
+  letter-spacing: -0.35pt;
+}
+
+.stat-caption {
+  margin: 0;
+  color: var(--pdf-muted);
+  font-size: 8.5pt;
+  line-height: 11.5pt;
+}
+
+.pull-quote {
+  width: 100%;
+  margin: 20pt 0 23pt;
+  padding: 24pt 30pt;
+  background: var(--pdf-pullquote);
+  color: #FFFFFF;
+  font-size: 13.2pt;
+  line-height: 16.5pt;
+  font-weight: 700;
+  text-align: center;
+}
+
+figure { margin: 22pt 0; }
+
+.figure-art {
+  color: var(--pdf-ink);
+  background: var(--pdf-panel);
+}
+
+.figure-art .dark {
+  color: #FFFFFF;
+  background: var(--pdf-teal);
+}
+
+.figure-title {
+  color: var(--pdf-ink);
+  font-size: 11.6pt;
+  line-height: 14pt;
+  font-weight: 700;
+}
+
+.figure-label {
+  color: var(--pdf-small);
+  font-size: 8pt;
+  line-height: 10pt;
+  font-weight: 400;
+}
+
+figcaption {
+  margin-top: 8pt;
+  color: var(--pdf-caption);
+  font-size: 8.3pt;
+  line-height: 11pt;
+  font-style: italic;
+  font-weight: 400;
+}
+
+figcaption strong {
+  color: var(--pdf-author);
+  font-style: italic;
+  font-weight: 700;
+}
+
+.references {
+  color: #3A4348;
+  font-size: 8.6pt;
+  line-height: 12.9pt;
+}
+
+.references-group-heading {
+  margin: 15pt 0 6pt;
+  color: var(--pdf-ink);
+  font-size: 9pt;
+  line-height: 11pt;
+  font-weight: 700;
+}
+
+.back-page {
+  position: relative;
+  min-height: 672pt;
+  color: var(--pdf-author);
+  font-size: 8.6pt;
+  line-height: 12.9pt;
+}
+
+.back-page .author-name { font-weight: 700; }
+
+.back-brand {
+  position: absolute;
+  top: 335pt;
+  right: 0;
+  left: 0;
+  text-align: center;
+}
+
+.back-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 6pt;
+  color: var(--pdf-teal);
+  font-size: 17pt;
+  line-height: 17pt;
+  font-weight: 700;
+  letter-spacing: -0.34pt;
+}
+
+.back-tagline {
+  margin: 12pt 0 0;
+  color: #3A4348;
+  font-size: 10pt;
+  line-height: 13pt;
+}
+
+.back-contact {
+  margin: 7pt 0 0;
+  color: var(--pdf-small);
+  font-size: 8.4pt;
+  line-height: 11pt;
+}

@@ -1,5 +1,5 @@
 from pathlib import Path
-import os,re,runpy,subprocess,sys
+import hashlib,os,re,runpy,subprocess,sys
 r=Path('.')
 e=[]
 release_channel=os.environ.get('MONDERMAN_RELEASE_CHANNEL','beta').strip().lower()
@@ -61,6 +61,41 @@ if 'payment,,' in (r/'security.html').read_text():e.append('double comma')
 idx=(r/'index.html').read_text(errors='ignore')
 if '<body class="canonical-green-shell">' not in idx:
  e.append('homepage canonical shell scope missing')
+
+# Canonical research publishing system: the homepage rail uses one cover
+# language, and the research page keeps the Book first before the new series.
+latest_match=re.search(r'<div class="latest-track" id="latestTrack">(.*?)</div>\s*</div>\s*<div aria-label="Latest content position"',idx,re.I|re.S)
+if not latest_match:
+ e.append('homepage research carousel boundary missing')
+else:
+ latest=latest_match.group(1)
+ if latest.count('<article class="latest-card">')!=12:e.append('homepage research carousel card count')
+ if latest.count('latest-card-image latest-card-image--placeholder')!=12:e.append('homepage research carousel canonical cover count')
+ if 'latest-card-image"><img' in latest:e.append('homepage research carousel legacy image tile remains')
+ for token in ['Built to Please','Why Consumer AI Tells You What You Want to Hear','Series, Part 3','Monderman_Insight_Built_to_Please_2026-08-27.pdf']:
+  if token not in latest:e.append('homepage Built to Please card '+token)
+for token in ['linear-gradient(180deg, #103B44 0%, #0B343D 55%, #04282F 100%)','color: #9CC4C9;','background: #0E3A44;']:
+ if token not in idx:e.append('homepage canonical research tile style '+token)
+
+research=(r/'research.html').read_text(errors='ignore')
+for token in ['AI and Institutions','Three papers, one story.','Part 1','Part 2','Part 3','15 items · Updated August 2026','PDF · 8 documents']:
+ if token not in research:e.append('research series contract '+token)
+if research.count('<article class="series-card">')!=3:e.append('research series card count')
+book_pos=research.find('<section class="book-feature">')
+series_pos=research.find('<section class="series"')
+library_pos=research.find('<section class="library">')
+if not (0<=book_pos<series_pos<library_pos):e.append('research Book/series/library order')
+series_titles=['Merit After the Machine','Every Node for Itself','Built to Please']
+series_title_positions=[research.find('<h3 class="series-card-title">'+title+'</h3>') for title in series_titles]
+if not (all(pos>=0 for pos in series_title_positions) and series_title_positions==sorted(series_title_positions)):
+ e.append('research series reading order')
+for token in ['border-left: 4px solid #0E3A44;','linear-gradient(90deg, #103B44 0%, #0B343D 55%, #04282F 100%)']:
+ if token not in research:e.append('research series visual grouping '+token)
+built_pdf=r/'Monderman_Insight_Built_to_Please_2026-08-27.pdf'
+if not built_pdf.exists():
+ e.append('Built to Please PDF missing')
+elif hashlib.sha256(built_pdf.read_bytes()).hexdigest()!='3135b89bcbd6791fdb110dcd56e944789d3d3c5dbc2a9782a29272a3fa40673a':
+ e.append('Built to Please canonical PDF bytes changed')
 for stale in ['exactly as the engine renders it','Every read returns the result in your numbers','Monderman is the instrument that surfaces where these losses originate']:
  if stale in idx:e.append('homepage unsupported claim '+stale)
 for required in ['measured operating conditions associated with observed administrative burden','when supported by disclosed sizing inputs','When the required sizing inputs are present and valid']:

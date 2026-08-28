@@ -387,6 +387,139 @@
       color: rgba(245,241,232,0.84);
       max-width: none;
     }
+    .series {
+      padding: 34px 34px 0;
+    }
+    .series-inner {
+      position: relative;
+      max-width: var(--max);
+      margin: 0 auto;
+      overflow: hidden;
+      background: #FFFFFF;
+      border: 1px solid #DDE3E4;
+      border-left: 4px solid #0E3A44;
+    }
+    .series-inner::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 6px;
+      background: linear-gradient(90deg, #103B44 0%, #0B343D 55%, #04282F 100%);
+    }
+    .series-head {
+      display: grid;
+      grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr);
+      gap: 28px;
+      align-items: end;
+      padding: 34px 32px 28px;
+      border-bottom: 1px solid #DDE3E4;
+    }
+    .series-kicker {
+      margin: 0 0 9px;
+      color: #0E3A44;
+      font-size: 0.68rem;
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    .series-title {
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3vw, 2.45rem);
+      line-height: 1;
+      letter-spacing: -0.045em;
+    }
+    .series-deck {
+      margin: 0;
+      max-width: 71ch;
+      color: rgba(24,22,18,0.72);
+      font-size: 0.98rem;
+      line-height: 1.68;
+    }
+    .series-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .series-card {
+      display: grid;
+      align-content: start;
+      min-width: 0;
+      min-height: 330px;
+      padding: 28px 28px 26px;
+      border-right: 1px solid #DDE3E4;
+    }
+    .series-card:last-child { border-right: 0; }
+    .series-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .series-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 28px;
+      height: 24px;
+      padding: 0 8px;
+      border-radius: 4px;
+      background: #0E3A44;
+      color: #FFFFFF;
+      font-size: 0.65rem;
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .series-format {
+      color: rgba(24,22,18,0.52);
+      font-size: 0.64rem;
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .series-card-title {
+      margin: 22px 0 0;
+      max-width: 13ch;
+      color: var(--ink);
+      font-size: 1.5rem;
+      line-height: 1.05;
+      letter-spacing: -0.035em;
+    }
+    .series-card-desc {
+      margin: 13px 0 0;
+      color: rgba(24,22,18,0.70);
+      font-size: 0.91rem;
+      line-height: 1.62;
+    }
+    .series-card-foot {
+      align-self: end;
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid #DDE3E4;
+    }
+    .series-stats {
+      display: grid;
+      gap: 3px;
+      color: rgba(24,22,18,0.52);
+      font-size: 0.72rem;
+      line-height: 1.35;
+    }
+    .series-action {
+      color: #0E3A44;
+      font-size: 0.84rem;
+      line-height: 1.3;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .series-action:hover,
+    .series-action:focus-visible { color: #0C6E78; }
     .library {
       padding: 42px 34px 0;
     }
@@ -643,6 +776,14 @@
       .cta-actions { justify-content: flex-start; }
       .research-grid,
       .essay-grid { grid-template-columns: 1fr; }
+      .series-head { grid-template-columns: 1fr; align-items: start; }
+      .series-grid { grid-template-columns: 1fr; }
+      .series-card {
+        min-height: 0;
+        border-right: 0;
+        border-bottom: 1px solid #DDE3E4;
+      }
+      .series-card:last-child { border-bottom: 0; }
       .paper-card,
       .essay-card { border-right: none !important; }
     }
@@ -681,6 +822,7 @@
       .header-inner,
       .hero,
       .featured,
+      .series,
       .library,
       .divider-quote,
       .onsite,
@@ -691,6 +833,9 @@
       .featured-main,
       .featured-side,
       .cta-inner { padding: 24px 22px; }
+      .series { padding-top: 26px; }
+      .series-head,
+      .series-card { padding-left: 22px; padding-right: 22px; }
       .meta-grid { grid-template-columns: 1fr 1fr; }
       .paper-card.wide { grid-template-columns: 1fr; }
       .paper-card,
@@ -985,7 +1130,7 @@
           <button type="button" class="filter-chip" data-q="Enterprise">Enterprise</button>
           <button type="button" class="filter-chip" data-q="Decision Design">Decision Design</button>
         </div>
-        <p class="library-stamp">14 items · Updated August 2026</p>
+        <p class="library-stamp">15 items · Updated August 2026</p>
       </div>
     </div>
   </section>
@@ -1120,43 +1265,62 @@
       </div>
     </div>
   </section>
-  <section class="featured">
-    <div class="featured-inner">
-      <div class="featured-main">
-        <p class="section-kicker">New paper · Start here</p>
-        <h2 class="featured-title">Every Node for Itself</h2>
-        <p class="featured-desc">AI gives every organization a reason to cut off the outside firms it buys from. The immediate gains are real: lower cost, faster work, and more control. This paper traces what the first savings estimate misses - independent checking, shared learning across clients, trust, and a responsible backstop. It argues for a different deployment pattern: bring routine work inside while putting AI into the network's nodes instead of severing the connections between them.</p>
-        <a class="featured-link" href="Monderman_Insight_Every_Node_for_Itself_Aug2026.pdf?v=20260824-brand2" target="_blank" rel="noopener noreferrer">Download the insight paper ↗</a>
-      </div>
-      <div class="featured-side">
-        <div class="meta-grid">
-          <div class="meta-item"><strong>August 2026</strong><span>Publication</span></div>
-          <div class="meta-item"><strong>11</strong><span>Pages</span></div>
-          <div class="meta-item"><strong>~12 min</strong><span>Read time</span></div>
-          <div class="meta-item"><strong>PDF</strong><span>Format</span></div>
+  <section class="series" aria-labelledby="ai-institutions-title">
+    <div class="series-inner">
+      <div class="series-head">
+        <div>
+          <p class="series-kicker">Monderman Research Series</p>
+          <h2 class="series-title" id="ai-institutions-title">AI and Institutions</h2>
         </div>
-        <p class="featured-quote">“AI improves what a node knows. It cannot replace what a node is connected to.”</p>
+        <p class="series-deck">Three papers, one story. The machines made the evidence of ability cheap, companies are tempted to cut their outside checkers, and the replacement tool was built to agree.</p>
+      </div>
+      <div class="series-grid">
+        <article class="series-card">
+          <div class="series-card-top">
+            <span class="series-chip">Part 1</span>
+            <span class="series-format">Insight · PDF</span>
+          </div>
+          <h3 class="series-card-title">Merit After the Machine</h3>
+          <p class="series-card-desc">What artificial intelligence weakens is not human merit, but the evidence institutions use to recognize skilled and conscientious work.</p>
+          <div class="series-card-foot">
+            <div class="series-stats"><span>August 2026</span><span>15 pages · ~18 min</span></div>
+            <a class="series-action" href="Monderman_Insight_Merit_After_the_Machine_2026-08-11.pdf?v=20260824-pdf-lockup2" target="_blank" rel="noopener noreferrer">Download →</a>
+          </div>
+        </article>
+        <article class="series-card">
+          <div class="series-card-top">
+            <span class="series-chip">Part 2</span>
+            <span class="series-format">Insight · PDF</span>
+          </div>
+          <h3 class="series-card-title">Every Node for Itself</h3>
+          <p class="series-card-desc">AI gives every organization a reason to cut off the outside firms it buys from. The first savings estimate misses independent checking, shared learning, trust, and a responsible backstop.</p>
+          <div class="series-card-foot">
+            <div class="series-stats"><span>August 2026</span><span>11 pages · ~12 min</span></div>
+            <a class="series-action" href="Monderman_Insight_Every_Node_for_Itself_Aug2026.pdf?v=20260824-brand2" target="_blank" rel="noopener noreferrer">Download →</a>
+          </div>
+        </article>
+        <article class="series-card">
+          <div class="series-card-top">
+            <span class="series-chip">Part 3</span>
+            <span class="series-format">Insight · PDF</span>
+          </div>
+          <h3 class="series-card-title">Built to Please</h3>
+          <p class="series-card-desc">The consumer chat products are trained on approval, and the training leans them toward the person asking. This paper shows the lean, why instructions cannot remove it, and the checks serious users build around the model so its answers can be trusted.</p>
+          <div class="series-card-foot">
+            <div class="series-stats"><span>August 2026</span><span>13 pages · ~15 min</span></div>
+            <a class="series-action" href="Monderman_Insight_Built_to_Please_2026-08-27.pdf" target="_blank" rel="noopener noreferrer">Download →</a>
+          </div>
+        </article>
       </div>
     </div>
   </section>
   <section class="library">
     <div class="library-inner">
       <div class="band-head">
-        <div class="left">Downloadable research</div>
-        <div class="right">PDF · 9 documents</div>
+        <div class="left">Additional downloadable research</div>
+        <div class="right">PDF · 8 documents</div>
       </div>
       <div class="research-grid">
-        <article class="paper-card wide">
-          <div>
-            <div class="paper-top"><span>Enterprise</span><span>Insight · PDF</span></div>
-            <h3 class="paper-title">Merit After the Machine</h3>
-            <p class="paper-body">What artificial intelligence weakens is not human merit, but the evidence institutions use to recognize skilled and conscientious work.</p>
-          </div>
-          <div class="paper-foot">
-            <div class="paper-stats"><span>15 pp</span><span>~18 min</span></div>
-            <a class="paper-action" href="Monderman_Insight_Merit_After_the_Machine_2026-08-11.pdf?v=20260824-pdf-lockup2" target="_blank" rel="noopener noreferrer">Download →</a>
-          </div>
-        </article>
         <article class="paper-card wide">
           <div>
             <div class="paper-top"><span>Decision Design</span><span>Insight · PDF</span></div>
@@ -1404,7 +1568,7 @@
     // Sections hidden while a query is active. The book band is in this list for
     // layout adjacency only; it is never part of the index.
     var corpusSections = [].slice.call(
-      document.querySelectorAll('.book-feature, .featured, .divider-quote, .library, .onsite')
+      document.querySelectorAll('.book-feature, .series, .divider-quote, .library, .onsite')
     );
 
     function txt(el) { return el ? (el.textContent || '').replace(/\s+/g, ' ').trim() : ''; }
@@ -1413,10 +1577,10 @@
     // ---- index ----------------------------------------------------------
     function collect(card, titleSel, bodySel) {
       if (card.closest('.book-feature')) return null;          // book: never indexed
-      var link = card.querySelector('.paper-action, .featured-link');
-      var tags = all(card, '.paper-top span, .section-kicker').map(txt).filter(Boolean);
-      var stats = all(card, '.paper-stats span').map(txt).filter(Boolean);
-      var extra = all(card, '.meta-item, .featured-quote').map(txt).join(' ');
+      var link = card.querySelector('.paper-action, .series-action');
+      var tags = all(card, '.paper-top span, .series-chip, .series-format').map(txt).filter(Boolean);
+      var stats = all(card, '.paper-stats span, .series-stats span').map(txt).filter(Boolean);
+      var extra = '';
       var it = {
         title: txt(card.querySelector(titleSel)),
         body: txt(card.querySelector(bodySel)),
@@ -1435,8 +1599,7 @@
     }
 
     var index = [];
-    var feat = document.querySelector('.featured .featured-inner');
-    if (feat) { var f = collect(feat, '.featured-title', '.featured-desc'); if (f) index.push(f); }
+    all(document, '.series-card').forEach(function (c) { var i = collect(c, '.series-card-title', '.series-card-desc'); if (i) index.push(i); });
     all(document, '.paper-card').forEach(function (c) { var i = collect(c, '.paper-title', '.paper-body'); if (i) index.push(i); });
     all(document, '.essay-card').forEach(function (c) { var i = collect(c, '.essay-title', '.essay-body'); if (i) index.push(i); });
     if (!index.length) return;
