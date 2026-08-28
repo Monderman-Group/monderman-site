@@ -1,3 +1,6 @@
+Warning: truncated output (original token count: 102365)
+Total output lines: 6236
+
 <!DOCTYPE html>
 
 <html lang="en">
@@ -502,7 +505,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
 #preflightContextMount .opt-other-input{margin-top:12px}
 #preflightContextMount .opt-other-input[hidden]{display:none!important}
 </style>
-<link rel="stylesheet" href="canonical-site-shell.css?v=20260824-header2">
+<link rel="stylesheet" href="canonical-site-shell.css?v=20260828-footer-aperture">
 <link rel="stylesheet" href="mobile-site-polish.css?v=20260825-2">
 </head>
 <body class="diagnostic-instrument">
@@ -911,7 +914,6 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   </div></div>
   <footer class="env-foot" id="questionFooter"><div class="progress-wrap"><div class="progress-top"><p id="progressCopy"></p><p id="pathHint"></p></div><div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div></div><div class="actions"><div class="actions-left"><button class="btn" id="backBtn" type="button">Back</button><button class="btn" id="skipBtn" type="button">Skip</button></div><div class="actions-right"><button class="btn btn-soft" id="restartBtn" type="button">Start over</button><button class="btn btn-accent" id="continueBtn" type="button">Continue</button></div></div></footer>
   <footer class="footer mond-footer">
-    <div class="mf-motif" aria-hidden="true"><svg width="280" height="280" viewBox="-130 -130 260 260" xmlns="http://www.w3.org/2000/svg"><circle r="116" fill="none" stroke="#146C75" stroke-width="0.7" opacity="0.18"/><circle r="101" fill="none" stroke="#3E8A92" stroke-width="0.5" opacity="0.22" stroke-dasharray="5,9"/><circle r="87" fill="none" stroke="#146C75" stroke-width="0.8" opacity="0.20"/><circle r="74" fill="none" stroke="#146C75" stroke-width="0.5" opacity="0.26" stroke-dasharray="3,7"/><circle r="61" fill="none" stroke="#3E8A92" stroke-width="0.7" opacity="0.22"/><circle r="48" fill="none" stroke="#146C75" stroke-width="0.5" opacity="0.28" stroke-dasharray="3,6"/><circle r="36" fill="none" stroke="#4E9098" stroke-width="0.6" opacity="0.20"/><circle r="24" fill="none" stroke="#8FC4C9" stroke-width="0.4" opacity="0.16"/><circle r="14" fill="none" stroke="#A9CFD2" stroke-width="0.4" opacity="0.13"/><circle cx="86" cy="-35" r="2.8" fill="#0C6E78" opacity="0.55"/><circle cx="-79" cy="26" r="2.8" fill="#3E8A92" opacity="0.50"/><circle cx="22" cy="48" r="2.4" fill="#0C6E78" opacity="0.52"/><circle cx="35" cy="-75" r="2.2" fill="#C9821F" opacity="0.60"/><circle cx="-39" cy="-47" r="2.2" fill="#3E8A92" opacity="0.48"/><circle cx="73" cy="0" r="2.0" fill="#0C6E78" opacity="0.58"/></svg></div>
     <div class="mf-inner">
       <div class="mf-top">
         <div class="mf-brand">
@@ -945,6 +947,15 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
         </nav>
       </div>
       <div class="mf-bottom">
+        <div class="mf-motif" aria-hidden="true">
+          <svg viewBox="0 0 320 164" xmlns="http://www.w3.org/2000/svg" focusable="false">
+            <path data-stroke data-construction d="M200 160H320M314 59V164"></path>
+            <circle data-stroke data-primary cx="285" cy="130" r="34"></circle>
+            <path data-stroke data-primary d="M224 157H314V72"></path>
+            <path data-stroke data-secondary d="M285 90V164"></path>
+            <circle data-node cx="285" cy="130" r="2.2"></circle>
+          </svg>
+        </div>
         <span class="mf-copyright">© 2026 Monderman. All rights reserved.</span>
       </div>
     </div>
@@ -2513,217 +2524,7 @@ return;
 }
 setConsentError('');
 
-const role = mapFrontendModeToBackendRole(state.mode);
-state.roleForText = role;
-const inferredCoverage = inferParticipantCoverage();
-
-// Keep the user on introStage during warmup+start — processingStage is
-// reserved for actual output generation so it doesn't look like questions were skipped.
-beginBtn.disabled = true;
-beginBtn.textContent = "Starting...";
-setHeader("Starting adaptive run", "The diagnostic engine is initializing. This may take a moment.", "Starting...");
-
-const participantLevels = inferredCoverage.levelsCovered;
-const body = {
-role,
-participantMode: role,
-diagnosticDepth: Number(state.depth),
-diagnostic_depth: Number(state.depth),
-process_name: state.preflight.processName,
-business_unit: state.preflight.businessUnit,
-industry: state.preflight.industry,
-decisionType: state.preflight.decisionType,
-decision_type: state.preflight.decisionType,
-regulatoryIntensity: state.preflight.regulatoryIntensity,
-regulatory_intensity: state.preflight.regulatoryIntensity,
-context_note: state.preflight.description || "",
-participantCount: inferredCoverage.participantCount,
-levelsCovered: participantLevels,
-peopleInvolved: state.preflight.peopleInvolved,
-peopleImpacted: state.preflight.peopleInvolved,
-hourlyCost: state.preflight.hourlyCost,
-annualVolume: state.preflight.annualVolume,
-annualCycles: state.preflight.annualVolume,
-meetingHours: state.preflight.meetingHours,
-employeeCount: state.preflight.employeeCount,
-metadata: {
-employeeCount: state.preflight.employeeCount,
-organizationSize: state.preflight.organizationSize,
-participantCount: inferredCoverage.participantCount,
-levelsCovered: participantLevels,
-decisionType: state.preflight.decisionType,
-peopleAffected: state.preflight.peopleInvolved,
-peopleInvolved: state.preflight.peopleInvolved,
-peopleImpacted: state.preflight.peopleInvolved,
-hourlyCost: state.preflight.hourlyCost,
-annualVolume: state.preflight.annualVolume,
-annualCycles: state.preflight.annualVolume,
-meetingHours: state.preflight.meetingHours
-},
-shared_context: readHubContext() || {}
-};
-
-setHeader("Starting adaptive run", "Initializing your diagnostic session.", "Starting...");
-// Give any in-progress background warmup a moment to resolve
-await new Promise((r) => setTimeout(r, 400));
-
-try {
-const response = await fetchWithTimeout(`${API_BASE}/api/institutional-performance/run/start`, {
-method: "POST",
-headers: { "Content-Type": "application/json" },
-body: JSON.stringify(body)
-}, START_TIMEOUT_MS);
-
-const data = await response.json().catch(() => null);
-if (response.status === 402 && data?.error === "run_limit_reached") {
-  beginBtn.disabled = false;
-  beginBtn.textContent = "Begin Diagnostic";
-  showRunsExhausted();
-  return;
-}
-if (!response.ok || !data?.ok) {
-  throw new Error(data?.message || data?.error || "Unable to start adaptive run.");
-}
-
-state.runId = data.runId;
-state.configVersion = data?.routingMeta?.configVersion || data?.routingVersion || data?.configVersion || data?.config_version || null;
-state.currentItem = data.nextItem;
-state.currentProgress = data.progress || null;
-state.started = true;
-state.answerCache = {};
-state.questionHistory = [];
-resetExperientialLayer();
-
-beginBtn.disabled = false;
-beginBtn.textContent = "Begin Diagnostic";
-setHeader(
-  `${laneConfigs[state.mode]?.header || "Perspective selected"} • ${depthConfigs[state.depth]?.label || "Adaptive run"}`,
-  "Adaptive question path active.",
-  "Question path active"
-);
-showStage(questionStage);
-renderQuestion();
-
-} catch (error) {
-console.error("Adaptive run start failed", error);
-beginBtn.disabled = false;
-beginBtn.textContent = "Begin Diagnostic";
-setHeader("Adaptive run unavailable", "The diagnostic could not start. Please refresh and try again.", "Start failed");
-showStage(introStage);
-showToast(error?.message || "Unable to start adaptive run.");
-}
-}
-
-function buildConfidenceQuestion() {
-return {
-id: "**confidenceLevel**",
-dimension: "input confidence",
-questionType: "single_select",
-isOptional: false,
-text: {
-operational: "How confident are you in the accuracy of the information you provided across this run?",
-managerial: "How confident are you in the accuracy of the information you provided across this run?",
-senior_leader: "How confident are you in the accuracy of the information you provided across this run?"
-},
-options: [
-{ value: "high", label: "High confidence" },
-{ value: "moderate", label: "Moderate confidence" },
-{ value: "limited", label: "Limited confidence" }
-]
-};
-}
-
-const EXPERIENCE_PROMPT_SETS = {
-  operational: [
-    { key: "self", label: "Your experience of this structure", text: "Optional: From your participant perspective, where does this structure require you to ask, infer, or work around because ownership, authority, or handoffs are unclear?" },
-    { key: "observedManagerial", label: "What managers may be experiencing", text: "Optional: Describe what you observe about how managers sustain performance — whether they are absorbing extra effort, stepping in, or compensating on behalf of their teams." },
-    { key: "observedSeniorLeader", label: "What senior leaders may be seeing", text: "Optional: Describe what senior leaders appear to believe about how clear and readable this structure is — and whether their read matches the reality you see daily." }
-  ],
-  managerial: [
-    { key: "self", label: "Your managerial experience", text: "Optional: Where does this structure require you or your team to ask, infer, or work around because ownership, authority, or handoffs are not explicit enough to act on?" },
-    { key: "observedOperational", label: "What operational staff may be experiencing", text: "Optional: Describe what operational staff appear to experience — where they rely on extra effort or informal workarounds rather than a dependable system." },
-    { key: "observedSeniorLeader", label: "What senior leaders may be seeing", text: "Optional: Describe what senior leaders appear to believe about how performance is sustained — and whether that matches how people actually keep things running." }
-  ],
-  executive: [
-    { key: "self", label: "Your senior-leader experience", text: "Optional: Where does sustaining performance require extra effort, escalation, or personal intervention even from your Senior Leader participant perspective — where the institution is not carrying its own weight?" },
-    { key: "observedManagerial", label: "What managers may be experiencing", text: "Optional: Describe what managers appear to experience — whether they are regularly stepping in or compensating to keep performance steady on behalf of their teams." },
-    { key: "observedOperational", label: "What operational staff may be experiencing", text: "Optional: Describe what operational staff appear to experience — where informal effort or personal relationships substitute for a dependable system." }
-  ]
-};
-
-function resetExperientialLayer() {
-state.experienceIndex = 0;
-state.experienceComplete = false;
-state.experiential = { self: "", observedManagerial: "", observedOperational: "", observedSeniorLeader: "" };
-}
-
-function getExperiencePromptSet() {
-return EXPERIENCE_PROMPT_SETS[state.mode] || EXPERIENCE_PROMPT_SETS.executive;
-}
-
-function buildExperienceQuestion(index = 0) {
-const prompt = getExperiencePromptSet()[index];
-if (!prompt) return null;
-return {
-id: "_*experience*" + prompt.key,
-dimension: "experiential layer",
-questionType: "text",
-isOptional: true,
-isExperienceLayer: true,
-experienceKey: prompt.key,
-experienceLabel: prompt.label,
-questionCopy: prompt.copy,
-text: { operational: prompt.text, managerial: prompt.text, senior_leader: prompt.text }
-};
-}
-
-function queueExperienceQuestion(index = 0) {
-state.experienceIndex = index;
-const item = buildExperienceQuestion(index);
-if (!item) {
-state.experienceComplete = true;
-queueConfidenceQuestion();
-return;
-}
-state.currentItem = item;
-renderQuestion();
-}
-
-function normalizeExperienceText(value) {
-return String(value || "").replace(/\s+/g, " ").trim();
-}
-
-function recordExperienceAnswer(itemId, value) {
-const key = String(itemId || "").replace("_*experience*", "");
-if (!Object.prototype.hasOwnProperty.call(state.experiential, key)) return;
-state.experiential[key] = normalizeExperienceText(value);
-}
-
-function buildExperienceLayer(source = state.experiential) {
-const mode = state.mode || "executive";
-const promptLabels = Object.fromEntries((EXPERIENCE_PROMPT_SETS[mode] || EXPERIENCE_PROMPT_SETS.executive).map((item) => [item.key, item.label]));
-const entries = ["self", "observedOperational", "observedManagerial", "observedSeniorLeader"]
-.map((key) => ({ key, label: promptLabels[key] || humanize(key), text: normalizeExperienceText(source && source[key]) }))
-.filter((entry) => entry.text);
-return { participantPerspective: laneConfigs[mode]?.label || humanize(mode), entries, hasInput: entries.length > 0 };
-}
-
-async function refineExperientialLayerForOutput(rawLayer) {
-if (!rawLayer || !rawLayer.hasInput) return rawLayer;
-
-const rawExperience = {
-self: state.experiential.self || "",
-observedOperational: state.experiential.observedOperational || "",
-observedManagerial: state.experiential.observedManagerial || "",
-observedSeniorLeader: state.experiential.observedSeniorLeader || "",
-observedExecutive: state.experiential.observedSeniorLeader || ""
-};
-
-try {
-const response = await fetchWithTimeout(`${API_BASE}/api/diagnostics/refine-experience`, {
-method: "POST",
-headers: { "Content-Type": "application/json" },
-body: JSON.stringify({
+const …2365 tokens truncated…
 diagnosticType: "institutional_performance",
 participantMode: state.mode || "executive",
 workflow: state.preflight.processName || "Institutional Performance Diagnostic",
