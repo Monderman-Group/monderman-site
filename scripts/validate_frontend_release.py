@@ -99,6 +99,10 @@ book_pos=research.find('<section class="book-feature">')
 series_pos=research.find('<section class="series"')
 library_pos=research.find('<section class="library">')
 if not (0<=book_pos<series_pos<library_pos):e.append('research Book/series/library order')
+series_quote='Fluency becomes evidence, outside checking becomes overhead, and agreement begins to look like truth.'
+series_quote_pos=research.find(series_quote)
+if not (series_pos<series_quote_pos<library_pos):e.append('research series pull quote placement')
+if 'aria-label="AI and Institutions series pull quote"' not in research:e.append('research series pull quote semantics')
 series_titles=['Merit After the Machine','Every Node for Itself','Built to Please']
 series_title_positions=[research.find('<h3 class="series-card-title">'+title+'</h3>') for title in series_titles]
 if not (all(pos>=0 for pos in series_title_positions) and series_title_positions==sorted(series_title_positions)):
