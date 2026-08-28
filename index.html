@@ -450,7 +450,7 @@
       display: none;
     }
     .latest-card-image--culture {
-      background: linear-gradient(180deg, #103B44 0%, #0B343D 55%, #04282F 100%) !important;
+      background: linear-gradient(180deg, #103B44 0%, #0B343D 55%, #04282F 100%);
     }
     .placeholder-cover {
       position: relative;
@@ -1830,6 +1830,72 @@
 .placeholder-cover-title {
   max-width: 16ch;
 }
+/* Publication taxonomy: one restrained editorial system, four recognizable surfaces. */
+.latest-card {
+  --category-accent: #0E3A44;
+  --category-surface: linear-gradient(180deg, #103B44 0%, #0B343D 55%, #04282F 100%);
+  --category-title: #FFFFFF;
+  --category-subline: #9CC4C9;
+  --category-label: #9CC4C9;
+}
+.latest-card.category-insight {
+  --category-accent: #0E3A44;
+  --category-surface: linear-gradient(180deg, #103B44 0%, #0B343D 55%, #04282F 100%);
+  --category-title: #FFFFFF;
+  --category-subline: #9CC4C9;
+  --category-label: #9CC4C9;
+}
+.latest-card.category-brief {
+  --category-accent: #0C6E78;
+  --category-surface: linear-gradient(180deg, #DCE9EA 0%, #C6DCDF 100%);
+  --category-title: #0E3A44;
+  --category-subline: #46656B;
+  --category-label: #0C5D66;
+}
+.latest-card.category-perspective {
+  --category-accent: #A86416;
+  --category-surface: linear-gradient(180deg, #F1E4D1 0%, #E5CFAD 100%);
+  --category-title: #27221B;
+  --category-subline: #725B3F;
+  --category-label: #925914;
+}
+.latest-card.category-research {
+  --category-accent: #C9821F;
+  --category-surface: #F5F1E8;
+  --category-title: #14181B;
+  --category-subline: #556268;
+  --category-label: #9C641D;
+}
+.latest-card::before { background: var(--category-accent); }
+.latest-card .latest-card-image--placeholder {
+  background: var(--category-surface);
+  color: var(--category-title);
+}
+.latest-card.category-research .latest-card-image--placeholder {
+  background-color: #F5F1E8;
+  background-image:
+    linear-gradient(rgba(14,58,68,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(14,58,68,0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.latest-card .placeholder-cover-title {
+  color: var(--category-title);
+  text-shadow: none;
+}
+.latest-card .placeholder-cover-subline { color: var(--category-subline); }
+.placeholder-cover-type {
+  position: absolute;
+  right: 0;
+  bottom: 2px;
+  color: var(--category-label);
+  font-size: 0.61rem;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.latest-card .latest-card-kicker { color: var(--category-accent); }
+.latest-card:hover { border-color: color-mix(in srgb, var(--category-accent) 24%, transparent); }
         .footer {
       position: relative;
       overflow: hidden;
@@ -2844,7 +2910,7 @@
 <div class="latest-inner">
 <div class="latest-head">
 <div class="latest-intro section-intro reveal">
-<h2 id="latest-title">Research, briefs, and perspectives</h2>
+<h2 id="latest-title">Research, insights, briefs, and perspectives</h2>
 <p>
             Current publications and featured work on administrative burden, institutional design, decision velocity, and the hidden conditions Monderman is designed to diagnose under complexity.
           </p>
@@ -2857,7 +2923,7 @@
 </div>
 <div class="latest-viewport" id="latestViewport">
 <div class="latest-track" id="latestTrack">
-<article class="latest-card">
+<article class="latest-card category-insight" data-category="insight">
 <div aria-hidden="true" class="latest-card-image latest-card-image--placeholder latest-card-image--culture">
 <div class="placeholder-cover">
 <div class="placeholder-cover-stack">
@@ -2865,6 +2931,7 @@
 <p class="placeholder-cover-subline">Why AI weakens the evidence of merit<br/>faster than institutions can rebuild it.</p>
 </div>
 <span class="placeholder-cover-chip">Series, Part 1</span>
+<span class="placeholder-cover-type">Insight</span>
 </div>
 </div>
 <div class="latest-card-body">
@@ -2874,7 +2941,7 @@
 <a class="latest-card-link" href="Monderman_Insight_Merit_After_the_Machine_2026-08-11.pdf" rel="noopener noreferrer" target="_blank">Download paper →</a>
 </div>
 </article>
-<article class="latest-card">
+<article class="latest-card category-insight" data-category="insight">
 <div aria-hidden="true" class="latest-card-image latest-card-image--placeholder latest-card-image--culture">
 <div class="placeholder-cover">
 <div class="placeholder-cover-stack">
@@ -2882,6 +2949,7 @@
 <p class="placeholder-cover-subline">What disappears when organizations<br/>cut off their outside checkers.</p>
 </div>
 <span class="placeholder-cover-chip">Series, Part 2</span>
+<span class="placeholder-cover-type">Insight</span>
 </div>
 </div>
 <div class="latest-card-body">
@@ -2891,7 +2959,7 @@
 <a class="latest-card-link" href="Monderman_Insight_Every_Node_for_Itself_Aug2026.pdf" rel="noopener noreferrer" target="_blank">Download paper →</a>
 </div>
 </article>
-<article class="latest-card">
+<article class="latest-card category-insight" data-category="insight">
 <div aria-hidden="true" class="latest-card-image latest-card-image--placeholder">
 <div class="placeholder-cover">
 <div class="placeholder-cover-stack">
@@ -2899,6 +2967,7 @@
 <p class="placeholder-cover-subline">Why Consumer AI Tells You What You Want to Hear,<br/>and What Serious Users Build Around It</p>
 </div>
 <span class="placeholder-cover-chip">Series, Part 3</span>
+<span class="placeholder-cover-type">Insight</span>
 </div>
 </div>
 <div class="latest-card-body">
@@ -2908,13 +2977,14 @@
 <a class="latest-card-link" href="Monderman_Insight_Built_to_Please_2026-08-27.pdf" rel="noopener noreferrer" target="_blank">Download paper →</a>
 </div>
 </article>
-<article class="latest-card">
+<article class="latest-card category-insight" data-category="insight">
 <div aria-hidden="true" class="latest-card-image latest-card-image--placeholder latest-card-image--culture">
 <div class="placeholder-cover">
 <div class="placeholder-cover-stack">
 <h3 class="placeholder-cover-title">Terminal Fidelity</h3>
 <p class="placeholder-cover-subline">Why ideas in power consume themselves,<br/>and where the enduring ones learn to stop.</p>
 </div>
+<span class="placeholder-cover-type">Insight</span>
 </div>
 </div>
 <div class="latest-card-body">
@@ -2924,45 +2994,48 @@
 <a class="latest-card-link" href="Terminal_Fidelity.pdf" rel="noopener noreferrer" target="_blank">Download paper →</a>
 </div>
 </article>
-<article class="latest-card">
+<article class="latest-card category-brief" data-category="brief">
 <div aria-hidden="true" class="latest-card-image latest-card-image--placeholder">
 <div class="placeholder-cover">
 <div class="placeholder-cover-stack">
 <h3 class="placeholder-cover-title is-long">Accumulated Drag in the Department of War</h3>
 <p class="placeholder-cover-subline">How administrative burden accumulates<br/>inside a complex public institution.</p>
 </div>
+<span class="placeholder-cover-type">Brief</span>
 </div>
 </div>
 <div class="latest-card-body">
 <p class="latest-card-kicker">Defense · Brief</p>
 <h3 class="latest-card-title">Accumulated Drag in the Department of War</h3>
 <p class="latest-card-text">A Monderman research brief on accumulated drag, administrative burden, and institutional friction in one of the world’s most complex public institutions.</p>
-<a class="latest-card-link" href="Monderman_Brief_Accumulated_Drag_Department_of_War.pdf" rel="noopener noreferrer" target="_blank">Download research →</a>
+<a class="latest-card-link" href="Monderman_Brief_Accumulated_Drag_Department_of_War.pdf" rel="noopener noreferrer" target="_blank">Download brief →</a>
 </div>
 </article>
-<article class="latest-card">
+<article class="latest-card category-brief" data-category="brief">
 <div aria-hidden="true" class="latest-card-image latest-card-image--placeholder">
 <div class="placeholder-cover">
 <div class="placeholder-cover-stack">
 <h3 class="placeholder-cover-title is-long">Quarter-Trillion Friction in U.S. Healthcare</h3>
 <p class="placeholder-cover-subline">How administrative burden compounds<br/>into structural cost.</p>
 </div>
+<span class="placeholder-cover-type">Brief</span>
 </div>
 </div>
 <div class="latest-card-body">
 <p class="latest-card-kicker">Healthcare · Brief</p>
 <h3 class="latest-card-title">Quarter-Trillion Friction in U.S. Healthcare</h3>
 <p class="latest-card-text">A Monderman brief on quarter-trillion friction, administrative burden, and the structural drag complicating performance in healthcare systems.</p>
-<a class="latest-card-link" href="Monderman_Brief_Quarter_Trillion_Dollar_Friction_US_Healthcare.pdf" rel="noopener noreferrer" target="_blank">Download research →</a>
+<a class="latest-card-link" href="Monderman_Brief_Quarter_Trillion_Dollar_Friction_US_Healthcare.pdf" rel="noopener noreferrer" target="_blank">Download brief →</a>
 </div>
 </article>
-<article class="latest-card">
+<article class="latest-card category-insight" data-category="insight">
 <div aria-hidden="true" class="latest-card-image latest-card-image--placeholder latest-card-image--culture">
 <div class="placeholder-cover">
 <div class="placeholder-cover-stack">
 <h3 class="placeholder-cover-title">From Tokens to Outcomes</h3>
 <p class="placeholder-cover-subline">How token economics will define<br/>the next phase of enterprise AI.</p>
 </div>
+<span class="placeholder-cover-type">Insight</span>
 </div>
 </div>
 <div class="latest-card-body">
@@ -2972,100 +3045,106 @@
 <a class="latest-card-link" href="Monderman_Insight_After_the_First_Lap.pdf" rel="noopener noreferrer" target="_blank">Download paper →</a>
 </div>
 </article>
-<article class="latest-card">
+<article class="latest-card category-insight" data-category="insight">
 <div aria-hidden="true" class="latest-card-image latest-card-image--placeholder">
 <div class="placeholder-cover">
 <div class="placeholder-cover-stack">
 <h3 class="placeholder-cover-title is-long">How Workarounds Preserve Output While Masking Institutional Dysfunction</h3>
 <p class="placeholder-cover-subline">Why compensation can preserve output<br/>while the system deteriorates.</p>
 </div>
+<span class="placeholder-cover-type">Insight</span>
 </div>
 </div>
 <div class="latest-card-body">
-<p class="latest-card-kicker">Enterprise · Brief</p>
+<p class="latest-card-kicker">Enterprise · Insight</p>
 <h3 class="latest-card-title">How Workarounds Preserve Output While Masking Institutional Dysfunction</h3>
 <p class="latest-card-text">Organizations often appear to function because people compensate for structural weakness. Output is preserved, but the underlying system continues to deteriorate.</p>
-<a class="latest-card-link" href="Monderman_Brief_Compensatory_Systems.pdf" rel="noopener noreferrer" target="_blank">Read the brief →</a>
+<a class="latest-card-link" href="Monderman_Brief_Compensatory_Systems.pdf?v=20260828-taxonomy1" rel="noopener noreferrer" target="_blank">Download paper →</a>
 </div>
 </article>
-<article class="latest-card">
+<article class="latest-card category-brief" data-category="brief">
 <div aria-hidden="true" class="latest-card-image latest-card-image--placeholder">
 <div class="placeholder-cover">
 <div class="placeholder-cover-stack">
 <h3 class="placeholder-cover-title is-long">How the Collapse of Eastman Kodak Is Misunderstood</h3>
 <p class="placeholder-cover-subline">Why Kodak's failure was administrative,<br/>not technological.</p>
 </div>
+<span class="placeholder-cover-type">Brief</span>
 </div>
 </div>
 <div class="latest-card-body">
 <p class="latest-card-kicker">Enterprise · Brief</p>
 <h3 class="latest-card-title">How the Collapse of Eastman Kodak Is Misunderstood</h3>
 <p class="latest-card-text">Kodak did not fail because it missed technology. It failed because its administrative and decision systems could not adapt.</p>
-<a class="latest-card-link" href="Monderman_Brief_The_Collapse_of_Eastman_Kodak.pdf" rel="noopener noreferrer" target="_blank">Download research →</a>
+<a class="latest-card-link" href="Monderman_Brief_The_Collapse_of_Eastman_Kodak.pdf" rel="noopener noreferrer" target="_blank">Download brief →</a>
 </div>
 </article>
-<article class="latest-card">
+<article class="latest-card category-brief" data-category="brief">
 <div aria-hidden="true" class="latest-card-image latest-card-image--placeholder latest-card-image--culture">
 <div class="placeholder-cover">
 <div class="placeholder-cover-stack">
 <h3 class="placeholder-cover-title">The Culture Trap</h3>
 <p class="placeholder-cover-subline">Why organizations measure sentiment<br/>and miss the system.</p>
 </div>
+<span class="placeholder-cover-type">Brief</span>
 </div>
 </div>
 <div class="latest-card-body">
 <p class="latest-card-kicker">Enterprise · Brief</p>
 <h3 class="latest-card-title">The Culture Trap</h3>
 <p class="latest-card-text">Why culture-first diagnosis mislocates the problem — and why organizations that fix sentiment before structure often fix the wrong thing first.</p>
-<a class="latest-card-link" href="Monderman_Brief_The_Culture_Trap.pdf" rel="noopener noreferrer" target="_blank">Download research →</a>
+<a class="latest-card-link" href="Monderman_Brief_The_Culture_Trap.pdf" rel="noopener noreferrer" target="_blank">Download brief →</a>
 </div>
 </article>
-<article class="latest-card">
+<article class="latest-card category-insight" data-category="insight">
 <div aria-hidden="true" class="latest-card-image latest-card-image--placeholder latest-card-image--culture">
 <div class="placeholder-cover">
 <div class="placeholder-cover-stack">
 <h3 class="placeholder-cover-title">The Art of Interior Reasoning</h3>
 <p class="placeholder-cover-subline">Why excellent decisions<br/>live off the line.</p>
 </div>
+<span class="placeholder-cover-type">Insight</span>
 </div>
 </div>
 <div class="latest-card-body">
 <p class="latest-card-kicker">Decision Design · Insight</p>
 <h3 class="latest-card-title">The Art of Interior Reasoning</h3>
 <p class="latest-card-text">A Monderman insight on why excellent decisions live off the line — and what it takes, both analytically and emotionally, to consistently reach them.</p>
-<a class="latest-card-link" href="Monderman_Insight_The_Art_of_Interior_Reasoning.pdf" rel="noopener noreferrer" target="_blank">Download research →</a>
+<a class="latest-card-link" href="Monderman_Insight_The_Art_of_Interior_Reasoning.pdf" rel="noopener noreferrer" target="_blank">Download paper →</a>
 </div>
 </article>
-<article class="latest-card">
+<article class="latest-card category-perspective" data-category="perspective">
 <div aria-hidden="true" class="latest-card-image latest-card-image--placeholder">
 <div class="placeholder-cover">
 <div class="placeholder-cover-stack">
 <h3 class="placeholder-cover-title">Governing Complexity</h3>
 <p class="placeholder-cover-subline">Why institutions fail when complexity<br/>outruns their structures.</p>
 </div>
+<span class="placeholder-cover-type">Perspective</span>
 </div>
 </div>
 <div class="latest-card-body">
-<p class="latest-card-kicker">Insight</p>
+<p class="latest-card-kicker">Perspective</p>
 <h3 class="latest-card-title">Governing Complexity</h3>
 <p class="latest-card-text">Why institutions rarely fail because complexity appears, and more often fail because it accumulates faster than their structures can absorb.</p>
-<a class="latest-card-link" href="governing-complexity.html">Read insight →</a>
+<a class="latest-card-link" href="governing-complexity.html">Read perspective →</a>
 </div>
 </article>
-<article class="latest-card">
+<article class="latest-card category-perspective" data-category="perspective">
 <div aria-hidden="true" class="latest-card-image latest-card-image--placeholder">
 <div class="placeholder-cover">
 <div class="placeholder-cover-stack">
 <h3 class="placeholder-cover-title">Designing for Decision Velocity</h3>
 <p class="placeholder-cover-subline">How governance, pathways, and role clarity<br/>keep judgment moving.</p>
 </div>
+<span class="placeholder-cover-type">Perspective</span>
 </div>
 </div>
 <div class="latest-card-body">
-<p class="latest-card-kicker">Insight</p>
+<p class="latest-card-kicker">Perspective</p>
 <h3 class="latest-card-title">Designing for Decision Velocity</h3>
 <p class="latest-card-text">Institutions move well when governance, pathways, and role clarity support sound judgment without generating unnecessary drag.</p>
-<a class="latest-card-link" href="designing-for-decision-velocity.html">Read insight →</a>
+<a class="latest-card-link" href="designing-for-decision-velocity.html">Read perspective →</a>
 </div>
 </article>
 </div>

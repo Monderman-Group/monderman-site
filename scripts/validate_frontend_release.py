@@ -62,15 +62,16 @@ idx=(r/'index.html').read_text(errors='ignore')
 if '<body class="canonical-green-shell">' not in idx:
  e.append('homepage canonical shell scope missing')
 
-# Canonical research publishing system: the homepage rail uses one cover
-# language, and the research page keeps the Book first before the new series.
+# Canonical publishing system: the homepage rail uses one editorial language
+# with four publication surfaces, and Research keeps the Book before the series.
 latest_match=re.search(r'<div class="latest-track" id="latestTrack">(.*?)</div>\s*</div>\s*<div aria-label="Latest content position"',idx,re.I|re.S)
 if not latest_match:
  e.append('homepage research carousel boundary missing')
 else:
  latest=latest_match.group(1)
- if latest.count('<article class="latest-card">')!=13:e.append('homepage research carousel card count')
+ if len(re.findall(r'<article class="latest-card category-(?:research|insight|brief|perspective)"',latest))!=13:e.append('homepage research carousel card count')
  if latest.count('latest-card-image latest-card-image--placeholder')!=13:e.append('homepage research carousel canonical cover count')
+ if latest.count('placeholder-cover-type')!=13:e.append('homepage research carousel category label count')
  if 'latest-card-image"><img' in latest:e.append('homepage research carousel legacy image tile remains')
  for token in ['Built to Please','Why Consumer AI Tells You What You Want to Hear','Series, Part 3','Monderman_Insight_Built_to_Please_2026-08-27.pdf']:
   if token not in latest:e.append('homepage Built to Please card '+token)
@@ -80,8 +81,14 @@ else:
   e.append('homepage series carousel reading order')
  for part in ['Series, Part 1','Series, Part 2','Series, Part 3']:
   if latest.count(part)!=1:e.append('homepage series carousel chip '+part)
+ for category,expected in [('insight',7),('brief',4),('perspective',2)]:
+  count=latest.count(f'data-category="{category}"')
+  if count!=expected:e.append(f'homepage {category} category count {count}, expected {expected}')
+ if 'data-category="research"' in latest:e.append('homepage current work falsely classified as Research')
 for token in ['linear-gradient(180deg, #103B44 0%, #0B343D 55%, #04282F 100%)','color: #9CC4C9;','background: #0E3A44;']:
  if token not in idx:e.append('homepage canonical research tile style '+token)
+for token in ['.latest-card.category-insight {','.latest-card.category-brief {','.latest-card.category-perspective {','.latest-card.category-research {','Research, insights, briefs, and perspectives']:
+ if token not in idx:e.append('homepage publication taxonomy '+token)
 for forbidden in [
  '.latest-track .latest-card:nth-child(n+4){display:none;}',
  '.latest-controls,.latest-dots{display:none!important;}',
@@ -108,7 +115,7 @@ for token in [
 research=(r/'research.html').read_text(errors='ignore')
 for token in ['AI and Institutions','Three papers, one story.','Part 1','Part 2','Part 3','15 items · Updated August 2026','PDF · 8 documents']:
  if token not in research:e.append('research series contract '+token)
-if research.count('<article class="series-card">')!=3:e.append('research series card count')
+if research.count('<article class="series-card category-insight" data-category="insight">')!=3:e.append('research series card count')
 book_pos=research.find('<section class="book-feature">')
 series_pos=research.find('<section class="series"')
 library_pos=research.find('<section class="library">')
@@ -123,6 +130,21 @@ if not (all(pos>=0 for pos in series_title_positions) and series_title_positions
  e.append('research series reading order')
 for token in ['border-left: 4px solid #0E3A44;','linear-gradient(90deg, #103B44 0%, #0B343D 55%, #04282F 100%)']:
  if token not in research:e.append('research series visual grouping '+token)
+for token in ['Research, insights, briefs, and perspectives.','.paper-card.category-insight {','.paper-card.category-brief {','.essay-card.category-perspective {','.paper-card.category-research {','Additional downloadable publications']:
+ if token not in research:e.append('research publication taxonomy '+token)
+if research.count('data-category="insight"')!=7:e.append('research Insight classification count')
+if research.count('data-category="brief"')!=4:e.append('research Brief classification count')
+if research.count('data-category="perspective"')!=3:e.append('research Perspective classification count')
+if 'data-category="research"' in research:e.append('research library current work falsely classified as Research')
+for token in [
+ '<span>Enterprise</span><span>Insight · PDF</span></div>\n          <h3 class="paper-title">How Workarounds Preserve Output While Masking Dysfunction</h3>',
+ '<div class="paper-stats"><span>10 pp</span><span>~17 min</span></div>',
+ '<div class="paper-stats"><span>11 pp</span><span>~15 min</span></div>',
+ '<div class="paper-stats"><span>11 pp</span><span>~9 min</span></div>',
+ '<div class="paper-stats"><span>10 pp</span><span>~12 min</span></div>',
+ '<div class="paper-stats"><span>11 pp</span><span>~14 min</span></div>',
+]:
+ if token not in research:e.append('research publication inventory correction '+token)
 built_pdf=r/'Monderman_Insight_Built_to_Please_2026-08-27.pdf'
 if not built_pdf.exists():
  e.append('Built to Please PDF missing')

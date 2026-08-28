@@ -24,6 +24,7 @@ TEAL = HexColor("#0C6E78")
 WHITE = HexColor("#FFFFFF")
 DARK_CULTURE = HexColor("#0B3D43")
 DARK_INSIGHT = HexColor("#0E3A44")
+CATEGORY_TEAL = HexColor("#14606E")
 
 PAGE_W, PAGE_H = letter
 WORDMARK = "Monderman"
@@ -43,6 +44,7 @@ class Publication:
     background: object
     x: float = 59.5
     color: object = TEAL
+    category_label: str | None = None
 
 
 @dataclass(frozen=True)
@@ -56,7 +58,15 @@ class Endorsement:
 
 PUBLICATIONS = (
     Publication("Monderman_Brief_Accumulated_Drag_Department_of_War.pdf", 675.0, 103.0, 124.0, 277.0, WHITE),
-    Publication("Monderman_Brief_Compensatory_Systems.pdf", 675.0, 103.0, 124.0, 277.0, WHITE),
+    Publication(
+        "Monderman_Brief_Compensatory_Systems.pdf",
+        675.0,
+        103.0,
+        124.0,
+        277.0,
+        WHITE,
+        category_label="INSIGHT",
+    ),
     Publication("Monderman_Brief_Quarter_Trillion_Dollar_Friction_US_Healthcare.pdf", 675.0, 103.0, 124.0, 277.0, WHITE),
     Publication("Monderman_Brief_The_Collapse_of_Eastman_Kodak.pdf", 675.0, 103.0, 124.0, 277.0, WHITE),
     Publication("Monderman_Brief_The_Culture_Trap.pdf", 718.0, 55.0, 82.0, 224.0, DARK_CULTURE, 58.0, WHITE),
@@ -148,6 +158,21 @@ def draw_header_lockup(
     canvas.drawText(text)
 
 
+def draw_category_label(canvas: Canvas, label: str) -> None:
+    """Replace the legacy cover category without disturbing its editorial grid."""
+    ensure_font()
+    canvas.setFillColor(WHITE)
+    canvas.rect(56.0, 718.0, 68.0, 20.0, fill=1, stroke=0)
+
+    text = canvas.beginText()
+    text.setTextOrigin(59.5, 722.0)
+    text.setFont(FONT_NAME, 8.0)
+    text.setFillColor(CATEGORY_TEAL)
+    text.setCharSpace(1.5)
+    text.textOut(label)
+    canvas.drawText(text)
+
+
 def make_overlay(publication: Publication) -> BytesIO:
     stream = BytesIO()
     canvas = Canvas(stream, pagesize=letter, pageCompression=1)
@@ -168,6 +193,8 @@ def make_overlay(publication: Publication) -> BytesIO:
         baseline=publication.baseline,
         color=publication.color,
     )
+    if publication.category_label:
+        draw_category_label(canvas, publication.category_label)
     canvas.save()
     stream.seek(0)
     return stream
@@ -222,9 +249,16 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source-dir", type=Path, default=ROOT)
     parser.add_argument("--output-dir", type=Path, default=ROOT / "output" / "pdf")
+    parser.add_argument("--filename", help="Process one configured publication only")
     args = parser.parse_args()
 
-    for publication in PUBLICATIONS:
+    publications = PUBLICATIONS
+    if args.filename:
+        publications = tuple(item for item in PUBLICATIONS if item.filename == args.filename)
+        if not publications:
+            parser.error(f"Unknown configured publication: {args.filename}")
+
+    for publication in publications:
         source = args.source_dir / publication.filename
         destination = args.output_dir / publication.filename
         if not source.exists():
