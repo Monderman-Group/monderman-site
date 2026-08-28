@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 103357)
-Total output lines: 6377
-
 <!DOCTYPE html>
 
 <html lang="en">
@@ -2513,7 +2510,308 @@ const v = String(option.value);
 const at = selected.map(String).indexOf(v);
 if (at >= 0) selected.splice(at, 1); else selected.push(option.value);
 paint(btn, at < 0);
-clearQuestionRequir…3357 tokens truncated…wLayer,
+clearQuestionRequired();
+});
+choices.appendChild(btn);
+});
+wrap.appendChild(choices);
+return wrap;
+}
+
+wrap.innerHTML = `<div class="field"><label for="field_${item.id}">Your answer</label><textarea id="field_${item.id}" placeholder="Enter your answer">${escapeHtml(String(cached ?? ""))}</textarea></div>`;
+return wrap;
+}
+
+function readCurrentAnswer() {
+const item = state.currentItem;
+if (!item) return "";
+if (item.questionType === "numeric") {
+const el = $(`field_${item.id}`);
+if (!el || el.value === "") return "";
+return parseDirectionalNumber(el.value);
+}
+if (item.questionType === "multi_select") return state.answerCache[item.id] || [];
+const textEl = $(`field_${item.id}`);
+return textEl ? textEl.value : state.answerCache[item.id];
+}
+
+function updateProgress() {
+const percent = Number(state.currentProgress?.progressPercent || 0);
+progressBar.style.width = `${Math.max(6, percent)}%`;
+// Non-numeric copy: just the dimension name. The bar still fills based on
+// backend progress, so the user feels movement without seeing a count.
+const dimension = state.currentItem?.id === "**confidenceLevel**" ? "Input confidence" : (state.currentItem?.dimension ? humanize(state.currentItem.dimension) : "Adaptive path active");
+progressCopy.textContent = dimension;
+pathHint.textContent = "";
+}
+
+async function startAdaptiveRun() {
+if (!state.mode || !state.depth) return;
+if (!validatePreflightForm()) return;
+if (!preStartConsent.checked) {
+setConsentError('This acknowledgment is required before the diagnostic can begin.');
+document.querySelector('#introStage .checkbox-card')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+preStartConsent.focus();
+return;
+}
+setConsentError('');
+
+const role = mapFrontendModeToBackendRole(state.mode);
+state.roleForText = role;
+const inferredCoverage = inferParticipantCoverage();
+
+// Keep the user on introStage during warmup+start — processingStage is
+// reserved for actual output generation so it doesn't look like questions were skipped.
+beginBtn.disabled = true;
+beginBtn.textContent = "Starting...";
+setHeader("Starting adaptive run", "The diagnostic engine is initializing. This may take a moment.", "Starting...");
+
+const participantLevels = inferredCoverage.levelsCovered;
+const body = {
+role,
+participantMode: role,
+diagnosticDepth: Number(state.depth),
+diagnostic_depth: Number(state.depth),
+process_name: state.preflight.processName,
+business_unit: state.preflight.businessUnit,
+industry: state.preflight.industry,
+decisionType: state.preflight.decisionType,
+decision_type: state.preflight.decisionType,
+regulatoryIntensity: state.preflight.regulatoryIntensity,
+regulatory_intensity: state.preflight.regulatoryIntensity,
+context_note: state.preflight.description || "",
+participantCount: inferredCoverage.participantCount,
+levelsCovered: participantLevels,
+peopleInvolved: state.preflight.peopleInvolved,
+hourlyCost: state.preflight.hourlyCost,
+annualVolume: state.preflight.annualVolume,
+meetingHours: state.preflight.meetingHours,
+employeeCount: state.preflight.employeeCount,
+metadata: {
+employeeCount: state.preflight.employeeCount,
+organizationSize: state.preflight.organizationSize,
+participantCount: inferredCoverage.participantCount,
+levelsCovered: participantLevels,
+decisionType: state.preflight.decisionType,
+peopleAffected: state.preflight.peopleInvolved,
+peopleInvolved: state.preflight.peopleInvolved,
+hourlyCost: state.preflight.hourlyCost,
+annualVolume: state.preflight.annualVolume,
+meetingHours: state.preflight.meetingHours
+},
+shared_context: readHubContext() || {}
+};
+
+setHeader("Starting adaptive run", "Initializing your diagnostic session.", "Starting...");
+// Give any in-progress background warmup a moment to resolve
+await new Promise((r) => setTimeout(r, 400));
+
+try {
+const response = await fetchWithTimeout(`${API_BASE}/api/decision-velocity/run/start`, {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify(body)
+}, START_TIMEOUT_MS);
+
+const data = await response.json().catch(() => null);
+if (response.status === 402 && data?.error === "run_limit_reached") {
+  beginBtn.disabled = false;
+  beginBtn.textContent = "Begin Diagnostic";
+  showRunsExhausted();
+  return;
+}
+if (!response.ok || !data?.ok) {
+  throw new Error(data?.message || data?.error || "Unable to start adaptive run.");
+}
+
+state.runId = data.runId;
+state.configVersion = data?.routingMeta?.configVersion || data?.routingVersion || data?.configVersion || data?.config_version || null;
+state.currentItem = data.nextItem;
+state.currentProgress = data.progress || null;
+state.started = true;
+state.answerCache = {};
+state.questionHistory = [];
+resetExperientialLayer();
+
+beginBtn.disabled = false;
+beginBtn.textContent = "Begin Diagnostic";
+setHeader(
+  `${laneConfigs[state.mode]?.header || "Perspective selected"} • ${depthConfigs[state.depth]?.label || "Adaptive run"}`,
+  "Adaptive question path active.",
+  "Question path active"
+);
+showStage(questionStage);
+renderQuestion();
+
+} catch (error) {
+console.error("Adaptive run start failed", error);
+beginBtn.disabled = false;
+beginBtn.textContent = "Begin Diagnostic";
+setHeader("Adaptive run unavailable", "The diagnostic could not start. Please refresh and try again.", "Start failed");
+showStage(introStage);
+showToast(error?.message || "Unable to start adaptive run.");
+}
+}
+
+function buildConfidenceQuestion() {
+return {
+id: "**confidenceLevel**",
+dimension: "input confidence",
+questionType: "single_select",
+isOptional: false,
+text: {
+operational: "How confident are you in the accuracy of the information you provided across this run?",
+managerial: "How confident are you in the accuracy of the information you provided across this run?",
+senior_leader: "How confident are you in the accuracy of the information you provided across this run?"
+},
+options: [
+{ value: "high", label: "High confidence" },
+{ value: "moderate", label: "Moderate confidence" },
+{ value: "limited", label: "Limited confidence" }
+]
+};
+}
+
+const EXPERIENCE_PROMPT_SETS = {
+operational: [
+{ key: "self", label: "Your operational experience", text: "Optional: From your Operational participant perspective, what does this decision pathway feel like to move forward day to day?", copy: "Describe what you personally experience: chase effort, manual follow-up, workarounds, instruction variance, waiting on approvals, escalation, rework, or anything that feels heavier than it should." },
+{ key: "observedManagerial", label: "What managers may be experiencing", text: "Optional: What do managers seem to spend time compensating for in this pathway?", copy: "Capture what you observe from the managerial layer: coordination effort, intervention to keep things moving, exception handling, review cycles, or translation work." },
+{ key: "observedSeniorLeader", label: "What senior leaders may be seeing or missing", text: "Optional: What do senior leaders seem to see, miss, or misunderstand about this pathway's pace?", copy: "Capture what appears visible or invisible to senior leaders from where you sit. Avoid naming individuals; focus on the pathway pattern." }
+],
+managerial: [
+{ key: "self", label: "Your managerial experience", text: "Optional: From your Managerial participant perspective, what does this decision pathway feel like to coordinate or keep moving?", copy: "Describe the management work around the work: chasing approvals, reconciling decisions, translating, escalating, reviewing, resourcing, or protecting teams from coordination drag." },
+{ key: "observedOperational", label: "What operational staff may be experiencing", text: "Optional: What do operational staff seem to experience while moving this pathway forward?", copy: "Capture what appears to happen closest to the work: manual follow-up, off-path effort, unclear ownership, instruction variance, waiting, rework, or avoidable burden." },
+{ key: "observedSeniorLeader", label: "What senior leaders may be seeing or missing", text: "Optional: What do senior leaders seem to see, miss, or misunderstand about this pathway's pace?", copy: "Capture the gap between what is visible upward and what is actually required to keep the pathway moving." }
+],
+executive: [
+{ key: "self", label: "Your senior-leader experience", text: "Optional: From your Senior Leader participant perspective, what does this decision pathway reveal about how the organization decides?", copy: "Describe what you experience as a governance, pace, risk-proportionality, execution, or organizational-design issue. Keep the focus on the pathway rather than individuals." },
+{ key: "observedManagerial", label: "What managers may be experiencing", text: "Optional: What do managers seem to be carrying or compensating for in this pathway?", copy: "Capture what you observe in the managerial layer: coordination load, escalation dependence, review burden, exception handling, or managerial glue." },
+{ key: "observedOperational", label: "What operational staff may be experiencing", text: "Optional: What do operational staff seem to experience closest to the work?", copy: "Capture what appears to happen at the operating edge: workarounds, chase effort, instruction variance, delays, rework, or hidden compensatory labor." }
+]
+};
+
+function resetExperientialLayer() {
+state.experienceIndex = 0;
+state.experienceComplete = false;
+state.experiential = { self: "", observedManagerial: "", observedOperational: "", observedSeniorLeader: "" };
+}
+
+function getExperiencePromptSet() {
+return EXPERIENCE_PROMPT_SETS[state.mode] || EXPERIENCE_PROMPT_SETS.executive;
+}
+
+function buildExperienceQuestion(index = 0) {
+const prompt = getExperiencePromptSet()[index];
+if (!prompt) return null;
+return {
+id: "_*experience*" + prompt.key,
+dimension: "experiential layer",
+questionType: "text",
+isOptional: true,
+isExperienceLayer: true,
+experienceKey: prompt.key,
+experienceLabel: prompt.label,
+questionCopy: prompt.copy,
+text: { operational: prompt.text, managerial: prompt.text, senior_leader: prompt.text }
+};
+}
+
+function queueExperienceQuestion(index = 0) {
+state.experienceIndex = index;
+const item = buildExperienceQuestion(index);
+if (!item) {
+state.experienceComplete = true;
+queueConfidenceQuestion();
+return;
+}
+state.currentItem = item;
+renderQuestion();
+}
+
+function normalizeExperienceText(value) {
+return String(value || "").replace(/\s+/g, " ").trim();
+}
+
+function recordExperienceAnswer(itemId, value) {
+const key = String(itemId || "").replace("_*experience*", "");
+if (!Object.prototype.hasOwnProperty.call(state.experiential, key)) return;
+state.experiential[key] = normalizeExperienceText(value);
+}
+
+function buildExperienceLayer(source = state.experiential) {
+const mode = state.mode || "executive";
+const promptLabels = Object.fromEntries((EXPERIENCE_PROMPT_SETS[mode] || EXPERIENCE_PROMPT_SETS.executive).map((item) => [item.key, item.label]));
+const entries = ["self", "observedOperational", "observedManagerial", "observedSeniorLeader"]
+.map((key) => ({ key, label: promptLabels[key] || humanize(key), text: normalizeExperienceText(source && source[key]) }))
+.filter((entry) => entry.text);
+return { participantPerspective: laneConfigs[mode]?.label || humanize(mode), entries, hasInput: entries.length > 0 };
+}
+
+async function refineExperientialLayerForOutput(rawLayer) {
+if (!rawLayer || !rawLayer.hasInput) return rawLayer;
+
+const rawExperience = {
+self: state.experiential.self || "",
+observedOperational: state.experiential.observedOperational || "",
+observedManagerial: state.experiential.observedManagerial || "",
+observedSeniorLeader: state.experiential.observedSeniorLeader || "",
+observedExecutive: state.experiential.observedSeniorLeader || ""
+};
+
+try {
+const response = await fetchWithTimeout(`${API_BASE}/api/diagnostics/refine-experience`, {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({
+diagnosticType: "decision_velocity",
+participantMode: state.mode || "executive",
+workflow: state.preflight.processName || "Decision Velocity Diagnostic",
+rawExperience
+})
+}, EXPERIENCE_REFINE_TIMEOUT_MS);
+
+const data = await response.json().catch(() => null);
+if (!response.ok || !data?.experiential_layer) {
+  const errorMsg = data?.error || data?.message || `HTTP ${response.status}`;
+  console.warn("Experiential layer refinement failed; using raw participant notes.", { status: response.status, error: errorMsg });
+  return { ...rawLayer, source: "unedited_participant_input", refinementAttempted: true, refinementFailed: true };
+}
+
+const refined = data.experiential_layer;
+const entries = Array.isArray(refined.entries)
+  ? refined.entries.map((entry) => {
+      const text = normalizeExperienceText(entry.cleaned || entry.text || entry.raw || "");
+      return {
+        key: entry.key,
+        label: entry.label || humanize(entry.key),
+        raw: normalizeExperienceText(entry.raw || ""),
+        cleaned: text,
+        text
+      };
+    }).filter((entry) => entry.text)
+  : [];
+
+if (!entries.length) {
+  console.info("Experiential refinement returned no valid entries.");
+  return rawLayer;
+}
+
+return {
+  ...rawLayer,
+  hasInput: true,
+  entries,
+  synthesis: normalizeExperienceText(refined.synthesis || ""),
+  caveat: normalizeExperienceText(refined.caveat || ""),
+  source: refined.source || "anthropic_refined",
+  rawLayer,
+  refinementAttempted: true,
+  refinementSucceeded: true
+};
+
+} catch (error) {
+console.warn("Experiential refinement error; using raw participant notes.", error.message);
+return {
+...rawLayer,
 source: "unedited_participant_input",
 refinementAttempted: true,
 refinementFailed: true,
