@@ -272,6 +272,8 @@ if re.search(r'<img[^>]*?/\s+loading="lazy">',idx,re.I):
  e.append('malformed homepage lazy-load img markup')
 for name in ['decision-velocity.html','operational-systems.html','structural-clarity.html','institutional-performance.html']:
  t=(r/name).read_text(errors='ignore')
+ for token in ['cover-motif','stroke-dasharray="5,9"']:
+  if token in t:e.append(name+': retired concentric-ring motif '+token)
  if 'This usually takes about one to two minutes.' not in t or 'Please allow up to two minutes and keep this window open.' not in t:
   e.append(name+': truthful finalization expectation')
  if 'takes just a few seconds' in t or 'This usually takes a few seconds' in t:
@@ -302,6 +304,11 @@ for name in ['decision-velocity.html','operational-systems.html','structural-cla
   e.append(name+': diagnostic navigation stage visibility')
  if 'if (!continueBtn || continueBtn.style.display === "none" || continueBtn.disabled) return;' not in t or 'continueBtn.click();' not in t:
   e.append(name+': diagnostic keyboard activation guard')
+if (r/'Monderman_Report_Motif.png').exists():
+ e.append('retired concentric-ring motif asset remains public')
+for name in ['index.html','roi.html','why-monderman.html','connect.html','diagnostics.html']:
+ if re.search(r'\.footer-motif\s*\{',(r/name).read_text(errors='ignore')):
+  e.append(name+': retired footer motif styling remains')
 
 # Pattern beta trial contract: no card, identity-scoped one-use, non-renewing.
 trial=(r/'pattern-trial.html').read_text(errors='ignore')
