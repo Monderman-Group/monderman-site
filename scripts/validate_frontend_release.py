@@ -69,11 +69,17 @@ if not latest_match:
  e.append('homepage research carousel boundary missing')
 else:
  latest=latest_match.group(1)
- if latest.count('<article class="latest-card">')!=12:e.append('homepage research carousel card count')
- if latest.count('latest-card-image latest-card-image--placeholder')!=12:e.append('homepage research carousel canonical cover count')
+ if latest.count('<article class="latest-card">')!=13:e.append('homepage research carousel card count')
+ if latest.count('latest-card-image latest-card-image--placeholder')!=13:e.append('homepage research carousel canonical cover count')
  if 'latest-card-image"><img' in latest:e.append('homepage research carousel legacy image tile remains')
  for token in ['Built to Please','Why Consumer AI Tells You What You Want to Hear','Series, Part 3','Monderman_Insight_Built_to_Please_2026-08-27.pdf']:
   if token not in latest:e.append('homepage Built to Please card '+token)
+ series_cards=['Merit After the Machine','Every Node for Itself','Built to Please']
+ series_positions=[latest.find('<h3 class="latest-card-title">'+title+'</h3>') for title in series_cards]
+ if not (all(pos>=0 for pos in series_positions) and series_positions==sorted(series_positions)):
+  e.append('homepage series carousel reading order')
+ for part in ['Series, Part 1','Series, Part 2','Series, Part 3']:
+  if latest.count(part)!=1:e.append('homepage series carousel chip '+part)
 for token in ['linear-gradient(180deg, #103B44 0%, #0B343D 55%, #04282F 100%)','color: #9CC4C9;','background: #0E3A44;']:
  if token not in idx:e.append('homepage canonical research tile style '+token)
 for forbidden in [
@@ -85,11 +91,13 @@ for forbidden in [
 if 'justify-items: start;' not in idx or 'text-align: left;' not in idx:
  e.append('homepage research tile top-left editorial alignment')
 for token in [
- '.latest-track .latest-card { visibility: hidden; }',
- '.latest-viewport.is-ready .latest-card.is-carousel-visible { visibility: visible; }',
- 'card.classList.toggle("is-carousel-visible", latestCardsPerView > 1 || index === latestIndex);',
+ 'clone.classList.add("is-carousel-clone");',
+ 'latestTrack.prepend(leading);',
+ 'latestTrack.append(trailing);',
+ 'latestIndex = (latestIndex + direction + latestCardCount) % latestCardCount;',
+ 'latestTrack?.addEventListener("transitionend"',
 ]:
- if token not in idx:e.append('homepage research carousel phone visibility '+token)
+ if token not in idx:e.append('homepage continuous research carousel '+token)
 
 research=(r/'research.html').read_text(errors='ignore')
 for token in ['AI and Institutions','Three papers, one story.','Part 1','Part 2','Part 3','15 items · Updated August 2026','PDF · 8 documents']:

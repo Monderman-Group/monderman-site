@@ -1276,12 +1276,6 @@
       width: 22px;
       background: #0E3A44;
     }
-    @media (max-width: 760px) {
-      .latest-track .latest-card { visibility: hidden; }
-      .latest-track .latest-card:first-child { visibility: visible; }
-      .latest-viewport.is-ready .latest-card:first-child { visibility: hidden; }
-      .latest-viewport.is-ready .latest-card.is-carousel-visible { visibility: visible; }
-    }
     .connect {
       position: relative;
       background: linear-gradient(180deg, #08383E 0%, #08373C 100%);
@@ -2859,6 +2853,40 @@
 <div class="latest-viewport" id="latestViewport">
 <div class="latest-track" id="latestTrack">
 <article class="latest-card">
+<div aria-hidden="true" class="latest-card-image latest-card-image--placeholder latest-card-image--culture">
+<div class="placeholder-cover">
+<div class="placeholder-cover-stack">
+<h3 class="placeholder-cover-title">Merit After the Machine</h3>
+<p class="placeholder-cover-subline">Why AI weakens the evidence of merit<br/>faster than institutions can rebuild it.</p>
+</div>
+<span class="placeholder-cover-chip">Series, Part 1</span>
+</div>
+</div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Artificial Intelligence · Insight</p>
+<h3 class="latest-card-title">Merit After the Machine</h3>
+<p class="latest-card-text">What artificial intelligence weakens is not human merit, but the evidence institutions use to recognize skilled and conscientious work.</p>
+<a class="latest-card-link" href="Monderman_Insight_Merit_After_the_Machine_2026-08-11.pdf" rel="noopener noreferrer" target="_blank">Download paper →</a>
+</div>
+</article>
+<article class="latest-card">
+<div aria-hidden="true" class="latest-card-image latest-card-image--placeholder latest-card-image--culture">
+<div class="placeholder-cover">
+<div class="placeholder-cover-stack">
+<h3 class="placeholder-cover-title">Every Node for Itself</h3>
+<p class="placeholder-cover-subline">What disappears when organizations<br/>cut off their outside checkers.</p>
+</div>
+<span class="placeholder-cover-chip">Series, Part 2</span>
+</div>
+</div>
+<div class="latest-card-body">
+<p class="latest-card-kicker">Artificial Intelligence · Insight</p>
+<h3 class="latest-card-title">Every Node for Itself</h3>
+<p class="latest-card-text">AI gives every organization a reason to cut off the outside firms it buys from. The first savings estimate misses independent checking, shared learning, trust, and a responsible backstop.</p>
+<a class="latest-card-link" href="Monderman_Insight_Every_Node_for_Itself_Aug2026.pdf" rel="noopener noreferrer" target="_blank">Download paper →</a>
+</div>
+</article>
+<article class="latest-card">
 <div aria-hidden="true" class="latest-card-image latest-card-image--placeholder">
 <div class="placeholder-cover">
 <div class="placeholder-cover-stack">
@@ -2873,22 +2901,6 @@
 <h3 class="latest-card-title">Built to Please</h3>
 <p class="latest-card-text">The consumer chat products are trained on approval, and the training leans them toward the person asking. This paper shows the lean, why instructions cannot remove it, and the checks serious users build around the model so its answers can be trusted.</p>
 <a class="latest-card-link" href="Monderman_Insight_Built_to_Please_2026-08-27.pdf" rel="noopener noreferrer" target="_blank">Download paper →</a>
-</div>
-</article>
-<article class="latest-card">
-<div aria-hidden="true" class="latest-card-image latest-card-image--placeholder latest-card-image--culture">
-<div class="placeholder-cover">
-<div class="placeholder-cover-stack">
-<h3 class="placeholder-cover-title">Merit After the Machine</h3>
-<p class="placeholder-cover-subline">Why AI weakens the evidence of merit<br/>faster than institutions can rebuild it.</p>
-</div>
-</div>
-</div>
-<div class="latest-card-body">
-<p class="latest-card-kicker">Enterprise · Insight</p>
-<h3 class="latest-card-title">Merit After the Machine</h3>
-<p class="latest-card-text">A Monderman insight paper on why AI weakens the familiar evidence of merit faster than institutions can rebuild it, and the evidence audit any leadership team can run this quarter.</p>
-<a class="latest-card-link" href="Monderman_Insight_Merit_After_the_Machine_2026-08-11.pdf" rel="noopener noreferrer" target="_blank">Download paper →</a>
 </div>
 </article>
 <article class="latest-card">
@@ -3197,45 +3209,81 @@
     const latestNext = document.getElementById("latestNext");
     const latestDots = document.getElementById("latestDots");
     const latestCards = latestTrack ? Array.from(latestTrack.querySelectorAll(".latest-card")) : [];
+    const latestCardCount = latestCards.length;
+    let latestTrackCards = latestCards;
     let latestIndex = 0;
     let latestCardsPerView = window.innerWidth <= 760 ? 1 : 2;
     let autoScrollInterval = null;
-    function getLatestMaxIndex() {
-      return Math.max(0, latestCards.length - latestCardsPerView);
+    let latestPhysicalIndex = latestCardCount;
+    let latestResetTimer = null;
+    function makeLatestClone(card) {
+      const clone = card.cloneNode(true);
+      clone.classList.add("is-carousel-clone");
+      clone.setAttribute("aria-hidden", "true");
+      clone.setAttribute("inert", "");
+      clone.querySelectorAll("a, button").forEach((control) => control.setAttribute("tabindex", "-1"));
+      return clone;
     }
-    function clampLatestIndex() {
-      latestIndex = Math.max(0, Math.min(latestIndex, getLatestMaxIndex()));
+    function buildLatestLoop() {
+      if (!latestTrack || latestCardCount < 2) return;
+      const leading = document.createDocumentFragment();
+      const trailing = document.createDocumentFragment();
+      latestCards.forEach((card) => {
+        leading.appendChild(makeLatestClone(card));
+        trailing.appendChild(makeLatestClone(card));
+      });
+      latestTrack.prepend(leading);
+      latestTrack.append(trailing);
+      latestTrackCards = Array.from(latestTrack.querySelectorAll(".latest-card"));
     }
     function renderLatestDots() {
       if (!latestDots) return;
       latestDots.innerHTML = "";
-      const dotCount = getLatestMaxIndex() + 1;
+      const dotCount = latestCardCount;
       if (dotCount <= 1) return;
       for (let i = 0; i < dotCount; i++) {
         const dot = document.createElement("button");
         dot.type = "button";
         dot.className = "latest-dot" + (i === latestIndex ? " is-active" : "");
-        dot.setAttribute("aria-label", `Go to latest group ${i + 1}`);
+        dot.setAttribute("aria-label", `Go to latest item ${i + 1}`);
         dot.addEventListener("click", () => {
           latestIndex = i;
-          updateLatestCarousel();
+          const candidates = [i, latestCardCount + i, (latestCardCount * 2) + i];
+          latestPhysicalIndex = candidates.reduce((nearest, candidate) =>
+            Math.abs(candidate - latestPhysicalIndex) < Math.abs(nearest - latestPhysicalIndex) ? candidate : nearest
+          );
+          updateLatestCarousel(true);
           startAutoScroll();
         });
         latestDots.appendChild(dot);
       }
     }
-    function updateLatestCarousel() {
-      if (!latestTrack || !latestCards.length) return;
+    function updateLatestCarousel(animate = true) {
+      if (!latestTrack || !latestCardCount) return;
       latestCardsPerView = window.innerWidth <= 760 ? 1 : 2;
-      clampLatestIndex();
-      latestCards.forEach((card, index) => {
-        card.classList.toggle("is-carousel-visible", latestCardsPerView > 1 || index === latestIndex);
-      });
-      const targetCard = latestCards[latestIndex];
+      latestTrack.style.transition = animate ? "" : "none";
+      const targetCard = latestTrackCards[latestPhysicalIndex];
       const targetX = targetCard ? targetCard.offsetLeft : 0;
       latestTrack.style.transform = `translateX(-${targetX}px)`;
       latestViewport?.classList.add("is-ready");
       renderLatestDots();
+      if (!animate) {
+        latestTrack.getBoundingClientRect();
+        latestTrack.style.transition = "";
+      }
+    }
+    function normalizeLatestLoop() {
+      if (latestPhysicalIndex >= latestCardCount && latestPhysicalIndex < latestCardCount * 2) return;
+      latestPhysicalIndex = latestCardCount + latestIndex;
+      updateLatestCarousel(false);
+    }
+    function moveLatestCarousel(direction) {
+      if (latestCardCount < 2) return;
+      latestIndex = (latestIndex + direction + latestCardCount) % latestCardCount;
+      latestPhysicalIndex += direction;
+      updateLatestCarousel(true);
+      window.clearTimeout(latestResetTimer);
+      latestResetTimer = window.setTimeout(normalizeLatestLoop, 920);
     }
     function stopAutoScroll() {
       if (autoScrollInterval) {
@@ -3245,21 +3293,21 @@
     }
     function startAutoScroll() {
       stopAutoScroll();
-      if (!latestTrack || latestCards.length <= latestCardsPerView) return;
+      if (!latestTrack || latestCardCount <= latestCardsPerView) return;
       autoScrollInterval = setInterval(() => {
-        latestIndex = latestIndex >= getLatestMaxIndex() ? 0 : latestIndex + 1;
-        updateLatestCarousel();
+        moveLatestCarousel(1);
       }, 8600);
     }
     latestPrev?.addEventListener("click", () => {
-      latestIndex = latestIndex <= 0 ? getLatestMaxIndex() : latestIndex - 1;
-      updateLatestCarousel();
+      moveLatestCarousel(-1);
       startAutoScroll();
     });
     latestNext?.addEventListener("click", () => {
-      latestIndex = latestIndex >= getLatestMaxIndex() ? 0 : latestIndex + 1;
-      updateLatestCarousel();
+      moveLatestCarousel(1);
       startAutoScroll();
+    });
+    latestTrack?.addEventListener("transitionend", (event) => {
+      if (event.propertyName === "transform") normalizeLatestLoop();
     });
     latestViewport?.addEventListener("mouseenter", stopAutoScroll);
     latestViewport?.addEventListener("mouseleave", startAutoScroll);
@@ -3418,14 +3466,17 @@
       }, { passive: true });
     }
     window.addEventListener("resize", () => {
-      updateLatestCarousel();
+      latestPhysicalIndex = latestCardCount + latestIndex;
+      updateLatestCarousel(false);
       startAutoScroll();
     });
     window.addEventListener("load", () => {
-      updateLatestCarousel();
+      updateLatestCarousel(false);
       startAutoScroll();
       initSoftSnap();
     });
+    buildLatestLoop();
+    updateLatestCarousel(false);
   </script>
   <!-- Dynamic nav pill: Sign In (signed out) / Workspace (signed in) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
