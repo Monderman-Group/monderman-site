@@ -1276,6 +1276,12 @@
       width: 22px;
       background: #0E3A44;
     }
+    @media (max-width: 760px) {
+      .latest-track .latest-card { visibility: hidden; }
+      .latest-track .latest-card:first-child { visibility: visible; }
+      .latest-viewport.is-ready .latest-card:first-child { visibility: hidden; }
+      .latest-viewport.is-ready .latest-card.is-carousel-visible { visibility: visible; }
+    }
     .connect {
       position: relative;
       background: linear-gradient(180deg, #08383E 0%, #08373C 100%);
@@ -3222,6 +3228,9 @@
       if (!latestTrack || !latestCards.length) return;
       latestCardsPerView = window.innerWidth <= 760 ? 1 : 2;
       clampLatestIndex();
+      latestCards.forEach((card, index) => {
+        card.classList.toggle("is-carousel-visible", latestCardsPerView > 1 || index === latestIndex);
+      });
       const targetCard = latestCards[latestIndex];
       const targetX = targetCard ? targetCard.offsetLeft : 0;
       latestTrack.style.transform = `translateX(-${targetX}px)`;

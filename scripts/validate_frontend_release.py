@@ -84,6 +84,12 @@ for forbidden in [
  if forbidden in idx:e.append('homepage research carousel disabled by '+forbidden)
 if 'justify-items: start;' not in idx or 'text-align: left;' not in idx:
  e.append('homepage research tile top-left editorial alignment')
+for token in [
+ '.latest-track .latest-card { visibility: hidden; }',
+ '.latest-viewport.is-ready .latest-card.is-carousel-visible { visibility: visible; }',
+ 'card.classList.toggle("is-carousel-visible", latestCardsPerView > 1 || index === latestIndex);',
+]:
+ if token not in idx:e.append('homepage research carousel phone visibility '+token)
 
 research=(r/'research.html').read_text(errors='ignore')
 for token in ['AI and Institutions','Three papers, one story.','Part 1','Part 2','Part 3','15 items · Updated August 2026','PDF · 8 documents']:
