@@ -1276,6 +1276,11 @@
       width: 22px;
       background: #0E3A44;
     }
+    @media (max-width: 760px) {
+      .latest-track .latest-card { visibility: hidden; }
+      .latest-track .latest-card:first-child { visibility: visible; }
+      .latest-viewport.is-ready .latest-card { visibility: visible; }
+    }
     .connect {
       position: relative;
       background: linear-gradient(180deg, #08383E 0%, #08373C 100%);

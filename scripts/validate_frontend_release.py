@@ -98,6 +98,12 @@ for token in [
  'latestTrack?.addEventListener("transitionend"',
 ]:
  if token not in idx:e.append('homepage continuous research carousel '+token)
+for token in [
+ '.latest-track .latest-card { visibility: hidden; }',
+ '.latest-track .latest-card:first-child { visibility: visible; }',
+ '.latest-viewport.is-ready .latest-card { visibility: visible; }',
+]:
+ if token not in idx:e.append('homepage research carousel no-script phone guard '+token)
 
 research=(r/'research.html').read_text(errors='ignore')
 for token in ['AI and Institutions','Three papers, one story.','Part 1','Part 2','Part 3','15 items · Updated August 2026','PDF · 8 documents']:
