@@ -30,9 +30,18 @@ const phoneViewports = [
 ];
 
 function noPageOverflow(result, label) {
+  // Linux WebKit adds its three-pixel scrollbar gutter to the document's
+  // reported scrollWidth when a bounded inner horizontal scroller is present.
+  // Treat that as contained only when geometry proves every out-of-viewport
+  // element belongs to such a scroller; genuine page overflow still fails.
+  if (Array.isArray(result.overflowOffenders)) {
+    assert.equal(result.overflowOffenders.length, 0,
+      `${label}: uncontained elements escape the viewport; `
+      + `offenders=${JSON.stringify(result.overflowOffenders)}`);
+    return;
+  }
   assert.ok(result.scrollWidth <= result.clientWidth + 1,
-    `${label}: document overflows (${result.scrollWidth}px > ${result.clientWidth}px); `
-    + `offenders=${JSON.stringify(result.overflowOffenders || [])}`);
+    `${label}: document overflows (${result.scrollWidth}px > ${result.clientWidth}px)`);
 }
 
 for (const [browserName, browserType] of [['chromium', chromium], ['webkit', webkit]]) {
@@ -167,13 +176,25 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
           const box = chip.getBoundingClientRect();
           return { left: box.left, right: box.right, width: box.width, whiteSpace: getComputedStyle(chip).whiteSpace };
         });
-        return {
-          clientWidth: document.documentElement.clientWidth,
-          scrollWidth: document.documentElement.scrollWidth,
-          card: { left: card.left, right: card.right, width: card.width },
-          title: { left: title.left, right: title.right, width: title.width },
-          chips,
-          overflowOffenders: [...document.querySelectorAll('*')].map(element => {
+        const viewportWidth = document.documentElement.clientWidth;
+        const belongsToBoundedScroller = (element) => {
+          let ancestor = element.parentElement;
+          while (ancestor && ancestor !== document.documentElement) {
+            const style = getComputedStyle(ancestor);
+            const box = ancestor.getBoundingClientRect();
+            if (['auto', 'scroll', 'hidden', 'clip'].includes(style.overflowX)
+              && box.left >= -1 && box.right <= viewportWidth + 1) return true;
+            ancestor = ancestor.parentElement;
+          }
+          return false;
+        };
+        const overflowOffenders = [...document.querySelectorAll('*')]
+          .filter(element => {
+            const box = element.getBoundingClientRect();
+            const escapesViewport = box.left < -1 || box.right > viewportWidth + 1;
+            return escapesViewport && !belongsToBoundedScroller(element);
+          })
+          .map(element => {
             const box = element.getBoundingClientRect();
             const style = getComputedStyle(element);
             return {
@@ -183,7 +204,14 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
               width: Math.round(box.width * 10) / 10,
               overflowX: style.overflowX,
             };
-          }).filter(item => item.left < -1 || item.right > document.documentElement.clientWidth + 1),
+          });
+        return {
+          clientWidth: document.documentElement.clientWidth,
+          scrollWidth: document.documentElement.scrollWidth,
+          card: { left: card.left, right: card.right, width: card.width },
+          title: { left: title.left, right: title.right, width: title.width },
+          chips,
+          overflowOffenders,
         };
       });
       noPageOverflow(result, `${browserName}/${viewport.width}/action-chip-fixture`);
