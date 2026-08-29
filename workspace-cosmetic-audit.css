@@ -43,12 +43,21 @@
   .ws5-rail,
   .ws-rail {
     width: 100%;
+    inline-size: 100%;
     min-width: 0;
     max-width: 100%;
+    max-inline-size: 100vw;
     box-sizing: border-box;
+    contain: inline-size;
     overflow-x: auto;
     overflow-y: visible;
     overscroll-behavior-inline: contain;
+  }
+
+  .ws5-rail::-webkit-scrollbar,
+  .ws-rail::-webkit-scrollbar {
+    width: 0;
+    height: 0;
   }
 
   .ws5-main,
