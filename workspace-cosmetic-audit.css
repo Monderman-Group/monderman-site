@@ -7,6 +7,14 @@
   min-width: 0;
 }
 
+.ws5-railscroll {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+}
+
 .ai-meta,
 .ai-chip {
   min-width: 0;
@@ -40,8 +48,8 @@
     max-width: 100%;
   }
 
-  .ws5-rail,
-  .ws-rail {
+  .ws5-rail {
+    display: block !important;
     width: 100%;
     inline-size: 100%;
     min-width: 0;
@@ -49,12 +57,35 @@
     max-inline-size: 100vw;
     box-sizing: border-box;
     contain: inline-size;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .ws5-railscroll {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+  }
+
+  .ws-rail {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
     overflow-x: auto;
     overflow-y: visible;
     overscroll-behavior-inline: contain;
   }
 
-  .ws5-rail::-webkit-scrollbar,
+  .ws5-railscroll::-webkit-scrollbar,
   .ws-rail::-webkit-scrollbar {
     width: 0;
     height: 0;
