@@ -1953,13 +1953,13 @@
 }
 @media (max-width: 760px) {
   .placeholder-cover > svg.placeholder-cover-motif {
-    top: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    overflow: visible !important;
+    top: -24px !important;
+    right: -24px !important;
+    bottom: -24px !important;
+    left: -24px !important;
+    width: calc(100% + 48px) !important;
+    height: calc(100% + 48px) !important;
+    overflow: hidden !important;
   }
   .placeholder-cover:has(.placeholder-cover-chip) .placeholder-cover-stack {
     gap: 5px;
@@ -3380,7 +3380,9 @@
         const motif = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
         motif.classList.add("placeholder-cover-motif");
-        motif.setAttribute("viewBox", "0 0 320 164");
+        const compactMotif = window.matchMedia("(max-width: 760px)").matches;
+        motif.setAttribute("viewBox", compactMotif ? "0 0 344 188" : "0 0 320 164");
+        motif.setAttribute("preserveAspectRatio", compactMotif ? "xMaxYMax meet" : "xMidYMid meet");
         motif.setAttribute("aria-hidden", "true");
         use.setAttribute("href", `#${motifId}`);
         motif.appendChild(use);
