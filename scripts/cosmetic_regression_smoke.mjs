@@ -31,7 +31,8 @@ const phoneViewports = [
 
 function noPageOverflow(result, label) {
   assert.ok(result.scrollWidth <= result.clientWidth + 1,
-    `${label}: document overflows (${result.scrollWidth}px > ${result.clientWidth}px)`);
+    `${label}: document overflows (${result.scrollWidth}px > ${result.clientWidth}px); `
+    + `offenders=${JSON.stringify(result.overflowOffenders || [])}`);
 }
 
 for (const [browserName, browserType] of [['chromium', chromium], ['webkit', webkit]]) {
@@ -172,6 +173,17 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
           card: { left: card.left, right: card.right, width: card.width },
           title: { left: title.left, right: title.right, width: title.width },
           chips,
+          overflowOffenders: [...document.querySelectorAll('*')].map(element => {
+            const box = element.getBoundingClientRect();
+            const style = getComputedStyle(element);
+            return {
+              element: `${element.tagName.toLowerCase()}${element.id ? `#${element.id}` : ''}${element.className && typeof element.className === 'string' ? `.${element.className.trim().replace(/\s+/g, '.')}` : ''}`,
+              left: Math.round(box.left * 10) / 10,
+              right: Math.round(box.right * 10) / 10,
+              width: Math.round(box.width * 10) / 10,
+              overflowX: style.overflowX,
+            };
+          }).filter(item => item.left < -1 || item.right > document.documentElement.clientWidth + 1),
         };
       });
       noPageOverflow(result, `${browserName}/${viewport.width}/action-chip-fixture`);
