@@ -1,6 +1,7 @@
-import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
+
+const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 
 const base = process.env.REPORT_BASE || 'http://127.0.0.1:8080';
 const out = process.env.REPORT_OUT || '/tmp/report-presentation-smoke';
@@ -252,7 +253,7 @@ for (const [key, html] of Object.entries(authenticatedRunHtml)) {
   await assertNoHorizontalOverflow(runPage, `${key} print`);
   assert(await runPage.locator('.mr-run-score-stamp').isVisible(), `${key} score stamp hidden in print`);
   assert(await runPage.locator('.mr-leadership-close').isVisible(), `${key} leadership handoff hidden in print`);
-  await runPage.pdf({ path:path.join(out, `authenticated-${key}.pdf`), format:'A4', printBackground:true, preferCSSPageSize:true });
+  await runPage.pdf({ path:path.join(out, `authenticated-${key}.pdf`), printBackground:true, preferCSSPageSize:true });
   authenticatedRunChecks.push(key);
   await runPage.close();
 }
@@ -281,7 +282,7 @@ for (const [key, html] of Object.entries(synthesisHtml)) {
   await synthesisPage.emulateMedia({ media:'print' });
   await assertNoHorizontalOverflow(synthesisPage, `${key} print`);
   assert(await primaryVisual.isVisible(), `${key} primary visual hidden in print`);
-  await synthesisPage.pdf({ path:path.join(out, `${key}.pdf`), format:'A4', printBackground:true, preferCSSPageSize:true });
+  await synthesisPage.pdf({ path:path.join(out, `${key}.pdf`), printBackground:true, preferCSSPageSize:true });
   synthesisResponsiveChecks.push(key);
   await synthesisPage.close();
 }

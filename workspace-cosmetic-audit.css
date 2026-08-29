@@ -1,0 +1,142 @@
+/* Production-readiness corrections for the shared Workspace chrome.
+   Presentation only: no visibility, pointer, state, or functional selectors. */
+
+.ws5-main,
+.ws5-content,
+.ws-main {
+  min-width: 0;
+}
+
+.ai-meta,
+.ai-chip {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.ai-chip {
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+@media (max-width: 860px) {
+  .ws5-shell,
+  .ws-app {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .ws5-rail,
+  .ws-rail {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+    overflow-y: visible;
+    overscroll-behavior-inline: contain;
+  }
+
+  .ws5-main,
+  .ws-main,
+  .ws5-content {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .ws5-topbar,
+  .ws-topbar {
+    display: grid;
+    flex: 0 0 auto;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+    height: auto;
+    min-height: 54px;
+    padding: 10px 16px;
+    gap: 9px;
+  }
+
+  .ws5-crumb,
+  .ws-crumb,
+  .ws5-topright,
+  .ws-topright,
+  .ws5-user,
+  .ws-user,
+  .ws5-who,
+  .ws-who {
+    min-width: 0;
+  }
+
+  .ws5-crumb,
+  .ws-crumb {
+    width: 100%;
+  }
+
+  .ws5-crumb span,
+  .ws-crumb span {
+    max-width: none;
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  .ws5-topright {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .ws-topright {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .ws5-user,
+  .ws-user {
+    align-items: flex-start;
+  }
+
+  .ws5-who b,
+  .ws5-who span,
+  .ws-who b,
+  .ws-who span {
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+
+  .ws5-btn,
+  .ws-signout {
+    align-self: start;
+  }
+}
+
+@media (max-width: 560px) {
+  /* WebKit includes a select's longest owner option in intrinsic sizing. Give
+     the Action board one full-width control per row and reclaim nested padding
+     so long real names remain visible without narrowing the action title. */
+  body.workspace-actions-surface .content {
+    padding-inline: 14px;
+  }
+
+  body.workspace-actions-surface .lane {
+    padding-inline: 8px;
+  }
+
+  body.workspace-actions-surface .ai-card {
+    padding-inline: 10px;
+  }
+
+  body.workspace-actions-surface .ai-actions.col {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  body.workspace-actions-surface .mini-select {
+    padding-inline: 6px;
+  }
+}

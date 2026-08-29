@@ -1,6 +1,7 @@
-import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
+
+const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 
 const base = process.env.REPORT_BASE || 'http://127.0.0.1:8080';
 const out = process.env.REPORT_OUT || '/tmp/report-presentation-smoke';
@@ -43,9 +44,8 @@ async function certifyPdf({ key, reportHtml, chartLabel, expectedScore, expected
   const pdfPath = path.join(out, `${key}-executive-report.pdf`);
   await page.pdf({
     path: pdfPath,
-    format: 'Letter',
     printBackground: true,
-    margin: { top: '0.3in', right: '0.3in', bottom: '0.3in', left: '0.3in' },
+    preferCSSPageSize: true,
   });
   const bytes = fs.readFileSync(pdfPath);
   assert(bytes.subarray(0, 5).toString('ascii') === '%PDF-', `${key} output is not a valid PDF header`);

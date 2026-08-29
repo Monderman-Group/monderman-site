@@ -109,9 +109,78 @@
     display: block;
     width: 100%;
     max-width: 100%;
-    overflow-x: auto;
-    overscroll-behavior-inline: contain;
-    -webkit-overflow-scrolling: touch;
+    margin: 1.5rem 0;
+    overflow: visible;
+  }
+
+  /* The comparison is a table on larger screens. On phones, each cell carries
+     its own visible field label, so the redundant desktop header row is removed
+     and each Diagnostic becomes a full-width reading block. */
+  .canonical-green-shell .lens-matrix thead {
+    display: none;
+  }
+
+  .canonical-green-shell .lens-matrix tbody,
+  .canonical-green-shell .lens-matrix tr,
+  .canonical-green-shell .lens-matrix td {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .canonical-green-shell .lens-matrix tbody {
+    display: grid;
+    gap: 12px;
+  }
+
+  .canonical-green-shell .lens-matrix tr {
+    padding: 14px 16px;
+    border: 1px solid rgba(8,56,62,0.12);
+    border-radius: 10px;
+    background: rgba(255,255,255,0.58);
+  }
+
+  .canonical-green-shell .lens-matrix tr.lens-matrix-self {
+    background: rgba(12,110,120,0.08);
+    border-color: rgba(12,110,120,0.22);
+  }
+
+  .canonical-green-shell .lens-matrix td {
+    display: block;
+    padding: 9px 0;
+    border: 0;
+    border-bottom: 1px solid rgba(8,56,62,0.09);
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+
+  .canonical-green-shell .lens-matrix td:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .canonical-green-shell .lens-matrix td:first-child {
+    padding-top: 0;
+  }
+
+  .canonical-green-shell .lens-matrix td::before {
+    display: block;
+    color: #5b6b78;
+    content: "Diagnostic";
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    line-height: 1.45;
+    margin-bottom: 3px;
+    text-transform: uppercase;
+  }
+
+  .canonical-green-shell .lens-matrix td:nth-child(2)::before {
+    content: "Question";
+  }
+
+  .canonical-green-shell .lens-matrix td:nth-child(3)::before {
+    content: "Examines";
   }
 
   /* The four Diagnostic shells are grid-centered on larger screens. At the

@@ -8,12 +8,15 @@ reference headings, and closing pages are rebuilt as one coherent system.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from copy import deepcopy
 from io import BytesIO
 from pathlib import Path
 import shutil
 from xml.sax.saxutils import escape
 
-from pypdf import PdfReader, PdfWriter
+from pypdf import PdfReader, PdfWriter, Transformation
+from pypdf._page import PageObject
+from pypdf.generic import ContentStream, FloatObject, NameObject, RectangleObject
 from reportlab.lib.colors import HexColor, white
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.lib.pagesizes import letter
@@ -30,6 +33,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE_BACKUP = ROOT / "tmp" / "pdfs" / "house-style-originals"
 OUTPUT_DIR = ROOT / "output" / "pdf"
 FONT_DIR = ROOT / "pdf-src" / "fonts"
+CANONICAL_REFERENCE = ROOT / "Monderman_Insight_Built_to_Please_2026-08-27.pdf"
 PAGE_W, PAGE_H = letter
 MARGIN = 60.0
 BODY_W = 492.0
@@ -271,6 +275,73 @@ PUBLICATIONS = (
 )
 
 
+# The older source PDFs use the right NHG faces but carry several legacy type
+# sizes. These narrowly targeted content-stream substitutions bring their body
+# hierarchy onto the approved Built to Please scale without rasterizing pages,
+# touching wording, or rebuilding charts and tables. Keys are PDF font-resource
+# names and source font sizes; unrelated display and figure typography remains
+# unchanged.
+BODY_TYPE_NORMALIZATION = {
+    "Monderman_Brief_Accumulated_Drag_Department_of_War.pdf": {
+        ("/BKYKFD", 26.0): 27.3333,
+        ("/BKYKFD", 16.0): 15.4667,
+    },
+    "Monderman_Brief_Compensatory_Systems.pdf": {
+        ("/BKYKFD", 26.0): 27.3333,
+        ("/BKYKFD", 16.0): 15.4667,
+    },
+    "Monderman_Brief_Quarter_Trillion_Dollar_Friction_US_Healthcare.pdf": {
+        ("/BKYKFD", 26.0): 27.3333,
+        ("/BKYKFD", 16.0): 15.4667,
+    },
+    "Monderman_Brief_The_Collapse_of_Eastman_Kodak.pdf": {
+        ("/BKYKFD", 26.0): 27.3333,
+        ("/BKYKFD", 16.0): 15.4667,
+    },
+    "Monderman_Brief_The_Culture_Trap.pdf": {
+        ("/F2+0", 35.0): 21.0,
+        ("/F2+0", 25.5): 20.5,
+        ("/F2+0", 20.0): 21.0,
+        ("/F2+0", 16.0): 11.6,
+        ("/F2+0", 13.2): 11.6,
+        ("/F3+0", 15.0): 13.2,
+        ("/F4+0", 14.2): 11.5,
+        ("/F4+0", 10.35): 10.0,
+    },
+    "Monderman_Insight_Every_Node_for_Itself_Aug2026.pdf": {
+        ("/F2+0", 25.5): 20.5,
+        ("/F2+0", 16.2): 13.2,
+        ("/F2+0", 15.4): 13.2,
+        ("/F2+0", 13.0): 11.6,
+        ("/F3+0", 16.2): 13.2,
+        ("/F3+0", 16.0): 13.2,
+        ("/F4+0", 13.6): 11.5,
+        ("/F4+0", 9.7): 10.0,
+    },
+    "Monderman_Insight_Merit_After_the_Machine_2026-08-11.pdf": {
+        ("/FNNBVY", 22.0): 27.3333,
+        ("/FNNBVY", 20.0): 17.6,
+        ("/FNNBVY", 16.0): 15.4667,
+        ("/FNNBVY", 13.33): 14.0,
+        ("/QUUQSR", 13.73): 13.3333,
+        ("/DSKVBT", 11.47): 11.0667,
+        ("/XNSAKT", 11.47): 11.0667,
+    },
+}
+
+# One long canonical-size heading in the Kodak brief needs a minimal optical
+# fit to remain inside the 492-point text column. This is scoped to that single
+# text object; the following object is reset to 100 percent immediately.
+BODY_HORIZONTAL_SCALE = {
+    (
+        "Monderman_Brief_The_Collapse_of_Eastman_Kodak.pdf",
+        6,
+        "/BKYKFD",
+        26.0,
+    ): 98.5,
+}
+
+
 def register_fonts() -> None:
     fonts = {
         ROMAN: "NeueHaasGroteskText-Roman.ttf",
@@ -292,6 +363,107 @@ def register_fonts() -> None:
         italic=ITALIC,
         boldItalic=BOLD_ITALIC,
     )
+
+
+def normalize_body_typography(
+    page, filename: str, source_number: int, reader: PdfReader
+) -> None:
+    """Apply only the approved legacy-to-canonical type-size substitutions."""
+    substitutions = BODY_TYPE_NORMALIZATION.get(filename)
+    if not substitutions or page.get_contents() is None:
+        return
+    content = ContentStream(page.get_contents(), reader)
+    changed = False
+    operations = []
+    reset_horizontal_scale = False
+    for operands, operator in content.operations:
+        if operator != b"Tf" or len(operands) < 2:
+            operations.append((operands, operator))
+            if reset_horizontal_scale and operator in (b"Tj", b"TJ"):
+                operations.append(([FloatObject(100.0)], b"Tz"))
+                reset_horizontal_scale = False
+            continue
+        key = (str(operands[0]), round(float(operands[1]), 2))
+        target = substitutions.get(key)
+        if target is None:
+            operations.append((operands, operator))
+            continue
+        operands[1] = FloatObject(target)
+        operations.append((operands, operator))
+        horizontal_scale = BODY_HORIZONTAL_SCALE.get(
+            (filename, source_number, key[0], key[1])
+        )
+        if horizontal_scale is not None:
+            operations.append(([FloatObject(horizontal_scale)], b"Tz"))
+            reset_horizontal_scale = True
+        changed = True
+    if changed:
+        content.operations = operations
+        # The page is still reader-owned at this point. Assign the rewritten
+        # stream directly; PdfWriter.add_page() will clone it into the output.
+        # This avoids pypdf's deprecated reader-owned replace_contents path.
+        page[NameObject("/Contents")] = content
+
+
+def _text_band(page, reader: PdfReader, *, top: float, bottom: float):
+    """Return a visually cropped fragment with out-of-band text removed.
+
+    A PDF crop box affects painting but not text extraction. Reflowing a page
+    with crop boxes alone therefore leaves invisible duplicate copy in the
+    document. The source uses a 4/3 internal coordinate scale with a top-down
+    text matrix, so filter text-showing operations to the equivalent band
+    before composing the fragment.
+    """
+    fragment = deepcopy(page)
+    if fragment.get_contents() is not None:
+        content = ContentStream(fragment.get_contents(), reader)
+        minimum_y = top / 0.75
+        maximum_y = bottom / 0.75
+        current_y = None
+        operations = []
+        for operands, operator in content.operations:
+            if operator == b"BT":
+                current_y = None
+            elif operator == b"Tm" and len(operands) >= 6:
+                current_y = float(operands[5])
+            elif operator in (b"Td", b"TD") and len(operands) >= 2:
+                delta_y = float(operands[1])
+                current_y = delta_y if current_y is None else current_y + delta_y
+            if operator in (b"Tj", b"TJ", b"'", b'"'):
+                if current_y is not None and not (minimum_y <= current_y < maximum_y):
+                    continue
+            operations.append((operands, operator))
+        content.operations = operations
+        fragment[NameObject("/Contents")] = content
+    fragment.cropbox = RectangleObject((0.0, PAGE_H - bottom, PAGE_W, PAGE_H - top))
+    return fragment
+
+
+def reflow_terminal_opening(page_three, page_four, reader: PdfReader):
+    """Use page three's blank field for the start of section 1.
+
+    The source document stranded one short front-matter paragraph on page three.
+    Move the first portion of section 1 into the available field, then move the
+    remaining source content to the top of page four. The visible source copy is
+    preserved while text outside each fragment is physically removed so search,
+    copy, and accessibility layers do not contain duplicates.
+    """
+    page_three_out = deepcopy(page_three)
+    opening = _text_band(page_four, reader, top=82.0, bottom=320.0)
+    page_three_out.merge_transformed_page(
+        opening,
+        Transformation().translate(0.0, -93.0),
+        over=True,
+    )
+
+    page_four_out = PageObject.create_blank_page(width=PAGE_W, height=PAGE_H)
+    continuation = _text_band(page_four, reader, top=320.0, bottom=700.0)
+    page_four_out.merge_transformed_page(
+        continuation,
+        Transformation().translate(0.0, 238.0),
+        over=True,
+    )
+    return page_three_out, page_four_out
 
 
 def tracked(c: Canvas, text: str, x: float, y: float, font: str, size: float, color, tracking: float) -> float:
@@ -377,13 +549,9 @@ def draw_footer(c: Canvas, date: str, page_number: int) -> None:
     c.drawRightString(PAGE_W - MARGIN, 45.0, str(page_number))
 
 
-def overlay_page(page, pub: Publication, page_number: int, reference_start: bool = False) -> None:
+def overlay_page(page, pub: Publication, page_number: int) -> None:
     stream = BytesIO()
     c = Canvas(stream, pagesize=letter, pageCompression=1)
-    if reference_start:
-        c.setFillColor(white)
-        c.rect(54.0, 700.0, 250.0, 34.0, stroke=0, fill=1)
-        tracked(c, "REFERENCES", MARGIN, 710.0, BOLD, 10.0, INK, 1.2)
     draw_footer(c, pub.date, page_number)
     c.save()
     stream.seek(0)
@@ -426,42 +594,48 @@ def reference_documents(pub: Publication, first_page_number: int) -> list:
 
 
 def make_back(pub: Publication, page_number: int) -> bytes:
-    stream = BytesIO()
-    c = Canvas(stream, pagesize=letter, pageCompression=1)
-    c.setFillColor(white)
-    c.rect(0, 0, PAGE_W, PAGE_H, stroke=0, fill=1)
-    tracked(c, "ABOUT THE AUTHOR", MARGIN, 710.0, BOLD, 9.5, INK, 1.2)
-    body_style = ParagraphStyle("back-body", fontName=ROMAN, fontSize=8.6, leading=12.2, textColor=HexColor("#4A555A"))
-    author_text = (
-        "<b>Jason Adamson</b> is the founder of Monderman, an institutional performance research company. "
-        "He is the author of <i>Governance, Bureaucracy and Organization: Stewardship, Drift, and Administrative Capacity</i> "
-        "(Routledge, forthcoming). His career spans more than two decades of deep experience in intelligence analysis "
-        "across the U.S. government, alongside private-sector experience at CrowdStrike and in startups. He holds an "
-        "M.S. in Organization Development from Pepperdine University."
-    )
-    p = Paragraph(author_text, body_style)
-    _, h = p.wrap(BODY_W, 100)
-    p.drawOn(c, MARGIN, 686.0 - h)
-    about_y = 686.0 - h - 38.0
-    tracked(c, "ABOUT MONDERMAN", MARGIN, about_y, BOLD, 9.5, INK, 1.2)
-    monderman_text = (
-        "Monderman is an institutional performance research company building Deterministic AI Infrastructure for "
-        "organizational diagnostics. Its diagnostic platform produces structured operational reads for enterprises "
-        "across sectors, including defense, healthcare, government, financial services, technology, manufacturing, "
-        "and higher education."
-    )
-    p = Paragraph(monderman_text, body_style)
-    _, h = p.wrap(BODY_W, 100)
-    p.drawOn(c, MARGIN, about_y - 24.0 - h)
-
-    draw_header_lockup(c, x=(PAGE_W - lockup_width()) / 2.0, baseline=291.0, color=TEAL)
-    centered = ParagraphStyle("centered", fontName=ROMAN, fontSize=10.0, leading=13.0, textColor=HexColor("#3A4348"), alignment=TA_CENTER)
-    paragraph(c, "Organizations deliver at the speed of their administrative reality.", centered, MARGIN, 242.0, BODY_W)
-    contact_style = ParagraphStyle("contact", fontName=ROMAN, fontSize=8.4, leading=11.0, textColor=MUTED, alignment=TA_CENTER)
-    paragraph(c, "connect@monderman.com  •  www.monderman.com  •  © 2026 Monderman. All rights reserved.", contact_style, MARGIN, 208.0, BODY_W)
+    # Clone the approved canonical closing page so every publication carries
+    # the genuine embedded NHG 56 Italic/76 Bold Italic faces, not a synthetic
+    # oblique or Roman fallback. Remove the canonical publication's footer text
+    # from the content stream before applying the publication-specific folio;
+    # a white rectangle alone would leave a hidden old date and page number.
+    canonical_reader = PdfReader(CANONICAL_REFERENCE)
+    canonical = deepcopy(canonical_reader.pages[-1])
+    content = ContentStream(canonical.get_contents(), canonical_reader)
+    operations = []
+    text_block = None
+    discard_block = False
+    for operands, operator in content.operations:
+        if operator == b"BT":
+            text_block = [(operands, operator)]
+            discard_block = False
+            continue
+        if text_block is not None:
+            text_block.append((operands, operator))
+            if operator in (b"Tm", b"Td", b"TD") and len(operands) >= 2:
+                y_value = float(operands[5] if operator == b"Tm" else operands[1])
+                if y_value >= 900.0:
+                    discard_block = True
+            if operator == b"ET":
+                if not discard_block:
+                    operations.extend(text_block)
+                text_block = None
+            continue
+        operations.append((operands, operator))
+    if text_block is not None and not discard_block:
+        operations.extend(text_block)
+    content.operations = operations
+    canonical[NameObject("/Contents")] = content
+    draw_stream = BytesIO()
+    c = Canvas(draw_stream, pagesize=letter, pageCompression=1)
     draw_footer(c, pub.date, page_number)
-    c.showPage()
     c.save()
+    draw_stream.seek(0)
+    canonical.merge_page(PdfReader(draw_stream).pages[0], over=True)
+    writer = PdfWriter()
+    writer.add_page(canonical)
+    stream = BytesIO()
+    writer.write(stream)
     return stream.getvalue()
 
 
@@ -482,9 +656,19 @@ def build(pub: Publication) -> tuple[int, Path]:
     writer = PdfWriter()
     writer.add_page(PdfReader(BytesIO(make_cover(pub))).pages[0])
 
+    body_pages = {
+        source_number: deepcopy(reader.pages[source_number - 1])
+        for source_number in range(2, pub.body_last + 1)
+    }
+    if pub.filename == "Terminal_Fidelity.pdf":
+        body_pages[3], body_pages[4] = reflow_terminal_opening(
+            body_pages[3], body_pages[4], reader
+        )
+
     page_number = 2
     for source_number in range(2, pub.body_last + 1):
-        page = reader.pages[source_number - 1]
+        page = body_pages[source_number]
+        normalize_body_typography(page, pub.filename, source_number, reader)
         overlay_page(page, pub, page_number)
         writer.add_page(page)
         page_number += 1
@@ -494,9 +678,12 @@ def build(pub: Publication) -> tuple[int, Path]:
             writer.add_page(page)
             page_number += 1
     else:
-        for position, source_number in enumerate(pub.reference_pages):
+        for source_number in pub.reference_pages:
             page = reader.pages[source_number - 1]
-            overlay_page(page, pub, page_number, reference_start=(position == 0))
+            # These source pages already carry the approved REFERENCES heading
+            # and 8.6-point entries. Preserve them verbatim; only normalize the
+            # publication footer. A prior white mask clipped the first citation.
+            overlay_page(page, pub, page_number)
             writer.add_page(page)
             page_number += 1
 
