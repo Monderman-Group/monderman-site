@@ -54,7 +54,7 @@
   window.__mondermanAssistantLoaded = true;
   var API_URL    = "https://monderman-api.onrender.com/api/site-assistant";
   var STORAGE_KEY = "mndAssistantHistory";              // survives page-to-page within a tab
-  var GREETING   = "Hi: I can help you find your way around Monderman. Ask about the four diagnostics, how to run one, or where something lives on the site.";
+  var GREETING   = "Hi. I can help you find your way around Monderman. Ask about the four diagnostics, how to run one, or where something lives on the site.";
 
   // Keep the floating controls out of the footer. The lowest visible widget is
   // treated as the bottom of one shared stack; when the footer reaches it, the
@@ -238,13 +238,13 @@
       hideTyping();
       var reply = (data && data.reply)
         ? data.reply
-        : "Sorry: I had trouble answering just now. You can reach the team at connect@monderman.com.";
+        : "Sorry, I had trouble answering just now. You can reach the team at connect@monderman.com.";
       addMsg("assistant", reply);
       history.push({ role: "assistant", content: reply });
       saveHistory();
     } catch (e) {
       hideTyping();
-      addMsg("assistant", "Sorry: I couldn't reach the assistant. Please try again, or email connect@monderman.com.");
+      addMsg("assistant", "Sorry, I couldn't reach the assistant. Please try again, or email connect@monderman.com.");
     } finally {
       busy = false; sendEl.disabled = false; inputEl.focus();
     }

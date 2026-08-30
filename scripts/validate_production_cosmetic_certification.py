@@ -10,6 +10,8 @@ from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlparse
 
+from normalize_site_metadata import normalize_head
+
 
 ROOT = Path(__file__).resolve().parents[1]
 errors: list[str] = []
@@ -70,6 +72,10 @@ html_files = [
 ]
 for path in html_files:
     page = path.read_text(encoding="utf-8")
+    head = page.split("</head>", 1)[0]
+    head_without_code = re.sub(
+        r"(?is)<(?:script|style)\b.*?</(?:script|style)>", "", head
+    )
     for token in [
         'rel="icon" type="image/svg+xml" href="favicon.svg?v=20260830-cert1"',
         'rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260830-cert1"',
@@ -78,6 +84,22 @@ for path in html_files:
     ]:
         require(page.count(token) == 1, f"{path.name}: favicon contract is not singular")
     require(not re.search(r"<link[^>]+data:image/svg\+xml", page.split("</head>", 1)[0], re.I), f"{path.name}: legacy inline favicon remains")
+    require(
+        not re.search(r"(?is)<(?:svg|rect|text)\b|</svg>\s*['\"]?\s*/?>", head_without_code),
+        f"{path.name}: orphaned inline-favicon markup remains in the head",
+    )
+
+legacy_favicon = """\n<title>Fixture</title>\n<link href='data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\">\n  <rect width=\"64\" height=\"64\"/>\n  <text x=\"17\" y=\"42\">M</text>\n</svg>' rel=\"icon\" type=\"image/svg+xml\"/>\n<style>body{color:#000}</style>\n"""
+damaged_favicon_tail = """\n<title>Fixture</title>\n<rect width=\"64\" height=\"64\"/>\n<text x=\"17\" y=\"42\">M</text>\n</svg>' />\n<style>body{color:#000}</style>\n"""
+for label, fixture in [("multiline data URI", legacy_favicon), ("orphaned SVG tail", damaged_favicon_tail)]:
+    repaired = normalize_head(fixture, add_social=False)
+    repaired_without_code = re.sub(
+        r"(?is)<(?:script|style)\b.*?</(?:script|style)>", "", repaired
+    )
+    require(
+        not re.search(r"(?is)data:image/svg\+xml|<(?:svg|rect|text)\b|</svg>\s*['\"]?\s*/?>", repaired_without_code),
+        f"metadata normalizer does not repair {label}",
+    )
 
 sitemap = text("sitemap.xml")
 public_pages = {urlparse(url).path.lstrip("/") or "index.html" for url in re.findall(r"<loc>(.*?)</loc>", sitemap)}
@@ -121,6 +143,12 @@ for name in ["assistant.js", "interview-mode.js", "monderman-report.js", "monder
     source = text(name)
     strings = [match[1] for match in re.findall(r"(['\"])(.*?)(?<!\\)\1", source, flags=re.S)]
     require(not any("—" in value or british.search(value) for value in strings), f"{name}: runtime copy canon violation")
+for malformed in ["Hi:", "Sorry:", "I’m Hans:", "signed in: unlock"]:
+    require(
+        not any(malformed in text(path.name) for path in html_files)
+        and not any(malformed in text(name) for name in ["assistant.js", "workspace-assistant.js"]),
+        f"mechanical punctuation returned: {malformed}",
+    )
 
 # 11: real NHG italic faces, not browser synthesis.
 for token in ["56font.woff2", "66font.woff2", "76font.woff2", "font-style:italic"]:

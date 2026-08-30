@@ -52,6 +52,16 @@ def edit_copy(source: str) -> str:
     source = re.sub(r" — (already|especially|including|without|with|across|from|through|even|instead|then)\b", r", \1", source, flags=re.I)
     source = source.replace(" — ", ": ")
 
+    # Sentence openings and interface instructions need grammatical
+    # punctuation after the general dash conversion, not a mechanical colon.
+    source = source.replace("Hi: I can help", "Hi. I can help")
+    source = source.replace("Sorry: I had trouble", "Sorry, I had trouble")
+    source = source.replace("Sorry: I couldn't reach", "Sorry, I couldn't reach")
+    source = source.replace("Sorry: I couldn’t reach", "Sorry, I couldn’t reach")
+    source = source.replace("I’m Hans: your guide", "I’m Hans, your guide")
+    source = source.replace("I’ve signed in: unlock report", "I’ve signed in. Unlock report.")
+    source = source.replace("I\\u2019ve signed in: unlock report", "I\\u2019ve signed in. Unlock report.")
+
     # Any encoded dash left without surrounding spaces is a missing-value mark.
     source = source.replace("&mdash;", "Not available")
     source = source.replace("&#8212;", "Not available")

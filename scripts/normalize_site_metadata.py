@@ -38,9 +38,20 @@ def sitemap_pages() -> set[str]:
 
 
 def normalize_head(head: str, add_social: bool) -> str:
-    # Remove the oldest one-line data favicon first because it contains raw SVG
-    # angle brackets inside an attribute. Then remove every remaining icon link.
-    head = re.sub(r"(?mi)^[^\n]*<link[^\n]*data:image/svg\+xml[^\n]*(?:\n|$)", "", head)
+    # A raw SVG data URI can span lines, so remove the entire link before the
+    # generic icon-link pass sees the SVG's internal angle brackets. The second
+    # pattern repairs heads damaged by older one-line cleanup, where only the
+    # opening <link> line was removed and the raw SVG tail became visible copy.
+    head = re.sub(
+        r"(?mis)^[ \t]*<link\b(?=[^\n]*\bhref=['\"]data:image/svg\+xml;utf8,).*?</svg>['\"][^>]*?/?>[ \t]*(?:\n|$)",
+        "",
+        head,
+    )
+    head = re.sub(
+        r"(?mis)^[ \t]*(?:<svg\b[^>]*>\s*)?<rect\b[^>]*>.*?</svg>['\"]?\s*/?>[ \t]*(?:\n|$)",
+        "",
+        head,
+    )
     head = re.sub(
         r"(?mis)^\s*&lt;svg\b.*?&lt;/svg&gt;'\s+rel=[\"']icon[\"'][^>]*>\s*",
         "\n",

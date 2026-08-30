@@ -65,7 +65,7 @@ PUBLICATIONS = (
         124.0,
         277.0,
         WHITE,
-        category_label="INSIGHT",
+        category_label="BRIEF",
     ),
     Publication("Monderman_Brief_Quarter_Trillion_Dollar_Friction_US_Healthcare.pdf", 675.0, 103.0, 124.0, 277.0, WHITE),
     Publication("Monderman_Brief_The_Collapse_of_Eastman_Kodak.pdf", 675.0, 103.0, 124.0, 277.0, WHITE),

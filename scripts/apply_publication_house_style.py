@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from copy import deepcopy
 from io import BytesIO
 from pathlib import Path
+import argparse
 import shutil
 from xml.sax.saxutils import escape
 
@@ -212,7 +213,7 @@ PUBLICATIONS = (
         "March 2026", 8, (), ACCUMULATED_REFERENCES,
     ),
     Publication(
-        "Monderman_Brief_Compensatory_Systems.pdf", "INSIGHT", "Compensatory Systems",
+        "Monderman_Brief_Compensatory_Systems.pdf", "BRIEF", "Compensatory Systems",
         "How workarounds preserve output while masking institutional dysfunction.",
         "When movement is mistaken for progress, and adaptation becomes a substitute for stewardship. In large, complex organizations, failure rarely announces itself clearly — work continues, reports are produced, and the system does not stop working. It stops working as a system.",
         "March 2026", 9, (10,),
@@ -702,8 +703,18 @@ def build(pub: Publication) -> tuple[int, Path]:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--filename", help="Rebuild one configured publication only")
+    args = parser.parse_args()
+
+    publications = PUBLICATIONS
+    if args.filename:
+        publications = tuple(pub for pub in PUBLICATIONS if pub.filename == args.filename)
+        if not publications:
+            parser.error(f"Unknown configured publication: {args.filename}")
+
     register_fonts()
-    for pub in PUBLICATIONS:
+    for pub in publications:
         pages, path = build(pub)
         print(f"{path.name}: {pages} pages ({pub.category})")
 

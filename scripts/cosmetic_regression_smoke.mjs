@@ -15,6 +15,17 @@ const articlePages = [
   'institutional-performance-article.html',
 ];
 
+const faviconDebrisPages = [
+  'connect.html',
+  'decision-velocity.html',
+  'diagnostics.html',
+  'institutional-performance.html',
+  'operational-systems.html',
+  'roi.html',
+  'structural-clarity.html',
+  'why-monderman.html',
+];
+
 const workspacePages = [
   'workspace.html',
   'workspace-diagnostics.html',
@@ -27,6 +38,13 @@ const phoneViewports = [
   { width: 320, height: 700 },
   { width: 390, height: 844 },
   { width: 430, height: 932 },
+];
+
+const articleReadingViewports = [
+  { width: 768, height: 900 },
+  { width: 1024, height: 900 },
+  { width: 1100, height: 900 },
+  { width: 1280, height: 900 },
 ];
 
 function noPageOverflow(result, label) {
@@ -48,6 +66,29 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
   const browser = await browserType.launch({ headless: true });
 
   try {
+    for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 }]) {
+      for (const pageName of faviconDebrisPages) {
+        const page = await browser.newPage({ viewport, javaScriptEnabled: false });
+        await page.goto(`${base}/${pageName}`, { waitUntil: 'load', timeout: 30000 });
+        const result = await page.evaluate(() => ({
+          clientWidth: document.documentElement.clientWidth,
+          scrollWidth: document.documentElement.scrollWidth,
+          leadingBodyText: document.body.innerText.trim().slice(0, 24),
+          orphanedHeadArtwork: Boolean(document.head.querySelector('svg, rect, text')),
+        }));
+        noPageOverflow(result, `${browserName}/${viewport.width}/${pageName}/head-cleanliness`);
+        assert.equal(result.orphanedHeadArtwork, false,
+          `${browserName}/${viewport.width}/${pageName}: orphaned favicon artwork remains in the head`);
+        assert.ok(!/^M\s*['"]\s*\/?>/.test(result.leadingBodyText),
+          `${browserName}/${viewport.width}/${pageName}: favicon debris is visible above the page `
+          + JSON.stringify(result.leadingBodyText));
+        if (viewport.width === 390 && pageName === 'diagnostics.html') {
+          await page.screenshot({ path: path.join(out, `diagnostics-clean-head-${browserName}-390.png`) });
+        }
+        await page.close();
+      }
+    }
+
     for (const viewport of phoneViewports) {
       for (const pageName of articlePages) {
         const page = await browser.newPage({ viewport, javaScriptEnabled: false });
@@ -143,6 +184,62 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
           }
           await page.close();
         }
+      }
+    }
+
+    for (const viewport of articleReadingViewports) {
+      for (const pageName of articlePages) {
+        const page = await browser.newPage({ viewport, javaScriptEnabled: false });
+        await page.goto(`${base}/${pageName}`, { waitUntil: 'load', timeout: 30000 });
+        const result = await page.evaluate(() => {
+          const matrix = document.querySelector('.lens-matrix');
+          matrix.style.fontSize = '1.425rem';
+          const cells = [...matrix.querySelectorAll('td')];
+          const diagnosticLabels = [...matrix.querySelectorAll('td:first-child strong')];
+          const content = document.querySelector('.article-layout > .content');
+          return {
+            clientWidth: document.documentElement.clientWidth,
+            scrollWidth: document.documentElement.scrollWidth,
+            contentWidth: Math.round(content.getBoundingClientRect().width),
+            matrixWidth: Math.round(matrix.getBoundingClientRect().width),
+            cellWidths: cells.map(cell => Math.round(cell.getBoundingClientRect().width)),
+            cellScrollWidths: cells.map(cell => cell.scrollWidth),
+            overflowWrap: cells.map(cell => getComputedStyle(cell).overflowWrap),
+            wordBreak: cells.map(cell => getComputedStyle(cell).wordBreak),
+            hyphens: cells.map(cell => getComputedStyle(cell).hyphens),
+            diagnosticLabelBounds: diagnosticLabels.map(label => {
+              const labelBox = label.getBoundingClientRect();
+              const cellBox = label.closest('td').getBoundingClientRect();
+              return {
+                left: labelBox.left,
+                right: labelBox.right,
+                cellLeft: cellBox.left,
+                cellRight: cellBox.right,
+              };
+            }),
+          };
+        });
+        noPageOverflow(result, `${browserName}/${viewport.width}/${pageName}/enlarged-text`);
+        assert.ok(result.matrixWidth >= 500,
+          `${browserName}/${viewport.width}/${pageName}: lens matrix remains too narrow (${result.matrixWidth}px)`);
+        assert.ok(Math.min(...result.cellWidths) >= 135,
+          `${browserName}/${viewport.width}/${pageName}: lens column remains too narrow (${Math.min(...result.cellWidths)}px)`);
+        assert.ok(result.cellScrollWidths.every((width, index) => width <= result.cellWidths[index] + 1),
+          `${browserName}/${viewport.width}/${pageName}: enlarged lens text escapes a cell `
+          + `(boxes=${JSON.stringify(result.cellWidths)}, scroll=${JSON.stringify(result.cellScrollWidths)})`);
+        assert.ok(result.overflowWrap.every(value => value === 'normal')
+          && result.wordBreak.every(value => value === 'normal')
+          && result.hyphens.every(value => value === 'none'),
+        `${browserName}/${viewport.width}/${pageName}: lens text can still split inside words`);
+        assert.ok(result.diagnosticLabelBounds.every(box => box.left >= box.cellLeft - 1 && box.right <= box.cellRight + 1),
+          `${browserName}/${viewport.width}/${pageName}: a Diagnostic label escapes its table cell `
+          + JSON.stringify(result.diagnosticLabelBounds));
+        if (viewport.width === 1024 && pageName === 'structural-clarity-article.html') {
+          await page.locator('.lens-matrix').screenshot({
+            path: path.join(out, `lens-matrix-enlarged-${browserName}-1024.png`),
+          });
+        }
+        await page.close();
       }
     }
 

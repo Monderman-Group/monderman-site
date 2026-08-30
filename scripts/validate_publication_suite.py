@@ -151,6 +151,12 @@ def first_reference_page(document) -> int:
 
 
 def validate_publication(filename: str, category: str) -> None:
+    expected_from_filename = "BRIEF" if filename.startswith("Monderman_Brief_") else "INSIGHT"
+    if category != expected_from_filename:
+        raise AssertionError(
+            f"{filename}: configured category {category!r} conflicts with filename taxonomy "
+            f"{expected_from_filename!r}"
+        )
     path = ROOT / filename
     reader = PdfReader(path)
     expected_pages = EXPECTED_PAGES[filename]
