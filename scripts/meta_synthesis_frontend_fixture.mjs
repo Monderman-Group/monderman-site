@@ -183,7 +183,7 @@ const comparison = {
 const comparisonModel = Report.fromSynthesis(comparison);
 assert.equal(comparisonModel.product, "cross_lens");
 assert.equal(comparisonModel.scorePublished, false);
-assert.equal(comparisonModel.headlineScore, "—");
+assert.equal(comparisonModel.headlineScore, "Unavailable");
 assert.equal(comparisonModel.headlineBand, "Composite withheld");
 const comparisonHtml = Report.buildReportHtml(comparisonModel);
 assert.match(comparisonHtml, /Lens comparison—not a composite diagnosis/);

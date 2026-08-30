@@ -34,6 +34,26 @@ const localOrigin = new URL(base).origin;
 const browser = await chromium.launch({ headless: true });
 const failures = [];
 
+async function navigateToStableDocument(page, url) {
+  let lastError;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      await page.goto(url, { waitUntil: 'load', timeout: 30000 });
+      // Give a legacy meta refresh or location replacement time to settle, then
+      // bind subsequent measurements to the final document.
+      await page.waitForTimeout(175);
+      await page.waitForLoadState('load', { timeout: 30000 });
+      await page.evaluate(() => document.readyState);
+      return;
+    } catch (error) {
+      lastError = error;
+      if (!/context was destroyed|frame was detached|navigation/i.test(String(error))) throw error;
+      await page.waitForTimeout(100);
+    }
+  }
+  throw lastError;
+}
+
 try {
   // Desktop safety contract: the shared stylesheet may contain exactly one
   // top-level rule, and that rule must be the phone-only media query. This
@@ -74,7 +94,7 @@ try {
         }
       });
 
-      await page.goto(`${base}/${pageName}`, { waitUntil: 'load', timeout: 30000 });
+      await navigateToStableDocument(page, `${base}/${pageName}`);
       await page.waitForTimeout(50);
 
       const geometry = await page.evaluate(() => {

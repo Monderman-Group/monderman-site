@@ -3,13 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
   <title>Depth Synthesis & Cross-Lens Synthesis | Monderman</title>
   <link rel="canonical" href="https://www.monderman.com/cross-tool-synthesis.html">
   <meta property="og:title" content="Depth Synthesis & Cross-Lens Synthesis | Monderman">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://www.monderman.com/cross-tool-synthesis.html">
-  <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="10" fill="%2304181B"/><text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23FAFAF8">M</text><rect x="47" y="36" width="8" height="8" rx="1.2" fill="%230C6E78"/></svg>'>
-  <style>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260830-cert1">
+  <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260830-cert1">
+  <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260830-cert1">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260830-cert1">
+<style>
     @font-face{font-family:"Neue Haas Grotesk";src:url("55font.woff2") format("woff2"),url("55font.woff") format("woff");font-style:normal;font-weight:400;font-display:swap}
     @font-face{font-family:"Neue Haas Grotesk";src:url("65font.woff2") format("woff2"),url("65font.woff") format("woff");font-style:normal;font-weight:500;font-display:swap}
     @font-face{font-family:"Neue Haas Grotesk";src:url("75font.woff2") format("woff2"),url("75font.woff") format("woff");font-style:normal;font-weight:700;font-display:swap}
@@ -119,8 +123,8 @@
         const label=productLabel(result);
         const evidence=result.evidence_assessment?.evidence_label||result.readiness_label||"Evidence band unavailable";
         const scoreState=isDepth
-          ? `Median Diagnostic Score ${result.cross_diagnostic_score??"—"}`
-          : result.score_status==="published"?`Cross-Lens Composite Score ${result.cross_diagnostic_score??"—"}`:"Cross-Lens Composite Score withheld";
+          ? `Median Diagnostic Score ${result.cross_diagnostic_score??"Unavailable"}`
+          : result.score_status==="published"?`Cross-Lens Composite Score ${result.cross_diagnostic_score??"Unavailable"}`:"Cross-Lens Composite Score withheld";
         byId("pageTitle").textContent=label;
         byId("pageDek").textContent=isDepth
           ? "A same-Diagnostic Synthesis reporting the Median Diagnostic Score, distribution, participant-perspective evidence, and limits of the observed set."

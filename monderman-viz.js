@@ -87,11 +87,11 @@
   function fmt(n) { return Number(n).toLocaleString("en-US"); }
 
   /* ════════════════════════════════════════════════════════════════════
-   * 1. severityDots — ranked dot plot replacing the donut.
+   * 1. severityDots: ranked dot plot replacing the donut.
    *    Each burden dimension as a dot on a 0–100 severity axis, with
    *    whisper-shaded zones (healthy <35 / strained 35–55 / severe >55,
    *    matching the engine's material-floor and note thresholds). Shows
-   *    ABSOLUTE severity — pair with shareBar, which shows SHARE.
+   *    ABSOLUTE severity: pair with shareBar, which shows SHARE.
    * ════════════════════════════════════════════════════════════════════ */
   function severityDots(el, data) {
     const rows = ((data && data.rows) || [])
@@ -137,8 +137,8 @@
   }
 
   /* ════════════════════════════════════════════════════════════════════
-   * 2. shareBar — single 100% composition bar + legend.
-   *    Shows each dimension's SHARE of total burden — the authoritative
+   * 2. shareBar: single 100% composition bar + legend.
+   *    Shows each dimension's SHARE of total burden: the authoritative
    *    composition the locked facts reference. Read together with
    *    severityDots, the pair makes the share-vs-absolute distinction
    *    visible instead of confusable.
@@ -153,7 +153,7 @@
     const W = 640, barH = 26, legendRowH = 24;
     const legendRows = segs.length;
     const H = 16 + barH + 18 + legendRows * legendRowH + 6;
-    const svg = mount(el, W, H, "Burden composition — share of total");
+    const svg = mount(el, W, H, "Burden composition: share of total");
     if (!svg) return;
 
     const palette = [T.accentDark, T.accent, "#3E8A92", "#7FB0B6", "#B5D0D3", "#DCE8E9"];
@@ -175,7 +175,7 @@
   }
 
   /* ════════════════════════════════════════════════════════════════════
-   * 3. priorityPath — Fix now → Fix next → Monitor as an annotated
+   * 3. priorityPath: Fix now → Fix next → Monitor as an annotated
    *    sequence with severity chips, matching the canonical ladder.
    * ════════════════════════════════════════════════════════════════════ */
   function priorityPath(el, data) {
@@ -200,7 +200,7 @@
       S("circle", { cx: cx + 14, cy: 18, r: 12, fill: i === 0 ? T.accentDark : "rgba(12,110,120,.14)" }, svg);
       txt(svg, cx + 14, 22.5, String(i + 1), { anchor: "middle", fill: i === 0 ? "#fff" : T.accentDark, size: "12px", weight: 700 });
       txt(svg, cx + 34, 14, titles[i] || "", { fill: T.muted, size: "10px", spacing: ".11em" });
-      /* label — wrap to two lines max */
+      /* label: wrap to two lines max */
       const words = String(s.label).split(" ");
       let line1 = "", line2 = "";
       words.forEach((w) => {
@@ -222,7 +222,7 @@
   }
 
   /* ════════════════════════════════════════════════════════════════════
-   * 8. effortFlow — Sankey of where labor capacity (and money) goes.
+   * 8. effortFlow: Sankey of where labor capacity (and money) goes.
    *    Total annual capacity → Productive effort / Structural overhead /
    *    Recoverable burden → burden dimensions (in dollars).
    *
@@ -295,7 +295,7 @@
       ? [
           { key: "prod",    label: "Productive effort",   cost: productiveCost, hours: d.productiveHours, color: C_PROD },
           { key: "struct",  label: "Structural overhead", cost: structuralCost, hours: null,              color: C_STRUCT, sub: "proportionate to operating in this sector" },
-          { key: "reclaim", label: "Recoverable burden",  cost: reclaimCost,    hours: null,              color: C_RECLAIM, sub: "excess drag — the reclaim opportunity" }
+          { key: "reclaim", label: "Recoverable burden",  cost: reclaimCost,    hours: null,              color: C_RECLAIM, sub: "excess drag: the reclaim opportunity" }
         ]
       : [
           { key: "prod",  label: "Productive effort",   cost: productiveCost, hours: d.productiveHours, color: C_PROD },
@@ -328,7 +328,7 @@
     S("defs", {}, svg);
     const leafTints = ["rgba(176,57,47,.90)", "rgba(176,57,47,.70)", "rgba(176,57,47,.54)", "rgba(176,57,47,.40)", "rgba(176,57,47,.28)"];
 
-    /* column A — total */
+    /* column A: total */
     const hA = hOf(totalCost), yA = top;
     S("rect", { x: xA, y: yA, width: nodeW, height: hA, rx: 1.5, fill: T.ink }, svg);
     txt(svg, xA, yA - 18, "TOTAL ANNUAL CAPACITY", { fill: T.muted, size: "10px", spacing: ".11em" });
@@ -349,7 +349,7 @@
       bLabelBottom = bottom;
     });
 
-    /* column C — burden dimensions on the label ladder */
+    /* column C: burden dimensions on the label ladder */
     if (dims.length && fanCost > 0) {
       dims.forEach((x, i) => {
         ribbon(svg, xB + nodeW, fanNode.y + dims.slice(0, i).reduce((s, p) => s + p.srcH, 0), x.srcH, xC, x.rectY, x.leafH, C_RECLAIM, "mvg-" + _chartToken() + "-" + (++_uid));

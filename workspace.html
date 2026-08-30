@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260830-cert1">
+  <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260830-cert1">
+  <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260830-cert1">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260830-cert1">
 <link rel="stylesheet" href="assets/brand/brand-lockup.css?v=20260824-wide1"/>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,26 +13,21 @@
 <meta property="og:title" content="Overview · Monderman"/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://www.monderman.com/workspace.html"/>
-<link href="assets/brand/monderman-favicon.svg?v=20260824-wide1" rel="icon" type="image/svg+xml"/>
-<link href="https://www.monderman.com/favicon.ico?v=20260824-wide1" rel="icon" type="image/x-icon" sizes="any"/>
-<link href="https://www.monderman.com/favicon-192.png?v=20260824-wide1" rel="icon" type="image/png" sizes="192x192"/>
-<link href="https://www.monderman.com/favicon-192.png?v=20260824-wide1" rel="apple-touch-icon"/>
-<link href="assets/brand/monderman-favicon.svg?v=20260824-wide1" rel="icon" type="image/svg+xml"/>
-  <meta name="robots" content="noindex, nofollow" />
+<meta name="robots" content="noindex, nofollow" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-  /* monderman-shell.css inlined — served with the page so it can never 404 */
+  /* monderman-shell.css inlined: served with the page so it can never 404 */
 /* =====================================================================
-   monderman-shell.css — shared workspace design system
+   monderman-shell.css: shared workspace design system
    Direction A (Reading Room), locked skin.
    ONE stylesheet for all workspace pages. Page-specific CSS lives in the
    page and builds on these primitives; it never overrides the tokens.
 
    Two-colour discipline:
      TEAL  = brand & interactive ONLY (links, buttons, active nav, brand)
-     ORANGE/RED/GREEN = condition & attention ONLY — orange is the "dash"
+     ORANGE/RED/GREEN = condition & attention ONLY: orange is the "dash"
    The two never trade jobs.
    ===================================================================== */
 
@@ -38,10 +37,10 @@
   --ink:#18191C; --muted:#6E6F73; --faint:#9A9892;
   --line:#EAE6DD; --line-soft:#F1EEE7;
 
-  /* brand / interactive — TEAL ONLY */
+  /* brand / interactive: TEAL ONLY */
   --teal:#0C6E78; --teal-hover:#0A5B63; --teal-ink:#0A5B63; --teal-bg:#E2EEEF;
 
-  /* condition scale — NEVER interactive */
+  /* condition scale: NEVER interactive */
   --critical:#B0392F; --critical-bg:#FAEAE7;
   --strained:#C9821F; --strained-bg:#FAF1E2;   /* the orange "dash" */
   --mixed:#9A8417;    --mixed-bg:#F6F2DC;
@@ -82,7 +81,7 @@ a{color:inherit;text-decoration:none}
 .ws-top{display:flex;align-items:center;gap:28px;padding:0 34px;height:var(--topbar-h);
   background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
 
-/* the ONE brand lockup — identical on every page; links home */
+/* the ONE brand lockup: identical on every page; links home */
 .ws-brand{display:inline-flex;align-items:center;font-family:"Neue Haas Grotesk",var(--sans);font-weight:700;font-size:20px;letter-spacing:-0.02em;color:var(--ink);flex:0 0 auto;text-decoration:none}
 .ws-brand .dot{width:6px;height:6px;margin-left:10px;background:var(--teal);border-radius:1px;display:inline-block;transform:translateY(-1px);flex:0 0 auto}
 .ws-loader{position:relative;width:38px;height:38px}
@@ -129,7 +128,7 @@ a{color:inherit;text-decoration:none}
 .ws-subtabs a.active{color:var(--ink);font-weight:500;border-bottom-color:var(--teal)}
 
 /* =========================================================
-   BUTTONS — one radius (7px), never pills
+   BUTTONS: one radius (7px), never pills
    ========================================================= */
 .ws-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--sans);
   font-size:13.5px;font-weight:500;padding:11px 17px;border-radius:var(--r-btn);border:1px solid transparent;
@@ -147,18 +146,18 @@ a{color:inherit;text-decoration:none}
 .ws-link:hover{text-decoration:underline}
 
 /* =========================================================
-   CHIPS & BADGES — condition + attention. Orange = the dash.
+   CHIPS & BADGES: condition + attention. Orange = the dash.
    ========================================================= */
 .ws-chip{display:inline-flex;align-items:center;font-size:11.5px;font-weight:600;padding:3px 9px;
   border-radius:var(--r-chip);letter-spacing:.01em;white-space:nowrap}
-.ws-chip.s{background:var(--strained-bg);color:var(--strained)}     /* Strained — orange */
+.ws-chip.s{background:var(--strained-bg);color:var(--strained)}     /* Strained: orange */
 .ws-chip.m{background:var(--mixed-bg);color:var(--mixed)}           /* Mixed */
 .ws-chip.k{background:var(--stable-bg);color:var(--stable)}         /* Stable */
 .ws-chip.crit{background:var(--critical-bg);color:var(--critical)}  /* Critical */
 .ws-chip.info{background:var(--teal-bg);color:var(--teal-ink)}      /* neutral/brand info */
 .ws-chip.flat{background:var(--panel);color:var(--muted)}           /* neutral grey */
 
-/* small attention markers — use sparingly (the "dash" of orange) */
+/* small attention markers: use sparingly (the "dash" of orange) */
 .ws-badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;
   padding:3px 9px;border-radius:999px;background:var(--panel);color:var(--muted)}
 .ws-badge.warn{background:var(--strained-bg);color:var(--strained)} /* e.g. "Closes in 5 days", "Needs attention" */
@@ -178,7 +177,7 @@ a{color:inherit;text-decoration:none}
 .ws-grid.even{grid-template-columns:repeat(2,1fr)}
 
 /* =========================================================
-   THE READ / HERO block (signature — thesis is a sentence)
+   THE READ / HERO block (signature: thesis is a sentence)
    ========================================================= */
 .ws-read .ws-eyebrow{margin-bottom:18px}
 .ws-thesis{font-family:var(--serif);font-weight:600;font-size:38px;line-height:1.18;letter-spacing:-.01em;margin:0 0 22px;max-width:18ch}
@@ -223,7 +222,7 @@ a{color:inherit;text-decoration:none}
 .ws-drawer a::after{content:"→";color:var(--faint);margin-left:2px;font-size:13px}
 
 /* =========================================================
-   LISTS / ROWS (runs, recipients) — restrained, hairline-separated
+   LISTS / ROWS (runs, recipients): restrained, hairline-separated
    ========================================================= */
 .ws-list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;background:var(--surface)}
 .ws-rowitem{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid var(--line-soft)}
@@ -239,7 +238,7 @@ a{color:inherit;text-decoration:none}
    ========================================================= */
 .ws-progress{height:8px;border-radius:5px;background:var(--panel);overflow:hidden}
 .ws-progress .bar{height:100%;background:var(--teal);border-radius:5px}
-.ws-progress .bar.warn{background:var(--strained)} /* near-deadline accent — sparing */
+.ws-progress .bar.warn{background:var(--strained)} /* near-deadline accent: sparing */
 
 /* =========================================================
    GAUGE / METER (optional, e.g. an instrument detail)
@@ -260,7 +259,7 @@ a{color:inherit;text-decoration:none}
 .ws-textarea{min-height:96px;resize:vertical}
 
 /* =========================================================
-   EMPTY STATES — an invitation to act, never a dead end
+   EMPTY STATES: an invitation to act, never a dead end
    ========================================================= */
 .ws-empty{border:1px dashed var(--line);border-radius:var(--r-card);padding:40px 28px;text-align:center;background:var(--surface)}
 .ws-empty h3{font-family:var(--serif);font-weight:600;font-size:19px;margin:0 0 8px}
@@ -269,7 +268,7 @@ a{color:inherit;text-decoration:none}
 .ws-foot{font-size:12.5px;color:var(--faint);margin-top:18px;line-height:1.5}
 
 /* =========================================================
-   RESPONSIVE — top nav wraps to a scrolling strip on mobile
+   RESPONSIVE: top nav wraps to a scrolling strip on mobile
    ========================================================= */
 @media (max-width:820px){
   .ws-top{gap:14px;padding:0 18px;height:auto;min-height:56px;flex-wrap:wrap}
@@ -299,14 +298,14 @@ a{color:inherit;text-decoration:none}
     @keyframes ovspin{to{transform:rotate(360deg)}}
     @media (prefers-reduced-motion:reduce){.ov-ring{animation:none}}
 
-    /* hero "invite"/empty score state — reuse .ws-read, just allow a lighter readline */
+    /* hero "invite"/empty score state: reuse .ws-read, just allow a lighter readline */
     .ws-inst .val.empty{color:var(--faint)}
     .ws-inst .row .ws-link{font-size:12.5px}
 
     /* recommended secondary link row */
     .ws-rec .recfoot{margin-top:14px;display:flex;align-items:center;gap:16px}
 
-    /* slim plan/usage strip — quiet, account-level */
+    /* slim plan/usage strip: quiet, account-level */
     .ws-planstrip{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:34px;padding-top:18px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
     .ws-planstrip b{color:var(--ink);font-weight:600}
     .ws-planstrip .sep{color:var(--faint)}
@@ -417,7 +416,7 @@ body{transition:background-color .25s ease,color .25s ease}
         var meta = document.getElementById("wsReadMeta");
         var first = (window.__bootErrors && window.__bootErrors.length) ? window.__bootErrors[0]
                     : ("the workspace script didn’t finish (reached: " + (window.__wsBooted || "not started") + ").");
-        if (meta){ meta.textContent = "Couldn’t load — " + first; meta.style.color = "var(--critical)"; }
+        if (meta){ meta.textContent = "Couldn’t load: " + first; meta.style.color = "var(--critical)"; }
       }, 4500);
     });
   </script>
@@ -434,7 +433,7 @@ body{transition:background-color .25s ease,color .25s ease}
       <a href="workspace-settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h9M17 7h3"/><circle cx="15" cy="7" r="2"/><path d="M4 17h3M11 17h9"/><circle cx="9" cy="17" r="2"/></svg>Settings</a>
       </nav>
       <div class="ws-rail-foot">
-        <div class="ws-plan-chip"><b class="ws-org" id="wsOrgName">—</b></div>
+        <div class="ws-plan-chip"><b class="ws-org" id="wsOrgName">Workspace</b></div>
         <div class="ws-glyphs">
           <button class="ws-glyph" type="button" title="Toggle light / dark" onclick="document.querySelector('.ws5-theme-toggle')&&document.querySelector('.ws5-theme-toggle').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.6"/><path d="M12 3v1.6M12 19.4V21M3 12h1.6M19.4 12H21M5.2 5.2l1.1 1.1M17.7 17.7l1.1 1.1M5.2 18.8l1.1-1.1M17.7 6.3l1.1-1.1"/></svg><span>Theme</span></button>
           <button class="ws-glyph" type="button" title="Notes" onclick="document.querySelector('.wsn-btn')&&document.querySelector('.wsn-btn').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h5"/></svg><span>Notes</span></button>
@@ -447,8 +446,8 @@ body{transition:background-color .25s ease,color .25s ease}
         <div class="ws-crumb"><h1>Overview</h1></div>
         <div class="ws-topright">
           <div class="ws-user">
-            <div class="ws-ava" id="wsAva">—</div>
-            <div class="ws-who"><b id="wsUserName">—</b><span id="wsUserRole">—</span></div>
+            <div class="ws-ava" id="wsAva">M</div>
+            <div class="ws-who"><b id="wsUserName">Loading…</b><span id="wsUserRole">Workspace</span></div>
           </div>
           <button class="ws-signout" id="wsSignOut" type="button">Sign out</button>
         </div>
@@ -475,16 +474,16 @@ body{transition:background-color .25s ease,color .25s ease}
 
     <!-- the four Diagnostics -->
     <section class="ws-instruments" id="wsInstruments" aria-label="The four Diagnostics">
-      <div class="ws-inst"><div class="name">Structural Clarity</div><div class="val empty">—</div><div class="row"><span class="ws-muted" style="font-size:12.5px">Loading…</span></div></div>
-      <div class="ws-inst"><div class="name">Decision Velocity</div><div class="val empty">—</div></div>
-      <div class="ws-inst"><div class="name">Operational Systems</div><div class="val empty">—</div></div>
-      <div class="ws-inst"><div class="name">Institutional Performance</div><div class="val empty">—</div></div>
+      <div class="ws-inst"><div class="name">Structural Clarity</div><div class="val empty">Not available</div><div class="row"><span class="ws-muted" style="font-size:12.5px">Loading…</span></div></div>
+      <div class="ws-inst"><div class="name">Decision Velocity</div><div class="val empty">Not available</div></div>
+      <div class="ws-inst"><div class="name">Operational Systems</div><div class="val empty">Not available</div></div>
+      <div class="ws-inst"><div class="name">Institutional Performance</div><div class="val empty">Not available</div></div>
     </section>
 
     <div class="ws-section-label"><span class="ws-eyebrow">Synthesis readiness</span><a class="ws-link" href="workspace-analysis.html#synthesis">Open Analysis →</a></div>
     <section class="ws-instruments" id="wsSynthesisReadiness" aria-label="Synthesis readiness" style="grid-template-columns:repeat(2,minmax(0,1fr))">
-      <div class="ws-inst"><div class="name">Depth Synthesis</div><div class="val empty">—</div><div class="row"><span class="ws-muted" style="font-size:12.5px">Loading eligible candidates…</span></div></div>
-      <div class="ws-inst"><div class="name">Cross-Lens Synthesis</div><div class="val empty">—</div></div>
+      <div class="ws-inst"><div class="name">Depth Synthesis</div><div class="val empty">Not available</div><div class="row"><span class="ws-muted" style="font-size:12.5px">Loading eligible candidates…</span></div></div>
+      <div class="ws-inst"><div class="name">Cross-Lens Synthesis</div><div class="val empty">Not available</div></div>
     </section>
 
     <!-- recommended next -->
@@ -494,7 +493,7 @@ body{transition:background-color .25s ease,color .25s ease}
     </div>
     <article class="ws-rec" id="wsRecCard" style="display:none">
       <div class="body">
-        <h3 id="wsRecText">—</h3>
+        <h3 id="wsRecText">Not available</h3>
         <p class="ws-muted" id="wsRecWhy"></p>
         <div class="recfoot">
           <a class="ws-btn ghost sm" id="wsRecBoardLink" href="workspace-actions.html">Open the action board</a>
@@ -512,7 +511,7 @@ body{transition:background-color .25s ease,color .25s ease}
 
     <!-- slim account strip -->
     <div class="ws-planstrip">
-      <span id="wsPlanStrip"><b>—</b> plan</span>
+      <span id="wsPlanStrip"><b>Not available</b> plan</span>
       <a class="ws-link manage" id="wsManageLink" href="platform-services.html">Manage →</a>
     </div>
 
@@ -526,7 +525,7 @@ body{transition:background-color .25s ease,color .25s ease}
   <script type="module">
     window.__wsBooted = "module-eval";
     const workspaceAccess = await window.mondermanWorkspaceAccessReady;
-    if (!workspaceAccess?.allowed) throw new Error("workspace_access_not_allowed");
+    if (!workspaceAccess?.allowed) await new Promise(function () {});
     const supabase = await window.mondermanGetSupabaseClient();
     window.__wsBooted = "lib-loaded";
 
@@ -633,7 +632,7 @@ body{transition:background-color .25s ease,color .25s ease}
     async function loadRecentRuns(){
       if(!state.user) return [];
       // Workspace overview, not personal history: show every promoted run in
-      // the organization — colleagues' reads and directed-campaign runs
+      // the organization: colleagues' reads and directed-campaign runs
       // included. Campaign runs carry no user_id, so the old user filter made
       // the workspace's own campaigns invisible here. Falls back to
       // personal-only when no organization is linked. Requires the org-scoped
@@ -682,8 +681,8 @@ body{transition:background-color .25s ease,color .25s ease}
     function renderInstruments(byTool){
       $("wsInstruments").innerHTML=TOOLS.map(t=>{
         const e=byTool[t],label=toolName(t);
-        if(!e) return `<div class="ws-inst"><div class="name">${label}</div><div class="val empty">—</div><div class="row"><a class="ws-link" href="workspace-diagnostics.html#launch">Run →</a></div></div>`;
-        const r=e.run,score=(r.score!=null&&r.score!=="")?escapeHtml(String(r.score)):"—";
+        if(!e) return `<div class="ws-inst"><div class="name">${label}</div><div class="val empty">Not available</div><div class="row"><a class="ws-link" href="workspace-diagnostics.html#launch">Run →</a></div></div>`;
+        const r=e.run,score=(r.score!=null&&r.score!=="")?escapeHtml(String(r.score)):"Unavailable";
         const chip=r.band?`<span class="ws-chip ${bandClass(r.band,r.score)}">${escapeHtml(r.band)}</span>`:"";
         const scope=escapeHtml(r.business_unit||r.pathway_name||"Scope not labeled"),date=escapeHtml(monthLabel(r.created_at));
         return `<div class="ws-inst"><div class="name">${label}</div><div class="val tnum">${score}</div><div class="row">${chip}</div><div class="row"><span class="ws-muted" style="font-size:12px">${scope} · ${date}</span></div><div class="row"><a class="ws-link" href="workspace-diagnostics.html?report=${encodeURIComponent(r.id)}">Open report</a><a class="ws-link" href="workspace-diagnostics.html#launch">Run again</a></div></div>`;

@@ -65,7 +65,7 @@ for (const [key, contract] of Object.entries(expected)) {
   for (const token of [
     'Executive decision brief', 'Dimension profile', 'Constraint concentration',
     'How the disclosed scenario becomes exposure', 'Priority map',
-    'Leadership implication', 'What evidence is—and is not—in this run',
+    'Leadership implication', 'What evidence is, and is not, in this run',
     'Priorities and graduated remedy paths', 'Basis of this read', 'Interpretation boundary',
     'No participant notes were supplied', 'Turn the read into a bounded operating decision',
   ]) assert(text.includes(token), `${key} missing production-equivalent content: ${token}`);

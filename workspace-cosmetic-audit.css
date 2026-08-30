@@ -21,6 +21,22 @@
   max-width: 100%;
 }
 
+.ws-instruments,
+.tiles {
+  min-width: 0;
+}
+
+.ws-inst,
+.tile {
+  min-width: 0;
+}
+
+.ws-inst .name,
+.ws-inst .val.empty,
+.tile .l {
+  overflow-wrap: anywhere;
+}
+
 .lanes,
 .lane,
 .ai-card,
@@ -170,6 +186,15 @@
 }
 
 @media (max-width: 560px) {
+  .ws-instruments {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ws-inst .val.empty {
+    font-size: 18px;
+    line-height: 1.2;
+  }
+
   /* WebKit includes a select's longest owner option in intrinsic sizing. Give
      the Action board one full-width control per row and reclaim nested padding
      so long real names remain visible without narrowing the action title. */
@@ -198,5 +223,11 @@
 
   body.workspace-actions-surface .mini-select {
     padding-inline: 6px;
+  }
+}
+
+@media (max-width: 340px) {
+  .tiles {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

@@ -107,7 +107,8 @@
     '#mdn-cn-panel.mdn-cn-open{opacity:1; transform:none; pointer-events:auto;}',
     '.mdn-cn-head{display:flex; align-items:center; justify-content:space-between; padding:14px 16px 8px; flex:0 0 auto;}',
     '.mdn-cn-title{font-size:14px; font-weight:700; letter-spacing:-.01em; margin:0;}',
-    '.mdn-cn-close{appearance:none; border:0; background:transparent; color:var(--cn-muted); cursor:pointer; font-size:18px; line-height:1; padding:4px;}',
+    '.mdn-cn-close{appearance:none; width:44px; height:44px; display:grid; place-items:center; border:0; background:transparent; color:var(--cn-muted); cursor:pointer; font-size:18px; line-height:1; padding:0; margin:-8px -10px -8px 0; border-radius:8px;}',
+    '.mdn-cn-close:focus-visible{outline:3px solid var(--cn-ring); outline-offset:1px;}',
     '.mdn-cn-progress{display:flex; align-items:center; gap:7px; padding:0 16px 8px; font-size:10.5px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--cn-muted); flex:0 0 auto;}',
     '.mdn-cn-dot{width:6px; height:6px; border-radius:50%; background:var(--cn-line);}',
     '.mdn-cn-dot.is-on{background:var(--cn-accent);}',
@@ -200,7 +201,7 @@
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
       '<path d="M22 2 11 13"></path><path d="M22 2 15 22l-4-9-9-4 20-7z"></path></svg><span>Connect</span>');
 
-    var panel = el('div', { id: 'mdn-cn-panel', role: 'dialog', 'aria-label': 'Connect with Monderman' },
+    var panel = el('div', { id: 'mdn-cn-panel', role: 'dialog', 'aria-label': 'Connect with Monderman', 'aria-hidden': 'true', inert: '' },
       '<div class="mdn-cn-head"><p class="mdn-cn-title">Talk to Monderman</p>' +
       '<button class="mdn-cn-close" type="button" aria-label="Close">&times;</button></div>' +
       '<div class="mdn-cn-progress"><span class="mdn-cn-dot is-on" data-dot="1"></span><span class="mdn-cn-dot" data-dot="2"></span><span id="mdncn-steplabel">Step 1 of 2 \u00b7 Start the thread</span></div>' +
@@ -225,8 +226,15 @@
     function setOpen(open) {
       panel.classList.toggle('mdn-cn-open', open);
       launch.setAttribute('aria-expanded', String(open));
+      panel.toggleAttribute('inert', !open);
+      panel.setAttribute('aria-hidden', String(!open));
       footerDock.update();
-      if (open) { var f = panel.querySelector('input, textarea'); f && f.focus(); }
+      if (open) {
+        var f = panel.querySelector('input, textarea');
+        f && f.focus();
+      } else if (panel.contains(document.activeElement)) {
+        launch.focus();
+      }
     }
     function v(id) { var n = $('mdncn-' + id); return n ? String(n.value || '').trim() : ''; }
 

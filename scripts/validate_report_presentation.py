@@ -80,7 +80,7 @@ for token, msg in [
 # Marketing sample disclosure and production-artifact renderer parity.
 production_renderer = (ROOT / "sample-report-production.js").read_text(encoding="utf-8")
 production_styles = (ROOT / "sample-report-production.css").read_text(encoding="utf-8")
-req('Representative product outputs — not customer data.' in sample, 'top representative-output disclosure missing')
+req('Representative product outputs, not customer data.' in sample, 'top representative-output disclosure missing')
 req('synthesis-report-stage' in sample, 'Synthesis report stage wrapper missing')
 req('sample-report-production.js?v=20260824-sample-alignment2' in sample, 'aligned production sample renderer missing')
 req('sample-report-production.css?v=20260824-sample-alignment' in sample, 'aligned production sample presentation missing')

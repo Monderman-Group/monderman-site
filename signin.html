@@ -10,15 +10,18 @@
 <meta property="og:url" content="https://www.monderman.com/signin.html"/>
 <meta property="og:description" content="Sign in to your Monderman workspace to run diagnostics, keep your results, and track change over time."/>
   <meta name="description" content="Sign in to your Monderman workspace to run diagnostics, keep your results, and track change over time." />
-  <link rel="icon" type="image/svg+xml" href="assets/brand/monderman-favicon.svg?v=20260824-wide1" />
-  <link rel="stylesheet" href="assets/brand/brand-lockup.css?v=20260824-wide1" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260830-cert1">
+  <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260830-cert1">
+  <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260830-cert1">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260830-cert1">
+<link rel="stylesheet" href="assets/brand/brand-lockup.css?v=20260824-wide1" />
   <style>
     @font-face { font-family: "Neue Haas Grotesk"; src: url("55font.woff2") format("woff2"), url("55font.woff") format("woff"); font-style: normal; font-weight: 400; font-display: swap; }
     @font-face { font-family: "Neue Haas Grotesk"; src: url("65font.woff2") format("woff2"), url("65font.woff") format("woff"); font-style: normal; font-weight: 500; font-display: swap; }
     @font-face { font-family: "Neue Haas Grotesk"; src: url("75font.woff2") format("woff2"), url("75font.woff") format("woff"); font-style: normal; font-weight: 700; font-display: swap; }
     :root{
       --accent:#0C6E78; --accent-dark:#0A5B63; --accent-soft:rgba(12,110,120,.09); --accent-softer:rgba(12,110,120,.05);
-      --ink:#18191C; --ink-soft:#6E6F73; --ink-muted:#9A9892; --page:#F6F3EC; --panel:#FFFFFF;
+      --ink:#18191C; --ink-soft:#6E6F73; --ink-muted:#6E6F73; --page:#F6F3EC; --panel:#FFFFFF;
       --line:rgba(24,25,28,.08); --line-strong:rgba(24,25,28,.14);
       --ok:#3C8A60; --ok-soft:rgba(60,138,96,.09); --rose:#B0392F; --rose-soft:rgba(176,57,47,.09);
       --shadow-soft:0 1px 0 rgba(0,0,0,.012), 0 12px 28px rgba(0,0,0,.04); --shadow-strong:0 18px 48px rgba(4,24,27,.14);
@@ -201,7 +204,7 @@
        at all (CDN/network), this still reveals the form so no one is trapped. -->
   <script>
     window.addEventListener("load", function(){
-      // If returning from an OAuth provider, the session is mid-exchange — don't
+      // If returning from an OAuth provider, the session is mid-exchange: don't
       // flash the form. Only reveal as a last resort, and later.
       var href = window.location.href;
       var midOAuth = href.indexOf("code=") > -1 || href.indexOf("access_token") > -1;
@@ -548,7 +551,7 @@
     });
 
     // Are we returning from an OAuth provider? Supabase appends a ?code=... (PKCE)
-    // or #access_token=... to the URL. If so, the session is mid-exchange — we must
+    // or #access_token=... to the URL. If so, the session is mid-exchange: we must
     // WAIT for it rather than immediately showing the form.
     const url = new URL(window.location.href);
     const returningFromOAuth =
@@ -572,7 +575,7 @@
     revealTimer = setTimeout(revealForm, returningFromOAuth ? 9000 : 4000);
 
     async function checkExistingSession(){
-      // Retry getSession a few times — right after an OAuth redirect the session
+      // Retry getSession a few times: right after an OAuth redirect the session
       // can take a moment to be written to storage.
       const attempts = returningFromOAuth ? 12 : 3;
       for (let i = 0; i < attempts; i++){
@@ -586,7 +589,7 @@
         }catch(e){ /* keep trying */ }
         await new Promise(r => setTimeout(r, 600));
       }
-      // No session after retries — genuinely signed out; show the form.
+      // No session after retries: genuinely signed out; show the form.
       clearTimeout(revealTimer);
       revealForm();
     }
@@ -634,8 +637,8 @@
         await sendEmailCode(email);
         showOtpForm(email);
         setStatus(invitationMode
-          ? `Check your inbox — we sent an eight-digit sign-in code to ${email}. Enter it here to return to this invitation.`
-          : `Check your inbox — we sent an eight-digit sign-in code to ${email}. Enter it here to continue.`, "ok");
+          ? `Check your inbox: we sent an eight-digit sign-in code to ${email}. Enter it here to return to this invitation.`
+          : `Check your inbox: we sent an eight-digit sign-in code to ${email}. Enter it here to continue.`, "ok");
         ui.emailForm.reset();
       }catch(err){
         setStatus(invitationMode

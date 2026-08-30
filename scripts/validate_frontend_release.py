@@ -81,7 +81,7 @@ else:
   e.append('homepage series carousel reading order')
  for part in ['Series, Part 1','Series, Part 2','Series, Part 3']:
   if latest.count(part)!=1:e.append('homepage series carousel chip '+part)
- for category,expected in [('insight',7),('brief',4),('perspective',2)]:
+ for category,expected in [('insight',6),('brief',5),('perspective',2)]:
   count=latest.count(f'data-category="{category}"')
   if count!=expected:e.append(f'homepage {category} category count {count}, expected {expected}')
  if 'data-category="research"' in latest:e.append('homepage current work falsely classified as Research')
@@ -130,8 +130,8 @@ if not (all(pos>=0 for pos in series_title_positions) and series_title_positions
  e.append('research series reading order')
 for token in ['border-left: 4px solid #0E3A44;','linear-gradient(90deg, #103B44 0%, #0B343D 55%, #04282F 100%)']:
  if token not in research:e.append('research series visual grouping '+token)
-if '<span>Enterprise</span><span>Insight · PDF</span></div>\n          <h3 class="paper-title">How Workarounds Preserve Output While Masking Dysfunction</h3>' not in research:
- e.append('research Compensatory Systems Insight label')
+if '<span>Enterprise</span><span>Brief · PDF</span></div>\n          <h3 class="paper-title">How Workarounds Preserve Output While Masking Dysfunction</h3>' not in research:
+ e.append('research Compensatory Systems Brief label')
 if research.count('<span>Perspective</span><span>HTML')!=3:
  e.append('research Perspective label count')
 for forbidden in ['.paper-card.category-insight {','.paper-card.category-brief {','.essay-card.category-perspective {','.paper-card.category-research {','data-category="insight"','data-category="brief"','data-category="perspective"']:
@@ -139,7 +139,7 @@ for forbidden in ['.paper-card.category-insight {','.paper-card.category-brief {
 built_pdf=r/'Monderman_Insight_Built_to_Please_2026-08-27.pdf'
 if not built_pdf.exists():
  e.append('Built to Please PDF missing')
-elif hashlib.sha256(built_pdf.read_bytes()).hexdigest()!='d60f33ee6e346abd365632f2ca185af321d1a7c517e6d530378bca1916e5ce13':
+elif hashlib.sha256(built_pdf.read_bytes()).hexdigest()!='e0f6f7d417b5707d60dff94c96052cbbee20e2823f83690fd18d207ff6489db3':
  e.append('Built to Please canonical PDF bytes changed')
 for stale in ['exactly as the engine renders it','Every read returns the result in your numbers','Monderman is the instrument that surfaces where these losses originate']:
  if stale in idx:e.append('homepage unsupported claim '+stale)

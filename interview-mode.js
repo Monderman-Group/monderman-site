@@ -1,18 +1,18 @@
 /*
-  interview-mode.js — Monderman guided-interview surface.
+  interview-mode.js | Monderman guided-interview surface.
 
   One small library, included by all four diagnostic pages, exactly like
   assignment-mode.js. It owns everything page-agnostic about running a
   diagnostic item as a conversation instead of a form control.
 
   TERMINOLOGY (enforced): the two ways to take a diagnostic are
-      "Interview"     — conversational, this library
-      "Guided form"   — the instrument's own controls
+      "Interview": conversational, this library
+      "Guided form": the instrument's own controls
   These are diagnostics, and the deprecated questionnaire word is never used
   in copy or in identifiers. The mode tokens are "interview" | "form" |
   "choice" for the same reason.
 
-  DESIGN CONTRACT — "interview mode is a coder, not a new diagnostic":
+  DESIGN CONTRACT: "interview mode is a coder, not a new diagnostic":
     The run lifecycle is untouched. This library never talks to /run/start,
     /run/:id/answer, or /finalize. It renders a conversation for ONE item,
     asks the backend to phrase it, collects free text, resolves that into
@@ -21,10 +21,10 @@
     locked facts all receive byte-identical input either way.
 
   TWO ITEM PATHS:
-    coded   — single_select / multi_select / numeric. The reply goes to the
+    coded: single_select / multi_select / numeric. The reply goes to the
               backend, which returns one of the item's own option tokens (or
               a number). Never a free-form value.
-    capture — questionType "text" (the experiential notes). There are no
+    capture: questionType "text" (the experiential notes). There are no
               tokens to code against, so the reply is submitted verbatim.
               A coding round-trip here would only lose information.
 
@@ -36,11 +36,11 @@
                               return MondermanInterview.present(item);
 
   MODE RESOLUTION (highest priority first):
-    1. Assignment lock       — admin chose interview or form for a campaign
-    2. Assignment delegation — admin left it open; participant picks
-    3. URL ?mode=interview   — direct link
-    4. Participant toggle    — switchable freely at any point in the run
-    5. Default               — interview off (guided form)
+    1. Assignment lock: admin chose interview or form for a campaign
+    2. Assignment delegation: admin left it open; participant picks
+    3. URL ?mode=interview: direct link
+    4. Participant toggle: switchable freely at any point in the run
+    5. Default: interview off (guided form)
 
   GRACEFUL DEGRADATION is the point of the fallback path. If the model is
   unavailable, returns an unusable token, or times out, the item is handed
@@ -102,7 +102,7 @@
     if (!item) return false;
     if (item.questionType === "numeric") return true;
     if (CODED_TYPES.indexOf(item.questionType) === -1) return false;
-    // A select with no options cannot be coded to a token — leave it alone.
+    // A select with no options cannot be coded to a token: leave it alone.
     return Array.isArray(item.options) && item.options.length > 0;
   }
 
@@ -301,7 +301,7 @@
     push("reply", reply);
     if (input) input.value = "";
 
-    // CAPTURE PATH — free-text items have no tokens to code against, so the
+    // CAPTURE PATH: free-text items have no tokens to code against, so the
     // reply IS the value. Nothing is sent for coding; nothing is lost.
     if (isCapture(_item)) {
       _itemExchanges.push({ q: _lastQuestion, a: reply });
@@ -376,7 +376,7 @@
       return;
     }
 
-    // Unknown action — never guess at a value.
+    // Unknown action: never guess at a value.
     return handOffToControl();
   }
 

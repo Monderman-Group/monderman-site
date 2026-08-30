@@ -1,25 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260830-cert1">
+  <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260830-cert1">
+  <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260830-cert1">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260830-cert1">
 <link rel="stylesheet" href="assets/brand/brand-lockup.css?v=20260824-wide1"/>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
   <title>Measure | Monderman Workspace</title>
 <link rel="canonical" href="https://www.monderman.com/workspace-diagnostics.html"/>
 <meta property="og:title" content="Measure | Monderman Workspace"/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://www.monderman.com/workspace-diagnostics.html"/>
-<link href='data:image/svg+xml;utf8,
-    &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"&gt;
-      &lt;rect width="64" height="64" rx="10" fill="%2304181B"/&gt;
-      &lt;text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23FAFAF8"&gt;M&lt;/text&gt;
-      &lt;rect x="47" y="36" width="8" height="8" rx="1.2" fill="%230C6E78"/&gt;
-    &lt;/svg&gt;' rel="icon" type="image/svg+xml"/>
-<link href="https://www.monderman.com/favicon.ico?v=20260824-wide1" rel="icon" type="image/x-icon" sizes="any"/>
-<link href="https://www.monderman.com/favicon-192.png?v=20260824-wide1" rel="icon" type="image/png" sizes="192x192"/>
-<link href="https://www.monderman.com/favicon-192.png?v=20260824-wide1" rel="apple-touch-icon"/>
-<link href="assets/brand/monderman-favicon.svg?v=20260824-wide1" rel="icon" type="image/svg+xml"/>
-  <style>
+
+<style>
     @font-face { font-family:"Neue Haas Grotesk"; src:url("55font.woff2") format("woff2"),url("55font.woff") format("woff"); font-weight:400; font-style:normal; font-display:swap; }
     @font-face { font-family:"Neue Haas Grotesk"; src:url("65font.woff2") format("woff2"),url("65font.woff") format("woff"); font-weight:500; font-style:normal; font-display:swap; }
     @font-face { font-family:"Neue Haas Grotesk"; src:url("75font.woff2") format("woff2"),url("75font.woff") format("woff"); font-weight:700; font-style:normal; font-display:swap; }
@@ -124,7 +120,7 @@
 </style>
   <script>try{if(localStorage.getItem("mndTheme")==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}</script>
   <style>
-/* Monderman workspace shell — five-space nav chrome.
+/* Monderman workspace shell: five-space nav chrome.
    ws5- prefixed so it never collides with the marketing header (.nav/.brand/.header)
    or the site footer (.mf-*). Colors are inlined so this file is self-contained
    across every workspace page regardless of that page's :root tokens. */
@@ -228,7 +224,7 @@
    and topbar chrome switch. Toggled + remembered by workspace-theme.js.
    ============================================================================ */
 
-/* shared semantic tokens (status pills, chips, disabled fields) — LIGHT values */
+/* shared semantic tokens (status pills, chips, disabled fields): LIGHT values */
 :root{
   color-scheme: light;
   --ws-surface:#FFFFFF; --ws-text:#18191C; --ws-line:rgba(24,25,28,.10);
@@ -256,7 +252,7 @@ html[data-theme="dark"]{
   --gold:#D9A441; --gold-soft:rgba(217,164,65,.16); --warn-soft:rgba(217,164,65,.16);
   --accent-dark:#0C6E78; --accent-soft:rgba(43,167,178,.16); --accent-softer:rgba(43,167,178,.10);
   --header-solid:rgba(22,23,27,.92);
-  /* shared semantic tokens — DARK values */
+  /* shared semantic tokens: DARK values */
   --ok-bg:rgba(79,176,122,.20);    --ok-fg:#9FE3BC;
   --warn-bg:rgba(217,164,65,.20);  --warn-fg:#F0CE8A;
   --rose-bg:rgba(222,138,128,.20); --rose-fg:#F2B6AE;
@@ -272,7 +268,7 @@ html[data-theme="dark"] .ws5-who b{color:#E7E4DD}
 html[data-theme="dark"] .ws5-crumb span,
 html[data-theme="dark"] .ws5-who span{color:#9E9C95}
 
-/* smooth the switch (no effect on first paint — theme is set before load) */
+/* smooth the switch (no effect on first paint: theme is set before load) */
 body{transition:background-color .25s ease, color .25s ease}
 
 /* ---- theme toggle: a small floating button parked just above the Hans launcher ---- */
@@ -507,7 +503,7 @@ body{transition:background-color .25s ease, color .25s ease}
         <a href="workspace-settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h9M17 7h3"/><circle cx="15" cy="7" r="2"/><path d="M4 17h3M11 17h9"/><circle cx="9" cy="17" r="2"/></svg>Settings</a>
       </nav>
       <div class="ws5-railfoot">
-        <div class="ws5-planchip">Plan &middot; <b id="ws5Plan">&mdash;</b></div>
+        <div class="ws5-planchip">Plan &middot; <b id="ws5Plan">Loading…</b></div>
           <div class="ws5-glyphs">
             <button class="ws5-glyph" type="button" title="Toggle light / dark" onclick="document.querySelector('.ws5-theme-toggle')&&document.querySelector('.ws5-theme-toggle').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.6"/><path d="M12 3v1.6M12 19.4V21M3 12h1.6M19.4 12H21M5.2 5.2l1.1 1.1M17.7 17.7l1.1 1.1M5.2 18.8l1.1-1.1M17.7 6.3l1.1-1.1"/></svg><span>Theme</span></button>
             <button class="ws5-glyph" type="button" title="Notes" onclick="document.querySelector('.wsn-btn')&&document.querySelector('.wsn-btn').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h5"/></svg><span>Notes</span></button>
@@ -520,10 +516,10 @@ body{transition:background-color .25s ease, color .25s ease}
 
     <div class="ws5-main">
       <header class="ws5-topbar">
-        <div class="ws5-crumb"><h1>Measure</h1><span id="ws5Org">&mdash;</span></div>
+        <div class="ws5-crumb"><h1>Measure</h1><span id="ws5Org">Workspace</span></div>
         <div class="ws5-topright">
           <a class="ws5-btn" href="#launch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Run a diagnostic</a>
-          <div class="ws5-user"><div class="ws5-ava" id="ws5Ava">&mdash;</div><div class="ws5-who"><b id="ws5UserName">&mdash;</b><span id="ws5UserRole">&mdash;</span></div></div>
+          <div class="ws5-user"><div class="ws5-ava" id="ws5Ava">M</div><div class="ws5-who"><b id="ws5UserName">Loading…</b><span id="ws5UserRole">Workspace</span></div></div>
         </div>
       </header>
 
@@ -643,17 +639,17 @@ body{transition:background-color .25s ease, color .25s ease}
             <div class="field">
               <label for="fDepth">Depth</label>
               <select id="fDepth">
-                <option value="10">Quick &mdash; about 10 minutes</option>
-                <option value="30" selected>Standard &mdash; about 30 minutes</option>
-                <option value="60">Deep &mdash; about 60 minutes</option>
+                <option value="10">Quick: about 10 minutes</option>
+                <option value="30" selected>Standard: about 30 minutes</option>
+                <option value="60">Deep: about 60 minutes</option>
               </select>
             </div>
             <div class="field">
               <label for="fResponseMode">How they answer</label>
               <select id="fResponseMode">
                 <option value="choice" selected>Let the recipient choose</option>
-                <option value="interview">Interview &mdash; conversational</option>
-                <option value="form">Guided form &mdash; the instrument's own controls</option>
+                <option value="interview">Interview: conversational</option>
+                <option value="form">Guided form: the instrument's own controls</option>
               </select>
             </div>
             <div class="field">
@@ -693,7 +689,7 @@ body{transition:background-color .25s ease, color .25s ease}
           <button class="add-row" id="btnBulkToggle" type="button">Bulk add / CSV import</button>
 
           <div class="bulk-box" id="bulkBox" hidden>
-            <p class="bulk-help">Paste one recipient per line &mdash; just an email, or <code>email, name, business unit, team</code>. &ldquo;Name &lt;email&gt;&rdquo; works too. Or upload a CSV with those columns.</p>
+            <p class="bulk-help">Paste one recipient per line: just an email, or <code>email, name, business unit, team</code>. &ldquo;Name &lt;email&gt;&rdquo; works too. Or upload a CSV with those columns.</p>
             <textarea id="bulkText" class="bulk-text" placeholder="alex@acme.com, Alex Stone, Operations, Intake&#10;jordan@acme.com&#10;Sam Rivera &lt;sam@acme.com&gt;"></textarea>
             <div class="bulk-actions">
               <button class="btn btn-secondary" id="btnBulkParse" type="button" style="height:34px;padding:0 16px">Add pasted rows</button>
@@ -728,7 +724,7 @@ body{transition:background-color .25s ease, color .25s ease}
   <script src="campaign-access.js"></script>
 <script type="module">
     const workspaceAccess = await window.mondermanWorkspaceAccessReady;
-    if (!workspaceAccess?.allowed) throw new Error("workspace_access_not_allowed");
+    if (!workspaceAccess?.allowed) await new Promise(function () {});
     const supabase = await window.mondermanGetSupabaseClient();
     const API_BASE = "https://monderman-api.onrender.com";
 
@@ -759,7 +755,7 @@ body{transition:background-color .25s ease, color .25s ease}
       a.href="plan-pattern.html";
       a.textContent=` · trial · ${days}d left`;
       a.style.cssText="color:#A9CFD2;text-decoration:none;font-weight:600";
-      a.title="Pattern evaluation — choose a paid plan explicitly to continue after the trial";
+      a.title="Pattern evaluation: choose a paid plan explicitly to continue after the trial";
       chip.appendChild(a);
     }
     function toolLabel(r){ return (r.tool_label && r.tool_label.trim()) || TOOL[r.tool_type] || r.tool_type || "Diagnostic"; }
@@ -847,7 +843,7 @@ body{transition:background-color .25s ease, color .25s ease}
       const open = state.expanded[r.id];
       return `<div class="run" data-row="${r.id}">
           <div class="run-tool">${esc(toolLabel(r))}<span>${esc(sub)}</span></div>
-          <div class="run-score num" style="color:${tone(sc)}">${sc??"—"}</div>
+          <div class="run-score num" style="color:${tone(sc)}">${sc??"Unavailable"}</div>
           <div class="run-mid">${r.band?`<span class="run-band">${esc(r.band)}</span>`:""}${statusPill(r.status)}${qualityPill(r)}</div>
           <div class="run-actions">${actionsFor(r)}<button class="ract" data-report="${r.id}">Report</button><button class="ract" data-json="${r.id}">JSON</button><button class="run-expand" data-exp="${r.id}">${open?"Hide":"Details"}</button></div>
           ${open?`<div class="run-detail">${runDetailHTML(r)}</div>`:""}
@@ -902,7 +898,7 @@ body{transition:background-color .25s ease, color .25s ease}
           const eligible = await reviewRunForInclusion(run);
           if(!eligible){
             render();
-            flash("bad", "Review complete — this run is not eligible for Analysis or Synthesis. It remains Staged.");
+            flash("bad", "Review complete: this run is not eligible for Analysis or Synthesis. It remains Staged.");
             return;
           }
         }
@@ -910,12 +906,12 @@ body{transition:background-color .25s ease, color .25s ease}
         if(error) throw error;
         run.status = status;
         render();
-        const note = status==="promoted" ? "Reviewed and Included — this run is now eligible for Analysis and Synthesis."
+        const note = status==="promoted" ? "Reviewed and Included: this run is now eligible for Analysis and Synthesis."
           : (prev==="promoted" && status==="staged") ? "Removed from analysis and returned to Staged."
           : status==="archived" ? "Archived." : "Restored to staged.";
         flash("ok", note);
       }catch(e){
-        flash("bad", "Couldn’t update that run — " + (e.message||"please try again.") );
+        flash("bad", "Couldn’t update that run: " + (e.message||"please try again.") );
       }
     }
 
@@ -926,7 +922,7 @@ body{transition:background-color .25s ease, color .25s ease}
     }
 
     async function exportRun(id, mode, btn, reportWindow){
-      if(!window.MondermanReport){ flash("bad","Report module didn’t load — please refresh and try again."); return; }
+      if(!window.MondermanReport){ flash("bad","Report module didn’t load: please refresh and try again."); return; }
       const row = state.runs.find(r=>r.id===id) || {};
       const orig = btn ? btn.textContent : ""; if(btn){ btn.disabled=true; btn.textContent="…"; }
       try{
@@ -949,7 +945,7 @@ body{transition:background-color .25s ease, color .25s ease}
         else { window.MondermanReport.openReport(window.MondermanReport.fromRun(m), reportWindow); }
       }catch(e){
         window.MondermanReport?.closeReservedReportWindow?.(reportWindow);
-        flash("bad","Couldn’t open that report — "+(e.message||"please try again."));
+        flash("bad","Couldn’t open that report: "+(e.message||"please try again."));
       }finally{
         if(btn){ btn.disabled=false; btn.textContent=orig; }
       }
@@ -983,7 +979,7 @@ body{transition:background-color .25s ease, color .25s ease}
         setText("ws5Org", (m?.organizations?.name)||"Personal workspace");
         renderRailPlan(m?.organizations||null);
         const anon=$("fAnon"); if(anon){ const enabled=m?.organizations?.anonymous_responses_enabled===true; anon.disabled=!enabled; if(!enabled){ anon.checked=false; anon.title="Anonymous participant responses are not enabled for this workspace."; const note=$("anonNote"); if(note) note.insertAdjacentHTML("afterbegin","<b>Workspace setting:</b> Anonymous participant responses are not enabled for this workspace.<br>"); } }
-      }catch(e){ setText("ws5UserRole","Viewer"); setText("ws5Org","Workspace"); setText("ws5Plan","—"); }
+      }catch(e){ setText("ws5UserRole","Viewer"); setText("ws5Org","Workspace"); setText("ws5Plan","Unavailable"); }
 
       if(!["admin","owner"].includes(String(state.role||"").toLowerCase())){
         setText("histNote","");
@@ -1008,7 +1004,7 @@ body{transition:background-color .25s ease, color .25s ease}
   </script>
     <script type="module">
     const workspaceAccess = await window.mondermanWorkspaceAccessReady;
-    if (!workspaceAccess?.allowed) throw new Error("workspace_access_not_allowed");
+    if (!workspaceAccess?.allowed) await new Promise(function () {});
     const supabase = await window.mondermanGetSupabaseClient();
     const API_BASE = "https://monderman-api.onrender.com";
     // Campaign routes now require the caller's token (2 Aug 2026); attach it everywhere.
@@ -1048,10 +1044,10 @@ body{transition:background-color .25s ease, color .25s ease}
       a.href="plan-pattern.html";
       a.textContent=` · trial · ${days}d left`;
       a.style.cssText="color:#A9CFD2;text-decoration:none;font-weight:600";
-      a.title="Pattern evaluation — choose a paid plan explicitly to continue after the trial";
+      a.title="Pattern evaluation: choose a paid plan explicitly to continue after the trial";
       chip.appendChild(a);
     }
-    function toolLabel(t){ return TOOL[t]||t||"\u2014"; }
+    function toolLabel(t){ return TOOL[t]||t||"Unavailable"; }
     function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
     function initials(name,email){ const b=(name&&name.trim())||(email||"").split("@")[0]||""; const p=b.split(/\s+/).filter(Boolean); return (p.length>=2?(p[0][0]+p[p.length-1][0]):b.slice(0,2)||"M").toUpperCase(); }
     function csvCell(v){ v=(v==null?"":String(v)); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
@@ -1090,7 +1086,7 @@ body{transition:background-color .25s ease, color .25s ease}
         for(let i=0;i<shown;i++){ const r=state.recipients[i];
           rows += `<tr><td>${esc(r.email)}</td><td>${esc(r.full_name)}</td><td>${esc(r.business_unit)}</td><td>${esc(r.team)}</td><td class="col-rm"><button class="rm-btn" data-rm="${i}" type="button" title="Remove">\u00d7</button></td></tr>`;
         }
-        if(n>shown) rows += `<tr class="rmore"><td colspan="5">+ ${n-shown} more \u2014 all ${n} will be sent on dispatch. Use Clear all to start over.</td></tr>`;
+        if(n>shown) rows += `<tr class="rmore"><td colspan="5">+ ${n-shown} more: all ${n} will be sent on dispatch. Use Clear all to start over.</td></tr>`;
         tb.innerHTML = rows;
       } else {
         tb.innerHTML = state.recipients.map((r,i)=>(
@@ -1261,7 +1257,7 @@ body{transition:background-color .25s ease, color .25s ease}
       if(dups.length) html+=`<span class="chip warn">${dups.length} duplicate</span>`;
       html+=`</div>`;
       if(invalid.length){
-        html+=`<div class="prev-issues"><b>Needs attention</b><ul>`+invalid.map(r=>`<li>${esc(r.email||"(no email)")} \u2014 ${esc((r.problems||[]).join(", ")||"invalid")}</li>`).join("")+`</ul></div>`;
+        html+=`<div class="prev-issues"><b>Needs attention</b><ul>`+invalid.map(r=>`<li>${esc(r.email||"(no email)")}: ${esc((r.problems||[]).join(", ")||"invalid")}</li>`).join("")+`</ul></div>`;
       }
       if(ready>0) html+=`<p class="prev-note">${ready} recipient${ready>1?"s":""} ready. Send creates a directed run for each.</p>`;
       else html+=`<p class="prev-note">No valid recipients yet.</p>`;
@@ -1285,7 +1281,7 @@ body{transition:background-color .25s ease, color .25s ease}
         if(!res.ok || data.ok===false) throw new Error(data.error || ("HTTP "+res.status));
         const sent = (data.sent ? data.sent.length : undefined) ?? data.sent_count ?? state.lastReady;
         const failed = (data.failed ? data.failed.length : undefined) ?? data.failed_count ?? 0;
-        flash("sendOut", `Campaign sent \u2014 ${sent} assignment${sent===1?"":"s"} created${failed?`, ${failed} could not be emailed (their links are below)`:""}.`, "ok");
+        flash("sendOut", `Campaign sent: ${sent} assignment${sent===1?"":"s"} created${failed?`, ${failed} could not be emailed (their links are below)`:""}.`, "ok");
         state.lastReady=0; $("btnSend").disabled=true; $("previewOut").innerHTML=""; clearDraft();
         loadTracking();
       }catch(e){ flash("sendOut","Send failed: "+e.message,"bad"); }
@@ -1360,7 +1356,7 @@ body{transition:background-color .25s ease, color .25s ease}
       const remindBtn = (admin && st!=="done" && a.id) ? `<button class="btn-mini ghost" data-remind="${esc(a.id)}" type="button">Remind</button>` : "";
       const reportBtns = (st==="done" && a.run_id) ? `<button class="btn-mini ghost" data-report="${esc(a.run_id)}" data-tt="${esc(a.tool_type||"diagnostic")}" type="button">Report</button><button class="btn-mini ghost" data-json="${esc(a.run_id)}" data-tt="${esc(a.tool_type||"diagnostic")}" type="button">JSON</button>` : "";
       return `<div class="rcp-row">
-        <div class="ar-who">${esc(a.recipient_name||a.recipient_email||"\u2014")}<span>${esc(a.recipient_email||"")}</span></div>
+        <div class="ar-who">${esc(a.recipient_name||a.recipient_email||"Unavailable")}<span>${esc(a.recipient_email||"")}</span></div>
         <div class="rcp-when">${whenLbl}<span>${a.is_anonymous_response ? fmtDate(whenIso) : timeAgo(whenIso)}</span></div>
         ${badge}
         <div class="rcp-act"><button class="ar-copy" data-link="${esc(link)}" type="button">Copy link</button>${reportBtns}${remindBtn}</div>

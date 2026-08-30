@@ -1,5 +1,5 @@
 /* ============================================================================
-   Monderman WORKSPACE assistant — "Hans"
+   Monderman WORKSPACE assistant: "Hans"
    ----------------------------------------------------------------------------
    A separate, more advanced guide that lives ONLY inside the workspace. It is
    independent of the public site assistant (assistant.js): its own widget, its
@@ -19,8 +19,8 @@
 
   var API_URL     = "https://monderman-api.onrender.com/api/workspace-assistant";
   var STORAGE_KEY = "mndHansHistory";
-  var GREETING    = "I’m Hans — your guide to the Monderman workspace. Ask me what an instrument is for, how to send a diagnostic to your team, or how to make sense of your analysis, and I’ll walk you through it.";
-  var INFO_TEXT   = "Hans is a workspace assistant, calibrated to help you use Monderman — what each of the four instruments is for, how to compose and track a campaign, and how to read your analysis. Hans explains how to operate the workspace; it won’t interpret your organisation’s results or reveal the methodology behind the scores.";
+  var GREETING    = "I’m Hans: your guide to the Monderman workspace. Ask me what an instrument is for, how to send a diagnostic to your team, or how to make sense of your analysis, and I’ll walk you through it.";
+  var INFO_TEXT   = "Hans is a workspace assistant, calibrated to help you use Monderman: what each of the four instruments is for, how to compose and track a campaign, and how to read your analysis. Hans explains how to operate the workspace; it won’t interpret your organization’s results or reveal the methodology behind the scores.";
 
   /* ---- styles (scoped under #hans-*) -------------------------------------- */
   var css = ''
@@ -82,7 +82,7 @@
   var panel = document.createElement("div");
   panel.id = "hans-panel";
   panel.setAttribute("role", "dialog");
-  panel.setAttribute("aria-label", "Hans — workspace guide");
+  panel.setAttribute("aria-label", "Hans: workspace guide");
   panel.innerHTML =
       '<div id="hans-head">'
     +   '<div id="hans-ava" aria-hidden="true">H</div>'
@@ -200,11 +200,11 @@
       var data = await res.json().catch(function () { return null; });
       hideTyping();
       var reply = (data && data.reply) ? data.reply
-        : "Sorry — I had trouble answering just now. You can reach the team at connect@monderman.com.";
+        : "Sorry: I had trouble answering just now. You can reach the team at connect@monderman.com.";
       addMsg("assistant", reply); history.push({ role: "assistant", content: reply }); saveHistory();
     } catch (e) {
       hideTyping();
-      addMsg("assistant", "Sorry — I couldn’t reach the workspace assistant. Please try again, or email connect@monderman.com.");
+      addMsg("assistant", "Sorry: I couldn’t reach the workspace assistant. Please try again, or email connect@monderman.com.");
     } finally { busy = false; sendEl.disabled = false; inputEl.focus(); }
   }
 

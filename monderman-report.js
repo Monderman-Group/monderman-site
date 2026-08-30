@@ -1,5 +1,5 @@
 /* ============================================================================
-   Monderman — shared executive report renderer  (classic script → window.MondermanReport)
+   Monderman: shared executive report renderer  (classic script → window.MondermanReport)
    ----------------------------------------------------------------------------
    ONE renderer for the whole product. It turns a canonical "report model" into:
      • an on-screen executive read           MondermanReport.render(el, model)
@@ -9,8 +9,8 @@
 
    Two adapters feed the model so every surface honors the four Diagnostics-tab
    promises (executive PDF read · quantified score · primary signal · portable JSON):
-     • MondermanReport.fromRun(runResult)         — a single diagnostic run (its full_result_json / export shape)
-     • MondermanReport.fromSynthesis(synthResult) — a depth or cross-lens synthesis result (the /cross-diagnostic-synthesis payload; /cross-assessment-synthesis kept as a legacy alias)
+     • MondermanReport.fromRun(runResult): a single diagnostic run (its full_result_json / export shape)
+     • MondermanReport.fromSynthesis(synthResult): a depth or cross-lens synthesis result (the /cross-diagnostic-synthesis payload; /cross-assessment-synthesis kept as a legacy alias)
 
    No dependencies. The PDF path is the browser's own print-to-PDF of the styled
    report, exactly as the original synthesis tool did it.
@@ -26,17 +26,17 @@
   }
   function num(n) {
     const x = Number(n);
-    return Number.isFinite(x) ? x.toLocaleString("en-US") : "—";
+    return Number.isFinite(x) ? x.toLocaleString("en-US") : "Unavailable";
   }
   function cur(n) {
     const x = Number(n);
     return Number.isFinite(x)
       ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(x)
-      : "—";
+      : "Unavailable";
   }
   function pct(n) {
     const x = Number(n);
-    return Number.isFinite(x) ? Math.round(x) + "%" : "—";
+    return Number.isFinite(x) ? Math.round(x) + "%" : "Unavailable";
   }
   function nowLabel() {
     try {
@@ -50,7 +50,7 @@
       const s = arguments[i];
       // 8 Aug 2026: objects and arrays are skipped, never stringified. Scorer
       // results carry structured fields (trajectory, exposure) in slots this
-      // helper scans, and String(object) is "[object Object]" — which is what
+      // helper scans, and String(object) is "[object Object]", which is what
       // reopened workspace reports were printing in the Trajectory row.
       if (s == null || typeof s === "object") continue;
       if (String(s).trim()) return String(s).trim();
@@ -215,16 +215,16 @@
       mastline: "Monderman • " + modeLabel,
       title: product === "depth" ? "Depth Synthesis Executive Report" : "Cross-Lens Synthesis Executive Report",
       subtitle: product === "depth"
-        ? "A same-Diagnostic read across multiple eligible runs — reporting the observed median, distribution, vantage differences, and evidence limits."
+        ? "A same-Diagnostic read across multiple eligible runs: reporting the observed median, distribution, vantage differences, and evidence limits."
         : "A multi-lens read that separates lens comparison from a coherent composite and states exactly what evidence supports each conclusion.",
       meta: [
         { label: "Generated", value: nowLabel() },
         { label: "Product", value: modeLabel },
-        { label: "Runs", value: reads == null ? "—" : num(reads) },
-        { label: "Lenses", value: lensCount == null ? "—" : num(lensCount) },
+        { label: "Runs", value: reads == null ? "Unavailable" : num(reads) },
+        { label: "Lenses", value: lensCount == null ? "Unavailable" : num(lensCount) },
         { label: "Evidence", value: evidenceLabel }
       ],
-      headlineScore: scorePublished ? (Number.isInteger(score) ? score : Math.round(score * 10) / 10) : "—",
+      headlineScore: scorePublished ? (Number.isInteger(score) ? score : Math.round(score * 10) / 10) : "Unavailable",
       headlineBand: scorePublished ? (firstStr(r.score_label, conditionBand) + " · " + conditionBand) : "Composite withheld",
       coverBody: coverBody,
       scorePublished: scorePublished,
@@ -313,13 +313,13 @@
 
     const toolType = firstStr(r.tool_type);
     const toolLabel = firstStr(r.tool_label, toolType);
-    const score = r.score != null ? r.score : (r.cross_diagnostic_score != null ? r.cross_diagnostic_score : "—");
-    const band = firstStr(r.band, r.score_band, r.condition_band, "—");
-    const benchmark = firstStr(r.benchmark_position, r.benchmarkPosition, r.peer_position, "—");
-    const trajectory = firstStr(labelFromTrajectory(toolType, r.trajectory), r.trajectory_label, r.trajectory_signal, r.trajectory, "—");
+    const score = r.score != null ? r.score : (r.cross_diagnostic_score != null ? r.cross_diagnostic_score : "Unavailable");
+    const band = firstStr(r.band, r.score_band, r.condition_band, "Unavailable");
+    const benchmark = firstStr(r.benchmark_position, r.benchmarkPosition, r.peer_position, "Unavailable");
+    const trajectory = firstStr(labelFromTrajectory(toolType, r.trajectory), r.trajectory_label, r.trajectory_signal, r.trajectory, "Unavailable");
     const driver = firstStr(
       r.primary_driver, r.primary_constraint, r.primary_exposure_source,
-      r.primary_burden_source, r.primary_structural_weakness, "—"
+      r.primary_burden_source, r.primary_structural_weakness, "Unavailable"
     );
     const findings = arr(r.key_findings).length ? arr(r.key_findings)
       : (arr(r.flags).length ? arr(r.flags) : arr(r.findings));
@@ -344,7 +344,7 @@
     const headline = firstStr(summaryBlock.headline, narrative.headlineFinding, r.score_band_note, summary);
     const bottomLine = sentenceLead(firstStr(
       narrative.opportunity, narrative.organizational_implication, r.organizational_implication,
-      narrative.leadership_implication, r.leadership_implication, driver !== "—" ? driver : "",
+      narrative.leadership_implication, r.leadership_implication, driver !== "Unavailable" ? driver : "",
       "Treat this as a directional read of the measured condition."
     ), 2);
 
@@ -396,7 +396,7 @@
     const findingScope = firstStr(processName, metaScope, "the assessed operating scope");
     const findingScopeWithArticle = /^[a-z]/.test(findingScope) && !/^(?:the|this|that)\b/i.test(findingScope)
       ? "the " + findingScope : findingScope;
-    const centralFinding = primarySignal && primarySignal !== "—"
+    const centralFinding = primarySignal && primarySignal !== "Unavailable"
       ? primarySignal + " is the clearest measured constraint in " + findingScopeWithArticle + "."
       : sentenceLead(headline, 1);
 
@@ -404,11 +404,11 @@
       kind: "run",
       product: "diagnostic",
       mastline: "Monderman • " + (toolLabel || "Diagnostic"),
-      title: (toolLabel || "Diagnostic") + " — Executive Report",
+      title: (toolLabel || "Diagnostic") + ": Executive Report",
       subtitle: "An organizational read of this diagnostic: its quantified condition, primary structural signal, and recommended first moves.",
       meta: [
         { label: "Generated", value: nowLabel() },
-        { label: "Instrument", value: toolLabel || "—" }
+        { label: "Instrument", value: toolLabel || "Unavailable" }
       ].concat(metaScope ? [{ label: "Scope", value: metaScope }] : []),
       headlineScore: score,
       headlineBand: band,
@@ -469,13 +469,13 @@
   function strictFinite(v) {
     return v !== null && v !== undefined && v !== "" && Number.isFinite(Number(v));
   }
-  function fmt1(v) { return strictFinite(v) ? (Math.round(Number(v) * 10) / 10).toLocaleString("en-US") : "—"; }
-  function fmtWhole(v) { return strictFinite(v) ? Math.round(Number(v)).toLocaleString("en-US") : "—"; }
-  function fmtMoney(v) { return strictFinite(v) ? cur(Number(v)) : "—"; }
-  function fmtPercent(v) { return strictFinite(v) ? (Math.round(Number(v) * 10) / 10).toLocaleString("en-US") + "%" : "—"; }
+  function fmt1(v) { return strictFinite(v) ? (Math.round(Number(v) * 10) / 10).toLocaleString("en-US") : "Unavailable"; }
+  function fmtWhole(v) { return strictFinite(v) ? Math.round(Number(v)).toLocaleString("en-US") : "Unavailable"; }
+  function fmtMoney(v) { return strictFinite(v) ? cur(Number(v)) : "Unavailable"; }
+  function fmtPercent(v) { return strictFinite(v) ? (Math.round(Number(v) * 10) / 10).toLocaleString("en-US") + "%" : "Unavailable"; }
   function fmtPair(values, formatter) {
     const pair = arr(values);
-    if (pair.length < 2 || !strictFinite(pair[0]) || !strictFinite(pair[1])) return "—";
+    if (pair.length < 2 || !strictFinite(pair[0]) || !strictFinite(pair[1])) return "Unavailable";
     return formatter(pair[0]) + " – " + formatter(pair[1]);
   }
   function humanize(v) {
@@ -484,7 +484,7 @@
   function evidenceCard(label, value, detail) {
     if (!value && !detail) return "";
     return '<div class="mr-lens-card"><div class="mr-lens-label">' + esc(label) + '</div>' +
-      '<div style="font-family:\"Neue Haas Grotesk\",\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:1rem;font-weight:700;margin:7px 0 6px">' + esc(value || "—") + '</div>' +
+      '<div style="font-family:\"Neue Haas Grotesk\",\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:1rem;font-weight:700;margin:7px 0 6px">' + esc(value || "Unavailable") + '</div>' +
       (detail ? '<p class="mr-copy">' + esc(detail) + '</p>' : '') + '</div>';
   }
   function textItem(item) {
@@ -504,7 +504,7 @@
     const metrics = [
       ["Condition", scoreValue, m.product === "depth" ? "Observed median" : "Equal-lens composite"],
       ["Evidence", firstStr(m.evidenceLabel, "Unavailable"), "Claim strength"],
-      ["Included runs", strictFinite(m.reads) ? fmtWhole(m.reads) : "—", m.product === "depth" ? "One Diagnostic" : fmtWhole(m.lensCount) + " Diagnostics"],
+      ["Included runs", strictFinite(m.reads) ? fmtWhole(m.reads) : "Unavailable", m.product === "depth" ? "One Diagnostic" : fmtWhole(m.lensCount) + " Diagnostics"],
       ["Annual exposure", annualCost, annualHours]
     ].map((item) => '<div class="mr-decision-metric"><div class="mr-lens-label">' + esc(item[0]) + '</div><div class="mr-decision-value">' + esc(item[1]) + '</div><div class="mr-copy">' + esc(item[2]) + '</div></div>').join("");
     const finding = firstStr(diagnosis.body, m.primaryPattern, m.briefing?.lede);
@@ -716,7 +716,7 @@
     svg += '<circle cx="' + centerX + '" cy="' + centerY + '" r="76" fill="url(#mr-system-gradient)"/>';
     svg += '<circle cx="' + centerX + '" cy="' + centerY + '" r="83" fill="none" stroke="rgba(12,110,120,.16)" stroke-width="2"/>';
     svg += '<text x="' + centerX + '" y="' + (centerY - 23) + '" text-anchor="middle" fill="#A9CED1" font-size="10" font-weight="700" letter-spacing="1.6">CROSS-LENS</text>';
-    svg += '<text x="' + centerX + '" y="' + (centerY + 15) + '" text-anchor="middle" fill="#FFF" font-size="38" font-weight="700" letter-spacing="-2">' + esc(m.scorePublished ? fmt1(m.score) : "—") + '</text>';
+    svg += '<text x="' + centerX + '" y="' + (centerY + 15) + '" text-anchor="middle" fill="#FFF" font-size="38" font-weight="700" letter-spacing="-2">' + esc(m.scorePublished ? fmt1(m.score) : "Unavailable") + '</text>';
     svg += '<text class="mr-system-composite-label" x="' + centerX + '" y="' + (centerY + 35) + '" text-anchor="middle" fill="#A9CED1" font-size="9.5" font-weight="700" letter-spacing=".55">';
     compositeLabel.forEach((line, index) => {
       svg += '<tspan x="' + centerX + '" dy="' + (index ? 13 : 0) + '">' + esc(line) + '</tspan>';
@@ -767,9 +767,9 @@
       '<p class="mr-exec-lede">' + esc(firstStr(obj(m.diagnosis).body, m.primaryPattern, m.briefing?.lede)) + '</p>' + renderCrossLensSystemGraphic(m) + renderCrossLensInteractionMatrix(m) +
       '<div class="mr-system-metrics">' +
         runMetric("Composite condition", m.scorePublished ? fmt1(m.score) : "Withheld", firstStr(m.conditionBand, m.scoreBasis), "teal") +
-        runMetric("Strongest observed lens", highest ? highest.toolLabel : "—", highest ? fmt1(highest.mean) + " mean" : "", "green") +
-        runMetric("Weakest observed lens", lowest ? lowest.toolLabel : "—", lowest ? fmt1(lowest.mean) + " mean" : "", "amber") +
-        runMetric("Observed spread", strictFinite(spread) ? fmt1(spread) + " pts" : "—", m.evidenceLabel, "ink") +
+        runMetric("Strongest observed lens", highest ? highest.toolLabel : "Unavailable", highest ? fmt1(highest.mean) + " mean" : "", "green") +
+        runMetric("Weakest observed lens", lowest ? lowest.toolLabel : "Unavailable", lowest ? fmt1(lowest.mean) + " mean" : "", "amber") +
+        runMetric("Observed spread", strictFinite(spread) ? fmt1(spread) + " pts" : "Unavailable", m.evidenceLabel, "ink") +
       '</div><div class="mr-system-decision">' +
         (firstAction.text ? '<div><div class="mr-lens-label">First evidence-proportionate move</div><h3>' + esc(firstStr(firstAction.label, "First supported move")) + '</h3><p>' + esc(firstAction.text) + '</p></div>' : '') +
         '<div><div class="mr-lens-label">Source-backed exposure</div><strong>' + esc(strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) : "Not priceable") + '</strong><p>' + esc(strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " median annual burden hours" : "Exposure is withheld or unavailable for the submitted runs.") + '</p></div>' +
@@ -861,11 +861,11 @@
       ["Status", humanize(exp.status)],
       ["Priceable runs", fmtWhole(exp.priceable_runs) + " of " + fmtWhole(exp.total_runs)],
       ["Median annual hours", fmtWhole(exp.annual_hours)],
-      ["Observed hours IQR", strictFinite(exp.annual_hours_low) && strictFinite(exp.annual_hours_high) ? fmtWhole(exp.annual_hours_low) + " – " + fmtWhole(exp.annual_hours_high) : "—"],
+      ["Observed hours IQR", strictFinite(exp.annual_hours_low) && strictFinite(exp.annual_hours_high) ? fmtWhole(exp.annual_hours_low) + " – " + fmtWhole(exp.annual_hours_high) : "Unavailable"],
       ["Median annual labor cost", fmtMoney(exp.annual_cost)],
-      ["Observed cost IQR", strictFinite(exp.annual_cost_low) && strictFinite(exp.annual_cost_high) ? fmtMoney(exp.annual_cost_low) + " – " + fmtMoney(exp.annual_cost_high) : "—"],
+      ["Observed cost IQR", strictFinite(exp.annual_cost_low) && strictFinite(exp.annual_cost_high) ? fmtMoney(exp.annual_cost_low) + " – " + fmtMoney(exp.annual_cost_high) : "Unavailable"],
       ["Median capacity drag", fmtPercent(exp.capacity_drag_percent)],
-      ["Recoverable range across Diagnostic medians", strictFinite(exp.recoverable_cost_low) && strictFinite(exp.recoverable_cost_high) ? fmtMoney(exp.recoverable_cost_low) + " – " + fmtMoney(exp.recoverable_cost_high) : "—"]
+      ["Recoverable range across Diagnostic medians", strictFinite(exp.recoverable_cost_low) && strictFinite(exp.recoverable_cost_high) ? fmtMoney(exp.recoverable_cost_low) + " – " + fmtMoney(exp.recoverable_cost_high) : "Unavailable"]
     ].map(([k, v]) => '<div class="k">' + esc(k) + '</div><div>' + esc(v) + '</div>').join("");
     return '<section class="mr-section"><h2>' + n + '. Source-backed pathway exposure</h2>' + renderExposureRangeGraphic(exp) + '<div class="kvs">' + kvs + '</div>' +
       '<div class="callout"><p><strong>Aggregation rule.</strong> ' + esc(firstStr(exp.basis, "Repeated estimates are summarized, not added together.")) + '</p></div></section>';
@@ -991,13 +991,13 @@
   // ──────────────────────────────────────────────────────────────────────
   function runMetric(label, value, detail, tone) {
     return '<div class="mr-run-metric" data-tone="' + esc(tone || "teal") + '"><div class="mr-lens-label">' + esc(label) + '</div>' +
-      '<div class="mr-run-metric-value">' + esc(value || "—") + '</div>' +
+      '<div class="mr-run-metric-value">' + esc(value || "Unavailable") + '</div>' +
       (detail ? '<p class="mr-copy">' + esc(detail) + '</p>' : '') + '</div>';
   }
 
   function renderRunDecisionBrief(m, n) {
     const exp = obj(m.exposure);
-    const score = strictFinite(m.score) ? fmt1(m.score) : "—";
+    const score = strictFinite(m.score) ? fmt1(m.score) : "Unavailable";
     const hours = strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " hrs" : "Not priceable";
     const cost = strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) : "Not priceable";
     const drag = strictFinite(exp.capacity_drag_percent) ? fmtPercent(exp.capacity_drag_percent) : "Not estimated";
@@ -1071,7 +1071,7 @@
 
   function renderRunGovernance(m, n) {
     if (!m.benchmarkDetail && !m.tradeoff && !m.trajectoryLabel && !m.quadrant) return "";
-    return '<section class="mr-section mr-run-leadership"><div class="mr-section-index">0' + n + ' · Leadership read</div><h2>What leadership should—and should not—take from the result</h2>' +
+    return '<section class="mr-section mr-run-leadership"><div class="mr-section-index">0' + n + ' · Leadership read</div><h2>What leadership should, and should not, take from the result</h2>' +
       '<div class="mr-leadership-grid">' +
         (m.benchmarkDetail ? '<div><div class="mr-lens-label">Design-reference context</div><p>' + esc(m.benchmarkDetail) + '</p></div>' : '') +
         (m.tradeoff ? '<div><div class="mr-lens-label">Tradeoff to preserve</div><p>' + esc(m.tradeoff) + '</p></div>' : '') +
@@ -1090,7 +1090,7 @@
       const row = obj(item);
       return '<div class="mr-evidence-quote"><div class="mr-lens-label">' + esc(humanize(firstStr(row.participant_mode, row.perspective, "Participant evidence"))) + '</div><p>' + esc(firstStr(row.text, row.message, row.summary)) + '</p></div>';
     }).join("") : '<div class="mr-evidence-empty"><div class="mr-lens-label">Participant evidence</div><h3>No participant notes were supplied.</h3><p>The report therefore makes no participant-statement or experiential claim.</p></div>';
-    return '<section class="mr-section mr-run-evidence"><div class="mr-section-index">0' + n + ' · Evidence status</div><h2>What evidence is—and is not—in this run</h2>' +
+    return '<section class="mr-section mr-run-evidence"><div class="mr-section-index">0' + n + ' · Evidence status</div><h2>What evidence is, and is not, in this run</h2>' +
       '<div class="mr-evidence-summary">' +
         runMetric("Evidence depth", m.evidenceBand, "Single-run claim strength", "teal") +
         runMetric("Measured dimensions", strictFinite(measured) && strictFinite(total) ? fmtWhole(measured) + " of " + fmtWhole(total) : fmtWhole(arr(m.dimensionEntries).length), "Scored condition coverage", "ink") +
@@ -1120,7 +1120,7 @@
     const ladderHtml = ladder.length ? '<div class="mr-priority-ladder">' + ladder.map((item, index) => {
       const row = obj(item);
       const severity = strictFinite(row.severity) ? row.severity : (strictFinite(row.weakness) ? row.weakness : null);
-      return '<div class="mr-priority-row"><span>0' + (index + 1) + '</span><div><div class="mr-lens-label">' + esc(firstStr(row.priority, "Priority")) + '</div><strong>' + esc(firstStr(row.focus, row.label, "Measured focus")) + '</strong></div><em>' + esc(severity === null ? "—" : fmt1(severity)) + '</em></div>';
+      return '<div class="mr-priority-row"><span>0' + (index + 1) + '</span><div><div class="mr-lens-label">' + esc(firstStr(row.priority, "Priority")) + '</div><strong>' + esc(firstStr(row.focus, row.label, "Measured focus")) + '</strong></div><em>' + esc(severity === null ? "Unavailable" : fmt1(severity)) + '</em></div>';
     }).join("") + '</div>' : '';
     const remediesHtml = remedies.length ? '<div class="mr-remedy-grid">' + remedies.slice(0, 3).map((item, index) => {
       const path = obj(item);
@@ -1158,7 +1158,7 @@
     const firstAction = firstStr(m.firstMove, textItem(arr(m.actions)[0]));
     const questions = [
       "Who has the authority to change " + firstStr(m.primarySignal, "the primary measured constraint") + " in " + scopeWithArticle + "?",
-      "What observable result will count as improvement—and what would show that burden was only displaced?",
+      "What observable result will count as improvement, and what would show that burden was only displaced?",
       "Which owner will preserve the same scope and inputs for like-for-like remeasurement?"
     ];
     return '<section class="mr-section mr-leadership-close"><div class="mr-section-index">0' + n + ' · Leadership handoff</div><h2>Turn the read into a bounded operating decision</h2>' +
@@ -1192,7 +1192,7 @@
       inner = "<ul><li>" + esc(s.empty || "Nothing returned.") + "</li></ul>";
     } else {
       // Defensive: items may be strings (legacy shape) or objects (new shape
-      // per the cross-synth backend enhancement — {text, label, tools} for
+      // per the cross-synth backend enhancement: {text, label, tools} for
       // convergence signals, {text, label, tier} for priority actions).
       // Coerce each item to a display string so we never render [object Object].
       const asText = (i) => {
@@ -1204,7 +1204,7 @@
           // ({code, severity, message}); without it, SC watch items rendered
           // as blank bullets.
           const text = i.text ? String(i.text) : (i.message ? String(i.message) : "");
-          if (label && text) return label + " — " + text;
+          if (label && text) return label + ": " + text;
           return text || label || "";
         }
         return String(i);
@@ -1232,7 +1232,7 @@
       '<h1 class="mr-cover-title">' + esc(m.title) + '</h1><p class="mr-cover-sub">' + esc(m.subtitle) + '</p></div>' +
       '<div class="mr-cover-stripe"></div>' +
       '<div class="mr-cover-white"><p class="mr-cover-kicker">Executive Report</p>' +
-      '<div class="mr-cover-score-row"><div class="mr-cover-score">' + esc(m.headlineScore == null ? "—" : m.headlineScore) + '</div>' +
+      '<div class="mr-cover-score-row"><div class="mr-cover-score">' + esc(m.headlineScore == null ? "Unavailable" : m.headlineScore) + '</div>' +
       '<div class="mr-cover-score-copy"><div class="mr-cover-score-label">' + esc(scoreLabel) + '</div><div class="mr-cover-score-band">' + esc(scoreBandDisplay) + '</div></div></div>' +
       (statusPills ? '<div class="mr-cover-pills">' + statusPills + '</div>' : '') +
       (metaHtml ? '<div class="mr-cover-meta">' + metaHtml + '</div>' : '') +
@@ -1504,7 +1504,7 @@
     .mr-editorial-row .mr-lens-label{color:#6E6F73}
     .mr-requirement-row .mr-pill{margin-bottom:2px}
 
-    /* Single-Diagnostic product report — the same renderer powers Workspace and
+    /* Single-Diagnostic product report: the same renderer powers Workspace and
        the public production-contract samples. */
     .mr-section-index{font-size:.67rem;line-height:1.3;letter-spacing:.17em;text-transform:uppercase;color:#0C6E78;font-weight:700;margin:0 0 10px}
     .mr-run-headline{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:38px;align-items:start;margin-bottom:24px}

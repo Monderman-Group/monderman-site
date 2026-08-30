@@ -6,8 +6,11 @@
   <title>Private Pattern pilot feedback | Monderman</title>
   <link rel="canonical" href="https://www.monderman.com/pilot-feedback.html" />
   <meta name="robots" content="noindex,nofollow,noarchive" />
-  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <style>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260830-cert1">
+  <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260830-cert1">
+  <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260830-cert1">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260830-cert1">
+<style>
     @font-face{font-family:'Neue Haas Grotesk';src:url('55font.woff2') format('woff2'),url('55font.woff') format('woff');font-weight:400;font-style:normal;font-display:swap}
     @font-face{font-family:'Neue Haas Grotesk';src:url('65font.woff2') format('woff2'),url('65font.woff') format('woff');font-weight:500;font-style:normal;font-display:swap}
     @font-face{font-family:'Neue Haas Grotesk';src:url('75font.woff2') format('woff2'),url('75font.woff') format('woff');font-weight:700;font-style:normal;font-display:swap}
@@ -142,7 +145,7 @@
           const access=result.access||{};
           accessState.dataset.state="verified";
           accessTitle.textContent=`Verified for ${access.organizationName||"your pilot Workspace"}`;
-          accessDetail.textContent=Number(access.trialDay)>30?"Post-pilot feedback window":`Pilot day ${access.trialDay||"—"} · ${access.role||"member"}`;
+          accessDetail.textContent=Number(access.trialDay)>30?"Post-pilot feedback window":`Pilot day ${access.trialDay||"Unavailable"} · ${access.role||"member"}`;
           form.hidden=false;
           const surface=safeSurface();if(surface)document.getElementById("surface").value=surface;
         }

@@ -43,6 +43,7 @@ on:
       - 'legal-document-manifest.json'
       - 'scripts/validate_beta_compliance.py'
       - 'scripts/validate_frontend_release.py'
+      - 'scripts/validate_production_cosmetic_certification.py'
       - 'scripts/validate_legal_terms_protection.py'
       - 'scripts/diagnostic_draft_recovery_smoke.mjs'
       - 'scripts/workspace_legal_gate_smoke.mjs'
@@ -112,6 +113,7 @@ on:
       - 'legal-document-manifest.json'
       - 'scripts/validate_beta_compliance.py'
       - 'scripts/validate_frontend_release.py'
+      - 'scripts/validate_production_cosmetic_certification.py'
       - 'scripts/validate_legal_terms_protection.py'
       - 'scripts/diagnostic_draft_recovery_smoke.mjs'
       - 'scripts/workspace_legal_gate_smoke.mjs'
@@ -190,6 +192,7 @@ jobs:
           python scripts/validate_meta_synthesis_frontend.py
           python scripts/validate_pdf_house_style.py
           python scripts/validate_publication_suite.py
+          python scripts/validate_production_cosmetic_certification.py
 
       - name: Install browser tooling
         run: |

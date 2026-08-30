@@ -1,25 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260830-cert1">
+  <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260830-cert1">
+  <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260830-cert1">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260830-cert1">
 <link rel="stylesheet" href="assets/brand/brand-lockup.css?v=20260824-wide1"/>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
   <title>Analysis | Monderman Workspace</title>
 <link rel="canonical" href="https://www.monderman.com/workspace-analysis.html"/>
 <meta property="og:title" content="Analysis | Monderman Workspace"/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://www.monderman.com/workspace-analysis.html"/>
-<link href='data:image/svg+xml;utf8,
-    &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"&gt;
-      &lt;rect width="64" height="64" rx="10" fill="%2304181B"/&gt;
-      &lt;text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23FAFAF8"&gt;M&lt;/text&gt;
-      &lt;rect x="47" y="36" width="8" height="8" rx="1.2" fill="%230C6E78"/&gt;
-    &lt;/svg&gt;' rel="icon" type="image/svg+xml"/>
-<link href="https://www.monderman.com/favicon.ico?v=20260824-wide1" rel="icon" type="image/x-icon" sizes="any"/>
-<link href="https://www.monderman.com/favicon-192.png?v=20260824-wide1" rel="icon" type="image/png" sizes="192x192"/>
-<link href="https://www.monderman.com/favicon-192.png?v=20260824-wide1" rel="apple-touch-icon"/>
-<link href="assets/brand/monderman-favicon.svg?v=20260824-wide1" rel="icon" type="image/svg+xml"/>
-  <style>
+
+<style>
     @font-face { font-family:"Neue Haas Grotesk"; src:url("55font.woff2") format("woff2"),url("55font.woff") format("woff"); font-weight:400; font-style:normal; font-display:swap; }
     @font-face { font-family:"Neue Haas Grotesk"; src:url("65font.woff2") format("woff2"),url("65font.woff") format("woff"); font-weight:500; font-style:normal; font-display:swap; }
     @font-face { font-family:"Neue Haas Grotesk"; src:url("75font.woff2") format("woff2"),url("75font.woff") format("woff"); font-weight:700; font-style:normal; font-display:swap; }
@@ -207,7 +203,7 @@
 </style>
   <script>try{if(localStorage.getItem("mndTheme")==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}</script>
   <style>
-/* Monderman workspace shell — five-space nav chrome.
+/* Monderman workspace shell: five-space nav chrome.
    ws5- prefixed so it never collides with the marketing header (.nav/.brand/.header)
    or the site footer (.mf-*). Colors are inlined so this file is self-contained
    across every workspace page regardless of that page's :root tokens. */
@@ -311,7 +307,7 @@
    and topbar chrome switch. Toggled + remembered by workspace-theme.js.
    ============================================================================ */
 
-/* shared semantic tokens (status pills, chips, disabled fields) — LIGHT values */
+/* shared semantic tokens (status pills, chips, disabled fields): LIGHT values */
 :root{
   color-scheme: light;
   --ws-surface:#FFFFFF; --ws-text:#18191C; --ws-line:rgba(24,25,28,.10);
@@ -339,7 +335,7 @@ html[data-theme="dark"]{
   --gold:#D9A441; --gold-soft:rgba(217,164,65,.16); --warn-soft:rgba(217,164,65,.16);
   --accent-dark:#0C6E78; --accent-soft:rgba(43,167,178,.16); --accent-softer:rgba(43,167,178,.10);
   --header-solid:rgba(22,23,27,.92);
-  /* shared semantic tokens — DARK values */
+  /* shared semantic tokens: DARK values */
   --ok-bg:rgba(79,176,122,.20);    --ok-fg:#9FE3BC;
   --warn-bg:rgba(217,164,65,.20);  --warn-fg:#F0CE8A;
   --rose-bg:rgba(222,138,128,.20); --rose-fg:#F2B6AE;
@@ -355,7 +351,7 @@ html[data-theme="dark"] .ws5-who b{color:#E7E4DD}
 html[data-theme="dark"] .ws5-crumb span,
 html[data-theme="dark"] .ws5-who span{color:#9E9C95}
 
-/* smooth the switch (no effect on first paint — theme is set before load) */
+/* smooth the switch (no effect on first paint: theme is set before load) */
 body{transition:background-color .25s ease, color .25s ease}
 
 /* ---- theme toggle: a small floating button parked just above the Hans launcher ---- */
@@ -434,7 +430,7 @@ body{transition:background-color .25s ease, color .25s ease}
         <a href="workspace-settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h9M17 7h3"/><circle cx="15" cy="7" r="2"/><path d="M4 17h3M11 17h9"/><circle cx="9" cy="17" r="2"/></svg>Settings</a>
       </nav>
       <div class="ws5-railfoot">
-        <div class="ws5-planchip">Plan &middot; <b id="ws5Plan">&mdash;</b></div>
+        <div class="ws5-planchip">Plan &middot; <b id="ws5Plan">Loading…</b></div>
           <div class="ws5-glyphs">
             <button class="ws5-glyph" type="button" title="Toggle light / dark" onclick="document.querySelector('.ws5-theme-toggle')&&document.querySelector('.ws5-theme-toggle').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.6"/><path d="M12 3v1.6M12 19.4V21M3 12h1.6M19.4 12H21M5.2 5.2l1.1 1.1M17.7 17.7l1.1 1.1M5.2 18.8l1.1-1.1M17.7 6.3l1.1-1.1"/></svg><span>Theme</span></button>
             <button class="ws5-glyph" type="button" title="Notes" onclick="document.querySelector('.wsn-btn')&&document.querySelector('.wsn-btn').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h5"/></svg><span>Notes</span></button>
@@ -447,10 +443,10 @@ body{transition:background-color .25s ease, color .25s ease}
 
     <div class="ws5-main">
       <header class="ws5-topbar">
-        <div class="ws5-crumb"><h1>Analysis</h1><span id="ws5Org">&mdash;</span></div>
+        <div class="ws5-crumb"><h1>Analysis</h1><span id="ws5Org">Workspace</span></div>
         <div class="ws5-topright">
           <a class="ws5-btn" href="workspace-diagnostics.html#launch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Run a Diagnostic</a>
-          <div class="ws5-user"><div class="ws5-ava" id="ws5Ava">&mdash;</div><div class="ws5-who"><b id="ws5UserName">&mdash;</b><span id="ws5UserRole">&mdash;</span></div></div>
+          <div class="ws5-user"><div class="ws5-ava" id="ws5Ava">M</div><div class="ws5-who"><b id="ws5UserName">Loading…</b><span id="ws5UserRole">Workspace</span></div></div>
         </div>
       </header>
 
@@ -475,25 +471,25 @@ body{transition:background-color .25s ease, color .25s ease}
             <button type="button" class="trust-run" id="trustRunBtn" hidden>Run screening</button>
           </div>
           <div class="trust-info" id="trustInfo" hidden>
-            <p style="margin:0">Screening flags responses that look careless or inconsistent &mdash; internal contradictions, duplicate submissions, very low self-rated confidence, thin coverage, and (once you have ~30 reads of one instrument) statistical outliers. Flagged runs are set aside from group averages; nothing is deleted, and an admin can re-include any run. It&rsquo;s most meaningful once a cohort is large enough to compare against.</p>
+            <p style="margin:0">Screening flags responses that look careless or inconsistent: internal contradictions, duplicate submissions, very low self-rated confidence, thin coverage, and (once you have ~30 reads of one instrument) statistical outliers. Flagged runs are set aside from group averages; nothing is deleted, and an admin can re-include any run. It&rsquo;s most meaningful once a cohort is large enough to compare against.</p>
           </div>
           <div class="trust-grid">
-            <div class="trust-stat"><b id="tsTotal">&mdash;</b><span>runs</span></div>
-            <div class="trust-stat ok"><b id="tsIncl">&mdash;</b><span>included</span></div>
-            <div class="trust-stat warn"><b id="tsCaut">&mdash;</b><span>caution</span></div>
-            <div class="trust-stat rose"><b id="tsExcl">&mdash;</b><span>set aside</span></div>
+            <div class="trust-stat"><b id="tsTotal">Not available</b><span>runs</span></div>
+            <div class="trust-stat ok"><b id="tsIncl">Not available</b><span>included</span></div>
+            <div class="trust-stat warn"><b id="tsCaut">Not available</b><span>caution</span></div>
+            <div class="trust-stat rose"><b id="tsExcl">Not available</b><span>set aside</span></div>
           </div>
           <div class="trust-meter">
-            <div class="trust-meter-head"><span>Analysis inputs</span><b id="tsRichLabel">&mdash;</b></div>
-            <p class="trust-meter-sub" id="tsRichSub">&mdash;</p>
+            <div class="trust-meter-head"><span>Analysis inputs</span><b id="tsRichLabel">Not available</b></div>
+            <p class="trust-meter-sub" id="tsRichSub">Not available</p>
           </div>
-          <p class="trust-note" id="tsNote">&mdash;</p>
+          <p class="trust-note" id="tsNote">Not available</p>
         </section>
 
         <!-- OVER TIME -->
         <section class="lens" data-lens="over-time" hidden>
           <div class="view-head">
-            <div><div class="eyebrow">Over time</div><h2>How has it moved?</h2><p>Repeated reads on the same instrument, plotted by when they were taken. The line is observed history &mdash; not a forecast.</p></div>
+            <div><div class="eyebrow">Over time</div><h2>How has it moved?</h2><p>Repeated reads on the same instrument, plotted by when they were taken. The line is observed history, not a forecast.</p></div>
             <select class="selector" id="otSel" aria-label="Choose an instrument"></select>
           </div>
           <div id="otBody"></div>
@@ -560,7 +556,7 @@ body{transition:background-color .25s ease, color .25s ease}
   <script src="workspace-access-gate.js"></script>
 <script type="module">
     const workspaceAccess = await window.mondermanWorkspaceAccessReady;
-    if (!workspaceAccess?.allowed) throw new Error("workspace_access_not_allowed");
+    if (!workspaceAccess?.allowed) await new Promise(function () {});
     const supabase = await window.mondermanGetSupabaseClient();
     const API_BASE = "https://monderman-api.onrender.com";
     let ws5OrgId = null, ws5Role = "viewer";
@@ -594,10 +590,10 @@ body{transition:background-color .25s ease, color .25s ease}
       a.href="plan-pattern.html";
       a.textContent=` · trial · ${days}d left`;
       a.style.cssText="color:#A9CFD2;text-decoration:none;font-weight:600";
-      a.title="Pattern evaluation — choose a paid plan explicitly to continue after the trial";
+      a.title="Pattern evaluation: choose a paid plan explicitly to continue after the trial";
       chip.appendChild(a);
     }
-    function toolLabel(t){ return TOOL[t]||t||"\u2014"; }
+    function toolLabel(t){ return TOOL[t]||t||"Unavailable"; }
     function initials(name,email){ const b=(name&&name.trim())||(email||"").split("@")[0]||""; const p=b.split(/\s+/).filter(Boolean); return (p.length>=2?(p[0][0]+p[p.length-1][0]):b.slice(0,2)||"M").toUpperCase(); }
     function tone(s){
       if(s==null) return {c:"var(--muted-2)",bg:"rgba(24,25,28,.05)",fg:"var(--muted)"};
@@ -635,10 +631,10 @@ body{transition:background-color .25s ease, color .25s ease}
       const g={}; TREND_EXCLUDED = 0;
       SNAPS.forEach(s=>{
         // A missing config_version means the instrument identity cannot be
-        // asserted, so the read is excluded — never pooled into an "unknown"
+        // asserted, so the read is excluded: never pooled into an "unknown"
         // cohort (8 Aug 2026 correction).
         if(!s.__v || !s.__v.cv){ TREND_EXCLUDED += 1; return; }
-        const u=s.business_unit||"\u2014";
+        const u=s.business_unit||"Unavailable";
         const cv=s.__v.cv;
         const sv=s.__v.sv||"legacy";
         const k=s.tool_type+"|"+u+"|"+cv+"|"+sv;
@@ -687,7 +683,7 @@ body{transition:background-color .25s ease, color .25s ease}
         const reads=arr.length;
         const scope=[s.business_unit||s.pathway_name||"Scope not labeled",s.period_label||""].filter(Boolean).join(" · ");
         const meta = `${scope} · ${reads} included read${reads>1?"s":""}`;
-        cards+=`<div class="lens-card"><div class="lc-tool">${esc(toolLabel(t))}</div><div class="lc-row"><span class="lc-score num" style="color:${tn.c}">${sc??"\u2014"}</span>${s.band?`<span class="lc-band" style="background:${tn.bg};color:${tn.fg}">${esc(s.band)}</span>`:""}</div><div class="lc-meta">${esc(meta)}</div></div>`;
+        cards+=`<div class="lens-card"><div class="lc-tool">${esc(toolLabel(t))}</div><div class="lc-row"><span class="lc-score num" style="color:${tn.c}">${sc??"Unavailable"}</span>${s.band?`<span class="lc-band" style="background:${tn.bg};color:${tn.fg}">${esc(s.band)}</span>`:""}</div><div class="lc-meta">${esc(meta)}</div></div>`;
       });
       wrap.innerHTML=`<div class="lens-cards">${cards}</div>`;
     }
@@ -706,7 +702,7 @@ body{transition:background-color .25s ease, color .25s ease}
       const candidates=SNAPS.filter(s=>s.tool_type===t && s.business_unit && s.__v?.cv);
       const groups=new Map();
       candidates.forEach(s=>{
-        const key=[s.__v.cv,s.__v.sv||"legacy",s.pathway_name||"—"].join("|");
+        const key=[s.__v.cv,s.__v.sv||"legacy",s.pathway_name||"Unavailable"].join("|");
         const g=groups.get(key)||{rows:new Map(),latest:0,key};
         const prior=g.rows.get(s.business_unit);
         if(!prior || Date.parse(s.as_of||0)>Date.parse(prior.as_of||0)) g.rows.set(s.business_unit,s);
@@ -716,10 +712,10 @@ body{transition:background-color .25s ease, color .25s ease}
       const rows=cohort?[...cohort.rows.values()].sort((a,b)=>(asNum(b.score)??0)-(asNum(a.score)??0)):[];
       if(!rows.length){ body.innerHTML=emptyHTML("No comparable unit-level reads","Unit comparison requires the same Diagnostic version and operating pathway."); return; }
       const [cv,sv,pathway]=cohort.key.split("|");
-      const head=`<p class="headline"><b>${rows.length} unit${rows.length>1?"s":""}</b> on ${toolLabel(t)} · ${esc(pathway==="—"?"pathway not labeled":pathway)} · ${esc(trendVersionLabel(cv,sv))}.</p>`;
+      const head=`<p class="headline"><b>${rows.length} unit${rows.length>1?"s":""}</b> on ${toolLabel(t)} · ${esc(pathway==="Unavailable"?"pathway not labeled":pathway)} · ${esc(trendVersionLabel(cv,sv))}.</p>`;
       body.innerHTML=head+`<div class="card"><div class="bars">`+rows.map(s=>{
         const sc=asNum(s.score), tn=tone(sc), w=Math.max(2,Math.min(100,sc??0));
-        return `<div class="barrow"><div class="bar-label">${esc(s.business_unit)}<span>${esc(s.period_label||"")}</span></div><div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${tn.c}"></div></div><div><div class="bar-val num" style="color:${tn.c}">${sc??"—"}</div>${s.band?`<div class="bar-band">${esc(s.band)}</div>`:""}</div></div>`;
+        return `<div class="barrow"><div class="bar-label">${esc(s.business_unit)}<span>${esc(s.period_label||"")}</span></div><div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${tn.c}"></div></div><div><div class="bar-val num" style="color:${tn.c}">${sc??"Unavailable"}</div>${s.band?`<div class="bar-band">${esc(s.band)}</div>`:""}</div></div>`;
       }).join("")+`</div></div><p class="footnote">Other scopes or instrument versions are withheld from this comparison rather than mixed into one chart.</p>`;
     }
 
@@ -737,7 +733,7 @@ body{transition:background-color .25s ease, color .25s ease}
       const candidates=SNAPS.filter(s=>s.tool_type===t && s.vantage && s.__v?.cv);
       const groups=new Map();
       candidates.forEach(s=>{
-        const key=[s.business_unit||"—",s.pathway_name||"—",s.__v.cv,s.__v.sv||"legacy"].join("|");
+        const key=[s.business_unit||"Unavailable",s.pathway_name||"Unavailable",s.__v.cv,s.__v.sv||"legacy"].join("|");
         const g=groups.get(key)||{rows:new Map(),latest:0,key};
         const prior=g.rows.get(s.vantage);
         if(!prior || Date.parse(s.as_of||0)>Date.parse(prior.as_of||0)) g.rows.set(s.vantage,s);
@@ -753,8 +749,8 @@ body{transition:background-color .25s ease, color .25s ease}
       else head=`<p class="headline">One compatible participant vantage captured on ${toolLabel(t)} so far.</p>`;
       body.innerHTML=head+`<div class="card"><div class="bars">`+rows.map(s=>{
         const sc=asNum(s.score), tn=tone(sc), w=Math.max(2,Math.min(100,sc??0));
-        return `<div class="barrow"><div class="bar-label">${esc(VANTAGE[s.vantage]||s.vantage)}<span>${esc(s.period_label||"")}</span></div><div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${tn.c}"></div></div><div><div class="bar-val num" style="color:${tn.c}">${sc??"—"}</div>${s.band?`<div class="bar-band">${esc(s.band)}</div>`:""}</div></div>`;
-      }).join("")+`</div></div><p class="footnote">Scope: ${esc(unit==="—"?"unit not labeled":unit)} · ${esc(pathway==="—"?"pathway not labeled":pathway)} · ${esc(trendVersionLabel(cv,sv))}. Divergence is descriptive; it does not establish why the vantages differ.</p>`;
+        return `<div class="barrow"><div class="bar-label">${esc(VANTAGE[s.vantage]||s.vantage)}<span>${esc(s.period_label||"")}</span></div><div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${tn.c}"></div></div><div><div class="bar-val num" style="color:${tn.c}">${sc??"Unavailable"}</div>${s.band?`<div class="bar-band">${esc(s.band)}</div>`:""}</div></div>`;
+      }).join("")+`</div></div><p class="footnote">Scope: ${esc(unit==="Unavailable"?"unit not labeled":unit)} · ${esc(pathway==="Unavailable"?"pathway not labeled":pathway)} · ${esc(trendVersionLabel(cv,sv))}. Divergence is descriptive; it does not establish why the vantages differ.</p>`;
     }
 
     function renderVsSector(){
@@ -763,7 +759,7 @@ body{transition:background-color .25s ease, color .25s ease}
       if(!rows.length){ body.innerHTML=emptyHTML("No calibration positions yet","A Diagnostic must report a calibration position before it appears here."); return; }
       body.innerHTML=`<div class="lens-cards">`+rows.map(s=>{
         const sc=asNum(s.score), tn=tone(sc);
-        return `<div class="lens-card"><div class="lc-tool">${esc(toolLabel(s.tool_type))}</div><div class="lc-row"><span class="lc-score num" style="color:${tn.c}">${sc??"—"}</span>${s.band?`<span class="lc-band" style="background:${tn.bg};color:${tn.fg}">${esc(s.band)}</span>`:""}</div><div class="lc-meta"><b>${esc(s.benchmark_position)}</b><br>${esc(s.business_unit||s.pathway_name||"Scope not labeled")} · ${esc(s.period_label||"")}</div></div>`;
+        return `<div class="lens-card"><div class="lc-tool">${esc(toolLabel(s.tool_type))}</div><div class="lc-row"><span class="lc-score num" style="color:${tn.c}">${sc??"Unavailable"}</span>${s.band?`<span class="lc-band" style="background:${tn.bg};color:${tn.fg}">${esc(s.band)}</span>`:""}</div><div class="lc-meta"><b>${esc(s.benchmark_position)}</b><br>${esc(s.business_unit||s.pathway_name||"Scope not labeled")} · ${esc(s.period_label||"")}</div></div>`;
       }).join("")+`</div><p class="footnote">Calibration positions are shown as reported text. This view does not infer percentile rank or claim an empirical peer distribution.</p>`;
     }
 
@@ -781,7 +777,7 @@ body{transition:background-color .25s ease, color .25s ease}
       if(!keys.length){ sel.style.display="none"; body.innerHTML=emptyHTML("No reads yet","Include a run in analysis, then add a compatible later run from the same Diagnostic, and the trend appears here."); return; }
       sel.style.display="";
       keys.sort((a,b)=> g[b].length-g[a].length);
-      if(sel.dataset.filled!=="1"){ sel.innerHTML=keys.map(k=>{ const parts=k.split("|"); const t=parts[0]; const sv=parts[parts.length-1]; const cv=parts[parts.length-2]; const u=parts.slice(1,-2).join("|"); return `<option value="${esc(k)}">${esc(toolLabel(t))}${u&&u!=="\u2014"?" \u00b7 "+esc(u):""} \u00b7 ${esc(trendVersionLabel(cv,sv))}</option>`; }).join(""); sel.dataset.filled="1"; sel.onchange=()=>drawTrend(sel.value); }
+      if(sel.dataset.filled!=="1"){ sel.innerHTML=keys.map(k=>{ const parts=k.split("|"); const t=parts[0]; const sv=parts[parts.length-1]; const cv=parts[parts.length-2]; const u=parts.slice(1,-2).join("|"); return `<option value="${esc(k)}">${esc(toolLabel(t))}${u&&u!=="Unavailable"?" \u00b7 "+esc(u):""} \u00b7 ${esc(trendVersionLabel(cv,sv))}</option>`; }).join(""); sel.dataset.filled="1"; sel.onchange=()=>drawTrend(sel.value); }
       if(!keys.includes(sel.value)) sel.value=keys[0];
       drawTrend(sel.value);
     }
@@ -790,9 +786,9 @@ body{transition:background-color .25s ease, color .25s ease}
       if(!arr.length){ body.innerHTML=emptyHTML("No reads","Pick another instrument."); return; }
       const pts=arr.map(s=>({ label:s.period_label||"", score:asNum(s.score)??0, band:s.band }));
       let head;
-      if(pts.length>=2){ const d=pts[pts.length-1].score-pts[0].score; head=`<p class="headline"><b>${d>0?"+":""}${d} points</b> across ${pts.length} reads &mdash; trending ${d>0?"up":(d<0?"down":"flat")}.</p>`; }
+      if(pts.length>=2){ const d=pts[pts.length-1].score-pts[0].score; head=`<p class="headline"><b>${d>0?"+":""}${d} points</b> across ${pts.length} reads: trending ${d>0?"up":(d<0?"down":"flat")}.</p>`; }
       else head=`<p class="headline">One read so far. A second read closes the trend.</p>`;
-      body.innerHTML=head+`<div class="card">${trendSVG(pts)}<div class="readings">`+arr.map(s=>`<div class="reading"><b class="num">${asNum(s.score)??"\u2014"}</b> \u00b7 ${esc(s.period_label||"")}${s.band?` \u00b7 ${esc(s.band)}`:""}</div>`).join("")+`</div></div>`;
+      body.innerHTML=head+`<div class="card">${trendSVG(pts)}<div class="readings">`+arr.map(s=>`<div class="reading"><b class="num">${asNum(s.score)??"Unavailable"}</b> \u00b7 ${esc(s.period_label||"")}${s.band?` \u00b7 ${esc(s.band)}`:""}</div>`).join("")+`</div></div>`;
       if(TREND_EXCLUDED>0){ body.innerHTML += `<p class="footnote">${TREND_EXCLUDED} read${TREND_EXCLUDED===1?"":"s"} hidden from trends: instrument version could not be verified.</p>`; }
     }
 
@@ -823,7 +819,7 @@ body{transition:background-color .25s ease, color .25s ease}
         <div class="state after"><div class="when">After · ${esc(a.period_label||"")}</div><div class="score num" style="color:${ta.c}">${as_}</div>${a.band?`<span class="band" style="background:${ta.bg};color:${ta.fg}">${esc(a.band)}</span>`:""}<p class="exp">${esc(beforeLabel)}${pr.kind==="diagnostic"?expLine(a):""}</p></div>
       </div><div class="verify"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12.5l2.5 2.5L16 9"/><circle cx="12" cy="12" r="9.5"/></svg><p><b>${Math.abs(d)} points ${up?"higher":"lower"}</b> in the later like-for-like measurement. The change is observed; this view does not claim the intervention caused it.</p></div></section>`;
       const others=P.filter(p=>p.key!==key);
-      panel.innerHTML = others.length ? `<section class="panel"><div class="panel-head"><h3>Other tracked before-and-after pairs</h3></div>`+others.map(p=>{ const dd=(asNum(p.after.score)??0)-(asNum(p.before.score)??0); return `<div class="ix"><div class="ixn">${esc(p.title)}<span>${esc(p.label)}</span></div><div class="ixm"><span class="move"><b class="num">${asNum(p.before.score)??"—"}</b> → <b class="num">${asNum(p.after.score)??"—"}</b></span><span class="${dd>=0?'pill-up':'pill-watch'} num">${dd>0?"+":""}${dd} pts</span></div></div>`; }).join("")+`</section>` : "";
+      panel.innerHTML = others.length ? `<section class="panel"><div class="panel-head"><h3>Other tracked before-and-after pairs</h3></div>`+others.map(p=>{ const dd=(asNum(p.after.score)??0)-(asNum(p.before.score)??0); return `<div class="ix"><div class="ixn">${esc(p.title)}<span>${esc(p.label)}</span></div><div class="ixm"><span class="move"><b class="num">${asNum(p.before.score)??"Unavailable"}</b> → <b class="num">${asNum(p.after.score)??"Unavailable"}</b></span><span class="${dd>=0?'pill-up':'pill-watch'} num">${dd>0?"+":""}${dd} pts</span></div></div>`; }).join("")+`</section>` : "";
     }
 
     function renderAll(){
@@ -884,7 +880,7 @@ body{transition:background-color .25s ease, color .25s ease}
         return {mode:"depth",label:`Depth Synthesis · ${band.label}`,description:`${runs.length.toLocaleString()} eligible ${tool} runs will be summarized by the Median Diagnostic Score, distribution, and observed participant-vantage segments. Sample size describes the submitted set; population claims require a declared sampling frame.`,requirements:band.next?[`${(band.next-runs.length).toLocaleString()} additional unique run${band.next-runs.length===1?"":"s"} would reach the next observed-set band.`]:[]};
       }
       const cross=crossPreflight(runs);
-      return {mode:"cross_lens",label:`Cross-Lens Synthesis · ${cross.label}`,description:`${runs.length.toLocaleString()} runs across ${cross.lensCount} Diagnostic lenses; current strongest-to-weakest lens ratio ${cross.ratio==null?"—":cross.ratio+":1"}. The API will verify scope, source IDs, dates, versions, balance, and participant vantages before publishing a Cross-Lens Composite Score.`,requirements:cross.requirements};
+      return {mode:"cross_lens",label:`Cross-Lens Synthesis · ${cross.label}`,description:`${runs.length.toLocaleString()} runs across ${cross.lensCount} Diagnostic lenses; current strongest-to-weakest lens ratio ${cross.ratio==null?"Unavailable":cross.ratio+":1"}. The API will verify scope, source IDs, dates, versions, balance, and participant vantages before publishing a Cross-Lens Composite Score.`,requirements:cross.requirements};
     }
     function readSamplingFrame(){
       const method=$("synthSamplingMethod")?.value||"observed_set";
@@ -969,7 +965,7 @@ body{transition:background-color .25s ease, color .25s ease}
         const who=run.is_anonymous_response&&run.label?run.label:"";
         const meta=[who,run.business_unit||run.pathway_name||"",synthDate(run.created_at),run.config_version?`config ${run.config_version}`:""].filter(Boolean).join(" · ");
         const checked=synthSel.has(String(run.id))?"checked":"";
-        return `<label class="synth-row"><input type="checkbox" data-srun="${sEsc(run.id)}" ${checked}><span class="sr-tool">${sEsc(toolLabel(run.tool_type))}<span class="sr-score">${run.score==null?"—":sEsc(run.score)}</span></span><span class="sr-meta">${run.band?sEsc(run.band)+" · ":""}${sEsc(meta)}</span></label>`;
+        return `<label class="synth-row"><input type="checkbox" data-srun="${sEsc(run.id)}" ${checked}><span class="sr-tool">${sEsc(toolLabel(run.tool_type))}<span class="sr-score">${run.score==null?"Unavailable":sEsc(run.score)}</span></span><span class="sr-meta">${run.band?sEsc(run.band)+" · ":""}${sEsc(meta)}</span></label>`;
       }).join("");
       body.innerHTML=`<div class="synth-dashboard">${productDoors}${history}${stats}${lensTools}<div id="synthPreflight" class="synth-preflight"></div><div id="synthSampling" class="synth-sampling" hidden><div class="synth-control"><label for="synthSamplingMethod">Declared sampling frame</label><select id="synthSamplingMethod"><option value="observed_set">Observed respondent set</option><option value="census">Declared census</option><option value="probability_sample">Declared probability sample</option></select></div><div class="synth-control"><label for="synthPopulation">Population size (optional)</label><input id="synthPopulation" type="number" min="1" step="1" placeholder="e.g. 2500"></div><div class="synth-control"><label for="synthInvited">Invited count (optional)</label><input id="synthInvited" type="number" min="1" step="1" placeholder="e.g. 2500"></div></div><div class="synth-controls"><div class="synth-control"><label for="synthSearch">Filter the visible run list</label><input id="synthSearch" type="search" placeholder="Tool, unit, label, or date"></div><div class="synth-control"><label for="synthScopePolicy">Scope policy</label><select id="synthScopePolicy"><option value="warn">Compare and warn</option><option value="strict">Reject scope conflict</option><option value="portfolio">Portfolio comparison</option></select></div></div><div class="synth-list-note">Showing the first ${Math.min(runs.length,SYNTH_DETAIL_ROWS).toLocaleString()} of ${runs.length.toLocaleString()} runs for individual selection. Use the lens buttons above to select large cohorts without rendering thousands of rows.</div><div class="synth-pick">${rows}</div><div class="synth-bar"><button class="synth-btn" id="synthRun" disabled type="button">Select runs</button><span class="synth-hint" id="synthHint"></span></div><div id="synthResult"></div></div>`;
       body.querySelectorAll("[data-srun]").forEach(checkbox=>checkbox.addEventListener("change",()=>{
@@ -1015,7 +1011,7 @@ body{transition:background-color .25s ease, color .25s ease}
         try{sessionStorage.setItem(SYNTH_STORAGE_KEY,JSON.stringify(payload.result));}catch(error){}
         renderSynthResult(payload.result,payload.synthesis?.id||payload.result?.synthesis_id||null);
       }catch(error){
-        if(result) result.innerHTML=`<div class="synth-error">Couldn’t build this synthesis — ${sEsc(error.message||"please try again.")}</div>`;
+        if(result) result.innerHTML=`<div class="synth-error">Couldn’t build this synthesis: ${sEsc(error.message||"please try again.")}</div>`;
         if(btn){btn.disabled=false;btn.textContent=pre.mode==="depth"?"Build Depth Synthesis":"Build Cross-Lens Synthesis";}
       }
     }
@@ -1028,9 +1024,9 @@ body{transition:background-color .25s ease, color .25s ease}
       const label=isDepth?"Depth Synthesis":"Cross-Lens Synthesis";
       const filename=result.export_payload?.filename_hint||model.filenameBase||"monderman-synthesis";
       const scoreCopy=isDepth
-        ? `Median Diagnostic Score: ${result.cross_diagnostic_score==null?"—":sEsc(result.cross_diagnostic_score)}.`
+        ? `Median Diagnostic Score: ${result.cross_diagnostic_score==null?"Unavailable":sEsc(result.cross_diagnostic_score)}.`
         : result.score_status==="published"
-          ? `Cross-Lens Composite Score: ${result.cross_diagnostic_score==null?"—":sEsc(result.cross_diagnostic_score)}.`
+          ? `Cross-Lens Composite Score: ${result.cross_diagnostic_score==null?"Unavailable":sEsc(result.cross_diagnostic_score)}.`
           : `Cross-Lens Composite Score withheld.`;
       const reason=!isDepth&&result.score_status==="withheld"?(result.why_composite_was_withheld||result.evidence_assessment?.evidence_description||result.score_basis||""):"";
       const unlock=!isDepth&&result.score_status==="withheld"?(result.what_would_unlock_a_composite||result.what_would_strengthen_the_read||[]):[];
@@ -1082,7 +1078,7 @@ body{transition:background-color .25s ease, color .25s ease}
       return {total,incl,caut,excl,screened,inAggN,topTool,topN,depths:depths.size,vants:vants.size,recent};
     }
     function renderTrust(t,isAdmin){
-      const card=$("trustCard"); if(!card) return; card.hidden=false; const dash="—";
+      const card=$("trustCard"); if(!card) return; card.hidden=false; const dash="Unavailable";
       setText("tsTotal",t.total); setText("tsIncl",t.screened?t.incl:dash); setText("tsCaut",t.screened?t.caut:dash); setText("tsExcl",t.screened?t.excl:dash);
       setText("tsRichLabel",`${t.inAggN} eligible`);
       setText("tsRichSub",`${t.inAggN} run${t.inAggN===1?"":"s"} eligible for aggregates · ${t.depths} depth${t.depths===1?"":"s"} · ${t.vants} participant vantage${t.vants===1?"":"s"} · ${t.recent} in the last 90 days`);
@@ -1115,7 +1111,7 @@ body{transition:background-color .25s ease, color .25s ease}
           if(!res.ok) throw new Error("HTTP "+res.status);
           await loadAndRenderTrust();
         }catch(e){
-          btn.textContent="Couldn\u2019t screen \u2014 retry";
+          btn.textContent="Couldn\u2019t screen: retry";
           setTimeout(()=>{ try{ btn.textContent=orig; }catch(_){} }, 2600);
         }finally{
           btn.disabled=false;
@@ -1139,7 +1135,7 @@ body{transition:background-color .25s ease, color .25s ease}
         setText("ws5UserRole", cap(m?.role||"viewer"));
         setText("ws5Org", (m?.organizations?.name)||"Personal workspace");
         renderRailPlan(m?.organizations||null);
-      }catch(e){ setText("ws5UserRole","Viewer"); setText("ws5Org","Workspace"); setText("ws5Plan","\u2014"); }
+      }catch(e){ setText("ws5UserRole","Viewer"); setText("ws5Org","Workspace"); setText("ws5Plan","Unavailable"); }
 
       loadAndRenderTrust();
 

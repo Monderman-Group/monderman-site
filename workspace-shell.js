@@ -1,8 +1,8 @@
-// Monderman workspace shell — shared chrome for the stub spaces.
+// Monderman workspace shell: shared chrome for the stub spaces.
 // Reuses the central access gate, fills the rail/topbar identity,
 // and wires sign-out. The Overview page has its own richer script and does not use this.
 const workspaceAccess = await window.mondermanWorkspaceAccessReady;
-if (!workspaceAccess?.allowed) throw new Error("workspace_access_not_allowed");
+if (!workspaceAccess?.allowed) await new Promise(function () {});
 const supabase = await window.mondermanGetSupabaseClient();
 
 const PLAN_LABEL = { trial: "Trial", signal: "Signal", pattern: "Pattern", enterprise: "Enterprise",
@@ -56,6 +56,6 @@ function planDisplay(org) {
   } catch (e) {
     set("ws5UserRole", "Viewer");
     set("ws5Org", "Workspace");
-    set("ws5Plan", "—");
+    set("ws5Plan", "Unavailable");
   }
 })();

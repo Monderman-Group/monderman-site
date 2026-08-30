@@ -10,12 +10,8 @@
 <meta property="og:url" content="https://www.monderman.com/"/>
 <meta property="og:description" content="Monderman is a Systems Measurement platform with four Diagnostic Instruments that measure the structural conditions beneath visible performance and support compatible re-measurement over time."/>
   <meta name="description" content="Monderman is a Systems Measurement platform with four Diagnostic Instruments that measure the structural conditions beneath visible performance and support compatible re-measurement over time." />
-<link href="assets/brand/monderman-favicon.svg?v=20260824-wide1" rel="icon" type="image/svg+xml"/>
 <!-- Crawlable favicon files for Google search results -->
 <link as="image" fetchpriority="high" href="Hero-Image.jpg" rel="preload" type="image/jpeg"/>
-<link href="https://www.monderman.com/favicon.ico?v=20260824-wide1" rel="icon" type="image/x-icon" sizes="any"/>
-<link href="https://www.monderman.com/favicon-192.png?v=20260824-wide1" rel="icon" type="image/png" sizes="192x192"/>
-<link href="https://www.monderman.com/favicon-192.png?v=20260824-wide1" rel="apple-touch-icon"/>
 <!-- Organization structured data for Google logo in Knowledge Panel / rich results -->
 <script type="application/ld+json">
 {
@@ -28,7 +24,10 @@
   "slogan": "Measure the conditions. Own the outcome."
 }
 </script>
-
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260830-cert1">
+  <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260830-cert1">
+  <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260830-cert1">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260830-cert1">
 <style>
     @font-face {
       font-family: "Neue Haas Grotesk";
@@ -926,7 +925,7 @@
       margin: 0 0 14px;
       font-size: 0.88rem;
       line-height: 1.35;
-      color: var(--muted-dark-2);
+      color: var(--muted-dark);
     }
     .approach-synthesis-item-head {
       display: grid;
@@ -1246,20 +1245,34 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 8px;
+      gap: 0;
       margin-top: 18px;
+      width: min(100vw, 500px);
+      margin-left: auto;
+      margin-right: auto;
     }
     .latest-dot {
+      position: relative;
+      width: 24px;
+      height: 24px;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+    .latest-dot::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
       width: 8px;
       height: 8px;
       border-radius: 999px;
-      border: 0;
-      padding: 0;
       background: rgba(24,25,28,0.18);
-      cursor: pointer;
+      transform: translate(-50%, -50%);
       transition: transform var(--transition), background var(--transition), width var(--transition);
     }
-    .latest-dot.is-active {
+    .latest-dot.is-active::before {
       width: 22px;
       background: #0E3A44;
     }
@@ -1769,7 +1782,7 @@
     text-align: left;
   }
 }
-/* Carousel articles — explicit Neue Haas Grotesk on every element */
+/* Carousel articles: explicit Neue Haas Grotesk on every element */
 .latest-card,
 .latest-card-kicker,
 .latest-card-title,
@@ -2402,7 +2415,25 @@
   body:has(#mdn-cn-panel.mdn-cn-open) #mnd-launcher{display:none!important;}
   @media(max-width:900px){.systems-analysis-grid{grid-template-columns:1fr;}.systems-analysis-conclusion{align-items:flex-start;flex-direction:column;}.loop-flow{grid-template-columns:1fr;gap:12px;}.loop-arrow{min-height:28px;transform:rotate(90deg);}.loop-step{min-height:0;}.loop-step strong{margin-top:16px;}.loop-synthesis{align-items:flex-start;flex-direction:column;}.book-inner{grid-template-columns:1fr!important;}.book-jacket{width:220px!important;}}
   @media(max-width:600px){.measurement-loop-inner{padding:54px 20px;}.proof-inner,.mxidx-inner{padding-left:20px!important;padding-right:20px!important;}}
+  @media print{
+    .hero{min-height:0!important;padding:34px 0!important}
+    .hero-image,.hero::before,.hero::after{display:none!important}
+    .latest-dots,.latest-track .is-carousel-clone{display:none!important}
+    .latest-viewport{overflow:visible!important;opacity:1!important}
+    .latest-track{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px!important;transform:none!important}
+    .latest-track .latest-card{visibility:visible!important;width:auto!important;flex:auto!important;break-inside:avoid}
+    .latest-card-image{min-height:170px!important}
+    .connect{display:none!important}
+  }
 </style>
+
+  <meta property="og:image" content="https://www.monderman.com/assets/brand/monderman-social-card.png?v=20260830-cert1">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Monderman">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.monderman.com/assets/brand/monderman-social-card.png?v=20260830-cert1">
+  <meta name="twitter:image:alt" content="Monderman">
 </head>
 <body class="canonical-green-shell">
 <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -2433,7 +2464,7 @@
 <p class="hero-eyebrow">Organizations deliver at the speed of their administrative reality.</p>
 <h1 class="hero-title" id="hero-title">The best-run institutions measure what others assume.</h1>
 <p class="hero-dek">
-          Monderman helps institutional leaders measure structural drag across ownership, decisions, operating systems, and performance&mdash;then establish a compatible baseline for action and remeasurement.
+          Monderman helps institutional leaders measure structural drag across ownership, decisions, operating systems, and performance, then establish a compatible baseline for action and remeasurement.
         </p>
 <div class="hero-actions">
           <a class="btn btn-accent" href="sample-report.html">See a sample report</a>
@@ -2518,7 +2549,7 @@
 </div>
 </div>
 <p class="cost-action reveal reveal-delay-4">
-        <strong>Monderman surfaces the measured operating conditions associated with observed administrative burden</strong> — and gives institutions a versioned baseline for seeing whether those conditions change.
+        <strong>Monderman surfaces the measured operating conditions associated with observed administrative burden</strong>, and gives institutions a versioned baseline for seeing whether those conditions change.
         <br>
         <a href="diagnostics.html">Start the standard Trial →</a>
       </p>
@@ -2533,7 +2564,7 @@
 <div class="section-intro reveal">
 <h2 id="approach-title">Four lenses on the same system.</h2>
 <p class="approach-bridge">
-          Four diagnostic lenses on the same institutional system — time through it, legibility of it, weight of it, and whether it still holds. Together, they read where strategy becomes execution — or stalls under the weight of unclear structures, slower decisions, and administrative systems that no longer support the work.
+          Four diagnostic lenses on the same institutional system: time through it, legibility of it, weight of it, and whether it still holds. Together, they read where strategy becomes execution, or stalls under the weight of unclear structures, slower decisions, and administrative systems that no longer support the work.
         </p>
 </div>
 <div class="approach-grid">
@@ -2601,7 +2632,7 @@
 </div>
 </div>
 <div class="card-desc">
-            Monderman reads the broader institutional condition — whether the system is sustaining resilience, confidence, and adaptive capacity or quietly weakening beneath the work.
+            Monderman reads the broader institutional condition, whether the system is sustaining resilience, confidence, and adaptive capacity or quietly weakening beneath the work.
           </div>
 <a class="approach-card-link" href="institutional-performance-article.html">Read article →</a>
 </div>
@@ -2647,12 +2678,12 @@
   <div class="proof-inner">
     <p class="proof-eyebrow">See it before you commit</p>
     <h2 id="proof-title">See exactly what a diagnostic produces.</h2>
-    <p class="proof-lead">Three ways to see what Monderman delivers &mdash; and what it&rsquo;s worth &mdash; before you run anything.</p>
+    <p class="proof-lead">Three ways to see what Monderman delivers, and what it&rsquo;s worth, before you run anything.</p>
     <div class="proof-grid">
       <a class="proof-card" href="sample-report.html">
         <span class="proof-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg></span>
         <strong>See a full sample report</strong>
-        <p class="proof-card-text">A representative diagnostic readout &mdash; scores, recommendations, and directional exposure when supported by disclosed sizing inputs &mdash; built from the current report structure.</p>
+        <p class="proof-card-text">A representative diagnostic readout: scores, recommendations, and directional exposure when supported by disclosed sizing inputs, built from the current report structure.</p>
         <span class="proof-arrow">View a sample report <span class="pa-chev">&rarr;</span></span>
       </a>
       <a class="proof-card" href="roi.html">
@@ -2731,7 +2762,7 @@
           This directional estimate gives a high-level read on how much time, money, and productive capacity may be absorbed by administrative and bureaucratic burden inside a complex organization.
         </p>
 <p class="estimate-bridge">
-          The cost rarely tracks workforce size. It tracks how administrative systems accumulate beneath operations — and how much they absorb when no one is measuring.
+          The cost rarely tracks workforce size. It tracks how administrative systems accumulate beneath operations, and how much they absorb when no one is measuring.
         </p>
 <p class="estimate-bridge">This calculator estimates structural drag, not sentiment. See the <a href="the-culture-trap.html">Systems Measurement evidence</a>.</p>
 </div>
@@ -2840,9 +2871,9 @@
   <div class="mxidx-inner">
     <div class="mxidx-eyebrow">Measurement you can verify</div>
     <h2>A prompt. A judgment. An instrument.</h2>
-    <p class="mxidx-lead">There are three ways to ask what your bureaucracy is costing you. A general AI chatbot gives a thoughtful answer that changes every time you ask. A traditional study renders a considered judgment &mdash; once. Monderman is the third kind: a calibrated instrument with deterministic scoring and compatible re-measurement, so a later read can show whether the measured condition changed.</p>
+    <p class="mxidx-lead">There are three ways to ask what your bureaucracy is costing you. A general AI chatbot gives a thoughtful answer that changes every time you ask. A traditional study renders a considered judgment once. Monderman is the third kind: a calibrated instrument with deterministic scoring and compatible re-measurement, so a later read can show whether the measured condition changed.</p>
     <div class="mxidx-row">
-      <div class="mxidx-cell"><b>A prompt</b><span>Useful for thinking. Ask twice, receive two different reads &mdash; no baseline, no quantification, nothing defensible to a board.</span></div>
+      <div class="mxidx-cell"><b>A prompt</b><span>Useful for thinking. Ask twice, receive two different reads: no baseline, no quantification, nothing defensible to a board.</span></div>
       <div class="mxidx-cell"><b>A judgment</b><span>Experienced and bespoke, but a one-time event at deployment economics. Drift after the binder lands goes unmeasured.</span></div>
       <div class="mxidx-cell is-instrument"><b>An instrument</b><span>Within the same instrument/scorer version, the same structured answers produce the same score. Diagnostic scores use sector calibration; time, labor cost, and recoverable capacity are separate directional scenarios built from disclosed sizing inputs.</span><a class="mxidx-link" href="deterministic-ai-infrastructure.html">Explore how a modern instrument works &rarr;</a></div>
     </div>
@@ -2914,7 +2945,7 @@
   <div class="book-inner">
     <div class="reveal">
     <a class="book-cover-link" href="https://www.routledge.com/Governance-Bureaucracy-and-Organization-Stewardship-Drift-and-Administrative-Capacity/Adamson/p/book/9781041403296" target="_blank" rel="noopener noreferrer" aria-label="View Governance, Bureaucracy and Organization at Routledge">
-      <img class="book-jacket" src="assets/books/governance-bureaucracy-organization-cover.jpg" width="720" height="1080" loading="lazy" decoding="async" alt="Governance, Bureaucracy and Organization: Stewardship, Drift, and Administrative Capacity by Jason Adamson">
+      <img class="book-jacket" src="assets/books/governance-bureaucracy-organization-cover.jpg" width="720" height="1080" loading="eager" decoding="async" alt="Governance, Bureaucracy and Organization: Stewardship, Drift, and Administrative Capacity by Jason Adamson">
     </a>
     </div>
     <div class="book-copy reveal reveal-delay-1">
@@ -3021,7 +3052,7 @@
 <p class="latest-card-kicker">Artificial Intelligence · Insight</p>
 <h3 class="latest-card-title">Built to Please</h3>
 <p class="latest-card-text">The consumer chat products are trained on approval, and the training leans them toward the person asking. This paper shows the lean, why instructions cannot remove it, and the checks serious users build around the model so its answers can be trusted.</p>
-<a class="latest-card-link" href="Monderman_Insight_Built_to_Please_2026-08-27.pdf?v=20260828-house5" rel="noopener noreferrer" target="_blank">Download paper →</a>
+<a class="latest-card-link" href="Monderman_Insight_Built_to_Please_2026-08-27.pdf?v=20260830-source1" rel="noopener noreferrer" target="_blank">Download paper →</a>
 </div>
 </article>
 <article class="latest-card category-insight" data-category="insight">
@@ -3037,7 +3068,7 @@
 <div class="latest-card-body">
 <p class="latest-card-kicker">Decision Design · Insight</p>
 <h3 class="latest-card-title">Terminal Fidelity</h3>
-<p class="latest-card-text">A Monderman insight paper on why ideas in power consume themselves through faithful application — and the stopping rules that separate the traditions and companies that endure.</p>
+<p class="latest-card-text">A Monderman insight paper on why ideas in power consume themselves through faithful application, and the stopping rules that separate the traditions and companies that endure.</p>
 <a class="latest-card-link" href="Terminal_Fidelity.pdf?v=20260828-house5" rel="noopener noreferrer" target="_blank">Download paper →</a>
 </div>
 </article>
@@ -3088,25 +3119,25 @@
 <div class="latest-card-body">
 <p class="latest-card-kicker">Enterprise · Insight</p>
 <h3 class="latest-card-title">From Tokens to Outcomes</h3>
-<p class="latest-card-text">A Monderman insight paper on how token economics will define the next phase of enterprise AI — and why the second wave will be won on cost, not capability.</p>
+<p class="latest-card-text">A Monderman insight paper on how token economics will define the next phase of enterprise AI, and why the second wave will be won on cost, not capability.</p>
 <a class="latest-card-link" href="Monderman_Insight_After_the_First_Lap.pdf?v=20260828-house5" rel="noopener noreferrer" target="_blank">Download paper →</a>
 </div>
 </article>
-<article class="latest-card category-insight" data-category="insight">
+<article class="latest-card category-brief" data-category="brief">
 <div aria-hidden="true" class="latest-card-image latest-card-image--placeholder">
 <div class="placeholder-cover">
 <div class="placeholder-cover-stack">
 <h3 class="placeholder-cover-title is-long">How Workarounds Preserve Output While Masking Institutional Dysfunction</h3>
 <p class="placeholder-cover-subline">Why compensation can preserve output<br/>while the system deteriorates.</p>
 </div>
-<span class="placeholder-cover-type">Insight</span>
+<span class="placeholder-cover-type">Brief</span>
 </div>
 </div>
 <div class="latest-card-body">
-<p class="latest-card-kicker">Enterprise · Insight</p>
+<p class="latest-card-kicker">Enterprise · Brief</p>
 <h3 class="latest-card-title">How Workarounds Preserve Output While Masking Institutional Dysfunction</h3>
 <p class="latest-card-text">Organizations often appear to function because people compensate for structural weakness. Output is preserved, but the underlying system continues to deteriorate.</p>
-<a class="latest-card-link" href="Monderman_Brief_Compensatory_Systems.pdf?v=20260828-house5" rel="noopener noreferrer" target="_blank">Download paper →</a>
+<a class="latest-card-link" href="Monderman_Brief_Compensatory_Systems.pdf?v=20260828-house5" rel="noopener noreferrer" target="_blank">Download brief →</a>
 </div>
 </article>
 <article class="latest-card category-brief" data-category="brief">
@@ -3139,7 +3170,7 @@
 <div class="latest-card-body">
 <p class="latest-card-kicker">Enterprise · Brief</p>
 <h3 class="latest-card-title">The Culture Trap</h3>
-<p class="latest-card-text">Why culture-first diagnosis mislocates the problem — and why organizations that fix sentiment before structure often fix the wrong thing first.</p>
+<p class="latest-card-text">Why culture-first diagnosis mislocates the problem, and why organizations that fix sentiment before structure often fix the wrong thing first.</p>
 <a class="latest-card-link" href="Monderman_Brief_The_Culture_Trap.pdf?v=20260828-house5" rel="noopener noreferrer" target="_blank">Download brief →</a>
 </div>
 </article>
@@ -3156,7 +3187,7 @@
 <div class="latest-card-body">
 <p class="latest-card-kicker">Decision Design · Insight</p>
 <h3 class="latest-card-title">The Art of Interior Reasoning</h3>
-<p class="latest-card-text">A Monderman insight on why excellent decisions live off the line — and what it takes, both analytically and emotionally, to consistently reach them.</p>
+<p class="latest-card-text">A Monderman insight on why excellent decisions live off the line, and what it takes, both analytically and emotionally, to consistently reach them.</p>
 <a class="latest-card-link" href="Monderman_Insight_The_Art_of_Interior_Reasoning.pdf?v=20260828-house5" rel="noopener noreferrer" target="_blank">Download paper →</a>
 </div>
 </article>
@@ -3235,7 +3266,7 @@
             <span class="mf-name">Monderman</span>
             <span class="mf-dot"></span>
           </div>
-          <p class="mf-copy">Monderman is the diagnostic platform institutions use to measure, compare, and govern administrative reality — repeatedly, across participant perspectives, over time.</p>
+          <p class="mf-copy">Monderman is the diagnostic platform institutions use to measure, compare, and govern administrative reality, repeatedly, across participant perspectives, over time.</p>
           <div class="mf-social">
             <a href="https://www.linkedin.com/in/jason-adamson-627622412/" target="_blank" rel="noopener noreferrer" aria-label="Monderman on LinkedIn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
             <a href="https://x.com/MondermanHQ" target="_blank" rel="noopener noreferrer" aria-label="Monderman on X"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>

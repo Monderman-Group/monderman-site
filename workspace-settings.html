@@ -1,25 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260830-cert1">
+  <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260830-cert1">
+  <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260830-cert1">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260830-cert1">
 <link rel="stylesheet" href="assets/brand/brand-lockup.css?v=20260824-wide1"/>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
   <title>Settings | Monderman Workspace</title>
 <link rel="canonical" href="https://www.monderman.com/workspace-settings.html"/>
 <meta property="og:title" content="Settings | Monderman Workspace"/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://www.monderman.com/workspace-settings.html"/>
-<link href='data:image/svg+xml;utf8,
-    &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"&gt;
-      &lt;rect width="64" height="64" rx="10" fill="%2304181B"/&gt;
-      &lt;text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23FAFAF8"&gt;M&lt;/text&gt;
-      &lt;rect x="47" y="36" width="8" height="8" rx="1.2" fill="%230C6E78"/&gt;
-    &lt;/svg&gt;' rel="icon" type="image/svg+xml"/>
-<link href="https://www.monderman.com/favicon.ico?v=20260824-wide1" rel="icon" type="image/x-icon" sizes="any"/>
-<link href="https://www.monderman.com/favicon-192.png?v=20260824-wide1" rel="icon" type="image/png" sizes="192x192"/>
-<link href="https://www.monderman.com/favicon-192.png?v=20260824-wide1" rel="apple-touch-icon"/>
-<link href="assets/brand/monderman-favicon.svg?v=20260824-wide1" rel="icon" type="image/svg+xml"/>
-  <style>
+
+<style>
     @font-face { font-family:"Neue Haas Grotesk"; src:url("55font.woff2") format("woff2"),url("55font.woff") format("woff"); font-weight:400; font-style:normal; font-display:swap; }
     @font-face { font-family:"Neue Haas Grotesk"; src:url("65font.woff2") format("woff2"),url("65font.woff") format("woff"); font-weight:500; font-style:normal; font-display:swap; }
     @font-face { font-family:"Neue Haas Grotesk"; src:url("75font.woff2") format("woff2"),url("75font.woff") format("woff"); font-weight:700; font-style:normal; font-display:swap; }
@@ -99,7 +95,7 @@
 </style>
   <script>try{if(localStorage.getItem("mndTheme")==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}</script>
   <style>
-/* Monderman workspace shell — five-space nav chrome.
+/* Monderman workspace shell: five-space nav chrome.
    ws5- prefixed so it never collides with the marketing header (.nav/.brand/.header)
    or the site footer (.mf-*). Colors are inlined so this file is self-contained
    across every workspace page regardless of that page's :root tokens. */
@@ -203,7 +199,7 @@
    and topbar chrome switch. Toggled + remembered by workspace-theme.js.
    ============================================================================ */
 
-/* shared semantic tokens (status pills, chips, disabled fields) — LIGHT values */
+/* shared semantic tokens (status pills, chips, disabled fields): LIGHT values */
 :root{
   color-scheme: light;
   --ws-surface:#FFFFFF; --ws-text:#18191C; --ws-line:rgba(24,25,28,.10);
@@ -231,7 +227,7 @@ html[data-theme="dark"]{
   --gold:#D9A441; --gold-soft:rgba(217,164,65,.16); --warn-soft:rgba(217,164,65,.16);
   --accent-dark:#0C6E78; --accent-soft:rgba(43,167,178,.16); --accent-softer:rgba(43,167,178,.10);
   --header-solid:rgba(22,23,27,.92);
-  /* shared semantic tokens — DARK values */
+  /* shared semantic tokens: DARK values */
   --ok-bg:rgba(79,176,122,.20);    --ok-fg:#9FE3BC;
   --warn-bg:rgba(217,164,65,.20);  --warn-fg:#F0CE8A;
   --rose-bg:rgba(222,138,128,.20); --rose-fg:#F2B6AE;
@@ -247,7 +243,7 @@ html[data-theme="dark"] .ws5-who b{color:#E7E4DD}
 html[data-theme="dark"] .ws5-crumb span,
 html[data-theme="dark"] .ws5-who span{color:#9E9C95}
 
-/* smooth the switch (no effect on first paint — theme is set before load) */
+/* smooth the switch (no effect on first paint: theme is set before load) */
 body{transition:background-color .25s ease, color .25s ease}
 
 /* ---- theme toggle: a small floating button parked just above the Hans launcher ---- */
@@ -326,7 +322,7 @@ body{transition:background-color .25s ease, color .25s ease}
         <a href="workspace-settings.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h9M17 7h3"/><circle cx="15" cy="7" r="2"/><path d="M4 17h3M11 17h9"/><circle cx="9" cy="17" r="2"/></svg>Settings</a>
       </nav>
       <div class="ws5-railfoot">
-        <div class="ws5-planchip">Plan &middot; <b id="ws5Plan">&mdash;</b></div>
+        <div class="ws5-planchip">Plan &middot; <b id="ws5Plan">Loading…</b></div>
           <div class="ws5-glyphs">
             <button class="ws5-glyph" type="button" title="Toggle light / dark" onclick="document.querySelector('.ws5-theme-toggle')&&document.querySelector('.ws5-theme-toggle').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.6"/><path d="M12 3v1.6M12 19.4V21M3 12h1.6M19.4 12H21M5.2 5.2l1.1 1.1M17.7 17.7l1.1 1.1M5.2 18.8l1.1-1.1M17.7 6.3l1.1-1.1"/></svg><span>Theme</span></button>
             <button class="ws5-glyph" type="button" title="Notes" onclick="document.querySelector('.wsn-btn')&&document.querySelector('.wsn-btn').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h5"/></svg><span>Notes</span></button>
@@ -339,10 +335,10 @@ body{transition:background-color .25s ease, color .25s ease}
 
     <div class="ws5-main">
       <header class="ws5-topbar">
-        <div class="ws5-crumb"><h1>Settings</h1><span id="ws5Org">&mdash;</span></div>
+        <div class="ws5-crumb"><h1>Settings</h1><span id="ws5Org">Workspace</span></div>
         <div class="ws5-topright">
           <a class="ws5-btn" href="workspace-diagnostics.html#launch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Run a Diagnostic</a>
-          <div class="ws5-user"><div class="ws5-ava" id="ws5Ava">&mdash;</div><div class="ws5-who"><b id="ws5UserName">&mdash;</b><span id="ws5UserRole">&mdash;</span></div></div>
+          <div class="ws5-user"><div class="ws5-ava" id="ws5Ava">M</div><div class="ws5-who"><b id="ws5UserName">Loading…</b><span id="ws5UserRole">Workspace</span></div></div>
         </div>
       </header>
 
@@ -362,7 +358,7 @@ body{transition:background-color .25s ease, color .25s ease}
             <button class="btn" id="saveOrg" type="button" disabled>Save</button>
           </div>
           <div class="kv" style="margin-top:18px">
-            <div class="row"><span class="k">Plan</span><span class="v"><span class="chip" id="orgPlan">&mdash;</span></span></div>
+            <div class="row"><span class="k">Plan</span><span class="v"><span class="chip" id="orgPlan">Not available</span></span></div>
           </div>
           <div id="orgMsg"></div>
         </section>
@@ -377,8 +373,8 @@ body{transition:background-color .25s ease, color .25s ease}
               <div class="field" style="flex:0 0 180px;min-width:160px"><label for="invRole">Role</label>
                 <select id="invRole">
                   <option value="member">Member - can be assigned diagnostics</option>
-                  <option value="analyst">Analyst — can view all results &amp; analysis</option>
-                  <option value="admin">Admin — full control</option>
+                  <option value="analyst">Analyst: can view all results &amp; analysis</option>
+                  <option value="admin">Admin: full control</option>
                 </select>
               </div>
               <button class="btn" id="createInvite" type="button">Create invite</button>
@@ -408,11 +404,11 @@ body{transition:background-color .25s ease, color .25s ease}
           <div class="card-h"><h3>Plan &amp; usage</h3></div>
           <p class="card-sub">A live snapshot of workspace records. Plan pricing is not per participant.</p>
           <div class="tiles" id="usageTiles">
-            <div class="tile"><div class="n num" id="uRuns">&mdash;</div><div class="l">Diagnostic runs</div></div>
-            <div class="tile"><div class="n num" id="uPromoted">&mdash;</div><div class="l">Included in analysis</div></div>
-            <div class="tile"><div class="n num" id="uPeople">&mdash;</div><div class="l">People</div></div>
-            <div class="tile"><div class="n num" id="uAssign">&mdash;</div><div class="l">Participant invitations</div></div>
-            <div class="tile"><div class="n num" id="uSynth">&mdash;</div><div class="l">Saved Syntheses</div></div>
+            <div class="tile"><div class="n num" id="uRuns">Not available</div><div class="l">Diagnostic runs</div></div>
+            <div class="tile"><div class="n num" id="uPromoted">Not available</div><div class="l">Included in analysis</div></div>
+            <div class="tile"><div class="n num" id="uPeople">Not available</div><div class="l">People</div></div>
+            <div class="tile"><div class="n num" id="uAssign">Not available</div><div class="l">Participant invitations</div></div>
+            <div class="tile"><div class="n num" id="uSynth">Not available</div><div class="l">Saved Syntheses</div></div>
           </div>
         </section>
 
@@ -431,7 +427,7 @@ body{transition:background-color .25s ease, color .25s ease}
   <script src="workspace-access-gate.js"></script>
 <script type="module">
     const workspaceAccess = await window.mondermanWorkspaceAccessReady;
-    if (!workspaceAccess?.allowed) throw new Error("workspace_access_not_allowed");
+    if (!workspaceAccess?.allowed) await new Promise(function () {});
     const supabase = await window.mondermanGetSupabaseClient();
 
     const PLAN_LABEL = { trial:"Trial", signal:"Signal", pattern:"Pattern", enterprise:"Enterprise", // legacy values kept so an old row still renders a name rather than a blank
@@ -496,7 +492,7 @@ body{transition:background-color .25s ease, color .25s ease}
       a.href="plan-pattern.html";
       a.textContent=` · trial · ${days}d left`;
       a.style.cssText="color:#A9CFD2;text-decoration:none;font-weight:600";
-      a.title="Pattern evaluation — choose a paid plan explicitly to continue after the trial";
+      a.title="Pattern evaluation: choose a paid plan explicitly to continue after the trial";
       chip.appendChild(a);
     }
 
@@ -548,7 +544,7 @@ body{transition:background-color .25s ease, color .25s ease}
         if(error) throw error;
         state.org.name=name; setText("ws5Org",name);
         flash("orgMsg","ok","Saved.");
-      }catch(e){ flash("orgMsg","bad","Couldn’t save — organization changes are admin-only. ("+(e.message||"error")+")"); }
+      }catch(e){ flash("orgMsg","bad","Couldn’t save: organization changes are admin-only. ("+(e.message||"error")+")"); }
       finally{ $("saveOrg").disabled=!isAdmin(); }
     }
 
@@ -602,7 +598,7 @@ body{transition:background-color .25s ease, color .25s ease}
         if(error) throw error;
         $("invEmail").value="";
         await loadInvites();
-        flash("inviteMsg","ok","Invite created for "+email+" — copy the link below to send it.");
+        flash("inviteMsg","ok","Invite created for "+email+": copy the link below to send it.");
       }catch(e){
         const m=String(e.message||"error");
         flash("inviteMsg","bad",m.includes("seat limit reached")?"That role is at this plan’s seat limit. Pending invites reserve seats too.":("Couldn’t create the invite. ("+m+")"));
@@ -616,7 +612,7 @@ body{transition:background-color .25s ease, color .25s ease}
         state.invites = state.invites.filter(i=>i.id!==id);
         renderInvites();
         flash("inviteMsg","ok","Invite revoked.");
-      }catch(e){ flash("inviteMsg","bad","Couldn’t revoke — admins only. ("+(e.message||"error")+")"); }
+      }catch(e){ flash("inviteMsg","bad","Couldn’t revoke: admins only. ("+(e.message||"error")+")"); }
     }
     async function copyLink(token){
       const link=inviteLink(token);
@@ -693,7 +689,7 @@ body{transition:background-color .25s ease, color .25s ease}
       $("peopleBody").innerHTML = `<div class="lst">` + state.people.map(peopleRow).join("") + `</div>`;
     }
     function peopleRow(p){
-      const nm = (p.display_name && p.display_name.trim()) || (p.email||"").split("@")[0] || "—";
+      const nm = (p.display_name && p.display_name.trim()) || (p.email||"").split("@")[0] || "Unavailable";
       const sub = [p.email, [p.business_unit,p.team].filter(Boolean).join(" · ")].filter(Boolean).join("  ·  ");
       const active = !!(p.user_id || p.upgraded_at);
       const badge = active ? `<span class="badge active">Active</span>` : `<span class="badge muted">Recipient</span>`;
@@ -707,8 +703,8 @@ body{transition:background-color .25s ease, color .25s ease}
         if(build) q=build(q);
         const { count, error } = await q;
         if(error) throw error;
-        return count==null ? "—" : count;
-      }catch(e){ return "—"; }
+        return count==null ? "Unavailable" : count;
+      }catch(e){ return "Unavailable"; }
     }
     async function loadUsage(){
       const [runs, included, people, assign, synth] = await Promise.all([

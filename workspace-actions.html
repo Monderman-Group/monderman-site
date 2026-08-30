@@ -1,25 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260830-cert1">
+  <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260830-cert1">
+  <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260830-cert1">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260830-cert1">
 <link rel="stylesheet" href="assets/brand/brand-lockup.css?v=20260824-wide1"/>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
   <title>Action Plans | Monderman Workspace</title>
 <link rel="canonical" href="https://www.monderman.com/workspace-actions.html"/>
 <meta property="og:title" content="Action Plans | Monderman Workspace"/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://www.monderman.com/workspace-actions.html"/>
-<link href='data:image/svg+xml;utf8,
-    &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"&gt;
-      &lt;rect width="64" height="64" rx="10" fill="%2304181B"/&gt;
-      &lt;text x="17" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="%23FAFAF8"&gt;M&lt;/text&gt;
-      &lt;rect x="47" y="36" width="8" height="8" rx="1.2" fill="%230C6E78"/&gt;
-    &lt;/svg&gt;' rel="icon" type="image/svg+xml"/>
-<link href="https://www.monderman.com/favicon.ico?v=20260824-wide1" rel="icon" type="image/x-icon" sizes="any"/>
-<link href="https://www.monderman.com/favicon-192.png?v=20260824-wide1" rel="icon" type="image/png" sizes="192x192"/>
-<link href="https://www.monderman.com/favicon-192.png?v=20260824-wide1" rel="apple-touch-icon"/>
-<link href="assets/brand/monderman-favicon.svg?v=20260824-wide1" rel="icon" type="image/svg+xml"/>
-  <style>
+
+<style>
     @font-face { font-family:"Neue Haas Grotesk"; src:url("55font.woff2") format("woff2"),url("55font.woff") format("woff"); font-weight:400; font-style:normal; font-display:swap; }
     @font-face { font-family:"Neue Haas Grotesk"; src:url("65font.woff2") format("woff2"),url("65font.woff") format("woff"); font-weight:500; font-style:normal; font-display:swap; }
     @font-face { font-family:"Neue Haas Grotesk"; src:url("75font.woff2") format("woff2"),url("75font.woff") format("woff"); font-weight:700; font-style:normal; font-display:swap; }
@@ -134,7 +130,7 @@
     .ai-title{font-size:14px;font-weight:600;color:var(--text);line-height:1.38;overflow-wrap:anywhere}
     .ai-detail{font-size:13px;color:var(--muted);margin-top:5px;line-height:1.45;overflow-wrap:anywhere}
     .ai-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
-    .ai-chip{font-size:11px;font-weight:500;color:var(--muted);background:rgba(128,128,128,.11);border-radius:6px;padding:2px 8px;white-space:nowrap}
+    .ai-chip{font-size:11px;font-weight:500;color:var(--muted);background:rgba(128,128,128,.11);border-radius:6px;padding:2px 8px;white-space:normal;overflow-wrap:anywhere}
     .ai-chip.you{background:var(--accent-bg);color:var(--accent-fg)}
     .ai-chip.done{background:var(--ok-bg);color:var(--ok-fg)}
     .ai-actions{display:flex;align-items:center;gap:7px;flex:0 0 auto}
@@ -256,11 +252,15 @@
       .arow{grid-template-columns:1fr auto;gap:8px}
       .ar-meta{grid-column:1 / -1;order:3}
     }
+    @media (max-width:560px){
+      .ai-actions.col{grid-template-columns:1fr}
+      .ai-actions.col .ai-tools,.ai-actions.col .ai-remeasure{grid-column:1}
+    }
   .ws-beta-release{display:inline-flex;align-items:center;margin-left:8px;padding:2px 6px;border:1px solid rgba(255,255,255,.18);border-radius:5px;font-size:9.5px;line-height:1.2;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.72);background:rgba(255,255,255,.06);transform:translateY(-1px)}
 </style>
   <script>try{if(localStorage.getItem("mndTheme")==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}</script>
   <style>
-/* Monderman workspace shell — five-space nav chrome.
+/* Monderman workspace shell: five-space nav chrome.
    ws5- prefixed so it never collides with the marketing header (.nav/.brand/.header)
    or the site footer (.mf-*). Colors are inlined so this file is self-contained
    across every workspace page regardless of that page's :root tokens. */
@@ -364,7 +364,7 @@
    and topbar chrome switch. Toggled + remembered by workspace-theme.js.
    ============================================================================ */
 
-/* shared semantic tokens (status pills, chips, disabled fields) — LIGHT values */
+/* shared semantic tokens (status pills, chips, disabled fields): LIGHT values */
 :root{
   color-scheme: light;
   --ws-surface:#FFFFFF; --ws-text:#18191C; --ws-line:rgba(24,25,28,.10);
@@ -392,7 +392,7 @@ html[data-theme="dark"]{
   --gold:#D9A441; --gold-soft:rgba(217,164,65,.16); --warn-soft:rgba(217,164,65,.16);
   --accent-dark:#0C6E78; --accent-soft:rgba(43,167,178,.16); --accent-softer:rgba(43,167,178,.10);
   --header-solid:rgba(22,23,27,.92);
-  /* shared semantic tokens — DARK values */
+  /* shared semantic tokens: DARK values */
   --ok-bg:rgba(79,176,122,.20);    --ok-fg:#9FE3BC;
   --warn-bg:rgba(217,164,65,.20);  --warn-fg:#F0CE8A;
   --rose-bg:rgba(222,138,128,.20); --rose-fg:#F2B6AE;
@@ -408,7 +408,7 @@ html[data-theme="dark"] .ws5-who b{color:#E7E4DD}
 html[data-theme="dark"] .ws5-crumb span,
 html[data-theme="dark"] .ws5-who span{color:#9E9C95}
 
-/* smooth the switch (no effect on first paint — theme is set before load) */
+/* smooth the switch (no effect on first paint: theme is set before load) */
 body{transition:background-color .25s ease, color .25s ease}
 
 /* ---- theme toggle: a small floating button parked just above the Hans launcher ---- */
@@ -487,7 +487,7 @@ body{transition:background-color .25s ease, color .25s ease}
         <a href="workspace-settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h9M17 7h3"/><circle cx="15" cy="7" r="2"/><path d="M4 17h3M11 17h9"/><circle cx="9" cy="17" r="2"/></svg>Settings</a>
       </nav>
       <div class="ws5-railfoot">
-        <div class="ws5-planchip">Plan &middot; <b id="ws5Plan">&mdash;</b></div>
+        <div class="ws5-planchip">Plan &middot; <b id="ws5Plan">Loading…</b></div>
           <div class="ws5-glyphs">
             <button class="ws5-glyph" type="button" title="Toggle light / dark" onclick="document.querySelector('.ws5-theme-toggle')&&document.querySelector('.ws5-theme-toggle').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.6"/><path d="M12 3v1.6M12 19.4V21M3 12h1.6M19.4 12H21M5.2 5.2l1.1 1.1M17.7 17.7l1.1 1.1M5.2 18.8l1.1-1.1M17.7 6.3l1.1-1.1"/></svg><span>Theme</span></button>
             <button class="ws5-glyph" type="button" title="Notes" onclick="document.querySelector('.wsn-btn')&&document.querySelector('.wsn-btn').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h5"/></svg><span>Notes</span></button>
@@ -500,10 +500,10 @@ body{transition:background-color .25s ease, color .25s ease}
 
     <div class="ws5-main">
       <header class="ws5-topbar">
-        <div class="ws5-crumb"><h1>Action Plans</h1><span id="ws5Org">&mdash;</span></div>
+        <div class="ws5-crumb"><h1>Action Plans</h1><span id="ws5Org">Workspace</span></div>
         <div class="ws5-topright">
           <a class="ws5-btn" href="workspace-diagnostics.html#launch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Run a Diagnostic</a>
-          <div class="ws5-user"><div class="ws5-ava" id="ws5Ava">&mdash;</div><div class="ws5-who"><b id="ws5UserName">&mdash;</b><span id="ws5UserRole">&mdash;</span></div></div>
+          <div class="ws5-user"><div class="ws5-ava" id="ws5Ava">M</div><div class="ws5-who"><b id="ws5UserName">Loading…</b><span id="ws5UserRole">Workspace</span></div></div>
         </div>
       </header>
 
@@ -515,7 +515,7 @@ body{transition:background-color .25s ease, color .25s ease}
         <div class="tabwrap" data-tab="board">
           <div class="lead">
             <div class="eyebrow">Action board</div>
-            <h2>Turn findings into a plan &mdash; and track it to done</h2>
+            <h2>Turn findings into a plan, and track it to done</h2>
             <p>Import findings from an included Diagnostic or saved Synthesis, adopt the items worth acting on, assign owners and status, then close the loop with a like-for-like remeasurement.</p>
           </div>
 
@@ -533,7 +533,7 @@ body{transition:background-color .25s ease, color .25s ease}
               <button type="button" class="btn btn-secondary" id="btnImportFindings" hidden>From findings</button>
             </div>
             <div class="planbar-row inline-form" id="newPlanRow" hidden>
-              <input type="text" id="newPlanName" class="board-inp" placeholder="Plan name &mdash; e.g. Q3 operating plan" maxlength="120">
+              <input type="text" id="newPlanName" class="board-inp" placeholder="Plan name: e.g. Q3 operating plan" maxlength="120">
               <button type="button" class="btn" id="newPlanCreate">Create plan</button>
               <button type="button" class="btn-mini ghost" id="newPlanCancel">Cancel</button>
             </div>
@@ -563,7 +563,7 @@ body{transition:background-color .25s ease, color .25s ease}
   <script src="workspace-access-gate.js"></script>
 <script type="module">
     const workspaceAccess = await window.mondermanWorkspaceAccessReady;
-    if (!workspaceAccess?.allowed) throw new Error("workspace_access_not_allowed");
+    if (!workspaceAccess?.allowed) await new Promise(function () {});
     const supabase = await window.mondermanGetSupabaseClient();
     const API_BASE = "https://monderman-api.onrender.com";
     // Campaign routes now require the caller's token (2 Aug 2026); attach it everywhere.
@@ -604,10 +604,10 @@ body{transition:background-color .25s ease, color .25s ease}
       a.href="plan-pattern.html";
       a.textContent=` · trial · ${days}d left`;
       a.style.cssText="color:#A9CFD2;text-decoration:none;font-weight:600";
-      a.title="Pattern evaluation — choose a paid plan explicitly to continue after the trial";
+      a.title="Pattern evaluation: choose a paid plan explicitly to continue after the trial";
       chip.appendChild(a);
     }
-    function toolLabel(t){ return TOOL[t]||t||"\u2014"; }
+    function toolLabel(t){ return TOOL[t]||t||"Unavailable"; }
     function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
     function initials(name,email){ const b=(name&&name.trim())||(email||"").split("@")[0]||""; const p=b.split(/\s+/).filter(Boolean); return (p.length>=2?(p[0][0]+p[p.length-1][0]):b.slice(0,2)||"M").toUpperCase(); }
     function csvCell(v){ v=(v==null?"":String(v)); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
@@ -724,7 +724,7 @@ body{transition:background-color .25s ease, color .25s ease}
             <option value="in_progress"${it.status==="in_progress"?" selected":""}>In progress</option>
             <option value="done"${it.status==="done"?" selected":""}>Done</option>
           </select></label>
-          <label class="ai-control"><span>Owner</span><select class="mini-select" data-ownerfor="${it.id}" aria-label="Owner" title="Assign an owner">${ownerOptions(it)}</select></label>
+          <label class="ai-control"><span>Owner</span><select class="mini-select" data-ownerfor="${it.id}" aria-label="Owner" title="${esc(memberName(it.owner_user_id)||"Assign an owner")}">${ownerOptions(it)}</select></label>
           <div class="ai-cardtools">
             <button class="btn-mini ghost" data-act="up" data-id="${it.id}" title="Move up" aria-label="Move action up">\u2191</button>
             <button class="btn-mini ghost" data-act="down" data-id="${it.id}" title="Move down" aria-label="Move action down">\u2193</button>
@@ -742,7 +742,7 @@ body{transition:background-color .25s ease, color .25s ease}
     }
     function bySeq(a,b){ return (a.position-b.position) || (Date.parse(a.created_at||0)-Date.parse(b.created_at||0)); }
     function laneHTML(label, items, admin){
-      const body = items.length ? items.map(it=>adoptedCard(it,admin)).join("") : `<p class="muted" style="font-size:12px;margin:4px 2px">\u2014</p>`;
+      const body = items.length ? items.map(it=>adoptedCard(it,admin)).join("") : `<p class="muted" style="font-size:12px;margin:4px 2px">: </p>`;
       return `<div class="lane"><div class="lane-head">${label}<span class="count">${items.length}</span></div><div class="lane-list">${body}</div></div>`;
     }
     function renderBoardEmpty(msg){
@@ -807,7 +807,7 @@ body{transition:background-color .25s ease, color .25s ease}
         const { data, error } = await supabase.from("action_plans").insert({ organization_id: state.orgId, name, created_by: state.userId }).select("id").maybeSingle();
         if(error) throw error;
         state.planId = data?.id || state.planId;
-      }catch(e){ flash("boardMsg","Couldn\u2019t create the plan \u2014 admins only.","bad"); return; }
+      }catch(e){ flash("boardMsg","Couldn\u2019t create the plan: admins only.","bad"); return; }
       const r=$("newPlanRow"); if(r) r.hidden=true; const inp=$("newPlanName"); if(inp) inp.value="";
       await loadPlans();
     }
@@ -817,7 +817,7 @@ body{transition:background-color .25s ease, color .25s ease}
       try{
         const { error } = await supabase.from("action_items").insert({ organization_id: state.orgId, plan_id: state.planId, title, detail:(detail||"").trim()||null, decision:"proposed", status:"todo", position:pos, created_by: state.userId });
         if(error) throw error;
-      }catch(e){ flash("boardMsg","Couldn\u2019t add the action \u2014 admins only.","bad"); return; }
+      }catch(e){ flash("boardMsg","Couldn\u2019t add the action: admins only.","bad"); return; }
       const r=$("addActionRow"); if(r) r.hidden=true; const t=$("addActionTitle"), d=$("addActionDetail"); if(t)t.value=""; if(d)d.value="";
       await loadItems();
     }

@@ -8,11 +8,14 @@
 <meta property="og:title" content="Checkout | Monderman"/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://www.monderman.com/checkout.html"/>
-<meta property="og:description" content="Secure subscription checkout for Monderman tiers. Card handling by Stripe — card details never touch Monderman."/>
-  <meta name="description" content="Secure subscription checkout for Monderman tiers. Card handling by Stripe — card details never touch Monderman." />
+<meta property="og:description" content="Secure subscription checkout for Monderman tiers. Card handling by Stripe: card details never touch Monderman."/>
+  <meta name="description" content="Secure subscription checkout for Monderman tiers. Card handling by Stripe: card details never touch Monderman." />
   <meta name="robots" content="noindex" />
-  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <style>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260830-cert1">
+  <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260830-cert1">
+  <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260830-cert1">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260830-cert1">
+<style>
     @font-face{font-family:'Neue Haas Grotesk';src:url('55font.woff2') format('woff2'),url('55font.woff') format('woff');font-weight:400;font-style:normal;font-display:swap;}
     @font-face{font-family:'Neue Haas Grotesk';src:url('65font.woff2') format('woff2'),url('65font.woff') format('woff');font-weight:500;font-style:normal;font-display:swap;}
     @font-face{font-family:'Neue Haas Grotesk';src:url('75font.woff2') format('woff2'),url('75font.woff') format('woff');font-weight:700;font-style:normal;font-display:swap;}
@@ -39,7 +42,7 @@
     .btn{display:block;width:100%;margin-top:22px;padding:15px 18px;border:0;border-radius:11px;background:var(--accent);color:#fff;font-family:inherit;font-size:15.5px;font-weight:600;cursor:pointer;transition:background 200ms;}
     .btn:hover{background:var(--accent-dark);}
     .btn[disabled]{opacity:.55;cursor:default;}
-    .fine{margin:14px 0 0;font-size:12.3px;line-height:1.6;color:#8A8B90;text-align:center;}
+    .fine{margin:14px 0 0;font-size:12.3px;line-height:1.6;color:#6E6F73;text-align:center;}
     .fine a{color:var(--accent);}
     .panel{display:none;margin-top:18px;padding:15px 16px;border-radius:11px;font-size:13.5px;line-height:1.6;}
     .panel.warn{background:#FBF3E3;border:1px solid rgba(201,130,31,.35);color:#6B4E14;}
@@ -48,7 +51,7 @@
     .workspace-choice{margin:16px 0 0;padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:#FCFBF8}.workspace-choice label{display:block;margin-bottom:7px;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--deep)}.workspace-choice select{width:100%;padding:10px 11px;border:1px solid #D8D4CA;border-radius:8px;background:#fff;color:var(--ink);font:500 14px 'Neue Haas Grotesk',sans-serif}.workspace-choice p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink)}
     .billing-contact{margin:16px 0 0;padding:14px;border:1px solid var(--line);border-radius:10px;background:#FCFBF8}.billing-contact h2{margin:0 0 4px;color:var(--deep);font-size:14px}.billing-contact>p{margin:0 0 12px;color:#6E6F73;font-size:12.5px;line-height:1.5}.billing-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.billing-field{display:grid;gap:5px}.billing-field.email{grid-column:1/-1}.billing-field label{color:var(--deep);font-size:11.5px;font-weight:700}.billing-field input{width:100%;min-width:0;padding:10px 11px;border:1px solid #D8D4CA;border-radius:8px;background:#fff;color:var(--ink);font:500 14px 'Neue Haas Grotesk',sans-serif}.billing-field input:focus{outline:2px solid rgba(12,110,120,.22);border-color:var(--accent)}.billing-field input:invalid:not(:placeholder-shown){border-color:#A33A32}.billing-field small{color:#85878A;font-size:11px;line-height:1.35}
     @media(max-width:520px){.billing-grid{grid-template-columns:1fr}.billing-field.email{grid-column:auto}}
-    .muted-note{margin-top:26px;text-align:center;font-size:12.8px;color:#8A8B90;}
+    .muted-note{margin-top:26px;text-align:center;font-size:12.8px;color:#6E6F73;}
     .muted-note a{color:var(--accent);text-decoration:none;font-weight:500;}
   </style>
   <link rel="stylesheet" href="visual-polish.css?v=20260823-4">
@@ -94,7 +97,7 @@
   <script src="workspace-access-gate.js"></script>
 <script type="module">
     const workspaceAccess = await window.mondermanWorkspaceAccessReady;
-    if (!workspaceAccess?.allowed) throw new Error("workspace_access_not_allowed");
+    if (!workspaceAccess?.allowed) await new Promise(function () {});
     const sb = await window.mondermanGetSupabaseClient();
 
     const API_BASE = "https://monderman-api.onrender.com";
@@ -106,18 +109,18 @@
       signal: {
         name: "Signal",
         includes: [
-          "All four Diagnostics \u2014 every standard depth and vantage",
-          "Unlimited self-runs \u2014 never metered",
+          "All four Diagnostics: every standard depth and vantage",
+          "Unlimited self-runs: never metered",
           "50 completed participant responses a year through Diagnostic campaigns",
           "12 Syntheses a year across Depth Synthesis and Cross-Lens Synthesis",
           "Saved history, results library, and the over-time lens",
-          "3 workspace users \u2014 2 analysts and 1 admin",
+          "3 workspace users: 2 analysts and 1 admin",
           "Email platform support"
         ],
         prices: {
           monthly:   { headline: "$1,000", line: "per month, billed monthly" },
-          quarterly: { headline: "$950",   line: "per month, billed quarterly \u2014 save 5%" },
-          annual:    { headline: "$850",   line: "per month, billed annually \u2014 save 15%" }
+          quarterly: { headline: "$950",   line: "per month, billed quarterly: save 5%" },
+          annual:    { headline: "$850",   line: "per month, billed annually: save 15%" }
         }
       },
       pattern: {
@@ -127,13 +130,13 @@
           "500 completed participant responses a year",
           "Unlimited Depth Synthesis and Cross-Lens Synthesis",
           "Anonymous participant responses with pseudonyms and day-level timestamps",
-          "7 workspace users \u2014 5 analysts and 2 admins",
+          "7 workspace users: 5 analysts and 2 admins",
           "Priority platform support plus a one-time onboarding session"
         ],
         prices: {
           monthly:   { headline: "$3,000", line: "per month, billed monthly" },
-          quarterly: { headline: "$2,850", line: "per month, billed quarterly \u2014 save 5%" },
-          annual:    { headline: "$2,550", line: "per month, billed annually \u2014 save 15%" }
+          quarterly: { headline: "$2,850", line: "per month, billed quarterly: save 5%" },
+          annual:    { headline: "$2,550", line: "per month, billed annually: save 15%" }
         }
       }
     };
@@ -166,7 +169,7 @@
       const t = TIERS[tier], p = t.prices[interval];
       el("tierName").textContent = t.name + " tier";
       el("priceLine").innerHTML = p.headline + ' <small>' + p.line + "</small>";
-      el("billingLine").textContent = "Purchasing for your organization \u2014 the tier unlocks for everyone in your workspace.";
+      el("billingLine").textContent = "Purchasing for your organization: the tier unlocks for everyone in your workspace.";
       el("incList").innerHTML = t.includes.map((x) => "<li>" + x + "</li>").join("");
       el("connectLink").href = "connect.html?plan=" + tier;
       boot();
@@ -247,9 +250,9 @@
           else if (out.error === "organization_selection_required") { showError("Choose the Workspace that should receive this subscription."); }
           else if (out.error === "invalid_billing_email") { showError("Enter a valid billing email address or leave the optional field blank."); }
           else if (res.status === 401) { location.replace("signin.html?next=" + encodeURIComponent("checkout.html")); return; }
-          else { showError("Checkout could not be started. Nothing was charged \u2014 please try again, or use the Connect form for an order form."); }
+          else { showError("Checkout could not be started. Nothing was charged: please try again, or use the Connect form for an order form."); }
         } catch (e) {
-          showError("Checkout could not be reached. Nothing was charged \u2014 please try again in a moment.");
+          showError("Checkout could not be reached. Nothing was charged: please try again in a moment.");
         }
         updatePayState();
         btn.textContent = "Continue to secure checkout";

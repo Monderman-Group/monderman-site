@@ -28,7 +28,7 @@ for (const [where, font] of Object.entries(hostTypography)) {
   assert(!isActualSerif(font), `${where} contaminated by shared report serif CSS: ${font}`);
   assert(/Neue Haas|Helvetica|Arial/i.test(font), `${where} no longer uses Monderman sans typography: ${font}`);
 }
-assert((await page.locator('body').textContent()).includes('Representative product outputs — not customer data.'), 'designed representative-output disclosure missing');
+assert((await page.locator('body').textContent()).includes('Representative product outputs, not customer data.'), 'designed representative-output disclosure missing');
 
 async function openTab(key) {
   await page.locator(`[data-target="${key}"]`).click();

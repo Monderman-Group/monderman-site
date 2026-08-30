@@ -43,5 +43,7 @@ jobs:
       - name: Reject Diagnostic completion-protection regressions
         run: node scripts/diagnostic_completion_reliability_smoke.mjs
       - run: python scripts/validate_frontend_release.py
+      - name: Reject production cosmetic and copy regressions
+        run: python scripts/validate_production_cosmetic_certification.py
       - name: Verify candidate diff integrity
         run: git diff --check

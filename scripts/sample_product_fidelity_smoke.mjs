@@ -24,7 +24,7 @@ page.on('console', message => {
 
 await page.goto(`${base}/sample-report.html`, { waitUntil:'networkidle', timeout:90000 });
 await page.locator('body.production-samples-ready').waitFor({ state:'attached', timeout:30000 });
-assert((await page.locator('body').textContent()).includes('Representative product outputs — not customer data.'), 'representative-output disclosure missing');
+assert((await page.locator('body').textContent()).includes('Representative product outputs, not customer data.'), 'representative-output disclosure missing');
 
 for (const [key, contract] of Object.entries(diagnostics)) {
   await page.locator(`#tab-${key}`).click();
