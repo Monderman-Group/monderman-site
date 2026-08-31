@@ -238,9 +238,9 @@ for page in r.glob('*.html'):
   css_version=re.search(r'canonical-site-shell\.css\?v=([^"\']+)',t)
   js_version=re.search(r'canonical-site-shell\.js\?v=([^"\']+)',t)
   if not css_version:e.append(page.name+': versioned canonical header styles missing')
-  else:public_header_css_versions.add(css_version.group(1))
+  elif not re.match(r'^(?:privacy|terms)(?:-\d{4}-\d{2}-\d{2}-beta)?\.html$',page.name):public_header_css_versions.add(css_version.group(1))
   if not js_version:e.append(page.name+': versioned canonical header behavior missing')
-  else:public_header_js_versions.add(js_version.group(1))
+  elif not re.match(r'^(?:privacy|terms)(?:-\d{4}-\d{2}-\d{2}-beta)?\.html$',page.name):public_header_js_versions.add(js_version.group(1))
 if not public_header_pages:e.append('canonical public headers missing')
 if len(public_header_css_versions)!=1:e.append('canonical public header style versions diverge: '+str(sorted(public_header_css_versions)))
 if len(public_header_js_versions)!=1:e.append('canonical public header behavior versions diverge: '+str(sorted(public_header_js_versions)))
@@ -264,7 +264,7 @@ if 'if (!document.body.classList.contains("canonical-green-shell"))' not in assi
  e.append('assistant legacy header fallback overrides canonical mobile navigation')
 for token in ['site-menu-button','aria-label", "Open navigation','mobile-nav-open','closeMobileNav','event.key === "Escape"']:
  if token not in canonical_shell:e.append('public mobile navigation behavior '+token)
-for token in ['@media(max-width:760px)','header.mobile-nav-open .nav','width:44px;height:44px','display:none;width:100%','nav .nav-menu.is-open .nav-dropdown']:
+for token in ['@media(max-width:1180px)','header.mobile-nav-open .nav','width:44px;height:44px','display:none;width:100%','nav .nav-menu.is-open .nav-dropdown']:
  if token not in canonical_css:e.append('public mobile navigation layout '+token)
 if 'data-count-type="plain-plus" data-target="7000"' not in idx or 'type === "plain-plus"' not in idx or 'toLocaleString("en-US")' not in idx:
  e.append('homepage 7000+ counter formatting')

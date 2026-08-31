@@ -504,8 +504,18 @@
     .ps-enterprise li::before{content:"";position:absolute;left:0;top:7px;width:7px;height:7px;border-radius:1px;background:var(--gold)}
     .ps-enterprise li b{color:#fff;font-weight:600}
     @media(max-width:820px){.ps-enterprise{grid-template-columns:1fr;gap:26px;padding:30px 24px}}
+    @media print {
+      .ps-hero-inner,.ps-wrap{max-width:none;padding-left:0;padding-right:0}
+      .ps-hero-inner{padding-top:26px;padding-bottom:26px}
+      .ps-section{padding:30px 0}
+      .ps-roi-grid,.ps-tiers,.ps-support{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .ps-proc-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .ps-tier{padding:20px 18px}
+      .ps-final{padding:30px 0;break-inside:avoid}
+      .ps-faq-item,.ps-proc-item,.ps-roi-card,.ps-support .card{break-inside:avoid}
+    }
   </style>
-<link rel="stylesheet" href="canonical-site-shell.css?v=20260828-footer-aperture3">
+<link rel="stylesheet" href="canonical-site-shell.css?v=20260830-readiness1">
 <link rel="stylesheet" href="mobile-site-polish.css?v=20260825-2">
 <style>
   /* Canonical white / near-white surface rhythm. The ROI band remains green. */
@@ -944,6 +954,6 @@
 
   <script src="assistant.js?v=20260828-footer-dock4" defer></script>
   <script src="connect-widget.js?v=20260828-footer-dock4" defer></script>
-<script src="canonical-site-shell.js?v=20260824-header2"></script>
+<script src="canonical-site-shell.js?v=20260830-readiness1"></script>
 </body>
 </html>

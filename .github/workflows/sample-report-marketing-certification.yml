@@ -44,6 +44,9 @@ on:
       - 'scripts/validate_beta_compliance.py'
       - 'scripts/validate_frontend_release.py'
       - 'scripts/validate_production_cosmetic_certification.py'
+      - 'scripts/certification_guard_sensitivity_smoke.py'
+      - 'scripts/ordinary_page_print_smoke.mjs'
+      - 'scripts/validate_ordinary_page_print.py'
       - 'scripts/validate_legal_terms_protection.py'
       - 'scripts/diagnostic_draft_recovery_smoke.mjs'
       - 'scripts/workspace_legal_gate_smoke.mjs'
@@ -114,6 +117,9 @@ on:
       - 'scripts/validate_beta_compliance.py'
       - 'scripts/validate_frontend_release.py'
       - 'scripts/validate_production_cosmetic_certification.py'
+      - 'scripts/certification_guard_sensitivity_smoke.py'
+      - 'scripts/ordinary_page_print_smoke.mjs'
+      - 'scripts/validate_ordinary_page_print.py'
       - 'scripts/validate_legal_terms_protection.py'
       - 'scripts/diagnostic_draft_recovery_smoke.mjs'
       - 'scripts/workspace_legal_gate_smoke.mjs'
@@ -177,6 +183,7 @@ jobs:
           node --check scripts/sample_tile_smoke.mjs
           node --check scripts/mobile_site_presentation_smoke.mjs
           node --check scripts/cosmetic_regression_smoke.mjs
+          node --check scripts/ordinary_page_print_smoke.mjs
           node --check scripts/cross_browser_public_release_smoke.mjs
           node --check scripts/personalized_pattern_pilot_browser_smoke.mjs
           node --check scripts/pilot_feedback_browser_smoke.mjs
@@ -193,6 +200,7 @@ jobs:
           python scripts/validate_pdf_house_style.py
           python scripts/validate_publication_suite.py
           python scripts/validate_production_cosmetic_certification.py
+          python scripts/certification_guard_sensitivity_smoke.py
 
       - name: Install browser tooling
         run: |
@@ -217,6 +225,14 @@ jobs:
           SITE_BASE: http://127.0.0.1:8080
           COSMETIC_OUT: /tmp/report-presentation-smoke/cosmetic-regression
         run: node scripts/cosmetic_regression_smoke.mjs
+
+      - name: Render and verify ordinary-page print pagination
+        env:
+          SITE_BASE: http://127.0.0.1:8080
+          ORDINARY_PRINT_OUT: /tmp/report-presentation-smoke/ordinary-print
+        run: |
+          node scripts/ordinary_page_print_smoke.mjs
+          python scripts/validate_ordinary_page_print.py
 
       - name: Verify generated PDF geometry and remedy pagination
         run: python scripts/validate_generated_pdf_layout.py /tmp/report-presentation-smoke

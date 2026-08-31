@@ -5,7 +5,7 @@
   <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260830-cert1">
   <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260830-cert1">
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260830-cert1">
-<link rel="stylesheet" href="canonical-site-shell.css?v=20260828-footer-aperture3">
+<link rel="stylesheet" href="canonical-site-shell.css?v=20260830-readiness1">
 
   <meta property="og:image" content="https://www.monderman.com/assets/brand/monderman-social-card.png?v=20260830-cert1">
   <meta property="og:image:width" content="1200">
@@ -87,5 +87,5 @@
 <script>
 (()=>{const h=document.getElementById('siteHeader');const applyHeader=()=>h?.classList.toggle('scrolled',window.scrollY>24);applyHeader();window.addEventListener('scroll',applyHeader,{passive:true});const link=document.querySelector('a.workspace-link');if(!link||!window.supabase?.createClient)return;const sb=window.supabase.createClient('https://ptkxrzgmeldalrkfruth.supabase.co','sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'pkce'}});const apply=async()=>{let signedIn=false;try{const {data}=await sb.auth.getSession();signedIn=!!data?.session?.user}catch(e){}link.textContent=signedIn?'Workspace':'Sign In';link.setAttribute('href',signedIn?'workspace.html':'signin.html?next=workspace.html')};apply();sb.auth.onAuthStateChange(()=>apply())})();
 </script>
-<script src="canonical-site-shell.js?v=20260824-header2"></script>
+<script src="canonical-site-shell.js?v=20260830-readiness1"></script>
 </body></html>

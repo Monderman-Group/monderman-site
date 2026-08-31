@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import re
+import os
 import struct
 import sys
 from html.parser import HTMLParser
@@ -13,7 +14,7 @@ from urllib.parse import urlparse
 from normalize_site_metadata import normalize_head
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(os.environ.get("MONDERMAN_CERT_ROOT", Path(__file__).resolve().parents[1])).resolve()
 errors: list[str] = []
 
 
@@ -49,6 +50,96 @@ class VisibleCopy(HTMLParser):
             self.values.append(data)
 
 
+class DocumentFacts(VisibleCopy):
+    """Parse real document nodes; comments and source-code strings never count."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.in_head = False
+        self.head_tags: list[tuple[str, dict[str, str]]] = []
+        self.declarations: list[str] = []
+
+    def handle_decl(self, decl: str) -> None:
+        self.declarations.append(decl.strip().lower())
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        normalized = tag.lower()
+        if normalized == "head":
+            self.in_head = True
+        if self.in_head:
+            self.head_tags.append((normalized, {key.lower(): value or "" for key, value in attrs}))
+        super().handle_starttag(normalized, attrs)
+
+    def handle_endtag(self, tag: str) -> None:
+        super().handle_endtag(tag.lower())
+        if tag.lower() == "head":
+            self.in_head = False
+
+
+def parse_document(source: str) -> DocumentFacts:
+    parser = DocumentFacts()
+    parser.feed(source)
+    return parser
+
+
+def without_html_comments(source: str) -> str:
+    return re.sub(r"(?s)<!--.*?-->", "", source)
+
+
+def without_code_comments(source: str) -> str:
+    output: list[str] = []
+    index = 0
+    quote: str | None = None
+    escaped = False
+    while index < len(source):
+        char = source[index]
+        following = source[index + 1] if index + 1 < len(source) else ""
+        if quote is not None:
+            output.append(char)
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = None
+            index += 1
+            continue
+        if char in {'"', "'", "`"}:
+            quote = char
+            output.append(char)
+            index += 1
+            continue
+        if char == "/" and following == "*":
+            closing = source.find("*/", index + 2)
+            index = len(source) if closing < 0 else closing + 2
+            output.append(" ")
+            continue
+        if char == "/" and following == "/":
+            newline = source.find("\n", index + 2)
+            if newline < 0:
+                break
+            output.append("\n")
+            index = newline + 1
+            continue
+        output.append(char)
+        index += 1
+    return "".join(output)
+
+
+def executable_source(source: str) -> str:
+    scripts = re.findall(r"(?is)<script\b[^>]*>(.*?)</script>", source)
+    return without_code_comments("\n".join(scripts) if scripts else source)
+
+
+def has_meta(document: DocumentFacts, key: str, value: str, content: str | None = None) -> bool:
+    for tag, attrs in document.head_tags:
+        if tag != "meta" or attrs.get(key, "").lower() != value.lower():
+            continue
+        if content is None or attrs.get("content", "").lower() == content.lower():
+            return True
+    return False
+
+
 # 1–2: targeted dark-surface legibility and approved muted tones.
 platform = text("platform-services.html")
 require(".canonical-green-shell .ps-roi .ps-section-label" in platform and "color:#A9CFD2" in platform, "ROI section label contrast contract missing")
@@ -72,22 +163,22 @@ html_files = [
 ]
 for path in html_files:
     page = path.read_text(encoding="utf-8")
-    head = page.split("</head>", 1)[0]
-    head_without_code = re.sub(
-        r"(?is)<(?:script|style)\b.*?</(?:script|style)>", "", head
-    )
-    for token in [
-        'rel="icon" type="image/svg+xml" href="favicon.svg?v=20260830-cert1"',
-        'rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260830-cert1"',
-        'rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260830-cert1"',
-        'rel="apple-touch-icon" href="apple-touch-icon.png?v=20260830-cert1"',
-    ]:
-        require(page.count(token) == 1, f"{path.name}: favicon contract is not singular")
-    require(not re.search(r"<link[^>]+data:image/svg\+xml", page.split("</head>", 1)[0], re.I), f"{path.name}: legacy inline favicon remains")
-    require(
-        not re.search(r"(?is)<(?:svg|rect|text)\b|</svg>\s*['\"]?\s*/?>", head_without_code),
-        f"{path.name}: orphaned inline-favicon markup remains in the head",
-    )
+    document = parse_document(page)
+    require(page.lstrip().lower().startswith("<!doctype html>"), f"{path.name}: non-document output precedes the doctype")
+    require(not re.search(r"(?im)^\s*(?:warning:\s*truncated output|total output lines:)", page), f"{path.name}: tool-output warning is customer-visible")
+    require(not re.search(r">\s*:\s*</(?:p|div|span)>", without_html_comments(page), re.I), f"{path.name}: isolated colon placeholder is customer-visible")
+    links = [attrs for tag, attrs in document.head_tags if tag == "link"]
+    expected_links = [
+        {"rel": "icon", "type": "image/svg+xml", "href": "favicon.svg?v=20260830-cert1"},
+        {"rel": "icon", "type": "image/x-icon", "sizes": "any", "href": "favicon.ico?v=20260830-cert1"},
+        {"rel": "icon", "type": "image/png", "sizes": "192x192", "href": "favicon-192.png?v=20260830-cert1"},
+        {"rel": "apple-touch-icon", "href": "apple-touch-icon.png?v=20260830-cert1"},
+    ]
+    for expected in expected_links:
+        matches = [attrs for attrs in links if all(attrs.get(key) == value for key, value in expected.items())]
+        require(len(matches) == 1, f"{path.name}: real favicon link is missing or duplicated: {expected['href']}")
+    require(not any("data:image/svg+xml" in attrs.get("href", "").lower() for attrs in links), f"{path.name}: legacy inline favicon remains")
+    require(not any(tag in {"svg", "rect", "text"} for tag, _ in document.head_tags), f"{path.name}: orphaned inline-favicon markup remains in the head")
 
 legacy_favicon = """\n<title>Fixture</title>\n<link href='data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\">\n  <rect width=\"64\" height=\"64\"/>\n  <text x=\"17\" y=\"42\">M</text>\n</svg>' rel=\"icon\" type=\"image/svg+xml\"/>\n<style>body{color:#000}</style>\n"""
 damaged_favicon_tail = """\n<title>Fixture</title>\n<rect width=\"64\" height=\"64\"/>\n<text x=\"17\" y=\"42\">M</text>\n</svg>' />\n<style>body{color:#000}</style>\n"""
@@ -105,7 +196,8 @@ sitemap = text("sitemap.xml")
 public_pages = {urlparse(url).path.lstrip("/") or "index.html" for url in re.findall(r"<loc>(.*?)</loc>", sitemap)}
 for name in public_pages:
     page = text(name)
-    require('property="og:image"' in page and 'name="twitter:card" content="summary_large_image"' in page, f"{name}: social-card metadata missing")
+    document = parse_document(page)
+    require(has_meta(document, "property", "og:image") and has_meta(document, "name", "twitter:card", "summary_large_image"), f"{name}: real social-card metadata missing")
 
 social = ROOT / "assets" / "brand" / "monderman-social-card.png"
 require(social.exists(), "canonical social-card asset missing")
@@ -117,20 +209,31 @@ if social.exists():
         require(struct.unpack(">II", signature[16:24]) == (1200, 630), "social card is not 1200×630")
 
 # 6: corrected publication taxonomy on both public surfaces.
-compensatory = home[home.find("How Workarounds Preserve Output While Masking Institutional Dysfunction") - 500 : home.find("How Workarounds Preserve Output While Masking Institutional Dysfunction") + 900]
-require('category-brief" data-category="brief"' in compensatory and "<span class=\"placeholder-cover-type\">Brief</span>" in compensatory, "homepage Brief taxonomy missing")
+home_without_comments = without_html_comments(home)
+compensatory_match = re.search(
+    r'<article\b[^>]*class="[^"]*category-brief[^"]*"[^>]*data-category="brief"[^>]*>'
+    r'(?:(?!</article>).)*How Workarounds Preserve Output While Masking Institutional Dysfunction'
+    r'(?:(?!</article>).)*</article>',
+    home_without_comments,
+    re.S,
+)
+require(compensatory_match is not None and '<span class="placeholder-cover-type">Brief</span>' in compensatory_match.group(0), "homepage Brief taxonomy missing")
 research = text("research.html")
-require('<span>Enterprise</span><span>Brief · PDF</span></div>\n          <h3 class="paper-title">How Workarounds Preserve Output While Masking Dysfunction</h3>' in research, "Research Brief taxonomy missing")
+require('<span>Enterprise</span><span>Brief · PDF</span></div>\n          <h3 class="paper-title">How Workarounds Preserve Output While Masking Dysfunction</h3>' in without_html_comments(research), "Research Brief taxonomy missing")
 
 # 7–8: print resilience and branded not-found page.
 shell_css = text("canonical-site-shell.css")
-require("@media print" in shell_css and ".mond-footer" in shell_css, "shared print contract missing")
+shell_css_without_comments = without_code_comments(shell_css)
+require("@media print" in shell_css_without_comments and ".mond-footer" in shell_css_without_comments, "shared print contract missing")
+require("@media(max-width:1180px)" in shell_css_without_comments, "tablet navigation breakpoint contract missing")
+require('(max-width: 1180px)' in without_code_comments(text("canonical-site-shell.js")), "tablet navigation behavior breakpoint missing")
 book_image = home.find('<img class="book-jacket"')
 require(book_image >= 0 and 'loading="eager"' in home[book_image : book_image + 500], "homepage book image is not print-ready")
 require(".latest-dots,.latest-track .is-carousel-clone{display:none!important}" in home, "homepage print duplicates looping carousel content")
 not_found = text("404.html")
-for token in ["This page is not here.", "canonical-site-shell.css", "monderman-map-cream.svg", 'name="robots" content="noindex, nofollow"']:
+for token in ["This page is not here.", "canonical-site-shell.css", "monderman-map-cream.svg"]:
     require(token in not_found, f"branded 404 contract missing: {token}")
+require(has_meta(parse_document(not_found), "name", "robots", "noindex, nofollow"), "branded 404 real noindex contract missing")
 
 # 10 and 13: language canon in visible HTML and customer-visible runtime strings.
 british = re.compile(r"\b(organisation(?:s|'s|’s)?|organisational|colour(?:s)?|behaviour(?:s)?|centre(?:s)?|recognis(?:e|ed|ing)|analys(?:e|ed)|licence(?:s)?|favour(?:s|ed|ing)?|labour|programme(?:s)?|modelling|authorised|summaris(?:e|ed|ing)|prioritis(?:e|ed|ing))\b", re.I)
@@ -152,7 +255,10 @@ for malformed in ["Hi:", "Sorry:", "I’m Hans:", "signed in: unlock"]:
 
 # 11: real NHG italic faces, not browser synthesis.
 for token in ["56font.woff2", "66font.woff2", "76font.woff2", "font-style:italic"]:
-    require(token in shell_css, f"approved italic face contract missing: {token}")
+    require(token in shell_css_without_comments, f"approved italic face contract missing: {token}")
+for name in ["56font.woff2", "66font.woff2", "76font.woff2"]:
+    font = ROOT / name
+    require(font.exists() and font.stat().st_size > 1000, f"approved italic font asset missing or empty: {name}")
 
 # 12: current Federal Reserve source in the canonical publication generator.
 pdf_source = text("scripts/refine_built_to_please_pdf.py")
@@ -160,20 +266,23 @@ require("SR Letter 26-2" in pdf_source and "supersedes SR 11-7" in pdf_source an
 
 # 14–15: private shells stay out of search; heading levels remain sequential.
 for name in ["cross-tool-synthesis.html", "workspace-actions.html", "workspace-analysis.html", "workspace-diagnostics.html", "workspace-settings.html"]:
-    require('name="robots" content="noindex, nofollow"' in text(name), f"{name}: noindex contract missing")
+    require(has_meta(parse_document(text(name)), "name", "robots", "noindex, nofollow"), f"{name}: real noindex contract missing")
 for heading in ["Signal: platform support", "Pattern: priority + onboarding", "Enterprise: named contact", "Published, predictable pricing", "Clear data handling", "Single-vendor simplicity", "Justification, built in"]:
     require(f"<h3>{heading}</h3>" in platform, f"platform heading hierarchy missing: {heading}")
 
 # 16–18: phone action-card flow, quiet access handoff, stable redirect harness.
 actions = text("workspace-actions.html")
-for token in ["white-space:normal;overflow-wrap:anywhere", "@media (max-width:560px)", 'title="${esc(memberName(it.owner_user_id)||"Assign an owner")}"']:
+for token in ["white-space:normal;overflow-wrap:anywhere", "@media (max-width:560px)", 'title="${esc(memberName(it.owner_user_id)||"Assign an owner")}"', ">No actions</p>"]:
     require(token in actions, f"Action Plans long-content contract missing: {token}")
 for name in ["checkout.html", "workspace.html", "workspace-actions.html", "workspace-analysis.html", "workspace-diagnostics.html", "workspace-settings.html", "workspace-shell.js"]:
-    access_source = text(name)
+    access_source = executable_source(text(name))
     require('throw new Error("workspace_access_not_allowed")' not in access_source, f"{name}: uncaught access handoff returned")
-    require("await new Promise(function () {})" in access_source, f"{name}: quiet access handoff contract missing")
+    require(re.search(r"if\s*\(\s*!workspaceAccess\?\.allowed\s*\)\s*await\s+new\s+Promise\s*\(\s*function\s*\(\s*\)\s*\{\s*\}\s*\)", access_source) is not None, f"{name}: executable quiet access handoff contract missing")
 mobile = text("scripts/mobile_site_presentation_smoke.mjs")
 require("navigateToStableDocument" in mobile and "context was destroyed" in mobile, "mobile redirect-stability harness missing")
+motif_source = executable_source(home)
+require('motif.setAttribute("viewBox", compactMotif ? "0 0 344 188" : "0 0 320 164")' in motif_source, "phone tile motif geometry contract missing")
+require('motif.setAttribute("preserveAspectRatio", compactMotif ? "xMaxYMax meet" : "xMidYMid meet")' in motif_source, "phone tile motif alignment contract missing")
 
 if errors:
     print("PRODUCTION_COSMETIC_CERTIFICATION_FAIL")

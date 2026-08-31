@@ -44,6 +44,8 @@ jobs:
         run: node scripts/diagnostic_completion_reliability_smoke.mjs
       - run: python scripts/validate_frontend_release.py
       - name: Reject production cosmetic and copy regressions
-        run: python scripts/validate_production_cosmetic_certification.py
+        run: |
+          python scripts/validate_production_cosmetic_certification.py
+          python scripts/certification_guard_sensitivity_smoke.py
       - name: Verify candidate diff integrity
         run: git diff --check

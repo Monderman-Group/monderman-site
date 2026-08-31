@@ -34,6 +34,14 @@ const workspacePages = [
   'workspace-settings.html',
 ];
 
+const sitemapPages = [...fs.readFileSync('sitemap.xml', 'utf8').matchAll(/<loc>(.*?)<\/loc>/g)]
+  .map((match) => new URL(match[1]).pathname.split('/').pop() || 'index.html');
+const publicHeaderPages = [...new Set(sitemapPages)].filter((pageName) => {
+  if (!fs.existsSync(pageName)) return false;
+  const source = fs.readFileSync(pageName, 'utf8');
+  return source.includes('canonical-green-shell') && source.includes('canonical-site-shell.js');
+});
+
 const phoneViewports = [
   { width: 320, height: 700 },
   { width: 390, height: 844 },
@@ -323,6 +331,168 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
           path: path.join(out, `action-chips-${browserName}-${viewport.width}.png`),
         });
       }
+      await page.close();
+    }
+
+    for (const viewport of [{ width: 768, height: 900 }, { width: 1024, height: 900 }]) {
+      for (const pageName of publicHeaderPages) {
+        const page = await browser.newPage({ viewport });
+        await page.goto(`${base}/${pageName}`, { waitUntil: 'load', timeout: 30000 });
+        await page.locator('.site-menu-button').waitFor({ state: 'visible', timeout: 10000 });
+        const closed = await page.evaluate(() => {
+          const nav = document.querySelector('.header .nav');
+          const button = document.querySelector('.site-menu-button');
+          const header = document.querySelector('.header');
+          const headerBox = header.getBoundingClientRect();
+          const buttonBox = button.getBoundingClientRect();
+          return {
+            clientWidth: document.documentElement.clientWidth,
+            scrollWidth: document.documentElement.scrollWidth,
+            navDisplay: getComputedStyle(nav).display,
+            buttonDisplay: getComputedStyle(button).display,
+            buttonLeft: buttonBox.left,
+            buttonRight: buttonBox.right,
+            headerLeft: headerBox.left,
+            headerRight: headerBox.right,
+            expanded: button.getAttribute('aria-expanded'),
+          };
+        });
+        noPageOverflow(closed, `${browserName}/${viewport.width}/${pageName}/tablet-header-closed`);
+        assert.equal(closed.navDisplay, 'none', `${browserName}/${viewport.width}/${pageName}: tablet nav is not closed`);
+        assert.notEqual(closed.buttonDisplay, 'none', `${browserName}/${viewport.width}/${pageName}: tablet menu button is hidden`);
+        assert.ok(closed.buttonLeft >= closed.headerLeft - 1 && closed.buttonRight <= closed.headerRight + 1,
+          `${browserName}/${viewport.width}/${pageName}: tablet menu button is clipped`);
+        assert.equal(closed.expanded, 'false', `${browserName}/${viewport.width}/${pageName}: tablet nav starts expanded`);
+
+        await page.locator('.site-menu-button').click();
+        const opened = await page.evaluate(() => {
+          const nav = document.querySelector('.header .nav');
+          const navBox = nav.getBoundingClientRect();
+          const items = [...nav.querySelectorAll(':scope > a, :scope > .nav-menu')]
+            .map((item) => {
+              const box = item.getBoundingClientRect();
+              return { left: box.left, right: box.right, width: box.width };
+            });
+          return {
+            clientWidth: document.documentElement.clientWidth,
+            scrollWidth: document.documentElement.scrollWidth,
+            navDisplay: getComputedStyle(nav).display,
+            navLeft: navBox.left,
+            navRight: navBox.right,
+            items,
+          };
+        });
+        noPageOverflow(opened, `${browserName}/${viewport.width}/${pageName}/tablet-header-open`);
+        assert.equal(opened.navDisplay, 'flex', `${browserName}/${viewport.width}/${pageName}: tablet nav does not open`);
+        assert.ok(opened.navLeft >= -1 && opened.navRight <= opened.clientWidth + 1,
+          `${browserName}/${viewport.width}/${pageName}: opened tablet nav is clipped`);
+        assert.ok(opened.items.every((item) => item.left >= -1 && item.right <= opened.clientWidth + 1),
+          `${browserName}/${viewport.width}/${pageName}: opened tablet nav item escapes the viewport`);
+        await page.keyboard.press('Escape');
+        const escaped = await page.evaluate(() => ({
+          navDisplay: getComputedStyle(document.querySelector('.header .nav')).display,
+          expanded: document.querySelector('.site-menu-button').getAttribute('aria-expanded'),
+          focusReturned: document.activeElement === document.querySelector('.site-menu-button'),
+        }));
+        assert.equal(escaped.navDisplay, 'none', `${browserName}/${viewport.width}/${pageName}: Escape does not close the tablet nav`);
+        assert.equal(escaped.expanded, 'false', `${browserName}/${viewport.width}/${pageName}: Escape leaves tablet nav expanded`);
+        assert.equal(escaped.focusReturned, true, `${browserName}/${viewport.width}/${pageName}: Escape does not return focus`);
+        if (pageName === 'about.html') {
+          await page.screenshot({ path: path.join(out, `header-${browserName}-${viewport.width}.png`) });
+        }
+        await page.close();
+      }
+    }
+
+    {
+      const viewport = { width: 1280, height: 900 };
+      const page = await browser.newPage({ viewport });
+      await page.goto(`${base}/about.html`, { waitUntil: 'load', timeout: 30000 });
+      const result = await page.evaluate(() => {
+        const nav = document.querySelector('.header .nav');
+        const navBox = nav.getBoundingClientRect();
+        return {
+          clientWidth: document.documentElement.clientWidth,
+          scrollWidth: document.documentElement.scrollWidth,
+          navDisplay: getComputedStyle(nav).display,
+          menuDisplay: getComputedStyle(document.querySelector('.site-menu-button')).display,
+          navLeft: navBox.left,
+          navRight: navBox.right,
+        };
+      });
+      noPageOverflow(result, `${browserName}/1280/about.html/desktop-header`);
+      assert.equal(result.navDisplay, 'flex', `${browserName}/1280/about.html: desktop nav is hidden`);
+      assert.equal(result.menuDisplay, 'none', `${browserName}/1280/about.html: tablet menu persists on desktop`);
+      assert.ok(result.navLeft >= -1 && result.navRight <= result.clientWidth + 1,
+        `${browserName}/1280/about.html: desktop nav is clipped`);
+      await page.screenshot({ path: path.join(out, `header-${browserName}-1280.png`) });
+      await page.close();
+    }
+
+    {
+      const page = await browser.newPage({ viewport: { width: 320, height: 700 } });
+      const italicResponses = new Map();
+      page.on('response', (response) => {
+        const name = response.url().split('/').pop()?.split('?')[0];
+        if (['56font.woff2', '76font.woff2'].includes(name)) italicResponses.set(name, response.status());
+      });
+      await page.goto(`${base}/index.html`, { waitUntil: 'load', timeout: 30000 });
+      await page.locator('.latest-card:not(.is-carousel-clone) .placeholder-cover-motif').first()
+        .waitFor({ state: 'attached', timeout: 10000 });
+      const motif = await page.evaluate(async () => {
+        await Promise.all([
+          document.fonts.load('italic 400 16px "Neue Haas Grotesk"'),
+          document.fonts.load('italic 700 16px "Neue Haas Grotesk"'),
+        ]);
+        const motifs = [...document.querySelectorAll('.latest-card:not(.is-carousel-clone) .placeholder-cover-motif')];
+        return {
+          clientWidth: document.documentElement.clientWidth,
+          scrollWidth: document.documentElement.scrollWidth,
+          motifs: motifs.map((svg) => {
+            const image = svg.closest('.latest-card-image');
+            const box = svg.getBoundingClientRect();
+            const imageBox = image.getBoundingClientRect();
+            return {
+              viewBox: svg.getAttribute('viewBox'),
+              preserveAspectRatio: svg.getAttribute('preserveAspectRatio'),
+              left: box.left,
+              right: box.right,
+              top: box.top,
+              bottom: box.bottom,
+              imageLeft: imageBox.left,
+              imageRight: imageBox.right,
+              imageTop: imageBox.top,
+              imageBottom: imageBox.bottom,
+            };
+          }),
+          italic400: document.fonts.check('italic 400 16px "Neue Haas Grotesk"'),
+          italic700: document.fonts.check('italic 700 16px "Neue Haas Grotesk"'),
+        };
+      });
+      noPageOverflow(motif, `${browserName}/320/index.html/motif`);
+      assert.ok(motif.motifs.length >= 3, `${browserName}/320/index.html: category motifs are missing`);
+      assert.ok(motif.motifs.every((item) => item.viewBox === '0 0 344 188'
+        && item.preserveAspectRatio === 'xMaxYMax meet'),
+      `${browserName}/320/index.html: phone motif viewport regressed (${JSON.stringify(motif.motifs)})`);
+      assert.ok(motif.motifs.every((item) => item.left >= item.imageLeft - 1
+        && item.right <= item.imageRight + 1 && item.top >= item.imageTop - 1 && item.bottom <= item.imageBottom + 1),
+      `${browserName}/320/index.html: category motif is cropped outside its tile`);
+      assert.equal(motif.italic400, true, `${browserName}/320/index.html: regular italic NHG face did not load`);
+      assert.equal(motif.italic700, true, `${browserName}/320/index.html: bold italic NHG face did not load`);
+      assert.equal(italicResponses.get('56font.woff2'), 200, `${browserName}/320/index.html: 56 italic font request failed`);
+      assert.equal(italicResponses.get('76font.woff2'), 200, `${browserName}/320/index.html: 76 italic font request failed`);
+      await page.locator('.latest-card:not(.is-carousel-clone)').first().screenshot({
+        path: path.join(out, `homepage-motif-${browserName}-320.png`),
+      });
+      await page.close();
+    }
+
+    {
+      const page = await browser.newPage({ viewport: { width: 1024, height: 900 } });
+      await page.goto(`${base}/after-the-first-lap.html`, { waitUntil: 'load', timeout: 30000 });
+      const leading = await page.evaluate(() => document.body.innerText.trim().slice(0, 80));
+      assert.ok(!leading.startsWith('Warning:') && !leading.startsWith('Total output lines:'),
+        `${browserName}/after-the-first-lap.html: tool output is still visible (${JSON.stringify(leading)})`);
       await page.close();
     }
 

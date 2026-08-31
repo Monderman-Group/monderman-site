@@ -105,7 +105,7 @@
       });
       nav.querySelectorAll(".nav-parent").forEach((parent) => {
         parent.addEventListener("click", (event) => {
-          if (!window.matchMedia("(max-width: 760px)").matches) return;
+          if (!window.matchMedia("(max-width: 1180px)").matches) return;
           const menu = parent.closest(".nav-menu");
           if (!menu.classList.contains("is-open")) {
             event.preventDefault();
@@ -125,7 +125,7 @@
         }
       });
       nav.addEventListener("click", (event) => {
-        if (!window.matchMedia("(max-width: 760px)").matches) return;
+        if (!window.matchMedia("(max-width: 1180px)").matches) return;
         const link = event.target.closest("a");
         if (link && !link.classList.contains("nav-parent")) closeMobileNav();
       });
