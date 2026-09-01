@@ -418,6 +418,10 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
           menuDisplay: getComputedStyle(document.querySelector('.site-menu-button')).display,
           navLeft: navBox.left,
           navRight: navBox.right,
+          portraits: [...document.querySelectorAll('.founder-photo')].map((image) => {
+            const box = image.getBoundingClientRect();
+            return { width: box.width, height: box.height };
+          }),
         };
       });
       noPageOverflow(result, `${browserName}/1280/about.html/desktop-header`);
@@ -425,7 +429,130 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
       assert.equal(result.menuDisplay, 'none', `${browserName}/1280/about.html: tablet menu persists on desktop`);
       assert.ok(result.navLeft >= -1 && result.navRight <= result.clientWidth + 1,
         `${browserName}/1280/about.html: desktop nav is clipped`);
+      assert.equal(result.portraits.length, 2, `${browserName}/1280/about.html: expected both senior-team portraits`);
+      assert.ok(result.portraits.every((portrait) => portrait.width <= 260.5 && portrait.height <= 260.5),
+        `${browserName}/1280/about.html: a senior-team portrait is oversized (${JSON.stringify(result.portraits)})`);
+      assert.ok(result.portraits.every((portrait) => Math.abs(portrait.width - portrait.height) <= 1),
+        `${browserName}/1280/about.html: a senior-team portrait is not square (${JSON.stringify(result.portraits)})`);
       await page.screenshot({ path: path.join(out, `header-${browserName}-1280.png`) });
+      await page.close();
+    }
+
+    for (const viewport of [{ width: 768, height: 900 }, { width: 1024, height: 900 }, { width: 1440, height: 1000 }]) {
+      const page = await browser.newPage({ viewport, javaScriptEnabled: false });
+      await page.goto(`${base}/about.html`, { waitUntil: 'load', timeout: 30000 });
+      const portraits = await page.locator('.founder-photo').evaluateAll((images) => images.map((image) => {
+        const box = image.getBoundingClientRect();
+        return { width: box.width, height: box.height };
+      }));
+      assert.equal(portraits.length, 2, `${browserName}/${viewport.width}/about.html: expected both senior-team portraits`);
+      assert.ok(portraits.every((portrait) => portrait.width <= 260.5 && portrait.height <= 260.5),
+        `${browserName}/${viewport.width}/about.html: a senior-team portrait is oversized (${JSON.stringify(portraits)})`);
+      assert.ok(portraits.every((portrait) => Math.abs(portrait.width - portrait.height) <= 1),
+        `${browserName}/${viewport.width}/about.html: a senior-team portrait is not square (${JSON.stringify(portraits)})`);
+      await page.locator('.founder').first().screenshot({
+        path: path.join(out, `about-portraits-${browserName}-${viewport.width}.png`),
+      });
+      await page.close();
+    }
+
+    {
+      let requestCount = 0;
+      const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+      await page.route('https://monderman-api.onrender.com/api/connect/send', async (route) => {
+        requestCount += 1;
+        const body = requestCount === 1
+          ? { ok: false, error: 'Too many requests. Please try again shortly, or email connect@monderman.com directly.' }
+          : { ok: true };
+        await route.fulfill({
+          status: requestCount === 1 ? 429 : 200,
+          contentType: 'application/json',
+          body: JSON.stringify(body),
+        });
+      });
+      await page.goto(`${base}/connect.html`, { waitUntil: 'load', timeout: 30000 });
+      await page.locator('#fullName').fill('Launch readiness test');
+      await page.locator('#workEmail').fill('launch-readiness@example.com');
+      await page.locator('#organization').fill('Monderman test');
+      await page.locator('#issueSummary').fill('Verify that the request form reports server errors accurately.');
+      await page.locator('#cnNext').click();
+      await page.locator('#privacyConsent').check();
+      await page.locator('#submitButton').click();
+      await page.locator('#statusNote.is-visible').waitFor({ state: 'visible', timeout: 5000 });
+      const errorText = await page.locator('#statusNote').textContent();
+      assert.equal(errorText, 'Too many requests. Please try again shortly, or email connect@monderman.com directly.',
+        `${browserName}/connect.html: server response is hidden behind generic error copy`);
+      await page.locator('#submitButton').click();
+      await page.locator('#confirmationScreen.is-visible').waitFor({ state: 'visible', timeout: 5000 });
+      assert.equal(requestCount, 2, `${browserName}/connect.html: retry did not reach the request endpoint`);
+      await page.close();
+    }
+
+    {
+      const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+      await page.route('https://monderman-api.onrender.com/api/connect/send', async (route) => {
+        await route.fulfill({
+          status: 429,
+          contentType: 'application/json',
+          body: JSON.stringify({ ok: false, error: 'Too many requests. Please try again shortly, or email connect@monderman.com directly.' }),
+        });
+      });
+      await page.goto(`${base}/index.html`, { waitUntil: 'load', timeout: 30000 });
+      await page.locator('.mdn-cn-launch').click();
+      await page.locator('#mdncn-fullName').fill('Launch readiness test');
+      await page.locator('#mdncn-workEmail').fill('launch-readiness@example.com');
+      await page.locator('#mdncn-organization').fill('Monderman test');
+      await page.locator('#mdncn-issueSummary').fill('Verify the compact request form error handling.');
+      await page.locator('#mdncn-next').click();
+      await page.locator('#mdncn-consent').check();
+      await page.locator('#mdncn-send').click();
+      await page.waitForFunction(() => document.querySelector('#mdncn-status')?.textContent?.startsWith('Too many requests.'));
+      const widgetErrorText = await page.locator('#mdncn-status').textContent();
+      assert.equal(widgetErrorText, 'Too many requests. Please try again shortly, or email connect@monderman.com directly.',
+        `${browserName}/Connect widget: server response is hidden behind generic error copy`);
+      await page.close();
+    }
+
+    {
+      let requestCount = 0;
+      let submittedPayload = null;
+      const page = await browser.newPage({ viewport: { width: 1024, height: 900 } });
+      await page.route('https://monderman-api.onrender.com/api/connect/send', async (route) => {
+        requestCount += 1;
+        submittedPayload = JSON.parse(route.request().postData() || '{}');
+        await route.fulfill({
+          status: requestCount === 1 ? 429 : 200,
+          contentType: 'application/json',
+          body: JSON.stringify(requestCount === 1
+            ? { ok: false, error: 'Too many requests. Please try again shortly, or email connect@monderman.com directly.' }
+            : { ok: true }),
+        });
+      });
+      await page.goto(`${base}/plan-enterprise.html`, { waitUntil: 'load', timeout: 30000 });
+      await page.locator('#name').fill('Launch readiness test');
+      await page.locator('#email').fill('launch-readiness@example.com');
+      await page.locator('#org').fill('Monderman test');
+      await page.locator('#role').fill('Executive sponsor');
+      await page.locator('#seats').fill('One team of eight');
+      await page.locator('#timing').selectOption({ label: 'Within 30 days' });
+      await page.locator('#scope').fill('Verify the Enterprise intake contract.');
+      await page.locator('input[name="consent"]').check();
+      await page.locator('#planSubmit').click();
+      await page.locator('#planStatus.is-error').waitFor({ state: 'visible', timeout: 5000 });
+      assert.equal(await page.locator('#planStatus').textContent(),
+        'Too many requests. Please try again shortly, or email connect@monderman.com directly.',
+        `${browserName}/plan-enterprise.html: server response is hidden behind generic error copy`);
+      assert.equal(submittedPayload.fullName, 'Launch readiness test',
+        `${browserName}/plan-enterprise.html: name is not mapped to the Connect API contract`);
+      assert.equal(submittedPayload.workEmail, 'launch-readiness@example.com',
+        `${browserName}/plan-enterprise.html: email is not mapped to the Connect API contract`);
+      assert.match(submittedPayload.issueSummary || '', /One team of eight/,
+        `${browserName}/plan-enterprise.html: requested scope is missing from the Connect API payload`);
+      await page.locator('#planSubmit').click();
+      await page.locator('#planStatus.is-success').waitFor({ state: 'visible', timeout: 5000 });
+      assert.equal(requestCount, 2, `${browserName}/plan-enterprise.html: retry did not reach the request endpoint`);
+      assert.equal(await page.locator('#name').inputValue(), '',
+        `${browserName}/plan-enterprise.html: successful submission did not clear the form`);
       await page.close();
     }
 

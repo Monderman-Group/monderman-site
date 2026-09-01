@@ -474,6 +474,10 @@
     .pl-submit{margin-top:22px}
     .pl-submit .btn{width:100%;justify-content:center;text-align:center}
     .pl-note{font-size:.84rem;color:var(--muted-dark-2);margin:14px 0 0;line-height:1.55;text-align:center}
+    .pl-status{display:none;margin:14px 0 0;padding:12px 14px;border-radius:8px;font-size:.9rem;line-height:1.5;text-align:left}
+    .pl-status.is-visible{display:block}
+    .pl-status.is-success{color:#0E3A44;background:#E4F0F1;border:1px solid #B8D4D7}
+    .pl-status.is-error{color:#8C3B2E;background:#F9EEEB;border:1px solid #EAC9C2}
     .pl-readonly{background:var(--bg-offwhite);border:1px solid var(--line-soft);border-radius:10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 22px}
     .pl-readonly .pl-ro-label{font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-dark-2)}
     .pl-readonly .pl-ro-val{font-size:1rem;font-weight:700;color:var(--accent-dark)}
@@ -624,8 +628,9 @@
             </div>
           </div>
           <label class="pl-consent"><input type="checkbox" name="consent" required /> <span>I understand this submits a scoped request for a Monderman order form, that pricing and terms shown are subject to a final agreement, and I acknowledge the <a href="privacy.html" style="color:var(--accent);font-weight:600">Privacy Notice</a>.*</span></label>
-          <div class="pl-submit"><button type="submit" class="btn btn-accent">Request an Enterprise conversation</button></div>
+          <div class="pl-submit"><button type="submit" class="btn btn-accent" id="planSubmit">Request an Enterprise conversation</button></div>
           <p class="pl-note">This does not charge you or commit you. Monderman replies by email with an order form and any scoping questions. Pricing and terms are finalized in that agreement.</p>
+          <p class="pl-status" id="planStatus" role="status" aria-live="polite"></p>
         </form>
       </div>
     </div>
@@ -747,8 +752,83 @@
     sb.auth.onAuthStateChange(() => apply());
   </script>
 
+  <script>
+    (() => {
+      const form = document.getElementById("planForm");
+      const button = document.getElementById("planSubmit");
+      const status = document.getElementById("planStatus");
+      if (!form || !button || !status) return;
+
+      const showStatus = (message, type) => {
+        status.textContent = message;
+        status.className = `pl-status is-visible is-${type}`;
+      };
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!form.reportValidity()) return;
+
+        const data = new FormData(form);
+        const scope = String(data.get("scope") || "").trim();
+        const teamScope = String(data.get("seats_needed") || "").trim();
+        const timeline = String(data.get("timing") || "").trim();
+        const summary = [
+          "Enterprise subscription conversation.",
+          teamScope ? `Expected scope: ${teamScope}` : "",
+          timeline ? `Target start: ${timeline}` : ""
+        ].filter(Boolean).join("\n");
+        const originalLabel = button.textContent;
+
+        button.disabled = true;
+        button.textContent = "Sending…";
+        status.className = "pl-status";
+        status.textContent = "";
+
+        try {
+          const response = await fetch("https://monderman-api.onrender.com/api/connect/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              inquiryType: "Enterprise",
+              timeline,
+              fullName: String(data.get("name") || "").trim(),
+              workEmail: String(data.get("email") || "").trim(),
+              organization: String(data.get("organization") || "").trim(),
+              roleTitle: String(data.get("role") || "").trim(),
+              subjectLine: "Enterprise conversation",
+              issueSummary: summary,
+              additionalContext: scope
+            })
+          });
+          const result = await response.json().catch(() => null);
+          if (!response.ok || !result?.ok) {
+            showStatus(
+              result?.error
+              || result?.detail
+              || "We couldn't submit your request. Please try again or email connect@monderman.com directly.",
+              "error"
+            );
+            return;
+          }
+
+          form.reset();
+          showStatus("Request received. Monderman will reply by email within two business days.", "success");
+        } catch (error) {
+          console.error(error);
+          showStatus(
+            "We couldn't reach the request service, so your information was not submitted. Please try again or email connect@monderman.com directly.",
+            "error"
+          );
+        } finally {
+          button.disabled = false;
+          button.textContent = originalLabel;
+        }
+      });
+    })();
+  </script>
+
   <script src="canonical-site-shell.js?v=20260830-readiness1"></script>
   <script src="assistant.js?v=20260828-footer-dock4" defer></script>
-  <script src="connect-widget.js?v=20260828-footer-dock4" defer></script>
+  <script src="connect-widget.js?v=20260901-launch1" defer></script>
 </body>
 </html>
