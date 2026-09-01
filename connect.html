@@ -1805,14 +1805,19 @@ Monderman reviews every submission directly and replies within two business days
           const result = await response.json().catch(() => null);
 
           if (!response.ok || !result?.ok) {
-            throw new Error(result?.error || result?.detail || "Submission failed.");
+            showError(
+              result?.error
+              || result?.detail
+              || "We couldn't submit your request. Please try again or email connect@monderman.com directly."
+            );
+            return;
           }
 
           connectForm.reset();
           showConfirmation();
         } catch (error) {
           console.error(error);
-          showError("Something went wrong. Please try again or email connect@monderman.com directly.");
+          showError("We couldn't reach the request service, so your information was not submitted. Please try again or email connect@monderman.com directly.");
         } finally {
           if (submitButton) {
             submitButton.disabled = false;

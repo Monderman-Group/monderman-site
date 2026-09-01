@@ -270,8 +270,14 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
-      }).then(function (r) {
-        if (!r.ok) throw new Error('bad status');
+      }).then(async function (r) {
+        var result = await r.json().catch(function () { return null; });
+        if (!r.ok || !result || !result.ok) {
+          throw new Error(
+            (result && (result.error || result.detail))
+            || "We couldn't submit your request. Please try again or email connect@monderman.com directly."
+          );
+        }
         panel.querySelector('.mdn-cn-body').innerHTML =
           '<div class="mdn-cn-done">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="#0C6E78" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m8 12.5 2.6 2.6L16 9.5"></path></svg>' +
@@ -280,10 +286,12 @@
           '</div>';
         var prog = panel.querySelector('.mdn-cn-progress');
         if (prog) prog.remove();
-      }).catch(function () {
+      }).catch(function (error) {
         btn.disabled = false;
         status.classList.add('is-error');
-        status.textContent = 'Something went wrong. Please try again or email connect@monderman.com directly.';
+        status.textContent = error && error.message
+          ? error.message
+          : "We couldn't reach the request service, so your information was not submitted. Please try again or email connect@monderman.com directly.";
       });
     });
 
