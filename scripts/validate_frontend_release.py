@@ -16,6 +16,13 @@ for p in r.glob("*.html"):
   tag=m.group(0)
   if 'integrity=' not in tag or 'crossorigin=' not in tag:e.append(p.name+": external script without SRI")
  if 'esm.sh/@supabase' in t or '/@supabase/supabase-js@2.111.0/+esm' in t:e.append(p.name+": Supabase ESM import remains")
+ for m in re.finditer(r'<a\b[^>]*\baria-label=["\']Monderman on LinkedIn["\'][^>]*>',t,re.I):
+  href=re.search(r'\bhref=["\']([^"\']+)["\']',m.group(0),re.I)
+  if not href or href.group(1)!='https://www.linkedin.com/company/monderman':e.append(p.name+": footer LinkedIn target")
+ if 'class="footer mond-footer"' in t and '<a href="https://www.linkedin.com/company/monderman" target="_blank" rel="noopener">LinkedIn</a>' not in t:e.append(p.name+": visible footer LinkedIn link")
+
+about=(r/'about.html').read_text(errors='ignore')
+if '<a href="https://www.linkedin.com/company/monderman" target="_blank" rel="noopener">Follow Monderman on LinkedIn</a>' not in about:e.append('about LinkedIn follow link')
 
 # Public Privacy and Terms must be operative text before production. Draft
 # branches may still be checked under the beta channel, but the production
