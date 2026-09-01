@@ -1086,6 +1086,109 @@
     }
     .paper-card:hover::before { width: 100%; }
 
+    .featured-insight { padding: 34px 34px 0; }
+    .featured-insight-inner {
+      position: relative;
+      max-width: var(--max);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, .8fr);
+      overflow: hidden;
+      border: 1px solid #DDE3E4;
+      border-left: 4px solid #C9821F;
+      background: #FFFFFF;
+    }
+    .featured-insight-inner::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 6px;
+      background: linear-gradient(90deg, #C9821F 0%, #0C6E78 100%);
+    }
+    .featured-insight-copy { padding: 38px 34px 36px; }
+    .featured-insight-kicker {
+      margin: 0 0 18px;
+      color: #9C641D;
+      font-size: .68rem;
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    .featured-insight-title {
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(2.2rem, 4.6vw, 4.2rem);
+      line-height: .96;
+      letter-spacing: -.055em;
+    }
+    .featured-insight-subtitle {
+      margin: 14px 0 0;
+      color: #0E3A44;
+      font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+      line-height: 1.35;
+      letter-spacing: -.02em;
+    }
+    .featured-insight-desc {
+      max-width: 65ch;
+      margin: 20px 0 0;
+      color: rgba(24,22,18,.7);
+      font-size: .98rem;
+      line-height: 1.7;
+    }
+    .featured-insight-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      margin: 22px 0 0;
+      color: rgba(24,22,18,.52);
+      font-size: .76rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .featured-insight-actions { display: flex; flex-wrap: wrap; gap: 22px; margin-top: 27px; }
+    .featured-insight-action {
+      color: #0A5B63;
+      font-size: .9rem;
+      font-weight: 600;
+    }
+    .featured-insight-action:hover, .featured-insight-action:focus-visible { color: #0C6E78; }
+    .featured-insight-quote {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 32px;
+      padding: 38px 34px 36px;
+      border-left: 1px solid #DDE3E4;
+      background: linear-gradient(180deg, #103B44 0%, #0B343D 55%, #04282F 100%);
+      color: #FFFFFF;
+    }
+    .featured-insight-quote-label {
+      color: #9CC4C9;
+      font-size: .68rem;
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    .featured-insight-quote blockquote {
+      margin: 0;
+      color: #FFFFFF;
+      font-size: clamp(1.65rem, 2.7vw, 2.35rem);
+      line-height: 1.22;
+      letter-spacing: -.035em;
+    }
+    @media (max-width: 900px) {
+      .featured-insight { padding: 26px 20px 0; }
+      .featured-insight-inner { grid-template-columns: 1fr; }
+      .featured-insight-quote { min-height: 300px; border-left: 0; border-top: 1px solid #DDE3E4; }
+    }
+    @media (max-width: 560px) {
+      .featured-insight-copy, .featured-insight-quote { padding: 30px 24px; }
+      .featured-insight-title { font-size: 2.7rem; }
+    }
+
 
   </style>
 <link rel="stylesheet" href="canonical-site-shell.css?v=20260830-readiness1">
@@ -1138,7 +1241,7 @@
           <button type="button" class="filter-chip" data-q="Enterprise">Enterprise</button>
           <button type="button" class="filter-chip" data-q="Decision Design">Decision Design</button>
         </div>
-        <p class="library-stamp">15 items · Updated August 2026</p>
+        <p class="library-stamp">16 items · Updated September 2026</p>
       </div>
     </div>
   </section>
@@ -1247,6 +1350,25 @@
           <div class="meta-item"><strong>Routledge</strong><span>Publisher</span></div>
         </div>
         <p class="bf-series">Routledge Studies in Business Organizations and Networks · Taylor &amp; Francis</p>
+      </div>
+    </div>
+  </section>
+  <section class="featured-insight" aria-labelledby="unmeasured-layer-title">
+    <div class="featured-insight-inner">
+      <div class="featured-insight-copy">
+        <p class="featured-insight-kicker">Featured Insight · Institutional Performance</p>
+        <h2 class="featured-insight-title" id="unmeasured-layer-title">The Unmeasured Layer</h2>
+        <p class="featured-insight-subtitle">Administrative Reality and the Risk Standard Reporting Misses</p>
+        <p class="featured-insight-desc">Boards, executives, and acquirers measure a great deal about the institutions they steward. The layer where strategies actually succeed or fail is the one their standard reporting does not integrate.</p>
+        <div class="featured-insight-meta"><span>Jason Adamson</span><span>August 2026</span><span>8 pages · ~10 min</span></div>
+        <div class="featured-insight-actions">
+          <a class="featured-insight-action" href="the-unmeasured-layer.html">Read the article →</a>
+          <a class="featured-insight-action" href="Monderman_Insight_The_Unmeasured_Layer.pdf?v=20260901" target="_blank" rel="noopener noreferrer">Download PDF →</a>
+        </div>
+      </div>
+      <div class="featured-insight-quote">
+        <div class="featured-insight-quote-label">The Unmeasured Layer</div>
+        <blockquote>“Organizations deliver at the speed of their administrative reality.”</blockquote>
       </div>
     </div>
   </section>
