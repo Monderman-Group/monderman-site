@@ -614,7 +614,7 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
       await page.close();
     }
 
-    for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1000 }]) {
+    for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }, { width: 1440, height: 1000 }]) {
       const page = await browser.newPage({ viewport });
       await page.goto(`${base}/index.html`, { waitUntil: 'load', timeout: 30000 });
       await page.locator('.hero-book-callout').waitFor({ state: 'visible', timeout: 10000 });
@@ -623,6 +623,7 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
         const callout = document.querySelector('.hero-book-callout');
         const copy = document.querySelector('.hero-book-copy');
         const action = document.querySelector('.hero-book-action');
+        const byline = document.querySelector('.hero-book-byline');
         const calloutBox = callout.getBoundingClientRect();
         const copyBox = copy.getBoundingClientRect();
         const actionBox = action.getBoundingClientRect();
@@ -637,6 +638,7 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
           },
           copyBox: { right: copyBox.right, bottom: copyBox.bottom },
           actionBox: { left: actionBox.left, top: actionBox.top },
+          bylineLineCount: byline.getClientRects().length,
           gridColumns: getComputedStyle(callout).gridTemplateColumns,
           href: callout.href,
           target: callout.target,
@@ -646,11 +648,11 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
       noPageOverflow(result, `${browserName}/${viewport.width}/index.html/book-callout`);
       assert.ok(result.calloutBox.left >= -1 && result.calloutBox.right <= viewport.width + 1,
         `${browserName}/${viewport.width}/index.html: book callout escapes the viewport`);
-      if (viewport.width === 390) {
+      if (viewport.width <= 390) {
         assert.ok(result.actionBox.top >= result.copyBox.bottom,
-          `${browserName}/390/index.html: book action collides with the book copy`);
+          `${browserName}/${viewport.width}/index.html: book action collides with the book copy`);
         assert.equal(result.gridColumns.split(' ').length, 1,
-          `${browserName}/390/index.html: book callout does not stack on phones`);
+          `${browserName}/${viewport.width}/index.html: book callout does not stack on phones`);
       } else {
         assert.ok(result.actionBox.left >= result.copyBox.right,
           `${browserName}/1440/index.html: book action collides with the book copy`);
@@ -659,6 +661,8 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
         `${browserName}/index.html: book callout no longer links to the Routledge book page`);
       assert.equal(result.target, '_blank', `${browserName}/index.html: book link does not open a new tab`);
       assert.match(result.rel, /\bnoopener\b/, `${browserName}/index.html: book link is missing noopener`);
+      assert.equal(result.bylineLineCount, 1,
+        `${browserName}/${viewport.width}/index.html: the author byline breaks across lines`);
       await page.locator('.hero-book-callout').screenshot({
         path: path.join(out, `homepage-book-callout-${browserName}-${viewport.width}.png`),
       });
