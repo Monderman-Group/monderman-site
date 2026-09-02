@@ -138,9 +138,10 @@ figcaption b { font-style: italic; }
     max-width: 11ch;
     margin: 0;
     color: #fff;
-    font-size: clamp(2.8rem, 5vw, 4.7rem);
-    line-height: 1;
-    letter-spacing: -.052em;
+    font-size: 64px;
+    line-height: .94;
+    letter-spacing: -.06em;
+    font-weight: 700;
     text-wrap: balance;
   }
   .article-subtitle {
@@ -232,10 +233,13 @@ figcaption b { font-style: italic; }
     border-top: 1px solid var(--article-line);
   }
   .article-further a { color: #0A5B63; font-weight: 600; text-decoration: none; }
+  @media (max-width: 1180px) {
+    .article-hero h1 { font-size: clamp(2.4rem, 12vw, 3.4rem); line-height: .94; }
+  }
   @media (max-width: 820px) {
     .article-hero { padding: 126px 20px 56px; }
     .article-hero-inner { grid-template-columns: 1fr; gap: 32px; }
-    .article-hero h1 { max-width: 100%; font-size: clamp(2.4rem, 12vw, 3.4rem); }
+    .article-hero h1 { max-width: 100%; }
     .article-main { padding: 48px 20px 64px; }
     .sec { margin-top: 46px; }
   }
