@@ -614,6 +614,57 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
       await page.close();
     }
 
+    for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1000 }]) {
+      const page = await browser.newPage({ viewport });
+      await page.goto(`${base}/index.html`, { waitUntil: 'load', timeout: 30000 });
+      await page.locator('.hero-book-callout').waitFor({ state: 'visible', timeout: 10000 });
+      await page.waitForFunction(() => getComputedStyle(document.querySelector('.hero-book-callout')).opacity === '1');
+      const result = await page.evaluate(() => {
+        const callout = document.querySelector('.hero-book-callout');
+        const copy = document.querySelector('.hero-book-copy');
+        const action = document.querySelector('.hero-book-action');
+        const calloutBox = callout.getBoundingClientRect();
+        const copyBox = copy.getBoundingClientRect();
+        const actionBox = action.getBoundingClientRect();
+        return {
+          clientWidth: document.documentElement.clientWidth,
+          scrollWidth: document.documentElement.scrollWidth,
+          calloutBox: {
+            left: calloutBox.left,
+            right: calloutBox.right,
+            top: calloutBox.top,
+            bottom: calloutBox.bottom,
+          },
+          copyBox: { right: copyBox.right, bottom: copyBox.bottom },
+          actionBox: { left: actionBox.left, top: actionBox.top },
+          gridColumns: getComputedStyle(callout).gridTemplateColumns,
+          href: callout.href,
+          target: callout.target,
+          rel: callout.rel,
+        };
+      });
+      noPageOverflow(result, `${browserName}/${viewport.width}/index.html/book-callout`);
+      assert.ok(result.calloutBox.left >= -1 && result.calloutBox.right <= viewport.width + 1,
+        `${browserName}/${viewport.width}/index.html: book callout escapes the viewport`);
+      if (viewport.width === 390) {
+        assert.ok(result.actionBox.top >= result.copyBox.bottom,
+          `${browserName}/390/index.html: book action collides with the book copy`);
+        assert.equal(result.gridColumns.split(' ').length, 1,
+          `${browserName}/390/index.html: book callout does not stack on phones`);
+      } else {
+        assert.ok(result.actionBox.left >= result.copyBox.right,
+          `${browserName}/1440/index.html: book action collides with the book copy`);
+      }
+      assert.match(result.href, /^https:\/\/www\.routledge\.com\/Governance-Bureaucracy-and-Organization-/,
+        `${browserName}/index.html: book callout no longer links to the Routledge book page`);
+      assert.equal(result.target, '_blank', `${browserName}/index.html: book link does not open a new tab`);
+      assert.match(result.rel, /\bnoopener\b/, `${browserName}/index.html: book link is missing noopener`);
+      await page.locator('.hero-book-callout').screenshot({
+        path: path.join(out, `homepage-book-callout-${browserName}-${viewport.width}.png`),
+      });
+      await page.close();
+    }
+
     {
       const page = await browser.newPage({ viewport: { width: 1024, height: 900 } });
       await page.goto(`${base}/after-the-first-lap.html`, { waitUntil: 'load', timeout: 30000 });

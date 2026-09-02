@@ -2123,9 +2123,6 @@
 .hero-actions .btn-accent:hover,.hero-actions .btn-accent:focus-visible{background:#FFFFFF;color:#08474E;border-color:#FFFFFF}
 .hero-actions .btn-secondary{background:transparent;color:#FAFAF8;border-color:rgba(250,250,248,.55);box-shadow:none}
 .hero-actions .btn-secondary:hover,.hero-actions .btn-secondary:focus-visible{background:rgba(250,250,248,.12);color:#FFFFFF;border-color:#FAFAF8}
-.hero-founder-line{margin:18px 0 0;font-size:13px;letter-spacing:.01em}
-.hero-founder-line a{color:rgba(250,250,248,.62);border-bottom:1px solid rgba(250,250,248,.28);padding-bottom:2px;transition:color 180ms ease,border-color 180ms ease}
-.hero-founder-line a:hover,.hero-founder-line a:focus-visible{color:#FAFAF8;border-color:rgba(250,250,248,.7)}
 .nav a.is-active{color:#FFFFFF}
 @media (min-width:981px){
   .header:not(.scrolled){
@@ -2294,19 +2291,80 @@
 .hero-report-caption{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:15px;color:#FAFAF8;font-size:13px;font-weight:600;letter-spacing:-.01em;}
 .hero-report-caption span:last-child{font-size:18px;transition:transform 180ms ease;}
 .hero-report-link:hover .hero-report-caption span:last-child{transform:translateX(4px);}
-.hero-founder-line{
-  display:inline-flex;
+.hero-book-callout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
   align-items:center;
-  max-width:620px;
+  gap:24px;
+  box-sizing:border-box;
+  width:min(100%,620px);
   margin-top:22px;
-  padding:12px 15px 12px 17px;
+  padding:18px 20px 18px 22px;
+  color:#FAFAF8;
+  text-decoration:none;
+  background:linear-gradient(135deg,rgba(4,40,47,.84) 0%,rgba(4,24,27,.74) 100%);
+  border:1px solid rgba(156,196,201,.22);
   border-left:3px solid #C9821F;
-  background:rgba(4,24,27,.34);
-  font-size:14px;
+  border-radius:10px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 12px 28px rgba(1,17,20,.16);
+  -webkit-backdrop-filter:blur(10px) saturate(.92);
+  backdrop-filter:blur(10px) saturate(.92);
+  opacity:0;
+  transform:translateY(16px);
+  animation:heroFadeUp 900ms cubic-bezier(.22,1,.36,1) 980ms forwards;
+  transition:background 180ms ease,border-color 180ms ease,box-shadow 180ms ease;
+}
+.hero-book-callout:hover,
+.hero-book-callout:focus-visible{
+  background:linear-gradient(135deg,rgba(5,48,56,.90) 0%,rgba(4,28,32,.82) 100%);
+  border-color:rgba(156,196,201,.38);
+  border-left-color:#C9821F;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.075),0 15px 32px rgba(1,17,20,.20);
+}
+.hero-book-callout:focus-visible{outline:2px solid #FAFAF8;outline-offset:4px;}
+.hero-book-copy{display:block;min-width:0;}
+.hero-book-eyebrow{
+  display:block;
+  color:#9CC4C9;
+  font-size:10px;
+  font-weight:700;
+  line-height:1.2;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.hero-book-title{
+  display:block;
+  margin-top:6px;
+  color:#FAFAF8;
+  font-size:18px;
+  font-style:italic;
+  font-weight:500;
+  line-height:1.24;
+  letter-spacing:-.015em;
+}
+.hero-book-title em{font:inherit;}
+.hero-book-meta{
+  display:block;
+  margin-top:7px;
+  color:rgba(250,250,248,.72);
+  font-size:12.5px;
+  font-weight:400;
   line-height:1.45;
 }
-.hero-founder-line a{color:rgba(250,250,248,.86);border-bottom:0;padding-bottom:0;}
-.hero-founder-line a:hover,.hero-founder-line a:focus-visible{color:#FFFFFF;}
+.hero-book-meta-separator{padding:0 .28em;color:rgba(156,196,201,.72);}
+.hero-book-action{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  white-space:nowrap;
+  color:#FAFAF8;
+  font-size:12.5px;
+  font-weight:700;
+  line-height:1.2;
+}
+.hero-book-action-arrow{font-size:16px;transition:transform 180ms ease;}
+.hero-book-callout:hover .hero-book-action-arrow,
+.hero-book-callout:focus-visible .hero-book-action-arrow{transform:translateX(3px);}
 @media (max-width:1120px){
   .hero-inner{grid-template-columns:minmax(0,1fr) minmax(440px,.68fr);gap:34px;padding-left:30px;padding-right:30px;}
   .hero h1{font-size:clamp(48px,5.5vw,60px);}
@@ -2326,7 +2384,9 @@
   .hero h1{font-size:43px;}
   .hero-actions{align-items:stretch;}
   .hero-actions .btn{width:100%;}
-  .hero-founder-line{font-size:13px;}
+  .hero-book-callout{grid-template-columns:1fr;gap:14px;padding:18px 18px 17px 20px;}
+  .hero-book-title{font-size:18px;}
+  .hero-book-action{justify-self:start;}
   .hero-report-proof{display:none;}
   .hero-report-page{min-height:0;padding:22px 20px 20px;}
   .hrp-title{font-size:22px;}
@@ -2337,6 +2397,10 @@
   .hrp-finding{grid-template-columns:1fr;}
   .hrp-story-grid{grid-template-columns:1fr;}
   .hrp-footer{left:20px;right:20px;}
+}
+@media (prefers-reduced-motion:reduce){
+  .hero-book-callout{animation:none;opacity:1;transform:none;}
+  .hero-book-action-arrow{transition:none;}
 }
 </style>
 <style>
@@ -2472,7 +2536,14 @@
           <a class="btn btn-secondary" href="diagnostics.html">Start the standard Trial</a>
         </div>
 <a class="hero-enterprise-link" href="connect.html">Discuss an institutional deployment &rarr;</a>
-<p class="hero-founder-line">Founded by the author of&nbsp; <a href="https://www.routledge.com/Governance-Bureaucracy-and-Organization-Stewardship-Drift-and-Administrative-Capacity/Adamson/p/book/9781041403296" target="_blank" rel="noopener noreferrer"><em>Governance, Bureaucracy and Organization</em> (Routledge, forthcoming October 12, 2026)</a></p>
+<a class="hero-book-callout" href="https://www.routledge.com/Governance-Bureaucracy-and-Organization-Stewardship-Drift-and-Administrative-Capacity/Adamson/p/book/9781041403296" target="_blank" rel="noopener noreferrer" aria-label="View Governance, Bureaucracy and Organization by Jason Adamson at Routledge">
+  <span class="hero-book-copy">
+    <span class="hero-book-eyebrow">Forthcoming book</span>
+    <span class="hero-book-title"><em>Governance, Bureaucracy and Organization</em></span>
+    <span class="hero-book-meta">By Monderman founder Jason Adamson<span class="hero-book-meta-separator" aria-hidden="true">&middot;</span>Routledge<span class="hero-book-meta-separator" aria-hidden="true">&middot;</span>October 12, 2026</span>
+  </span>
+  <span class="hero-book-action">View the book <span class="hero-book-action-arrow" aria-hidden="true">&rarr;</span></span>
+</a>
 </div>
 <aside class="hero-report-proof has-sample-depth-tile" aria-label="Approved Monderman Depth Synthesis report preview">
   <a class="hero-report-link" href="sample-report.html" aria-label="View complete Monderman sample reports">
