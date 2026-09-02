@@ -34,7 +34,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE_BACKUP = ROOT / "tmp" / "pdfs" / "house-style-originals"
 OUTPUT_DIR = ROOT / "output" / "pdf"
 FONT_DIR = ROOT / "pdf-src" / "fonts"
-CANONICAL_REFERENCE = ROOT / "Monderman_Insight_Built_to_Please_2026-08-27.pdf"
+CANONICAL_REFERENCE = ROOT / "Monderman_Insight_Built_to_Please_2026-09-02.pdf"
 PAGE_W, PAGE_H = letter
 MARGIN = 60.0
 BODY_W = 492.0
@@ -244,10 +244,10 @@ PUBLICATIONS = (
         "May 2026 · Revised August 2026", 24, (), AFTER_LAP_REFERENCES, author="Jason Adamson & Michael Wilson",
     ),
     Publication(
-        "Monderman_Insight_Built_to_Please_2026-08-27.pdf", "INSIGHT", "Built to Please",
+        "Monderman_Insight_Built_to_Please_2026-09-02.pdf", "INSIGHT", "Built to Please",
         "Why Consumer AI Tells You What You Want to Hear, and What Serious Users Build Around It",
-        "A consumer AI model is a product, and the product succeeds by satisfying the person who pays for it. On questions where the asker has no stake in the answer, satisfaction and accuracy are the same job. Where the asker would prefer one answer over another, the two come apart, and the training pulls the model toward the preferred one.",
-        "August 2026", 10, (11, 12,), canonical=True,
+        "A general-purpose AI assistant is trained toward several goals at once: to be helpful, to give answers people prefer, to stay safe, and to be truthful. On most questions those goals agree. Where the asker already prefers one answer, the preference goal and the truthfulness goal can pull apart, and researchers have measured models leaning toward the asker. This paper separates what is known about that lean from what is only suspected, and describes what serious users build around the model so that its answers can be trusted.",
+        "September 2026", 10, (11, 12,), canonical=True,
     ),
     Publication(
         "Monderman_Insight_Every_Node_for_Itself_Aug2026.pdf", "INSIGHT", "Every Node for Itself",

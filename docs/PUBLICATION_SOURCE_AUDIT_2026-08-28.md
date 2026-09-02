@@ -16,7 +16,7 @@ Method:
 |---|---:|---:|---:|---|
 | Merit After the Machine | Insight | 14 | ~17 min | 36 entries normalized and re-typeset; current 2026 items checked |
 | Every Node for Itself | Insight | 11 | ~12 min | 11 entries normalized and re-typeset |
-| Built to Please | Insight | 13 | ~15 min | Canonical reference treatment retained |
+| Built to Please | Insight | 13 | ~15 min | September 2 canonical revision; reference treatment retained |
 | Terminal Fidelity | Insight | 17 | ~20 min | 16 entries normalized and re-typeset |
 | From Tokens to Outcomes | Insight | 26 | ~32 min | Reference list replaced with verified, attributable sources |
 | Accumulated Drag in the Department of War | Brief | 10 | ~12 min | 14 entries normalized and re-typeset |

@@ -20,7 +20,7 @@ from reportlab.platypus import Paragraph
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "Monderman_Insight_Built_to_Please_2026-08-27.pdf"
+SOURCE = ROOT / "Monderman_Insight_Built_to_Please_2026-09-02.pdf"
 OUTPUT = ROOT / "output" / "pdf" / SOURCE.name
 TEMP = ROOT / "tmp" / "pdfs" / "built-professional-audit" / "refined.pdf"
 FONT_DIR = ROOT / "pdf-src" / "fonts"

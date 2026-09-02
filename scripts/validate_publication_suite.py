@@ -105,7 +105,7 @@ EXPECTED_PAGES = {
     "Monderman_Brief_The_Collapse_of_Eastman_Kodak.pdf": 10,
     "Monderman_Brief_The_Culture_Trap.pdf": 9,
     "Monderman_Insight_After_the_First_Lap.pdf": 26,
-    "Monderman_Insight_Built_to_Please_2026-08-27.pdf": 13,
+    "Monderman_Insight_Built_to_Please_2026-09-02.pdf": 13,
     "Monderman_Insight_Every_Node_for_Itself_Aug2026.pdf": 11,
     "Monderman_Insight_Merit_After_the_Machine_2026-08-11.pdf": 14,
     "Monderman_Insight_The_Art_of_Interior_Reasoning.pdf": 12,
@@ -199,11 +199,16 @@ def validate_publication(filename: str, category: str) -> None:
             raise AssertionError(
                 f"{filename}: REFERENCES does not begin on a clean page"
             )
+        reference_heading_size = (
+            10.5
+            if filename == "Monderman_Insight_Built_to_Please_2026-09-02.pdf"
+            else 10.0
+        )
         reference_heading = [
             word
             for word in reference_words
             if word["text"] == "REFERENCES"
-            and close(word["size"], 10.0)
+            and close(word["size"], reference_heading_size)
             and ("75Bd" in word["fontname"] or "Bold" in word["fontname"])
         ]
         if len(reference_heading) != 1:

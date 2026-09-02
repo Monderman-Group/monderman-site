@@ -80,7 +80,7 @@ else:
  if latest.count('latest-card-image latest-card-image--placeholder')!=14:e.append('homepage research carousel canonical cover count')
  if latest.count('placeholder-cover-type')!=14:e.append('homepage research carousel category label count')
  if 'latest-card-image"><img' in latest:e.append('homepage research carousel legacy image tile remains')
- for token in ['Built to Please','Why Consumer AI Tells You What You Want to Hear','Series, Part 3','Monderman_Insight_Built_to_Please_2026-08-27.pdf']:
+ for token in ['Built to Please','Why Consumer AI Tells You What You Want to Hear','Series, Part 3','Monderman_Insight_Built_to_Please_2026-09-02.pdf']:
   if token not in latest:e.append('homepage Built to Please card '+token)
  series_cards=['Merit After the Machine','Every Node for Itself','Built to Please']
  series_positions=[latest.find('<h3 class="latest-card-title">'+title+'</h3>') for title in series_cards]
@@ -143,10 +143,10 @@ if research.count('<span>Perspective</span><span>HTML')!=3:
  e.append('research Perspective label count')
 for forbidden in ['.paper-card.category-insight {','.paper-card.category-brief {','.essay-card.category-perspective {','.paper-card.category-research {','data-category="insight"','data-category="brief"','data-category="perspective"']:
  if forbidden in research:e.append('research page presentation must remain canonical '+forbidden)
-built_pdf=r/'Monderman_Insight_Built_to_Please_2026-08-27.pdf'
+built_pdf=r/'Monderman_Insight_Built_to_Please_2026-09-02.pdf'
 if not built_pdf.exists():
  e.append('Built to Please PDF missing')
-elif hashlib.sha256(built_pdf.read_bytes()).hexdigest()!='e0f6f7d417b5707d60dff94c96052cbbee20e2823f83690fd18d207ff6489db3':
+elif hashlib.sha256(built_pdf.read_bytes()).hexdigest()!='ba28a4383a4e1d3db18d5c3723ced670bdd43f33a2efd1a742e1ea283b7129b7':
  e.append('Built to Please canonical PDF bytes changed')
 for stale in ['exactly as the engine renders it','Every read returns the result in your numbers','Monderman is the instrument that surfaces where these losses originate']:
  if stale in idx:e.append('homepage unsupported claim '+stale)
