@@ -262,6 +262,12 @@ PUBLICATIONS = (
         "August 2026", 11, (), MERIT_REFERENCES,
     ),
     Publication(
+        "Monderman_Insight_The_Unmeasured_Layer.pdf", "INSIGHT", "The Unmeasured Layer",
+        "Administrative Reality and the Risk Standard Reporting Misses",
+        "Organizations deliver at the speed of their administrative reality. Boards, executives, and acquirers measure a great deal about the institutions they steward. This paper proposes that four conditions of how an institution actually operates are often measured in fragments, by different disciplines, and are seldom assembled into a standing, institution-level view.",
+        "September 2026", 9, (10,),
+    ),
+    Publication(
         "Monderman_Insight_The_Art_of_Interior_Reasoning.pdf", "INSIGHT", "The Art of Interior Reasoning",
         "Why Excellent Decisions Live Off the Line",
         "The discipline of reasoning past both binary thinking and the compromise between. What it takes — analytically and emotionally — to consistently find answers off the line. And what compounds, in one direction or another, when this is or is not the practice.",

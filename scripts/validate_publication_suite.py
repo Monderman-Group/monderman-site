@@ -108,6 +108,7 @@ EXPECTED_PAGES = {
     "Monderman_Insight_Built_to_Please_2026-09-02.pdf": 13,
     "Monderman_Insight_Every_Node_for_Itself_Aug2026.pdf": 11,
     "Monderman_Insight_Merit_After_the_Machine_2026-08-11.pdf": 14,
+    "Monderman_Insight_The_Unmeasured_Layer.pdf": 11,
     "Monderman_Insight_The_Art_of_Interior_Reasoning.pdf": 12,
     "Terminal_Fidelity.pdf": 17,
 }
@@ -199,11 +200,10 @@ def validate_publication(filename: str, category: str) -> None:
             raise AssertionError(
                 f"{filename}: REFERENCES does not begin on a clean page"
             )
-        reference_heading_size = (
-            10.5
-            if filename == "Monderman_Insight_Built_to_Please_2026-09-02.pdf"
-            else 10.0
-        )
+        reference_heading_size = 10.5 if filename in {
+            "Monderman_Insight_Built_to_Please_2026-09-02.pdf",
+            "Monderman_Insight_The_Unmeasured_Layer.pdf",
+        } else 10.0
         reference_heading = [
             word
             for word in reference_words
