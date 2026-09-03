@@ -76,19 +76,22 @@ if not latest_match:
  e.append('homepage research carousel boundary missing')
 else:
  latest=latest_match.group(1)
- if len(re.findall(r'<article class="latest-card category-(?:research|insight|brief|perspective)"',latest))!=14:e.append('homepage research carousel card count')
- if latest.count('latest-card-image latest-card-image--placeholder')!=14:e.append('homepage research carousel canonical cover count')
- if latest.count('placeholder-cover-type')!=14:e.append('homepage research carousel category label count')
+ if len(re.findall(r'<article class="latest-card category-(?:research|insight|brief|perspective)"',latest))!=15:e.append('homepage research carousel card count')
+ if latest.count('latest-card-image latest-card-image--placeholder')!=15:e.append('homepage research carousel canonical cover count')
+ if latest.count('placeholder-cover-type')!=15:e.append('homepage research carousel category label count')
  if 'latest-card-image"><img' in latest:e.append('homepage research carousel legacy image tile remains')
  for token in ['Built to Please','Why Consumer AI Tells You What You Want to Hear','Series, Part 3','Monderman_Insight_Built_to_Please_2026-09-02.pdf']:
   if token not in latest:e.append('homepage Built to Please card '+token)
+ new_commentary_pos=latest.find('<h3 class="latest-card-title">We Gave Bureaucracy the Fastest Tools in History. It Got Slower.</h3>')
+ unmeasured_pos=latest.find('<h3 class="latest-card-title">The Unmeasured Layer</h3>')
+ if not (0<=new_commentary_pos<unmeasured_pos):e.append('homepage new commentary placement')
  series_cards=['Merit After the Machine','Every Node for Itself','Built to Please']
  series_positions=[latest.find('<h3 class="latest-card-title">'+title+'</h3>') for title in series_cards]
  if not (all(pos>=0 for pos in series_positions) and series_positions==sorted(series_positions)):
   e.append('homepage series carousel reading order')
  for part in ['Series, Part 1','Series, Part 2','Series, Part 3']:
   if latest.count(part)!=1:e.append('homepage series carousel chip '+part)
- for category,expected in [('insight',7),('brief',5),('perspective',2)]:
+ for category,expected in [('insight',8),('brief',5),('perspective',2)]:
   count=latest.count(f'data-category="{category}"')
   if count!=expected:e.append(f'homepage {category} category count {count}, expected {expected}')
  if 'data-category="research"' in latest:e.append('homepage current work falsely classified as Research')
@@ -120,13 +123,16 @@ for token in [
  if token not in idx:e.append('homepage research carousel no-script phone guard '+token)
 
 research=(r/'research.html').read_text(errors='ignore')
-for token in ['The Unmeasured Layer','AI and Institutions','Three papers, one story.','Part 1','Part 2','Part 3','16 items · Updated September 2026','PDF · 8 documents']:
+for token in ['We Gave Bureaucracy the Fastest Tools in History. It Got Slower.','The Unmeasured Layer','AI and Institutions','Three papers, one story.','Part 1','Part 2','Part 3','17 items · Updated September 2026','PDF · 8 documents']:
  if token not in research:e.append('research series contract '+token)
 if research.count('<article class="series-card">')!=3:e.append('research series card count')
 book_pos=research.find('<section class="book-feature">')
 series_pos=research.find('<section class="series"')
 library_pos=research.find('<section class="library">')
 if not (0<=book_pos<series_pos<library_pos):e.append('research Book/series/library order')
+commentary_pos=research.find('id="bureaucracy-tools-title"')
+unmeasured_pos=research.find('id="unmeasured-layer-title"')
+if not (0<=commentary_pos<unmeasured_pos<series_pos):e.append('research commentary/Unmeasured Layer/AI order')
 series_quote='Fluency becomes evidence, outside checking becomes overhead, and agreement begins to look like truth.'
 series_quote_pos=research.find(series_quote)
 if not (series_pos<series_quote_pos<library_pos):e.append('research series pull quote placement')

@@ -29,6 +29,7 @@ PAGES = {
     "designing-for-decision-velocity.html": "Research",
     "the-drift-problem.html": "Research",
     "the-unmeasured-layer.html": "Research",
+    "we-gave-bureaucracy-the-fastest-tools.html": "Research",
     "after-the-first-lap.html": "Research",
     "decision-velocity-article.html": "Research",
     "institutional-performance-article.html": "Research",
