@@ -79,6 +79,12 @@ else:
  if len(re.findall(r'<article class="latest-card category-(?:research|insight|brief|perspective)"',latest))!=15:e.append('homepage research carousel card count')
  if latest.count('latest-card-image latest-card-image--placeholder')!=15:e.append('homepage research carousel canonical cover count')
  if latest.count('placeholder-cover-type')!=15:e.append('homepage research carousel category label count')
+ if latest.count('latest-card-link')!=15:e.append('homepage research carousel full-card link count')
+ if latest.count('latest-card-secondary-link')!=13:e.append('homepage research carousel PDF action count')
+ for href in re.findall(r'class="latest-card-link" href="([^"]+)"',latest):
+  clean_href=href.split('?',1)[0]
+  if not clean_href.endswith('.html'):e.append('homepage carousel primary route is not HTML '+href)
+  elif not (r/clean_href).exists():e.append('homepage carousel primary route missing '+href)
  if 'latest-card-image"><img' in latest:e.append('homepage research carousel legacy image tile remains')
  for token in ['Built to Please','Why Consumer AI Tells You What You Want to Hear','Series, Part 3','Monderman_Insight_Built_to_Please_2026-09-02.pdf']:
   if token not in latest:e.append('homepage Built to Please card '+token)
@@ -99,6 +105,8 @@ for token in ['linear-gradient(180deg, #103B44 0%, #0B343D 55%, #04282F 100%)','
  if token not in idx:e.append('homepage canonical research tile style '+token)
 for token in ['.latest-card.category-insight {','.latest-card.category-brief {','.latest-card.category-perspective {','.latest-card.category-research {','Research, insights, briefs, and perspectives']:
  if token not in idx:e.append('homepage publication taxonomy '+token)
+for token in ['.latest-card-link::after {','position: absolute;','inset: 0;','.latest-card:focus-within {']:
+ if token not in idx:e.append('homepage full-card carousel interaction '+token)
 for forbidden in [
  '.latest-track .latest-card:nth-child(n+4){display:none;}',
  '.latest-controls,.latest-dots{display:none!important;}',
@@ -123,7 +131,7 @@ for token in [
  if token not in idx:e.append('homepage research carousel no-script phone guard '+token)
 
 research=(r/'research.html').read_text(errors='ignore')
-for token in ['We Gave Bureaucracy the Fastest Tools in History. It Got Slower.','The Unmeasured Layer','AI and Institutions','Three papers, one story.','Part 1','Part 2','Part 3','17 items · Updated September 2026','PDF · 8 documents']:
+for token in ['We Gave Bureaucracy the Fastest Tools in History. It Got Slower.','The Unmeasured Layer','AI and Institutions','Three papers, one story.','Part 1','Part 2','Part 3','17 items · Updated September 2026','HTML + PDF · 8 documents']:
  if token not in research:e.append('research series contract '+token)
 if research.count('<article class="series-card">')!=3:e.append('research series card count')
 book_pos=research.find('<section class="book-feature">')
@@ -143,12 +151,57 @@ if not (all(pos>=0 for pos in series_title_positions) and series_title_positions
  e.append('research series reading order')
 for token in ['border-left: 4px solid #0E3A44;','linear-gradient(90deg, #103B44 0%, #0B343D 55%, #04282F 100%)']:
  if token not in research:e.append('research series visual grouping '+token)
-if '<span>Enterprise</span><span>Brief · PDF</span></div>\n          <h3 class="paper-title">How Workarounds Preserve Output While Masking Dysfunction</h3>' not in research:
+if '<span>Enterprise</span><span>Brief · HTML + PDF</span></div>\n          <h3 class="paper-title">How Workarounds Preserve Output While Masking Dysfunction</h3>' not in research:
  e.append('research Compensatory Systems Brief label')
 if research.count('<span>Perspective</span><span>HTML')!=3:
  e.append('research Perspective label count')
 for forbidden in ['.paper-card.category-insight {','.paper-card.category-brief {','.essay-card.category-perspective {','.paper-card.category-research {','data-category="insight"','data-category="brief"','data-category="perspective"']:
  if forbidden in research:e.append('research page presentation must remain canonical '+forbidden)
+research_primary_hrefs=re.findall(r'class="(?:series-action|paper-action) publication-primary-link" href="([^"]+)"',research)
+research_secondary_hrefs=re.findall(r'class="(?:series-action|paper-action) publication-secondary-link" href="([^"]+)"',research)
+if len(research_primary_hrefs)!=16:e.append('research full-card HTML link count')
+if len(research_secondary_hrefs)!=14:e.append('research independent secondary link count')
+for href in research_primary_hrefs:
+ clean_href=href.split('?',1)[0]
+ if not clean_href.endswith('.html'):e.append('research primary route is not HTML '+href)
+ elif not (r/clean_href).exists():e.append('research primary route missing '+href)
+for token in ['.publication-primary-link::after {','inset: 0;','z-index: 2;','.publication-secondary-link {','z-index: 4;']:
+ if token not in research:e.append('research full-card interaction '+token)
+
+publication_editions={
+ 'merit-after-the-machine.html':('Monderman_Insight_Merit_After_the_Machine_2026-09-02.pdf',4),
+ 'every-node-for-itself.html':('Monderman_Insight_Every_Node_for_Itself_2026-09-02.pdf',3),
+ 'built-to-please.html':('Monderman_Insight_Built_to_Please_2026-09-02.pdf',4),
+ 'terminal-fidelity.html':('Terminal_Fidelity.pdf',5),
+ 'accumulated-drag-department-of-war.html':('Monderman_Brief_Accumulated_Drag_Department_of_War_2026-09-02.pdf',2),
+ 'quarter-trillion-friction-us-healthcare.html':('Monderman_Brief_Quarter_Trillion_Dollar_Friction_US_Healthcare.pdf',6),
+ 'from-tokens-to-outcomes.html':('Monderman_Insight_After_the_First_Lap.pdf',6),
+ 'compensatory-systems.html':('Monderman_Brief_Compensatory_Systems.pdf',4),
+ 'when-bureaucracy-became-the-obstacle.html':('Monderman_Brief_The_Collapse_of_Eastman_Kodak.pdf',5),
+ 'the-culture-trap-brief.html':('Monderman_Brief_The_Culture_Trap.pdf',9),
+ 'the-art-of-interior-reasoning.html':('Monderman_Insight_The_Art_of_Interior_Reasoning.pdf',5),
+}
+search_index=(r/'public-search-index.json').read_text(errors='ignore')
+sitemap_text=(r/'sitemap.txt').read_text(errors='ignore')
+publication_css=(r/'publication-html.css').read_text(errors='ignore') if (r/'publication-html.css').exists() else ''
+if 'font-size: 64px;' not in publication_css:e.append('publication hero desktop type scale')
+for name,(pdf_name,figure_count) in publication_editions.items():
+ t=(r/name).read_text(errors='ignore') if (r/name).exists() else ''
+ if not t:
+  e.append('publication HTML edition missing '+name)
+  continue
+ for token in [
+  f'rel="canonical" href="https://www.monderman.com/{name}"',
+  'class="article-body"','id="references-heading">References</h2>',
+  'class="footer mond-footer"','aria-label="Monderman on LinkedIn"',
+  'aria-label="Monderman on X"','aria-label="Monderman on Facebook"',
+  f'href="{pdf_name}?',
+ ]:
+  if token not in t:e.append(name+': complete web-edition contract '+token)
+ if t.count('<figure>')!=figure_count:e.append(name+': figure count')
+ if t.count('<li>')<3:e.append(name+': reference count')
+ if name not in site or name not in sitemap_text:e.append(name+': sitemap coverage')
+ if f'"url":"{name}"' not in search_index:e.append(name+': search coverage')
 built_pdf=r/'Monderman_Insight_Built_to_Please_2026-09-02.pdf'
 if not built_pdf.exists():
  e.append('Built to Please PDF missing')

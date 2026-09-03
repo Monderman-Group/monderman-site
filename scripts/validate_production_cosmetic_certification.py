@@ -219,7 +219,7 @@ compensatory_match = re.search(
 )
 require(compensatory_match is not None and '<span class="placeholder-cover-type">Brief</span>' in compensatory_match.group(0), "homepage Brief taxonomy missing")
 research = text("research.html")
-require('<span>Enterprise</span><span>Brief · PDF</span></div>\n          <h3 class="paper-title">How Workarounds Preserve Output While Masking Dysfunction</h3>' in without_html_comments(research), "Research Brief taxonomy missing")
+require('<span>Enterprise</span><span>Brief · HTML + PDF</span></div>\n          <h3 class="paper-title">How Workarounds Preserve Output While Masking Dysfunction</h3>' in without_html_comments(research), "Research Brief taxonomy missing")
 
 # 7–8: print resilience and branded not-found page.
 shell_css = text("canonical-site-shell.css")

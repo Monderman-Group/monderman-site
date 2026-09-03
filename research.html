@@ -520,6 +520,13 @@
     }
     .series-action:hover,
     .series-action:focus-visible { color: #0C6E78; }
+    .series-actions,
+    .paper-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px 16px;
+    }
     .library {
       padding: 42px 34px 0;
     }
@@ -1086,6 +1093,29 @@
     }
     .paper-card:hover::before { width: 100%; }
 
+    .series-card,
+    .paper-card,
+    .essay-card {
+      position: relative;
+      cursor: pointer;
+    }
+    .publication-primary-link::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+    }
+    .publication-secondary-link {
+      position: relative;
+      z-index: 4;
+    }
+    .series-card:focus-within,
+    .paper-card:focus-within,
+    .essay-card:focus-within {
+      outline: 2px solid #C9821F;
+      outline-offset: -2px;
+    }
+
     .latest-insight { padding-top: 34px; }
     .latest-insight .paper-card { min-height: 180px; }
     .latest-insight .paper-title { max-width: none; }
@@ -1106,6 +1136,10 @@
       .latest-insight .paper-actions { justify-content: flex-start; }
     }
     @media print {
+      .publication-primary-link::after { display: none !important; }
+      .series-card,
+      .paper-card,
+      .essay-card { cursor: default; }
       .latest-insight-divider { display: none !important; }
       .hero { padding-top: 48px !important; padding-bottom: 34px !important; }
       .hero-copy { margin-top: 16px !important; line-height: 1.55 !important; }
@@ -1121,8 +1155,8 @@
       .paper-card { min-height: 198px !important; padding-top: 18px !important; padding-bottom: 17px !important; gap: 9px !important; }
       .paper-card.wide,.latest-insight .paper-card { min-height: 150px !important; }
       .paper-body { line-height: 1.52 !important; }
-      .essay-card { min-height: 184px !important; padding-top: 18px !important; padding-bottom: 17px !important; gap: 9px !important; }
-      .essay-body { line-height: 1.52 !important; }
+      .essay-card { min-height: 160px !important; padding-top: 14px !important; padding-bottom: 13px !important; gap: 7px !important; }
+      .essay-body { line-height: 1.44 !important; }
       .cta-band { display: none !important; }
     }
 
@@ -1130,6 +1164,12 @@
   </style>
 <link rel="stylesheet" href="canonical-site-shell.css?v=20260830-readiness1">
 <link rel="stylesheet" href="mobile-site-polish.css?v=20260825-2">
+<style>
+  @media print {
+    @page { margin: 0.45in; }
+    body { zoom: 0.96; }
+  }
+</style>
 
   <meta property="og:image" content="https://www.monderman.com/assets/brand/monderman-social-card.png?v=20260901-og2">
   <meta property="og:image:width" content="1200">
@@ -1299,15 +1339,15 @@
       <div class="research-grid">
         <article class="paper-card wide">
           <div>
-            <div class="paper-top"><span>Institutional Performance</span><span>Commentary · PDF</span></div>
+            <div class="paper-top"><span>Institutional Performance</span><span>Commentary · HTML + PDF</span></div>
             <h2 class="paper-title" id="bureaucracy-tools-title">We Gave Bureaucracy the Fastest Tools in History. It Got Slower.</h2>
             <p class="paper-body"><span class="paper-subtitle">Bureaucratic drag, the speed of need, and the case for counting the days</span>Technology accelerated the work surrounding government decisions. It did not accelerate the institutional machinery that makes them.</p>
           </div>
           <div class="paper-foot">
             <div class="paper-stats"><span>September 2026</span><span>8 pp</span><span>~11 min</span></div>
             <div class="paper-actions">
-              <a class="paper-action" href="we-gave-bureaucracy-the-fastest-tools.html">Read article →</a>
-              <a class="paper-action" href="Monderman_Commentary_We_Gave_Bureaucracy_the_Fastest_Tools_2026-09-03.pdf?v=20260903-source1" target="_blank" rel="noopener noreferrer">Download →</a>
+              <a class="paper-action publication-primary-link" href="we-gave-bureaucracy-the-fastest-tools.html">Read article →</a>
+              <a class="paper-action publication-secondary-link" href="Monderman_Commentary_We_Gave_Bureaucracy_the_Fastest_Tools_2026-09-03.pdf?v=20260903-source1" target="_blank" rel="noopener noreferrer">Download PDF →</a>
             </div>
           </div>
         </article>
@@ -1325,15 +1365,15 @@
       <div class="research-grid">
         <article class="paper-card wide">
           <div>
-            <div class="paper-top"><span>Institutional Performance</span><span>Insight · PDF</span></div>
+            <div class="paper-top"><span>Institutional Performance</span><span>Insight · HTML + PDF</span></div>
             <h2 class="paper-title" id="unmeasured-layer-title">The Unmeasured Layer</h2>
             <p class="paper-body"><span class="paper-subtitle">Administrative Reality and the Risk Standard Reporting Misses</span>Four conditions of how an institution actually operates are often measured in fragments and seldom assembled into a standing, institution-level view.</p>
           </div>
           <div class="paper-foot">
             <div class="paper-stats"><span>September 2026</span><span>11 pp</span><span>~15 min</span></div>
             <div class="paper-actions">
-              <a class="paper-action" href="the-unmeasured-layer.html">Read article →</a>
-              <a class="paper-action" href="Monderman_Insight_The_Unmeasured_Layer.pdf?v=20260902-final2" target="_blank" rel="noopener noreferrer">Download →</a>
+              <a class="paper-action publication-primary-link" href="the-unmeasured-layer.html">Read article →</a>
+              <a class="paper-action publication-secondary-link" href="Monderman_Insight_The_Unmeasured_Layer.pdf?v=20260902-final2" target="_blank" rel="noopener noreferrer">Download PDF →</a>
             </div>
           </div>
         </article>
@@ -1359,37 +1399,46 @@
         <article class="series-card">
           <div class="series-card-top">
             <span class="series-chip">Part 1</span>
-            <span class="series-format">Insight · PDF</span>
+            <span class="series-format">Insight · HTML + PDF</span>
           </div>
           <h3 class="series-card-title">Merit After the Machine</h3>
           <p class="series-card-desc">What artificial intelligence weakens is not human merit, but the evidence institutions use to recognize skilled and conscientious work.</p>
           <div class="series-card-foot">
             <div class="series-stats"><span>September 2026</span><span>15 pages · ~17 min</span></div>
-            <a class="series-action" href="Monderman_Insight_Merit_After_the_Machine_2026-09-02.pdf?v=20260902-final" target="_blank" rel="noopener noreferrer">Download →</a>
+            <div class="series-actions">
+              <a class="series-action publication-primary-link" href="merit-after-the-machine.html">Read article →</a>
+              <a class="series-action publication-secondary-link" href="Monderman_Insight_Merit_After_the_Machine_2026-09-02.pdf?v=20260902-final" target="_blank" rel="noopener noreferrer">PDF →</a>
+            </div>
           </div>
         </article>
         <article class="series-card">
           <div class="series-card-top">
             <span class="series-chip">Part 2</span>
-            <span class="series-format">Insight · PDF</span>
+            <span class="series-format">Insight · HTML + PDF</span>
           </div>
           <h3 class="series-card-title">Every Node for Itself</h3>
           <p class="series-card-desc">AI gives every organization a reason to cut off the outside firms it buys from. The first savings estimate misses independent checking, shared learning, trust, and a responsible backstop.</p>
           <div class="series-card-foot">
             <div class="series-stats"><span>September 2026</span><span>10 pages · ~12 min</span></div>
-            <a class="series-action" href="Monderman_Insight_Every_Node_for_Itself_2026-09-02.pdf?v=20260902-final" target="_blank" rel="noopener noreferrer">Download →</a>
+            <div class="series-actions">
+              <a class="series-action publication-primary-link" href="every-node-for-itself.html">Read article →</a>
+              <a class="series-action publication-secondary-link" href="Monderman_Insight_Every_Node_for_Itself_2026-09-02.pdf?v=20260902-final" target="_blank" rel="noopener noreferrer">PDF →</a>
+            </div>
           </div>
         </article>
         <article class="series-card">
           <div class="series-card-top">
             <span class="series-chip">Part 3</span>
-            <span class="series-format">Insight · PDF</span>
+            <span class="series-format">Insight · HTML + PDF</span>
           </div>
           <h3 class="series-card-title">Built to Please</h3>
           <p class="series-card-desc">General-purpose AI assistants are trained toward several goals at once. This paper shows how preference can pull against truthfulness, what is known about that lean, and the checks serious users build around models so their answers can be trusted.</p>
           <div class="series-card-foot">
             <div class="series-stats"><span>September 2026</span><span>13 pages · ~15 min</span></div>
-            <a class="series-action" href="Monderman_Insight_Built_to_Please_2026-09-02.pdf?v=20260902" target="_blank" rel="noopener noreferrer">Download →</a>
+            <div class="series-actions">
+              <a class="series-action publication-primary-link" href="built-to-please.html">Read article →</a>
+              <a class="series-action publication-secondary-link" href="Monderman_Insight_Built_to_Please_2026-09-02.pdf?v=20260902" target="_blank" rel="noopener noreferrer">PDF →</a>
+            </div>
           </div>
         </article>
       </div>
@@ -1404,88 +1453,113 @@
   <section class="library">
     <div class="library-inner">
       <div class="band-head">
-        <div class="left">Additional downloadable research</div>
-        <div class="right">PDF · 8 documents</div>
+        <div class="left">Additional research</div>
+        <div class="right">HTML + PDF · 8 documents</div>
       </div>
       <div class="research-grid">
         <article class="paper-card wide">
           <div>
-            <div class="paper-top"><span>Decision Design</span><span>Insight · PDF</span></div>
+            <div class="paper-top"><span>Decision Design</span><span>Insight · HTML + PDF</span></div>
             <h3 class="paper-title">Terminal Fidelity</h3>
             <p class="paper-body">Why the philosophies, movements, and companies that win begin to fail: founding principles are rules for going that rarely contain rules for stopping, and faithful application ends up producing the opposite of founding intent.</p>
           </div>
           <div class="paper-foot">
             <div class="paper-stats"><span>17 pp</span><span>~20 min</span></div>
-            <a class="paper-action" href="Terminal_Fidelity.pdf?v=20260828-house5" target="_blank" rel="noopener noreferrer">Download →</a>
+            <div class="paper-actions">
+              <a class="paper-action publication-primary-link" href="terminal-fidelity.html">Read article →</a>
+              <a class="paper-action publication-secondary-link" href="Terminal_Fidelity.pdf?v=20260828-house5" target="_blank" rel="noopener noreferrer">PDF →</a>
+            </div>
           </div>
         </article>
         <article class="paper-card wide">
           <div>
-            <div class="paper-top"><span>Enterprise</span><span>Insight · PDF</span></div>
+            <div class="paper-top"><span>Enterprise</span><span>Insight · HTML + PDF</span></div>
             <h3 class="paper-title">From Tokens to Outcomes</h3>
             <p class="paper-body">How token economics will define the next phase of enterprise AI, and why the second lap will be won on disciplined consumption, procured from an emerging tier this paper names Deterministic AI Infrastructure.</p>
           </div>
           <div class="paper-foot">
             <div class="paper-stats"><span>26 pp</span><span>~32 min</span></div>
-            <a class="paper-action" href="Monderman_Insight_After_the_First_Lap.pdf?v=20260828-house5" target="_blank" rel="noopener noreferrer">Download →</a>
+            <div class="paper-actions">
+              <a class="paper-action publication-primary-link" href="from-tokens-to-outcomes.html">Read article →</a>
+              <a class="paper-action publication-secondary-link" href="Monderman_Insight_After_the_First_Lap.pdf?v=20260828-house5" target="_blank" rel="noopener noreferrer">PDF →</a>
+            </div>
           </div>
         </article>
         <article class="paper-card">
-          <div class="paper-top"><span>Defense</span><span>Brief · PDF</span></div>
+          <div class="paper-top"><span>Defense</span><span>Brief · HTML + PDF</span></div>
           <h3 class="paper-title">Accumulated Drag in the Department of War</h3>
           <p class="paper-body">Structural friction in one of the world’s most complex public institutions: measured, located, and named.</p>
           <div class="paper-foot">
             <div class="paper-stats"><span>11 pp</span><span>~12 min</span></div>
-            <a class="paper-action" href="Monderman_Brief_Accumulated_Drag_Department_of_War_2026-09-02.pdf?v=20260902-final" target="_blank" rel="noopener noreferrer">Download →</a>
+            <div class="paper-actions">
+              <a class="paper-action publication-primary-link" href="accumulated-drag-department-of-war.html">Read brief →</a>
+              <a class="paper-action publication-secondary-link" href="Monderman_Brief_Accumulated_Drag_Department_of_War_2026-09-02.pdf?v=20260902-final" target="_blank" rel="noopener noreferrer">PDF →</a>
+            </div>
           </div>
         </article>
         <article class="paper-card">
-          <div class="paper-top"><span>Healthcare</span><span>Brief · PDF</span></div>
+          <div class="paper-top"><span>Healthcare</span><span>Brief · HTML + PDF</span></div>
           <h3 class="paper-title">Quarter-Trillion Friction in U.S. Healthcare</h3>
           <p class="paper-body">The administrative burden complicating performance in U.S. healthcare: quantified and mapped to structural causes.</p>
           <div class="paper-foot">
             <div class="paper-stats"><span>11 pp</span><span>~13 min</span></div>
-            <a class="paper-action" href="Monderman_Brief_Quarter_Trillion_Dollar_Friction_US_Healthcare.pdf?v=20260828-house5" target="_blank" rel="noopener noreferrer">Download →</a>
+            <div class="paper-actions">
+              <a class="paper-action publication-primary-link" href="quarter-trillion-friction-us-healthcare.html">Read brief →</a>
+              <a class="paper-action publication-secondary-link" href="Monderman_Brief_Quarter_Trillion_Dollar_Friction_US_Healthcare.pdf?v=20260828-house5" target="_blank" rel="noopener noreferrer">PDF →</a>
+            </div>
           </div>
         </article>
         <article class="paper-card">
-          <div class="paper-top"><span>Enterprise</span><span>Brief · PDF</span></div>
+          <div class="paper-top"><span>Enterprise</span><span>Brief · HTML + PDF</span></div>
           <h3 class="paper-title">How Workarounds Preserve Output While Masking Dysfunction</h3>
           <p class="paper-body">Organizations appear to function because people compensate for structural weakness. Output survives. The system deteriorates.</p>
           <div class="paper-foot">
             <div class="paper-stats"><span>11 pp</span><span>~13 min</span></div>
-            <a class="paper-action" href="Monderman_Brief_Compensatory_Systems.pdf?v=20260828-house5" target="_blank" rel="noopener noreferrer">Download →</a>
+            <div class="paper-actions">
+              <a class="paper-action publication-primary-link" href="compensatory-systems.html">Read brief →</a>
+              <a class="paper-action publication-secondary-link" href="Monderman_Brief_Compensatory_Systems.pdf?v=20260828-house5" target="_blank" rel="noopener noreferrer">PDF →</a>
+            </div>
           </div>
         </article>
         <article class="paper-card">
-          <div class="paper-top"><span>Enterprise</span><span>Brief · PDF</span></div>
+          <div class="paper-top"><span>Enterprise</span><span>Brief · HTML + PDF</span></div>
           <h3 class="paper-title">How the Collapse of Eastman Kodak Is Misunderstood</h3>
           <p class="paper-body">Kodak did not fail because it missed technology. It failed because its decision systems could not adapt. The distinction matters.</p>
           <div class="paper-foot">
             <div class="paper-stats"><span>10 pp</span><span>~12 min</span></div>
-            <a class="paper-action" href="Monderman_Brief_The_Collapse_of_Eastman_Kodak.pdf?v=20260828-house5" target="_blank" rel="noopener noreferrer">Download →</a>
+            <div class="paper-actions">
+              <a class="paper-action publication-primary-link" href="when-bureaucracy-became-the-obstacle.html">Read brief →</a>
+              <a class="paper-action publication-secondary-link" href="Monderman_Brief_The_Collapse_of_Eastman_Kodak.pdf?v=20260828-house5" target="_blank" rel="noopener noreferrer">PDF →</a>
+            </div>
           </div>
         </article>
         <article class="paper-card wide">
           <div>
-            <div class="paper-top"><span>Enterprise · Culture</span><span>Brief · PDF</span></div>
+            <div class="paper-top"><span>Enterprise · Culture</span><span>Brief · HTML + PDF</span></div>
             <h3 class="paper-title">The Culture Trap</h3>
             <p class="paper-body">Why culture-first diagnosis mislocates the problem, and why organizations that fix sentiment before structure often fix the wrong thing first.</p>
           </div>
           <div class="paper-foot">
             <div class="paper-stats"><span>9 pp</span><span>~11 min</span></div>
-            <a class="paper-action" href="Monderman_Brief_The_Culture_Trap.pdf?v=20260828-house5" target="_blank" rel="noopener noreferrer">Download →</a><a class="paper-action" href="the-culture-trap.html">Read the short version</a>
+            <div class="paper-actions">
+              <a class="paper-action publication-primary-link" href="the-culture-trap-brief.html">Read brief →</a>
+              <a class="paper-action publication-secondary-link" href="Monderman_Brief_The_Culture_Trap.pdf?v=20260828-house5" target="_blank" rel="noopener noreferrer">PDF →</a>
+              <a class="paper-action publication-secondary-link" href="the-culture-trap.html">Short version →</a>
+            </div>
           </div>
         </article>
         <article class="paper-card wide">
           <div>
-            <div class="paper-top"><span>Decision Design</span><span>Insight · PDF</span></div>
+            <div class="paper-top"><span>Decision Design</span><span>Insight · HTML + PDF</span></div>
             <h3 class="paper-title">The Art of Interior Reasoning</h3>
             <p class="paper-body">The vast decision space that binary framing makes invisible, and why institutions miss viable options when complex choices are reduced too early.</p>
           </div>
           <div class="paper-foot">
             <div class="paper-stats"><span>12 pp</span><span>~14 min</span></div>
-            <a class="paper-action" href="Monderman_Insight_The_Art_of_Interior_Reasoning.pdf?v=20260828-house5" target="_blank" rel="noopener noreferrer">Download →</a>
+            <div class="paper-actions">
+              <a class="paper-action publication-primary-link" href="the-art-of-interior-reasoning.html">Read article →</a>
+              <a class="paper-action publication-secondary-link" href="Monderman_Insight_The_Art_of_Interior_Reasoning.pdf?v=20260828-house5" target="_blank" rel="noopener noreferrer">PDF →</a>
+            </div>
           </div>
         </article>
       </div>
@@ -1506,7 +1580,7 @@
           <p class="essay-body">Institutions rarely fail because complexity appears. They fail because it accumulates faster than their structures can absorb it.</p>
           <div class="paper-foot">
             <div class="paper-stats"><span>~8 min</span></div>
-            <a class="paper-action" href="governing-complexity.html">Read on site →</a>
+            <a class="paper-action publication-primary-link" href="governing-complexity.html">Read on site →</a>
           </div>
         </article>
         <article class="essay-card">
@@ -1515,7 +1589,7 @@
           <p class="essay-body">Institutions move well when governance, pathways, and role clarity support sound judgment without generating drag in the process.</p>
           <div class="paper-foot">
             <div class="paper-stats"><span>~7 min</span></div>
-            <a class="paper-action" href="designing-for-decision-velocity.html">Read on site →</a>
+            <a class="paper-action publication-primary-link" href="designing-for-decision-velocity.html">Read on site →</a>
           </div>
         </article>
 
@@ -1525,7 +1599,7 @@
             <p class="essay-body">Most institutions do not become bureaucratic on purpose. Administrative burden accumulates quietly, and repeated measurement is what catches it.</p>
             <div class="paper-foot">
               <div class="paper-stats"><span>~2 min</span></div>
-              <a class="paper-action" href="the-drift-problem.html">Read on site &rarr;</a>
+              <a class="paper-action publication-primary-link" href="the-drift-problem.html">Read on site &rarr;</a>
             </div>
           </article>
       </div>
