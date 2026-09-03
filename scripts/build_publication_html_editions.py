@@ -714,6 +714,9 @@ def build_page(publication: Publication, standard_footer: str) -> None:
 </main>
 {standard_footer}
 <script src="canonical-site-shell.js?v=20260830-readiness1"></script>
+<script src="assistant.js?v=20260828-footer-dock4" defer></script>
+<script src="contact-transport.js?v=20260903-contact1" defer></script>
+<script src="connect-widget.js?v=20260903-contact1" defer></script>
 </body>
 </html>
 '''

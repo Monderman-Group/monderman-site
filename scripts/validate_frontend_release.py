@@ -195,6 +195,9 @@ for name,(pdf_name,figure_count) in publication_editions.items():
   'class="article-body"','id="references-heading">References</h2>',
   'class="footer mond-footer"','aria-label="Monderman on LinkedIn"',
   'aria-label="Monderman on X"','aria-label="Monderman on Facebook"',
+  '<script src="assistant.js?v=20260828-footer-dock4" defer></script>',
+  '<script src="contact-transport.js?v=20260903-contact1" defer></script>',
+  '<script src="connect-widget.js?v=20260903-contact1" defer></script>',
   f'href="{pdf_name}?',
  ]:
   if token not in t:e.append(name+': complete web-edition contract '+token)
@@ -202,6 +205,10 @@ for name,(pdf_name,figure_count) in publication_editions.items():
  if t.count('<li>')<3:e.append(name+': reference count')
  if name not in site or name not in sitemap_text:e.append(name+': sitemap coverage')
  if f'"url":"{name}"' not in search_index:e.append(name+': search coverage')
+for name in ['we-gave-bureaucracy-the-fastest-tools.html','the-unmeasured-layer.html']:
+ t=(r/name).read_text(errors='ignore')
+ for script in ['assistant.js?v=20260828-footer-dock4','contact-transport.js?v=20260903-contact1','connect-widget.js?v=20260903-contact1']:
+  if f'<script src="{script}" defer></script>' not in t:e.append(name+': publication widget '+script)
 built_pdf=r/'Monderman_Insight_Built_to_Please_2026-09-02.pdf'
 if not built_pdf.exists():
  e.append('Built to Please PDF missing')
