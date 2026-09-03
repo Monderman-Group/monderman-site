@@ -14,7 +14,23 @@
   if (window.__mondermanFeedbackLoaded) return;         // never coexist with feedback
   window.__mondermanConnectLoaded = true;
 
-  var API_URL = "https://monderman-api.onrender.com/api/connect/send";
+  var widgetScript = document.currentScript;
+  var transportPromise = null;
+  function getTransport() {
+    if (window.MondermanContactTransport) return Promise.resolve(window.MondermanContactTransport);
+    if (transportPromise) return transportPromise;
+    transportPromise = new Promise(function (resolve, reject) {
+      var script = document.createElement('script');
+      script.src = new URL('contact-transport.js?v=20260903-contact1', widgetScript ? widgetScript.src : window.location.href).href;
+      script.onload = function () {
+        if (window.MondermanContactTransport) resolve(window.MondermanContactTransport);
+        else reject(new Error('contact_transport_unavailable'));
+      };
+      script.onerror = function () { reject(new Error('contact_transport_unavailable')); };
+      document.head.appendChild(script);
+    });
+    return transportPromise;
+  }
 
   // Shared footer collision boundary. This is duplicated here so the Connect
   // widget remains a true drop-in on pages that do not load the assistant.
@@ -266,17 +282,20 @@
         additionalContext: v('additionalContext')
       };
       btn.disabled = true; status.classList.remove('is-error'); status.textContent = 'Sending\u2026';
-      fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      }).then(async function (r) {
-        var result = await r.json().catch(function () { return null; });
+      getTransport().then(function (transport) {
+        return transport.submit(payload);
+      }).then(async function (outcome) {
+        var r = outcome.response;
+        var result = outcome.result;
         if (!r.ok || !result || !result.ok) {
-          throw new Error(
-            (result && (result.error || result.detail))
+          var reference = result && result.requestId ? ' Reference: ' + result.requestId + '.' : '';
+          var responseError = new Error(
+            (result && result.error ? result.error + reference : '')
+            || (result && result.detail)
             || "We couldn't submit your request. Please try again or email connect@monderman.com directly."
           );
+          responseError.userFacing = true;
+          throw responseError;
         }
         panel.querySelector('.mdn-cn-body').innerHTML =
           '<div class="mdn-cn-done">' +
@@ -289,9 +308,10 @@
       }).catch(function (error) {
         btn.disabled = false;
         status.classList.add('is-error');
-        status.textContent = error && error.message
+        var reference = error && error.requestId ? ' Reference: ' + error.requestId + '.' : '';
+        status.textContent = error && error.userFacing
           ? error.message
-          : "We couldn't reach the request service, so your information was not submitted. Please try again or email connect@monderman.com directly.";
+          : "We couldn't reach the request service, so your information was not submitted. Please try again or email connect@monderman.com directly." + reference;
       });
     });
 

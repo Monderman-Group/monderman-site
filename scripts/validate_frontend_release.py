@@ -374,6 +374,19 @@ for name in ['sample-report.html','decision-velocity.html','operational-systems.
  t=(r/name).read_text(errors='ignore')
  if re.search(r'>\s*Beta\s*<|Public Beta|beta release',t,re.I):e.append(name+': beta label on diagnostic/report output')
 
+# Contact submissions prefer a first-party hostname, probe before the single
+# POST, and retain the Render hostname only as a reachability fallback.
+contact_transport=(r/'contact-transport.js').read_text(errors='ignore') if (r/'contact-transport.js').exists() else ''
+for token in ['https://api.monderman.com','https://monderman-api.onrender.com','/api/health','/api/connect/send','requestId','AbortController']:
+ if token not in contact_transport:e.append('contact transport contract '+token)
+connect_widget=(r/'connect-widget.js').read_text(errors='ignore')
+for token in ['function getTransport()','contact-transport.js?v=20260903-contact1','MondermanContactTransport']:
+ if token not in connect_widget:e.append('connect widget transport contract '+token)
+for name in ['connect.html','plan-enterprise.html']:
+ t=(r/name).read_text(errors='ignore')
+ if 'MondermanContactTransport.submit' not in t:e.append(name+': resilient contact transport missing')
+ if 'fetch("https://monderman-api.onrender.com/api/connect/send"' in t:e.append(name+': direct third-party contact POST remains')
+
 # Public beta privacy/security disclosures must match current architecture and trial rules.
 privacy=(r/'privacy.html').read_text(errors='ignore')
 for token in ['Last updated: August 26, 2026','currently in public beta','one-time Pattern-trial anti-abuse record','survive Workspace deletion','Anthropic\'s commercial API','not used to train its models by default','automatically deleted from its backend within 30 days','Stripe handles payment details','does not receive or store your full card number','anonymous campaign responses','authorized Monderman personnel','first-party browser storage for Supabase authentication','not directed to children','a South Dakota limited liability company','41 W Highway 14, Unit #1225','Spearfish, SD 57783']:

@@ -23,6 +23,7 @@ on:
       - 'sample-report-tile.css'
       - 'research.html'
       - 'assistant.js'
+      - 'contact-transport.js'
       - 'connect-widget.js'
       - 'feedback-widget.js'
       - 'pilot-feedback.html'
@@ -96,6 +97,7 @@ on:
       - 'sample-report-tile.css'
       - 'research.html'
       - 'assistant.js'
+      - 'contact-transport.js'
       - 'connect-widget.js'
       - 'feedback-widget.js'
       - 'pilot-feedback.html'
@@ -180,6 +182,8 @@ jobs:
           node --check scripts/sample_product_fidelity_smoke.mjs
           node --check scripts/sample_product_fidelity_smoke_v2.mjs
           node --check scripts/homepage_assistant_smoke.mjs
+          node --check contact-transport.js
+          node --check connect-widget.js
           node --check scripts/sample_tile_smoke.mjs
           node --check scripts/mobile_site_presentation_smoke.mjs
           node --check scripts/cosmetic_regression_smoke.mjs

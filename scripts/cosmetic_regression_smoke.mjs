@@ -459,7 +459,10 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
     {
       let requestCount = 0;
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-      await page.route('https://monderman-api.onrender.com/api/connect/send', async (route) => {
+      await page.route('https://api.monderman.com/api/health', (route) => route.fulfill({
+        status: 200, contentType: 'application/json', body: '{"ok":true}',
+      }));
+      await page.route('https://api.monderman.com/api/connect/send', async (route) => {
         requestCount += 1;
         const body = requestCount === 1
           ? { ok: false, error: 'Too many requests. Please try again shortly, or email connect@monderman.com directly.' }
@@ -490,6 +493,10 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
 
     {
       const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+      await page.route('https://api.monderman.com/api/health', (route) => route.abort('blockedbyclient'));
+      await page.route('https://monderman-api.onrender.com/api/health', (route) => route.fulfill({
+        status: 200, contentType: 'application/json', body: '{"ok":true}',
+      }));
       await page.route('https://monderman-api.onrender.com/api/connect/send', async (route) => {
         await route.fulfill({
           status: 429,
@@ -517,7 +524,10 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
       let requestCount = 0;
       let submittedPayload = null;
       const page = await browser.newPage({ viewport: { width: 1024, height: 900 } });
-      await page.route('https://monderman-api.onrender.com/api/connect/send', async (route) => {
+      await page.route('https://api.monderman.com/api/health', (route) => route.fulfill({
+        status: 200, contentType: 'application/json', body: '{"ok":true}',
+      }));
+      await page.route('https://api.monderman.com/api/connect/send', async (route) => {
         requestCount += 1;
         submittedPayload = JSON.parse(route.request().postData() || '{}');
         await route.fulfill({
@@ -546,6 +556,8 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
         `${browserName}/plan-enterprise.html: name is not mapped to the Connect API contract`);
       assert.equal(submittedPayload.workEmail, 'launch-readiness@example.com',
         `${browserName}/plan-enterprise.html: email is not mapped to the Connect API contract`);
+      assert.match(submittedPayload.requestId, /^[0-9a-f-]{36}$/,
+        `${browserName}/plan-enterprise.html: endpoint did not receive a request reference`);
       assert.match(submittedPayload.issueSummary || '', /One team of eight/,
         `${browserName}/plan-enterprise.html: requested scope is missing from the Connect API payload`);
       await page.locator('#planSubmit').click();

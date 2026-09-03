@@ -1646,6 +1646,7 @@ Monderman reviews every submission directly and replies within two business days
     </div>
   </footer>
 
+  <script src="contact-transport.js?v=20260903-contact1"></script>
   <script>
     const header = document.getElementById("siteHeader");
 
@@ -1795,19 +1796,13 @@ Monderman reviews every submission directly and replies within two business days
         }
 
         try {
-          const response = await fetch("https://monderman-api.onrender.com/api/connect/send", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-          });
-
-          const result = await response.json().catch(() => null);
+          if (!window.MondermanContactTransport) throw new Error("contact_transport_unavailable");
+          const { response, result } = await window.MondermanContactTransport.submit(payload);
 
           if (!response.ok || !result?.ok) {
+            const reference = result?.requestId ? ` Reference: ${result.requestId}.` : "";
             showError(
-              result?.error
+              (result?.error ? result.error + reference : "")
               || result?.detail
               || "We couldn't submit your request. Please try again or email connect@monderman.com directly."
             );
@@ -1818,7 +1813,8 @@ Monderman reviews every submission directly and replies within two business days
           showConfirmation();
         } catch (error) {
           console.error(error);
-          showError("We couldn't reach the request service, so your information was not submitted. Please try again or email connect@monderman.com directly.");
+          const reference = error?.requestId ? ` Reference: ${error.requestId}.` : "";
+          showError(`We couldn't reach the request service, so your information was not submitted. Please try again or email connect@monderman.com directly.${reference}`);
         } finally {
           if (submitButton) {
             submitButton.disabled = false;
