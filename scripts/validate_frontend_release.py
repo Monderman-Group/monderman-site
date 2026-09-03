@@ -82,16 +82,16 @@ else:
  if 'latest-card-image"><img' in latest:e.append('homepage research carousel legacy image tile remains')
  for token in ['Built to Please','Why Consumer AI Tells You What You Want to Hear','Series, Part 3','Monderman_Insight_Built_to_Please_2026-09-02.pdf']:
   if token not in latest:e.append('homepage Built to Please card '+token)
- new_commentary_pos=latest.find('<h3 class="latest-card-title">We Gave Bureaucracy the Fastest Tools in History. It Got Slower.</h3>')
+ new_perspective_pos=latest.find('<h3 class="latest-card-title">We Gave Bureaucracy the Fastest Tools in History. It Got Slower.</h3>')
  unmeasured_pos=latest.find('<h3 class="latest-card-title">The Unmeasured Layer</h3>')
- if not (0<=new_commentary_pos<unmeasured_pos):e.append('homepage new commentary placement')
+ if not (0<=new_perspective_pos<unmeasured_pos):e.append('homepage new perspective placement')
  series_cards=['Merit After the Machine','Every Node for Itself','Built to Please']
  series_positions=[latest.find('<h3 class="latest-card-title">'+title+'</h3>') for title in series_cards]
  if not (all(pos>=0 for pos in series_positions) and series_positions==sorted(series_positions)):
   e.append('homepage series carousel reading order')
  for part in ['Series, Part 1','Series, Part 2','Series, Part 3']:
   if latest.count(part)!=1:e.append('homepage series carousel chip '+part)
- for category,expected in [('insight',8),('brief',5),('perspective',2)]:
+ for category,expected in [('insight',7),('brief',5),('perspective',3)]:
   count=latest.count(f'data-category="{category}"')
   if count!=expected:e.append(f'homepage {category} category count {count}, expected {expected}')
  if 'data-category="research"' in latest:e.append('homepage current work falsely classified as Research')
