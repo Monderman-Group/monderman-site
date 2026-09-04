@@ -24,6 +24,7 @@ def copy_fixture(target: Path) -> None:
     brand = target / "assets" / "brand"
     brand.mkdir(parents=True)
     shutil.copy2(ROOT / "assets" / "brand" / "monderman-social-card.png", brand / "monderman-social-card.png")
+    shutil.copy2(ROOT / "assets" / "brand" / "monderman-favicon-512.png", brand / "monderman-favicon-512.png")
 
 
 def validate(fixture: Path) -> subprocess.CompletedProcess[str]:

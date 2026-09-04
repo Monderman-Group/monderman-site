@@ -168,17 +168,47 @@ for path in html_files:
     require(not re.search(r"(?im)^\s*(?:warning:\s*truncated output|total output lines:)", page), f"{path.name}: tool-output warning is customer-visible")
     require(not re.search(r">\s*:\s*</(?:p|div|span)>", without_html_comments(page), re.I), f"{path.name}: isolated colon placeholder is customer-visible")
     links = [attrs for tag, attrs in document.head_tags if tag == "link"]
+    favicon_cache_key = "20260830-cert1" if path.name in {"privacy.html", "terms.html"} else "20260903-optical1"
     expected_links = [
-        {"rel": "icon", "type": "image/svg+xml", "href": "favicon.svg?v=20260830-cert1"},
-        {"rel": "icon", "type": "image/x-icon", "sizes": "any", "href": "favicon.ico?v=20260830-cert1"},
-        {"rel": "icon", "type": "image/png", "sizes": "192x192", "href": "favicon-192.png?v=20260830-cert1"},
-        {"rel": "apple-touch-icon", "href": "apple-touch-icon.png?v=20260830-cert1"},
+        {"rel": "icon", "type": "image/svg+xml", "href": f"favicon.svg?v={favicon_cache_key}"},
+        {"rel": "icon", "type": "image/x-icon", "sizes": "any", "href": f"favicon.ico?v={favicon_cache_key}"},
+        {"rel": "icon", "type": "image/png", "sizes": "192x192", "href": f"favicon-192.png?v={favicon_cache_key}"},
+        {"rel": "apple-touch-icon", "href": f"apple-touch-icon.png?v={favicon_cache_key}"},
     ]
     for expected in expected_links:
         matches = [attrs for attrs in links if all(attrs.get(key) == value for key, value in expected.items())]
         require(len(matches) == 1, f"{path.name}: real favicon link is missing or duplicated: {expected['href']}")
     require(not any("data:image/svg+xml" in attrs.get("href", "").lower() for attrs in links), f"{path.name}: legacy inline favicon remains")
     require(not any(tag in {"svg", "rect", "text"} for tag, _ in document.head_tags), f"{path.name}: orphaned inline-favicon markup remains in the head")
+
+favicon_svg = text("favicon.svg")
+for token in [
+    'viewBox="0 0 32 32"',
+    '<linearGradient id="bg"',
+    'stroke="#FFFFFF"',
+    'M6 9.25L11 5.75L16 8.25L21 5.75L26 9.25',
+    'M11 5.75V22.5M16 8.25V25M21 5.75V22.5',
+]:
+    require(token in favicon_svg, f"optically balanced favicon contract missing: {token}")
+
+for name, expected_size in [("favicon-192.png", 192), ("apple-touch-icon.png", 180), ("assets/brand/monderman-favicon-512.png", 512)]:
+    icon_path = ROOT / name
+    require(icon_path.exists(), f"icon asset missing: {name}")
+    if icon_path.exists():
+        signature = icon_path.read_bytes()[:26]
+        require(signature[:8] == b"\x89PNG\r\n\x1a\n", f"icon asset is not a PNG: {name}")
+        if len(signature) >= 26:
+            require(struct.unpack(">II", signature[16:24]) == (expected_size, expected_size), f"icon asset dimensions are wrong: {name}")
+            require(signature[25] == 2, f"icon asset must be opaque RGB: {name}")
+
+ico_path = ROOT / "favicon.ico"
+require(ico_path.exists(), "favicon.ico is missing")
+if ico_path.exists():
+    ico = ico_path.read_bytes()
+    require(len(ico) >= 54 and struct.unpack("<HHH", ico[:6]) == (0, 1, 3), "favicon.ico directory header is invalid")
+    if len(ico) >= 54:
+        sizes = {(ico[6 + index * 16] or 256, ico[7 + index * 16] or 256) for index in range(3)}
+        require(sizes == {(16, 16), (32, 32), (48, 48)}, "favicon.ico optical sizes are incomplete")
 
 legacy_favicon = """\n<title>Fixture</title>\n<link href='data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\">\n  <rect width=\"64\" height=\"64\"/>\n  <text x=\"17\" y=\"42\">M</text>\n</svg>' rel=\"icon\" type=\"image/svg+xml\"/>\n<style>body{color:#000}</style>\n"""
 damaged_favicon_tail = """\n<title>Fixture</title>\n<rect width=\"64\" height=\"64\"/>\n<text x=\"17\" y=\"42\">M</text>\n</svg>' />\n<style>body{color:#000}</style>\n"""

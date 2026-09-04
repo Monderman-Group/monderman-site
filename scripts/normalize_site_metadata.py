@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CACHE_KEY = "20260830-cert1"
+CACHE_KEY = "20260903-optical1"
 SOCIAL_IMAGE = f"https://www.monderman.com/assets/brand/monderman-social-card.png?v={CACHE_KEY}"
 
 FAVICONS = f'''  <link rel="icon" type="image/svg+xml" href="favicon.svg?v={CACHE_KEY}">
@@ -77,7 +77,7 @@ def main() -> None:
     public = sitemap_pages()
     changed = 0
     for path in sorted(ROOT.glob("*.html")):
-        if path.name.startswith("google") or re.match(r"^(?:privacy|terms)-\d{4}-\d{2}-\d{2}-beta\.html$", path.name):
+        if path.name.startswith("google") or path.name in {"privacy.html", "terms.html"} or re.match(r"^(?:privacy|terms)-\d{4}-\d{2}-\d{2}-beta\.html$", path.name):
             continue
         source = path.read_text(encoding="utf-8")
         match = re.search(r"(?is)(<head\b[^>]*>)(.*?)(</head>)", source)
