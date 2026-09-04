@@ -911,6 +911,7 @@ body{transition:background-color .25s ease, color .25s ease}
           const to=Math.min(SYNTH_MAX_LOAD-1,from+SYNTH_PAGE_SIZE-1);
           const { data,error }=await supabase.from("diagnostic_runs")
             .select("id, tool_type, tool_label, business_unit, pathway_name, participant_mode, diagnostic_depth, score, band, created_at, status, normalization_status, included_in_aggregates, label, is_anonymous_response, assignment_id, config_version, scorer_version")
+            .eq("organization_id",ws5OrgId)
             .eq("status","promoted")
             .eq("included_in_aggregates",true)
             .in("normalization_status",["included","included_with_caution"])
@@ -923,7 +924,7 @@ body{transition:background-color .25s ease, color .25s ease}
         SYNTH_RUNS=rows.slice(0,SYNTH_MAX_LOAD);
         try{
           const {data:sess}=await supabase.auth.getSession(); const token=sess?.session?.access_token;
-          const hr=await fetch(`${API_BASE}/api/synthesis-runs?limit=100`,{headers:token?{Authorization:"Bearer "+token}:{}});
+          const hr=await fetch(`${API_BASE}/api/synthesis-runs?limit=100`,{headers:{...(token?{Authorization:"Bearer "+token}:{}),...(ws5OrgId?{"X-Monderman-Organization-Id":ws5OrgId}:{})}});
           const hj=await hr.json().catch(()=>({})); if(!hr.ok||!Array.isArray(hj.syntheses))throw new Error(hj.error||("HTTP "+hr.status)); SYNTH_HISTORY=hj.syntheses; SAVED_SYNTHESES=SYNTH_HISTORY;
         }catch(_e){
           try{ const {data,error}=await supabase.from("synthesis_runs").select("id, title, synthesis_product, synthesis_mode, source_run_count, lens_count, score_status, score, score_label, condition_band, evidence_band, evidence_label, created_by_user_id, created_at, updated_at").eq("organization_id",ws5OrgId).order("created_at",{ascending:false}).limit(100); if(error)throw error; SYNTH_HISTORY=data||[]; SAVED_SYNTHESES=SYNTH_HISTORY; }
@@ -957,7 +958,7 @@ body{transition:background-color .25s ease, color .25s ease}
         return;
       }
       const counts=synthLensCounts(runs), selectedRuns=selectedSynthRuns();
-      const history=SYNTH_HISTORY.length?`<div class="synth-preflight"><strong>Saved Syntheses</strong><p>${SYNTH_HISTORY.slice(0,5).map(x=>`<a href="cross-tool-synthesis.html?id=${sEsc(x.id)}" style="margin-right:14px">${sEsc(synthesisProductLabel(x.synthesis_product))} · ${sEsc(synthDate(x.created_at))}${x.score_status==="published"&&x.score!=null?` · ${sEsc(x.score)}`:" · Composite withheld"}</a>`).join("")}</p></div>`:"";
+      const history=SYNTH_HISTORY.length?`<div class="synth-preflight"><strong>Saved Syntheses</strong><p>${SYNTH_HISTORY.slice(0,5).map(x=>`<a href="cross-tool-synthesis.html?id=${sEsc(x.id)}&organization_id=${encodeURIComponent(ws5OrgId||"")}" style="margin-right:14px">${sEsc(synthesisProductLabel(x.synthesis_product))} · ${sEsc(synthDate(x.created_at))}${x.score_status==="published"&&x.score!=null?` · ${sEsc(x.score)}`:" · Composite withheld"}</a>`).join("")}</p></div>`:"";
       const productDoors=`<div class="synth-overview"><div class="synth-stat"><b>Depth Synthesis</b><span>2+ eligible runs from one Diagnostic</span></div><div class="synth-stat"><b>Cross-Lens Synthesis</b><span>2+ eligible runs across 2+ Diagnostics</span></div></div>`;
       const stats=`<div class="synth-overview"><div class="synth-stat"><b>${runs.length.toLocaleString()}</b><span>Included runs loaded</span></div><div class="synth-stat"><b>${Object.keys(counts).length}</b><span>Diagnostic lenses available</span></div><div class="synth-stat"><b id="synthSelectedCount">${synthSel.size.toLocaleString()}</b><span>runs selected</span></div><div class="synth-stat"><b>${SYNTH_MAX_SELECTED.toLocaleString()}</b><span>maximum per Synthesis</span></div></div>`;
       const lensTools=`<div class="synth-lens-tools">${TOOL_ORDER.filter(tool=>counts[tool]).map(tool=>`<button class="synth-chip" type="button" data-synth-lens="${sEsc(tool)}"><span>${sEsc(toolLabel(tool))}</span><b>${counts[tool].toLocaleString()}</b></button>`).join("")}<button class="synth-chip" id="synthClear" type="button">Clear selection</button></div>`;
@@ -1005,7 +1006,7 @@ body{transition:background-color .25s ease, color .25s ease}
         if(!token) throw new Error("Your workspace session has expired. Sign in again before synthesizing stored runs.");
         const options={mode:pre.mode,scopePolicy:$("synthScopePolicy")?.value||"warn",includeNarrative:true,includeExport:true};
         if(pre.mode==="depth") options.samplingFrame=readSamplingFrame();
-        const response=await fetch(`${API_BASE}/api/synthesis`,{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({run_ids:ids,options})});
+        const response=await fetch(`${API_BASE}/api/synthesis`,{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token,"X-Monderman-Organization-Id":ws5OrgId},body:JSON.stringify({run_ids:ids,options})});
         const payload=await response.json().catch(()=>({}));
         if(!response.ok||payload.ok===false||!payload.result) throw new Error(payload.message||payload.error||`HTTP ${response.status}`);
         try{sessionStorage.setItem(SYNTH_STORAGE_KEY,JSON.stringify(payload.result));}catch(error){}
@@ -1031,7 +1032,7 @@ body{transition:background-color .25s ease, color .25s ease}
       const reason=!isDepth&&result.score_status==="withheld"?(result.why_composite_was_withheld||result.evidence_assessment?.evidence_description||result.score_basis||""):"";
       const unlock=!isDepth&&result.score_status==="withheld"?(result.what_would_unlock_a_composite||result.what_would_strengthen_the_read||[]):[];
       const unlockHtml=reason||unlock.length?`<div class="synth-preflight"><strong>Why the Composite was withheld</strong><p>${sEsc(reason||"The current evidence does not meet the coherence requirements for a Composite Score.")}</p>${unlock.length?`<strong>What could unlock a Composite</strong><ul>${unlock.map(x=>`<li>${sEsc(typeof x==="string"?x:(x?.text||x?.message||JSON.stringify(x)))}</li>`).join("")}</ul>`:""}</div>`:"";
-      const reportHref=synthesisId?`cross-tool-synthesis.html?id=${encodeURIComponent(synthesisId)}`:"cross-tool-synthesis.html";
+      const reportHref=synthesisId?`cross-tool-synthesis.html?id=${encodeURIComponent(synthesisId)}&organization_id=${encodeURIComponent(ws5OrgId||"")}`:"cross-tool-synthesis.html";
       body.innerHTML=`<div class="synth-success-note"><strong>${sEsc(label)} saved.</strong> ${scoreCopy} Evidence: ${sEsc(result.readiness_label||result.evidence_assessment?.evidence_label||"current band")}.</div>${unlockHtml}<div class="synth-actions"><button class="synth-btn" id="synthPdf" type="button">Print or save as PDF</button><button class="synth-btn ghost" id="synthHtml" type="button">Download HTML</button><button class="synth-btn ghost" id="synthJson" type="button">Download JSON</button><a class="synth-btn ghost" href="${reportHref}">Open Executive Report</a><button class="synth-btn ghost" id="synthBack" type="button">New Synthesis</button></div><div id="synthReport"></div>`;
       window.MondermanReport.render("synthReport",model);
       $("synthPdf")?.addEventListener("click",()=>window.MondermanReport.openReport(model));
@@ -1148,7 +1149,7 @@ body{transition:background-color .25s ease, color .25s ease}
         if(linkResult.error) throw linkResult.error;
         SNAPS = (snapshotResult.data || []).map(s=>({ ...s, vantage:normalizeVantage(s.vantage) }));
         ACTION_LINKS = (linkResult.data || []).filter(x=>(x.source_run_id&&x.remeasure_run_id)||(x.source_synthesis_id&&x.remeasure_synthesis_id));
-        try{ const {data:sess}=await supabase.auth.getSession(); const token=sess?.session?.access_token; const sr=await fetch(`${API_BASE}/api/synthesis-runs?limit=500`,{headers:token?{Authorization:"Bearer "+token}:{}}); const sj=await sr.json().catch(()=>({})); if(!sr.ok||!Array.isArray(sj.syntheses))throw new Error(sj.error||("HTTP "+sr.status)); SAVED_SYNTHESES=sj.syntheses; }
+        try{ const {data:sess}=await supabase.auth.getSession(); const token=sess?.session?.access_token; const sr=await fetch(`${API_BASE}/api/synthesis-runs?limit=500`,{headers:{...(token?{Authorization:"Bearer "+token}:{}),...(ws5OrgId?{"X-Monderman-Organization-Id":ws5OrgId}:{})}}); const sj=await sr.json().catch(()=>({})); if(!sr.ok||!Array.isArray(sj.syntheses))throw new Error(sj.error||("HTTP "+sr.status)); SAVED_SYNTHESES=sj.syntheses; }
         catch(_e){ try{ const {data,error}=await supabase.from("synthesis_runs").select("id, title, synthesis_product, synthesis_mode, source_run_count, lens_count, score_status, score, score_label, condition_band, evidence_band, evidence_label, created_by_user_id, created_at, updated_at").eq("organization_id",ws5OrgId).order("created_at",{ascending:false}).limit(500); if(error)throw error; SAVED_SYNTHESES=data||[]; }catch(_fallbackError){ SAVED_SYNTHESES=[]; } }
         // 8 Aug 2026: carry each snapshot's instrument version so trends never
         // compare across versions. "Comparisons hold within a version" is a
@@ -1160,7 +1161,7 @@ body{transition:background-color .25s ease, color .25s ease}
           const runIds = [...new Set(SNAPS.map(s=>s.source_run_id).filter(Boolean))];
           if(runIds.length){
             const { data: vRows, error: vErr } = await supabase.from("diagnostic_runs")
-              .select("id, config_version, scorer_version").in("id", runIds);
+              .select("id, config_version, scorer_version").eq("organization_id",ws5OrgId).in("id", runIds);
             if(vErr) throw vErr;
             const vById = {}; (vRows||[]).forEach(r=>{ vById[r.id] = { cv: r.config_version || null, sv: r.scorer_version || null }; });
             SNAPS = SNAPS.map(s=>{ const v = vById[s.source_run_id]; return v ? { ...s, __v: v } : { ...s }; });

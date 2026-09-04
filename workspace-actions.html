@@ -570,7 +570,7 @@ body{transition:background-color .25s ease, color .25s ease}
     async function apiAuthHeaders(extra){
       const { data } = await supabase.auth.getSession();
       const t = data?.session?.access_token;
-      return { ...(extra || {}), ...(t ? { Authorization: "Bearer " + t } : {}) };
+      return { ...(extra || {}), ...(t ? { Authorization: "Bearer " + t } : {}), ...(window.__mondermanActiveOrganizationId ? { "X-Monderman-Organization-Id": window.__mondermanActiveOrganizationId } : {}) };
     }
     const APP_BASE = "https://monderman.com";
 

@@ -112,7 +112,7 @@
   var sendEl  = panel.querySelector("#hans-send");
   var infoEl  = panel.querySelector("#hans-info-panel");
 
-  var history = loadHistory();
+  var history = [];
   var busy = false;
   var authClientPromise = null;
 
@@ -150,12 +150,17 @@
     };
   }
 
+  function workspaceStorageKey() {
+    var organizationId = window.__mondermanActiveOrganizationId;
+    return organizationId ? STORAGE_KEY + ":" + organizationId : STORAGE_KEY + ":unscoped";
+  }
+
   /* ---- helpers ------------------------------------------------------------- */
   function loadHistory() {
-    try { var raw = sessionStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : []; }
+    try { var raw = sessionStorage.getItem(workspaceStorageKey()); return raw ? JSON.parse(raw) : []; }
     catch (e) { return []; }
   }
-  function saveHistory() { try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(history)); } catch (e) {} }
+  function saveHistory() { try { sessionStorage.setItem(workspaceStorageKey(), JSON.stringify(history)); } catch (e) {} }
   function escapeHtml(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
   function linkify(s) {
     return escapeHtml(s).replace(/(https?:\/\/[^\s<]+)/g, function (u) {
@@ -194,7 +199,7 @@
       if (!token) throw new Error("sign_in_required");
       var res = await fetch(API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token, ...(window.__mondermanActiveOrganizationId ? { "X-Monderman-Organization-Id": window.__mondermanActiveOrganizationId } : {}) },
         body: JSON.stringify({ messages: history.slice(-12), context: workspaceContext() })
       });
       var data = await res.json().catch(function () { return null; });
@@ -225,5 +230,8 @@
     inputEl.style.height = "auto"; inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + "px";
   });
 
-  render();
+  window.mondermanWorkspaceAccessReady.then(function (access) {
+    if (access && access.allowed) history = loadHistory();
+    render();
+  }).catch(render);
 })();

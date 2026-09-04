@@ -776,6 +776,7 @@ body{transition:background-color .25s ease, color .25s ease}
       try{
         const { data, error } = await supabase.from("diagnostic_runs")
           .select("id, tool_type, tool_label, business_unit, pathway_name, score, band, primary_driver, benchmark_position, trajectory_label, exposure_json, key_findings_json, priority_actions_json, status, normalization_status, included_in_aggregates, config_version, scorer_version, created_at")
+          .eq("organization_id", state.orgId)
           .order("created_at",{ ascending:false }).limit(200);
         if(error) throw error;
         state.runs = data || [];
@@ -902,7 +903,7 @@ body{transition:background-color .25s ease, color .25s ease}
             return;
           }
         }
-        const { error } = await supabase.from("diagnostic_runs").update({ status }).eq("id", id);
+        const { error } = await supabase.from("diagnostic_runs").update({ status }).eq("organization_id", state.orgId).eq("id", id);
         if(error) throw error;
         run.status = status;
         render();
@@ -926,7 +927,7 @@ body{transition:background-color .25s ease, color .25s ease}
       const row = state.runs.find(r=>r.id===id) || {};
       const orig = btn ? btn.textContent : ""; if(btn){ btn.disabled=true; btn.textContent="…"; }
       try{
-        const { data, error } = await supabase.from("diagnostic_runs").select("full_result_json").eq("id", id).single();
+        const { data, error } = await supabase.from("diagnostic_runs").select("full_result_json").eq("organization_id", state.orgId).eq("id", id).single();
         if(error) throw error;
         const m = (data && data.full_result_json && typeof data.full_result_json==="object") ? { ...data.full_result_json } : {};
         // fill any gaps from the summary columns we already have, mapped to the export field names
@@ -1011,7 +1012,7 @@ body{transition:background-color .25s ease, color .25s ease}
     async function apiAuthHeaders(extra){
       const { data } = await supabase.auth.getSession();
       const t = data?.session?.access_token;
-      return { ...(extra || {}), ...(t ? { Authorization: "Bearer " + t } : {}) };
+      return { ...(extra || {}), ...(t ? { Authorization: "Bearer " + t } : {}), ...(window.__mondermanActiveOrganizationId ? { "X-Monderman-Organization-Id": window.__mondermanActiveOrganizationId } : {}) };
     }
     const APP_BASE = "https://monderman.com";
 
@@ -1408,7 +1409,7 @@ body{transition:background-color .25s ease, color .25s ease}
       try{
         const { data, error } = await supabase.from("diagnostic_runs")
           .select("full_result_json, tool_type, tool_label, score, band, primary_driver, benchmark_position, trajectory_label, business_unit")
-          .eq("id", runId).single();
+          .eq("organization_id", state.orgId).eq("id", runId).single();
         if(error) throw error;
         const row = data || {};
         const m = (row.full_result_json && typeof row.full_result_json==="object") ? { ...row.full_result_json } : {};
@@ -1531,7 +1532,7 @@ body{transition:background-color .25s ease, color .25s ease}
       try{
         const { error } = await supabase.from("campaign_drafts").upsert(
           { user_id:state.userId, organization_id:state.orgId, draft_json:d, updated_at:new Date().toISOString() },
-          { onConflict:"user_id" });
+          { onConflict:"user_id,organization_id" });
         if(error) throw error;
         const t=new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
         setText("draftInd","Draft saved \u00b7 "+t);
@@ -1544,7 +1545,7 @@ body{transition:background-color .25s ease, color .25s ease}
       let row=null;
       try{
         const { data, error } = await supabase.from("campaign_drafts")
-          .select("draft_json, updated_at").eq("user_id", state.userId).maybeSingle();
+          .select("draft_json, updated_at").eq("user_id", state.userId).eq("organization_id", state.orgId).maybeSingle();
         if(error) throw error;
         row = data || null;
       }catch(e){ return false; }
@@ -1575,7 +1576,7 @@ body{transition:background-color .25s ease, color .25s ease}
       const b=$("btnDiscard"); if(b) b.hidden=true;
       setText("draftInd","");
       if(!state.userId) return;
-      try{ await supabase.from("campaign_drafts").delete().eq("user_id", state.userId); }catch(e){}
+      try{ await supabase.from("campaign_drafts").delete().eq("user_id", state.userId).eq("organization_id", state.orgId); }catch(e){}
     }
     function discardDraft(){
       clearDraft();

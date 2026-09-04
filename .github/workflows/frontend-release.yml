@@ -42,6 +42,8 @@ jobs:
         run: node scripts/diagnostic_draft_recovery_smoke.mjs
       - name: Reject cross-Workspace Diagnostic persistence regressions
         run: node scripts/diagnostic_workspace_selection_smoke.mjs
+      - name: Reject cross-Workspace data-surface regressions
+        run: node scripts/workspace_tenant_scope_smoke.mjs
       - name: Reject Diagnostic completion-protection regressions
         run: node scripts/diagnostic_completion_reliability_smoke.mjs
       - run: python scripts/validate_frontend_release.py
