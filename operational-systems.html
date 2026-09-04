@@ -1547,7 +1547,15 @@ try {
 if (window.__mondermanSB && /\/api\//.test(url) && !(window.MondermanAssignment && window.MondermanAssignment.active && window.MondermanAssignment.active())) {
 const { data } = await window.__mondermanSB.auth.getSession();
 const __tok = data && data.session && data.session.access_token;
-if (__tok) __opts = { ...options, headers: { ...(options.headers || {}), Authorization: "Bearer " + __tok } };
+const __org = window.__mondermanActiveOrganizationId;
+if (__tok) __opts = {
+  ...options,
+  headers: {
+    ...(options.headers || {}),
+    Authorization: "Bearer " + __tok,
+    ...(__org ? { "X-Monderman-Organization-Id": __org } : {})
+  }
+};
 }
 } catch (e) { /* no session -> anonymous request, unchanged */ }
 return await fetch(url, { ...__opts, signal: controller.signal });
