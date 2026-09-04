@@ -575,7 +575,7 @@ def generate_social_card(publication: Publication) -> None:
     title_size = 70 if len(publication.title) < 34 else 58
     title_font = ImageFont.truetype(str(bold), title_size)
     subtitle_font = ImageFont.truetype(str(regular), 31)
-    draw.text((78, 62), "MONDERMAN", font=small, fill="#ffffff")
+    draw.text((78, 62), "MONDERMAN.", font=small, fill="#ffffff")
     draw.line((78, 105, 180, 105), fill="#9cc4c9", width=4)
     draw.text((78, 142), f"{publication.topic.upper()} · {publication.category.upper()}", font=small, fill="#9cc4c9")
     y = 205
@@ -617,7 +617,7 @@ def build_page(publication: Publication, standard_footer: str) -> None:
     generate_social_card(publication)
     body = render_blocks(blocks, captions, publication)
     refs = "\n".join(f"<li>{wrap_urls(reference)}</li>" for reference in references)
-    pdf_url = f"{publication.pdf}?{publication.pdf_query}"
+    pdf_url = f"{publication.pdf}?v=20260904-wordmark1"
     title = escape(publication.title.replace("—", "–"))
     author = escape(publication.author.replace("—", "–"))
     deck = escape(publication.deck.replace("—", "–"))
@@ -640,14 +640,14 @@ def build_page(publication: Publication, standard_footer: str) -> None:
   <meta property="og:url" content="https://www.monderman.com/{publication.slug}.html">
   <meta property="og:title" content="{title} | Monderman">
   <meta property="og:description" content="{deck}">
-  <meta property="og:image" content="https://www.monderman.com/assets/research/{publication.slug}-social.png">
+  <meta property="og:image" content="https://www.monderman.com/assets/research/{publication.slug}-social.png?v=20260904-wordmark1">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="{title}, a Monderman {category}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{title} | Monderman">
   <meta name="twitter:description" content="{deck}">
-  <meta name="twitter:image" content="https://www.monderman.com/assets/research/{publication.slug}-social.png">
+  <meta name="twitter:image" content="https://www.monderman.com/assets/research/{publication.slug}-social.png?v=20260904-wordmark1">
   <meta name="twitter:image:alt" content="{title}, a Monderman {category}">
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260903-map1">
   <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260903-map1">
@@ -660,7 +660,7 @@ def build_page(publication: Publication, standard_footer: str) -> None:
 <a class="skip-link" href="#main-content">Skip to article</a>
 <header class="header" id="siteHeader">
   <div class="header-inner">
-    <a href="index.html" class="brand">Monderman<span class="brand-dot"></span></a>
+    <a href="index.html" class="brand">Monderman.</a>
     <nav class="nav" aria-label="Primary navigation">
       <a href="index.html#approach">Approach</a>
       <a href="diagnostics.html">Diagnostics</a>
@@ -713,7 +713,7 @@ def build_page(publication: Publication, standard_footer: str) -> None:
   </section>
 </main>
 {standard_footer}
-<script src="canonical-site-shell.js?v=20260830-readiness1"></script>
+<script src="canonical-site-shell.js?v=20260904-wordmark1"></script>
 <script src="assistant.js?v=20260828-footer-dock4" defer></script>
 <script src="contact-transport.js?v=20260903-contact1" defer></script>
 <script src="connect-widget.js?v=20260903-contact1" defer></script>

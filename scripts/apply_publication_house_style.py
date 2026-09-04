@@ -28,6 +28,7 @@ from reportlab.pdfgen.canvas import Canvas
 from reportlab.platypus import Paragraph
 
 from pdf_brand_lockup import draw_header_lockup, draw_map_mark, lockup_width
+from reinstate_pdf_wordmark_periods import make_closing_overlay, update_pdf
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -639,6 +640,7 @@ def make_back(pub: Publication, page_number: int) -> bytes:
     c.save()
     draw_stream.seek(0)
     canonical.merge_page(PdfReader(draw_stream).pages[0], over=True)
+    canonical.merge_page(PdfReader(make_closing_overlay()).pages[0], over=True)
     writer = PdfWriter()
     writer.add_page(canonical)
     stream = BytesIO()
@@ -654,10 +656,12 @@ def build(pub: Publication) -> tuple[int, Path]:
         shutil.copy2(source, backup)
 
     if pub.canonical:
+        staging = ROOT / "tmp" / "pdfs" / "house-style-final" / pub.filename
+        update_pdf(backup, staging)
         OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(backup, source)
-        shutil.copy2(backup, OUTPUT_DIR / pub.filename)
-        return len(PdfReader(backup).pages), source
+        shutil.copy2(staging, source)
+        shutil.copy2(staging, OUTPUT_DIR / pub.filename)
+        return len(PdfReader(staging).pages), source
 
     reader = PdfReader(backup)
     writer = PdfWriter()

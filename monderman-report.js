@@ -212,7 +212,7 @@
     return {
       kind: "meta-synthesis",
       product: product,
-      mastline: "Monderman • " + modeLabel,
+      mastline: "Monderman. " + modeLabel,
       title: product === "depth" ? "Depth Synthesis Executive Report" : "Cross-Lens Synthesis Executive Report",
       subtitle: product === "depth"
         ? "A same-Diagnostic read across multiple eligible runs: reporting the observed median, distribution, vantage differences, and evidence limits."
@@ -403,7 +403,7 @@
     return {
       kind: "run",
       product: "diagnostic",
-      mastline: "Monderman • " + (toolLabel || "Diagnostic"),
+      mastline: "Monderman. " + (toolLabel || "Diagnostic"),
       title: (toolLabel || "Diagnostic") + ": Executive Report",
       subtitle: "An organizational read of this diagnostic: its quantified condition, primary structural signal, and recommended first moves.",
       meta: [
@@ -1218,7 +1218,7 @@
   function buildReportCover(model) {
     const m = obj(model);
     const meta = arr(m.meta);
-    const productLabel = m.product === "depth" ? "Depth Synthesis" : m.product === "cross_lens" ? "Cross-Lens Synthesis" : firstStr(m.mastline).replace(/^Monderman\s*[•·]\s*/i, "") || "Diagnostic";
+    const productLabel = m.product === "depth" ? "Depth Synthesis" : m.product === "cross_lens" ? "Cross-Lens Synthesis" : firstStr(m.mastline).replace(/^Monderman\.?\s*(?:[•·]\s*)?/i, "") || "Diagnostic";
     const defaultScoreLabel = m.product === "depth" ? "Median Diagnostic Score" : m.product === "cross_lens" ? "Cross-Lens Composite Score" : "Diagnostic Score";
     const scoreLabel = m.kind === "meta-synthesis" ? firstStr(m.scoreLabel, defaultScoreLabel) : defaultScoreLabel;
     const evidenceLabel = m.kind === "meta-synthesis" ? firstStr(m.evidenceLabel) : "";
@@ -1228,7 +1228,7 @@
       evidenceLabel ? '<span class="mr-cover-pill mr-cover-pill-accent">' + esc(evidenceLabel) + ' evidence</span>' : ''
     ].filter(Boolean).join("");
     return '<section class="mr-cover">' +
-      '<div class="mr-cover-dark"><p class="mr-cover-mark">MONDERMAN · ' + esc(productLabel) + '</p><div class="mr-cover-rule"></div>' +
+      '<div class="mr-cover-dark"><p class="mr-cover-mark">MONDERMAN. ' + esc(productLabel) + '</p><div class="mr-cover-rule"></div>' +
       '<h1 class="mr-cover-title">' + esc(m.title) + '</h1><p class="mr-cover-sub">' + esc(m.subtitle) + '</p></div>' +
       '<div class="mr-cover-stripe"></div>' +
       '<div class="mr-cover-white"><p class="mr-cover-kicker">Executive Report</p>' +
@@ -1606,7 +1606,7 @@
     try {
       reportWindow.opener = null;
       reportWindow.document.title = "Preparing Monderman report";
-      reportWindow.document.body.innerHTML = '<main style="font:16px/1.5 system-ui,sans-serif;max-width:42rem;margin:12vh auto;padding:2rem;color:#17333a"><p style="letter-spacing:.14em;text-transform:uppercase;font-size:.75rem">Monderman</p><h1 style="font-size:1.6rem">Preparing report…</h1><p>The saved result is loading securely.</p></main>';
+      reportWindow.document.body.innerHTML = '<main style="font:16px/1.5 system-ui,sans-serif;max-width:42rem;margin:12vh auto;padding:2rem;color:#17333a"><p style="letter-spacing:.14em;text-transform:uppercase;font-size:.75rem">Monderman.</p><h1 style="font-size:1.6rem">Preparing report…</h1><p>The saved result is loading securely.</p></main>';
     } catch (_error) {}
     return reportWindow;
   }

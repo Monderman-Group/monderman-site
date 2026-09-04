@@ -117,9 +117,14 @@ def validate(path: Path) -> None:
         ]
         if not bleed_fixes:
             raise AssertionError("cover background does not reach the bottom media-box edge")
-        require_word(
+        cover_wordmark = require_word(
             cover, "Monderman", size=14.5, font_fragment="75-Bold", color=(1.0, 1.0, 1.0)
         )
+        cover_period = require_word(
+            cover, ".", size=14.5, font_fragment="75Bd", color=(1.0, 1.0, 1.0)
+        )
+        if not close(cover_period["x0"], cover_wordmark["x1"]):
+            raise AssertionError("cover wordmark period is not set at the natural continuation point")
         require_word(
             cover, "Built", size=28.0, font_fragment="75-Bold", color=(1.0, 1.0, 1.0)
         )
@@ -173,6 +178,11 @@ def validate(path: Path) -> None:
         require_word(
             back, "Governance,", size=8.6, font_fragment="56-Italic", color=(0.290196, 0.333333, 0.352941)
         )
+        closing_wordmark = require_word(
+            back, "Monderman.", size=16.0, font_fragment="75Bd", color=(0.047059, 0.431373, 0.470588)
+        )
+        if not close((closing_wordmark["x0"] + closing_wordmark["x1"]) / 2.0, 316.97, 0.25):
+            raise AssertionError("closing wordmark is not centered with the folded-map mark")
 
         for number, page in enumerate(document.pages[1:], 2):
             body_words = [

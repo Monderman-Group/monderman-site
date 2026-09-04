@@ -16,7 +16,6 @@ MID = (11, 52, 61)
 BOTTOM = (4, 40, 47)
 CREAM = (250, 250, 248)
 TEAL_LIGHT = (156, 196, 201)
-ORANGE = (201, 130, 31)
 
 
 def interpolate(a: tuple[int, int, int], b: tuple[int, int, int], t: float) -> tuple[int, int, int]:
@@ -55,8 +54,7 @@ bold = ImageFont.truetype(str(FONT_DIR / "NeueHaasGroteskText-Bold.ttf"), 76)
 roman = ImageFont.truetype(str(FONT_DIR / "NeueHaasGroteskText-Roman.ttf"), 34)
 medium = ImageFont.truetype(str(FONT_DIR / "NeueHaasGroteskText-Medium.ttf"), 20)
 
-draw.text((250, 111), "Monderman", font=bold, fill=CREAM)
-draw.rectangle((252, 217, 266, 231), fill=ORANGE)
+draw.text((250, 111), "Monderman.", font=bold, fill=CREAM)
 draw.text((250, 414), "Organizations deliver at the speed of", font=roman, fill=CREAM)
 draw.text((250, 459), "their administrative reality.", font=roman, fill=TEAL_LIGHT)
 draw.text((76, 551), "MONDERMAN.COM", font=medium, fill=TEAL_LIGHT, spacing=4)
