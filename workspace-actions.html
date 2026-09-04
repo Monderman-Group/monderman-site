@@ -882,20 +882,20 @@ body{transition:background-color .25s ease, color .25s ease}
       const tryParse = v => { if(v==null) return null; if(typeof v==="string"){ try{ return JSON.parse(v); }catch(e){ return null; } } return v; };
       const full = tryParse(run.full_result_json) || {};
       const sources = [
+        full.interpretive_prose?.priority_actions,
+        full.interpretive_prose?.priorityActions,
+        full.interpretiveProse?.priority_actions,
+        full.interpretiveProse?.priorityActions,
         tryParse(run.priority_actions_json),
-        tryParse(run.key_findings_json),
         full.priority_actions,
         full.priorityActions,
         full.intervention_priorities,
         full.intervention_order,
+        tryParse(run.key_findings_json),
         full.key_findings,
         full.keyFindings,
-        full.interpretive_prose?.priority_actions,
-        full.interpretive_prose?.priorityActions,
         full.interpretive_prose?.key_findings,
         full.interpretive_prose?.keyFindings,
-        full.interpretiveProse?.priority_actions,
-        full.interpretiveProse?.priorityActions,
         full.interpretiveProse?.key_findings,
         full.interpretiveProse?.keyFindings
       ];
