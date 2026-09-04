@@ -120,6 +120,7 @@
     const API_BASE = "https://monderman-api.onrender.com";
     const params = new URLSearchParams(location.search);
     const sessionId = params.get("session_id") || "";
+    const checkoutOrganizationId = params.get("organization_id") || "";
     const mark = document.getElementById("confirmationMark");
     const title = document.getElementById("confirmationTitle");
     const intro = document.getElementById("confirmationIntro");
@@ -157,7 +158,10 @@
       const response = await fetch(`${API_BASE}/api/billing/confirm-checkout-session`, {
         method: "POST",
         headers: { "content-type":"application/json", authorization:`Bearer ${token}` },
-        body: JSON.stringify({ session_id: sessionId })
+        body: JSON.stringify({
+          session_id: sessionId,
+          organization_id: checkoutOrganizationId
+        })
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok || result.ok !== true) throw new Error(result.error || "The purchase could not be verified.");

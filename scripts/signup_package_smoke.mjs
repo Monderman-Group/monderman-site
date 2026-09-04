@@ -8,6 +8,8 @@ const workspace = readFileSync("workspace.html", "utf8");
 for (const token of [
   "Secure purchase confirmation",
   "/api/billing/confirm-checkout-session",
+  'params.get("organization_id")',
+  "organization_id: checkoutOrganizationId",
   "entitlementConfirmed",
   "purchase.amountFormatted",
   "result.invoice?.hostedUrl",
