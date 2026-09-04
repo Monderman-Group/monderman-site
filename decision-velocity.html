@@ -2983,6 +2983,9 @@ async function finalizeAdaptiveRun() {
 if (!state.runId) return;
 if (state.finalizeInFlight) return;
 state.finalizeInFlight = true;
+const injectCertificationOutage = new URLSearchParams(window.location.search).get("certification_provider_outage") === "1"
+  && state.certificationProviderOutageInjected !== true;
+if (injectCertificationOutage) state.certificationProviderOutageInjected = true;
 showStage(processingStage);
 resetProcessingUI();
 setProcessingStep(0, "Finalizing adaptive run...");
@@ -3002,7 +3005,7 @@ assignment_token: (window.MondermanAssignment && window.MondermanAssignment.acti
 // Certification-only fault injection. The API accepts this only for its
 // explicit synthetic-organization allowlist, so a copied URL cannot affect a
 // customer workspace.
-certification_force_provider_outage: new URLSearchParams(window.location.search).get("certification_provider_outage") === "1" || undefined,
+certification_force_provider_outage: injectCertificationOutage || undefined,
 confidenceLevel: state.preflight.confidenceLevel,
 confidence_level: state.preflight.confidenceLevel,
 rawExperience: {
