@@ -22,6 +22,7 @@ assert.ok((analysis.match(/"X-Monderman-Organization-Id"/g) || []).length >= 3, 
 
 assert.match(actions, /function apiAuthHeaders[\s\S]{0,450}"X-Monderman-Organization-Id"/);
 assert.match(actions, /from\("diagnostic_runs"\)[\s\S]{0,520}\.eq\("organization_id", state\.orgId\)/);
+assert.match(actions, /full\.interpretive_prose\?\.priority_actions/, "Action Plans imports post-narrative Diagnostic actions");
 
 assert.match(synthesisReport, /"X-Monderman-Organization-Id":organizationId/);
 assert.match(synthesisReport, /from\("synthesis_runs"\)[\s\S]{0,220}\.eq\("organization_id",organizationId\)\.eq\("id",id\)/);

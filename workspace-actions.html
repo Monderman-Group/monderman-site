@@ -889,7 +889,15 @@ body{transition:background-color .25s ease, color .25s ease}
         full.intervention_priorities,
         full.intervention_order,
         full.key_findings,
-        full.keyFindings
+        full.keyFindings,
+        full.interpretive_prose?.priority_actions,
+        full.interpretive_prose?.priorityActions,
+        full.interpretive_prose?.key_findings,
+        full.interpretive_prose?.keyFindings,
+        full.interpretiveProse?.priority_actions,
+        full.interpretiveProse?.priorityActions,
+        full.interpretiveProse?.key_findings,
+        full.interpretiveProse?.keyFindings
       ];
       const seen = new Set();
       return sources.flatMap(value=>Array.isArray(value)?value:[]).map(f=>({ label:String(findingLabel(f)).trim(), raw:f }))
