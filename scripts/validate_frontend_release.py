@@ -64,6 +64,21 @@ for x in ['unlimited people','People you can ask, per year']:
  if x in pr:e.append('pricing '+x)
 if 'payment,,' in (r/'security.html').read_text():e.append('double comma')
 
+# Every participant-visible Diagnostic report must disclose the exact sizing
+# inputs, attribution share, capacity treatment, and recoverable-share logic.
+for name in ['structural-clarity.html','decision-velocity.html','operational-systems.html','institutional-performance.html']:
+ t=(r/name).read_text(errors='ignore')
+ for token in [
+  'function buildExposureMethodDisclosure(exposure)',
+  'function exposureAssumptionRows(exposure)',
+  '${buildExposureMethodDisclosure(result?.exposure)}',
+  '...exposureAssumptionRows(result?.exposure)',
+  'Burden attribution*',
+  'Capacity assumption*',
+  'Recoverable share*',
+ ]:
+  if token not in t:e.append(name+': complete exposure-method disclosure '+token)
+
 # Surgical regression guards added 2026-08-13.
 idx=(r/'index.html').read_text(errors='ignore')
 if '<body class="canonical-green-shell">' not in idx:

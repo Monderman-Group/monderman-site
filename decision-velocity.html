@@ -1322,6 +1322,39 @@ const band = buildCurrencyConfidenceBand(value);
 return band.label || "Not estimated";
 }
 
+function buildExposureMethodDisclosure(exposure) {
+const ex = exposure && typeof exposure === "object" ? exposure : {};
+const model = ex.model && typeof ex.model === "object" ? ex.model : {};
+if (!model.formula) return '<p><b>Exposure model.</b> No financial estimate was produced for this run.</p>';
+const attributionText = model.attributable_burden_share_percent != null
+  ? `${Number(model.attributable_burden_share_percent).toLocaleString()}%`
+  : "not calculated for this run";
+const inputs = [
+  model.input_hours_per_run != null ? `${Number(model.input_hours_per_run).toLocaleString()} hours per run` : null,
+  model.annual_cycles != null ? `${Number(model.annual_cycles).toLocaleString()} annual cycles` : null,
+  ex.average_hourly_cost != null ? `${formatCurrency(ex.average_hourly_cost)} average hourly cost` : null,
+  ex.total_capacity_hours != null ? `${Number(ex.total_capacity_hours).toLocaleString()} available capacity hours` : null
+].filter(Boolean).join("; ");
+return [
+  `<p><b>Annual burden hours.</b> ${escapeHtml(model.formula)}. The attribution used in this run is ${attributionText}.</p>`,
+  inputs ? `<p><b>Inputs used.</b> ${escapeHtml(inputs)}.</p>` : "",
+  `<p><b>Capacity treatment.</b> ${escapeHtml(model.capacity_formula || "Available capacity was not estimated.")}. ${escapeHtml(model.capacity_limit_rule || "")}</p>`,
+  `<p><b>Cost and recovery.</b> ${escapeHtml(model.annual_cost_formula || "Annual cost was not estimated.")}. ${escapeHtml(model.recoverable_share_formula || "")}. ${escapeHtml(model.recoverable_share_bands || "")}. ${escapeHtml(model.recoverable_cost_formula || "")}.</p>`
+].filter(Boolean).join("");
+}
+
+function exposureAssumptionRows(exposure) {
+const ex = exposure && typeof exposure === "object" ? exposure : {};
+const model = ex.model && typeof ex.model === "object" ? ex.model : {};
+if (!model.formula) return [];
+return [
+  { label: "Burden attribution*", value: model.attributable_burden_share_percent != null ? `${Number(model.attributable_burden_share_percent).toLocaleString()}%` : "--", note: model.attribution_formula || model.formula },
+  { label: "Capacity assumption*", value: ex.total_capacity_hours != null ? `${Number(ex.total_capacity_hours).toLocaleString()} hrs` : "--", note: [model.capacity_formula, model.capacity_limit_rule].filter(Boolean).join(". ") },
+  { label: "Recoverable share*", value: ex.recoverable_share_percent != null ? `${Number(ex.recoverable_share_percent).toLocaleString()}%` : "--", note: [model.recoverable_share_formula, model.recoverable_share_bands].filter(Boolean).join(". ") }
+];
+}
+
+
 
 function roundDirectionalHours(value) {
 const n = Number(value);
@@ -5081,7 +5114,7 @@ ${decisionReviewPage}
     <div class="ring-row"><svg class="ring" viewBox="0 0 58 58"><circle cx="29" cy="29" r="23" fill="none" stroke="#EAE6DD" stroke-width="7"/><circle cx="29" cy="29" r="23" fill="none" stroke="#C9821F" stroke-width="7" stroke-dasharray="${insight.available ? Math.round(insight.score * 1.45) : 0} 145" transform="rotate(-90 29 29)"/></svg><div><div style="font-size:24px;font-weight:700">${insight.available ? Math.round(insight.score) : "Unavailable"}</div><p class="muted">Run evidence score${insight.available ? ` · ${escapeHtml(insight.band)}` : " · Awaiting data"}<br>${insight.available ? "Single-run signal-quality indicator, not a correctness score." : "Run evidence could not be loaded from the diagnostic backend."}</p></div></div>
     <p>${insight.available ? "This single-run evidence context reflects run length and self-reported input confidence. It is not a population measure and is separate from Depth Synthesis and Cross-Lens Synthesis evidence bands." : "The single-run evidence-context field could not be retrieved for this run; the rest of the report remains valid."}</p>
     <h3>What would strengthen the next read</h3><div class="method-box">${nextRunBullets.map((item) => `<p>• ${safeWords(item, 42)}</p>`).join("")}</div>
-    <h3>What the figures represent</h3><div class="method-box"><p>* Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so the organization can decide whether the pattern is worth investigating further. They should not be cited externally as audited measurements, and they should not be used as the basis for compensation decisions, performance reviews, or formal financial planning.</p></div>
+    <h3>What the figures represent</h3><div class="method-box"><p>* Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so the organization can decide whether the pattern is worth investigating further. They should not be cited externally as audited measurements, and they should not be used as the basis for compensation decisions, performance reviews, or formal financial planning.</p>${buildExposureMethodDisclosure(result?.exposure)}</div>
     <h3 style="margin-top:20px">Where Monderman fits</h3><p>Monderman is built for organizations that need a structured, repeatable read on decision-pathway drag - not a one-off consulting engagement. The Diagnostic surfaces patterns; accountable decision-makers choose what to do about them. This report is the shared artifact of that read, suitable for circulation across the operational, managerial, and senior levels that need to engage with the same picture.</p><p class="muted" style="font-size:9px;margin-top:18px">Prepared by Monderman's diagnostic engine.</p>
   </div>
 </section>
@@ -5699,7 +5732,8 @@ renderTableBody("costCompositionBody", [
 { label: "Average hourly cost*", value: formatCurrency(result?.exposure?.average_hourly_cost || payload?.hourlyCost), note: "Directional labor-cost assumption per materially involved participant." },
 { label: "Annual labor hours*", value: result?.exposure?.annual_hours ? formatRoundedHours(result.exposure.annual_hours, { suffix: " hrs" }) : "--", note: "Modeled across the workflow volume you provided." },
 { label: "Annual labor exposure*", value: formatEstimateCurrencyRange(result?.exposure?.annual_cost), note: "Directional labor-cost impact from keeping the workflow moving." },
-{ label: "Capacity drag*", value: formatCapacityDrag(result?.exposure), note: "Estimated share of capacity absorbed by structural drag." }
+{ label: "Capacity drag*", value: formatCapacityDrag(result?.exposure), note: "Estimated share of capacity absorbed by structural drag." },
+...exposureAssumptionRows(result?.exposure)
 ], (row) => [`<td>${escapeHtml(row.label)}</td>`, `<td>${escapeHtml(row.value)}</td>`, `<td>${escapeHtml(row.note)}</td>`]);
 
 const roleRows = asArray(result.labor_profile).filter((row) => row && (hasMeaningfulValue(row.people) || row.significance || row.role));
