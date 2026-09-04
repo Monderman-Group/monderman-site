@@ -47,6 +47,9 @@ function validateCompletionContract(source, page = "fixture") {
   assert.match(finalize, /narrativePending/, `${page}: persisted-run narrative recovery missing`);
   assert.match(finalize, /retryFinalizeBtn/, `${page}: retry control missing`);
   assert.match(finalize, /Open saved result(?:s)? in Workspace/, `${page}: Workspace recovery route missing`);
+  if (page === "decision-velocity.html") {
+    assert.match(finalize, /certification_force_provider_outage:[\s\S]*certification_provider_outage/, `${page}: synthetic provider-outage trigger missing`);
+  }
   assert.match(source, /href="workspace-diagnostics\.html"/, `${page}: Workspace target missing`);
   assert.match(source, /Start over\? This clears all your answers/, `${page}: restart confirmation missing`);
 }

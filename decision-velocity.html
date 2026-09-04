@@ -2999,6 +2999,10 @@ body: JSON.stringify({
 // Campaign runs: the token lets this authoritative finalize persist and
 // close the assignment without charging a signed-in recipient's own quota.
 assignment_token: (window.MondermanAssignment && window.MondermanAssignment.active && window.MondermanAssignment.active()) ? window.MondermanAssignment.token() : undefined,
+// Certification-only fault injection. The API accepts this only for its
+// explicit synthetic-organization allowlist, so a copied URL cannot affect a
+// customer workspace.
+certification_force_provider_outage: new URLSearchParams(window.location.search).get("certification_provider_outage") === "1" || undefined,
 confidenceLevel: state.preflight.confidenceLevel,
 confidence_level: state.preflight.confidenceLevel,
 rawExperience: {
