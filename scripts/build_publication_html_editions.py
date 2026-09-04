@@ -649,10 +649,10 @@ def build_page(publication: Publication, standard_footer: str) -> None:
   <meta name="twitter:description" content="{deck}">
   <meta name="twitter:image" content="https://www.monderman.com/assets/research/{publication.slug}-social.png">
   <meta name="twitter:image:alt" content="{title}, a Monderman {category}">
-  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260903-optical1">
-  <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260903-optical1">
-  <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260903-optical1">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260903-optical1">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260903-map1">
+  <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260903-map1">
+  <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260903-map1">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260903-map1">
   <link rel="stylesheet" href="publication-html.css?v=20260903-html1">
   <link rel="stylesheet" href="canonical-site-shell.css?v=20260830-readiness1">
 </head>

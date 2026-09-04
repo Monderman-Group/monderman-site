@@ -168,7 +168,7 @@ for path in html_files:
     require(not re.search(r"(?im)^\s*(?:warning:\s*truncated output|total output lines:)", page), f"{path.name}: tool-output warning is customer-visible")
     require(not re.search(r">\s*:\s*</(?:p|div|span)>", without_html_comments(page), re.I), f"{path.name}: isolated colon placeholder is customer-visible")
     links = [attrs for tag, attrs in document.head_tags if tag == "link"]
-    favicon_cache_key = "20260830-cert1" if path.name in {"privacy.html", "terms.html"} else "20260903-optical1"
+    favicon_cache_key = "20260830-cert1" if path.name in {"privacy.html", "terms.html"} else "20260903-map1"
     expected_links = [
         {"rel": "icon", "type": "image/svg+xml", "href": f"favicon.svg?v={favicon_cache_key}"},
         {"rel": "icon", "type": "image/x-icon", "sizes": "any", "href": f"favicon.ico?v={favicon_cache_key}"},
@@ -186,8 +186,8 @@ for token in [
     'viewBox="0 0 32 32"',
     '<linearGradient id="bg"',
     'stroke="#FFFFFF"',
-    'M6 9.25L11 5.75L16 8.25L21 5.75L26 9.25',
-    'M11 5.75V22.5M16 8.25V25M21 5.75V22.5',
+    'M6 9.1L11 5.65L16 8.2L21 5.65L26 9.1',
+    'M11 5.65V22.8M16 8.2V26M21 5.65V22.8',
 ]:
     require(token in favicon_svg, f"optically balanced favicon contract missing: {token}")
 

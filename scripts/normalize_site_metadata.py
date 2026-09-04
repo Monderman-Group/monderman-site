@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CACHE_KEY = "20260903-optical1"
+CACHE_KEY = "20260903-map1"
 SOCIAL_IMAGE = f"https://www.monderman.com/assets/brand/monderman-social-card.png?v={CACHE_KEY}"
 
 FAVICONS = f'''  <link rel="icon" type="image/svg+xml" href="favicon.svg?v={CACHE_KEY}">
