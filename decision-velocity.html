@@ -3016,9 +3016,9 @@ async function finalizeAdaptiveRun() {
 if (!state.runId) return;
 if (state.finalizeInFlight) return;
 state.finalizeInFlight = true;
-const injectCertificationOutage = new URLSearchParams(window.location.search).get("certification_provider_outage") === "1"
-  && state.certificationProviderOutageInjected !== true;
-if (injectCertificationOutage) state.certificationProviderOutageInjected = true;
+const injectCertificationNarrativeFailure = new URLSearchParams(window.location.search).get("certification_narrative_failure") === "1"
+  && state.certificationNarrativeFailureInjected !== true;
+if (injectCertificationNarrativeFailure) state.certificationNarrativeFailureInjected = true;
 showStage(processingStage);
 resetProcessingUI();
 setProcessingStep(0, "Finalizing adaptive run...");
@@ -3038,7 +3038,7 @@ assignment_token: (window.MondermanAssignment && window.MondermanAssignment.acti
 // Certification-only fault injection. The API accepts this only for its
 // explicit synthetic-organization allowlist, so a copied URL cannot affect a
 // customer workspace.
-certification_force_provider_outage: injectCertificationOutage || undefined,
+certification_force_narrative_failure: injectCertificationNarrativeFailure || undefined,
 confidenceLevel: state.preflight.confidenceLevel,
 confidence_level: state.preflight.confidenceLevel,
 rawExperience: {
@@ -4781,6 +4781,7 @@ const footer = (page) => `<div class="top"><span class="brand">MONDERMAN.</span>
 const experienceLayer = payload?.experientialLayer || payload?.experiential_layer || buildExperienceLayer();
 const hasExperienceLayer = Boolean(experienceLayer?.hasInput && Array.isArray(experienceLayer.entries) && experienceLayer.entries.length);
 const experienceSynthesis = clean(
+  (hasExperienceLayer ? experienceLayer?.synthesis : "") ||
   result?.narrative?.experiential_synthesis ||
   experienceLayer?.synthesis ||
   ""
