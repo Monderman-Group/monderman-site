@@ -86,6 +86,19 @@ for name in ['structural-clarity.html','decision-velocity.html','operational-sys
  ]:
   if token not in t:e.append(name+': executive PDF final-page pagination '+token)
 
+# Operational Systems must place its intake economics on the canonical API
+# surface at both start and finalize. The API also accepts the historical
+# metadata envelope, but the current page must never depend on that fallback.
+os_page=(r/'operational-systems.html').read_text(errors='ignore')
+for token in [
+ 'peopleAffected: state.preflight.peopleInvolved,',
+ 'peopleInvolved: state.preflight.peopleInvolved,',
+ 'hourlyCost: state.preflight.hourlyCost,',
+ 'annualVolume: state.preflight.annualVolume,',
+ 'meetingHours: state.preflight.meetingHours,',
+]:
+ if os_page.count(token)<2:e.append('operational-systems.html: start/finalize sizing handoff '+token)
+
 # Surgical regression guards added 2026-08-13.
 idx=(r/'index.html').read_text(errors='ignore')
 if '<body class="canonical-green-shell">' not in idx:
