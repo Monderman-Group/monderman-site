@@ -55,6 +55,12 @@
     (typeof window !== "undefined" && window.MONDERMAN_API_BASE) ||
     "https://monderman-api.onrender.com";
 
+  // Interview collection is outside the certified bounded-pilot surface.
+  // It stays unavailable unless a later reviewed release opts in on both
+  // the browser and API. Guided form remains the unconditional fallback.
+  var PILOT_INTERVIEW_ENABLED =
+    typeof window !== "undefined" && window.MONDERMAN_INTERVIEW_MODE_ENABLED === true;
+
   var TURN_TIMEOUT_MS = 30000;
   var MAX_FOLLOWUPS = 2;   // backend enforces the same ceiling
   var MAX_HISTORY = 8;     // matches the backend's transcript window
@@ -140,6 +146,11 @@
   function mountToggle(container) {
     if (!container) return;
     _toggleHost = container;
+    if (!PILOT_INTERVIEW_ENABLED) {
+      _enabled = false;
+      _toggleHost.innerHTML = "";
+      return;
+    }
     injectStyles();
     renderToggle();
   }
@@ -442,6 +453,10 @@
     //        rerender(), afterControl(item)?, elements:{ questionBody } }
     init: function (cfg) {
       _cfg = cfg || null;
+      if (!PILOT_INTERVIEW_ENABLED) {
+        _enabled = false;
+        return this;
+      }
       var urlMode = String(qs("mode") || "").toLowerCase();
       if (urlMode === "interview") _enabled = true;
       if (urlMode === "form" || urlMode === "guided_form") _enabled = false;
@@ -452,6 +467,12 @@
     // "choice" (or absent) delegates to the participant.
     applyAssignment: function (assignmentCfg) {
       if (!assignmentCfg) return this;
+      if (!PILOT_INTERVIEW_ENABLED) {
+        _enabled = false;
+        _locked = true;
+        renderToggle();
+        return this;
+      }
       var mode = String(assignmentCfg.response_mode || "").toLowerCase();
       if (mode === "interview" || mode === "form") {
         _enabled = mode === "interview";
@@ -465,10 +486,14 @@
 
     mountToggle: mountToggle,
 
-    active: function () { return !!(_enabled && _cfg); },
+    active: function () { return !!(PILOT_INTERVIEW_ENABLED && _enabled && _cfg); },
     locked: function () { return _locked; },
 
     setEnabled: function (on) {
+      if (!PILOT_INTERVIEW_ENABLED) {
+        _enabled = false;
+        return this;
+      }
       if (_locked) return this;
       _enabled = !!on;
       renderToggle();

@@ -28,6 +28,7 @@ on:
       - 'feedback-widget.js'
       - 'pilot-feedback.html'
       - 'self-diagnostic-draft.js'
+      - 'interview-mode.js'
       - 'workspace-access-gate.js'
       - 'workspace.html'
       - 'workspace-*.html'
@@ -50,6 +51,7 @@ on:
       - 'scripts/validate_ordinary_page_print.py'
       - 'scripts/validate_legal_terms_protection.py'
       - 'scripts/diagnostic_draft_recovery_smoke.mjs'
+      - 'scripts/interview_disabled_smoke.mjs'
       - 'scripts/workspace_legal_gate_smoke.mjs'
       - 'scripts/signin_email_otp_smoke.mjs'
       - 'scripts/signup_package_smoke.mjs'
@@ -102,6 +104,7 @@ on:
       - 'feedback-widget.js'
       - 'pilot-feedback.html'
       - 'self-diagnostic-draft.js'
+      - 'interview-mode.js'
       - 'workspace-access-gate.js'
       - 'workspace.html'
       - 'workspace-*.html'
@@ -124,6 +127,7 @@ on:
       - 'scripts/validate_ordinary_page_print.py'
       - 'scripts/validate_legal_terms_protection.py'
       - 'scripts/diagnostic_draft_recovery_smoke.mjs'
+      - 'scripts/interview_disabled_smoke.mjs'
       - 'scripts/workspace_legal_gate_smoke.mjs'
       - 'scripts/signin_email_otp_smoke.mjs'
       - 'scripts/signup_package_smoke.mjs'
@@ -192,6 +196,7 @@ jobs:
           node --check scripts/personalized_pattern_pilot_browser_smoke.mjs
           node --check scripts/pilot_feedback_browser_smoke.mjs
           node scripts/diagnostic_draft_recovery_smoke.mjs
+          node scripts/interview_disabled_smoke.mjs
           node scripts/signin_email_otp_smoke.mjs
           node scripts/workspace_legal_gate_smoke.mjs
           node scripts/signup_package_smoke.mjs
