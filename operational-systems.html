@@ -709,14 +709,14 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
           </div>
         </div>
       </div>
-      <div class="score-meta-strip"><div class="score-meta-note"><span class="score-meta-pill" id="scoreMetaIndustry">Industry: --</span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaShapeText">Profile shape: --</span> <span class="insight-help" id="profileShapeInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="profileShapeTooltip"><strong>Profile shape</strong><br>Concentrated means one burden source dominates. Distributed means multiple sources materially contribute. Hidden means the visible workflow likely understates the real upkeep cost.</span></span></span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaTrajectoryText">Self-reported change: --</span> <span class="insight-help" id="trajectoryInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="trajectoryTooltip"><strong>Self-reported change</strong><br>This records the participant's reported change direction in the current run. It is not a measured longitudinal trend.</span></span></span></div></div>
+      <div class="score-meta-strip"><div class="score-meta-note"><span class="score-meta-pill" id="scoreMetaIndustry">Industry: --</span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaShapeText">Profile shape: --</span> <span class="insight-help" id="profileShapeInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="profileShapeTooltip"><strong>Profile shape</strong><br>Concentrated means one burden source dominates the submitted responses. Distributed means multiple sources contribute. Hidden means the answers include upkeep pressure not represented as a separate workflow step; no additional cost is inferred.</span></span></span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaTrajectoryText">Self-reported change: --</span> <span class="insight-help" id="trajectoryInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="trajectoryTooltip"><strong>Self-reported change</strong><br>This records the participant's reported change direction in the current run. It is not a measured longitudinal trend.</span></span></span></div></div>
     </div></section>
 
     <section class="primary-waterfall"><div class="viz-card"><h4>Capacity allocation</h4><div class="capacity-waterfall"><div id="effortFlowSankey" style="margin-bottom:6px;"></div><div class="capacity-bar" id="capacityWaterfall"></div><div class="capacity-legend"><span><span class="legend-dot dot-green"></span>Productive work</span><span><span class="legend-dot dot-gold"></span>Necessary administrative load</span><span><span class="legend-dot" style="background:#B0392F"></span>Recoverable drag</span></div><p class="viz-note" id="capacityWaterfallNote">Capacity allocation view will appear here after scoring.</p></div></div></section>
 
     <section class="diagnosis-grid">
       <article class="diagnosis-card"><p class="summary-label">Current operating burden</p><p class="summary-value" id="cycleConditionValue">--</p><p class="summary-sub tight" id="cycleConditionSub">Overall operating-environment diagnosis</p></article>
-      <article class="diagnosis-card"><p class="summary-label">Primary burden source</p><p class="summary-value" id="burdenConstraintValue">--</p><p class="summary-sub tight" id="burdenConstraintSub">Most likely driver of operational drag</p></article>
+      <article class="diagnosis-card"><p class="summary-label">Primary burden source</p><p class="summary-value" id="burdenConstraintValue">--</p><p class="summary-sub tight" id="burdenConstraintSub">Largest measured burden source in this run</p></article>
       <article class="diagnosis-card"><p class="summary-label">Burden diagnosis</p><p class="summary-value" id="tradeoffDiagnosisValue">--</p><p class="summary-sub tight" id="tradeoffDiagnosisSub">Is current administrative weight justified?</p></article>
     </section>
 
@@ -1071,7 +1071,7 @@ long: "Built for people closest to the work. Best for surfacing duplicate entry,
 managerial: {
 label: "Managerial",
 header: "Managerial perspective selected",
-subcopy: "This version is tuned for people coordinating teams and execution. It emphasizes where reporting burden, exception handling, coordination load, and administrative upkeep are consuming team capacity.",
+subcopy: "This version is tuned for people coordinating teams and execution. It records reported pressure from reporting burden, exception handling, coordination load, and administrative upkeep without treating that pressure as observed capacity loss.",
 aside: "What the managerial version is built to surface",
 long: "Built for people coordinating teams and execution. Best for identifying reporting burden, systems friction, recurring review load, and where administrative work is crowding out operating work."
 },
@@ -4133,7 +4133,7 @@ if (note) note.textContent = result?.trajectory?.note || "Single-run directional
   */
   function buildConcentrationNarrative(pattern) {
   if (pattern.isConcentrated) {
-  return `The composition is concentrated rather than distributed. ${escapeHtml(pattern.dominant.label)} carries ${pattern.dominantPct}% of the visible burden by itself. That supports testing this source first; whether the workflow materially improves should be verified against the same measures after intervention.`;
+  return `The composition is concentrated rather than distributed. ${escapeHtml(pattern.dominant.label)} carries ${pattern.dominantPct}% of the visible burden in this run. That identifies a bounded first test; a later score difference would not by itself establish causation.`;
   } else if (pattern.isDistributed) {
   return `The composition is distributed rather than concentrated. No single source carries more than ${pattern.dominantPct}% of the visible burden, so no single source explains the condition. That supports examining path-level design and sequencing several burden tests rather than assuming one layer will resolve the whole pattern.`;
   } else if (pattern.hasSignal) {
@@ -4153,7 +4153,7 @@ if (note) note.textContent = result?.trajectory?.note || "Single-run directional
   if (direction === "up") {
   return "The participant reported that burden has grown over the stated period. That makes a follow-up measurement timely, but it does not establish a continuing trend or the cost of delay.";
   } else if (direction === "down") {
-  return "The trajectory signal suggests some pressure may be easing. Verify that with measurement before assuming the problem is self-correcting; perceived improvement and structural improvement are not the same.";
+  return "The participant reported easing pressure. This is a single-run response, not a measured trend; compare the same scope in a later run without inferring cause.";
   } else {
   return "The trajectory signal suggests relative stability. Stability here should not be confused with strength: a steady-state burden can still be carrying meaningful drag that the organization has simply learned to tolerate.";
   }
@@ -4484,9 +4484,9 @@ const crossRoleBullet = `Run this diagnostic from ${otherRoles} to test whether 
 // Longitudinal comparison: gated on trajectory direction so the cadence
 // recommendation matches what this run actually surfaced.
 const longitudinalBullet = trajectoryDirection === "up"
-? "Re-run this diagnostic in six months to confirm whether the rising trajectory holds. Structured comparison turns a directional signal into measurable change and distinguishes real drift from a temporary spike."
+? "Re-run this diagnostic in six months and compare the measurements. This single-run response is not a longitudinal trend or forecast."
 : trajectoryDirection === "down"
-? "Re-run this diagnostic in six months to confirm the easing trajectory is durable rather than a temporary lull. Sustained improvement under repeated measurement is how earlier structural work is shown to be paying off."
+? "Re-run this diagnostic in six months and compare the measurements. A repeated difference does not by itself establish durability, causation, or realized recovery."
 : "Re-run this diagnostic in six to twelve months to detect drift before it becomes structural. Flat trajectories often mask gradual accumulation that only becomes visible through repeated measurement.";
 
 // Adjacent-workflow coverage: tests whether the pattern is workflow-specific
@@ -4686,7 +4686,7 @@ const roleEvidence = currentRole === "managerial"
   ? ["An operational-perspective run would test whether the reported burden is visible at the point of work.", "A senior-leader run would test whether the formal operating picture matches the managerial read."]
   : currentRole === "operational"
   ? ["A managerial-perspective run would test whether local friction is being absorbed through coordination or escalation.", "A senior-leader run would test whether the operating burden is visible at the governance level."]
-  : ["An operational-perspective run would test how the burden appears at the point of work.", "A managerial-perspective run would test how much compensating coordination is required to sustain output."];
+  : ["An operational-perspective run would test how the burden appears at the point of work.", "A managerial-perspective run would record reported compensating coordination alongside the same output scope without inferring a sustaining mechanism."];
 const updateReadItems = (Array.isArray(narrativeForReport.what_would_update_this_read) && narrativeForReport.what_would_update_this_read.length
   ? narrativeForReport.what_would_update_this_read.filter((item) => !new RegExp(`\\b${currentRole.replace("_", "[- ]")}[- ]perspective run\\b`, "i").test(String(item)))
   : [...roleEvidence, "Actual volume and cycle-time data would recalibrate the exposure range and show whether the issue is occasional or normalized."]

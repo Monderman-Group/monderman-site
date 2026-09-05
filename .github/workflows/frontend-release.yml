@@ -44,6 +44,8 @@ jobs:
         run: node scripts/interview_disabled_smoke.mjs
       - name: Quarantine participant evidence on every report surface
         run: node scripts/participant_evidence_boundary_smoke.mjs
+      - name: Reject predictive, causal, realized-savings, and generalized claims
+        run: node scripts/partner_visible_claims_smoke.mjs
       - name: Reject cross-Workspace Diagnostic persistence regressions
         run: node scripts/diagnostic_workspace_selection_smoke.mjs
       - name: Reject cross-Workspace data-surface regressions

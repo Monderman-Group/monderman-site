@@ -737,7 +737,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
           </div>
         </div>
       </div>
-      <div class="score-meta-strip"><div class="score-meta-note"><span class="score-meta-pill" id="scoreMetaIndustry">Industry: --</span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaShapeText">Clarity profile: --</span> <span class="insight-help" id="profileShapeInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="profileShapeTooltip"><strong>Clarity profile</strong><br>Concentrated means one dimension is clearly the primary legibility constraint. Distributed means clarity weaknesses are spread across dimensions. Self-contradictory means structural layers are producing incompatible signals.</span></span></span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaTrajectoryText">Change-pressure risk: --</span> <span class="insight-help" id="trajectoryInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="trajectoryTooltip"><strong>Change-pressure risk</strong><br>This single-run signal indicates whether current change conditions may increase drift risk. It does not measure improvement or decline over time.</span></span></span></div></div>
+      <div class="score-meta-strip"><div class="score-meta-note"><span class="score-meta-pill" id="scoreMetaIndustry">Industry: --</span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaShapeText">Clarity profile: --</span> <span class="insight-help" id="profileShapeInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="profileShapeTooltip"><strong>Clarity profile</strong><br>Concentrated means one dimension is the primary measured legibility constraint. Distributed means measured clarity weaknesses are spread across dimensions. Self-contradictory means the submitted answers contain incompatible structural signals.</span></span></span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaTrajectoryText">Reported change pressure: --</span> <span class="insight-help" id="trajectoryInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="trajectoryTooltip"><strong>Reported change pressure</strong><br>This is a participant response from the current run. It does not predict drift or measure improvement or decline over time.</span></span></span></div></div>
     </div></section>
 
     <section class="primary-waterfall"><div class="viz-card"><h4>Structural clarity by dimension</h4><div class="bar-stack" id="clarityDimensionBars"><p class="viz-note" id="clarityDimensionNote">Clarity dimension breakdown will appear here after scoring.</p></div></div><div class="viz-card"><h4>Where the capacity goes</h4><div id="effortFlowSankey"></div><p class="viz-note">Total annual capacity split across productive effort, structural overhead, and the published recoverable-cost estimate: directional, not audited.</p></div></section>
@@ -4214,13 +4214,13 @@ if (note) note.textContent = result?.trajectory?.note || "Single-run directional
   */
   function buildConcentrationNarrative(pattern) {
   if (pattern.isConcentrated) {
-  return `The composition is concentrated rather than distributed. ${escapeHtml(pattern.dominant.label)} carries ${pattern.dominantPct}% of the visible burden by itself, which makes the condition more fixable: leadership can target one source first and expect a real shift in the workflow. Distributed conditions look the same from the outside but require redesigning the path itself, not just removing a layer.`;
+  return `The composition is concentrated rather than distributed. ${escapeHtml(pattern.dominant.label)} carries ${pattern.dominantPct}% of the visible burden in this run. That identifies a bounded first test; it does not predict the result of changing it.`;
   } else if (pattern.isDistributed) {
-  return `The composition is distributed rather than concentrated. No single source carries more than ${pattern.dominantPct}% of the visible burden, which means the workflow is heavy in a systemic way. People inside the path are more likely to describe it as "the way things work here" than as one specific bottleneck. This pattern resists single-fix interventions; it usually requires path redesign, not layer removal.`;
+  return `The composition is distributed rather than concentrated. No single source carries more than ${pattern.dominantPct}% of the visible burden. Test more than one source and compare repeated measurements; this run does not establish that structural redesign is required.`;
   } else if (pattern.hasSignal) {
-  return `The composition shows ${escapeHtml(pattern.dominant.label.toLowerCase())} as the dominant visible clarity constraint at ${pattern.dominantPct}% of the total, with the remaining burden meaningfully distributed across the other dimensions. This middle pattern usually responds to focused intervention on the dominant source while watching for compensation in the others.`;
+  return `The composition shows ${escapeHtml(pattern.dominant.label.toLowerCase())} as the largest visible clarity constraint at ${pattern.dominantPct}% of the total, with the remaining burden distributed across other dimensions. Use it as a first test and remeasure the full profile.`;
   } else {
-  return "Burden composition signal is too low in this run to identify a dominant source. This usually indicates either an exceptionally light operating environment or insufficient diagnostic input depth: re-run with broader participant coverage to confirm which.";
+  return "The composition signal is too low in this run to identify a dominant source. The run cannot distinguish between light burden and insufficient input depth; broader participant coverage can test that uncertainty.";
   }
   }
 
@@ -4232,7 +4232,7 @@ if (note) note.textContent = result?.trajectory?.note || "Single-run directional
   */
   function buildTrajectoryNarrative(direction) {
   if (direction === "up") {
-  return "Current change conditions increase the risk that ambiguity will spread. This is a single-run risk signal, not evidence that the score has worsened over time.";
+  return "The participant reported rising change pressure. This is a single-run response, not evidence of spread, deterioration, or a measured longitudinal trend.";
   } else if (direction === "down") {
   return "Current inputs suggest lower change pressure. A repeated run is required before describing the structure as improving over time.";
   } else {
@@ -4585,7 +4585,7 @@ const qualitative = detectQualitativeOverride(payload);
 if (qualitative.type !== "none") return qualitative.summary;
 // SC: read from canonical_descriptor
 const scNote = result?.canonical_descriptor?.primary_constraint_note;
-const trajectory = result?.trajectory?.direction === "up" ? " and current change conditions increase the risk that the gap will widen" : "";
+const trajectory = result?.trajectory?.direction === "up" ? "; the participant also reported rising change pressure, which is not a measured forecast" : "";
 if (scNote) return `${scNote.replace(/\.\s*$/, "")}${trajectory}.`;
 const primary = derivePrimaryBurdenSource(result);
 const primaryNoteBase = (primary.note || "The structure is showing clarity constraints that require informal compensation").replace(/\.\s*$/, "");
@@ -4707,9 +4707,9 @@ const concentrationProse = (() => {
   const secondVal = Math.round(dims[entries[1].key]);
   const gap = secondVal - weakestVal;
   if (gap >= 12) {
-    return `The clarity profile is concentrated rather than distributed. ${weakest.label.charAt(0).toUpperCase() + weakest.label.slice(1)} scores ${weakestVal}: meaningfully below the next-weakest dimension at ${secondVal}. This makes the condition more targetable: leadership can focus on the single weakest dimension and expect a real shift in overall legibility, rather than redesigning the whole structure.`;
+    return `The clarity profile is concentrated rather than distributed. ${weakest.label.charAt(0).toUpperCase() + weakest.label.slice(1)} scores ${weakestVal}, below the next-weakest dimension at ${secondVal}. This identifies a bounded first test; it does not predict a change in overall legibility.`;
   }
-  return `The clarity profile is distributed rather than concentrated. The weakest dimensions cluster closely together (${weakestVal}–${secondVal}), which means legibility is softening across the structure rather than failing at one point. This pattern resists single-fix intervention; it usually indicates the structure needs broader redesign rather than a targeted repair of one dimension.`;
+  return `The clarity profile is distributed rather than concentrated. The weakest dimensions cluster closely together (${weakestVal}–${secondVal}). Test more than one dimension and compare repeated measurements; this run does not establish that broader redesign is required.`;
 })();
 const scDimDefs = [
   { key: "role_clarity", label: "Role clarity" },
@@ -5128,12 +5128,12 @@ return `<!doctype html>
   ${footer(3)}
   <div class="content">
     <p class="eyebrow">Where clarity is breaking down</p><h2>Clarity dimension breakdown</h2>
-    <p>The clarity dimension view shows where structural legibility is weakest across the five dimensions Monderman measures: role clarity, decision rights clarity, handoff integrity, accountability clarity, and governance proportionality. Lower scores indicate where the structure is least readable and most likely to require informal compensation.</p><p class="muted">The important signal is not only which dimension is lowest. The distribution also matters. A concentrated pattern points to a targeted legibility fix; a distributed pattern usually means structural redesign is needed across multiple dimensions.</p>
+    <p>The clarity dimension view shows where structural legibility is weakest across the five dimensions Monderman records: role clarity, decision rights clarity, handoff integrity, accountability clarity, and governance proportionality. Lower scores identify less-readable reported conditions; they do not establish resulting behavior.</p><p class="muted">The distribution helps select bounded tests. A concentrated pattern identifies one first test; a distributed pattern supports testing more than one dimension. Neither predicts the result of intervention.</p>
     <div class="panel" style="padding:16px">${scDimBars}</div>
     <h3 style="margin-top:24px">What the clarity profile tells us</h3>
     <p>${safeWords(concentrationProse, 76)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(compositionQuestion)}</p></div>
-    <div class="card-row"><div class="mini-card"><b>Concentrated constraint</b><p>One clarity dimension clearly dominates. Targeted legibility fix has high yield.</p></div><div class="mini-card"><b>Distributed constraint</b><p>No single dimension dominates. Structural redesign likely needed across multiple dimensions.</p></div></div>
+    <div class="card-row"><div class="mini-card"><b>Concentrated constraint</b><p>One clarity dimension dominates this run and can be used as a bounded first test.</p></div><div class="mini-card"><b>Distributed constraint</b><p>No single dimension dominates; test multiple dimensions and remeasure.</p></div></div>
   </div>
 </section>
 
@@ -5710,7 +5710,7 @@ $("scoreMetaTrajectoryText").textContent = `Change-pressure risk: ${result?.traj
 const insight = renderInsightDepth(payload);
 $("execMeaningText").textContent = executiveSummary.opportunity;
 $("execOpportunityTitle").textContent = harmonized.opportunityFields.title;
-$("execSectorPatternText").textContent = `What organizations in this sector often get wrong: ${harmonized.opportunityFields.sectorDynamic}`;
+$("execSectorPatternText").textContent = `Sector-informed hypothesis to test: ${harmonized.opportunityFields.sectorDynamic}`;
 $("execActionsRationaleText").textContent = `Why these first moves matter: ${harmonized.opportunityFields.firstMoves}`;
 $("execLeadershipWatchoutText").textContent = `What leadership should avoid: ${harmonized.opportunityFields.watchout}`;
 

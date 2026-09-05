@@ -3480,10 +3480,10 @@ const condition = Number(result?.score ?? 50);
 const comp = Number(result?.dimensions?.compensatory_effort ?? result?.burden_breakdown?.compensation ?? 50);
 const lowCondition = condition < 65;
 const highComp = comp >= 50;
-if (lowCondition && highComp) return "This unit sits in the most exposed quadrant: a weak institutional condition held together by heavy compensatory effort. Visible output is borrowed from extra effort and management lift rather than carried by the institution itself.";
-if (lowCondition && !highComp) return "The institutional condition is weak, but it is not masked by heavy compensation: the strain is visible rather than hidden. The priority is rebuilding the underlying condition.";
-if (!lowCondition && highComp) return "The institution is performing, but it is leaning on more compensatory effort than a sound condition should require. The priority is converting borrowed performance into durable institutional capacity.";
-return "This unit sits in the healthiest quadrant: a sound institutional condition carried by the system itself rather than by compensation. Performance is durable rather than borrowed. The priority is stewardship.";
+if (lowCondition && highComp) return "This run records lower institutional-condition scores alongside higher reported compensatory effort. It does not establish that the effort sustains output or predict later performance.";
+if (lowCondition && !highComp) return "This run records lower institutional-condition scores alongside lower reported compensatory effort. The measures co-occur; cause and later performance were not established.";
+if (!lowCondition && highComp) return "This run records stronger institutional-condition scores alongside higher reported compensatory effort. It does not establish that the effort produced or sustains performance.";
+return "This run records stronger institutional-condition scores alongside lower reported compensatory effort. It does not establish durability, cause, or later performance. The priority is stewardship and remeasurement.";
 }
 
 function contradictionClass(item) {
@@ -4106,13 +4106,13 @@ if (note) note.textContent = result?.trajectory?.note || "Single-run directional
   */
   function buildConcentrationNarrative(pattern) {
   if (pattern.isConcentrated) {
-  return `The composition is concentrated rather than distributed. ${escapeHtml(pattern.dominant.label)} carries ${pattern.dominantPct}% of the visible burden by itself, which makes the condition more fixable: leadership can target one source first and expect a real shift in the workflow. Distributed conditions look the same from the outside but require redesigning the path itself, not just removing a layer.`;
+  return `The composition is concentrated rather than distributed. ${escapeHtml(pattern.dominant.label)} carries ${pattern.dominantPct}% of the visible burden in this run. That identifies a bounded first test; it does not predict the result of changing it.`;
   } else if (pattern.isDistributed) {
-  return `The composition is distributed rather than concentrated. No single source carries more than ${pattern.dominantPct}% of the visible burden, which means the workflow is heavy in a systemic way. People inside the path are more likely to describe it as "the way things work here" than as one specific bottleneck. This pattern resists single-fix interventions; it usually requires path redesign, not layer removal.`;
+  return `The composition is distributed rather than concentrated. No single source carries more than ${pattern.dominantPct}% of the visible burden. Test more than one source and compare repeated measurements; this run does not establish that broad redesign is required.`;
   } else if (pattern.hasSignal) {
-  return `The composition shows ${escapeHtml(pattern.dominant.label.toLowerCase())} as the dominant visible clarity constraint at ${pattern.dominantPct}% of the total, with the remaining burden meaningfully distributed across the other dimensions. This middle pattern usually responds to focused intervention on the dominant source while watching for compensation in the others.`;
+  return `The composition shows ${escapeHtml(pattern.dominant.label.toLowerCase())} as the largest visible constraint at ${pattern.dominantPct}% of the total, with the remaining burden distributed across other dimensions. Use it as a first test and remeasure the full profile.`;
   } else {
-  return "Burden composition signal is too low in this run to identify a dominant source. This usually indicates either an exceptionally light operating environment or insufficient diagnostic input depth: re-run with broader participant coverage to confirm which.";
+  return "The composition signal is too low in this run to identify a dominant source. The run cannot distinguish between light burden and insufficient input depth; broader participant coverage can test that uncertainty.";
   }
   }
 
@@ -4460,9 +4460,9 @@ const crossRoleBullet = `Run this diagnostic from ${otherRoles} to test whether 
 // Longitudinal comparison: gated on trajectory direction so the cadence
 // recommendation matches what this run actually surfaced.
 const longitudinalBullet = trajectoryDirection === "up"
-? "Re-run this diagnostic in six months to confirm whether the rising trajectory holds. Structured comparison turns a directional signal into measurable change and distinguishes real drift from a temporary spike."
+? "Re-run this diagnostic in six months and compare the measurements. This single-run response is not a longitudinal trend or forecast."
 : trajectoryDirection === "down"
-? "Re-run this diagnostic in six months to confirm the easing trajectory is durable rather than a temporary lull. Sustained improvement under repeated measurement is how earlier structural work is shown to be paying off."
+? "Re-run this diagnostic in six months and compare the measurements. A repeated difference does not by itself establish durability, causation, or realized recovery."
 : "Re-run this diagnostic in six to twelve months to detect drift before it becomes structural. Flat trajectories often mask gradual accumulation that only becomes visible through repeated measurement.";
 
 // Adjacent-workflow coverage: tests whether the pattern is workflow-specific
@@ -4558,9 +4558,9 @@ const concentrationProse = (() => {
   const secondVal = Math.round(dims[entries[1].key]);
   const gap = secondVal - weakestVal;
   if (gap >= 12) {
-    return `The condition profile is concentrated rather than distributed. ${weakest.label.charAt(0).toUpperCase() + weakest.label.slice(1)} scores ${weakestVal}: meaningfully below the next-weakest dimension at ${secondVal}. This makes the condition more targetable: leadership can focus on the single weakest dimension and expect a real shift in overall institutional performance, rather than rebuilding everything.`;
+    return `The condition profile is concentrated rather than distributed. ${weakest.label.charAt(0).toUpperCase() + weakest.label.slice(1)} scores ${weakestVal}, below the next-weakest dimension at ${secondVal}. This identifies a bounded first test; it does not predict a change in institutional performance.`;
   }
-  return `The condition profile is distributed rather than concentrated. The weakest dimensions cluster closely together (${weakestVal}–${secondVal}), which means the institution is softening across multiple dimensions rather than failing at one point. This pattern resists single-fix intervention; it usually indicates a broader institutional rebuild rather than a targeted repair of one dimension.`;
+  return `The condition profile is distributed rather than concentrated. The weakest dimensions cluster closely together (${weakestVal}–${secondVal}). Test more than one dimension and compare repeated measurements; this run does not establish that broader rebuilding is required.`;
 })();
 const scDimDefs = [
   { key: "execution_coherence", label: "Execution coherence" },
@@ -4977,7 +4977,7 @@ return `<!doctype html>
     <h3 style="margin-top:24px">What the clarity profile tells us</h3>
     <p>${safeWords(concentrationProse, 76)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(compositionQuestion)}</p></div>
-    <div class="card-row"><div class="mini-card"><b>Concentrated constraint</b><p>One condition dimension clearly dominates. Targeted institutional repair has high yield.</p></div><div class="mini-card"><b>Distributed constraint</b><p>No single dimension dominates. Broader institutional rebuild likely needed across multiple dimensions.</p></div></div>
+    <div class="card-row"><div class="mini-card"><b>Concentrated constraint</b><p>One condition dimension dominates this run and can be used as a bounded first test.</p></div><div class="mini-card"><b>Distributed constraint</b><p>No single dimension dominates; test multiple dimensions and remeasure.</p></div></div>
   </div>
 </section>
 
@@ -5478,7 +5478,7 @@ $("scoreMetaTrajectoryText").textContent = `Self-reported change: ${result?.traj
 const insight = renderInsightDepth(payload);
 $("execMeaningText").textContent = executiveSummary.opportunity;
 $("execOpportunityTitle").textContent = harmonized.opportunityFields.title;
-$("execSectorPatternText").textContent = `What organizations in this sector often get wrong: ${harmonized.opportunityFields.sectorDynamic}`;
+$("execSectorPatternText").textContent = `Sector-informed hypothesis to test: ${harmonized.opportunityFields.sectorDynamic}`;
 $("execActionsRationaleText").textContent = `Why these first moves matter: ${harmonized.opportunityFields.firstMoves}`;
 $("execLeadershipWatchoutText").textContent = `What leadership should avoid: ${harmonized.opportunityFields.watchout}`;
 

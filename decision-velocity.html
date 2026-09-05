@@ -736,14 +736,14 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
           </div>
         </div>
       </div>
-      <div class="score-meta-strip"><div class="score-meta-note"><span class="score-meta-pill" id="scoreMetaIndustry">Industry: --</span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaShapeText">Profile shape: --</span> <span class="insight-help" id="profileShapeInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="profileShapeTooltip"><strong>Profile shape</strong><br>Concentrated means one drag source dominates the pathway. Distributed means multiple drag sources materially contribute. Hidden means the visible pathway likely understates the real drag.</span></span></span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaTrajectoryText">Self-reported change: --</span> <span class="insight-help" id="trajectoryInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="trajectoryTooltip"><strong>Self-reported change</strong><br>This records the participant's reported change direction. It is not a measured longitudinal trend.</span></span></span></div></div>
+      <div class="score-meta-strip"><div class="score-meta-note"><span class="score-meta-pill" id="scoreMetaIndustry">Industry: --</span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaShapeText">Profile shape: --</span> <span class="insight-help" id="profileShapeInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="profileShapeTooltip"><strong>Profile shape</strong><br>Concentrated means one drag source dominates the submitted responses. Distributed means multiple sources contribute. Hidden means the answers include pressure not represented as a separate pathway step; no additional burden is inferred.</span></span></span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaTrajectoryText">Self-reported change: --</span> <span class="insight-help" id="trajectoryInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="trajectoryTooltip"><strong>Self-reported change</strong><br>This records the participant's reported change direction. It is not a measured longitudinal trend.</span></span></span></div></div>
     </div></section>
 
     <section class="primary-waterfall"><div class="viz-card"><h4>Capacity allocation</h4><div class="capacity-waterfall"><div id="effortFlowSankey" style="margin-bottom:6px;"></div><div class="capacity-bar" id="capacityWaterfall"></div><div class="capacity-legend"><span><span class="legend-dot dot-green"></span>Productive work</span><span><span class="legend-dot dot-gold"></span>Necessary administrative load</span><span><span class="legend-dot" style="background:#B0392F"></span>Recoverable drag</span></div><p class="viz-note" id="capacityWaterfallNote">Capacity allocation view will appear here after scoring.</p></div></div></section>
 
     <section class="diagnosis-grid">
       <article class="diagnosis-card"><p class="summary-label">Pathway condition</p><p class="summary-value" id="cycleConditionValue">--</p><p class="summary-sub tight" id="cycleConditionSub">Overall pathway diagnosis</p></article>
-      <article class="diagnosis-card"><p class="summary-label">Primary burden source</p><p class="summary-value" id="burdenConstraintValue">--</p><p class="summary-sub tight" id="burdenConstraintSub">Most likely driver of operational drag</p></article>
+      <article class="diagnosis-card"><p class="summary-label">Primary burden source</p><p class="summary-value" id="burdenConstraintValue">--</p><p class="summary-sub tight" id="burdenConstraintSub">Largest measured drag source in this run</p></article>
       <article class="diagnosis-card"><p class="summary-label">Burden diagnosis</p><p class="summary-value" id="tradeoffDiagnosisValue">--</p><p class="summary-sub tight" id="tradeoffDiagnosisSub">Is current administrative weight justified?</p></article>
     </section>
 
@@ -4211,13 +4211,13 @@ if (note) note.textContent = result?.trajectory?.note || "Directional signal";
   */
   function buildConcentrationNarrative(pattern) {
   if (pattern.isConcentrated) {
-  return `The composition is concentrated rather than distributed. ${escapeHtml(pattern.dominant.label)} carries ${pattern.dominantPct}% of the visible burden by itself, which makes the condition more fixable: leadership can target one source first and expect a real shift in the workflow. Distributed conditions look the same from the outside but require redesigning the path itself, not just removing a layer.`;
+  return `The composition is concentrated rather than distributed. ${escapeHtml(pattern.dominant.label)} carries ${pattern.dominantPct}% of the visible burden in this run. That identifies a bounded first test; it does not predict the result of changing it.`;
   } else if (pattern.isDistributed) {
-  return `The composition is distributed rather than concentrated. No single source carries more than ${pattern.dominantPct}% of the visible burden, which means the workflow is heavy in a systemic way. People inside the path are more likely to describe it as "the way things work here" than as one specific bottleneck. This pattern resists single-fix interventions; it usually requires path redesign, not layer removal.`;
+  return `The composition is distributed rather than concentrated. No single source carries more than ${pattern.dominantPct}% of the visible burden. Test more than one source and compare repeated measurements; this run does not establish that path redesign is required.`;
   } else if (pattern.hasSignal) {
-  return `The composition shows ${escapeHtml(pattern.dominant.label.toLowerCase())} as the dominant visible burden source at ${pattern.dominantPct}% of the total, with the remaining burden meaningfully distributed across the other dimensions. This middle pattern usually responds to focused intervention on the dominant source while watching for compensation in the others.`;
+  return `The composition shows ${escapeHtml(pattern.dominant.label.toLowerCase())} as the largest visible burden source at ${pattern.dominantPct}% of the total, with the remaining burden distributed across other dimensions. Use it as a first test and remeasure the full profile.`;
   } else {
-  return "Burden composition signal is too low in this run to identify a dominant source. This usually indicates either an exceptionally light operating environment or insufficient diagnostic input depth: re-run with broader participant coverage to confirm which.";
+  return "The composition signal is too low in this run to identify a dominant source. The run cannot distinguish between light burden and insufficient input depth; broader participant coverage can test that uncertainty.";
   }
   }
 
@@ -4564,7 +4564,7 @@ const crossRoleBullet = `Run this diagnostic from ${otherRoles} to test whether 
 const longitudinalBullet = trajectoryDirection === "up"
 ? "Re-run this diagnostic in six months to confirm whether the rising trajectory holds. Structured comparison turns a directional signal into measurable change and distinguishes real drift from a temporary spike."
 : trajectoryDirection === "down"
-? "Re-run this diagnostic in six months to confirm the easing trajectory is durable rather than a temporary lull. Sustained improvement under repeated measurement is how earlier structural work is shown to be paying off."
+? "Re-run this diagnostic in six months and compare the measurements. A repeated difference does not by itself establish durability, causation, or realized recovery."
 : "Re-run this diagnostic in six to twelve months to detect drift before it becomes structural. Flat trajectories often mask gradual accumulation that only becomes visible through repeated measurement.";
 
 // Adjacent-workflow coverage: tests whether the pattern is workflow-specific
@@ -5035,7 +5035,7 @@ return `<!doctype html>
     <h3 style="margin-top:24px">What the composition tells us</h3>
     <p>${safeWords(concentrationProse, 76)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(compositionQuestion)}</p></div>
-    <div class="card-row"><div class="mini-card"><b>Concentrated drag</b><p>One drag source dominates. Faster to fix because targeted intervention has high yield.</p></div><div class="mini-card"><b>Distributed drag</b><p>No single drag source dominates. Slower to fix; usually requires path-level redesign.</p></div></div>
+    <div class="card-row"><div class="mini-card"><b>Concentrated drag</b><p>One drag source dominates this run and can be used as a bounded first test.</p></div><div class="mini-card"><b>Distributed drag</b><p>No single drag source dominates; test multiple sources and remeasure.</p></div></div>
   </div>
 </section>
 
@@ -5607,7 +5607,7 @@ $("scoreMetaTrajectoryText").textContent = `Self-reported change: ${result?.traj
 const insight = renderInsightDepth(payload);
 $("execMeaningText").textContent = executiveSummary.opportunity;
 $("execOpportunityTitle").textContent = harmonized.opportunityFields.title;
-$("execSectorPatternText").textContent = `What organizations in this sector often get wrong: ${harmonized.opportunityFields.sectorDynamic}`;
+$("execSectorPatternText").textContent = `Sector-informed hypothesis to test: ${harmonized.opportunityFields.sectorDynamic}`;
 $("execActionsRationaleText").textContent = `Why these first moves matter: ${harmonized.opportunityFields.firstMoves}`;
 $("execLeadershipWatchoutText").textContent = `What leadership should avoid: ${harmonized.opportunityFields.watchout}`;
 
