@@ -29,6 +29,10 @@ function validateCompletionContract(source, page = "fixture") {
   assert(startBegin >= 0 && startEnd > startBegin, `${page}: start function missing or unbounded`);
   assert.match(start, /response\.status === 402 && data\?\.error === "run_limit_reached"/, `${page}: exhausted self-run is not intercepted before question one`);
   assert.match(start, /showRunsExhausted\(\);\s*return;/s, `${page}: exhausted self-run does not route to the entitlement screen`);
+  assert.match(start, /response\.status === 429 && data\?\.error === "diagnostic_capacity_temporarily_reached"/, `${page}: temporary start-capacity response is not handled`);
+  assert.match(start, /data\?\.retry_after_seconds \|\| response\.headers\.get\("Retry-After"\)/, `${page}: capacity response does not honor the server retry interval`);
+  assert.match(start, /Your run has not started and no work was lost/, `${page}: capacity message does not state the safe outcome`);
+  assert.match(start, /showStage\(introStage\);[\s\S]*?return;/, `${page}: capacity response does not return safely to preflight`);
   assert.match(source, /Your existing results remain available in Workspace/, `${page}: exhausted-run copy does not preserve existing-result access`);
   assert.doesNotMatch(source, /this run is saved/, `${page}: exhausted preflight falsely claims an unstarted run was saved`);
   assert.match(finalize, /if \(state\.finalizeInFlight\) return;/, `${page}: duplicate-finalize guard missing`);
@@ -57,6 +61,8 @@ for (const page of pages) validateCompletionContract(readFileSync(join(root, pag
 const certified = readFileSync(join(root, pages[0]), "utf8");
 const mutations = [
   ["preflight-run-limit", (s) => s.replace('response.status === 402 && data?.error === "run_limit_reached"', 'response.status === 418 && data?.error === "run_limit_reached"')],
+  ["start-capacity", (s) => s.replace('response.status === 429 && data?.error === "diagnostic_capacity_temporarily_reached"', 'response.status === 429 && data?.error === "generic_failure"')],
+  ["start-capacity-retry", (s) => s.replace('data?.retry_after_seconds || response.headers.get("Retry-After")', '60')],
   ["single-flight", (s) => s.replace("if (state.finalizeInFlight) return;", "")],
   ["bounded-wait", (s) => s.replace("const slowFinalizeTimer = setTimeout(() => {", "const slowFinalizeTimer = (() => {")],
   ["evidence-boundary", (s) => s.replace("const refinedExperienceLayer = safeExperienceLayerForReport(rawExperienceLayer);", "const refinedExperienceLayer = rawExperienceLayer;")],

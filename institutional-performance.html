@@ -2606,6 +2606,19 @@ if (response.status === 402 && data?.error === "run_limit_reached") {
   showRunsExhausted();
   return;
 }
+if (response.status === 429 && data?.error === "diagnostic_capacity_temporarily_reached") {
+  const retryAfter = Math.max(1, Number(data?.retry_after_seconds || response.headers.get("Retry-After") || 60));
+  beginBtn.disabled = false;
+  beginBtn.textContent = "Begin Diagnostic";
+  setHeader(
+    "Diagnostic capacity is temporarily full",
+    `Your run has not started and no work was lost. Please try again in about ${retryAfter} seconds.`,
+    "Please retry"
+  );
+  showStage(introStage);
+  showToast(`Please try again in about ${retryAfter} seconds.`);
+  return;
+}
 if (!response.ok || !data?.ok) {
   throw new Error(data?.message || data?.error || "Unable to start adaptive run.");
 }
