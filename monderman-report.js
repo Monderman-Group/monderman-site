@@ -88,6 +88,7 @@
   // ---- adapter: depth / cross-lens synthesis result --> model ---------------
   function fromSynthesis(result) {
     const r = obj(result);
+    const compatibility = obj(r._claims_compatibility);
     const strictNum = (v) => (v !== null && v !== undefined && v !== "" && Number.isFinite(Number(v))) ? Number(v) : null;
     const product = r.synthesis_product === "depth_synthesis" || r.synthesis_mode === "depth" ? "depth" : "cross_lens";
     const evidence = obj(r.evidence_assessment);
@@ -217,6 +218,7 @@
 
     return {
       kind: "meta-synthesis",
+      compatibility: compatibility,
       product: product,
       mastline: "Monderman. " + modeLabel,
       title: product === "depth" ? "Depth Synthesis Executive Report" : "Cross-Lens Synthesis Executive Report",
@@ -305,6 +307,7 @@
   function fromRun(run) {
     const envelope = obj(run);
     const r = obj(envelope.result).tool_type ? obj(envelope.result) : envelope;
+    const compatibility = obj(r._claims_compatibility);
     const context = obj(envelope.input_context || r.input_context);
     const provenance = obj(envelope.provenance);
     const exposure = obj(r.exposure);
@@ -408,6 +411,7 @@
 
     return {
       kind: "run",
+      compatibility: compatibility,
       product: "diagnostic",
       mastline: "Monderman. " + (toolLabel || "Diagnostic"),
       title: (toolLabel || "Diagnostic") + ": Executive Report",
@@ -722,7 +726,11 @@
     svg += '<circle cx="' + centerX + '" cy="' + centerY + '" r="76" fill="url(#mr-system-gradient)"/>';
     svg += '<circle cx="' + centerX + '" cy="' + centerY + '" r="83" fill="none" stroke="rgba(12,110,120,.16)" stroke-width="2"/>';
     svg += '<text x="' + centerX + '" y="' + (centerY - 23) + '" text-anchor="middle" fill="#A9CED1" font-size="10" font-weight="700" letter-spacing="1.6">CROSS-LENS</text>';
-    svg += '<text x="' + centerX + '" y="' + (centerY + 15) + '" text-anchor="middle" fill="#FFF" font-size="38" font-weight="700" letter-spacing="-2">' + esc(m.scorePublished ? fmt1(m.score) : "Unavailable") + '</text>';
+    // The lower label already states COMPOSITE WITHHELD. Repeating the long
+    // word "Unavailable" in the fixed-width hub clips at report/PDF sizes and
+    // can read as corrupted output, so the score position uses a conventional
+    // em dash when no composite may be published.
+    svg += '<text class="mr-system-score" x="' + centerX + '" y="' + (centerY + 15) + '" text-anchor="middle" fill="#FFF" font-size="38" font-weight="700" letter-spacing="-2">' + esc(m.scorePublished ? fmt1(m.score) : "—") + '</text>';
     svg += '<text class="mr-system-composite-label" x="' + centerX + '" y="' + (centerY + 35) + '" text-anchor="middle" fill="#A9CED1" font-size="9.5" font-weight="700" letter-spacing=".55">';
     compositeLabel.forEach((line, index) => {
       svg += '<tspan x="' + centerX + '" dy="' + (index ? 13 : 0) + '">' + esc(line) + '</tspan>';
@@ -1253,16 +1261,27 @@
     return '<aside class="mr-report-boundary"><div class="mr-report-boundary-mark"></div><div><p class="mr-report-boundary-label">Interpretation boundary</p><p>' + esc(m.footnote) + '</p></div></aside>';
   }
 
+  function buildCompatibilityNotice(model) {
+    const compatibility = obj(obj(model).compatibility);
+    if (compatibility.status !== "legacy_structured_view") return "";
+    const notice = firstStr(
+      compatibility.notice,
+      "This pre-policy report is shown as a structured legacy view. Earlier explanatory text is withheld; scores and structured measurements are unchanged."
+    );
+    return '<aside class="mr-compatibility-notice"><div class="mr-compatibility-mark"></div><div><p class="mr-compatibility-label">Legacy report view</p><p>' + esc(notice) + '</p></div></aside>';
+  }
+
   function buildReportBody(model) {
     const m = obj(model);
     const coverBlock = buildReportCover(m);
+    const compatibilityBlock = buildCompatibilityNotice(m);
 
     if (m.kind === "meta-synthesis") {
-      return coverBlock + renderMetaSynthesis(m) + buildReportBoundary(m);
+      return coverBlock + compatibilityBlock + renderMetaSynthesis(m) + buildReportBoundary(m);
     }
 
     if (m.kind === "run") {
-      return coverBlock + renderRunReport(m) + buildReportBoundary(m);
+      return coverBlock + compatibilityBlock + renderRunReport(m) + buildReportBoundary(m);
     }
 
     const kvs = arr(m.kvs).map((x) => '<div class="k">' + esc(x.k) + "</div><div>" + esc(x.v) + "</div>").join("");
@@ -1274,7 +1293,7 @@
       arr(m.sections).map((s) => '<section class="mr-section">' + sectionHtml(s, (n += 1) + 1) + '</section>').join("") +
       '<section class="mr-section"><h2>' + (n + 2) + '. Conclusion and next step</h2><p>This Executive Report is a directional read of the measured condition. Use the reported evidence, limitations, and recommended first moves as the basis for a bounded operating decision and like-for-like remeasurement.</p></section>';
 
-    return coverBlock + secHtml + buildReportBoundary(m);
+    return coverBlock + compatibilityBlock + secHtml + buildReportBoundary(m);
   }
 
   var REPORT_CSS =
@@ -1305,6 +1324,7 @@
     '.mr-report .kvs div{font-size:.98rem;line-height:1.65}.mr-report .kvs .k{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--muted)}' +
     '.mr-report ul{margin:8px 0 0 20px;padding:0}.mr-report li{margin:0 0 8px;line-height:1.65}' +
     '.mr-report .mr-report-boundary{margin-top:42px;padding:18px 20px;border:1px solid var(--line);border-radius:12px;background:#FAFAF8;color:var(--soft)}' +
+    '.mr-compatibility-notice{display:grid;grid-template-columns:5px 1fr;gap:14px;align-items:start;margin:0 0 34px;padding:18px 20px;border:1px solid #D8C6A8;border-radius:12px;background:#FFF9EF;color:#5C4A2D}.mr-compatibility-mark{width:5px;min-height:100%;border-radius:4px;background:#C9821F}.mr-compatibility-label{font-size:.68rem!important;line-height:1.2!important;letter-spacing:.16em;text-transform:uppercase;color:#9B6117!important;font-weight:700;margin:1px 0 7px!important}.mr-compatibility-notice p:last-child{margin:0!important;font-size:.88rem!important;line-height:1.55!important;color:#5C4A2D!important}' +
     '.mr-report .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px;font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif}' +
     '.mr-report .btn{display:inline-flex;align-items:center;justify-content:center;min-height:50px;min-width:168px;padding:0 24px;border-radius:7px;font-size:15px;font-weight:500;white-space:nowrap;background:#FFF;color:#18191C;border:1px solid rgba(24,25,28,.12);box-shadow:none;cursor:pointer}' +
     '.mr-report .btn-accent{background:#0C6E78;color:#FFF;border-color:rgba(12,110,120,.18)}' +
@@ -1574,7 +1594,7 @@
     }
     @page{size:Letter;margin:60pt}
     @media print{
-      html,body{background:#FFF!important;margin:0!important}.mr-report .mr-page{padding:0!important}.mr-cover{break-after:page}.mr-section{break-before:auto}.mr-section h2,.mr-section-index{break-after:avoid}.mr-run-metric,.mr-dimension-row,.mr-exposure-step,.mr-remedy-card,.mr-priority-row,.mr-evidence-quote,.mr-viz-panel{break-inside:avoid}.mr-run-metrics,.mr-exposure-flow,.mr-evidence-summary{break-inside:avoid}.mr-remedy-grid{grid-template-columns:1fr;gap:12px;break-inside:auto}.mr-remedy-card{overflow:visible}.mr-run-decision-story{break-inside:avoid}.mr-report-boundary{break-inside:avoid}.mr-report .mr-section+.mr-section{margin-top:34px;padding-top:28px}
+      html,body{background:#FFF!important;margin:0!important}.mr-report .mr-page{padding:0!important}.mr-cover{break-after:page}.mr-compatibility-notice{break-inside:avoid}.mr-section{break-before:auto}.mr-section h2,.mr-section-index{break-after:avoid}.mr-run-metric,.mr-dimension-row,.mr-exposure-step,.mr-remedy-card,.mr-priority-row,.mr-evidence-quote,.mr-viz-panel{break-inside:avoid}.mr-run-metrics,.mr-exposure-flow,.mr-evidence-summary{break-inside:avoid}.mr-remedy-grid{grid-template-columns:1fr;gap:12px;break-inside:auto}.mr-remedy-card{overflow:visible}.mr-run-decision-story{break-inside:avoid}.mr-report-boundary{break-inside:avoid}.mr-report .mr-section+.mr-section{margin-top:34px;padding-top:28px}
     }
     `;
 
