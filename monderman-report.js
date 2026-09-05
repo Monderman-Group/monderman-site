@@ -68,6 +68,12 @@
   function slug(s) {
     return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "report";
   }
+  function safeParticipantEvidence(value) {
+    const safety = window.MondermanParticipantEvidence;
+    return safety && typeof safety.sanitizeEvidenceArray === "function"
+      ? safety.sanitizeEvidenceArray(arr(value))
+      : [];
+  }
 
   // ---- canonical report model ----------------------------------------------
   // {
@@ -329,7 +335,7 @@
         : (arr(r.intervention_priorities).length ? arr(r.intervention_priorities) : arr(r.recommendations)));
     const priorityLadder = arr(descriptor.priority_ladder).length ? arr(descriptor.priority_ladder) : arr(r.priority_ladder);
     const remedyPaths = arr(prose.remedy_paths).length ? arr(prose.remedy_paths) : arr(r.remedy_paths);
-    const participantEvidence = arr(r.participant_evidence);
+    const participantEvidence = safeParticipantEvidence(r.participant_evidence);
 
     const annualHours = firstStr(exposure.annual_hours, r.annual_hours, r.annualHours, r.directionalHours);
     const annualCost = firstStr(exposure.annual_cost, r.annual_cost, r.annualCost);
@@ -1081,7 +1087,7 @@
   }
 
   function renderRunEvidence(m, n) {
-    const evidence = arr(m.participantEvidence);
+    const evidence = safeParticipantEvidence(m.participantEvidence);
     const watch = arr(m.watch).map(textItem).filter(Boolean);
     const coverage = obj(m.coverage);
     const measured = coverage.measured_dimension_count;
@@ -1089,7 +1095,7 @@
     const evidenceHtml = evidence.length ? evidence.map((item) => {
       const row = obj(item);
       return '<div class="mr-evidence-quote"><div class="mr-lens-label">' + esc(humanize(firstStr(row.participant_mode, row.perspective, "Participant evidence"))) + '</div><p>' + esc(firstStr(row.text, row.message, row.summary)) + '</p></div>';
-    }).join("") : '<div class="mr-evidence-empty"><div class="mr-lens-label">Participant evidence</div><h3>No participant notes were supplied.</h3><p>The report therefore makes no participant-statement or experiential claim.</p></div>';
+    }).join("") : '<div class="mr-evidence-empty"><div class="mr-lens-label">Participant evidence</div><h3>No usable participant notes are presented.</h3><p>The report therefore makes no participant-statement or experiential claim.</p></div>';
     return '<section class="mr-section mr-run-evidence"><div class="mr-section-index">0' + n + ' · Evidence status</div><h2>What evidence is, and is not, in this run</h2>' +
       '<div class="mr-evidence-summary">' +
         runMetric("Evidence depth", m.evidenceBand, "Single-run claim strength", "teal") +

@@ -910,6 +910,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   </main>
 <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
 </div>
+  <script src="participant-evidence-safety.js?v=20260905-report-quarantine"></script>
   <script src="monderman-viz.js"></script>
   <script src="assignment-mode.js"></script>
   <script src="assignment-draft.js"></script>
@@ -1451,9 +1452,8 @@ return text ? text.charAt(0).toLowerCase() + text.slice(1) : "burden appears as 
 }
 
 function getExperienceText(payload = {}) {
-const layer = payload?.experientialLayer || payload?.experiential_layer || payload?.rawExperientialLayer || payload?.raw_experiential_layer || {};
-const entries = Array.isArray(layer.entries) ? layer.entries : [];
-return entries.flatMap((entry) => [entry.text, entry.cleaned, entry.raw]).filter(Boolean).join(" ").toLowerCase();
+const layer = safeExperienceLayerForReport(payload?.experientialLayer || payload?.experiential_layer || {});
+return (layer.entries || []).flatMap((entry) => [entry.cleaned, entry.text]).filter(Boolean).join(" ").toLowerCase();
 }
 
 function detectQualitativeOverride(payload = {}, result = {}) {
@@ -2689,6 +2689,13 @@ function normalizeExperienceText(value) {
 return String(value || "").replace(/\s+/g, " ").trim();
 }
 
+function safeExperienceLayerForReport(layer) {
+const safety = window.MondermanParticipantEvidence;
+return safety && typeof safety.sanitizeLayer === "function"
+  ? safety.sanitizeLayer(layer)
+  : { entries: [], hasInput: false, synthesis: "No usable participant notes are presented in this report.", caveat: "", source: "fail_closed_report_quarantine" };
+}
+
 function recordExperienceAnswer(itemId, value) {
 const key = String(itemId || "").replace("_*experience*", "");
 if (!Object.prototype.hasOwnProperty.call(state.experiential, key)) return;
@@ -2705,15 +2712,10 @@ return { participantPerspective: laneConfigs[mode]?.label || humanize(mode), ent
 }
 
 async function refineExperientialLayerForOutput(rawLayer) {
-if (!rawLayer || !rawLayer.hasInput) return rawLayer;
+const safeLayer = safeExperienceLayerForReport(rawLayer);
+if (!rawLayer || !rawLayer.hasInput) return safeLayer;
 
-const rawExperience = {
-self: state.experiential.self || "",
-observedOperational: state.experiential.observedOperational || "",
-observedManagerial: state.experiential.observedManagerial || "",
-observedSeniorLeader: state.experiential.observedSeniorLeader || "",
-observedExecutive: state.experiential.observedSeniorLeader || ""
-};
+const rawExperience = Object.fromEntries((safeLayer.entries || []).map((entry) => [entry.key, entry.cleaned || entry.text || ""]));
 
 try {
 const response = await fetchWithTimeout(`${API_BASE}/api/diagnostics/refine-experience`, {
@@ -2730,18 +2732,17 @@ rawExperience
 const data = await response.json().catch(() => null);
 if (!response.ok || !data?.experiential_layer) {
   const errorMsg = data?.error || data?.message || `HTTP ${response.status}`;
-  console.warn("Experiential layer refinement failed; using raw participant notes.", { status: response.status, error: errorMsg });
-  return { ...rawLayer, source: "unedited_participant_input", refinementAttempted: true, refinementFailed: true };
+  console.warn("Experiential layer refinement failed; using deterministic report quarantine.", { status: response.status, error: errorMsg });
+  return { ...safeLayer, source: "deterministic_quarantine_fallback", refinementAttempted: true, refinementFailed: true };
 }
 
 const refined = data.experiential_layer;
 const entries = Array.isArray(refined.entries)
   ? refined.entries.map((entry) => {
-      const text = normalizeExperienceText(entry.cleaned || entry.text || entry.raw || "");
+      const text = normalizeExperienceText(entry.cleaned || entry.text || "");
       return {
         key: entry.key,
         label: entry.label || humanize(entry.key),
-        raw: normalizeExperienceText(entry.raw || ""),
         cleaned: text,
         text
       };
@@ -2750,26 +2751,21 @@ const entries = Array.isArray(refined.entries)
 
 if (!entries.length) {
   console.info("Experiential refinement returned no valid entries.");
-  return rawLayer;
+  return safeLayer;
 }
 
 return {
-  ...rawLayer,
-  hasInput: true,
-  entries,
-  synthesis: normalizeExperienceText(refined.synthesis || ""),
-  caveat: normalizeExperienceText(refined.caveat || ""),
+  ...safeExperienceLayerForReport({ ...safeLayer, entries, synthesis: refined.synthesis, caveat: refined.caveat }),
   source: refined.source || "anthropic_refined",
-  rawLayer,
   refinementAttempted: true,
   refinementSucceeded: true
 };
 
 } catch (error) {
-console.warn("Experiential refinement error; using raw participant notes.", error.message);
+console.warn("Experiential refinement error; using deterministic report quarantine.", error.message);
 return {
-...rawLayer,
-source: "unedited_participant_input",
+...safeLayer,
+source: "deterministic_quarantine_fallback",
 refinementAttempted: true,
 refinementFailed: true,
 refinementError: error.message
@@ -2778,7 +2774,7 @@ refinementError: error.message
 }
 
 function renderExperienceLayer(payload = {}) {
-const layer = payload?.experientialLayer || payload?.experiential_layer || buildExperienceLayer();
+const layer = safeExperienceLayerForReport(payload?.experientialLayer || payload?.experiential_layer || buildExperienceLayer());
 const accordion = $("experienceAccordion");
 const intro = $("experienceIntroText");
 const grid = $("experienceGrid");
@@ -2799,7 +2795,7 @@ if (intro) {
 intro.textContent = "These optional notes were supplied from the " + perspective + " perspective. They are experiential signals: useful for interpretation, not a substitute for broader evidence." + refinedNote;
 }
 const cards = layer.entries.map((entry) => {
-const text = entry.text || entry.cleaned || entry.raw || "";
+const text = entry.cleaned || entry.text || "";
 return '<article class="experience-card"><h4>' + escapeHtml(entry.label) + '</h4><p>' + escapeHtml(text) + '</p></article>';
 }).join("");
 const synthesisHtml = synthesis
@@ -3037,9 +3033,9 @@ const result = asObject(data.result);
 const inferredCoverage = inferParticipantCoverage();
 const legacyPayload = asObject(data.legacyPayload);
 const rawExperienceLayer = buildExperienceLayer();
-if (rawExperienceLayer?.hasInput) setProcessingStep(2, "Refining experiential notes into a report-ready readback...");
-// Optional prose refinement must not hold a persisted score on the generating screen.
-const refinedExperienceLayer = rawExperienceLayer;
+if (rawExperienceLayer?.hasInput) setProcessingStep(2, "Screening experiential notes for report-safe presentation...");
+// Cross the deterministic report boundary synchronously before rendering.
+const refinedExperienceLayer = safeExperienceLayerForReport(rawExperienceLayer);
 const payload = {
   ...legacyPayload,
   processName: legacyPayload.processName || legacyPayload.process_name || state.preflight.processName,
@@ -3073,46 +3069,8 @@ if (narrativeEnvelope.narrative && !result.narrative) {
 
 
 state.result = result;
-// Persist the premium pass (8 Aug 2026): the refined participant notes and
-// refreshed narrative shown on this screen are patched onto the saved run,
-// so reopening the same run from Workspace shows the same report. Prose
-// fields only; scores and bands are never client-writable. Awaited with a
-// nonfatal, visible notice on failure (8 Aug 2026 correction): a silent
-// fire-and-forget could leave the workspace copy stale with no signal.
-void (async () => { try {
-  if (data && data.savedRunId && rawExperienceLayer && rawExperienceLayer.hasInput) {
-    const backgroundExperienceLayer = await refineExperientialLayerForOutput(rawExperienceLayer);
-    payload.experientialLayer = backgroundExperienceLayer;
-    payload.experiential_layer = backgroundExperienceLayer;
-    state.renderPayload = payload;
-    try { renderExperienceLayer(payload); } catch (_renderExperienceErr) { /* result remains usable */ }
-    var __saveBody = {
-      run_id: data.savedRunId,
-      experiential_layer: backgroundExperienceLayer,
-      narrative: result.narrative || null
-    };
-    try {
-      if (window.MondermanAssignment && window.MondermanAssignment.active() && typeof window.MondermanAssignment.token === "function") {
-        __saveBody.assignment_token = window.MondermanAssignment.token();
-      }
-    } catch (_tokErr) { /* not an assignment run */ }
-    try {
-      const __saveResp = await fetchWithTimeout(`${API_BASE}/api/runs/refined-experience`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(__saveBody)
-      }, 20000);
-      const __saveData = await __saveResp.json().catch(function () { return null; });
-      if (!__saveResp.ok || !__saveData || __saveData.ok !== true) {
-        console.warn("premium-pass save-back not confirmed:", (__saveData && __saveData.error) || ("HTTP " + __saveResp.status));
-        try { if (typeof showToast === "function") showToast("The refined notes shown here could not be saved to the workspace copy of this run."); } catch (_toastErr) {}
-      }
-    } catch (__saveErr) {
-      console.warn("premium-pass save-back failed:", __saveErr && __saveErr.message);
-      try { if (typeof showToast === "function") showToast("The refined notes shown here could not be saved to the workspace copy of this run."); } catch (_toastErr) {}
-    }
-  }
-} catch (_persistErr) { /* non-blocking */ } })();
+// Report-ready notes are already quarantined synchronously. Client-authored
+// prose save-back is disabled for the bounded pilot.
 
 state.renderPayload = payload;
 
@@ -4685,7 +4643,7 @@ return out;
 };
 const safeWords = (value, limit) => escapeHtml(words(value, limit));
 const footer = (page) => `<div class="top"><span class="brand">MONDERMAN.</span><span class="meta">Operational Systems Diagnostic · Page ${page}</span></div><div class="bottom">Operational Systems Diagnostic <span class="date">${safe(generated)}</span></div>`;
-const experienceLayer = payload?.experientialLayer || payload?.experiential_layer || buildExperienceLayer();
+const experienceLayer = safeExperienceLayerForReport(payload?.experientialLayer || payload?.experiential_layer || buildExperienceLayer());
 const hasExperienceLayer = Boolean(experienceLayer?.hasInput && Array.isArray(experienceLayer.entries) && experienceLayer.entries.length);
 const experienceSynthesis = clean(
   (hasExperienceLayer ? experienceLayer?.synthesis : "") ||
@@ -4695,14 +4653,14 @@ const experienceSynthesis = clean(
 );
 const experienceCaveat = clean(experienceLayer?.caveat || "These notes should be compared across roles before being treated as a stable organizational pattern.");
 const experienceCards = hasExperienceLayer ? experienceLayer.entries.map((entry) => {
-const text = entry.text || entry.cleaned || entry.raw || "";
+const text = entry.cleaned || entry.text || "";
 return '<div class="exp-card"><h3>' + safe(entry.label) + '</h3><p>' + safeWords(text, 82) + '</p></div>';
 }).join("") : "";
 const decisionReviewPageNumber = hasExperienceLayer ? 7 : 6;
 const updateReadPageNumber = decisionReviewPageNumber + 1;
 const remedyPageNumber = updateReadPageNumber + 1;
 const methodPageNumber = remedyPageNumber + 1;
-const experienceReportPage = hasExperienceLayer ? '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p>This optional layer records how the workflow is experienced from the selected participant perspective and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p><div class="panel" style="margin:16px 0 18px"><h3>Experiential synthesis</h3><p>' + safeWords(experienceSynthesis, 88) + '</p><p class="muted">' + safeWords(experienceCaveat, 50) + '</p></div><div class="exp-grid">' + experienceCards + '</div><div class="panel bench"><p><b>Leadership question.</b> ' + safe(buildLeadershipQuestion(result || {}, payload || {}, "experience")) + '</p><p><b>How to use this layer.</b> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p></div></div></section>' : '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p style="margin-top:24px;color:var(--ink-soft);">No participant notes were provided for this run. This section will populate when the participant adds first-person observations about how the pathway is experienced across operational, managerial, and senior-leader levels.</p></div></section>';
+const experienceReportPage = hasExperienceLayer ? '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p>This optional layer records how the workflow is experienced from the selected participant perspective and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p><div class="panel" style="margin:16px 0 18px"><h3>Experiential synthesis</h3><p>' + safeWords(experienceSynthesis, 88) + '</p><p class="muted">' + safeWords(experienceCaveat, 50) + '</p></div><div class="exp-grid">' + experienceCards + '</div><div class="panel bench"><p><b>Leadership question.</b> ' + safe(buildLeadershipQuestion(result || {}, payload || {}, "experience")) + '</p><p><b>How to use this layer.</b> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p></div></div></section>' : '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p style="margin-top:24px;color:var(--ink-soft);">No usable participant notes are presented in this report. This section will populate when usable first-person observations are available.</p></div></section>';
 const narrativeForReport = asObject(result?.narrative);
 const defaultReadings = [
 { label: "Structural burden read", interpretation: "The workflow is too heavy because the formal path carries more process and control density than the underlying work requires.", what_would_distinguish_it: "Cycle-time data would show delay concentrated in formal review stages." },

@@ -42,6 +42,8 @@ jobs:
         run: node scripts/diagnostic_draft_recovery_smoke.mjs
       - name: Keep AI Interview collection outside the bounded pilot
         run: node scripts/interview_disabled_smoke.mjs
+      - name: Quarantine participant evidence on every report surface
+        run: node scripts/participant_evidence_boundary_smoke.mjs
       - name: Reject cross-Workspace Diagnostic persistence regressions
         run: node scripts/diagnostic_workspace_selection_smoke.mjs
       - name: Reject cross-Workspace data-surface regressions
