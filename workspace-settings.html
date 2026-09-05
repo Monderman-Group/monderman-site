@@ -89,6 +89,7 @@
     .msg.bad{background:var(--rose-bg);color:var(--rose-fg)}
     .empty{border:1px dashed var(--line);border-radius:11px;padding:26px;text-align:center;color:var(--muted);font-size:13px}
     .danger-zone{border-color:rgba(176,57,47,.3)}
+    .delete-controls{margin-top:22px;padding-top:20px;border-top:1px solid rgba(176,57,47,.22)}.delete-controls h4{margin:0 0 6px;color:var(--burden);font-size:14px}.delete-controls p{margin:0 0 12px;color:var(--muted);font-size:12.5px;line-height:1.55}.delete-confirm{display:grid;gap:9px;max-width:560px}.delete-confirm input[type="text"]{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:7px;font:500 14px inherit}.delete-check{display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.45;color:var(--ink)}.btn.destructive{background:var(--burden);color:#fff;border-color:var(--burden)}
 
     @media (max-width:720px){ .tiles{grid-template-columns:1fr 1fr} }
   .ws-beta-release{display:inline-flex;align-items:center;margin-left:8px;padding:2px 6px;border:1px solid rgba(255,255,255,.18);border-radius:5px;font-size:9.5px;line-height:1.2;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.72);background:rgba(255,255,255,.06);transform:translateY(-1px)}
@@ -417,6 +418,17 @@ body{transition:background-color .25s ease, color .25s ease}
           <div class="card-h"><h3>Data &amp; privacy</h3></div>
           <p class="card-sub">Export the diagnostic runs you have access to as a JSON file. Your results belong to you.</p>
           <button class="btn ghost" id="exportRuns" type="button">Export my runs (JSON)</button>
+          <div class="delete-controls" id="workspaceDeletionPanel" hidden>
+            <h4>Delete this Workspace</h4>
+            <p>Deletion is scheduled for 24 hours and can be canceled during that window. When it executes, the Workspace and active customer content are deleted, any subscription is canceled immediately, and an unused paid period is not automatically refunded. Billing, tax, legal, security, and anti-abuse records may be retained only as described in the Privacy Notice.</p>
+            <div class="delete-confirm" id="workspaceDeletionForm">
+              <label class="field" for="deleteWorkspaceName"><span>Type the exact organization name to confirm</span><input id="deleteWorkspaceName" type="text" autocomplete="off"></label>
+              <label class="delete-check"><input id="deleteWorkspaceIrreversible" type="checkbox"> <span>I understand this deletes the Workspace and its active customer content after the cancellation window.</span></label>
+              <button class="btn destructive" id="scheduleWorkspaceDeletion" type="button">Schedule Workspace deletion</button>
+            </div>
+            <button class="btn ghost" id="cancelWorkspaceDeletion" type="button" hidden>Cancel scheduled deletion</button>
+            <div id="workspaceDeletionMsg"></div>
+          </div>
           <div id="dataMsg"></div>
         </section>
       </main>
@@ -438,6 +450,7 @@ body{transition:background-color .25s ease, color .25s ease}
     // migration still render a label instead of a blank.
     const ROLE_LABEL = { admin:"Admin", analyst:"Analyst", member:"Member", participant:"Member", viewer:"Viewer" };
     const ACCEPT_PATH = "accept-invite.html";
+    const API_BASE = "https://monderman-api.onrender.com";
 
     const state = { user:null, userId:null, orgId:null, role:"viewer", isOwner:false, org:null, invites:[], members:[], people:[] };
 
@@ -735,16 +748,72 @@ body{transition:background-color .25s ease, color .25s ease}
       finally{ $("exportRuns").disabled=false; }
     }
 
+    async function workspaceDeletionRequest(method, body){
+      const { data } = await supabase.auth.getSession();
+      const url=API_BASE+"/api/account/workspace-deletion"+(method==="GET"?"?organization_id="+encodeURIComponent(state.orgId):"");
+      const response = await fetch(url,{
+        method,
+        headers:{"content-type":"application/json",authorization:"Bearer "+(data?.session?.access_token||"")},
+        body:body?JSON.stringify({...body,organization_id:state.orgId}):undefined
+      });
+      const output=await response.json().catch(()=>({}));
+      if(!response.ok) { const error=new Error(output.error||"workspace_deletion_failed"); error.status=response.status; throw error; }
+      return output;
+    }
+    function renderWorkspaceDeletion(request){
+      const panel=$("workspaceDeletionPanel");
+      panel.hidden=!state.isOwner;
+      if(!state.isOwner)return;
+      const active=request&&["scheduled","processing"].includes(request.status);
+      $("workspaceDeletionForm").hidden=!!active;
+      $("cancelWorkspaceDeletion").hidden=!active||request.status!=="scheduled";
+      if(active){
+        const when=request.scheduled_for?new Date(request.scheduled_for).toLocaleString():"after the cancellation window";
+        flash("workspaceDeletionMsg","bad",request.status==="processing"?"Workspace deletion is processing.":`Workspace deletion is scheduled for ${when}.`);
+      }
+    }
+    async function loadWorkspaceDeletion(){
+      if(!state.isOwner)return renderWorkspaceDeletion(null);
+      try{ const output=await workspaceDeletionRequest("GET"); renderWorkspaceDeletion(output.request); }
+      catch(_error){ renderWorkspaceDeletion(null); }
+    }
+    async function scheduleWorkspaceDeletion(){
+      const button=$("scheduleWorkspaceDeletion");
+      button.disabled=true;
+      try{
+        const output=await workspaceDeletionRequest("POST",{
+          organization_name:$("deleteWorkspaceName").value.trim(),
+          confirm_irreversible:$("deleteWorkspaceIrreversible").checked
+        });
+        renderWorkspaceDeletion(output.request);
+      }catch(error){
+        const message=error.message==="recent_sign_in_required"
+          ? "For safety, sign out and sign back in before scheduling deletion."
+          : error.message==="workspace_deletion_confirmation_mismatch"
+            ? "Enter the exact organization name and check the confirmation box."
+            : "Workspace deletion could not be scheduled. Nothing was deleted.";
+        flash("workspaceDeletionMsg","bad",message);
+      }finally{button.disabled=false;}
+    }
+    async function cancelWorkspaceDeletion(){
+      const button=$("cancelWorkspaceDeletion");button.disabled=true;
+      try{await workspaceDeletionRequest("DELETE",{});renderWorkspaceDeletion(null);flash("workspaceDeletionMsg","ok","Scheduled Workspace deletion canceled.");}
+      catch(_error){flash("workspaceDeletionMsg","bad","The deletion could not be canceled. Contact support immediately if it is already processing.");}
+      finally{button.disabled=false;}
+    }
+
     async function boot(){
       $("signOutBtn")?.addEventListener("click", async ()=>{ try{ await supabase.auth.signOut(); }catch(e){} window.location.href="index.html"; });
       $("saveOrg")?.addEventListener("click", saveOrgName);
       $("createInvite")?.addEventListener("click", createInvite);
       $("exportRuns")?.addEventListener("click", exportRuns);
+      $("scheduleWorkspaceDeletion")?.addEventListener("click", scheduleWorkspaceDeletion);
+      $("cancelWorkspaceDeletion")?.addEventListener("click", cancelWorkspaceDeletion);
 
       const okc = await resolveContext();
       if(!okc) return;
       renderOrg();
-      await Promise.all([ loadInvites(), loadMembers(), loadPeople(), loadUsage() ]);
+      await Promise.all([ loadInvites(), loadMembers(), loadPeople(), loadUsage(), loadWorkspaceDeletion() ]);
     }
     boot();
   </script>

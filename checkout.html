@@ -49,7 +49,7 @@
     .panel.err{background:#FBEBE9;border:1px solid rgba(170,50,40,.3);color:#7A2A22;}
     .panel a{color:inherit;font-weight:600;}
     .workspace-choice{margin:16px 0 0;padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:#FCFBF8}.workspace-choice label{display:block;margin-bottom:7px;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--deep)}.workspace-choice select{width:100%;padding:10px 11px;border:1px solid #D8D4CA;border-radius:8px;background:#fff;color:var(--ink);font:500 14px 'Neue Haas Grotesk',sans-serif}.workspace-choice p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink)}
-    .billing-contact{margin:16px 0 0;padding:14px;border:1px solid var(--line);border-radius:10px;background:#FCFBF8}.billing-contact h2{margin:0 0 4px;color:var(--deep);font-size:14px}.billing-contact>p{margin:0 0 12px;color:#6E6F73;font-size:12.5px;line-height:1.5}.billing-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.billing-field{display:grid;gap:5px}.billing-field.email{grid-column:1/-1}.billing-field label{color:var(--deep);font-size:11.5px;font-weight:700}.billing-field input{width:100%;min-width:0;padding:10px 11px;border:1px solid #D8D4CA;border-radius:8px;background:#fff;color:var(--ink);font:500 14px 'Neue Haas Grotesk',sans-serif}.billing-field input:focus{outline:2px solid rgba(12,110,120,.22);border-color:var(--accent)}.billing-field input:invalid:not(:placeholder-shown){border-color:#A33A32}.billing-field small{color:#85878A;font-size:11px;line-height:1.35}
+    .billing-contact{margin:16px 0 0;padding:14px;border:1px solid var(--line);border-radius:10px;background:#FCFBF8}.billing-contact h2{margin:0 0 4px;color:var(--deep);font-size:14px}.billing-contact>p{margin:0 0 12px;color:#6E6F73;font-size:12.5px;line-height:1.5}.billing-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.billing-field{display:grid;gap:5px}.billing-field.email{grid-column:1/-1}.billing-field label{color:var(--deep);font-size:11.5px;font-weight:700}.billing-field input,.billing-field select{width:100%;min-width:0;padding:10px 11px;border:1px solid #D8D4CA;border-radius:8px;background:#fff;color:var(--ink);font:500 14px 'Neue Haas Grotesk',sans-serif}.billing-field input:focus,.billing-field select:focus{outline:2px solid rgba(12,110,120,.22);border-color:var(--accent)}.billing-field input:invalid:not(:placeholder-shown){border-color:#A33A32}.billing-field small{color:#85878A;font-size:11px;line-height:1.35}
     @media(max-width:520px){.billing-grid{grid-template-columns:1fr}.billing-field.email{grid-column:auto}}
     .muted-note{margin-top:26px;text-align:center;font-size:12.8px;color:#6E6F73;}
     .muted-note a{color:var(--accent);text-decoration:none;font-weight:500;}
@@ -76,8 +76,10 @@
       </div>
       <section class="billing-contact" aria-labelledby="billingContactTitle">
         <h2 id="billingContactTitle">Billing and purchasing record</h2>
-        <p>Optional. Workspace Admins always receive purchase confirmation; add an accounts-payable contact or internal reference if needed.</p>
+        <p>Workspace Admins receive purchase confirmation. Billing location is required to confirm self-service tax eligibility; Stripe verifies the full billing address.</p>
         <div class="billing-grid">
+          <div class="billing-field"><label for="billingCountry">Billing country</label><select id="billingCountry" name="billing_country" required><option value="US">United States</option><option value="CA">Canada</option><option value="GB">United Kingdom</option><option value="AU">Australia</option><option value="NZ">New Zealand</option><option value="IE">Ireland</option><option value="DE">Germany</option><option value="FR">France</option><option value="NL">Netherlands</option></select></div>
+          <div class="billing-field"><label for="billingRegion">State, province, or region code</label><input id="billingRegion" name="billing_region" autocomplete="address-level1" maxlength="3" placeholder="e.g. KS" required /><small>Use the standard two- or three-letter code.</small></div>
           <div class="billing-field"><label for="billingContactName">Billing contact name</label><input id="billingContactName" name="billing_contact_name" autocomplete="name" maxlength="160" placeholder="Accounts payable" /></div>
           <div class="billing-field"><label for="purchaseOrderReference">PO or internal reference</label><input id="purchaseOrderReference" name="purchase_order_reference" maxlength="120" placeholder="Optional" /><small>Shown on Stripe invoices when supplied.</small></div>
           <div class="billing-field email"><label for="billingEmail">Billing email</label><input id="billingEmail" name="billing_email" type="email" autocomplete="email" maxlength="320" placeholder="billing@organization.com" /><small>The welcome package and PDF invoice also go here.</small></div>
@@ -224,6 +226,11 @@
         return;
       }
       btn.addEventListener("click", async () => {
+        if (!el("billingCountry").value || !el("billingRegion").value.trim()) {
+          showError("Enter the billing country and state, province, or region code before continuing.");
+          el("billingRegion").focus();
+          return;
+        }
         btn.disabled = true;
         btn.textContent = "Opening secure checkout\u2026";
         try {
@@ -238,6 +245,8 @@
               tier,
               interval,
               organization_id: organizationId,
+              billing_country: el("billingCountry").value,
+              billing_region: el("billingRegion").value.trim().toUpperCase(),
               billing_contact_name: el("billingContactName").value.trim(),
               billing_email: el("billingEmail").value.trim(),
               purchase_order_reference: el("purchaseOrderReference").value.trim()
@@ -249,6 +258,7 @@
           else if (res.status === 403) { showError("Only a workspace admin can purchase for the selected organization. Ask your admin to complete checkout, or contact us via the Connect form."); }
           else if (out.error === "organization_selection_required") { showError("Choose the Workspace that should receive this subscription."); }
           else if (out.error === "invalid_billing_email") { showError("Enter a valid billing email address or leave the optional field blank."); }
+          else if (["billing_country_required","billing_region_required","operator_assisted_purchase_required"].includes(out.error)) { showError("Self-service purchasing is not yet enabled for that billing location. Nothing was charged; use the Connect form and we’ll help with an order form."); el("unavailablePanel").style.display = "block"; }
           else if (res.status === 401) { location.replace("signin.html?next=" + encodeURIComponent("checkout.html")); return; }
           else { showError("Checkout could not be started. Nothing was charged: please try again, or use the Connect form for an order form."); }
         } catch (e) {
