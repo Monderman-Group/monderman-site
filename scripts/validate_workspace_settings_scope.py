@@ -20,6 +20,7 @@ def validate_source(source: str) -> None:
         'function workspaceSelect(table, columns, options)',
         'function workspaceUpdate(table, values)',
         'function workspaceDelete(table)',
+        'async function workspaceApi(path,{method="GET",body}={})',
         '.eq("organization_id", requireWorkspaceOrgId())',
     ]:
         assert token in helper, f"workspace query helper is missing {token!r}"
@@ -48,12 +49,12 @@ def validate_source(source: str) -> None:
         "member role mutation": (
             "async function updateMemberRole",
             "async function removeMember",
-            'workspaceUpdate("organization_members"',
+            'workspaceApi("/api/workspace/members/"',
         ),
         "member removal": (
             "async function removeMember",
             "// ── PEOPLE",
-            'workspaceDelete("organization_members")',
+            'workspaceApi("/api/workspace/members/"',
         ),
     }
     for label, (start, end, token) in checks.items():
@@ -74,6 +75,13 @@ def validate_source(source: str) -> None:
 
     context = section(source, "async function resolveContext", "// ── ORGANISATION")
     assert '.eq("user_id",user.id)' in context, "membership resolution is not identity-scoped"
+
+    rename = section(source, "async function saveOrgName", "// ── ACCESS & INVITES")
+    assert 'workspaceApi("/api/workspace/organization"' in rename
+    assert 'supabase.from("organizations").update' not in rename
+    member_mutations = section(source, "async function updateMemberRole", "// ── PEOPLE")
+    assert 'workspaceUpdate("organization_members"' not in member_mutations
+    assert 'workspaceDelete("organization_members")' not in member_mutations
 
 
 def validate_mixed_organization_fixture() -> None:

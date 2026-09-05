@@ -478,6 +478,27 @@ body{transition:background-color .25s ease, color .25s ease}
     function workspaceDelete(table){
       return supabase.from(table).delete().eq("organization_id", requireWorkspaceOrgId());
     }
+    async function workspaceApi(path,{method="GET",body}={}){
+      const {data}=await supabase.auth.getSession();
+      const token=data?.session?.access_token;
+      if(!token) throw new Error("Sign in again to continue.");
+      const response=await fetch(API_BASE+path,{
+        method,
+        headers:{
+          Authorization:"Bearer "+token,
+          "X-Monderman-Organization-Id":requireWorkspaceOrgId(),
+          ...(body?{"Content-Type":"application/json"}:{})
+        },
+        ...(body?{body:JSON.stringify(body)}:{})
+      });
+      const payload=await response.json().catch(()=>({}));
+      if(!response.ok){
+        const error=new Error(payload.message||payload.error||"Workspace request failed.");
+        error.code=payload.error||"workspace_request_failed";
+        throw error;
+      }
+      return payload;
+    }
     function validEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e||""); }
     function flash(slot,kind,msg){ const e=$(slot); if(!e) return; e.innerHTML=`<div class="msg ${kind}">${esc(msg)}</div>`; if(kind==="ok") setTimeout(()=>{ if($(slot)) $(slot).innerHTML=""; },4000); }
     function genToken(){
@@ -553,9 +574,8 @@ body{transition:background-color .25s ease, color .25s ease}
       if(!name){ flash("orgMsg","bad","Give the organization a name."); return; }
       $("saveOrg").disabled=true;
       try{
-        const { error } = await supabase.from("organizations").update({ name }).eq("id", state.orgId);
-        if(error) throw error;
-        state.org.name=name; setText("ws5Org",name);
+        const payload=await workspaceApi("/api/workspace/organization",{method:"PATCH",body:{name}});
+        state.org.name=payload.organization?.name||name; setText("ws5Org",state.org.name);
         flash("orgMsg","ok","Saved.");
       }catch(e){ flash("orgMsg","bad","Couldn’t save: organization changes are admin-only. ("+(e.message||"error")+")"); }
       finally{ $("saveOrg").disabled=!isAdmin(); }
@@ -665,8 +685,7 @@ body{transition:background-color .25s ease, color .25s ease}
     }
     async function updateMemberRole(id,role){
       try{
-        const {error}=await workspaceUpdate("organization_members",{role,billing_suspended_role:null,billing_suspended_at:null}).eq("id",id);
-        if(error) throw error;
+        await workspaceApi("/api/workspace/members/"+encodeURIComponent(id),{method:"PATCH",body:{role}});
         await loadMembers(); flash("memberMsg","ok","Workspace role updated.");
       }catch(e){
         const m=String(e.message||"error");
@@ -676,8 +695,7 @@ body{transition:background-color .25s ease, color .25s ease}
     }
     async function removeMember(id){
       try{
-        const {error}=await workspaceDelete("organization_members").eq("id",id);
-        if(error) throw error;
+        await workspaceApi("/api/workspace/members/"+encodeURIComponent(id),{method:"DELETE"});
         await loadMembers(); flash("memberMsg","ok","Workspace user removed.");
       }catch(e){ flash("memberMsg","bad","Couldn’t remove that Workspace user. The organization owner cannot be removed."); await loadMembers(); }
     }
