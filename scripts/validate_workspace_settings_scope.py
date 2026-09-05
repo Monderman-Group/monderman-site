@@ -45,11 +45,6 @@ def validate_source(source: str) -> None:
             "// ── DATA EXPORT",
             'workspaceSelect(table,"*",{count:"exact",head:true})',
         ),
-        "data export": (
-            "async function exportRuns",
-            "async function boot",
-            'workspaceSelect("diagnostic_runs"',
-        ),
         "member role mutation": (
             "async function updateMemberRole",
             "async function removeMember",
@@ -65,12 +60,14 @@ def validate_source(source: str) -> None:
         assert token in section(source, start, end), f"{label} is not explicitly Workspace-scoped"
 
     usage = section(source, "async function loadUsage", "// ── DATA EXPORT")
-    for table in ["diagnostic_runs", "participants", "diagnostic_assignments", "synthesis_runs"]:
+    for table in ["participants", "diagnostic_assignments"]:
         assert f'count("{table}"' in usage, f"usage no longer checks {table}"
-    assert 'count("diagnostic_runs", q=>q.eq("status","promoted"))' in usage
+    assert '/api/normalization/workspace-runs/' in usage
+    assert '/api/synthesis-runs?limit=500' in usage
 
     export = section(source, "async function exportRuns", "async function boot")
-    assert "organization_id" in export, "export must retain organization_id for boundary auditing"
+    assert '/api/normalization/workspace-runs/' in export, "export must use the guarded report API"
+    assert '"X-Monderman-Organization-Id":state.orgId' in export
     assert not re.search(r'supabase\.from\("diagnostic_runs"\)', export), (
         "export bypasses the active-Workspace query helper"
     )

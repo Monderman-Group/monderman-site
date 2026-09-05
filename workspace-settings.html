@@ -720,13 +720,23 @@ body{transition:background-color .25s ease, color .25s ease}
       }catch(e){ return "Unavailable"; }
     }
     async function loadUsage(){
-      const [runs, included, people, assign, synth] = await Promise.all([
-        count("diagnostic_runs"),
-        count("diagnostic_runs", q=>q.eq("status","promoted")),
+      let runRows=[]; let synth="Unavailable";
+      try{
+        const {data}=await supabase.auth.getSession(); const token=data?.session?.access_token;
+        const headers={Authorization:"Bearer "+(token||""),"X-Monderman-Organization-Id":state.orgId};
+        const [runResponse,synthResponse]=await Promise.all([
+          fetch(`${API_BASE}/api/normalization/workspace-runs/${encodeURIComponent(state.orgId)}`,{headers}),
+          fetch(`${API_BASE}/api/synthesis-runs?limit=500`,{headers})
+        ]);
+        const runPayload=await runResponse.json().catch(()=>({})); const synthPayload=await synthResponse.json().catch(()=>({}));
+        if(runResponse.ok&&Array.isArray(runPayload.runs)) runRows=runPayload.runs;
+        if(synthResponse.ok&&Array.isArray(synthPayload.syntheses)) synth=synthPayload.syntheses.length;
+      }catch(_error){}
+      const [people, assign] = await Promise.all([
         count("participants"),
         count("diagnostic_assignments"),
-        count("synthesis_runs"),
       ]);
+      const runs=runRows.length, included=runRows.filter(run=>run.status==="promoted").length;
       setText("uRuns",runs); setText("uPromoted",included); setText("uPeople",people); setText("uAssign",assign); setText("uSynth",synth);
     }
 
@@ -734,10 +744,11 @@ body{transition:background-color .25s ease, color .25s ease}
     async function exportRuns(){
       $("exportRuns").disabled=true;
       try{
-        const { data, error } = await workspaceSelect("diagnostic_runs",
-          "id, organization_id, tool_type, tool_label, business_unit, pathway_name, score, band, primary_driver, benchmark_position, trajectory_label, status, created_at")
-          .order("created_at",{ascending:false});
-        if(error) throw error;
+        const {data:sessionData}=await supabase.auth.getSession(); const token=sessionData?.session?.access_token;
+        const response=await fetch(`${API_BASE}/api/normalization/workspace-runs/${encodeURIComponent(state.orgId)}`,{headers:{Authorization:"Bearer "+(token||""),"X-Monderman-Organization-Id":state.orgId}});
+        const result=await response.json().catch(()=>({}));
+        if(!response.ok||!result.ok) throw new Error(result.error||("HTTP "+response.status));
+        const data=Array.isArray(result.runs)?result.runs:[];
         const payload = { exported_at:new Date().toISOString(), organization:state.org?.name||null, count:(data||[]).length, runs:data||[] };
         const blob = new Blob([JSON.stringify(payload,null,2)], { type:"application/json" });
         const url = URL.createObjectURL(blob);

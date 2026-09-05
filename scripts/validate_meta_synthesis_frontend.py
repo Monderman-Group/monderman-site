@@ -93,7 +93,8 @@ for token in (
     "SYNTH_MAX_LOAD = 10000",
     "SYNTH_MAX_SELECTED = 5000",
     "SYNTH_DETAIL_ROWS = 250",
-    '.range(from,to)',
+    "fetchWorkspaceRuns(ws5OrgId)",
+    '/api/normalization/workspace-runs/',
     'run_ids:ids',
     'scopePolicy:',
     'samplingFrame',
@@ -105,8 +106,8 @@ for token in (
     '/api/synthesis-runs',
     'Build Depth Synthesis',
     'Build Cross-Lens Synthesis',
-    '.eq("included_in_aggregates",true)',
-    '.in("normalization_status",["included","included_with_caution"])',
+    'run.included_in_aggregates===true',
+    '["included","included_with_caution"].includes(run.normalization_status)',
 ):
     require(WORKSPACE, token, "workspace-analysis.html")
 
@@ -116,6 +117,8 @@ for token in (
     "body: JSON.stringify({ results",
     "Compounded exposure",
     "Cross-Diagnostic Score",
+    '.from("diagnostic_runs")',
+    ".from('diagnostic_runs')",
 ):
     forbid(WORKSPACE, token, "workspace-analysis.html")
 
@@ -136,11 +139,14 @@ require(
     "workspace.html Included helper",
 )
 for token in (
-    '.eq("status","promoted")',
-    '.eq("included_in_aggregates",true)',
-    '.in("normalization_status",["included","included_with_caution"])',
+    '/api/normalization/workspace-runs/',
+    'run.status==="promoted"',
+    'run.included_in_aggregates===true',
+    '["included","included_with_caution"].includes(run.normalization_status)',
 ):
     require(ACTIONS, token, "workspace-actions.html")
+for token in ('.from("diagnostic_runs")', ".from('diagnostic_runs')"):
+    forbid(ACTIONS, token, "workspace-actions.html")
 
 # Direct-upload parity and body-size guard.
 for token in (

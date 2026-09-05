@@ -18,8 +18,8 @@ def require(condition, message):
         failures.append(message)
 
 
-expected_commit = "fbbadb70b4d0c480f5d4ae58c4b6285b3164fccc"
-expected_digest = "eed3e281958989ac478c3b9ec14878c76299460e57c3f4e80e6d55dbd4418820"
+expected_commit = "07328e2a15ee16262e98e573e97c6bfd65659260"
+expected_digest = "447cdd78f6fceecdecfdd8f31ef99de048b96aace73de835757ff51cc79be6d7"
 require(artifact.get("contract") == "monderman-public-diagnostic-sample-output/v1", "unexpected production sample artifact contract")
 require(artifact.get("engine_commit") == expected_commit, "sample artifact is not locked to the reviewed API main revision")
 require(artifact.get("artifact_sha256") == expected_digest, "sample artifact digest is not the reviewed digest")
@@ -29,6 +29,8 @@ canonical = json.dumps(digest_input, separators=(",", ":"), ensure_ascii=False)
 require(hashlib.sha256(canonical.encode("utf-8")).hexdigest() == expected_digest, "sample artifact content does not match its digest")
 require(artifact == engine_fixture, "public Diagnostic samples have drifted from the certified authenticated-engine fixture")
 require("no customer data and no model-authored claims" in artifact.get("generation_mode", ""), "sample generation mode is not bounded")
+require(artifact.get("claims_policy", {}).get("version") == "bounded-nonclaims-v2", "sample claims-policy version is missing")
+require(artifact.get("claims_policy", {}).get("status") == "passed", "sample claims-policy gate did not pass")
 require(len(artifact.get("source_blobs", {})) >= 14, "engine-source provenance is incomplete")
 
 expected = {
@@ -59,7 +61,7 @@ for key, contract in expected.items():
 
 require('sample-report-production.css?v=20260824-sample-alignment' in sample, "sample page does not load the aligned production-contract presentation")
 require('sample-report-production.js?v=20260824-sample-alignment2' in sample, "sample page does not load the aligned production-contract renderer")
-require('sample-data/production-diagnostic-samples.json?v=eed3e2819589' in renderer, "renderer does not load the reviewed artifact")
+require('sample-data/production-diagnostic-samples.json?v=447cdd78f6fc' in renderer, "renderer does not load the reviewed artifact")
 for key in ["operational_systems", "decision_velocity", "structural_clarity", "institutional_performance"]:
     require(key in renderer, f"renderer omits {key}")
 for token in [

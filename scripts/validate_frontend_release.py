@@ -511,8 +511,8 @@ for name in ['workspace-actions.html','workspace-analysis.html','workspace-diagn
   if token not in t:e.append(name+': pattern trial rail '+token)
 
 # Saved reports linked from Overview must reopen even when the run is older
-# than the Measure page's capped 200-row history. RLS on diagnostic_runs is the
-# ownership boundary for exportRun's direct query.
+# than the Measure page's current history. The guarded report API is the
+# ownership, completion, entitlement, and claims boundary.
 measure=(r/'workspace-diagnostics.html').read_text(errors='ignore')
 report_module=(r/'monderman-report.js').read_text(errors='ignore')
 for token in ['reserveReportWindow: reserveReportWindow', 'closeReservedReportWindow: closeReservedReportWindow', 'openReport(model, reportWindow)', 'reportWindow.location.replace(url)']:
@@ -570,12 +570,14 @@ for name in ['workspace.html','workspace-diagnostics.html','workspace-analysis.h
 for name in ['privacy.html','security.html']:
  if 'href="terms.html"' not in (r/name).read_text(errors='ignore'):e.append(name+': terms link')
 
-# Saved Synthesis reports/history are RLS-readable customer records. Keep a
-# direct database fallback so report reopening and Actions do not inherit the
-# compute budget or availability of the Synthesis build endpoint.
+# Saved Diagnostic and Synthesis output tables are server-only. Browser pages
+# must not retain a direct database fallback around report-policy gates.
 for name in ['cross-tool-synthesis.html','workspace-actions.html','workspace-analysis.html']:
  t=(r/name).read_text(errors='ignore')
- if '.from("synthesis_runs")' not in t:e.append(name+': saved Synthesis RLS fallback missing')
+ if '.from("synthesis_runs")' in t:e.append(name+': direct saved Synthesis table access remains')
+for name in ['workspace.html','workspace-diagnostics.html','workspace-analysis.html','workspace-actions.html','workspace-settings.html']:
+ t=(r/name).read_text(errors='ignore')
+ if '.from("diagnostic_runs")' in t:e.append(name+': direct saved Diagnostic table access remains')
 
 # Analysis trust must count the canonical participant_mode field returned by
 # the normalization workspace-runs endpoint.

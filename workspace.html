@@ -633,16 +633,19 @@ body{transition:background-color .25s ease,color .25s ease}
       if(!state.user) return [];
       // Workspace overview, not personal history: show every promoted run in
       // the organization: colleagues' reads and directed-campaign runs
-      // included. Campaign runs carry no user_id, so the old user filter made
-      // the workspace's own campaigns invisible here. Falls back to
-      // personal-only when no organization is linked. Requires the org-scoped
-      // SELECT policy on diagnostic_runs (see deployment notes).
+      // included. Reports are read through the API so completion, claims,
+      // assignment visibility, and plan entitlements are enforced uniformly.
       const orgId = state.membership?.organization_id || null;
-      let query = supabase.from("diagnostic_runs").select("*").eq("status","promoted").order("created_at",{ ascending:false }).limit(1000);
-      query = orgId ? query.eq("organization_id", orgId) : query.eq("user_id", state.user.id);
-      const { data, error } = await query;
-      if(error) throw error;
-      return data || [];
+      if(!orgId) return [];
+      const { data } = await supabase.auth.getSession();
+      const token = data?.session?.access_token;
+      if(!token) throw new Error("workspace_session_expired");
+      const response = await fetch(`${API_BASE}/api/normalization/workspace-runs/${encodeURIComponent(orgId)}`, {
+        headers:{ Authorization:"Bearer "+token, "X-Monderman-Organization-Id":orgId }
+      });
+      const payload = await response.json().catch(()=>({}));
+      if(!response.ok || payload.ok===false) throw new Error(payload.error || `HTTP ${response.status}`);
+      return (Array.isArray(payload.runs)?payload.runs:[]).filter(run=>run.status==="promoted").slice(0,1000);
     }
 
     function setRoleState(role){
@@ -756,9 +759,17 @@ body{transition:background-color .25s ease,color .25s ease}
       async function count(table,configure){
         try{let query=supabase.from(table).select('id',{count:'exact',head:true}).eq('organization_id',orgId);query=configure?configure(query):query;const result=await query;return result.error?0:Number(result.count||0);}catch(_error){return 0;}
       }
+      async function countSyntheses(){
+        try{
+          const {data}=await supabase.auth.getSession(); const token=data?.session?.access_token;
+          const response=await fetch(`${API_BASE}/api/synthesis-runs?limit=500`,{headers:{...(token?{Authorization:`Bearer ${token}`}:{ }),"X-Monderman-Organization-Id":orgId}});
+          const payload=await response.json().catch(()=>({}));
+          return response.ok&&Array.isArray(payload.syntheses)?payload.syntheses.length:0;
+        }catch(_error){return 0;}
+      }
       const [memberCount,synthesisCount,planCount,remeasureRuns,remeasureSyntheses]=await Promise.all([
         count('organization_members'),
-        count('synthesis_runs'),
+        countSyntheses(),
         count('action_plans'),
         count('action_items',(query)=>query.not('remeasure_run_id','is',null)),
         count('action_items',(query)=>query.not('remeasure_synthesis_id','is',null))
@@ -804,7 +815,7 @@ body{transition:background-color .25s ease,color .25s ease}
         }catch(err){
           console.error(err);
           state.runs = [];
-          setStatus("Your workspace loaded, but saved reads couldn’t be read. (Check row-level security on diagnostic_runs.)", "error");
+          setStatus("Your workspace loaded, but saved reads couldn’t be read through the report service.", "error");
         }
 
         const byTool = latestByTool(state.runs);

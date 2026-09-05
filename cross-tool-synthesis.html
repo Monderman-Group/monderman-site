@@ -151,9 +151,7 @@
             const response=await fetch(`${API_BASE}/api/synthesis-runs/${encodeURIComponent(id)}`,{headers:{Authorization:"Bearer "+token,...(organizationId?{"X-Monderman-Organization-Id":organizationId}:{})}});
             const payload=await response.json().catch(()=>({}));
             if(response.ok&&payload.result){ renderResult(payload.result); return; }
-            const {data:row,error}=await supabase.from("synthesis_runs").select("id, created_at, result_json").eq("organization_id",organizationId).eq("id",id).maybeSingle();
-            if(error||!row?.result_json) throw new Error(payload.error||error?.message||`HTTP ${response.status}`);
-            renderResult({...row.result_json,synthesis_id:row.id,saved_at:row.created_at}); return;
+            throw new Error(payload.message||payload.error||`HTTP ${response.status}`);
           }catch(error){
             byId("missingTitle").textContent="Saved Synthesis unavailable";
             byId("missingCopy").textContent="This saved Synthesis could not be loaded for your workspace. Return to Analysis to choose another saved Synthesis or build a new one.";

@@ -906,30 +906,17 @@ body{transition:background-color .25s ease, color .25s ease}
       const body=$("synthBody");
       if(body) body.innerHTML=`<p class="muted">Loading Included runs…</p>`;
       try{
-        const rows=[];
-        for(let from=0; from<SYNTH_MAX_LOAD; from+=SYNTH_PAGE_SIZE){
-          const to=Math.min(SYNTH_MAX_LOAD-1,from+SYNTH_PAGE_SIZE-1);
-          const { data,error }=await supabase.from("diagnostic_runs")
-            .select("id, tool_type, tool_label, business_unit, pathway_name, participant_mode, diagnostic_depth, score, band, created_at, status, normalization_status, included_in_aggregates, label, is_anonymous_response, assignment_id, config_version, scorer_version")
-            .eq("organization_id",ws5OrgId)
-            .eq("status","promoted")
-            .eq("included_in_aggregates",true)
-            .in("normalization_status",["included","included_with_caution"])
-            .order("created_at",{ascending:false}).range(from,to);
-          if(error) throw error;
-          const page=data||[];
-          rows.push(...page);
-          if((data||[]).length<SYNTH_PAGE_SIZE) break;
-        }
-        SYNTH_RUNS=rows.slice(0,SYNTH_MAX_LOAD);
+        const rows=await fetchWorkspaceRuns(ws5OrgId);
+        SYNTH_RUNS=rows.filter(run=>
+          run.status==="promoted" && run.included_in_aggregates===true &&
+          ["included","included_with_caution"].includes(run.normalization_status) &&
+          run.report_available===true && run.locked!==true
+        ).slice(0,SYNTH_MAX_LOAD);
         try{
           const {data:sess}=await supabase.auth.getSession(); const token=sess?.session?.access_token;
           const hr=await fetch(`${API_BASE}/api/synthesis-runs?limit=100`,{headers:{...(token?{Authorization:"Bearer "+token}:{}),...(ws5OrgId?{"X-Monderman-Organization-Id":ws5OrgId}:{})}});
           const hj=await hr.json().catch(()=>({})); if(!hr.ok||!Array.isArray(hj.syntheses))throw new Error(hj.error||("HTTP "+hr.status)); SYNTH_HISTORY=hj.syntheses; SAVED_SYNTHESES=SYNTH_HISTORY;
-        }catch(_e){
-          try{ const {data,error}=await supabase.from("synthesis_runs").select("id, title, synthesis_product, synthesis_mode, source_run_count, lens_count, score_status, score, score_label, condition_band, evidence_band, evidence_label, created_by_user_id, created_at, updated_at").eq("organization_id",ws5OrgId).order("created_at",{ascending:false}).limit(100); if(error)throw error; SYNTH_HISTORY=data||[]; SAVED_SYNTHESES=SYNTH_HISTORY; }
-          catch(_fallbackError){ SYNTH_HISTORY=[]; SAVED_SYNTHESES=[]; }
-        }
+        }catch(_e){ SYNTH_HISTORY=[]; SAVED_SYNTHESES=[]; }
       }catch(error){
         SYNTH_RUNS=[];
         if(body) body.innerHTML=emptyHTML("Couldn’t load reads","Refresh the workspace. Synthesis uses Included, aggregate-eligible runs from your organization.");
@@ -1150,7 +1137,7 @@ body{transition:background-color .25s ease, color .25s ease}
         SNAPS = (snapshotResult.data || []).map(s=>({ ...s, vantage:normalizeVantage(s.vantage) }));
         ACTION_LINKS = (linkResult.data || []).filter(x=>(x.source_run_id&&x.remeasure_run_id)||(x.source_synthesis_id&&x.remeasure_synthesis_id));
         try{ const {data:sess}=await supabase.auth.getSession(); const token=sess?.session?.access_token; const sr=await fetch(`${API_BASE}/api/synthesis-runs?limit=500`,{headers:{...(token?{Authorization:"Bearer "+token}:{}),...(ws5OrgId?{"X-Monderman-Organization-Id":ws5OrgId}:{})}}); const sj=await sr.json().catch(()=>({})); if(!sr.ok||!Array.isArray(sj.syntheses))throw new Error(sj.error||("HTTP "+sr.status)); SAVED_SYNTHESES=sj.syntheses; }
-        catch(_e){ try{ const {data,error}=await supabase.from("synthesis_runs").select("id, title, synthesis_product, synthesis_mode, source_run_count, lens_count, score_status, score, score_label, condition_band, evidence_band, evidence_label, created_by_user_id, created_at, updated_at").eq("organization_id",ws5OrgId).order("created_at",{ascending:false}).limit(500); if(error)throw error; SAVED_SYNTHESES=data||[]; }catch(_fallbackError){ SAVED_SYNTHESES=[]; } }
+        catch(_e){ SAVED_SYNTHESES=[]; }
         // 8 Aug 2026: carry each snapshot's instrument version so trends never
         // compare across versions. "Comparisons hold within a version" is a
         // published DAII commitment; the trend previously plotted 1.0.0 and
@@ -1160,9 +1147,8 @@ body{transition:background-color .25s ease, color .25s ease}
         try{
           const runIds = [...new Set(SNAPS.map(s=>s.source_run_id).filter(Boolean))];
           if(runIds.length){
-            const { data: vRows, error: vErr } = await supabase.from("diagnostic_runs")
-              .select("id, config_version, scorer_version").eq("organization_id",ws5OrgId).in("id", runIds);
-            if(vErr) throw vErr;
+            const allRuns = await fetchWorkspaceRuns(ws5OrgId);
+            const vRows = allRuns.filter(run=>runIds.includes(run.id));
             const vById = {}; (vRows||[]).forEach(r=>{ vById[r.id] = { cv: r.config_version || null, sv: r.scorer_version || null }; });
             SNAPS = SNAPS.map(s=>{ const v = vById[s.source_run_id]; return v ? { ...s, __v: v } : { ...s }; });
           } else {

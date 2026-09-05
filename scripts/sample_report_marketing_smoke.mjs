@@ -13,6 +13,18 @@ page.on('pageerror',e=>errors.push(`pageerror: ${e.message}`));
 page.on('console',m=>{if(m.type()==='error') errors.push(`console: ${m.text()}`)});
 
 function assert(ok,msg){ if(!ok) throw new Error(msg); }
+function hasUncaveatedPredictedOutcome(text){
+  const pattern=/\b(?:will|would)\s+(?:improve|reduce|increase|recover|produce|create|cause|restore|reclaim)\b/ig;
+  for(const match of text.matchAll(pattern)){
+    const prior=text.slice(Math.max(0,match.index-240),match.index);
+    // These phrases explicitly deny prediction or causal proof. Stop at sentence
+    // punctuation so a later affirmative claim cannot borrow an earlier negation.
+    if(/\b(?:does|do|did) not (?:establish|predict|show|demonstrate|prove)[^.!?]{0,220}$/i.test(prior)) continue;
+    if(/\b(?:cannot|can't) (?:establish|predict|show|demonstrate|prove)[^.!?]{0,220}$/i.test(prior)) continue;
+    return true;
+  }
+  return false;
+}
 await page.goto(`${base}/sample-report.html`,{waitUntil:'networkidle',timeout:90000});
 // textContent intentionally includes hidden tab panels; each panel is separately made visible and rendered below.
 const pageText=await page.locator('body').textContent();
@@ -23,6 +35,8 @@ assert(!/executive-seat/i.test(pageText),'executive-seat remains');
 assert(!/unedited output|identical to a real run/i.test(pageText),'misleading provenance claim remains');
 assert(!pageText.includes('$84,000'),'stale Structural Clarity burden contradiction remains');
 assert(!pageText.includes('$6.9 million'),'stale Institutional Performance burden contradiction remains');
+assert(!/Protects a strong design|Keeps current clarity durable|Produces a structurally legible environment|the most lasting fix|faster movement sooner|Apply the validated ownership|borrowed performance|held together by extra effort|consuming organizational time/i.test(pageText),'prohibited causal, predictive, durability, or validated-model copy remains in rendered samples');
+assert(!hasUncaveatedPredictedOutcome(pageText),'uncaveated predicted outcome language remains in rendered samples');
 assert(pageText.includes('$74,880'),'Structural Clarity representative burden missing');
 assert(pageText.includes('$844,800'),'Institutional Performance representative burden missing');
 
@@ -32,7 +46,7 @@ const cases=[
   ['sc','Structural Clarity',['Structural Clarity: Executive Report','Executive decision brief','Interpretation boundary']],
   ['ip','Institutional Performance',['Institutional Performance: Executive Report','Executive decision brief','Interpretation boundary']],
   ['synthesis','Cross-Lens Synthesis',['Cross-Lens Composite Score','Strong evidence','55.5','Structural Clarity','Decision Velocity']],
-  ['depth','Depth Synthesis',['Median Diagnostic Score','Substantial evidence','18 eligible runs','Operational','Managerial','Senior Leader']]
+  ['depth','Depth Synthesis',['Median Diagnostic Score','Substantial evidence','18 eligible','Operational','Managerial','Senior Leader']]
 ];
 for(const [key,label,required] of cases){
   await page.locator(`[data-target="${key}"]`).click();

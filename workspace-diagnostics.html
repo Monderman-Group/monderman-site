@@ -774,15 +774,16 @@ body{transition:background-color .25s ease, color .25s ease}
     async function loadRuns(){
       $("runsBody").innerHTML = `<p class="muted">Loading…</p>`;
       try{
-        const { data, error } = await supabase.from("diagnostic_runs")
-          .select("id, tool_type, tool_label, business_unit, pathway_name, score, band, primary_driver, benchmark_position, trajectory_label, exposure_json, key_findings_json, priority_actions_json, status, normalization_status, included_in_aggregates, config_version, scorer_version, created_at")
-          .eq("organization_id", state.orgId)
-          .order("created_at",{ ascending:false }).limit(200);
-        if(error) throw error;
-        state.runs = data || [];
+        const { data:sessionData }=await supabase.auth.getSession();
+        const token=sessionData?.session?.access_token;
+        if(!token) throw new Error("Sign in again to load Diagnostic runs.");
+        const response=await fetch(`${API_BASE}/api/normalization/workspace-runs/${encodeURIComponent(state.orgId)}`,{headers:{Authorization:"Bearer "+token,"X-Monderman-Organization-Id":state.orgId}});
+        const payload=await response.json().catch(()=>({}));
+        if(!response.ok||!payload?.ok) throw new Error(payload?.message||payload?.error||(`HTTP ${response.status}`));
+        state.runs = Array.isArray(payload.runs)?payload.runs:[];
       }catch(e){
         state.runs = [];
-        $("runsBody").innerHTML = `<div class="empty"><b>Couldn’t load your runs</b><p>Please refresh. If it persists, check the diagnostic_runs read policy in Supabase.</p></div>`;
+        $("runsBody").innerHTML = `<div class="empty"><b>Couldn’t load your runs</b><p>Please refresh. If it persists, the report service may be temporarily unavailable.</p></div>`;
         return;
       }
       render();
@@ -820,6 +821,8 @@ body{transition:background-color .25s ease, color .25s ease}
     }
 
     function qualityPill(r){
+      if(r.narrative_pending) return `<span class="spill spill-staged">Report finishing</span>`;
+      if(r.claims_quarantined) return `<span class="spill spill-archived">Report quarantined</span>`;
       const st=r.normalization_status||null;
       if(st==="included") return `<span class="spill spill-promoted">Reviewed</span>`;
       if(st==="included_with_caution") return `<span class="spill spill-staged">Reviewed · caution</span>`;
@@ -829,6 +832,7 @@ body{transition:background-color .25s ease, color .25s ease}
     function actionsFor(r){
       if(!["admin","owner"].includes(String(state.role||"").toLowerCase())) return "";
       const id = r.id;
+      if(r.narrative_pending||r.claims_quarantined) return r.status==="archived"?`<button class="ract" data-act="staged" data-id="${id}">Restore</button>`:`<button class="ract danger" data-act="archived" data-id="${id}">Archive</button>`;
       if(r.status==="promoted"){
         return `<button class="ract" data-act="staged" data-id="${id}">Remove from analysis</button><button class="ract danger" data-act="archived" data-id="${id}">Archive</button>`;
       }
@@ -846,7 +850,7 @@ body{transition:background-color .25s ease, color .25s ease}
           <div class="run-tool">${esc(toolLabel(r))}<span>${esc(sub)}</span></div>
           <div class="run-score num" style="color:${tone(sc)}">${sc??"Unavailable"}</div>
           <div class="run-mid">${r.band?`<span class="run-band">${esc(r.band)}</span>`:""}${statusPill(r.status)}${qualityPill(r)}</div>
-          <div class="run-actions">${actionsFor(r)}<button class="ract" data-report="${r.id}">Report</button><button class="ract" data-json="${r.id}">JSON</button><button class="run-expand" data-exp="${r.id}">${open?"Hide":"Details"}</button></div>
+          <div class="run-actions">${actionsFor(r)}${r.report_available?`<button class="ract" data-report="${r.id}">Report</button><button class="ract" data-json="${r.id}">JSON</button>`:""}<button class="run-expand" data-exp="${r.id}">${open?"Hide":"Details"}</button></div>
           ${open?`<div class="run-detail">${runDetailHTML(r)}</div>`:""}
         </div>`;
     }
@@ -903,8 +907,16 @@ body{transition:background-color .25s ease, color .25s ease}
             return;
           }
         }
-        const { error } = await supabase.from("diagnostic_runs").update({ status }).eq("organization_id", state.orgId).eq("id", id);
-        if(error) throw error;
+        const { data } = await supabase.auth.getSession();
+        const token = data?.session?.access_token;
+        if(!token) throw new Error("Your Workspace session has expired. Sign in again before updating this run.");
+        const response = await fetch(`${API_BASE}/api/runs/${encodeURIComponent(id)}/status`, {
+          method:"PATCH",
+          headers:{ "Content-Type":"application/json", Authorization:"Bearer "+token, "X-Monderman-Organization-Id":state.orgId },
+          body:JSON.stringify({ status })
+        });
+        const payload = await response.json().catch(()=>({}));
+        if(!response.ok || payload.ok===false) throw new Error(payload.error || `Update failed (HTTP ${response.status})`);
         run.status = status;
         render();
         const note = status==="promoted" ? "Reviewed and Included: this run is now eligible for Analysis and Synthesis."
@@ -924,24 +936,15 @@ body{transition:background-color .25s ease, color .25s ease}
 
     async function exportRun(id, mode, btn, reportWindow){
       if(!window.MondermanReport){ flash("bad","Report module didn’t load: please refresh and try again."); return; }
-      const row = state.runs.find(r=>r.id===id) || {};
       const orig = btn ? btn.textContent : ""; if(btn){ btn.disabled=true; btn.textContent="…"; }
       try{
-        const { data, error } = await supabase.from("diagnostic_runs").select("full_result_json").eq("organization_id", state.orgId).eq("id", id).single();
-        if(error) throw error;
-        const m = (data && data.full_result_json && typeof data.full_result_json==="object") ? { ...data.full_result_json } : {};
-        // fill any gaps from the summary columns we already have, mapped to the export field names
-        if(m.tool_type==null) m.tool_type=row.tool_type;
-        if(m.tool_label==null) m.tool_label=row.tool_label;
-        if(m.score==null) m.score=row.score;
-        if(m.band==null) m.band=row.band;
-        if(m.benchmark_position==null) m.benchmark_position=row.benchmark_position;
-        if(m.trajectory==null && m.trajectory_label==null) m.trajectory=row.trajectory_label;
-        if(m.primary_driver==null) m.primary_driver=row.primary_driver;
-        if(m.business_unit==null) m.business_unit=row.business_unit;
-        if(m.key_findings==null){ const kf=parseMaybe(row.key_findings_json); if(kf) m.key_findings=listItems(kf); }
-        if(m.priority_actions==null){ const pa=parseMaybe(row.priority_actions_json); if(pa) m.priority_actions=listItems(pa); }
-        if(m.exposure==null){ const ex=parseMaybe(row.exposure_json); if(ex) m.exposure=ex; }
+        const { data:sessionData } = await supabase.auth.getSession();
+        const token=sessionData?.session?.access_token;
+        if(!token) throw new Error("Sign in again to open this report.");
+        const response=await fetch(`${API_BASE}/api/runs/${encodeURIComponent(id)}/report`,{headers:{Authorization:"Bearer "+token,...(state.orgId?{"X-Monderman-Organization-Id":state.orgId}:{})}});
+        const payload=await response.json().catch(()=>({}));
+        if(!response.ok||!payload?.result) throw new Error(payload?.message||payload?.error||(`HTTP ${response.status}`));
+        const m={...payload.result};
         if(mode==="json"){ window.MondermanReport.downloadJson(m, m.tool_type||"diagnostic"); }
         else { window.MondermanReport.openReport(window.MondermanReport.fromRun(m), reportWindow); }
       }catch(e){
@@ -991,7 +994,7 @@ body{transition:background-color .25s ease, color .25s ease}
       // Overview and other Workspace surfaces link to saved reports by ID. The
       // Measure history is intentionally capped at 200 rows, so an older owned
       // run may not be present in state.runs. Let exportRun query it directly;
-      // the diagnostic_runs RLS policy remains the ownership boundary.
+      // the report API remains the ownership and entitlement boundary.
       if(reportId){
         setTimeout(()=>exportRun(reportId,"report",null),0);
       }else if(state.runs.some(r=>r.status==="staged")){
@@ -1021,7 +1024,7 @@ body{transition:background-color .25s ease, color .25s ease}
     const TOOL = { operational_systems:"Operational Systems", decision_velocity:"Decision Velocity", structural_clarity:"Structural Clarity", institutional_performance:"Institutional Performance" };
     const TOOL_HTML = { operational_systems:"operational-systems.html", decision_velocity:"decision-velocity.html", structural_clarity:"structural-clarity.html", institutional_performance:"institutional-performance.html" };
 
-    const state = { user:null, orgId:null, userId:null, role:"viewer", organization:null, campaignAccess:null, recipients:[], lastReady:0, plans:[], planId:null, items:[], members:[], promotedRuns:[], promotedLoaded:false };
+    const state = { user:null, orgId:null, userId:null, role:"viewer", organization:null, campaignAccess:null, recipients:[], lastReady:0, campaignSendKey:null, plans:[], planId:null, items:[], members:[], promotedRuns:[], promotedLoaded:false };
     function isAdmin(){ return state.role==="admin" || state.role==="owner"; }
 
     const $ = id => document.getElementById(id);
@@ -1233,6 +1236,28 @@ body{transition:background-color .25s ease, color .25s ease}
     function flash(id,msg,kind){ $(id).innerHTML = `<div class="note ${kind}">${esc(msg)}</div>`; }
     function busy(id,on,label){ const b=$(id); b.disabled=on; if(label!==undefined) b.textContent= on?label:b.dataset.label; }
 
+    function campaignAttemptStorageKey(){ return `mondermanCampaignSendAttempt:${state.orgId||"unknown"}`; }
+    async function campaignPayloadFingerprint(){
+      const material=JSON.stringify({organization_id:state.orgId,csv:buildCSV(),defaults:buildDefaults(),batch_label:buildDefaults().event_path_name||""});
+      const bytes=new TextEncoder().encode(material);
+      const digest=await crypto.subtle.digest("SHA-256",bytes);
+      return Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,"0")).join("");
+    }
+    async function prepareCampaignSendAttempt(){
+      const fingerprint=await campaignPayloadFingerprint();
+      try{
+        const saved=JSON.parse(localStorage.getItem(campaignAttemptStorageKey())||"null");
+        if(saved?.fingerprint===fingerprint && /^[0-9a-f-]{36}$/i.test(saved?.key||"")) return saved.key;
+      }catch(_error){}
+      const key=crypto.randomUUID();
+      try{localStorage.setItem(campaignAttemptStorageKey(),JSON.stringify({fingerprint,key}));}catch(_error){}
+      return key;
+    }
+    function clearCampaignSendAttempt(){
+      state.campaignSendKey=null;
+      try{localStorage.removeItem(campaignAttemptStorageKey());}catch(_error){}
+    }
+
     // ---- preview ----
     async function doPreview(){
       const err=validate(); if(err){ flash("previewOut",err,"bad"); return; }
@@ -1247,6 +1272,7 @@ body{transition:background-color .25s ease, color .25s ease}
         if(!res.ok || data.ok===false) throw new Error(data.error || ("HTTP "+res.status));
         renderPreview(data);
         state.lastReady = (data.ready_rows||[]).length || (data.summary && data.summary.valid) || 0;
+        state.campaignSendKey = state.lastReady > 0 ? await prepareCampaignSendAttempt() : null;
         $("btnSend").disabled = state.lastReady < 1;
       }catch(e){ flash("previewOut","Preview failed: "+e.message,"bad"); state.lastReady=0; $("btnSend").disabled=true; }
       finally{ busy("btnPreview",false); }
@@ -1275,6 +1301,8 @@ body{transition:background-color .25s ease, color .25s ease}
       fd.append("organization_id", state.orgId);
       fd.append("sender_user_id", state.userId);
       fd.append("batch_label", buildDefaults().event_path_name || "");
+      state.campaignSendKey = state.campaignSendKey || await prepareCampaignSendAttempt();
+      fd.append("campaign_send_key", state.campaignSendKey);
       $("btnSend").dataset.label="Send campaign"; busy("btnSend",true,"Sending\u2026");
       try{
         const res=await fetch(`${API_BASE}/api/workspace/assignments/send-batch`, { method:"POST", headers: await apiAuthHeaders(), body:fd });
@@ -1283,7 +1311,7 @@ body{transition:background-color .25s ease, color .25s ease}
         const sent = (data.sent ? data.sent.length : undefined) ?? data.sent_count ?? state.lastReady;
         const failed = (data.failed ? data.failed.length : undefined) ?? data.failed_count ?? 0;
         flash("sendOut", `Campaign sent: ${sent} assignment${sent===1?"":"s"} created${failed?`, ${failed} could not be emailed (their links are below)`:""}.`, "ok");
-        state.lastReady=0; $("btnSend").disabled=true; $("previewOut").innerHTML=""; clearDraft();
+        state.lastReady=0; clearCampaignSendAttempt(); $("btnSend").disabled=true; $("previewOut").innerHTML=""; clearDraft();
         loadTracking();
       }catch(e){ flash("sendOut","Send failed: "+e.message,"bad"); }
       finally{ busy("btnSend",false); $("btnSend").disabled = state.lastReady < 1; }
@@ -1407,20 +1435,10 @@ body{transition:background-color .25s ease, color .25s ease}
       if(!window.MondermanReport){ fail("Unavailable"); return; }
       if(btn){ btn.disabled=true; btn.textContent="\u2026"; }
       try{
-        const { data, error } = await supabase.from("diagnostic_runs")
-          .select("full_result_json, tool_type, tool_label, score, band, primary_driver, benchmark_position, trajectory_label, business_unit")
-          .eq("organization_id", state.orgId).eq("id", runId).single();
-        if(error) throw error;
-        const row = data || {};
-        const m = (row.full_result_json && typeof row.full_result_json==="object") ? { ...row.full_result_json } : {};
-        if(m.tool_type==null) m.tool_type=row.tool_type||toolType;
-        if(m.tool_label==null) m.tool_label=row.tool_label;
-        if(m.score==null) m.score=row.score;
-        if(m.band==null) m.band=row.band;
-        if(m.benchmark_position==null) m.benchmark_position=row.benchmark_position;
-        if(m.trajectory==null && m.trajectory_label==null) m.trajectory=row.trajectory_label;
-        if(m.primary_driver==null) m.primary_driver=row.primary_driver;
-        if(m.business_unit==null) m.business_unit=row.business_unit;
+        const response=await fetch(`${API_BASE}/api/runs/${encodeURIComponent(runId)}/report`,{headers:await apiAuthHeaders()});
+        const payload=await response.json().catch(()=>({}));
+        if(!response.ok||!payload?.result) throw new Error(payload?.message||payload?.error||(`HTTP ${response.status}`));
+        const m={...payload.result};
         if(mode==="json"){ window.MondermanReport.downloadJson(m, m.tool_type||"diagnostic"); }
         else { window.MondermanReport.openReport(window.MondermanReport.fromRun(m), reportWindow); }
         if(btn){ btn.disabled=false; btn.textContent=orig; }

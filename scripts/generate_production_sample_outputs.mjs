@@ -1,28 +1,44 @@
 import crypto from "node:crypto";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-const API_COMMIT = "fbbadb70b4d0c480f5d4ae58c4b6285b3164fccc";
+const API_COMMIT = "07328e2a15ee16262e98e573e97c6bfd65659260";
 const apiRoot = process.env.MONDERMAN_API_ROOT;
 if (!apiRoot) throw new Error("MONDERMAN_API_ROOT is required");
 
 const SOURCE_BLOBS = {
-  "scoreOperationalSystems.js": "b23647f9d8828787bb036aed3942046448fb6049",
-  "scoreDecisionVelocity.js": "a4d9bdfd7741b60cf9851d4f807bf68725716cbd",
-  "scoreStructuralClarity.js": "917abe51106acbbeafa63013a00fe22af66cdedf",
-  "scoreInstitutionalPerformance.js": "559858278de552f73707d064cb8016407fef3dfd",
-  "buildCanonicalDescriptor.js": "916ff588328f483e34824aaf2a4d420610ccd03e",
-  "buildCanonicalDescriptorDV.js": "f844bf35b5b02637923c6e6b7e515744e0ba2c7a",
-  "buildCanonicalDescriptorSC.js": "d363651a2a57e0d07edb7fcd2b97bdfc7fdd380f",
-  "buildCanonicalDescriptorIP.js": "38f967d5229ebb711e567458aaa2a2a4726b0a6e",
-  "narrativeBuilders.js": "a8b90ace4cfb8201a8149280bdde75e162359a32",
-  "dvNarrativeBuilders.js": "725503df31e9d606863e41d503f750152eaedd65",
-  "scNarrativeBuilders.js": "404157f72070703199c1ebc96c49046da3b9ef47",
-  "ipNarrativeBuilders.js": "bd820789817d05bde9582bc6964c76ba913881d6",
-  "participantEvidence.js": "591449d786f24391b1bb988ebb30be99ad60d821",
-  "remedyPaths.js": "659a70f3d40de51f6fa77f40e3220ec5af7c31f9"
+  "scoreOperationalSystems.js": "87e3348cc2e3c1386671bc6683d9519c08ad26e1",
+  "scoreDecisionVelocity.js": "74e36335e78b7b2516e218b7983f760562b24de7",
+  "scoreStructuralClarity.js": "8eaf26a2eb0d570c3375cbd125ff6b7c04124713",
+  "scoreInstitutionalPerformance.js": "4c9b216d2fea607c5106abd34bd46dca1b18a19d",
+  "buildCanonicalDescriptor.js": "ceee6cc659843d09c2efecd95b956efea399be91",
+  "buildCanonicalDescriptorDV.js": "a68e93765a0315fc20437179f0c174d28fdf0085",
+  "buildCanonicalDescriptorSC.js": "a5c5570a2f930401e56977ba8d6450f9ddbeaed6",
+  "buildCanonicalDescriptorIP.js": "67b4d03d2cbb81369932f1ebff9ad3475f794679",
+  "narrativeBuilders.js": "cf47398f099791bbfd34328a5108caab16055e06",
+  "dvNarrativeBuilders.js": "ef92646dd77d4ba0425b09b96068cbd5b5dc40a6",
+  "scNarrativeBuilders.js": "519957a67cf46832f563668cf4b9c88351ee640e",
+  "ipNarrativeBuilders.js": "ddf6b4a82d9c1d1713a96f747c1d4e50a84ce00b",
+  "participantEvidence.js": "682285680130a69a59a3bbbaa0b307b94c2fc2aa",
+  "remedyPaths.js": "659a70f3d40de51f6fa77f40e3220ec5af7c31f9",
+  "partner-visible-claims-safety.js": "d01de685d0a5748e1ff11cbd1036b94ae62e1cc7",
+  "sectorIntelligence.js": "c13eea229962a094f87dc92d92c2db1dcfbe36b8",
+  "configs/operationalSystemsRoutingConfig.json": "3fffbed76828d4dabfcf5f199ef1023c2685ed3f",
+  "configs/decisionVelocityRoutingConfig.json": "5beb06c520a241331431c508ed9b49ae9e491192",
+  "configs/structuralClarityRoutingConfig.json": "3d384b173da226494cfcdc5008b1ae3522ee6436",
+  "configs/institutionalPerformanceRoutingConfig.json": "ece82cd1aa6b0d346fe1e8265e352373c519011f",
+  "diagnostics/operational-systems/legacy-adapter.v1.js": "e123354354e23c6e3ac5d5d39d4c3288c1ffaa5d",
+  "diagnostics/decision-velocity/legacy-adapter-dv.v1.js": "b58bb15f08b9e675817f000b0affbb814a02c091",
+  "diagnostics/structural-clarity/legacy-adapter-sc.v1.js": "39afb229ad29b1fd641241d01e03b3cedefa51a7",
+  "diagnostics/institutional-performance/legacy-adapter-ip.v1.js": "f7b4d2228f3c1d954c328c1e0473ecebf1043e79"
 };
+
+const checkedOutCommit = execFileSync("git", ["-C", apiRoot, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+if (checkedOutCommit !== API_COMMIT) throw new Error(`API checkout is ${checkedOutCommit}; expected ${API_COMMIT}`);
+const trackedChanges = execFileSync("git", ["-C", apiRoot, "status", "--porcelain", "--untracked-files=no"], { encoding: "utf8" }).trim();
+if (trackedChanges) throw new Error("API checkout has tracked changes; representative outputs require an immutable engine revision");
 
 function gitBlobSha(file) {
   const body = fs.readFileSync(file);
@@ -133,6 +149,7 @@ const instruments = [
 ];
 
 const sector = await load("sectorIntelligence.js");
+const claimsSafety = await load("partner-visible-claims-safety.js");
 const outputs = {};
 function publicResult(result) {
   const descriptor = result.canonical_descriptor || {};
@@ -231,14 +248,20 @@ for (const instrument of instruments) {
     ? proseModule[instrument.prose[1]](result, descriptor, null, scoringPayload)
     : proseModule[instrument.prose[1]](result, null, scoringPayload);
   result.interpretive_prose = prose;
-  outputs[instrument.key] = { input_context: context, result: publicResult(result) };
+  const publicOutput = { input_context: context, result: publicResult(result) };
+  claimsSafety.assertPartnerVisibleClaimsSafe(
+    claimsSafety.partnerVisibleClaimsProjection(publicOutput),
+    `representative ${instrument.label} output`
+  );
+  outputs[instrument.key] = publicOutput;
 }
 
 const artifact = {
   contract: "monderman-public-diagnostic-sample-output/v1",
   engine_commit: API_COMMIT,
-  generated_at: "2026-08-24T04:07:00.000Z",
+  generated_at: "2026-09-05T20:26:46.000Z",
   generation_mode: "production scorer, canonical descriptor, and deterministic interpretive-prose builders; no customer data and no model-authored claims",
+  claims_policy: claimsSafety.currentPartnerVisibleClaimsPolicyStamp("2026-09-05T20:26:46.000Z"),
   source_blobs: SOURCE_BLOBS,
   outputs
 };

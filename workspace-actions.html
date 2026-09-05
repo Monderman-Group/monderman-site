@@ -833,13 +833,13 @@ body{transition:background-color .25s ease, color .25s ease}
     async function loadPromotedRuns(){
       if(state.promotedLoaded || !state.orgId) return;
       try{
-        const { data, error } = await supabase.from("diagnostic_runs")
-          .select("id, tool_type, tool_label, pathway_name, business_unit, created_at, priority_actions_json, key_findings_json, full_result_json, config_version, scorer_version, normalization_status, included_in_aggregates")
-          .eq("organization_id", state.orgId).eq("status","promoted")
-          .eq("included_in_aggregates",true).in("normalization_status",["included","included_with_caution"])
-          .order("created_at",{ascending:false}).limit(40);
-        if(error) throw error;
-        state.promotedRuns = data || [];
+        const res=await fetch(`${API_BASE}/api/normalization/workspace-runs/${encodeURIComponent(state.orgId)}`,{headers:await apiAuthHeaders()});
+        const j=await res.json().catch(()=>({}));
+        if(!res.ok||!j?.ok) throw new Error(j?.error||("HTTP "+res.status));
+        state.promotedRuns=(Array.isArray(j.runs)?j.runs:[]).filter(run=>
+          run.status==="promoted" && run.report_available===true && run.locked!==true &&
+          run.included_in_aggregates===true && ["included","included_with_caution"].includes(run.normalization_status)
+        ).slice(0,40);
       }catch(e){ state.promotedRuns = []; }
       state.promotedLoaded = true;
     }
@@ -850,14 +850,7 @@ body{transition:background-color .25s ease, color .25s ease}
         const j=await res.json().catch(()=>({}));
         if(!res.ok||!j?.ok) throw new Error(j?.error||("HTTP "+res.status));
         state.syntheses=Array.isArray(j.syntheses)?j.syntheses:[];
-      }catch(e){
-        try{
-          const {data,error}=await supabase.from("synthesis_runs")
-            .select("id, title, synthesis_product, synthesis_mode, source_run_count, lens_count, score_status, score, score_label, condition_band, evidence_band, evidence_label, created_by_user_id, created_at, updated_at")
-            .eq("organization_id",state.orgId).order("created_at",{ascending:false}).limit(250);
-          if(error) throw error; state.syntheses=data||[];
-        }catch(_fallbackError){ state.syntheses=[]; }
-      }
+      }catch(e){ state.syntheses=[]; }
       state.synthesesLoaded=true;
     }
     async function getSynthesisResult(id){
@@ -867,11 +860,7 @@ body{transition:background-color .25s ease, color .25s ease}
         const j=await res.json().catch(()=>({}));
         if(!res.ok||!j?.result) throw new Error(j?.error||("HTTP "+res.status));
         state.synthesisResults.set(id,j.result); return j.result;
-      }catch(error){
-        const {data:row,error:readError}=await supabase.from("synthesis_runs").select("id, created_at, result_json").eq("organization_id",state.orgId).eq("id",id).maybeSingle();
-        if(readError||!row?.result_json) throw readError||error;
-        const result={...row.result_json,synthesis_id:row.id,saved_at:row.created_at}; state.synthesisResults.set(id,result); return result;
-      }
+      }catch(error){ throw error; }
     }
     function findingLabel(f){
       if(f==null) return "";
@@ -903,6 +892,12 @@ body{transition:background-color .25s ease, color .25s ease}
       return sources.flatMap(value=>Array.isArray(value)?value:[]).map(f=>({ label:String(findingLabel(f)).trim(), raw:f }))
         .filter(f=>{ const key=f.label.toLowerCase(); if(!key||seen.has(key)) return false; seen.add(key); return true; });
     }
+    async function getDiagnosticResult(id){
+      const res=await fetch(`${API_BASE}/api/runs/${encodeURIComponent(id)}/report`,{headers:await apiAuthHeaders()});
+      const j=await res.json().catch(()=>({}));
+      if(!res.ok||!j?.result) throw new Error(j?.message||j?.error||("HTTP "+res.status));
+      return j.result;
+    }
     function findingsOfSynthesis(result){
       const sources=[result?.priority_actions,result?.what_would_unlock_a_composite,result?.what_would_strengthen_the_read,result?.key_findings,result?.executive_briefing?.priority_actions];
       const seen=new Set();
@@ -915,7 +910,7 @@ body{transition:background-color .25s ease, color .25s ease}
       const list=$("importList"), btn=$("importSubmit"); if(!list)return;
       list.innerHTML=`<p class="muted" style="font-size:13px;margin:2px 0">Loading findings…</p>`;
       let fs=[];
-      try{ fs=isSynth?findingsOfSynthesis(await getSynthesisResult(value.slice(6))):(run?findingsOf(run):[]); }catch(e){ fs=[]; }
+      try{ fs=isSynth?findingsOfSynthesis(await getSynthesisResult(value.slice(6))):(run?findingsOf(await getDiagnosticResult(run.id)):[]); }catch(e){ fs=[]; }
       list.dataset.source=value;
       list._findings=fs;
       list.innerHTML=fs.length?fs.map((f,i)=>`<label style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.45"><input type="checkbox" data-fidx="${i}" checked style="margin-top:3px">${esc(f.label)}</label>`).join(""):`<p class="muted" style="font-size:13px;margin:2px 0">This source has no recorded findings or actions to import.</p>`;

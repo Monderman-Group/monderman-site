@@ -6,8 +6,8 @@ const base = process.env.SAMPLE_BASE || 'http://127.0.0.1:8080';
 const out = process.env.SAMPLE_OUT || '/tmp/sample-product-fidelity-smoke';
 fs.mkdirSync(out, { recursive: true });
 
-const expectedEngine = 'fbbadb70b4d0c480f5d4ae58c4b6285b3164fccc';
-const expectedArtifact = 'eed3e281958989ac478c3b9ec14878c76299460e57c3f4e80e6d55dbd4418820';
+const expectedEngine = '07328e2a15ee16262e98e573e97c6bfd65659260';
+const expectedArtifact = '447cdd78f6fceecdecfdd8f31ef99de048b96aace73de835757ff51cc79be6d7';
 const diagnostics = {
   os:{score:'44',dimensions:6}, dv:{score:'51',dimensions:4},
   sc:{score:'51',dimensions:5}, ip:{score:'48',dimensions:6},
@@ -50,16 +50,20 @@ for (const [key, contract] of Object.entries(diagnostics)) {
 
 await page.locator('#tab-synthesis').click();
 const cross = page.locator('#report-synthesis');
-for (const token of ['Cross-Lens Composite Score','55.5','Equal-lens mean','Lens interaction evidence','Source-backed remedy paths','Interpretation boundary']) {
+for (const token of ['Cross-Lens Composite Score','55.5','Equal-lens mean','Lens interaction evidence','Evidence-proportionate actions','Interpretation boundary']) {
   assert((await cross.textContent()).includes(token), `Cross-Lens missing ${token}`);
 }
+assert(!(await cross.textContent()).includes('Source-backed remedy paths'), 'Cross-Lens rendered remedy prose that its source-prose contract withholds');
+assert(await cross.locator('.mr-remedy-card').count() === 0, 'Cross-Lens rendered remedy cards without eligible source prose');
 assert(await cross.locator('svg[aria-label="Four Diagnostic lenses connected to the equal-lens Cross-Lens Composite Score"]').isVisible(), 'Cross-Lens systems view missing');
 
 await page.locator('#tab-depth').click();
 const depth = page.locator('#report-depth');
-for (const token of ['Median Diagnostic Score','56','Agreement, divergence, and coverage','15.8','Source-backed remedy paths','Interpretation boundary']) {
+for (const token of ['Median Diagnostic Score','56','Agreement, divergence, and coverage','15.8','Evidence-proportionate actions','Interpretation boundary']) {
   assert((await depth.textContent()).includes(token), `Depth missing ${token}`);
 }
+assert(!(await depth.textContent()).includes('Source-backed remedy paths'), 'Depth rendered remedy prose that its source-prose contract withholds');
+assert(await depth.locator('.mr-remedy-card').count() === 0, 'Depth rendered remedy cards without eligible source prose');
 assert(await depth.locator('svg[aria-label="Depth Synthesis score distribution"]').isVisible(), 'Depth distribution missing');
 
 assert(errors.length === 0, errors.join('\n'));

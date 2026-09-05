@@ -6,8 +6,8 @@ const base = process.env.SAMPLE_BASE || 'http://127.0.0.1:8080';
 const out = process.env.SAMPLE_OUT || '/tmp/sample-product-fidelity-smoke';
 fs.mkdirSync(out, { recursive: true });
 
-const expectedEngine = 'fbbadb70b4d0c480f5d4ae58c4b6285b3164fccc';
-const expectedArtifact = 'eed3e281958989ac478c3b9ec14878c76299460e57c3f4e80e6d55dbd4418820';
+const expectedEngine = '07328e2a15ee16262e98e573e97c6bfd65659260';
+const expectedArtifact = '447cdd78f6fceecdecfdd8f31ef99de048b96aace73de835757ff51cc79be6d7';
 const expected = {
   os: { source: 'operational_systems', score: '44', dimensions: 6 },
   dv: { source: 'decision_velocity', score: '51', dimensions: 4 },
@@ -102,9 +102,11 @@ const cross = page.locator('#report-synthesis');
 assert(await cross.locator('.psr-doc-shell').count() === 1, 'Cross-Lens shared promotional report frame is missing');
 assert(await cross.locator('.psr-toolbar').isVisible(), 'Cross-Lens shared report controls are missing');
 const crossText = await cross.innerText();
-for (const token of ['Cross-Lens Composite Score', '55.5', 'Strong', 'Equal-lens mean', 'Source-backed remedy paths', 'Interpretation boundary']) {
+for (const token of ['Cross-Lens Composite Score', '55.5', 'Strong', 'Equal-lens mean', 'Evidence-proportionate actions', 'Interpretation boundary']) {
   assert(crossText.includes(token), `Cross-Lens sample missing ${token}`);
 }
+assert(!crossText.includes('Source-backed remedy paths'), 'Cross-Lens sample rendered remedy prose that its source-prose contract withholds');
+assert(await cross.locator('.mr-remedy-card').count() === 0, 'Cross-Lens sample rendered remedy cards without eligible source prose');
 assert(await cross.locator('svg[aria-label="Cross-Lens Diagnostic score comparison"]').isVisible(), 'Cross-Lens comparison visual is not visible');
 const crossCompositeLabel = await cross.locator('.mr-system-composite-label').evaluate((el) => {
   const box = el.getBBox();

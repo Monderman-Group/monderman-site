@@ -55,8 +55,8 @@ const diagnostics = {
 for (const [key, expected] of Object.entries(diagnostics)) {
   const shell = await openTab(key);
   const report = shell.locator('.psr-wrap');
-  assert(await report.getAttribute('data-engine-commit') === 'fbbadb70b4d0c480f5d4ae58c4b6285b3164fccc', `${key} engine revision mismatch`);
-  assert(await report.getAttribute('data-artifact-sha256') === 'eed3e281958989ac478c3b9ec14878c76299460e57c3f4e80e6d55dbd4418820', `${key} artifact digest mismatch`);
+  assert(await report.getAttribute('data-engine-commit') === '07328e2a15ee16262e98e573e97c6bfd65659260', `${key} engine revision mismatch`);
+  assert(await report.getAttribute('data-artifact-sha256') === '447cdd78f6fceecdecfdd8f31ef99de048b96aace73de835757ff51cc79be6d7', `${key} artifact digest mismatch`);
   assert((await shell.locator('.mr-run-score-stamp strong').textContent()).trim() === expected.score, `${key} score mismatch`);
   assert(await shell.locator('.mr-dimension-row').count() === expected.dimensions, `${key} dimension profile mismatch`);
   assert(await shell.locator('.mr-run-remedy').count() === 3, `${key} remedy-path count mismatch`);
@@ -105,9 +105,9 @@ const crossText = await cross.textContent();
 assert(crossText.includes('Executive synthesis'), 'Cross-Lens executive synthesis missing');
 assert(crossText.includes('Agreements and differences'), 'Cross-Lens agreements/differences missing');
 assert(crossText.includes('Evidence-proportionate actions'), 'Cross-Lens actions missing');
-assert(crossText.includes('Source-backed remedy paths'), 'Cross-Lens remedy paths missing');
-assert(crossText.includes('What participants reported'), 'Cross-Lens participant-reported layer missing');
-assert(await cross.locator('.mr-remedy-card').count() === 3, 'Cross-Lens does not show three remedy alternatives');
+assert(!crossText.includes('Source-backed remedy paths'), 'Cross-Lens rendered source remedy prose even though the source-prose contract withholds it');
+assert(crossText.includes('Vantage evidence'), 'Cross-Lens vantage-evidence layer missing');
+assert(await cross.locator('.mr-remedy-card').count() === 0, 'Cross-Lens rendered remedy cards without eligible source remedy prose');
 assert(crossText.includes('The operating system in one view'), 'Cross-Lens system picture label missing');
 assert(await cross.locator('.mr-action-path .mr-action-step').count() >= 3, 'Cross-Lens visual action sequence is too thin');
 assert(await cross.locator('.mr-evidence-ladder .mr-evidence-step').count() === 4, 'Cross-Lens evidence ladder incomplete');
@@ -154,9 +154,9 @@ const depthStart = await depth.locator('.mr-report').evaluate(el => el.getBoundi
 assert(depthTop - depthStart < 1150, `Depth chart is still buried ${Math.round(depthTop-depthStart)}px into report`);
 assert((await depth.textContent()).includes('15.8'), 'Depth vantage gap not visible');
 assert((await depth.textContent()).includes('Evidence-proportionate actions'), 'Depth actions missing');
-assert((await depth.textContent()).includes('Source-backed remedy paths'), 'Depth remedy paths missing');
-assert((await depth.textContent()).includes('What participants reported'), 'Depth participant-reported layer missing');
-assert(await depth.locator('.mr-remedy-card').count() === 3, 'Depth does not show three remedy alternatives');
+assert(!(await depth.textContent()).includes('Source-backed remedy paths'), 'Depth rendered source remedy prose even though the source-prose contract withholds it');
+assert((await depth.textContent()).includes('Vantage evidence'), 'Depth vantage-evidence layer missing');
+assert(await depth.locator('.mr-remedy-card').count() === 0, 'Depth rendered remedy cards without eligible source remedy prose');
 assert((await depth.textContent()).includes('Agreement, divergence, and coverage'), 'Depth agreement/divergence section missing');
 assert(await depth.locator('.mr-depth-metrics .mr-run-metric').count() === 4, 'Depth opening read does not show four executive metrics');
 assert(await depth.locator('.mr-action-path .mr-action-step').count() >= 3, 'Depth visual action sequence is too thin');

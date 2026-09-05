@@ -1373,7 +1373,7 @@ return `${prefix}${rounded.toLocaleString()}${suffix}`.trim();
 // SectorWorkflowKnowledge: the sector × workflow knowledge tuples
 // (bottlenecks/remedies/failure modes): was migrated to backend
 // sectorIntelligence.js on 2026-05-13. The frontend now reads
-// result.sector_context.knowledge (post-scoring) or returns a default
+// result.sector_context.sector_hypotheses (post-scoring) or returns a default
 // stub (pre-scoring). detectWorkflowKey is preserved as a small frontend
 // helper because it's used for the regex-based workflow keyword match,
 // which is sector-table-independent; it's not IP and is also computed
@@ -1397,10 +1397,15 @@ function getSectorWorkflowKnowledge(resultOrPayload, payloadOpt) {
 const result = (payloadOpt !== undefined) ? resultOrPayload : null;
 const payload = (payloadOpt !== undefined) ? payloadOpt : (resultOrPayload || {});
 if (result?.sector_context) {
+  const hypotheses = result.sector_context.sector_hypotheses || {};
   return {
     industryKey: result.sector_context.industryKey,
     workflowKey: result.sector_context.workflowKey,
-    knowledge: result.sector_context.knowledge || _DEFAULT_KNOWLEDGE_STUB
+    knowledge: {
+      knownBottlenecks: hypotheses.bottleneck_candidates || [],
+      knownRemedies: hypotheses.intervention_options || [],
+      knownFailureModes: hypotheses.risk_candidates || []
+    }
   };
 }
 return {
@@ -2550,6 +2555,7 @@ setHeader("Starting adaptive run", "The diagnostic engine is initializing. This 
 
 const participantLevels = inferredCoverage.levelsCovered;
 const body = {
+assignment_token: (window.MondermanAssignment && window.MondermanAssignment.active && window.MondermanAssignment.active()) ? window.MondermanAssignment.token() : undefined,
 role,
 participantMode: role,
 diagnosticDepth: Number(state.depth),
@@ -4302,7 +4308,7 @@ return `<svg width="220" height="140" viewBox="0 0 220 140" xmlns="http://www.w3
   <div class="capacity-legend-item"><span class="capacity-legend-dot" style="background:#C9821F"></span>Routine coordination</div>
   <div class="capacity-legend-item"><span class="capacity-legend-dot" style="background:#B0392F"></span>Recoverable ambiguity cost*</div>
 </div>
-<p class="caption">Estimates of how this workflow's available capacity is currently allocated. Recoverable ambiguity cost* is the portion that could be returned to productive use through structural intervention.</p>`;
+<p class="caption">A modeled allocation based on the submitted workload and labor-cost inputs. Recoverable ambiguity cost* is a scenario estimate, not observed loss or capacity the organization has realized.</p>`;
 
 }
 
@@ -4463,11 +4469,11 @@ const longitudinalBullet = trajectoryDirection === "up"
 ? "Re-run this diagnostic in six months and compare the measurements. This single-run response is not a longitudinal trend or forecast."
 : trajectoryDirection === "down"
 ? "Re-run this diagnostic in six months and compare the measurements. A repeated difference does not by itself establish durability, causation, or realized recovery."
-: "Re-run this diagnostic in six to twelve months to detect drift before it becomes structural. Flat trajectories often mask gradual accumulation that only becomes visible through repeated measurement.";
+: "Re-run this diagnostic in six to twelve months if longitudinal change matters. This run is a baseline, not evidence of stability or drift.";
 
 // Adjacent-workflow coverage: tests whether the pattern is workflow-specific
 // or part of a broader operating-environment signal.
-const adjacentBullet = `Run the diagnostic against adjacent workflows in ${sectorName} that share dependencies with ${workflowLower}. The same pattern surfacing in adjacent workflows distinguishes a workflow-specific issue from a systemic operating-environment issue.`;
+const adjacentBullet = `Run the diagnostic against adjacent workflows in ${sectorName} that share dependencies with ${workflowLower}. Repeated patterns would support a broader operating-environment hypothesis for further testing; they would not establish one cause.`;
 
 return [crossRoleBullet, longitudinalBullet, adjacentBullet];
 }
@@ -4717,21 +4723,21 @@ const methodPageNumber = remedyPageNumber + 1;
 const experienceReportPage = hasExperienceLayer ? '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p>This optional layer records how the workflow is experienced from the selected participant perspective and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p><div class="panel" style="margin:16px 0 18px"><h3>Experiential synthesis</h3><p>' + safeWords(experienceSynthesis, 88) + '</p><p class="muted">' + safeWords(experienceCaveat, 50) + '</p></div><div class="exp-grid">' + experienceCards + '</div><div class="panel bench"><p><b>Leadership question.</b> ' + safe(buildLeadershipQuestion(result || {}, payload || {}, "experience")) + '</p><p><b>How to use this layer.</b> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p></div></div></section>' : '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p style="margin-top:24px;color:var(--ink-soft);">No usable participant notes are presented in this report. This section will populate when usable first-person observations are available.</p></div></section>';
 const narrativeForReport = asObject(result?.narrative);
 const defaultReadings = [
-{ label: "Compensatory-dependence read", interpretation: "Visible output may be holding only because people absorb extra effort and managers step in: the institution looks healthier on paper than it is in practice.", what_would_distinguish_it: "A cross-role run would show whether the compensation is acknowledged at every level or concentrated where the effort is actually absorbed." },
-{ label: "Structural drift read", interpretation: "The structure was once clearer and has softened through change, growth, or accumulated exception-handling that was never formalized back into the design.", what_would_distinguish_it: "A longitudinal re-run would detect whether ambiguity is stable or accumulating. Rising scores would suggest drift." },
-{ label: "Compensatory stability read", interpretation: "The system may appear functional because experienced people are navigating informally around structural ambiguity: removing them would expose the design gap.", what_would_distinguish_it: "Key-person dependency signals in the run, or evidence that onboarding is disproportionately difficult, would support this read." }
+{ label: "Compensatory-effort hypothesis", interpretation: "A hypothesis to test is whether reported extra effort and management involvement are associated with current output.", what_would_distinguish_it: "Compare the same bounded condition across participant perspectives and operating records; agreement would not establish cause." },
+{ label: "Institutional-change hypothesis", interpretation: "A hypothesis to test is whether the reported condition is associated with recent change, growth, or exception handling.", what_would_distinguish_it: "Compare like-for-like repeated measurements and the documented change history without inferring cause from score movement alone." },
+{ label: "Key-person hypothesis", interpretation: "A hypothesis to test is whether reported informal navigation is associated with the current institutional-condition pattern.", what_would_distinguish_it: "Compare key-person and onboarding evidence with the same bounded scope; association would not establish cause." }
 ];
 const competingReadings = (Array.isArray(narrativeForReport.competing_readings) && narrativeForReport.competing_readings.length ? narrativeForReport.competing_readings : defaultReadings).slice(0, 3);
 const updateReadItems = (Array.isArray(narrativeForReport.what_would_update_this_read) && narrativeForReport.what_would_update_this_read.length ? narrativeForReport.what_would_update_this_read : [
-"A managerial-perspective run showing the same institutional pattern would elevate the read from suggestive to confirmed.",
-"A senior-leader run showing confidence in the structure would expose a possible visibility gap between leadership perception and operational reality.",
-"A re-run after deliberate structural change would show whether the ambiguity is structural or situational.",
-"Risk-tier data would show whether low-risk work is being trapped in a high-control path."
+"Compare a managerial-perspective run with the current result; agreement would strengthen a descriptive pattern without confirming cause or validity.",
+"Compare a senior-leader run with operational reports to identify a possible participant-perspective difference.",
+"Compare a like-for-like re-run after a documented structural change; score movement alone does not establish causation.",
+"Compare risk-tier data with routing records to test whether low-risk work enters a higher-control path."
 ]).slice(0, 3);
 const readingHtml = competingReadings.map((item) => '<div class="mini-card"><b>' + safe(item.label || "Reading") + '</b><p>' + safeWords(item.interpretation || item, 44) + '</p><p class="muted">Signal test: ' + safeWords(item.what_would_distinguish_it || "Additional cross-role evidence would clarify this reading.", 50) + '</p></div>').join("");
 const updateHtml = updateReadItems.map((item) => '<p style="margin:0 0 8px">• ' + safeWords(item, 42) + '</p>').join("");
-const decisionReviewPage = '<section class="page">' + footer(decisionReviewPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>Competing readings</h2><p>This section names the plausible interpretations of the same signal and identifies the evidence that would confirm, weaken, or reframe the current read.</p><div class="card-row" style="grid-template-columns:1fr;gap:12px">' + readingHtml + '</div></div></section>'
-+ '<section class="page">' + footer(updateReadPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>What would update this read</h2><p>The current diagnosis rests on a single run from a single perspective. The items below describe the evidence that would confirm, weaken, or reframe the read before leadership commits to a remedy path.</p><div class="panel bench" style="margin-top:18px">' + updateHtml + '</div></div></section>';
+const decisionReviewPage = '<section class="page">' + footer(decisionReviewPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>Competing readings</h2><p>This section names plausible interpretations of the same signal and identifies evidence that could support, weaken, or reframe each one.</p><div class="card-row" style="grid-template-columns:1fr;gap:12px">' + readingHtml + '</div></div></section>'
++ '<section class="page">' + footer(updateReadPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>What would update this read</h2><p>The current read rests on a single run from a single perspective. The items below identify evidence to collect before choosing an intervention test.</p><div class="panel bench" style="margin-top:18px">' + updateHtml + '</div></div></section>';
 const firstTwoActions = actions.slice(0, 2).length ? actions.slice(0, 2) : [
 "Reduce the heaviest visible burden first.",
 "Run the diagnostic again after the first real change."
@@ -4957,10 +4963,10 @@ return `<!doctype html>
     <p class="lede">${capitalizeFirst(safeWords(harmonized.headlineFinding || summary.body, 84))}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(executiveQuestion)}</p></div>
     <p>Directional modeling suggests ${safe(annualHoursText)} and about ${safe(annualCostText)} in labor exposure, with capacity drag around ${dragPct}%*. These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
-    <p>The question is not whether work is getting done: it is how much extra effort it takes to get there. When the structure is not clear, people spend time figuring out who owns what, asking for clarification, and coordinating around the gaps. That effort is the hidden cost. Notes added by participants do not change the score; they just show how the ambiguity feels at different levels of the organization.</p><p>When a team has to keep asking managers to settle ownership, or escalating to get unstuck, the work may still look fine on the surface while the cost of working around the structure keeps climbing.</p>
+    <p>The question is not whether work is getting done: it is what the submitted answers report about the effort surrounding it. Notes added by participants do not change the score; they provide interpretive context for follow-up rather than independent evidence of cause.</p><p>Reported clarification, escalation, and coordination effort are hypotheses to investigate against workflow records and broader participant coverage.</p>
     <div class="capacity"><div class="seg" style="width:${capacity.productive}%;background:#3C8A60">${capacity.productive}%</div><div class="seg" style="width:${capacity.admin}%;background:#C9821F">${capacity.admin}%</div><div class="seg" style="width:${capacity.drag}%;background:#B0392F">${capacity.drag}%</div></div>
     <div class="legend"><span><span class="dot" style="background:#3C8A60"></span>Productive work</span><span><span class="dot" style="background:#C9821F"></span>Routine coordination</span><span><span class="dot" style="background:#B0392F"></span>Recoverable ambiguity cost*</span></div>
-    <p class="muted" style="font-size:8.5px">Estimates of how this pathway's available capacity is currently allocated. Recoverable ambiguity cost* is the portion that could be returned to productive use through structural intervention.</p>
+    <p class="muted" style="font-size:8.5px">A modeled allocation based on the submitted workload and labor-cost inputs. Recoverable ambiguity cost* is a scenario estimate, not observed loss or capacity the organization has realized.</p>
     <h3 style="margin-top:26px">Why this matters in ${safe(sectorName)}</h3>
     <p>${safeWords(industry.opportunityPattern, 44)}</p>
     <p>${safeWords(trajectoryProse, 36)}</p>
@@ -4972,7 +4978,7 @@ return `<!doctype html>
   ${footer(3)}
   <div class="content">
     <p class="eyebrow">Where clarity is breaking down</p><h2>Clarity dimension breakdown</h2>
-    <p>The condition view shows where institutional performance is weakest across the five dimensions Monderman measures: execution coherence, decision reliability, adaptive capacity, institutional confidence, and performance stability. Lower scores indicate where the institution is least able to sustain performance on its own.</p><p class="muted">The important signal is not only which dimension is lowest. The distribution also matters. A concentrated pattern points to a targeted institutional repair; a distributed pattern usually means a broader rebuild is needed across multiple dimensions.</p>
+    <p>The condition view shows how the current-run scores are distributed across execution coherence, decision reliability, adaptive capacity, institutional confidence, and performance stability. Lower scores identify weaker reported conditions; they do not predict later performance.</p><p class="muted">The distribution supports bounded testing. A concentrated pattern identifies one first test; a distributed pattern supports testing more than one dimension. Neither predicts the result of intervention.</p>
     <div class="panel" style="padding:16px">${scDimBars}${scCompensatoryRow}</div>
     <h3 style="margin-top:24px">What the clarity profile tells us</h3>
     <p>${safeWords(concentrationProse, 76)}</p>

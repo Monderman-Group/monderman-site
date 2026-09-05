@@ -1368,7 +1368,7 @@ return `Directional modeling suggests ${hours} and ${formatEstimateCurrencyRange
 // SectorWorkflowKnowledge: the sector × workflow knowledge tuples
 // (bottlenecks/remedies/failure modes): was migrated to backend
 // sectorIntelligence.js on 2026-05-13. The frontend now reads
-// result.sector_context.knowledge (post-scoring) or returns a default
+// result.sector_context.sector_hypotheses (post-scoring) or returns a default
 // stub (pre-scoring). detectWorkflowKey is preserved as a small frontend
 // helper because it's used for the regex-based workflow keyword match,
 // which is sector-table-independent; it's not IP and is also computed
@@ -1392,10 +1392,15 @@ function getSectorWorkflowKnowledge(resultOrPayload, payloadOpt) {
 const result = (payloadOpt !== undefined) ? resultOrPayload : null;
 const payload = (payloadOpt !== undefined) ? payloadOpt : (resultOrPayload || {});
 if (result?.sector_context) {
+  const hypotheses = result.sector_context.sector_hypotheses || {};
   return {
     industryKey: result.sector_context.industryKey,
     workflowKey: result.sector_context.workflowKey,
-    knowledge: result.sector_context.knowledge || _DEFAULT_KNOWLEDGE_STUB
+    knowledge: {
+      knownBottlenecks: hypotheses.bottleneck_candidates || [],
+      knownRemedies: hypotheses.intervention_options || [],
+      knownFailureModes: hypotheses.risk_candidates || []
+    }
   };
 }
 return {
@@ -2523,6 +2528,7 @@ setHeader("Starting adaptive run", "The diagnostic engine is initializing. This 
 
 const participantLevels = inferredCoverage.levelsCovered;
 const body = {
+assignment_token: (window.MondermanAssignment && window.MondermanAssignment.active && window.MondermanAssignment.active()) ? window.MondermanAssignment.token() : undefined,
 role,
 participantMode: role,
 diagnosticDepth: Number(state.depth),
@@ -4329,7 +4335,7 @@ return `<svg width="220" height="140" viewBox="0 0 220 140" xmlns="http://www.w3
   <div class="capacity-legend-item"><span class="capacity-legend-dot" style="background:#C9821F"></span>Admin upkeep</div>
   <div class="capacity-legend-item"><span class="capacity-legend-dot" style="background:#B0392F"></span>Recoverable drag*</div>
 </div>
-<p class="caption">Estimates of how this workflow's available capacity is currently allocated. Recoverable drag* is the portion that could be returned to productive use through structural intervention.</p>`;
+<p class="caption">A modeled allocation based on the submitted workload and labor-cost inputs. Recoverable drag* is a scenario estimate, not observed loss or capacity the organization has realized.</p>`;
 
 }
 
@@ -4479,7 +4485,7 @@ const otherRoles = role === "senior_leader"
 : role === "managerial"
 ? "operational and senior-leader perspectives"
 : "managerial and senior-leader perspectives";
-const crossRoleBullet = `Run this diagnostic from ${otherRoles} to test whether the burden pattern is consistent across organizational levels or concentrated in specific roles. Divergence between perspectives reframes the diagnosis from structural to distributional.`;
+const crossRoleBullet = `Run this diagnostic from ${otherRoles} to test whether the burden pattern appears across organizational levels or is concentrated in specific roles. Differences would identify a follow-up question; they would not establish the cause.`;
 
 // Longitudinal comparison: gated on trajectory direction so the cadence
 // recommendation matches what this run actually surfaced.
@@ -4487,11 +4493,11 @@ const longitudinalBullet = trajectoryDirection === "up"
 ? "Re-run this diagnostic in six months and compare the measurements. This single-run response is not a longitudinal trend or forecast."
 : trajectoryDirection === "down"
 ? "Re-run this diagnostic in six months and compare the measurements. A repeated difference does not by itself establish durability, causation, or realized recovery."
-: "Re-run this diagnostic in six to twelve months to detect drift before it becomes structural. Flat trajectories often mask gradual accumulation that only becomes visible through repeated measurement.";
+: "Re-run this diagnostic in six to twelve months if longitudinal change matters. This run is a baseline, not evidence of stability or drift.";
 
 // Adjacent-workflow coverage: tests whether the pattern is workflow-specific
 // or part of a broader operating-environment signal.
-const adjacentBullet = `Run the diagnostic against adjacent workflows in ${sectorName} that share dependencies with ${workflowLower}. The same pattern surfacing in adjacent workflows distinguishes a workflow-specific issue from a systemic operating-environment issue.`;
+const adjacentBullet = `Run the diagnostic against adjacent workflows in ${sectorName} that share dependencies with ${workflowLower}. Repeated patterns would support a broader operating-environment hypothesis for further testing; they would not establish one cause.`;
 
 return [crossRoleBullet, longitudinalBullet, adjacentBullet];
 }
@@ -4676,9 +4682,9 @@ const methodPageNumber = remedyPageNumber + 1;
 const experienceReportPage = hasExperienceLayer ? '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p>This optional layer records how the workflow is experienced from the selected participant perspective and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p><div class="panel" style="margin:16px 0 18px"><h3>Experiential synthesis</h3><p>' + safeWords(experienceSynthesis, 88) + '</p><p class="muted">' + safeWords(experienceCaveat, 50) + '</p></div><div class="exp-grid">' + experienceCards + '</div><div class="panel bench"><p><b>Leadership question.</b> ' + safe(buildLeadershipQuestion(result || {}, payload || {}, "experience")) + '</p><p><b>How to use this layer.</b> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p></div></div></section>' : '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p style="margin-top:24px;color:var(--ink-soft);">No usable participant notes are presented in this report. This section will populate when usable first-person observations are available.</p></div></section>';
 const narrativeForReport = asObject(result?.narrative);
 const defaultReadings = [
-{ label: "Structural burden read", interpretation: "The workflow is too heavy because the formal path carries more process and control density than the underlying work requires.", what_would_distinguish_it: "Cycle-time data would show delay concentrated in formal review stages." },
-{ label: "Bypass/control-risk read", interpretation: "The documented workflow may no longer be the real workflow; workarounds preserve output while weakening control visibility.", what_would_distinguish_it: "Managerial and senior-leader runs would confirm a gap between formal process design and actual practice." },
-{ label: "Equilibrium-with-workarounds read", interpretation: "The system may be stable only because managers and operators have learned how to compensate around it.", what_would_distinguish_it: "Removing informal cover would quickly worsen cycle time, exception volume, or compliance friction." }
+{ label: "Structural burden hypothesis", interpretation: "A hypothesis to test is whether formal process and control density are disproportionate to the assessed work.", what_would_distinguish_it: "Compare cycle-time records across formal review stages and case types." },
+{ label: "Bypass/control-risk hypothesis", interpretation: "A hypothesis to test is whether the documented workflow differs from the paths reported in this run.", what_would_distinguish_it: "Compare workflow records with operational, managerial, and senior-leader reports without treating agreement as proof of cause." },
+{ label: "Compensatory-effort hypothesis", interpretation: "A hypothesis to test is whether reported manager and operator effort is associated with current movement.", what_would_distinguish_it: "Compare cases with different levels of reported informal effort and record cycle time, exceptions, and control evidence." }
 ];
 const competingReadings = (Array.isArray(narrativeForReport.competing_readings) && narrativeForReport.competing_readings.length ? narrativeForReport.competing_readings : defaultReadings).slice(0, 3);
 const currentRole = String(payload?.participantMode || payload?.participant_mode || result?.participant_mode || "senior_leader").toLowerCase();
@@ -4693,8 +4699,8 @@ const updateReadItems = (Array.isArray(narrativeForReport.what_would_update_this
 ).slice(0, 3);
 const readingHtml = competingReadings.map((item) => '<div class="mini-card"><b>' + safe(item.label || "Reading") + '</b><p>' + safeWords(item.interpretation || item, 44) + '</p><p class="muted">Signal test: ' + safeWords(item.what_would_distinguish_it || "Additional cross-role evidence would clarify this reading.", 50) + '</p></div>').join("");
 const updateHtml = updateReadItems.map((item) => '<p style="margin:0 0 8px">• ' + safeWords(item, 42) + '</p>').join("");
-const decisionReviewPage = '<section class="page">' + footer(decisionReviewPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>Competing readings</h2><p>This section names the plausible interpretations of the same signal and identifies the evidence that would confirm, weaken, or reframe the current read.</p><div class="card-row" style="grid-template-columns:1fr;gap:12px">' + readingHtml + '</div></div></section>'
-+ '<section class="page">' + footer(updateReadPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>What would update this read</h2><p>The current diagnosis rests on a single run from a single perspective. The items below describe the evidence that would confirm, weaken, or reframe the read before leadership commits to a remedy path.</p><div class="panel bench" style="margin-top:18px">' + updateHtml + '</div></div></section>';
+const decisionReviewPage = '<section class="page">' + footer(decisionReviewPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>Competing readings</h2><p>This section names plausible interpretations of the same signal and identifies evidence that could support, weaken, or reframe each one.</p><div class="card-row" style="grid-template-columns:1fr;gap:12px">' + readingHtml + '</div></div></section>'
++ '<section class="page">' + footer(updateReadPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>What would update this read</h2><p>The current read rests on a single run from a single perspective. The items below identify evidence to collect before choosing an intervention test.</p><div class="panel bench" style="margin-top:18px">' + updateHtml + '</div></div></section>';
 const firstTwoActions = actions.slice(0, 2).length ? actions.slice(0, 2) : [
 "Reduce the heaviest visible burden first.",
 "Run the diagnostic again after the first real change."
@@ -4926,10 +4932,10 @@ return `<!doctype html>
     <p class="lede">${safeWords(harmonized.headlineFinding || summary.body, 84)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(executiveQuestion)}</p></div>
     <p><span id="exposureNarrative">${safe(exposureNarrative)}</span> These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
-    <p>The practical question is not whether work is still getting done. It is how much organizational energy is now required to make it happen. The score should be read as a structured quantitative operating-burden indicator. Qualitative signals, when present, do not change the score; they provide interpretive context about how the formal process may differ from operating reality.</p><p>When a workflow needs repeated coordination, compensating behavior, workaround maintenance, or control translation, the visible output may remain acceptable while the operating system underneath may be more expensive to sustain than the visible output suggests.</p>
+    <p>The practical question is not whether work is still getting done. It is what the submitted answers and scenario inputs record about operating burden. The score is a structured operating-burden indicator. Qualitative signals, when present, do not change the score; they provide attributed context about how the participant describes the formal process and operating practice.</p><p>This run records reported coordination, compensating behavior, workaround maintenance, and control translation. It does not establish their cause, predict future operating cost, or demonstrate that acceptable output depends on them.</p>
     <div class="capacity"><div class="seg" style="width:${capacity.productive}%;background:#3C8A60">${capacity.productive}%</div><div class="seg" style="width:${capacity.admin}%;background:#C9821F">${capacity.admin}%</div><div class="seg" style="width:${capacity.drag}%;background:#B0392F">${capacity.drag}%</div></div>
     <div class="legend"><span><span class="dot" style="background:#3C8A60"></span>Productive work</span><span><span class="dot" style="background:#C9821F"></span>Admin upkeep</span><span><span class="dot" style="background:#B0392F"></span>Recoverable drag*</span></div>
-    <p class="muted" style="font-size:8.5px">Estimates of how this workflow's available capacity is currently allocated. Recoverable drag* is the portion that could be returned to productive use through structural intervention.</p>
+    <p class="muted" style="font-size:8.5px">A modeled allocation based on the submitted workload and labor-cost inputs. Recoverable drag* is a scenario estimate, not observed loss or capacity the organization has realized.</p>
     <h3 style="margin-top:26px">Why this matters in ${safe(sectorName)}</h3>
     <p>${safeWords(industry.opportunityPattern, 44)}</p>
     <p>${safeWords(trajectoryProse, 36)}</p>

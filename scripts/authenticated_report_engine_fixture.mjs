@@ -10,7 +10,9 @@ sandbox.window.window = sandbox.window;
 vm.runInNewContext(source, sandbox, { filename:"monderman-report.js" });
 const Report = sandbox.window.MondermanReport;
 
-assert.equal(fixture.engine_commit, "fbbadb70b4d0c480f5d4ae58c4b6285b3164fccc");
+assert.equal(fixture.engine_commit, "07328e2a15ee16262e98e573e97c6bfd65659260");
+assert.equal(fixture.claims_policy?.version, "bounded-nonclaims-v2");
+assert.equal(fixture.claims_policy?.status, "passed");
 assert.ok(Report?.fromRun && Report?.buildReportHtml, "authenticated report API missing");
 
 const expected = {

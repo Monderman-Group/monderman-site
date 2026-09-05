@@ -55,8 +55,9 @@ for (const token of [
   assert.ok(workspace.includes(token), `Workspace onboarding contract missing: ${token}`);
 }
 
-for (const query of ["organization_members", "synthesis_runs", "action_plans", "action_items"]) {
+for (const query of ["organization_members", "action_plans", "action_items"]) {
   assert.ok(workspace.includes(`count('${query}'`), `Workspace onboarding is not progress-aware for ${query}`);
 }
+assert.ok(workspace.includes("/api/synthesis-runs?limit=500"), "Workspace onboarding must count Syntheses through the guarded API");
 
 console.log("Professional signup package frontend checks passed.");

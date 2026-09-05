@@ -1374,7 +1374,7 @@ return `${prefix}${rounded.toLocaleString()}${suffix}`.trim();
 // SectorWorkflowKnowledge: the sector × workflow knowledge tuples
 // (bottlenecks/remedies/failure modes): was migrated to backend
 // sectorIntelligence.js on 2026-05-13. The frontend now reads
-// result.sector_context.knowledge (post-scoring) or returns a default
+// result.sector_context.sector_hypotheses (post-scoring) or returns a default
 // stub (pre-scoring). detectWorkflowKey is preserved as a small frontend
 // helper because it's used for the regex-based workflow keyword match,
 // which is sector-table-independent; it's not IP and is also computed
@@ -1398,10 +1398,15 @@ function getSectorWorkflowKnowledge(resultOrPayload, payloadOpt) {
 const result = (payloadOpt !== undefined) ? resultOrPayload : null;
 const payload = (payloadOpt !== undefined) ? payloadOpt : (resultOrPayload || {});
 if (result?.sector_context) {
+  const hypotheses = result.sector_context.sector_hypotheses || {};
   return {
     industryKey: result.sector_context.industryKey,
     workflowKey: result.sector_context.workflowKey,
-    knowledge: result.sector_context.knowledge || _DEFAULT_KNOWLEDGE_STUB
+    knowledge: {
+      knownBottlenecks: hypotheses.bottleneck_candidates || [],
+      knownRemedies: hypotheses.intervention_options || [],
+      knownFailureModes: hypotheses.risk_candidates || []
+    }
   };
 }
 return {
@@ -2550,6 +2555,7 @@ setHeader("Starting adaptive run", "The diagnostic engine is initializing. This 
 
 const participantLevels = inferredCoverage.levelsCovered;
 const body = {
+assignment_token: (window.MondermanAssignment && window.MondermanAssignment.active && window.MondermanAssignment.active()) ? window.MondermanAssignment.token() : undefined,
 role,
 participantMode: role,
 diagnosticDepth: Number(state.depth),
@@ -3420,37 +3426,6 @@ function buildRemedyPaths(result, payload) {
 // attaches them as result.interpretive_prose.remedy_paths. The branching
 // logic keyed off qualitative override type, sector workflow knowledge,
 // and reclaim potential previously lived here; migrated to backend 2026-05-14.
-// High-clarity runs require stewardship choices, not a knowingly inappropriate
-// "full redesign" card. Keep this guard in the renderer so saved results from
-// an older API version also remain proportionate when re-opened.
-if (Number(result?.score) >= 83) {
-  const primaryLabel = String(result?.canonical_descriptor?.primary_constraint_label || "the narrowest clarity margin").toLowerCase();
-  const owner = String(payload?.businessUnit || payload?.business_unit || "the assessed function").trim();
-  const structure = getWorkflowSubject(payload);
-  return [
-    {
-      label: "Preserve clarity at exception boundaries", kicker: "Low disruption",
-      summary: `Make ${primaryLabel} explicit only where ${structure} leaves its standard path.`,
-      actions: [`Ask the ${owner} leader to confirm the owner and decision authority for the most common exception within 30 days.`],
-      benefit: "Protects a strong design without adding approval or coordination layers.",
-      risk: "Over-documenting rare exceptions can make a healthy structure harder to use."
-    },
-    {
-      label: "Stress-test the current design", kicker: "Targeted validation",
-      summary: `Test whether ${primaryLabel} remains readable in recent non-routine cases before changing the design.`,
-      actions: [`Review five recent exceptions and record only the boundaries that required clarification.`, `Correct a boundary only if the same ambiguity appears more than once.`],
-      benefit: "Distinguishes an isolated exception from a repeatable design weakness.",
-      risk: "A small sample can overstate an unusual case; keep the test bounded and evidence-based."
-    },
-    {
-      label: "Set a change-readiness guardrail", kicker: "Preservation under change",
-      summary: "Define the organizational changes that should trigger a focused clarity review while preserving a structure that is working now.",
-      actions: [`Recheck ${primaryLabel} after a material role, scope, governance, or staffing change.`, `Compare the same dimension and exception log before authorizing broader structural changes.`],
-      benefit: "Keeps current clarity durable as the operating environment changes.",
-      risk: "Without a named trigger and owner, the review may happen only after ambiguity has already spread."
-    }
-  ];
-}
 if (result?.interpretive_prose?.remedy_paths) {
   return result.interpretive_prose.remedy_paths;
 }
@@ -4410,7 +4385,7 @@ return `<svg width="220" height="140" viewBox="0 0 220 140" xmlns="http://www.w3
   <div class="capacity-legend-item"><span class="capacity-legend-dot" style="background:#C9821F"></span>Routine coordination</div>
   <div class="capacity-legend-item"><span class="capacity-legend-dot" style="background:#B0392F"></span>Recoverable ambiguity cost*</div>
 </div>
-<p class="caption">Estimates of how this workflow's available capacity is currently allocated. Recoverable ambiguity cost* is the portion that could be returned to productive use through structural intervention.</p>`;
+<p class="caption">A modeled allocation based on the submitted workload and labor-cost inputs. Recoverable ambiguity cost* is a scenario estimate, not observed loss or capacity the organization has realized.</p>`;
 
 }
 
@@ -4575,7 +4550,7 @@ const longitudinalBullet = trajectoryDirection === "up"
 
 // Adjacent-workflow coverage: tests whether the pattern is workflow-specific
 // or part of a broader operating-environment signal.
-const adjacentBullet = `Run the diagnostic against adjacent workflows in ${sectorName} that share dependencies with ${workflowLower}. The same pattern surfacing in adjacent workflows distinguishes a workflow-specific issue from a systemic operating-environment issue.`;
+const adjacentBullet = `Run the diagnostic against adjacent workflows in ${sectorName} that share dependencies with ${workflowLower}. Repeated patterns would support a broader operating-environment hypothesis for further testing; they would not establish one cause.`;
 
 return [crossRoleBullet, longitudinalBullet, adjacentBullet];
 }
@@ -4867,9 +4842,9 @@ const experienceSynthesisPanel = experienceSynthesis
 const experienceReportPage = hasExperienceLayer ? '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p>This optional layer records how the workflow is experienced from the selected participant perspective and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p>' + experienceSynthesisPanel + '<div class="exp-grid">' + experienceCards + '</div><div class="panel bench"><p><b>Leadership question.</b> ' + safe(buildLeadershipQuestion(result || {}, payload || {}, "experience")) + '</p><p><b>How to use this layer.</b> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p></div></div></section>' : '';
 const narrativeForReport = asObject(result?.narrative);
 const defaultReadings = [
-{ label: "Legibility failure read", interpretation: "The structure exists on paper but cannot be read clearly enough in practice: ownership, authority, or handoffs require interpretation rather than observation.", what_would_distinguish_it: "A cross-role run would show whether multiple perspectives describe the same ambiguity or whether it is concentrated at one level." },
-{ label: "Structural drift read", interpretation: "The structure was once clearer and has softened through change, growth, or accumulated exception-handling that was never formalized back into the design.", what_would_distinguish_it: "A longitudinal re-run would detect whether ambiguity is stable or accumulating. Falling clarity scores would suggest drift." },
-{ label: "Compensatory stability read", interpretation: "The system may appear functional because experienced people are navigating informally around structural ambiguity: removing them would expose the design gap.", what_would_distinguish_it: "Key-person dependency signals in the run, or evidence that onboarding is disproportionately difficult, would support this read." }
+{ label: "Legibility hypothesis", interpretation: "A hypothesis to test is whether ownership, authority, or handoffs require interpretation beyond the documented structure.", what_would_distinguish_it: "Compare how the same bounded structure is described across participant perspectives." },
+{ label: "Structural-change hypothesis", interpretation: "A hypothesis to test is whether reported ambiguity is associated with recent change, growth, or exception handling.", what_would_distinguish_it: "Compare like-for-like repeated measurements and the documented change history without inferring cause from score movement alone." },
+{ label: "Compensatory-effort hypothesis", interpretation: "A hypothesis to test is whether reported informal navigation is associated with the current clarity pattern.", what_would_distinguish_it: "Compare key-person and onboarding evidence with the same bounded structure; association would not establish cause." }
 ];
 const competingReadings = (Array.isArray(narrativeForReport.competing_readings) && narrativeForReport.competing_readings.length ? narrativeForReport.competing_readings : defaultReadings).slice(0, 3);
 const currentPerspective = String(reportFacts.participantMode || "senior_leader").toLowerCase();
@@ -4879,15 +4854,15 @@ const complementaryPerspectives = currentPerspective === "managerial"
     ? "managerial and senior-leader"
     : "operational and managerial";
 const updateReadItems = [
-`Runs from ${complementaryPerspectives} perspectives showing the same legibility pattern would strengthen the read and reveal any visibility gap.`,
-"A cross-role comparison that differs materially would show where the structure is being experienced differently.",
-"A re-run after deliberate structural change would show whether the ambiguity is structural or situational.",
-"Risk-tier data would show whether low-risk work is being trapped in a high-control path."
+`Compare runs from ${complementaryPerspectives} perspectives to test whether the same legibility pattern appears and to identify any reported visibility difference.`,
+"Compare cross-role responses to locate where descriptions differ; the difference does not establish cause.",
+"Compare a like-for-like re-run after a documented structural change; score movement alone does not establish causation.",
+"Compare risk-tier data with routing records to test whether low-risk work enters a higher-control path."
 ].slice(0, 3);
 const readingHtml = competingReadings.map((item) => '<div class="mini-card"><b>' + safe(item.label || "Reading") + '</b><p>' + safeWords(item.interpretation || item, 44) + '</p><p class="muted">Signal test: ' + safeWords(item.what_would_distinguish_it || "Additional cross-role evidence would clarify this reading.", 50) + '</p></div>').join("");
 const updateHtml = updateReadItems.map((item) => '<p style="margin:0 0 8px">• ' + safeWords(item, 42) + '</p>').join("");
-const decisionReviewPage = '<section class="page">' + footer(decisionReviewPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>Competing readings</h2><p>This section names the plausible interpretations of the same signal and identifies the evidence that would confirm, weaken, or reframe the current read.</p><div class="card-row" style="grid-template-columns:1fr;gap:12px">' + readingHtml + '</div></div></section>'
-+ '<section class="page">' + footer(updateReadPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>What would update this read</h2><p>The current diagnosis rests on a single run from a single perspective. The items below describe the evidence that would confirm, weaken, or reframe the read before leadership commits to a remedy path.</p><div class="panel bench" style="margin-top:18px">' + updateHtml + '</div></div></section>';
+const decisionReviewPage = '<section class="page">' + footer(decisionReviewPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>Competing readings</h2><p>This section names plausible interpretations of the same signal and identifies evidence that could support, weaken, or reframe each one.</p><div class="card-row" style="grid-template-columns:1fr;gap:12px">' + readingHtml + '</div></div></section>'
++ '<section class="page">' + footer(updateReadPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>What would update this read</h2><p>The current read rests on a single run from a single perspective. The items below identify evidence to collect before choosing an intervention test.</p><div class="panel bench" style="margin-top:18px">' + updateHtml + '</div></div></section>';
 const firstTwoActions = actions.slice(0, 2).length ? actions.slice(0, 2) : [
 "Reduce the heaviest visible burden first.",
 "Run the diagnostic again after the first real change."
@@ -5113,10 +5088,10 @@ return `<!doctype html>
     <p class="lede">${capitalizeFirst(safeWords(harmonized.headlineFinding || summary.body, 84))}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(executiveQuestion)}</p></div>
     <p>Directional modeling suggests ${safe(annualHoursText)} and about ${safe(annualCostText)} in labor exposure, with capacity drag around ${dragPct}%*. These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
-    <p>The question is not whether work is getting done: it is how much extra effort it takes to get there. When the structure is unclear, people spend time resolving ownership, seeking clarification, and coordinating around gaps. Participant notes do not change the score; they provide context about how those gaps are experienced.</p>
+    <p>The question is not whether work is getting done: it is what the submitted answers and scenario inputs record about ownership, clarification, and coordination. This run does not establish that structural conditions caused any reported effort. Participant notes do not change the score; they provide attributed context about the submitted experience.</p>
     <div class="capacity"><div class="seg" style="width:${capacity.productive}%;background:#3C8A60">${capacity.productive}%</div><div class="seg" style="width:${capacity.admin}%;background:#C9821F">${capacity.admin}%</div><div class="seg" style="width:${capacity.drag}%;background:#B0392F">${capacity.drag}%</div></div>
     <div class="legend"><span><span class="dot" style="background:#3C8A60"></span>Productive work</span><span><span class="dot" style="background:#C9821F"></span>Routine coordination</span><span><span class="dot" style="background:#B0392F"></span>Recoverable ambiguity cost*</span></div>
-    <p class="muted" style="font-size:8.5px">Estimates of how this pathway's available capacity is currently allocated. Recoverable ambiguity cost* is the portion that could be returned to productive use through structural intervention.</p>
+    <p class="muted" style="font-size:8.5px">A modeled allocation based on the submitted workload and labor-cost inputs. Recoverable ambiguity cost* is a scenario estimate, not observed loss or capacity the organization has realized.</p>
     <h3 style="margin-top:26px">Why this matters in ${safe(sectorName)}</h3>
     <p>${safeWords(industry.opportunityPattern, 44)}</p>
     <p>${safeWords(trajectoryProse, 36)}</p>
