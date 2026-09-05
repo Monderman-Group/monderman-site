@@ -78,6 +78,13 @@ for name in ['structural-clarity.html','decision-velocity.html','operational-sys
   'Recoverable share*',
  ]:
   if token not in t:e.append(name+': complete exposure-method disclosure '+token)
+ # Keep the final methodology disclosure from overflowing into the fixed PDF
+ # footer. The closing product-fit copy owns a separate fixed-size PDF page.
+ for token in [
+  '${footer(methodPageNumber + 1)}',
+  '<p class="eyebrow">How Monderman fits</p><h2>Where Monderman fits</h2>',
+ ]:
+  if token not in t:e.append(name+': executive PDF final-page pagination '+token)
 
 # Surgical regression guards added 2026-08-13.
 idx=(r/'index.html').read_text(errors='ignore')

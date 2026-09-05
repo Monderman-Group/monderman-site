@@ -5214,7 +5214,13 @@ ${decisionReviewPage}
     <p>${insight.available ? "This single-run evidence context reflects run length and self-reported input confidence. It is not a population measure and is separate from Depth Synthesis and Cross-Lens Synthesis evidence bands." : "The single-run evidence-context field could not be retrieved for this run; the rest of the report remains valid."}</p>
     <h3>What would strengthen the next read</h3><div class="method-box">${nextRunBullets.map((item) => `<p>• ${safeWords(item, 42)}</p>`).join("")}</div>
     <h3>What the figures represent</h3><div class="method-box"><p>* Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so the organization can decide whether the pattern is worth investigating further. They should not be cited externally as audited measurements, and they should not be used as the basis for compensation decisions, performance reviews, or formal financial planning.</p>${buildExposureMethodDisclosure(result?.exposure)}</div>
-    <h3 style="margin-top:20px">Where Monderman fits</h3><p>Monderman is built for organizations that need a structured, repeatable read on structural ambiguity, not a one-off consulting engagement. The Diagnostic surfaces patterns; accountable decision-makers choose what to do about them. This report is the shared artifact of that read, suitable for circulation across the operational, managerial, and senior levels that need to engage with the same picture.</p><p class="muted" style="font-size:9px;margin-top:18px">Prepared by Monderman's diagnostic engine.</p>
+  </div>
+</section>
+
+<section class="page">
+  ${footer(methodPageNumber + 1)}
+  <div class="content">
+    <p class="eyebrow">How Monderman fits</p><h2>Where Monderman fits</h2><p>Monderman is built for organizations that need a structured, repeatable read on structural ambiguity, not a one-off consulting engagement. The Diagnostic surfaces patterns; accountable decision-makers choose what to do about them. This report is the shared artifact of that read, suitable for circulation across the operational, managerial, and senior levels that need to engage with the same picture.</p><p class="muted" style="font-size:9px;margin-top:18px">Prepared by Monderman's diagnostic engine.</p>
   </div>
 </section>
 </body>
