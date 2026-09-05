@@ -647,10 +647,9 @@ body{transition:background-color .25s ease, color .25s ease}
             <div class="field">
               <label for="fResponseMode">How they answer</label>
               <select id="fResponseMode">
-                <option value="choice" selected>Let the recipient choose</option>
-                <option value="interview">Interview: conversational</option>
-                <option value="form">Guided form: the instrument's own controls</option>
+                <option value="form" selected>Guided form: the instrument's own controls</option>
               </select>
+              <span class="hint">Interview mode is not available in this bounded pilot.</span>
             </div>
             <div class="field">
               <label for="fDue">Due date <span class="hint">(optional)</span></label>
@@ -1217,7 +1216,7 @@ body{transition:background-color .25s ease, color .25s ease}
         tool_type: $("fTool").value,
         participant_lens: $("fVantage").value,
         depth: $("fDepth").value,
-        response_mode: $("fResponseMode").value,
+        response_mode: "form",
         show_results_to_assignee: $("fShowResults").checked,
         is_anonymous_response: $("fAnon").checked
       };

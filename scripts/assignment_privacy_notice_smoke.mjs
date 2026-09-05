@@ -59,11 +59,10 @@ const hiddenAttributable = render({
 assert.match(hiddenAttributable, /campaign is attributable/i);
 assert.match(hiddenAttributable, /name is attached to the response/i);
 assert.match(hiddenAttributable, /will not receive an individual report after submission/i);
-assert.match(hiddenAttributable, /quantitative score is calculated deterministically/i);
-assert.match(hiddenAttributable, /Content needed for the Diagnostic&rsquo;s written interpretation may be processed/i);
-assert.match(hiddenAttributable, /structured Diagnostic context and results/i);
-assert.match(hiddenAttributable, /interview messages or optional written observations/i);
-assert.match(hiddenAttributable, /AI does not calculate or set the quantitative score/i);
+assert.match(hiddenAttributable, /quantitative score and written interpretation are generated deterministically/i);
+assert.match(hiddenAttributable, /Optional written observations are displayed separately/i);
+assert.match(hiddenAttributable, /not sent to an AI provider in this bounded pilot/i);
+assert.doesNotMatch(hiddenAttributable, /interview messages/i);
 assert.doesNotMatch(hiddenAttributable, /Synthesis/i);
 
 console.log("Assignment privacy notice smoke passed: dynamic sponsor, anonymous/attributable, results visibility, and bounded AI disclosure.");

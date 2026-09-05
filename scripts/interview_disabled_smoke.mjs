@@ -3,6 +3,8 @@ import fs from "node:fs";
 import vm from "node:vm";
 
 const source = fs.readFileSync(new URL("../interview-mode.js", import.meta.url), "utf8");
+const workspaceSource = fs.readFileSync(new URL("../workspace-diagnostics.html", import.meta.url), "utf8");
+const assignmentSource = fs.readFileSync(new URL("../assignment-mode.js", import.meta.url), "utf8");
 const sandbox = {
   AbortController,
   URLSearchParams,
@@ -45,4 +47,11 @@ assert.equal(
   "disabled interview intercepted a guided-form item"
 );
 
-console.log("PASS interview disabled for bounded pilot");
+assert.doesNotMatch(workspaceSource, /<option value="interview"/i, "admin can still promise Interview mode");
+assert.doesNotMatch(workspaceSource, /<option value="choice"/i, "admin can still delegate an unavailable mode");
+assert.match(workspaceSource, /response_mode:\s*"form"/, "campaign payload is not fixed to guided form");
+assert.match(workspaceSource, /Interview mode is not available in this bounded pilot/i);
+assert.match(assignmentSource, /var modeTxt = "guided form"/);
+assert.doesNotMatch(assignmentSource, /Content needed for the Diagnostic.*AI provider/i);
+
+console.log("PASS interview disabled and guided-form promise enforced for bounded pilot");
