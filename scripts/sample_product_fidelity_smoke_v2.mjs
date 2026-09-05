@@ -67,7 +67,7 @@ for (const [key, contract] of Object.entries(expected)) {
     'How the disclosed scenario becomes exposure', 'Priority map',
     'Leadership implication', 'What evidence is, and is not, in this run',
     'Priorities and graduated remedy paths', 'Basis of this read', 'Interpretation boundary',
-    'No participant notes were supplied', 'Turn the read into a bounded operating decision',
+    'No usable participant notes are presented.', 'Turn the read into a bounded operating decision',
   ]) assert(text.includes(token), `${key} missing production-equivalent content: ${token}`);
   for (const stale of ['Competing readings', 'What would update this read', 'Sample Depth Synthesis Report']) {
     assert(!text.includes(stale), `${key} still renders outdated content: ${stale}`);
