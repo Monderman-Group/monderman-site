@@ -126,6 +126,9 @@ try {
   assert.match(teaserText, /\b\d{1,3}\b\s*\/\s*100/);
   assert.match(teaserText, /Create account \/ sign in/);
   assert.equal(await page.locator('#mdmTeaserOverlay a[href^="signin.html"]').count(), 1);
+  if (process.env.SCREENSHOT_OUT) {
+    await page.screenshot({ path: process.env.SCREENSHOT_OUT, fullPage: true });
+  }
   console.log("ANONYMOUS_DECISION_VELOCITY_LIVE_PASS");
 } finally {
   await context.close();

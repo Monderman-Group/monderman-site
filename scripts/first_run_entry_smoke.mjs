@@ -21,7 +21,7 @@ for (const file of momentPages) {
     "What one team campaign adds",
     "What comes after",
     "Run the Decision Velocity diagnostic",
-    "Request a 30-day Pattern trial",
+    "Apply to the limited Pattern Pilot",
     "See a sample report",
     "assistant.js",
     "contact-transport.js",
@@ -38,6 +38,9 @@ for (const file of momentPages) {
 
 const home = fs.readFileSync(path.join(root, "index.html"), "utf8");
 assert.ok(home.includes("Where a first run fits"));
+assert.ok(home.includes("Run the free 10-minute Decision Velocity diagnostic"));
+assert.ok(home.includes('href="pilot.html?source=homepage"'));
+assert.ok(home.includes("Limited pilot cohort"));
 for (const file of momentPages) assert.ok(home.includes(`href="${file}"`));
 
 const diagnostic = fs.readFileSync(path.join(root, "decision-velocity.html"), "utf8");
@@ -45,14 +48,39 @@ assert.ok(diagnostic.includes("window.MONDERMAN_ALLOW_PUBLIC_FIRST_RUN = true"))
 assert.match(diagnostic, /class="intake-option has-recommended"[^>]+data-depth="10"/);
 assert.ok(diagnostic.includes("score_displayed"));
 assert.ok(diagnostic.includes("executive_report_opened"));
+assert.ok(diagnostic.includes('href="pilot.html?source=decision_velocity"'));
+assert.ok(diagnostic.includes("pilot-result-invitation"));
 
-for (const file of ["index.html", "why-monderman.html", "roi.html"]) {
+const pilot = fs.readFileSync(path.join(root, "pilot.html"), "utf8");
+assert.doesNotMatch(pilot, /\b(?:survey|assessment|self-guided)\b/i);
+assert.doesNotMatch(pilot, /—/);
+for (const required of [
+  "Limited pilot cohort",
+  "Apply to the pilot waitlist",
+  "6 to 12 people",
+  "30 days",
+  "No automatic charge",
+  "pilot-waitlist.js",
+  "assistant.js",
+  "contact-transport.js",
+  "connect-widget.js",
+  "LinkedIn",
+  "Facebook"
+]) assert.ok(pilot.includes(required), `pilot.html is missing ${required}`);
+for (const match of pilot.matchAll(/href="([^"#]+)(?:#[^"]*)?"/g)) {
+  const href = match[1];
+  if (/^(?:https?:|mailto:|tel:)/.test(href)) continue;
+  assert.ok(fs.existsSync(path.join(root, href.split("?")[0])), `pilot.html has unresolved link ${href}`);
+}
+
+for (const file of ["why-monderman.html", "roi.html"]) {
   const html = fs.readFileSync(path.join(root, file), "utf8");
   assert.doesNotMatch(html, />Start the standard Trial</);
   assert.ok(html.includes("Run the Decision Velocity diagnostic"));
 }
+assert.doesNotMatch(home, />Start the standard Trial</);
 
-for (const script of ["first-run-telemetry.js", "workspace-access-gate.js"]) {
+for (const script of ["first-run-telemetry.js", "pilot-waitlist.js", "workspace-access-gate.js"]) {
   new vm.Script(fs.readFileSync(path.join(root, script), "utf8"), { filename: script });
 }
 

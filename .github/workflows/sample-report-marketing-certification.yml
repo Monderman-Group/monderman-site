@@ -202,6 +202,9 @@ jobs:
           node --check scripts/cross_browser_public_release_smoke.mjs
           node --check scripts/personalized_pattern_pilot_browser_smoke.mjs
           node --check scripts/pilot_feedback_browser_smoke.mjs
+          node scripts/first_run_entry_smoke.mjs
+          node --check scripts/first_run_browser_smoke.mjs
+          node --check scripts/pilot_waitlist_browser_smoke.mjs
           node scripts/diagnostic_draft_recovery_smoke.mjs
           node scripts/interview_disabled_smoke.mjs
           node scripts/participant_evidence_boundary_smoke.mjs
@@ -262,6 +265,13 @@ jobs:
 
       - name: Verify homepage assistant launcher
         run: node scripts/homepage_assistant_smoke.mjs
+
+      - name: Verify free entry and pilot funnel in Chromium and WebKit
+        env:
+          SITE_BASE: http://127.0.0.1:8080
+        run: |
+          node scripts/first_run_browser_smoke.mjs
+          node scripts/pilot_waitlist_browser_smoke.mjs
 
       - name: Verify personalized Pattern pilot acceptance
         run: node scripts/personalized_pattern_pilot_browser_smoke.mjs

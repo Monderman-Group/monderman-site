@@ -31,6 +31,10 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
 
     await page.goto(`${base}/index.html`, { waitUntil: "domcontentloaded", timeout: 60000 });
     assert.equal(await page.locator(".first-run-moment").count(), 4);
+    assert.equal(await page.locator('.hero-pilot-link[href="pilot.html?source=homepage"]').count(), 1);
+    assert.equal(await page.locator(".hero-pilot-status").count(), 1);
+    const heroPrimaryColor = await page.locator(".hero-actions .btn-accent").evaluate((node) => getComputedStyle(node).backgroundColor);
+    assert.equal(heroPrimaryColor, "rgb(201, 130, 31)", `${browserName}/${viewport.name}: homepage first-run action is not amber`);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     assert.ok(overflow <= 1, `${browserName}/${viewport.name}: homepage overflows by ${overflow}px`);
 

@@ -53,7 +53,7 @@
     track(eventName, detail);
   }
 
-  window.MondermanFirstRun = { track: track, trackOnce: trackOnce };
+  window.MondermanFirstRun = { track: track, trackOnce: trackOnce, journeyId: journeyId };
   document.addEventListener("click", function (event) {
     var target = event.target && event.target.closest && event.target.closest("[data-first-run-event]");
     if (!target) return;
