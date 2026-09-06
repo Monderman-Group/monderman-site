@@ -12,6 +12,18 @@ const page = await browser.newPage({ viewport: { width: 1440, height: 1100 }, de
 const errors = [];
 page.on('pageerror', e => errors.push(`pageerror: ${e.message}`));
 page.on('console', m => { if (m.type() === 'error') errors.push(`console: ${m.text()}`); });
+// Exportable reports use absolute production font URLs so downloaded HTML can
+// render outside the site. During localhost certification, serve those exact
+// font requests from the checked-out candidate instead of depending on CORS
+// headers from the live site.
+await page.route(/^https:\/\/www\.monderman\.com\/(55|65|75)font\.woff2$/, async route => {
+  const filename = new URL(route.request().url()).pathname.slice(1);
+  await route.fulfill({
+    status: 200,
+    contentType: 'font/woff2',
+    body: fs.readFileSync(path.resolve(filename)),
+  });
+});
 function assert(ok, msg) { if (!ok) throw new Error(msg); }
 function isActualSerif(font) { return /Georgia|Times New Roman/i.test(font); }
 function isMondermanFont(font) { return /Neue Haas Grotesk/i.test(font); }
