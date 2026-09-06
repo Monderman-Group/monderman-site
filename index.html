@@ -11,7 +11,6 @@
 <meta property="og:description" content="Monderman helps organizations examine ownership, decision flow, administrative work, and performance conditions across teams and over time."/>
   <meta name="description" content="Monderman helps organizations examine ownership, decision flow, administrative work, and performance conditions across teams and over time." />
 <!-- Crawlable favicon files for Google search results -->
-<link as="image" fetchpriority="high" href="hero-1920.avif" rel="preload" type="image/avif" imagesrcset="hero-960.avif 960w, hero-1920.avif 1920w" imagesizes="100vw"/>
 <!-- Organization structured data for Google logo in Knowledge Panel / rich results -->
 <script type="application/ld+json">
 {
@@ -1949,7 +1948,9 @@
 .placeholder-cover-motif-primary,
 .placeholder-cover-motif-secondary,
 .placeholder-cover-motif-construction,
+.placeholder-cover-motif-fold,
 .placeholder-cover-motif-node,
+.placeholder-cover-motif-active,
 .placeholder-cover-motif-open-node {
   vector-effect: non-scaling-stroke;
 }
@@ -1975,8 +1976,20 @@
   stroke-dasharray: 2.5 4;
   opacity: 0.55;
 }
+.placeholder-cover-motif-fold {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.15;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.72;
+}
 .placeholder-cover-motif-node {
   fill: currentColor;
+  stroke: none;
+}
+.placeholder-cover-motif-active {
+  fill: #C9821F;
   stroke: none;
 }
 .placeholder-cover-motif-open-node {
@@ -2468,7 +2481,7 @@
   #latest-title,
   #connect-title{font-size:clamp(32px,3vw,38.4px);line-height:1.08;letter-spacing:-.04em}
 </style>
-<link rel="stylesheet" href="canonical-site-shell.css?v=20260906-enterprise1">
+<link rel="stylesheet" href="canonical-site-shell.css?v=20260906-visual1">
 <link rel="stylesheet" href="sample-report-tile.css?v=20260824-depth4">
 <link rel="stylesheet" href="monderman-depth-lure-tile.css?v=20260825-mobile4">
 <style id="homepage-editorial-pass">
@@ -2541,14 +2554,15 @@
   }
 </style>
 
-  <meta property="og:image" content="https://www.monderman.com/assets/brand/monderman-social-card.png?v=20260904-wordmark1">
+  <meta property="og:image" content="https://www.monderman.com/assets/brand/monderman-social-card.png?v=20260906-visual1">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Monderman">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://www.monderman.com/assets/brand/monderman-social-card.png?v=20260904-wordmark1">
+  <meta name="twitter:image" content="https://www.monderman.com/assets/brand/monderman-social-card.png?v=20260906-visual1">
   <meta name="twitter:image:alt" content="Monderman">
   <link rel="stylesheet" href="enterprise-site.css?v=20260906-enterprise1">
+  <link rel="stylesheet" href="homepage-hero-system.css?v=20260906-route1">
 </head>
 <body class="canonical-green-shell homepage-enterprise">
 <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -2571,19 +2585,15 @@
 <section aria-labelledby="hero-title" class="hero">
 <div class="hero-scrim" aria-hidden="true"></div>
 <div aria-hidden="true" class="hero-media-wrap">
-<picture>
-  <source type="image/avif" srcset="hero-960.avif 960w, hero-1920.avif 1920w" sizes="100vw"/>
-  <source type="image/webp" srcset="hero-960.webp 960w" media="(max-width: 960px)"/>
-  <img alt="" class="hero-image" decoding="async" fetchpriority="high" height="1280" id="heroImage" src="hero-1920.jpg" width="1920"/>
-</picture>
+<div class="hero-route-field"></div>
 <div class="hero-overlay"></div>
 </div>
 <div class="hero-inner">
 <div class="hero-copy">
-<p class="hero-eyebrow">Systems measurement for complex institutions</p>
+<p class="hero-eyebrow">Organizational diagnostics for complex institutions</p>
 <h1 class="hero-title" id="hero-title">See how work and decisions move through your organization.</h1>
 <p class="hero-dek">
-          Monderman turns structured answers about ownership, decisions, operating systems, and performance into repeatable scores and reports. Start with one diagnostic, compare results across a team, and return to the same questions over time.
+          Monderman turns structured answers about ownership, decisions, handoffs, and administrative work into repeatable scores and reports.
         </p>
 <div class="hero-actions">
           <a class="btn btn-accent" href="Monderman_Platform_Brief.html">Explore the platform</a>
@@ -2592,11 +2602,12 @@
 <a class="hero-enterprise-link" href="platform-services.html">Compare plans and pricing &rarr;</a>
 <ul class="hero-facts" aria-label="Platform structure">
   <li><strong>Four diagnostics</strong>Distinct views of one operating system</li>
-  <li><strong>Two synthesis layers</strong>Team depth and cross-lens comparison</li>
-  <li><strong>Versioned baselines</strong>Evidence preserved for a later read</li>
+  <li><strong>Individual and team views</strong>Compare eligible perspectives</li>
+  <li><strong>Saved baselines</strong>Return to the same questions later</li>
 </ul>
 </div>
-<aside class="hero-report-proof has-sample-depth-tile" aria-label="Approved Monderman Depth Synthesis report preview">
+<aside class="hero-report-proof has-sample-depth-tile" aria-label="Sample Monderman team result">
+  <p class="hero-report-context"><span>Sample team result</span><span>Depth Synthesis</span></p>
   <a class="hero-report-link" href="sample-report.html" aria-label="View complete Monderman sample reports">
     <div id="monderman-depth-lure-composite">
       <section class="md-tile" aria-labelledby="md-composite-title-home">
@@ -3139,22 +3150,36 @@
 <svg aria-hidden="true" width="0" height="0" style="position:absolute;overflow:hidden">
 <defs>
 <symbol id="carousel-motif-register" viewBox="0 0 320 164">
-<path class="placeholder-cover-motif-construction" d="M198 160H320M289 62V164"></path>
-<path class="placeholder-cover-motif-primary" d="M219 148H302V79M302 96H320"></path>
-<circle class="placeholder-cover-motif-open-node" cx="302" cy="79" r="10"></circle>
+<g transform="translate(176 8) scale(2.65)">
+<path class="placeholder-cover-motif-fold" d="M6 9.2 11 5.75 16 8.3 21 5.75 26 9.2V26L21 23.2 16 26 11 23.2 6 26Z"></path>
+<path class="placeholder-cover-motif-fold" d="M11 5.75V23.2M16 8.3V26M21 5.75V23.2"></path>
+</g>
+<path class="placeholder-cover-motif-construction" d="M142 82H320M142 126H320"></path>
+<path class="placeholder-cover-motif-primary" d="M138 146H178V122H218V98H258V74H294"></path>
+<path class="placeholder-cover-motif-construction" d="M294 74H320"></path>
+<circle class="placeholder-cover-motif-node" cx="178" cy="122" r="2.3"></circle>
+<circle class="placeholder-cover-motif-active" cx="258" cy="74" r="3.8"></circle>
 </symbol>
 <symbol id="carousel-motif-tangent" viewBox="0 0 320 164">
-<path class="placeholder-cover-motif-construction" d="M193 160H320M314 58V164"></path>
-<path class="placeholder-cover-motif-primary" d="M219 160A95 95 0 0 1 314 65"></path>
-<path class="placeholder-cover-motif-secondary" d="M219 150H320M304 65V164"></path>
-<circle class="placeholder-cover-motif-open-node" cx="314" cy="65" r="6.5"></circle>
+<g transform="translate(176 8) scale(2.65)">
+<path class="placeholder-cover-motif-fold" d="M6 9.2 11 5.75 16 8.3 21 5.75 26 9.2V26L21 23.2 16 26 11 23.2 6 26Z"></path>
+<path class="placeholder-cover-motif-fold" d="M11 5.75V23.2M16 8.3V26M21 5.75V23.2"></path>
+</g>
+<path class="placeholder-cover-motif-construction" d="M142 86H320M142 130H320"></path>
+<path class="placeholder-cover-motif-primary" d="M138 146H178V124H218V100H258V76H318"></path>
+<circle class="placeholder-cover-motif-node" cx="178" cy="124" r="2.3"></circle>
+<circle class="placeholder-cover-motif-active" cx="258" cy="76" r="3.8"></circle>
 </symbol>
 <symbol id="carousel-motif-aperture" viewBox="0 0 320 164">
-<path class="placeholder-cover-motif-construction" d="M200 160H320M314 59V164"></path>
-<circle class="placeholder-cover-motif-primary" cx="285" cy="130" r="34"></circle>
-<path class="placeholder-cover-motif-primary" d="M224 157H314V72"></path>
-<path class="placeholder-cover-motif-secondary" d="M285 90V164M245 130H320"></path>
-<circle class="placeholder-cover-motif-node" cx="285" cy="130" r="2.2"></circle>
+<g transform="translate(176 8) scale(2.65)">
+<path class="placeholder-cover-motif-fold" d="M6 9.2 11 5.75 16 8.3 21 5.75 26 9.2V26L21 23.2 16 26 11 23.2 6 26Z"></path>
+<path class="placeholder-cover-motif-fold" d="M11 5.75V23.2M16 8.3V26M21 5.75V23.2"></path>
+</g>
+<path class="placeholder-cover-motif-construction" d="M142 88H320M142 132H320"></path>
+<path class="placeholder-cover-motif-primary" d="M138 146H178V120H218L234 130H260V86H318"></path>
+<circle class="placeholder-cover-motif-node" cx="178" cy="120" r="2.3"></circle>
+<circle class="placeholder-cover-motif-node" cx="234" cy="130" r="2.3"></circle>
+<circle class="placeholder-cover-motif-active" cx="260" cy="86" r="3.8"></circle>
 </symbol>
 </defs>
 </svg>
@@ -3190,7 +3215,7 @@
 <p class="latest-card-kicker">Institutional Performance · Perspective</p>
 <h3 class="latest-card-title">We Gave Bureaucracy the Fastest Tools in History. It Got Slower.</h3>
 <p class="latest-card-text">Technology accelerated the work surrounding government decisions. It did not accelerate the institutional machinery that makes them.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="we-gave-bureaucracy-the-fastest-tools.html">Read perspective →</a><a class="latest-card-secondary-link" href="Monderman_Commentary_We_Gave_Bureaucracy_the_Fastest_Tools_2026-09-03.pdf?v=20260903-source1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="we-gave-bureaucracy-the-fastest-tools.html">Read perspective →</a><a class="latest-card-secondary-link" href="Monderman_Commentary_We_Gave_Bureaucracy_the_Fastest_Tools_2026-09-03.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-insight" data-category="insight">
@@ -3207,7 +3232,7 @@
 <p class="latest-card-kicker">Institutional Performance · Insight</p>
 <h3 class="latest-card-title">The Unmeasured Layer</h3>
 <p class="latest-card-text">Four conditions of how an institution actually operates are often measured in fragments and seldom assembled into a standing, institution-level view.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="the-unmeasured-layer.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_The_Unmeasured_Layer.pdf?v=20260904-wordmark1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="the-unmeasured-layer.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_The_Unmeasured_Layer.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-insight" data-category="insight">
@@ -3225,7 +3250,7 @@
 <p class="latest-card-kicker">Artificial Intelligence · Insight</p>
 <h3 class="latest-card-title">Merit After the Machine</h3>
 <p class="latest-card-text">What artificial intelligence weakens is not human merit, but the evidence institutions use to recognize skilled and conscientious work.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="merit-after-the-machine.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_Merit_After_the_Machine_2026-09-02.pdf?v=20260902-final" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="merit-after-the-machine.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_Merit_After_the_Machine_2026-09-02.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-insight" data-category="insight">
@@ -3243,7 +3268,7 @@
 <p class="latest-card-kicker">Artificial Intelligence · Insight</p>
 <h3 class="latest-card-title">Every Node for Itself</h3>
 <p class="latest-card-text">AI gives every organization a reason to cut off the outside firms it buys from. The first savings estimate misses independent checking, shared learning, trust, and a responsible backstop.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="every-node-for-itself.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_Every_Node_for_Itself_2026-09-02.pdf?v=20260902-final" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="every-node-for-itself.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_Every_Node_for_Itself_2026-09-02.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-insight" data-category="insight">
@@ -3261,7 +3286,7 @@
 <p class="latest-card-kicker">Artificial Intelligence · Insight</p>
 <h3 class="latest-card-title">Built to Please</h3>
 <p class="latest-card-text">General-purpose AI assistants are trained toward several goals at once. This paper shows how preference can pull against truthfulness, what is known about that lean, and the checks serious users build around models so their answers can be trusted.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="built-to-please.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_Built_to_Please_2026-09-02.pdf?v=20260902" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="built-to-please.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_Built_to_Please_2026-09-02.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-insight" data-category="insight">
@@ -3278,7 +3303,7 @@
 <p class="latest-card-kicker">Decision Design · Insight</p>
 <h3 class="latest-card-title">Terminal Fidelity</h3>
 <p class="latest-card-text">A Monderman insight paper on why ideas in power consume themselves through faithful application, and the stopping rules that separate the traditions and companies that endure.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="terminal-fidelity.html">Read article →</a><a class="latest-card-secondary-link" href="Terminal_Fidelity.pdf?v=20260904-wordmark1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="terminal-fidelity.html">Read article →</a><a class="latest-card-secondary-link" href="Terminal_Fidelity.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-brief" data-category="brief">
@@ -3295,7 +3320,7 @@
 <p class="latest-card-kicker">Defense · Brief</p>
 <h3 class="latest-card-title">Accumulated Drag in the Department of War</h3>
 <p class="latest-card-text">A Monderman research brief on accumulated drag, administrative burden, and institutional friction in one of the world’s most complex public institutions.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="accumulated-drag-department-of-war.html">Read brief →</a><a class="latest-card-secondary-link" href="Monderman_Brief_Accumulated_Drag_Department_of_War_2026-09-02.pdf?v=20260902-final" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="accumulated-drag-department-of-war.html">Read brief →</a><a class="latest-card-secondary-link" href="Monderman_Brief_Accumulated_Drag_Department_of_War_2026-09-02.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-brief" data-category="brief">
@@ -3312,7 +3337,7 @@
 <p class="latest-card-kicker">Healthcare · Brief</p>
 <h3 class="latest-card-title">Quarter-Trillion Friction in U.S. Healthcare</h3>
 <p class="latest-card-text">A Monderman brief on quarter-trillion friction, administrative burden, and the structural drag complicating performance in healthcare systems.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="quarter-trillion-friction-us-healthcare.html">Read brief →</a><a class="latest-card-secondary-link" href="Monderman_Brief_Quarter_Trillion_Dollar_Friction_US_Healthcare.pdf?v=20260904-wordmark1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="quarter-trillion-friction-us-healthcare.html">Read brief →</a><a class="latest-card-secondary-link" href="Monderman_Brief_Quarter_Trillion_Dollar_Friction_US_Healthcare.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-insight" data-category="insight">
@@ -3329,7 +3354,7 @@
 <p class="latest-card-kicker">Enterprise · Insight</p>
 <h3 class="latest-card-title">From Tokens to Outcomes</h3>
 <p class="latest-card-text">A Monderman insight paper on how token economics will define the next phase of enterprise AI, and why the second wave will be won on cost, not capability.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="from-tokens-to-outcomes.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_After_the_First_Lap.pdf?v=20260904-wordmark1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="from-tokens-to-outcomes.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_After_the_First_Lap.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-brief" data-category="brief">
@@ -3346,7 +3371,7 @@
 <p class="latest-card-kicker">Enterprise · Brief</p>
 <h3 class="latest-card-title">How Workarounds Preserve Output While Masking Institutional Dysfunction</h3>
 <p class="latest-card-text">Organizations often appear to function because people compensate for structural weakness. Output is preserved, but the underlying system continues to deteriorate.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="compensatory-systems.html">Read brief →</a><a class="latest-card-secondary-link" href="Monderman_Brief_Compensatory_Systems.pdf?v=20260904-wordmark1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="compensatory-systems.html">Read brief →</a><a class="latest-card-secondary-link" href="Monderman_Brief_Compensatory_Systems.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-brief" data-category="brief">
@@ -3363,7 +3388,7 @@
 <p class="latest-card-kicker">Enterprise · Brief</p>
 <h3 class="latest-card-title">How the Collapse of Eastman Kodak Is Misunderstood</h3>
 <p class="latest-card-text">Kodak did not fail because it missed technology. It failed because its administrative and decision systems could not adapt.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="when-bureaucracy-became-the-obstacle.html">Read brief →</a><a class="latest-card-secondary-link" href="Monderman_Brief_The_Collapse_of_Eastman_Kodak.pdf?v=20260904-wordmark1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="when-bureaucracy-became-the-obstacle.html">Read brief →</a><a class="latest-card-secondary-link" href="Monderman_Brief_The_Collapse_of_Eastman_Kodak.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-brief" data-category="brief">
@@ -3380,7 +3405,7 @@
 <p class="latest-card-kicker">Enterprise · Brief</p>
 <h3 class="latest-card-title">The Culture Trap</h3>
 <p class="latest-card-text">Why culture-first diagnosis mislocates the problem, and why organizations that fix sentiment before structure often fix the wrong thing first.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="the-culture-trap-brief.html">Read brief →</a><a class="latest-card-secondary-link" href="Monderman_Brief_The_Culture_Trap.pdf?v=20260904-wordmark1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="the-culture-trap-brief.html">Read brief →</a><a class="latest-card-secondary-link" href="Monderman_Brief_The_Culture_Trap.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-insight" data-category="insight">
@@ -3397,7 +3422,7 @@
 <p class="latest-card-kicker">Decision Design · Insight</p>
 <h3 class="latest-card-title">The Art of Interior Reasoning</h3>
 <p class="latest-card-text">A Monderman insight on why excellent decisions live off the line, and what it takes, both analytically and emotionally, to consistently reach them.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="the-art-of-interior-reasoning.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_The_Art_of_Interior_Reasoning.pdf?v=20260904-wordmark1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="the-art-of-interior-reasoning.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_The_Art_of_Interior_Reasoning.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-perspective" data-category="perspective">
@@ -3898,7 +3923,7 @@
   </script>
 
 <script src="first-run-telemetry.js" defer></script>
-<script src="canonical-site-shell.js?v=20260906-enterprise1"></script>
+<script src="canonical-site-shell.js?v=20260906-visual1"></script>
 <script src="assistant.js?v=20260828-footer-dock4" defer></script>
   <script src="contact-transport.js?v=20260903-contact1" defer></script>
   <script src="connect-widget.js?v=20260903-contact1" defer></script>

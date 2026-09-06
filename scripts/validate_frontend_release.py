@@ -247,7 +247,7 @@ for name in ['we-gave-bureaucracy-the-fastest-tools.html','the-unmeasured-layer.
 built_pdf=r/'Monderman_Insight_Built_to_Please_2026-09-02.pdf'
 if not built_pdf.exists():
  e.append('Built to Please PDF missing')
-elif hashlib.sha256(built_pdf.read_bytes()).hexdigest()!='bf112b264e0978df9fd12b9c20b3d933942794911d7b25e3fec22304f1a1f7d8':
+elif hashlib.sha256(built_pdf.read_bytes()).hexdigest()!='e74eeb6ec90f25e7a1dbc7ce341e43e46453449389aed5273235d83c643e2e9c':
  e.append('Built to Please canonical PDF bytes changed')
 for stale in ['exactly as the engine renders it','Every read returns the result in your numbers','Monderman is the instrument that surfaces where these losses originate']:
  if stale in idx:e.append('homepage unsupported claim '+stale)

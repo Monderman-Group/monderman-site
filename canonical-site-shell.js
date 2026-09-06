@@ -12,6 +12,15 @@
     document.head.appendChild(brandStyles);
   }
   const brandMark = '<svg class="monderman-lockup__mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M6 9.2 11 5.75 16 8.3 21 5.75 26 9.2V26L21 23.2 16 26 11 23.2 6 26Z" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 5.75V23.2M16 8.3V26M21 5.75V23.2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const footerMotif = `<svg class="mf-route-map" viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <path class="mf-route-map__construction" d="M26 240H694" />
+    <path class="mf-route-map__route" d="M26 222H130V190H240V152H350V118H438V98.656H524.08" />
+    <circle class="mf-route-map__node" cx="350" cy="118" r="3.25" />
+    <g class="mf-route-map__fold" transform="translate(478 28) scale(.24)">
+      <path d="M192 294.4 352 184 512 265.6 672 184 832 294.4V832L672 742.4 512 832 352 742.4 192 832Z" />
+      <path d="M352 184V742.4M512 265.6V832M672 184V742.4" />
+    </g>
+  </svg>`;
   const restoreWordmarkPeriod = (name) => {
     if (!name) return;
     const value = name.textContent.trim();
@@ -45,9 +54,20 @@
       if (!footerBrand.querySelector(".monderman-lockup__mark")) footerBrand.insertAdjacentHTML("afterbegin", brandMark);
       footerBrand.querySelectorAll(".mf-dot").forEach((dot) => dot.remove());
       restoreWordmarkPeriod(footerBrand.querySelector(".mf-name"));
+      const footerPanel = footerBrand.closest(".mf-brand");
+      if (footerPanel && !footerPanel.querySelector(".mf-tagline")) {
+        const tagline = document.createElement("p");
+        tagline.className = "mf-tagline";
+        tagline.textContent = "See how work and decisions move.";
+        footerBrand.insertAdjacentElement("afterend", tagline);
+      }
     });
     document.querySelectorAll(".mond-footer .mf-copy").forEach((copy) => {
-      copy.textContent = "Monderman gives institutions a structured way to examine ownership, decision flow, operating burden, and performance conditions across teams and over time.";
+      copy.textContent = "Monderman provides repeatable organizational diagnostics for ownership, decisions, handoffs, and administrative work.";
+    });
+    document.querySelectorAll(".mond-footer .mf-motif").forEach((motif) => {
+      motif.setAttribute("aria-hidden", "true");
+      motif.innerHTML = footerMotif;
     });
     document.querySelectorAll(".mond-footer .mf-nav").forEach((footerNav) => {
       footerNav.innerHTML = `

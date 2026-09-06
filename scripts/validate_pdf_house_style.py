@@ -53,6 +53,21 @@ def require_word(page, text: str, *, size: float, font_fragment: str, color=None
     )
 
 
+def require_tracked_label(page, text: str, *, size: float, font_fragment: str, color):
+    words = [
+        word for word in page.extract_words(
+            extra_attrs=["fontname", "size", "non_stroking_color"]
+        )
+        if close(word["size"], size)
+        and font_fragment in word["fontname"]
+        and tuple(word.get("non_stroking_color") or ()) == color
+        and word["top"] < 60
+    ]
+    if "".join(word["text"] for word in words) != text:
+        raise AssertionError(f"missing tracked label {text!r}")
+    return words[0]
+
+
 def validate(path: Path) -> None:
     reader = PdfReader(path)
     if len(reader.pages) != 13:
@@ -78,35 +93,29 @@ def validate(path: Path) -> None:
 
     with pdfplumber.open(path) as document:
         cover = document.pages[0]
-        insight = require_word(
-            cover, "INSIGHT", size=8.5, font_fragment="75-Bold", color=(1.0, 1.0, 1.0)
+        insight = require_tracked_label(
+            cover, "INSIGHT", size=8.5, font_fragment="75Bd", color=(0.611765, 0.768627, 0.788235)
         )
         if not close(insight["x0"], 60.0):
             raise AssertionError("cover label does not begin at the 60-point margin")
-        # WeasyPrint encodes the September canonical's decorated text and
-        # footer rule as paired clipping rectangles. Their delta is the
-        # visible rule weight: 2 points for INSIGHT and 1 point for the footer.
-        insight_rule_rects = [
-            rect for rect in cover.rects
-            if close(rect["x0"], 60.0)
-            and close(rect["x1"], 111.77124)
-            and tuple(rect.get("non_stroking_color") or ()) == (1.0, 1.0, 1.0)
+        insight_rules = [
+            line for line in cover.lines
+            if close(line["x0"], 60.0)
+            and close(line["top"], 72.0)
+            and close(line.get("linewidth") or 0, 2.0)
+            and tuple(line.get("stroking_color") or ()) == (0.611765, 0.768627, 0.788235)
         ]
-        if len(insight_rule_rects) != 2 or not close(
-            abs(insight_rule_rects[0]["bottom"] - insight_rule_rects[1]["bottom"]),
-            2.0,
-        ):
-            raise AssertionError("cover INSIGHT underline is not the specified 2-point white rule")
-        footer_rule_rects = [
-            rect for rect in cover.rects
-            if close(rect["x0"], 60.0)
-            and close(rect["x1"], 552.0)
-            and tuple(rect.get("non_stroking_color") or ()) == (0.243137, 0.372549, 0.403922)
+        if len(insight_rules) != 1:
+            raise AssertionError("cover INSIGHT underline is not the specified 2-point category rule")
+        footer_rules = [
+            line for line in cover.lines
+            if close(line["x0"], 60.0)
+            and close(line["x1"], 552.0)
+            and close(line["top"], 725.0)
+            and close(line.get("linewidth") or 0, 1.0)
+            and tuple(line.get("stroking_color") or ()) == (0.243137, 0.372549, 0.403922)
         ]
-        if len(footer_rule_rects) != 2 or not close(
-            abs(footer_rule_rects[0]["top"] - footer_rule_rects[1]["top"]),
-            1.0,
-        ):
+        if len(footer_rules) != 1:
             raise AssertionError("cover footer rule is not the specified 1 point")
         bleed_fixes = [
             rect for rect in cover.rects
@@ -117,22 +126,17 @@ def validate(path: Path) -> None:
         ]
         if not bleed_fixes:
             raise AssertionError("cover background does not reach the bottom media-box edge")
-        cover_wordmark = require_word(
-            cover, "Monderman", size=14.5, font_fragment="75-Bold", color=(1.0, 1.0, 1.0)
-        )
-        cover_period = require_word(
-            cover, ".", size=14.5, font_fragment="75Bd", color=(1.0, 1.0, 1.0)
-        )
-        if not close(cover_period["x0"], cover_wordmark["x1"]):
-            raise AssertionError("cover wordmark period is not set at the natural continuation point")
         require_word(
-            cover, "Built", size=28.0, font_fragment="75-Bold", color=(1.0, 1.0, 1.0)
+            cover, "Monderman.", size=15.0, font_fragment="75Bd", color=(1.0, 1.0, 1.0)
         )
         require_word(
-            cover, "Why", size=15.5, font_fragment="65-Medium", color=(0.611765, 0.768627, 0.788235)
+            cover, "Built", size=29.0, font_fragment="75Bd", color=(1.0, 1.0, 1.0)
         )
         require_word(
-            cover, "Jason", size=11.0, font_fragment="75-Bold", color=(1.0, 1.0, 1.0)
+            cover, "Why", size=15.5, font_fragment="65Md", color=(0.611765, 0.768627, 0.788235)
+        )
+        require_word(
+            cover, "Jason", size=11.0, font_fragment="75Bd", color=(1.0, 1.0, 1.0)
         )
 
         frontmatter = document.pages[1]

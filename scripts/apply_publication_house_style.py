@@ -491,8 +491,11 @@ def paragraph(c: Canvas, text: str, style: ParagraphStyle, x: float, top: float,
     return top - height
 
 
-def gradient(c: Canvas) -> None:
-    stops = ((0.0, (16, 59, 68)), (0.55, (11, 52, 61)), (1.0, (4, 40, 47)))
+def gradient(c: Canvas, category: str) -> None:
+    if category == "BRIEF":
+        stops = ((0.0, (247, 242, 232)), (0.55, (241, 234, 222)), (1.0, (232, 222, 205)))
+    else:
+        stops = ((0.0, (16, 59, 68)), (0.55, (11, 52, 61)), (1.0, (4, 40, 47)))
     bands = 396
     for i in range(bands):
         t = i / (bands - 1)
@@ -508,37 +511,112 @@ def gradient(c: Canvas) -> None:
                 break
 
 
+def draw_cover_motif(c: Canvas, category: str) -> None:
+    light = category == "BRIEF"
+    commentary = category in {"COMMENTARY", "PERSPECTIVE"}
+    motif = HexColor("#7A5A34") if light else HexColor("#D29A50") if commentary else HexColor("#A9D0D4")
+    route = TEAL if light else white
+
+    def point(x: float, y: float) -> tuple[float, float]:
+        return 338.0 + (x - 12.0) * 5.55, 512.0 - (y - 11.5) * 5.55
+
+    c.saveState()
+    c.setStrokeColor(motif)
+    c.setLineWidth(1.15)
+    c.setLineCap(1)
+    c.setLineJoin(1)
+    c.setStrokeAlpha(.2 if light else .22)
+    outline = (
+        (12, 18.4), (22, 11.5), (32, 16.6), (42, 11.5), (52, 18.4),
+        (52, 52), (42, 46.4), (32, 52), (22, 46.4), (12, 52), (12, 18.4),
+    )
+    path = c.beginPath()
+    x0, y0 = point(*outline[0])
+    path.moveTo(x0, y0)
+    for x, y in outline[1:]:
+        px, py = point(x, y)
+        path.lineTo(px, py)
+    c.drawPath(path, stroke=1, fill=0)
+    for x, y1, y2 in ((22, 11.5, 46.4), (32, 16.6, 52), (42, 11.5, 46.4)):
+        c.line(*point(x, y1), *point(x, y2))
+
+    c.setDash(2.5, 5.5)
+    c.setLineCap(0)
+    c.setStrokeAlpha(.12 if light else .14)
+    for y in (317.0, 372.0, 427.0):
+        c.line(296.0, y, 572.0, y)
+    c.setDash()
+
+    c.setStrokeColor(route)
+    c.setStrokeAlpha(.64 if light else .7)
+    c.setLineWidth(1.5)
+    c.setLineCap(1)
+    c.setLineJoin(1)
+    route_path = c.beginPath()
+    route_path.moveTo(286.0, 286.0)
+    route_path.lineTo(348.0, 286.0)
+    route_path.lineTo(348.0, 326.0)
+    route_path.lineTo(407.0, 326.0)
+    route_path.lineTo(434.0, 311.0)
+    route_path.lineTo(476.0, 311.0)
+    route_path.lineTo(476.0, 371.0)
+    route_path.lineTo(563.0, 371.0)
+    c.drawPath(route_path, stroke=1, fill=0)
+
+    c.setFillColor(route)
+    c.setFillAlpha(.9)
+    for x, y in ((348.0, 326.0), (407.0, 326.0), (563.0, 371.0)):
+        c.circle(x, y, 2.15, stroke=0, fill=1)
+    c.setFillColor(HexColor("#C9821F"))
+    c.setFillAlpha(1)
+    c.circle(476.0, 371.0, 3.8, stroke=0, fill=1)
+    c.restoreState()
+
+
 def make_cover(pub: Publication) -> bytes:
     stream = BytesIO()
     c = Canvas(stream, pagesize=letter, pageCompression=1)
-    gradient(c)
+    gradient(c, pub.category)
 
-    label_end = tracked(c, pub.category, MARGIN, 746.0, BOLD, 8.5, white, 3.0)
-    c.setStrokeColor(white)
+    light = pub.category == "BRIEF"
+    commentary = pub.category in {"COMMENTARY", "PERSPECTIVE"}
+    primary = INK if light else white
+    secondary = HexColor("#655F57") if light else PALE_COPY
+    subtitle_color = HexColor("#4D5C60") if light else PALE_TEAL
+    accent = HexColor("#86530D") if light else HexColor("#E4B66F") if commentary else PALE_TEAL
+    footer_rule = HexColor("#CFC3B2") if light else RULE
+    footer_copy = HexColor("#625D56") if light else CONTACT
+
+    draw_cover_motif(c, pub.category)
+
+    label_end = tracked(c, pub.category, MARGIN, 746.0, BOLD, 8.5, accent, 3.0)
+    c.setStrokeColor(accent)
     c.setLineWidth(2.0)
     c.line(MARGIN, 720.0, label_end - 3.0, 720.0)
-    draw_header_lockup(c, x=MARGIN, baseline=681.0, color=white)
+    draw_header_lockup(c, x=MARGIN, baseline=681.0, color=primary)
 
-    tracked(c, "INSTITUTIONAL PERFORMANCE RESEARCH", MARGIN, 562.0, BOLD, 9.0, white, 5.0)
-    title = ParagraphStyle("cover-title", fontName=BOLD, fontSize=28.0, leading=29.2, textColor=white)
-    subtitle = ParagraphStyle("cover-sub", fontName=MEDIUM, fontSize=15.5, leading=18.4, textColor=PALE_TEAL)
-    standfirst = ParagraphStyle("cover-deck", fontName=ROMAN, fontSize=11.5, leading=17.25, textColor=PALE_COPY)
+    series = "MONDERMAN PERSPECTIVES" if commentary else "MONDERMAN RESEARCH SERIES"
+    tracked(c, series, MARGIN, 562.0, BOLD, 9.0, accent, 4.2)
+    title_size = 24.0 if len(pub.title) > 52 else 26.0 if len(pub.title) > 36 else 29.0
+    title = ParagraphStyle("cover-title", fontName=BOLD, fontSize=title_size, leading=title_size * 1.04, textColor=primary)
+    subtitle = ParagraphStyle("cover-sub", fontName=MEDIUM, fontSize=15.5, leading=18.4, textColor=subtitle_color)
+    standfirst = ParagraphStyle("cover-deck", fontName=ROMAN, fontSize=11.5, leading=17.25, textColor=secondary)
     y = paragraph(c, pub.title, title, MARGIN, 526.0, BODY_W)
     y = paragraph(c, pub.subtitle, subtitle, MARGIN, y - 14.0, BODY_W)
     paragraph(c, pub.standfirst, standfirst, MARGIN, y - 24.0, BODY_W)
 
-    tracked(c, "BY", MARGIN, 129.0, BOLD, 7.0, PALE_TEAL, 2.1)
-    c.setFillColor(white)
+    tracked(c, "BY", MARGIN, 129.0, BOLD, 7.0, accent, 2.1)
+    c.setFillColor(primary)
     c.setFont(BOLD, 11.0)
     c.drawString(MARGIN, 107.0, pub.author)
 
-    c.setStrokeColor(RULE)
+    c.setStrokeColor(footer_rule)
     c.setLineWidth(1.0)
     c.line(MARGIN, 67.0, PAGE_W - MARGIN, 67.0)
-    c.setFillColor(white)
+    c.setFillColor(primary)
     c.setFont(BOLD, 8.0)
     c.drawString(MARGIN, 45.0, pub.date)
-    c.setFillColor(CONTACT)
+    c.setFillColor(footer_copy)
     c.setFont(ROMAN, 8.0)
     c.drawRightString(PAGE_W - MARGIN, 45.0, "connect@monderman.com  •  www.monderman.com")
     c.showPage()

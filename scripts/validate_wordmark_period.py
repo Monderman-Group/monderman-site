@@ -11,6 +11,7 @@ import pdfplumber
 
 ROOT = Path(__file__).resolve().parents[1]
 WHITE = (1.0, 1.0, 1.0)
+INK = (0.078431, 0.094118, 0.105882)
 TEAL = (0.047059, 0.431373, 0.470588)
 
 
@@ -69,21 +70,30 @@ def validate_pdfs() -> None:
             cover = document.pages[0].extract_words(
                 extra_attrs=["fontname", "size", "non_stroking_color"]
             )
+            joined = [
+                word for word in cover
+                if word["text"] == "Monderman."
+                and 14.0 <= float(word["size"]) <= 15.5
+                and tuple(word.get("non_stroking_color") or ()) in {WHITE, INK}
+            ]
             names = [
                 word for word in cover
                 if word["text"] == "Monderman"
                 and 14.0 <= float(word["size"]) <= 15.5
-                and tuple(word.get("non_stroking_color") or ()) == WHITE
+                and tuple(word.get("non_stroking_color") or ()) in {WHITE, INK}
             ]
             periods = [
                 word for word in cover
                 if word["text"] == "."
                 and 14.0 <= float(word["size"]) <= 15.5
-                and tuple(word.get("non_stroking_color") or ()) == WHITE
+                and tuple(word.get("non_stroking_color") or ()) in {WHITE, INK}
             ]
-            if len(names) != 1 or not any(
-                close(period["x0"], names[0]["x1"]) for period in periods
-            ):
+            split_is_precise = len(names) == 1 and any(
+                close(period["x0"], names[0]["x1"])
+                and tuple(period.get("non_stroking_color") or ()) == tuple(names[0].get("non_stroking_color") or ())
+                for period in periods
+            )
+            if len(joined) != 1 and not split_is_precise:
                 raise AssertionError(f"{path.name}: cover wordmark period is missing or mis-spaced")
 
             closing = [

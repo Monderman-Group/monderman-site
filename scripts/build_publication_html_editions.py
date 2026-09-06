@@ -17,7 +17,7 @@ import subprocess
 import tempfile
 
 import pdfplumber
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -565,45 +565,21 @@ def author_about(author: str) -> str:
 
 
 def generate_social_card(publication: Publication) -> None:
-    width, height = 1200, 630
-    image = Image.new("RGB", (width, height), "#07363b")
-    draw = ImageDraw.Draw(image)
-    font_dir = ROOT / "pdf-src" / "fonts"
-    regular = font_dir / "NeueHaasGroteskText-Roman.ttf"
-    bold = font_dir / "NeueHaasGroteskText-Bold.ttf"
-    small = ImageFont.truetype(str(bold), 22)
-    title_size = 70 if len(publication.title) < 34 else 58
-    title_font = ImageFont.truetype(str(bold), title_size)
-    subtitle_font = ImageFont.truetype(str(regular), 31)
-    draw.text((78, 62), "MONDERMAN.", font=small, fill="#ffffff")
-    draw.line((78, 105, 180, 105), fill="#9cc4c9", width=4)
-    draw.text((78, 142), f"{publication.topic.upper()} · {publication.category.upper()}", font=small, fill="#9cc4c9")
-    y = 205
-    for line in wrap_for_image(draw, publication.title, title_font, 1000):
-        draw.text((78, y), line, font=title_font, fill="#ffffff")
-        y += title_size * .98
-    y += 18
-    for line in wrap_for_image(draw, publication.subtitle, subtitle_font, 960)[:3]:
-        draw.text((78, y), line, font=subtitle_font, fill="#b7d2d4")
-        y += 39
-    draw.line((78, 564, 1122, 564), fill="#315c62", width=2)
-    draw.text((78, 582), publication.date, font=small, fill="#d9e4e5")
-    image.save(ASSET_DIR / f"{publication.slug}-social.png", optimize=True)
+    try:
+        from generate_publication_social_cards import Card as SocialCard, render
+    except ModuleNotFoundError:
+        from scripts.generate_publication_social_cards import Card as SocialCard, render
 
-
-def wrap_for_image(draw, text: str, font, maximum: int) -> list[str]:
-    lines: list[str] = []
-    current = ""
-    for word in text.split():
-        candidate = f"{current} {word}".strip()
-        if current and draw.textbbox((0, 0), candidate, font=font)[2] > maximum:
-            lines.append(current)
-            current = word
-        else:
-            current = candidate
-    if current:
-        lines.append(current)
-    return lines
+    render(
+        SocialCard(
+            publication.slug,
+            publication.category,
+            publication.topic,
+            publication.title,
+            publication.subtitle,
+            publication.date,
+        )
+    )
 
 
 def build_page(publication: Publication, standard_footer: str) -> None:

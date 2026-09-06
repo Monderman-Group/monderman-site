@@ -1,0 +1,244 @@
+/*
+ * Homepage hero proof system.
+ * This layer is deliberately isolated from the shared site shell.
+ */
+
+body.homepage-enterprise .hero {
+  min-height: clamp(820px, 100svh, 920px);
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 84% 18%, rgba(12, 110, 120, .16), transparent 34%),
+    linear-gradient(142deg, #073338 0%, #05292E 56%, #04181B 100%);
+}
+
+body.homepage-enterprise .hero-media-wrap {
+  background: transparent;
+}
+
+body.homepage-enterprise .hero-media-wrap::after {
+  background:
+    linear-gradient(90deg, rgba(4, 24, 27, .9) 0%, rgba(4, 24, 27, .68) 38%, rgba(4, 24, 27, .18) 70%, rgba(4, 24, 27, .08) 100%),
+    linear-gradient(180deg, rgba(4, 24, 27, .08), rgba(4, 24, 27, .42));
+}
+
+body.homepage-enterprise .hero-route-field {
+  position: absolute;
+  inset: 0;
+  background: url("assets/brand/monderman-hero-route-field.svg") 50% 50% / cover no-repeat;
+  opacity: .82;
+}
+
+body.homepage-enterprise .hero-scrim {
+  background:
+    linear-gradient(90deg, rgba(4, 24, 27, .76) 0%, rgba(4, 24, 27, .48) 36%, rgba(4, 24, 27, .04) 68%, transparent 100%),
+    linear-gradient(180deg, rgba(4, 24, 27, .04), rgba(4, 24, 27, .24));
+}
+
+body.homepage-enterprise .hero-overlay {
+  background:
+    radial-gradient(ellipse at 79% 49%, rgba(12, 110, 120, .12), transparent 44%),
+    linear-gradient(180deg, rgba(4, 24, 27, .02), rgba(4, 24, 27, .18));
+}
+
+body.homepage-enterprise .hero::after {
+  background: linear-gradient(180deg, rgba(255, 255, 255, .018), rgba(4, 24, 27, .16));
+}
+
+body.homepage-enterprise .hero-inner {
+  max-width: 1500px;
+  min-height: clamp(820px, 100svh, 920px);
+  padding: 146px clamp(24px, 4.2vw, 68px) 78px;
+  grid-template-columns: minmax(0, 1fr) minmax(500px, 590px);
+  gap: clamp(48px, 5.2vw, 78px);
+}
+
+body.homepage-enterprise .hero-copy {
+  max-width: 730px;
+}
+
+body.homepage-enterprise .hero h1 {
+  max-width: 11.8ch;
+  font-size: clamp(3.6rem, 5.45vw, 5.45rem);
+}
+
+body.homepage-enterprise .hero-report-proof.has-sample-depth-tile {
+  position: relative;
+  width: min(100%, 590px);
+  max-width: 590px;
+  padding: 18px 18px 0;
+  justify-self: end;
+}
+
+body.homepage-enterprise .hero-report-proof.has-sample-depth-tile::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 36px;
+  border: 1px solid rgba(156, 196, 201, .2);
+  border-radius: 7px;
+  background: linear-gradient(155deg, rgba(8, 56, 62, .62), rgba(4, 24, 27, .38));
+  box-shadow: 0 38px 90px rgba(0, 0, 0, .24);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+body.homepage-enterprise .hero-report-context {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 0 0 12px;
+  color: rgba(255, 255, 255, .68);
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+body.homepage-enterprise .hero-report-context span:last-child {
+  color: #9CC4C9;
+}
+
+body.homepage-enterprise .hero-report-link,
+body.homepage-enterprise #monderman-depth-lure-composite,
+body.homepage-enterprise .hero-report-caption {
+  position: relative;
+  z-index: 1;
+}
+
+body.homepage-enterprise #monderman-depth-lure-composite {
+  width: 100%;
+  max-width: none;
+}
+
+body.homepage-enterprise #monderman-depth-lure-composite .md-tile {
+  border-color: rgba(255, 255, 255, .46);
+  box-shadow: 0 26px 64px rgba(0, 0, 0, .28), 0 4px 14px rgba(0, 0, 0, .16);
+  transition: transform 220ms cubic-bezier(.22, 1, .36, 1), box-shadow 220ms ease;
+}
+
+body.homepage-enterprise .hero-report-link:hover .md-tile,
+body.homepage-enterprise .hero-report-link:focus-visible .md-tile {
+  transform: translateY(-3px);
+  box-shadow: 0 32px 72px rgba(0, 0, 0, .32), 0 5px 18px rgba(0, 0, 0, .18);
+}
+
+body.homepage-enterprise .hero-report-caption {
+  margin: 12px 2px 0;
+}
+
+@media (max-width: 1120px) and (min-width: 981px) {
+  body.homepage-enterprise .hero-inner {
+    grid-template-columns: minmax(0, 1fr) minmax(440px, 500px);
+    gap: 40px;
+  }
+
+  body.homepage-enterprise .hero h1 {
+    font-size: clamp(3.25rem, 5.25vw, 4rem);
+  }
+}
+
+@media (max-width: 980px) {
+  body.homepage-enterprise .hero,
+  body.homepage-enterprise .hero-inner {
+    min-height: 0;
+  }
+
+  body.homepage-enterprise .hero-inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 56px;
+    padding-top: 136px;
+    padding-bottom: 82px;
+  }
+
+  body.homepage-enterprise .hero-copy {
+    max-width: 760px;
+  }
+
+  body.homepage-enterprise .hero-report-proof.has-sample-depth-tile {
+    width: min(100%, 600px);
+    max-width: 600px;
+    justify-self: start;
+  }
+
+  body.homepage-enterprise .hero-route-field {
+    background-position: 62% 0;
+    background-size: auto 940px;
+    opacity: .68;
+  }
+}
+
+@media (max-width: 640px) {
+  body.homepage-enterprise .hero {
+    min-height: 0;
+  }
+
+  body.homepage-enterprise .hero-inner {
+    display: block;
+    min-height: 0;
+    padding: 122px 20px 64px;
+  }
+
+  body.homepage-enterprise .hero h1 {
+    max-width: 12ch;
+    font-size: clamp(2.9rem, 13vw, 3.55rem);
+    line-height: .96;
+  }
+
+  body.homepage-enterprise .hero-dek {
+    max-width: 37ch;
+  }
+
+  body.homepage-enterprise .hero-facts {
+    max-width: none;
+  }
+
+  body.homepage-enterprise .hero-report-proof.has-sample-depth-tile {
+    display: block !important;
+    width: 100%;
+    max-width: 100%;
+    margin: 48px 0 0 !important;
+    padding: 12px 0 0;
+  }
+
+  body.homepage-enterprise .hero-report-proof.has-sample-depth-tile::before {
+    inset: 0 -10px 34px;
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
+  }
+
+  body.homepage-enterprise .hero-report-context {
+    margin-bottom: 11px;
+    font-size: .61rem;
+    letter-spacing: .12em;
+  }
+
+  body.homepage-enterprise .hero-report-caption {
+    margin-top: 11px;
+    font-size: .78rem;
+  }
+
+  body.homepage-enterprise .hero-route-field {
+    background-position: 59% 0;
+    background-size: auto 760px;
+    opacity: .54;
+  }
+
+  body.homepage-enterprise .hero-media-wrap::after {
+    background:
+      linear-gradient(180deg, rgba(4, 24, 27, .58) 0%, rgba(4, 24, 27, .34) 34%, rgba(4, 24, 27, .82) 72%, rgba(4, 24, 27, .94) 100%),
+      linear-gradient(90deg, rgba(4, 24, 27, .5), rgba(4, 24, 27, .08));
+  }
+
+  body.homepage-enterprise .hero-scrim {
+    background: linear-gradient(180deg, rgba(4, 24, 27, .24), rgba(4, 24, 27, .08) 34%, rgba(4, 24, 27, .52) 72%, rgba(4, 24, 27, .72));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.homepage-enterprise #monderman-depth-lure-composite .md-tile {
+    transition: none;
+  }
+}

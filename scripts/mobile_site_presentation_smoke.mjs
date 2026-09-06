@@ -114,7 +114,7 @@ try {
             ? [...element.getClientRects()]
             : [box];
           if (boxes.every((rect) => rect.left >= -2 && rect.right <= viewportWidth + 2)) return [];
-          if (element.closest('.mf-motif,#turnstilePreload') || element.matches('.hero-image')) return [];
+          if (element.closest('.mf-motif,.publication-hero__motif,#turnstilePreload') || element.matches('.hero-image')) return [];
 
           let ancestor = element.parentElement;
           while (ancestor && ancestor !== document.body) {
@@ -168,9 +168,11 @@ try {
 
       if (pageName === 'index.html') {
         const tile = page.locator('.hero-report-proof.has-sample-depth-tile');
-        if (await tile.isVisible()) failures.push(`${pageName}/${viewport.name}: sample report tile is visible on a phone`);
-        const focalPoint = await page.locator('.hero-image').evaluate((image) => getComputedStyle(image).objectPosition);
-        if (focalPoint !== '48.75% 50%') failures.push(`${pageName}/${viewport.name}: architectural opening is not centered (${focalPoint})`);
+        if (!(await tile.isVisible())) failures.push(`${pageName}/${viewport.name}: sample report proof is missing on a phone`);
+        const tileBox = await tile.boundingBox();
+        if (!tileBox || tileBox.width > viewport.width - 38) failures.push(`${pageName}/${viewport.name}: sample report proof exceeds the mobile content column`);
+        const routeField = page.locator('.hero-route-field');
+        if (await routeField.count() !== 1) failures.push(`${pageName}/${viewport.name}: canonical route field is missing`);
       }
 
       if (viewport.name === 'iphone' && evidencePages.has(pageName)) {

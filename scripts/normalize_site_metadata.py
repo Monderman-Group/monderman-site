@@ -9,8 +9,10 @@ from urllib.parse import urlparse
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CACHE_KEY = "20260903-map1"
-SOCIAL_CACHE_KEY = "20260904-wordmark1"
+CACHE_KEY = "20260906-enterprise1"
+SOCIAL_CACHE_KEY = "20260906-visual1"
+PUBLICATION_SOCIAL_CACHE_KEY = "20260906-publication1"
+PUBLICATION_PDF_CACHE_KEY = "20260906-publication1"
 SOCIAL_IMAGE = f"https://www.monderman.com/assets/brand/monderman-social-card.png?v={SOCIAL_CACHE_KEY}"
 
 FAVICONS = f'''  <link rel="icon" type="image/svg+xml" href="favicon.svg?v={CACHE_KEY}">
@@ -64,7 +66,16 @@ def normalize_head(head: str, add_social: bool) -> str:
         head,
         flags=re.IGNORECASE | re.DOTALL,
     )
-
+    head = re.sub(
+        r"(assets/brand/monderman-social-card\.png)(?:\?v=[^\"']+)?",
+        rf"\1?v={SOCIAL_CACHE_KEY}",
+        head,
+    )
+    head = re.sub(
+        r"(assets/research/[a-z0-9-]+-social\.png)(?:\?v=[^\"']+)?",
+        rf"\1?v={PUBLICATION_SOCIAL_CACHE_KEY}",
+        head,
+    )
     if add_social and "property=\"og:image\"" not in head and "property='og:image'" not in head:
         head += "\n" + SOCIAL
 
@@ -86,6 +97,11 @@ def main() -> None:
             raise RuntimeError(f"Missing head element: {path.name}")
         normalized = normalize_head(match.group(2), path.name in public)
         updated = source[: match.start(2)] + normalized + source[match.end(2) :]
+        updated = re.sub(
+            r"((?:Monderman_(?:Brief|Insight|Commentary)_[A-Za-z0-9_-]+|Terminal_Fidelity)\.pdf)(?:\?v=[^\"']+)?",
+            rf"\1?v={PUBLICATION_PDF_CACHE_KEY}",
+            updated,
+        )
         if updated != source:
             path.write_text(updated, encoding="utf-8")
             changed += 1
