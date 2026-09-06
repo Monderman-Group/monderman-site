@@ -24,6 +24,14 @@ const html = await source.evaluate(() => {
 
 async function certifyPdf({ key, reportHtml, chartLabel, expectedScore, expectedVisual }) {
   const page = await browser.newPage({ viewport: { width: 1100, height: 1000 } });
+  await page.route(/^https:\/\/www\.monderman\.com\/(55|65|75)font\.woff2$/, async route => {
+    const filename = new URL(route.request().url()).pathname.slice(1);
+    await route.fulfill({
+      status: 200,
+      contentType: 'font/woff2',
+      body: fs.readFileSync(path.resolve(filename)),
+    });
+  });
   await page.setContent(reportHtml, { waitUntil: 'networkidle' });
   await page.evaluate(async () => { if (document.fonts?.ready) await document.fonts.ready; });
 
