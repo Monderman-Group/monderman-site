@@ -47,6 +47,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
+      - name: Materialize immutable public release identity
+        env:
+          RELEASE_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          mkdir -p .well-known
+          node -e 'require("fs").writeFileSync(".well-known/monderman-release.json", JSON.stringify({revision: process.env.RELEASE_SHA}) + "\n")'
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload validated site

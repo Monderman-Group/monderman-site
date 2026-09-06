@@ -74,10 +74,26 @@ const storedSurfaces = ["workspace-diagnostics.html", "workspace-actions.html", 
 assert.doesNotMatch(storedSurfaces, /\.from\(["']diagnostic_runs["']\)/i, "browser code must not bypass the guarded Diagnostic API");
 assert.doesNotMatch(storedSurfaces, /\.from\(["']synthesis_runs["']\)/i, "browser code must not bypass the guarded Synthesis API");
 
+const workspaceDiagnostics = readFileSync(new URL("../workspace-diagnostics.html", import.meta.url), "utf8");
+for (const token of [
+  "campaignPayloadFingerprint",
+  "crypto.subtle.digest(\"SHA-256\"",
+  "crypto.randomUUID()",
+  "localStorage.setItem(campaignAttemptStorageKey()",
+  "fd.append(\"campaign_send_key\", state.campaignSendKey)",
+  "clearCampaignSendAttempt()",
+]) assert.ok(workspaceDiagnostics.includes(token), `Workspace campaign retry protection missing ${token}`);
+
 const institutionalPerformance = readFileSync(new URL("../institutional-performance.html", import.meta.url), "utf8");
 assert.doesNotMatch(institutionalPerformance, /annual_cost\)\s*\*\s*0\.6|0\.6\s*\*\s*Number\([^)]*annual_cost/i,
   "the browser must not invent a recoverable amount from annual exposure");
 assert.match(institutionalPerformance, /reclaimAmount == null[\s\S]{0,220}no recoverable-cost estimate was published/i,
   "missing recovery must be withheld from the capacity-flow graphic");
+
+const deployWorkflow = readFileSync(new URL("../.github/workflows/pages-protected-deploy.yml", import.meta.url), "utf8");
+assert.match(deployWorkflow, /github\.event\.workflow_run\.head_sha/);
+assert.match(deployWorkflow, /\.well-known\/monderman-release\.json/);
+assert.match(deployWorkflow, /revision:\s*process\.env\.RELEASE_SHA/,
+  "the public frontend must expose the immutable deployed revision consumed by the checkout lock");
 
 console.log(`FRONTEND_PARTNER_VISIBLE_NONCLAIMS=PASS reports=${reports.length} deliberate_regressions=${deliberateRegressions.length}`);
