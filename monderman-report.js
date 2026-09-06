@@ -727,10 +727,9 @@
     svg += '<circle cx="' + centerX + '" cy="' + centerY + '" r="83" fill="none" stroke="rgba(12,110,120,.16)" stroke-width="2"/>';
     svg += '<text x="' + centerX + '" y="' + (centerY - 23) + '" text-anchor="middle" fill="#A9CED1" font-size="10" font-weight="700" letter-spacing="1.6">CROSS-LENS</text>';
     // The lower label already states COMPOSITE WITHHELD. Repeating the long
-    // word "Unavailable" in the fixed-width hub clips at report/PDF sizes and
-    // can read as corrupted output, so the score position uses a conventional
-    // em dash when no composite may be published.
-    svg += '<text class="mr-system-score" x="' + centerX + '" y="' + (centerY + 15) + '" text-anchor="middle" fill="#FFF" font-size="38" font-weight="700" letter-spacing="-2">' + esc(m.scorePublished ? fmt1(m.score) : "—") + '</text>';
+    // word "Unavailable" in the fixed-width hub clips at report/PDF sizes, so
+    // the score position uses the site's compact N/A convention.
+    svg += '<text class="mr-system-score" x="' + centerX + '" y="' + (centerY + 15) + '" text-anchor="middle" fill="#FFF" font-size="38" font-weight="700" letter-spacing="-.5">' + esc(m.scorePublished ? fmt1(m.score) : "N/A") + '</text>';
     svg += '<text class="mr-system-composite-label" x="' + centerX + '" y="' + (centerY + 35) + '" text-anchor="middle" fill="#A9CED1" font-size="9.5" font-weight="700" letter-spacing=".55">';
     compositeLabel.forEach((line, index) => {
       svg += '<tspan x="' + centerX + '" dy="' + (index ? 13 : 0) + '">' + esc(line) + '</tspan>';

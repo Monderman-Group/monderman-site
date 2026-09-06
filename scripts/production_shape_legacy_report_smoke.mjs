@@ -41,7 +41,7 @@ for (const candidate of artifact.reports) {
   const coverScore = (await page.locator(".mr-cover-score").textContent()).trim();
   assert(coverScore.length > 0, `${candidate.key}: cover score is empty`);
   if (candidate.kind === "synthesis") {
-    assert((await page.locator(".mr-system-score").textContent()).trim() === "—", `${candidate.key}: withheld hub score must not clip`);
+    assert((await page.locator(".mr-system-score").textContent()).trim() === "N/A", `${candidate.key}: withheld hub score must not clip`);
   }
   const screenshotPath = path.join(out, `${candidate.key}-cover.png`);
   await page.locator(".mr-page").first().screenshot({ path: screenshotPath });
