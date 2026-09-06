@@ -3,7 +3,7 @@ services:
     runtime: static
     name: monderman-site
     branch: main
-    buildCommand: echo "Static site ready"
+    buildCommand: bash scripts/render-static-build.sh
     staticPublishPath: .
     headers:
       - path: /*
