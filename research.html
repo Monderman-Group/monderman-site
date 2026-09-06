@@ -1162,7 +1162,7 @@
 
 
   </style>
-<link rel="stylesheet" href="canonical-site-shell.css?v=20260906-visual1">
+<link rel="stylesheet" href="canonical-site-shell.css?v=20260906-layout1">
 <link rel="stylesheet" href="mobile-site-polish.css?v=20260825-2">
 <style>
   @media print {
@@ -1179,8 +1179,393 @@
   <meta name="twitter:image" content="https://www.monderman.com/assets/brand/monderman-social-card.png?v=20260906-visual1">
   <meta name="twitter:image:alt" content="Monderman">
   <link rel="stylesheet" href="enterprise-site.css?v=20260906-enterprise1">
+  <style>
+    /* Research page correction: one rail, disciplined scale, and compact rhythm. */
+    body.research-page {
+      --research-gutter: clamp(20px, 4vw, 56px);
+      --research-rail: calc(1320px - var(--research-gutter) - var(--research-gutter));
+      --research-section-space: clamp(40px, 4.2vw, 56px);
+    }
+
+    body.research-page > .hero {
+      min-height: 520px !important;
+      padding: 0 !important;
+      align-items: end;
+    }
+
+    body.research-page > .hero > .hero-inner {
+      width: 100%;
+      max-width: calc(var(--research-rail) + var(--research-gutter) + var(--research-gutter)) !important;
+      min-height: 0;
+      padding: 112px var(--research-gutter) 36px !important;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr);
+      gap: clamp(38px, 5vw, 72px);
+      align-items: end;
+    }
+
+    body.research-page > .hero h1 {
+      max-width: 12ch !important;
+      font-size: clamp(3rem, 4vw, 3.5rem) !important;
+      line-height: 1 !important;
+      letter-spacing: -.052em !important;
+    }
+
+    body.research-page > .hero .eyebrow {
+      margin-bottom: 16px;
+      font-size: .7rem !important;
+      line-height: 1 !important;
+    }
+
+    body.research-page > .hero .hero-copy {
+      max-width: 52ch;
+      margin-top: 20px;
+      font-size: 1rem;
+      line-height: 1.62;
+    }
+
+    body.research-page > .hero .hero-meta {
+      gap: 16px;
+      align-self: end;
+      padding-bottom: 2px;
+    }
+
+    body.research-page > .hero .library-stamp {
+      font-size: .84rem !important;
+      line-height: 1.4 !important;
+    }
+
+    body.research-page .featured-inner,
+    body.research-page .series-inner,
+    body.research-page .library-inner,
+    body.research-page .onsite-inner,
+    body.research-page .cta-inner,
+    body.research-page .divider-quote-inner,
+    body.research-page .book-feature-inner,
+    body.research-page .rsearch-inner {
+      width: 100%;
+      max-width: var(--research-rail) !important;
+      margin-inline: auto;
+    }
+
+    body.research-page .featured,
+    body.research-page .series,
+    body.research-page .library,
+    body.research-page .onsite,
+    body.research-page .cta-band,
+    body.research-page .divider-quote,
+    body.research-page .book-feature,
+    body.research-page .rsearch {
+      padding-inline: var(--research-gutter) !important;
+    }
+
+    body.research-page .book-feature {
+      padding-top: var(--research-section-space);
+    }
+
+    body.research-page .book-feature-cover {
+      padding: 26px;
+    }
+
+    body.research-page .book-feature-main,
+    body.research-page .book-feature-side {
+      padding: 30px 28px;
+    }
+
+    body.research-page .bf-jacket {
+      width: 188px;
+    }
+
+    body.research-page .bf-title {
+      font-size: clamp(2rem, 2.7vw, 2.5rem);
+      line-height: 1.04;
+    }
+
+    body.research-page .latest-insight {
+      padding-top: 34px;
+    }
+
+    body.research-page .latest-insight-divider {
+      padding-top: 20px;
+    }
+
+    body.research-page .latest-insight-divider + .latest-insight {
+      padding-top: 24px;
+    }
+
+    body.research-page .latest-insight-divider + .series,
+    body.research-page .series {
+      padding-top: var(--research-section-space);
+    }
+
+    body.research-page .series-head {
+      padding: 30px 28px 24px;
+      gap: 24px;
+    }
+
+    body.research-page .series-title,
+    body.research-page .cta-title {
+      font-size: clamp(2.1rem, 3.1vw, 2.75rem);
+      line-height: 1.02;
+      letter-spacing: -.045em;
+    }
+
+    body.research-page .series-card {
+      min-height: 300px;
+      padding: 24px 24px 22px;
+    }
+
+    body.research-page .series-card-title {
+      margin-top: 18px;
+      font-size: 1.4rem;
+    }
+
+    body.research-page .series-card-foot {
+      margin-top: 20px;
+      padding-top: 16px;
+    }
+
+    body.research-page .library:not(.latest-insight) {
+      padding-top: var(--research-section-space);
+    }
+
+    body.research-page .paper-card {
+      min-height: 212px;
+      padding: 22px 20px 20px;
+    }
+
+    body.research-page .paper-card.wide,
+    body.research-page .latest-insight .paper-card {
+      min-height: 164px;
+    }
+
+    body.research-page .paper-card.wide .paper-title {
+      font-size: clamp(1.55rem, 2.1vw, 1.9rem);
+    }
+
+    body.research-page .paper-card.wide .paper-body {
+      max-width: 62ch;
+      line-height: 1.62;
+    }
+
+    body.research-page .divider-quote {
+      padding-top: 20px;
+      border-block: 0;
+    }
+
+    body.research-page .divider-quote-inner {
+      grid-template-columns: 160px minmax(0, 1fr);
+      gap: 24px;
+      padding: 22px 0 24px;
+    }
+
+    body.research-page .divider-quote blockquote {
+      max-width: 49ch;
+      padding-left: 16px;
+      font-size: clamp(1.45rem, 2vw, 1.95rem);
+      line-height: 1.32;
+    }
+
+    body.research-page .onsite {
+      padding-top: 0;
+    }
+
+    body.research-page .essay-card {
+      min-height: 196px;
+      padding: 22px 20px 20px;
+    }
+
+    body.research-page .cta-band {
+      padding-top: var(--research-section-space);
+      padding-bottom: clamp(48px, 5vw, 68px);
+    }
+
+    body.research-page .cta-inner {
+      padding: 30px;
+      border-radius: 6px;
+    }
+
+    body.research-page .band-head {
+      padding-bottom: 16px;
+    }
+
+    /* Progressive enhancement: content is visible unless this page script marks it pending. */
+    @media (prefers-reduced-motion: no-preference) {
+      body.research-page [data-research-reveal] {
+        transition:
+          opacity 620ms cubic-bezier(.22, 1, .36, 1),
+          transform 620ms cubic-bezier(.22, 1, .36, 1);
+        transition-delay: var(--research-reveal-delay, 0ms);
+      }
+
+      body.research-page [data-research-reveal="pending"] {
+        opacity: 0;
+        transform: translate3d(0, 16px, 0);
+      }
+
+      body.research-page [data-research-reveal="visible"] {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+      }
+
+      body.research-page .band-head[data-research-rule] {
+        position: relative;
+        border-bottom-color: transparent;
+      }
+
+      body.research-page .band-head[data-research-rule]::after {
+        content: "";
+        position: absolute;
+        inset: auto 0 0;
+        height: 1px;
+        background: var(--card-line);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 760ms cubic-bezier(.22, 1, .36, 1);
+      }
+
+      body.research-page .band-head[data-research-rule="visible"]::after {
+        transform: scaleX(1);
+      }
+
+      body.research-page .divider-quote blockquote[data-research-rule] {
+        position: relative;
+        border-left-color: transparent;
+      }
+
+      body.research-page .divider-quote blockquote[data-research-rule]::before {
+        content: "";
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 3px;
+        background: #C9821F;
+        transform: scaleY(0);
+        transform-origin: top;
+        transition: transform 680ms cubic-bezier(.22, 1, .36, 1);
+      }
+
+      body.research-page .divider-quote blockquote[data-research-rule="visible"]::before {
+        transform: scaleY(1);
+      }
+    }
+
+    @media (max-width: 960px) {
+      body.research-page > .hero {
+        min-height: 0 !important;
+      }
+
+      body.research-page > .hero > .hero-inner {
+        padding-top: 126px !important;
+        padding-bottom: 48px !important;
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+
+      body.research-page > .hero h1 {
+        max-width: 13ch !important;
+        font-size: clamp(2.65rem, 7vw, 3.35rem) !important;
+      }
+
+      body.research-page > .hero .hero-meta {
+        width: min(100%, 700px);
+      }
+
+      body.research-page .divider-quote-inner {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body.research-page > .hero > .hero-inner {
+        padding: 114px 20px 34px !important;
+        gap: 24px;
+      }
+
+      body.research-page > .hero h1 {
+        font-size: clamp(2.25rem, 10.5vw, 2.7rem) !important;
+      }
+
+      body.research-page > .hero .hero-copy {
+        font-size: .95rem;
+        line-height: 1.55;
+      }
+
+      body.research-page > .hero .hero-meta {
+        gap: 14px;
+      }
+
+      body.research-page > .hero .hs-field input {
+        padding-block: 13px;
+      }
+
+      body.research-page > .hero .filter-row {
+        gap: 8px;
+      }
+
+      body.research-page > .hero .filter-chip {
+        min-height: 36px;
+        padding-inline: 12px;
+        font-size: .8rem;
+      }
+
+      body.research-page .book-feature,
+      body.research-page .latest-insight,
+      body.research-page .series,
+      body.research-page .library:not(.latest-insight),
+      body.research-page .cta-band {
+        padding-top: 36px;
+      }
+
+      body.research-page .latest-insight-divider,
+      body.research-page .divider-quote {
+        padding-top: 16px;
+      }
+
+      body.research-page .latest-insight-divider + .latest-insight {
+        padding-top: 20px;
+      }
+
+      body.research-page .book-feature-main,
+      body.research-page .book-feature-side,
+      body.research-page .series-head,
+      body.research-page .series-card,
+      body.research-page .cta-inner {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      body.research-page .book-feature-cover {
+        padding: 22px 20px;
+      }
+
+      body.research-page .bf-jacket {
+        width: min(172px, 52vw);
+      }
+
+      body.research-page .series-title,
+      body.research-page .cta-title {
+        font-size: clamp(2rem, 9vw, 2.45rem);
+      }
+
+      body.research-page .divider-quote-inner {
+        padding-top: 18px;
+        padding-bottom: 20px;
+      }
+
+      body.research-page .divider-quote blockquote {
+        font-size: 1.35rem;
+      }
+    }
+
+    @media print {
+      body.research-page [data-research-reveal] {
+        opacity: 1 !important;
+        transform: none !important;
+      }
+    }
+  </style>
 </head>
-<body class="canonical-green-shell">
+<body class="canonical-green-shell research-page">
   <header class="header" id="siteHeader">
     <div class="header-inner">
       <a href="index.html" class="brand">Monderman.</a>
@@ -1912,9 +2297,58 @@
     } catch (e) { /* older browsers: skip */ }
   })();
   </script>
+  <script>
+  (function () {
+    if (!('IntersectionObserver' in window) ||
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    var reveals = [].slice.call(document.querySelectorAll([
+      '.book-feature-inner',
+      '.latest-insight .paper-card',
+      '.series-inner',
+      '.library:not(.latest-insight) .paper-card',
+      '.essay-card',
+      '.cta-inner'
+    ].join(',')));
+    var rules = [].slice.call(document.querySelectorAll('.band-head, .divider-quote blockquote'));
+    var observer;
+
+    function show(el) {
+      if (el.hasAttribute('data-research-reveal')) {
+        el.setAttribute('data-research-reveal', 'visible');
+      }
+      if (el.hasAttribute('data-research-rule')) {
+        el.setAttribute('data-research-rule', 'visible');
+      }
+      if (observer) observer.unobserve(el);
+    }
+
+    try {
+      observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) show(entry.target);
+        });
+      }, { rootMargin: '0px 0px -9% 0px', threshold: 0.08 });
+
+      reveals.forEach(function (el, index) {
+        el.style.setProperty('--research-reveal-delay', ((index % 3) * 55) + 'ms');
+        el.setAttribute('data-research-reveal', 'pending');
+        observer.observe(el);
+      });
+
+      rules.forEach(function (el) {
+        el.setAttribute('data-research-rule', 'pending');
+        observer.observe(el);
+      });
+
+    } catch (error) {
+      reveals.concat(rules).forEach(show);
+    }
+  })();
+  </script>
   <script src="assistant.js?v=20260828-footer-dock4" defer></script>
   <script src="contact-transport.js?v=20260903-contact1" defer></script>
   <script src="connect-widget.js?v=20260903-contact1" defer></script>
-<script src="canonical-site-shell.js?v=20260906-visual1"></script>
+<script src="canonical-site-shell.js?v=20260906-layout1"></script>
 </body>
 </html>

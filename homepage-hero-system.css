@@ -186,6 +186,10 @@ body.homepage-enterprise .hero-report-caption {
     line-height: .96;
   }
 
+  body.homepage-enterprise .hero-route-field {
+    transform: translate3d(0, var(--hero-drift, 0), 0);
+  }
+
   body.homepage-enterprise .hero-dek {
     max-width: 37ch;
   }
@@ -240,5 +244,419 @@ body.homepage-enterprise .hero-report-caption {
 @media (prefers-reduced-motion: reduce) {
   body.homepage-enterprise #monderman-depth-lure-composite .md-tile {
     transition: none;
+  }
+}
+
+/*
+ * Focused homepage correction: disciplined scale, one rail, editorial covers,
+ * and motion that supports the reading order without controlling the scroll.
+ */
+body.homepage-enterprise {
+  --home-rail: 1320px;
+  --home-gutter: clamp(20px, 4vw, 56px);
+  --home-section-y: clamp(58px, 5.2vw, 72px);
+}
+
+body.homepage-enterprise .hero,
+body.homepage-enterprise .hero-inner {
+  min-height: clamp(650px, 88svh, 720px);
+}
+
+body.homepage-enterprise .hero {
+  padding: 0 !important;
+}
+
+body.canonical-green-shell.homepage-enterprise .hero > .hero-inner {
+  max-width: var(--home-rail);
+  min-height: clamp(650px, 88svh, 720px) !important;
+  padding: 96px var(--home-gutter) 36px;
+  grid-template-columns: minmax(0, 1fr) minmax(460px, 540px);
+  gap: clamp(30px, 3vw, 42px);
+}
+
+body.homepage-enterprise .hero-copy {
+  max-width: 650px;
+}
+
+body.homepage-enterprise .hero h1 {
+  max-width: 13.5ch;
+  font-size: clamp(3rem, 4.6vw, 4.25rem);
+  line-height: .98;
+}
+
+body.homepage-enterprise .hero-eyebrow {
+  margin-bottom: 22px;
+}
+
+body.homepage-enterprise .hero-actions {
+  margin-top: 24px;
+}
+
+body.homepage-enterprise .hero-report-proof.has-sample-depth-tile {
+  width: min(100%, 540px);
+  max-width: 540px;
+  padding: 12px 12px 0;
+}
+
+body.homepage-enterprise .hero-facts {
+  margin-top: 22px;
+}
+
+body.homepage-enterprise .hero-facts li {
+  padding-top: 14px;
+}
+
+body.homepage-enterprise .hero-route-field {
+  transform: translate3d(0, var(--hero-drift, 0), 0) scale(1.012);
+  transform-origin: center center;
+  will-change: transform;
+}
+
+/* One alignment rail and one vertical rhythm for visible homepage sections. */
+body.homepage-enterprise .proof-inner,
+body.homepage-enterprise .mxidx-inner,
+body.homepage-enterprise .systems-analysis-inner,
+body.homepage-enterprise .approach-inner,
+body.homepage-enterprise .first-run-moments-inner,
+body.homepage-enterprise .measurement-loop-inner,
+body.homepage-enterprise .book-inner,
+body.homepage-enterprise .latest-inner,
+body.homepage-enterprise .connect-inner {
+  width: 100%;
+  max-width: var(--home-rail);
+  margin-inline: auto;
+  padding: var(--home-section-y) var(--home-gutter) !important;
+}
+
+body.homepage-enterprise .approach,
+body.homepage-enterprise .latest,
+body.homepage-enterprise .connect {
+  padding: 0 !important;
+}
+
+body.homepage-enterprise :is(
+  .proof-band,
+  .mxidx-band,
+  .systems-analysis-bridge,
+  .approach,
+  .first-run-moments,
+  .measurement-loop,
+  .book-band,
+  .latest,
+  .connect
+) {
+  position: relative;
+}
+
+body.homepage-enterprise .latest-inner {
+  padding-bottom: calc(var(--home-section-y) + 4px) !important;
+}
+
+body.homepage-enterprise .book-inner {
+  grid-template-columns: 220px minmax(0, 1fr) !important;
+  gap: clamp(38px, 4vw, 54px) !important;
+}
+
+body.homepage-enterprise .book-jacket {
+  width: 220px !important;
+}
+
+body.homepage-enterprise .section-with-bar .section-bar {
+  top: 20px;
+  left: max(var(--home-gutter), calc((100vw - var(--home-rail)) / 2 + var(--home-gutter)));
+}
+
+body.homepage-enterprise #proof-title,
+body.homepage-enterprise .mxidx-band h2,
+body.homepage-enterprise #systems-analysis-title,
+body.homepage-enterprise #approach-title,
+body.homepage-enterprise #first-run-moments-title,
+body.homepage-enterprise #measurement-loop-title,
+body.homepage-enterprise #latest-title,
+body.homepage-enterprise #connect-title {
+  font-size: clamp(2rem, 2.7vw, 2.65rem) !important;
+  line-height: 1.08 !important;
+  letter-spacing: -.04em !important;
+}
+
+body.homepage-enterprise #book-title {
+  font-size: clamp(1.9rem, 2.35vw, 2.3rem) !important;
+  line-height: 1.08 !important;
+}
+
+body.homepage-enterprise .systems-analysis-grid,
+body.homepage-enterprise .approach-grid,
+body.homepage-enterprise .first-run-moment-grid,
+body.homepage-enterprise .loop-flow {
+  margin-top: 30px;
+}
+
+body.homepage-enterprise .approach-grid {
+  gap: 18px;
+}
+
+body.homepage-enterprise .approach-card {
+  min-height: 324px;
+  padding: 28px 24px 30px;
+}
+
+body.homepage-enterprise .first-run-moment-grid {
+  gap: 12px;
+}
+
+body.homepage-enterprise .first-run-moment {
+  min-height: 184px;
+  padding: 22px;
+}
+
+body.homepage-enterprise .loop-flow {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: auto;
+}
+
+body.homepage-enterprise .loop-step {
+  min-height: 192px;
+  padding: 22px;
+}
+
+body.homepage-enterprise .latest-head {
+  margin-bottom: 28px;
+}
+
+/* Editorial carousel covers: category, title, description, rule. No invented diagrams. */
+body.homepage-enterprise .latest-card {
+  flex-basis: calc((100% - (var(--rail-gap) * 2)) / 3);
+  border-radius: 3px;
+  box-shadow: none;
+}
+
+body.homepage-enterprise .latest-card-image {
+  aspect-ratio: 16 / 7.6;
+}
+
+body.homepage-enterprise .latest-card-image--placeholder {
+  padding: 23px 24px;
+}
+
+body.homepage-enterprise .latest-card.category-insight {
+  --category-surface: linear-gradient(155deg, #103B44 0%, #082F37 100%);
+}
+
+body.homepage-enterprise .latest-card.category-brief {
+  --category-surface: linear-gradient(155deg, #E3EEEE 0%, #D4E4E5 100%);
+}
+
+body.homepage-enterprise .latest-card.category-perspective {
+  --category-surface: linear-gradient(155deg, #F0E3D0 0%, #E4CEAC 100%);
+}
+
+body.homepage-enterprise .latest-card.category-research .latest-card-image--placeholder {
+  background: #F5F1E8;
+}
+
+body.homepage-enterprise .placeholder-cover-stack {
+  gap: 7px;
+  padding-top: 31px;
+}
+
+body.homepage-enterprise .placeholder-cover-title {
+  max-width: 18ch;
+  font-size: clamp(1.18rem, 1.55vw, 1.46rem);
+  line-height: 1.02;
+}
+
+body.homepage-enterprise .placeholder-cover-title.is-long {
+  max-width: 24ch;
+  font-size: clamp(1.05rem, 1.25vw, 1.2rem);
+}
+
+body.homepage-enterprise .placeholder-cover-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+}
+
+body.homepage-enterprise .placeholder-cover-type::after {
+  content: "";
+  width: 44px;
+  height: 1px;
+  background: currentColor;
+  opacity: .68;
+}
+
+body.homepage-enterprise .placeholder-cover-motif {
+  display: none !important;
+}
+
+body.homepage-enterprise .latest-card-body {
+  padding: 20px 20px 21px;
+}
+
+/* Content is visible by default. Motion is enabled only after observers exist. */
+body.homepage-enterprise .reveal,
+body.homepage-enterprise .home-motion {
+  opacity: 1 !important;
+  transform: none !important;
+  visibility: visible !important;
+}
+
+body.homepage-enterprise.home-motion-ready .reveal:not(.is-visible),
+body.homepage-enterprise.home-motion-ready .home-motion:not(.is-visible) {
+  opacity: 0 !important;
+  transform: translate3d(0, 16px, 0) !important;
+}
+
+body.homepage-enterprise.home-motion-ready .reveal,
+body.homepage-enterprise.home-motion-ready .home-motion {
+  transition:
+    opacity 680ms cubic-bezier(.22, 1, .36, 1),
+    transform 680ms cubic-bezier(.22, 1, .36, 1) !important;
+  transition-delay: var(--home-motion-delay, 0ms) !important;
+}
+
+body.homepage-enterprise .home-section-rule {
+  position: absolute;
+  top: -1px;
+  left: max(var(--home-gutter), calc((100vw - var(--home-rail)) / 2 + var(--home-gutter)));
+  z-index: 3;
+  width: 92px;
+  height: 2px;
+  background: #0C6E78;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 820ms cubic-bezier(.22, 1, .36, 1);
+  pointer-events: none;
+}
+
+body.homepage-enterprise .mxidx-band .home-section-rule,
+body.homepage-enterprise .connect .home-section-rule {
+  background: #C9821F;
+}
+
+body.homepage-enterprise .is-rule-visible > .home-section-rule {
+  transform: scaleX(1);
+}
+
+@media (max-width: 1050px) {
+  body.homepage-enterprise .latest-card {
+    flex-basis: calc((100% - var(--rail-gap)) / 2);
+  }
+}
+
+@media (max-width: 980px) {
+  body.homepage-enterprise .hero,
+  body.homepage-enterprise .hero-inner {
+    min-height: 0;
+  }
+
+  body.homepage-enterprise .hero-inner {
+    gap: 42px;
+    padding-top: 116px;
+    padding-bottom: 60px;
+  }
+
+  body.homepage-enterprise .hero h1 {
+    max-width: 14ch;
+    font-size: clamp(3rem, 7.1vw, 4rem);
+  }
+
+  body.homepage-enterprise .hero-report-proof.has-sample-depth-tile {
+    width: min(100%, 560px);
+    max-width: 560px;
+  }
+
+  body.homepage-enterprise .approach-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.homepage-enterprise .loop-flow {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  body.homepage-enterprise .latest-card {
+    flex-basis: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  body.homepage-enterprise {
+    --home-section-y: 48px;
+  }
+
+  body.homepage-enterprise .hero-route-field {
+    transform: translate3d(0, var(--hero-drift, 0), 0);
+  }
+
+  body.homepage-enterprise .hero-inner {
+    padding: 108px 20px 50px;
+  }
+
+  body.homepage-enterprise .hero h1 {
+    max-width: 13.5ch;
+    font-size: clamp(2.35rem, 10.8vw, 2.75rem);
+    line-height: .99;
+  }
+
+  body.homepage-enterprise .hero-eyebrow {
+    margin-bottom: 18px;
+  }
+
+  body.homepage-enterprise .hero-report-proof.has-sample-depth-tile {
+    margin-top: 36px !important;
+  }
+
+  body.homepage-enterprise #proof-title,
+  body.homepage-enterprise .mxidx-band h2,
+  body.homepage-enterprise #systems-analysis-title,
+  body.homepage-enterprise #approach-title,
+  body.homepage-enterprise #first-run-moments-title,
+  body.homepage-enterprise #measurement-loop-title,
+  body.homepage-enterprise #latest-title,
+  body.homepage-enterprise #connect-title {
+    font-size: 2rem !important;
+  }
+
+  body.homepage-enterprise .approach-grid {
+    grid-template-columns: 1fr;
+  }
+
+  body.homepage-enterprise .approach-card,
+  body.homepage-enterprise .first-run-moment,
+  body.homepage-enterprise .loop-step {
+    min-height: 0;
+  }
+
+  body.homepage-enterprise .book-inner {
+    grid-template-columns: 1fr !important;
+    gap: 34px !important;
+  }
+
+  body.homepage-enterprise .book-jacket {
+    width: 190px !important;
+  }
+
+  body.homepage-enterprise .placeholder-cover-title {
+    font-size: 1.35rem;
+  }
+
+  body.homepage-enterprise .home-section-rule {
+    width: 68px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.homepage-enterprise .hero-route-field {
+    transform: none;
+    will-change: auto;
+  }
+
+  body.homepage-enterprise .reveal,
+  body.homepage-enterprise .home-motion,
+  body.homepage-enterprise .home-section-rule {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 }

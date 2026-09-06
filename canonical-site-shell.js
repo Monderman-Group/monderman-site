@@ -12,14 +12,9 @@
     document.head.appendChild(brandStyles);
   }
   const brandMark = '<svg class="monderman-lockup__mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M6 9.2 11 5.75 16 8.3 21 5.75 26 9.2V26L21 23.2 16 26 11 23.2 6 26Z" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 5.75V23.2M16 8.3V26M21 5.75V23.2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  const footerMotif = `<svg class="mf-route-map" viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-    <path class="mf-route-map__construction" d="M26 240H694" />
-    <path class="mf-route-map__route" d="M26 222H130V190H240V152H350V118H438V98.656H524.08" />
-    <circle class="mf-route-map__node" cx="350" cy="118" r="3.25" />
-    <g class="mf-route-map__fold" transform="translate(478 28) scale(.24)">
-      <path d="M192 294.4 352 184 512 265.6 672 184 832 294.4V832L672 742.4 512 832 352 742.4 192 832Z" />
-      <path d="M352 184V742.4M512 265.6V832M672 184V742.4" />
-    </g>
+  const footerMotif = `<svg class="mf-map-outline" viewBox="5.5 5.25 21 21.25" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <path d="M6 9.2 11 5.75 16 8.3 21 5.75 26 9.2V26L21 23.2 16 26 11 23.2 6 26Z" />
+    <path d="M11 5.75V23.2M16 8.3V26M21 5.75V23.2" />
   </svg>`;
   const restoreWordmarkPeriod = (name) => {
     if (!name) return;
@@ -96,6 +91,27 @@
     });
   };
   enhanceBrand();
+  const setupRevealMotion = () => {
+    const revealItems = [...document.querySelectorAll(".canonical-green-shell .reveal:not(.is-visible)")];
+    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (!revealItems.length || reducedMotion || !("IntersectionObserver" in window)) return;
+    let observer;
+    try {
+      observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        });
+      }, { threshold: 0.12, rootMargin: "0px 0px -7%" });
+    } catch (_) {
+      return;
+    }
+    revealItems.forEach((item) => item.classList.add("canonical-reveal"));
+    document.documentElement.classList.add("canonical-reveal-ready");
+    revealItems.forEach((item) => observer.observe(item));
+  };
+  setupRevealMotion();
   const header = document.getElementById("siteHeader");
   if (header) {
     const nav = header.querySelector(".nav");
