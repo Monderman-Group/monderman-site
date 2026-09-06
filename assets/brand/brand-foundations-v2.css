@@ -1,0 +1,154 @@
+/*
+ * Monderman brand foundations, candidate v2.
+ *
+ * This file provides the approved palette, accessible semantic roles, and
+ * brand primitives for the enterprise site system. Neue Haas Grotesk remains
+ * the sole brand typeface.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Canonical palette */
+  --mdm-color-deep: #04181B;
+  --mdm-color-brand-dark: #073338;
+  --mdm-color-teal: #0C6E78;
+  --mdm-color-teal-hover: #0A5B63;
+  --mdm-color-ink: #18191C;
+  --mdm-color-white: #FFFFFF;
+  --mdm-color-paper: #FAFAF8;
+  --mdm-color-muted: #6E6F73;
+  --mdm-color-rule: #EAE6DD;
+  --mdm-color-amber: #C9821F;
+
+  /* Supporting tones used only where the canonical color needs contrast. */
+  --mdm-color-amber-ink: #86530D;
+  --mdm-color-amber-light: #F0C47D;
+
+  /* Approved icon field */
+  --mdm-icon-gradient: linear-gradient(
+    180deg,
+    #0F5B63 0%,
+    #0A474E 55%,
+    #06363B 100%
+  );
+
+  /* Typography */
+  --mdm-font-sans: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --mdm-weight-regular: 400;
+  --mdm-weight-medium: 500;
+  --mdm-weight-bold: 700;
+
+  /* Accessible semantic roles */
+  --mdm-page-bg: var(--mdm-color-white);
+  --mdm-surface-bg: var(--mdm-color-paper);
+  --mdm-text: var(--mdm-color-ink);
+  --mdm-text-muted: var(--mdm-color-muted);
+  --mdm-border: var(--mdm-color-rule);
+  --mdm-link: var(--mdm-color-teal);
+  --mdm-link-hover: var(--mdm-color-teal-hover);
+  --mdm-action-bg: var(--mdm-color-teal);
+  --mdm-action-bg-hover: var(--mdm-color-teal-hover);
+  --mdm-action-text: var(--mdm-color-white);
+  --mdm-status-bg: var(--mdm-color-amber);
+  --mdm-status-text-on-fill: var(--mdm-color-deep);
+  --mdm-status-text-on-light: var(--mdm-color-amber-ink);
+  --mdm-status-text-on-dark: var(--mdm-color-amber-light);
+  --mdm-focus-ring: var(--mdm-color-amber);
+
+  /* Foundation geometry */
+  --mdm-content-max: 80rem;
+  --mdm-reading-max: 44rem;
+  --mdm-radius-sm: 0.375rem;
+  --mdm-radius-md: 0.625rem;
+  --mdm-radius-lg: 1rem;
+  --mdm-space-1: 0.25rem;
+  --mdm-space-2: 0.5rem;
+  --mdm-space-3: 0.75rem;
+  --mdm-space-4: 1rem;
+  --mdm-space-5: 1.5rem;
+  --mdm-space-6: 2rem;
+  --mdm-space-7: 3rem;
+  --mdm-space-8: 4.5rem;
+}
+
+.mdm-brand-v2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.34em;
+  color: inherit;
+  font-family: var(--mdm-font-sans);
+  font-weight: var(--mdm-weight-bold);
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.mdm-brand-v2__mark {
+  display: block;
+  width: 1.04em;
+  height: 1.04em;
+  flex: 0 0 auto;
+}
+
+.mdm-brand-v2__wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  letter-spacing: -0.026em;
+}
+
+.mdm-brand-v2__period {
+  display: inline-block;
+  margin-left: 0.015em;
+  letter-spacing: 0;
+}
+
+.mdm-action-v2 {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1rem;
+  border: 1px solid transparent;
+  border-radius: var(--mdm-radius-sm);
+  background: var(--mdm-action-bg);
+  color: var(--mdm-action-text);
+  font-family: var(--mdm-font-sans);
+  font-size: 0.9375rem;
+  font-weight: var(--mdm-weight-medium);
+  line-height: 1.2;
+  text-decoration: none;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.mdm-action-v2:hover {
+  background: var(--mdm-action-bg-hover);
+}
+
+.mdm-action-v2:focus-visible {
+  outline: 3px solid var(--mdm-focus-ring);
+  outline-offset: 3px;
+}
+
+.mdm-status-v2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--mdm-color-amber);
+  border-radius: 999px;
+  background: var(--mdm-status-bg);
+  color: var(--mdm-status-text-on-fill);
+  font-family: var(--mdm-font-sans);
+  font-size: 0.75rem;
+  font-weight: var(--mdm-weight-bold);
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mdm-action-v2 {
+    transition: none;
+  }
+}

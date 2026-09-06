@@ -5,6 +5,7 @@ import path from 'node:path';
 const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8765';
+const localOrigin = new URL(base).origin;
 const out = process.env.COSMETIC_OUT || '/tmp/monderman-cosmetic-regression';
 fs.mkdirSync(out, { recursive: true });
 
@@ -70,14 +71,31 @@ function noPageOverflow(result, label) {
     `${label}: document overflows (${result.scrollWidth}px > ${result.clientWidth}px)`);
 }
 
-for (const [browserName, browserType] of [['chromium', chromium], ['webkit', webkit]]) {
-  const browser = await browserType.launch({ headless: true });
+async function restrictToLocalResources(page) {
+  await page.route('**/*', async (route) => {
+    const url = new URL(route.request().url());
+    if (url.origin === localOrigin || url.protocol === 'data:' || url.protocol === 'blob:') await route.continue();
+    else await route.abort();
+  });
+  return page;
+}
+
+async function newLocalPage(browser, options = {}) {
+  const page = await browser.newPage({ serviceWorkers: 'block', ...options });
+  return restrictToLocalResources(page);
+}
+
+const browserMatrix = [['chromium', chromium], ['webkit', webkit]]
+  .filter(([browserName]) => !process.env.COSMETIC_BROWSER || process.env.COSMETIC_BROWSER === browserName);
+
+for (const [browserName, browserType] of browserMatrix) {
+  let browser = await browserType.launch({ headless: true });
 
   try {
     for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 }]) {
       for (const pageName of faviconDebrisPages) {
-        const page = await browser.newPage({ viewport, javaScriptEnabled: false });
-        await page.goto(`${base}/${pageName}`, { waitUntil: 'load', timeout: 30000 });
+        const page = await newLocalPage(browser, { viewport, javaScriptEnabled: false });
+        await page.goto(`${base}/${pageName}`, { waitUntil: 'load', timeout: 60000 });
         const result = await page.evaluate(() => ({
           clientWidth: document.documentElement.clientWidth,
           scrollWidth: document.documentElement.scrollWidth,
@@ -99,7 +117,7 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
 
     for (const viewport of phoneViewports) {
       for (const pageName of articlePages) {
-        const page = await browser.newPage({ viewport, javaScriptEnabled: false });
+        const page = await newLocalPage(browser, { viewport, javaScriptEnabled: false });
         await page.goto(`${base}/${pageName}`, { waitUntil: 'load', timeout: 30000 });
         const result = await page.evaluate(() => {
           const cells = [...document.querySelectorAll('.lens-matrix td')];
@@ -130,7 +148,7 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
 
       for (const pageName of workspacePages) {
         for (const theme of ['light', 'dark']) {
-          const page = await browser.newPage({ viewport, javaScriptEnabled: false });
+          const page = await newLocalPage(browser, { viewport, javaScriptEnabled: false });
           await page.goto(`${base}/${pageName}`, { waitUntil: 'load', timeout: 30000 });
           const result = await page.evaluate((selectedTheme) => {
           if (selectedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
@@ -195,10 +213,13 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
       }
     }
 
+    const articleBrowser = browserName === 'webkit' ? await browserType.launch({ headless: true }) : browser;
     for (const viewport of articleReadingViewports) {
       for (const pageName of articlePages) {
-        const page = await browser.newPage({ viewport, javaScriptEnabled: false });
-        await page.goto(`${base}/${pageName}`, { waitUntil: 'load', timeout: 30000 });
+        const page = await newLocalPage(articleBrowser, { viewport, javaScriptEnabled: false });
+        await page.goto(`${base}/${pageName}`, { waitUntil: 'commit', timeout: 30000 });
+        await page.locator('.lens-matrix').waitFor({ state: 'attached', timeout: 10000 });
+        await page.waitForTimeout(150);
         const result = await page.evaluate(() => {
           const matrix = document.querySelector('.lens-matrix');
           matrix.style.fontSize = '1.425rem';
@@ -250,9 +271,10 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
         await page.close();
       }
     }
+    if (articleBrowser !== browser) await articleBrowser.close();
 
     for (const viewport of [{ width: 320, height: 700 }, { width: 1024, height: 900 }]) {
-      const page = await browser.newPage({ viewport, javaScriptEnabled: false });
+      const page = await newLocalPage(browser, { viewport, javaScriptEnabled: false });
       await page.goto(`${base}/workspace-actions.html`, { waitUntil: 'load', timeout: 30000 });
       const result = await page.evaluate(() => {
         const host = document.querySelector('.content');
@@ -334,79 +356,112 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
       await page.close();
     }
 
-    for (const viewport of [{ width: 768, height: 900 }, { width: 1024, height: 900 }]) {
-      for (const pageName of publicHeaderPages) {
-        const page = await browser.newPage({ viewport });
-        await page.goto(`${base}/${pageName}`, { waitUntil: 'load', timeout: 30000 });
-        await page.locator('.site-menu-button').waitFor({ state: 'visible', timeout: 10000 });
-        const closed = await page.evaluate(() => {
-          const nav = document.querySelector('.header .nav');
-          const button = document.querySelector('.site-menu-button');
-          const header = document.querySelector('.header');
-          const headerBox = header.getBoundingClientRect();
-          const buttonBox = button.getBoundingClientRect();
-          return {
-            clientWidth: document.documentElement.clientWidth,
-            scrollWidth: document.documentElement.scrollWidth,
-            navDisplay: getComputedStyle(nav).display,
-            buttonDisplay: getComputedStyle(button).display,
-            buttonLeft: buttonBox.left,
-            buttonRight: buttonBox.right,
-            headerLeft: headerBox.left,
-            headerRight: headerBox.right,
-            expanded: button.getAttribute('aria-expanded'),
-          };
-        });
-        noPageOverflow(closed, `${browserName}/${viewport.width}/${pageName}/tablet-header-closed`);
-        assert.equal(closed.navDisplay, 'none', `${browserName}/${viewport.width}/${pageName}: tablet nav is not closed`);
-        assert.notEqual(closed.buttonDisplay, 'none', `${browserName}/${viewport.width}/${pageName}: tablet menu button is hidden`);
-        assert.ok(closed.buttonLeft >= closed.headerLeft - 1 && closed.buttonRight <= closed.headerRight + 1,
-          `${browserName}/${viewport.width}/${pageName}: tablet menu button is clipped`);
-        assert.equal(closed.expanded, 'false', `${browserName}/${viewport.width}/${pageName}: tablet nav starts expanded`);
+    // WebKit can retain rendering-process resources after the large static-page
+    // matrix even though each page is closed. Start the interaction-heavy header
+    // matrix in a clean process so a later navigation cannot inherit that state.
+    if (browserName === 'webkit') {
+      await browser.close();
+      browser = await browserType.launch({ headless: true });
+    }
 
-        await page.locator('.site-menu-button').click();
-        const opened = await page.evaluate(() => {
-          const nav = document.querySelector('.header .nav');
-          const navBox = nav.getBoundingClientRect();
-          const items = [...nav.querySelectorAll(':scope > a, :scope > .nav-menu')]
-            .map((item) => {
-              const box = item.getBoundingClientRect();
-              return { left: box.left, right: box.right, width: box.width };
-            });
-          return {
-            clientWidth: document.documentElement.clientWidth,
-            scrollWidth: document.documentElement.scrollWidth,
-            navDisplay: getComputedStyle(nav).display,
-            navLeft: navBox.left,
-            navRight: navBox.right,
-            items,
-          };
-        });
-        noPageOverflow(opened, `${browserName}/${viewport.width}/${pageName}/tablet-header-open`);
-        assert.equal(opened.navDisplay, 'flex', `${browserName}/${viewport.width}/${pageName}: tablet nav does not open`);
-        assert.ok(opened.navLeft >= -1 && opened.navRight <= opened.clientWidth + 1,
-          `${browserName}/${viewport.width}/${pageName}: opened tablet nav is clipped`);
-        assert.ok(opened.items.every((item) => item.left >= -1 && item.right <= opened.clientWidth + 1),
-          `${browserName}/${viewport.width}/${pageName}: opened tablet nav item escapes the viewport`);
-        await page.keyboard.press('Escape');
-        const escaped = await page.evaluate(() => ({
-          navDisplay: getComputedStyle(document.querySelector('.header .nav')).display,
-          expanded: document.querySelector('.site-menu-button').getAttribute('aria-expanded'),
-          focusReturned: document.activeElement === document.querySelector('.site-menu-button'),
-        }));
-        assert.equal(escaped.navDisplay, 'none', `${browserName}/${viewport.width}/${pageName}: Escape does not close the tablet nav`);
-        assert.equal(escaped.expanded, 'false', `${browserName}/${viewport.width}/${pageName}: Escape leaves tablet nav expanded`);
-        assert.equal(escaped.focusReturned, true, `${browserName}/${viewport.width}/${pageName}: Escape does not return focus`);
-        if (pageName === 'about.html') {
-          await page.screenshot({ path: path.join(out, `header-${browserName}-${viewport.width}.png`) });
+    for (const viewport of [{ width: 768, height: 900 }, { width: 1024, height: 900 }]) {
+      const headerContext = await browser.newContext({ viewport, serviceWorkers: 'block' });
+      const page = await headerContext.newPage();
+      await restrictToLocalResources(page);
+      try {
+        for (const pageName of publicHeaderPages) {
+          await page.goto(`${base}/${pageName}`, { waitUntil: 'load', timeout: 30000 });
+          await page.locator('.site-menu-button').waitFor({ state: 'visible', timeout: 10000 });
+          const closed = await page.evaluate(() => {
+            const nav = document.querySelector('.header .nav');
+            const button = document.querySelector('.site-menu-button');
+            const header = document.querySelector('.header');
+            const headerBox = header.getBoundingClientRect();
+            const buttonBox = button.getBoundingClientRect();
+            return {
+              clientWidth: document.documentElement.clientWidth,
+              scrollWidth: document.documentElement.scrollWidth,
+              navDisplay: getComputedStyle(nav).display,
+              buttonDisplay: getComputedStyle(button).display,
+              buttonLeft: buttonBox.left,
+              buttonRight: buttonBox.right,
+              headerLeft: headerBox.left,
+              headerRight: headerBox.right,
+              expanded: button.getAttribute('aria-expanded'),
+            };
+          });
+          noPageOverflow(closed, `${browserName}/${viewport.width}/${pageName}/tablet-header-closed`);
+          assert.equal(closed.navDisplay, 'none', `${browserName}/${viewport.width}/${pageName}: tablet nav is not closed`);
+          assert.notEqual(closed.buttonDisplay, 'none', `${browserName}/${viewport.width}/${pageName}: tablet menu button is hidden`);
+          assert.ok(closed.buttonLeft >= closed.headerLeft - 1 && closed.buttonRight <= closed.headerRight + 1,
+            `${browserName}/${viewport.width}/${pageName}: tablet menu button is clipped`);
+          assert.equal(closed.expanded, 'false', `${browserName}/${viewport.width}/${pageName}: tablet nav starts expanded`);
+
+          await page.locator('.site-menu-button').click();
+          const opened = await page.evaluate(() => {
+            const nav = document.querySelector('.header .nav');
+            const header = document.querySelector('.header');
+            const navBox = nav.getBoundingClientRect();
+            const headerBox = header.getBoundingClientRect();
+            const items = [...nav.querySelectorAll(':scope > a, :scope > .nav-menu')]
+              .map((item) => {
+                const box = item.getBoundingClientRect();
+                return { left: box.left, right: box.right, width: box.width };
+              });
+            return {
+              clientWidth: document.documentElement.clientWidth,
+              scrollWidth: document.documentElement.scrollWidth,
+              navDisplay: getComputedStyle(nav).display,
+              navLeft: navBox.left,
+              navRight: navBox.right,
+              navBottom: navBox.bottom,
+              headerBottom: headerBox.bottom,
+              navReceivesPointer: Boolean(document.elementFromPoint(
+                Math.max(1, Math.min(navBox.left + 24, innerWidth - 1)),
+                Math.max(1, Math.min(navBox.top + 24, innerHeight - 1)),
+              )?.closest('.header .nav')),
+              items,
+            };
+          });
+          noPageOverflow(opened, `${browserName}/${viewport.width}/${pageName}/tablet-header-open`);
+          assert.equal(opened.navDisplay, 'flex', `${browserName}/${viewport.width}/${pageName}: tablet nav does not open`);
+          assert.ok(opened.navLeft >= -1 && opened.navRight <= opened.clientWidth + 1,
+            `${browserName}/${viewport.width}/${pageName}: opened tablet nav is clipped`);
+          assert.ok(opened.items.every((item) => item.left >= -1 && item.right <= opened.clientWidth + 1),
+            `${browserName}/${viewport.width}/${pageName}: opened tablet nav item escapes the viewport`);
+          assert.ok(opened.navBottom <= opened.headerBottom + 1,
+            `${browserName}/${viewport.width}/${pageName}: opened tablet nav is clipped by the header`);
+          assert.equal(opened.navReceivesPointer, true,
+            `${browserName}/${viewport.width}/${pageName}: opened tablet nav is behind page content`);
+          await page.keyboard.press('Escape');
+          const escaped = await page.evaluate(() => ({
+            navDisplay: getComputedStyle(document.querySelector('.header .nav')).display,
+            expanded: document.querySelector('.site-menu-button').getAttribute('aria-expanded'),
+            focusReturned: document.activeElement === document.querySelector('.site-menu-button'),
+          }));
+          assert.equal(escaped.navDisplay, 'none', `${browserName}/${viewport.width}/${pageName}: Escape does not close the tablet nav`);
+          assert.equal(escaped.expanded, 'false', `${browserName}/${viewport.width}/${pageName}: Escape leaves tablet nav expanded`);
+          assert.equal(escaped.focusReturned, true, `${browserName}/${viewport.width}/${pageName}: Escape does not return focus`);
+          if (pageName === 'about.html') {
+            await page.screenshot({ path: path.join(out, `header-${browserName}-${viewport.width}.png`) });
+          }
         }
-        await page.close();
+      } finally {
+        await headerContext.close();
       }
+    }
+
+    // The header matrix navigates the full public-page inventory twice. Recycle
+    // WebKit before the remaining independent fixtures to release its page cache
+    // and rendering processes; the assertions and page inventory are unchanged.
+    if (browserName === 'webkit') {
+      await browser.close();
+      browser = await browserType.launch({ headless: true });
     }
 
     {
       const viewport = { width: 1280, height: 900 };
-      const page = await browser.newPage({ viewport });
+      const page = await newLocalPage(browser, { viewport });
       await page.goto(`${base}/about.html`, { waitUntil: 'load', timeout: 30000 });
       const result = await page.evaluate(() => {
         const nav = document.querySelector('.header .nav');
@@ -439,7 +494,7 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
     }
 
     for (const viewport of [{ width: 768, height: 900 }, { width: 1024, height: 900 }, { width: 1440, height: 1000 }]) {
-      const page = await browser.newPage({ viewport, javaScriptEnabled: false });
+      const page = await newLocalPage(browser, { viewport, javaScriptEnabled: false });
       await page.goto(`${base}/about.html`, { waitUntil: 'load', timeout: 30000 });
       const portraits = await page.locator('.founder-photo').evaluateAll((images) => images.map((image) => {
         const box = image.getBoundingClientRect();
@@ -458,7 +513,7 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
 
     {
       let requestCount = 0;
-      const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+      const page = await newLocalPage(browser, { viewport: { width: 1280, height: 900 } });
       await page.route('https://api.monderman.com/api/health', (route) => route.fulfill({
         status: 200, contentType: 'application/json', body: '{"ok":true}',
       }));
@@ -492,7 +547,7 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
     }
 
     {
-      const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+      const page = await newLocalPage(browser, { viewport: { width: 390, height: 844 } });
       await page.route('https://api.monderman.com/api/health', (route) => route.abort('blockedbyclient'));
       await page.route('https://monderman-api.onrender.com/api/health', (route) => route.fulfill({
         status: 200, contentType: 'application/json', body: '{"ok":true}',
@@ -523,7 +578,7 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
     {
       let requestCount = 0;
       let submittedPayload = null;
-      const page = await browser.newPage({ viewport: { width: 1024, height: 900 } });
+      const page = await newLocalPage(browser, { viewport: { width: 1024, height: 900 } });
       await page.route('https://api.monderman.com/api/health', (route) => route.fulfill({
         status: 200, contentType: 'application/json', body: '{"ok":true}',
       }));
@@ -569,7 +624,7 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
     }
 
     {
-      const page = await browser.newPage({ viewport: { width: 320, height: 700 } });
+      const page = await newLocalPage(browser, { viewport: { width: 320, height: 700 } });
       const italicResponses = new Map();
       page.on('response', (response) => {
         const name = response.url().split('/').pop()?.split('?')[0];
@@ -627,62 +682,64 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
     }
 
     for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }, { width: 1440, height: 1000 }]) {
-      const page = await browser.newPage({ viewport });
+      const page = await newLocalPage(browser, { viewport });
       await page.goto(`${base}/index.html`, { waitUntil: 'load', timeout: 30000 });
-      await page.locator('.hero-book-callout').waitFor({ state: 'visible', timeout: 10000 });
-      await page.waitForFunction(() => getComputedStyle(document.querySelector('.hero-book-callout')).opacity === '1');
+      await page.locator('.book-band').waitFor({ state: 'visible', timeout: 10000 });
       const result = await page.evaluate(() => {
-        const callout = document.querySelector('.hero-book-callout');
-        const copy = document.querySelector('.hero-book-copy');
-        const action = document.querySelector('.hero-book-action');
-        const byline = document.querySelector('.hero-book-byline');
-        const calloutBox = callout.getBoundingClientRect();
-        const copyBox = copy.getBoundingClientRect();
+        const band = document.querySelector('.book-band');
+        const inner = document.querySelector('.book-inner');
+        const cover = document.querySelector('.book-cover-link');
+        const bookCopy = document.querySelector('.book-copy');
+        const action = document.querySelector('.book-cta .btn');
+        const image = document.querySelector('.book-jacket');
+        const bandBox = band.getBoundingClientRect();
+        const coverBox = cover.getBoundingClientRect();
+        const copyBox = bookCopy.getBoundingClientRect();
         const actionBox = action.getBoundingClientRect();
         return {
           clientWidth: document.documentElement.clientWidth,
           scrollWidth: document.documentElement.scrollWidth,
-          calloutBox: {
-            left: calloutBox.left,
-            right: calloutBox.right,
-            top: calloutBox.top,
-            bottom: calloutBox.bottom,
+          bandBox: {
+            left: bandBox.left,
+            right: bandBox.right,
+            top: bandBox.top,
+            bottom: bandBox.bottom,
           },
-          copyBox: { right: copyBox.right, bottom: copyBox.bottom },
+          coverBox: { left: coverBox.left, right: coverBox.right, top: coverBox.top, bottom: coverBox.bottom },
+          copyBox: { left: copyBox.left, right: copyBox.right, top: copyBox.top, bottom: copyBox.bottom },
           actionBox: { left: actionBox.left, top: actionBox.top },
-          bylineLineCount: byline.getClientRects().length,
-          gridColumns: getComputedStyle(callout).gridTemplateColumns,
-          href: callout.href,
-          target: callout.target,
-          rel: callout.rel,
+          gridColumns: getComputedStyle(inner).gridTemplateColumns,
+          href: cover.href,
+          target: cover.target,
+          rel: cover.rel,
+          loading: image.loading,
         };
       });
-      noPageOverflow(result, `${browserName}/${viewport.width}/index.html/book-callout`);
-      assert.ok(result.calloutBox.left >= -1 && result.calloutBox.right <= viewport.width + 1,
-        `${browserName}/${viewport.width}/index.html: book callout escapes the viewport`);
+      noPageOverflow(result, `${browserName}/${viewport.width}/index.html/book-band`);
+      assert.ok(result.bandBox.left >= -1 && result.bandBox.right <= viewport.width + 1,
+        `${browserName}/${viewport.width}/index.html: book band escapes the viewport`);
       if (viewport.width <= 390) {
-        assert.ok(result.actionBox.top >= result.copyBox.bottom,
-          `${browserName}/${viewport.width}/index.html: book action collides with the book copy`);
+        assert.ok(result.copyBox.top >= result.coverBox.bottom,
+          `${browserName}/${viewport.width}/index.html: book feature does not stack on phones`);
         assert.equal(result.gridColumns.split(' ').length, 1,
-          `${browserName}/${viewport.width}/index.html: book callout does not stack on phones`);
+          `${browserName}/${viewport.width}/index.html: book feature does not use one phone column`);
       } else {
-        assert.ok(result.actionBox.left >= result.copyBox.right,
-          `${browserName}/1440/index.html: book action collides with the book copy`);
+        assert.ok(result.copyBox.left >= result.coverBox.right,
+          `${browserName}/1440/index.html: book cover collides with its copy`);
       }
       assert.match(result.href, /^https:\/\/www\.routledge\.com\/Governance-Bureaucracy-and-Organization-/,
-        `${browserName}/index.html: book callout no longer links to the Routledge book page`);
+        `${browserName}/index.html: book feature no longer links to the Routledge book page`);
       assert.equal(result.target, '_blank', `${browserName}/index.html: book link does not open a new tab`);
       assert.match(result.rel, /\bnoopener\b/, `${browserName}/index.html: book link is missing noopener`);
-      assert.equal(result.bylineLineCount, 1,
-        `${browserName}/${viewport.width}/index.html: the author byline breaks across lines`);
-      await page.locator('.hero-book-callout').screenshot({
-        path: path.join(out, `homepage-book-callout-${browserName}-${viewport.width}.png`),
+      assert.equal(result.loading, 'eager', `${browserName}/index.html: book image is not print-ready`);
+      await page.locator('.book-band').screenshot({
+        path: path.join(out, `homepage-book-band-${browserName}-${viewport.width}.png`),
       });
       await page.close();
     }
 
     {
-      const page = await browser.newPage({ viewport: { width: 1024, height: 900 } });
+      const page = await newLocalPage(browser, { viewport: { width: 1024, height: 900 } });
       await page.goto(`${base}/after-the-first-lap.html`, { waitUntil: 'load', timeout: 30000 });
       const leading = await page.evaluate(() => document.body.innerText.trim().slice(0, 80));
       assert.ok(!leading.startsWith('Warning:') && !leading.startsWith('Total output lines:'),

@@ -1,9 +1,16 @@
 (() => {
-  const mark = '<svg class="monderman-lockup__mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M9.5 15L20.75 8L32 14L43.25 8L54.5 15V56L43.25 49L32 55L20.75 49L9.5 56Z" stroke-width="2.8" stroke-linejoin="round"/><path d="M20.75 8V49M32 14V55M43.25 8V49" stroke-width="2.4" stroke-linecap="round"/></svg>';
+  const mark = '<svg class="monderman-lockup__mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M12 18.4L22 11.5L32 16.6L42 11.5L52 18.4V52L42 46.4L32 52L22 46.4L12 52Z" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 11.5V46.4M32 16.6V52M42 11.5V46.4" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const restoreWordmarkPeriod = (name) => {
     if (!name) return;
     const value = name.textContent.trim();
-    if (/^Monderman\.*$/i.test(value)) name.textContent = value.replace(/\.*$/, '.');
+    if (!/^Monderman\.*$/i.test(value) || name.querySelector('.monderman-lockup__period')) return;
+    const word = document.createElement('span');
+    word.className = 'monderman-lockup__word';
+    word.textContent = 'Monderman';
+    const period = document.createElement('span');
+    period.className = 'monderman-lockup__period';
+    period.textContent = '.';
+    name.replaceChildren(word, period);
   };
   function enhance(root = document) {
     root.querySelectorAll('.brand,.ws5-brand').forEach((brand) => {

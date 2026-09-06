@@ -101,7 +101,7 @@ for token in [
 
 # Surgical regression guards added 2026-08-13.
 idx=(r/'index.html').read_text(errors='ignore')
-if '<body class="canonical-green-shell">' not in idx:
+if not re.search(r'<body\b[^>]*class="[^"]*\bcanonical-green-shell\b',idx,re.I):
  e.append('homepage canonical shell scope missing')
 
 # Canonical publishing system: the homepage rail uses one editorial language
@@ -138,7 +138,7 @@ else:
  if 'data-category="research"' in latest:e.append('homepage current work falsely classified as Research')
 for token in ['linear-gradient(180deg, #103B44 0%, #0B343D 55%, #04282F 100%)','color: #9CC4C9;','background: #0E3A44;']:
  if token not in idx:e.append('homepage canonical research tile style '+token)
-for token in ['.latest-card.category-insight {','.latest-card.category-brief {','.latest-card.category-perspective {','.latest-card.category-research {','Research, insights, briefs, and perspectives']:
+for token in ['.latest-card.category-insight {','.latest-card.category-brief {','.latest-card.category-perspective {','.latest-card.category-research {','Research on how institutions work.']:
  if token not in idx:e.append('homepage publication taxonomy '+token)
 for token in ['.latest-card-link::after {','position: absolute;','inset: 0;','.latest-card:focus-within {']:
  if token not in idx:e.append('homepage full-card carousel interaction '+token)
@@ -251,7 +251,7 @@ elif hashlib.sha256(built_pdf.read_bytes()).hexdigest()!='bf112b264e0978df9fd12b
  e.append('Built to Please canonical PDF bytes changed')
 for stale in ['exactly as the engine renders it','Every read returns the result in your numbers','Monderman is the instrument that surfaces where these losses originate']:
  if stale in idx:e.append('homepage unsupported claim '+stale)
-for required in ['measured operating conditions associated with observed administrative burden','when supported by disclosed sizing inputs','When the required sizing inputs are present and valid']:
+for required in ['measured operating conditions associated with observed administrative burden','it does not promise recovery','When the required sizing inputs are present and valid']:
  if required not in idx:e.append('homepage bounded claim '+required)
 signal=(r/'plan-signal.html').read_text(errors='ignore')
 enterprise=(r/'plan-enterprise.html').read_text(errors='ignore')
@@ -285,7 +285,7 @@ tile_required=[
  '4,800','7,900','6,100',
  '$432,000','$711,000','$549,000','$120,000','$210,000',
  '49.5','56.8','65.3',
- 'Fix the ownership transfer point.',
+ 'Investigate the ownership transfer point.',
 ]
 for name,text in [('index.html',idx),('Monderman_Platform_Brief.html',brief)]:
  for token in tile_required:

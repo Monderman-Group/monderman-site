@@ -257,6 +257,49 @@ try {
   if (connectState.assistantVisible) failures.push('runtime utilities: assistant launcher remains visible over the open Connect panel');
   await runtimePage.close();
 
+  // The fixed mobile shell must expose its navigation above page content, and
+  // short use-case heroes must begin below that shell rather than beneath it.
+  for (const pageName of [
+    'new-in-the-role.html',
+    'after-an-acquisition.html',
+    'transformation-behind-schedule.html',
+    'after-a-reorganization.html',
+  ]) {
+    const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    await page.route('**/*', async (route) => {
+      const url = new URL(route.request().url());
+      if (url.origin === localOrigin || url.protocol === 'data:' || url.protocol === 'blob:') await route.continue();
+      else await route.abort();
+    });
+    await page.goto(`${base}/${pageName}`, { waitUntil: 'load', timeout: 30000 });
+    const resting = await page.evaluate(() => ({
+      headerBottom: document.querySelector('#siteHeader').getBoundingClientRect().bottom,
+      eyebrowTop: document.querySelector('main .hero .eyebrow').getBoundingClientRect().top,
+    }));
+    if (resting.eyebrowTop < resting.headerBottom + 20) {
+      failures.push(`${pageName}/iphone: hero begins beneath the fixed header (${JSON.stringify(resting)})`);
+    }
+    await page.locator('.site-menu-button').click();
+    const opened = await page.evaluate(() => {
+      const headerBox = document.querySelector('#siteHeader').getBoundingClientRect();
+      const navBox = document.querySelector('#siteHeader .nav').getBoundingClientRect();
+      const hit = document.elementFromPoint(
+        Math.max(1, Math.min(navBox.left + 24, innerWidth - 1)),
+        Math.max(1, Math.min(navBox.top + 24, innerHeight - 1)),
+      );
+      return {
+        headerBottom: headerBox.bottom,
+        navBottom: navBox.bottom,
+        navDisplay: getComputedStyle(document.querySelector('#siteHeader .nav')).display,
+        navReceivesPointer: Boolean(hit?.closest('#siteHeader .nav')),
+      };
+    });
+    if (opened.navDisplay !== 'flex' || opened.navBottom > opened.headerBottom + 1 || !opened.navReceivesPointer) {
+      failures.push(`${pageName}/iphone: expanded mobile navigation is clipped or obscured (${JSON.stringify(opened)})`);
+    }
+    await page.close();
+  }
+
   for (const viewport of [{ name: 'compact-phone', width: 320, height: 700 }, { name: 'iphone', width: 390, height: 844 }]) {
     const briefPage = await browser.newPage({ viewport });
     await briefPage.route('**/*', async (route) => {

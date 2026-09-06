@@ -19,14 +19,14 @@ try {
     await page.goto(`${base}/index.html`, { waitUntil: 'networkidle', timeout: 90000 });
 
     // The accessible main landmark owns the homepage editorial sequence. Keep
-    // the retired legacy sections hidden and preserve one white "second read"
+    // the retired legacy sections hidden and preserve one white repeat-measurement
     // section at every supported viewport.
     const editorial = await page.evaluate(() => {
       const main = document.querySelector('#main-content');
       const legacy = main?.querySelector(':scope > .differentiators-compact');
       const measurementLoop = main?.querySelector(':scope > .measurement-loop');
       const visibleSecondReadHeadings = [...document.querySelectorAll('h2')].filter((heading) => {
-        if (heading.textContent.trim() !== 'Built for the second read, not just the first.') return false;
+        if (heading.textContent.trim() !== 'Measure once to see the condition. Return to learn whether it changed.') return false;
         const section = heading.closest('section');
         return section && getComputedStyle(section).display !== 'none';
       });
@@ -50,6 +50,7 @@ try {
     assert.equal(editorial.visibleSecondReadHeadings, 1, `${viewport.name}: duplicate second-read headings are visible`);
     assert.deepEqual(editorial.visibleSections, [
       'hero',
+      'acquisition-layer',
       'proof-band',
       'mxidx-band',
       'systems-analysis-bridge',

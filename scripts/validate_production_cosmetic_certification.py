@@ -168,7 +168,7 @@ for path in html_files:
     require(not re.search(r"(?im)^\s*(?:warning:\s*truncated output|total output lines:)", page), f"{path.name}: tool-output warning is customer-visible")
     require(not re.search(r">\s*:\s*</(?:p|div|span)>", without_html_comments(page), re.I), f"{path.name}: isolated colon placeholder is customer-visible")
     links = [attrs for tag, attrs in document.head_tags if tag == "link"]
-    favicon_cache_key = "20260830-cert1" if path.name in {"privacy.html", "terms.html"} else "20260903-map1"
+    favicon_cache_key = "20260830-cert1" if path.name in {"privacy.html", "terms.html"} else "20260906-enterprise1"
     expected_links = [
         {"rel": "icon", "type": "image/svg+xml", "href": f"favicon.svg?v={favicon_cache_key}"},
         {"rel": "icon", "type": "image/x-icon", "sizes": "any", "href": f"favicon.ico?v={favicon_cache_key}"},
@@ -184,10 +184,10 @@ for path in html_files:
 favicon_svg = text("favicon.svg")
 for token in [
     'viewBox="0 0 32 32"',
-    '<linearGradient id="bg"',
+    '<linearGradient id="monderman-v2-small-field"',
     'stroke="#FFFFFF"',
-    'M6 9.1L11 5.65L16 8.2L21 5.65L26 9.1',
-    'M11 5.65V22.8M16 8.2V26M21 5.65V22.8',
+    'M6 9.2 11 5.75 16 8.3 21 5.75 26 9.2V26',
+    'M11 5.75V23.2M16 8.3V26M21 5.75V23.2',
 ]:
     require(token in favicon_svg, f"optically balanced favicon contract missing: {token}")
 
@@ -297,7 +297,7 @@ require("SR Letter 26-2" in pdf_source and "supersedes SR 11-7" in pdf_source an
 # 14–15: private shells stay out of search; heading levels remain sequential.
 for name in ["cross-tool-synthesis.html", "workspace-actions.html", "workspace-analysis.html", "workspace-diagnostics.html", "workspace-settings.html"]:
     require(has_meta(parse_document(text(name)), "name", "robots", "noindex, nofollow"), f"{name}: real noindex contract missing")
-for heading in ["Signal: platform support", "Pattern: priority + onboarding", "Enterprise: named contact", "Published, predictable pricing", "Clear data handling", "Single-vendor simplicity", "Justification, built in"]:
+for heading in ["Signal: platform support", "Pattern: priority + onboarding", "Enterprise: named contact", "Published, predictable pricing", "Clear data handling", "Single-vendor simplicity", "Visible economic assumptions"]:
     require(f"<h3>{heading}</h3>" in platform, f"platform heading hierarchy missing: {heading}")
 
 # 16–18: phone action-card flow, quiet access handoff, stable redirect harness.

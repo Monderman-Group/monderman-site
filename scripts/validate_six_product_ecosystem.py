@@ -34,7 +34,7 @@ for token in ['500 completed participant responses','Unlimited Syntheses','anony
     require(pattern,token,'Pattern')
 enterprise=text('plan-enterprise.html')
 for token in [
-    'unlimited participant responses','unlimited Syntheses','unlimited self-runs',
+    'unlimited participant responses','unlimited Syntheses','Self-runs, participant responses, Syntheses, and Workspace users are unlimited.',
     'Unlimited analyst and admin workspace users','bespoke Diagnostic or participant-perspective design'
 ]:
     require(enterprise,token,'Enterprise')

@@ -3,7 +3,7 @@
   const favicon = document.createElement("link");
   favicon.rel = "icon";
   favicon.type = "image/svg+xml";
-  favicon.href = "assets/brand/monderman-favicon.svg?v=20260824-wide1";
+  favicon.href = "assets/brand/monderman-mark-v2-small.svg?v=20260906-enterprise1";
   document.head.appendChild(favicon);
   if (!document.querySelector('link[href^="assets/brand/brand-lockup.css"]')) {
     const brandStyles = document.createElement("link");
@@ -11,11 +11,19 @@
     brandStyles.href = "assets/brand/brand-lockup.css?v=20260824-wide1";
     document.head.appendChild(brandStyles);
   }
-  const brandMark = '<svg class="monderman-lockup__mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M9.5 15L20.75 8L32 14L43.25 8L54.5 15V56L43.25 49L32 55L20.75 49L9.5 56Z" stroke-width="2.8" stroke-linejoin="round"/><path d="M20.75 8V49M32 14V55M43.25 8V49" stroke-width="2.4" stroke-linecap="round"/></svg>';
+  const brandMark = '<svg class="monderman-lockup__mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M6 9.2 11 5.75 16 8.3 21 5.75 26 9.2V26L21 23.2 16 26 11 23.2 6 26Z" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 5.75V23.2M16 8.3V26M21 5.75V23.2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const restoreWordmarkPeriod = (name) => {
     if (!name) return;
     const value = name.textContent.trim();
-    if (/^Monderman\.*$/i.test(value)) name.textContent = value.replace(/\.*$/, ".");
+    if (!/^Monderman\.*$/i.test(value)) return;
+    if (name.querySelector(".monderman-lockup__period")) return;
+    const word = document.createElement("span");
+    word.className = "monderman-lockup__word";
+    word.textContent = "Monderman";
+    const period = document.createElement("span");
+    period.className = "monderman-lockup__period";
+    period.textContent = ".";
+    name.replaceChildren(word, period);
   };
   const enhanceBrand = () => {
     document.querySelectorAll(".header .brand, #siteHeader .brand").forEach((brand) => {
@@ -38,6 +46,34 @@
       footerBrand.querySelectorAll(".mf-dot").forEach((dot) => dot.remove());
       restoreWordmarkPeriod(footerBrand.querySelector(".mf-name"));
     });
+    document.querySelectorAll(".mond-footer .mf-copy").forEach((copy) => {
+      copy.textContent = "Monderman gives institutions a structured way to examine ownership, decision flow, operating burden, and performance conditions across teams and over time.";
+    });
+    document.querySelectorAll(".mond-footer .mf-nav").forEach((footerNav) => {
+      footerNav.innerHTML = `
+        <div class="mf-col">
+          <p class="mf-col-title">Platform</p>
+          <a href="Monderman_Platform_Brief.html">Platform overview</a>
+          <a href="diagnostics.html">Diagnostics</a>
+          <a href="workspace.html">Workspace</a>
+          <a href="sample-report.html">Sample reports</a>
+          <a href="platform-services.html">Plans and pricing</a>
+        </div>
+        <div class="mf-col">
+          <p class="mf-col-title">Company</p>
+          <a href="why-monderman.html">Why Monderman</a>
+          <a href="about.html">About</a>
+          <a href="research.html">Research</a>
+          <a href="connect.html">Contact</a>
+        </div>
+        <div class="mf-col">
+          <p class="mf-col-title">Trust</p>
+          <a href="security.html">Security</a>
+          <a href="subprocessors.html">Subprocessors</a>
+          <a href="privacy.html">Privacy</a>
+          <a href="terms.html">Terms</a>
+        </div>`;
+    });
   };
   enhanceBrand();
   const header = document.getElementById("siteHeader");
@@ -46,29 +82,30 @@
     if (nav) {
       const menus = [
         ["Platform", "Monderman_Platform_Brief.html", [
-          ["Platform Brief", "Monderman_Platform_Brief.html"],
-          ["How It Works", "index.html#approach"],
+          ["Platform Overview", "Monderman_Platform_Brief.html"],
+          ["Diagnostics", "diagnostics.html"],
+          ["Workspace", "workspace.html"],
+          ["Synthesis", "Monderman_Platform_Brief.html#slide-6"],
           ["Sample Reports", "sample-report.html"],
-          ["ROI & Method", "roi.html"],
+          ["Method and ROI", "roi.html"],
           ["AI Infrastructure", "deterministic-ai-infrastructure.html"]
         ]],
-        ["Diagnostics", "diagnostics.html", [
-          ["Diagnostics Overview", "diagnostics.html"],
-          ["Operational Systems", "operational-systems-article.html"],
-          ["Decision Velocity", "decision-velocity-article.html"],
-          ["Structural Clarity", "structural-clarity-article.html"],
-          ["Institutional Performance", "institutional-performance-article.html"]
+        ["Solutions", "new-in-the-role.html", [
+          ["New in the Role", "new-in-the-role.html"],
+          ["After an Acquisition", "after-an-acquisition.html"],
+          ["Transformation Behind Schedule", "transformation-behind-schedule.html"],
+          ["After a Reorganization", "after-a-reorganization.html"]
         ]],
         ["Research", "research.html", [
           ["Research Library", "research.html"],
+          ["The Unmeasured Layer", "the-unmeasured-layer.html"],
           ["The Culture Trap", "the-culture-trap.html"],
           ["Governing Complexity", "governing-complexity.html"],
           ["Designing for Decision Velocity", "designing-for-decision-velocity.html"],
-          ["The Drift Problem", "the-drift-problem.html"],
-          ["After the First Lap", "after-the-first-lap.html"]
+          ["Founder and Book", "about.html"]
         ]],
-        ["Plans & Services", "platform-services.html", [
-          ["Plans & Pricing", "platform-services.html"],
+        ["Pricing", "platform-services.html", [
+          ["Plans and Pricing", "platform-services.html"],
           ["Signal", "plan-signal.html"],
           ["Pattern", "plan-pattern.html"],
           ["Enterprise", "plan-enterprise.html"]
@@ -76,13 +113,15 @@
         ["Company", "why-monderman.html", [
           ["Why Monderman", "why-monderman.html"],
           ["About", "about.html"],
-          ["Security & Data Handling", "security.html"]
+          ["Trust and Security", "security.html"],
+          ["Subprocessors", "subprocessors.html"],
+          ["Contact", "connect.html"]
         ]]
       ];
       const menuMarkup = menus.map(([label, href, items]) =>
         `<div class="nav-menu"><a class="nav-parent" href="${href}" aria-haspopup="true" aria-expanded="false">${label}<span class="nav-chevron" aria-hidden="true"></span></a><div class="nav-dropdown">${items.map(([itemLabel, itemHref]) => `<a href="${itemHref}">${itemLabel}</a>`).join("")}</div></div>`
       ).join("");
-      nav.innerHTML = `${menuMarkup}<a href="connect.html">Connect</a><button class="site-search-button" type="button" aria-label="Search Monderman" title="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.6"></circle><path d="m16 16 4.2 4.2"></path></svg></button><a class="workspace-link" href="workspace.html">Sign In</a>`;
+      nav.innerHTML = `${menuMarkup}<a class="site-trust-link" href="security.html">Trust</a><button class="site-search-button" type="button" aria-label="Search Monderman" title="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.6"></circle><path d="m16 16 4.2 4.2"></path></svg></button><a class="workspace-link" href="workspace.html">Sign In</a><a class="site-entry-link" href="decision-velocity.html?source=header" data-first-run-event="decision_velocity_started">Run Decision Velocity free</a>`;
       const menuButton = document.createElement("button");
       menuButton.className = "site-menu-button";
       menuButton.type = "button";
@@ -160,7 +199,7 @@
       const status = overlay.querySelector(".site-search-status");
       const results = overlay.querySelector(".site-search-results");
       let searchIndex;
-      const loadIndex = () => searchIndex || (searchIndex = fetch("public-search-index.json?v=20260822-search2").then((response) => {
+      const loadIndex = () => searchIndex || (searchIndex = fetch("public-search-index.json?v=20260906-enterprise1").then((response) => {
         if (!response.ok) throw new Error("Search index unavailable");
         return response.json();
       }));

@@ -25,6 +25,14 @@ function hasUncaveatedPredictedOutcome(text){
   }
   return false;
 }
+await page.route(/^https:\/\/www\.monderman\.com\/(55|65|75)font\.woff2$/, async route => {
+  const filename = new URL(route.request().url()).pathname.slice(1);
+  await route.fulfill({
+    status: 200,
+    contentType: 'font/woff2',
+    body: fs.readFileSync(path.resolve(filename)),
+  });
+});
 await page.goto(`${base}/sample-report.html`,{waitUntil:'networkidle',timeout:90000});
 // textContent intentionally includes hidden tab panels; each panel is separately made visible and rendered below.
 const pageText=await page.locator('body').textContent();

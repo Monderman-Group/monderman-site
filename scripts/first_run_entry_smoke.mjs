@@ -17,12 +17,12 @@ for (const file of momentPages) {
   assert.doesNotMatch(html, /—/, `${file} contains an em dash`);
   for (const required of [
     "The problem",
-    "What one run shows",
+    "Begin with one decision",
     "What one team campaign adds",
     "What comes after",
-    "Run the Decision Velocity diagnostic",
-    "Apply to the limited Pattern Pilot",
-    "See a sample report",
+    "Run Decision Velocity free",
+    "Apply to the Pattern Pilot",
+    "Preview a sample report",
     "assistant.js",
     "contact-transport.js",
     "connect-widget.js",
@@ -37,10 +37,10 @@ for (const file of momentPages) {
 }
 
 const home = fs.readFileSync(path.join(root, "index.html"), "utf8");
-assert.ok(home.includes("Where a first run fits"));
+assert.ok(home.includes("Start where the stakes are already clear."));
 assert.ok(home.includes("Run the free 10-minute Decision Velocity diagnostic"));
 assert.ok(home.includes('href="pilot.html?source=homepage"'));
-assert.ok(home.includes("Limited pilot cohort"));
+assert.ok(home.includes("Limited pilot &middot; Cohort filling"));
 for (const file of momentPages) assert.ok(home.includes(`href="${file}"`));
 
 const diagnostic = fs.readFileSync(path.join(root, "decision-velocity.html"), "utf8");

@@ -99,7 +99,7 @@ try {
       assert.equal(geometry.hasWrongRaster, false, `${placement.name}/${viewport.name}: superseded screenshot artifact returned`);
       assert.equal(geometry.exposureRangeCount, 2, `${placement.name}/${viewport.name}: source exposure composition changed`);
       assert.equal(geometry.vantageRowCount, 3, `${placement.name}/${viewport.name}: source vantage composition changed`);
-      assert.equal(geometry.actionText, 'Fix the ownership transfer point. Then re-measure the same scope.', `${placement.name}/${viewport.name}: source leadership move changed`);
+      assert.equal(geometry.actionText, 'Investigate the ownership transfer point. Then repeat a compatible run.', `${placement.name}/${viewport.name}: source leadership move changed`);
       assert.equal(geometry.footDisplay, 'none', `${placement.name}/${viewport.name}: redundant qualification footer returned`);
       assert(geometry.documentWidth <= geometry.viewportWidth + 1, `${placement.name}/${viewport.name}: page overflows horizontally`);
       assert(geometry.rootLeft >= geometry.cardLeft - 1 && geometry.rootRight <= geometry.cardRight + 1, `${placement.name}/${viewport.name}: source component escapes the card horizontally`);
