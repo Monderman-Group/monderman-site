@@ -255,7 +255,10 @@ require('<span>Enterprise</span><span>Brief · HTML + PDF</span></div>\n        
 shell_css = text("canonical-site-shell.css")
 shell_css_without_comments = without_code_comments(shell_css)
 require("@media print" in shell_css_without_comments and ".mond-footer" in shell_css_without_comments, "shared print contract missing")
-require("@media(max-width:1180px)" in shell_css_without_comments, "tablet navigation breakpoint contract missing")
+require(
+    re.search(r"@media\(max-width:1180px\)\{\.canonical-green-shell \.header", shell_css_without_comments) is not None,
+    "tablet navigation breakpoint contract missing",
+)
 require('(max-width: 1180px)' in without_code_comments(text("canonical-site-shell.js")), "tablet navigation behavior breakpoint missing")
 book_image = home.find('<img class="book-jacket"')
 require(book_image >= 0 and 'loading="eager"' in home[book_image : book_image + 500], "homepage book image is not print-ready")

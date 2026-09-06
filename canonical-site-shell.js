@@ -60,7 +60,13 @@
     document.querySelectorAll(".mond-footer .mf-copy").forEach((copy) => {
       copy.textContent = "Monderman provides repeatable organizational diagnostics for ownership, decisions, handoffs, and administrative work.";
     });
-    document.querySelectorAll(".mond-footer .mf-motif").forEach((motif) => {
+    document.querySelectorAll(".mond-footer .mf-inner").forEach((footerInner) => {
+      let motif = footerInner.querySelector(".mf-motif");
+      if (!motif) {
+        motif = document.createElement("div");
+        motif.className = "mf-motif";
+        footerInner.appendChild(motif);
+      }
       motif.setAttribute("aria-hidden", "true");
       motif.innerHTML = footerMotif;
     });

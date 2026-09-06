@@ -24,6 +24,7 @@
   --mdm-amber-light: #F0C47D;
   --mdm-font: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --mdm-max: 1280px;
+  --mdm-hero-max: 1320px;
   --mdm-reading: 720px;
   --mdm-header: 78px;
   --mdm-radius: 6px;
@@ -212,6 +213,7 @@ body.canonical-green-shell .ps-hero,
 body.canonical-green-shell .article-hero {
   position: relative;
   overflow: hidden;
+  padding: 0 !important;
   background:
     radial-gradient(circle at 82% 18%, rgba(12, 110, 120, .22), transparent 34%),
     linear-gradient(140deg, var(--mdm-brand-dark) 0%, #05292E 58%, var(--mdm-deep) 100%);
@@ -235,22 +237,29 @@ body.canonical-green-shell .article-hero::before {
 }
 
 body.canonical-green-shell:not(.homepage-enterprise) > .hero,
-body.canonical-green-shell:not(.homepage-enterprise) > main > .hero {
-  min-height: 560px;
+body.canonical-green-shell:not(.homepage-enterprise) > main > .hero,
+body.canonical-green-shell .ps-hero,
+body.canonical-green-shell .article-hero {
+  min-height: 520px;
   display: flex;
   align-items: end;
 }
 
 body.canonical-green-shell:not(.homepage-enterprise) > .hero > .hero-inner,
+body.canonical-green-shell:not(.homepage-enterprise) > .hero > .wrap,
+body.canonical-green-shell:not(.homepage-enterprise) > .hero > .section,
 body.canonical-green-shell:not(.homepage-enterprise) > main > .hero > .hero-inner,
+body.canonical-green-shell:not(.homepage-enterprise) > main > .hero > .wrap,
+body.canonical-green-shell:not(.homepage-enterprise) > main > .hero > .section,
 body.canonical-green-shell .ps-hero > .ps-hero-inner,
 body.canonical-green-shell .article-hero > .article-hero-inner {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: var(--mdm-max);
+  max-width: var(--mdm-hero-max);
   margin-inline: auto;
-  padding: 152px clamp(24px, 4vw, 56px) 78px;
+  padding: 112px clamp(20px, 4vw, 56px) 36px;
+  text-align: start;
 }
 
 body.canonical-green-shell:not(.homepage-enterprise) .hero h1,
@@ -259,9 +268,9 @@ body.canonical-green-shell .article-hero h1 {
   max-width: 16ch;
   margin: 0;
   color: var(--mdm-white);
-  font-size: clamp(3.25rem, 5.2vw, 4.75rem);
-  line-height: .98;
-  letter-spacing: -.055em;
+  font-size: clamp(3rem, 4vw, 3.5rem);
+  line-height: 1;
+  letter-spacing: -.052em;
 }
 
 body.canonical-green-shell:not(.homepage-enterprise) .hero p,
@@ -283,6 +292,18 @@ body.canonical-green-shell:not(.homepage-enterprise) .hero .hero-actions {
   will-change: auto;
 }
 
+body.canonical-green-shell:not(.homepage-enterprise) .hero .hero-title {
+  display: block;
+}
+
+body.canonical-green-shell:not(.homepage-enterprise) .hero .hero-line {
+  display: inline;
+}
+
+body.canonical-green-shell:not(.homepage-enterprise) .hero .hero-line + .hero-line::before {
+  content: " ";
+}
+
 /* Core type and spacing */
 body.canonical-green-shell .section-inner,
 body.canonical-green-shell .library-inner,
@@ -291,6 +312,33 @@ body.canonical-green-shell .dx-shell,
 body.canonical-green-shell .connect-section-inner,
 body.canonical-green-shell .quiet-cta-inner {
   max-width: var(--mdm-max);
+}
+
+body.canonical-green-shell .ps-wrap {
+  width: 100%;
+  padding-inline: clamp(20px, 4vw, 56px);
+}
+
+/* Plan pages use a named top band rather than the shared .hero class. */
+body.canonical-green-shell .pl-top {
+  min-height: 520px;
+  display: flex;
+  align-items: end;
+  text-align: start;
+}
+
+body.canonical-green-shell .pl-top > .pl-top-inner {
+  width: 100%;
+  max-width: var(--mdm-hero-max);
+  margin-inline: auto;
+  padding: 112px clamp(20px, 4vw, 56px) 36px;
+}
+
+body.canonical-green-shell .pl-top h1 {
+  max-width: 16ch;
+  font-size: clamp(3rem, 4vw, 3.5rem);
+  line-height: 1;
+  letter-spacing: -.052em;
 }
 
 body.canonical-green-shell:not(.page-report) .section-intro {
@@ -304,9 +352,9 @@ body.canonical-green-shell:not(.page-report) .ps-h2,
 body.canonical-green-shell:not(.page-report) .group h2,
 body.canonical-green-shell:not(.page-report) .dx-section-head h2 {
   color: var(--mdm-ink);
-  font-size: clamp(2.35rem, 4vw, 3.7rem);
-  line-height: 1.01;
-  letter-spacing: -.052em;
+  font-size: clamp(2rem, 2.4vw, 2.75rem);
+  line-height: 1.06;
+  letter-spacing: -.045em;
 }
 
 body.canonical-green-shell:not(.page-report) .section-intro > p,
@@ -923,7 +971,7 @@ body.homepage-enterprise .connect-choice-card {
 
 /* Catalog, pricing, company, and legal surfaces */
 body.canonical-green-shell .diagnostics-page,
-body.canonical-green-shell .ps-section,
+body.canonical-green-shell .ps-section:not(.ps-roi),
 body.canonical-green-shell .connect-section,
 body.canonical-green-shell.page-legal main,
 body.canonical-green-shell .wm-condition,
@@ -932,6 +980,34 @@ body.canonical-green-shell .wm-rigor,
 body.canonical-green-shell .wm-commitments,
 body.canonical-green-shell .wm-instruments {
   background: var(--mdm-white);
+}
+
+/* Preserve the pricing page's intentional dark evidence band and its contrast. */
+body.canonical-green-shell .ps-section.ps-roi {
+  background: var(--mdm-brand-dark);
+  color: var(--mdm-white);
+}
+
+body.canonical-green-shell .ps-section.ps-roi .ps-section-label {
+  color: #A9CFD2;
+}
+
+body.canonical-green-shell .ps-section.ps-roi .ps-h2 {
+  color: var(--mdm-white);
+}
+
+body.canonical-green-shell:not(.page-report) .ps-section.ps-roi > .ps-wrap > :is(.ps-sub, .ps-roi-note) {
+  color: rgba(245, 241, 232, .76);
+}
+
+body.canonical-green-shell .ps-section.ps-roi .ps-roi-note a {
+  color: #BFE0E3;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+body.canonical-green-shell .ps-section.ps-roi .ps-roi-card {
+  border-color: rgba(255, 255, 255, .15);
 }
 
 body.canonical-green-shell .dx-choice,
@@ -1149,19 +1225,41 @@ body.canonical-green-shell .reveal {
   }
 }
 
-@media (max-width: 820px) {
+@media (max-width: 960px) {
   body.canonical-green-shell:not(.homepage-enterprise) > .hero,
-  body.canonical-green-shell:not(.homepage-enterprise) > main > .hero {
-    min-height: 480px;
+  body.canonical-green-shell:not(.homepage-enterprise) > main > .hero,
+  body.canonical-green-shell .ps-hero,
+  body.canonical-green-shell .article-hero {
+    min-height: 0;
   }
 
   body.canonical-green-shell:not(.homepage-enterprise) > .hero > .hero-inner,
+  body.canonical-green-shell:not(.homepage-enterprise) > .hero > .wrap,
+  body.canonical-green-shell:not(.homepage-enterprise) > .hero > .section,
   body.canonical-green-shell:not(.homepage-enterprise) > main > .hero > .hero-inner,
   body.canonical-green-shell:not(.homepage-enterprise) > main > .hero > .wrap,
+  body.canonical-green-shell:not(.homepage-enterprise) > main > .hero > .section,
   body.canonical-green-shell .ps-hero > .ps-hero-inner,
   body.canonical-green-shell .article-hero > .article-hero-inner {
-    padding-top: 132px;
-    padding-bottom: 56px;
+    padding: 126px clamp(20px, 4vw, 56px) 48px;
+  }
+
+  body.canonical-green-shell:not(.homepage-enterprise) .hero h1,
+  body.canonical-green-shell .ps-hero h1,
+  body.canonical-green-shell .article-hero h1 {
+    font-size: clamp(2.5rem, 5.5vw, 3rem);
+  }
+
+  body.canonical-green-shell .pl-top {
+    min-height: 0;
+  }
+
+  body.canonical-green-shell .pl-top > .pl-top-inner {
+    padding: 126px clamp(20px, 4vw, 56px) 48px;
+  }
+
+  body.canonical-green-shell .pl-top h1 {
+    font-size: clamp(2.5rem, 5.5vw, 3rem);
   }
 
   body.homepage-enterprise .hero-facts {
@@ -1211,7 +1309,7 @@ body.canonical-green-shell .reveal {
   body.canonical-green-shell:not(.homepage-enterprise) .hero h1,
   body.canonical-green-shell .ps-hero h1,
   body.canonical-green-shell .article-hero h1 {
-    font-size: clamp(2.35rem, 12vw, 3.2rem);
+    font-size: clamp(2.25rem, 10vw, 2.625rem);
   }
 
   body.canonical-green-shell:not(.homepage-enterprise) > .hero,
@@ -1221,12 +1319,26 @@ body.canonical-green-shell .reveal {
   }
 
   body.canonical-green-shell:not(.homepage-enterprise) > .hero > .hero-inner,
+  body.canonical-green-shell:not(.homepage-enterprise) > .hero > .wrap,
+  body.canonical-green-shell:not(.homepage-enterprise) > .hero > .section,
   body.canonical-green-shell:not(.homepage-enterprise) > main > .hero > .hero-inner,
-  body.canonical-green-shell:not(.homepage-enterprise) > main > .hero > .wrap {
+  body.canonical-green-shell:not(.homepage-enterprise) > main > .hero > .wrap,
+  body.canonical-green-shell:not(.homepage-enterprise) > main > .hero > .section,
+  body.canonical-green-shell .ps-hero > .ps-hero-inner,
+  body.canonical-green-shell .article-hero > .article-hero-inner {
     width: 100%;
     min-height: 0;
     margin: 0 auto;
-    padding: 126px 20px 58px !important;
+    padding: 114px 20px 34px !important;
+  }
+
+  body.canonical-green-shell .pl-top > .pl-top-inner {
+    padding: 114px 20px 34px;
+  }
+
+  body.canonical-green-shell .pl-top h1 {
+    max-width: 100%;
+    font-size: clamp(2.25rem, 10vw, 2.625rem);
   }
 
   body.canonical-green-shell:not(.homepage-enterprise) .hero .hero-copy {
@@ -1333,6 +1445,16 @@ body.canonical-green-shell .reveal {
   body.canonical-green-shell .header,
   body.canonical-green-shell .acquisition-layer {
     display: none !important;
+  }
+
+  body.homepage-enterprise.home-motion-ready .reveal,
+  body.homepage-enterprise.home-motion-ready .home-motion,
+  body.homepage-enterprise .reveal,
+  body.homepage-enterprise .home-motion {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    transition: none !important;
   }
 
   /* Keep the expanded permanent homepage story useful on paper without

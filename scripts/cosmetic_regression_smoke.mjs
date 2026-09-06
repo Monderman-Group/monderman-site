@@ -623,60 +623,68 @@ for (const [browserName, browserType] of browserMatrix) {
       await page.close();
     }
 
-    {
-      const page = await newLocalPage(browser, { viewport: { width: 320, height: 700 } });
+    for (const viewport of [{ width: 320, height: 700 }, { width: 1440, height: 1000 }]) {
+      const page = await newLocalPage(browser, { viewport });
+      const label = `${browserName}/${viewport.width}/index.html`;
       const italicResponses = new Map();
       page.on('response', (response) => {
         const name = response.url().split('/').pop()?.split('?')[0];
         if (['56font.woff2', '76font.woff2'].includes(name)) italicResponses.set(name, response.status());
       });
       await page.goto(`${base}/index.html`, { waitUntil: 'load', timeout: 30000 });
-      await page.locator('.latest-card:not(.is-carousel-clone) .placeholder-cover-motif').first()
-        .waitFor({ state: 'attached', timeout: 10000 });
+      await page.locator('.latest-card:not(.is-carousel-clone)').first()
+        .waitFor({ state: 'visible', timeout: 10000 });
       const motif = await page.evaluate(async () => {
         await Promise.all([
           document.fonts.load('italic 400 16px "Neue Haas Grotesk"'),
           document.fonts.load('italic 700 16px "Neue Haas Grotesk"'),
         ]);
         const motifs = [...document.querySelectorAll('.latest-card:not(.is-carousel-clone) .placeholder-cover-motif')];
+        const cards = [...document.querySelectorAll('.latest-card:not(.is-carousel-clone)')];
         return {
           clientWidth: document.documentElement.clientWidth,
           scrollWidth: document.documentElement.scrollWidth,
-          motifs: motifs.map((svg) => {
-            const image = svg.closest('.latest-card-image');
+          cardCount: cards.length,
+          visibleMotifCount: motifs.filter((svg) => {
             const box = svg.getBoundingClientRect();
-            const imageBox = image.getBoundingClientRect();
-            return {
-              viewBox: svg.getAttribute('viewBox'),
-              preserveAspectRatio: svg.getAttribute('preserveAspectRatio'),
-              left: box.left,
-              right: box.right,
-              top: box.top,
-              bottom: box.bottom,
-              imageLeft: imageBox.left,
-              imageRight: imageBox.right,
-              imageTop: imageBox.top,
-              imageBottom: imageBox.bottom,
-            };
-          }),
+            const style = getComputedStyle(svg);
+            return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity) > 0 && box.width > 0 && box.height > 0;
+          }).length,
+          coverFit: [...document.querySelectorAll('.latest-card:not(.is-carousel-clone) .placeholder-cover-stack')]
+            .map((stack) => {
+              const image = stack.closest('.latest-card-image');
+              const stackBox = stack.getBoundingClientRect();
+              const imageBox = image.getBoundingClientRect();
+              return {
+                top: stackBox.top,
+                bottom: stackBox.bottom,
+                left: stackBox.left,
+                right: stackBox.right,
+                imageTop: imageBox.top,
+                imageBottom: imageBox.bottom,
+                imageLeft: imageBox.left,
+                imageRight: imageBox.right,
+              };
+            }),
           italic400: document.fonts.check('italic 400 16px "Neue Haas Grotesk"'),
           italic700: document.fonts.check('italic 700 16px "Neue Haas Grotesk"'),
         };
       });
-      noPageOverflow(motif, `${browserName}/320/index.html/motif`);
-      assert.ok(motif.motifs.length >= 3, `${browserName}/320/index.html: category motifs are missing`);
-      assert.ok(motif.motifs.every((item) => item.viewBox === '0 0 344 188'
-        && item.preserveAspectRatio === 'xMaxYMax meet'),
-      `${browserName}/320/index.html: phone motif viewport regressed (${JSON.stringify(motif.motifs)})`);
-      assert.ok(motif.motifs.every((item) => item.left >= item.imageLeft - 1
-        && item.right <= item.imageRight + 1 && item.top >= item.imageTop - 1 && item.bottom <= item.imageBottom + 1),
-      `${browserName}/320/index.html: category motif is cropped outside its tile`);
-      assert.equal(motif.italic400, true, `${browserName}/320/index.html: regular italic NHG face did not load`);
-      assert.equal(motif.italic700, true, `${browserName}/320/index.html: bold italic NHG face did not load`);
-      assert.equal(italicResponses.get('56font.woff2'), 200, `${browserName}/320/index.html: 56 italic font request failed`);
-      assert.equal(italicResponses.get('76font.woff2'), 200, `${browserName}/320/index.html: 76 italic font request failed`);
+      noPageOverflow(motif, `${label}/motif`);
+      assert.ok(motif.cardCount >= 3, `${label}: editorial carousel inventory is incomplete`);
+      assert.equal(motif.visibleMotifCount, 0, `${label}: an unintentional category motif is visible`);
+      assert.equal(motif.coverFit.length, motif.cardCount,
+        `${label}: a carousel card lost its editorial cover stack`);
+      assert.ok(motif.coverFit.every((item) =>
+        item.top >= item.imageTop - 1 && item.bottom <= item.imageBottom + 1 &&
+        item.left >= item.imageLeft - 1 && item.right <= item.imageRight + 1),
+        `${label}: editorial tile copy is clipped (${JSON.stringify(motif.coverFit)})`);
+      assert.equal(motif.italic400, true, `${label}: regular italic NHG face did not load`);
+      assert.equal(motif.italic700, true, `${label}: bold italic NHG face did not load`);
+      assert.equal(italicResponses.get('56font.woff2'), 200, `${label}: 56 italic font request failed`);
+      assert.equal(italicResponses.get('76font.woff2'), 200, `${label}: 76 italic font request failed`);
       await page.locator('.latest-card:not(.is-carousel-clone)').first().screenshot({
-        path: path.join(out, `homepage-motif-${browserName}-320.png`),
+        path: path.join(out, `homepage-motif-${browserName}-${viewport.width}.png`),
       });
       await page.close();
     }

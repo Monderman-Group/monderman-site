@@ -16,6 +16,9 @@ on:
       - 'monderman-report.js'
       - 'canonical-site-shell.js'
       - 'canonical-site-shell.css'
+      - 'enterprise-site.css'
+      - 'homepage-hero-system.css'
+      - 'publication-hero.css'
       - 'index.html'
       - 'mobile-site-polish.css'
       - 'visual-polish.css'
@@ -72,6 +75,7 @@ on:
       - 'scripts/validate_report_presentation.py'
       - 'scripts/validate_sample_product_fidelity.py'
       - 'scripts/cosmetic_regression_smoke.mjs'
+      - 'scripts/site_system_visual_smoke.mjs'
       - 'scripts/apply_publication_house_style.py'
       - 'scripts/validate_generated_pdf_layout.py'
       - 'scripts/validate_pdf_house_style.py'
@@ -95,6 +99,9 @@ on:
       - 'monderman-report.js'
       - 'canonical-site-shell.js'
       - 'canonical-site-shell.css'
+      - 'enterprise-site.css'
+      - 'homepage-hero-system.css'
+      - 'publication-hero.css'
       - 'index.html'
       - 'mobile-site-polish.css'
       - 'visual-polish.css'
@@ -151,6 +158,7 @@ on:
       - 'scripts/validate_report_presentation.py'
       - 'scripts/validate_sample_product_fidelity.py'
       - 'scripts/cosmetic_regression_smoke.mjs'
+      - 'scripts/site_system_visual_smoke.mjs'
       - 'scripts/apply_publication_house_style.py'
       - 'scripts/validate_generated_pdf_layout.py'
       - 'scripts/validate_pdf_house_style.py'
@@ -198,6 +206,7 @@ jobs:
           node --check scripts/sample_tile_smoke.mjs
           node --check scripts/mobile_site_presentation_smoke.mjs
           node --check scripts/cosmetic_regression_smoke.mjs
+          node --check scripts/site_system_visual_smoke.mjs
           node --check scripts/ordinary_page_print_smoke.mjs
           node --check scripts/cross_browser_public_release_smoke.mjs
           node --check scripts/personalized_pattern_pilot_browser_smoke.mjs
@@ -251,6 +260,11 @@ jobs:
           SITE_BASE: http://127.0.0.1:8080
           COSMETIC_OUT: /tmp/report-presentation-smoke/cosmetic-regression
         run: node scripts/cosmetic_regression_smoke.mjs
+
+      - name: Enforce public hero, footer, and pricing visual contracts
+        env:
+          SITE_BASE: http://127.0.0.1:8080
+        run: node scripts/site_system_visual_smoke.mjs
 
       - name: Render and verify ordinary-page print pagination
         env:

@@ -630,7 +630,7 @@ def build_page(publication: Publication, standard_footer: str) -> None:
   <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260903-map1">
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260903-map1">
   <link rel="stylesheet" href="publication-html.css?v=20260903-html1">
-  <link rel="stylesheet" href="canonical-site-shell.css?v=20260906-layout1">
+  <link rel="stylesheet" href="canonical-site-shell.css?v=20260906-system3">
 </head>
 <body class="canonical-green-shell">
 <a class="skip-link" href="#main-content">Skip to article</a>
@@ -689,7 +689,7 @@ def build_page(publication: Publication, standard_footer: str) -> None:
   </section>
 </main>
 {standard_footer}
-<script src="canonical-site-shell.js?v=20260906-layout1"></script>
+<script src="canonical-site-shell.js?v=20260906-system3"></script>
 <script src="assistant.js?v=20260828-footer-dock4" defer></script>
 <script src="contact-transport.js?v=20260903-contact1" defer></script>
 <script src="connect-widget.js?v=20260903-contact1" defer></script>

@@ -505,7 +505,7 @@
     .ps-enterprise li b{color:#fff;font-weight:600}
     @media(max-width:820px){.ps-enterprise{grid-template-columns:1fr;gap:26px;padding:30px 24px}}
     @media print {
-      .ps-hero-inner,.ps-wrap{max-width:none;padding-left:0;padding-right:0}
+      .ps-hero-inner,.ps-wrap{max-width:none!important;padding-left:0!important;padding-right:0!important}
       .ps-hero-inner{padding-top:26px;padding-bottom:26px}
       .ps-section{padding:30px 0}
       .ps-roi-grid,.ps-tiers,.ps-support{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -513,9 +513,18 @@
       .ps-tier{padding:20px 18px}
       .ps-final{padding:30px 0;break-inside:avoid}
       .ps-faq-item,.ps-proc-item,.ps-roi-card,.ps-support .card{break-inside:avoid}
+      .ps-cmp-scroll{overflow:visible!important}
+      table.ps-table{min-width:0!important;table-layout:fixed}
+      table.ps-table th,table.ps-table td{padding:6px 5px!important;font-size:8.5px!important;line-height:1.18;overflow-wrap:anywhere}
+      table.ps-table thead th{position:static;padding:8px 5px!important}
+      table.ps-table th.rowlabel,table.ps-table td.rowlabel{position:static;min-width:0;width:23%}
+      table.ps-table tr.cta-row td{padding:8px 4px!important}
+      table.ps-table tr.cta-row .btn{min-height:0;padding:5px 2px!important;font-size:7.5px!important}
+      .ps-hero .btn-secondary{color:#fff!important;border-color:rgba(255,255,255,.55)!important}
+      .ps-enterprise .ent-cta{color:#08383E!important}
     }
   </style>
-<link rel="stylesheet" href="canonical-site-shell.css?v=20260906-layout1">
+<link rel="stylesheet" href="canonical-site-shell.css?v=20260906-system3">
 <link rel="stylesheet" href="mobile-site-polish.css?v=20260825-2">
 <style>
   /* Canonical white / near-white surface rhythm. The ROI band remains green. */
@@ -531,7 +540,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://www.monderman.com/assets/brand/monderman-social-card.png?v=20260906-visual1">
   <meta name="twitter:image:alt" content="Monderman">
-  <link rel="stylesheet" href="enterprise-site.css?v=20260906-enterprise1">
+  <link rel="stylesheet" href="enterprise-site.css?v=20260906-system3">
 </head>
 <body class="canonical-green-shell">
   <header class="header" id="siteHeader">
@@ -956,6 +965,6 @@
   <script src="assistant.js?v=20260828-footer-dock4" defer></script>
   <script src="contact-transport.js?v=20260903-contact1" defer></script>
   <script src="connect-widget.js?v=20260903-contact1" defer></script>
-<script src="canonical-site-shell.js?v=20260906-layout1"></script>
+<script src="canonical-site-shell.js?v=20260906-system3"></script>
 </body>
 </html>

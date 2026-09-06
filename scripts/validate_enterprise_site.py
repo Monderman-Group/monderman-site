@@ -13,7 +13,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = "7bab72de03e3e6f8595b85c1a17f30b49a7deec1"
-ENTERPRISE_STYLESHEET = "enterprise-site.css?v=20260906-enterprise1"
+ENTERPRISE_STYLESHEET = "enterprise-site.css?v=20260906-system3"
 OLD_MARK_FRAGMENTS = (
     "M9.5 15L20.75 8L32 14L43.25 8L54.5 15",
     "M20.75 8V49M32 14V55M43.25 8V49",
