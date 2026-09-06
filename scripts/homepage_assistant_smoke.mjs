@@ -54,6 +54,7 @@ try {
       'mxidx-band',
       'systems-analysis-bridge',
       'approach',
+      'first-run-moments',
       'measurement-loop',
       'book-band',
       'latest',
