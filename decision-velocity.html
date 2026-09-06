@@ -15,12 +15,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk" crossorigin="anonymous" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous" defer></script>
-  <script src="workspace-access-gate.js" defer></script>
 <script>
+    window.MONDERMAN_ALLOW_PUBLIC_FIRST_RUN = true;
     window.MONDERMAN_SUPABASE_URL = "https://ptkxrzgmeldalrkfruth.supabase.co";
     window.MONDERMAN_SUPABASE_ANON_KEY = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
   </script>
-  <!-- ===== Monderman access guard: require sign-in before this tool is usable ===== -->
+  <script src="workspace-access-gate.js" defer></script>
+  <script src="first-run-telemetry.js" defer></script>
+  <!-- ===== Monderman access guard: public first run, authenticated report and Workspace ===== -->
   <script>
     /* Hide the page immediately so the tool never flashes before we confirm the
        session. A timeout reveals it anyway if the auth library can't load, so no
@@ -567,12 +569,12 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
     <div class="intake-content">
       <p class="intake-step-kicker">Step 2 &middot; Depth</p>
       <h3 class="intake-step-title">Choose diagnostic depth</h3>
-      <p class="intake-step-copy">Pick the shortest run that still fits the importance of the decision pathway. For most first passes, the 30-minute version is the best starting point. Shorter runs still deliver useful signal; longer runs uncover more hidden patterning over time.</p>
+      <p class="intake-step-copy">For a first run, the 10-minute version is the recommended starting point. Choose 30 or 60 minutes when you want more pattern detail. Every version produces a score and band. A free account unlocks the full Executive Report and saves the run.</p>
 <p style="margin:10px 0 0;font-size:13.5px;"><a href="sample-report.html#dv" style="color:#0C6E78;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(12,110,120,.35);padding-bottom:1px;">See exactly what you&rsquo;ll receive: a completed sample report &rarr;</a></p>
       <div class="intake-options">
-        <button class="intake-option" type="button" data-depth="10"><span class="intake-option-radio"><span class="intake-option-radio-check">&#10003;</span></span><div class="intake-option-body"><p class="intake-option-name">10-minute diagnostic <span class="intake-option-tag">Light &middot; directional signal</span></p><p class="intake-option-desc">Best for fast baselining, a first pass, or repeated checks after a change.</p></div></button>
-        <button class="intake-option has-recommended" type="button" data-depth="30"><span class="intake-option-recommended">Recommended</span><span class="intake-option-radio"><span class="intake-option-radio-check">&#10003;</span></span><div class="intake-option-body"><p class="intake-option-name">30-minute diagnostic <span class="intake-option-tag">Moderate &middot; stronger interpretation</span></p><p class="intake-option-desc">Best default option. Balances burden with stronger explanatory power and better pattern detection.</p></div></button>
-        <button class="intake-option" type="button" data-depth="60"><span class="intake-option-radio"><span class="intake-option-radio-check">&#10003;</span></span><div class="intake-option-body"><p class="intake-option-name">60-minute diagnostic <span class="intake-option-tag">In-depth &middot; fullest read</span></p><p class="intake-option-desc">Best when the decision pathway is politically important, chronically slow, or costly enough to justify a richer readout.</p></div></button>
+        <button class="intake-option has-recommended" type="button" data-depth="10" data-first-run-event="run_length_selected" data-first-run-depth="10"><span class="intake-option-recommended">Recommended first run</span><span class="intake-option-radio"><span class="intake-option-radio-check">&#10003;</span></span><div class="intake-option-body"><p class="intake-option-name">10-minute diagnostic <span class="intake-option-tag">Fast &middot; directional signal</span></p><p class="intake-option-desc">The lowest-friction way to see your first score and band.</p></div></button>
+        <button class="intake-option" type="button" data-depth="30" data-first-run-event="run_length_selected" data-first-run-depth="30"><span class="intake-option-radio"><span class="intake-option-radio-check">&#10003;</span></span><div class="intake-option-body"><p class="intake-option-name">30-minute diagnostic <span class="intake-option-tag">More detailed interpretation</span></p><p class="intake-option-desc">Adds more pattern detail when the pathway warrants a deeper read.</p></div></button>
+        <button class="intake-option" type="button" data-depth="60" data-first-run-event="run_length_selected" data-first-run-depth="60"><span class="intake-option-radio"><span class="intake-option-radio-check">&#10003;</span></span><div class="intake-option-body"><p class="intake-option-name">60-minute diagnostic <span class="intake-option-tag">Fullest read</span></p><p class="intake-option-desc">Use for a consequential or persistently slow pathway that warrants the richest available read.</p></div></button>
       </div>
       <div class="intake-actions">
         <a class="intake-hub-link" href="diagnostics.html">&#8592; Back to diagnostics</a>
@@ -1670,6 +1672,7 @@ heroBeginBtn.classList.toggle("hidden", !showEntryCta);
 }
 
 function showSignupTeaser(data) {
+  window.MondermanFirstRun?.trackOnce("score_displayed", { diagnosticDepth: state.depth });
   // Teaser gate (8 Aug 2026): an unsigned visitor finished a full read. The
   // server returned score + band only; the full report unlocks on sign-in.
   // The run session is held server-side, so unlocking re-finalizes with the
@@ -1689,7 +1692,7 @@ function showSignupTeaser(data) {
     '<span style="font-size:1rem;color:#6E6F73;">/ 100' + (t.band ? ' \u00b7 ' + escT(t.band) : '') + '</span></div>' +
     '<p style="margin:12px 0 18px;font-size:.95rem;line-height:1.65;color:#18191C;">' + escT((data && data.message) || 'Create a free account to unlock the full report.') + '</p>' +
     '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">' +
-    '<a href="signin.html?next=decision-velocity.html" target="_blank" style="display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 22px;border-radius:8px;font-size:14.5px;font-weight:600;background:#0C6E78;color:#fff;text-decoration:none;">Create account / sign in</a>' +
+    '<a href="signin.html?next=decision-velocity.html" target="_blank" data-first-run-event="account_unlock_requested" style="display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 22px;border-radius:8px;font-size:14.5px;font-weight:600;background:#0C6E78;color:#fff;text-decoration:none;">Create account / sign in</a>' +
     '<button id="mdmTeaserUnlock" type="button" style="min-height:46px;padding:0 22px;border-radius:8px;font-size:14.5px;font-weight:600;background:#fff;color:#18191C;border:1px solid rgba(24,25,28,.18);cursor:pointer;">I\u2019ve signed in. Unlock report.</button>' +
     '<a href="platform-services.html" target="_blank" style="font-size:13.5px;color:#6E6F73;">See plans</a></div>' +
     '<p style="margin:16px 0 0;font-size:12.5px;color:#9A9892;">Your answers are held for this session: unlocking will not repeat the questions, and the run saves to your new workspace.</p></div>';
@@ -2683,6 +2686,7 @@ renderQuestion();
 
 } catch (error) {
 console.error("Adaptive run start failed", error);
+window.MondermanFirstRun?.track("technical_failure", { diagnosticDepth: state.depth });
 beginBtn.disabled = false;
 beginBtn.textContent = "Begin Diagnostic";
 setHeader("Adaptive run unavailable", "The diagnostic could not start. Please refresh and try again.", "Start failed");
@@ -3203,6 +3207,7 @@ clearTimeout(slowFinalizeTimer);
 } catch (error) {
 clearTimeout(slowFinalizeTimer);
 console.error("Adaptive finalize failed", error);
+window.MondermanFirstRun?.track("technical_failure", { diagnosticDepth: state.depth });
 {
 const directedRun = Boolean(window.MondermanAssignment && window.MondermanAssignment.active && window.MondermanAssignment.active());
 const pendingTitle = directedRun ? "Your responses are recorded. The write-up didn\u2019t generate." : "Your read is saved. The write-up didn\u2019t generate.";
@@ -5508,6 +5513,7 @@ function renderBasisOfRead(result, payload) {
   host.innerHTML = rows.map(([k, v]) => `<dt style="font-weight:700;">${esc(k)}</dt><dd style="margin:0;color:var(--ink-soft,#3A4754);">${v}</dd>`).join("");
 }
 function renderResults(result, payload, outputMode) {
+window.MondermanFirstRun?.trackOnce("executive_report_opened", { diagnosticDepth: state.depth });
 try { renderBasisOfRead(result, payload); } catch (_e) {}
 
 const harmonized = buildHarmonizedNarrative(result, payload);
@@ -6009,13 +6015,15 @@ document.addEventListener("keydown", (e) => {
   e.preventDefault();
   continueBtn.click();
 });
-downloadReportBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) exportExecutiveReport(state.result, state.renderPayload); });
-downloadFullReportBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) exportFullReportHTML(state.result, state.renderPayload, "Monderman Decision Velocity Report"); });
-downloadPdfBtn?.addEventListener("click", () => { downloadExecutiveReportPdf(); });
+beginBtn.addEventListener("click", () => window.MondermanFirstRun?.track("diagnostic_started", { diagnosticDepth: state.depth }));
+downloadReportBtn?.addEventListener("click", () => { window.MondermanFirstRun?.track("executive_report_downloaded", { diagnosticDepth: state.depth }); if (state.result && state.renderPayload) exportExecutiveReport(state.result, state.renderPayload); });
+downloadFullReportBtn?.addEventListener("click", () => { window.MondermanFirstRun?.track("executive_report_downloaded", { diagnosticDepth: state.depth }); if (state.result && state.renderPayload) exportFullReportHTML(state.result, state.renderPayload, "Monderman Decision Velocity Report"); });
+downloadPdfBtn?.addEventListener("click", () => { window.MondermanFirstRun?.track("executive_report_downloaded", { diagnosticDepth: state.depth }); downloadExecutiveReportPdf(); });
 saveCrossDiagnosticBtn?.addEventListener("click", () => { if (state.result && state.renderPayload) downloadCrossDiagnosticResult(state.result, state.renderPayload); });
 newRunBtn?.addEventListener("click", restartDiagnostic);
 document.querySelectorAll(".lane-btn").forEach((btn) => btn.addEventListener("click", () => selectLane(btn.dataset.lane)));
 document.querySelectorAll("[data-depth]").forEach((btn) => btn.addEventListener("click", () => selectDepth(btn.dataset.depth)));
+window.addEventListener("DOMContentLoaded", () => window.MondermanFirstRun?.trackOnce("diagnostic_page_viewed"));
 
 // ─── V4 intake wiring (added 2026-05-22) ─────────────────────────────────────
 // Continue buttons, Back navigation, sidebar calibration tap-to-jump, and

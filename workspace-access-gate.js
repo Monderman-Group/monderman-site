@@ -171,6 +171,11 @@
       var user = userResult && userResult.data && userResult.data.user;
       var token = sessionResult && sessionResult.data && sessionResult.data.session && sessionResult.data.session.access_token;
       if (!user || !token) {
+        if (window.MONDERMAN_ALLOW_PUBLIC_FIRST_RUN === true) {
+          reveal();
+          settleReady({ allowed: true, context: "public_first_run" });
+          return;
+        }
         redirectToSignIn("sign_in_required");
         return;
       }
