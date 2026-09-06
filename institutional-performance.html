@@ -1138,6 +1138,7 @@ depth: null,
 started: false,
 preflight: {},
 runId: null,
+sessionCapability: null,
 currentItem: null,
 currentProgress: null,
 roleForText: "senior_leader",
@@ -1229,8 +1230,8 @@ const DiagnosticInterpretationLayer = {
   estimateReclaimPotential(result) {
     // Passthrough: backend computes this and attaches as result.reclaim_potential.
     return result?.reclaim_potential || {
-      amount: 0, factor: 0, impact: "Low",
-      driverText: "Directional estimate could not be loaded for this run."
+      amount: null, factor: null, impact: null,
+      driverText: "No recoverable-cost estimate was published for this run."
     };
   }
 };
@@ -2630,6 +2631,7 @@ if (!response.ok || !data?.ok) {
 }
 
 state.runId = data.runId;
+state.sessionCapability = data.sessionCapability || null;
 state.configVersion = data?.routingMeta?.configVersion || data?.routingVersion || data?.configVersion || data?.config_version || null;
 state.currentItem = data.nextItem;
 state.currentProgress = data.progress || null;
@@ -2916,7 +2918,11 @@ try {
 const response = await fetchWithTimeout(`${API_BASE}/api/institutional-performance/run/${state.runId}/answer`, {
 method: "POST",
 headers: { "Content-Type": "application/json" },
-body: JSON.stringify({ itemId, value, meta })
+body: JSON.stringify({
+itemId, value, meta,
+assignment_token: (window.MondermanAssignment && window.MondermanAssignment.active && window.MondermanAssignment.active()) ? window.MondermanAssignment.token() : undefined,
+session_capability: state.sessionCapability || undefined
+})
 }, ANSWER_TIMEOUT_MS);
 const data = await response.json().catch(() => null);
 if (!response.ok || !data?.ok) {
@@ -3016,6 +3022,7 @@ body: JSON.stringify({
 // Campaign runs: the token lets this authoritative finalize persist and
 // close the assignment without charging a signed-in recipient's own quota.
 assignment_token: (window.MondermanAssignment && window.MondermanAssignment.active && window.MondermanAssignment.active()) ? window.MondermanAssignment.token() : undefined,
+session_capability: state.sessionCapability || undefined,
 confidenceLevel: state.preflight.confidenceLevel,
 confidence_level: state.preflight.confidenceLevel,
 rawExperience: {
@@ -3215,6 +3222,7 @@ if (!preserveParticipantDraft && selfDraft) selfDraft.clear();
 reviewingHistoryItemId = null;
 state.started = false;
 state.runId = null;
+state.sessionCapability = null;
 state.currentItem = null;
 state.currentProgress = null;
 state.configVersion = null;
@@ -3447,12 +3455,10 @@ if (result?.interpretive_prose?.executive_summary) {
   return result.interpretive_prose.executive_summary;
 }
 // Minimal fallback
-const process = payload?.processName || payload?.process_name || "This workflow";
-const narrative = typeof result?.narrative === "object" ? result.narrative : {};
 return {
-  headline: narrative.opportunity_title ? `${process}: ${narrative.opportunity_title}` : `${process} diagnostic summary`,
-  body: narrative.executive_interpretation || narrative.primary_signal || "Executive summary will appear once the backend generates it.",
-  opportunity: narrative.opportunity_guidance || ""
+  headline: "Diagnostic summary",
+  body: "Executive summary is unavailable until the backend generates a safely screened interpretation.",
+  opportunity: ""
 };
 }
 
@@ -5420,21 +5426,16 @@ $("benchmarkValue").textContent = result.benchmark_position || "--";
 $("benchmarkSub").textContent = "Read as context, not comfort.";
 $("trajectoryValue").textContent = result?.trajectory?.label || "Single run";
 $("trajectoryValueSub").textContent = result?.trajectory?.note || "Re-run over time to establish a trajectory";
-(function(){
-  let reclaimAmount = reclaim && reclaim.amount ? reclaim.amount : null;
-  if (!reclaimAmount && result?.exposure?.annual_cost) {
-    // Recoverable portion: ~60% of labor exposure is addressable if the primary weakness is fixed first.
-    reclaimAmount = Math.round(Number(result.exposure.annual_cost) * 0.6);
-  }
-  const haveReclaim = !!reclaimAmount;
+const reclaimAmount = reclaim?.amount != null && Number.isFinite(Number(reclaim.amount))
+  ? Number(reclaim.amount)
+  : null;
+{
+  const haveReclaim = reclaimAmount != null;
   $("reclaimValue").textContent = haveReclaim ? formatEstimateCurrencyRange(reclaimAmount) : "Not estimated";
-  // Only use the backend driverText when the backend actually produced a reclaim figure.
-  // The fallback object's driverText reads "could not be loaded for this run": it must never
-  // sit under a value we DID compute from the 60% exposure fallback (IP/SC send no reclaim_potential).
   $("reclaimSub").textContent = haveReclaim
-    ? ((reclaim && reclaim.amount && reclaim.driverText) || "Directional estimate of capacity that may be recoverable if the primary institutional weakness is addressed first.")
-    : "Directional estimate could not be loaded for this run.";
-})();
+    ? (reclaim.driverText || "Directional estimate of capacity that may be recoverable if the primary institutional weakness is addressed first.")
+    : "No recoverable-cost estimate was published for this run.";
+}
 
 const trajectoryWrap = $("trajectorySignalWrap");
 let trajectoryChipHtml = "";
@@ -5542,12 +5543,14 @@ if (mount) mount.innerHTML = '<div class="viz-empty">N/A, not enough signal is a
 
 /* capacity-flow (effortFlow): reuses this report's own exposure figures */
 try {
-  if (window.MViz && typeof MViz.effortFlow === "function" && $("capacityFlow")) {
+  if (reclaimAmount == null && $("capacityFlow")) {
+    $("capacityFlow").innerHTML = '<div class="viz-empty">N/A, no recoverable-cost estimate was published for this run.</div>';
+  } else if (window.MViz && typeof MViz.effortFlow === "function" && $("capacityFlow")) {
     const _exp = (result && result.exposure) ? result.exposure : {};
     const _total = Number(_exp.annual_cost) || 0;
     const _hours = Number(_exp.annual_hours) || 0;
     const _comp = calculateCapacityComposition(_exp);
-    const _reclaimC = (reclaimAmount != null) ? Number(reclaimAmount) : _total * (_comp.drag / 100);
+    const _reclaimC = Number(reclaimAmount);
     const _prodC = _total * (_comp.productive / 100);
     const _structC = Math.max(0, _total - _prodC - _reclaimC);
     const _dimTot = burdenBarRows.reduce((acc, r) => acc + (Number(r.value) || 0), 0) || 1;

@@ -64,6 +64,7 @@ on:
       - 'scripts/report_presentation_smoke.mjs'
       - 'scripts/authenticated_report_engine_fixture.mjs'
       - 'scripts/report_pdf_smoke.mjs'
+      - 'scripts/ip_missing_recovery_browser_smoke.mjs'
       - 'scripts/sample_product_fidelity_smoke.mjs'
       - 'scripts/sample_product_fidelity_smoke_v2.mjs'
       - 'scripts/generate_production_sample_outputs.mjs'
@@ -142,6 +143,7 @@ on:
       - 'scripts/report_presentation_smoke.mjs'
       - 'scripts/authenticated_report_engine_fixture.mjs'
       - 'scripts/report_pdf_smoke.mjs'
+      - 'scripts/ip_missing_recovery_browser_smoke.mjs'
       - 'scripts/sample_product_fidelity_smoke.mjs'
       - 'scripts/sample_product_fidelity_smoke_v2.mjs'
       - 'scripts/generate_production_sample_outputs.mjs'
@@ -187,6 +189,7 @@ jobs:
           node --check scripts/authenticated_report_engine_fixture.mjs
           node --check scripts/report_presentation_smoke.mjs
           node --check scripts/report_pdf_smoke.mjs
+          node --check scripts/ip_missing_recovery_browser_smoke.mjs
           node --check scripts/sample_product_fidelity_smoke.mjs
           node --check scripts/sample_product_fidelity_smoke_v2.mjs
           node --check scripts/homepage_assistant_smoke.mjs
@@ -234,6 +237,11 @@ jobs:
         env:
           REPORT_OUT: /tmp/report-presentation-smoke
         run: node scripts/report_presentation_smoke.mjs
+
+      - name: Withhold unpublished Institutional Performance recovery estimates
+        env:
+          REPORT_BASE: http://127.0.0.1:8080
+        run: node scripts/ip_missing_recovery_browser_smoke.mjs
 
       - name: Reject responsive cosmetic regressions in Chromium and WebKit
         env:

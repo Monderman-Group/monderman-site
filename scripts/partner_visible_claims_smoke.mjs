@@ -44,6 +44,15 @@ for (const report of reports) {
   assert.doesNotMatch(source, /surfacing in adjacent workflows distinguishes/i);
   assert.doesNotMatch(source, /distributed pattern usually means/i);
   assert.doesNotMatch(source, /Protects a strong design|Keeps current clarity durable|Produces a structurally legible environment|the most lasting fix|faster movement sooner|Apply the validated ownership/i);
+  if (report !== "sample-report.html") {
+    assert.match(source, /sessionCapability:\s*null/, `${report}: preview session capability is not retained in run state`);
+    assert.match(source, /state\.sessionCapability\s*=\s*data\.sessionCapability\s*\|\|\s*null/,
+      `${report}: start response capability is not captured`);
+    assert.equal((source.match(/session_capability:\s*state\.sessionCapability\s*\|\|\s*undefined/g) || []).length, 2,
+      `${report}: answer and finalize must both send the preview session capability`);
+    assert.equal((source.match(/assignment_token:\s*\(window\.MondermanAssignment/g) || []).length >= 3, true,
+      `${report}: start, answer, and finalize must send the exact assignment capability`);
+  }
 }
 
 const deliberateRegressions = [
@@ -64,5 +73,11 @@ const storedSurfaces = ["workspace-diagnostics.html", "workspace-actions.html", 
   .join("\n");
 assert.doesNotMatch(storedSurfaces, /\.from\(["']diagnostic_runs["']\)/i, "browser code must not bypass the guarded Diagnostic API");
 assert.doesNotMatch(storedSurfaces, /\.from\(["']synthesis_runs["']\)/i, "browser code must not bypass the guarded Synthesis API");
+
+const institutionalPerformance = readFileSync(new URL("../institutional-performance.html", import.meta.url), "utf8");
+assert.doesNotMatch(institutionalPerformance, /annual_cost\)\s*\*\s*0\.6|0\.6\s*\*\s*Number\([^)]*annual_cost/i,
+  "the browser must not invent a recoverable amount from annual exposure");
+assert.match(institutionalPerformance, /reclaimAmount == null[\s\S]{0,220}no recoverable-cost estimate was published/i,
+  "missing recovery must be withheld from the capacity-flow graphic");
 
 console.log(`FRONTEND_PARTNER_VISIBLE_NONCLAIMS=PASS reports=${reports.length} deliberate_regressions=${deliberateRegressions.length}`);
