@@ -26,6 +26,17 @@ page.on('pageerror', error => errors.push(`pageerror: ${error.message}`));
 page.on('console', message => {
   if (message.type() === 'error' && !/supabase|connect|assistant/i.test(message.text())) errors.push(`console: ${message.text()}`);
 });
+// Downloadable report HTML points to the production font URLs. The localhost
+// certification server should exercise the same files without relying on the
+// live site's cross-origin font policy.
+await page.route(/^https:\/\/www\.monderman\.com\/(55|65|75)font\.woff2$/, async route => {
+  const filename = new URL(route.request().url()).pathname.slice(1);
+  await route.fulfill({
+    status: 200,
+    contentType: 'font/woff2',
+    body: fs.readFileSync(path.resolve(filename)),
+  });
+});
 
 await page.goto(`${base}/sample-report.html#os`, { waitUntil: 'networkidle', timeout: 90000 });
 await page.locator('body.production-samples-ready').waitFor({ state: 'attached', timeout: 30000 });

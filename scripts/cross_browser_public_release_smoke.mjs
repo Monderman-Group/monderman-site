@@ -1,4 +1,6 @@
 import { chromium, webkit } from 'playwright';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const base = process.env.SAMPLE_BASE || 'http://127.0.0.1:8080';
 
@@ -16,6 +18,14 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
     if (message.type() === 'error' && !/supabase|connect|assistant|favicon/i.test(message.text())) {
       errors.push(`console: ${message.text()}`);
     }
+  });
+  await page.route(/^https:\/\/www\.monderman\.com\/(55|65|75)font\.woff2$/, async route => {
+    const filename = new URL(route.request().url()).pathname.slice(1);
+    await route.fulfill({
+      status: 200,
+      contentType: 'font/woff2',
+      body: fs.readFileSync(path.resolve(filename)),
+    });
   });
 
   await page.goto(`${base}/index.html`, { waitUntil: 'domcontentloaded', timeout: 90000 });
