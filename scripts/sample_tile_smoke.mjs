@@ -39,15 +39,25 @@ try {
         const foot = el.querySelector('.md-foot');
         const slide = el.closest('.slide');
         const hero = el.closest('.hero');
-        const heroImage = hero?.querySelector('.hero-image');
+        const heroRouteField = hero?.querySelector('.hero-route-field');
         const tileBox = el.getBoundingClientRect();
         const rootBox = root.getBoundingClientRect();
         const cardBox = card.getBoundingClientRect();
         const slideBox = slide?.getBoundingClientRect();
         const heroBox = hero?.getBoundingClientRect();
+        const tileStyle = getComputedStyle(el);
+        const link = el.querySelector('.hero-report-link');
+        const linkStyle = getComputedStyle(link);
         return {
           display: getComputedStyle(el).display,
-          linkDisplay: getComputedStyle(el.querySelector('.hero-report-link')).display,
+          visibility: tileStyle.visibility,
+          opacity: Number(tileStyle.opacity),
+          linkDisplay: linkStyle.display,
+          linkVisibility: linkStyle.visibility,
+          linkOpacity: Number(linkStyle.opacity),
+          linkPointerEvents: linkStyle.pointerEvents,
+          left: tileBox.left,
+          right: tileBox.right,
           width: tileBox.width,
           height: tileBox.height,
           cardWidth: cardBox.width,
@@ -60,7 +70,9 @@ try {
           heroTop: heroBox?.top ?? null,
           heroBottom: heroBox?.bottom ?? null,
           heroHeight: heroBox?.height ?? null,
-          heroImageObjectPosition: heroImage ? getComputedStyle(heroImage).objectPosition : null,
+          heroRouteFieldBackground: heroRouteField ? getComputedStyle(heroRouteField).backgroundImage : null,
+          heroRouteFieldPosition: heroRouteField ? getComputedStyle(heroRouteField).backgroundPosition : null,
+          heroRouteFieldSize: heroRouteField ? getComputedStyle(heroRouteField).backgroundSize : null,
           rootLeft: rootBox.left,
           rootRight: rootBox.right,
           footDisplay: getComputedStyle(foot).display,
@@ -83,14 +95,33 @@ try {
       });
 
       if (viewport.width <= 640) {
-        assert.equal(geometry.display, 'none', `${placement.name}/${viewport.name}: sample tile remains visible on a phone`);
-        assert.equal(geometry.height, 0, `${placement.name}/${viewport.name}: hidden sample tile still reserves vertical space`);
-        if (placement.name === 'homepage') {
-          assert.equal(geometry.heroImageObjectPosition, '48.75% 50%', `${placement.name}/${viewport.name}: hero is not centered on the architectural opening`);
+        if (placement.name === 'platform-brief') {
+          assert.equal(geometry.display, 'none', `${placement.name}/${viewport.name}: sample tile remains visible on a phone`);
+          assert.equal(geometry.height, 0, `${placement.name}/${viewport.name}: hidden sample tile still reserves vertical space`);
+          await page.screenshot({ path: path.join(out, `${placement.name}-${viewport.name}.png`), fullPage: false });
+          await page.close();
+          continue;
+        } else {
+          assert.equal(geometry.display, 'block', `${placement.name}/${viewport.name}: sample proof is hidden on a phone`);
+          assert.equal(geometry.linkDisplay, 'block', `${placement.name}/${viewport.name}: sample proof link is hidden on a phone`);
+          assert.equal(geometry.visibility, 'visible', `${placement.name}/${viewport.name}: sample proof visibility is suppressed`);
+          assert.equal(geometry.linkVisibility, 'visible', `${placement.name}/${viewport.name}: sample proof link visibility is suppressed`);
+          assert.ok(geometry.opacity > 0 && geometry.linkOpacity > 0,
+            `${placement.name}/${viewport.name}: sample proof is transparent`);
+          assert.notEqual(geometry.linkPointerEvents, 'none',
+            `${placement.name}/${viewport.name}: sample proof link rejects pointer input`);
+          assert.ok(geometry.left >= -1 && geometry.right <= viewport.width + 1,
+            `${placement.name}/${viewport.name}: sample proof escapes the viewport (${geometry.left}px to ${geometry.right}px)`);
+          assert.ok(geometry.width <= viewport.width - 38,
+            `${placement.name}/${viewport.name}: sample proof exceeds the mobile content column (${geometry.width}px)`);
+          assert.match(geometry.heroRouteFieldBackground || '', /monderman-hero-route-field\.svg/,
+            `${placement.name}/${viewport.name}: the current route-field hero is missing`);
+          assert.equal(geometry.heroRouteFieldPosition, '59% 0px',
+            `${placement.name}/${viewport.name}: route-field hero position changed`);
+          assert.equal(geometry.heroRouteFieldSize, 'auto 760px',
+            `${placement.name}/${viewport.name}: route-field hero scale changed`);
+          await tile.locator('.hero-report-link').click({ trial: true });
         }
-        await page.screenshot({ path: path.join(out, `${placement.name}-${viewport.name}.png`), fullPage: false });
-        await page.close();
-        continue;
       }
 
       assert.equal(geometry.display, 'block', `${placement.name}/${viewport.name}: sample tile is hidden`);
