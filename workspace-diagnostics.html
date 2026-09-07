@@ -1308,9 +1308,8 @@ body{transition:background-color .25s ease, color .25s ease}
         const res=await fetch(`${API_BASE}/api/workspace/assignments/send-batch`, { method:"POST", headers: await apiAuthHeaders(), body:fd });
         const data=await res.json().catch(()=>({}));
         if(!res.ok || data.ok===false) throw new Error(data.error || ("HTTP "+res.status));
-        const sent = (data.sent ? data.sent.length : undefined) ?? data.sent_count ?? state.lastReady;
-        const failed = (data.failed ? data.failed.length : undefined) ?? data.failed_count ?? 0;
-        flash("sendOut", `Campaign sent: ${sent} assignment${sent===1?"":"s"} created${failed?`, ${failed} could not be emailed (their links are below)`:""}.`, "ok");
+        const queued = (data.queued ? data.queued.length : undefined) ?? data.queued_count ?? data.assignments_created ?? state.lastReady;
+        flash("sendOut", `Campaign created: ${queued} participant invitation${queued===1?"":"s"} queued for delivery. Delivery retries automatically if the email provider is temporarily unavailable.`, "ok");
         state.lastReady=0; clearCampaignSendAttempt(); $("btnSend").disabled=true; $("previewOut").innerHTML=""; clearDraft();
         loadTracking();
       }catch(e){ flash("sendOut","Send failed: "+e.message,"bad"); }
@@ -1323,7 +1322,7 @@ body{transition:background-color .25s ease, color .25s ease}
       let rows=[];
       try{
         const { data, error } = await supabase.from("diagnostic_assignments")
-          .select("id, recipient_email, recipient_name, tool_type, participant_lens, event_path_name, campaign_label, campaign_id, status, token, created_at, opened_at, started_at, completed_at, closed_at, close_at, close_pct, run_id, is_anonymous_response")
+          .select("id, recipient_email, recipient_name, tool_type, participant_lens, event_path_name, campaign_label, campaign_id, status, token, created_at, opened_at, started_at, completed_at, closed_at, close_at, close_pct, run_id, is_anonymous_response, send_status, send_error, email_sent_at")
           .eq("organization_id",state.orgId).order("created_at",{ ascending:false }).limit(2000);
         if(error) throw error;
         rows=data||[];
@@ -1379,9 +1378,10 @@ body{transition:background-color .25s ease, color .25s ease}
     function recipientRow(a, admin){
       const link=`${APP_BASE}/${TOOL_HTML[a.tool_type]||"index.html"}?assignment_token=${encodeURIComponent(a.token||"")}`;
       const st=rState(a);
-      const badge = st==="done" ? `<span class="rcp-badge done">Completed</span>` : st==="open" ? `<span class="rcp-badge open">Opened</span>` : `<span class="rcp-badge pend">Not started</span>`;
-      const whenIso = st==="done" ? a.completed_at : st==="open" ? (a.opened_at||a.started_at) : a.created_at;
-      const whenLbl = st==="done" ? "completed" : st==="open" ? "opened" : "sent";
+      const delivery = String(a.send_status||"").toLowerCase();
+      const badge = st==="done" ? `<span class="rcp-badge done">Completed</span>` : st==="open" ? `<span class="rcp-badge open">Opened</span>` : delivery==="failed" ? `<span class="rcp-badge pend" title="${esc(a.send_error||"Email delivery failed")}">Email failed</span>` : ["queued","sending","retrying"].includes(delivery) ? `<span class="rcp-badge pend">${delivery==="retrying"?"Email retrying":"Email queued"}</span>` : `<span class="rcp-badge pend">Not started</span>`;
+      const whenIso = st==="done" ? a.completed_at : st==="open" ? (a.opened_at||a.started_at) : (a.email_sent_at||a.created_at);
+      const whenLbl = st==="done" ? "completed" : st==="open" ? "opened" : delivery==="failed" ? "delivery failed" : delivery==="retrying" ? "retrying" : ["queued","sending"].includes(delivery) ? "queued" : "sent";
       const remindBtn = (admin && st!=="done" && a.id) ? `<button class="btn-mini ghost" data-remind="${esc(a.id)}" type="button">Remind</button>` : "";
       const reportBtns = (st==="done" && a.run_id) ? `<button class="btn-mini ghost" data-report="${esc(a.run_id)}" data-tt="${esc(a.tool_type||"diagnostic")}" type="button">Report</button><button class="btn-mini ghost" data-json="${esc(a.run_id)}" data-tt="${esc(a.tool_type||"diagnostic")}" type="button">JSON</button>` : "";
       return `<div class="rcp-row">
@@ -1404,8 +1404,8 @@ body{transition:background-color .25s ease, color .25s ease}
         });
         const j = await res.json().catch(()=>({}));
         if(!res.ok || j.ok===false) throw new Error(j.error || ("HTTP "+res.status));
-        const n = (Array.isArray(j.sent) && j.sent.length) || ids.length;
-        if(btn){ btn.textContent = "Reminded "+n; setTimeout(()=>{ if(btn){ btn.textContent=orig; btn.disabled=false; } }, 2400); }
+        const n = (Array.isArray(j.queued) && j.queued.length) || j.queued_count || ids.length;
+        if(btn){ btn.textContent = "Reminder queued "+n; setTimeout(()=>{ if(btn){ btn.textContent=orig; btn.disabled=false; } }, 2400); }
       }catch(e){
         if(btn){ btn.textContent="Couldn\u2019t send"; setTimeout(()=>{ if(btn){ btn.textContent=orig; btn.disabled=false; } }, 2600); }
       }

@@ -466,7 +466,7 @@ body{transition:background-color .25s ease,color .25s ease}
 
     <section class="ws-onboarding" id="wsOnboarding" aria-labelledby="wsOnboardingTitle" hidden>
       <div class="ws-onboarding-head">
-        <div><span class="ws-eyebrow">Workspace setup</span><h2 id="wsOnboardingTitle">Turn the purchase into an operating baseline.</h2><p id="wsOnboardingMeta">Checking measurable setup progress…</p></div>
+        <div><span class="ws-eyebrow">Workspace setup</span><h2 id="wsOnboardingTitle">Establish one complete operating cycle.</h2><p id="wsOnboardingMeta">Checking measurable setup progress…</p></div>
         <button class="ws-onboarding-hide" id="wsOnboardingHide" type="button">Hide for this session</button>
       </div>
       <div class="ws-onboarding-steps" id="wsOnboardingSteps"></div>
@@ -767,8 +767,8 @@ body{transition:background-color .25s ease,color .25s ease}
           return response.ok&&Array.isArray(payload.syntheses)?payload.syntheses.length:0;
         }catch(_error){return 0;}
       }
-      const [memberCount,synthesisCount,planCount,remeasureRuns,remeasureSyntheses]=await Promise.all([
-        count('organization_members'),
+      const [assignmentCount,synthesisCount,planCount,remeasureRuns,remeasureSyntheses]=await Promise.all([
+        count('diagnostic_assignments'),
         countSyntheses(),
         count('action_plans'),
         count('action_items',(query)=>query.not('remeasure_run_id','is',null)),
@@ -776,7 +776,7 @@ body{transition:background-color .25s ease,color .25s ease}
       ]);
       const steps=[
         {done:true,title:'Workspace confirmed',detail:'Plan and Admin access are active.',href:'workspace-settings.html'},
-        {done:memberCount>1,title:'Team configured',detail:memberCount>1?`${memberCount} Workspace members.`:'Invite the people needed for the baseline.',href:'workspace-settings.html#team'},
+        {done:assignmentCount>0,title:'Campaign launched',detail:assignmentCount>0?`${assignmentCount} participant invitation${assignmentCount===1?'':'s'} launched from Measure. Participants do not need Workspace accounts.`:'Invite 6 to 12 participants from Measure. Participants do not need Workspace accounts.',href:'workspace-diagnostics.html#campaigns'},
         {done:state.runs.length>0,title:'Baseline recorded',detail:state.runs.length>0?`${state.runs.length} saved Diagnostic read${state.runs.length===1?'':'s'}.`:'Run the first Diagnostic before intervening.',href:'workspace-diagnostics.html#launch'},
         {done:synthesisCount>0,title:'Evidence synthesized',detail:synthesisCount>0?`${synthesisCount} saved Synthesis${synthesisCount===1?'':'es'}.`:'Review Analysis and build the appropriate Synthesis.',href:'workspace-analysis.html#synthesis'},
         {done:planCount>0,title:'Action Plan established',detail:planCount>0?`${planCount} Action Plan${planCount===1?'':'s'} in the Workspace.`:'Translate measured priorities into owned work.',href:'workspace-actions.html'},

@@ -18,6 +18,10 @@ assert.match(workspace, /respondent_pool/);
 assert.match(read("campaign-access.js"), /No participant responses remain/);
 assert.doesNotMatch(theme, /Campaign entitlement presentation guard/);
 assert.doesNotMatch(theme, /plan === "trial"[\s\S]*compose\.hidden = true/);
+assert.match(workspace, /participant invitation\$\{queued===1\?"":"s"\} queued for delivery/);
+assert.match(workspace, /Delivery retries automatically/);
+assert.match(workspace, /send_status, send_error, email_sent_at/);
+assert.match(workspace, /Email retrying/);
 
 for (const [path, tool] of pages) {
   const html = read(path);
