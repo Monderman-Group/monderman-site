@@ -216,6 +216,7 @@ try {
         const headerInner = rectangle('#siteHeader .header-inner');
         const brand = rectangle('#siteHeader .brand');
         const nav = rectangle('#siteHeader .nav');
+        const main = rectangle('main');
 
         return {
           viewportWidth,
@@ -232,7 +233,14 @@ try {
             motif,
             rule: footerRule,
           } : null,
-          header: header && headerInner && brand ? { header, inner: headerInner, brand, nav } : null,
+          header: header && headerInner && brand ? {
+            header,
+            inner: headerInner,
+            brand,
+            nav,
+            main,
+            position: getComputedStyle(document.querySelector('#siteHeader')).position,
+          } : null,
         };
       });
 
@@ -268,7 +276,7 @@ try {
       }
 
       if (geometry.header) {
-        const { header, inner, brand, nav } = geometry.header;
+        const { header, inner, brand, nav, main, position } = geometry.header;
         const signature = [header.height, inner.left, inner.width, inner.height, brand.left, brand.width]
           .map((value) => Math.round(value * 10) / 10)
           .join('|');
@@ -282,6 +290,10 @@ try {
         if (canonicalPages.includes(pageName)
             && (!nav || nav.width < inner.width - 2 || nav.left < inner.left - 1 || nav.right > inner.right + 1)) {
           failures.push(`${pageName}/${viewport.name}: primary navigation disappears or escapes its frame when scripts are unavailable (${JSON.stringify({ inner, nav })})`);
+        }
+        if (canonicalPages.includes(pageName)
+            && (position === 'fixed' || (main && main.top < header.bottom - 1))) {
+          failures.push(`${pageName}/${viewport.name}: no-script navigation obscures document content (${JSON.stringify({ header, main, position })})`);
         }
       }
 

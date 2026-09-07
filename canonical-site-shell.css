@@ -88,6 +88,7 @@
 }
 body.canonical-green-shell #mnd-launcher,
 body.canonical-green-shell .mdn-cn-launch{display:none!important}
+html:not(.canonical-shell-js) body.canonical-green-shell .header .site-search-button{display:none}
 .header .site-search-button{display:grid;place-items:center;width:38px;height:38px;padding:0;border:1px solid rgba(255,255,255,.14);border-radius:7px;background:rgba(255,255,255,.04);color:rgba(245,241,232,.84);cursor:pointer;flex:0 0 auto;transition:color 170ms ease,border-color 170ms ease,background-color 170ms ease,transform 170ms ease}
 .header .site-search-button:hover,.header .site-search-button:focus-visible{color:#fff;border-color:rgba(255,255,255,.34);background:rgba(255,255,255,.08);transform:translateY(-1px);outline:none}
 .header .site-search-button svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
@@ -536,9 +537,8 @@ footer.mond-footer{
   /* Progressive enhancement: the compact navigation is hidden only after its
      controller is fully wired. If scripts are blocked, every primary route
      remains available in a stable stacked header instead of disappearing. */
-  html:not(.canonical-shell-js) body.canonical-green-shell .header{height:auto}
+  html:not(.canonical-shell-js) body.canonical-green-shell .header{position:relative;height:auto}
   html:not(.canonical-shell-js) body.canonical-green-shell .nav{display:flex}
-  html:not(.canonical-shell-js) body.canonical-green-shell .header .site-search-button{display:none}
 }
 @media(max-width:960px){
   footer.mond-footer{
