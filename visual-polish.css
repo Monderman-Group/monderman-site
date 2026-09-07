@@ -115,8 +115,10 @@ body{
 /* Floating help must clear device safe areas and each other. */
 #mnd-launcher{right:max(20px,env(safe-area-inset-right))!important;bottom:max(20px,env(safe-area-inset-bottom))!important}
 #mnd-panel{right:max(20px,env(safe-area-inset-right))!important}
-.mdn-cn-launch{right:max(22px,env(safe-area-inset-right))!important;bottom:max(90px,calc(env(safe-area-inset-bottom) + 90px))!important}
+.mdn-cn-launch{right:max(20px,env(safe-area-inset-right))!important;bottom:max(90px,calc(env(safe-area-inset-bottom) + 90px))!important}
 #mdn-cn-panel{right:max(22px,env(safe-area-inset-right))!important}
+body:has(#mnd-panel.mnd-open) .mdn-cn-launch{display:none!important}
+body:has(#mdn-cn-panel.mdn-cn-open) #mnd-launcher{display:none!important}
 
 /* Phone refinements. Canonical navigation geometry is owned exclusively by
    canonical-site-shell.css so page-family polish cannot change its shape. */
@@ -142,8 +144,13 @@ body{
     white-space:nowrap!important;
     border:0!important;
   }
-  #mnd-launcher{right:max(14px,env(safe-area-inset-right))!important;bottom:max(14px,env(safe-area-inset-bottom))!important}
-  .mdn-cn-launch{right:max(14px,env(safe-area-inset-right))!important;bottom:max(82px,calc(env(safe-area-inset-bottom) + 82px))!important}
+  #mnd-launcher{right:max(20px,env(safe-area-inset-right))!important;bottom:max(14px,env(safe-area-inset-bottom))!important}
+  .mdn-cn-launch{right:max(20px,env(safe-area-inset-right))!important;bottom:max(82px,calc(env(safe-area-inset-bottom) + 82px))!important}
+}
+
+@media(max-width:480px){
+  #mnd-launcher,
+  .mdn-cn-launch{right:max(16px,env(safe-area-inset-right))!important}
 }
 
 @media(max-width:640px){
@@ -153,6 +160,12 @@ body{
   #mnd-panel{
     left:max(0px,env(safe-area-inset-left))!important;
     right:max(0px,env(safe-area-inset-right))!important;
+    width:auto!important;
+    max-width:none!important;
+  }
+  #mdn-cn-panel{
+    left:max(8px,env(safe-area-inset-left))!important;
+    right:max(8px,env(safe-area-inset-right))!important;
     width:auto!important;
     max-width:none!important;
   }
@@ -179,10 +192,6 @@ body{
     border:0!important;
   }
 
-  /* Never stack the two public utilities over each other while either dialog
-     is open. This mirrors the homepage behavior across every phone surface. */
-  body:has(#mnd-panel.mnd-open) .mdn-cn-launch{display:none!important}
-  body:has(#mdn-cn-panel.mdn-cn-open) #mnd-launcher{display:none!important}
 }
 
 @media(prefers-reduced-motion:reduce){

@@ -1,4 +1,5 @@
-@import url("visual-polish.css?v=20260906-shell-balance2");
+@import url("visual-polish.css?v=20260907-responsive-rhythm1");
+@import url("assets/brand/brand-lockup.css?v=20260907-rhythm1");
 /* Canonical public-page shell. Source of truth: research.html. */
 @font-face{font-family:"Neue Haas Grotesk";src:url("55font.woff2") format("woff2"),url("55font.woff") format("woff");font-style:normal;font-weight:400;font-display:swap}
 @font-face{font-family:"Neue Haas Grotesk";src:url("65font.woff2") format("woff2"),url("65font.woff") format("woff");font-style:normal;font-weight:500;font-display:swap}
@@ -460,6 +461,21 @@ footer.mond-footer{
   .mond-footer .mf-bottom{min-height:100px}
   .mond-footer .mf-motif{bottom:-12px}
 }
+@media(min-width:834px) and (max-width:960px){
+  .mond-footer .mf-top{
+    display:grid;
+    grid-template-columns:minmax(260px,320px) minmax(0,1fr);
+    gap:clamp(32px,5vw,44px);
+    padding-bottom:44px;
+  }
+  .mond-footer .mf-nav{
+    width:100%;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:0 clamp(18px,3vw,28px);
+  }
+  .mond-footer .mf-col-title{font-size:10px;letter-spacing:.14em}
+  .mond-footer .mf-col a{font-size:.86rem}
+}
 @media(max-width:640px){
   body.canonical-green-shell .brand{font-size:1.12rem}
   body.canonical-green-shell .brand .monderman-lockup__mark{
@@ -468,31 +484,48 @@ footer.mond-footer{
     flex-basis:21px;
   }
   footer.mond-footer{
-    --mf-motif-size:108px;
+    --mf-motif-size:98px;
     --mf-motif-edge:12px;
-    --mf-rule-gap:24px;
-    padding:44px 22px max(18px,env(safe-area-inset-bottom));
+    --mf-rule-gap:26px;
+    padding:40px 20px max(18px,env(safe-area-inset-bottom));
   }
   .mond-footer .mf-top{
-    gap:38px;
-    padding-bottom:42px;
+    gap:32px;
+    padding-bottom:34px;
   }
   .mond-footer .mf-tagline{font-size:clamp(1.25rem,6vw,1.42rem)}
   .mond-footer .mf-copy,
   .mond-footer .mf-tagline + .mf-copy{font-size:.92rem}
   .mond-footer .mf-nav{
     width:100%;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    column-gap:28px;
-    row-gap:36px;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    column-gap:16px;
+    row-gap:0;
   }
-  .mond-footer .mf-col:nth-child(3){grid-column:1/-1}
-  .mond-footer .mf-col a{font-size:.92rem;line-height:1.35}
+  .mond-footer .mf-col:nth-child(3){grid-column:auto}
+  .mond-footer .mf-col-title{margin-bottom:14px;font-size:10px;letter-spacing:.14em}
+  .mond-footer .mf-col a{font-size:.84rem;line-height:1.35;margin-top:10px}
   .mond-footer .mf-bottom{
-    min-height:156px;
+    min-height:144px;
     padding-top:20px;
   }
   .mond-footer .mf-motif{bottom:-4px;opacity:.13}
+}
+@media(max-width:420px){
+  .mond-footer .mf-nav{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    column-gap:24px;
+    row-gap:26px;
+  }
+  .mond-footer .mf-col:nth-child(3){
+    display:grid;
+    grid-column:1/-1;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    column-gap:24px;
+    row-gap:10px;
+  }
+  .mond-footer .mf-col:nth-child(3) .mf-col-title{grid-column:1/-1}
+  .mond-footer .mf-col:nth-child(3) a{margin-top:0}
 }
 @media(prefers-reduced-motion:no-preference){
   html.canonical-reveal-ready body.canonical-green-shell .reveal.canonical-reveal{

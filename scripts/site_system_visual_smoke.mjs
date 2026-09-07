@@ -93,6 +93,8 @@ for (const [pageName] of heroPages) {
 const viewports = [
   { width: 1440, height: 1000 },
   { width: 1280, height: 900 },
+  { width: 1121, height: 900 },
+  { width: 1120, height: 900 },
   { width: 960, height: 900 },
   { width: 768, height: 900 },
   { width: 390, height: 844 },
@@ -150,9 +152,7 @@ function standardTitleSize(width) {
 
 function expectedTitleSize(width, kind) {
   if (kind === 'home') {
-    if (width <= 640) return clamp(36, width * .1, 42);
-    if (width <= 980) return clamp(38, width * .048, 46);
-    return clamp(42, width * .032, 48);
+    return clamp(39.2, 32 + width * .0165, 48);
   }
   if (kind === 'publication-md') {
     if (width <= 540) return clamp(33.6, width * .088, 38.4);
@@ -210,8 +210,10 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
     for (const viewport of viewports) {
       for (const [pageName, heroSelector, titleSelector, kind] of heroPages) {
         const page = await localPage(browser, viewport);
-        await page.goto(`${base}/${pageName}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-        await page.waitForTimeout(220);
+        await page.goto(`${base}/${pageName}`, { waitUntil: 'load', timeout: 60000 });
+        await page.evaluate(async () => {
+          if (document.fonts) await document.fonts.ready;
+        });
 
         const geometry = await page.evaluate(({ heroSelector, titleSelector }) => {
           const hero = document.querySelector(heroSelector);
@@ -271,7 +273,7 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
           }
         }
 
-        if (pageName === 'index.html' && viewport.width <= 980) {
+        if (pageName === 'index.html' && viewport.width <= 1120) {
           const columns = await page.locator('.hero > .hero-inner').evaluate((node) =>
             getComputedStyle(node).gridTemplateColumns.trim().split(/\s+/).length);
           assert.equal(columns, 1, `${label}: homepage hero did not collapse to one column`);
@@ -315,8 +317,10 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
 
       for (const pageName of ['research.html', 'pilot.html']) {
         const page = await localPage(browser, viewport);
-        await page.goto(`${base}/${pageName}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-        await page.waitForTimeout(260);
+        await page.goto(`${base}/${pageName}`, { waitUntil: 'load', timeout: 60000 });
+        await page.evaluate(async () => {
+          if (document.fonts) await document.fonts.ready;
+        });
         const footer = await page.evaluate(() => {
           const root = document.querySelector('.mond-footer');
           const bottom = document.querySelector('.mf-bottom');
@@ -347,7 +351,7 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
         });
         const label = `${browserName}/${viewport.width}/${pageName}/footer`;
         assert.equal(footer.missing, false, `${label}: footer mark or rule is missing`);
-        const expectedGap = viewport.width <= 640 ? 24 : viewport.width <= 960 ? 54 : 90;
+        const expectedGap = viewport.width <= 640 ? 26 : viewport.width <= 960 ? 54 : 90;
         assert.ok(Math.abs(footer.gap - expectedGap) <= 1, `${label}: rule-to-mark gap diverged (${footer.gap}px; expected ${expectedGap}px)`);
         assert.ok(Math.abs(footer.root.left) <= 1 && Math.abs(footer.root.right - viewport.width) <= 1,
           `${label}: footer is not full-bleed (${JSON.stringify(footer.root)})`);
@@ -361,7 +365,10 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
     }
 
     const pricing = await localPage(browser, { width: 1280, height: 900 });
-    await pricing.goto(`${base}/platform-services.html`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await pricing.goto(`${base}/platform-services.html`, { waitUntil: 'load', timeout: 60000 });
+    await pricing.evaluate(async () => {
+      if (document.fonts) await document.fonts.ready;
+    });
     const contrast = await pricing.evaluate(() => {
       const parse = (value) => {
         const match = value.match(/rgba?\(([^)]+)\)/);

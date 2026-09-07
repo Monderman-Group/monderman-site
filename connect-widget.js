@@ -32,47 +32,43 @@
     return transportPromise;
   }
 
-  // Shared footer collision boundary. This is duplicated here so the Connect
-  // widget remains a true drop-in on pages that do not load the assistant.
+  // Shared footer collision boundary. The footer already carries contact
+  // routes, so closed launchers retire rather than covering its content.
   function ensureFooterDock() {
     if (window.__mondermanFooterDockController) return window.__mondermanFooterDockController;
     var frame = 0;
     var root = document.documentElement;
-    function visible(node) {
-      return node && window.getComputedStyle(node).display !== "none";
-    }
-    function stackBottom() {
-      var width = window.innerWidth;
-      var bottoms = [];
-      var assistantLauncher = document.getElementById("mnd-launcher");
-      var connectLauncher = document.querySelector(".mdn-cn-launch");
-      var assistantPanel = document.getElementById("mnd-panel");
-      if (visible(assistantLauncher)) bottoms.push(width <= 480 ? 16 : 20);
-      if (visible(connectLauncher)) bottoms.push(width <= 640 ? 84 : 90);
-      if (width > 480 && assistantPanel && assistantPanel.classList.contains("mnd-open") && visible(assistantPanel)) bottoms.push(90);
-      return bottoms.length ? Math.min.apply(Math, bottoms) : null;
-    }
     function render() {
       frame = 0;
       var footer = document.querySelector(".mond-footer");
-      var base = stackBottom();
       var viewportHeight = window.innerHeight || root.clientHeight;
-      var gap = window.innerWidth <= 640 ? 12 : 16;
-      var lift = footer && base != null
-        ? Math.max(0, Math.ceil(viewportHeight - footer.getBoundingClientRect().top - base + gap))
-        : 0;
+      var footerInView = footer && footer.getBoundingClientRect().top < viewportHeight;
+      var lift = 0;
       var width = window.innerWidth;
       var assistantLauncher = document.getElementById("mnd-launcher");
       var connectLauncher = document.querySelector(".mdn-cn-launch");
       var assistantPanel = document.getElementById("mnd-panel");
       var connectPanel = document.getElementById("mdn-cn-panel");
+      [assistantLauncher, connectLauncher].forEach(function (launcher) {
+        if (!launcher) return;
+        if (footerInView) {
+          launcher.style.setProperty("visibility", "hidden", "important");
+          launcher.style.setProperty("pointer-events", "none", "important");
+        } else {
+          launcher.style.removeProperty("visibility");
+          launcher.style.removeProperty("pointer-events");
+        }
+      });
       if (assistantLauncher) assistantLauncher.style.setProperty("bottom", (width <= 480 ? 16 : 20) + lift + "px", "important");
-      if (connectLauncher) connectLauncher.style.setProperty("bottom", (width <= 640 ? 84 : 90) + lift + "px", "important");
+      if (connectLauncher) {
+        connectLauncher.style.setProperty("bottom", (width <= 1180 ? 84 : 90) + lift + "px", "important");
+        connectLauncher.style.setProperty("right", (width <= 480 ? 16 : 20) + "px", "important");
+      }
       if (assistantPanel) {
         if (width <= 480) assistantPanel.style.removeProperty("bottom");
         else assistantPanel.style.setProperty("bottom", 90 + lift + "px", "important");
       }
-      if (connectPanel) connectPanel.style.setProperty("bottom", (width <= 640 ? 142 : 148) + lift + "px", "important");
+      if (connectPanel) connectPanel.style.setProperty("bottom", (width <= 1180 ? 140 : 148) + lift + "px", "important");
     }
     function update() {
       if (!frame) frame = window.requestAnimationFrame(render);
@@ -102,7 +98,7 @@
     '  color:var(--cn-ink); position:fixed; z-index:2147483000;',
     '}',
     '.mdn-cn-launch{',
-    '  position:fixed; right:22px; bottom:90px; z-index:2147483000;',
+    '  position:fixed; right:20px; bottom:90px; z-index:2147483000;',
     '  display:inline-flex; align-items:center; gap:8px;',
     '  padding:11px 15px; border:1px solid var(--cn-line); border-radius:7px;',
     '  background:var(--cn-surface); color:var(--cn-ink); cursor:pointer;',
@@ -154,10 +150,13 @@
     '.mdn-cn-done{padding:8px 0 4px; text-align:center;}',
     '.mdn-cn-done svg{width:34px; height:34px; margin-bottom:8px;}',
     '.mdn-cn-done p{margin:0 0 6px; font-size:13px; line-height:1.55;}',
-    '@media (max-width:640px){',
-    '  .mdn-cn-launch{right:72px; bottom:16px; width:48px; height:48px; justify-content:center; padding:0; border-radius:999px;}',
+    '@media (max-width:1180px){',
+    '  .mdn-cn-launch{width:48px; height:48px; justify-content:center; padding:0; border-radius:999px;}',
     '  .mdn-cn-launch span{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap;}',
     '  .mdn-cn-launch svg{width:19px; height:19px;}',
+    '}',
+    '@media (max-width:640px){',
+    '  .mdn-cn-launch{right:72px; bottom:16px;}',
     '  #mdn-cn-panel{right:8px; bottom:72px; max-width:calc(100vw - 16px);}',
     '}'
   ].join('\n');

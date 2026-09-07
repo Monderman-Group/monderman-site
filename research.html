@@ -1298,7 +1298,7 @@
     }
 
     body.research-page .series-head {
-      padding: 30px 28px 24px;
+      padding: 30px 24px 24px;
       gap: 24px;
     }
 
@@ -1331,6 +1331,13 @@
     body.research-page .paper-card {
       min-height: 212px;
       padding: 22px 20px 20px;
+      border-radius: 0;
+    }
+
+    body.research-page .paper-card.wide > div:first-child {
+      display: grid;
+      align-content: start;
+      gap: 9px;
     }
 
     body.research-page .paper-card.wide,
@@ -1372,6 +1379,15 @@
     body.research-page .essay-card {
       min-height: 196px;
       padding: 22px 20px 20px;
+    }
+
+    body.research-page .essay-card:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+      border-right: 0;
+    }
+
+    body.research-page .essay-card:last-child:nth-child(odd) .essay-body {
+      max-width: 68ch;
     }
 
     body.research-page .cta-band {
@@ -1473,6 +1489,19 @@
         grid-template-columns: 1fr;
         gap: 14px;
       }
+
+      body.research-page .paper-card.wide {
+        grid-template-columns: 1fr;
+        align-items: start;
+      }
+
+      body.research-page .paper-actions {
+        justify-content: flex-start;
+      }
+
+      body.research-page .book-feature-cover {
+        justify-content: center;
+      }
     }
 
     @media (max-width: 640px) {
@@ -1511,6 +1540,7 @@
       body.research-page .book-feature,
       body.research-page .latest-insight,
       body.research-page .series,
+      body.research-page .latest-insight-divider + .series,
       body.research-page .library:not(.latest-insight),
       body.research-page .cta-band {
         padding-top: 36px;

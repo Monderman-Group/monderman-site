@@ -18,6 +18,8 @@ const viewports = [
   { name: 'large-mobile', width: 430, height: 932 },
   { name: 'tablet', width: 768, height: 1024 },
   { name: 'tablet-landscape', width: 1024, height: 900 },
+  { name: 'collapse-seam', width: 1120, height: 900 },
+  { name: 'desktop-seam', width: 1121, height: 900 },
   { name: 'desktop-short', width: 1440, height: 835 },
   { name: 'desktop', width: 1440, height: 1000 },
 ];
@@ -92,30 +94,15 @@ try {
         };
       });
 
-      if (viewport.width <= 640) {
-        if (placement.name === 'platform-brief') {
-          assert.equal(geometry.display, 'none', `${placement.name}/${viewport.name}: sample tile remains visible on a phone`);
-          assert.equal(geometry.height, 0, `${placement.name}/${viewport.name}: hidden sample tile still reserves vertical space`);
-          await page.screenshot({ path: path.join(out, `${placement.name}-${viewport.name}.png`), fullPage: false });
-          await page.close();
-          continue;
-        } else {
-          assert.equal(geometry.display, 'block', `${placement.name}/${viewport.name}: sample proof is hidden on a phone`);
-          assert.equal(geometry.linkDisplay, 'block', `${placement.name}/${viewport.name}: sample proof link is hidden on a phone`);
-          assert.equal(geometry.visibility, 'visible', `${placement.name}/${viewport.name}: sample proof visibility is suppressed`);
-          assert.equal(geometry.linkVisibility, 'visible', `${placement.name}/${viewport.name}: sample proof link visibility is suppressed`);
-          assert.ok(geometry.opacity > 0 && geometry.linkOpacity > 0,
-            `${placement.name}/${viewport.name}: sample proof is transparent`);
-          assert.notEqual(geometry.linkPointerEvents, 'none',
-            `${placement.name}/${viewport.name}: sample proof link rejects pointer input`);
-          assert.ok(geometry.left >= -1 && geometry.right <= viewport.width + 1,
-            `${placement.name}/${viewport.name}: sample proof escapes the viewport (${geometry.left}px to ${geometry.right}px)`);
-          assert.ok(geometry.width <= viewport.width - 38,
-            `${placement.name}/${viewport.name}: sample proof exceeds the mobile content column (${geometry.width}px)`);
-          assert.equal(geometry.hasHeroRouteField, false,
-            `${placement.name}/${viewport.name}: retired decorative route field returned`);
-          await tile.locator('.hero-report-link').click({ trial: true });
-        }
+      const intentionallyHidden = placement.name === 'homepage'
+        ? viewport.width <= 1120
+        : viewport.width <= 640;
+      if (intentionallyHidden) {
+        assert.equal(geometry.display, 'none', `${placement.name}/${viewport.name}: compact layout still shows the large sample tile`);
+        assert.equal(geometry.height, 0, `${placement.name}/${viewport.name}: hidden sample tile still reserves vertical space`);
+        await page.screenshot({ path: path.join(out, `${placement.name}-${viewport.name}.png`), fullPage: false });
+        await page.close();
+        continue;
       }
 
       assert.equal(geometry.display, 'block', `${placement.name}/${viewport.name}: sample tile is hidden`);

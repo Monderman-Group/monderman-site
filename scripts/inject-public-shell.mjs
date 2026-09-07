@@ -17,7 +17,11 @@ const shellScriptPattern = /<script\b[^>]*\bsrc=["']canonical-site-shell\.js[^"'
 const motifPattern = /<div\b(?=[^>]*\bclass=["'][^"']*\bmf-motif\b[^"']*["'])[^>]*>[\s\S]*?<\/svg>\s*<\/div>/i;
 const canonicalCssPattern = /canonical-site-shell\.css\?v=[^"']+/g;
 const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
-const shellRelease = "20260906-shell-balance2";
+const shellRelease = "20260907-responsive-rhythm1";
+const versionScript = (html, fileName) => html.replace(
+  new RegExp(`(["'])${fileName.replace(".", "\\.")}(?:\\?v=[^"']*)?\\1`, "g"),
+  (_match, quote) => `${quote}${fileName}?v=${shellRelease}${quote}`,
+);
 const motif = footer.match(motifPattern)?.[0];
 
 if (!motif) throw new Error("Canonical M motif is missing from the footer partial");
@@ -31,9 +35,11 @@ for (const entry of await readdir(publishDirectory, { withFileTypes: true })) {
 
   // Cache keys are normalized in the immutable public artifact so every page
   // receives the same shell release without modifying protected source pages.
-  const versionedHtml = html
+  let versionedHtml = html
     .replace(canonicalCssPattern, `canonical-site-shell.css?v=${shellRelease}`)
     .replace(enterpriseCssPattern, `enterprise-site.css?v=${shellRelease}`);
+  versionedHtml = versionScript(versionedHtml, "assistant.js");
+  versionedHtml = versionScript(versionedHtml, "connect-widget.js");
   if (versionedHtml !== html) {
     html = versionedHtml;
     changed = true;

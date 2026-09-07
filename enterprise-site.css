@@ -224,6 +224,15 @@ body.canonical-green-shell:not(.page-report) .dx-section-head h2 {
   letter-spacing: -.045em;
 }
 
+/* Keep named page-family headings on the same scale without overriding their
+   local light/dark color treatment. */
+body.canonical-green-shell:not(.page-report) .dx-title,
+body.canonical-green-shell:not(.page-report) .pl-h2 {
+  font-size: clamp(2rem, 2.4vw, 2.75rem);
+  line-height: 1.06;
+  letter-spacing: -.045em;
+}
+
 body.canonical-green-shell:not(.page-report) .section-intro > p,
 body.canonical-green-shell:not(.page-report) .dx-section-head > p,
 body.canonical-green-shell:not(.page-report) .ps-section > .ps-wrap > p {
@@ -697,7 +706,7 @@ body.homepage-enterprise .latest-inner {
 
 body.homepage-enterprise .proof-grid {
   gap: 0;
-  margin-top: 44px;
+  margin-top: 32px;
   border-block: 1px solid var(--mdm-rule-strong);
 }
 
@@ -1052,6 +1061,10 @@ body.canonical-green-shell .reveal {
 @media (max-width: 1180px) {
   :root { --mdm-header: 70px; }
 
+  body.homepage-enterprise .proof-lead {
+    padding-right: 32px;
+  }
+
   body.homepage-enterprise .hero-inner {
     min-height: 760px;
     grid-template-columns: 1fr;
@@ -1121,6 +1134,39 @@ body.canonical-green-shell .reveal {
 
   body.homepage-enterprise .loop-step:nth-of-type(-n+2) {
     border-bottom: 1px solid var(--mdm-rule-strong);
+  }
+
+  /* The proof grid becomes a vertical list at this width. Reset the desktop
+     column dividers and use a consistent media-object alignment. */
+  body.homepage-enterprise .proof-card,
+  body.homepage-enterprise .proof-card:first-child,
+  body.homepage-enterprise .proof-card:last-child {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    column-gap: 16px;
+    padding: 26px 22px;
+    border-right: 0;
+    border-bottom: 1px solid var(--mdm-rule-strong);
+  }
+
+  body.homepage-enterprise .proof-card:last-child {
+    border-bottom: 0;
+  }
+
+  body.homepage-enterprise .proof-card-icon {
+    grid-column: 1;
+    grid-row: 1;
+    margin: 0;
+  }
+
+  body.homepage-enterprise .proof-card > strong {
+    grid-column: 2;
+    align-self: center;
+  }
+
+  body.homepage-enterprise .proof-card-text,
+  body.homepage-enterprise .proof-arrow {
+    grid-column: 2;
   }
 }
 
@@ -1234,7 +1280,7 @@ body.canonical-green-shell .reveal {
   body.homepage-enterprise .proof-card,
   body.homepage-enterprise .proof-card:first-child,
   body.homepage-enterprise .proof-card:last-child {
-    padding: 24px 0;
+    padding: 24px 20px;
     border-right: 0;
     border-bottom: 1px solid var(--mdm-rule-strong);
   }
@@ -1243,6 +1289,12 @@ body.canonical-green-shell .reveal {
     border-bottom: 0;
   }
 
+}
+
+@media (max-width: 480px) {
+  body.homepage-enterprise .proof-card-text {
+    padding-right: 32px;
+  }
 }
 
 @media print {

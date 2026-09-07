@@ -260,7 +260,7 @@ try {
         if (Math.abs(rule.left) > 1 || rule.width < geometry.viewportWidth * .45) {
           failures.push(`${pageName}/${viewport.name}: footer rule is too short or does not reach the viewport edge (${JSON.stringify(rule)})`);
         }
-        const expectedGap = viewport.width <= 640 ? 24 : viewport.width <= 960 ? 54 : 90;
+        const expectedGap = viewport.width <= 640 ? 26 : viewport.width <= 960 ? 54 : 90;
         if (Math.abs((motif.left - rule.right) - expectedGap) > 1) {
           failures.push(`${pageName}/${viewport.name}: footer rule-to-motif gap is inconsistent (${motif.left - rule.right}px vs ${expectedGap}px)`);
         }
@@ -294,8 +294,7 @@ try {
 
       if (pageName === 'index.html') {
         const tile = page.locator('.hero-report-proof.has-sample-depth-tile');
-        if (!(await tile.isVisible())) failures.push(`${pageName}/${viewport.name}: sample report proof is missing on a phone`);
-        const tileBox = await tile.boundingBox();
+        if (await tile.isVisible()) failures.push(`${pageName}/${viewport.name}: large sample report tile remains in the compact hero`);
         const routeField = page.locator('.hero-route-field');
         if (await routeField.count() !== 0) failures.push(`${pageName}/${viewport.name}: retired decorative route field returned`);
       }
@@ -381,8 +380,69 @@ try {
   if (connectState.left < -1 || connectState.right > connectState.viewportWidth + 1) {
     failures.push(`runtime utilities: Connect panel is clipped on phone (${JSON.stringify(connectState)})`);
   }
+  const connectRightGutter = connectState.viewportWidth - connectState.right;
+  if (Math.abs(connectState.left - connectRightGutter) > 1
+      || connectState.left < 7 || connectState.left > 11) {
+    failures.push(`runtime utilities: Connect panel phone gutters are not equal and compact (${JSON.stringify(connectState)})`);
+  }
   if (connectState.assistantVisible) failures.push('runtime utilities: assistant launcher remains visible over the open Connect panel');
+  await runtimePage.locator('.mdn-cn-close').click();
+  await runtimePage.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await runtimePage.waitForFunction(() => [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')]
+    .every((node) => getComputedStyle(node).visibility === 'hidden'));
+  const footerUtilityState = await runtimePage.evaluate(() => {
+    const headerBottom = document.querySelector('#siteHeader').getBoundingClientRect().bottom;
+    return [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].map((node) => {
+      const box = node.getBoundingClientRect();
+      const style = getComputedStyle(node);
+      return { top: box.top, bottom: box.bottom, headerBottom, visibility: style.visibility, pointerEvents: style.pointerEvents };
+    });
+  });
+  if (footerUtilityState.some((item) => item.visibility !== 'hidden' || item.pointerEvents !== 'none')) {
+    failures.push(`runtime utilities: launchers remain interactive over the phone footer (${JSON.stringify(footerUtilityState)})`);
+  }
+  await runtimePage.evaluate(() => window.scrollTo(0, 0));
+  await runtimePage.waitForFunction(() => [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')]
+    .every((node) => getComputedStyle(node).visibility === 'visible'));
   await runtimePage.close();
+
+  for (const width of [768, 1180, 1181]) {
+    const utilityPage = await browser.newPage({ viewport: { width, height: 1024 } });
+    await utilityPage.route('**/*', async (route) => {
+      const url = new URL(route.request().url());
+      if (url.origin === localOrigin || url.protocol === 'data:' || url.protocol === 'blob:') await route.continue();
+      else await route.abort();
+    });
+    await navigateToStableDocument(utilityPage, `${base}/index.html`);
+    await utilityPage.locator('.mdn-cn-launch').waitFor({ state: 'visible' });
+    await utilityPage.locator('#mnd-launcher').waitFor({ state: 'visible' });
+    const utilityGeometry = await utilityPage.evaluate(() => {
+      const box = (selector) => {
+        const node = document.querySelector(selector);
+        const rect = node.getBoundingClientRect();
+        const label = node.querySelector('span')?.getBoundingClientRect();
+        return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height, labelWidth: label?.width || 0 };
+      };
+      return { contact: box('.mdn-cn-launch'), assistant: box('#mnd-launcher') };
+    });
+    if (width <= 1180) {
+      if (Math.abs(utilityGeometry.contact.width - 48) > 1
+          || Math.abs(utilityGeometry.contact.height - 48) > 1
+          || Math.abs(utilityGeometry.assistant.width - 48) > 1
+          || Math.abs(utilityGeometry.assistant.height - 48) > 1
+          || utilityGeometry.contact.labelWidth > 2) {
+        failures.push(`runtime utilities/${width}: compact launchers do not share the 48px geometry (${JSON.stringify(utilityGeometry)})`);
+      }
+    } else if (utilityGeometry.contact.width < 90 || utilityGeometry.contact.labelWidth < 20
+        || Math.abs(utilityGeometry.assistant.width - 58) > 1) {
+      failures.push(`runtime utilities/${width}: desktop launcher hierarchy did not return after the seam (${JSON.stringify(utilityGeometry)})`);
+    }
+    if (Math.abs(utilityGeometry.contact.right - utilityGeometry.assistant.right) > 1
+        || utilityGeometry.assistant.top - utilityGeometry.contact.bottom < 12) {
+      failures.push(`runtime utilities/${width}: launchers are not aligned as one balanced stack (${JSON.stringify(utilityGeometry)})`);
+    }
+    await utilityPage.close();
+  }
 
   // Exercise the complete canonical navigation on every page, rather than
   // inferring mobile usability from identical markup alone. Chromium covers

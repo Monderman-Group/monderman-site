@@ -56,52 +56,43 @@
   var STORAGE_KEY = "mndAssistantHistory";              // survives page-to-page within a tab
   var GREETING   = "Hi. I can help you find your way around Monderman. Ask about the four diagnostics, how to run one, or where something lives on the site.";
 
-  // Keep the floating controls out of the footer. The lowest visible widget is
-  // treated as the bottom of one shared stack; when the footer reaches it, the
-  // stack rises with the footer and then leaves the viewport with the page.
+  // Keep the floating controls out of the footer. The footer already carries
+  // contact routes, so the closed launchers retire when it enters the viewport.
   function ensureFooterDock() {
     if (window.__mondermanFooterDockController) return window.__mondermanFooterDockController;
     var frame = 0;
     var root = document.documentElement;
-    function visible(node) {
-      return node && window.getComputedStyle(node).display !== "none";
-    }
-    function stackBottom() {
-      var width = window.innerWidth;
-      var bottoms = [];
-      var assistantLauncher = document.getElementById("mnd-launcher");
-      var connectLauncher = document.querySelector(".mdn-cn-launch");
-      var assistantPanel = document.getElementById("mnd-panel");
-      if (visible(assistantLauncher)) bottoms.push(width <= 480 ? 16 : 20);
-      if (visible(connectLauncher)) bottoms.push(width <= 640 ? 16 : 90);
-      if (width > 480 && assistantPanel && assistantPanel.classList.contains("mnd-open") && visible(assistantPanel)) bottoms.push(90);
-      return bottoms.length ? Math.min.apply(Math, bottoms) : null;
-    }
     function render() {
       frame = 0;
       var footer = document.querySelector(".mond-footer");
-      var base = stackBottom();
       var viewportHeight = window.innerHeight || root.clientHeight;
-      var gap = window.innerWidth <= 640 ? 12 : 16;
-      var lift = footer && base != null
-        ? Math.max(0, Math.ceil(viewportHeight - footer.getBoundingClientRect().top - base + gap))
-        : 0;
+      var footerInView = footer && footer.getBoundingClientRect().top < viewportHeight;
+      var lift = 0;
       var width = window.innerWidth;
       var assistantLauncher = document.getElementById("mnd-launcher");
       var connectLauncher = document.querySelector(".mdn-cn-launch");
       var assistantPanel = document.getElementById("mnd-panel");
       var connectPanel = document.getElementById("mdn-cn-panel");
+      [assistantLauncher, connectLauncher].forEach(function (launcher) {
+        if (!launcher) return;
+        if (footerInView) {
+          launcher.style.setProperty("visibility", "hidden", "important");
+          launcher.style.setProperty("pointer-events", "none", "important");
+        } else {
+          launcher.style.removeProperty("visibility");
+          launcher.style.removeProperty("pointer-events");
+        }
+      });
       if (assistantLauncher) assistantLauncher.style.setProperty("bottom", (width <= 480 ? 16 : 20) + lift + "px", "important");
       if (connectLauncher) {
-        connectLauncher.style.setProperty("bottom", (width <= 640 ? 16 : 90) + lift + "px", "important");
-        if (width <= 640) connectLauncher.style.setProperty("right", "72px", "important");
-        else connectLauncher.style.removeProperty("right");
+        connectLauncher.style.setProperty("bottom", (width <= 1180 ? 84 : 90) + lift + "px", "important");
+        connectLauncher.style.setProperty("right", (width <= 480 ? 16 : 20) + "px", "important");
       }
       if (assistantPanel) {
         if (width <= 480) assistantPanel.style.removeProperty("bottom");
         else assistantPanel.style.setProperty("bottom", 90 + lift + "px", "important");
       }
-      if (connectPanel) connectPanel.style.setProperty("bottom", (width <= 640 ? 72 : 148) + lift + "px", "important");
+      if (connectPanel) connectPanel.style.setProperty("bottom", (width <= 1180 ? 140 : 148) + lift + "px", "important");
     }
     function update() {
       if (!frame) frame = window.requestAnimationFrame(render);
@@ -152,7 +143,8 @@
     + '#mnd-send:hover{background:#0A5B63}#mnd-send:disabled{opacity:.5;cursor:not-allowed}'
     + '#mnd-launcher.mnd-dock-left{left:20px;right:auto}'
     + '#mnd-panel.mnd-dock-left{left:20px;right:auto}'
-    + '@media (max-width:480px){#mnd-panel{right:0;bottom:0;width:100vw;max-width:100vw;height:88vh;max-height:88vh;border-radius:18px 18px 0 0}#mnd-launcher{right:16px;bottom:16px;width:48px;height:48px}#mnd-launcher svg{width:22px;height:22px}#mnd-launcher.mnd-dock-left{left:16px;right:auto}#mnd-panel.mnd-dock-left{left:0;right:0;width:100vw;max-width:100vw}}';
+    + '@media (max-width:1180px){#mnd-launcher{right:20px;width:48px;height:48px}#mnd-launcher svg{width:22px;height:22px}}'
+    + '@media (max-width:480px){#mnd-panel{right:0;bottom:0;width:100vw;max-width:100vw;height:88vh;max-height:88vh;border-radius:18px 18px 0 0}#mnd-launcher{right:16px;bottom:16px}#mnd-launcher.mnd-dock-left{left:16px;right:auto}#mnd-panel.mnd-dock-left{left:0;right:0;width:100vw;max-width:100vw}}';
   var style = document.createElement("style");
   style.textContent = css;
   document.head.appendChild(style);
