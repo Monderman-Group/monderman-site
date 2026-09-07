@@ -22,9 +22,9 @@ const canonicalPages = pages.filter((name) => {
 const footerPages = pages.filter((name) => canonicalPages.includes(name) || /\bmond-footer\b/.test(sourceByPage.get(name)));
 const shellFreePages = pages.filter((name) => !canonicalPages.includes(name) && !footerPages.includes(name));
 
-assert.equal(pages.length, 69, 'rendered root-page inventory changed unexpectedly');
-assert.equal(canonicalPages.length, 51, 'canonical header + footer inventory changed unexpectedly');
-assert.equal(footerPages.length, 55, 'footer inventory changed unexpectedly');
+assert.equal(pages.length, 70, 'rendered root-page inventory changed unexpectedly');
+assert.equal(canonicalPages.length, 52, 'canonical header + footer inventory changed unexpectedly');
+assert.equal(footerPages.length, 56, 'footer inventory changed unexpectedly');
 assert.equal(shellFreePages.length, 14, 'functional shell-free page inventory changed unexpectedly');
 
 // The deployed artifact must contain one exact copy of each source page and one
