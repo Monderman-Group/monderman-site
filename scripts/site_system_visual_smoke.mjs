@@ -28,6 +28,7 @@ const heroPages = [
   ['merit-after-the-machine.html', '.article-hero', '.article-hero h1', 'publication'],
   ['Monderman_Platform_Brief.html', '.cover', '.cover h1', 'standard'],
   ['new-in-the-role.html', '.hero', '.hero h1', 'standard'],
+  ['nothing-stays-tuned.html', '.article-hero', '.article-hero h1', 'publication'],
   ['operational-systems-article.html', '.hero', '.hero h1', 'publication'],
   ['pilot.html', '.hero', '.hero h1', 'standard'],
   ['plan-enterprise.html', '.pl-top', '.pl-top h1', 'standard'],
@@ -52,7 +53,7 @@ const heroPages = [
   ['why-monderman.html', '.hero', '.hero h1', 'standard'],
 ];
 
-assert.equal(heroPages.length, 41, 'hero manifest changed unexpectedly');
+assert.equal(heroPages.length, 42, 'hero manifest changed unexpectedly');
 const legalPresentationExclusions = new Set(['privacy.html', 'terms.html']);
 const heroClassTokens = new Set(['hero', 'ps-hero', 'article-hero', 'pl-top']);
 function hasPageHero(pageName) {
@@ -113,6 +114,7 @@ const pagesWithLocalOpeningAction = new Set([
   'index.html',
   'institutional-performance-article.html',
   'merit-after-the-machine.html',
+  'nothing-stays-tuned.html',
   'operational-systems-article.html',
   'pilot.html',
   'platform-services.html',
@@ -129,7 +131,7 @@ const pagesWithLocalOpeningAction = new Set([
   'why-monderman.html',
 ]);
 
-assert.equal(pagesWithLocalOpeningAction.size, 29, 'opening-action manifest changed unexpectedly');
+assert.equal(pagesWithLocalOpeningAction.size, 30, 'opening-action manifest changed unexpectedly');
 
 function expectedGutter(width) {
   if (width <= 640) return 20;
