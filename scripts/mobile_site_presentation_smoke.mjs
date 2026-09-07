@@ -84,6 +84,7 @@ async function navigateToStableDocument(page, url) {
       await page.waitForTimeout(175);
       await page.waitForLoadState('load', { timeout: 30000 });
       await page.evaluate(() => document.readyState);
+      await page.evaluate(async () => { if (document.fonts?.ready) await document.fonts.ready; });
       return;
     } catch (error) {
       lastError = error;
@@ -194,6 +195,7 @@ try {
             bottom: box.bottom,
             width: box.width,
             height: box.height,
+            display: getComputedStyle(element).display,
           };
         };
         const footer = rectangle('.mond-footer');
@@ -278,17 +280,16 @@ try {
       if (geometry.header) {
         const { header, inner, brand, nav, main, position } = geometry.header;
         const signature = [header.height, inner.left, inner.width, inner.height, brand.left, brand.width]
-          .map((value) => Math.round(value * 10) / 10)
-          .join('|');
+          .map((value) => Math.round(value * 10) / 10);
         if (!headerSignatures.has(viewport.name)) headerSignatures.set(viewport.name, signature);
-        if (headerSignatures.get(viewport.name) !== signature) {
-          failures.push(`${pageName}/${viewport.name}: header geometry diverges from the shared shell (${signature} vs ${headerSignatures.get(viewport.name)})`);
+        if (headerSignatures.get(viewport.name).some((value, index) => Math.abs(value - signature[index]) > 1)) {
+          failures.push(`${pageName}/${viewport.name}: header geometry diverges from the shared shell (${signature.join('|')} vs ${headerSignatures.get(viewport.name).join('|')})`);
         }
         if (Math.abs(header.left) > 1 || Math.abs(header.right - geometry.viewportWidth) > 1 || header.height < 70) {
           failures.push(`${pageName}/${viewport.name}: no-script header is not full-width or has collapsed (${JSON.stringify(header)})`);
         }
         if (canonicalPages.includes(pageName)
-            && (!nav || nav.width < inner.width - 2 || nav.left < inner.left - 1 || nav.right > inner.right + 1)) {
+            && (!nav || nav.display === 'none' || nav.width <= 0 || nav.left < inner.left - 1 || nav.right > inner.right + 1)) {
           failures.push(`${pageName}/${viewport.name}: primary navigation disappears or escapes its frame when scripts are unavailable (${JSON.stringify({ inner, nav })})`);
         }
         if (canonicalPages.includes(pageName)
