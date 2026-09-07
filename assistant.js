@@ -219,8 +219,11 @@
     panel.classList.remove("mnd-open");
     launcher.style.display = "";
     footerDock.update();
+    var menuAction = document.querySelector('[data-site-widget-action="assistant"]');
     var menuButton = document.querySelector(".site-menu-button");
-    var returnTarget = menuButton && window.getComputedStyle(menuButton).display !== "none" ? menuButton : launcher;
+    var returnTarget = menuAction && menuAction.getClientRects().length
+      ? menuAction
+      : menuButton && menuButton.getClientRects().length ? menuButton : launcher;
     returnTarget.focus();
   }
   async function send() {

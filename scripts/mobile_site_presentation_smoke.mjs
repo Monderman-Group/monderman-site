@@ -418,7 +418,7 @@ try {
     .every((node) => getComputedStyle(node).visibility === 'visible'));
   await runtimePage.close();
 
-  for (const width of [768, 1180, 1181]) {
+  for (const width of [768, 1180, 1181, 1440]) {
     const utilityPage = await browser.newPage({ viewport: { width, height: 1024 } });
     await utilityPage.route('**/*', async (route) => {
       const url = new URL(route.request().url());
@@ -442,22 +442,12 @@ try {
       });
       return { contact: box('.mdn-cn-launch'), assistant: box('#mnd-launcher'), actions };
     }, width <= 1180);
-    if (width <= 1180) {
-      if (utilityGeometry.contact.display !== 'none'
-          || utilityGeometry.assistant.display !== 'none'
-          || utilityGeometry.actions.length !== 2
-          || utilityGeometry.actions.some((action) => action.display === 'none' || action.height < 44 || action.left < 0 || action.right > width)) {
-        failures.push(`runtime utilities/${width}: fixed controls remain in the compact content plane or menu actions are invalid (${JSON.stringify(utilityGeometry)})`);
-      }
-    } else if (utilityGeometry.contact.width < 90 || utilityGeometry.contact.labelWidth < 20
-        || Math.abs(utilityGeometry.assistant.width - 58) > 1) {
-      failures.push(`runtime utilities/${width}: desktop launcher hierarchy did not return after the seam (${JSON.stringify(utilityGeometry)})`);
-    }
-    if (width > 1180 && (
-      Math.abs(utilityGeometry.contact.right - utilityGeometry.assistant.right) > 1
-      || utilityGeometry.assistant.top - utilityGeometry.contact.bottom < 12
-    )) {
-      failures.push(`runtime utilities/${width}: launchers are not aligned as one balanced stack (${JSON.stringify(utilityGeometry)})`);
+    const expectedHeight = width <= 1180 ? 44 : 39;
+    if (utilityGeometry.contact.display !== 'none'
+        || utilityGeometry.assistant.display !== 'none'
+        || utilityGeometry.actions.length !== 2
+        || utilityGeometry.actions.some((action) => action.display === 'none' || action.height < expectedHeight || action.left < 0 || action.right > width)) {
+      failures.push(`runtime utilities/${width}: fixed controls remain in the content plane or header actions are invalid (${JSON.stringify(utilityGeometry)})`);
     }
     await utilityPage.close();
   }

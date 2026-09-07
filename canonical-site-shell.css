@@ -46,7 +46,48 @@
 .canonical-green-shell .brand::after{display:none}
 .canonical-green-shell .nav{display:flex;align-items:center;gap:20px;flex-wrap:nowrap;justify-content:flex-end}
 .site-menu-button{display:none}
-.site-widget-actions{display:none}
+.site-widget-actions{display:flex;align-items:center;gap:6px}
+.site-widget-action{
+  position:relative;
+  width:39px;
+  height:39px;
+  display:grid;
+  place-items:center;
+  padding:0;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:7px;
+  background:rgba(255,255,255,.04);
+  color:rgba(245,241,232,.84);
+  cursor:pointer;
+  transition:color 170ms ease,border-color 170ms ease,background-color 170ms ease,transform 170ms ease;
+}
+.site-widget-action:hover,.site-widget-action:focus-visible{
+  color:#fff;
+  border-color:rgba(255,255,255,.34);
+  background:rgba(255,255,255,.08);
+  transform:translateY(-1px);
+  outline:none;
+}
+.site-widget-action svg{
+  width:17px;
+  height:17px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.site-widget-action span{
+  position:absolute;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+  clip:rect(0 0 0 0);
+  clip-path:inset(50%);
+  white-space:nowrap;
+}
+body.canonical-green-shell #mnd-launcher,
+body.canonical-green-shell .mdn-cn-launch{display:none!important}
 .header .site-search-button{display:grid;place-items:center;width:38px;height:38px;padding:0;border:1px solid rgba(255,255,255,.14);border-radius:7px;background:rgba(255,255,255,.04);color:rgba(245,241,232,.84);cursor:pointer;flex:0 0 auto;transition:color 170ms ease,border-color 170ms ease,background-color 170ms ease,transform 170ms ease}
 .header .site-search-button:hover,.header .site-search-button:focus-visible{color:#fff;border-color:rgba(255,255,255,.34);background:rgba(255,255,255,.08);transform:translateY(-1px);outline:none}
 .header .site-search-button svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
@@ -448,6 +489,8 @@ footer.mond-footer{
     width:100%;
   }
   body.canonical-green-shell .site-widget-action{
+    width:auto;
+    height:auto;
     min-width:0;
     min-height:44px;
     display:inline-flex;
@@ -479,8 +522,15 @@ footer.mond-footer{
     stroke-linecap:round;
     stroke-linejoin:round;
   }
-  body.canonical-green-shell #mnd-launcher,
-  body.canonical-green-shell .mdn-cn-launch{display:none!important}
+  body.canonical-green-shell .site-widget-action span{
+    position:static;
+    width:auto;
+    height:auto;
+    overflow:visible;
+    clip:auto;
+    clip-path:none;
+    white-space:normal;
+  }
 }
 @media(max-width:960px){
   footer.mond-footer{

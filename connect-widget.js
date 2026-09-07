@@ -250,8 +250,11 @@
         var f = panel.querySelector('input, textarea');
         f && f.focus();
       } else if (panel.contains(document.activeElement)) {
+        var menuAction = document.querySelector('[data-site-widget-action="contact"]');
         var menuButton = document.querySelector('.site-menu-button');
-        var returnTarget = menuButton && window.getComputedStyle(menuButton).display !== 'none' ? menuButton : launch;
+        var returnTarget = menuAction && menuAction.getClientRects().length
+          ? menuAction
+          : menuButton && menuButton.getClientRects().length ? menuButton : launch;
         returnTarget.focus();
       }
     }
