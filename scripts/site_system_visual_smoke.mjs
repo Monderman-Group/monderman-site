@@ -316,19 +316,44 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
         await page.goto(`${base}/${pageName}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
         await page.waitForTimeout(260);
         const footer = await page.evaluate(() => {
+          const root = document.querySelector('.mond-footer');
           const bottom = document.querySelector('.mf-bottom');
           const motif = document.querySelector('.mf-motif');
-          if (!bottom || !motif) return { missing: true };
+          const copyright = document.querySelector('.mf-copyright');
+          if (!root || !bottom || !motif || !copyright) return { missing: true };
+          const rootBox = root.getBoundingClientRect();
           const bottomBox = bottom.getBoundingClientRect();
           const motifBox = motif.getBoundingClientRect();
+          const copyrightBox = copyright.getBoundingClientRect();
           const rule = getComputedStyle(bottom, '::before');
           const px = (value) => Number(value.replace('px', ''));
           const ruleRight = bottomBox.x + px(rule.left) + px(rule.width);
-          return { missing: false, gap: motifBox.x - ruleRight };
+          const intersects = !(
+            copyrightBox.right <= motifBox.left
+            || motifBox.right <= copyrightBox.left
+            || copyrightBox.bottom <= motifBox.top
+            || motifBox.bottom <= copyrightBox.top
+          );
+          return {
+            missing: false,
+            root: { left: rootBox.left, right: rootBox.right, top: rootBox.top, bottom: rootBox.bottom },
+            motif: { left: motifBox.left, right: motifBox.right, top: motifBox.top, bottom: motifBox.bottom },
+            ruleLeft: bottomBox.x + px(rule.left),
+            gap: motifBox.x - ruleRight,
+            intersects,
+          };
         });
         const label = `${browserName}/${viewport.width}/${pageName}/footer`;
         assert.equal(footer.missing, false, `${label}: footer mark or rule is missing`);
-        assert.ok(footer.gap >= 90, `${label}: rule does not stop clearly before the folded-map mark (${footer.gap}px gap)`);
+        const expectedGap = viewport.width <= 640 ? 24 : viewport.width <= 960 ? 54 : 90;
+        assert.ok(Math.abs(footer.gap - expectedGap) <= 1, `${label}: rule-to-mark gap diverged (${footer.gap}px; expected ${expectedGap}px)`);
+        assert.ok(Math.abs(footer.root.left) <= 1 && Math.abs(footer.root.right - viewport.width) <= 1,
+          `${label}: footer is not full-bleed (${JSON.stringify(footer.root)})`);
+        assert.ok(footer.motif.left >= footer.root.left - 1 && footer.motif.right <= footer.root.right + 1
+          && footer.motif.top >= footer.root.top - 1 && footer.motif.bottom <= footer.root.bottom + 1,
+        `${label}: folded-map mark is clipped (${JSON.stringify(footer)})`);
+        assert.equal(footer.intersects, false, `${label}: folded-map mark overlaps copyright`);
+        assert.ok(Math.abs(footer.ruleLeft) <= 1, `${label}: footer rule does not begin at the viewport edge (${footer.ruleLeft}px)`);
         await page.close();
       }
     }

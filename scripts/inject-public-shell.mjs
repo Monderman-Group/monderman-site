@@ -15,6 +15,9 @@ const assistantPattern = /\s*<script\b[^>]*\bsrc=["']assistant\.js[^"']*["'][^>]
 const contactPattern = /\s*<script\b[^>]*\bsrc=["']connect-widget\.js[^"']*["'][^>]*><\/script>/gi;
 const shellScriptPattern = /<script\b[^>]*\bsrc=["']canonical-site-shell\.js[^"']*["'][^>]*><\/script>/i;
 const motifPattern = /<div\b(?=[^>]*\bclass=["'][^"']*\bmf-motif\b[^"']*["'])[^>]*>[\s\S]*?<\/svg>\s*<\/div>/i;
+const canonicalCssPattern = /canonical-site-shell\.css\?v=[^"']+/g;
+const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
+const shellRelease = "20260906-shell-balance2";
 const motif = footer.match(motifPattern)?.[0];
 
 if (!motif) throw new Error("Canonical M motif is missing from the footer partial");
@@ -26,10 +29,23 @@ for (const entry of await readdir(publishDirectory, { withFileTypes: true })) {
   let html = await readFile(path, "utf8");
   let changed = false;
 
-  // Functional instrument pages intentionally retain their audited source. The
-  // public artifact still receives the approved M-only footer mark, with no
-  // change to instrument markup, logic, scoring, or workspace behavior.
-  if (motifPattern.test(html)) {
+  // Cache keys are normalized in the immutable public artifact so every page
+  // receives the same shell release without modifying protected source pages.
+  const versionedHtml = html
+    .replace(canonicalCssPattern, `canonical-site-shell.css?v=${shellRelease}`)
+    .replace(enterpriseCssPattern, `enterprise-site.css?v=${shellRelease}`);
+  if (versionedHtml !== html) {
+    html = versionedHtml;
+    changed = true;
+  }
+
+  // Footer markup is presentation-only and is safe to normalize even on the
+  // four diagnostic instruments. Instrument questions, state, scoring, API
+  // calls, authentication, and completion behavior remain untouched.
+  if (footerPattern.test(html)) {
+    html = html.replace(footerPattern, footer);
+    changed = true;
+  } else if (motifPattern.test(html)) {
     html = html.replace(motifPattern, motif);
     changed = true;
   }
@@ -44,8 +60,7 @@ for (const entry of await readdir(publishDirectory, { withFileTypes: true })) {
   if (headerPattern.test(html)) html = html.replace(headerPattern, header);
   else html = html.replace(/<body\b[^>]*>/i, (opening) => `${opening}\n${header}`);
 
-  if (footerPattern.test(html)) html = html.replace(footerPattern, footer);
-  else html = html.replace(shellScriptPattern, `${footer}\n$&`);
+  if (!footerPattern.test(html)) html = html.replace(shellScriptPattern, `${footer}\n$&`);
 
   html = html.replace(assistantPattern, "").replace(contactPattern, "");
   html = html.replace(shellScriptPattern, `${widgets}\n$&`);

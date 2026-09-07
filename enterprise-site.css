@@ -85,144 +85,9 @@ body.canonical-green-shell li {
   text-wrap: pretty;
 }
 
-/* Header and navigation */
-body.canonical-green-shell .header {
-  height: var(--mdm-header);
-  background: linear-gradient(180deg, rgba(4, 24, 27, .78), rgba(4, 24, 27, 0));
-  border: 0;
-  transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
-}
-
-body.canonical-green-shell .header.scrolled,
-body.canonical-green-shell.canonical-solid-header .header,
-body.canonical-green-shell.canonical-solid-header .header.scrolled {
-  background: rgba(4, 24, 27, .96);
-  border-bottom: 1px solid rgba(255, 255, 255, .1);
-  box-shadow: 0 8px 32px rgba(4, 24, 27, .08);
-  backdrop-filter: blur(18px) saturate(120%);
-  -webkit-backdrop-filter: blur(18px) saturate(120%);
-}
-
-body.canonical-green-shell .header-inner {
-  max-width: 1440px;
-  padding-inline: clamp(24px, 4vw, 64px);
-  gap: clamp(24px, 3vw, 52px);
-}
-
-body.canonical-green-shell .brand {
-  gap: 9px;
-  font-size: 1.22rem;
-  letter-spacing: -.026em;
-  text-shadow: none;
-}
-
-body.canonical-green-shell .brand .monderman-lockup__mark {
-  width: 23px;
-  height: 23px;
-  flex: 0 0 23px;
-}
-
-body.canonical-green-shell .brand .monderman-lockup__name,
-body.canonical-green-shell .mond-footer .mf-name {
-  letter-spacing: -.028em;
-}
-
-body.canonical-green-shell .monderman-lockup__period {
-  display: inline-block;
-  margin-left: .015em;
-  letter-spacing: 0;
-}
-
-body.canonical-green-shell .nav {
-  gap: 8px;
-}
-
-body.canonical-green-shell .nav .nav-menu {
-  height: var(--mdm-header);
-}
-
-body.canonical-green-shell .nav a,
-body.canonical-green-shell .nav .nav-parent {
-  font-size: .84rem;
-  font-weight: 500;
-  letter-spacing: .005em;
-}
-
-body.canonical-green-shell .nav .nav-parent {
-  padding: 0 8px;
-}
-
-body.canonical-green-shell .nav a::after {
-  bottom: -6px;
-  height: 1px;
-}
-
-body.canonical-green-shell .nav .nav-dropdown {
-  top: calc(100% - 2px);
-  min-width: 264px;
-  padding: 8px;
-  border: 1px solid rgba(4, 24, 27, .12);
-  border-top: 3px solid var(--mdm-teal);
-  border-radius: 0 0 6px 6px;
-  background: rgba(255, 255, 255, .99);
-  box-shadow: 0 28px 70px rgba(4, 24, 27, .2);
-}
-
-body.canonical-green-shell .header .nav .nav-dropdown a {
-  padding: 11px 12px;
-  border-radius: 3px;
-  color: #343638 !important;
-  font-size: .9rem;
-}
-
-body.canonical-green-shell .header .nav .nav-dropdown a:hover,
-body.canonical-green-shell .header .nav .nav-dropdown a:focus-visible,
-body.canonical-green-shell .header .nav .nav-dropdown a.is-active {
-  color: var(--mdm-deep) !important;
-  background: #EEF5F4;
-}
-
-body.canonical-green-shell .site-trust-link,
-body.canonical-green-shell .workspace-link {
-  padding: 9px 10px;
-  border-radius: 4px;
-}
-
-body.canonical-green-shell .workspace-link {
-  border: 1px solid rgba(255, 255, 255, .28);
-}
-
-body.canonical-green-shell .site-entry-link {
-  min-height: 39px;
-  display: inline-flex;
-  align-items: center;
-  padding: 9px 14px;
-  border: 1px solid var(--mdm-sea-glass);
-  border-radius: 4px;
-  background: var(--mdm-sea-glass);
-  color: var(--mdm-deep) !important;
-  font-weight: 700 !important;
-}
-
-body.canonical-green-shell .site-entry-link:hover,
-body.canonical-green-shell .site-entry-link:focus-visible {
-  background: var(--mdm-sea-glass-hover);
-  border-color: var(--mdm-sea-glass-hover);
-  color: var(--mdm-deep) !important;
-  outline-color: var(--mdm-sea-glass-hover);
-}
-
-body.canonical-green-shell .site-entry-link::after,
-body.canonical-green-shell .workspace-link::after,
-body.canonical-green-shell .site-trust-link::after {
-  display: none;
-}
-
-body.canonical-green-shell .header .site-search-button {
-  width: 39px;
-  height: 39px;
-  border-radius: 4px;
-}
+/* Header and footer geometry live in canonical-site-shell.css. Keeping the
+   shared chrome in one stylesheet prevents legal, publication, and product
+   pages from acquiring different responsive shells. */
 
 /* Shared page heroes */
 body.canonical-green-shell:not(.homepage-enterprise) > .hero,
@@ -1151,53 +1016,6 @@ body.canonical-green-shell .article-main .page.body h3 {
   box-shadow: 0 32px 100px rgba(4, 24, 27, .42);
 }
 
-/* Footer */
-body.canonical-green-shell .mond-footer {
-  padding: 72px clamp(24px, 4vw, 56px) 34px;
-  background: var(--mdm-brand-dark);
-}
-
-body.canonical-green-shell .mond-footer .mf-inner {
-  max-width: var(--mdm-max);
-}
-
-body.canonical-green-shell .mond-footer .mf-top {
-  gap: 80px;
-  padding-bottom: 58px;
-}
-
-body.canonical-green-shell .mond-footer .mf-brand {
-  max-width: 430px;
-}
-
-body.canonical-green-shell .mond-footer .mf-mark-row {
-  gap: 9px;
-  font-size: 1.45rem;
-}
-
-body.canonical-green-shell .mond-footer .mf-copy {
-  max-width: 42ch;
-  margin-top: 20px;
-  color: rgba(255, 255, 255, .6);
-  font-size: .94rem;
-}
-
-body.canonical-green-shell .mond-footer .mf-nav {
-  gap: clamp(50px, 7vw, 94px);
-}
-
-body.canonical-green-shell .mond-footer .mf-col-title {
-  color: rgba(255, 255, 255, .44);
-}
-
-body.canonical-green-shell .mond-footer .mf-col a {
-  color: rgba(255, 255, 255, .7);
-}
-
-body.canonical-green-shell .mond-footer .mf-social a {
-  border-radius: 4px;
-}
-
 /* Motion: restrained and informative. */
 body.canonical-green-shell .reveal {
   opacity: 1;
@@ -1231,37 +1049,8 @@ body.canonical-green-shell .reveal {
   }
 }
 
-@media (max-width: 1260px) {
-  body.canonical-green-shell .site-trust-link { display: none; }
-  body.canonical-green-shell .nav { gap: 4px; }
-  body.canonical-green-shell .nav .nav-parent { padding-inline: 6px; }
-  body.canonical-green-shell .site-entry-link { padding-inline: 11px; }
-}
-
 @media (max-width: 1180px) {
   :root { --mdm-header: 70px; }
-
-  body.canonical-green-shell .header-inner {
-    padding: 12px 20px;
-  }
-
-  body.canonical-green-shell .header.mobile-nav-open {
-    height: auto;
-    max-height: 100dvh;
-    overflow: auto;
-    background: rgba(4, 24, 27, .99);
-  }
-
-  body.canonical-green-shell .nav .nav-menu {
-    height: auto;
-  }
-
-  body.canonical-green-shell .nav .nav-parent,
-  body.canonical-green-shell .nav > a {
-    font-size: .93rem;
-  }
-
-  body.canonical-green-shell .site-trust-link { display: flex; }
 
   body.homepage-enterprise .hero-inner {
     min-height: 760px;
@@ -1336,16 +1125,6 @@ body.canonical-green-shell .reveal {
 }
 
 @media (max-width: 640px) {
-  body.canonical-green-shell .brand {
-    font-size: 1.12rem;
-  }
-
-  body.canonical-green-shell .brand .monderman-lockup__mark {
-    width: 21px;
-    height: 21px;
-    flex-basis: 21px;
-  }
-
   body.canonical-green-shell:not(.homepage-enterprise) .hero h1,
   body.canonical-green-shell .ps-hero h1,
   body.canonical-green-shell .article-hero h1 {
@@ -1464,9 +1243,6 @@ body.canonical-green-shell .reveal {
     border-bottom: 0;
   }
 
-  body.canonical-green-shell .mond-footer {
-    padding: 52px 22px 28px;
-  }
 }
 
 @media print {

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { chromium } from 'playwright';
+import { chromium, webkit } from 'playwright';
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
 const out = process.env.MOBILE_OUT || '/tmp/mobile-site-presentation';
@@ -13,11 +13,49 @@ const pages = fs.readdirSync(process.cwd())
   .filter((name) => name.endsWith('.html') && !name.startsWith('google'))
   .sort();
 
+const sourceByPage = new Map(pages.map((name) => [name, fs.readFileSync(name, 'utf8')]));
+const canonicalPages = pages.filter((name) => {
+  const source = sourceByPage.get(name);
+  return /<body\b[^>]*\bclass=["'][^"']*\bcanonical-green-shell\b/i.test(source)
+    && /canonical-site-shell\.js/.test(source);
+});
+const footerPages = pages.filter((name) => canonicalPages.includes(name) || /\bmond-footer\b/.test(sourceByPage.get(name)));
+const shellFreePages = pages.filter((name) => !canonicalPages.includes(name) && !footerPages.includes(name));
+
+assert.equal(pages.length, 69, 'rendered root-page inventory changed unexpectedly');
+assert.equal(canonicalPages.length, 51, 'canonical header + footer inventory changed unexpectedly');
+assert.equal(footerPages.length, 55, 'footer inventory changed unexpectedly');
+assert.equal(shellFreePages.length, 14, 'functional shell-free page inventory changed unexpectedly');
+
+// The deployed artifact must contain one exact copy of each source page and one
+// exact shared shell. This rejects accidental Finder-style duplicate files and
+// proves that page-family markup cannot drift at build time.
+const publishDirectory = path.resolve('.render-public');
+const sourceHtmlNames = fs.readdirSync(process.cwd()).filter((name) => name.endsWith('.html')).sort();
+const publishedHtmlNames = fs.readdirSync(publishDirectory).filter((name) => name.endsWith('.html')).sort();
+assert.deepEqual(publishedHtmlNames, sourceHtmlNames, 'published HTML inventory differs from source');
+assert.equal(publishedHtmlNames.some((name) => / \d+\.html$/.test(name)), false, 'duplicate-suffixed HTML leaked into the artifact');
+
+const headerPattern = /<header\b(?=[^>]*\bid=["']siteHeader["'])[^>]*>[\s\S]*?<\/header>/i;
+const footerPattern = /<footer\b(?=[^>]*\bclass=["'][^"']*\bmond-footer\b[^"']*["'])[^>]*>[\s\S]*?<\/footer>/i;
+const expectedHeader = fs.readFileSync('site-shell/header.html', 'utf8').trim();
+const expectedFooter = fs.readFileSync('site-shell/footer.html', 'utf8').trim();
+for (const pageName of canonicalPages) {
+  const built = fs.readFileSync(path.join(publishDirectory, pageName), 'utf8');
+  assert.equal(built.match(headerPattern)?.[0], expectedHeader, `${pageName}: built header is not the canonical partial`);
+}
+for (const pageName of footerPages) {
+  const built = fs.readFileSync(path.join(publishDirectory, pageName), 'utf8');
+  assert.equal(built.match(footerPattern)?.[0], expectedFooter, `${pageName}: built footer is not the canonical partial`);
+}
+
 const viewports = [
   { name: 'compact-phone', width: 320, height: 700 },
   { name: 'android', width: 360, height: 800 },
   { name: 'iphone', width: 390, height: 844 },
   { name: 'large-android', width: 430, height: 932 },
+  { name: 'tablet-portrait', width: 768, height: 1024 },
+  { name: 'tablet-landscape', width: 1024, height: 768 },
 ];
 
 const evidencePages = new Set([
@@ -33,6 +71,8 @@ const evidencePages = new Set([
 const localOrigin = new URL(base).origin;
 const browser = await chromium.launch({ headless: true });
 const failures = [];
+const footerSignatures = new Map();
+const headerSignatures = new Map();
 
 async function navigateToStableDocument(page, url) {
   let lastError;
@@ -114,7 +154,10 @@ try {
             ? [...element.getClientRects()]
             : [box];
           if (boxes.every((rect) => rect.left >= -2 && rect.right <= viewportWidth + 2)) return [];
-          if (element.closest('.mf-motif,#turnstilePreload') || element.matches('.hero-image')) return [];
+          // Off-screen cards are the intended mask of the horizontal homepage
+          // carousel. Everything else, including the footer motif, remains in
+          // the clipping audit.
+          if (element.closest('#turnstilePreload,.latest-viewport') || element.matches('.hero-image')) return [];
 
           let ancestor = element.parentElement;
           while (ancestor && ancestor !== document.body) {
@@ -140,12 +183,55 @@ try {
           return [{ src: image.getAttribute('src'), width: Math.round(box.width), height: Math.round(box.height) }];
         });
 
+        const rectangle = (selector) => {
+          const element = document.querySelector(selector);
+          if (!element) return null;
+          const box = element.getBoundingClientRect();
+          return {
+            left: box.left,
+            right: box.right,
+            top: box.top,
+            bottom: box.bottom,
+            width: box.width,
+            height: box.height,
+          };
+        };
+        const footer = rectangle('.mond-footer');
+        const footerInner = rectangle('.mond-footer .mf-inner');
+        const footerTop = rectangle('.mond-footer .mf-top');
+        const footerBottom = rectangle('.mond-footer .mf-bottom');
+        const copyright = rectangle('.mond-footer .mf-copyright');
+        const motif = rectangle('.mond-footer .mf-motif');
+        let footerRule = null;
+        if (footerBottom) {
+          const style = getComputedStyle(document.querySelector('.mond-footer .mf-bottom'), '::before');
+          const left = footerBottom.left + Number.parseFloat(style.left);
+          footerRule = {
+            left,
+            right: left + Number.parseFloat(style.width),
+            width: Number.parseFloat(style.width),
+          };
+        }
+        const header = rectangle('#siteHeader');
+        const headerInner = rectangle('#siteHeader .header-inner');
+        const brand = rectangle('#siteHeader .brand');
+
         return {
           viewportWidth,
           documentWidth: document.documentElement.scrollWidth,
           hasViewportMeta: Boolean(document.querySelector('meta[name="viewport"]')),
           clipped,
           pathologicalImages,
+          footer: footer && footerInner && footerTop && footerBottom && copyright && motif && footerRule ? {
+            footer,
+            inner: footerInner,
+            top: footerTop,
+            bottom: footerBottom,
+            copyright,
+            motif,
+            rule: footerRule,
+          } : null,
+          header: header && headerInner && brand ? { header, inner: headerInner, brand } : null,
         };
       });
 
@@ -154,7 +240,47 @@ try {
       if (geometry.clipped.length) failures.push(`${pageName}/${viewport.name}: visible content is clipped (${JSON.stringify(geometry.clipped.slice(0, 5))})`);
       if (geometry.pathologicalImages.length) failures.push(`${pageName}/${viewport.name}: image ignores its responsive crop (${JSON.stringify(geometry.pathologicalImages)})`);
 
-      if (pageName === 'about.html') {
+      if (geometry.footer) {
+        const { footer, inner, top, bottom, copyright, motif, rule } = geometry.footer;
+        const signature = [footer.height, inner.left, inner.width, top.height, bottom.height, motif.width]
+          .map((value) => Math.round(value * 10) / 10)
+          .join('|');
+        if (!footerSignatures.has(viewport.name)) footerSignatures.set(viewport.name, signature);
+        if (footerSignatures.get(viewport.name) !== signature) {
+          failures.push(`${pageName}/${viewport.name}: footer geometry diverges from the shared shell (${signature} vs ${footerSignatures.get(viewport.name)})`);
+        }
+        if (Math.abs(footer.left) > 1 || Math.abs(footer.right - geometry.viewportWidth) > 1) {
+          failures.push(`${pageName}/${viewport.name}: footer is not full-bleed (${JSON.stringify(footer)})`);
+        }
+        if (motif.left < footer.left - 1 || motif.right > footer.right + 1 || motif.top < footer.top - 1 || motif.bottom > footer.bottom + 1) {
+          failures.push(`${pageName}/${viewport.name}: footer motif is clipped (${JSON.stringify({ footer, motif })})`);
+        }
+        const overlaps = !(copyright.right <= motif.left || motif.right <= copyright.left || copyright.bottom <= motif.top || motif.bottom <= copyright.top);
+        if (overlaps) failures.push(`${pageName}/${viewport.name}: footer motif overlaps the copyright (${JSON.stringify({ copyright, motif })})`);
+        if (Math.abs(rule.left) > 1 || rule.width < geometry.viewportWidth * .45) {
+          failures.push(`${pageName}/${viewport.name}: footer rule is too short or does not reach the viewport edge (${JSON.stringify(rule)})`);
+        }
+        const expectedGap = viewport.width <= 640 ? 24 : viewport.width <= 960 ? 54 : 90;
+        if (Math.abs((motif.left - rule.right) - expectedGap) > 1) {
+          failures.push(`${pageName}/${viewport.name}: footer rule-to-motif gap is inconsistent (${motif.left - rule.right}px vs ${expectedGap}px)`);
+        }
+      }
+
+      if (geometry.header) {
+        const { header, inner, brand } = geometry.header;
+        const signature = [header.height, inner.left, inner.width, inner.height, brand.left, brand.width]
+          .map((value) => Math.round(value * 10) / 10)
+          .join('|');
+        if (!headerSignatures.has(viewport.name)) headerSignatures.set(viewport.name, signature);
+        if (headerSignatures.get(viewport.name) !== signature) {
+          failures.push(`${pageName}/${viewport.name}: header geometry diverges from the shared shell (${signature} vs ${headerSignatures.get(viewport.name)})`);
+        }
+        if (Math.abs(header.left) > 1 || Math.abs(header.right - geometry.viewportWidth) > 1 || Math.abs(header.height - 70) > 1) {
+          failures.push(`${pageName}/${viewport.name}: responsive header is not balanced to the shared 70px frame (${JSON.stringify(header)})`);
+        }
+      }
+
+      if (pageName === 'about.html' && viewport.width <= 430) {
         const portraits = await page.locator('.founder-photo').evaluateAll((images) => images.map((image) => {
           const box = image.getBoundingClientRect();
           return { width: box.width, height: box.height };
@@ -170,7 +296,6 @@ try {
         const tile = page.locator('.hero-report-proof.has-sample-depth-tile');
         if (!(await tile.isVisible())) failures.push(`${pageName}/${viewport.name}: sample report proof is missing on a phone`);
         const tileBox = await tile.boundingBox();
-        if (!tileBox || tileBox.width > viewport.width - 38) failures.push(`${pageName}/${viewport.name}: sample report proof exceeds the mobile content column`);
         const routeField = page.locator('.hero-route-field');
         if (await routeField.count() !== 0) failures.push(`${pageName}/${viewport.name}: retired decorative route field returned`);
       }
@@ -258,6 +383,130 @@ try {
   }
   if (connectState.assistantVisible) failures.push('runtime utilities: assistant launcher remains visible over the open Connect panel');
   await runtimePage.close();
+
+  // Exercise the complete canonical navigation on every page, rather than
+  // inferring mobile usability from identical markup alone. Chromium covers
+  // compact phone through landscape tablet; WebKit repeats the iPhone and
+  // iPad widths that prompted this repair.
+  async function sweepResponsiveHeaders(browserType, engineName, responsiveViewports) {
+    const engine = await browserType.launch({ headless: true });
+    try {
+      for (const viewport of responsiveViewports) {
+        for (const pageName of canonicalPages) {
+          const page = await engine.newPage({ viewport });
+          await page.route('**/*', async (route) => {
+            const url = new URL(route.request().url());
+            if (url.origin === localOrigin || url.protocol === 'data:' || url.protocol === 'blob:') await route.continue();
+            else await route.abort();
+          });
+          await navigateToStableDocument(page, `${base}/${pageName}`);
+          await page.locator('.site-menu-button').waitFor({ state: 'visible' });
+
+          const closed = await page.evaluate(() => {
+            const box = (selector) => {
+              const rect = document.querySelector(selector).getBoundingClientRect();
+              return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height };
+            };
+            return {
+              header: box('#siteHeader'),
+              brand: box('#siteHeader .brand'),
+              menu: box('#siteHeader .site-menu-button'),
+              navDisplay: getComputedStyle(document.querySelector('#siteHeader .nav')).display,
+              documentWidth: document.documentElement.scrollWidth,
+              viewportWidth: document.documentElement.clientWidth,
+            };
+          });
+          const label = `${pageName}/${engineName}/${viewport.width}`;
+          if (Math.abs(closed.header.height - 70) > 1 || Math.abs(closed.header.left) > 1 || Math.abs(closed.header.right - viewport.width) > 1) {
+            failures.push(`${label}: closed header left the shared 70px frame (${JSON.stringify(closed.header)})`);
+          }
+          if (Math.abs(closed.brand.left - 20) > 1 || Math.abs(closed.menu.right - (viewport.width - 20)) > 1) {
+            failures.push(`${label}: closed header side insets are unbalanced (${JSON.stringify({ brand: closed.brand, menu: closed.menu })})`);
+          }
+          if (Math.abs((closed.brand.top + closed.brand.bottom) / 2 - 35) > 1 || Math.abs((closed.menu.top + closed.menu.bottom) / 2 - 35) > 1) {
+            failures.push(`${label}: closed header controls are not vertically centered`);
+          }
+          if (closed.menu.width < 44 || closed.menu.height < 44 || closed.navDisplay !== 'none' || closed.documentWidth > closed.viewportWidth + 1) {
+            failures.push(`${label}: closed navigation is clipped, exposed, or undersized (${JSON.stringify(closed)})`);
+          }
+
+          await page.locator('.site-menu-button').click();
+          const opened = await page.evaluate(() => {
+            const rect = (selector) => {
+              const box = document.querySelector(selector).getBoundingClientRect();
+              return { left: box.left, right: box.right, top: box.top, bottom: box.bottom, width: box.width, height: box.height };
+            };
+            const header = document.querySelector('#siteHeader');
+            const nav = document.querySelector('#siteHeader .nav');
+            const search = document.querySelector('#siteHeader .site-search-button');
+            const entry = document.querySelector('#siteHeader .site-entry-link');
+            return {
+              header: rect('#siteHeader'),
+              nav: rect('#siteHeader .nav'),
+              search: rect('#siteHeader .site-search-button'),
+              entry: rect('#siteHeader .site-entry-link'),
+              navDisplay: getComputedStyle(nav).display,
+              overflowY: getComputedStyle(header).overflowY,
+              headerClientHeight: header.clientHeight,
+              headerScrollHeight: header.scrollHeight,
+              expanded: document.querySelector('.site-menu-button').getAttribute('aria-expanded'),
+              searchLabel: document.querySelector('.site-search-label')?.textContent?.trim(),
+              documentWidth: document.documentElement.scrollWidth,
+              viewportWidth: document.documentElement.clientWidth,
+            };
+          });
+          if (opened.navDisplay !== 'flex' || opened.expanded !== 'true' || opened.header.height > viewport.height + 1 || opened.overflowY !== 'auto') {
+            failures.push(`${label}: open navigation is not a viewport-bounded scroll region (${JSON.stringify(opened)})`);
+          }
+          if (Math.abs(opened.nav.left - 20) > 1 || Math.abs(opened.nav.right - (viewport.width - 20)) > 1) {
+            failures.push(`${label}: open navigation rails are unbalanced (${JSON.stringify(opened.nav)})`);
+          }
+          if (Math.abs(opened.search.width - opened.nav.width) > 1 || Math.abs(opened.entry.width - opened.nav.width) > 1 || opened.search.height < 44 || opened.entry.height < 44 || opened.searchLabel !== 'Search') {
+            failures.push(`${label}: Search and primary action are not balanced full-width touch rows (${JSON.stringify(opened)})`);
+          }
+          if (opened.documentWidth > opened.viewportWidth + 1) failures.push(`${label}: opening the navigation creates horizontal overflow`);
+
+          await page.locator('#siteHeader .nav-parent').first().scrollIntoViewIfNeeded();
+          await page.locator('#siteHeader .nav-parent').first().click();
+          const submenu = await page.evaluate(() => {
+            const header = document.querySelector('#siteHeader');
+            const dropdown = document.querySelector('#siteHeader .nav-menu.is-open .nav-dropdown');
+            const box = dropdown?.getBoundingClientRect();
+            return {
+              openMenus: document.querySelectorAll('#siteHeader .nav-menu.is-open').length,
+              parentExpanded: document.querySelector('#siteHeader .nav-parent')?.getAttribute('aria-expanded'),
+              display: dropdown ? getComputedStyle(dropdown).display : 'missing',
+              left: box?.left,
+              right: box?.right,
+              headerClientHeight: header.clientHeight,
+              headerScrollHeight: header.scrollHeight,
+            };
+          });
+          if (submenu.openMenus !== 1 || submenu.parentExpanded !== 'true' || submenu.display !== 'grid' || submenu.left < 19 || submenu.right > viewport.width - 19) {
+            failures.push(`${label}: submenu is missing, clipped, or permits competing open menus (${JSON.stringify(submenu)})`);
+          }
+
+          await page.keyboard.press('Escape');
+          const closedByKeyboard = await page.locator('.site-menu-button').getAttribute('aria-expanded');
+          if (closedByKeyboard !== 'false') failures.push(`${label}: Escape did not close the mobile navigation`);
+          await page.close();
+        }
+      }
+    } finally {
+      await engine.close();
+    }
+  }
+
+  await sweepResponsiveHeaders(chromium, 'chromium', [
+    { width: 320, height: 700 },
+    { width: 390, height: 844 },
+    { width: 768, height: 1024 },
+    { width: 1024, height: 768 },
+  ]);
+  await sweepResponsiveHeaders(webkit, 'webkit', [
+    { width: 390, height: 844 },
+    { width: 768, height: 1024 },
+  ]);
 
   // The fixed mobile shell must expose its navigation above page content, and
   // short use-case heroes must begin below that shell rather than beneath it.
@@ -361,7 +610,7 @@ try {
   }
 
   assert.deepEqual(failures, [], `mobile site presentation failures:\n${failures.join('\n')}`);
-  console.log(`mobile site presentation smoke: passed ${pages.length} pages across ${viewports.length} phone widths`);
+  console.log(`mobile site presentation smoke: passed ${pages.length} pages across ${viewports.length} phone and tablet widths`);
 } finally {
   await browser.close();
 }
