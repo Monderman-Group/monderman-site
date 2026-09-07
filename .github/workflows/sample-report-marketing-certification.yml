@@ -240,6 +240,7 @@ jobs:
       - name: Serve candidate
         run: |
           RENDER_GIT_COMMIT="$GITHUB_SHA" bash scripts/render-static-build.sh
+          node scripts/email_mark_asset_smoke.mjs .render-public/assets/brand/monderman-email-mark-v1.png
           python3 -m http.server 8080 --bind 127.0.0.1 --directory .render-public >/tmp/report-cert-http.log 2>&1 &
           echo $! >/tmp/report-cert-http.pid
           for i in {1..20}; do curl -fsS http://127.0.0.1:8080/sample-report.html >/dev/null && exit 0; sleep 1; done

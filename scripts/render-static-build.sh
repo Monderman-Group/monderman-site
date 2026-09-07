@@ -33,6 +33,7 @@ cp -- assets/books/governance-bureaucracy-organization-cover.jpg "$publish_dir/a
 cp -- \
   assets/brand/brand-foundations-v2.css \
   assets/brand/brand-lockup.css \
+  assets/brand/monderman-email-mark-v1.png \
   assets/brand/monderman-favicon.svg \
   assets/brand/monderman-map-cream.svg \
   assets/brand/monderman-mark-v2-small.svg \
