@@ -216,16 +216,15 @@ await standalone.close();
 // sample renderer. These pages use the locked production-scorer artifact as
 // input, but render through the same MondermanReport.fromRun path used by
 // Workspace. Samples are deliberately not used as an implementation proxy.
-const authenticatedRunHtml = await page.evaluate(async () => {
-  const artifact = await fetch('./test-fixtures/authenticated-report-engine-runs.json').then(response => {
-    if (!response.ok) throw new Error(`production diagnostic artifact unavailable: ${response.status}`);
-    return response.json();
-  });
+const authenticatedArtifact = JSON.parse(
+  fs.readFileSync(new URL('../test-fixtures/authenticated-report-engine-runs.json', import.meta.url), 'utf8'),
+);
+const authenticatedRunHtml = await page.evaluate((artifact) => {
   return Object.fromEntries(Object.entries(artifact.outputs).map(([key, run]) => [
     key,
     window.MondermanReport.buildReportHtml(window.MondermanReport.fromRun(run)),
   ]));
-});
+}, authenticatedArtifact);
 const authenticatedRunChecks = [];
 const runDimensions = { operational_systems:6, decision_velocity:4, structural_clarity:5, institutional_performance:6 };
 const viewports = [

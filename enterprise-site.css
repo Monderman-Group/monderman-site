@@ -6,13 +6,15 @@
  * It loads after page-local styles so the public site shares one visual voice.
  */
 
-@import url("assets/brand/brand-foundations-v2.css?v=20260906-enterprise1");
+@import url("assets/brand/brand-foundations-v2.css?v=20260906-accent1");
 
 :root {
   --mdm-deep: #04181B;
   --mdm-brand-dark: #073338;
   --mdm-teal: #0C6E78;
   --mdm-teal-dark: #0A5B63;
+  --mdm-sea-glass: #A9D0D4;
+  --mdm-sea-glass-hover: #C4E1E3;
   --mdm-white: #FFFFFF;
   --mdm-paper: #FAFAF8;
   --mdm-ink: #18191C;
@@ -49,9 +51,24 @@ body.canonical-green-shell ::selection {
 }
 
 body.canonical-green-shell :focus-visible {
-  outline-color: var(--mdm-amber);
+  outline-color: var(--mdm-teal);
   outline-width: 3px;
   outline-offset: 3px;
+}
+
+body.canonical-green-shell :is(
+  .header,
+  .hero,
+  .ps-hero,
+  .article-hero,
+  .pl-top,
+  .section-on-dark,
+  .ctaband,
+  .slide.dark,
+  .ps-enterprise,
+  .mond-footer
+) :focus-visible {
+  outline-color: var(--mdm-sea-glass);
 }
 
 body.canonical-green-shell h1,
@@ -180,18 +197,19 @@ body.canonical-green-shell .site-entry-link {
   display: inline-flex;
   align-items: center;
   padding: 9px 14px;
-  border: 1px solid var(--mdm-amber);
+  border: 1px solid var(--mdm-sea-glass);
   border-radius: 4px;
-  background: var(--mdm-amber);
+  background: var(--mdm-sea-glass);
   color: var(--mdm-deep) !important;
   font-weight: 700 !important;
 }
 
 body.canonical-green-shell .site-entry-link:hover,
 body.canonical-green-shell .site-entry-link:focus-visible {
-  background: #DEA044;
-  border-color: #DEA044;
+  background: var(--mdm-sea-glass-hover);
+  border-color: var(--mdm-sea-glass-hover);
   color: var(--mdm-deep) !important;
+  outline-color: var(--mdm-sea-glass-hover);
 }
 
 body.canonical-green-shell .site-entry-link::after,
@@ -412,6 +430,95 @@ body.canonical-green-shell .dx-btn-primary:hover {
 }
 
 /*
+ * On dark fields, the primary action uses pale sea-glass with dark ink. This
+ * separates navigation and conversion from amber, which is reserved for
+ * constrained availability, warnings, and data meaning.
+ */
+body.canonical-green-shell :is(
+  .hero,
+  .ps-hero,
+  .article-hero,
+  .pl-top,
+  .section-on-dark,
+  .ctaband,
+  .slide.dark,
+  .ps-enterprise
+) :is(.btn-accent, .btn-primary, .btn.primary, .ps-btn-primary, .dx-btn-primary, .article-action-primary):not(.pilot-primary) {
+  background: var(--mdm-sea-glass);
+  border-color: var(--mdm-sea-glass);
+  color: var(--mdm-deep);
+  box-shadow: none;
+}
+
+body.canonical-green-shell :is(
+  .hero,
+  .ps-hero,
+  .article-hero,
+  .pl-top,
+  .section-on-dark,
+  .ctaband,
+  .slide.dark,
+  .ps-enterprise
+) :is(.btn-accent, .btn-primary, .btn.primary, .ps-btn-primary, .dx-btn-primary, .article-action-primary):not(.pilot-primary):hover,
+body.canonical-green-shell :is(
+  .hero,
+  .ps-hero,
+  .article-hero,
+  .pl-top,
+  .section-on-dark,
+  .ctaband,
+  .slide.dark,
+  .ps-enterprise
+) :is(.btn-accent, .btn-primary, .btn.primary, .ps-btn-primary, .dx-btn-primary, .article-action-primary):not(.pilot-primary):focus-visible {
+  background: var(--mdm-sea-glass-hover);
+  border-color: var(--mdm-sea-glass-hover);
+  color: var(--mdm-deep);
+  outline-color: var(--mdm-sea-glass-hover);
+}
+
+body.canonical-green-shell :is(
+  .hero,
+  .ps-hero,
+  .article-hero,
+  .pl-top,
+  .section-on-dark,
+  .ctaband,
+  .slide.dark,
+  .ps-enterprise
+) :is(.btn-secondary, .btn-hero-secondary, .btn.secondary):not(.hero-pilot-cta) {
+  background: transparent;
+  border-color: rgba(169, 208, 212, .58);
+  color: var(--mdm-sea-glass);
+  box-shadow: none;
+}
+
+body.canonical-green-shell :is(
+  .hero,
+  .ps-hero,
+  .article-hero,
+  .pl-top,
+  .section-on-dark,
+  .ctaband,
+  .slide.dark,
+  .ps-enterprise
+) :is(.btn-secondary, .btn-hero-secondary, .btn.secondary):not(.hero-pilot-cta):hover,
+body.canonical-green-shell :is(
+  .hero,
+  .ps-hero,
+  .article-hero,
+  .pl-top,
+  .section-on-dark,
+  .ctaband,
+  .slide.dark,
+  .ps-enterprise
+) :is(.btn-secondary, .btn-hero-secondary, .btn.secondary):not(.hero-pilot-cta):focus-visible {
+  background: rgba(169, 208, 212, .10);
+  border-color: var(--mdm-sea-glass-hover);
+  color: var(--mdm-sea-glass-hover);
+  box-shadow: none;
+}
+
+/*
  * Keep one filled action in a desktop opening view. The persistent header owns
  * the free Decision Velocity entry point; page-specific hero actions retain
  * their meaning but step down to the secondary tier. On smaller screens the
@@ -422,12 +529,11 @@ body.canonical-green-shell .dx-btn-primary:hover {
   body.canonical-green-shell .article-hero .article-action-primary,
   body.canonical-green-shell .hero .btn-accent,
   body.canonical-green-shell .hero .btn-primary,
-  body.canonical-green-shell .hero .pilot-primary,
   body.canonical-green-shell .ps-hero .btn-accent,
   body.canonical-green-shell .ps-hero .btn-primary {
     background: transparent !important;
-    border-color: var(--mdm-amber-light) !important;
-    color: var(--mdm-amber-light) !important;
+    border-color: var(--mdm-sea-glass) !important;
+    color: var(--mdm-sea-glass) !important;
     box-shadow: none !important;
   }
 
@@ -437,22 +543,36 @@ body.canonical-green-shell .dx-btn-primary:hover {
   body.canonical-green-shell .hero .btn-accent:focus-visible,
   body.canonical-green-shell .hero .btn-primary:hover,
   body.canonical-green-shell .hero .btn-primary:focus-visible,
-  body.canonical-green-shell .hero .pilot-primary:hover,
-  body.canonical-green-shell .hero .pilot-primary:focus-visible,
   body.canonical-green-shell .ps-hero .btn-accent:hover,
   body.canonical-green-shell .ps-hero .btn-accent:focus-visible,
   body.canonical-green-shell .ps-hero .btn-primary:hover,
   body.canonical-green-shell .ps-hero .btn-primary:focus-visible {
-    background: rgba(201, 130, 31, .12) !important;
-    border-color: #FFD99B !important;
-    color: #FFD99B !important;
+    background: rgba(169, 208, 212, .12) !important;
+    border-color: var(--mdm-sea-glass-hover) !important;
+    color: var(--mdm-sea-glass-hover) !important;
   }
 
   body.canonical-green-shell .article-hero .article-action-primary:focus-visible,
-  body.canonical-green-shell .hero :is(.btn-accent, .btn-primary, .pilot-primary):focus-visible,
+  body.canonical-green-shell .hero :is(.btn-accent, .btn-primary):focus-visible,
   body.canonical-green-shell .ps-hero :is(.btn-accent, .btn-primary):focus-visible {
-    outline: 3px solid #FFD99B !important;
+    outline: 3px solid var(--mdm-sea-glass-hover) !important;
     outline-offset: 3px !important;
+  }
+
+  /* The pilot action retains amber's limited-availability meaning. */
+  body.canonical-green-shell .hero .pilot-primary {
+    background: transparent !important;
+    border-color: var(--mdm-amber-light) !important;
+    color: var(--mdm-amber-light) !important;
+    box-shadow: none !important;
+  }
+
+  body.canonical-green-shell .hero .pilot-primary:hover,
+  body.canonical-green-shell .hero .pilot-primary:focus-visible {
+    background: rgba(201, 130, 31, .12) !important;
+    border-color: #FFD99B !important;
+    color: #FFD99B !important;
+    outline-color: #FFD99B !important;
   }
 }
 
@@ -558,26 +678,26 @@ body.homepage-enterprise .hero-actions {
 }
 
 body.homepage-enterprise .hero-actions .btn-accent {
-  background: var(--mdm-amber);
-  border-color: var(--mdm-amber);
+  background: var(--mdm-sea-glass);
+  border-color: var(--mdm-sea-glass);
   color: var(--mdm-deep);
 }
 
 body.homepage-enterprise .hero-actions .btn-accent:hover,
 body.homepage-enterprise .hero-actions .btn-accent:focus-visible {
-  background: #DEA044;
-  border-color: #DEA044;
+  background: var(--mdm-sea-glass-hover);
+  border-color: var(--mdm-sea-glass-hover);
   color: var(--mdm-deep);
 }
 
-body.homepage-enterprise .hero-actions .btn-secondary {
+body.homepage-enterprise .hero-actions .hero-pilot-cta {
   background: transparent;
   border-color: var(--mdm-amber-light);
   color: var(--mdm-amber-light);
 }
 
-body.homepage-enterprise .hero-actions .btn-secondary:hover,
-body.homepage-enterprise .hero-actions .btn-secondary:focus-visible {
+body.homepage-enterprise .hero-actions .hero-pilot-cta:hover,
+body.homepage-enterprise .hero-actions .hero-pilot-cta:focus-visible {
   background: rgba(201, 130, 31, .12);
   border-color: #FFD99B;
   color: #FFD99B;
@@ -949,7 +1069,21 @@ body.canonical-green-shell .ps-tier {
 }
 
 body.canonical-green-shell .ps-tier.featured {
-  border-top-color: var(--mdm-amber);
+  border-top-color: var(--mdm-teal);
+}
+
+body.canonical-green-shell .mxps-card > a {
+  background: var(--mdm-sea-glass);
+  border: 1px solid var(--mdm-sea-glass);
+  color: var(--mdm-deep);
+  box-shadow: none;
+}
+
+body.canonical-green-shell .mxps-card > a:hover,
+body.canonical-green-shell .mxps-card > a:focus-visible {
+  background: var(--mdm-sea-glass-hover);
+  border-color: var(--mdm-sea-glass-hover);
+  color: var(--mdm-deep);
 }
 
 body.canonical-green-shell .ps-tier-flag {

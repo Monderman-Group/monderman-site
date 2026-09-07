@@ -27,8 +27,13 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
     assert.equal(await page.locator('input[name="completedDecisionVelocity"]').isChecked(), true, `${browserName}/${viewport.name}: Decision Velocity completion was not carried into the application`);
     assert.equal(await page.locator('script[src^="assistant.js"]').count(), 1, `${browserName}/${viewport.name}: assistant missing`);
     assert.equal(await page.locator('footer a[aria-label="Monderman on LinkedIn"]').count(), 1, `${browserName}/${viewport.name}: social footer missing`);
-    const amber = await page.locator(".pilot-primary").first().evaluate((node) => getComputedStyle(node).backgroundColor);
-    assert.equal(amber, "rgb(201, 130, 31)", `${browserName}/${viewport.name}: pilot action is not amber`);
+    const pilotAction = page.locator(".pilot-primary").first();
+    const pilotBackground = await pilotAction.evaluate((node) => getComputedStyle(node).backgroundColor);
+    const expectedPilotBackground = viewport.width >= 1181 ? "rgba(0, 0, 0, 0)" : "rgb(201, 130, 31)";
+    assert.equal(pilotBackground, expectedPilotBackground, `${browserName}/${viewport.name}: pilot action hierarchy is incorrect`);
+    const pilotColor = await pilotAction.evaluate((node) => getComputedStyle(node).color);
+    const expectedPilotColor = viewport.width >= 1181 ? "rgb(240, 196, 125)" : "rgb(24, 25, 28)";
+    assert.equal(pilotColor, expectedPilotColor, `${browserName}/${viewport.name}: pilot action lost its amber status treatment`);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     assert.ok(overflow <= 1, `${browserName}/${viewport.name}: pilot page overflows by ${overflow}px`);
 

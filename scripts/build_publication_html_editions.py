@@ -629,8 +629,10 @@ def build_page(publication: Publication, standard_footer: str) -> None:
   <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260903-map1">
   <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260903-map1">
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260903-map1">
-  <link rel="stylesheet" href="publication-html.css?v=20260903-html1">
-  <link rel="stylesheet" href="canonical-site-shell.css?v=20260906-system3">
+  <link rel="stylesheet" href="publication-html.css?v=20260906-accent1">
+  <link rel="stylesheet" href="canonical-site-shell.css?v=20260906-accent1">
+  <link rel="stylesheet" href="enterprise-site.css?v=20260906-accent1">
+  <link rel="stylesheet" href="publication-hero.css?v=20260906-system3">
 </head>
 <body class="canonical-green-shell">
 <a class="skip-link" href="#main-content">Skip to article</a>

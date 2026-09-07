@@ -50,7 +50,7 @@ for token in [
     "/api/billing/organizations",
     'purpose:"trial"',
     "organization_selection_required",
-    "Workspace for this trial",
+    "Workspace for this pilot",
     "This Pattern trial will start for",
     "/api/billing/pattern-pilot-invitation",
     'id="workspaceName"',

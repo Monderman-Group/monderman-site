@@ -31,13 +31,15 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
 
     await page.goto(`${base}/index.html`, { waitUntil: "domcontentloaded", timeout: 60000 });
     assert.equal(await page.locator(".first-run-moment").count(), 4);
-    assert.equal(await page.locator('.acquisition-route[href="pilot.html?source=homepage"]').count(), 1);
-    assert.match(await page.locator('.acquisition-route[href="pilot.html?source=homepage"] small').textContent(), /Cohort filling/);
-    assert.equal(await page.locator('.acquisition-route[href="decision-velocity.html?source=homepage"]').count(), 1);
-    const acquisitionAccent = await page.locator(".acquisition-route small").first().evaluate((node) => getComputedStyle(node).color);
-    assert.equal(acquisitionAccent, "rgb(134, 83, 13)", `${browserName}/${viewport.name}: homepage acquisition route is not amber`);
+    const pilotLink = page.locator('.hero-pilot-cta[href="pilot.html?source=homepage"]');
+    assert.equal(await pilotLink.count(), 1);
+    assert.match(await pilotLink.textContent(), /Filling up/);
+    assert.equal(await page.locator('.hero-actions .btn-accent[href="decision-velocity.html?source=homepage"]').count(), 1);
+    const pilotAccent = await pilotLink.evaluate((node) => getComputedStyle(node).color);
+    assert.equal(pilotAccent, "rgb(240, 196, 125)", `${browserName}/${viewport.name}: pilot availability signal is not amber`);
     const heroPrimaryColor = await page.locator(".hero-actions .btn-accent").evaluate((node) => getComputedStyle(node).backgroundColor);
-    assert.equal(heroPrimaryColor, "rgb(255, 255, 255)", `${browserName}/${viewport.name}: permanent platform action lost its distinct treatment`);
+    const expectedHeroPrimaryColor = viewport.width >= 1181 ? "rgba(0, 0, 0, 0)" : "rgb(169, 208, 212)";
+    assert.equal(heroPrimaryColor, expectedHeroPrimaryColor, `${browserName}/${viewport.name}: dark-surface action lost its sea-glass treatment`);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     assert.ok(overflow <= 1, `${browserName}/${viewport.name}: homepage overflows by ${overflow}px`);
 
