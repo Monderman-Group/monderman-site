@@ -116,11 +116,11 @@ if not latest_match:
  e.append('homepage research carousel boundary missing')
 else:
  latest=latest_match.group(1)
- if len(re.findall(r'<article class="latest-card category-(?:research|insight|brief|perspective)"',latest))!=15:e.append('homepage research carousel card count')
- if latest.count('latest-card-image latest-card-image--placeholder')!=15:e.append('homepage research carousel canonical cover count')
- if latest.count('placeholder-cover-type')!=15:e.append('homepage research carousel category label count')
- if latest.count('latest-card-link')!=15:e.append('homepage research carousel full-card link count')
- if latest.count('latest-card-secondary-link')!=13:e.append('homepage research carousel PDF action count')
+ if len(re.findall(r'<article class="latest-card category-(?:research|insight|brief|perspective)"',latest))!=16:e.append('homepage research carousel card count')
+ if latest.count('latest-card-image latest-card-image--placeholder')!=16:e.append('homepage research carousel canonical cover count')
+ if latest.count('placeholder-cover-type')!=16:e.append('homepage research carousel category label count')
+ if latest.count('latest-card-link')!=16:e.append('homepage research carousel full-card link count')
+ if latest.count('latest-card-secondary-link')!=14:e.append('homepage research carousel PDF action count')
  for href in re.findall(r'class="latest-card-link" href="([^"]+)"',latest):
   clean_href=href.split('?',1)[0]
   if not clean_href.endswith('.html'):e.append('homepage carousel primary route is not HTML '+href)
@@ -128,16 +128,18 @@ else:
  if 'latest-card-image"><img' in latest:e.append('homepage research carousel legacy image tile remains')
  for token in ['Built to Please','Why Consumer AI Tells You What You Want to Hear','Series, Part 3','Monderman_Insight_Built_to_Please_2026-09-02.pdf']:
   if token not in latest:e.append('homepage Built to Please card '+token)
+ tuned_pos=latest.find('<h3 class="latest-card-title">Nothing Stays Tuned</h3>')
+ if tuned_pos<0:e.append('Nothing Stays Tuned homepage Perspective missing')
  new_perspective_pos=latest.find('<h3 class="latest-card-title">We Gave Bureaucracy the Fastest Tools in History. It Got Slower.</h3>')
  unmeasured_pos=latest.find('<h3 class="latest-card-title">The Unmeasured Layer</h3>')
- if not (0<=new_perspective_pos<unmeasured_pos):e.append('homepage new perspective placement')
+ if not (0<=tuned_pos<new_perspective_pos<unmeasured_pos):e.append('homepage new perspective placement')
  series_cards=['Merit After the Machine','Every Node for Itself','Built to Please']
  series_positions=[latest.find('<h3 class="latest-card-title">'+title+'</h3>') for title in series_cards]
  if not (all(pos>=0 for pos in series_positions) and series_positions==sorted(series_positions)):
   e.append('homepage series carousel reading order')
  for part in ['Series, Part 1','Series, Part 2','Series, Part 3']:
   if latest.count(part)!=1:e.append('homepage series carousel chip '+part)
- for category,expected in [('insight',7),('brief',5),('perspective',3)]:
+ for category,expected in [('insight',7),('brief',5),('perspective',4)]:
   count=latest.count(f'data-category="{category}"')
   if count!=expected:e.append(f'homepage {category} category count {count}, expected {expected}')
  if 'data-category="research"' in latest:e.append('homepage current work falsely classified as Research')
@@ -171,7 +173,7 @@ for token in [
  if token not in idx:e.append('homepage research carousel no-script phone guard '+token)
 
 research=(r/'research.html').read_text(errors='ignore')
-for token in ['We Gave Bureaucracy the Fastest Tools in History. It Got Slower.','The Unmeasured Layer','AI and Institutions','Three papers, one story.','Part 1','Part 2','Part 3','17 items · Updated September 2026','HTML + PDF · 8 documents']:
+for token in ['We Gave Bureaucracy the Fastest Tools in History. It Got Slower.','The Unmeasured Layer','AI and Institutions','Three papers, one story.','Part 1','Part 2','Part 3','18 items · Updated September 2026','HTML + PDF · 8 documents']:
  if token not in research:e.append('research series contract '+token)
 if research.count('<article class="series-card">')!=3:e.append('research series card count')
 book_pos=research.find('<section class="book-feature">')
@@ -180,6 +182,9 @@ library_pos=research.find('<section class="library">')
 if not (0<=book_pos<series_pos<library_pos):e.append('research Book/series/library order')
 commentary_pos=research.find('id="bureaucracy-tools-title"')
 unmeasured_pos=research.find('id="unmeasured-layer-title"')
+tuned_pos=research.find('id="nothing-stays-tuned-title"')
+if not (book_pos<tuned_pos<commentary_pos):e.append('Nothing Stays Tuned must be the top research article')
+if 'aria-label="Nothing Stays Tuned pull quote"' not in research:e.append('Nothing Stays Tuned research pull quote missing')
 if not (0<=commentary_pos<unmeasured_pos<series_pos):e.append('research commentary/Unmeasured Layer/AI order')
 series_quote='Fluency becomes evidence, outside checking becomes overhead, and agreement begins to look like truth.'
 series_quote_pos=research.find(series_quote)
@@ -199,8 +204,8 @@ for forbidden in ['.paper-card.category-insight {','.paper-card.category-brief {
  if forbidden in research:e.append('research page presentation must remain canonical '+forbidden)
 research_primary_hrefs=re.findall(r'class="(?:series-action|paper-action) publication-primary-link" href="([^"]+)"',research)
 research_secondary_hrefs=re.findall(r'class="(?:series-action|paper-action) publication-secondary-link" href="([^"]+)"',research)
-if len(research_primary_hrefs)!=16:e.append('research full-card HTML link count')
-if len(research_secondary_hrefs)!=14:e.append('research independent secondary link count')
+if len(research_primary_hrefs)!=17:e.append('research full-card HTML link count')
+if len(research_secondary_hrefs)!=15:e.append('research independent secondary link count')
 for href in research_primary_hrefs:
  clean_href=href.split('?',1)[0]
  if not clean_href.endswith('.html'):e.append('research primary route is not HTML '+href)
@@ -209,6 +214,7 @@ for token in ['.publication-primary-link::after {','inset: 0;','z-index: 2;','.p
  if token not in research:e.append('research full-card interaction '+token)
 
 publication_editions={
+ 'nothing-stays-tuned.html':('Monderman_Perspective_Nothing_Stays_Tuned_2026-09-07.pdf',0),
  'merit-after-the-machine.html':('Monderman_Insight_Merit_After_the_Machine_2026-09-02.pdf',4),
  'every-node-for-itself.html':('Monderman_Insight_Every_Node_for_Itself_2026-09-02.pdf',3),
  'built-to-please.html':('Monderman_Insight_Built_to_Please_2026-09-02.pdf',4),
@@ -242,7 +248,7 @@ for name,(pdf_name,figure_count) in publication_editions.items():
  ]:
   if token not in t:e.append(name+': complete web-edition contract '+token)
  if t.count('<figure>')!=figure_count:e.append(name+': figure count')
- if t.count('<li>')<3:e.append(name+': reference count')
+ if len(re.findall(r'<li(?:\s|>)',t))<3:e.append(name+': reference count')
  if name not in site or name not in sitemap_text:e.append(name+': sitemap coverage')
  if f'"url":"{name}"' not in search_index:e.append(name+': search coverage')
 for name in ['we-gave-bureaucracy-the-fastest-tools.html','the-unmeasured-layer.html']:
