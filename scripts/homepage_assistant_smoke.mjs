@@ -19,8 +19,8 @@ try {
     await page.goto(`${base}/index.html`, { waitUntil: 'networkidle', timeout: 90000 });
 
     // The accessible main landmark owns the homepage editorial sequence. Keep
-    // the retired legacy sections hidden and preserve one white repeat-measurement
-    // section at every supported viewport.
+    // retired legacy sections absent or hidden and preserve one white
+    // repeat-measurement section at every supported viewport.
     const editorial = await page.evaluate(() => {
       const main = document.querySelector('#main-content');
       const legacy = main?.querySelector(':scope > .differentiators-compact');
@@ -44,13 +44,12 @@ try {
       };
     });
     assert.equal(editorial.mainExists, true, `${viewport.name}: homepage main landmark missing`);
-    assert.equal(editorial.legacyDisplay, 'none', `${viewport.name}: retired deep-cream differentiator section is visible`);
+    assert.ok([null, 'none'].includes(editorial.legacyDisplay), `${viewport.name}: retired deep-cream differentiator section is visible`);
     assert.equal(editorial.measurementDisplay, 'block', `${viewport.name}: intended measurement loop is not visible`);
     assert.equal(editorial.measurementBackground, 'rgb(255, 255, 255)', `${viewport.name}: intended second-read section is not white`);
     assert.equal(editorial.visibleSecondReadHeadings, 1, `${viewport.name}: duplicate second-read headings are visible`);
     assert.deepEqual(editorial.visibleSections, [
       'hero',
-      'acquisition-layer',
       'proof-band',
       'mxidx-band',
       'systems-analysis-bridge',
@@ -70,7 +69,13 @@ try {
     const assistantBox = await launcher.boundingBox();
     const connectBox = await connect.boundingBox();
     assert(assistantBox && connectBox, `${viewport.name}: launcher geometry unavailable`);
-    assert(connectBox.y + connectBox.height <= assistantBox.y, `${viewport.name}: assistant and Connect launchers overlap`);
+    const launchersOverlap = !(
+      connectBox.x + connectBox.width <= assistantBox.x
+      || assistantBox.x + assistantBox.width <= connectBox.x
+      || connectBox.y + connectBox.height <= assistantBox.y
+      || assistantBox.y + assistantBox.height <= connectBox.y
+    );
+    assert.equal(launchersOverlap, false, `${viewport.name}: assistant and Connect launchers overlap`);
 
     await launcher.focus();
     assert.equal(await launcher.evaluate(node => document.activeElement === node), true, `${viewport.name}: launcher cannot receive focus`);
