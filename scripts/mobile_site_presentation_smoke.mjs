@@ -114,7 +114,7 @@ try {
             ? [...element.getClientRects()]
             : [box];
           if (boxes.every((rect) => rect.left >= -2 && rect.right <= viewportWidth + 2)) return [];
-          if (element.closest('.mf-motif,.publication-hero__motif,#turnstilePreload') || element.matches('.hero-image')) return [];
+          if (element.closest('.mf-motif,#turnstilePreload') || element.matches('.hero-image')) return [];
 
           let ancestor = element.parentElement;
           while (ancestor && ancestor !== document.body) {
@@ -172,7 +172,7 @@ try {
         const tileBox = await tile.boundingBox();
         if (!tileBox || tileBox.width > viewport.width - 38) failures.push(`${pageName}/${viewport.name}: sample report proof exceeds the mobile content column`);
         const routeField = page.locator('.hero-route-field');
-        if (await routeField.count() !== 1) failures.push(`${pageName}/${viewport.name}: canonical route field is missing`);
+        if (await routeField.count() !== 0) failures.push(`${pageName}/${viewport.name}: retired decorative route field returned`);
       }
 
       if (viewport.name === 'iphone' && evidencePages.has(pageName)) {
@@ -211,15 +211,15 @@ try {
     return {
       width: box.width,
       height: box.height,
-      accessibleName: element.textContent?.trim(),
+      accessibleName: element.getAttribute('aria-label') || element.textContent?.trim(),
       labelWidth: labelBox?.width || 0,
     };
   });
   if (Math.abs(connectLauncher.width - 48) > 1 || Math.abs(connectLauncher.height - 48) > 1) {
     failures.push(`runtime utilities: Connect launcher is not a compact 48px phone target (${JSON.stringify(connectLauncher)})`);
   }
-  if (connectLauncher.accessibleName !== 'Connect' || connectLauncher.labelWidth > 2) {
-    failures.push(`runtime utilities: Connect label is not visually compact while remaining named (${JSON.stringify(connectLauncher)})`);
+  if (connectLauncher.accessibleName !== 'Contact Monderman' || connectLauncher.labelWidth > 2) {
+    failures.push(`runtime utilities: Contact label is not visually compact while remaining named (${JSON.stringify(connectLauncher)})`);
   }
 
   await runtimePage.locator('#mnd-launcher').click();

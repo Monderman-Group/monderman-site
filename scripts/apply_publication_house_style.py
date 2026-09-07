@@ -208,10 +208,10 @@ MERIT_REFERENCES = (
 
 PUBLICATIONS = (
     Publication(
-        "Monderman_Brief_Accumulated_Drag_Department_of_War.pdf", "BRIEF", "Accumulated Drag",
+        "Monderman_Brief_Accumulated_Drag_Department_of_War_2026-09-02.pdf", "BRIEF", "Accumulated Drag in the Department of War",
         "Administrative overhead in the U.S. Department of War.",
         "How accumulated structure degrades decision velocity and absorbs institutional capacity — and why successive reform waves have diagnosed the problem without altering the architecture that produces it.",
-        "March 2026", 8, (), ACCUMULATED_REFERENCES,
+        "September 2026", 8, (), ACCUMULATED_REFERENCES,
     ),
     Publication(
         "Monderman_Brief_Compensatory_Systems.pdf", "BRIEF", "Compensatory Systems",
@@ -239,7 +239,7 @@ PUBLICATIONS = (
         "August 2026", 7, (), CULTURE_REFERENCES,
     ),
     Publication(
-        "Monderman_Insight_After_the_First_Lap.pdf", "INSIGHT", "From Tokens to Outcomes",
+        "Monderman_Insight_From_Tokens_to_Outcomes_2026-08.pdf", "INSIGHT", "From Tokens to Outcomes",
         "How Token Economics Will Define the Next Phase of Enterprise AI",
         "A structural dependency on early-market foundation model pricing is forming now. The companies that recognize the exposure early, and build or buy the engineering discipline that mitigates it, will define the next decade of enterprise AI.",
         "May 2026 · Revised August 2026", 24, (), AFTER_LAP_REFERENCES, author="Jason Adamson & Michael Wilson",
@@ -251,16 +251,16 @@ PUBLICATIONS = (
         "September 2026", 10, (11, 12,), canonical=True,
     ),
     Publication(
-        "Monderman_Insight_Every_Node_for_Itself_Aug2026.pdf", "INSIGHT", "Every Node for Itself",
+        "Monderman_Insight_Every_Node_for_Itself_2026-09-02.pdf", "INSIGHT", "Every Node for Itself",
         "AI, In-Housing, and the Network That Keeps Companies Honest",
         "Companies and public institutions form a network of organizations that sell expertise to one another. AI has given every node in that network a reason to believe it can cut the others off. This paper is about what the cut wins, what it costs, and why the better use of AI is improving the nodes rather than severing them.",
-        "August 2026", 9, (), EVERY_NODE_REFERENCES,
+        "September 2026", 8, (), EVERY_NODE_REFERENCES,
     ),
     Publication(
-        "Monderman_Insight_Merit_After_the_Machine_2026-08-11.pdf", "INSIGHT", "Merit After the Machine",
+        "Monderman_Insight_Merit_After_the_Machine_2026-09-02.pdf", "INSIGHT", "Merit After the Machine",
         "Why AI Weakens the Evidence of Being Smart and Hardworking Faster Than Institutions Can Rebuild It",
         "The worry about artificial intelligence usually gets told as a story about jobs, or safety, or truth. This paper tells it another way: as a story about being smart and being hardworking, the two qualities modern professional life learned to prize most. And it is about what happens when the familiar evidence of both stops being reliable.",
-        "August 2026", 11, (), MERIT_REFERENCES,
+        "September 2026", 11, (), MERIT_REFERENCES,
     ),
     Publication(
         "Monderman_Insight_The_Unmeasured_Layer.pdf", "INSIGHT", "The Unmeasured Layer",
@@ -290,7 +290,7 @@ PUBLICATIONS = (
 # names and source font sizes; unrelated display and figure typography remains
 # unchanged.
 BODY_TYPE_NORMALIZATION = {
-    "Monderman_Brief_Accumulated_Drag_Department_of_War.pdf": {
+    "Monderman_Brief_Accumulated_Drag_Department_of_War_2026-09-02.pdf": {
         ("/BKYKFD", 26.0): 27.3333,
         ("/BKYKFD", 16.0): 15.4667,
     },
@@ -316,7 +316,7 @@ BODY_TYPE_NORMALIZATION = {
         ("/F4+0", 14.2): 11.5,
         ("/F4+0", 10.35): 10.0,
     },
-    "Monderman_Insight_Every_Node_for_Itself_Aug2026.pdf": {
+    "Monderman_Insight_Every_Node_for_Itself_2026-09-02.pdf": {
         ("/F2+0", 25.5): 20.5,
         ("/F2+0", 16.2): 13.2,
         ("/F2+0", 15.4): 13.2,
@@ -326,7 +326,7 @@ BODY_TYPE_NORMALIZATION = {
         ("/F4+0", 13.6): 11.5,
         ("/F4+0", 9.7): 10.0,
     },
-    "Monderman_Insight_Merit_After_the_Machine_2026-08-11.pdf": {
+    "Monderman_Insight_Merit_After_the_Machine_2026-09-02.pdf": {
         ("/FNNBVY", 22.0): 27.3333,
         ("/FNNBVY", 20.0): 17.6,
         ("/FNNBVY", 16.0): 15.4667,
@@ -511,68 +511,6 @@ def gradient(c: Canvas, category: str) -> None:
                 break
 
 
-def draw_cover_motif(c: Canvas, category: str) -> None:
-    light = category == "BRIEF"
-    commentary = category in {"COMMENTARY", "PERSPECTIVE"}
-    motif = HexColor("#7A5A34") if light else HexColor("#D29A50") if commentary else HexColor("#A9D0D4")
-    route = TEAL if light else white
-
-    def point(x: float, y: float) -> tuple[float, float]:
-        return 338.0 + (x - 12.0) * 5.55, 512.0 - (y - 11.5) * 5.55
-
-    c.saveState()
-    c.setStrokeColor(motif)
-    c.setLineWidth(1.15)
-    c.setLineCap(1)
-    c.setLineJoin(1)
-    c.setStrokeAlpha(.2 if light else .22)
-    outline = (
-        (12, 18.4), (22, 11.5), (32, 16.6), (42, 11.5), (52, 18.4),
-        (52, 52), (42, 46.4), (32, 52), (22, 46.4), (12, 52), (12, 18.4),
-    )
-    path = c.beginPath()
-    x0, y0 = point(*outline[0])
-    path.moveTo(x0, y0)
-    for x, y in outline[1:]:
-        px, py = point(x, y)
-        path.lineTo(px, py)
-    c.drawPath(path, stroke=1, fill=0)
-    for x, y1, y2 in ((22, 11.5, 46.4), (32, 16.6, 52), (42, 11.5, 46.4)):
-        c.line(*point(x, y1), *point(x, y2))
-
-    c.setDash(2.5, 5.5)
-    c.setLineCap(0)
-    c.setStrokeAlpha(.12 if light else .14)
-    for y in (317.0, 372.0, 427.0):
-        c.line(296.0, y, 572.0, y)
-    c.setDash()
-
-    c.setStrokeColor(route)
-    c.setStrokeAlpha(.64 if light else .7)
-    c.setLineWidth(1.5)
-    c.setLineCap(1)
-    c.setLineJoin(1)
-    route_path = c.beginPath()
-    route_path.moveTo(286.0, 286.0)
-    route_path.lineTo(348.0, 286.0)
-    route_path.lineTo(348.0, 326.0)
-    route_path.lineTo(407.0, 326.0)
-    route_path.lineTo(434.0, 311.0)
-    route_path.lineTo(476.0, 311.0)
-    route_path.lineTo(476.0, 371.0)
-    route_path.lineTo(563.0, 371.0)
-    c.drawPath(route_path, stroke=1, fill=0)
-
-    c.setFillColor(route)
-    c.setFillAlpha(.9)
-    for x, y in ((348.0, 326.0), (407.0, 326.0), (563.0, 371.0)):
-        c.circle(x, y, 2.15, stroke=0, fill=1)
-    c.setFillColor(HexColor("#C9821F"))
-    c.setFillAlpha(1)
-    c.circle(476.0, 371.0, 3.8, stroke=0, fill=1)
-    c.restoreState()
-
-
 def make_cover(pub: Publication) -> bytes:
     stream = BytesIO()
     c = Canvas(stream, pagesize=letter, pageCompression=1)
@@ -586,8 +524,6 @@ def make_cover(pub: Publication) -> bytes:
     accent = HexColor("#86530D") if light else HexColor("#E4B66F") if commentary else PALE_TEAL
     footer_rule = HexColor("#CFC3B2") if light else RULE
     footer_copy = HexColor("#625D56") if light else CONTACT
-
-    draw_cover_motif(c, pub.category)
 
     label_end = tracked(c, pub.category, MARGIN, 746.0, BOLD, 8.5, accent, 3.0)
     c.setStrokeColor(accent)

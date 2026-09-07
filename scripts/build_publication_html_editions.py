@@ -136,7 +136,7 @@ PUBLICATIONS = (
         ),
     ),
     Publication(
-        "from-tokens-to-outcomes", "Monderman_Insight_After_the_First_Lap.pdf", "v=20260828-house5",
+        "from-tokens-to-outcomes", "Monderman_Insight_From_Tokens_to_Outcomes_2026-08.pdf", "v=20260906-publication2",
         "Insight", "Enterprise", "From Tokens to Outcomes",
         "How Token Economics Will Define the Next Phase of Enterprise AI",
         "A structural dependency on early-market foundation-model pricing is forming now. The companies that recognize the exposure early, and build or buy the engineering discipline that mitigates it, will define the next decade of enterprise AI.",

@@ -42,7 +42,6 @@ CARDS = (
     Card("the-unmeasured-layer", "Insight", "Institutional performance", "The Unmeasured Layer", "Administrative Reality and the Risk Standard Reporting Misses", "September 2026"),
     Card("we-gave-bureaucracy-the-fastest-tools", "Perspective", "Public institutions", "We Gave Bureaucracy the Fastest Tools in History. It Got Slower.", "", "September 2026"),
     Card("when-bureaucracy-became-the-obstacle", "Brief", "Institutional performance", "When Bureaucracy Became the Obstacle", "The Collapse of Eastman Kodak", "March 2026"),
-    Card("after-the-first-lap", "Insight", "Enterprise AI", "After the First Lap", "What the first phase of enterprise AI taught us about cost, dependency, and operational discipline", "May 2026 · Revised August 2026"),
 )
 
 
@@ -53,8 +52,6 @@ PALETTES = {
         "text": (250, 250, 248),
         "muted": (181, 207, 210),
         "accent": (156, 196, 201),
-        "motif": (169, 208, 212),
-        "route": (255, 255, 255),
         "line": (50, 91, 97),
     },
     "Commentary": {
@@ -63,8 +60,6 @@ PALETTES = {
         "text": (250, 250, 248),
         "muted": (210, 199, 178),
         "accent": (228, 182, 111),
-        "motif": (223, 178, 103),
-        "route": (255, 255, 255),
         "line": (83, 76, 63),
     },
     "Perspective": {
@@ -73,8 +68,6 @@ PALETTES = {
         "text": (250, 250, 248),
         "muted": (210, 199, 178),
         "accent": (228, 182, 111),
-        "motif": (223, 178, 103),
-        "route": (255, 255, 255),
         "line": (83, 76, 63),
     },
     "Brief": {
@@ -83,8 +76,6 @@ PALETTES = {
         "text": (24, 25, 28),
         "muted": (93, 88, 81),
         "accent": (134, 83, 13),
-        "motif": (113, 83, 45),
-        "route": (7, 51, 56),
         "line": (205, 193, 175),
     },
 }
@@ -160,52 +151,16 @@ def draw_mark(draw: ImageDraw.ImageDraw, origin: tuple[int, int], scale: float, 
         draw.line((map_point(x, y1, origin, scale), map_point(x, y2, origin, scale)), fill=color, width=width)
 
 
-def draw_motif(image: Image.Image, card: Card, palette: dict[str, tuple[int, int, int]]) -> Image.Image:
-    overlay = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(overlay)
-    origin = (870, 196)
-    scale = 8.6
-    motif = (*palette["motif"], 110 if card.kind != "Brief" else 96)
-    route = (*palette["route"], 224)
-
-    outline = ((12, 18.4), (22, 11.5), (32, 16.6), (42, 11.5), (52, 18.4), (52, 52), (42, 46.4), (32, 52), (22, 46.4), (12, 52), (12, 18.4))
-    draw.line([map_point(x, y, origin, scale) for x, y in outline], fill=motif, width=3, joint="curve")
-    for x, y1, y2 in ((22, 11.5, 46.4), (32, 16.6, 52), (42, 11.5, 46.4)):
-        draw.line((map_point(x, y1, origin, scale), map_point(x, y2, origin, scale)), fill=motif, width=2)
-
-    guide_rgb = tuple(round(c * .62 + b * .38) for c, b in zip(palette["motif"], palette["bottom"]))
-    guide = (*guide_rgb, 96)
-    for y in (312, 392, 472):
-        for x in range(718, 1170, 18):
-            draw.line((x, y, min(x + 7, 1170), y), fill=guide, width=1)
-
-    if card.kind in {"Commentary", "Perspective"}:
-        points = [(704, 478), (792, 478), (792, 428), (888, 428), (888, 374), (983, 374), (983, 318), (1117, 318)]
-    elif card.kind == "Brief":
-        points = [(708, 468), (802, 468), (802, 420), (890, 420), (890, 368), (1000, 368), (1000, 315), (1126, 315)]
-    else:
-        points = [(704, 474), (798, 474), (798, 414), (885, 414), (932, 440), (1006, 440), (1006, 354), (1127, 354)]
-    draw.line(points, fill=route, width=4, joint="curve")
-    node_indexes = (1, 3, 5, 7)
-    for index in node_indexes:
-        x, y = points[index]
-        radius = 5 if index != 5 else 8
-        fill = (201, 130, 31, 255) if index == 5 else route
-        draw.ellipse((x - radius, y - radius, x + radius, y + radius), fill=fill)
-    return Image.alpha_composite(image.convert("RGBA"), overlay).convert("RGB")
-
-
 def render(card: Card) -> Path:
     palette = PALETTES[card.kind]
     image = gradient(palette["top"], palette["bottom"])
 
     glow = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
     glow_draw = ImageDraw.Draw(glow)
-    glow_color = (*palette["motif"], 34 if card.kind != "Brief" else 24)
+    glow_color = (*palette["accent"], 24 if card.kind != "Brief" else 16)
     glow_draw.ellipse((760, -120, 1320, 440), fill=glow_color)
     glow = glow.filter(ImageFilter.GaussianBlur(90))
     image = Image.alpha_composite(image.convert("RGBA"), glow).convert("RGB")
-    image = draw_motif(image, card, palette)
     draw = ImageDraw.Draw(image)
 
     draw_mark(draw, (72, 51), .72, palette["text"], 3)

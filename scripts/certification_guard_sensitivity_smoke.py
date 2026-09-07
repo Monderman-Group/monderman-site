@@ -152,14 +152,15 @@ with tempfile.TemporaryDirectory(prefix="monderman-cert-sensitivity-") as temp:
     )
     expect_rejection(
         fixture,
-        "cropped phone motif with comment decoy",
-        "phone tile motif geometry contract missing",
+        "retired article-tile motif with comment decoy",
+        "retired article-tile motif returned",
         lambda: rewrite(
             fixture / "index.html",
             lambda value: value.replace(
-                'motif.setAttribute("viewBox", compactMotif ? "0 0 344 188" : "0 0 320 164");',
-                'motif.setAttribute("viewBox", compactMotif ? "0 0 300 150" : "0 0 320 164"); '
-                '/* motif.setAttribute("viewBox", compactMotif ? "0 0 344 188" : "0 0 320 164"); */',
+                "</body>",
+                '<script>const latestMotifByCategory = {};</script>'
+                '<!-- latestMotifByCategory appears here only as a comment decoy too -->'
+                "</body>",
                 1,
             ),
         ),

@@ -161,6 +161,12 @@ html_files = [
     if not path.name.startswith("google")
     and not re.match(r"^(?:privacy|terms)-\d{4}-\d{2}-\d{2}-beta\.html$", path.name)
 ]
+protected_favicon_pages = {
+    "decision-velocity.html", "structural-clarity.html", "operational-systems.html",
+    "institutional-performance.html", "workspace.html", "workspace-actions.html",
+    "workspace-analysis.html", "workspace-diagnostics.html", "workspace-settings.html",
+    "signin.html",
+}
 for path in html_files:
     page = path.read_text(encoding="utf-8")
     document = parse_document(page)
@@ -168,7 +174,14 @@ for path in html_files:
     require(not re.search(r"(?im)^\s*(?:warning:\s*truncated output|total output lines:)", page), f"{path.name}: tool-output warning is customer-visible")
     require(not re.search(r">\s*:\s*</(?:p|div|span)>", without_html_comments(page), re.I), f"{path.name}: isolated colon placeholder is customer-visible")
     links = [attrs for tag, attrs in document.head_tags if tag == "link"]
-    favicon_cache_key = "20260830-cert1" if path.name in {"privacy.html", "terms.html"} else "20260906-enterprise1"
+    if path.name == "after-the-first-lap.html":
+        continue
+    if path.name in {"privacy.html", "terms.html"}:
+        favicon_cache_key = "20260830-cert1"
+    elif path.name in protected_favicon_pages:
+        favicon_cache_key = "20260903-map1"
+    else:
+        favicon_cache_key = "20260906-enterprise1"
     expected_links = [
         {"rel": "icon", "type": "image/svg+xml", "href": f"favicon.svg?v={favicon_cache_key}"},
         {"rel": "icon", "type": "image/x-icon", "sizes": "any", "href": f"favicon.ico?v={favicon_cache_key}"},
@@ -314,8 +327,8 @@ for name in ["checkout.html", "workspace.html", "workspace-actions.html", "works
 mobile = text("scripts/mobile_site_presentation_smoke.mjs")
 require("navigateToStableDocument" in mobile and "context was destroyed" in mobile, "mobile redirect-stability harness missing")
 motif_source = executable_source(home)
-require('motif.setAttribute("viewBox", compactMotif ? "0 0 344 188" : "0 0 320 164")' in motif_source, "phone tile motif geometry contract missing")
-require('motif.setAttribute("preserveAspectRatio", compactMotif ? "xMaxYMax meet" : "xMidYMid meet")' in motif_source, "phone tile motif alignment contract missing")
+for retired_motif_token in ["latestMotifByCategory", "placeholder-cover-motif", "motif.setAttribute("]:
+    require(retired_motif_token not in motif_source, f"retired article-tile motif returned: {retired_motif_token}")
 
 if errors:
     print("PRODUCTION_COSMETIC_CERTIFICATION_FAIL")

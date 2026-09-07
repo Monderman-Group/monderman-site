@@ -13,7 +13,6 @@ const heroPages = [
   ['accumulated-drag-department-of-war.html', '.article-hero', '.article-hero h1', 'publication-md'],
   ['after-a-reorganization.html', '.hero', '.hero h1', 'standard'],
   ['after-an-acquisition.html', '.hero', '.hero h1', 'standard'],
-  ['after-the-first-lap.html', '.hero', '.hero h1', 'publication'],
   ['built-to-please.html', '.article-hero', '.article-hero h1', 'publication'],
   ['compensatory-systems.html', '.article-hero', '.article-hero h1', 'publication'],
   ['connect.html', '.hero', '.hero h1', 'standard'],
@@ -53,7 +52,7 @@ const heroPages = [
   ['why-monderman.html', '.hero', '.hero h1', 'standard'],
 ];
 
-assert.equal(heroPages.length, 42, 'hero manifest changed unexpectedly');
+assert.equal(heroPages.length, 41, 'hero manifest changed unexpectedly');
 const legalPresentationExclusions = new Set(['privacy.html', 'terms.html']);
 const heroClassTokens = new Set(['hero', 'ps-hero', 'article-hero', 'pl-top']);
 function hasPageHero(pageName) {
@@ -97,6 +96,40 @@ const viewports = [
   { width: 768, height: 900 },
   { width: 390, height: 844 },
 ];
+
+const pagesWithLocalOpeningAction = new Set([
+  'accumulated-drag-department-of-war.html',
+  'after-the-first-lap.html',
+  'built-to-please.html',
+  'compensatory-systems.html',
+  'connect.html',
+  'decision-velocity-article.html',
+  'designing-for-decision-velocity.html',
+  'deterministic-ai-infrastructure.html',
+  'diagnostics.html',
+  'every-node-for-itself.html',
+  'from-tokens-to-outcomes.html',
+  'governing-complexity.html',
+  'index.html',
+  'institutional-performance-article.html',
+  'merit-after-the-machine.html',
+  'operational-systems-article.html',
+  'pilot.html',
+  'platform-services.html',
+  'quarter-trillion-friction-us-healthcare.html',
+  'roi.html',
+  'structural-clarity-article.html',
+  'terminal-fidelity.html',
+  'the-art-of-interior-reasoning.html',
+  'the-culture-trap-brief.html',
+  'the-drift-problem.html',
+  'the-unmeasured-layer.html',
+  'we-gave-bureaucracy-the-fastest-tools.html',
+  'when-bureaucracy-became-the-obstacle.html',
+  'why-monderman.html',
+]);
+
+assert.equal(pagesWithLocalOpeningAction.size, 29, 'opening-action manifest changed unexpectedly');
 
 function expectedGutter(width) {
   if (width <= 640) return 20;
@@ -193,6 +226,18 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
             titleAlign: titleStyle.textAlign,
             clientWidth: document.documentElement.clientWidth,
             scrollWidth: document.documentElement.scrollWidth,
+            strongPrimaries: [...new Set([
+              ...document.querySelectorAll('#siteHeader a, #siteHeader button'),
+              ...hero.querySelectorAll('a, button'),
+            ])]
+              .filter((node) => {
+                const box = node.getBoundingClientRect();
+                const style = getComputedStyle(node);
+                if (style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) === 0) return false;
+                if (box.width < 1 || box.height < 1 || box.bottom <= 0 || box.top >= innerHeight) return false;
+                return ['rgb(201, 130, 31)', 'rgb(12, 110, 120)'].includes(style.backgroundColor);
+              })
+              .map((node) => (node.textContent || node.getAttribute('aria-label') || '').trim()),
           };
         }, { heroSelector, titleSelector });
 
@@ -206,6 +251,12 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
           `${label}: title alignment is ${geometry.titleAlign}`);
         assert.ok(geometry.scrollWidth <= geometry.clientWidth + 1,
           `${label}: page overflows horizontally (${geometry.scrollWidth}px > ${geometry.clientWidth}px)`);
+        assert.ok(geometry.strongPrimaries.length <= 1,
+          `${label}: competing filled opening actions (${geometry.strongPrimaries.join(' | ')})`);
+        if (viewport.width >= 1280 || pagesWithLocalOpeningAction.has(pageName)) {
+          assert.equal(geometry.strongPrimaries.length, 1,
+            `${label}: opening view does not have one clear filled action`);
+        }
 
         if (kind !== 'home') {
           if (viewport.width > 960) {
@@ -351,4 +402,4 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
   }
 }
 
-console.log(`SITE_SYSTEM_VISUAL_PASS (${heroPages.length} hero pages, ${viewports.length} widths, 2 browsers; footer and pricing contrast verified)`);
+console.log(`SITE_SYSTEM_VISUAL_PASS (${heroPages.length} hero pages, ${viewports.length} widths, 2 browsers; single-primary hierarchy, footer, and pricing contrast verified)`);

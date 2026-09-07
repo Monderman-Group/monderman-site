@@ -80,7 +80,7 @@ def validate():
             raise AssertionError(f"{page} can bypass the centralized Workspace acceptance gate")
 
     invite = (ROOT / "accept-invite.html").read_text(errors="ignore")
-    require(invite, ["acceptance_source", '"invite"', "invite_token", "Terms of Service", "Privacy Notice"], "invite acceptance")
+    require(invite, ["acceptance_source", '"invite"', "invite_token", "Terms of Use", "Privacy Notice"], "invite acceptance")
 
     trial = (ROOT / "pattern-trial.html").read_text(errors="ignore")
     require(trial, [

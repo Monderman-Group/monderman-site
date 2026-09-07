@@ -10,6 +10,7 @@ import pdfplumber
 
 
 ROOT = Path(__file__).resolve().parents[1]
+PUBLIC_ROOT = ROOT / ".render-public"
 WHITE = (1.0, 1.0, 1.0)
 INK = (0.078431, 0.094118, 0.105882)
 TEAL = (0.047059, 0.431373, 0.470588)
@@ -62,9 +63,11 @@ def validate_markup() -> None:
 
 
 def validate_pdfs() -> None:
-    publications = sorted(ROOT.glob("*.pdf"))
-    if len(publications) != 16:
-        raise AssertionError(f"expected 16 published PDFs, found {len(publications)}")
+    if not PUBLIC_ROOT.is_dir():
+        raise AssertionError("public build is missing; run scripts/render-static-build.sh first")
+    publications = sorted(PUBLIC_ROOT.glob("*.pdf"))
+    if len(publications) != 13:
+        raise AssertionError(f"expected 13 current public PDFs, found {len(publications)}")
     for path in publications:
         with pdfplumber.open(path) as document:
             cover = document.pages[0].extract_words(
@@ -114,7 +117,7 @@ def validate_pdfs() -> None:
 def main() -> None:
     validate_markup()
     validate_pdfs()
-    print("Wordmark period validated across site signatures, report output, social cards, and 16 PDFs")
+    print("Wordmark period validated across site signatures, report output, social cards, and 13 current public PDFs")
 
 
 if __name__ == "__main__":

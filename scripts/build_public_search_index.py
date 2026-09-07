@@ -34,7 +34,6 @@ PAGES = {
     "the-drift-problem.html": "Research",
     "the-unmeasured-layer.html": "Research",
     "we-gave-bureaucracy-the-fastest-tools.html": "Research",
-    "after-the-first-lap.html": "Research",
     "accumulated-drag-department-of-war.html": "Research",
     "built-to-please.html": "Research",
     "compensatory-systems.html": "Research",

@@ -19,7 +19,7 @@ for p in r.glob("*.html"):
  for m in re.finditer(r'<a\b[^>]*\baria-label=["\']Monderman on LinkedIn["\'][^>]*>',t,re.I):
   href=re.search(r'\bhref=["\']([^"\']+)["\']',m.group(0),re.I)
   if not href or href.group(1)!='https://www.linkedin.com/company/monderman':e.append(p.name+": footer LinkedIn target")
- if 'class="footer mond-footer"' in t and '<a href="https://www.linkedin.com/company/monderman" target="_blank" rel="noopener">LinkedIn</a>' not in t:e.append(p.name+": visible footer LinkedIn link")
+ if 'class="footer mond-footer"' in t and 'aria-label="Monderman on LinkedIn"' not in t:e.append(p.name+": accessible footer LinkedIn link")
 
 about=(r/'about.html').read_text(errors='ignore')
 if '<a href="https://www.linkedin.com/company/monderman" target="_blank" rel="noopener">Follow Monderman on LinkedIn</a>' not in about:e.append('about LinkedIn follow link')
@@ -43,8 +43,8 @@ if release_channel in {'production','outside-beta'}:
    for match in pattern.finditer(public_text):
     e.append(name+': unresolved production legal drafting marker '+match.group(0))
 s=(r/'sample-report.html').read_text()
-if re.search(r'<h1\b',s,re.I):e.append('sample static h1 competes with generated report title')
-if 'class="sample-library-heading" role="heading" aria-level="2"' not in s:e.append('sample library heading hierarchy')
+if len(re.findall(r'<h1\b',s,re.I))!=1:e.append('sample library single h1 hierarchy')
+if '<h1 class="sample-library-heading"' not in s:e.append('sample library h1')
 if '<h1 class="mr-cover-title">' not in (r/'monderman-report.js').read_text(errors='ignore'):e.append('generated report h1')
 if s.count('aria-label="Jump to report section"')<4:e.append('sample selects')
 for k in ['os','dv','sc','ip','synthesis','depth']:
@@ -106,7 +106,12 @@ if not re.search(r'<body\b[^>]*class="[^"]*\bcanonical-green-shell\b',idx,re.I):
 
 # Canonical publishing system: the homepage rail uses one editorial language
 # with four publication surfaces, and Research keeps the Book before the series.
-latest_match=re.search(r'<div class="latest-track" id="latestTrack">(.*?)</div>\s*</div>\s*<div aria-label="Latest content position"',idx,re.I|re.S)
+latest_match=re.search(
+ r'<div class="latest-track" id="latestTrack">(.*?)</div>\s*</div>\s*'
+ r'<div\b(?=[^>]*\baria-label="Latest content position")[^>]*>',
+ idx,
+ re.I|re.S,
+)
 if not latest_match:
  e.append('homepage research carousel boundary missing')
 else:
@@ -210,7 +215,7 @@ publication_editions={
  'terminal-fidelity.html':('Terminal_Fidelity.pdf',5),
  'accumulated-drag-department-of-war.html':('Monderman_Brief_Accumulated_Drag_Department_of_War_2026-09-02.pdf',2),
  'quarter-trillion-friction-us-healthcare.html':('Monderman_Brief_Quarter_Trillion_Dollar_Friction_US_Healthcare.pdf',6),
- 'from-tokens-to-outcomes.html':('Monderman_Insight_After_the_First_Lap.pdf',6),
+ 'from-tokens-to-outcomes.html':('Monderman_Insight_From_Tokens_to_Outcomes_2026-08.pdf',6),
  'compensatory-systems.html':('Monderman_Brief_Compensatory_Systems.pdf',4),
  'when-bureaucracy-became-the-obstacle.html':('Monderman_Brief_The_Collapse_of_Eastman_Kodak.pdf',5),
  'the-culture-trap-brief.html':('Monderman_Brief_The_Culture_Trap.pdf',9),
@@ -247,11 +252,11 @@ for name in ['we-gave-bureaucracy-the-fastest-tools.html','the-unmeasured-layer.
 built_pdf=r/'Monderman_Insight_Built_to_Please_2026-09-02.pdf'
 if not built_pdf.exists():
  e.append('Built to Please PDF missing')
-elif hashlib.sha256(built_pdf.read_bytes()).hexdigest()!='e74eeb6ec90f25e7a1dbc7ce341e43e46453449389aed5273235d83c643e2e9c':
+elif hashlib.sha256(built_pdf.read_bytes()).hexdigest()!='89a2e5fb553cb22b63bf6a124535f59c2f8f4765adb3d658f3c3580ce9a721f5':
  e.append('Built to Please canonical PDF bytes changed')
 for stale in ['exactly as the engine renders it','Every read returns the result in your numbers','Monderman is the instrument that surfaces where these losses originate']:
  if stale in idx:e.append('homepage unsupported claim '+stale)
-for required in ['measured operating conditions associated with observed administrative burden','it does not promise recovery','When the required sizing inputs are present and valid']:
+for required in ['directional cost scenarios','directional estimates','a separate recovery assumption']:
  if required not in idx:e.append('homepage bounded claim '+required)
 signal=(r/'plan-signal.html').read_text(errors='ignore')
 enterprise=(r/'plan-enterprise.html').read_text(errors='ignore')
@@ -374,8 +379,8 @@ for token in ['site-menu-button','aria-label", "Open navigation','mobile-nav-ope
  if token not in canonical_shell:e.append('public mobile navigation behavior '+token)
 for token in ['@media(max-width:1180px)','header.mobile-nav-open .nav','width:44px;height:44px','display:none;width:100%','nav .nav-menu.is-open .nav-dropdown']:
  if token not in canonical_css:e.append('public mobile navigation layout '+token)
-if 'data-count-type="plain-plus" data-target="7000"' not in idx or 'type === "plain-plus"' not in idx or 'toLocaleString("en-US")' not in idx:
- e.append('homepage 7000+ counter formatting')
+for retired in ['data-count-type="plain-plus"','data-target="7000"','type === "plain-plus"']:
+ if retired in idx:e.append('homepage retired animated statistic '+retired)
 if re.search(r'<img[^>]*?/\s+loading="lazy">',idx,re.I):
  e.append('malformed homepage lazy-load img markup')
 for name in ['decision-velocity.html','operational-systems.html','structural-clarity.html','institutional-performance.html']:
@@ -420,12 +425,12 @@ for name in ['index.html','roi.html','why-monderman.html','connect.html','diagno
 
 # Pattern beta trial contract: no card, identity-scoped one-use, non-renewing.
 trial=(r/'pattern-trial.html').read_text(errors='ignore')
-for token in ['Use the full Pattern Workspace for 30 days.','No card is required to start','does not renew automatically','/api/billing/start-pattern-trial','/api/billing/pattern-pilot-invitation','pattern_trial_already_used','trial_requires_admin','Nothing was charged','One Pattern pilot per eligible account identity','Deleting or replacing a Workspace does not reset eligibility','ackStart','starts immediately when I continue','Your saved work is retained. Standard Trial access limits apply after day 30','Pattern &middot; Private 30-day pilot','id="pilotInvitation"','id="workspaceName"','sb.rpc("bootstrap_my_workspace"','JSON.stringify({organization_id:organizationId})','pattern_pilot_invitation_required','email-bound invitation']:
+for token in ['Use the full Pattern Workspace for 30 days.','No card is required','does not renew automatically','/api/billing/start-pattern-trial','/api/billing/pattern-pilot-invitation','pattern_trial_already_used','trial_requires_admin','Nothing was charged','One Pattern pilot per eligible account identity','Deleting or replacing a Workspace does not reset eligibility','ackStart','starts immediately when I continue','Your saved work is retained. Standard Trial access limits apply after day 30','Pattern &middot; Limited 30-day Pilot','id="pilotInvitation"','id="workspaceName"','sb.rpc("bootstrap_my_workspace"','JSON.stringify({organization_id:organizationId})','pattern_pilot_invitation_required','email-bound invitation']:
  if token not in trial:e.append('pattern trial contract '+token)
 for stale in ['One Pattern trial per Workspace','starts immediately for this Workspace','This Workspace has already used its one-time Pattern trial','id="pilotInvitationCode"','invitation_code:invitationCode','reusable invitation code']:
  if stale in trial:e.append('pattern trial stale scope '+stale)
 pattern=(r/'plan-pattern.html').read_text(errors='ignore')
-for token in ['href="pattern-trial.html"','Accept pilot invitation','personalized Monderman invitation at their work email','no organization is assigned in advance','No card required','does not renew automatically','One pilot per eligible account identity','Deleting or replacing a Workspace does not reset eligibility','Pattern &middot; Public Beta']:
+for token in ['href="pattern-trial.html"','Accept pilot invitation','personalized Monderman invitation at their work email','no organization is assigned in advance','No card required','does not renew automatically','One pilot per eligible account identity','Deleting or replacing a Workspace does not reset eligibility','Pattern &middot; Active beta &middot; for a division']:
  if token not in pattern:e.append('pattern trial entry '+token)
 shell=(r/'workspace-shell.js').read_text(errors='ignore')
 for token in ['subscription_status','pattern_trial_ends_at','org.subscription_status === "trialing"','Pattern trial · ${days} day']:

@@ -155,8 +155,10 @@
     '.mdn-cn-done svg{width:34px; height:34px; margin-bottom:8px;}',
     '.mdn-cn-done p{margin:0 0 6px; font-size:13px; line-height:1.55;}',
     '@media (max-width:640px){',
-    '  .mdn-cn-launch{right:14px; bottom:84px;}',
-    '  #mdn-cn-panel{right:14px; bottom:142px;}',
+    '  .mdn-cn-launch{right:72px; bottom:16px; width:48px; height:48px; justify-content:center; padding:0; border-radius:999px;}',
+    '  .mdn-cn-launch span{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap;}',
+    '  .mdn-cn-launch svg{width:19px; height:19px;}',
+    '  #mdn-cn-panel{right:8px; bottom:72px; max-width:calc(100vw - 16px);}',
     '}'
   ].join('\n');
 
@@ -213,18 +215,18 @@
   function boot() {
     document.head.appendChild(el('style', null, CSS));
     var root = el('div', { id: 'mdn-cn-root' });
-    var launch = el('button', { class: 'mdn-cn-launch', type: 'button', 'aria-haspopup': 'dialog', 'aria-expanded': 'false' },
+    var launch = el('button', { class: 'mdn-cn-launch', type: 'button', 'aria-haspopup': 'dialog', 'aria-expanded': 'false', 'aria-label': 'Contact Monderman' },
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
-      '<path d="M22 2 11 13"></path><path d="M22 2 15 22l-4-9-9-4 20-7z"></path></svg><span>Connect</span>');
+      '<path d="M22 2 11 13"></path><path d="M22 2 15 22l-4-9-9-4 20-7z"></path></svg><span>Contact</span>');
 
-    var panel = el('div', { id: 'mdn-cn-panel', role: 'dialog', 'aria-label': 'Connect with Monderman', 'aria-hidden': 'true', inert: '' },
+    var panel = el('div', { id: 'mdn-cn-panel', role: 'dialog', 'aria-label': 'Contact Monderman', 'aria-hidden': 'true', inert: '' },
       '<div class="mdn-cn-head"><p class="mdn-cn-title">Talk to Monderman</p>' +
       '<button class="mdn-cn-close" type="button" aria-label="Close">&times;</button></div>' +
       '<div class="mdn-cn-progress"><span class="mdn-cn-dot is-on" data-dot="1"></span><span class="mdn-cn-dot" data-dot="2"></span><span id="mdncn-steplabel">Step 1 of 2 \u00b7 Start the thread</span></div>' +
       '<div class="mdn-cn-body"><div id="mdncn-step1">' + STEP1 + '</div><div id="mdncn-step2" hidden>' + STEP2 + '</div></div>' +
       '<div class="mdn-cn-foot">' +
       '<a class="mdn-cn-alt" href="mailto:connect@monderman.com">Prefer email? <span>connect@monderman.com</span></a>' +
-      '<a class="mdn-cn-alt" href="connect.html">Prefer the full page? <span>Open Connect \u2192</span></a>' +
+      '<a class="mdn-cn-alt" href="connect.html">Prefer the full page? <span>Open Contact \u2192</span></a>' +
       '</div>');
 
     root.appendChild(launch); root.appendChild(panel); document.body.appendChild(root);

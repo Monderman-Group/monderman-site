@@ -68,7 +68,7 @@ PUBLICATIONS = (
         "September 2026", 0, (),
     ),
     Publication(
-        "Monderman_Insight_After_the_First_Lap.pdf",
+        "Monderman_Insight_From_Tokens_to_Outcomes_2026-08.pdf",
         "INSIGHT",
         "From Tokens to Outcomes",
         "How Token Economics Will Define the Next Phase of Enterprise AI",
@@ -126,6 +126,16 @@ PUBLICATIONS = (
 )
 
 
+# The August 2026 revision was initially published under its former title's
+# filename. Read that body as the source once, but write the corrected,
+# title-matching public artifact without preserving the stale URL as a current
+# edition.
+SOURCE_FILENAMES = {
+    "Monderman_Insight_From_Tokens_to_Outcomes_2026-08.pdf":
+        "Monderman_Insight_After_the_First_Lap.pdf",
+}
+
+
 def preserve_metadata(reader: PdfReader, writer: PdfWriter) -> None:
     if reader.metadata:
         metadata = {str(key): str(value) for key, value in reader.metadata.items() if value is not None}
@@ -134,13 +144,14 @@ def preserve_metadata(reader: PdfReader, writer: PdfWriter) -> None:
 
 
 def replace_cover(publication: Publication) -> tuple[int, Path]:
-    source = ROOT / publication.filename
+    source_filename = SOURCE_FILENAMES.get(publication.filename, publication.filename)
+    source = ROOT / source_filename
     if not source.exists():
         raise FileNotFoundError(source)
 
     BACKUP_DIR.mkdir(parents=True, exist_ok=True)
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    backup = BACKUP_DIR / publication.filename
+    backup = BACKUP_DIR / source_filename
     if not backup.exists():
         shutil.copy2(source, backup)
 
@@ -156,13 +167,17 @@ def replace_cover(publication: Publication) -> tuple[int, Path]:
     with tempfile.NamedTemporaryFile(prefix=f".{source.stem}-", suffix=".pdf", dir=ROOT, delete=False) as handle:
         temporary = Path(handle.name)
         writer.write(handle)
-    temporary.replace(source)
-    shutil.copy2(source, OUTPUT_DIR / source.name)
+    destination = ROOT / publication.filename
+    temporary.replace(destination)
+    shutil.copy2(destination, OUTPUT_DIR / destination.name)
 
-    written = PdfReader(source)
+    written = PdfReader(destination)
     if len(written.pages) != page_count:
-        raise RuntimeError(f"Page count changed for {source.name}: {page_count} -> {len(written.pages)}")
-    return page_count, source
+        raise RuntimeError(
+            f"Page count changed for {destination.name}: "
+            f"{page_count} -> {len(written.pages)}"
+        )
+    return page_count, destination
 
 
 def main() -> None:

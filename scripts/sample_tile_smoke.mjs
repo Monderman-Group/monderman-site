@@ -70,9 +70,7 @@ try {
           heroTop: heroBox?.top ?? null,
           heroBottom: heroBox?.bottom ?? null,
           heroHeight: heroBox?.height ?? null,
-          heroRouteFieldBackground: heroRouteField ? getComputedStyle(heroRouteField).backgroundImage : null,
-          heroRouteFieldPosition: heroRouteField ? getComputedStyle(heroRouteField).backgroundPosition : null,
-          heroRouteFieldSize: heroRouteField ? getComputedStyle(heroRouteField).backgroundSize : null,
+          hasHeroRouteField: !!heroRouteField,
           rootLeft: rootBox.left,
           rootRight: rootBox.right,
           footDisplay: getComputedStyle(foot).display,
@@ -114,12 +112,8 @@ try {
             `${placement.name}/${viewport.name}: sample proof escapes the viewport (${geometry.left}px to ${geometry.right}px)`);
           assert.ok(geometry.width <= viewport.width - 38,
             `${placement.name}/${viewport.name}: sample proof exceeds the mobile content column (${geometry.width}px)`);
-          assert.match(geometry.heroRouteFieldBackground || '', /monderman-hero-route-field\.svg/,
-            `${placement.name}/${viewport.name}: the current route-field hero is missing`);
-          assert.equal(geometry.heroRouteFieldPosition, '59% 0px',
-            `${placement.name}/${viewport.name}: route-field hero position changed`);
-          assert.equal(geometry.heroRouteFieldSize, 'auto 760px',
-            `${placement.name}/${viewport.name}: route-field hero scale changed`);
+          assert.equal(geometry.hasHeroRouteField, false,
+            `${placement.name}/${viewport.name}: retired decorative route field returned`);
           await tile.locator('.hero-report-link').click({ trial: true });
         }
       }

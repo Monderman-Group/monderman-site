@@ -33,9 +33,9 @@ class TypeCheck:
 
 TYPE_CHECKS = (
     TypeCheck(
-        "Monderman_Brief_Accumulated_Drag_Department_of_War.pdf",
+        "Monderman_Brief_Accumulated_Drag_Department_of_War_2026-09-02.pdf",
         3,
-        "structurally",
+        "Structurally",
         20.5,
         "Bold",
     ),
@@ -75,21 +75,21 @@ TYPE_CHECKS = (
         "55Rg",
     ),
     TypeCheck(
-        "Monderman_Insight_Every_Node_for_Itself_Aug2026.pdf",
-        3,
-        "network",
+        "Monderman_Insight_Every_Node_for_Itself_2026-09-02.pdf",
+        2,
+        "Network",
         20.5,
-        "75Bd",
+        "Bold",
     ),
     TypeCheck(
-        "Monderman_Insight_Every_Node_for_Itself_Aug2026.pdf",
-        3,
+        "Monderman_Insight_Every_Node_for_Itself_2026-09-02.pdf",
+        2,
         "Every",
         10.0,
-        "55Rg",
+        "NHG55",
     ),
     TypeCheck(
-        "Monderman_Insight_Merit_After_the_Machine_2026-08-11.pdf",
+        "Monderman_Insight_Merit_After_the_Machine_2026-09-02.pdf",
         2,
         "Same",
         20.5,
@@ -99,19 +99,21 @@ TYPE_CHECKS = (
 
 
 EXPECTED_PAGES = {
-    "Monderman_Brief_Accumulated_Drag_Department_of_War.pdf": 10,
+    "Monderman_Brief_Accumulated_Drag_Department_of_War_2026-09-02.pdf": 11,
     "Monderman_Brief_Compensatory_Systems.pdf": 11,
     "Monderman_Brief_Quarter_Trillion_Dollar_Friction_US_Healthcare.pdf": 11,
     "Monderman_Brief_The_Collapse_of_Eastman_Kodak.pdf": 10,
     "Monderman_Brief_The_Culture_Trap.pdf": 9,
-    "Monderman_Insight_After_the_First_Lap.pdf": 26,
+    "Monderman_Insight_From_Tokens_to_Outcomes_2026-08.pdf": 26,
     "Monderman_Insight_Built_to_Please_2026-09-02.pdf": 13,
-    "Monderman_Insight_Every_Node_for_Itself_Aug2026.pdf": 11,
-    "Monderman_Insight_Merit_After_the_Machine_2026-08-11.pdf": 14,
+    "Monderman_Insight_Every_Node_for_Itself_2026-09-02.pdf": 10,
+    "Monderman_Insight_Merit_After_the_Machine_2026-09-02.pdf": 15,
     "Monderman_Insight_The_Unmeasured_Layer.pdf": 11,
     "Monderman_Insight_The_Art_of_Interior_Reasoning.pdf": 12,
     "Terminal_Fidelity.pdf": 17,
 }
+
+PERSPECTIVE_PDF = "Monderman_Commentary_We_Gave_Bureaucracy_the_Fastest_Tools_2026-09-03.pdf"
 
 
 def close(actual: float, expected: float) -> bool:
@@ -201,7 +203,10 @@ def validate_publication(filename: str, category: str) -> None:
                 f"{filename}: REFERENCES does not begin on a clean page"
             )
         reference_heading_size = 10.5 if filename in {
+            "Monderman_Brief_Accumulated_Drag_Department_of_War_2026-09-02.pdf",
             "Monderman_Insight_Built_to_Please_2026-09-02.pdf",
+            "Monderman_Insight_Every_Node_for_Itself_2026-09-02.pdf",
+            "Monderman_Insight_Merit_After_the_Machine_2026-09-02.pdf",
             "Monderman_Insight_The_Unmeasured_Layer.pdf",
         } else 10.0
         reference_heading = [
@@ -306,15 +311,40 @@ def validate_terminal_reflow() -> None:
                 )
 
 
+def validate_perspective() -> None:
+    """Validate the separately authored Perspective against the shared release contract."""
+    path = ROOT / PERSPECTIVE_PDF
+    reader = PdfReader(path)
+    if len(reader.pages) != 8:
+        raise AssertionError(f"{PERSPECTIVE_PDF}: expected 8 pages, found {len(reader.pages)}")
+    for page_number, page in enumerate(reader.pages, 1):
+        width = float(page.mediabox.width)
+        height = float(page.mediabox.height)
+        if not (close(width, LETTER[0]) and close(height, LETTER[1])):
+            raise AssertionError(
+                f"{PERSPECTIVE_PDF} page {page_number}: {width} x {height}, not US Letter"
+            )
+    with pdfplumber.open(path) as document:
+        cover = document.pages[0].extract_text() or ""
+        if "PERSPECTIVE" not in "".join(cover.split()):
+            raise AssertionError(f"{PERSPECTIVE_PDF}: cover taxonomy is not PERSPECTIVE")
+        if not any((page.extract_text() or "").startswith("REFERENCES") for page in document.pages):
+            raise AssertionError(f"{PERSPECTIVE_PDF}: references section is missing")
+        closing = document.pages[-1].extract_text() or ""
+        if "ABOUT THE AUTHOR" not in closing or "Monderman." not in closing:
+            raise AssertionError(f"{PERSPECTIVE_PDF}: canonical closing page is missing")
+
+
 def main() -> None:
     for publication in PUBLICATIONS:
         validate_publication(publication.filename, publication.category)
     for check in TYPE_CHECKS:
         require_type(check)
     validate_terminal_reflow()
+    validate_perspective()
     print(
         "PUBLICATION_SUITE_PASS "
-        f"({len(PUBLICATIONS)} PDFs; Letter, references, typography, italics, reflow)"
+        f"({len(PUBLICATIONS) + 1} PDFs; Letter, references, typography, italics, reflow)"
     )
 
 

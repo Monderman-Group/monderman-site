@@ -11,7 +11,7 @@ const surfaces = [
   'about.html',
   'research.html',
   'platform-services.html',
-  'after-the-first-lap.html',
+  'from-tokens-to-outcomes.html',
 ];
 
 fs.mkdirSync(out, { recursive: true });

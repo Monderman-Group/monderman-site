@@ -23,7 +23,7 @@ PAGE_CEILINGS = {
     "about.html": 3,
     "research.html": 8,
     "platform-services.html": 11,
-    "after-the-first-lap.html": 2,
+    "from-tokens-to-outcomes.html": 26,
 }
 errors: list[str] = []
 

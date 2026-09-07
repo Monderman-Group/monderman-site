@@ -220,22 +220,6 @@ body.canonical-green-shell .article-hero {
   color: var(--mdm-white);
 }
 
-body.canonical-green-shell:not(.homepage-enterprise) > .hero::before,
-body.canonical-green-shell:not(.homepage-enterprise) > main > .hero::before,
-body.canonical-green-shell .ps-hero::before,
-body.canonical-green-shell .article-hero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: .42;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, .035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, .035) 1px, transparent 1px);
-  background-size: 72px 72px;
-  mask-image: linear-gradient(90deg, transparent 0%, #000 52%, #000 100%);
-}
-
 body.canonical-green-shell:not(.homepage-enterprise) > .hero,
 body.canonical-green-shell:not(.homepage-enterprise) > main > .hero,
 body.canonical-green-shell .ps-hero,
@@ -427,10 +411,54 @@ body.canonical-green-shell .dx-btn-primary:hover {
   color: var(--mdm-white);
 }
 
+/*
+ * Keep one filled action in a desktop opening view. The persistent header owns
+ * the free Decision Velocity entry point; page-specific hero actions retain
+ * their meaning but step down to the secondary tier. On smaller screens the
+ * header action moves inside the closed menu, so the local page action remains
+ * filled and immediately legible.
+ */
+@media (min-width: 1181px) {
+  body.canonical-green-shell .article-hero .article-action-primary,
+  body.canonical-green-shell .hero .btn-accent,
+  body.canonical-green-shell .hero .btn-primary,
+  body.canonical-green-shell .hero .pilot-primary,
+  body.canonical-green-shell .ps-hero .btn-accent,
+  body.canonical-green-shell .ps-hero .btn-primary {
+    background: transparent !important;
+    border-color: var(--mdm-amber-light) !important;
+    color: var(--mdm-amber-light) !important;
+    box-shadow: none !important;
+  }
+
+  body.canonical-green-shell .article-hero .article-action-primary:hover,
+  body.canonical-green-shell .article-hero .article-action-primary:focus-visible,
+  body.canonical-green-shell .hero .btn-accent:hover,
+  body.canonical-green-shell .hero .btn-accent:focus-visible,
+  body.canonical-green-shell .hero .btn-primary:hover,
+  body.canonical-green-shell .hero .btn-primary:focus-visible,
+  body.canonical-green-shell .hero .pilot-primary:hover,
+  body.canonical-green-shell .hero .pilot-primary:focus-visible,
+  body.canonical-green-shell .ps-hero .btn-accent:hover,
+  body.canonical-green-shell .ps-hero .btn-accent:focus-visible,
+  body.canonical-green-shell .ps-hero .btn-primary:hover,
+  body.canonical-green-shell .ps-hero .btn-primary:focus-visible {
+    background: rgba(201, 130, 31, .12) !important;
+    border-color: #FFD99B !important;
+    color: #FFD99B !important;
+  }
+
+  body.canonical-green-shell .article-hero .article-action-primary:focus-visible,
+  body.canonical-green-shell .hero :is(.btn-accent, .btn-primary, .pilot-primary):focus-visible,
+  body.canonical-green-shell .ps-hero :is(.btn-accent, .btn-primary):focus-visible {
+    outline: 3px solid #FFD99B !important;
+    outline-offset: 3px !important;
+  }
+}
+
 /* Cards become quieter, more architectural, and less app-like. */
 body.canonical-green-shell :is(
   .diff-card,
-  .cost-card,
   .approach-card,
   .paper-card,
   .latest-card,
@@ -451,7 +479,6 @@ body.canonical-green-shell :is(
 
 body.canonical-green-shell :is(
   .diff-card,
-  .cost-card,
   .approach-card,
   .paper-card,
   .latest-card,
@@ -531,28 +558,29 @@ body.homepage-enterprise .hero-actions {
 }
 
 body.homepage-enterprise .hero-actions .btn-accent {
-  background: var(--mdm-white);
-  border-color: var(--mdm-white);
+  background: var(--mdm-amber);
+  border-color: var(--mdm-amber);
   color: var(--mdm-deep);
 }
 
 body.homepage-enterprise .hero-actions .btn-accent:hover,
 body.homepage-enterprise .hero-actions .btn-accent:focus-visible {
-  background: #EAF3F2;
-  border-color: #EAF3F2;
+  background: #DEA044;
+  border-color: #DEA044;
   color: var(--mdm-deep);
 }
 
 body.homepage-enterprise .hero-actions .btn-secondary {
   background: transparent;
-  border-color: rgba(255, 255, 255, .42);
-  color: var(--mdm-white);
+  border-color: var(--mdm-amber-light);
+  color: var(--mdm-amber-light);
 }
 
 body.homepage-enterprise .hero-actions .btn-secondary:hover,
 body.homepage-enterprise .hero-actions .btn-secondary:focus-visible {
-  background: rgba(255, 255, 255, .09);
-  border-color: rgba(255, 255, 255, .8);
+  background: rgba(201, 130, 31, .12);
+  border-color: #FFD99B;
+  color: #FFD99B;
 }
 
 body.homepage-enterprise .hero-enterprise-link {
@@ -613,114 +641,15 @@ body.homepage-enterprise .hero-report-caption {
   color: rgba(255, 255, 255, .82);
 }
 
-body.homepage-enterprise #main-content > .acquisition-layer {
-  order: 2;
-}
-
-body.homepage-enterprise #main-content > .proof-band { order: 3; }
-body.homepage-enterprise #main-content > .mxidx-band { order: 4; }
-body.homepage-enterprise #main-content > .systems-analysis-bridge { order: 5; }
-body.homepage-enterprise #main-content > .approach { order: 6; }
-body.homepage-enterprise #main-content > .first-run-moments { order: 7; }
-body.homepage-enterprise #main-content > .measurement-loop { order: 8; }
-body.homepage-enterprise #main-content > .book-band { order: 9; }
-body.homepage-enterprise #main-content > .latest { order: 10; }
-body.homepage-enterprise #main-content > .connect { order: 11; }
-
-body.homepage-enterprise .acquisition-layer {
-  position: relative;
-  background: #FBF7EF;
-  color: var(--mdm-ink);
-  border-block: 1px solid #E7D7BB;
-}
-
-body.homepage-enterprise .acquisition-inner {
-  max-width: var(--mdm-max);
-  margin: 0 auto;
-  padding: 28px clamp(24px, 4vw, 56px);
-  display: grid;
-  grid-template-columns: minmax(260px, .72fr) minmax(0, 1.28fr);
-  gap: clamp(32px, 5vw, 82px);
-  align-items: center;
-}
-
-body.homepage-enterprise .acquisition-intro p {
-  margin: 0 0 8px;
-  color: var(--mdm-amber-dark);
-  font-size: .68rem;
-  font-weight: 700;
-  letter-spacing: .17em;
-  text-transform: uppercase;
-}
-
-body.homepage-enterprise .acquisition-intro h2 {
-  margin: 0;
-  color: var(--mdm-ink);
-  font-size: clamp(1.55rem, 2.3vw, 2.15rem);
-  line-height: 1.08;
-  letter-spacing: -.045em;
-}
-
-body.homepage-enterprise .acquisition-routes {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  border-left: 1px solid #E3CFAC;
-}
-
-body.homepage-enterprise .acquisition-route {
-  position: relative;
-  display: block;
-  min-height: 142px;
-  padding: 18px 28px;
-  color: var(--mdm-ink);
-  text-decoration: none;
-  border-right: 1px solid #E3CFAC;
-  transition: background-color 160ms ease;
-}
-
-body.homepage-enterprise .acquisition-route:hover,
-body.homepage-enterprise .acquisition-route:focus-visible {
-  background: rgba(201, 130, 31, .07);
-}
-
-body.homepage-enterprise .acquisition-route small {
-  display: block;
-  color: var(--mdm-amber-dark);
-  font-size: .67rem;
-  font-weight: 700;
-  letter-spacing: .13em;
-  text-transform: uppercase;
-}
-
-body.homepage-enterprise .acquisition-route strong {
-  display: block;
-  margin-top: 14px;
-  color: var(--mdm-deep);
-  font-size: 1.06rem;
-  line-height: 1.2;
-}
-
-body.homepage-enterprise .acquisition-route span {
-  display: block;
-  max-width: 39ch;
-  margin-top: 6px;
-  color: #625F58;
-  font-size: .88rem;
-  line-height: 1.45;
-}
-
-body.homepage-enterprise .acquisition-route::after {
-  content: "\2192";
-  position: absolute;
-  right: 24px;
-  bottom: 17px;
-  color: var(--mdm-amber-dark);
-  transition: transform 160ms ease;
-}
-
-body.homepage-enterprise .acquisition-route:hover::after {
-  transform: translateX(4px);
-}
+body.homepage-enterprise #main-content > .proof-band { order: 2; }
+body.homepage-enterprise #main-content > .mxidx-band { order: 3; }
+body.homepage-enterprise #main-content > .systems-analysis-bridge { order: 4; }
+body.homepage-enterprise #main-content > .approach { order: 5; }
+body.homepage-enterprise #main-content > .first-run-moments { order: 6; }
+body.homepage-enterprise #main-content > .measurement-loop { order: 7; }
+body.homepage-enterprise #main-content > .book-band { order: 8; }
+body.homepage-enterprise #main-content > .latest { order: 9; }
+body.homepage-enterprise #main-content > .connect { order: 10; }
 
 @media (min-width: 1181px) and (max-height: 900px) {
   body.homepage-enterprise .hero-eyebrow { margin-bottom: 20px; }
@@ -803,18 +732,6 @@ body.homepage-enterprise .mxidx-band {
   background: var(--mdm-brand-dark);
   color: var(--mdm-white);
   overflow: hidden;
-}
-
-body.homepage-enterprise .mxidx-band::after {
-  content: "";
-  position: absolute;
-  right: -110px;
-  bottom: -230px;
-  width: 520px;
-  height: 520px;
-  border: 1px solid rgba(156, 196, 201, .2);
-  border-radius: 50%;
-  box-shadow: inset 0 0 0 90px rgba(156, 196, 201, .025), inset 0 0 0 180px rgba(156, 196, 201, .025);
 }
 
 body.homepage-enterprise .mxidx-inner {
@@ -1271,17 +1188,6 @@ body.canonical-green-shell .reveal {
     padding-top: 13px;
   }
 
-  body.homepage-enterprise .acquisition-inner {
-    grid-template-columns: 1fr;
-    gap: 22px;
-    padding-block: 34px;
-  }
-
-  body.homepage-enterprise .acquisition-routes {
-    border-top: 1px solid #E3CFAC;
-    border-left: 0;
-  }
-
   body.homepage-enterprise .loop-flow {
     grid-template-columns: 1fr 1fr;
   }
@@ -1385,20 +1291,8 @@ body.canonical-green-shell .reveal {
     display: none;
   }
 
-  body.homepage-enterprise .acquisition-routes,
   body.homepage-enterprise .loop-flow {
     grid-template-columns: 1fr;
-  }
-
-  body.homepage-enterprise .acquisition-route {
-    min-height: 134px;
-    padding-inline: 0;
-    border-right: 0;
-    border-bottom: 1px solid #E3CFAC;
-  }
-
-  body.homepage-enterprise .acquisition-route:last-child {
-    border-bottom: 0;
   }
 
   body.homepage-enterprise .systems-analysis-card {
@@ -1442,8 +1336,7 @@ body.canonical-green-shell .reveal {
 }
 
 @media print {
-  body.canonical-green-shell .header,
-  body.canonical-green-shell .acquisition-layer {
+  body.canonical-green-shell .header {
     display: none !important;
   }
 

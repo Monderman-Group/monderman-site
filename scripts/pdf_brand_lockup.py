@@ -57,7 +57,7 @@ class Endorsement:
 
 
 PUBLICATIONS = (
-    Publication("Monderman_Brief_Accumulated_Drag_Department_of_War.pdf", 675.0, 103.0, 124.0, 277.0, WHITE),
+    Publication("Monderman_Brief_Accumulated_Drag_Department_of_War_2026-09-02.pdf", 675.0, 103.0, 124.0, 277.0, WHITE),
     Publication(
         "Monderman_Brief_Compensatory_Systems.pdf",
         675.0,
@@ -70,8 +70,8 @@ PUBLICATIONS = (
     Publication("Monderman_Brief_Quarter_Trillion_Dollar_Friction_US_Healthcare.pdf", 675.0, 103.0, 124.0, 277.0, WHITE),
     Publication("Monderman_Brief_The_Collapse_of_Eastman_Kodak.pdf", 675.0, 103.0, 124.0, 277.0, WHITE),
     Publication("Monderman_Brief_The_Culture_Trap.pdf", 718.0, 55.0, 82.0, 224.0, DARK_CULTURE, 58.0, WHITE),
-    Publication("Monderman_Insight_After_the_First_Lap.pdf", 680.6, 96.0, 122.0, 270.0, DARK_INSIGHT, 59.5, WHITE),
-    Publication("Monderman_Insight_Merit_After_the_Machine_2026-08-11.pdf", 668.2, 105.0, 136.0, 291.0, DARK_INSIGHT, 59.0, WHITE),
+    Publication("Monderman_Insight_From_Tokens_to_Outcomes_2026-08.pdf", 680.6, 96.0, 122.0, 270.0, DARK_INSIGHT, 59.5, WHITE),
+    Publication("Monderman_Insight_Merit_After_the_Machine_2026-09-02.pdf", 668.2, 105.0, 136.0, 291.0, DARK_INSIGHT, 59.0, WHITE),
     Publication("Monderman_Insight_The_Art_of_Interior_Reasoning.pdf", 678.1, 97.0, 122.0, 286.0, DARK_INSIGHT, 59.5, WHITE),
     Publication("Terminal_Fidelity.pdf", 678.1, 97.0, 122.0, 285.0, DARK_INSIGHT, 59.5, WHITE),
 )
@@ -80,12 +80,12 @@ PUBLICATIONS = (
 # Eight publications finish with a legacy spaced wordmark. Replace that closing
 # signature as well as the cover so the PDF never presents two brand systems.
 END_ENDORSEMENTS = {
-    "Monderman_Brief_Accumulated_Drag_Department_of_War.pdf": Endorsement(493.4, 282.0, 306.0, 157.0, 445.0),
+    "Monderman_Brief_Accumulated_Drag_Department_of_War_2026-09-02.pdf": Endorsement(493.4, 282.0, 306.0, 157.0, 445.0),
     "Monderman_Brief_Compensatory_Systems.pdf": Endorsement(493.4, 282.0, 306.0, 157.0, 445.0),
     "Monderman_Brief_Quarter_Trillion_Dollar_Friction_US_Healthcare.pdf": Endorsement(493.4, 282.0, 306.0, 157.0, 445.0),
     "Monderman_Brief_The_Collapse_of_Eastman_Kodak.pdf": Endorsement(493.4, 282.0, 306.0, 157.0, 445.0),
-    "Monderman_Insight_After_the_First_Lap.pdf": Endorsement(363.1, 413.0, 432.0, 236.0, 370.0),
-    "Monderman_Insight_Merit_After_the_Machine_2026-08-11.pdf": Endorsement(429.2, 348.0, 369.0, 227.0, 379.0),
+    "Monderman_Insight_From_Tokens_to_Outcomes_2026-08.pdf": Endorsement(363.1, 413.0, 432.0, 236.0, 370.0),
+    "Monderman_Insight_Merit_After_the_Machine_2026-09-02.pdf": Endorsement(429.2, 348.0, 369.0, 227.0, 379.0),
     "Monderman_Insight_The_Art_of_Interior_Reasoning.pdf": Endorsement(413.4, 363.0, 382.0, 201.0, 405.0),
     "Terminal_Fidelity.pdf": Endorsement(125.2, 651.0, 670.0, 201.0, 405.0),
 }

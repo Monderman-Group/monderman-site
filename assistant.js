@@ -73,7 +73,7 @@
       var connectLauncher = document.querySelector(".mdn-cn-launch");
       var assistantPanel = document.getElementById("mnd-panel");
       if (visible(assistantLauncher)) bottoms.push(width <= 480 ? 16 : 20);
-      if (visible(connectLauncher)) bottoms.push(width <= 640 ? 84 : 90);
+      if (visible(connectLauncher)) bottoms.push(width <= 640 ? 16 : 90);
       if (width > 480 && assistantPanel && assistantPanel.classList.contains("mnd-open") && visible(assistantPanel)) bottoms.push(90);
       return bottoms.length ? Math.min.apply(Math, bottoms) : null;
     }
@@ -92,12 +92,16 @@
       var assistantPanel = document.getElementById("mnd-panel");
       var connectPanel = document.getElementById("mdn-cn-panel");
       if (assistantLauncher) assistantLauncher.style.setProperty("bottom", (width <= 480 ? 16 : 20) + lift + "px", "important");
-      if (connectLauncher) connectLauncher.style.setProperty("bottom", (width <= 640 ? 84 : 90) + lift + "px", "important");
+      if (connectLauncher) {
+        connectLauncher.style.setProperty("bottom", (width <= 640 ? 16 : 90) + lift + "px", "important");
+        if (width <= 640) connectLauncher.style.setProperty("right", "72px", "important");
+        else connectLauncher.style.removeProperty("right");
+      }
       if (assistantPanel) {
         if (width <= 480) assistantPanel.style.removeProperty("bottom");
         else assistantPanel.style.setProperty("bottom", 90 + lift + "px", "important");
       }
-      if (connectPanel) connectPanel.style.setProperty("bottom", (width <= 640 ? 142 : 148) + lift + "px", "important");
+      if (connectPanel) connectPanel.style.setProperty("bottom", (width <= 640 ? 72 : 148) + lift + "px", "important");
     }
     function update() {
       if (!frame) frame = window.requestAnimationFrame(render);
@@ -148,7 +152,7 @@
     + '#mnd-send:hover{background:#0A5B63}#mnd-send:disabled{opacity:.5;cursor:not-allowed}'
     + '#mnd-launcher.mnd-dock-left{left:20px;right:auto}'
     + '#mnd-panel.mnd-dock-left{left:20px;right:auto}'
-    + '@media (max-width:480px){#mnd-panel{right:0;bottom:0;width:100vw;max-width:100vw;height:88vh;max-height:88vh;border-radius:18px 18px 0 0}#mnd-launcher{right:16px;bottom:16px}#mnd-launcher.mnd-dock-left{left:16px;right:auto}#mnd-panel.mnd-dock-left{left:0;right:0;width:100vw;max-width:100vw}}';
+    + '@media (max-width:480px){#mnd-panel{right:0;bottom:0;width:100vw;max-width:100vw;height:88vh;max-height:88vh;border-radius:18px 18px 0 0}#mnd-launcher{right:16px;bottom:16px;width:48px;height:48px}#mnd-launcher svg{width:22px;height:22px}#mnd-launcher.mnd-dock-left{left:16px;right:auto}#mnd-panel.mnd-dock-left{left:0;right:0;width:100vw;max-width:100vw}}';
   var style = document.createElement("style");
   style.textContent = css;
   document.head.appendChild(style);

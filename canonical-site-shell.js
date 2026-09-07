@@ -70,31 +70,6 @@
       motif.setAttribute("aria-hidden", "true");
       motif.innerHTML = footerMotif;
     });
-    document.querySelectorAll(".mond-footer .mf-nav").forEach((footerNav) => {
-      footerNav.innerHTML = `
-        <div class="mf-col">
-          <p class="mf-col-title">Platform</p>
-          <a href="Monderman_Platform_Brief.html">Platform overview</a>
-          <a href="diagnostics.html">Diagnostics</a>
-          <a href="workspace.html">Workspace</a>
-          <a href="sample-report.html">Sample reports</a>
-          <a href="platform-services.html">Plans and pricing</a>
-        </div>
-        <div class="mf-col">
-          <p class="mf-col-title">Company</p>
-          <a href="why-monderman.html">Why Monderman</a>
-          <a href="about.html">About</a>
-          <a href="research.html">Research</a>
-          <a href="connect.html">Contact</a>
-        </div>
-        <div class="mf-col">
-          <p class="mf-col-title">Trust</p>
-          <a href="security.html">Security</a>
-          <a href="subprocessors.html">Subprocessors</a>
-          <a href="privacy.html">Privacy</a>
-          <a href="terms.html">Terms</a>
-        </div>`;
-    });
   };
   enhanceBrand();
   const setupRevealMotion = () => {
@@ -122,48 +97,6 @@
   if (header) {
     const nav = header.querySelector(".nav");
     if (nav) {
-      const menus = [
-        ["Platform", "Monderman_Platform_Brief.html", [
-          ["Platform Overview", "Monderman_Platform_Brief.html"],
-          ["Diagnostics", "diagnostics.html"],
-          ["Workspace", "workspace.html"],
-          ["Synthesis", "Monderman_Platform_Brief.html#slide-6"],
-          ["Sample Reports", "sample-report.html"],
-          ["Method and ROI", "roi.html"],
-          ["AI Infrastructure", "deterministic-ai-infrastructure.html"]
-        ]],
-        ["Solutions", "new-in-the-role.html", [
-          ["New in the Role", "new-in-the-role.html"],
-          ["After an Acquisition", "after-an-acquisition.html"],
-          ["Transformation Behind Schedule", "transformation-behind-schedule.html"],
-          ["After a Reorganization", "after-a-reorganization.html"]
-        ]],
-        ["Research", "research.html", [
-          ["Research Library", "research.html"],
-          ["The Unmeasured Layer", "the-unmeasured-layer.html"],
-          ["The Culture Trap", "the-culture-trap.html"],
-          ["Governing Complexity", "governing-complexity.html"],
-          ["Designing for Decision Velocity", "designing-for-decision-velocity.html"],
-          ["Founder and Book", "about.html"]
-        ]],
-        ["Pricing", "platform-services.html", [
-          ["Plans and Pricing", "platform-services.html"],
-          ["Signal", "plan-signal.html"],
-          ["Pattern", "plan-pattern.html"],
-          ["Enterprise", "plan-enterprise.html"]
-        ]],
-        ["Company", "why-monderman.html", [
-          ["Why Monderman", "why-monderman.html"],
-          ["About", "about.html"],
-          ["Trust and Security", "security.html"],
-          ["Subprocessors", "subprocessors.html"],
-          ["Contact", "connect.html"]
-        ]]
-      ];
-      const menuMarkup = menus.map(([label, href, items]) =>
-        `<div class="nav-menu"><a class="nav-parent" href="${href}" aria-haspopup="true" aria-expanded="false">${label}<span class="nav-chevron" aria-hidden="true"></span></a><div class="nav-dropdown">${items.map(([itemLabel, itemHref]) => `<a href="${itemHref}">${itemLabel}</a>`).join("")}</div></div>`
-      ).join("");
-      nav.innerHTML = `${menuMarkup}<a class="site-trust-link" href="security.html">Trust</a><button class="site-search-button" type="button" aria-label="Search Monderman" title="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.6"></circle><path d="m16 16 4.2 4.2"></path></svg></button><a class="workspace-link" href="workspace.html">Sign In</a><a class="site-entry-link" href="decision-velocity.html?source=header" data-first-run-event="decision_velocity_started">Run Decision Velocity free</a>`;
       const menuButton = document.createElement("button");
       menuButton.className = "site-menu-button";
       menuButton.type = "button";
@@ -349,4 +282,18 @@
       });
     }
   }
+  const ensureWidgetScript = (prefix, source) => {
+    if (document.querySelector(`script[src^="${prefix}"]`)) return;
+    const script = document.createElement("script");
+    script.src = source;
+    script.defer = true;
+    document.body.appendChild(script);
+  };
+  const ensurePublicWidgets = () => {
+    if (!document.body.classList.contains("canonical-green-shell")) return;
+    ensureWidgetScript("assistant.js", "assistant.js?v=20260906-shell1");
+    ensureWidgetScript("connect-widget.js", "connect-widget.js?v=20260906-shell1");
+  };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", ensurePublicWidgets, { once: true });
+  else ensurePublicWidgets();
 })();

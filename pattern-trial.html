@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Private 30-day Pattern pilot | Monderman</title>
+  <title>30-day Pattern Pilot | Monderman</title>
+  <meta name="description" content="Activate an invitation to the limited 30-day Monderman Pattern Pilot." />
   <link rel="canonical" href="https://www.monderman.com/pattern-trial.html" />
   <meta name="robots" content="noindex" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260906-enterprise1">
@@ -32,9 +33,9 @@
 <body class="transaction-surface">
   <header><a class="brand" href="index.html">Monderman.</a><a href="plan-pattern.html">&larr; Pattern details</a></header>
   <main><div class="card">
-    <p class="eyebrow">Pattern &middot; Private 30-day pilot</p>
+    <p class="eyebrow">Pattern &middot; Limited 30-day Pilot</p>
     <h1>Use the full Pattern Workspace for 30 days.</h1>
-    <p class="lead">A private, invitation-only evaluation for an eligible account. Start a new Trial Workspace or use an eligible existing one. No card is required to start, and the pilot does not renew automatically.</p>
+    <p class="lead">An invitation-only pilot for an eligible account. Start a new Trial Workspace or use an eligible existing one. No card is required, and the pilot does not renew automatically.</p>
     <ul>
       <li>All four Diagnostics, standard depths and participant perspectives</li>
       <li>Diagnostic campaigns and up to 500 participant responses</li>
@@ -42,13 +43,13 @@
       <li>Anonymous participant responses</li>
       <li>Pattern Workspace capacity for five analysts and two admins</li>
     </ul>
-    <div class="terms"><strong>What happens on day 30:</strong> the Pattern trial ends automatically. If you have not explicitly chosen a paid subscription, nothing is charged and your Workspace returns to the standard Trial level. Your saved work is retained. Standard Trial access limits apply after day 30; choosing a paid plan restores the applicable Pattern access.</div>
+    <div class="terms"><strong>What happens on day 30:</strong> the Pattern Pilot ends automatically. If you have not explicitly chosen a paid subscription, nothing is charged and your Workspace returns to the standard Trial level. Your saved work is retained. Standard Trial access limits apply after day 30; choosing a paid plan restores the applicable Pattern access.</div>
     <div class="pilot-invitation" id="pilotInvitation" data-state="checking" role="status" aria-live="polite">
       <strong id="pilotInvitationTitle">Verifying your pilot invitation…</strong>
       <p id="pilotInvitationHelp">Sign in with the email address that received the invitation.</p>
     </div>
     <div class="workspace-choice" id="workspaceChoice" hidden>
-      <label for="organizationSelect">Workspace for this trial</label>
+      <label for="organizationSelect">Workspace for this pilot</label>
       <select id="organizationSelect" hidden></select>
       <p id="organizationName"></p>
     </div>
@@ -57,8 +58,8 @@
       <input id="workspaceName" name="organization" type="text" autocomplete="organization" maxlength="160" placeholder="Your organization" aria-describedby="workspaceNameHelp" />
       <p id="workspaceNameHelp">This creates your private Trial Workspace. You can update its name later in Workspace settings.</p>
     </div>
-    <label class="confirm"><input type="checkbox" id="ackStart" disabled><span>I understand this one-time 30-day beta evaluation starts immediately when I continue and remains used for this account identity even if the Workspace is later deleted or replaced. I agree to the <a href="terms.html" id="trialTermsLink" target="_blank" rel="noopener">Terms of Service</a> and acknowledge the <a href="privacy.html" id="trialPrivacyLink" target="_blank" rel="noopener">Privacy Notice</a>. I understand that financial, time, capacity, productivity and recovery figures are directional estimates, not guaranteed outcomes, and that my organization is responsible for its data, decisions, implementation and results.</span></label>
-    <button id="startBtn" disabled>Start my 30-day Pattern trial</button>
+    <label class="confirm"><input type="checkbox" id="ackStart" disabled><span>I understand this one-time 30-day pilot starts immediately when I continue and remains used for this account identity even if the Workspace is later deleted or replaced. I agree to the <a href="terms.html" id="trialTermsLink" target="_blank" rel="noopener">Terms of Use</a> and acknowledge the <a href="privacy.html" id="trialPrivacyLink" target="_blank" rel="noopener">Privacy Notice</a>. I understand that financial, time, capacity, productivity and recovery figures are directional estimates, not guaranteed outcomes, and that my organization is responsible for its data, decisions, implementation and results.</span></label>
+    <button id="startBtn" disabled>Start my 30-day Pattern Pilot</button>
     <div id="msg" class="msg" role="status" aria-live="polite"></div>
     <p class="fine">Invitation required. One Pattern pilot per eligible account identity. Deleting or replacing a Workspace does not reset eligibility. An organization admin must start the pilot.</p>
   </div></main>
@@ -224,7 +225,7 @@
           ? "The Terms or Privacy Notice changed while this page was open. Review the current documents, select the acknowledgement again, and continue."
           : "The Pattern trial could not be reached. Nothing was charged. Please try again.");
       }
-      btn.textContent="Start my 30-day Pattern trial"; syncStart();
+      btn.textContent="Start my 30-day Pattern Pilot"; syncStart();
     });
   </script>
 </body>

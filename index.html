@@ -372,68 +372,6 @@
       color: #FFFFFF;
     }
     
-    .differentiators {
-      position: relative;
-      background: #FFFFFF;
-      color: var(--text-dark);
-      padding: 34px 34px 38px;
-      border-top: 1px solid rgba(24,25,28,0.04);
-      border-bottom: 1px solid rgba(24,25,28,0.06);
-    }
-    .differentiators-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-    }
-    .differentiators-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 20px;
-    }
-    .diff-section-heading {
-      margin: 0 0 24px;
-      font-size: 28px;
-      line-height: 1.15;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      color: var(--text-dark);
-    }
-    .diff-card {
-      background: rgba(255,255,255,0.98);
-      border: 1px solid rgba(24,25,28,0.08);
-      border-radius: var(--card-radius);
-      padding: 24px 22px 22px;
-      box-shadow: none;
-      transition: transform var(--transition-slow), box-shadow var(--transition-slow), border-color var(--transition);
-    }
-    .diff-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(12,110,120,0.14);
-      box-shadow: none;
-    }
-    .diff-kicker {
-      margin: 0 0 10px;
-      font-size: 11px;
-      font-weight: 600;
-      line-height: 1.4;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-    .diff-title {
-      margin: 0 0 10px;
-      font-size: 17px;
-      line-height: 1.2;
-      font-weight: 700;
-      color: var(--text-dark);
-      text-wrap: balance;
-    }
-    .diff-text {
-      margin: 0;
-      font-size: 0.93rem;
-      line-height: 1.62;
-      color: var(--muted-dark);
-      max-width: 30ch;
-    }
     .latest-card-image--placeholder {
       position: relative;
       display: flex;
@@ -539,23 +477,6 @@
       line-height: 1.65;
       color: var(--muted-dark);
     }
-    .bureaucracy-cost,
-    .diagnostic-estimate {
-      position: relative;
-      background: #FAFAF8;
-      border-top: 1px solid #EFEBE3;
-      border-bottom: 1px solid #EFEBE3;
-      color: var(--text-dark);
-      overflow: hidden;
-    }
-    .bureaucracy-cost { padding: 84px 34px 100px; }
-    .diagnostic-estimate { padding: 78px 34px 92px; }
-    .bureaucracy-cost::before,
-    .diagnostic-estimate::before {
-      content: none;
-    }
-    .cost-inner,
-    .diagnostic-estimate-inner,
     .approach-inner,
     .latest-inner,
     .connect-inner,
@@ -564,273 +485,6 @@
       margin: 0 auto;
       position: relative;
       z-index: 1;
-    }
-    .cost-heading,
-    .diagnostic-estimate-heading {
-      max-width: 900px;
-      margin: 0 0 44px;
-    }
-    .cost-label,
-    .estimate-label,
-    .latest-label {
-      margin: 0 0 18px;
-      font-size: 11px;
-      font-weight: 600;
-      line-height: 1.4;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--accent);
-      opacity: 0.85;
-    }
-    .cost-heading h2,
-    .diagnostic-estimate-heading h2 {
-      margin: 0 0 14px;
-      max-width: 760px;
-      font-size: 28px;
-      line-height: 1.15;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      color: var(--text-dark);
-      text-wrap: balance;
-    }
-    .cost-context,
-    .estimate-context,
-    .estimate-bridge {
-      margin: 0;
-      max-width: 64ch;
-      font-size: 15px;
-      line-height: 1.65;
-      color: var(--muted-dark);
-    }
-    .estimate-bridge { margin-top: 12px; }
-    .cost-grid,
-    .estimate-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 28px;
-      margin-top: 10px;
-    }
-    .cost-card,
-    .estimate-card {
-      background: rgba(255,255,255,0.96);
-      border: 1px solid rgba(24,25,28,0.06);
-      border-radius: var(--panel-radius);
-      padding: 42px 34px 38px;
-      box-shadow: none;
-      transition: transform var(--transition-slow), box-shadow var(--transition-slow), border-color var(--transition);
-    }
-    .cost-card { min-height: 310px; }
-    .estimate-card { min-height: 286px; }
-    .cost-card:hover,
-    .estimate-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(12,110,120,0.12);
-      box-shadow: none;
-    }
-    .cost-card-title,
-    .estimate-card-title {
-      margin: 0 0 8px;
-      font-size: 17px;
-      line-height: 1.2;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-    .cost-card-title .asterisk { font-size: 0.9em; vertical-align: 0.08em; }
-    .cost-card-source,
-    .estimate-card-source {
-      margin: 0 0 34px;
-      font-size: 0.76rem;
-      line-height: 1.45;
-      color: #9A9892;
-      font-style: italic;
-    }
-    .cost-card-number {
-      margin: 0 0 18px;
-      font-size: clamp(3rem, 4.8vw, 4.35rem);
-      line-height: 0.9;
-      letter-spacing: -0.065em;
-      font-weight: 700;
-      color: var(--accent);
-    }
-    .estimate-card-number {
-      margin: 0 0 18px;
-      font-size: clamp(2.15rem, 3vw, 3rem);
-      line-height: 1;
-      letter-spacing: -0.05em;
-      font-weight: 700;
-      color: var(--accent);
-    }
-    .cost-card-text,
-    .estimate-card-text {
-      margin: 0;
-      max-width: 24ch;
-      font-size: 1.02rem;
-      line-height: 1.64;
-      color: var(--muted-dark);
-    }
-    .cost-footer {
-      margin: 24px 0 0;
-      font-size: 0.82rem;
-      line-height: 1.6;
-      color: var(--muted-dark-2);
-    }
-    .cost-action {
-      margin: 28px 0 0;
-      padding: 20px 24px;
-      background: rgba(12,110,120,0.04);
-      border-left: 3px solid var(--accent);
-      border-radius: 6px;
-      font-size: 1.02rem;
-      line-height: 1.55;
-      color: var(--text-dark);
-      max-width: 70ch;
-    }
-    .cost-action strong { font-weight: 600; }
-    .cost-action a {
-      display: inline-block;
-      margin-top: 8px;
-      color: var(--accent);
-      font-weight: 600;
-      font-size: 0.94rem;
-      border-bottom: 1px solid rgba(12,110,120,0.3);
-      transition: border-color 180ms ease;
-    }
-    .cost-action a:hover { border-color: var(--accent); }
-
-    /* How It Works strip */
-    .how-it-works {
-      background: #FFFFFF;
-      border-top: 1px solid rgba(24,25,28,0.06);
-      border-bottom: 1px solid rgba(24,25,28,0.06);
-      padding: 72px 34px 80px;
-    }
-    .how-it-works-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-    }
-    .how-it-works-eyebrow {
-      font-size: 0.74rem;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin: 0 0 14px;
-    }
-    .how-it-works h2 {
-      font-size: clamp(28px, 3vw, 38px);
-      line-height: 1.18;
-      max-width: 22ch;
-      font-weight: 700;
-      margin: 0 0 36px;
-      color: var(--text-dark);
-      letter-spacing: -0.048em;
-    }
-    .how-it-works-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 0;
-      border-top: 1px solid rgba(24,25,28,0.08);
-    }
-    .how-it-works-step {
-      padding: 28px 28px 28px 0;
-      border-bottom: 1px solid rgba(24,25,28,0.08);
-      border-right: 1px solid rgba(24,25,28,0.06);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .how-it-works-step:last-child {
-      border-right: none;
-      padding-right: 0;
-    }
-    .how-it-works-step:not(:first-child) {
-      padding-left: 28px;
-    }
-    .how-it-works-num {
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin: 0;
-    }
-    .how-it-works-name {
-      font-size: 1.22rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--text-dark);
-      margin: 0;
-    }
-    .how-it-works-text {
-      font-size: 0.98rem;
-      line-height: 1.55;
-      color: var(--muted-dark);
-      margin: 4px 0 0;
-    }
-    @media (max-width: 900px) {
-      .how-it-works-grid { grid-template-columns: 1fr; }
-      .how-it-works-step {
-        padding: 24px 0;
-        border-right: none;
-      }
-      .how-it-works-step:not(:first-child) { padding-left: 0; }
-    }
-    @media (max-width: 720px) {
-      .how-it-works { padding: 56px 20px 60px; }
-    }
-    .estimate-controls {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 18px;
-      margin-bottom: 28px;
-    }
-    .estimate-field { display: grid; gap: 10px; }
-    .estimate-field label {
-      font-size: 0.88rem;
-      line-height: 1.45;
-      font-weight: 600;
-      color: var(--text-dark);
-    }
-    .estimate-field select {
-      width: 100%;
-      min-height: 56px;
-      padding: 0 16px;
-      border-radius: 14px;
-      border: 1px solid rgba(24,25,28,0.10);
-      background: #FFFFFF;
-      color: var(--text-dark);
-      outline: none;
-      box-shadow: none;
-      transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
-    }
-    .estimate-field select:hover {
-      border-color: rgba(24,25,28,0.18);
-    }
-    .estimate-field select:focus-visible {
-      border-color: rgba(12,110,120,0.58);
-      box-shadow: 0 0 0 4px rgba(12,110,120,0.10);
-      transform: translateY(-1px);
-      outline: none;
-    }
-    .estimate-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      flex-wrap: wrap;
-      margin-top: 28px;
-    }
-    .estimate-foot-copy { max-width: 68ch; }
-    .estimate-foot-copy p {
-      margin: 0;
-      font-size: 0.92rem;
-      line-height: 1.64;
-      color: var(--muted-dark);
-    }
-    .estimate-foot-copy p + p {
-      margin-top: 8px;
-      color: var(--muted-dark-2);
-      font-size: 0.86rem;
     }
     .approach {
       position: relative;
@@ -926,31 +580,6 @@
       line-height: 1.35;
       color: var(--muted-dark);
     }
-    .approach-synthesis-item-head {
-      display: grid;
-      grid-template-columns: 28px minmax(0, 1fr);
-      gap: 10px;
-      align-items: start;
-      width: 100%;
-    }
-    .approach-synthesis-glyph {
-      width: 28px;
-      height: 28px;
-      border-radius: 9px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(12,110,120,0.045);
-      border: 1px solid rgba(12,110,120,0.10);
-      color: var(--accent);
-      margin-top: -1px;
-      transition: border-color 200ms ease, background 200ms ease, transform 200ms ease;
-    }
-    .approach-synthesis-glyph svg {
-      width: 14px;
-      height: 14px;
-      stroke: currentColor;
-    }
     .card-desc {
       font-size: 17px;
       line-height: 1.65;
@@ -974,142 +603,6 @@
       color: var(--accent-dark);
       transform: translateX(1px);
       outline: none;
-    }
-    .approach-synthesis {
-      margin-top: 52px;
-      padding: 40px 34px 10px;
-      background: #FAFAF8;
-      border-radius: var(--panel-radius);
-      border: 1px solid #EAE6DD;
-      text-align: center;
-    }
-    .approach-synthesis-copy {
-      max-width: 52ch;
-      margin: 0 auto 24px;
-      font-size: 1.02rem;
-      line-height: 1.58;
-      color: #6E6F73;
-    }
-    .approach-synthesis-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 16px;
-      max-width: 1040px;
-      margin: 0 auto 14px;
-      align-items: stretch;
-    }
-    .approach-synthesis-item {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
-      min-height: 0;
-      padding: 22px 20px 22px;
-      text-align: left;
-      background: #FFFFFF;
-      border: 1px solid rgba(24,25,28,0.08);
-      border-radius: 16px;
-      box-shadow: none;
-      color: var(--text-dark);
-      transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease, background 200ms ease;
-    }
-    .approach-synthesis-item strong {
-      font-size: 0.98rem;
-      line-height: 1.12;
-      letter-spacing: -0.025em;
-      color: var(--text-dark);
-    }
-    .approach-synthesis-item:hover strong,
-    .approach-synthesis-item.is-linked strong {
-      color: var(--accent-dark);
-    }
-    .approach-synthesis-item:hover .approach-synthesis-link,
-    .approach-synthesis-item.is-linked .approach-synthesis-link {
-      color: var(--accent-dark);
-    }
-    .approach-synthesis-link {
-      display: inline-flex;
-      align-items: center;
-      width: fit-content;
-      min-height: 0;
-      padding: 0;
-      border-radius: 0;
-      background: transparent;
-      border: 0;
-      font-size: 0.74rem;
-      line-height: 1;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-    .approach-synthesis-body {
-      font-size: 0.88rem;
-      line-height: 1.56;
-      color: #74746F;
-    }
-    .approach-synthesis-item.is-linked,
-    .approach-synthesis-item:hover {
-      transform: translateY(-2px);
-      border-color: rgba(12,110,120,0.18);
-      box-shadow: none;
-      background: #FFFFFF;
-    }
-    .approach-synthesis-item.is-linked .approach-synthesis-glyph,
-    .approach-synthesis-item:hover .approach-synthesis-glyph {
-      background: rgba(12,110,120,0.07);
-      border-color: rgba(12,110,120,0.16);
-      transform: translateY(-1px);
-    }
-    .synthesis {
-      position: relative;
-      background: #FFFFFF;
-      padding: 78px 34px 88px;
-      color: var(--text-dark);
-      border-top: 1px solid rgba(24,25,28,0.04);
-      border-bottom: 1px solid rgba(24,25,28,0.04);
-    }
-    .synthesis-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-      position: relative;
-      z-index: 1;
-    }
-    .synthesis-panel {
-      margin-top: 28px;
-      padding: 0;
-      background: transparent;
-      border: 0;
-      text-align: left;
-    }
-    .synthesis-panel .approach-synthesis-grid {
-      margin: 0;
-      max-width: none;
-    }
-    .synthesis-panel .approach-synthesis-item {
-      border-radius: 14px;
-      box-shadow: none;
-      border: 1px solid rgba(24,25,28,0.08);
-    }
-    .approach-foundation {
-      margin: 20px auto 0;
-      max-width: 640px;
-      min-height: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px 20px;
-      border-radius: 10px;
-      background: rgba(12,110,120,0.04);
-      border: 1px solid rgba(12,110,120,0.10);
-      color: var(--accent-dark);
-      font-size: 0.74rem;
-      line-height: 1.2;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      box-shadow: none;
-      text-align: center;
     }
     .latest {
       position: relative;
@@ -1158,7 +651,7 @@
     }
     .latest-viewport {
       overflow: hidden;
-      opacity: 0;
+      opacity: 1;
       transition: opacity 240ms ease;
     }
     .latest-viewport.is-ready { opacity: 1; }
@@ -1534,11 +1027,7 @@
       }
     }
     @media (max-width: 1100px) {
-      .differentiators-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .approach-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .cost-grid, .estimate-grid { grid-template-columns: 1fr; gap: 20px; }
-      .estimate-controls { grid-template-columns: 1fr; }
-      .cost-card, .estimate-card { min-height: auto; }
       .connect-inner { grid-template-columns: 1fr; gap: 28px; }
     }
     @media (max-width: 980px) {
@@ -1577,16 +1066,10 @@
           linear-gradient(90deg, rgba(4,24,27,0.72) 0%, rgba(4,24,27,0.56) 34%, rgba(4,24,27,0.22) 60%, rgba(4,24,27,0.08) 82%, rgba(4,24,27,0) 100%),
           linear-gradient(180deg, rgba(4,24,27,0.18) 0%, rgba(4,24,27,0.06) 40%, rgba(4,24,27,0.14) 100%);
       }
-      .bureaucracy-cost { padding-top: 62px; padding-bottom: 72px; }
       .approach,
-      .synthesis,
-      .diagnostic-estimate,
       .latest { padding-top: 60px; padding-bottom: 64px; }
       .connect { padding-top: 60px; padding-bottom: 60px; }
-      .bureaucracy-cost,
       .approach,
-      .synthesis,
-      .diagnostic-estimate,
       .latest,
       .connect,
       .footer {
@@ -1672,39 +1155,13 @@
         width: 16px;
         height: 16px;
       }
-      .approach-synthesis {
-        margin-top: 44px;
-        padding: 30px 22px 12px;
-      }
-      .approach-synthesis-grid {
-        grid-template-columns: 1fr;
-        gap: 14px;
-      }
-      .approach-foundation {
-        max-width: 100%;
-        font-size: 0.7rem;
-        letter-spacing: 0.12em;
-        padding: 14px 16px;
-      }
-      .estimate-footer {
-        align-items: flex-start;
-        flex-direction: column;
-      }
       .approach-grid { grid-template-columns: 1fr; }
       .approach-card { min-height: 0; }
-      .approach-synthesis-grid { grid-template-columns: 1fr; }
       .rail-arrow { min-width: 44px; min-height: 44px; }
       .latest-card { flex-basis: 100%; }
-      .differentiators { padding-left: 20px; padding-right: 20px; }
-      .bureaucracy-cost { padding-top: 52px; padding-bottom: 60px; }
       .approach,
-      .synthesis,
-      .diagnostic-estimate,
       .latest { padding-top: 52px; padding-bottom: 56px; }
       .connect { padding-top: 52px; padding-bottom: 52px; }
-      .cost-heading,
-      .diagnostic-estimate-heading { margin-bottom: 28px; }
-      .differentiators-grid { grid-template-columns: 1fr; }
       .hero-image {
         top: 0;
         right: 0;
@@ -1799,7 +1256,6 @@
   letter-spacing: 0.18em;
 }
 @media (max-width: 768px) {
-  .approach-synthesis-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .footer-nav { gap: 32px; }
 }
 @media (max-width: 760px) {
@@ -1877,7 +1333,6 @@
   --category-title: #FFFFFF;
   --category-subline: #9CC4C9;
   --category-label: #9CC4C9;
-  --category-motif: #A9D0D4;
 }
 .latest-card.category-brief {
   --category-accent: #0C6E78;
@@ -1885,7 +1340,6 @@
   --category-title: #0E3A44;
   --category-subline: #46656B;
   --category-label: #0C5D66;
-  --category-motif: #0C6E78;
 }
 .latest-card.category-perspective {
   --category-accent: #A86416;
@@ -1893,7 +1347,6 @@
   --category-title: #27221B;
   --category-subline: #725B3F;
   --category-label: #925914;
-  --category-motif: #8D632E;
 }
 .latest-card.category-research {
   --category-accent: #C9821F;
@@ -1907,11 +1360,7 @@
   color: var(--category-title);
 }
 .latest-card.category-research .latest-card-image--placeholder {
-  background-color: #F5F1E8;
-  background-image:
-    linear-gradient(rgba(14,58,68,0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(14,58,68,0.07) 1px, transparent 1px);
-  background-size: 28px 28px;
+  background: #F5F1E8;
 }
 .latest-card .placeholder-cover-title {
   color: var(--category-title);
@@ -1929,73 +1378,6 @@
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-}
-.placeholder-cover-motif {
-  position: absolute;
-  z-index: 1;
-  display: block;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  color: var(--category-motif);
-  opacity: 0.4;
-  pointer-events: none;
-}
-.placeholder-cover-motif-primary,
-.placeholder-cover-motif-secondary,
-.placeholder-cover-motif-construction,
-.placeholder-cover-motif-fold,
-.placeholder-cover-motif-node,
-.placeholder-cover-motif-active,
-.placeholder-cover-motif-open-node {
-  vector-effect: non-scaling-stroke;
-}
-.placeholder-cover-motif-primary {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.3;
-  stroke-linecap: square;
-  stroke-linejoin: miter;
-}
-.placeholder-cover-motif-secondary {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 0.75;
-  stroke-linecap: square;
-  stroke-linejoin: miter;
-  opacity: 0.8;
-}
-.placeholder-cover-motif-construction {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 0.65;
-  stroke-dasharray: 2.5 4;
-  opacity: 0.55;
-}
-.placeholder-cover-motif-fold {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.15;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  opacity: 0.72;
-}
-.placeholder-cover-motif-node {
-  fill: currentColor;
-  stroke: none;
-}
-.placeholder-cover-motif-active {
-  fill: #C9821F;
-  stroke: none;
-}
-.placeholder-cover-motif-open-node {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.05;
 }
 @media (max-width: 760px) {
   .placeholder-cover:has(.placeholder-cover-chip) .placeholder-cover-stack {
@@ -2074,12 +1456,6 @@
       font-weight: 700;
       font-size: 1.22rem;
       letter-spacing: -0.01em;
-    }
-    .mond-footer .mf-dot {
-      width: 7px; height: 7px;
-      border-radius: 2px;
-      background: #0C6E78;
-      display: inline-block;
     }
     .mond-footer .mf-copy {
       color: rgba(255,255,255,0.56);
@@ -2178,7 +1554,6 @@
 }
 .header.scrolled{background:rgba(5,24,27,0.72);border-bottom-color:rgba(255,255,255,0.07)}
 .hero h1,.hero-dek{text-shadow:none}
-.cost-card-number{color:#C9821F}
 @media (min-aspect-ratio: 21/9) and (min-width: 1500px){
   .hero-image{object-fit:contain;object-position:right center;width:100%;height:100%;left:auto;right:0;}
   .hero-overlay{background:linear-gradient(90deg,rgba(4,24,27,0.48) 0%,rgba(4,24,27,0.32) 22%,rgba(4,24,27,0.10) 42%,rgba(4,24,27,0) 60%),linear-gradient(180deg,rgba(4,24,27,0.10) 0%,rgba(4,24,27,0.02) 36%,rgba(4,24,27,0.10) 100%)}
@@ -2453,29 +1828,18 @@
 </style>
 <style>
   /* Homepage surface rhythm: alternate the Platform Brief paper colors. */
-  .bureaucracy-cost{background:#FAFAF8}
   .approach{background:#FAFAF8}
-  .synthesis{background:#FAFAF8}
-  .diagnostic-estimate{background:#FFFFFF}
   .latest{background:#FFFFFF}
   /* Conversion CTA is intentionally dark; its typography and cards use the light-on-dark system. */
   .connect{background:linear-gradient(180deg,#08383E 0%,#08373C 100%)}
-  .systems-measurement-copy .systems-measurement-kicker,
   .proof-band .proof-eyebrow,
-  .differentiators-compact .diff-kicker,
   .section-with-bar .section-bar,
   .book-band .book-eyebrow,
   .connect .connect-kicker{color:#0C6E78}
   .mxidx-band .mxidx-eyebrow{color:#A9CFD2}
-  .systems-measurement-stat span strong{display:block;margin-bottom:5px;color:#0A5B63;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase}
   /* One deliberate scale for homepage section-level headings. */
-  #systems-measurement-title,
-  #cost-title,
   #approach-title,
-  #differentiators-title,
   #proof-title,
-  #synthesis-title,
-  #estimate-title,
   .mxidx-band h2,
   #book-title,
   #latest-title,
@@ -2488,12 +1852,6 @@
   #main-content{display:flex;flex-direction:column;}
   #main-content>.hero{order:1;} #main-content>.proof-band{order:2;} #main-content>.mxidx-band{order:3;} #main-content>.systems-analysis-bridge{order:4;} #main-content>.approach{order:5;} #main-content>.first-run-moments{order:6;} #main-content>.measurement-loop{order:7;} #main-content>.book-band{order:8;} #main-content>.latest{order:9;} #main-content>.connect{order:10;}
   body,body button,body input,body select,body textarea,body *{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif!important;}
-  #main-content>.systems-measurement-bridge,#main-content>.bureaucracy-cost,#main-content>.differentiators-compact,#main-content>.synthesis,#main-content>.diagnostic-estimate{display:none!important;}
-  .hero-pilot-entry{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px;}
-  .hero-pilot-status{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid rgba(201,130,31,.7);border-radius:999px;background:rgba(201,130,31,.14);color:#F0C47D;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;}
-  .hero-pilot-status::before{content:"";width:6px;height:6px;border-radius:50%;background:#C9821F;box-shadow:0 0 0 3px rgba(201,130,31,.14);}
-  .hero-pilot-link{display:inline-flex;align-items:center;color:#F0C47D;font-size:14px;font-weight:700;text-decoration:none;border-bottom:1px solid rgba(201,130,31,.7);padding-bottom:2px;}
-  .hero-pilot-link:hover,.hero-pilot-link:focus-visible{color:#FFD99B;border-color:#FFD99B;}
   .hero-enterprise-link{display:inline-flex;align-items:center;margin-top:15px;color:rgba(255,255,255,.86);font-size:14px;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.38);padding-bottom:2px;}
   .hero-enterprise-link:hover,.hero-enterprise-link:focus-visible{color:#fff;border-color:#fff;}
   .systems-analysis-bridge{background:#FFFFFF;color:#18191C;border-top:1px solid #E2DED5;border-bottom:1px solid #E2DED5;}
@@ -2564,6 +1922,79 @@
   <link rel="stylesheet" href="enterprise-site.css?v=20260906-system3">
   <link rel="stylesheet" href="homepage-hero-system.css?v=20260906-system3">
   <script src="homepage-motion.js?v=20260906-layout1" defer></script>
+<style>
+    .first-run-moments{background:#FAFAF8;border-bottom:1px solid #E2DED5}
+    .first-run-moments-inner{max-width:1320px;margin:0 auto;padding:58px 34px 64px}
+    .first-run-moments-kicker{margin:0 0 9px;color:#0C6E78;font-size:11.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+    .first-run-moments h2{margin:0;font-size:clamp(2rem,3vw,2.8rem);letter-spacing:-.045em;color:#18191C}
+    .first-run-moments-lead{max-width:680px;margin:12px 0 0;color:#666760;font-size:15px;line-height:1.6}
+    .first-run-moment-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:30px}
+    .first-run-moment{position:relative;display:flex;min-height:210px;padding:24px;border:1px solid #0E3A44;border-radius:14px;background:linear-gradient(145deg,#103B44 0%,#0B343D 55%,#04282F 100%);color:#fff;text-decoration:none;overflow:hidden;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+    .first-run-moment::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 12% 88%,rgba(156,196,201,.12),transparent 42%);pointer-events:none}
+    .first-run-moment-copy{position:relative;z-index:1;width:100%;margin-left:auto;text-align:right;align-self:flex-start}
+    .first-run-moment strong{display:block;font-size:1.28rem;line-height:1.14;letter-spacing:-.03em}
+    .first-run-moment span{display:block;margin-top:9px;color:#9CC4C9;font-size:.92rem;line-height:1.45}
+    .first-run-moment i{position:absolute;right:24px;bottom:21px;color:#9CC4C9;font-style:normal;font-size:1.1rem;transition:transform .2s ease}
+    .first-run-moment:hover,.first-run-moment:focus-visible{transform:translateY(-3px);border-color:#3E8A92;box-shadow:0 16px 32px rgba(4,40,47,.16);outline:none}
+    .first-run-moment:hover i,.first-run-moment:focus-visible i{transform:translateX(3px)}
+    @media(max-width:940px){.first-run-moment-grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:600px){.first-run-moments-inner{padding:48px 20px 52px}.first-run-moment-grid{grid-template-columns:1fr}.first-run-moment{min-height:160px}}
+    .proof-band{background:#FAFAF8;border-top:1px solid #EAE6DD;border-bottom:1px solid #EAE6DD;}
+    .proof-inner{max-width:1320px;margin:0 auto;padding:56px 28px;}
+    .proof-eyebrow{font-size:11.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#3E8A92;margin:0;}
+    .proof-band h2{margin:9px 0 0;max-width:760px;font-size:28px;line-height:1.15;letter-spacing:-.03em;color:var(--text-dark);font-weight:700;text-wrap:balance;}
+    .proof-lead{color:#6E6F73;font-size:15px;line-height:1.6;margin:10px 0 0;max-width:720px;}
+    .proof-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px;}
+    .proof-card{position:relative;display:flex;flex-direction:column;background:#fff;border:1px solid #EFEBE3;border-radius:14px;padding:24px 22px 20px;text-decoration:none;color:inherit;box-shadow:0 1px 2px rgba(16,30,48,.04),0 6px 16px rgba(16,30,48,.05);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;overflow:hidden;}
+    .proof-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:#0C6E78;transform:scaleX(0);transform-origin:left;transition:transform .2s ease;}
+    .proof-card:hover,.proof-card:focus-visible{transform:translateY(-3px);box-shadow:0 2px 4px rgba(16,30,48,.05),0 14px 30px rgba(16,30,48,.10);border-color:#CDE0E1;outline:none;}
+    .proof-card:hover::before,.proof-card:focus-visible::before{transform:scaleX(1);}
+    .proof-card-icon{width:36px;height:36px;border-radius:9px;background:#F1EEE7;color:#0C6E78;display:flex;align-items:center;justify-content:center;margin-bottom:15px;}
+    .proof-card-icon svg{width:19px;height:19px;}
+    .proof-card strong{font-size:15.5px;font-weight:600;color:#0A4046;letter-spacing:-.01em;line-height:1.3;}
+    .proof-card-text{color:#6E6F73;font-size:13px;line-height:1.55;margin:7px 0 0;flex:1;}
+    .proof-arrow{display:inline-flex;align-items:center;gap:5px;margin-top:18px;color:#0C6E78;font-weight:600;font-size:13px;}
+    .proof-arrow .pa-chev{transition:transform .2s ease;}
+    .proof-card:hover .proof-arrow .pa-chev,.proof-card:focus-visible .proof-arrow .pa-chev{transform:translateX(3px);}
+    @media(max-width:900px){.proof-grid{grid-template-columns:1fr;}.proof-inner{padding:44px 22px;}}
+    .mxidx-band{background:#08383E;color:#F4EFE6;}
+    .mxidx-inner{max-width:1320px;margin:0 auto;padding:64px 28px;}
+    .mxidx-eyebrow{font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:#8FC4C9;}
+    .mxidx-band h2{margin:10px 0 0;font-size:clamp(32px,3vw,38.4px);line-height:1.08;letter-spacing:-.04em;color:#F4EFE6;}
+    .mxidx-band .mxidx-lead{color:rgba(245,241,232,.78);font-size:16px;line-height:1.65;max-width:860px;margin:14px 0 0;}
+    .mxidx-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:30px;}
+    .mxidx-cell{border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:20px;}
+    .mxidx-cell b{display:block;font-size:15px;margin-bottom:6px;}
+    .mxidx-cell span{display:block;color:rgba(245,241,232,.68);font-size:13.5px;line-height:1.55;}
+    .mxidx-cell.is-instrument{background:rgba(12,110,120,.16);border-color:rgba(143,178,214,.4);}
+    .mxidx-link{display:inline-flex;margin-top:28px;color:#fff;font-weight:500;border-bottom:1px solid rgba(255,255,255,.35);padding-bottom:2px;text-decoration:none;font-size:14.5px;}
+    .mxidx-link:hover{border-color:#fff;}
+    .mxidx-cell .mxidx-link{margin-top:12px;font-size:13px;}
+    @media(max-width:900px){.mxidx-row{grid-template-columns:1fr;}}
+    .book-band{background:#FAFAF8;color:#18191C;border-top:1px solid rgba(24,25,28,0.06);}
+    .book-inner{max-width:1320px;margin:0 auto;padding:76px 34px;display:grid;grid-template-columns:auto 1fr;gap:60px;align-items:center;}
+    .book-jacket{
+      width:238px;height:auto;aspect-ratio:2 / 3;object-fit:cover;flex-shrink:0;border-radius:4px;display:block;
+      box-shadow:0 24px 48px rgba(148,94,18,0.24),0 6px 14px rgba(24,25,28,0.16);
+    }
+    .book-cover-link{display:inline-block;transition:transform 200ms ease;}
+    .book-cover-link:hover{transform:translateY(-3px);}
+    .book-cover-link:focus-visible{outline:2px solid #0C6E78;outline-offset:4px;}
+    .book-eyebrow{font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:#0C6E78;}
+    .book-band h2{margin:10px 0 0;font-size:29px;letter-spacing:-0.048em;color:#18191C;}
+    .book-subtitle{margin:6px 0 0;font-size:17px;color:#6E6F73;letter-spacing:-.015em;}
+    .book-lead{color:rgba(24,25,28,0.72);font-size:16px;line-height:1.65;max-width:640px;margin:18px 0 0;}
+    .book-meta{margin:18px 0 0;font-size:13.5px;font-weight:500;letter-spacing:.02em;color:#6E6F73;}
+    .book-cta{margin-top:26px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+    .book-cta .btn{min-width:0;}
+    .book-alt-link{font-size:14px;font-weight:500;color:#0C6E78;border-bottom:1px solid rgba(12,110,120,0.35);padding-bottom:2px;}
+    .book-alt-link:hover{border-color:#0C6E78;}
+    @media(max-width:900px){
+      .book-inner{grid-template-columns:1fr;gap:40px;justify-items:start;padding:60px 24px;}
+      .book-jacket{width:206px;}
+      .book-band h2{font-size:25px;}
+    }
+</style>
 </head>
 <body class="canonical-green-shell homepage-enterprise">
 <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -2586,7 +2017,6 @@
 <section aria-labelledby="hero-title" class="hero">
 <div class="hero-scrim" aria-hidden="true"></div>
 <div aria-hidden="true" class="hero-media-wrap">
-<div class="hero-route-field"></div>
 <div class="hero-overlay"></div>
 </div>
 <div class="hero-inner">
@@ -2597,10 +2027,10 @@
           Monderman turns structured answers about ownership, decisions, handoffs, and administrative work into repeatable scores and reports.
         </p>
 <div class="hero-actions">
-          <a class="btn btn-accent" href="Monderman_Platform_Brief.html">Explore the platform</a>
-          <a class="btn btn-secondary" href="sample-report.html">View sample reports</a>
+          <a class="btn btn-accent" href="decision-velocity.html?source=homepage" data-first-run-event="primary_cta_clicked">Run Decision Velocity free</a>
+          <a class="btn btn-secondary hero-pilot-cta" href="pilot.html?source=homepage" data-first-run-event="pattern_pilot_requested">Join the pilot waitlist &middot; Filling up</a>
         </div>
-<a class="hero-enterprise-link" href="platform-services.html">Compare plans and pricing &rarr;</a>
+<a class="hero-enterprise-link" href="sample-report.html">View sample reports &rarr;</a>
 <ul class="hero-facts" aria-label="Platform structure">
   <li><strong>Four diagnostics</strong>Distinct views of one operating system</li>
   <li><strong>Individual and team views</strong>Compare eligible perspectives</li>
@@ -2651,66 +2081,6 @@
     <div class="hero-report-caption"><span>Explore complete sample reports</span><span aria-hidden="true">&rarr;</span></div>
   </a>
 </aside>
-</div>
-</section>
-<section class="acquisition-layer" aria-labelledby="acquisition-title">
-  <div class="acquisition-inner">
-    <div class="acquisition-intro">
-      <p>Start small</p>
-      <h2 id="acquisition-title">One bounded question. A clear next step.</h2>
-    </div>
-    <div class="acquisition-routes">
-      <a class="acquisition-route" href="decision-velocity.html?source=homepage" data-first-run-event="primary_cta_clicked">
-        <small>Free entry point</small>
-        <strong>Run Decision Velocity</strong>
-        <span>Ten minutes. See your score and band before creating an account.</span>
-      </a>
-      <a class="acquisition-route" href="pilot.html?source=homepage" data-first-run-event="pattern_pilot_requested">
-        <small>Limited pilot &middot; Cohort filling</small>
-        <strong>Apply to the Pattern Pilot</strong>
-        <span>Invite one team and turn individual runs into a shared institutional read.</span>
-      </a>
-    </div>
-  </div>
-</section>
-<section class="systems-measurement-bridge" aria-labelledby="systems-measurement-title"><style>.systems-measurement-bridge{background:#FAFAF8;color:#18191C;border-bottom:1px solid #E2DED5}.systems-measurement-inner{max-width:1320px;margin:0 auto;padding:42px 34px;display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:56px;align-items:center}.systems-measurement-kicker{margin:0 0 8px;color:#0C6E78;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase}.systems-measurement-bridge h2{margin:0;font-size:clamp(1.8rem,3vw,2.7rem);letter-spacing:-.045em}.systems-measurement-copy p{max-width:720px;margin:12px 0 0;color:#666760}.systems-measurement-link{display:inline-block;margin-top:14px;color:#0A5B63;font-weight:600;border-bottom:1px solid rgba(12,110,120,.35);text-decoration:none}.systems-measurement-stat{padding-left:34px;border-left:1px solid #D6D0C5}.systems-measurement-stat b{display:block;font-size:4.7rem;line-height:.9;letter-spacing:-.07em;color:#08383E}.systems-measurement-stat span,.systems-measurement-stat small{display:block;margin-top:9px}.systems-measurement-stat small{color:#6E6F73;font-size:12px}@media(max-width:760px){.systems-measurement-inner{grid-template-columns:1fr;gap:28px;padding:34px 20px}.systems-measurement-stat{padding:24px 0 0;border-left:0;border-top:1px solid #D6D0C5}.systems-measurement-stat b{font-size:4rem}}</style><div class="systems-measurement-inner"><div class="systems-measurement-copy"><p class="systems-measurement-kicker">Systems Measurement</p><h2 id="systems-measurement-title">A sentiment score cannot diagnose the system.</h2><p>A sentiment score can locate reported strain. It cannot identify the ownership, authority, handoffs, routing, process load, or performance discipline beneath it. Systems Measurement examines that operating layer.</p><a class="systems-measurement-link" href="the-culture-trap.html">See the evidence</a></div><!-- UPDATE ANNUALLY: Verify the number, measurement year, comparison language, and source line here, on the-culture-trap.html, and in Monderman_Platform_Brief.html. --><div class="systems-measurement-stat"><b>20%</b><span><strong>Signal, not diagnosis.</strong> A low engagement score locates reported strain. It does not identify the organizational mechanisms producing it.</span><small>The score is evidence of experience, not an operating-system diagnosis.<br>Gallup, State of the Global Workplace 2026.</small></div></div></section>
-<section aria-labelledby="cost-title" class="bureaucracy-cost section-with-bar" id="cost-section">
-<div aria-hidden="true" class="section-bar">Cost of Bureaucratic Friction</div>
-<div class="cost-inner">
-<div class="cost-heading reveal">
-<h2 id="cost-title">Where performance is quietly lost.</h2>
-<p class="cost-context">
-          Many institutions are already paying these costs in time, money, and productive capacity without fully seeing where the losses originate or why repeated fixes fail to resolve them.
-        </p>
-</div>
-<div class="cost-grid">
-<div class="cost-card reveal reveal-delay-1">
-<div class="cost-card-title">Evidence<span class="asterisk">*</span></div>
-<p class="cost-card-source"><em>* Hamel &amp; Zanini, HBR, 2017</em></p>
-<div class="cost-card-number" data-count-type="plain-plus" data-target="7000">7,000+</div>
-<p class="cost-card-text">HBR readers contributed to a large survey of bureaucracy and bureaucratic drag.</p>
-</div>
-<div class="cost-card reveal reveal-delay-2">
-<div class="cost-card-title">Money<span class="asterisk">*</span></div>
-<p class="cost-card-source"><em>* Gary Hamel &amp; Michele Zanini, HBR, 2016</em></p>
-<div class="cost-card-number" data-count-type="currency-trillion" data-target="3">$0T</div>
-<p class="cost-card-text">estimated annual U.S. lost economic output attributed by the authors to excess bureaucracy.</p>
-</div>
-<div class="cost-card reveal reveal-delay-3">
-<div class="cost-card-title">Burden Reduction<span class="asterisk">*</span></div>
-<p class="cost-card-source"><em>* OECD Regulatory Policy Outlook, 2018</em></p>
-<div class="cost-card-number" data-count-type="percent" data-target="25">0%</div>
-<p class="cost-card-text">administrative-burden reduction target documented for the Netherlands' early Standard Cost Model program.</p>
-</div>
-</div>
-<p class="cost-action reveal reveal-delay-4">
-        <strong>Monderman surfaces the measured operating conditions associated with observed administrative burden</strong>, and gives institutions a versioned baseline for seeing whether those conditions change.
-        <br>
-        <a href="decision-velocity.html" data-first-run-event="primary_cta_clicked">Run the Decision Velocity diagnostic →</a>
-      </p>
-<p class="cost-footer reveal reveal-delay-4">
-        Sources: Gary Hamel and Michele Zanini, Harvard Business Review (2016, 2017); OECD Regulatory Policy Outlook 2018. These are external reference points, not Monderman measurements.
-      </p>
 </div>
 </section>
 <section aria-labelledby="approach-title" class="approach section-with-bar" id="approach">
@@ -2796,24 +2166,6 @@
 </section>
 
 <section class="first-run-moments" aria-labelledby="first-run-moments-title">
-  <style>
-    .first-run-moments{background:#FAFAF8;border-bottom:1px solid #E2DED5}
-    .first-run-moments-inner{max-width:1320px;margin:0 auto;padding:58px 34px 64px}
-    .first-run-moments-kicker{margin:0 0 9px;color:#0C6E78;font-size:11.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
-    .first-run-moments h2{margin:0;font-size:clamp(2rem,3vw,2.8rem);letter-spacing:-.045em;color:#18191C}
-    .first-run-moments-lead{max-width:680px;margin:12px 0 0;color:#666760;font-size:15px;line-height:1.6}
-    .first-run-moment-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:30px}
-    .first-run-moment{position:relative;display:flex;min-height:210px;padding:24px;border:1px solid #0E3A44;border-radius:14px;background:linear-gradient(145deg,#103B44 0%,#0B343D 55%,#04282F 100%);color:#fff;text-decoration:none;overflow:hidden;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
-    .first-run-moment::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 12% 88%,rgba(156,196,201,.12),transparent 42%);pointer-events:none}
-    .first-run-moment-copy{position:relative;z-index:1;width:100%;margin-left:auto;text-align:right;align-self:flex-start}
-    .first-run-moment strong{display:block;font-size:1.28rem;line-height:1.14;letter-spacing:-.03em}
-    .first-run-moment span{display:block;margin-top:9px;color:#9CC4C9;font-size:.92rem;line-height:1.45}
-    .first-run-moment i{position:absolute;right:24px;bottom:21px;color:#9CC4C9;font-style:normal;font-size:1.1rem;transition:transform .2s ease}
-    .first-run-moment:hover,.first-run-moment:focus-visible{transform:translateY(-3px);border-color:#3E8A92;box-shadow:0 16px 32px rgba(4,40,47,.16);outline:none}
-    .first-run-moment:hover i,.first-run-moment:focus-visible i{transform:translateX(3px)}
-    @media(max-width:940px){.first-run-moment-grid{grid-template-columns:1fr 1fr}}
-    @media(max-width:600px){.first-run-moments-inner{padding:48px 20px 52px}.first-run-moment-grid{grid-template-columns:1fr}.first-run-moment{min-height:160px}}
-  </style>
   <div class="first-run-moments-inner">
     <p class="first-run-moments-kicker">Operating moments</p>
     <h2 id="first-run-moments-title">Start where the stakes are already clear.</h2>
@@ -2827,41 +2179,7 @@
   </div>
 </section>
 
-<section aria-labelledby="differentiators-title" class="differentiators differentiators-compact">
-<style>.differentiators-compact{background:#F4EFE6;border-bottom:1px solid #E7E3DA}.differentiators-compact .differentiators-inner{padding-top:50px;padding-bottom:50px}.differentiators-compact .diff-section-heading{max-width:650px;font-size:clamp(1.9rem,3vw,2.8rem)}.diff-compact-lead{max-width:700px;margin:12px 0 0;color:#666760;font-size:1rem;line-height:1.55}.diff-compact-grid{display:grid;grid-template-columns:1.25fr repeat(3,1fr);gap:0;margin-top:28px;border-top:1px solid #DCD8CF;border-bottom:1px solid #DCD8CF}.diff-compact-item{padding:20px 22px;border-right:1px solid #DCD8CF}.diff-compact-item:first-child{padding-left:0}.diff-compact-item:last-child{border-right:0;padding-right:0}.diff-compact-item .diff-kicker{margin-bottom:6px}.diff-compact-item .diff-text{margin:0;font-size:.88rem;line-height:1.45}.diff-compact-item:first-child .diff-text{color:#24383B;font-weight:500}@media(max-width:900px){.diff-compact-grid{grid-template-columns:1fr 1fr}.diff-compact-item,.diff-compact-item:first-child,.diff-compact-item:last-child{padding:18px}.diff-compact-item:nth-child(2){border-right:0}.diff-compact-item:nth-child(-n+2){border-bottom:1px solid #DCD8CF}}@media(max-width:560px){.diff-compact-grid{grid-template-columns:1fr}.diff-compact-item,.diff-compact-item:first-child,.diff-compact-item:last-child{padding:17px 0;border-right:0;border-bottom:1px solid #DCD8CF}.diff-compact-item:last-child{border-bottom:0}}</style>
-<div class="differentiators-inner">
-<h2 class="diff-section-heading" id="differentiators-title">Built for the second read, not just the first.</h2>
-<p class="diff-compact-lead">Monderman becomes more valuable when the same institution can compare compatible evidence across participant perspectives and over time.</p>
-<div class="diff-compact-grid">
-<article class="diff-compact-item reveal"><p class="diff-kicker">Repeated measurement</p><p class="diff-text">Run the same instrument after change to see whether the measured condition moved.</p></article>
-<article class="diff-compact-item reveal reveal-delay-1"><p class="diff-kicker">Participant perspectives</p><p class="diff-text">Compare operational, managerial, and senior leader readings of the same system.</p></article>
-<article class="diff-compact-item reveal reveal-delay-2"><p class="diff-kicker">Cross-Lens Synthesis</p><p class="diff-text">Combine eligible evidence only when coherence requirements support a broader read.</p></article>
-<article class="diff-compact-item reveal reveal-delay-3"><p class="diff-kicker">Longitudinal governance</p><p class="diff-text">Preserve stable scoring, controlled visibility, and auditable administration over time.</p></article>
-</div>
-</div>
-</section>
-
 <section class="proof-band" id="see-it" aria-labelledby="proof-title">
-  <style>
-    .proof-band{background:#FAFAF8;border-top:1px solid #EAE6DD;border-bottom:1px solid #EAE6DD;}
-    .proof-inner{max-width:1320px;margin:0 auto;padding:56px 28px;}
-    .proof-eyebrow{font-size:11.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#3E8A92;margin:0;}
-    .proof-band h2{margin:9px 0 0;max-width:760px;font-size:28px;line-height:1.15;letter-spacing:-.03em;color:var(--text-dark);font-weight:700;text-wrap:balance;}
-    .proof-lead{color:#6E6F73;font-size:15px;line-height:1.6;margin:10px 0 0;max-width:720px;}
-    .proof-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px;}
-    .proof-card{position:relative;display:flex;flex-direction:column;background:#fff;border:1px solid #EFEBE3;border-radius:14px;padding:24px 22px 20px;text-decoration:none;color:inherit;box-shadow:0 1px 2px rgba(16,30,48,.04),0 6px 16px rgba(16,30,48,.05);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;overflow:hidden;}
-    .proof-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:#0C6E78;transform:scaleX(0);transform-origin:left;transition:transform .2s ease;}
-    .proof-card:hover,.proof-card:focus-visible{transform:translateY(-3px);box-shadow:0 2px 4px rgba(16,30,48,.05),0 14px 30px rgba(16,30,48,.10);border-color:#CDE0E1;outline:none;}
-    .proof-card:hover::before,.proof-card:focus-visible::before{transform:scaleX(1);}
-    .proof-card-icon{width:36px;height:36px;border-radius:9px;background:#F1EEE7;color:#0C6E78;display:flex;align-items:center;justify-content:center;margin-bottom:15px;}
-    .proof-card-icon svg{width:19px;height:19px;}
-    .proof-card strong{font-size:15.5px;font-weight:600;color:#0A4046;letter-spacing:-.01em;line-height:1.3;}
-    .proof-card-text{color:#6E6F73;font-size:13px;line-height:1.55;margin:7px 0 0;flex:1;}
-    .proof-arrow{display:inline-flex;align-items:center;gap:5px;margin-top:18px;color:#0C6E78;font-weight:600;font-size:13px;}
-    .proof-arrow .pa-chev{transition:transform .2s ease;}
-    .proof-card:hover .proof-arrow .pa-chev,.proof-card:focus-visible .proof-arrow .pa-chev{transform:translateX(3px);}
-    @media(max-width:900px){.proof-grid{grid-template-columns:1fr;}.proof-inner{padding:44px 22px;}}
-  </style>
   <div class="proof-inner">
     <p class="proof-eyebrow">Inspect before you begin</p>
     <h2 id="proof-title">See the output, method, and economic model.</h2>
@@ -2888,173 +2206,7 @@
     </div>
   </div>
 </section>
-<section aria-labelledby="synthesis-title" class="synthesis section-with-bar" id="synthesis"><div aria-hidden="true" class="section-bar">Synthesis</div><div class="synthesis-inner"><div class="section-intro reveal"><h2 id="synthesis-title">Where the systems become legible.</h2><p>Cross-Lens Synthesis can compare eligible evidence from two or more different Diagnostic lenses, up to all four. It preserves each Diagnostic as a distinct measurement and publishes a Composite Score only when the selected evidence is sufficiently coherent.</p></div><div class="synthesis-panel reveal reveal-delay-1">
-<div class="approach-synthesis-grid">
-<a class="approach-synthesis-item" data-effect="clarity" href="structural-clarity-article.html">
-<div class="approach-synthesis-item-head">
-<span aria-hidden="true" class="approach-synthesis-glyph">
-<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
-<path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
-</svg>
-</span>
-<strong>Confident Action</strong>
-</div>
-<span class="approach-synthesis-link">Structural Clarity</span>
-<span class="approach-synthesis-body">People see who owns what, who decides, and how execution moves.</span>
-</a>
-<a class="approach-synthesis-item" data-effect="velocity" href="decision-velocity-article.html">
-<div class="approach-synthesis-item-head">
-<span aria-hidden="true" class="approach-synthesis-glyph">
-<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
-<path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
-</svg>
-</span>
-<strong>Sustained Advantage</strong>
-</div>
-<span class="approach-synthesis-link">Decision Velocity</span>
-<span class="approach-synthesis-body">Important decisions move faster than the drag, delay, and review weight accumulating beneath the work.</span>
-</a>
-<a class="approach-synthesis-item" data-effect="systems" href="operational-systems-article.html">
-<div class="approach-synthesis-item-head">
-<span aria-hidden="true" class="approach-synthesis-glyph">
-<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
-<rect height="14" rx="2" width="16" x="4" y="5"></rect><path d="M8 9h8"></path><path d="M8 13h8"></path>
-</svg>
-</span>
-<strong>Delivery Capacity</strong>
-</div>
-<span class="approach-synthesis-link">Operational Systems</span>
-<span class="approach-synthesis-body">Administrative systems stop absorbing time and effort that should be available for delivery and judgment.</span>
-</a>
-<a class="approach-synthesis-item" data-effect="performance" href="institutional-performance-article.html">
-<div class="approach-synthesis-item-head">
-<span aria-hidden="true" class="approach-synthesis-glyph">
-<svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
-<path d="M4 20V10"></path><path d="M10 20V4"></path><path d="M16 20v-7"></path><path d="M22 20H2"></path>
-</svg>
-</span>
-<strong>Organizational Credibility</strong>
-</div>
-<span class="approach-synthesis-link">Institutional Performance</span>
-<span class="approach-synthesis-body">The institution continues to hold under pressure without depending on heroic effort or hidden compensation.</span>
-</a>
-</div>
-</div></div></section>
-<section aria-labelledby="estimate-title" class="diagnostic-estimate section-with-bar" id="diagnostic-estimate">
-<div aria-hidden="true" class="section-bar">Diagnostics</div>
-<div class="diagnostic-estimate-inner">
-<div class="diagnostic-estimate-heading reveal">
-<h2 id="estimate-title">Estimate the hidden cost of structural drag.</h2>
-<p class="estimate-context">
-          This directional estimate gives a high-level read on how much time, money, and productive capacity may be absorbed by administrative and bureaucratic burden inside a complex organization.
-        </p>
-<p class="estimate-bridge">
-          The cost rarely tracks workforce size. It tracks how administrative systems accumulate beneath operations, and how much they absorb when no one is measuring.
-        </p>
-<p class="estimate-bridge">This calculator estimates structural drag, not sentiment. See the <a href="the-culture-trap.html">Systems Measurement evidence</a>.</p>
-</div>
-<div class="estimate-controls reveal reveal-delay-1">
-<div class="estimate-field">
-<label for="estimateOrgSize">Organization size</label>
-<select aria-label="Organization size" id="estimateOrgSize">
-<option selected="" value="">Select size</option>
-<option value="50">1–50</option>
-<option value="250">51–250</option>
-<option value="1000">251–1,000</option>
-<option value="5000">1,001–5,000</option>
-<option value="25000">5,001–25,000</option>
-<option value="100000">25,000+</option>
-</select>
-</div>
-<div class="estimate-field">
-<label for="estimateComplexity">Organizational complexity</label>
-<select aria-label="Organizational complexity" id="estimateComplexity">
-<option selected="" value="">Select complexity</option>
-<option value="moderate">Moderate</option>
-<option value="heavy">Heavy</option>
-<option value="excessive">Excessive</option>
-</select>
-</div>
-<div class="estimate-field">
-<label for="estimateSector">Sector</label>
-<select aria-label="Sector" id="estimateSector">
-<option selected="" value="">Select sector</option>
-<option value="defense-department">Department of War</option>
-<option value="defense-production">Defense production</option>
-<option value="federal-civilian">Federal civilian government</option>
-<option value="state-government">State government</option>
-<option value="local-government">Local government</option>
-<option value="intelligence">Intelligence / national security</option>
-<option value="healthcare-provider">Healthcare provider</option>
-<option value="health-insurer">Health insurer / payer</option>
-<option value="higher-education">Higher education</option>
-<option value="manufacturing">Manufacturing</option>
-<option value="financial-services">Financial services</option>
-<option value="insurance">Insurance</option>
-<option value="technology">Technology / software</option>
-<option value="energy">Energy / utilities</option>
-<option value="logistics">Logistics / transportation</option>
-<option value="professional-services">Professional services</option>
-<option value="nonprofit">Nonprofit / mission organization</option>
-</select>
-</div>
-</div>
-<div class="estimate-grid">
-<div class="estimate-card reveal reveal-delay-2">
-<div class="estimate-card-title">Time</div>
-<p class="estimate-card-source"><em>Directional annual labor hours</em></p>
-<div class="estimate-card-number" id="estimateTime">0</div>
-<p class="estimate-card-text">
-            estimated labor hours absorbed each year by coordination, compliance, review, and process burden.
-          </p>
-</div>
-<div class="estimate-card reveal reveal-delay-3">
-<div class="estimate-card-title">Money</div>
-<p class="estimate-card-source"><em>Directional annual cost equivalent</em></p>
-<div class="estimate-card-number" id="estimateMoney">$0</div>
-<p class="estimate-card-text">
-            estimated annual cost of overhead absorbed by administrative and bureaucratic systems.
-          </p>
-</div>
-<div class="estimate-card reveal reveal-delay-4">
-<div class="estimate-card-title">Productive Capacity</div>
-<p class="estimate-card-source"><em>Directional productive capacity absorbed</em></p>
-<div class="estimate-card-number" id="estimateResources">0%</div>
-<p class="estimate-card-text">
-            estimated share of productive capacity absorbed by administrative overhead rather than mission or operational output.
-          </p>
-</div>
-</div>
-<div class="estimate-footer reveal reveal-delay-4">
-<div class="estimate-foot-copy">
-<p>
-            <strong>This estimate is directional.</strong> A Monderman diagnostic measures the structural conditions associated with administrative burden in the submitted scope and identifies evidence-linked intervention paths. When the required sizing inputs are present and valid, the report can translate that bounded scenario into hours and labor-cost ranges; it does not promise recovery.
-          </p>
-<p>
-            These figures are based on public research on management overhead, administrative burden, and compliance costs. They are intended to provide a high-level signal, not an audited organizational measurement. Use the diagnostic suite to establish a baseline, then return as systems and surrounding conditions evolve. The value compounds on the second and third run, when institutions can compare conditions over time. Sector estimates use sector-family calibration, so closely related sectors share a calibration range.
-          </p>
-</div>
-<a class="btn btn-accent" href="decision-velocity.html" data-first-run-event="primary_cta_clicked">Run the free 10-minute Decision Velocity diagnostic</a>
-</div>
-</div>
-</section>
 <section class="mxidx-band" id="verify" aria-label="Measurement you can verify">
-  <style>
-    .mxidx-band{background:#08383E;color:#F4EFE6;}
-    .mxidx-inner{max-width:1320px;margin:0 auto;padding:64px 28px;}
-    .mxidx-eyebrow{font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:#8FC4C9;}
-    .mxidx-band h2{margin:10px 0 0;font-size:clamp(32px,3vw,38.4px);line-height:1.08;letter-spacing:-.04em;color:#F4EFE6;}
-    .mxidx-band .mxidx-lead{color:rgba(245,241,232,.78);font-size:16px;line-height:1.65;max-width:860px;margin:14px 0 0;}
-    .mxidx-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:30px;}
-    .mxidx-cell{border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:20px;}
-    .mxidx-cell b{display:block;font-size:15px;margin-bottom:6px;}
-    .mxidx-cell span{display:block;color:rgba(245,241,232,.68);font-size:13.5px;line-height:1.55;}
-    .mxidx-cell.is-instrument{background:rgba(12,110,120,.16);border-color:rgba(143,178,214,.4);}
-    .mxidx-link{display:inline-flex;margin-top:28px;color:#fff;font-weight:500;border-bottom:1px solid rgba(255,255,255,.35);padding-bottom:2px;text-decoration:none;font-size:14.5px;}
-    .mxidx-link:hover{border-color:#fff;}
-    .mxidx-cell .mxidx-link{margin-top:12px;font-size:13px;}
-    @media(max-width:900px){.mxidx-row{grid-template-columns:1fr;}}
-  </style>
   <div class="mxidx-inner">
     <div class="mxidx-eyebrow">A controlled measurement process</div>
     <h2>The questions are structured. The scoring is repeatable. The explanation is separate.</h2>
@@ -3091,7 +2243,7 @@
     <p class="loop-eyebrow">From one result to a governed baseline</p>
     <h2 id="measurement-loop-title">Measure once to see the condition. Return to learn whether it changed.</h2>
     <p class="loop-lead">A Monderman result is a dated record of one bounded scope. A later compatible run can show how the answers and score differ. It does not, by itself, prove what caused the difference.</p>
-    <div class="loop-flow" aria-label="Monderman measurement cycle">
+    <div class="loop-flow" role="group" aria-label="Monderman measurement cycle">
       <article class="loop-step"><span class="loop-step-no">01 &middot; RUN</span><strong>Choose the question.</strong><p>Select one of four diagnostics and define the role, operating scope, sector, and run length.</p></article>
       <div class="loop-arrow" aria-hidden="true">&rarr;</div>
       <article class="loop-step"><span class="loop-step-no">02 &middot; SAVE</span><strong>Preserve the result.</strong><p>Keep the score, result band, answers, scope, participant perspective, and instrument version together.</p></article>
@@ -3104,31 +2256,6 @@
   </div>
 </section>
 <section class="book-band" id="book" aria-labelledby="book-title">
-  <style>
-    .book-band{background:#FAFAF8;color:#18191C;border-top:1px solid rgba(24,25,28,0.06);}
-    .book-inner{max-width:1320px;margin:0 auto;padding:76px 34px;display:grid;grid-template-columns:auto 1fr;gap:60px;align-items:center;}
-    .book-jacket{
-      width:238px;height:auto;aspect-ratio:2 / 3;object-fit:cover;flex-shrink:0;border-radius:4px;display:block;
-      box-shadow:0 24px 48px rgba(148,94,18,0.24),0 6px 14px rgba(24,25,28,0.16);
-    }
-    .book-cover-link{display:inline-block;transition:transform 200ms ease;}
-    .book-cover-link:hover{transform:translateY(-3px);}
-    .book-cover-link:focus-visible{outline:2px solid #0C6E78;outline-offset:4px;}
-    .book-eyebrow{font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:#0C6E78;}
-    .book-band h2{margin:10px 0 0;font-size:29px;letter-spacing:-0.048em;color:#18191C;}
-    .book-subtitle{margin:6px 0 0;font-size:17px;color:#6E6F73;letter-spacing:-.015em;}
-    .book-lead{color:rgba(24,25,28,0.72);font-size:16px;line-height:1.65;max-width:640px;margin:18px 0 0;}
-    .book-meta{margin:18px 0 0;font-size:13.5px;font-weight:500;letter-spacing:.02em;color:#6E6F73;}
-    .book-cta{margin-top:26px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
-    .book-cta .btn{min-width:0;}
-    .book-alt-link{font-size:14px;font-weight:500;color:#0C6E78;border-bottom:1px solid rgba(12,110,120,0.35);padding-bottom:2px;}
-    .book-alt-link:hover{border-color:#0C6E78;}
-    @media(max-width:900px){
-      .book-inner{grid-template-columns:1fr;gap:40px;justify-items:start;padding:60px 24px;}
-      .book-jacket{width:206px;}
-      .book-band h2{font-size:25px;}
-    }
-  </style>
   <div class="book-inner">
     <div class="reveal">
     <a class="book-cover-link" href="https://www.routledge.com/Governance-Bureaucracy-and-Organization-Stewardship-Drift-and-Administrative-Capacity/Adamson/p/book/9781041403296" target="_blank" rel="noopener noreferrer" aria-label="View Governance, Bureaucracy and Organization at Routledge">
@@ -3139,7 +2266,7 @@
       <div class="book-eyebrow">From Monderman's founder</div>
       <h2 id="book-title">Governance, Bureaucracy and Organization</h2>
       <p class="book-subtitle">Stewardship, Drift, and Administrative Capacity</p>
-      <p class="book-lead">A peer-reviewed study of how governance systems drift, why capable organizations can become harder to steer, and how leaders can restore administrative capacity. Written for senior leaders, scholars, and analysts responsible for institutional performance.</p>
+      <p class="book-lead">A peer-reviewed study of governance drift and administrative capacity. Written by Monderman’s founder, Jason Adamson.</p>
       <p class="book-meta">Jason Adamson &middot; Routledge / Taylor &amp; Francis &middot; Forthcoming October 12, 2026 &middot; 234 pages</p>
       <div class="book-cta">
         <a class="btn" href="https://www.routledge.com/Governance-Bureaucracy-and-Organization-Stewardship-Drift-and-Administrative-Capacity/Adamson/p/book/9781041403296" target="_blank" rel="noopener noreferrer">View at Routledge &rarr;</a>
@@ -3159,7 +2286,7 @@
           </p>
 <a class="latest-card-link" href="research.html" style="margin-top:14px;display:inline-block;">See all research →</a>
 </div>
-<div aria-label="Latest content controls" class="latest-controls reveal reveal-delay-2">
+<div role="group" aria-label="Latest content controls" class="latest-controls reveal reveal-delay-2">
 <button aria-label="Show previous latest items" class="rail-arrow" id="latestPrev" type="button">←</button>
 <button aria-label="Show next latest items" class="rail-arrow" id="latestNext" type="button">→</button>
 </div>
@@ -3180,7 +2307,7 @@
 <p class="latest-card-kicker">Institutional Performance · Perspective</p>
 <h3 class="latest-card-title">We Gave Bureaucracy the Fastest Tools in History. It Got Slower.</h3>
 <p class="latest-card-text">Technology accelerated the work surrounding government decisions. It did not accelerate the institutional machinery that makes them.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="we-gave-bureaucracy-the-fastest-tools.html">Read perspective →</a><a class="latest-card-secondary-link" href="Monderman_Commentary_We_Gave_Bureaucracy_the_Fastest_Tools_2026-09-03.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="we-gave-bureaucracy-the-fastest-tools.html">Read perspective →</a><a class="latest-card-secondary-link" href="Monderman_Commentary_We_Gave_Bureaucracy_the_Fastest_Tools_2026-09-03.pdf?v=20260906-publication2" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-insight" data-category="insight">
@@ -3197,7 +2324,7 @@
 <p class="latest-card-kicker">Institutional Performance · Insight</p>
 <h3 class="latest-card-title">The Unmeasured Layer</h3>
 <p class="latest-card-text">Four conditions of how an institution actually operates are often measured in fragments and seldom assembled into a standing, institution-level view.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="the-unmeasured-layer.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_The_Unmeasured_Layer.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="the-unmeasured-layer.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_The_Unmeasured_Layer.pdf?v=20260906-publication2" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-insight" data-category="insight">
@@ -3215,7 +2342,7 @@
 <p class="latest-card-kicker">Artificial Intelligence · Insight</p>
 <h3 class="latest-card-title">Merit After the Machine</h3>
 <p class="latest-card-text">What artificial intelligence weakens is not human merit, but the evidence institutions use to recognize skilled and conscientious work.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="merit-after-the-machine.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_Merit_After_the_Machine_2026-09-02.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="merit-after-the-machine.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_Merit_After_the_Machine_2026-09-02.pdf?v=20260906-publication2" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-insight" data-category="insight">
@@ -3233,7 +2360,7 @@
 <p class="latest-card-kicker">Artificial Intelligence · Insight</p>
 <h3 class="latest-card-title">Every Node for Itself</h3>
 <p class="latest-card-text">AI gives every organization a reason to cut off the outside firms it buys from. The first savings estimate misses independent checking, shared learning, trust, and a responsible backstop.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="every-node-for-itself.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_Every_Node_for_Itself_2026-09-02.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="every-node-for-itself.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_Every_Node_for_Itself_2026-09-02.pdf?v=20260906-publication2" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-insight" data-category="insight">
@@ -3251,7 +2378,7 @@
 <p class="latest-card-kicker">Artificial Intelligence · Insight</p>
 <h3 class="latest-card-title">Built to Please</h3>
 <p class="latest-card-text">General-purpose AI assistants are trained toward several goals at once. This paper shows how preference can pull against truthfulness, what is known about that lean, and the checks serious users build around models so their answers can be trusted.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="built-to-please.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_Built_to_Please_2026-09-02.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="built-to-please.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_Built_to_Please_2026-09-02.pdf?v=20260906-publication2" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-insight" data-category="insight">
@@ -3268,7 +2395,7 @@
 <p class="latest-card-kicker">Decision Design · Insight</p>
 <h3 class="latest-card-title">Terminal Fidelity</h3>
 <p class="latest-card-text">A Monderman insight paper on why ideas in power consume themselves through faithful application, and the stopping rules that separate the traditions and companies that endure.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="terminal-fidelity.html">Read article →</a><a class="latest-card-secondary-link" href="Terminal_Fidelity.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="terminal-fidelity.html">Read article →</a><a class="latest-card-secondary-link" href="Terminal_Fidelity.pdf?v=20260906-publication2" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-brief" data-category="brief">
@@ -3285,7 +2412,7 @@
 <p class="latest-card-kicker">Defense · Brief</p>
 <h3 class="latest-card-title">Accumulated Drag in the Department of War</h3>
 <p class="latest-card-text">A Monderman research brief on accumulated drag, administrative burden, and institutional friction in one of the world’s most complex public institutions.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="accumulated-drag-department-of-war.html">Read brief →</a><a class="latest-card-secondary-link" href="Monderman_Brief_Accumulated_Drag_Department_of_War_2026-09-02.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="accumulated-drag-department-of-war.html">Read brief →</a><a class="latest-card-secondary-link" href="Monderman_Brief_Accumulated_Drag_Department_of_War_2026-09-02.pdf?v=20260906-publication2" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-brief" data-category="brief">
@@ -3302,7 +2429,7 @@
 <p class="latest-card-kicker">Healthcare · Brief</p>
 <h3 class="latest-card-title">Quarter-Trillion Friction in U.S. Healthcare</h3>
 <p class="latest-card-text">A Monderman brief on quarter-trillion friction, administrative burden, and the structural drag complicating performance in healthcare systems.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="quarter-trillion-friction-us-healthcare.html">Read brief →</a><a class="latest-card-secondary-link" href="Monderman_Brief_Quarter_Trillion_Dollar_Friction_US_Healthcare.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="quarter-trillion-friction-us-healthcare.html">Read brief →</a><a class="latest-card-secondary-link" href="Monderman_Brief_Quarter_Trillion_Dollar_Friction_US_Healthcare.pdf?v=20260906-publication2" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-insight" data-category="insight">
@@ -3319,7 +2446,7 @@
 <p class="latest-card-kicker">Enterprise · Insight</p>
 <h3 class="latest-card-title">From Tokens to Outcomes</h3>
 <p class="latest-card-text">A Monderman insight paper on how token economics will define the next phase of enterprise AI, and why the second wave will be won on cost, not capability.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="from-tokens-to-outcomes.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_After_the_First_Lap.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="from-tokens-to-outcomes.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_From_Tokens_to_Outcomes_2026-08.pdf?v=20260906-publication2" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-brief" data-category="brief">
@@ -3336,7 +2463,7 @@
 <p class="latest-card-kicker">Enterprise · Brief</p>
 <h3 class="latest-card-title">How Workarounds Preserve Output While Masking Institutional Dysfunction</h3>
 <p class="latest-card-text">Organizations often appear to function because people compensate for structural weakness. Output is preserved, but the underlying system continues to deteriorate.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="compensatory-systems.html">Read brief →</a><a class="latest-card-secondary-link" href="Monderman_Brief_Compensatory_Systems.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="compensatory-systems.html">Read brief →</a><a class="latest-card-secondary-link" href="Monderman_Brief_Compensatory_Systems.pdf?v=20260906-publication2" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-brief" data-category="brief">
@@ -3353,7 +2480,7 @@
 <p class="latest-card-kicker">Enterprise · Brief</p>
 <h3 class="latest-card-title">How the Collapse of Eastman Kodak Is Misunderstood</h3>
 <p class="latest-card-text">Kodak did not fail because it missed technology. It failed because its administrative and decision systems could not adapt.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="when-bureaucracy-became-the-obstacle.html">Read brief →</a><a class="latest-card-secondary-link" href="Monderman_Brief_The_Collapse_of_Eastman_Kodak.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="when-bureaucracy-became-the-obstacle.html">Read brief →</a><a class="latest-card-secondary-link" href="Monderman_Brief_The_Collapse_of_Eastman_Kodak.pdf?v=20260906-publication2" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-brief" data-category="brief">
@@ -3370,7 +2497,7 @@
 <p class="latest-card-kicker">Enterprise · Brief</p>
 <h3 class="latest-card-title">The Culture Trap</h3>
 <p class="latest-card-text">Why culture-first diagnosis mislocates the problem, and why organizations that fix sentiment before structure often fix the wrong thing first.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="the-culture-trap-brief.html">Read brief →</a><a class="latest-card-secondary-link" href="Monderman_Brief_The_Culture_Trap.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="the-culture-trap-brief.html">Read brief →</a><a class="latest-card-secondary-link" href="Monderman_Brief_The_Culture_Trap.pdf?v=20260906-publication2" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-insight" data-category="insight">
@@ -3387,7 +2514,7 @@
 <p class="latest-card-kicker">Decision Design · Insight</p>
 <h3 class="latest-card-title">The Art of Interior Reasoning</h3>
 <p class="latest-card-text">A Monderman insight on why excellent decisions live off the line, and what it takes, both analytically and emotionally, to consistently reach them.</p>
-<div class="latest-card-actions"><a class="latest-card-link" href="the-art-of-interior-reasoning.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_The_Art_of_Interior_Reasoning.pdf?v=20260906-publication1" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
+<div class="latest-card-actions"><a class="latest-card-link" href="the-art-of-interior-reasoning.html">Read article →</a><a class="latest-card-secondary-link" href="Monderman_Insight_The_Art_of_Interior_Reasoning.pdf?v=20260906-publication2" target="_blank" rel="noopener noreferrer">Download PDF ↗</a></div>
 </div>
 </article>
 <article class="latest-card category-perspective" data-category="perspective">
@@ -3426,7 +2553,7 @@
 </article>
 </div>
 </div>
-<div aria-label="Latest content position" class="latest-dots" id="latestDots"></div>
+<div role="group" aria-label="Latest content position" class="latest-dots" id="latestDots"></div>
 </div>
 </section>
 <section aria-labelledby="connect-title" class="connect" id="connect">
@@ -3492,12 +2619,9 @@
       </div>
       <div class="mf-bottom">
         <div class="mf-motif" aria-hidden="true">
-          <svg viewBox="0 0 320 164" xmlns="http://www.w3.org/2000/svg" focusable="false">
-            <path data-stroke data-construction d="M200 160H320M314 59V164"></path>
-            <circle data-stroke data-primary cx="285" cy="130" r="34"></circle>
-            <path data-stroke data-primary d="M224 157H314V72"></path>
-            <path data-stroke data-secondary d="M285 90V164"></path>
-            <circle data-node cx="285" cy="130" r="2.2"></circle>
+          <svg class="mf-map-outline" viewBox="5.5 5.25 21 21.25" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <path d="M6 9.2 11 5.75 16 8.3 21 5.75 26 9.2V26L21 23.2 16 26 11 23.2 6 26Z"></path>
+            <path d="M11 5.75V23.2M16 8.3V26M21 5.75V23.2"></path>
           </svg>
         </div>
         <span class="mf-copyright">© 2026 Monderman. All rights reserved.</span>
@@ -3514,51 +2638,6 @@
       requestAnimationFrame(revealHero);
     } else if (heroImage) {
       heroImage.addEventListener("load", revealHero, { once: true });
-    }
-    const costSection = document.getElementById("cost-section");
-    const counters = document.querySelectorAll(".cost-card-number");
-    let hasCounted = false;
-    function easeOutQuart(t) { return 1 - Math.pow(1 - t, 4); }
-    function formatCounter(type, value) {
-      if (type === "percent") return `${Math.round(value)}%`;
-      if (type === "currency-trillion") return `$${Math.round(value)}T`;
-      if (type === "plain-plus") return `${Math.round(value).toLocaleString("en-US")}+`;
-      if (type === "range-percent") {
-        const maxVal = Math.round(value);
-        const minVal = Math.round((value * 2) / 3);
-        return `${minVal}–${maxVal}%`;
-      }
-      return Math.round(value).toString();
-    }
-    function animateCounter(el, delay) {
-      const type = el.dataset.countType;
-      const target = Number(el.dataset.target);
-      const duration = 1800;
-      const beginDelay = delay || 0;
-      window.setTimeout(() => {
-        const start = performance.now();
-        function step(now) {
-          const progress = Math.min((now - start) / duration, 1);
-          const eased = easeOutQuart(progress);
-          const current = target * eased;
-          el.textContent = formatCounter(type, current);
-          if (progress < 1) requestAnimationFrame(step);
-          else el.textContent = formatCounter(type, target);
-        }
-        requestAnimationFrame(step);
-      }, beginDelay);
-    }
-    if (costSection && counters.length) {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !hasCounted) {
-            hasCounted = true;
-            counters.forEach((counter, idx) => animateCounter(counter, idx * 130));
-            observer.disconnect();
-          }
-        });
-      }, { threshold: 0.28 });
-      observer.observe(costSection);
     }
     const revealItems = document.querySelectorAll(".reveal");
     if (revealItems.length) {
@@ -3577,28 +2656,6 @@
     const latestPrev = document.getElementById("latestPrev");
     const latestNext = document.getElementById("latestNext");
     const latestDots = document.getElementById("latestDots");
-    const latestMotifByCategory = {
-      insight: "carousel-motif-aperture",
-      brief: "carousel-motif-tangent",
-      perspective: "carousel-motif-register"
-    };
-    if (latestTrack) {
-      latestTrack.querySelectorAll(".latest-card").forEach((card) => {
-        const motifId = latestMotifByCategory[card.dataset.category];
-        const image = card.querySelector(".latest-card-image--placeholder");
-        if (!motifId || !image) return;
-        const motif = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
-        motif.classList.add("placeholder-cover-motif");
-        const compactMotif = window.matchMedia("(max-width: 760px)").matches;
-        motif.setAttribute("viewBox", compactMotif ? "0 0 344 188" : "0 0 320 164");
-        motif.setAttribute("preserveAspectRatio", compactMotif ? "xMaxYMax meet" : "xMidYMid meet");
-        motif.setAttribute("aria-hidden", "true");
-        use.setAttribute("href", `#${motifId}`);
-        motif.appendChild(use);
-        image.appendChild(motif);
-      });
-    }
     const latestCards = latestTrack ? Array.from(latestTrack.querySelectorAll(".latest-card")) : [];
     const latestCardCount = latestCards.length;
     let latestTrackCards = latestCards;
@@ -3704,104 +2761,6 @@
     latestViewport?.addEventListener("mouseleave", startAutoScroll);
     latestViewport?.addEventListener("focusin", stopAutoScroll);
     latestViewport?.addEventListener("focusout", startAutoScroll);
-    const approachCards = Array.from(document.querySelectorAll(".approach-card[data-effect-target]"));
-    const effectItems = Array.from(document.querySelectorAll(".approach-synthesis-item[data-effect]"));
-    function clearEffectLinks() {
-      effectItems.forEach((item) => item.classList.remove("is-linked"));
-    }
-    approachCards.forEach((card) => {
-      const target = card.dataset.effectTarget;
-      const linkedItem = effectItems.find((item) => item.dataset.effect === target);
-      if (!linkedItem) return;
-      card.addEventListener("mouseenter", () => {
-        clearEffectLinks();
-        linkedItem.classList.add("is-linked");
-      });
-      card.addEventListener("mouseleave", clearEffectLinks);
-      card.addEventListener("focusin", () => {
-        clearEffectLinks();
-        linkedItem.classList.add("is-linked");
-      });
-      card.addEventListener("focusout", clearEffectLinks);
-    });
-    const estimateOrgSize = document.getElementById("estimateOrgSize");
-    const estimateComplexity = document.getElementById("estimateComplexity");
-    const estimateSector = document.getElementById("estimateSector");
-    const estimateMoney = document.getElementById("estimateMoney");
-    const estimateTime = document.getElementById("estimateTime");
-    const estimateResources = document.getElementById("estimateResources");
-    const complexityProfiles = {
-      light: { low: 0.06, high: 0.10 },
-      moderate: { low: 0.10, high: 0.16 },
-      heavy: { low: 0.16, high: 0.24 },
-      excessive: { low: 0.24, high: 0.34 }
-    };
-    const sectorProfiles = {
-      "general": { multiplier: 1.00, rate: 62 },
-      "defense-department": { multiplier: 1.18, rate: 78 },
-      "defense-production": { multiplier: 1.12, rate: 74 },
-      "federal-civilian": { multiplier: 1.14, rate: 72 },
-      "state-government": { multiplier: 1.08, rate: 60 },
-      "local-government": { multiplier: 1.04, rate: 54 },
-      "intelligence": { multiplier: 1.20, rate: 86 },
-      "healthcare-provider": { multiplier: 1.10, rate: 66 },
-      "health-insurer": { multiplier: 1.12, rate: 68 },
-      "higher-education": { multiplier: 1.00, rate: 50 },
-      "manufacturing": { multiplier: 0.96, rate: 56 },
-      "financial-services": { multiplier: 1.08, rate: 82 },
-      "insurance": { multiplier: 1.04, rate: 72 },
-      "technology": { multiplier: 0.98, rate: 88 },
-      "energy": { multiplier: 1.02, rate: 80 },
-      "logistics": { multiplier: 0.94, rate: 52 },
-      "professional-services": { multiplier: 1.06, rate: 78 },
-      "nonprofit": { multiplier: 0.92, rate: 44 }
-    };
-    function formatHoursRange(low, high) {
-      const lowRounded = Math.round(low / 1000) * 1000;
-      const highRounded = Math.round(high / 1000) * 1000;
-      return `${abbrevNumber(lowRounded)}–${abbrevNumber(highRounded)}`;
-    }
-    function formatPercentRange(low, high) {
-      return `${Math.round(low)}–${Math.round(high)}%`;
-    }
-    function abbrevMoney(value) {
-      if (value >= 1e9) return `$${(value / 1e9).toFixed(1).replace(/\.0$/, "")}B`;
-      if (value >= 1e6) return `$${(value / 1e6).toFixed(1).replace(/\.0$/, "")}M`;
-      if (value >= 1e3) return `$${Math.round(value / 1e3)}K`;
-      return `$${Math.round(value)}`;
-    }
-    function abbrevNumber(value) {
-      if (value >= 1e6) return `${(value / 1e6).toFixed(1).replace(/\.0$/, "")}M hrs`;
-      if (value >= 1e3) return `${Math.round(value / 1e3)}k hrs`;
-      return `${Math.round(value)} hrs`;
-    }
-    function updateEstimate() {
-      if (!estimateOrgSize || !estimateComplexity || !estimateSector || !estimateMoney || !estimateTime || !estimateResources) return;
-      const orgSizeValue = estimateOrgSize.value;
-      const complexityValue = estimateComplexity.value;
-      const sectorValue = estimateSector.value;
-      if (!orgSizeValue || !complexityValue || !sectorValue) {
-        estimateTime.textContent = "0";
-        estimateMoney.textContent = "$0";
-        estimateResources.textContent = "0%";
-        return;
-      }
-      const orgSize = Number(orgSizeValue);
-      const complexity = complexityProfiles[complexityValue];
-      const sector = sectorProfiles[sectorValue] || sectorProfiles.general;
-      const annualHoursBase = orgSize * 1920;
-      const lowBurden = complexity.low * sector.multiplier;
-      const highBurden = complexity.high * sector.multiplier;
-      const lowHours = annualHoursBase * lowBurden;
-      const highHours = annualHoursBase * highBurden;
-      const lowMoney = lowHours * sector.rate;
-      const highMoney = highHours * sector.rate;
-      estimateTime.textContent = formatHoursRange(lowHours, highHours);
-      estimateMoney.textContent = `${abbrevMoney(lowMoney)}–${abbrevMoney(highMoney).replace("$", "")}`;
-      estimateResources.textContent = formatPercentRange(lowBurden * 100, highBurden * 100);
-    }
-    [estimateOrgSize, estimateComplexity, estimateSector].forEach((el) => el?.addEventListener("change", updateEstimate));
-    updateEstimate();
     function initSoftSnap() {
       const snapAnchors = Array.from(document.querySelectorAll(".snap-anchor"));
       let snapTimer = null;
