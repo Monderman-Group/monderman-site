@@ -63,22 +63,40 @@ try {
 
     const launcher = page.locator('#mnd-launcher');
     const connect = page.locator('.mdn-cn-launch');
-    await launcher.waitFor({ state: 'visible' });
-    await connect.waitFor({ state: 'visible' });
+    await launcher.waitFor({ state: 'attached' });
+    await connect.waitFor({ state: 'attached' });
+    const compact = viewport.width <= 1180;
+    const menuButton = page.locator('.site-menu-button');
+    const assistantAction = page.locator('[data-site-widget-action="assistant"]');
+    const contactAction = page.locator('[data-site-widget-action="contact"]');
+    let assistantTrigger = launcher;
+    if (compact) {
+      assert.equal(await launcher.isVisible(), false, `${viewport.name}: assistant still floats over compact content`);
+      assert.equal(await connect.isVisible(), false, `${viewport.name}: Contact still floats over compact content`);
+      await menuButton.click();
+      await assistantAction.waitFor({ state: 'visible' });
+      await contactAction.waitFor({ state: 'visible' });
+      const actionBoxes = await Promise.all([assistantAction.boundingBox(), contactAction.boundingBox()]);
+      assert(actionBoxes.every((box) => box && box.height >= 44 && box.x >= 0 && box.x + box.width <= viewport.width),
+        `${viewport.name}: compact support actions are clipped or undersized`);
+      assistantTrigger = assistantAction;
+    } else {
+      await launcher.waitFor({ state: 'visible' });
+      await connect.waitFor({ state: 'visible' });
+      const assistantBox = await launcher.boundingBox();
+      const connectBox = await connect.boundingBox();
+      assert(assistantBox && connectBox, `${viewport.name}: launcher geometry unavailable`);
+      const launchersOverlap = !(
+        connectBox.x + connectBox.width <= assistantBox.x
+        || assistantBox.x + assistantBox.width <= connectBox.x
+        || connectBox.y + connectBox.height <= assistantBox.y
+        || assistantBox.y + assistantBox.height <= connectBox.y
+      );
+      assert.equal(launchersOverlap, false, `${viewport.name}: assistant and Connect launchers overlap`);
+    }
 
-    const assistantBox = await launcher.boundingBox();
-    const connectBox = await connect.boundingBox();
-    assert(assistantBox && connectBox, `${viewport.name}: launcher geometry unavailable`);
-    const launchersOverlap = !(
-      connectBox.x + connectBox.width <= assistantBox.x
-      || assistantBox.x + assistantBox.width <= connectBox.x
-      || connectBox.y + connectBox.height <= assistantBox.y
-      || assistantBox.y + assistantBox.height <= connectBox.y
-    );
-    assert.equal(launchersOverlap, false, `${viewport.name}: assistant and Connect launchers overlap`);
-
-    await launcher.focus();
-    assert.equal(await launcher.evaluate(node => document.activeElement === node), true, `${viewport.name}: launcher cannot receive focus`);
+    await assistantTrigger.focus();
+    assert.equal(await assistantTrigger.evaluate(node => document.activeElement === node), true, `${viewport.name}: assistant trigger cannot receive focus`);
     await page.keyboard.press('Enter');
     await page.locator('#mnd-panel.mnd-open').waitFor({ state: 'visible' });
     assert.equal(await page.locator('#mnd-input').evaluate(node => document.activeElement === node), true, `${viewport.name}: opening does not focus input`);
@@ -92,12 +110,23 @@ try {
     assert.equal(assistantRequest.postDataJSON().messages.at(-1)?.content, 'Endpoint contract check', `${viewport.name}: assistant endpoint payload changed`);
 
     await page.locator('#mnd-close').click();
-    await launcher.waitFor({ state: 'visible' });
-    await connect.click();
+    if (compact) {
+      assert.equal(await menuButton.evaluate(node => document.activeElement === node), true, `${viewport.name}: assistant close does not return focus to the menu`);
+      await menuButton.click();
+      await contactAction.waitFor({ state: 'visible' });
+      await contactAction.click();
+    } else {
+      await launcher.waitFor({ state: 'visible' });
+      await connect.click();
+    }
     await page.locator('#mdn-cn-panel.mdn-cn-open').waitFor({ state: 'visible' });
     assert.equal(await launcher.isVisible(), false, `${viewport.name}: assistant launcher collides with open Connect panel`);
     await page.locator('.mdn-cn-close').click();
-    await launcher.waitFor({ state: 'visible' });
+    if (compact) {
+      assert.equal(await menuButton.evaluate(node => document.activeElement === node), true, `${viewport.name}: Contact close does not return focus to the menu`);
+    } else {
+      await launcher.waitFor({ state: 'visible' });
+    }
     await page.close();
   }
   console.log('homepage assistant smoke: passed');

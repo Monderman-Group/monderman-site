@@ -250,7 +250,9 @@
         var f = panel.querySelector('input, textarea');
         f && f.focus();
       } else if (panel.contains(document.activeElement)) {
-        launch.focus();
+        var menuButton = document.querySelector('.site-menu-button');
+        var returnTarget = menuButton && window.getComputedStyle(menuButton).display !== 'none' ? menuButton : launch;
+        returnTarget.focus();
       }
     }
     function v(id) { var n = $('mdncn-' + id); return n ? String(n.value || '').trim() : ''; }

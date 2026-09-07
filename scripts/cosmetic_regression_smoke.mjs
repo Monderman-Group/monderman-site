@@ -560,7 +560,8 @@ for (const [browserName, browserType] of browserMatrix) {
         });
       });
       await page.goto(`${base}/index.html`, { waitUntil: 'load', timeout: 30000 });
-      await page.locator('.mdn-cn-launch').click();
+      await page.locator('.site-menu-button').click();
+      await page.locator('[data-site-widget-action="contact"]').click();
       await page.locator('#mdncn-fullName').fill('Launch readiness test');
       await page.locator('#mdncn-workEmail').fill('launch-readiness@example.com');
       await page.locator('#mdncn-organization').fill('Monderman test');

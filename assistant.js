@@ -215,7 +215,14 @@
     history.forEach(function (m) { addMsg(m.role, m.content); });
   }
   function open()  { panel.classList.add("mnd-open");  launcher.style.display = "none"; footerDock.update(); inputEl.focus(); }
-  function close() { panel.classList.remove("mnd-open"); launcher.style.display = ""; footerDock.update(); }
+  function close() {
+    panel.classList.remove("mnd-open");
+    launcher.style.display = "";
+    footerDock.update();
+    var menuButton = document.querySelector(".site-menu-button");
+    var returnTarget = menuButton && window.getComputedStyle(menuButton).display !== "none" ? menuButton : launcher;
+    returnTarget.focus();
+  }
   async function send() {
     var text = inputEl.value.trim();
     if (!text || busy) return;
