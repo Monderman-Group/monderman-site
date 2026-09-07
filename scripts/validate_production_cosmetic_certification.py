@@ -287,7 +287,15 @@ for path in html_files:
     parser = VisibleCopy()
     parser.feed(path.read_text(encoding="utf-8"))
     require(not any("—" in value for value in parser.values), f"{path.name}: visible em dash returned")
-    require(not any(british.search(value) for value in parser.values), f"{path.name}: non-US customer spelling returned")
+    # Preserve original spelling in this exact attributed publication title.
+    # Customer copy and every other reference remain subject to the US-style gate.
+    language_values = parser.values
+    if path.name == "nothing-stays-tuned.html":
+        language_values = [value.replace(
+            'Jens Rasmussen, “Risk Management in a Dynamic Society: A Modelling Problem,”',
+            'Jens Rasmussen, [original publication title]',
+        ) for value in language_values]
+    require(not any(british.search(value) for value in language_values), f"{path.name}: non-US customer spelling returned")
 for name in ["assistant.js", "interview-mode.js", "monderman-report.js", "monderman-viz.js", "workspace-assistant.js", "workspace-shell.js"]:
     source = text(name)
     strings = [match[1] for match in re.findall(r"(['\"])(.*?)(?<!\\)\1", source, flags=re.S)]

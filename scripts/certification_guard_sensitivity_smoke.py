@@ -74,6 +74,31 @@ with tempfile.TemporaryDirectory(prefix="monderman-cert-sensitivity-") as temp:
 
     expect_rejection(
         fixture,
+        "British spelling in publication body",
+        "nothing-stays-tuned.html: non-US customer spelling returned",
+        lambda: rewrite(
+            fixture / "nothing-stays-tuned.html",
+            lambda value: value.replace(
+                "Everything you have ever set in motion is drifting right now.",
+                "Everything you have ever set in motion is modelling right now.",
+                1,
+            ),
+        ),
+        ["nothing-stays-tuned.html"],
+    )
+    expect_rejection(
+        fixture,
+        "British spelling outside the exact attributed title",
+        "nothing-stays-tuned.html: non-US customer spelling returned",
+        lambda: rewrite(
+            fixture / "nothing-stays-tuned.html",
+            lambda value: value.replace("A Modelling Problem", "A Modelling Programme"),
+        ),
+        ["nothing-stays-tuned.html"],
+    )
+
+    expect_rejection(
+        fixture,
         "commented social metadata",
         "real social-card metadata missing",
         lambda: rewrite(
