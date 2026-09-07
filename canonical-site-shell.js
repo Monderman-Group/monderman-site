@@ -125,15 +125,22 @@
       const widgetMount = nav.querySelector(".workspace-link");
       if (widgetMount) widgetMount.before(widgetActions);
       else nav.appendChild(widgetActions);
-      const activateWidget = (selector) => {
+      const activateWidget = (selector, fallback) => {
         closeMobileNav();
         window.requestAnimationFrame(() => {
           const launcher = document.querySelector(selector);
           if (launcher) launcher.click();
+          else fallback();
         });
       };
-      widgetActions.querySelector('[data-site-widget-action="contact"]').addEventListener("click", () => activateWidget(".mdn-cn-launch"));
-      widgetActions.querySelector('[data-site-widget-action="assistant"]').addEventListener("click", () => activateWidget("#mnd-launcher"));
+      widgetActions.querySelector('[data-site-widget-action="contact"]').addEventListener("click", () => activateWidget(
+        ".mdn-cn-launch",
+        () => location.assign(new URL("connect.html", location.href)),
+      ));
+      widgetActions.querySelector('[data-site-widget-action="assistant"]').addEventListener("click", () => activateWidget(
+        "#mnd-launcher",
+        () => header.querySelector(".site-search-button")?.click(),
+      ));
       menuButton.addEventListener("click", () => {
         const opening = !header.classList.contains("mobile-nav-open");
         header.classList.toggle("mobile-nav-open", opening);
@@ -305,6 +312,7 @@
         else if (event.key === "ArrowUp") { event.preventDefault(); input.focus(); }
       });
     }
+    document.documentElement.classList.add("canonical-shell-js");
   }
   const ensureWidgetScript = (prefix, source) => {
     if (document.querySelector(`script[src^="${prefix}"]`)) return;

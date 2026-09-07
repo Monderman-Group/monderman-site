@@ -123,6 +123,23 @@ try {
     }
     await page.close();
   }
+
+  const assistantFallbackPage = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await assistantFallbackPage.route('**/assistant.js*', route => route.abort());
+  await assistantFallbackPage.goto(`${base}/index.html`, { waitUntil: 'networkidle', timeout: 90000 });
+  assert.equal(await assistantFallbackPage.locator('#mnd-launcher').count(), 0, 'assistant failure fixture did not block the widget');
+  await assistantFallbackPage.locator('[data-site-widget-action="assistant"]').click();
+  await assistantFallbackPage.locator('.site-search-overlay.is-open').waitFor({ state: 'visible' });
+  await assistantFallbackPage.close();
+
+  const contactFallbackPage = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await contactFallbackPage.route('**/connect-widget.js*', route => route.abort());
+  await contactFallbackPage.goto(`${base}/index.html`, { waitUntil: 'networkidle', timeout: 90000 });
+  assert.equal(await contactFallbackPage.locator('.mdn-cn-launch').count(), 0, 'Contact failure fixture did not block the widget');
+  await contactFallbackPage.locator('[data-site-widget-action="contact"]').click();
+  await contactFallbackPage.waitForURL(/\/connect\.html$/, { timeout: 10000 });
+  await contactFallbackPage.close();
+
   console.log('homepage assistant smoke: passed');
 } finally {
   await browser.close();

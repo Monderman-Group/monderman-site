@@ -215,6 +215,7 @@ try {
         const header = rectangle('#siteHeader');
         const headerInner = rectangle('#siteHeader .header-inner');
         const brand = rectangle('#siteHeader .brand');
+        const nav = rectangle('#siteHeader .nav');
 
         return {
           viewportWidth,
@@ -231,7 +232,7 @@ try {
             motif,
             rule: footerRule,
           } : null,
-          header: header && headerInner && brand ? { header, inner: headerInner, brand } : null,
+          header: header && headerInner && brand ? { header, inner: headerInner, brand, nav } : null,
         };
       });
 
@@ -267,7 +268,7 @@ try {
       }
 
       if (geometry.header) {
-        const { header, inner, brand } = geometry.header;
+        const { header, inner, brand, nav } = geometry.header;
         const signature = [header.height, inner.left, inner.width, inner.height, brand.left, brand.width]
           .map((value) => Math.round(value * 10) / 10)
           .join('|');
@@ -275,8 +276,12 @@ try {
         if (headerSignatures.get(viewport.name) !== signature) {
           failures.push(`${pageName}/${viewport.name}: header geometry diverges from the shared shell (${signature} vs ${headerSignatures.get(viewport.name)})`);
         }
-        if (Math.abs(header.left) > 1 || Math.abs(header.right - geometry.viewportWidth) > 1 || Math.abs(header.height - 70) > 1) {
-          failures.push(`${pageName}/${viewport.name}: responsive header is not balanced to the shared 70px frame (${JSON.stringify(header)})`);
+        if (Math.abs(header.left) > 1 || Math.abs(header.right - geometry.viewportWidth) > 1 || header.height < 70) {
+          failures.push(`${pageName}/${viewport.name}: no-script header is not full-width or has collapsed (${JSON.stringify(header)})`);
+        }
+        if (canonicalPages.includes(pageName)
+            && (!nav || nav.width < inner.width - 2 || nav.left < inner.left - 1 || nav.right > inner.right + 1)) {
+          failures.push(`${pageName}/${viewport.name}: primary navigation disappears or escapes its frame when scripts are unavailable (${JSON.stringify({ inner, nav })})`);
         }
       }
 

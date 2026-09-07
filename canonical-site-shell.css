@@ -532,6 +532,14 @@ footer.mond-footer{
     white-space:normal;
   }
 }
+@media(max-width:1180px){
+  /* Progressive enhancement: the compact navigation is hidden only after its
+     controller is fully wired. If scripts are blocked, every primary route
+     remains available in a stable stacked header instead of disappearing. */
+  html:not(.canonical-shell-js) body.canonical-green-shell .header{height:auto}
+  html:not(.canonical-shell-js) body.canonical-green-shell .nav{display:flex}
+  html:not(.canonical-shell-js) body.canonical-green-shell .header .site-search-button{display:none}
+}
 @media(max-width:960px){
   footer.mond-footer{
     --mf-motif-size:160px;
