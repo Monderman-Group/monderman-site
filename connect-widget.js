@@ -241,6 +241,10 @@
       lbl.textContent = step === 1 ? 'Step 1 of 2 \u00b7 Start the thread' : 'Step 2 of 2 \u00b7 Optional context';
     }
     function setOpen(open) {
+      if (open) {
+        var openAssistantClose = document.querySelector('#mnd-panel.mnd-open #mnd-close');
+        if (openAssistantClose) openAssistantClose.click();
+      }
       panel.classList.toggle('mdn-cn-open', open);
       launch.setAttribute('aria-expanded', String(open));
       panel.toggleAttribute('inert', !open);

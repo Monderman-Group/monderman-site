@@ -95,6 +95,15 @@ try {
     assert.equal(assistantRequest.method(), 'POST', `${viewport.name}: assistant endpoint method changed`);
     assert.equal(assistantRequest.postDataJSON().messages.at(-1)?.content, 'Endpoint contract check', `${viewport.name}: assistant endpoint payload changed`);
 
+    if (!compact) {
+      await contactAction.click();
+      await page.locator('#mdn-cn-panel.mdn-cn-open').waitFor({ state: 'visible' });
+      assert.equal(await page.locator('#mnd-panel').isVisible(), false, `${viewport.name}: Contact opens on top of the assistant`);
+      await assistantAction.click();
+      await page.locator('#mnd-panel.mnd-open').waitFor({ state: 'visible' });
+      assert.equal(await page.locator('#mdn-cn-panel').getAttribute('aria-hidden'), 'true', `${viewport.name}: assistant opens on top of Contact`);
+    }
+
     await page.locator('#mnd-close').click();
     if (compact) {
       assert.equal(await menuButton.evaluate(node => document.activeElement === node), true, `${viewport.name}: assistant close does not return focus to the menu`);
