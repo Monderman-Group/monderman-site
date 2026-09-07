@@ -537,7 +537,14 @@ footer.mond-footer{
   /* Progressive enhancement: the compact navigation is hidden only after its
      controller is fully wired. If scripts are blocked, every primary route
      remains available in a stable stacked header instead of disappearing. */
-  html:not(.canonical-shell-js) body.canonical-green-shell .header{position:relative;height:auto}
+  html:not(.canonical-shell-js) body.canonical-green-shell .header{
+    position:relative;
+    height:auto;
+    background:#09393E;
+    border-bottom-color:rgba(255,255,255,.08);
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+  }
   html:not(.canonical-shell-js) body.canonical-green-shell .nav{display:flex}
 }
 @media(max-width:960px){

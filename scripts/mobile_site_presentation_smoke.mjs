@@ -242,6 +242,8 @@ try {
             nav,
             main,
             position: getComputedStyle(document.querySelector('#siteHeader')).position,
+            backgroundColor: getComputedStyle(document.querySelector('#siteHeader')).backgroundColor,
+            backgroundImage: getComputedStyle(document.querySelector('#siteHeader')).backgroundImage,
           } : null,
         };
       });
@@ -278,7 +280,7 @@ try {
       }
 
       if (geometry.header) {
-        const { header, inner, brand, nav, main, position } = geometry.header;
+        const { header, inner, brand, nav, main, position, backgroundColor, backgroundImage } = geometry.header;
         const signature = [header.height, inner.left, inner.width, inner.height, brand.left, brand.width]
           .map((value) => Math.round(value * 10) / 10);
         if (!headerSignatures.has(viewport.name)) headerSignatures.set(viewport.name, signature);
@@ -295,6 +297,10 @@ try {
         if (canonicalPages.includes(pageName)
             && (position === 'fixed' || (main && main.top < header.bottom - 1))) {
           failures.push(`${pageName}/${viewport.name}: no-script navigation obscures document content (${JSON.stringify({ header, main, position })})`);
+        }
+        if (canonicalPages.includes(pageName)
+            && (backgroundColor !== 'rgb(9, 57, 62)' || backgroundImage !== 'none')) {
+          failures.push(`${pageName}/${viewport.name}: no-script navigation lacks an opaque high-contrast surface (${JSON.stringify({ backgroundColor, backgroundImage })})`);
         }
       }
 
