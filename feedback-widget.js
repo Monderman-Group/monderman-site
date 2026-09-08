@@ -281,7 +281,7 @@
       panel.setAttribute('aria-hidden', 'false');
       launch.classList.add('mdn-fb-hidden');
       launch.setAttribute('aria-expanded', 'true');
-      setTimeout(function () { comment.focus(); }, 60);
+      setTimeout(function () { if (open) comment.focus(); }, 60);
       document.addEventListener('keydown', onKey, true);
       document.addEventListener('mousedown', onOutside, true);
     }

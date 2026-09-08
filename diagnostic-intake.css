@@ -1,0 +1,168 @@
+/* Shared participant layout. Keep this after the legacy instrument styles. */
+body.diagnostic-instrument .intake-content,
+body.diagnostic-instrument .intake-option-body,
+body.diagnostic-instrument .intake-actions-right,
+body.diagnostic-instrument .shell > .app,
+body.diagnostic-instrument .tool-title > *,
+body.diagnostic-instrument .env-head-row,
+body.diagnostic-instrument .env-head-row > *,
+body.diagnostic-instrument .env-head-actions {
+  min-width: 0;
+  max-width: 100%;
+}
+body.diagnostic-instrument .tool-title h1,
+body.diagnostic-instrument .env-head h2 { overflow-wrap: anywhere; }
+body.diagnostic-instrument .learnmore-toggle {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+body.diagnostic-instrument .intake-content.card {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+body.diagnostic-instrument #introStage .intake-content #preflightContextMount .card.soft {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  border-radius: 0;
+}
+body.diagnostic-instrument .intake-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  padding-top: 24px;
+}
+body.diagnostic-instrument .intake-actions-right {
+  order: -1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 100%;
+}
+body.diagnostic-instrument .intake-pill-btn {
+  flex: 1 1 7.5em;
+  min-width: 0;
+  min-height: 48px;
+  padding: 12px 16px;
+  font-size: 1rem;
+  line-height: 1.4;
+  white-space: normal;
+  overflow-wrap: normal;
+}
+body.diagnostic-instrument .intake-begin-hint {
+  flex: 1 0 100%;
+  margin: 0;
+  font-size: .875rem;
+}
+body.diagnostic-instrument .intake-hub-link {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: .875rem;
+  line-height: 1.5;
+}
+body.diagnostic-instrument .intake-step-copy,
+body.diagnostic-instrument .intake-option-desc,
+body.diagnostic-instrument .intake-notice-body,
+body.diagnostic-instrument .intake-consent-text,
+body.diagnostic-instrument .intake-option-name,
+body.diagnostic-instrument #introStage .intake-content #preflightContextMount .opt-choice .intake-option-name {
+  font-size: 1rem;
+  line-height: 1.55;
+}
+body.diagnostic-instrument .intake-step-title,
+body.diagnostic-instrument #introStage .intake-content #preflightContextMount .field label {
+  font-size: 1.375rem;
+  line-height: 1.35;
+  letter-spacing: -.015em;
+  margin-bottom: 8px;
+  overflow-wrap: anywhere;
+}
+body.diagnostic-instrument #introStage .intake-content #preflightContextMount .field input,
+body.diagnostic-instrument #introStage .intake-content #preflightContextMount .field select,
+body.diagnostic-instrument #introStage .intake-content #preflightContextMount .field textarea {
+  min-width: 0;
+  max-width: 100%;
+  font-size: 1rem;
+  line-height: 1.5;
+  padding: 12px;
+  scroll-margin-block: 24px;
+}
+body.diagnostic-instrument #introStage .intake-content #preflightContextMount .field textarea {
+  min-height: 8rem;
+}
+body.diagnostic-instrument #introStage .intake-content #preflightContextMount .field .tiny,
+body.diagnostic-instrument #introStage .intake-content #preflightContextMount .field .intake-field-help,
+body.diagnostic-instrument #introStage .intake-content #preflightContextMount .field-error-msg,
+body.diagnostic-instrument .preflight-step-kicker,
+body.diagnostic-instrument .preflight-step-progress {
+  font-size: .875rem;
+  line-height: 1.5;
+}
+body.diagnostic-instrument .intake-field-help { margin: 0 0 8px; color: var(--ink-soft); }
+body.diagnostic-instrument .intake-field-optional { font-size: .875rem; font-weight: 400; white-space: nowrap; }
+body.diagnostic-instrument .intake-option-tag { display: block; margin: 4px 0 0; font-size: .875rem; letter-spacing: 0; text-transform: none; }
+body.diagnostic-instrument .intake-option-recommended { position: static; display: block; font-size: .875rem; margin-bottom: 8px; }
+body.diagnostic-instrument .intake-option.has-recommended { flex-wrap: wrap; }
+body.diagnostic-instrument .intake-option.has-recommended .intake-option-recommended { flex-basis: 100%; width: fit-content; }
+body.diagnostic-instrument .intake-option:focus-visible,
+body.diagnostic-instrument .intake-pill-btn:focus-visible,
+body.diagnostic-instrument .diagnostic-support button:focus-visible,
+body.diagnostic-instrument .diagnostic-support a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+/* Support is still available, but in document flow rather than over answers. */
+body.diagnostic-instrument .diagnostic-support {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  padding: 16px 32px 24px;
+  border-top: 1px solid rgba(24,25,28,.08);
+}
+body.diagnostic-instrument .diagnostic-support button,
+body.diagnostic-instrument .diagnostic-support a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-size: .875rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+html[data-diagnostic-support-ready] body.diagnostic-instrument #mnd-launcher,
+html[data-diagnostic-support-ready] body.diagnostic-instrument .mdn-fb-launch,
+html[data-diagnostic-support-ready] body.diagnostic-instrument .mdn-cn-launch {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+@media (max-width: 920px) {
+  body.diagnostic-instrument .intake-sidebar { padding: 20px; }
+  body.diagnostic-instrument .intake-calibration { flex-direction: row; flex-wrap: wrap; gap: 8px; }
+  body.diagnostic-instrument .calibration-item { flex: 1 1 7em; min-width: 0; margin: 0; padding: 10px; }
+  body.diagnostic-instrument .calibration-step-label,
+  body.diagnostic-instrument .calibration-step-value,
+  body.diagnostic-instrument .intake-revise-hint { font-size: .875rem; }
+  body.diagnostic-instrument .intake-brand-name { margin-bottom: 16px; }
+}
+@media (max-width: 600px) {
+  body.diagnostic-instrument .shell { padding-inline: 12px; }
+  body.diagnostic-instrument .stage { padding: 12px; }
+  body.diagnostic-instrument .intake-content { padding: 24px 16px; }
+  body.diagnostic-instrument .intake-shell { border-radius: 16px; }
+  body.diagnostic-instrument .intake-sidebar { padding: 16px; }
+  body.diagnostic-instrument .diagnostic-support { padding: 16px 28px 24px; }
+}
+@media print { body.diagnostic-instrument .diagnostic-support { display: none; } }
