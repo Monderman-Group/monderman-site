@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 CACHE_KEY = "20260906-enterprise1"
-SOCIAL_CACHE_KEY = "20260906-visual1"
+SOCIAL_CACHE_KEY = "20260907-wordmark2"
 PUBLICATION_SOCIAL_CACHE_KEY = "20260906-publication1"
 PUBLICATION_PDF_CACHE_KEY = "20260906-publication1"
 SOCIAL_IMAGE = f"https://www.monderman.com/assets/brand/monderman-social-card.png?v={SOCIAL_CACHE_KEY}"

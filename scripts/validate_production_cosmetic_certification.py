@@ -3,8 +3,9 @@
 
 from __future__ import annotations
 
-import re
+import hashlib
 import os
+import re
 import struct
 import sys
 from html.parser import HTMLParser
@@ -245,11 +246,20 @@ for name in public_pages:
 social = ROOT / "assets" / "brand" / "monderman-social-card.png"
 require(social.exists(), "canonical social-card asset missing")
 if social.exists():
-    with social.open("rb") as stream:
-        signature = stream.read(24)
+    social_bytes = social.read_bytes()
+    signature = social_bytes[:24]
     require(signature[:8] == b"\x89PNG\r\n\x1a\n", "social card is not a PNG")
     if len(signature) >= 24:
         require(struct.unpack(">II", signature[16:24]) == (1200, 630), "social card is not 1200×630")
+    require(
+        hashlib.sha256(social_bytes).hexdigest() == "b12cf1a7b282e32a1035423521bf40b531b15e2287bb133c17213d0bb79933ae",
+        "canonical social card is not the approved wordmark-only asset",
+    )
+
+social_generator = text("scripts/generate_social_card.py")
+require('wordmark = "Monderman."' in social_generator, "social-card generator lost the approved wordmark")
+for clutter in ('"MONDERMAN.COM"', '"See how work and decisions move"', "outline ="):
+    require(clutter not in social_generator, f"social-card generator reintroduced preview clutter: {clutter}")
 
 # 6: corrected publication taxonomy on both public surfaces.
 home_without_comments = without_html_comments(home)

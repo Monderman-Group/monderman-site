@@ -48,6 +48,10 @@ def rewrite(path: Path, transform) -> None:
     path.write_text(updated, encoding="utf-8")
 
 
+def alter_binary(path: Path) -> None:
+    path.write_bytes(path.read_bytes() + b"\x00")
+
+
 def expect_rejection(fixture: Path, label: str, expected: str, mutate, restore: list[str]) -> None:
     mutate()
     result = validate(fixture)
@@ -110,6 +114,13 @@ with tempfile.TemporaryDirectory(prefix="monderman-cert-sensitivity-") as temp:
             ),
         ),
         ["about.html"],
+    )
+    expect_rejection(
+        fixture,
+        "changed canonical social card",
+        "canonical social card is not the approved wordmark-only asset",
+        lambda: alter_binary(fixture / "assets" / "brand" / "monderman-social-card.png"),
+        ["assets/brand/monderman-social-card.png"],
     )
     expect_rejection(
         fixture,
@@ -237,4 +248,4 @@ with tempfile.TemporaryDirectory(prefix="monderman-cert-sensitivity-") as temp:
     if final.returncode:
         raise AssertionError(f"fixture did not return to certified baseline\n{final.stdout}{final.stderr}")
 
-print("CERTIFICATION_GUARD_SENSITIVITY_PASS (11 deliberate regressions rejected)")
+print("CERTIFICATION_GUARD_SENSITIVITY_PASS (12 deliberate regressions rejected)")
