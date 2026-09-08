@@ -1,0 +1,44 @@
+name: Decision Velocity journey regression
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  local-journey:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned browser tooling
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium webkit
+      - name: Validate recovery and existing completion boundaries
+        run: |
+          node scripts/dv_journey_recovery_smoke.mjs
+          node scripts/dv_assignment_recovery_smoke.mjs
+          node scripts/diagnostic_draft_recovery_smoke.mjs
+          node scripts/diagnostic_completion_reliability_smoke.mjs
+          node scripts/diagnostic_workspace_selection_smoke.mjs
+          node scripts/signin_email_otp_smoke.mjs
+      - name: Build candidate without deployment
+        env:
+          RENDER_GIT_COMMIT: ${{ github.sha }}
+        run: bash scripts/render-static-build.sh
+      - name: Test dialog and complete journey with synthetic services
+        run: |
+          node scripts/dv_result_dialog_smoke.mjs
+          node scripts/dv_journey_browser_smoke.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dv-local-journey-evidence
+          path: |
+            output/dv-result-dialog-smoke
+            output/dv-journey-browser

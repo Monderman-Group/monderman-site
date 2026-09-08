@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="dv-result-dialog.css?v=20260908-journey1">
   <title>Decision Velocity Diagnostic | Monderman</title>
 <link rel="canonical" href="https://www.monderman.com/decision-velocity.html"/>
 <meta property="og:title" content="Decision Velocity Diagnostic | Monderman"/>
@@ -891,6 +892,9 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
     <section class="results-disclaimer" id="bottomDisclaimer"></section>
   </div></div>
   <footer class="env-foot" id="questionFooter"><div class="progress-wrap"><div class="progress-top"><p id="progressCopy"></p><p id="pathHint"></p></div><div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div></div><div class="actions"><div class="actions-left"><button class="btn" id="backBtn" type="button">Back</button><button class="btn" id="skipBtn" type="button">Skip</button></div><div class="actions-right"><button class="btn btn-soft" id="restartBtn" type="button">Start over</button><button class="btn btn-accent" id="continueBtn" type="button">Continue</button></div></div></footer>
+</div></section>
+  </main>
+</div>
   <footer class="footer mond-footer">
     <div class="mf-inner">
       <div class="mf-top">
@@ -938,16 +942,15 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
       </div>
     </div>
   </footer>
-</div></section>
-
-  </main>
 <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
-</div>
   <script src="participant-evidence-safety.js?v=20260905-report-quarantine"></script>
   <script src="monderman-viz.js"></script>
   <script src="assignment-mode.js"></script>
   <script src="assignment-draft.js"></script>
   <script src="self-diagnostic-draft.js"></script>
+  <script src="dv-journey-recovery.js"></script>
+  <script src="monderman-report.js"></script>
+  <script src="dv-result-dialog.js?v=20260908-journey1"></script>
   <script src="interview-mode.js"></script>
   <script>
 const MondermanDiagnostic = (() => {
@@ -1145,6 +1148,10 @@ started: false,
 preflight: {},
 runId: null,
 sessionCapability: null,
+sessionRevision: null,
+answerInFlight: false,
+journeyInvalidated: false,
+pendingAnswerMutation: null,
 currentItem: null,
 currentProgress: null,
 roleForText: "senior_leader",
@@ -1674,46 +1681,59 @@ heroBeginBtn.classList.toggle("hidden", !showEntryCta);
 }
 
 function showSignupTeaser(data) {
-  window.MondermanFirstRun?.trackOnce("score_displayed", { diagnosticDepth: state.depth });
-  // Teaser gate (8 Aug 2026): an unsigned visitor finished a full read. The
-  // server returned score + band only; the full report unlocks on sign-in.
-  // The run session is held server-side, so unlocking re-finalizes with the
-  // fresh token and never repeats the questions.
-  var t = (data && data.teaser) || {};
-  var prior = document.getElementById("mdmTeaserOverlay");
-  if (prior) prior.remove();
-  var escT = function (v) { return String(v == null ? "" : v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); };
-  var wrap = document.createElement("div");
-  wrap.id = "mdmTeaserOverlay";
-  wrap.style.cssText = "position:fixed;inset:0;z-index:1400;background:rgba(24,25,28,.55);display:flex;align-items:center;justify-content:center;padding:20px;";
-  wrap.innerHTML =
-    '<div style="max-width:520px;width:100%;background:#fff;border-radius:16px;padding:34px 36px;font-family:\'Neue Haas Grotesk\',\'Helvetica Neue\',Helvetica,Arial,sans-serif;box-shadow:0 24px 64px rgba(15,23,32,.25);">' +
-    '<p style="margin:0 0 8px;font-size:.74rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#0C6E78;">Your condition read is ready</p>' +
-    '<div style="display:flex;align-items:baseline;gap:12px;margin:6px 0 4px;">' +
-    '<span style="font-size:3.4rem;font-weight:700;letter-spacing:-.06em;color:#18191C;line-height:1;">' + escT(t.score != null ? t.score : "Unavailable") + '</span>' +
-    '<span style="font-size:1rem;color:#6E6F73;">/ 100' + (t.band ? ' \u00b7 ' + escT(t.band) : '') + '</span></div>' +
-    '<p style="margin:12px 0 18px;font-size:.95rem;line-height:1.65;color:#18191C;">' + escT((data && data.message) || 'Create a free account to unlock the full report.') + '</p>' +
-    '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">' +
-    '<a href="signin.html?next=decision-velocity.html" target="_blank" data-first-run-event="account_unlock_requested" style="display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 22px;border-radius:8px;font-size:14.5px;font-weight:600;background:#0C6E78;color:#fff;text-decoration:none;">Create account / sign in</a>' +
-    '<button id="mdmTeaserUnlock" type="button" style="min-height:46px;padding:0 22px;border-radius:8px;font-size:14.5px;font-weight:600;background:#fff;color:#18191C;border:1px solid rgba(24,25,28,.18);cursor:pointer;">I\u2019ve signed in. Unlock report.</button>' +
-    '<a href="platform-services.html" target="_blank" style="font-size:13.5px;color:#6E6F73;">See plans</a></div>' +
-    '<p style="margin:16px 0 0;font-size:12.5px;color:#9A9892;">Your answers are held for this session: unlocking will not repeat the questions, and the run saves to your new workspace.</p>' +
-    '<div style="margin-top:20px;padding:17px 18px;border-left:4px solid #C9821F;background:#F7F1E6;">' +
-    '<p style="margin:0 0 5px;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#8A5512;">Limited Pattern Pilot</p>' +
-    '<p style="margin:0 0 12px;font-size:.9rem;line-height:1.55;color:#3D3D39;"><strong>Take this from one leader to one team.</strong> Apply to examine the same bounded decision system across six to twelve people.</p>' +
-    '<a href="pilot.html?source=decision_velocity" target="_blank" data-first-run-event="pattern_pilot_requested" style="display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 17px;border-radius:7px;font-size:13.5px;font-weight:700;background:#C9821F;color:#18191C;text-decoration:none;">Apply to the pilot waitlist</a></div></div>';
-  document.body.appendChild(wrap);
-  var btn = document.getElementById("mdmTeaserUnlock");
-  if (btn) btn.addEventListener("click", function () {
-    btn.disabled = true; btn.textContent = "Unlocking\u2026";
-    wrap.remove();
-    finalizeAdaptiveRun();
+  return showRecoverableSignupTeaser(data);
+}
+
+function showRecoverableSignupTeaser(data) {
+  pageLoader.classList.add('hidden');
+  window.MondermanFirstRun?.trackOnce('score_displayed', {diagnosticDepth: state.depth});
+  journeyRecovery?.save('teaser');
+  const teaser = data?.teaser || {};
+  const content = document.createElement('div');
+  content.innerHTML = `
+    <p class="dv-result-dialog__eyebrow">Decision Velocity</p>
+    <div class="dv-result-dialog__score"><span class="dv-result-dialog__score-number">${escapeHtml(String(teaser.score ?? 'Unavailable'))}</span><span class="dv-result-dialog__score-meta">/ 100${teaser.band ? ' · ' + escapeHtml(teaser.band) : ''}</span></div>
+    <p class="dv-result-dialog__message">${escapeHtml(data?.message || 'Create a free account to unlock the full report.')}</p>
+    <div class="dv-result-dialog__actions">
+      <a id="mdmTeaserSignIn" class="dv-result-dialog__button dv-result-dialog__button--primary" href="signin.html?next=decision-velocity.html%3Fresume%3D1" data-first-run-event="account_unlock_requested">Create account / sign in</a>
+      <a class="dv-result-dialog__text-link" href="platform-services.html" target="_blank" rel="noopener noreferrer">See plans</a>
+    </div>
+    <p class="dv-result-dialog__note">Return to this same tab after signing in. Your answers are kept for up to four hours from the start of this run. You will not need to answer again.</p>
+    <p id="mdmTeaserRecoveryMessage" role="status" class="dv-result-dialog__message"></p>
+    <div class="dv-result-dialog__pilot"><p class="dv-result-dialog__pilot-kicker">Limited Pattern Pilot</p><p class="dv-result-dialog__pilot-copy"><strong>Take this from one leader to one team.</strong> Apply to examine the same bounded decision system across six to twelve people.</p><a class="dv-result-dialog__button dv-result-dialog__button--pilot" href="pilot.html?source=decision_velocity" target="_blank" rel="noopener noreferrer" data-first-run-event="pattern_pilot_requested">Apply to the pilot waitlist</a></div>`;
+  // Closing the dialog never clears the run or strands the visitor on a loader.
+  showStage(processingStage);
+  let summary = document.getElementById('completedRunSummary');
+  if (!summary) {
+    summary = document.createElement('div');
+    summary.id = 'completedRunSummary';
+    processingStage.appendChild(summary);
+  }
+  Array.from(processingStage.children).forEach(child => { if (child !== summary) child.hidden = true; });
+  summary.innerHTML = `<h3>Your Decision Velocity result</h3><p>${escapeHtml(String(teaser.score ?? 'Unavailable'))} / 100 · ${escapeHtml(teaser.band || '')}</p><button class="dv-result-dialog__button dv-result-dialog__button--primary" id="reopenRunResult" type="button">View result and unlock report</button>`;
+  summary.hidden = false;
+  const reopen = summary.querySelector('button');
+  reopen.addEventListener('click', () => showSignupTeaser(data));
+  window.MondermanDVResultDialog.open({
+    content, label: 'Your condition read is ready', returnFocus: reopen,
+    initialFocus: '#mdmTeaserSignIn'
+  });
+  content.querySelector('#mdmTeaserSignIn').addEventListener('click', event => {
+    event.preventDefault();
+    const next = journeyRecovery?.prepareSignIn();
+    if (!next) {
+      content.querySelector('#mdmTeaserRecoveryMessage').textContent = 'We could not preserve this run for sign-in. Keep this tab open and enable session storage before trying again.';
+      return;
+    }
+    window.location.assign(next);
   });
 }
+
 function showRunsExhausted() { showStage(exhaustedStage, { scroll: true }); }
 function showStage(stage, options = {}) {
 [laneStage, depthStage, introStage, questionStage, processingStage, resultsStage, exhaustedStage].forEach((el) => el.classList.remove("active"));
 stage.classList.add("active");
+document.documentElement.toggleAttribute('data-dv-report-visible', stage === resultsStage || (stage === processingStage && !!document.getElementById('savedReportRecovery')));
 questionFooter.style.display = stage === questionStage ? "grid" : "none";
 syncHeroBeginCta(stage);
 if (options.scroll) scrollToStage(stage);
@@ -2385,6 +2405,8 @@ const dimLabel = item.dimension ? humanize(item.dimension) : "Adaptive diagnosti
 const card = document.querySelector("#questionStage .question-card");
 
 const applyQuestionContent = () => {
+// A superseded transition must never paint an earlier question over the new one.
+if (state.currentItem !== item) return;
 questionCluster.textContent = dimLabel;
 // Non-numeric: no "Question N of ~M". Dimension name in questionCluster is enough.
 questionStep.textContent = "";
@@ -2420,6 +2442,7 @@ clearQuestionRequired();
 questionBody.innerHTML = "";
 questionBody.appendChild(renderQuestionContent(item));
 updateQuestionAffordance(item);
+setAnswerControlsBusy(state.answerInFlight || state.finalizeInFlight);
 };
 
 if (card) {
@@ -2434,10 +2457,10 @@ setTimeout(() => card.classList.remove("question-entered"), 300);
 applyQuestionContent();
 }
 
-backBtn.disabled = false;
+backBtn.disabled = Boolean(state.answerInFlight || state.finalizeInFlight);
 backBtn.title = "";
-skipBtn.disabled = false;
-continueBtn.disabled = false;
+skipBtn.disabled = Boolean(state.answerInFlight || state.finalizeInFlight);
+continueBtn.disabled = Boolean(state.answerInFlight || state.finalizeInFlight);
 skipBtn.textContent = item.isOptional ? skipBtn.textContent : "Skip";
 continueBtn.textContent = "Continue";
 // In interview mode the transcript owns Send/Skip; the form footer stays hidden.
@@ -2502,6 +2525,7 @@ btn.type = "button";
 btn.className = `choice${String(cached) === String(option.value) ? " selected" : ""}`;
 btn.innerHTML = `<span class="choice-title">${escapeHtml(option.label)}</span>`;
 btn.addEventListener("click", async () => {
+if (state.answerInFlight || state.finalizeInFlight || state.currentItem !== item) return;
 state.answerCache[item.id] = option.value;
 await submitAnswer(item.id, option.value);
 });
@@ -2578,6 +2602,9 @@ pathHint.textContent = "";
 }
 
 async function startAdaptiveRun() {
+await journeyReady;
+if (state.journeyInvalidated) return;
+if (state.startInFlight || state.runId) return;
 if (!state.mode || !state.depth) return;
 if (!validatePreflightForm()) return;
 if (!preStartConsent.checked) {
@@ -2587,6 +2614,7 @@ preStartConsent.focus();
 return;
 }
 setConsentError('');
+state.startInFlight = true;
 
 const role = mapFrontendModeToBackendRole(state.mode);
 state.roleForText = role;
@@ -2670,14 +2698,19 @@ if (!response.ok || !data?.ok) {
   throw new Error(data?.message || data?.error || "Unable to start adaptive run.");
 }
 
+if (state.journeyInvalidated) return;
 state.runId = data.runId;
 state.sessionCapability = data.sessionCapability || null;
+state.sessionRevision = data.sessionRevision ?? null;
 state.configVersion = data?.routingMeta?.configVersion || data?.routingVersion || data?.configVersion || data?.config_version || null;
 state.currentItem = data.nextItem;
 state.currentProgress = data.progress || null;
 state.started = true;
 state.answerCache = {};
 state.questionHistory = [];
+reviewingHistoryItemId = null;
+reviewFrontierItem = null;
+state.pendingAnswerMutation = null;
 resetExperientialLayer();
 
 beginBtn.disabled = false;
@@ -2689,6 +2722,7 @@ setHeader(
 );
 showStage(questionStage);
 renderQuestion();
+saveJourneyProgress();
 
 } catch (error) {
 console.error("Adaptive run start failed", error);
@@ -2698,6 +2732,8 @@ beginBtn.textContent = "Begin Diagnostic";
 setHeader("Adaptive run unavailable", "The diagnostic could not start. Please refresh and try again.", "Start failed");
 showStage(introStage);
 showToast(error?.message || "Unable to start adaptive run.");
+} finally {
+state.startInFlight = false;
 }
 }
 
@@ -2900,7 +2936,46 @@ state.currentItem = buildConfidenceQuestion();
 renderQuestion();
 }
 
+function setAnswerControlsBusy(busy) {
+  busy = busy || state.journeyInvalidated;
+  [backBtn, continueBtn, skipBtn, restartBtn].forEach(button => { if (button) button.disabled = Boolean(busy); });
+  questionBody.querySelectorAll('button,input,textarea,select').forEach(control => { control.disabled = Boolean(busy); });
+  questionStage.setAttribute('aria-busy', busy ? 'true' : 'false');
+}
+
+function saveJourneyProgress() {
+  if (selfDraft) selfDraft.saveAccepted();
+  const id = String(state.currentItem?.id || '');
+  journeyRecovery?.save(id.startsWith('_*experience*') ? 'experience' : id === '**confidenceLevel**' ? 'confidence' : 'questions');
+}
+
+function applyAnswerHistory(history) {
+  state.questionHistory = (history || []).filter(entry => entry.item?.id).map(entry => ({item: entry.item, value: entry.value, meta: entry.meta || {}}));
+  state.answerCache = Object.fromEntries(state.questionHistory.map(entry => [entry.item.id, entry.value]));
+}
+
+function answerFailureMessage(error) {
+  if (error?.status === 409) return 'This run changed in another request. Refresh to recover the latest saved answers, then review your answer again.';
+  if (error?.status === 401 || error?.status === 403) return 'This session could not be verified. Refresh to recover it or sign in with the same account.';
+  if (error?.status === 404 || error?.status === 410) return 'This run is no longer available. A new run requires choosing Start over.';
+  if (error?.status === 400 || error?.status === 422) return 'That answer was not accepted. Check your entry and try again.';
+  return 'Your answer has not been confirmed. Keep this page open and try the same answer again. This will not start another run.';
+}
+
 async function submitAnswer(itemId, value, meta = {}) {
+// All input types share one mutation lock, including double taps and retries.
+if (state.journeyInvalidated || state.answerInFlight || state.finalizeInFlight || state.currentItem?.id !== itemId) return;
+state.answerInFlight = true;
+setAnswerControlsBusy(true);
+try {
+await submitAnswerLocked(itemId, value, meta);
+} finally {
+state.answerInFlight = false;
+setAnswerControlsBusy(false);
+}
+}
+
+async function submitAnswerLocked(itemId, value, meta = {}) {
 if (String(itemId || "").startsWith("_*experience*")) {
 recordExperienceAnswer(itemId, value);
 state.answerCache[itemId] = value || "";
@@ -2911,7 +2986,7 @@ queueExperienceQuestion(nextIndex);
 state.experienceComplete = true;
 queueConfidenceQuestion();
 }
-if (selfDraft) selfDraft.saveAccepted();
+saveJourneyProgress();
 return;
 }
 // Do not auto-replay cached answers. Every value in this run must be user-authored in the current pass.
@@ -2921,7 +2996,7 @@ showQuestionRequired('This question is required.');
 return;
 }
 state.preflight.confidenceLevel = value;
-if (selfDraft) selfDraft.saveAccepted();
+saveJourneyProgress();
 continueBtn.disabled = true;
 skipBtn.disabled = true;
 continueBtn.textContent = "Generating output...";
@@ -2942,45 +3017,75 @@ showQuestionRequired('This question is required.');
 return;
 }
 clearQuestionRequired();
-// Push to history before advancing so back can restore this question + answer
-if (state.currentItem && itemId !== "**confidenceLevel**") {
-state.questionHistory.push({ item: state.currentItem, value });
+const answeredItem = state.currentItem;
+const reviewIndex = reviewingHistoryItemId === itemId ? state.questionHistory.findIndex(entry => entry.item.id === itemId) : -1;
+const oldEntry = reviewIndex >= 0 ? state.questionHistory[reviewIndex] : null;
+if (!state.pendingAnswerMutation && oldEntry && JSON.stringify(oldEntry.value) === JSON.stringify(value) && JSON.stringify(oldEntry.meta || {}) === JSON.stringify(meta)) {
+  // Reviewing an unchanged answer is navigation, not a write or a new admission.
+  const nextEntry = state.questionHistory[reviewIndex + 1];
+  reviewingHistoryItemId = nextEntry?.item.id || null;
+  state.currentItem = nextEntry?.item || reviewFrontierItem;
+  if (nextEntry) state.answerCache[nextEntry.item.id] = nextEntry.value;
+  if (!nextEntry) reviewFrontierItem = null;
+  renderQuestion();
+  return;
 }
-continueBtn.disabled = true;
-skipBtn.disabled = true;
+const operation = oldEntry ? 'revise' : 'answer';
+const intent = JSON.stringify({itemId, value, meta, operation, expectedRevision: state.sessionRevision});
+if (state.pendingAnswerMutation && state.pendingAnswerMutation.intent !== intent) {
+  showQuestionRequired('A previous answer has not been confirmed. Retry that same answer or refresh to recover the saved run before changing it.');
+  return;
+}
+if (!state.pendingAnswerMutation) {
+  state.pendingAnswerMutation = {intent, mutationId: crypto.randomUUID()};
+}
+const requestBody = JSON.stringify({
+  itemId, value, meta,
+  expectedRevision: state.sessionRevision ?? undefined,
+  ...(oldEntry ? {expectedValue: oldEntry.value, mutationId: state.pendingAnswerMutation.mutationId} : {}),
+  assignment_token: (window.MondermanAssignment && window.MondermanAssignment.active && window.MondermanAssignment.active()) ? window.MondermanAssignment.token() : undefined,
+  session_capability: state.sessionCapability || undefined
+});
 continueBtn.textContent = 'Continue';
 
-let renderedNextQuestion = false;
 let attempt = 0;
 try {
 while (attempt < 2) {
 attempt += 1;
 try {
-const response = await fetchWithTimeout(`${API_BASE}/api/decision-velocity/run/${state.runId}/answer`, {
+const response = await fetchWithTimeout(`${API_BASE}/api/decision-velocity/run/${state.runId}/${operation}`, {
 method: "POST",
 headers: { "Content-Type": "application/json" },
-body: JSON.stringify({
-itemId, value, meta,
-assignment_token: (window.MondermanAssignment && window.MondermanAssignment.active && window.MondermanAssignment.active()) ? window.MondermanAssignment.token() : undefined,
-session_capability: state.sessionCapability || undefined
-})
+body: requestBody
 }, ANSWER_TIMEOUT_MS);
 const data = await response.json().catch(() => null);
 if (!response.ok || !data?.ok) {
-throw new Error(data?.error || 'Unable to submit answer.');
+const failure = new Error('Answer request was not accepted.');
+failure.status = response.status;
+throw failure;
+}
+if (state.journeyInvalidated) return;
+state.pendingAnswerMutation = null;
+state.sessionRevision = data.sessionRevision ?? state.sessionRevision;
+if (Array.isArray(data.answerHistory)) applyAnswerHistory(data.answerHistory);
+else if (!state.questionHistory.some(entry => entry.item.id === itemId)) state.questionHistory.push({item: answeredItem, value, meta});
+state.answerCache[itemId] = value;
+reviewingHistoryItemId = null;
+reviewFrontierItem = null;
+if (oldEntry) {
+  resetExperientialLayer();
+  delete state.preflight.confidenceLevel;
 }
 state.currentProgress = data.progress || state.currentProgress;
 if (data.shouldStop || !data.nextItem) {
 if (!state.experienceComplete) {
 queueExperienceQuestion(0);
-if (selfDraft) selfDraft.saveAccepted();
-renderedNextQuestion = true;
+saveJourneyProgress();
 return;
 }
 if (!state.preflight.confidenceLevel) {
 queueConfidenceQuestion();
-if (selfDraft) selfDraft.saveAccepted();
-renderedNextQuestion = true;
+saveJourneyProgress();
 return;
 }
 await finalizeAdaptiveRun();
@@ -2988,8 +3093,7 @@ return;
 }
 state.currentItem = data.nextItem;
 renderQuestion();
-if (selfDraft) selfDraft.saveAccepted();
-renderedNextQuestion = true;
+saveJourneyProgress();
 return;
 } catch (error) {
 // Don't retry client errors (4xx): only timeouts and server errors
@@ -3003,50 +3107,50 @@ throw error;
 }
 }
 } catch (error) {
-console.error('Adaptive answer failed', error);
-showQuestionRequired(error?.message || 'Unable to advance the question. Please try again.');
+// Validation failures are definitive. Ambiguous network/server failures keep
+// the exact mutation identity so an acknowledgement lost in transit is safe.
+if (state.journeyInvalidated) return;
+if (error?.status >= 400 && error?.status < 500 && error.status !== 429) state.pendingAnswerMutation = null;
+showQuestionRequired(answerFailureMessage(error));
 continueBtn.textContent = 'Try again';
-showToast(error?.message || 'Unable to advance the question. Please try again.');
-} finally {
-if (!renderedNextQuestion) {
-continueBtn.disabled = false;
-skipBtn.disabled = false;
-}
+showToast(answerFailureMessage(error));
 }
 }
 
-// Silently replay all cached answers from the beginning when the user
-// goes back and changes an answer mid-run.
+// Legacy callers share the same-session edit path. Never start a replacement run.
 async function replayAnswersAndResume(changedItemId, changedValue) {
-beginBtn.disabled = true;
-beginBtn.textContent = "Restarting...";
-
-// Build the replay cache: all history up to (not including) the changed item,
-// plus the new answer for the changed item.
-const replayCache = {};
-for (const entry of state.questionHistory) {
-replayCache[entry.item.id] = entry.value;
+return submitAnswer(changedItemId, changedValue);
 }
-replayCache[changedItemId] = changedValue;
 
-// Full restart: state will be reset by restartDiagnostic, so save everything needed
-const savedPreflight = { ...state.preflight };
-const savedMode = state.mode;
-const savedDepth = state.depth;
-restartDiagnostic(true);
-state.preflight = savedPreflight;
-state.mode = savedMode;
-state.depth = savedDepth;
-state._replayCache = replayCache;
-state._replaying = true;
-
-await startAdaptiveRun();
+async function renderAssignedCompletionAcknowledgment(savedRunId) {
+  // A withheld report is a successful submission, not an exhausted allowance.
+  // Do not reconstruct anonymous answers or a report from a local draft.
+  state.result = null;
+  state.renderPayload = null;
+  state.currentItem = null;
+  state.questionHistory = [];
+  state.answerCache = {};
+  const acknowledge = async () => {
+    const completion = await window.MondermanAssignment.complete(savedRunId);
+    if (completion?.ok !== true) return false;
+    // complete() clears storage; also stop autosave so it cannot recreate it.
+    participantDraft?.stop();
+    participantDraft?.clear();
+    return true;
+  };
+  if (await acknowledge()) window.MondermanAssignment.renderCompletion();
+  else window.MondermanAssignment.renderCompletionFailed(acknowledge);
 }
 
 async function finalizeAdaptiveRun() {
+if (state.journeyInvalidated) return;
 if (!state.runId) return;
 if (state.finalizeInFlight) return;
 state.finalizeInFlight = true;
+journeyRecovery?.save('finalizing');
+document.getElementById('completedRunSummary')?.remove();
+document.getElementById('finalizeRetryPanel')?.remove();
+Array.from(processingStage.children).forEach(child => { child.hidden = false; });
 const injectCertificationNarrativeFailure = new URLSearchParams(window.location.search).get("certification_narrative_failure") === "1"
   && state.certificationNarrativeFailureInjected !== true;
 if (injectCertificationNarrativeFailure) state.certificationNarrativeFailureInjected = true;
@@ -3073,6 +3177,7 @@ session_capability: state.sessionCapability || undefined,
 certification_force_narrative_failure: injectCertificationNarrativeFailure || undefined,
 confidenceLevel: state.preflight.confidenceLevel,
 confidence_level: state.preflight.confidenceLevel,
+expectedRevision: state.sessionRevision ?? undefined,
 rawExperience: {
   self: state.experiential.self || "",
   observedOperational: state.experiential.observedOperational || "",
@@ -3088,6 +3193,13 @@ rawExperience: {
 const rawText = await response.text();
 let data = null;
 try { data = JSON.parse(rawText); } catch (_e) {}
+if (state.journeyInvalidated) return;
+
+if (response.ok && data?.ok && window.MondermanAssignment?.active()
+  && (state.assignmentRecoveryWithholdResults || data.resultWithheld === true || data.reason === 'assignment_results_withheld')) {
+  await renderAssignedCompletionAcknowledgment(data.savedRunId);
+  return;
+}
 
 if ((data && data.locked === true) || (response.status === 402 && data?.error === "run_limit_reached")) {
   // Two locked shapes (8 Aug 2026): a signed-in org past its run allowance
@@ -3208,11 +3320,20 @@ if (state.gateNotice) {
 }
 showStage(resultsStage);
 if (selfDraft) selfDraft.clear();
+if (data.savedRunId) {
+  const savedReportLink = resultsStage.querySelector('a[href="workspace-diagnostics.html"]');
+  if (savedReportLink) savedReportLink.href = `workspace-diagnostics.html?report=${encodeURIComponent(data.savedRunId)}`;
+  journeyRecovery?.clear();
+  if (!window.MondermanAssignment?.active?.()) {
+    history.replaceState(null, '', `decision-velocity.html?saved_report=${encodeURIComponent(data.savedRunId)}`);
+  }
+}
 clearTimeout(slowFinalizeTimer);
 
 } catch (error) {
 clearTimeout(slowFinalizeTimer);
 console.error("Adaptive finalize failed", error);
+if (state.journeyInvalidated) return;
 window.MondermanFirstRun?.track("technical_failure", { diagnosticDepth: state.depth });
 {
 const directedRun = Boolean(window.MondermanAssignment && window.MondermanAssignment.active && window.MondermanAssignment.active());
@@ -3226,10 +3347,12 @@ setHeader(
 ? "Your answers are saved and scored. Only the written interpretation failed: try again."
 : "The run completed but the output could not be generated. You can try again.",
 (error?.narrativePending && error?.savedRunId != null) ? (directedRun ? "Recorded, retry the write-up" : "Saved, retry the write-up") : "Finalize failed");
-showStage(questionStage);
-renderQuestion();
-// Replace the question card with a clean retry UI
-const qCard = document.querySelector(".question-card");
+showStage(processingStage);
+// Keep the question DOM intact: Start over and restored questions retain their controls.
+const qCard = document.createElement('div');
+qCard.id = 'finalizeRetryPanel';
+Array.from(processingStage.children).forEach(child => { child.hidden = true; });
+processingStage.appendChild(qCard);
 if (qCard) {
 const errMsg = error?.message || "Unknown error";
 const errStatus = error?.status ? ` (HTTP ${error.status})` : "";
@@ -3263,9 +3386,16 @@ function confirmRestart() {
 }
 
 function restartDiagnostic(preserveParticipantDraft = false) {
+if (state.answerInFlight || state.finalizeInFlight) return;
+if (!preserveParticipantDraft) journeyRecovery?.clear();
+if (new URLSearchParams(location.search).has('saved_report')) history.replaceState(null, '', 'decision-velocity.html');
 if (!preserveParticipantDraft && participantDraft && window.MondermanAssignment && window.MondermanAssignment.active()) participantDraft.clear();
 if (!preserveParticipantDraft && selfDraft) selfDraft.clear();
 reviewingHistoryItemId = null;
+reviewFrontierItem = null;
+state.pendingAnswerMutation = null;
+state.sessionRevision = null;
+state.assignmentRecoveryWithholdResults = false;
 state.started = false;
 state.runId = null;
 state.sessionCapability = null;
@@ -5969,35 +6099,32 @@ learnMoreToggle.addEventListener("click", () => learnMorePanel.classList.toggle(
 preStartConsent.addEventListener("change", syncBeginButton);
 beginBtn.addEventListener("click", startAdaptiveRun);
 let reviewingHistoryItemId = null;
+let reviewFrontierItem = null;
 continueBtn.addEventListener("click", async () => {
-if (!state.currentItem) return;
+if (!state.currentItem || state.answerInFlight || state.finalizeInFlight) return;
 const value = readCurrentAnswer();
 const itemId = state.currentItem.id;
 state.answerCache[itemId] = value;
-// Only Back navigation authorizes a restart/replay. A recovered or repeated
-// adaptive item may legitimately have a cached value and must keep advancing.
-if (reviewingHistoryItemId === itemId && !state._replaying) {
-reviewingHistoryItemId = null;
-await replayAnswersAndResume(itemId, value);
-return;
-}
-reviewingHistoryItemId = null;
 await submitAnswer(itemId, value);
 });
 backBtn.addEventListener("click", async () => {
-if (!state.questionHistory.length) {
+if (state.answerInFlight || state.finalizeInFlight) return;
+if (state.pendingAnswerMutation) {
+showToast('Retry the unconfirmed answer or refresh to recover the saved run before reviewing earlier answers.');
+return;
+}
+const index = reviewingHistoryItemId ? state.questionHistory.findIndex(entry => entry.item.id === reviewingHistoryItemId) - 1 : state.questionHistory.length - 1;
+if (index < 0) {
 showToast("Nothing to go back to yet.");
 return;
 }
-// Pop the last answered question and re-render it with its cached value.
-// If the user changes the answer and continues, the run will restart and
-// silently replay all prior cached answers up to that point.
-const prev = state.questionHistory.pop();
+if (!reviewingHistoryItemId) reviewFrontierItem = state.currentItem;
+const prev = state.questionHistory[index];
 state.currentItem = prev.item;
 state.answerCache[prev.item.id] = prev.value;
 reviewingHistoryItemId = prev.item.id;
 renderQuestion();
-showToast("Reviewing previous answer. Change it and continue to restart from here.");
+showToast("Reviewing a saved answer. Changing it keeps this run and recalculates the questions that follow.");
 });
 skipBtn.addEventListener("click", async () => {
 if (!state.currentItem?.isOptional) {
@@ -6205,13 +6332,126 @@ syncBeginButton();
   window.MondermanInterview.mountToggle(document.getElementById("questionModeHost"));
 })();
 
+async function restoreAssignedDecisionVelocityDraft() {
+  if (!state.runId) return true; // Preflight-only drafts use the established UI.
+  state.answerInFlight = true;
+  setAnswerControlsBusy(true);
+  beginBtn.disabled = true;
+  const runId = state.runId;
+  const assignment = window.MondermanAssignment;
+  const token = assignment?.token();
+  const cfg = assignment?.config();
+  const assignmentId = String(cfg?.id || cfg?.assignment_id || '');
+  const lens = cfg?.participant_lens;
+  const anonymous = cfg?.is_anonymous_response === true;
+  const depthChoice = cfg?.depth_choice === true;
+  const role = lens === 'executive' ? 'senior_leader' : lens;
+  const depth = String(cfg?.depth_choice ? state.depth : cfg?.depth);
+  const configVersion = state.configVersion || null;
+  const validIdentity = () => assignment?.active() && assignment.token() === token
+    && new URLSearchParams(location.search).get('assignment_token') === token
+    && String(assignment.config()?.id || assignment.config()?.assignment_id || '') === assignmentId
+    && assignment.config()?.participant_lens === lens
+    && (assignment.config()?.is_anonymous_response === true) === anonymous
+    && (assignment.config()?.depth_choice === true) === depthChoice
+    && String(assignment.config()?.depth_choice ? depth : assignment.config()?.depth) === depth
+    && state.runId === runId && !state.journeyInvalidated;
+  // Neither local answer objects nor a locally cached review item is trusted.
+  state.currentItem = null;
+  state.questionHistory = [];
+  state.answerCache = {};
+  state.pendingAnswerMutation = null;
+  state.result = null;
+  state.renderPayload = null;
+  state.assignmentRecoveryWithholdResults = false;
+  reviewingHistoryItemId = null;
+  reviewFrontierItem = null;
+  questionBody.replaceChildren();
+  questionTitle.textContent = 'Recovering your assigned diagnostic';
+  questionCopy.textContent = 'Checking your saved answers before you continue.';
+  const notice = document.getElementById('persistenceNotice');
+  if (notice) { notice.textContent = 'Checking your saved run…'; notice.style.display = 'block'; }
+  showStage(questionStage, {scroll:false});
+  try {
+    if (!assignmentId || !token || !validIdentity()) throw new Error('Assignment changed.');
+    const response = await fetchWithTimeout(`${API_BASE}/api/decision-velocity/run/${encodeURIComponent(runId)}`, {
+      headers: {'X-Monderman-Assignment-Token': token}
+    }, ANSWER_TIMEOUT_MS);
+    const remote = await response.json();
+    if (!response.ok || !remote?.ok || !validIdentity() || remote.runId !== runId
+      || !Number.isSafeInteger(remote.sessionRevision) || remote.sessionRevision < 1
+      || !Array.isArray(remote.answerHistory) || typeof remote.finalized !== 'boolean'
+      || remote.role !== role || String(remote.depth) !== depth
+      || typeof remote.configVersion !== 'string' || !remote.configVersion
+      || (configVersion && remote.configVersion !== configVersion)
+      || (remote.nextItem && (!remote.nextItem.id || remote.finalized || remote.shouldStop))) {
+      throw new Error('Assigned run could not be verified.');
+    }
+    const historyIds = remote.answerHistory.map(entry => entry?.itemId);
+    if (new Set(historyIds).size !== historyIds.length || remote.answerHistory.some(entry =>
+      !entry?.itemId || entry.item?.id !== entry.itemId || !Object.hasOwn(entry, 'value'))
+      || (remote.nextItem && historyIds.includes(remote.nextItem.id))) throw new Error('Invalid saved answer history.');
+    state.sessionRevision = remote.sessionRevision;
+    state.configVersion = remote.configVersion;
+    state.roleForText = remote.role;
+    state.mode = remote.role === 'senior_leader' ? 'executive' : remote.role;
+    state.depth = String(remote.depth);
+    state.currentProgress = remote.progress;
+    state.sessionCapability = null; // Assigned runs use only their assignment credential.
+    if (remote.finalized) {
+      // A finalized snapshot can precede the saved report. Retry the existing
+      // finalizer/assignment acknowledgment without exposing an anonymous
+      // participant's already-submitted report or suppressed answer history.
+      state.assignmentRecoveryWithholdResults = anonymous;
+      if (!state.assignmentRecoveryWithholdResults) applyAnswerHistory(remote.answerHistory);
+      await finalizeAdaptiveRun();
+      // Finalization owns its completion/retry UI and may retire the active
+      // assignment. Never turn a successful acknowledgment into an error.
+      return true;
+    } else {
+      applyAnswerHistory(remote.answerHistory);
+      if (remote.nextItem) {
+        resetExperientialLayer();
+        delete state.preflight.confidenceLevel;
+        state.currentItem = remote.nextItem;
+        renderQuestion();
+      } else if (remote.shouldStop === true) {
+        if (state.experienceComplete) queueConfidenceQuestion();
+        else queueExperienceQuestion(state.experienceIndex || 0);
+      } else throw new Error('Missing saved run frontier.');
+    }
+    if (!validIdentity()) throw new Error('Assignment changed during recovery.');
+    if (notice) notice.textContent = 'Your assigned run was recovered from its saved answers. No new run was started.';
+    return true;
+  } catch (_error) {
+    state.journeyInvalidated = true;
+    state.currentItem = null;
+    state.questionHistory = [];
+    state.answerCache = {};
+    state.result = null;
+    state.renderPayload = null;
+    questionBody.replaceChildren();
+    questionTitle.textContent = 'Your assigned run could not be verified';
+    questionCopy.textContent = 'Refresh this page to retry recovery. No new diagnostic has been started.';
+    if (notice) notice.textContent = questionCopy.textContent;
+    showStage(questionStage, {scroll:false});
+    return false;
+  } finally {
+    state.answerInFlight = false;
+    setAnswerControlsBusy(state.journeyInvalidated || state.finalizeInFlight);
+    beginBtn.disabled = true;
+  }
+}
+
 const participantDraft = window.MondermanAssignmentDraft && window.MondermanAssignmentDraft.createController({
   tool: "decision_velocity",
   state,
   renderPreflight: renderPreflightForm,
   renderQuestion,
   showStage,
-  stages: { lane: laneStage, depth: depthStage, intro: introStage, question: questionStage }
+  stages: { lane: laneStage, depth: depthStage, intro: introStage, question: questionStage },
+  authoritativeRunRestore: true,
+  onRestore: restoreAssignedDecisionVelocityDraft
 });
 
 const selfDraft = window.MondermanSelfDiagnosticDraft && window.MondermanSelfDiagnosticDraft.createController({
@@ -6220,9 +6460,184 @@ const selfDraft = window.MondermanSelfDiagnosticDraft && window.MondermanSelfDia
   questionStage,
   renderQuestion,
   showStage,
-  startOver: function () { restartDiagnostic(); }
+  startOver: function () { restartDiagnostic(); },
+  onRestore: async () => {
+    state.answerInFlight = true;
+    setAnswerControlsBusy(true);
+    try {
+      const response = await fetchWithTimeout(`${API_BASE}/api/decision-velocity/run/${state.runId}`, {}, ANSWER_TIMEOUT_MS);
+      const remote = await response.json();
+      if (!response.ok || !remote.ok || remote.runId !== state.runId) throw new Error('Saved run could not be verified.');
+      if (!Number.isSafeInteger(remote.sessionRevision) || !Array.isArray(remote.answerHistory)) throw new Error('Saved run recovery is not ready.');
+      state.sessionRevision = remote.sessionRevision;
+      state.roleForText = remote.role;
+      state.mode = remote.role === 'senior_leader' ? 'executive' : remote.role;
+      state.depth = String(remote.depth);
+      state.configVersion = remote.configVersion || state.configVersion;
+      state.currentProgress = remote.progress;
+      applyAnswerHistory(remote.answerHistory);
+      reviewingHistoryItemId = null;
+      reviewFrontierItem = null;
+      if (remote.finalized) await finalizeAdaptiveRun();
+      else if (remote.nextItem) { state.currentItem = remote.nextItem; renderQuestion(); }
+      else if (state.experienceComplete) queueConfidenceQuestion();
+      else queueExperienceQuestion(state.experienceIndex || 0);
+    } catch (_error) {
+      state.journeyInvalidated = true;
+      showQuestionRequired('We could not verify your saved run. Refresh to retry before changing any answers.');
+    } finally {
+      state.answerInFlight = false;
+      setAnswerControlsBusy(false);
+    }
+  }
 });
-if (selfDraft) void selfDraft.activate();
+const journeyRecovery = window.MondermanDVJourneyRecovery?.createController({
+  state,
+  validateRemote: async ({runId, sessionCapability}) => {
+    const response = await fetchWithTimeout(`${API_BASE}/api/decision-velocity/run/${runId}`, {
+      headers: {'X-Monderman-Session-Capability': sessionCapability}
+    }, ANSWER_TIMEOUT_MS);
+    const data = await response.json().catch(() => null);
+    if (!response.ok || !data?.ok) {
+      const error = new Error('Saved run could not be verified.');
+      error.status = response.status;
+      throw error;
+    }
+    if (!Number.isSafeInteger(data.sessionRevision) || !Array.isArray(data.answerHistory) || typeof data.finalized !== 'boolean') throw new Error('Saved run recovery is not ready.');
+    return data;
+  },
+  restore: async ({state: saved, phase, remote}) => {
+    pageLoader.classList.add('hidden');
+    Object.assign(state, saved);
+    state.sessionRevision = remote.sessionRevision;
+    state.currentProgress = remote.progress || null;
+    state.pendingAnswerMutation = null;
+    reviewingHistoryItemId = null;
+    reviewFrontierItem = null;
+    applyAnswerHistory(remote.answerHistory);
+    setHeader('Your saved diagnostic', 'Your confirmed answers have been recovered. No new run was started.', 'Run recovered');
+    if (remote.finalized || (!remote.nextItem && remote.shouldStop && ['teaser', 'finalizing'].includes(phase))) {
+      await finalizeAdaptiveRun();
+      return;
+    }
+    showStage(questionStage);
+    if (remote.nextItem) {
+      if (['teaser', 'finalizing'].includes(phase)) { resetExperientialLayer(); delete state.preflight.confidenceLevel; }
+      state.currentItem = remote.nextItem;
+      renderQuestion();
+    } else if (saved.experienceComplete || phase === 'confidence') {
+      queueConfidenceQuestion();
+    } else {
+      queueExperienceQuestion(phase === 'experience' ? saved.experienceIndex : 0);
+    }
+    saveJourneyProgress();
+  },
+  onUnavailable: ({reason, retryable}) => {
+    if (['signed_out', 'account_changed', 'workspace_changed'].includes(reason)) {
+      state.journeyInvalidated = true;
+      state.runId = null;
+      state.sessionCapability = null;
+      state.currentItem = null;
+      state.answerCache = {};
+      state.questionHistory = [];
+      state.result = null;
+      state.renderPayload = null;
+      state.preflight = {};
+      resetExperientialLayer();
+      window.MondermanDVResultDialog?.close('identity_changed');
+      document.getElementById('completedRunSummary')?.remove();
+      document.getElementById('savedReportRecovery')?.remove();
+      questionBody.replaceChildren();
+      showStage(laneStage);
+      beginBtn.disabled = true;
+      setAnswerControlsBusy(true);
+    }
+    let notice = document.getElementById('journeyRecoveryNotice');
+    if (!notice) {
+      notice = document.createElement('p');
+      notice.id = 'journeyRecoveryNotice';
+      document.querySelector('.env-head')?.appendChild(notice);
+    }
+    notice.textContent = retryable
+      ? 'We could not verify your saved run yet. Refresh to retry recovery before starting another run.'
+      : reason === 'storage_unavailable'
+        ? 'This browser cannot keep your run through sign-in or refresh. Enable session storage before beginning.'
+        : 'A saved run could not be recovered in this tab. If it was already saved to your account, open Workspace. Starting again creates a new run.';
+    notice.style.display = 'block';
+    notice.setAttribute('role', 'status');
+  }
+});
+const journeyReady = (async () => {
+  const savedReport = new URLSearchParams(location.search).get('saved_report');
+  if (savedReport && !new URLSearchParams(location.search).has('assignment_token')) {
+    if (document.readyState === 'loading') await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, {once:true}));
+    await window.mondermanWorkspaceAccessReady;
+    const panel = document.createElement('div');
+    panel.id = 'savedReportRecovery';
+    Array.from(processingStage.children).forEach(child => { child.hidden = true; });
+    processingStage.appendChild(panel);
+    showStage(processingStage);
+    pageLoader.classList.add('hidden');
+    setHeader('Your saved Decision Velocity report', 'Opening the report already saved to your workspace.', 'Saved report');
+    try {
+      if (!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(savedReport)) throw new Error('invalid_report_reference');
+      // Reading a saved report must never restore or finalize a different
+      // unfinished journey that happens to exist in this tab.
+      const client = await window.mondermanGetSupabaseClient();
+      const identity = (await client.auth.getUser()).data?.user?.id;
+      if (!identity) throw new Error('sign_in_required');
+      window.MondermanDVJourneyRecovery.watchVerifiedIdentity(client, identity, () => {
+        state.journeyInvalidated = true;
+        panel.replaceChildren();
+        panel.textContent = 'Your account changed. Refresh and sign in to open this report again.';
+      });
+      const response = await fetchWithTimeout(`${API_BASE}/api/runs/${savedReport}/report`, {}, FINALIZE_TIMEOUT_MS);
+      const data = await response.json();
+      if (state.journeyInvalidated) return;
+      if (!response.ok || !data.ok || !data.result || data.runId !== savedReport || (data.result.tool_type && data.result.tool_type !== 'decision_velocity')) throw new Error('saved_report_unavailable');
+      // Use exactly the same saved-result renderer as Workspace, not a new score
+      // or another finalization. The report endpoint owns access and claims checks.
+      const model = window.MondermanReport.fromRun(data.result);
+      const report = document.createElement('div');
+      window.MondermanReport.render(report, model);
+      panel.appendChild(report);
+      const actions = document.createElement('div');
+      actions.className = 'dv-result-dialog__actions';
+      for (const [label, action] of [['Download full report (HTML)', () => window.MondermanReport.downloadHtml(model)], ['Print / save PDF', () => window.MondermanReport.downloadPdf(model)]]) {
+        const button = document.createElement('button');
+        button.className = 'btn'; button.type = 'button'; button.textContent = label;
+        button.addEventListener('click', action); actions.appendChild(button);
+      }
+      panel.appendChild(actions);
+      setHeader('Your saved Decision Velocity report', 'This is the existing saved report. No questions were repeated and no new run was used.', 'Report recovered');
+    } catch (_error) {
+      if (state.journeyInvalidated) return;
+      panel.innerHTML = `<p role="status">This saved report could not be opened. Sign in with the account that owns it, or open Workspace to check its availability.</p><a class="btn btn-accent" href="signin.html?next=${encodeURIComponent('decision-velocity.html?saved_report=' + savedReport)}">Sign in to open this report</a><a class="btn" href="workspace-diagnostics.html">Open Workspace</a><button class="btn" type="button" id="retrySavedReport">Try again</button>`;
+      panel.querySelector('#retrySavedReport').addEventListener('click', () => location.reload());
+    }
+    return;
+  }
+  const recovered = journeyRecovery ? await journeyRecovery.activate() : false;
+  if (!recovered && !journeyRecovery?.isActive() && new URLSearchParams(location.search).get('resume') !== '1' && selfDraft) await selfDraft.activate();
+})();
+
+// Feedback remains available in the footer's normal flow instead of floating
+// over its links. Contact and assistant controls already live in the header.
+window.addEventListener('DOMContentLoaded', () => {
+  const footer = document.querySelector('.mond-footer');
+  const contact = footer?.querySelector('a[href="connect.html"]');
+  if (!footer || !contact || !window.IntersectionObserver) return;
+  const feedback = document.createElement('button');
+  feedback.type = 'button';
+  feedback.className = 'dv-footer-feedback';
+  feedback.textContent = 'Share feedback';
+  feedback.setAttribute('aria-controls', 'mdn-fb-panel');
+  feedback.addEventListener('click', () => document.querySelector('.mdn-fb-launch')?.click());
+  contact.after(feedback);
+  new IntersectionObserver(entries => {
+    document.documentElement.toggleAttribute('data-dv-footer-visible', entries[0].isIntersecting);
+  }).observe(footer);
+});
 
 // ── Directed (campaign) mode: when opened from an assignment link, lock the
 //    vantage to the admin's choice and skip the chooser. No-op otherwise. ──
