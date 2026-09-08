@@ -29,7 +29,21 @@ for (const [path, tool] of pages) {
   assert.match(html, new RegExp(`tool: "${tool}"`), `${path} scopes drafts to its Diagnostic`);
   assert.match(html, /participantDraft\.activate\(cfg\)/, `${path} restores only after authoritative assignment resolution`);
   assert.match(html, /participantDraft\.clear\(\)/, `${path} supports explicit draft clearing`);
-  assert.match(html, /restartDiagnostic\(true\)/, `${path} preserves the draft during answer replay`);
+  if (tool === 'decision_velocity') {
+    // DV now revises one authoritative run; requiring its old restart/replay
+    // mechanism would reintroduce unintended admission consumption.
+    const replay = html.match(/async function replayAnswersAndResume\(changedItemId, changedValue\) \{[\s\S]*?\n\}/)?.[0];
+    assert.ok(replay, 'DV preserves compatibility for answer-review callers');
+    assert.doesNotMatch(replay, /restartDiagnostic|\/run\/start/);
+    const calls = [];
+    const resume = vm.runInNewContext(`(${replay})`, {submitAnswer: (...args) => {calls.push(args);return 'same-run';}});
+    assert.equal(await resume('fixture-choice', 'edited'), 'same-run');
+    assert.deepEqual(calls, [['fixture-choice', 'edited']]);
+    assert.match(html, /const operation = oldEntry \? 'revise' : 'answer'/);
+    assert.match(html, /assignment_token:\s*\(window\.MondermanAssignment/);
+  } else {
+    assert.match(html, /restartDiagnostic\(true\)/, `${path} preserves the draft during answer replay`);
+  }
 }
 
 const assignmentMode = read("assignment-mode.js");

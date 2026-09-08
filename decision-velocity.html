@@ -3043,7 +3043,7 @@ const requestBody = JSON.stringify({
   itemId, value, meta,
   expectedRevision: state.sessionRevision ?? undefined,
   ...(oldEntry ? {expectedValue: oldEntry.value, mutationId: state.pendingAnswerMutation.mutationId} : {}),
-  assignment_token: window.MondermanAssignment?.active?.() ? window.MondermanAssignment.token() : undefined,
+  assignment_token: (window.MondermanAssignment && window.MondermanAssignment.active && window.MondermanAssignment.active()) ? window.MondermanAssignment.token() : undefined,
   session_capability: state.sessionCapability || undefined
 });
 continueBtn.textContent = 'Continue';
@@ -6446,12 +6446,10 @@ const journeyReady = (async () => {
       const client = await window.mondermanGetSupabaseClient();
       const identity = (await client.auth.getUser()).data?.user?.id;
       if (!identity) throw new Error('sign_in_required');
-      client.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_OUT' || (session?.user?.id && session.user.id !== identity)) {
-          state.journeyInvalidated = true;
-          panel.replaceChildren();
-          panel.textContent = 'Your account changed. Refresh and sign in to open this report again.';
-        }
+      window.MondermanDVJourneyRecovery.watchVerifiedIdentity(client, identity, () => {
+        state.journeyInvalidated = true;
+        panel.replaceChildren();
+        panel.textContent = 'Your account changed. Refresh and sign in to open this report again.';
       });
       const response = await fetchWithTimeout(`${API_BASE}/api/runs/${savedReport}/report`, {}, FINALIZE_TIMEOUT_MS);
       const data = await response.json();

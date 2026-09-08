@@ -237,6 +237,47 @@ const accountSwap = await savedAnonymous();
 accountSwap.emit("SIGNED_IN", { user: { id: ids.otherUser } });
 assert.equal(accountSwap.storage.getItem(key), null);
 assert.equal(accountSwap.savedController.save(), false);
+
+// Saved-report reads reuse the existing verified client. Their watcher only
+// invalidates synchronously and must never re-enter Supabase's auth lock.
+const watcherEnv = runtime();
+const identityEvents = [];
+let identityListener;
+let watcherSubscriptions = 0;
+let watcherUnsubscribed = false;
+const identitySubscription = { unsubscribe() { watcherUnsubscribed = true; } };
+const existingClient = { auth: {
+  onAuthStateChange(callback) {
+    watcherSubscriptions += 1;
+    identityListener = callback;
+    return { data: { subscription: identitySubscription } };
+  },
+  getUser() { throw new Error("watcher must not verify again inside an auth callback"); },
+  getSession() { throw new Error("watcher must not read a session inside an auth callback"); }
+} };
+const watcherSubscription = watcherEnv.api.watchVerifiedIdentity(existingClient, ids.user, (issue) => { identityEvents.push(clone(issue)); });
+assert.equal(watcherSubscription, identitySubscription);
+assert.equal(watcherSubscriptions, 1, "watcher must subscribe only to the supplied client");
+assert.doesNotMatch(watcherEnv.api.watchVerifiedIdentity.toString(), /\b(?:async|await)\b|\b(?:getUser|getSession|createClient)\s*\(/);
+assert.equal(identityListener.constructor.name, "Function", "auth callback must not be async");
+for (const event of ["INITIAL_SESSION", "SIGNED_IN", "TOKEN_REFRESHED", "USER_UPDATED"]) {
+  assert.equal(identityListener(event, { user: { id: ids.user }, access_token: "new-token-must-not-matter" }), undefined);
+}
+assert.equal(identityListener("INITIAL_SESSION", null), undefined);
+assert.deepEqual(identityEvents, [], "same identity, including token refresh, must keep the report visible");
+assert.equal(identityListener("SIGNED_OUT", null), undefined);
+assert.deepEqual(identityEvents, [{ reason: "signed_out" }], "signout must invalidate before the callback returns");
+assert.equal(identityListener("SIGNED_IN", { user: { id: ids.otherUser } }), undefined);
+assert.deepEqual(identityEvents.at(-1), { reason: "account_changed" });
+identityEvents.length = 0;
+assert.equal(identityListener("TOKEN_REFRESHED", { user: { id: ids.otherUser } }), undefined);
+assert.deepEqual(identityEvents, [{ reason: "account_changed" }], "every different-identity event must invalidate");
+watcherSubscription.unsubscribe();
+assert.equal(watcherUnsubscribed, true);
+assert.throws(() => watcherEnv.api.watchVerifiedIdentity(existingClient, "", () => {}), /dv_identity_watch_unavailable/);
+assert.throws(() => watcherEnv.api.watchVerifiedIdentity({}, ids.user, () => {}), /dv_identity_watch_unavailable/);
+assert.equal(watcherSubscriptions, 1, "invalid watcher setup must fail closed without another subscription");
+
 const pendingSwap = await savedAnonymous("teaser");
 pendingSwap.savedController.prepareSignIn();
 pendingSwap.emit("SIGNED_IN", { user: { id: ids.otherUser } });
@@ -292,5 +333,7 @@ assert.match(diagnostic, /id="mdmTeaserSignIn"[^>]*href="signin\.html\?next=deci
 assert.doesNotMatch(diagnostic, /id="mdmTeaserSignIn"[^>]*target="_blank"/, "account unlock must preserve the current tab's recovery storage");
 assert.match(diagnostic, /prepareSignIn\(\)[\s\S]*window\.location\.assign\(next\)/, "the account link must preserve and authorize the handoff before navigation");
 assert.ok(diagnostic.includes("'X-Monderman-Session-Capability': sessionCapability"), "recovery credentials must be sent in the request header");
+assert.ok(diagnostic.includes("MondermanDVJourneyRecovery.watchVerifiedIdentity(client, identity, () =>"), "saved reports must use the shared verified-identity watcher");
+assert.doesNotMatch(diagnostic, /onAuthStateChange/, "diagnostic HTML must retain the centralized auth callback boundary");
 
-console.log("DV_JOURNEY_RECOVERY_PASS: anonymous reload, five phases, same-tab verified account handoff, identity/tenant/assignment isolation, fixed four-hour expiry, bounded sanitized state, server-before-render verification, retry and logout races.");
+console.log("DV_JOURNEY_RECOVERY_PASS: anonymous reload, five phases, same-tab verified account handoff, identity/tenant/assignment isolation, fixed four-hour expiry, bounded sanitized state, server-before-render verification, retry and logout races, synchronous saved-report identity watcher.");

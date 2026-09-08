@@ -156,6 +156,23 @@
     return true;
   }
 
+  // The caller supplies its existing gated client and a getUser-verified ID.
+  // Auth events only invalidate that identity; this synchronous callback never
+  // performs auth/network work or authorizes a report from an event session.
+  function watchVerifiedIdentity(client, verifiedUserId, onInvalidated) {
+    if (!uuid(verifiedUserId) || !client || !client.auth
+      || typeof client.auth.onAuthStateChange !== "function" || typeof onInvalidated !== "function") {
+      throw new Error("dv_identity_watch_unavailable");
+    }
+    var result = client.auth.onAuthStateChange(function (event, session) {
+      var observed = session && session.user && session.user.id;
+      if (event === "SIGNED_OUT" || (observed && observed !== verifiedUserId)) {
+        onInvalidated({ reason: event === "SIGNED_OUT" ? "signed_out" : "account_changed" });
+      }
+    });
+    return result && result.data && result.data.subscription;
+  }
+
   function createController(options) {
     options = options || {};
     if (!options.state || typeof options.validateRemote !== "function" || typeof options.restore !== "function") return null;
@@ -326,6 +343,7 @@
   window.MondermanDVJourneyRecovery = {
     createController: createController,
     bindAuthenticatedReturn: bindAuthenticatedReturn,
+    watchVerifiedIdentity: watchVerifiedIdentity,
     clearPending: clearPending,
     signInUrl: function () { return SIGNIN_URL; },
     _test: { key: KEY, maxAgeMs: MAX_AGE_MS, maxBytes: MAX_BYTES, sanitizeState: sanitizeState, readPending: readPending }
