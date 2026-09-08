@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || "playwright");
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const dialogModule = path.resolve(process.env.DV_RESULT_DIALOG_MODULE || path.join(root, "dv-result-dialog.js"));
 const out = path.resolve(process.env.DV_RESULT_DIALOG_OUT || path.join(root, "output", "dv-result-dialog-smoke"));
 fs.mkdirSync(out, { recursive: true });
 const fontFaceCss = [
@@ -45,9 +46,8 @@ const fixture = `<!doctype html>
         </div>
         <p class="dv-result-dialog__message">This result is held for the current browser session. Create a free account to unlock the complete report without repeating the diagnostic.</p>
         <div class="dv-result-dialog__actions">
-          <button id="result-primary" class="dv-result-dialog__button dv-result-dialog__button--primary" data-dv-dialog-initial-focus type="button">Create account or sign in</button>
-          <button id="result-unlock" class="dv-result-dialog__button" type="button">I have signed in. Unlock report.</button>
-          <a class="dv-result-dialog__text-link" href="#plans">See plans</a>
+          <a id="result-primary" class="dv-result-dialog__button dv-result-dialog__button--primary" data-dv-dialog-initial-focus href="#signin">Create account / sign in</a>
+          <a id="result-plans" class="dv-result-dialog__text-link" href="#plans">See plans</a>
         </div>
         <p class="dv-result-dialog__note">Your accepted answers remain attached to this session. Closing this view does not change or discard them.</p>
         <p class="dv-result-dialog__message">Your result reflects the submitted answers and the selected diagnostic depth. It is a directional organizational read, not a validated causal claim.</p>
@@ -68,7 +68,7 @@ const fixture = `<!doctype html>
   <div id="mdn-fb-root"><button class="mdn-fb-launch">Feedback</button><div id="mdn-fb-panel">Open feedback panel</div></div>
   <script>
     window.resultActionClicks = 0;
-    document.getElementById("result-primary").addEventListener("click", function () { window.resultActionClicks += 1; });
+    document.getElementById("result-primary").addEventListener("click", function (event) { event.preventDefault(); window.resultActionClicks += 1; });
   </script>
 </body>
 </html>`;
@@ -99,7 +99,7 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
         await page.setContent(fixture, { waitUntil: "load" });
         await page.addStyleTag({ content: fontFaceCss });
         await page.addStyleTag({ path: path.join(root, "dv-result-dialog.css") });
-        await page.addScriptTag({ path: path.join(root, "dv-result-dialog.js") });
+        await page.addScriptTag({ path: dialogModule });
         await page.evaluate(() => document.fonts && document.fonts.ready);
         if (viewport.textScale !== 1) {
           await page.evaluate((scale) => { document.documentElement.style.fontSize = `${scale * 100}%`; }, viewport.textScale);
@@ -233,11 +233,66 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
         await page.locator("#result-primary").click();
         assert.equal(await page.evaluate(() => window.resultActionClicks), 1, `${label}: moving the result discarded its event handlers`);
 
+        // The real teaser has three links, not a primary button. Safari may
+        // skip links during native Tab traversal, so test every starting action
+        // in both directions for more than a complete cycle, without Alt+Tab.
+        const focusOrder = [".dv-result-dialog__close", "#result-primary", "#result-plans", "#result-last-action"];
+        const keyboardCycles = [];
+        for (let startIndex = 0; startIndex < focusOrder.length; startIndex += 1) {
+          for (const direction of [1, -1]) {
+            await page.locator(focusOrder[startIndex]).focus();
+            for (let step = 1; step <= focusOrder.length + 1; step += 1) {
+              await page.keyboard.press(direction === 1 ? "Tab" : "Shift+Tab");
+              const expected = focusOrder[(startIndex + direction * step + focusOrder.length * 2) % focusOrder.length];
+              const focused = await page.locator(expected).evaluate((node) => {
+                const action = node.getBoundingClientRect();
+                const scroller = node.closest(".dv-result-dialog__scroll");
+                const visibleRegion = (scroller || node.closest(".dv-result-dialog__panel")).getBoundingClientRect();
+                return {
+                  matches: document.activeElement === node,
+                  activeTag: document.activeElement?.tagName,
+                  visible: action.top >= visibleRegion.top - 1 && action.bottom <= visibleRegion.bottom + 1
+                    && action.left >= visibleRegion.left - 1 && action.right <= visibleRegion.right + 1
+                };
+              });
+              assert.equal(focused.matches, true, `${label}: keyboard cycle from ${focusOrder[startIndex]} direction ${direction} step ${step} missed ${expected}; active=${focused.activeTag}`);
+              assert.equal(focused.visible, true, `${label}: keyboard-focused action ${expected} is outside its visible scroll region`);
+            }
+            keyboardCycles.push({ start: focusOrder[startIndex], direction, steps: focusOrder.length + 1 });
+          }
+        }
+
+        // Tab from the programmatically focused panel enters its first action;
+        // reverse Tab enters its last. Dynamic focus loss must recover too.
+        for (const direction of [1, -1]) {
+          await page.locator(".dv-result-dialog__panel").focus();
+          await page.keyboard.press(direction === 1 ? "Tab" : "Shift+Tab");
+          assert.equal(await page.locator(direction === 1 ? focusOrder[0] : focusOrder.at(-1)).evaluate(node => document.activeElement === node), true, `${label}: panel-focus navigation failed`);
+          await page.evaluate(() => {
+            const temporary = document.createElement("a");
+            temporary.href = "#temporary";
+            temporary.textContent = "Temporary action";
+            document.querySelector(".dv-result-dialog__content").appendChild(temporary);
+            temporary.focus();
+            temporary.remove();
+          });
+          await page.keyboard.press(direction === 1 ? "Tab" : "Shift+Tab");
+          assert.equal(await page.locator(direction === 1 ? focusOrder[0] : focusOrder.at(-1)).evaluate(node => document.activeElement === node), true, `${label}: dynamically removed current action did not recover`);
+        }
+
+        // These otherwise-matching nodes must never enter the keyboard cycle.
+        await page.evaluate(() => {
+          const excluded = document.createElement("div");
+          excluded.id = "excluded-actions";
+          excluded.innerHTML = '<a href="#negative" tabindex="-1">Negative tab index</a><a href="#negative-two" tabindex="-2">Other negative tab index</a><button disabled>Disabled</button><a href="#hidden" hidden>Hidden</a><a href="#visibility" style="visibility:hidden">Invisible</a><a href="#aria-hidden" aria-hidden="true">Hidden from accessibility</a><fieldset disabled><button>Disabled by fieldset</button></fieldset>';
+          document.querySelector(".dv-result-dialog__content").appendChild(excluded);
+        });
         await page.locator("#result-last-action").focus();
         await page.keyboard.press("Tab");
         assert.equal(await page.evaluate(() => document.activeElement?.classList.contains("dv-result-dialog__close")), true, `${label}: Tab escaped after the last result action`);
         await page.keyboard.press("Shift+Tab");
         assert.equal(await page.evaluate(() => document.activeElement?.id), "result-last-action", `${label}: Shift+Tab escaped before the close control`);
+        await page.locator("#excluded-actions").evaluate(node => node.remove());
 
         await page.keyboard.press("Escape");
         await page.waitForFunction(() => !window.MondermanDVResultDialog.isOpen());
@@ -292,8 +347,35 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
         assert.equal(await page.evaluate(() => document.activeElement?.id), "string-result-action", `${label}: string-content initial focus failed`);
         await page.evaluate(() => window.MondermanDVResultDialog.close("test"));
 
+        await page.evaluate(() => {
+          window.MondermanDVResultDialog.open({
+            label: "Dynamic action removal",
+            content: '<a id="removable-action" href="#temporary">Temporary action</a><div id="editable-action" contenteditable="true">Editable field</div>',
+            initialFocus: "#removable-action",
+            returnFocus: document.getElementById("before-open")
+          });
+        });
+        await page.keyboard.press("Tab");
+        assert.equal(await page.evaluate(() => document.activeElement?.id), "editable-action", `${label}: naturally focusable editable content was excluded`);
+        await page.locator("#removable-action").focus();
+        await page.locator("#removable-action").evaluate(node => node.remove());
+        await page.keyboard.press("Escape");
+        assert.equal(await page.evaluate(() => window.MondermanDVResultDialog.isOpen()), false, `${label}: Escape did not close after the focused action was removed`);
+        assert.equal(await page.evaluate(() => document.activeElement?.id), "before-open", `${label}: dynamic-removal Escape lost return focus`);
+
+        await page.evaluate(() => {
+          window.MondermanDVResultDialog.open({ label: "No available actions", content: '<p>No actions are currently available.</p>', dismissible: false });
+        });
+        for (const key of ["Tab", "Shift+Tab"]) {
+          await page.keyboard.press(key);
+          assert.equal(await page.locator(".dv-result-dialog__panel").evaluate(node => document.activeElement === node), true, `${label}: zero-action dialog lost focus`);
+        }
+        await page.keyboard.press("Escape");
+        assert.equal(await page.evaluate(() => window.MondermanDVResultDialog.isOpen()), true, `${label}: nondismissible dialog unexpectedly closed`);
+        await page.evaluate(() => window.MondermanDVResultDialog.close("test"));
+
         assert.deepEqual(errors, [], `${label}: browser errors\n${errors.join("\n")}`);
-        findings.push({ browser: browserName, ...viewport, geometry, actionFit, lastAction, status: "pass" });
+        findings.push({ browser: browserName, ...viewport, geometry, actionFit, lastAction, keyboardCycles, status: "pass" });
         await page.close();
       }
     } finally {

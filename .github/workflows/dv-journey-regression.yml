@@ -21,6 +21,7 @@ jobs:
           npx playwright install --with-deps chromium webkit
       - name: Validate recovery and existing completion boundaries
         run: |
+          node scripts/anonymous_decision_velocity_live_smoke.mjs --local-regression
           node scripts/dv_journey_recovery_smoke.mjs
           node scripts/dv_assignment_recovery_smoke.mjs
           node scripts/diagnostic_draft_recovery_smoke.mjs
