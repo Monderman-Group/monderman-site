@@ -71,14 +71,14 @@ for (const [key, contract] of Object.entries(expected)) {
   assert(await shell.locator('.cover').count() === 0, `${key} legacy hand-authored report remains in the live DOM`);
   const executiveRead = shell.locator('.mr-run-decision');
   assert(await executiveRead.isVisible(), `${key} executive headline block is not visible`);
-  assert((await executiveRead.textContent()).includes('Executive decision brief'), `${key} executive decision brief label is missing`);
+  assert((await executiveRead.textContent()).includes('Decision summary'), `${key} executive decision brief label is missing`);
   const text = await shell.textContent();
   for (const token of [
-    'Executive decision brief', 'Dimension profile', 'Constraint concentration',
-    'How the disclosed scenario becomes exposure', 'Priority map',
-    'Leadership implication', 'What evidence is, and is not, in this run',
-    'Priorities and graduated remedy paths', 'Basis of this read', 'Interpretation boundary',
-    'No usable participant notes are presented.', 'Turn the read into a bounded operating decision',
+    'Decision summary', 'Dimension profile', 'Where the measured issue appears',
+    'How the time and cost estimate is built', 'Priority order and measured severity',
+    'What this may mean', 'What this result is based on',
+    'Priorities and options', 'How this report was produced', 'Interpretation boundary',
+    'No usable participant notes are presented.', 'Turn the result into a small, measurable test',
   ]) assert(text.includes(token), `${key} missing production-equivalent content: ${token}`);
   for (const stale of ['Competing readings', 'What would update this read', 'Sample Depth Synthesis Report']) {
     assert(!text.includes(stale), `${key} still renders outdated content: ${stale}`);

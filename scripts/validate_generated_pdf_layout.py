@@ -57,11 +57,11 @@ def validate(path: Path) -> None:
             raise AssertionError(f"{path.name}: expected one complete {title!r}, found {matches}")
         page_index = matches[0]
         remedy_pages.add(page_index)
-        if "MEASURED EVIDENCE LINK" not in texts[page_index]:
+        if "WHY THIS OPTION APPEARS HERE" not in texts[page_index]:
             raise AssertionError(f"{path.name}: {title!r} is separated from its evidence footer")
 
     for page_index, text in enumerate(texts):
-        if "MEASURED EVIDENCE LINK" in text and page_index not in remedy_pages:
+        if "WHY THIS OPTION APPEARS HERE" in text and page_index not in remedy_pages:
             raise AssertionError(
                 f"{path.name}: orphaned remedy evidence fragment on page {page_index + 1}"
             )

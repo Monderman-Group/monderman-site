@@ -74,7 +74,7 @@ for (const [key, expected] of Object.entries(diagnostics)) {
   assert(await shell.locator('.mr-run-remedy').count() === 3, `${key} remedy-path count mismatch`);
   assert(await shell.locator('.cover').count() === 0, `${key} legacy sample remains in the live DOM`);
   const text = await shell.textContent();
-  for (const token of ['Executive decision brief','Dimension profile','Constraint concentration','Evidence status','Priority map','Method and limits','Interpretation boundary','No usable participant notes are presented.','Leadership handoff']) {
+  for (const token of ['Decision summary','Dimension profile','Where the measured issue appears','Evidence in this run','Priority order and measured severity','Method and limits','Interpretation boundary','No usable participant notes are presented.','Next decision']) {
     assert(text.includes(token), `${key} production-contract section missing: ${token}`);
   }
   await page.screenshot({ path: path.join(out, `${key}-full.png`), fullPage: true });
@@ -118,7 +118,7 @@ assert(crossText.includes('Executive synthesis'), 'Cross-Lens executive synthesi
 assert(crossText.includes('Agreements and differences'), 'Cross-Lens agreements/differences missing');
 assert(crossText.includes('Evidence-proportionate actions'), 'Cross-Lens actions missing');
 assert(!crossText.includes('Source-backed remedy paths'), 'Cross-Lens rendered source remedy prose even though the source-prose contract withholds it');
-assert(crossText.includes('Vantage evidence'), 'Cross-Lens vantage-evidence layer missing');
+assert(crossText.includes('Results by participant perspective'), 'Cross-Lens vantage-evidence layer missing');
 assert(await cross.locator('.mr-remedy-card').count() === 0, 'Cross-Lens rendered remedy cards without eligible source remedy prose');
 assert(crossText.includes('The operating system in one view'), 'Cross-Lens system picture label missing');
 assert(await cross.locator('.mr-action-path .mr-action-step').count() >= 3, 'Cross-Lens visual action sequence is too thin');
@@ -167,7 +167,7 @@ assert(depthTop - depthStart < 1150, `Depth chart is still buried ${Math.round(d
 assert((await depth.textContent()).includes('15.8'), 'Depth vantage gap not visible');
 assert((await depth.textContent()).includes('Evidence-proportionate actions'), 'Depth actions missing');
 assert(!(await depth.textContent()).includes('Source-backed remedy paths'), 'Depth rendered source remedy prose even though the source-prose contract withholds it');
-assert((await depth.textContent()).includes('Vantage evidence'), 'Depth vantage-evidence layer missing');
+assert((await depth.textContent()).includes('Results by participant perspective'), 'Depth vantage-evidence layer missing');
 assert(await depth.locator('.mr-remedy-card').count() === 0, 'Depth rendered remedy cards without eligible source remedy prose');
 assert((await depth.textContent()).includes('Agreement, divergence, and coverage'), 'Depth agreement/divergence section missing');
 assert(await depth.locator('.mr-depth-metrics .mr-run-metric').count() === 4, 'Depth opening read does not show four executive metrics');

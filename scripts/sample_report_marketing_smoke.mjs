@@ -49,10 +49,10 @@ assert(pageText.includes('$74,880'),'Structural Clarity representative burden mi
 assert(pageText.includes('$844,800'),'Institutional Performance representative burden missing');
 
 const cases=[
-  ['os','Operational Systems',['Operational Systems: Executive Report','Executive decision brief','Interpretation boundary']],
-  ['dv','Decision Velocity',['Decision Velocity: Executive Report','Executive decision brief','Interpretation boundary']],
-  ['sc','Structural Clarity',['Structural Clarity: Executive Report','Executive decision brief','Interpretation boundary']],
-  ['ip','Institutional Performance',['Institutional Performance: Executive Report','Executive decision brief','Interpretation boundary']],
+  ['os','Operational Systems',['Operational Systems: Executive Report','Decision summary','Interpretation boundary']],
+  ['dv','Decision Velocity',['Decision Velocity: Executive Report','Decision summary','Interpretation boundary']],
+  ['sc','Structural Clarity',['Structural Clarity: Executive Report','Decision summary','Interpretation boundary']],
+  ['ip','Institutional Performance',['Institutional Performance: Executive Report','Decision summary','Interpretation boundary']],
   ['synthesis','Cross-Lens Synthesis',['Cross-Lens Composite Score','Strong evidence','55.5','Structural Clarity','Decision Velocity']],
   ['depth','Depth Synthesis',['Median Diagnostic Score','Substantial evidence','18 eligible','Operational','Managerial','Senior Leader']]
 ];

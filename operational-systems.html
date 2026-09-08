@@ -700,14 +700,14 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
           <p class="score-band" id="scoreBand">--</p>
           <div class="score-badge" id="scoreBadge">Operational Systems Diagnostic</div>
           <div class="insight-depth-block" id="insightDepthBlock">
-            <p class="insight-depth-label">Single-run evidence context</p>
+            <p class="insight-depth-label">Evidence for this result</p>
             <div class="insight-depth-row">
               <span class="insight-depth-value" id="insightDepthValue">--</span>
               <span class="score-meta-pill" id="insightDepthBand">--</span>
               <span class="insight-help" id="insightDepthInfo" tabindex="0">ⓘ</span>
               <span class="tooltip-panel" id="insightDepthTooltip">A single Diagnostic run is one bounded perspective. This evidence-context indicator reflects the run length and the participant's self-reported confidence; it is not a population measure and it does not determine Synthesis eligibility. To strengthen the evidence, collect compatible runs and Include suitable Results in Analysis. Depth Synthesis uses eligible runs from one Diagnostic and reports a Median Diagnostic Score and distribution. Cross-Lens Synthesis compares different Diagnostics and publishes a Cross-Lens Composite Score only when the evidence meets the coherence requirements.</span>
             </div>
-            <p class="insight-depth-copy" id="insightDepthCopy">Run length and self-reported input confidence describe this single-run evidence context; Synthesis evidence is assessed separately in Analysis.</p>
+            <p class="insight-depth-copy" id="insightDepthCopy">This describes the length of your diagnostic and your confidence in the answers. Evidence from multiple participants is evaluated separately in Synthesis.</p>
           </div>
         </div>
       </div>
@@ -800,7 +800,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
           </button>
           <div class="accordion-body">
             <section class="remedy-standalone">
-              <div id="remedyTreeWrap" class="remedy-band hidden"><div class="remedy-band-head"><strong>Three remedy paths</strong><p>These paths are not arranged as one automatic best answer. They show the trade space between burden of recovery, implementation burden, and organizational risk.</p></div><div class="remedy-grid" id="remedyGrid"></div><p class="remedy-calibration-note">* Calibrate against Run evidence before acting. A single-perspective run produces directional remedy guidance, not engineering specifications: the breadth, depth, and cross-validation of inputs govern how confidently any of these paths should be pursued.</p></div>
+              <div id="remedyTreeWrap" class="remedy-band hidden"><div class="remedy-band-head"><strong>Three remedy paths</strong><p>These options involve different levels of effort and risk. Review the evidence before deciding which, if any, to pursue.</p></div><div class="remedy-grid" id="remedyGrid"></div><p class="remedy-calibration-note">* Calibrate against Run evidence before acting. A single-perspective run produces directional remedy guidance, not engineering specifications: the breadth, depth, and cross-validation of inputs govern how confidently any of these paths should be pursued.</p></div>
             </section>
           </div>
         </article>
@@ -828,7 +828,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
 
         <article class="accordion-section hidden" data-accordion="experience" id="experienceAccordion">
           <button class="accordion-header" type="button">
-            <div class="accordion-header-main"><span class="accordion-title">Experiential layer</span><span class="accordion-sub">Optional first-person and cross-level observations supplied by the participant.</span></div>
+            <div class="accordion-header-main"><span class="accordion-title">Participant observations</span><span class="accordion-sub">Optional notes about the participant’s experience and what they have observed about other roles.</span></div>
             <span class="accordion-chevron">⌄</span>
           </button>
           <div class="accordion-body">
@@ -847,7 +847,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
             <span class="accordion-chevron">⌄</span>
           </button>
           <div class="accordion-body">
-            <section class="export-summary-card executive-export-card"><div class="export-summary-head"><p class="export-summary-kicker">Organizational implication</p><h3 class="export-summary-title" id="execSummaryHeadline">Executive summary will appear here after scoring.</h3><p class="result-copy" id="execSummaryBody"></p><div class="export-meta"><span class="export-pill" id="exportMetaBenchmark">Design reference: --</span><span class="export-pill" id="exportMetaTrajectory">Self-reported change: --</span><span class="export-pill" id="exportMetaOpportunity">Opportunity: --</span></div></div><div class="export-grid"><div class="export-block"><h4>Priority actions</h4><ul class="result-list" id="execSummaryActions"></ul></div><div class="export-block"><h4 id="execOpportunityTitle">What this means</h4><p class="result-copy" id="execMeaningText">This executive summary is intended to stand on its own as a concise organizational readout anchored in time, cost, productive capacity, risk, and operational action.</p><p class="result-copy" id="execSectorPatternText" style="margin-top:10px;"></p><p class="result-copy" id="execActionsRationaleText" style="margin-top:10px;"></p><p class="result-copy" id="execLeadershipWatchoutText" style="margin-top:10px;"></p></div></div></section>
+            <section class="export-summary-card executive-export-card"><div class="export-summary-head"><p class="export-summary-kicker">Organizational implication</p><h3 class="export-summary-title" id="execSummaryHeadline">Executive summary will appear here after scoring.</h3><p class="result-copy" id="execSummaryBody"></p><div class="export-meta"><span class="export-pill" id="exportMetaBenchmark">Design reference: --</span><span class="export-pill" id="exportMetaTrajectory">Self-reported change: --</span><span class="export-pill" id="exportMetaOpportunity">Opportunity: --</span></div></div><div class="export-grid"><div class="export-block"><h4>Priority actions</h4><ul class="result-list" id="execSummaryActions"></ul></div><div class="export-block"><h4 id="execOpportunityTitle">What this means</h4><p class="result-copy" id="execMeaningText">This summary explains the result, its possible implications, and actions to consider.</p><p class="result-copy" id="execSectorPatternText" style="margin-top:10px;"></p><p class="result-copy" id="execActionsRationaleText" style="margin-top:10px;"></p><p class="result-copy" id="execLeadershipWatchoutText" style="margin-top:10px;"></p></div></div></section>
           </div>
         </article>
 
@@ -1654,7 +1654,7 @@ function showSignupTeaser(data) {
   wrap.style.cssText = "position:fixed;inset:0;z-index:1400;background:rgba(24,25,28,.55);display:flex;align-items:center;justify-content:center;padding:20px;";
   wrap.innerHTML =
     '<div style="max-width:520px;width:100%;background:#fff;border-radius:16px;padding:34px 36px;font-family:\'Neue Haas Grotesk\',\'Helvetica Neue\',Helvetica,Arial,sans-serif;box-shadow:0 24px 64px rgba(15,23,32,.25);">' +
-    '<p style="margin:0 0 8px;font-size:.74rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#0C6E78;">Your condition read is ready</p>' +
+    '<p style="margin:0 0 8px;font-size:.74rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#0C6E78;">Your results are ready</p>' +
     '<div style="display:flex;align-items:baseline;gap:12px;margin:6px 0 4px;">' +
     '<span style="font-size:3.4rem;font-weight:700;letter-spacing:-.06em;color:#18191C;line-height:1;">' + escT(t.score != null ? t.score : "Unavailable") + '</span>' +
     '<span style="font-size:1rem;color:#6E6F73;">/ 100' + (t.band ? ' \u00b7 ' + escT(t.band) : '') + '</span></div>' +
@@ -1707,7 +1707,7 @@ item.classList.toggle("is-complete", idx < index);
 
 function resetProcessingUI() {
 if (processingHelp) {
-processingHelp.textContent = "This usually takes about one to two minutes. The adaptive engine is finalizing scoring, checking contradiction and bypass signals, estimating directional exposure, and assembling the final readout.";
+processingHelp.textContent = "This usually takes about one to two minutes. We are calculating your score, checking conflicting answers, and preparing your report.";
 }
 setProcessingStep(-1, "Initializing output sequence...");
 }
@@ -2318,7 +2318,7 @@ skipBtn.textContent = "Skip";
 function renderQuestion() {
 const item = state.currentItem;
 if (!item) return;
-const dimLabel = item.dimension ? humanize(item.dimension) : "Adaptive diagnostic";
+const dimLabel = item.isExperienceLayer ? "Your observations" : (item.dimension ? humanize(item.dimension) : "Diagnostic question");
 const card = document.querySelector("#questionStage .question-card");
 
 const applyQuestionContent = () => {
@@ -2349,9 +2349,9 @@ questionTitle.textContent = getQuestionRoleText(item.text || {}) || "Next questi
 questionCopy.textContent = item.questionCopy || (item.questionType === "numeric"
 ? "Enter your best estimate. An approximate number is fine."
 : item.questionType === "text"
-? "Optional narrative input. Use plain language; skip it if you do not have a useful observation."
+? "Describe what you have observed. Keep your answer focused on the question."
 : item.questionType === "multi_select"
-? "Select every option you can directly observe. You can choose more than one."
+? "Choose only what you can observe directly."
 : "Choose the option that best matches what you can observe directly.");
 clearQuestionRequired();
 questionBody.innerHTML = "";
@@ -2460,7 +2460,7 @@ return wrap;
 if (item.questionType === "multi_select") {
 const hint = document.createElement("p");
 hint.style.cssText = "font-size:.85rem;color:#6b7785;margin:0 0 10px;";
-hint.textContent = "Select all that apply, then press Continue below.";
+hint.textContent = "Select Continue when you have finished choosing.";
 wrap.appendChild(hint);
 const choices = document.createElement("div");
 choices.className = "choices";
@@ -2509,7 +2509,7 @@ const percent = Number(state.currentProgress?.progressPercent || 0);
 progressBar.style.width = `${Math.max(6, percent)}%`;
 // Non-numeric copy: just the dimension name. The bar still fills based on
 // backend progress, so the user feels movement without seeing a count.
-const dimension = state.currentItem?.id === "**confidenceLevel**" ? "Input confidence" : (state.currentItem?.dimension ? humanize(state.currentItem.dimension) : "Adaptive path active");
+const dimension = state.currentItem?.isExperienceLayer ? "Your observations" : (state.currentItem?.id === "**confidenceLevel**" ? "Confidence in your answers" : (state.currentItem?.dimension ? humanize(state.currentItem.dimension) : "Diagnostic in progress"));
 progressCopy.textContent = dimension;
 pathHint.textContent = "";
 }
@@ -2533,7 +2533,7 @@ const inferredCoverage = inferParticipantCoverage();
 // reserved for actual output generation so it doesn't look like questions were skipped.
 beginBtn.disabled = true;
 beginBtn.textContent = "Starting...";
-setHeader("Starting adaptive run", "The diagnostic engine is initializing. This may take a moment.", "Starting...");
+setHeader("Starting your diagnostic", "Preparing your questions. This may take a moment.", "Starting...");
 
 const participantLevels = inferredCoverage.levelsCovered;
 const body = {
@@ -2574,7 +2574,7 @@ meetingHours: state.preflight.meetingHours
 shared_context: readHubContext() || {}
 };
 
-setHeader("Starting adaptive run", "Initializing your diagnostic session.", "Starting...");
+setHeader("Starting your diagnostic", "Preparing your questions.", "Starting...");
 // Give any in-progress background warmup a moment to resolve
 await new Promise((r) => setTimeout(r, 400));
 
@@ -2606,7 +2606,7 @@ if (response.status === 429 && data?.error === "diagnostic_capacity_temporarily_
   return;
 }
 if (!response.ok || !data?.ok) {
-  throw new Error(data?.message || data?.error || "Unable to start adaptive run.");
+  throw new Error(data?.message || data?.error || "Unable to start the diagnostic.");
 }
 
 state.runId = data.runId;
@@ -2633,9 +2633,9 @@ renderQuestion();
 console.error("Adaptive run start failed", error);
 beginBtn.disabled = false;
 beginBtn.textContent = "Begin Diagnostic";
-setHeader("Adaptive run unavailable", "The diagnostic could not start. Please refresh and try again.", "Start failed");
+setHeader("Unable to start", "The diagnostic could not start. Please refresh and try again.", "Start failed");
 showStage(introStage);
-showToast(error?.message || "Unable to start adaptive run.");
+showToast(error?.message || "Unable to start the diagnostic.");
 }
 }
 
@@ -2646,9 +2646,9 @@ dimension: "input confidence",
 questionType: "single_select",
 isOptional: false,
 text: {
-operational: "How confident are you in the accuracy of the information you provided across this run?",
-managerial: "How confident are you in the accuracy of the information you provided across this run?",
-senior_leader: "How confident are you in the accuracy of the information you provided across this run?"
+operational: "How confident are you that the answers you provided are accurate?",
+managerial: "How confident are you that the answers you provided are accurate?",
+senior_leader: "How confident are you that the answers you provided are accurate?"
 },
 options: [
 { value: "high", label: "High confidence" },
@@ -2659,21 +2659,66 @@ options: [
 }
 
 const EXPERIENCE_PROMPT_SETS = {
-operational: [
-{ key: "self", label: "Your operational experience", text: "Optional: From your Operational participant perspective, what does this workflow feel like to sustain day to day?", copy: "Describe what you personally experience: repeated work, workarounds, systems friction, reporting load, waiting, escalation, rework, or anything that feels heavier than it should." },
-{ key: "observedManagerial", label: "What managers may be experiencing", text: "Optional: What do managers seem to spend time compensating for in this workflow?", copy: "Capture what you observe from the managerial layer: coordination burden, follow-up, exception handling, review cycles, staffing pressure, or translation work." },
-{ key: "observedSeniorLeader", label: "What senior leaders may be seeing or missing", text: "Optional: What do senior leaders seem to see, miss, or misunderstand about this burden?", copy: "Capture what appears visible or invisible to senior leaders from where you sit. Avoid naming individuals; focus on the operating pattern." }
-],
-managerial: [
-{ key: "self", label: "Your managerial experience", text: "Optional: From your Managerial participant perspective, what does this workflow feel like to coordinate or keep moving?", copy: "Describe the management work around the work: chasing, reconciling, translating, escalating, reviewing, resourcing, or protecting teams from administrative load." },
-{ key: "observedOperational", label: "What operational staff may be experiencing", text: "Optional: What do operational staff seem to experience while executing this workflow?", copy: "Capture what appears to happen closest to the work: repeated entry, tool friction, unclear process, workaround reliance, waiting, rework, or avoidable burden." },
-{ key: "observedSeniorLeader", label: "What senior leaders may be seeing or missing", text: "Optional: What do senior leaders seem to see, miss, or misunderstand about this burden?", copy: "Capture the gap between what is visible upward and what is actually required to keep the workflow moving." }
-],
-executive: [
-{ key: "self", label: "Your senior-leader experience", text: "Optional: From your Senior Leader participant perspective, what does this workflow reveal about the operating system?", copy: "Describe what you experience as a governance, capacity, risk, execution, or organizational-design issue. Keep the focus on the system rather than individuals." },
-{ key: "observedManagerial", label: "What managers may be experiencing", text: "Optional: What do managers seem to be carrying or compensating for?", copy: "Capture what you observe in the managerial layer: coordination load, escalation dependence, review burden, exception handling, or managerial glue." },
-{ key: "observedOperational", label: "What operational staff may be experiencing", text: "Optional: What do operational staff seem to experience closest to the work?", copy: "Capture what appears to happen at the operating edge: workarounds, duplicate entry, tool friction, delays, rework, or hidden maintenance labor." }
-]
+  "operational": [
+    {
+      "key": "self",
+      "label": "Your day-to-day experience",
+      "text": "Optional: What is it like to carry out this work process?",
+      "copy": "Describe what you have experienced, such as repeated entry, difficult systems, reporting, waiting, workarounds, or rework. You can leave this blank. Do not name individuals."
+    },
+    {
+      "key": "observedManagerial",
+      "label": "What you observe about managers",
+      "text": "Optional: What extra work do managers do to keep this process running?",
+      "copy": "Describe what you have seen them coordinate, follow up, review, clarify, or handle outside the usual procedure. You can leave this blank. Do not name individuals."
+    },
+    {
+      "key": "observedSeniorLeader",
+      "label": "What you observe about senior leaders",
+      "text": "Optional: What do senior leaders appear to understand or miss about the effort this process requires?",
+      "copy": "Base your answer on what you have observed, not what you assume they know. You can leave this blank. Do not name individuals."
+    }
+  ],
+  "managerial": [
+    {
+      "key": "self",
+      "label": "Your experience as a manager",
+      "text": "Optional: What work do you do to coordinate this process and keep it running?",
+      "copy": "Describe any follow-up, reviews, clarification, staffing decisions, or requests for help that are needed. You can leave this blank. Do not name individuals."
+    },
+    {
+      "key": "observedOperational",
+      "label": "What you observe about day-to-day work",
+      "text": "Optional: What do people carrying out this process experience?",
+      "copy": "Describe what you have observed, such as repeated entry, difficult systems, unclear instructions, waiting, workarounds, or rework. You can leave this blank. Do not name individuals."
+    },
+    {
+      "key": "observedSeniorLeader",
+      "label": "What you observe about senior leaders",
+      "text": "Optional: What do senior leaders appear to understand or miss about the effort this process requires?",
+      "copy": "Describe any difference between what is reported to them and the work needed to keep the process running. You can leave this blank. Do not name individuals."
+    }
+  ],
+  "executive": [
+    {
+      "key": "self",
+      "label": "Your experience as a senior leader",
+      "text": "Optional: What does this process show you about how the organization gets work done?",
+      "copy": "Describe the oversight, staffing and available staff time, risks, or responsibilities you have observed. You can leave this blank. Do not name individuals."
+    },
+    {
+      "key": "observedManagerial",
+      "label": "What you observe about managers",
+      "text": "Optional: What extra work do managers do to keep this process running?",
+      "copy": "Describe what you have seen them coordinate, review, clarify, or handle outside the usual procedure. You can leave this blank. Do not name individuals."
+    },
+    {
+      "key": "observedOperational",
+      "label": "What you observe about day-to-day work",
+      "text": "Optional: What do people carrying out this process experience?",
+      "copy": "Describe what you have observed, such as workarounds, repeated entry, difficult systems, delays, or extra upkeep. You can leave this blank. Do not name individuals."
+    }
+  ]
 };
 
 function resetExperientialLayer() {
@@ -2987,7 +3032,7 @@ if (state.finalizeInFlight) return;
 state.finalizeInFlight = true;
 showStage(processingStage);
 resetProcessingUI();
-setProcessingStep(0, "Finalizing adaptive run...");
+setProcessingStep(0, "Preparing your results...");
 const slowFinalizeTimer = setTimeout(() => {
   setProcessingStep(1, "Still finalizing safely. Do not resubmit: any saved run will appear in Workspace.");
 }, 12000);
@@ -3129,7 +3174,7 @@ if (window.MondermanAssignment && window.MondermanAssignment.active()) {
 setProcessingStep(3, "Rendering charts and final report modules...");
 renderResults(result, payload, "Operational Systems Diagnostic");
 // Do not write this run into localStorage automatically; repeated testing should not mutate future visible context or counts.
-setHeader("Diagnostic output", "Your results reflect the adaptive path generated from your inputs.", "Output generated");
+setHeader("Diagnostic output", "Your results are based on the answers you provided.", "Output generated");
 if (state.gateNotice) {
   try {
     let n = resultsStage.querySelector("#gateNoticeBanner");
@@ -3151,7 +3196,7 @@ clearTimeout(slowFinalizeTimer);
 console.error("Adaptive finalize failed", error);
 {
 const directedRun = Boolean(window.MondermanAssignment && window.MondermanAssignment.active && window.MondermanAssignment.active());
-const pendingTitle = directedRun ? "Your responses are recorded. The write-up didn\u2019t generate." : "Your read is saved. The write-up didn\u2019t generate.";
+const pendingTitle = directedRun ? "Your responses are recorded. The write-up didn\u2019t generate." : "Your result is saved. The written report didn\u2019t generate.";
 const pendingBody = directedRun
 ? "Your responses and score are recorded for your organization. The written interpretation did not complete. Trying again regenerates it: your answers are not re-entered."
 : "Your answers and score are saved to your workspace. The written interpretation did not complete. Trying again regenerates it: your answers are not re-entered.";
@@ -3215,7 +3260,7 @@ state.preflight.confidenceLevel = null;
 delete state.preflight.confidenceLevel;
 destroyCharts();
 renderPreflightForm();
-setHeader("Set up your diagnostic", "This tool adapts to the burden signal you surface first. Choose your perspective, choose depth, confirm the guardrail, then begin the run.", "Ready to begin");
+setHeader("Set up your diagnostic", "Choose your perspective and diagnostic length, confirm the scope, then begin.", "Ready to begin");
 showStage(laneStage);
 }
 
@@ -5722,7 +5767,7 @@ syncHubSelections();
 renderPreflightForm();
 const lane = laneConfigs[state.mode] || laneConfigs.executive;
 const cfg = depthConfigs[state.depth] || depthConfigs["30"];
-setHeader(cfg.header, `${lane.label} perspective • ${cfg.subcopy}`, "Depth selected");
+setHeader(cfg.header, `${lane.label} perspective • ${cfg.subcopy}`, "Length selected");
 updateHeroHelp();
 syncBeginButton();
 showStage(introStage, { scroll: true });
@@ -6115,7 +6160,7 @@ if (__injected && typeof __injected === "object" && __injected.result && __injec
       if (__injected.payload.participantMode) state.mode = __injected.payload.participantMode;
       if (__injected.payload.diagnostic_depth) state.depth = String(__injected.payload.diagnostic_depth);
       renderResults(__injected.result, __injected.payload, "Operational Systems Diagnostic");
-      setHeader("Diagnostic output", "Your results reflect the adaptive path generated from your inputs.", "Output generated");
+      setHeader("Diagnostic output", "Your results are based on the answers you provided.", "Output generated");
       if (state.gateNotice) {
   try {
     let n = resultsStage.querySelector("#gateNoticeBanner");
@@ -6134,7 +6179,7 @@ showStage(resultsStage);
       if (typeof window !== "undefined") window.__mondermanInjectionApplied = true;
     } catch (injectionError) {
       console.error("Test injection failed; falling back to normal lane stage.", injectionError);
-      setHeader("Choose participant perspective", "Select the perspective that best matches your role in the workflow, then choose the appropriate diagnostic depth.", "Awaiting selection");
+      setHeader("Choose participant perspective", "Select the perspective that best matches your role, then choose the diagnostic length.", "Awaiting selection");
       showStage(laneStage);
       questionFooter.style.display = "none";
     }
@@ -6158,14 +6203,14 @@ showStage(resultsStage);
       } else if (__pollAttempts > 100) { // 100 × 100ms = 10s
         clearInterval(__chartPoll);
         console.error("Test injection: Chart.js failed to load within 10s; falling back to lane stage.");
-        setHeader("Choose participant perspective", "Select the perspective that best matches your role in the workflow, then choose the appropriate diagnostic depth.", "Awaiting selection");
+        setHeader("Choose participant perspective", "Select the perspective that best matches your role, then choose the diagnostic length.", "Awaiting selection");
         showStage(laneStage);
         questionFooter.style.display = "none";
       }
     }, 100);
   }
 } else {
-  setHeader("Choose participant perspective", "Select the perspective that best matches your role in the workflow, then choose the appropriate diagnostic depth.", "Awaiting selection");
+  setHeader("Choose participant perspective", "Select the perspective that best matches your role, then choose the diagnostic length.", "Awaiting selection");
   showStage(laneStage);
   questionFooter.style.display = "none";
 }

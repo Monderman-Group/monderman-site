@@ -36,9 +36,9 @@ for (const [key, contract] of Object.entries(expected)) {
 
   const html = Report.buildReportHtml(model);
   const required = [
-    "Executive decision brief", "Dimension profile", "Constraint concentration",
-    "How the disclosed scenario becomes exposure", "Priority map", "Measured evidence link",
-    "Turn the read into a bounded operating decision", "Remeasurement discipline",
+    "Decision summary", "Dimension profile", "Where the measured issue appears",
+    "How the time and cost estimate is built", "Priority order and measured severity", "Why this option appears here",
+    "Turn the result into a small, measurable test", "How to compare later",
   ];
   for (const token of required) assert.match(html, new RegExp(token), `${key} missing ${token}`);
   assert.equal((html.match(/class="mr-card mr-remedy-card mr-run-remedy"/g) || []).length, 3, `${key} intervention paths changed`);
