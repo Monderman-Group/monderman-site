@@ -107,6 +107,7 @@
     var timer = null;
     var inputTimer = null;
     var active = false;
+    var restoring = false;
 
     function selectedState() {
       var out = {};
@@ -117,7 +118,7 @@
     }
 
     function save() {
-      if (!active || !key || !config) return false;
+      if (!active || !key || !config || restoring) return false;
       if (state.result || document.getElementById("resultsStage")?.classList.contains("active")) return false;
       var activeStage = document.querySelector(".stage.active");
       var payload = {
@@ -164,6 +165,16 @@
 
     function restoreStage(saved) {
       var stages = options.stages || {};
+      // Opt-in only: DV reconciles an existing run with the server before any
+      // cached question or delayed control restoration can become visible.
+      // Other instruments and preflight-only drafts retain their prior path.
+      if (state.runId && options.authoritativeRunRestore === true && typeof options.onRestore === "function") {
+        restoring = true;
+        Promise.resolve(options.onRestore(saved)).then(function (restored) {
+          restoring = restored === false;
+        }).catch(function () { restoring = true; });
+        return;
+      }
       if (state.runId && state.currentItem && stages.question) {
         options.showStage(stages.question, { scroll: false });
         options.renderQuestion();

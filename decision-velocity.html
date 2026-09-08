@@ -3122,6 +3122,26 @@ async function replayAnswersAndResume(changedItemId, changedValue) {
 return submitAnswer(changedItemId, changedValue);
 }
 
+async function renderAssignedCompletionAcknowledgment(savedRunId) {
+  // A withheld report is a successful submission, not an exhausted allowance.
+  // Do not reconstruct anonymous answers or a report from a local draft.
+  state.result = null;
+  state.renderPayload = null;
+  state.currentItem = null;
+  state.questionHistory = [];
+  state.answerCache = {};
+  const acknowledge = async () => {
+    const completion = await window.MondermanAssignment.complete(savedRunId);
+    if (completion?.ok !== true) return false;
+    // complete() clears storage; also stop autosave so it cannot recreate it.
+    participantDraft?.stop();
+    participantDraft?.clear();
+    return true;
+  };
+  if (await acknowledge()) window.MondermanAssignment.renderCompletion();
+  else window.MondermanAssignment.renderCompletionFailed(acknowledge);
+}
+
 async function finalizeAdaptiveRun() {
 if (state.journeyInvalidated) return;
 if (!state.runId) return;
@@ -3174,6 +3194,12 @@ const rawText = await response.text();
 let data = null;
 try { data = JSON.parse(rawText); } catch (_e) {}
 if (state.journeyInvalidated) return;
+
+if (response.ok && data?.ok && window.MondermanAssignment?.active()
+  && (state.assignmentRecoveryWithholdResults || data.resultWithheld === true || data.reason === 'assignment_results_withheld')) {
+  await renderAssignedCompletionAcknowledgment(data.savedRunId);
+  return;
+}
 
 if ((data && data.locked === true) || (response.status === 402 && data?.error === "run_limit_reached")) {
   // Two locked shapes (8 Aug 2026): a signed-in org past its run allowance
@@ -3369,6 +3395,7 @@ reviewingHistoryItemId = null;
 reviewFrontierItem = null;
 state.pendingAnswerMutation = null;
 state.sessionRevision = null;
+state.assignmentRecoveryWithholdResults = false;
 state.started = false;
 state.runId = null;
 state.sessionCapability = null;
@@ -6305,13 +6332,126 @@ syncBeginButton();
   window.MondermanInterview.mountToggle(document.getElementById("questionModeHost"));
 })();
 
+async function restoreAssignedDecisionVelocityDraft() {
+  if (!state.runId) return true; // Preflight-only drafts use the established UI.
+  state.answerInFlight = true;
+  setAnswerControlsBusy(true);
+  beginBtn.disabled = true;
+  const runId = state.runId;
+  const assignment = window.MondermanAssignment;
+  const token = assignment?.token();
+  const cfg = assignment?.config();
+  const assignmentId = String(cfg?.id || cfg?.assignment_id || '');
+  const lens = cfg?.participant_lens;
+  const anonymous = cfg?.is_anonymous_response === true;
+  const depthChoice = cfg?.depth_choice === true;
+  const role = lens === 'executive' ? 'senior_leader' : lens;
+  const depth = String(cfg?.depth_choice ? state.depth : cfg?.depth);
+  const configVersion = state.configVersion || null;
+  const validIdentity = () => assignment?.active() && assignment.token() === token
+    && new URLSearchParams(location.search).get('assignment_token') === token
+    && String(assignment.config()?.id || assignment.config()?.assignment_id || '') === assignmentId
+    && assignment.config()?.participant_lens === lens
+    && (assignment.config()?.is_anonymous_response === true) === anonymous
+    && (assignment.config()?.depth_choice === true) === depthChoice
+    && String(assignment.config()?.depth_choice ? depth : assignment.config()?.depth) === depth
+    && state.runId === runId && !state.journeyInvalidated;
+  // Neither local answer objects nor a locally cached review item is trusted.
+  state.currentItem = null;
+  state.questionHistory = [];
+  state.answerCache = {};
+  state.pendingAnswerMutation = null;
+  state.result = null;
+  state.renderPayload = null;
+  state.assignmentRecoveryWithholdResults = false;
+  reviewingHistoryItemId = null;
+  reviewFrontierItem = null;
+  questionBody.replaceChildren();
+  questionTitle.textContent = 'Recovering your assigned diagnostic';
+  questionCopy.textContent = 'Checking your saved answers before you continue.';
+  const notice = document.getElementById('persistenceNotice');
+  if (notice) { notice.textContent = 'Checking your saved run…'; notice.style.display = 'block'; }
+  showStage(questionStage, {scroll:false});
+  try {
+    if (!assignmentId || !token || !validIdentity()) throw new Error('Assignment changed.');
+    const response = await fetchWithTimeout(`${API_BASE}/api/decision-velocity/run/${encodeURIComponent(runId)}`, {
+      headers: {'X-Monderman-Assignment-Token': token}
+    }, ANSWER_TIMEOUT_MS);
+    const remote = await response.json();
+    if (!response.ok || !remote?.ok || !validIdentity() || remote.runId !== runId
+      || !Number.isSafeInteger(remote.sessionRevision) || remote.sessionRevision < 1
+      || !Array.isArray(remote.answerHistory) || typeof remote.finalized !== 'boolean'
+      || remote.role !== role || String(remote.depth) !== depth
+      || typeof remote.configVersion !== 'string' || !remote.configVersion
+      || (configVersion && remote.configVersion !== configVersion)
+      || (remote.nextItem && (!remote.nextItem.id || remote.finalized || remote.shouldStop))) {
+      throw new Error('Assigned run could not be verified.');
+    }
+    const historyIds = remote.answerHistory.map(entry => entry?.itemId);
+    if (new Set(historyIds).size !== historyIds.length || remote.answerHistory.some(entry =>
+      !entry?.itemId || entry.item?.id !== entry.itemId || !Object.hasOwn(entry, 'value'))
+      || (remote.nextItem && historyIds.includes(remote.nextItem.id))) throw new Error('Invalid saved answer history.');
+    state.sessionRevision = remote.sessionRevision;
+    state.configVersion = remote.configVersion;
+    state.roleForText = remote.role;
+    state.mode = remote.role === 'senior_leader' ? 'executive' : remote.role;
+    state.depth = String(remote.depth);
+    state.currentProgress = remote.progress;
+    state.sessionCapability = null; // Assigned runs use only their assignment credential.
+    if (remote.finalized) {
+      // A finalized snapshot can precede the saved report. Retry the existing
+      // finalizer/assignment acknowledgment without exposing an anonymous
+      // participant's already-submitted report or suppressed answer history.
+      state.assignmentRecoveryWithholdResults = anonymous;
+      if (!state.assignmentRecoveryWithholdResults) applyAnswerHistory(remote.answerHistory);
+      await finalizeAdaptiveRun();
+      // Finalization owns its completion/retry UI and may retire the active
+      // assignment. Never turn a successful acknowledgment into an error.
+      return true;
+    } else {
+      applyAnswerHistory(remote.answerHistory);
+      if (remote.nextItem) {
+        resetExperientialLayer();
+        delete state.preflight.confidenceLevel;
+        state.currentItem = remote.nextItem;
+        renderQuestion();
+      } else if (remote.shouldStop === true) {
+        if (state.experienceComplete) queueConfidenceQuestion();
+        else queueExperienceQuestion(state.experienceIndex || 0);
+      } else throw new Error('Missing saved run frontier.');
+    }
+    if (!validIdentity()) throw new Error('Assignment changed during recovery.');
+    if (notice) notice.textContent = 'Your assigned run was recovered from its saved answers. No new run was started.';
+    return true;
+  } catch (_error) {
+    state.journeyInvalidated = true;
+    state.currentItem = null;
+    state.questionHistory = [];
+    state.answerCache = {};
+    state.result = null;
+    state.renderPayload = null;
+    questionBody.replaceChildren();
+    questionTitle.textContent = 'Your assigned run could not be verified';
+    questionCopy.textContent = 'Refresh this page to retry recovery. No new diagnostic has been started.';
+    if (notice) notice.textContent = questionCopy.textContent;
+    showStage(questionStage, {scroll:false});
+    return false;
+  } finally {
+    state.answerInFlight = false;
+    setAnswerControlsBusy(state.journeyInvalidated || state.finalizeInFlight);
+    beginBtn.disabled = true;
+  }
+}
+
 const participantDraft = window.MondermanAssignmentDraft && window.MondermanAssignmentDraft.createController({
   tool: "decision_velocity",
   state,
   renderPreflight: renderPreflightForm,
   renderQuestion,
   showStage,
-  stages: { lane: laneStage, depth: depthStage, intro: introStage, question: questionStage }
+  stages: { lane: laneStage, depth: depthStage, intro: introStage, question: questionStage },
+  authoritativeRunRestore: true,
+  onRestore: restoreAssignedDecisionVelocityDraft
 });
 
 const selfDraft = window.MondermanSelfDiagnosticDraft && window.MondermanSelfDiagnosticDraft.createController({
