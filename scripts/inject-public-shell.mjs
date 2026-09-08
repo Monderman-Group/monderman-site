@@ -17,7 +17,7 @@ const shellScriptPattern = /<script\b[^>]*\bsrc=["']canonical-site-shell\.js[^"'
 const motifPattern = /<div\b(?=[^>]*\bclass=["'][^"']*\bmf-motif\b[^"']*["'])[^>]*>[\s\S]*?<\/svg>\s*<\/div>/i;
 const canonicalCssPattern = /canonical-site-shell\.css\?v=[^"']+/g;
 const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
-const shellRelease = "20260907-responsive-rhythm2";
+const shellRelease = "20260907-card-rhythm7";
 const versionScript = (html, fileName) => html.replace(
   new RegExp(`(["'])${fileName.replace(".", "\\.")}(?:\\?v=[^"']*)?\\1`, "g"),
   (_match, quote) => `${quote}${fileName}?v=${shellRelease}${quote}`,
@@ -71,6 +71,11 @@ for (const entry of await readdir(publishDirectory, { withFileTypes: true })) {
 
   html = html.replace(assistantPattern, "").replace(contactPattern, "");
   html = html.replace(shellScriptPattern, `${widgets}\n$&`);
+  // The widget partial is inserted after the first normalization pass. Version
+  // the final markup as well so injected assets cannot retain an older key.
+  html = versionScript(html, "canonical-site-shell.js");
+  html = versionScript(html, "assistant.js");
+  html = versionScript(html, "connect-widget.js");
   await writeFile(path, html);
   normalized += 1;
 }

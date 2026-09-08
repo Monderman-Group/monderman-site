@@ -1334,6 +1334,13 @@
       border-radius: 0;
     }
 
+    @media (min-width: 1041px) {
+      body.research-page .library:not(.latest-insight) .paper-card:not(.wide) {
+        grid-template-rows: auto auto minmax(0, 1fr) auto;
+        align-content: stretch;
+      }
+    }
+
     body.research-page .paper-card.wide > div:first-child {
       display: grid;
       align-content: start;

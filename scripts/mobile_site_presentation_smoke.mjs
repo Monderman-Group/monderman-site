@@ -716,6 +716,52 @@ try {
     await briefPage.close();
   }
 
+  for (const width of [640, 641, 680, 681]) {
+    const briefPage = await browser.newPage({ viewport: { width, height: 844 } });
+    await briefPage.route('**/*', async (route) => {
+      const url = new URL(route.request().url());
+      if (url.origin === localOrigin || url.protocol === 'data:' || url.protocol === 'blob:') {
+        await route.continue();
+      } else {
+        await route.abort();
+      }
+    });
+    await briefPage.goto(`${base}/Monderman_Platform_Brief.html`, { waitUntil: 'load', timeout: 30000 });
+    const rows = await briefPage.evaluate(() => ({
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      items: [...document.querySelectorAll('.artifact-row')].map((row) => {
+        const rowBox = row.getBoundingClientRect();
+        const numberBox = row.querySelector('.artifact-num').getBoundingClientRect();
+        const titleBox = row.querySelector('strong').getBoundingClientRect();
+        const descriptionBox = row.querySelector('span:last-child').getBoundingClientRect();
+        return {
+          columns: getComputedStyle(row).gridTemplateColumns.trim().split(/\s+/).length,
+          numberLeft: numberBox.left - rowBox.left,
+          numberRight: numberBox.right - rowBox.left,
+          titleLeft: titleBox.left - rowBox.left,
+          titleRight: titleBox.right - rowBox.left,
+          titleWidth: titleBox.width,
+          titleBottom: titleBox.bottom - rowBox.top,
+          descriptionLeft: descriptionBox.left - rowBox.left,
+          descriptionTop: descriptionBox.top - rowBox.top,
+        };
+      }),
+    }));
+    if (rows.overflow > 1 || rows.items.length !== 5) {
+      failures.push(`Platform Brief/${width}px: artifact seam has overflow or missing rows (${JSON.stringify(rows)})`);
+    }
+    rows.items.forEach((row, index) => {
+      if (width <= 680) {
+        if (row.columns !== 2 || row.numberLeft > 1 || row.titleLeft <= row.numberRight || row.titleWidth < 200 || Math.abs(row.descriptionLeft - row.titleLeft) > 1 || row.descriptionTop < row.titleBottom) {
+          failures.push(`Platform Brief/${width}px/row-${index + 1}: two-column artifact hierarchy failed (${JSON.stringify(row)})`);
+        }
+      } else if (row.columns !== 3 || row.numberLeft > 1 || row.titleLeft <= row.numberRight || row.descriptionLeft <= row.titleLeft) {
+        failures.push(`Platform Brief/${width}px/row-${index + 1}: desktop artifact hierarchy failed (${JSON.stringify(row)})`);
+      }
+    });
+    await briefPage.close();
+  }
+
   assert.deepEqual(failures, [], `mobile site presentation failures:\n${failures.join('\n')}`);
   console.log(`mobile site presentation smoke: passed ${pages.length} pages across ${viewports.length} phone and tablet widths`);
 } finally {

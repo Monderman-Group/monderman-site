@@ -76,6 +76,7 @@ on:
       - 'scripts/validate_sample_product_fidelity.py'
       - 'scripts/cosmetic_regression_smoke.mjs'
       - 'scripts/site_system_visual_smoke.mjs'
+      - 'scripts/homepage_card_rhythm_smoke.mjs'
       - 'scripts/apply_publication_house_style.py'
       - 'scripts/validate_generated_pdf_layout.py'
       - 'scripts/validate_pdf_house_style.py'
@@ -159,6 +160,7 @@ on:
       - 'scripts/validate_sample_product_fidelity.py'
       - 'scripts/cosmetic_regression_smoke.mjs'
       - 'scripts/site_system_visual_smoke.mjs'
+      - 'scripts/homepage_card_rhythm_smoke.mjs'
       - 'scripts/apply_publication_house_style.py'
       - 'scripts/validate_generated_pdf_layout.py'
       - 'scripts/validate_pdf_house_style.py'
@@ -207,6 +209,7 @@ jobs:
           node --check scripts/mobile_site_presentation_smoke.mjs
           node --check scripts/cosmetic_regression_smoke.mjs
           node --check scripts/site_system_visual_smoke.mjs
+          node --check scripts/homepage_card_rhythm_smoke.mjs
           node --check scripts/ordinary_page_print_smoke.mjs
           node --check scripts/cross_browser_public_release_smoke.mjs
           node --check scripts/personalized_pattern_pilot_browser_smoke.mjs
@@ -267,6 +270,11 @@ jobs:
         env:
           SITE_BASE: http://127.0.0.1:8080
         run: node scripts/site_system_visual_smoke.mjs
+
+      - name: Enforce homepage card rhythm at responsive seams
+        env:
+          SITE_BASE: http://127.0.0.1:8080
+        run: node scripts/homepage_card_rhythm_smoke.mjs
 
       - name: Render and verify ordinary-page print pagination
         env:

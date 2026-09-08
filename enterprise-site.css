@@ -718,8 +718,36 @@ body.homepage-enterprise .proof-card {
   background: var(--mdm-white);
 }
 
-body.homepage-enterprise .proof-card:first-child { padding-left: 0; }
-body.homepage-enterprise .proof-card:last-child { padding-right: 0; border-right: 0; }
+/* Keep the outside columns padded as deliberately as the middle column.
+   Removing those edge insets made the first and last cards look clipped. */
+body.homepage-enterprise .proof-card:last-child { border-right: 0; }
+
+body.homepage-enterprise .proof-card-icon {
+  width: 42px;
+  height: 42px;
+  margin-bottom: 18px;
+}
+
+body.homepage-enterprise .proof-card-icon svg {
+  width: 21px;
+  height: 21px;
+}
+
+body.homepage-enterprise .proof-card > strong {
+  font-size: 1.125rem;
+  line-height: 1.25;
+}
+
+body.homepage-enterprise .proof-card-text {
+  margin-top: 10px;
+  font-size: .9375rem;
+  line-height: 1.5;
+}
+
+body.homepage-enterprise .proof-arrow {
+  margin-top: 20px;
+  font-size: .875rem;
+}
 
 body.homepage-enterprise .mxidx-band {
   position: relative;
@@ -795,12 +823,20 @@ body.homepage-enterprise .approach-card {
 body.homepage-enterprise .approach-card::before {
   content: attr(data-enterprise-index);
   display: block;
-  min-height: 18px;
-  margin-bottom: 36px;
+  position: static;
+  inset: auto;
+  width: auto;
+  height: auto;
+  min-height: 0;
+  margin: 0 0 22px;
+  background: none;
   color: var(--mdm-teal);
   font-size: .68rem;
   font-weight: 700;
+  line-height: 1;
   letter-spacing: .14em;
+  transform: none;
+  transition: none;
 }
 
 body.homepage-enterprise .first-run-moments {
@@ -1072,6 +1108,60 @@ body.canonical-green-shell .reveal {
     width: min(100%, 560px);
     justify-self: start;
   }
+
+  /* At laptop and tablet widths, use the full rail for each resource rather
+     than compressing editorial copy into three narrow columns. */
+  body.homepage-enterprise .proof-grid {
+    grid-template-columns: 1fr;
+  }
+
+  body.homepage-enterprise .proof-card,
+  body.homepage-enterprise .proof-card:first-child,
+  body.homepage-enterprise .proof-card:last-child {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    column-gap: 18px;
+    padding: 25px 24px;
+    border-right: 0;
+    border-bottom: 1px solid var(--mdm-rule-strong);
+  }
+
+  body.homepage-enterprise .proof-card:last-child {
+    border-bottom: 0;
+  }
+
+  body.homepage-enterprise .proof-card-icon {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    width: 40px;
+    height: 40px;
+    margin: 0;
+  }
+
+  body.homepage-enterprise .proof-card > strong {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    font-size: 1.0625rem;
+  }
+
+  body.homepage-enterprise .proof-card-text {
+    grid-column: 2;
+    grid-row: 2;
+    margin-top: 8px;
+    font-size: .90625rem;
+    line-height: 1.5;
+    flex: none;
+  }
+
+  body.homepage-enterprise .proof-arrow {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    align-self: center;
+    margin: 0;
+    font-size: .875rem;
+    white-space: nowrap;
+  }
 }
 
 @media (max-width: 960px) {
@@ -1132,37 +1222,41 @@ body.canonical-green-shell .reveal {
     border-bottom: 1px solid var(--mdm-rule-strong);
   }
 
-  /* The proof grid becomes a vertical list at this width. Reset the desktop
-     column dividers and use a consistent media-object alignment. */
+}
+
+@media (max-width: 760px) {
   body.homepage-enterprise .proof-card,
   body.homepage-enterprise .proof-card:first-child,
   body.homepage-enterprise .proof-card:last-child {
-    display: grid;
     grid-template-columns: 36px minmax(0, 1fr);
     column-gap: 16px;
-    padding: 26px 22px;
-    border-right: 0;
-    border-bottom: 1px solid var(--mdm-rule-strong);
-  }
-
-  body.homepage-enterprise .proof-card:last-child {
-    border-bottom: 0;
   }
 
   body.homepage-enterprise .proof-card-icon {
     grid-column: 1;
     grid-row: 1;
-    margin: 0;
+    width: 36px;
+    height: 36px;
   }
 
   body.homepage-enterprise .proof-card > strong {
     grid-column: 2;
-    align-self: center;
+    grid-row: 1;
+    font-size: 1rem;
   }
 
-  body.homepage-enterprise .proof-card-text,
+  body.homepage-enterprise .proof-card-text {
+    grid-column: 2;
+    grid-row: 2;
+    font-size: .875rem;
+  }
+
   body.homepage-enterprise .proof-arrow {
     grid-column: 2;
+    grid-row: 3;
+    justify-self: start;
+    margin-top: 16px;
+    font-size: .875rem;
   }
 }
 

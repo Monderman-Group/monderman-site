@@ -517,6 +517,17 @@ body.homepage-enterprise.home-motion-ready .home-motion {
   body.homepage-enterprise .loop-flow {
     grid-template-columns: 1fr;
   }
+
+  body.homepage-enterprise .loop-step,
+  body.homepage-enterprise .loop-step:nth-of-type(2),
+  body.homepage-enterprise .loop-step:nth-of-type(-n+2) {
+    border-right: 0;
+    border-bottom: 1px solid var(--mdm-rule-strong);
+  }
+
+  body.homepage-enterprise .loop-step:last-of-type {
+    border-bottom: 0;
+  }
 }
 
 @media (max-width: 760px) {
@@ -575,6 +586,14 @@ body.homepage-enterprise.home-motion-ready .home-motion {
   body.homepage-enterprise .first-run-moment,
   body.homepage-enterprise .loop-step {
     min-height: 0;
+  }
+
+  /* Match all four numbered loop cards. Earlier nth-child divider rules have
+     higher specificity and otherwise leave cards 01–02 flush to the rail. */
+  body.homepage-enterprise .loop-step,
+  body.homepage-enterprise .loop-step:nth-of-type(2),
+  body.homepage-enterprise .loop-step:nth-of-type(-n+2) {
+    padding: 22px;
   }
 
   body.homepage-enterprise .book-inner {

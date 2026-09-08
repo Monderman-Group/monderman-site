@@ -290,6 +290,26 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
           }
         }
 
+        if (pageName === 'research.html' && viewport.width > 1040) {
+          const regularCards = await page.locator('.library:not(.latest-insight) .paper-card:not(.wide)').evaluateAll((cards) =>
+            cards.map((card) => {
+              const cardBox = card.getBoundingClientRect();
+              const footBox = card.querySelector('.paper-foot').getBoundingClientRect();
+              return {
+                footTopInset: footBox.top - cardBox.top,
+                footBottomInset: cardBox.bottom - footBox.bottom,
+              };
+            }));
+          for (let index = 0; index + 1 < regularCards.length; index += 2) {
+            const left = regularCards[index];
+            const right = regularCards[index + 1];
+            assert.ok(Math.abs(left.footTopInset - right.footTopInset) <= 1,
+              `${label}: paired research card actions do not share a baseline`);
+            assert.ok(Math.abs(left.footBottomInset - right.footBottomInset) <= 1,
+              `${label}: paired research card bottom spacing diverged`);
+          }
+        }
+
         const sectionContract = sectionHeadingContracts.get(pageName);
         if (sectionContract) {
           const sectionHeading = await page.locator(sectionContract.selector).first().evaluate((node) => {
