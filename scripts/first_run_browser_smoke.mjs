@@ -29,12 +29,19 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
     assert.equal(await page.locator("#introStage").evaluate((node) => node.classList.contains("active")), true);
     assert.equal(await page.locator("#beginBtn").textContent(), "Begin Diagnostic →");
 
+    // A pointer left on the previous page can land on this page's pilot link.
+    // Inspect the resting state deliberately, not a mid-hover transition color.
+    await page.mouse.move(0, 0);
     await page.goto(`${base}/index.html`, { waitUntil: "domcontentloaded", timeout: 60000 });
     assert.equal(await page.locator(".first-run-moment").count(), 4);
     const pilotLink = page.locator('.hero-pilot-cta[href="pilot.html?source=homepage"]');
     assert.equal(await pilotLink.count(), 1);
     assert.match(await pilotLink.textContent(), /Filling up/);
     assert.equal(await page.locator('.hero-actions .btn-accent[href="decision-velocity.html?source=homepage"]').count(), 1);
+    await page.waitForFunction(() => {
+      const link = document.querySelector('.hero-pilot-cta[href="pilot.html?source=homepage"]');
+      return link && !link.matches(':hover') && getComputedStyle(link).color === 'rgb(240, 196, 125)';
+    });
     const pilotAccent = await pilotLink.evaluate((node) => getComputedStyle(node).color);
     assert.equal(pilotAccent, "rgb(240, 196, 125)", `${browserName}/${viewport.name}: pilot availability signal is not amber`);
     const heroPrimaryColor = await page.locator(".hero-actions .btn-accent").evaluate((node) => getComputedStyle(node).backgroundColor);
