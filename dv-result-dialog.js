@@ -27,7 +27,7 @@
 
   function isUsableFocusTarget(element, container) {
     if (!isElement(element) || !container.contains(element)) return false;
-    if (element.matches("[disabled], [aria-hidden='true']")) return false;
+    if (element.matches(":disabled, [aria-hidden='true']")) return false;
     if (element.closest("[inert]")) return false;
     var style = window.getComputedStyle(element);
     return style.display !== "none" && style.visibility !== "hidden" && element.getClientRects().length > 0;
@@ -35,7 +35,7 @@
 
   function focusableElements(container) {
     return Array.prototype.slice.call(container.querySelectorAll(FOCUSABLE_SELECTOR)).filter(function (element) {
-      return isUsableFocusTarget(element, container);
+      return (!element.hasAttribute("tabindex") || element.tabIndex >= 0) && isUsableFocusTarget(element, container);
     });
   }
 
@@ -132,6 +132,7 @@
     settings = settings || {};
 
     state.backdrop.removeEventListener("keydown", state.onKeyDown);
+    document.removeEventListener("keydown", state.onDocumentKeyDown, true);
     state.backdrop.removeEventListener("click", state.onBackdropClick);
     document.removeEventListener("focusin", state.onFocusIn, true);
 
@@ -264,19 +265,19 @@
 
       if (event.key === "Tab") {
         var focusable = focusableElements(panel);
+        event.preventDefault();
         if (!focusable.length) {
-          event.preventDefault();
           focusWithoutScroll(panel);
         } else {
-          var first = focusable[0];
-          var last = focusable[focusable.length - 1];
-          if (event.shiftKey && (document.activeElement === first || document.activeElement === panel)) {
-            event.preventDefault();
-            focusWithoutScroll(last);
-          } else if (!event.shiftKey && document.activeElement === last) {
-            event.preventDefault();
-            focusWithoutScroll(first);
-          }
+          // Safari's default Tab traversal can skip links entirely. Own every
+          // step, not only endpoint wrapping, using the current usable actions.
+          var currentIndex = focusable.indexOf(document.activeElement);
+          var nextIndex = currentIndex < 0
+            ? (event.shiftKey ? focusable.length - 1 : 0)
+            : (currentIndex + (event.shiftKey ? -1 : 1) + focusable.length) % focusable.length;
+          // Keyboard navigation must also reveal offscreen actions within the
+          // scroll region. Initial/return focus keep their preventScroll policy.
+          focusable[nextIndex].focus();
         }
       }
 
@@ -290,11 +291,20 @@
       focusWithoutScroll(resolveTarget(options.initialFocus, state) || panel);
     };
 
+    state.onDocumentKeyDown = function (event) {
+      // Removing the focused action can put focus on body without a focusin
+      // event. Recover Tab/Escape there while preserving normal target handlers
+      // for key events that already originate inside the dialog.
+      if (active !== state || state.backdrop.contains(event.target)) return;
+      if (event.key === "Tab" || event.key === "Escape") state.onKeyDown(event);
+    };
+
     state.onBackdropClick = function (event) {
       if (event.target === backdrop && options.closeOnBackdrop === true && dismissible) close("backdrop");
     };
 
     backdrop.addEventListener("keydown", state.onKeyDown);
+    document.addEventListener("keydown", state.onDocumentKeyDown, true);
     backdrop.addEventListener("click", state.onBackdropClick);
     document.addEventListener("focusin", state.onFocusIn, true);
 
