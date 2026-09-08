@@ -215,6 +215,7 @@
     });
   </script>
 
+  <script src="dv-journey-recovery.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
 <script type="module">
     const { createClient } = window.supabase;
@@ -442,6 +443,9 @@
       const query = new URLSearchParams({ source: context.source });
       if (context.inviteToken) query.set("invite_token", context.inviteToken);
       try{
+        // The free diagnostic returns in this same tab. Bind its private
+        // recovery record to a server-verified identity before continuing.
+        await window.MondermanDVJourneyRecovery?.bindAuthenticatedReturn(supabase, nextTarget, session.user.id);
         const response = await fetch(`${API_BASE}/api/legal/acceptance/status?${query.toString()}`, {
           headers: { authorization: `Bearer ${session.access_token}` }
         });
@@ -464,6 +468,7 @@
         ui.legalAgree.focus();
         setStatus("");
       }catch(error){
+        acceptanceCheckStarted = false;
         clearTimeout(revealTimer);
         ui.sessionCheck.classList.add("hidden");
         const isNetworkFailure = error instanceof TypeError;
@@ -567,7 +572,9 @@
 
     // Forward the instant Supabase finishes establishing the session.
     supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) continueAfterAuth(session);
+      if (event === "SIGNED_OUT") window.MondermanDVJourneyRecovery?.clearPending();
+      // Run the verified-user lookup outside Supabase's auth-event callback.
+      if (session?.user) setTimeout(() => { void continueAfterAuth(session); }, 0);
     });
 
     // Safety net: never trap the user on the spinner. Wait LONGER if we're

@@ -30,13 +30,33 @@ function validateDiagnostic(source, tool) {
   assert.ok(source.includes('<script src="self-diagnostic-draft.js"></script>'));
   assert.ok(source.includes(`tool: "${tool}"`));
   assert.match(source, /state\.configVersion = data\?\.routingMeta\?\.configVersion \|\| data\?\.routingVersion/);
-  assert.ok((source.match(/selfDraft\.saveAccepted\(\)/g) || []).length >= 5, `${tool} must save every accepted-answer path`);
+  if (tool === "decision_velocity") {
+    assert.match(source, /function saveJourneyProgress\(\)\s*\{\s*if \(selfDraft\) selfDraft\.saveAccepted\(\);/, "Decision Velocity's consolidated save must retain authenticated draft persistence");
+    assert.ok((source.match(/saveJourneyProgress\(\);/g) || []).length >= 5, "Decision Velocity must save every accepted-answer path through its shared helper");
+  } else {
+    assert.ok((source.match(/selfDraft\.saveAccepted\(\)/g) || []).length >= 5, `${tool} must save every accepted-answer path`);
+  }
   assert.ok((source.match(/selfDraft\.clear\(\)/g) || []).length >= 2, `${tool} must clear on completion and Start over`);
   assert.match(source, /showStage\(resultsStage\);\s*if \(selfDraft\) selfDraft\.clear\(\);/, `${tool} must clear only after successful result rendering`);
   assert.match(source, /if \(!preserveParticipantDraft && selfDraft\) selfDraft\.clear\(\);/, `${tool} Start over must clear its scoped draft`);
   assert.match(source, /if \(state\.finalizeInFlight\) return;/, `${tool} must retain single-flight finalization`);
   assert.match(source, /let reviewingHistoryItemId = null;/, `${tool} must mark intentional Back review explicitly`);
-  assert.match(source, /if \(reviewingHistoryItemId === itemId && !state\._replaying\)/, `${tool} must replay only an intentionally reviewed item`);
+  if (tool === "decision_velocity") {
+    const answerStart = source.indexOf("async function submitAnswerLocked(");
+    const answerEnd = source.indexOf("async function finalizeAdaptiveRun()", answerStart);
+    assert.ok(answerStart >= 0 && answerEnd > answerStart, "Decision Velocity's answer path must be independently bounded");
+    const answer = source.slice(answerStart, answerEnd);
+    assert.match(answer, /const reviewIndex = reviewingHistoryItemId === itemId \?/, "Decision Velocity must revise only an intentionally reviewed answer");
+    assert.match(answer, /const operation = oldEntry \? 'revise' : 'answer';/, "Decision Velocity must use the same-run revision endpoint for corrections");
+    assert.match(answer, /\/api\/decision-velocity\/run\/\$\{state\.runId\}\/\$\{operation\}/, "Decision Velocity corrections must target the active run");
+    assert.doesNotMatch(answer, /startAdaptiveRun\(|restartDiagnostic\(|\/run\/start/, "Decision Velocity answer correction must not consume another start admission");
+    assert.doesNotMatch(source, /_replayCache|_replaying/, "Decision Velocity must not retain the obsolete restart/replay state");
+    if (source.includes("async function replayAnswersAndResume(")) {
+      assert.match(source, /async function replayAnswersAndResume\(changedItemId, changedValue\)\s*\{\s*return submitAnswer\(changedItemId, changedValue\);\s*\}/, "legacy Decision Velocity callers must forward to the same-session answer path");
+    }
+  } else {
+    assert.match(source, /if \(reviewingHistoryItemId === itemId && !state\._replaying\)/, `${tool} must replay only an intentionally reviewed item`);
+  }
   assert.match(source, /state\.currentItem = prev\.item;[\s\S]*reviewingHistoryItemId = prev\.item\.id;[\s\S]*renderQuestion\(\);/, `${tool} Back must mark the reviewed item before rendering it`);
   assert.match(source, /function restartDiagnostic\(preserveParticipantDraft = false\)[\s\S]*reviewingHistoryItemId = null;[\s\S]*state\.started = false;/, `${tool} Start over must clear the Back marker`);
   assert.doesNotMatch(source, /hadCachedAnswer|valueChanged = hadCachedAnswer/, `${tool} must not infer Back navigation from a recovered cache entry`);
@@ -63,8 +83,18 @@ for (const [path, tool] of diagnostics) {
     ["draft clearing", source.replace(/if \(selfDraft\) selfDraft\.clear\(\);/g, "")],
     ["duplicate protection", source.replace("if (state.finalizeInFlight) return;", "")],
     ["explicit Back marker", source.replace("reviewingHistoryItemId = prev.item.id;", "")],
-    ["Back marker reset", source.replace("reviewingHistoryItemId = null;\nstate.started = false;", "state.started = false;")]
-  ]) assert.throws(() => validateDiagnostic(mutated, tool), undefined, `${tool} negative mutation must fail: ${label}`);
+    ["Back marker reset", tool === "decision_velocity"
+      ? source.replace(/(function restartDiagnostic[\s\S]*?)reviewingHistoryItemId = null;/, "$1")
+      : source.replace("reviewingHistoryItemId = null;\nstate.started = false;", "state.started = false;")],
+    ...(tool === "decision_velocity" ? [
+      ["consolidated save call sites", source.replace(/saveJourneyProgress\(\);/g, "")],
+      ["same-run revision", source.replace("const operation = oldEntry ? 'revise' : 'answer';", "const operation = 'answer';")],
+      ["revision starts another run", source.replace("const operation = oldEntry ? 'revise' : 'answer';", "await startAdaptiveRun();\nconst operation = oldEntry ? 'revise' : 'answer';")]
+    ] : [])
+  ]) {
+    assert.notEqual(mutated, source, `${tool} negative mutation must apply: ${label}`);
+    assert.throws(() => validateDiagnostic(mutated, tool), undefined, `${tool} negative mutation must fail: ${label}`);
+  }
 }
 
 class SessionStore {
