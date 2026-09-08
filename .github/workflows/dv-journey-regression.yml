@@ -9,7 +9,7 @@ permissions:
 jobs:
   local-journey:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,7 +28,7 @@ jobs:
           node scripts/diagnostic_completion_reliability_smoke.mjs
           node scripts/diagnostic_workspace_selection_smoke.mjs
           node scripts/signin_email_otp_smoke.mjs
-      - name: Build candidate without deployment
+      - name: Build compatibility bridge without deployment
         env:
           RENDER_GIT_COMMIT: ${{ github.sha }}
         run: bash scripts/render-static-build.sh
@@ -37,6 +37,17 @@ jobs:
           node scripts/diagnostic_intake_browser_smoke.mjs
           node scripts/dv_result_dialog_smoke.mjs
           node scripts/dv_journey_browser_smoke.mjs
+      - name: Test saved answer history against the authoritative questionnaire
+        run: node scripts/diagnostic_authoritative_history_browser_smoke.mjs
+      - name: Build revised-question activation candidate without deployment
+        env:
+          RENDER_GIT_COMMIT: ${{ github.sha }}
+          MONDERMAN_QUESTIONNAIRE_RELEASE: current
+        run: bash scripts/render-static-build.sh
+      - name: Test activated questions through the same saved-run journey
+        env:
+          DV_JOURNEY_OUT: output/dv-journey-browser-current
+        run: node scripts/dv_journey_browser_smoke.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -45,3 +56,5 @@ jobs:
             output/diagnostic-intake-browser
             output/dv-result-dialog-smoke
             output/dv-journey-browser
+            output/dv-journey-browser-current
+            output/authoritative-history-browser

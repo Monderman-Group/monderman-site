@@ -17,7 +17,7 @@ const server=http.createServer((req,res)=>{
     let html=body.toString().replace(/(<script[^>]*src="[^"]*@supabase[^>]*?) integrity="[^"]+"/g,'$1');
     // Test-only hook into the closure. This served fixture is never published.
     html=html.replace('function renderQuestion() {',
-      "queueMicrotask(()=>{window.__languageTest={optional(mode){state.mode=mode;state.roleForText=mode==='executive'?'senior_leader':mode;state.depth='60';state.started=true;return getExperiencePromptSet().map((p,i)=>buildExperienceQuestion(i));},render(item){state.currentItem=item;state.answerCache={};state.currentProgress={answered:0,total:10};showStage(questionStage,{scroll:false});renderQuestion();}};});\nfunction renderQuestion() {");
+      "queueMicrotask(()=>{window.__languageTest={optional(mode,version){state.mode=mode;state.roleForText=mode==='executive'?'senior_leader':mode;state.depth='60';state.started=true;state.runId='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';state.configVersion=null;pinQuestionnaireVersion({configVersion:version});return getExperiencePromptSet().map((p,i)=>buildExperienceQuestion(i));},render(item){state.currentItem=item;state.answerCache={};state.currentProgress={answered:0,total:10};showStage(questionStage,{scroll:false});renderQuestion();}};});\nfunction renderQuestion() {");
     body=Buffer.from(html);
   }
   res.setHeader('content-type',mime[path.extname(file)]||'application/octet-stream');res.end(body);
@@ -56,7 +56,7 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]]){
       const mode=role==='senior_leader'?'executive':role;
       const items=config.items.filter(i=>i.role.includes(role));
       const longest=items.reduce((a,b)=>(a.text[role].length+(a.options||[]).map(o=>o.label).join('').length)>(b.text[role].length+(b.options||[]).map(o=>o.label).join('').length)?a:b);
-      const optional=await page.evaluate(mode=>window.__languageTest.optional(mode),mode);
+      const optional=await page.evaluate(({mode,version})=>window.__languageTest.optional(mode,version),{mode,version:config.version});
       for(const item of [...items,...optional]){
         await page.evaluate(item=>window.__languageTest.render(item),item);
         const expected=typeof item.text==='string'?item.text:item.text[role];

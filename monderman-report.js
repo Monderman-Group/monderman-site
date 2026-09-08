@@ -17,6 +17,9 @@
    ============================================================================ */
 (function () {
   "use strict";
+  // This identifies the code displaying/exporting the report now, not the
+  // renderer that may have displayed a historical run when it was created.
+  const RENDERER_VERSION = "diagnostic-renderer-20260908";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -308,7 +311,7 @@
     const r = obj(envelope.result).tool_type ? obj(envelope.result) : envelope;
     const compatibility = obj(r._claims_compatibility);
     const context = obj(envelope.input_context || r.input_context);
-    const provenance = obj(envelope.provenance);
+    const provenance = obj(envelope.provenance || envelope.provenance_json || r.provenance || r.provenance_json);
     const exposure = obj(r.exposure);
     const descriptor = obj(r.canonical_descriptor);
     const prose = obj(r.interpretive_prose);
@@ -320,7 +323,11 @@
     const dimensionLabels = obj(descriptor.dimension_display || r.dimension_labels);
 
     const toolType = firstStr(r.tool_type);
-    const toolLabel = firstStr(r.tool_label, toolType);
+    const canonicalToolLabels = {
+      decision_velocity: "Decision Velocity", structural_clarity: "Structural Clarity",
+      operational_systems: "Operational Systems", institutional_performance: "Institutional Performance"
+    };
+    const toolLabel = firstStr(canonicalToolLabels[toolType], r.tool_label, toolType);
     const score = r.score != null ? r.score : (r.cross_diagnostic_score != null ? r.cross_diagnostic_score : "Unavailable");
     const band = firstStr(r.band, r.score_band, r.condition_band, "Unavailable");
     const benchmark = firstStr(r.benchmark_position, r.benchmarkPosition, r.peer_position, "Unavailable");
@@ -347,7 +354,7 @@
     const summary = firstStr(
       summaryBlock.body, narrative.executive, narrative.headlineFinding,
       r.executive_summary, r.summary,
-      "This executive read summarizes the diagnostic's quantified condition, its primary structural signal, and the recommended first moves."
+      "This summary explains the score, the main measured issue, and the first actions to consider."
     );
     const headline = firstStr(summaryBlock.headline, narrative.headlineFinding, r.score_band_note, summary);
     const bottomLine = sentenceLead(firstStr(
@@ -460,9 +467,12 @@
       watch: watch,
       actions: actions,
       provenance: provenance,
+      questionnaireVersion: firstStr(r.questionnaire_version, r.config_version, provenance.questionnaire_version, provenance.config_version),
+      scorerVersion: firstStr(r.scorer_version, provenance.scorer_version),
+      reportLanguage: obj(r.report_language || provenance.report_language),
       kvs: kvs,
       sections: sections,
-      footnote: "This is one bounded Diagnostic run. It supports a directional operating read and an action hypothesis; it does not establish prevalence, population representativeness, causation, or verified returned capacity. Time, cost, and capacity figures, where shown, are directional scenario estimates.",
+      footnote: "This report is based on one participant's answers for the stated scope. It suggests issues to investigate and changes to test. It does not show how common these conditions are, prove their causes, predict performance, or confirm time or money saved. Time, cost, and capacity figures are estimates based on stated assumptions.",
       filenameBase: slug(toolType || "diagnostic"),
       source: obj(envelope.result).tool_type ? envelope : r
     };
@@ -1046,7 +1056,7 @@
     if (!dimensions.length) return "";
     const rows = dimensions.map((dimension) => {
       const score = Math.max(0, Math.min(100, Number(dimension.score)));
-      const evidenceCount = strictFinite(dimension.coverage.evidence_count) ? fmtWhole(dimension.coverage.evidence_count) + " scored inputs" : "Measured dimension";
+      const evidenceCount = strictFinite(dimension.coverage.evidence_count) ? fmtWhole(dimension.coverage.evidence_count) + (dimension.coverage.evidence_count === 1 ? " scored input" : " scored inputs") : "Measured dimension";
       const isPrimary = String(dimension.label).toLowerCase() === String(m.primarySignal).toLowerCase();
       return '<div class="mr-dimension-row' + (isPrimary ? ' is-primary' : '') + '">' +
         '<div class="mr-dimension-copy"><strong>' + esc(dimension.label) + '</strong><span>' + esc(fmt1(score)) + '</span></div>' +
@@ -1055,7 +1065,7 @@
     }).join("");
     const findings = arr(m.findings).map(textItem).filter(Boolean);
     return '<section class="mr-section mr-run-dimensions"><div class="mr-section-index">0' + n + ' · Measured condition</div>' +
-      '<h2>Dimension profile</h2><p class="mr-lede">The profile keeps the total score and its contributing dimensions visible together. Lower values indicate the areas carrying the greatest measured constraint in this Diagnostic.</p>' +
+      '<h2>Dimension profile</h2><p class="mr-lede">The profile keeps the total score and its contributing dimensions visible together. For condition dimensions, lower values indicate greater measured constraint. For Compensatory Effort, when shown, higher values indicate more reported extra effort.</p>' +
       '<div class="mr-dimension-axis" aria-hidden="true"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>' +
       '<div class="mr-dimension-profile">' + rows + '</div>' + renderConstraintConcentration(m) +
       (findings.length ? '<div class="mr-run-findings"><div class="mr-lens-label">Findings from scored answers</div><ul>' + findings.map((item) => '<li>' + esc(item) + '</li>').join("") + '</ul></div>' : '') + '</section>';
@@ -1136,30 +1146,33 @@
     }).join("") + '</div>' : '';
     const remediesHtml = remedies.length ? '<div class="mr-remedy-grid">' + remedies.slice(0, 3).map((item, index) => {
       const path = obj(item);
-      const evidenceRow = obj(ladder[Math.min(index, Math.max(0, ladder.length - 1))]);
-      const evidenceSeverity = strictFinite(evidenceRow.severity) ? evidenceRow.severity : evidenceRow.weakness;
-      const evidenceBasis = firstStr(evidenceRow.focus, evidenceRow.label, m.primarySignal) + (strictFinite(evidenceSeverity) ? " · " + fmt1(evidenceSeverity) + " measured constraint" : "");
       return '<article class="mr-card mr-remedy-card mr-run-remedy" data-path-depth="' + (index + 1) + '"><div class="mr-remedy-head"><span class="mr-remedy-number">0' + (index + 1) + '</span><div><div class="mr-lens-label">' + esc(firstStr(path.kicker, "Option")) + '</div><h3>' + esc(firstStr(path.label, "Option")) + '</h3></div></div>' +
         (path.summary ? '<p>' + esc(path.summary) + '</p>' : '') +
         (arr(path.actions).length ? '<div class="mr-remedy-actions"><div class="mr-remedy-field-label">Suggested steps</div><ol>' + arr(path.actions).map((action) => '<li>' + esc(textItem(action)) + '</li>').join("") + '</ol></div>' : '') +
-        '<div class="mr-remedy-tradeoffs">' + (path.benefit ? '<div><div class="mr-remedy-field-label">Potential benefit</div><p>' + esc(path.benefit) + '</p></div>' : '') + (path.risk ? '<div><div class="mr-remedy-field-label">Tradeoff</div><p>' + esc(path.risk) + '</p></div>' : '') + '</div><div class="mr-remedy-evidence"><span>Why this option appears here</span><strong>' + esc(evidenceBasis) + '</strong></div></article>';
+        '<div class="mr-remedy-tradeoffs">' + (path.benefit ? '<div><div class="mr-remedy-field-label">Potential benefit</div><p>' + esc(path.benefit) + '</p></div>' : '') + (path.risk ? '<div><div class="mr-remedy-field-label">Tradeoff</div><p>' + esc(path.risk) + '</p></div>' : '') + '</div></article>';
     }).join("") + '</div>' : '';
     return '<section class="mr-section mr-run-action-board"><div class="mr-section-index">0' + n + ' · What to test next</div><h2>Priorities and options</h2>' +
-      '<p class="mr-lede">The priority order shows where to start. The options increase in scope; none changes the score or predicts an outcome.</p>' + renderPriorityMatrix(m) + ladderHtml +
+      '<p class="mr-lede">The priority list ranks measured issues. The options describe different scopes of change and do not correspond one-to-one with that list. None changes the score or predicts an outcome.</p>' + renderPriorityMatrix(m) + ladderHtml +
       (actions.length ? '<div class="mr-run-actions"><div class="mr-lens-label">Suggested order</div><ol>' + actions.map((action) => '<li>' + esc(action) + '</li>').join("") + '</ol></div>' : '') + remediesHtml + '</section>';
   }
 
   function renderRunMethod(m, n) {
     const p = obj(m.provenance), c = obj(m.context), model = obj(obj(m.exposure).model);
+    const language = obj(m.reportLanguage), migration = obj(language.migration);
     const rows = [
       ["Instrument", m.toolLabel], ["Operating scope", firstStr(m.processName, m.scopeLabel)],
       ["Participant perspective", m.participantMode], ["Confidence in answers", firstStr(obj(m.source).input_confidence_label, c.confidenceLevel, c.confidence_level)],
-      ["Trajectory", m.trajectoryLabel], ["Exposure model", firstStr(model.version, model.model_type)],
+      ["Reported change", m.trajectoryLabel], ["Calculation version", firstStr(model.version, model.model_type)],
+      ["Questionnaire version", m.questionnaireVersion || "Not recorded"],
+      ["Scoring version", m.scorerVersion || "Not recorded"],
+      ["Report wording version", firstStr(language.generation_version, "Not recorded")],
+      ["Current display version", RENDERER_VERSION],
       ["Engine revision", firstStr(p.engine_commit)], ["Artifact digest", firstStr(p.artifact_sha256)]
     ].filter((row) => row[1]);
     return '<section class="mr-section mr-run-method"><div class="mr-section-index">0' + n + ' · Method and limits</div><h2>How this report was produced</h2><dl>' +
       rows.map((row) => '<div><dt>' + esc(row[0]) + '</dt><dd>' + esc(row[1]) + '</dd></div>').join("") + '</dl>' +
-      '<p class="mr-method-copy">The score and dimension values come from the submitted answers. Participant notes, when present, are shown separately and do not change the score. The design reference was set when the instrument was designed; it is not a comparison with customer or industry data.</p></section>';
+      (migration.from_version ? '<p class="mr-method-copy">Report wording was generated with a newer template when this run completed. The recorded answers, scoring method, and numeric result were preserved. Original wording version: ' + esc(migration.from_version) + '.</p>' : '') +
+      '<p class="mr-method-copy">The score and dimension values come from the submitted answers. Participant notes, when present, are shown separately and do not change the score. Time and cost calculations are modeled planning scenarios, not measured benchmarks. The design reference was set when the instrument was designed; it is not a comparison with customer or industry data.</p></section>';
   }
 
   function renderRunLeadershipClose(m, n) {
@@ -1594,6 +1607,13 @@
     }
     @page{size:Letter;margin:60pt}
     @media print{
+      .mr-section h2,.mr-section h3,.mr-section-index,.mr-run-method dl>div{break-inside:avoid;page-break-inside:avoid}
+      .mr-leadership-close{break-inside:avoid;page-break-inside:avoid;padding:24px!important}
+      .mr-leadership-close>h2{font-size:22pt!important;line-height:1.12!important;max-width:none!important}
+      .mr-leadership-close-grid{grid-template-columns:1.05fr .95fr;gap:22px}
+      .mr-leadership-sequence li{padding-bottom:12px}
+      .mr-remeasurement-note{margin-top:16px}
+      .mr-report .mr-report-boundary{margin-top:16px;padding:12px 16px}
       .mr-priority-matrix,.mr-constraint-view,.mr-run-findings{break-inside:avoid;page-break-inside:avoid}
       .mr-leadership-grid>div,.mr-leadership-sequence li{break-inside:avoid;page-break-inside:avoid}
       .mr-section h3,.mr-lens-label,.mr-viz-title{break-after:avoid;page-break-after:avoid}
@@ -1603,6 +1623,7 @@
 
   function buildReportHtml(model) {
     return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" />' +
+      '<meta name="monderman-renderer-version" content="' + RENDERER_VERSION + '" />' +
       '<meta name="viewport" content="width=device-width, initial-scale=1.0" />' +
       "<title>Monderman | Executive Report</title><style>" + REPORT_CSS + "</style></head><body>" +
       '<div class="mr-report"><div class="mr-page">' + buildReportBody(model) +
@@ -1685,6 +1706,7 @@
   }
 
   window.MondermanReport = {
+    rendererVersion: RENDERER_VERSION,
     fromRun: fromRun,
     fromSynthesis: fromSynthesis,
     buildReportBody: buildReportBody,

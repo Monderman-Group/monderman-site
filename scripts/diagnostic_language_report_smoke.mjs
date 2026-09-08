@@ -24,6 +24,8 @@ try{
   const payload={...entry.result,tool_label:names[entry.instrument],input_context:entry.context||{},narrative:entry.narrative,interpretive_prose:entry.prose};
   const html=await page.evaluate(payload=>MondermanReport.buildReportHtml(MondermanReport.fromRun(payload)),payload);
   assert.doesNotMatch(html,/\[object Object\]|\bundefined\b|\bNaN\b/,entry.id);
+  assert.doesNotMatch(html,/\b1 scored inputs\b/,entry.id+': singular evidence count');
+  assert.ok(html.includes('For Compensatory Effort, when shown, higher values indicate more reported extra effort.'),entry.id+': distinguish the effort scale from condition scales');
   assert.ok(html.includes(String(entry.result.score)),entry.id+': score absent');
   for(const width of [390,768,1440]){
    await page.setViewportSize({width,height:1000});

@@ -734,7 +734,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
           <div class="accordion-body">
             <section class="economic-strip">
               <article class="economic-card"><p class="summary-label">Burden hours*</p><p class="summary-value" id="economicHoursValue">--</p><p class="summary-sub tight" id="economicHoursSub">Directional yearly labor-hours signal tied to current operating burden.</p></article>
-              <article class="economic-card"><p class="summary-label">Estimated cost*</p><p class="summary-value" id="economicCostValue">--</p><p class="summary-sub tight" id="economicCostSub">Directional labor-cost exposure required to sustain the current operating environment.</p></article>
+              <article class="economic-card"><p class="summary-label">Estimated cost*</p><p class="summary-value" id="economicCostValue">--</p><p class="summary-sub tight" id="economicCostSub">Modeled annual labor cost based on the supplied time, frequency, and hourly-cost inputs. This is not an observed loss.</p></article>
               <article class="economic-card"><p class="summary-label">Capacity drag*</p><p class="summary-value" id="economicCapacityValue">--</p><p class="summary-sub tight" id="economicCapacitySub">Estimated productive capacity being absorbed by recurring process, systems, and reporting burden.</p></article>
             </section>
             <section class="economic-strip" style="margin-top:14px;">
@@ -941,6 +941,9 @@ const MondermanDiagnostic = (() => {
 // ==============================================
 
 const API_BASE = "https://monderman-api.onrender.com";
+// The public build activates revised questions only through an explicit release setting.
+// A bridge build keeps both versions available while new runs start with legacy wording.
+const ACTIVE_QUESTIONNAIRE_COPY_VERSION = undefined;
 const DIAGNOSTIC_HUB_URL = "https://www.monderman.com/diagnostics.html";
 const LOADER_MS = 3600;
 const START_TIMEOUT_MS = 45000;
@@ -1272,21 +1275,21 @@ return 50000;
 function roundDirectionalCurrency(value) {
 const n = Number(value);
 if (!Number.isFinite(n) || n <= 0) return 0;
-// Step ladder: smaller steps at smaller magnitudes preserve differentiation
-// for remedy paths and other relative comparisons. Previously a flat $25K
-// step under $250K collapsed Light ($15K raw) and Moderate ($32K raw) into
-// the same display band; the new ladder keeps them distinct.
-const step = directionalCurrencyStep(n);
+// Use sub-$5K steps for small estimates. A $5K floor made values such as
+// $198 and $1,008 render as $5,000-$10,000, which was not a confidence band:
+// it was a material overstatement of the disclosed model output.
+const step = n < 1000 ? 50 : n < 5000 ? 250 : n < 50000 ? 5000 : n < 250000 ? 10000 : n < 500000 ? 25000 : 50000;
 return Math.max(step, Math.round(n / step) * step);
 }
 
 function buildCurrencyConfidenceBand(value) {
 const n = Number(value);
 if (!Number.isFinite(n) || n <= 0) return { midpoint: 0, low: 0, high: 0, label: "Not estimated" };
-// Step ladder matches roundDirectionalCurrency for consistency.
-const step = directionalCurrencyStep(n);
-const low = Math.max(step, Math.round((n * 0.8) / step) * step);
-const high = Math.max(low + step, Math.round((n * 1.25) / step) * step);
+// Step ladder matches roundDirectionalCurrency for consistency and guarantees
+// that the published range contains the underlying estimate.
+const step = n < 1000 ? 50 : n < 5000 ? 250 : n < 50000 ? 5000 : n < 250000 ? 10000 : n < 500000 ? 25000 : 50000;
+const low = Math.max(0, Math.floor((n * 0.8) / step) * step);
+const high = Math.max(low + step, Math.ceil((n * 1.25) / step) * step);
 const midpoint = Math.max(step, Math.round(n / step) * step);
 return { midpoint, low, high, label: `${formatCurrency(low)}–${formatCurrency(high)}*`, step };
 }
@@ -1299,7 +1302,7 @@ return band.label || "Not estimated";
 function buildExposureMethodDisclosure(exposure) {
 const ex = exposure && typeof exposure === "object" ? exposure : {};
 const model = ex.model && typeof ex.model === "object" ? ex.model : {};
-if (!model.formula) return '<p><b>Exposure model.</b> No financial estimate was produced for this run.</p>';
+if (!model.formula) return '<p><b>Time and cost calculation.</b> No financial estimate was produced for this run.</p>';
 const attributionText = model.attributable_burden_share_percent != null
   ? `${Number(model.attributable_burden_share_percent).toLocaleString()}%`
   : "not calculated for this run";
@@ -1324,7 +1327,7 @@ if (!model.formula) return [];
 return [
   { label: "Burden attribution*", value: model.attributable_burden_share_percent != null ? `${Number(model.attributable_burden_share_percent).toLocaleString()}%` : "--", note: model.attribution_formula || model.formula },
   { label: "Capacity assumption*", value: ex.total_capacity_hours != null ? `${Number(ex.total_capacity_hours).toLocaleString()} hrs` : "--", note: [model.capacity_formula, model.capacity_limit_rule].filter(Boolean).join(". ") },
-  { label: "Recoverable share*", value: ex.recoverable_share_percent != null ? `${Number(ex.recoverable_share_percent).toLocaleString()}%` : "--", note: [model.recoverable_share_formula, model.recoverable_share_bands].filter(Boolean).join(". ") }
+  { label: "Modeled recovery percentage*", value: ex.recoverable_share_percent != null ? `${Number(ex.recoverable_share_percent).toLocaleString()}%` : "--", note: [model.recoverable_share_formula, model.recoverable_share_bands].filter(Boolean).join(". ") }
 ];
 }
 
@@ -2316,12 +2319,14 @@ skipBtn.textContent = "Skip";
 // 4. QUESTION FLOW & ADAPTIVE LOGIC
 // ═══════════════════════════════════════════════════════════
 function renderQuestion() {
+if (!ensureQuestionnaireCopyReady()) return;
 const item = state.currentItem;
 if (!item) return;
 const dimLabel = item.isExperienceLayer ? "Your observations" : (item.dimension ? humanize(item.dimension) : "Diagnostic question");
 const card = document.querySelector("#questionStage .question-card");
 
 const applyQuestionContent = () => {
+if (!ensureQuestionnaireCopyReady() || state.currentItem !== item) return;
 questionCluster.textContent = dimLabel;
 // Non-numeric: no "Question N of ~M". Dimension name in questionCluster is enough.
 questionStep.textContent = "";
@@ -2346,13 +2351,7 @@ continueBtn.style.display = "";
 skipBtn.style.display = "";
 
 questionTitle.textContent = getQuestionRoleText(item.text || {}) || "Next question";
-questionCopy.textContent = item.questionCopy || (item.questionType === "numeric"
-? "Enter your best estimate. An approximate number is fine."
-: item.questionType === "text"
-? "Describe what you have observed. Keep your answer focused on the question."
-: item.questionType === "multi_select"
-? "Choose only what you can observe directly."
-: "Choose the option that best matches what you can observe directly.");
+questionCopy.textContent = item.questionCopy || getQuestionnaireFallbackCopy(item);
 clearQuestionRequired();
 questionBody.innerHTML = "";
 questionBody.appendChild(renderQuestionContent(item));
@@ -2537,6 +2536,7 @@ setHeader("Starting your diagnostic", "Preparing your questions. This may take a
 
 const participantLevels = inferredCoverage.levelsCovered;
 const body = {
+questionnaire_copy_version: state._replayQuestionnaireVersion === '1.2.0' ? undefined : state._replayQuestionnaireVersion === '1.3.0' ? "diagnostic-language-20260908" : ACTIVE_QUESTIONNAIRE_COPY_VERSION,
 assignment_token: (window.MondermanAssignment && window.MondermanAssignment.active && window.MondermanAssignment.active()) ? window.MondermanAssignment.token() : undefined,
 role,
 participantMode: role,
@@ -2606,18 +2606,18 @@ if (response.status === 429 && data?.error === "diagnostic_capacity_temporarily_
   return;
 }
 if (!response.ok || !data?.ok) {
+  if (["QUESTIONNAIRE_VERSION_UNAVAILABLE", "QUESTIONNAIRE_COPY_VERSION_UNSUPPORTED"].includes(data?.error)) throw questionnaireCopyError();
   throw new Error(data?.message || data?.error || "Unable to start the diagnostic.");
 }
 
 state.runId = data.runId;
 state.sessionCapability = data.sessionCapability || null;
-state.configVersion = data?.routingMeta?.configVersion || data?.routingVersion || data?.configVersion || data?.config_version || null;
+pinQuestionnaireVersion(data);
 state.currentItem = data.nextItem;
 state.currentProgress = data.progress || null;
 state.started = true;
-state.answerCache = {};
-state.questionHistory = [];
 resetExperientialLayer();
+installAuthoritativeQuestionnaireHistory(data, { preserveLocal: false });
 
 beginBtn.disabled = false;
 beginBtn.textContent = "Begin Diagnostic";
@@ -2626,10 +2626,17 @@ setHeader(
   "Adaptive question path active.",
   "Question path active"
 );
+if (data.finalized) {
+  state.currentItem = null;
+  await finalizeAdaptiveRun();
+  return;
+}
 showStage(questionStage);
-renderQuestion();
+if (data.shouldStop && !data.nextItem) queueExperienceQuestion(0);
+else renderQuestion();
 
 } catch (error) {
+if (error?.code === "QUESTIONNAIRE_VERSION_UNAVAILABLE") { showQuestionnaireVersionUnavailable(error); return; }
 console.error("Adaptive run start failed", error);
 beginBtn.disabled = false;
 beginBtn.textContent = "Begin Diagnostic";
@@ -2646,9 +2653,9 @@ dimension: "input confidence",
 questionType: "single_select",
 isOptional: false,
 text: {
-operational: "How confident are you that the answers you provided are accurate?",
-managerial: "How confident are you that the answers you provided are accurate?",
-senior_leader: "How confident are you that the answers you provided are accurate?"
+operational: CONFIDENCE_TEXT_BY_VERSION[requireQuestionnaireVersion()],
+managerial: CONFIDENCE_TEXT_BY_VERSION[requireQuestionnaireVersion()],
+senior_leader: CONFIDENCE_TEXT_BY_VERSION[requireQuestionnaireVersion()]
 },
 options: [
 { value: "high", label: "High confidence" },
@@ -2721,14 +2728,190 @@ const EXPERIENCE_PROMPT_SETS = {
   ]
 };
 
+const LEGACY_EXPERIENCE_PROMPT_SETS = {
+operational: [
+{ key: "self", label: "Your operational experience", text: "Optional: From your Operational participant perspective, what does this workflow feel like to sustain day to day?", copy: "Describe what you personally experience: repeated work, workarounds, systems friction, reporting load, waiting, escalation, rework, or anything that feels heavier than it should." },
+{ key: "observedManagerial", label: "What managers may be experiencing", text: "Optional: What do managers seem to spend time compensating for in this workflow?", copy: "Capture what you observe from the managerial layer: coordination burden, follow-up, exception handling, review cycles, staffing pressure, or translation work." },
+{ key: "observedSeniorLeader", label: "What senior leaders may be seeing or missing", text: "Optional: What do senior leaders seem to see, miss, or misunderstand about this burden?", copy: "Capture what appears visible or invisible to senior leaders from where you sit. Avoid naming individuals; focus on the operating pattern." }
+],
+managerial: [
+{ key: "self", label: "Your managerial experience", text: "Optional: From your Managerial participant perspective, what does this workflow feel like to coordinate or keep moving?", copy: "Describe the management work around the work: chasing, reconciling, translating, escalating, reviewing, resourcing, or protecting teams from administrative load." },
+{ key: "observedOperational", label: "What operational staff may be experiencing", text: "Optional: What do operational staff seem to experience while executing this workflow?", copy: "Capture what appears to happen closest to the work: repeated entry, tool friction, unclear process, workaround reliance, waiting, rework, or avoidable burden." },
+{ key: "observedSeniorLeader", label: "What senior leaders may be seeing or missing", text: "Optional: What do senior leaders seem to see, miss, or misunderstand about this burden?", copy: "Capture the gap between what is visible upward and what is actually required to keep the workflow moving." }
+],
+executive: [
+{ key: "self", label: "Your senior-leader experience", text: "Optional: From your Senior Leader participant perspective, what does this workflow reveal about the operating system?", copy: "Describe what you experience as a governance, capacity, risk, execution, or organizational-design issue. Keep the focus on the system rather than individuals." },
+{ key: "observedManagerial", label: "What managers may be experiencing", text: "Optional: What do managers seem to be carrying or compensating for?", copy: "Capture what you observe in the managerial layer: coordination load, escalation dependence, review burden, exception handling, or managerial glue." },
+{ key: "observedOperational", label: "What operational staff may be experiencing", text: "Optional: What do operational staff seem to experience closest to the work?", copy: "Capture what appears to happen at the operating edge: workarounds, duplicate entry, tool friction, delays, rework, or hidden maintenance labor." }
+]
+};
+
+const EXPERIENCE_PROMPT_SETS_BY_VERSION = Object.freeze({
+  '1.2.0': LEGACY_EXPERIENCE_PROMPT_SETS,
+  '1.3.0': EXPERIENCE_PROMPT_SETS
+});
+const CONFIDENCE_TEXT_BY_VERSION = Object.freeze({
+  '1.2.0': "How confident are you in the accuracy of the information you provided across this run?",
+  '1.3.0': 'How confident are you that the answers you provided are accurate?'
+});
+
+// The server's saved questionnaire version pins all client-owned questions too.
+// Never infer an old run's wording from the currently deployed page.
+let questionnaireCopyVerifiedRunId = null;
+function questionnaireCopyError() {
+  const error = new Error('The original questionnaire wording for this run could not be verified. Your saved answers have not been removed. Refresh to retry; do not start a new run unless you intend to start over.');
+  error.code = 'QUESTIONNAIRE_VERSION_UNAVAILABLE';
+  error.status = 409;
+  return error;
+}
+function readQuestionnaireVersion(data) {
+  const versions = [data?.questionnaire_version, data?.configVersion, data?.routingMeta?.configVersion, data?.routingVersion, data?.config_version, data?.currentVersion].filter(value => value != null);
+  if (new Set(versions).size !== 1) throw questionnaireCopyError();
+  return versions[0];
+}
+function requireQuestionnaireVersion(version = state.configVersion) {
+  if (typeof version !== 'string' || !Object.hasOwn(EXPERIENCE_PROMPT_SETS_BY_VERSION, version)) throw questionnaireCopyError();
+  return version;
+}
+function pinQuestionnaireVersion(data) {
+  const version = requireQuestionnaireVersion(readQuestionnaireVersion(data));
+  if (state.configVersion && state.configVersion !== version) throw questionnaireCopyError();
+  if (state._replayQuestionnaireVersion && state._replayQuestionnaireVersion !== version) throw questionnaireCopyError();
+  state.configVersion = version;
+  questionnaireCopyVerifiedRunId = state.runId;
+  return version;
+}
+function assertCachedStaticQuestion(item) {
+  if (!item) return;
+  const id = String(item.id || '');
+  let expected = null;
+  if (id.startsWith('_*experience*')) {
+    const index = getExperiencePromptSet().findIndex(prompt => '_*experience*' + prompt.key === id);
+    if (index < 0) throw questionnaireCopyError();
+    expected = buildExperienceQuestion(index);
+    if (item.experienceKey !== expected.experienceKey || item.experienceLabel !== expected.experienceLabel || item.questionCopy !== expected.questionCopy) throw questionnaireCopyError();
+  } else if (id === '**confidenceLevel**') expected = buildConfidenceQuestion();
+  if (!expected) return;
+  if (item.questionType !== expected.questionType || ['operational','managerial','senior_leader'].some(role => item.text?.[role] !== expected.text[role])) throw questionnaireCopyError();
+  if (id === '**confidenceLevel**' && JSON.stringify(item.options) !== JSON.stringify(expected.options)) throw questionnaireCopyError();
+}
+
+// Accepted ordinary questions and values come only from the saved server bank.
+// Local state may supplement it with matching, unfinished input and static notes.
+function isClientOwnedQuestion(item) {
+  const id = String(item?.id || '');
+  return id.startsWith('_*experience*') || id === '**confidenceLevel**';
+}
+function sameQuestionnaireItemCopy(left, right) {
+  if (!left || !right) return false;
+  const copy = item => [item.id, item.questionType, item.scorerField || null,
+    item.dimension || null, item.secondaryDimension || null, item.isOptional === true,
+    typeof item.text === 'string' ? item.text : ['operational', 'managerial', 'senior_leader'].map(role => item.text?.[role] ?? null),
+    (item.options || []).map(option => [option.value, option.label]),
+    item.questionCopy || null, item.experienceKey || null, item.experienceLabel || null];
+  return JSON.stringify(copy(left)) === JSON.stringify(copy(right));
+}
+function installAuthoritativeQuestionnaireHistory(remote, { preserveLocal = true } = {}) {
+  requireQuestionnaireVersion();
+  if (!Array.isArray(remote?.answerHistory) || !Number.isInteger(remote.sessionRevision)
+    || remote.sessionRevision < 0 || typeof remote.finalized !== 'boolean') throw questionnaireCopyError();
+  const validateItem = item => {
+    if (!item || typeof item.id !== 'string' || !item.id || isClientOwnedQuestion(item)
+      || !['numeric', 'single_select', 'multi_select', 'text'].includes(item.questionType)
+      || typeof getQuestionRoleText(item.text || {}) !== 'string' || !getQuestionRoleText(item.text || {}).trim()) throw questionnaireCopyError();
+    if (['single_select', 'multi_select'].includes(item.questionType)
+      && (!Array.isArray(item.options) || !item.options.length
+        || item.options.some(option => !option || !Object.hasOwn(option, 'value') || typeof option.label !== 'string'))) throw questionnaireCopyError();
+  };
+  const clone = value => JSON.parse(JSON.stringify(value));
+  const history = [];
+  const answers = {};
+  const acceptedIds = new Set();
+  for (const entry of remote.answerHistory) {
+    validateItem(entry?.item);
+    if (entry.itemId !== entry.item.id || !Object.hasOwn(entry, 'value') || acceptedIds.has(entry.itemId)) throw questionnaireCopyError();
+    acceptedIds.add(entry.itemId);
+    history.push(clone(entry));
+    Object.defineProperty(answers, entry.itemId, {value: clone(entry.value), writable: true, enumerable: true, configurable: true});
+  }
+  if (remote.nextItem) {
+    validateItem(remote.nextItem);
+    if (acceptedIds.has(remote.nextItem.id) || remote.shouldStop === true || remote.finalized) throw questionnaireCopyError();
+  } else if (remote.shouldStop !== true) throw questionnaireCopyError();
+  // Completed anonymous runs intentionally withhold history. Never resurrect
+  // cached questions, even briefly, while recovering their acknowledgment.
+  if (preserveLocal && !remote.finalized) {
+    const localHistory = Array.isArray(state.questionHistory) ? state.questionHistory : [];
+    [state.currentItem, ...localHistory.map(entry => entry.item)].forEach(assertCachedStaticQuestion);
+    for (const entry of localHistory) {
+      if (isClientOwnedQuestion(entry.item)) history.push(clone(entry));
+    }
+    const staticIds = new Set(getExperiencePromptSet().map(prompt => '_*experience*' + prompt.key));
+    staticIds.add('**confidenceLevel**');
+    for (const id of staticIds) {
+      if (Object.hasOwn(state.answerCache || {}, id)) answers[id] = clone(state.answerCache[id]);
+    }
+    // A cache entry at the unaccepted frontier is unfinished input, not an
+    // accepted answer. Retain it only if both versions show the exact same item.
+    if (sameQuestionnaireItemCopy(state.currentItem, remote.nextItem)
+      && Object.hasOwn(state.answerCache || {}, remote.nextItem.id)) {
+      answers[remote.nextItem.id] = clone(state.answerCache[remote.nextItem.id]);
+    }
+  }
+  state.questionHistory = history;
+  state.answerCache = answers;
+  state.sessionRevision = remote.sessionRevision;
+  state.assignmentRecoveryWithholdResults = Boolean(remote.finalized && window.MondermanAssignment?.active()
+    && window.MondermanAssignment.config()?.is_anonymous_response === true);
+  reviewingHistoryItemId = null;
+}
+
+function showQuestionnaireVersionUnavailable(error = questionnaireCopyError()) {
+  questionnaireCopyVerifiedRunId = null;
+  questionBody.replaceChildren();
+  questionTitle.textContent = 'Your saved questionnaire needs verification';
+  questionCopy.textContent = error.message || questionnaireCopyError().message;
+  [backBtn, continueBtn, skipBtn, beginBtn].forEach(button => { if (button) button.disabled = true; });
+  showStage(questionStage, {scroll:false});
+  const notice = document.getElementById('persistenceNotice');
+  if (notice) { notice.textContent = questionCopy.textContent; notice.style.display = 'block'; }
+}
+function ensureQuestionnaireCopyReady() {
+  try {
+    requireQuestionnaireVersion();
+    if (!state.runId || questionnaireCopyVerifiedRunId !== state.runId) throw questionnaireCopyError();
+    assertCachedStaticQuestion(state.currentItem);
+    return true;
+  } catch (error) { showQuestionnaireVersionUnavailable(error); return false; }
+}
+
+
+function getQuestionnaireFallbackCopy(item) {
+if (requireQuestionnaireVersion() === '1.2.0') return (item.questionType === "numeric"
+? "Enter your best estimate. An approximate number is fine."
+: item.questionType === "text"
+? "Optional narrative input. Use plain language; skip it if you do not have a useful observation."
+: item.questionType === "multi_select"
+? "Select every option you can directly observe. You can choose more than one."
+: "Choose the option that best matches what you can observe directly.");
+return (item.questionType === "numeric"
+? "Enter your best estimate. An approximate number is fine."
+: item.questionType === "text"
+? "Describe what you have observed. Keep your answer focused on the question."
+: item.questionType === "multi_select"
+? "Choose only what you can observe directly."
+: "Choose the option that best matches what you can observe directly.");
+}
+
 function resetExperientialLayer() {
 state.experienceIndex = 0;
 state.experienceComplete = false;
 state.experiential = { self: "", observedManagerial: "", observedOperational: "", observedSeniorLeader: "" };
 }
 
-function getExperiencePromptSet() {
-return EXPERIENCE_PROMPT_SETS[state.mode] || EXPERIENCE_PROMPT_SETS.executive;
+function getExperiencePromptSet(mode = state.mode) {
+const sets = EXPERIENCE_PROMPT_SETS_BY_VERSION[requireQuestionnaireVersion()];
+return sets[mode] || sets.executive;
 }
 
 function buildExperienceQuestion(index = 0) {
@@ -2778,7 +2961,8 @@ state.experiential[key] = normalizeExperienceText(value);
 
 function buildExperienceLayer(source = state.experiential) {
 const mode = state.mode || "executive";
-const promptLabels = Object.fromEntries((EXPERIENCE_PROMPT_SETS[mode] || EXPERIENCE_PROMPT_SETS.executive).map((item) => [item.key, item.label]));
+if (!Object.values(source || {}).some(value => normalizeExperienceText(value))) return { participantPerspective: laneConfigs[mode]?.label || humanize(mode), entries: [], hasInput: false };
+const promptLabels = Object.fromEntries(getExperiencePromptSet(mode).map((item) => [item.key, item.label]));
 const entries = ["self", "observedOperational", "observedManagerial", "observedSeniorLeader"]
 .map((key) => ({ key, label: promptLabels[key] || humanize(key), text: normalizeExperienceText(source && source[key]) }))
 .filter((entry) => entry.text);
@@ -2884,6 +3068,7 @@ renderQuestion();
 }
 
 async function submitAnswer(itemId, value, meta = {}) {
+if (!ensureQuestionnaireCopyReady()) return;
 if (String(itemId || "").startsWith("_*experience*")) {
 recordExperienceAnswer(itemId, value);
 state.answerCache[itemId] = value || "";
@@ -2952,6 +3137,7 @@ const data = await response.json().catch(() => null);
 if (!response.ok || !data?.ok) {
 throw new Error(data?.error || 'Unable to submit answer.');
 }
+pinQuestionnaireVersion(data);
 state.currentProgress = data.progress || state.currentProgress;
 if (data.shouldStop || !data.nextItem) {
 if (!state.experienceComplete) {
@@ -2986,12 +3172,13 @@ throw error;
 }
 }
 } catch (error) {
+if (error?.code === 'QUESTIONNAIRE_VERSION_UNAVAILABLE') { showQuestionnaireVersionUnavailable(error); return; }
 console.error('Adaptive answer failed', error);
 showQuestionRequired(error?.message || 'Unable to advance the question. Please try again.');
 continueBtn.textContent = 'Try again';
 showToast(error?.message || 'Unable to advance the question. Please try again.');
 } finally {
-if (!renderedNextQuestion) {
+if (!renderedNextQuestion && questionnaireCopyVerifiedRunId === state.runId) {
 continueBtn.disabled = false;
 skipBtn.disabled = false;
 }
@@ -3016,17 +3203,39 @@ replayCache[changedItemId] = changedValue;
 const savedPreflight = { ...state.preflight };
 const savedMode = state.mode;
 const savedDepth = state.depth;
+const savedQuestionnaireVersion = requireQuestionnaireVersion();
 restartDiagnostic(true);
 state.preflight = savedPreflight;
 state.mode = savedMode;
 state.depth = savedDepth;
+state._replayQuestionnaireVersion = savedQuestionnaireVersion;
 state._replayCache = replayCache;
 state._replaying = true;
 
 await startAdaptiveRun();
 }
 
+
+async function renderAssignedCompletionAcknowledgment(savedRunId) {
+  // Completed anonymous submissions recover only their acknowledgment.
+  state.result = null;
+  state.renderPayload = null;
+  state.currentItem = null;
+  state.questionHistory = [];
+  state.answerCache = {};
+  const acknowledge = async () => {
+    const completion = await window.MondermanAssignment.complete(savedRunId);
+    if (completion?.ok !== true) return false;
+    participantDraft?.stop();
+    participantDraft?.clear();
+    return true;
+  };
+  if (await acknowledge()) window.MondermanAssignment.renderCompletion();
+  else window.MondermanAssignment.renderCompletionFailed(acknowledge);
+}
+
 async function finalizeAdaptiveRun() {
+if (!ensureQuestionnaireCopyReady()) return;
 if (!state.runId) return;
 if (state.finalizeInFlight) return;
 state.finalizeInFlight = true;
@@ -3070,6 +3279,13 @@ const rawText = await response.text();
 let data = null;
 try { data = JSON.parse(rawText); } catch (_e) {}
 
+if (response.ok && data?.ok && window.MondermanAssignment?.active()
+  && (state.assignmentRecoveryWithholdResults || data.resultWithheld === true || data.reason === 'assignment_results_withheld')) {
+  pinQuestionnaireVersion(data);
+  await renderAssignedCompletionAcknowledgment(data.savedRunId);
+  return;
+}
+
 if ((data && data.locked === true) || (response.status === 402 && data?.error === "run_limit_reached")) {
   // Two locked shapes (8 Aug 2026): a signed-in org past its run allowance
   // gets the runs-exhausted screen as before; an unsigned visitor gets the
@@ -3079,7 +3295,8 @@ if ((data && data.locked === true) || (response.status === 402 && data?.error ==
   return;
 }
 
-state.configVersion = (data && data.routingMeta && data.routingMeta.configVersion) || state.configVersion || null;
+// A completion response may confirm the pin, but cannot silently change it.
+if (response.ok && data?.ok) pinQuestionnaireVersion(data);
 
 // Baseline gate outcomes (2 Aug 2026): surface lock/switch notes, and keep a
 // persistent notice when the run rendered but was not saved.
@@ -3252,6 +3469,8 @@ state.sessionCapability = null;
 state.currentItem = null;
 state.currentProgress = null;
 state.configVersion = null;
+state._replayQuestionnaireVersion = null;
+questionnaireCopyVerifiedRunId = null;
 state.result = null;
 state.renderPayload = null;
 state.answerCache = {};
@@ -4738,7 +4957,7 @@ const decisionReviewPageNumber = hasExperienceLayer ? 7 : 6;
 const updateReadPageNumber = decisionReviewPageNumber + 1;
 const remedyPageNumber = updateReadPageNumber + 1;
 const methodPageNumber = remedyPageNumber + 1;
-const experienceReportPage = hasExperienceLayer ? '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p>This optional layer records how the workflow is experienced from the selected participant perspective and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p><div class="panel" style="margin:16px 0 18px"><h3>Experiential synthesis</h3><p>' + safeWords(experienceSynthesis, 88) + '</p><p class="muted">' + safeWords(experienceCaveat, 50) + '</p></div><div class="exp-grid">' + experienceCards + '</div><div class="panel bench"><p><b>Leadership question.</b> ' + safe(buildLeadershipQuestion(result || {}, payload || {}, "experience")) + '</p><p><b>How to use this layer.</b> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p></div></div></section>' : '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Experiential layer</p><h2>What the participant added</h2><p style="margin-top:24px;color:var(--ink-soft);">No usable participant notes are presented in this report. This section will populate when usable first-person observations are available.</p></div></section>';
+const experienceReportPage = hasExperienceLayer ? '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Participant observations</p><h2>What the participant added</h2><p>This optional layer records how the workflow is experienced from the selected participant perspective and what the participant believes other organizational layers may be seeing. It is not treated as proof; it is used as interpretive evidence that can reveal where the formal process description and lived operating reality diverge.</p><div class="panel" style="margin:16px 0 18px"><h3>Experiential synthesis</h3><p>' + safeWords(experienceSynthesis, 88) + '</p><p class="muted">' + safeWords(experienceCaveat, 50) + '</p></div><div class="exp-grid">' + experienceCards + '</div><div class="panel bench"><p><b>Leadership question.</b> ' + safe(buildLeadershipQuestion(result || {}, payload || {}, "experience")) + '</p><p><b>How to use this layer.</b> Treat these notes as a way to plan follow-up conversations. If the same signal appears across operational, managerial, and senior-leader runs, it becomes more useful as a governance input. If it appears in only one lens, it is still valuable, but it should be read as a clue rather than a conclusion.</p></div></div></section>' : '<section class="page">' + footer(6) + '<div class="content"><p class="eyebrow">Participant observations</p><h2>What the participant added</h2><p style="margin-top:24px;color:var(--ink-soft);">No usable participant notes are presented in this report. This section will populate when usable first-person observations are available.</p></div></section>';
 const narrativeForReport = asObject(result?.narrative);
 const defaultReadings = [
 { label: "Structural burden hypothesis", interpretation: "A hypothesis to test is whether formal process and control density are disproportionate to the assessed work.", what_would_distinguish_it: "Compare cycle-time records across formal review stages and case types." },
@@ -4758,7 +4977,7 @@ const updateReadItems = (Array.isArray(narrativeForReport.what_would_update_this
 ).slice(0, 3);
 const readingHtml = competingReadings.map((item) => '<div class="mini-card"><b>' + safe(item.label || "Reading") + '</b><p>' + safeWords(item.interpretation || item, 44) + '</p><p class="muted">Signal test: ' + safeWords(item.what_would_distinguish_it || "Additional cross-role evidence would clarify this reading.", 50) + '</p></div>').join("");
 const updateHtml = updateReadItems.map((item) => '<p style="margin:0 0 8px">• ' + safeWords(item, 42) + '</p>').join("");
-const decisionReviewPage = '<section class="page">' + footer(decisionReviewPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>Competing readings</h2><p>This section names plausible interpretations of the same signal and identifies evidence that could support, weaken, or reframe each one.</p><div class="card-row" style="grid-template-columns:1fr;gap:12px">' + readingHtml + '</div></div></section>'
+const decisionReviewPage = '<section class="page">' + footer(decisionReviewPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>Other possible explanations</h2><p>This section names plausible interpretations of the same signal and identifies evidence that could support, weaken, or reframe each one.</p><div class="card-row" style="grid-template-columns:1fr;gap:12px">' + readingHtml + '</div></div></section>'
 + '<section class="page">' + footer(updateReadPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>What would update this read</h2><p>The current read rests on a single run from a single perspective. The items below identify evidence to collect before choosing an intervention test.</p><div class="panel bench" style="margin-top:18px">' + updateHtml + '</div></div></section>';
 const firstTwoActions = actions.slice(0, 2).length ? actions.slice(0, 2) : [
 "Reduce the heaviest visible burden first.",
@@ -4959,7 +5178,7 @@ return `<!doctype html>
       <span class="cover-pill-neutral">${safe(displayPerspectiveLabel(payload?.participantMode || payload?.participant_mode || "senior_leader"))} perspective</span>
     </div>
     <div class="cover-brandline">
-      <span class="cover-note-text">Figures and findings in this report are directional outputs generated from user-provided structured diagnostic inputs. The experiential layer, when present, is used as interpretive context only and does not modify the quantitative score.</span>
+      <span class="cover-note-text">Figures and findings in this report are directional outputs generated from user-provided structured diagnostic inputs. Participant observations, when present, provide context only and do not change the score.</span>
       <span class="cover-brandline-text">Measure the conditions. Own the outcome.</span>
     </div>
   </div>
@@ -4973,7 +5192,7 @@ return `<!doctype html>
     <div class="accent-rule"></div>
     <p class="run-meta">${safe(metaLine)}</p>
     <div class="primary-read"><span>Primary read</span><strong>${safe(primaryReadLabel)}</strong><p>${safeWords(primaryReadSummary, 38)}</p></div>
-    <p>This summary shows whether the workflow is simply busy or structurally expensive to sustain. Read the score, exposure estimate, and capacity drag together: one describes the condition, one translates labor cost, and one shows how much productive capacity may be tied up in maintaining the process.</p>
+    <p>This summary describes the administrative work reported in this run, including steps, controls, reporting, and maintenance. It does not determine which activities are necessary. Time and cost estimates are separate calculations, not observed losses or promised savings.</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(executiveQuestion)}</p></div>
     <div class="stat-strip">
       <div class="stat"><div class="stat-label">Operating burden score</div><div class="stat-value">${exportScore}</div><div class="stat-sub">${safe(burdenCondition.label)}</div></div>
@@ -5050,7 +5269,7 @@ ${decisionReviewPage}
     <div class="leadership-question"><b>Leadership question</b><p>${safe(remedyQuestion)}</p></div>
     <div class="remedy-grid">${remedyHtml}</div>
     <p class="remedy-calibration-note" style="margin:14px 0 0;padding:10px 12px;background:#F6F3EC;border-left:2px solid #A9CFD2;border-radius:0 6px 6px 0;font-size:11px;line-height:1.55;color:#6E6F73;font-style:italic">* Calibrate against Run evidence before acting. A single-perspective run produces directional remedy guidance, not engineering specifications: the breadth, depth, and cross-validation of inputs govern how confidently any of these paths should be pursued.</p>
-    <div class="rule"></div><h3>Choosing between them</h3><p>The right choice depends less on the current burden score than on three things: how much stability the organization needs while changes happen, how much trust leadership has earned to redesign rather than tweak, and whether the workflow is on a path that is already worsening. Light paths preserve continuity; more ambitious paths offer greater recovery potential but require a stronger mandate.</p>
+    <div class="rule"></div><h3>Choosing between them</h3><p>The right choice depends less on the current burden score than on three things: how much stability the organization needs while changes happen, how much trust leadership has earned to redesign rather than tweak, and whether participants report that conditions are worsening. Smaller changes affect fewer parts of the organization. Broader changes need clearer authority and closer monitoring. Neither option guarantees improvement or savings.</p>
   </div>
 </section>
 
@@ -5064,6 +5283,7 @@ ${decisionReviewPage}
     <p>${insight.available ? "This single-run evidence context reflects run length and self-reported input confidence. It is not a population measure and is separate from Depth Synthesis and Cross-Lens Synthesis evidence bands." : "The single-run evidence-context field could not be retrieved for this run; the rest of the report remains valid."}</p>
     <h3>What would strengthen the next read</h3><div class="method-box">${nextRunBullets.map((item) => `<p>• ${safeWords(item, 42)}</p>`).join("")}</div>
     <h3>What the figures represent</h3><div class="method-box"><p>* Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so the organization can decide whether the pattern is worth investigating further. They should not be cited externally as audited measurements, and they should not be used as the basis for compensation decisions, performance reviews, or formal financial planning.</p>${buildExposureMethodDisclosure(result?.exposure)}</div>
+    <p class="muted" style="font-size:8.5px;overflow-wrap:anywhere;">Questionnaire version: ${safe(result.questionnaire_version || result.config_version || "Not recorded")}. Scoring version: ${safe(result.scorer_version || "Not recorded")}. Report wording version: ${safe(result.report_language?.generation_version || "Not recorded")}.</p>
   </div>
 </section>
 
@@ -5463,7 +5683,9 @@ function renderBasisOfRead(result, payload) {
     ["Sector", esc(calTxt)],
     ["Disclosed inputs", esc(inputs.length ? inputs.join(" \u00b7 ") : "none beyond the structured answers")],
     ["Depth \u00b7 vantage", esc(`${depthLabel} \u00b7 ${laneLabel}`)],
-    ["Instrument version", `<code style="font-size:.85em">config ${esc(cfg)} \u00b7 scorer ${esc(scorer)}</code>`]
+    ["Questionnaire version", `<code style="font-size:.85em">${esc(cfg)}</code>`],
+    ["Scoring version", `<code style="font-size:.85em">${esc(scorer)}</code>`],
+    ["Report wording version", `<code style="font-size:.85em">${esc(result?.report_language?.generation_version || "Not recorded")}</code>`]
   ];
   host.innerHTML = rows.map(([k, v]) => `<dt style="font-weight:700;">${esc(k)}</dt><dd style="margin:0;color:var(--ink-soft,#3A4754);">${v}</dd>`).join("");
 }
@@ -6079,13 +6301,80 @@ syncBeginButton();
   window.MondermanInterview.mountToggle(document.getElementById("questionModeHost"));
 })();
 
+
+// Reconcile wording before either draft controller displays cached questions.
+// Old assignment drafts have no configVersion; only the saved server run may supply it.
+async function restorePinnedQuestionnaireDraft(saved) {
+  if (!state.runId) return true;
+  const runId = state.runId;
+  const mode = state.mode;
+  const depth = String(state.depth);
+  const currentItem = state.currentItem;
+  const assignment = window.MondermanAssignment;
+  const token = assignment?.active() ? assignment.token() : null;
+  const assignmentId = token ? String(assignment.config()?.id || assignment.config()?.assignment_id || '') : null;
+  const identityUnchanged = () => state.runId === runId && state.mode === mode && String(state.depth) === depth
+    && (!token || (assignment?.active() && assignment.token() === token
+      && String(assignment.config()?.id || assignment.config()?.assignment_id || '') === assignmentId));
+  questionnaireCopyVerifiedRunId = null;
+  questionBody.replaceChildren();
+  questionTitle.textContent = 'Checking your saved questionnaire';
+  questionCopy.textContent = 'Checking the original wording before you continue. Your saved answers are unchanged.';
+  [backBtn, continueBtn, skipBtn, beginBtn].forEach(button => { if (button) button.disabled = true; });
+  showStage(questionStage, {scroll:false});
+  try {
+    const response = await fetchWithTimeout(API_BASE + '/api/operational-systems/run/' + encodeURIComponent(runId), {
+      headers: token ? {'X-Monderman-Assignment-Token': token} : {}
+    }, ANSWER_TIMEOUT_MS);
+    const remote = await response.json().catch(() => null);
+    if (!response.ok || !remote?.ok || remote.runId !== runId || !identityUnchanged()
+      || remote.role !== mapFrontendModeToBackendRole(mode) || String(remote.depth) !== depth) throw questionnaireCopyError();
+    pinQuestionnaireVersion(remote);
+    installAuthoritativeQuestionnaireHistory(remote);
+    state.currentProgress = remote.progress || state.currentProgress;
+    if (remote.finalized) {
+      state.currentItem = null;
+      // Use the existing, idempotent finalizer for this same run. It preserves
+      // the assignment credential and obtains the normal report/acknowledgment.
+      // No cached question/report and no new start request precedes this call.
+      await finalizeAdaptiveRun();
+      return true;
+    }
+    if (remote.nextItem && remote.shouldStop !== true) {
+      if (isClientOwnedQuestion(currentItem)) throw questionnaireCopyError();
+      state.currentItem = remote.nextItem;
+      renderQuestion();
+    } else if (remote.shouldStop === true && !remote.nextItem) {
+      if (isClientOwnedQuestion(currentItem)) renderQuestion();
+      else if (state.experienceComplete) queueConfidenceQuestion();
+      else queueExperienceQuestion(state.experienceIndex || 0);
+    } else throw questionnaireCopyError();
+    // Preserve unfinished local input only when the verified active item is unchanged.
+    const restoredItemId = state.currentItem?.id;
+    const restoredItemCopy = state.currentItem;
+    if (sameQuestionnaireItemCopy(currentItem, restoredItemCopy) && Array.isArray(saved?.controls)) {
+      window.setTimeout(() => {
+        if (identityUnchanged() && questionnaireCopyVerifiedRunId === runId && state.currentItem?.id === restoredItemId
+          && sameQuestionnaireItemCopy(state.currentItem, restoredItemCopy)) {
+          window.MondermanAssignmentDraft?._test?.restoreControls(saved.controls);
+        }
+      }, 180);
+    }
+    const notice = document.getElementById('persistenceNotice');
+    if (notice) { notice.textContent = 'Your saved answers and original questionnaire wording were recovered. No new run was started.'; notice.style.display = 'block'; }
+    return true;
+  } catch (error) { showQuestionnaireVersionUnavailable(error); return false; }
+}
+
 const participantDraft = window.MondermanAssignmentDraft && window.MondermanAssignmentDraft.createController({
   tool: "operational_systems",
   state,
   renderPreflight: renderPreflightForm,
   renderQuestion,
   showStage,
-  stages: { lane: laneStage, depth: depthStage, intro: introStage, question: questionStage }
+  stages: { lane: laneStage, depth: depthStage, intro: introStage, question: questionStage },
+  authoritativeRunRestore: true,
+  onRestore: restorePinnedQuestionnaireDraft
 });
 
 const selfDraft = window.MondermanSelfDiagnosticDraft && window.MondermanSelfDiagnosticDraft.createController({
@@ -6094,7 +6383,9 @@ const selfDraft = window.MondermanSelfDiagnosticDraft && window.MondermanSelfDia
   questionStage,
   renderQuestion,
   showStage,
-  startOver: function () { restartDiagnostic(); }
+  startOver: function () { restartDiagnostic(); },
+  authoritativeRunRestore: true,
+  onRestore: restorePinnedQuestionnaireDraft
 });
 if (selfDraft) void selfDraft.activate();
 

@@ -75,7 +75,7 @@ for name in ['structural-clarity.html','decision-velocity.html','operational-sys
   '...exposureAssumptionRows(result?.exposure)',
   'Burden attribution*',
   'Capacity assumption*',
-  'Recoverable share*',
+  'Modeled recovery percentage*',
  ]:
   if token not in t:e.append(name+': complete exposure-method disclosure '+token)
  # Keep the final methodology disclosure from overflowing into the fixed PDF

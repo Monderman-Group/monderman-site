@@ -12,6 +12,7 @@ function section(start, end) {
   assert.ok(a >= 0 && b > a, `source boundary ${start}`);
   return html.slice(a, b);
 }
+const questionnaire = section('function buildConfidenceQuestion()', 'async function refineExperientialLayerForOutput(');
 const restore = section('async function restoreAssignedDecisionVelocityDraft()', 'const participantDraft =');
 const applyHistory = section('function applyAnswerHistory(', 'function answerFailureMessage(');
 const answers = section('async function submitAnswer(', '// Legacy callers');
@@ -22,8 +23,13 @@ const id = '11111111-1111-4111-8111-111111111111';
 const runId = '22222222-2222-4222-8222-222222222222';
 const token = '0123456789abcdef0123456789abcdef';
 const key = `monderman.assignmentDraft.v1.${id}`;
+let activeQuestionnaireVersion = '1.1.0';
+function versionMetadata(version = activeQuestionnaireVersion) {
+  return {configVersion:version, questionnaire_version:version, routingVersion:version,
+    questionnaire_copy_version:version === '1.0.0' ? 'diagnostic-language-pre-20260908' : 'diagnostic-language-20260908'};
+}
 function remote() {
-  return {ok:true, runId, role:'managerial', depth:10, configVersion:'dv.v1.2',
+  return {ok:true, runId, role:'managerial', depth:10, ...versionMetadata(),
     sessionRevision:7, finalized:false, shouldStop:false, progress:{answered:2},
     nextItem:{id:'server-q3', questionType:'numeric'},
     answerHistory:[{itemId:'q1',item:{id:'q1'},value:'first'}, {itemId:'q2',item:{id:'q2'},value:2}]};
@@ -78,7 +84,7 @@ function runtime({anonymous=false, optIn=true, hasRun=true, tool='decision_veloc
       return {ok:fixture.status===200,status:fixture.status,json:async()=>clone(fixture.remote)};
     }});
   vm.runInContext(helper,context,{filename:'assignment-draft.js'});
-  vm.runInContext(`${applyHistory}\n${answers}\n${back}\n${finalizer}\n${restore}`,context,{filename:'decision-velocity recovery and handlers'});
+  vm.runInContext(`${questionnaire}\n${applyHistory}\n${answers}\n${back}\n${finalizer}\n${restore}`,context,{filename:'decision-velocity recovery and handlers'});
   const storedState=clone(state);
   // Mirrors the actual historical allowlist: no revision/config/capability.
   delete storedState.sessionRevision;delete storedState.configVersion;
@@ -96,6 +102,9 @@ function runtime({anonymous=false, optIn=true, hasRun=true, tool='decision_veloc
     tick:()=>intervals.forEach(fn=>fn()),back:()=>listeners['backBtn:click']()};
 }
 
+// Run every original assertion with both supported saved questionnaire banks.
+for (const questionnaireVersion of ['1.0.0','1.1.0']) {
+activeQuestionnaireVersion = questionnaireVersion;
 const pending=runtime();pending.fixture.gate=deferred();
 assert.equal(pending.activate(),true,'activation owns the restore path synchronously; init must not start another');
 assert.equal(pending.state.answerInFlight,true);
@@ -113,6 +122,8 @@ assert.equal(pending.calls[0].url,`https://api.invalid/api/decision-velocity/run
 assert.deepEqual(pending.calls[0].headers,{'X-Monderman-Assignment-Token':token});
 pending.fixture.gate.resolve();assert.equal(await pending.done(),true);await flush();
 assert.equal(pending.state.sessionRevision,7);
+assert.equal(pending.state.configVersion,questionnaireVersion);
+assert.equal(pending.context.ensureQuestionnaireCopyReady(),true,'the real guard accepts only the restored pin');
 assert.equal(pending.state.currentItem.id,'server-q3');
 assert.deepEqual(pending.renders,['server-q3']);
 pending.tick();assert.equal(JSON.parse(pending.storage.get(key)).state.currentItem.id,'server-q3');
@@ -177,7 +188,7 @@ for(const body of [
   {ok:true,completionState:'complete',result:{secret:'must not render'}}
 ]) {
   const env=runtime({anonymous:true});env.fixture.remote={...remote(),finalized:true,shouldStop:true,nextItem:null,answerHistory:[]};
-  env.fixture.post=body;env.fixture.retire=true;
+  env.fixture.post={...versionMetadata(),...body};env.fixture.retire=true;
   env.activate();assert.equal(await env.done(),true);await flush();env.tick();
   assert.deepEqual(env.renders,['ack']);assert.equal(env.state.result,null);assert.equal(env.state.renderPayload,null);
   assert.equal(env.state.questionHistory.length,0);assert.equal(env.storage.has(key),false);
@@ -186,7 +197,7 @@ for(const body of [
   assert.equal(JSON.parse(env.calls.find(c=>c.url?.endsWith('/finalize')).body).expectedRevision,7);
 }
 const ackRetry=runtime({anonymous:true});ackRetry.fixture.remote={...remote(),finalized:true,shouldStop:true,nextItem:null,answerHistory:[]};
-ackRetry.fixture.post={ok:true,locked:true,reason:'assignment_results_withheld',resultWithheld:true};
+ackRetry.fixture.post={...versionMetadata(),ok:true,locked:true,reason:'assignment_results_withheld',resultWithheld:true};
 ackRetry.fixture.completeOk=false;ackRetry.activate();assert.equal(await ackRetry.done(),true);
 assert.deepEqual(ackRetry.renders,['ack-failed']);ackRetry.fixture.completeOk=true;
 assert.equal(await ackRetry.fixture.retry(),true);await flush();ackRetry.tick();
@@ -205,4 +216,49 @@ assert.equal(preflight.calls.length,0);
 assert.match(html,/authoritativeRunRestore: true,\s*onRestore: restoreAssignedDecisionVelocityDraft/);
 assert.doesNotMatch(restore,/\/start|startAdaptiveRun\(|restartDiagnostic\(/);
 assert.ok(html.indexOf('await renderAssignedCompletionAcknowledgment(data.savedRunId)') < html.indexOf('if ((data && data.locked === true)'));
-console.log('DV assignment recovery smoke passed: authoritative reload, Back revision, lost ACK, fail-closed identity, anonymous acknowledgment, no admission, opt-in compatibility.');
+
+// The shipped pin helper must reject missing/unknown/conflicting server copy
+// metadata before cached rendering or autosave, then allow a same-run reload.
+const otherVersion = questionnaireVersion === '1.0.0' ? '1.1.0' : '1.0.0';
+const versionFailures = [
+  ['missing versions', response => { for (const field of ['configVersion','questionnaire_version','routingVersion','currentVersion','config_version','routingMeta']) delete response[field]; }],
+  ['unknown version', response => { response.configVersion=response.questionnaire_version=response.routingVersion='unknown'; }],
+  ...['questionnaire_version','configVersion','routingVersion','currentVersion','config_version','routingMeta.configVersion'].map(alias => [
+    'conflicting '+alias, response => { if (alias.includes('.')) response.routingMeta={configVersion:otherVersion}; else response[alias]=otherVersion; }
+  ])
+];
+for (const [label, change] of versionFailures) {
+  const env=runtime();const original=env.storage.get(key);change(env.fixture.remote);
+  env.activate();assert.equal(await env.done(),false,label);await flush();env.tick();
+  assert.equal(env.storage.get(key),original,label+' retains byte-identical draft');
+  assert.deepEqual(env.renders,[],label+' never renders cached questions');
+  assert.equal(env.calls.length,1,label+' performs only the verification GET');
+  assert.equal(env.state.journeyInvalidated,true,label);
+  const retry=runtime();retry.storage.set(key,original);retry.activate();
+  assert.equal(await retry.done(),true,label+' correct-version reload succeeds');
+  assert.equal(retry.state.configVersion,questionnaireVersion);
+  assert.equal(retry.calls.length,1,label+' reload never starts a replacement run');
+}
+
+// A successful HTTP answer/revision response is still not an accepted copy
+// transition when its metadata is missing or contradicts the saved pin.
+for (const operation of ['answer','revise']) for (const [label, change] of versionFailures) {
+  const env=runtime();env.activate();assert.equal(await env.done(),true);await flush();
+  if (operation==='revise') await env.back();
+  const currentId=env.state.currentItem.id;
+  const historyBefore=JSON.stringify(env.state.questionHistory);
+  const renderCount=env.renders.length;
+  env.fixture.post={...remote(),sessionRevision:8};change(env.fixture.post);
+  await env.context.submitAnswer(currentId,5);
+  assert.equal(env.state.configVersion,questionnaireVersion,operation+' '+label+' retains original version');
+  assert.equal(env.state.sessionRevision,7,operation+' '+label+' does not accept revision');
+  assert.equal(JSON.stringify(env.state.questionHistory),historyBefore,operation+' '+label+' does not replace history');
+  assert.equal(env.renders.length,renderCount,operation+' '+label+' does not render a new question');
+  assert.equal(env.elements.questionTitle.textContent,'Your saved questionnaire needs verification');
+  assert.equal(env.calls.filter(call=>call.method==='POST').length,1,operation+' '+label+' is not retried as a transient failure');
+  assert.ok(env.calls.some(call=>call.url?.endsWith('/'+operation)));
+  assert.equal(env.calls.filter(call=>call.url?.endsWith('/start')).length,0);
+}
+}
+
+console.log('DV assignment recovery smoke passed: both questionnaire versions, real copy pins, authoritative reload, Back revision, lost ACK, missing/conflicting GET and answer metadata, anonymous acknowledgment, no admission, opt-in compatibility.');

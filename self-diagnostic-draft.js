@@ -134,6 +134,7 @@
     var key = "";
     var pending = null;
     var active = false;
+    var restoring = false;
     var activationPromise = null;
 
     function selectedState() {
@@ -176,6 +177,13 @@
       });
       active = true;
       removeDialog();
+      if (options.authoritativeRunRestore === true && typeof options.onRestore === "function") {
+        restoring = true;
+        Promise.resolve(options.onRestore(pending)).then(function (restored) {
+          restoring = restored === false;
+        }).catch(function () { restoring = true; });
+        return true;
+      }
       options.showStage(options.questionStage, { scroll: false });
       options.renderQuestion();
       var notice = document.getElementById("persistenceNotice");
@@ -188,7 +196,7 @@
     }
 
     function writeAccepted() {
-      if (!active || !userId || !organizationId) return false;
+      if (!active || restoring || !userId || !organizationId) return false;
       if (state.result || document.getElementById("resultsStage")?.classList.contains("active")) return false;
       var configVersion = cleanSegment(state.configVersion);
       var draftId = cleanUuid(state.runId);

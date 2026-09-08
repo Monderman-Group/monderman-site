@@ -176,6 +176,10 @@
   function createController(options) {
     options = options || {};
     if (!options.state || typeof options.validateRemote !== "function" || typeof options.restore !== "function") return null;
+    // A cached older HTML page can continue only its original legacy copy.
+    // Current pages explicitly supply the versions whose static prompts they retain.
+    var supportedQuestionnaireVersions = Array.isArray(options.supportedQuestionnaireVersions)
+      ? options.supportedQuestionnaireVersions.slice() : ["1.0.0"];
     var enabled = false;
     var activeRecord = null;
     var activationPromise = null;
@@ -190,6 +194,25 @@
       if (notified === reason) return;
       notified = reason;
       if (typeof options.onUnavailable === "function") options.onUnavailable({ reason: reason, retryable: retryable === true });
+    }
+
+    function versionUnavailable() {
+      // Withhold this snapshot: no clearing, relabeling, saving over it, or new admission.
+      enabled = false;
+      unavailable("questionnaire_version_unavailable", true);
+    }
+
+    function isVersionError(error) {
+      return error && ["QUESTIONNAIRE_VERSION_UNAVAILABLE", "QUESTIONNAIRE_COPY_VERSION_UNSUPPORTED"].includes(error.code);
+    }
+
+    function resolvedQuestionnaireVersion(remote) {
+      var versions = [remote.questionnaire_version, remote.configVersion, remote.currentVersion,
+        remote.routingVersion, remote.config_version, remote.routingMeta && remote.routingMeta.configVersion]
+        .filter(function (value) { return value !== undefined && value !== null; });
+      if (!versions.length || versions.some(function (value) { return typeof value !== "string" || value !== versions[0]; })
+        || !supportedQuestionnaireVersions.includes(versions[0])) return null;
+      return versions[0];
     }
 
     function clear() {
@@ -267,13 +290,15 @@
         record.owner_user_id = userId;
         record.owner_organization_id = verifiedOrganizationId;
         record.auth_return = false;
-        if (!writePending(record)) { unavailable("storage_unavailable", true); return false; }
+        // Persist this verified identity binding only after the saved wording is verified too.
       }
       activeRecord = record;
+      enabled = false;
       var remote;
       try {
         remote = await options.validateRemote({ runId: record.state.runId, sessionCapability: record.state.sessionCapability });
       } catch (error) {
+        if (isVersionError(error)) { versionUnavailable(); return false; }
         var permanent = [401, 403, 404, 410].includes(Number(error && error.status));
         if (permanent) clear();
         unavailable(permanent ? "run_unavailable" : "verification_unavailable", !permanent);
@@ -284,10 +309,13 @@
         || remote.role !== record.state.roleForText || String(remote.depth) !== record.state.depth) {
         clear(); unavailable("invalid_server_response", false); return false;
       }
-      var remoteConfig = remote.configVersion || remote.currentVersion || (remote.routingMeta && remote.routingMeta.configVersion);
-      if (remoteConfig && remoteConfig !== record.state.configVersion) {
-        clear(); unavailable("configuration_changed", false); return false;
+      var remoteConfig = resolvedQuestionnaireVersion(remote);
+      if (!remoteConfig || remoteConfig !== record.state.configVersion) {
+        versionUnavailable(); return false;
       }
+      // Canonicalize only the response envelope, never the saved questionnaire version.
+      remote.configVersion = remoteConfig;
+      if (userId && !writePending(record)) { unavailable("storage_unavailable", true); return false; }
       enabled = true;
       notified = "";
       await options.restore({ state: record.state, phase: record.phase, remote: remote, authenticated: Boolean(userId) });
@@ -296,7 +324,8 @@
 
     function activate() {
       if (!activationPromise) {
-        activationPromise = activateOnce().catch(function () {
+        activationPromise = activateOnce().catch(function (error) {
+          if (isVersionError(error)) { versionUnavailable(); return false; }
           unavailable("verification_unavailable", true); return false;
         }).finally(function () { activationPromise = null; });
       }

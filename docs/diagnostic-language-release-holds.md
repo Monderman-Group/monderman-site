@@ -1,5 +1,7 @@
 # Diagnostic language review and release status
 
+> Historical status: the broader-candidate findings below are superseded by [the 8 September implementation update](diagnostic-language-implementation-20260908.md). Retain this document as the evidence record for the previously deployed intake/mobile correction.
+
 8 September 2026. Two releases are deliberately separate.
 
 ## Deployed: intake and mobile corrections
