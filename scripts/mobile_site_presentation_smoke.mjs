@@ -22,12 +22,12 @@ const canonicalPages = pages.filter((name) => {
 const footerPages = pages.filter((name) => canonicalPages.includes(name) || /\bmond-footer\b/.test(sourceByPage.get(name)));
 const shellFreePages = pages.filter((name) => !canonicalPages.includes(name) && !footerPages.includes(name));
 
-// September 8 adds the immutable Terms and Privacy editions. Keep both in the
-// full viewport sweep rather than excluding archived legal pages from coverage.
-assert.equal(pages.length, 72, 'rendered root-page inventory changed unexpectedly');
-assert.equal(canonicalPages.length, 54, 'canonical header + footer inventory changed unexpectedly');
-assert.equal(footerPages.length, 58, 'footer inventory changed unexpectedly');
-for (const legalEdition of ['terms-2026-09-08-beta.html', 'privacy-2026-09-08-beta.html']) {
+// September 9 adds a second immutable Terms and Privacy edition. Keep all four
+// in the full viewport sweep; archived legal pages are not excluded from coverage.
+assert.equal(pages.length, 74, 'rendered root-page inventory changed unexpectedly');
+assert.equal(canonicalPages.length, 56, 'canonical header + footer inventory changed unexpectedly');
+assert.equal(footerPages.length, 60, 'footer inventory changed unexpectedly');
+for (const legalEdition of ['terms-2026-09-08-beta.html', 'privacy-2026-09-08-beta.html', 'terms-2026-09-09-beta.html', 'privacy-2026-09-09-beta.html']) {
   assert.ok(canonicalPages.includes(legalEdition), `${legalEdition}: archived legal page missing from canonical sweep`);
 }
 assert.equal(shellFreePages.length, 14, 'functional shell-free page inventory changed unexpectedly');
