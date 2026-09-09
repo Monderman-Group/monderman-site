@@ -28,6 +28,8 @@ on:
       - 'scripts/homepage_workspace_demo_smoke.mjs'
       - 'scripts/workspace_product_design_smoke.mjs'
       - 'scripts/report_screen_experience_smoke.mjs'
+      - 'scripts/public_surface_consistency_smoke.mjs'
+      - 'scripts/workspace_layout_audit_smoke.mjs'
       - 'scripts/inject-public-shell.mjs'
       - 'scripts/render-static-build.sh'
       - 'site-shell/**'
@@ -35,6 +37,9 @@ on:
       - 'index.html'
       - 'mobile-site-polish.css'
       - 'visual-polish.css'
+      - 'pilot-waitlist.css'
+      - 'monderman-depth-lure-tile.css'
+      - 'first-run-moments.css'
       - 'Monderman_Platform_Brief.html'
       - 'sample-report-tile.css'
       - 'research.html'
@@ -125,6 +130,8 @@ on:
       - 'scripts/homepage_workspace_demo_smoke.mjs'
       - 'scripts/workspace_product_design_smoke.mjs'
       - 'scripts/report_screen_experience_smoke.mjs'
+      - 'scripts/public_surface_consistency_smoke.mjs'
+      - 'scripts/workspace_layout_audit_smoke.mjs'
       - 'scripts/inject-public-shell.mjs'
       - 'scripts/render-static-build.sh'
       - 'site-shell/**'
@@ -132,6 +139,9 @@ on:
       - 'index.html'
       - 'mobile-site-polish.css'
       - 'visual-polish.css'
+      - 'pilot-waitlist.css'
+      - 'monderman-depth-lure-tile.css'
+      - 'first-run-moments.css'
       - 'Monderman_Platform_Brief.html'
       - 'sample-report-tile.css'
       - 'research.html'
@@ -323,6 +333,8 @@ jobs:
           node scripts/homepage_workspace_demo_smoke.mjs
           node scripts/workspace_product_design_smoke.mjs
           node scripts/report_screen_experience_smoke.mjs
+          node scripts/workspace_layout_audit_smoke.mjs
+          node scripts/public_surface_consistency_smoke.mjs
 
       - name: Render and verify ordinary-page print pagination
         env:
