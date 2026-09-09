@@ -17,6 +17,7 @@ const shellScriptPattern = /<script\b[^>]*\bsrc=["']canonical-site-shell\.js[^"'
 const motifPattern = /<div\b(?=[^>]*\bclass=["'][^"']*\bmf-motif\b[^"']*["'])[^>]*>[\s\S]*?<\/svg>\s*<\/div>/i;
 const canonicalCssPattern = /canonical-site-shell\.css\?v=[^"']+/g;
 const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
+// This candidate includes the report display fixes and the approved header gradient.
 const shellRelease = "20260909-report-display10";
 const versionScript = (html, fileName) => html.replace(
   new RegExp(`(["'])${fileName.replace(".", "\\.")}(?:\\?v=[^"']*)?\\1`, "g"),
