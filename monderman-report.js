@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-20260908.1";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-20260908.2";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -307,6 +307,82 @@
     return raw;
   }
 
+  const RUN_DIMENSION_LABELS = Object.freeze({
+    decision_velocity: Object.freeze({
+      cycle_velocity: "Decision timing",
+      approval_efficiency: "Approval efficiency",
+      coordination_load: "Coordination",
+      execution_stability: "Execution stability"
+    }),
+    structural_clarity: Object.freeze({
+      role_clarity: "Role clarity",
+      decision_rights_clarity: "Decision authority",
+      handoff_clarity: "Handoff clarity",
+      accountability_clarity: "Accountability",
+      duplicate_approvals_inverse: "Avoidance of duplicate approvals"
+    }),
+    operational_systems: Object.freeze({
+      process_density: "Process steps",
+      systems_friction: "Work across systems",
+      reporting_exception_burden: "Reporting and exception handling",
+      workaround_dependence: "Work outside the usual process",
+      control_load: "Control requirements",
+      upkeep_burden: "Administrative maintenance"
+    }),
+    institutional_performance: Object.freeze({
+      execution_coherence: "Execution",
+      decision_reliability: "Decision reliability",
+      adaptive_capacity: "Ability to adapt",
+      institutional_confidence: "Confidence in formal systems",
+      performance_stability: "Performance stability",
+      compensatory_effort: "Extra effort required"
+    })
+  });
+
+  function displayRunDimensionLabel(toolType, key, fallback) {
+    const toolKey = String(toolType || "").trim().toLowerCase().replace(/[-\s]+/g, "_");
+    const dimensionKey = String(key || "").trim().toLowerCase();
+    return firstStr(RUN_DIMENSION_LABELS[toolKey]?.[dimensionKey], fallback, humanize(key));
+  }
+
+  function displayCalculationMethod(value) {
+    const method = firstStr(value);
+    if (method === "directional_scenario_not_empirical_benchmark") {
+      return "Directional planning scenario, not an empirical benchmark";
+    }
+    return method ? humanize(method) : "";
+  }
+
+  const SCORING_VERSION_LABELS = Object.freeze({
+    structural_clarity_high_score_good_2026_08_11_methodology_v4: "Structural Clarity scoring method, methodology version 4, August 11, 2026",
+    decision_velocity_high_score_good_2026_08_12_release_v3: "Decision Velocity scoring method, release 3, August 12, 2026",
+    operational_systems_high_score_good_2026_08_13_experience_neutral_v3: "Operational Systems scoring method, experience-neutral release 3, August 13, 2026",
+    institutional_performance_high_score_good_2026_08_10_missingness_v2: "Institutional Performance scoring method, missing-data version 2, August 10, 2026"
+  });
+
+  function displayScoringVersion(value) {
+    const version = firstStr(value);
+    return firstStr(SCORING_VERSION_LABELS[version], version, "Not recorded");
+  }
+
+  function hasGeneratedRemedyRecoveryRange(value) {
+    const text = firstStr(value);
+    return /\bDirectional reclaim band:\s*(?:\$[\d,.]+(?:\s*[–-]\s*\$[\d,.]+)?|Not estimated)\*{0,2}\.?\s*$/i.test(text)
+      || /\bScenario value band:\s*(?:\$[\d,.]+(?:\s*[–-]\s*\$[\d,.]+)?|Not estimated);\s*this is not observed or protected value\.?\s*$/i.test(text)
+      || /^(?:Scenario comparison band:|Low-disruption test\.\s*The scenario model shows up to|Targeted redesign test\.\s*The scenario model shows up to|Broadest scenario test\.\s*The model shows up to)/i.test(text);
+  }
+
+  function displayRemedyBenefit(value) {
+    const text = firstStr(value);
+    if (!text) return "";
+    const withoutGeneratedSuffix = text
+      .replace(/\s+Directional reclaim band:\s*(?:\$[\d,.]+(?:\s*[–-]\s*\$[\d,.]+)?|Not estimated)\*{0,2}\.?\s*$/i, "")
+      .replace(/\s+Scenario value band:\s*(?:\$[\d,.]+(?:\s*[–-]\s*\$[\d,.]+)?|Not estimated);\s*this is not observed or protected value\.?\s*$/i, "")
+      .trim();
+    if (withoutGeneratedSuffix !== text) return withoutGeneratedSuffix;
+    return hasGeneratedRemedyRecoveryRange(text) ? "" : text;
+  }
+
   function fromRun(run) {
     const envelope = obj(run);
     const r = obj(envelope.result).tool_type ? obj(envelope.result) : envelope;
@@ -361,7 +437,7 @@
     const bottomLine = sentenceLead(firstStr(
       narrative.opportunity, narrative.organizational_implication, r.organizational_implication,
       narrative.leadership_implication, r.leadership_implication, driver !== "Unavailable" ? driver : "",
-      "Treat this as a directional read of the measured condition."
+      "Treat this as an initial interpretation of the measured condition."
     ), 2);
 
     const sections = [
@@ -376,7 +452,7 @@
     const kvs = [
       { k: "Primary signal", v: driver },
       { k: "Benchmark position", v: benchmark },
-      { k: "Trajectory", v: trajectory }
+      { k: "Participant-reported change", v: trajectory }
     ];
     if (annualHours) kvs.push({ k: "Annual hours*", v: num(annualHours) });
     if (annualCost) kvs.push({ k: "Annual cost*", v: cur(annualCost) });
@@ -394,7 +470,7 @@
     const participantMode = humanize(firstStr(r.participant_mode, context.participantMode, context.participant_mode, "managerial"));
     const dimensionEntries = Object.keys(dimensions).map((key) => ({
       key: key,
-      label: firstStr(dimensionLabels[key], humanize(key)),
+      label: displayRunDimensionLabel(toolType, key, dimensionLabels[key]),
       score: strictFinite(dimensions[key]) ? Number(dimensions[key]) : null,
       coverage: obj(obj(coverage.dimensions)[key])
     })).filter((item) => item.score !== null);
@@ -1149,13 +1225,15 @@
       const severity = strictFinite(row.severity) ? row.severity : (strictFinite(row.weakness) ? row.weakness : null);
       return '<div class="mr-priority-row"><span>0' + (index + 1) + '</span><div><div class="mr-lens-label">' + esc(firstStr(row.priority, "Priority")) + '</div><strong>' + esc(firstStr(row.focus, row.label, "Measured focus")) + '</strong></div><em>' + esc(severity === null ? "Unavailable" : fmt1(severity)) + '</em></div>';
     }).join("") + '</div>' : '';
+    const adjustedRemedyRecovery = remedies.some((item) => hasGeneratedRemedyRecoveryRange(obj(item).benefit));
     const remediesHtml = remedies.length ? '<div class="mr-remedy-grid">' + remedies.slice(0, 3).map((item, index) => {
       const path = obj(item);
+      const benefit = displayRemedyBenefit(path.benefit);
       return '<article class="mr-card mr-remedy-card mr-run-remedy" data-path-depth="' + (index + 1) + '"><div class="mr-remedy-head"><span class="mr-remedy-number">0' + (index + 1) + '</span><div><div class="mr-lens-label">' + esc(firstStr(path.kicker, "Option")) + '</div><h3>' + esc(firstStr(path.label, "Option")) + '</h3></div></div>' +
         (path.summary ? '<p>' + esc(path.summary) + '</p>' : '') +
         (arr(path.actions).length ? '<div class="mr-remedy-actions"><div class="mr-remedy-field-label">Suggested steps</div><ol>' + arr(path.actions).map((action) => '<li>' + esc(textItem(action)) + '</li>').join("") + '</ol></div>' : '') +
-        '<div class="mr-remedy-tradeoffs">' + (path.benefit ? '<div><div class="mr-remedy-field-label">Potential benefit</div><p>' + esc(path.benefit) + '</p></div>' : '') + (path.risk ? '<div><div class="mr-remedy-field-label">Tradeoff</div><p>' + esc(path.risk) + '</p></div>' : '') + '</div></article>';
-    }).join("") + '</div>' : '';
+        '<div class="mr-remedy-tradeoffs">' + (benefit ? '<div><div class="mr-remedy-field-label">Potential benefit</div><p>' + esc(benefit) + '</p></div>' : '') + (path.risk ? '<div><div class="mr-remedy-field-label">Tradeoff</div><p>' + esc(path.risk) + '</p></div>' : '') + '</div></article>';
+    }).join("") + '</div>' + (adjustedRemedyRecovery ? '<p class="mr-copy">The report-wide modeled recovery scenario is not divided among these options. Each option must be tested before any recovery is claimed.</p>' : '') : '';
     if (obj(m.aiReport).status === "complete") return '<section class="mr-section mr-run-action-board"><h2>Measured priorities</h2>' + renderPriorityMatrix(m) + ladderHtml + '</section>';
     return '<section class="mr-section mr-run-action-board"><div class="mr-section-index">0' + n + ' · What to test next</div><h2>Priorities and options</h2>' +
       '<p class="mr-lede">The priority list ranks measured issues. The options describe different scopes of change and do not correspond one-to-one with that list. None changes the score or predicts an outcome.</p>' + renderPriorityMatrix(m) + ladderHtml +
@@ -1168,9 +1246,10 @@
     const rows = [
       ["Instrument", m.toolLabel], ["Operating scope", firstStr(m.processName, m.scopeLabel)],
       ["Participant perspective", m.participantMode], ["Confidence in answers", firstStr(obj(m.source).input_confidence_label, c.confidenceLevel, c.confidence_level)],
-      ["Reported change", m.trajectoryLabel], ["Calculation version", firstStr(model.version, model.model_type)],
+      ["Reported change", m.trajectoryLabel], ["Calculation method", displayCalculationMethod(model.model_type)],
+      ["Calculation version", firstStr(model.version)],
       ["Questionnaire version", m.questionnaireVersion || "Not recorded"],
-      ["Scoring version", m.scorerVersion || "Not recorded"],
+      ["Scoring version", displayScoringVersion(m.scorerVersion)],
       ["Report wording version", firstStr(language.generation_version, "Not recorded")],
       ["Current display version", RENDERER_VERSION],
       ["Engine revision", firstStr(p.engine_commit)], ["Artifact digest", firstStr(p.artifact_sha256)]

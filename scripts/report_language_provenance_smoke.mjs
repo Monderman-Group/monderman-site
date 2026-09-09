@@ -17,7 +17,7 @@ const current = make({questionnaire_version:'1.3.0',config_version:'1.3.0',score
 const currentBefore = JSON.stringify(current);
 const currentHtml = report.buildReportHtml(report.fromRun(current));
 assert.doesNotMatch(currentHtml,/Why this option appears here/,'independent remedy and priority lists must not invent an array-index evidence pairing');
-for (const text of ['1.3.0','original-scorer','diagnostic-report-language-20260908','diagnostic-renderer-20260908']) assert.ok(currentHtml.includes(text),text);
+for (const text of ['1.3.0','original-scorer','diagnostic-report-language-20260908','diagnostic-renderer-ai-20260908.2']) assert.ok(currentHtml.includes(text),text);
 assert.equal(JSON.stringify(current),currentBefore);
 const migrated = make({report_language:{origin_version:'diagnostic-report-language-pre-20260908',generation_version:'diagnostic-report-language-20260908',migration:{from_version:'diagnostic-report-language-pre-20260908'}}});
 assert.match(report.buildReportHtml(report.fromRun(migrated)),/Report wording was generated with a newer template/);

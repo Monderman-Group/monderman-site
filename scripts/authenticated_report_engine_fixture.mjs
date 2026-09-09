@@ -25,30 +25,33 @@ const expected = {
 for (const [key, contract] of Object.entries(expected)) {
   const run = fixture.outputs[key];
   assert.ok(run, `${key} fixture missing`);
+  const originalRun = JSON.stringify(run);
   const model = Report.fromRun(run);
   assert.equal(model.score, contract.score, `${key} score changed`);
   assert.equal(model.dimensionEntries.length, contract.dimensions, `${key} dimension count changed`);
   assert.equal(model.primarySignal, contract.signal, `${key} primary signal changed`);
   assert.equal(model.processName, "capital approval pathway", `${key} operating scope changed`);
-  assert.equal(model.headline, `${contract.signal} is the clearest measured constraint in the capital approval pathway.`);
+  assert.equal(model.headline, `Main measured focus for the capital approval pathway: ${contract.signal}.`);
   assert.equal(model.remedyPaths.length, 3, `${key} remedy-path count changed`);
   assert.ok(model.bottomLine.split(/[.!?]+/).filter(Boolean).length <= 2, `${key} leadership implication is not concise`);
 
   const html = Report.buildReportHtml(model);
   const required = [
-    "Decision summary", "Dimension profile", "Where the measured issue appears",
-    "How the time and cost estimate is built", "Priority order and measured severity", "Why this option appears here",
+    "Dimension profile", "What the result supports and what it does not",
+    "How the time and cost estimate is built", "Priorities and options", "How this report was produced",
     "Turn the result into a small, measurable test", "How to compare later",
   ];
   for (const token of required) assert.match(html, new RegExp(token), `${key} missing ${token}`);
   assert.equal((html.match(/class="mr-card mr-remedy-card mr-run-remedy"/g) || []).length, 3, `${key} intervention paths changed`);
-  assert.equal((html.match(/class="mr-remedy-evidence"/g) || []).length, 3, `${key} evidence links changed`);
+  assert.equal((html.match(/class="mr-remedy-evidence"/g) || []).length, 0, `${key} invented option-to-priority pairing`);
+  assert.doesNotMatch(html, /Why this option appears here/, `${key} independent lists must not be paired by array position`);
   const decisionAt = html.indexOf("mr-run-decision");
   const leadershipAt = html.indexOf("mr-leadership-close");
   const methodAt = html.indexOf("mr-run-method");
   assert.ok(decisionAt >= 0 && methodAt > decisionAt && leadershipAt > methodAt, `${key} report hierarchy changed`);
   assert.doesNotMatch(html, /\[object Object\]|\bundefined\b|\bNaN\b|\ba\s+the\b|None of this looks like an emergency/i);
   assert.match(html, /@media print/);
+  assert.equal(JSON.stringify(run), originalRun, `${key} rendering changed the historical result`);
 }
 
 // Reopened Workspace rows may carry the operating scope on the persisted result

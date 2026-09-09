@@ -887,7 +887,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
       </div>
     </section>
 
-        <section class="viz-card" id="basisOfRead" style="margin:6px 0 0;"><h4>Basis of this read</h4><dl id="basisRows" style="display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:10px 0 0;font-size:.92rem;line-height:1.55;"></dl><p class="viz-note" style="margin-top:10px;">Published with every read: the same basis travels in the JSON export. Identical answers on this instrument version yield the identical score.</p></section>
+        <section class="viz-card" id="basisOfRead" style="margin:6px 0 0;"><h4>How this result was produced</h4><dl id="basisRows" style="display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:10px 0 0;font-size:.92rem;line-height:1.55;"></dl><p class="viz-note" style="margin-top:10px;">The JSON export includes these inputs and versions. The same answers, questionnaire version, and scoring version produce the same score.</p></section>
     <section class="advisory-card"><div><p class="summary-label" style="margin-bottom:8px;color:var(--accent);">Next step</p><h3 style="margin:0 0 8px;">Bring this into a deeper platform services conversation.</h3><p class="result-copy" style="margin:0;">If the pattern appears broader, more persistent, or more costly than a directional tool can resolve, Monderman can go deeper on decision pathways, approval design, governance proportionality, and off-path workarounds.</p></div><div class="export-cta-stack"><div class="export-primary-row"><button class="btn btn-accent" id="downloadPdfBtn" type="button">Download Summary (PDF)</button><a class="btn" href="connect.html" target="_blank" rel="noopener noreferrer">Discuss with Monderman Platform Services</a></div><div class="export-inline-row"><button class="action-link" id="downloadReportBtn" type="button">Download Summary (HTML)</button><span aria-hidden="true" style="color:rgba(24,25,28,.18)">|</span><button class="action-link" id="downloadFullReportBtn" type="button">Download Full Report (HTML)</button><span aria-hidden="true" style="color:rgba(24,25,28,.18)">|</span><button class="action-link" id="saveCrossDiagnosticBtn" type="button">Export JSON for Synthesis</button></div><div class="export-utility-row"><button class="utility-btn" id="newRunBtn" type="button">Run another diagnostic</button><span aria-hidden="true" style="color:rgba(24,25,28,.18)">|</span><a class="utility-btn" href="diagnostics.html" target="_blank" rel="noopener noreferrer">Back to diagnostics</a></div><a id="reportDownloadLink" class="hidden-download" download="monderman-decision-velocity-report.html"></a><a id="crossDiagnosticDownloadLink" class="hidden-download" download="monderman-decision-velocity-result.json"></a></div></section>
     <p style="margin:18px 0 0;"><a class="btn" href="workspace-diagnostics.html">Open saved result in Workspace</a></p>
     <section class="pilot-result-invitation" style="margin:22px 0 0;padding:22px 24px;border-left:4px solid #C9821F;background:#F7F1E6;display:flex;align-items:center;justify-content:space-between;gap:22px;flex-wrap:wrap;"><div style="max-width:670px;"><p style="margin:0 0 7px;color:#8A5512;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Limited Pattern Pilot</p><h3 style="margin:0 0 7px;font-size:1.15rem;">Take this from one leader to one team.</h3><p class="result-copy" style="margin:0;">Apply to examine the same bounded decision system across six to twelve people in the 30-day Pattern Pilot.</p></div><a class="btn" href="pilot.html?source=decision_velocity" target="_blank" rel="noopener noreferrer" data-first-run-event="pattern_pilot_requested" style="background:#C9821F;color:#18191C;border-color:#C9821F;font-weight:700;">Apply to the pilot waitlist</a></section>
@@ -1267,6 +1267,49 @@ function humanize(value) {
 return String(value || "")
 .replace(/_/g, " ")
 .replace(/\b\w/g, (m) => m.toUpperCase());
+}
+
+const QUESTION_TOPIC_LABELS = Object.freeze({
+approval: "Approvals",
+coordination: "Coordination",
+handoff: "Handoffs",
+escalation: "Escalation",
+rework: "Repeated work",
+key_person: "Reliance on key people",
+cross_dimensional: "Overall picture",
+trajectory: "Change over the past year",
+input_confidence: "Confidence in your answers"
+});
+
+const PATTERN_DISPLAY_LABELS = Object.freeze({
+approval_layering_pattern: "Several approval steps contribute to delay",
+compensatory_coordination_pattern: "High coordination effort and lower execution stability appear together",
+unstable_pathway_pattern: "Lower execution stability appears with conflicting answers",
+balanced_pathway_pattern: "No specific burden pattern was flagged in this run"
+});
+
+function displayQuestionTopic(item = {}) {
+if (item.isExperienceLayer) return "Your observations";
+if (item.id === "**confidenceLevel**") return "Confidence in your answers";
+const key = String(item.dimension || "").trim().toLowerCase().replace(/[\s-]+/g, "_");
+return QUESTION_TOPIC_LABELS[key] || "Diagnostic question";
+}
+
+function displayPatternLabel(value) {
+const key = String(value || "").trim().toLowerCase();
+return PATTERN_DISPLAY_LABELS[key] || humanize(value);
+}
+
+const SCORING_VERSION_DISPLAY_LABELS = Object.freeze({
+structural_clarity_high_score_good_2026_08_11_methodology_v4: "Structural Clarity scoring method, methodology version 4, August 11, 2026",
+decision_velocity_high_score_good_2026_08_12_release_v3: "Decision Velocity scoring method, release 3, August 12, 2026",
+operational_systems_high_score_good_2026_08_13_experience_neutral_v3: "Operational Systems scoring method, experience-neutral release 3, August 13, 2026",
+institutional_performance_high_score_good_2026_08_10_missingness_v2: "Institutional Performance scoring method, missing-data version 2, August 10, 2026"
+});
+
+function displayScoringVersion(value) {
+const version = String(value || "").trim();
+return version ? (SCORING_VERSION_DISPLAY_LABELS[version] || version) : "Not recorded";
 }
 
 function toIndustryKey(value) {
@@ -2413,7 +2456,7 @@ function renderQuestion() {
 if (!ensureQuestionnaireCopyReady()) return;
 const item = state.currentItem;
 if (!item) return;
-const dimLabel = item.isExperienceLayer ? "Your observations" : (item.dimension ? humanize(item.dimension) : "Diagnostic question");
+const dimLabel = displayQuestionTopic(item);
 const card = document.querySelector("#questionStage .question-card");
 
 const applyQuestionContent = () => {
@@ -2603,7 +2646,7 @@ const percent = Number(state.currentProgress?.progressPercent || 0);
 progressBar.style.width = `${Math.max(6, percent)}%`;
 // Non-numeric copy: just the dimension name. The bar still fills based on
 // backend progress, so the user feels movement without seeing a count.
-const dimension = state.currentItem?.isExperienceLayer ? "Your observations" : (state.currentItem?.id === "**confidenceLevel**" ? "Confidence in your answers" : (state.currentItem?.dimension ? humanize(state.currentItem.dimension) : "Diagnostic in progress"));
+const dimension = displayQuestionTopic(state.currentItem);
 progressCopy.textContent = dimension;
 pathHint.textContent = "";
 }
@@ -2725,8 +2768,8 @@ beginBtn.disabled = false;
 beginBtn.textContent = "Begin Diagnostic";
 setHeader(
   `${laneConfigs[state.mode]?.header || "Perspective selected"} • ${depthConfigs[state.depth]?.label || "Adaptive run"}`,
-  "Adaptive question path active.",
-  "Question path active"
+  "Questions adjust to your answers.",
+  "Diagnostic in progress"
 );
 if (data.finalized) {
   state.currentItem = null;
@@ -4218,7 +4261,7 @@ function renderInsightDepth(payload) {
     const perspectivePhrase = otherPerspectiveLabels.length === 2
       ? `${otherPerspectiveLabels[0]} and ${otherPerspectiveLabels[1]}`
       : otherPerspectiveLabels.join(", ");
-    copyEl.textContent = `This single-run evidence context reflects run length and self-reported input confidence. It is not a population measure. Include compatible Results in Analysis when you want to use Depth Synthesis or Cross-Lens Synthesis.`;
+    copyEl.textContent = `This evidence rating reflects the diagnostic length and how confident the participant was in the answers. It is not a measure of the wider organization. Evidence from multiple participants is evaluated separately in Synthesis.`;
   }
   const circumference = 100.53;
   const arc = $("confidenceRingArc");
@@ -5483,10 +5526,10 @@ ${decisionReviewPage}
     <p>This diagnostic measures pathway drag across six dimensions: approval density, coordination burden, handoff burden, escalation dependence, rework friction, and key-person brittleness. It also estimates the amount of productive capacity being absorbed by sustaining the pathway itself rather than producing decisions. The diagnostic does not independently verify user inputs; it should be read as a directional pathway read rather than a full audit.</p>
     <div class="rule"></div>
     <div class="ring-row"><svg class="ring" viewBox="0 0 58 58"><circle cx="29" cy="29" r="23" fill="none" stroke="#EAE6DD" stroke-width="7"/><circle cx="29" cy="29" r="23" fill="none" stroke="#C9821F" stroke-width="7" stroke-dasharray="${insight.available ? Math.round(insight.score * 1.45) : 0} 145" transform="rotate(-90 29 29)"/></svg><div><div style="font-size:24px;font-weight:700">${insight.available ? Math.round(insight.score) : "Unavailable"}</div><p class="muted">Run evidence score${insight.available ? ` · ${escapeHtml(insight.band)}` : " · Awaiting data"}<br>${insight.available ? "Single-run signal-quality indicator, not a correctness score." : "Run evidence could not be loaded from the diagnostic backend."}</p></div></div>
-    <p>${insight.available ? "This single-run evidence context reflects run length and self-reported input confidence. It is not a population measure and is separate from Depth Synthesis and Cross-Lens Synthesis evidence bands." : "The single-run evidence-context field could not be retrieved for this run; the rest of the report remains valid."}</p>
+    <p>${insight.available ? "This evidence rating reflects the diagnostic length and how confident the participant was in the answers. It is not a measure of the wider organization, and it is separate from the evidence ratings used in Depth Synthesis and Cross-Lens Synthesis." : "The evidence rating was unavailable for this run. The rest of the report remains valid."}</p>
     <h3>What would strengthen the next read</h3><div class="method-box">${nextRunBullets.map((item) => `<p>• ${safeWords(item, 42)}</p>`).join("")}</div>
     <h3>What the figures represent</h3><div class="method-box"><p>* Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so the organization can decide whether the pattern is worth investigating further. They should not be cited externally as audited measurements, and they should not be used as the basis for compensation decisions, performance reviews, or formal financial planning.</p>${buildExposureMethodDisclosure(result?.exposure)}</div>
-    <p class="muted" style="font-size:8.5px;overflow-wrap:anywhere;">Questionnaire version: ${safe(result.questionnaire_version || result.config_version || "Not recorded")}. Scoring version: ${safe(result.scorer_version || "Not recorded")}. Report wording version: ${safe(result.report_language?.generation_version || "Not recorded")}.</p>
+    <p class="muted" style="font-size:8.5px;overflow-wrap:anywhere;">Questionnaire version: ${safe(result.questionnaire_version || result.config_version || "Not recorded")}. Scoring version: ${safe(displayScoringVersion(result.scorer_version))}. Report wording version: ${safe(result.report_language?.generation_version || "Not recorded")}.</p>
   </div>
 </section>
 
@@ -5893,11 +5936,11 @@ function renderBasisOfRead(result, payload) {
   const mode = p.participantMode || p.participant_mode || (typeof state !== "undefined" ? state.mode : "");
   const laneLabel = (typeof laneConfigs !== "undefined" && laneConfigs[mode] && laneConfigs[mode].label) || (mode ? String(mode) : "Unavailable");
   const cfg = result?.config_version || ((typeof state !== "undefined" && state.configVersion) ? state.configVersion : "Unavailable");
-  const scorer = (result && result.scorer_version) ? result.scorer_version : "Unavailable";
+  const scorer = displayScoringVersion(result && result.scorer_version);
   const rows = [
     ["Sector", esc(calTxt)],
-    ["Disclosed inputs", esc(inputs.length ? inputs.join(" \u00b7 ") : "none beyond the structured answers")],
-    ["Depth \u00b7 vantage", esc(`${depthLabel} \u00b7 ${laneLabel}`)],
+    ["Inputs used", esc(inputs.length ? inputs.join(" \u00b7 ") : "none beyond the structured answers")],
+    ["Diagnostic length and participant perspective", esc(`${depthLabel} \u00b7 ${laneLabel}`)],
     ["Questionnaire version", `<code style="font-size:.85em">${esc(cfg)}</code>`],
     ["Scoring version", `<code style="font-size:.85em">${esc(scorer)}</code>`],
     ["Report wording version", `<code style="font-size:.85em">${esc(result?.report_language?.generation_version || "Not recorded")}</code>`]
@@ -6023,7 +6066,7 @@ renderList("leadershipList", harmonized.leadership);
 renderList("flagsList", harmonized.keyFlags);
 renderList("actionsList", priorityActions);
 renderList("actionsListDetail", priorityActions);
-renderList("patternsList", asArray(result.patterns).map(humanize));
+renderList("patternsList", asArray(result.patterns).map(displayPatternLabel));
 const experientialSignalForDisplay = detectQualitativeOverride(payload || {});
 renderList("contradictionsList", asArray(result.contradictions).length
 ? asArray(result.contradictions).map((item) => item.message || humanize(item.code || "contradiction"))
