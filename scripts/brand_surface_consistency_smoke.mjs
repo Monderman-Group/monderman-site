@@ -30,7 +30,7 @@ const pages = [
 const footerOnly = new Set(['404.html', 'decision-velocity.html', 'institutional-performance.html', 'operational-systems.html', 'sample-report.html', 'structural-clarity.html']);
 const heroSelector = 'body.canonical-green-shell :is(.hero,.article-hero,.ps-hero,.pl-top),body.canonical-green-shell>main.deck>.slide.cover,body.page-report>main.shell>.hero';
 const surfaceSelector = `${heroSelector},footer.mond-footer`;
-const tagline = 'Make the work clearer. Make the next move count.';
+const tagline = 'See the work clearly. Make the next move count.';
 const printPages = new Set(['index.html', 'Monderman_Platform_Brief.html', 'privacy.html', 'the-culture-trap-brief.html', 'cross-tool-synthesis.html', 'operational-systems.html', 'sample-report.html']);
 assert.equal(pages.length, 61);
 assert.equal(pages.length - footerOnly.size, 55);
