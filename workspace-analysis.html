@@ -911,11 +911,7 @@ body{transition:background-color .25s ease, color .25s ease}
       if(body) body.innerHTML=`<p class="muted">Loading Included runs…</p>`;
       try{
         const rows=await fetchWorkspaceRuns(ws5OrgId);
-        SYNTH_RUNS=rows.filter(run=>
-          run.status==="promoted" && run.included_in_aggregates===true &&
-          ["included","included_with_caution"].includes(run.normalization_status) &&
-          run.report_available===true && run.locked!==true
-        ).slice(0,SYNTH_MAX_LOAD);
+        SYNTH_RUNS=rows.filter(isAnalysisEligible).slice(0,SYNTH_MAX_LOAD);
         try{
           const {data:sess}=await supabase.auth.getSession(); const token=sess?.session?.access_token;
           const hr=await fetch(`${API_BASE}/api/synthesis-runs?limit=100`,{headers:{...(token?{Authorization:"Bearer "+token}:{}),...(ws5OrgId?{"X-Monderman-Organization-Id":ws5OrgId}:{})}});
@@ -1093,11 +1089,30 @@ body{transition:background-color .25s ease, color .25s ease}
       const j = await res.json();
       return Array.isArray(j) ? j : (Array.isArray(j?.runs) ? j.runs : []);
     }
+    // The summary and Synthesis picker use the same explicit eligibility rule.
+    // A missing screening result never means a run is ready for analysis.
+    function isAnalysisEligible(run){
+      return run.status==="promoted" && run.included_in_aggregates===true &&
+        ["included","included_with_caution"].includes(run.normalization_status) &&
+        run.report_available===true && run.locked!==true;
+    }
     function computeTrust(runs){
-      const total=runs.length; let incl=0,caut=0,excl=0,screened=0,recent=0;
+      const total=runs.length; let incl=0,caut=0,excl=0,screened=0,recent=0,inAggN=0;
       const byTool={}; const depths=new Set(),vants=new Set(); const now=Date.now(),NINETY=90*864e5;
-      runs.forEach(r=>{ const st=r.normalization_status||null; if(st) screened++; if(st==="excluded_from_aggregates") excl++; else if(st==="included_with_caution") caut++; else if(st==="included") incl++; const inAgg=st!=="excluded_from_aggregates"; const t=r.tool_type||"?"; (byTool[t]=byTool[t]||{n:0,inAgg:0}).n++; if(inAgg){byTool[t].inAgg++; if(r.diagnostic_depth!=null&&r.diagnostic_depth!=="") depths.add(String(r.diagnostic_depth)); const v=normalizeVantage(r.vantage||r.participant_lens||r.participant_mode); if(v) vants.add(v); const ts=r.created_at?Date.parse(r.created_at):NaN; if(!isNaN(ts)&&(now-ts)<=NINETY) recent++;}});
-      const inAggN=total-excl; let topTool=null,topN=0; Object.keys(byTool).forEach(t=>{if(byTool[t].inAgg>topN){topN=byTool[t].inAgg;topTool=t;}});
+      runs.forEach(r=>{
+        const st=r.normalization_status||null;
+        if(["included","included_with_caution","excluded_from_aggregates"].includes(st)) screened++;
+        if(st==="excluded_from_aggregates") excl++;
+        if(!isAnalysisEligible(r)) return;
+        inAggN++;
+        if(st==="included_with_caution") caut++; else incl++;
+        const t=r.tool_type||"?"; byTool[t]=(byTool[t]||0)+1;
+        if(r.diagnostic_depth!=null&&r.diagnostic_depth!=="") depths.add(String(r.diagnostic_depth));
+        const v=normalizeVantage(r.vantage||r.participant_lens||r.participant_mode); if(v) vants.add(v);
+        const ts=r.created_at?Date.parse(r.created_at):NaN;
+        if(Number.isFinite(ts)&&now>=ts&&(now-ts)<=NINETY) recent++;
+      });
+      let topTool=null,topN=0; Object.keys(byTool).forEach(t=>{if(byTool[t]>topN){topN=byTool[t];topTool=t;}});
       return {total,incl,caut,excl,screened,inAggN,topTool,topN,depths:depths.size,vants:vants.size,recent};
     }
     function renderTrust(t,isAdmin){
@@ -1105,7 +1120,12 @@ body{transition:background-color .25s ease, color .25s ease}
       setText("tsTotal",t.total); setText("tsIncl",t.screened?t.incl:dash); setText("tsCaut",t.screened?t.caut:dash); setText("tsExcl",t.screened?t.excl:dash);
       setText("tsRichLabel",`${t.inAggN} eligible`);
       setText("tsRichSub",`${t.inAggN} run${t.inAggN===1?"":"s"} eligible for aggregates · ${t.depths} depth${t.depths===1?"":"s"} · ${t.vants} participant vantage${t.vants===1?"":"s"} · ${t.recent} in the last 90 days`);
-      const bits=[]; if(!t.screened) bits.push("These runs have not been screened yet; quality status is not available."); else bits.push(`Screened ${t.total} run${t.total===1?"":"s"}: <b>${t.incl} included</b>, ${t.caut} included with caution, ${t.excl} excluded from aggregates.`); if(t.topN<30) bits.push(`Statistical outlier screening needs about 30 reads of one Diagnostic (most so far: ${t.topN}${t.topTool?(" on "+trustToolLabel(t.topTool)):""}).`); else bits.push(`${trustToolLabel(t.topTool)} has ${t.topN} eligible reads, enough for the current statistical outlier screen.`); const note=$("tsNote"); if(note) note.innerHTML=bits.join(" "); const btn=$("trustRunBtn"); if(btn){btn.hidden=!isAdmin;if(isAdmin)btn.textContent=t.screened?"Re-run screening":"Run screening";}
+      const bits=[];
+      if(!t.screened) bits.push("These runs have not been screened yet; quality status is not available.");
+      else bits.push(`Screened ${t.screened} of ${t.total} runs. ${t.inAggN} are Included and eligible for analysis; ${t.excl} ${t.excl===1?"was":"were"} excluded by screening.`);
+      if(t.topN<30) bits.push(`Statistical outlier screening needs about 30 eligible runs of one Diagnostic (most so far: ${t.topN}${t.topTool?(" on "+trustToolLabel(t.topTool)):""}).`);
+      else bits.push(`${trustToolLabel(t.topTool)} has ${t.topN} eligible runs, enough for the current statistical outlier screen.`);
+      const note=$("tsNote"); if(note) note.innerHTML=bits.join(" "); const btn=$("trustRunBtn"); if(btn){btn.hidden=!isAdmin;if(isAdmin)btn.textContent=t.screened?"Re-run screening":"Run screening";}
     }
     async function loadAndRenderTrust(){
       if(!ws5OrgId) return;                          // personal workspace → no org-level screening
