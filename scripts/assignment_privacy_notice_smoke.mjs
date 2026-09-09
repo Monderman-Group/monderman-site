@@ -59,10 +59,16 @@ const hiddenAttributable = render({
 assert.match(hiddenAttributable, /campaign is attributable/i);
 assert.match(hiddenAttributable, /name is attached to the response/i);
 assert.match(hiddenAttributable, /will not receive an individual report after submission/i);
-assert.match(hiddenAttributable, /quantitative score and written interpretation are generated deterministically/i);
-assert.match(hiddenAttributable, /Optional written observations are displayed separately/i);
-assert.match(hiddenAttributable, /not sent to an AI provider in this bounded pilot/i);
+for (const notice of [shownAnonymous, hiddenAttributable]) {
+  assert.match(notice, /quantitative score is calculated by versioned application code from structured answers; AI does not calculate or set it/i);
+  assert.match(notice, /When AI-assisted reporting is enabled, selected structured answers, computed results and context are sent to Anthropic's commercial API for a separate written interpretation/i);
+  assert.match(notice, /interpretation can contain errors and must be reviewed before use/i);
+  assert.match(notice, /Optional written observations are displayed separately and do not change the score/i);
+  assert.match(notice, /included in AI interpretation only when that separate feature is enabled/i);
+  assert.match(notice, /report states when they were not incorporated/i);
+  assert.doesNotMatch(notice, /written interpretation are generated deterministically|not sent to an AI provider in this bounded pilot/i);
+}
 assert.doesNotMatch(hiddenAttributable, /interview messages/i);
 assert.doesNotMatch(hiddenAttributable, /Synthesis/i);
 
-console.log("Assignment privacy notice smoke passed: dynamic sponsor, anonymous/attributable, results visibility, and bounded AI disclosure.");
+console.log("Assignment privacy notice smoke passed: dynamic sponsor, anonymous/attributable, results visibility, code-owned scoring, conditional Anthropic interpretation, separate notes enablement, and review responsibility.");

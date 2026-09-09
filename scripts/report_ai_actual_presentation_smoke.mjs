@@ -10,21 +10,47 @@ import {fileURLToPath,pathToFileURL} from 'node:url';
 import {evidenceDigest} from '../../monderman-api-first-run/report-evidence-packet.js';
 import * as currentContract from '../../monderman-api-first-run/report-ai-interpretation-contract.js';
 import {REPORT_AI_RELEASE} from '../../monderman-api-first-run/report-ai-service.js';
+import {REPORT_AI_REVIEW_PROMPT_VERSION,REPORT_AI_REVIEW_CONTRACT_VERSION} from '../../monderman-api-first-run/report-ai-review.js';
 
 const SITE_ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const ACCEPTED=new Set(['validated_requires_human_review','validated_with_review_flags']);
 const safeId=/^[A-Za-z0-9][A-Za-z0-9_-]{0,99}$/;
 const safePrompt=/^report-interpretation-opus5-[0-9]{8}\.[0-9]+$/;
 const digest=value=>createHash('sha256').update(value).digest('hex');
+const currentSourcePins=()=>Object.fromEntries(['report-ai-provider.js','report-ai-interpretation-contract.js','report-ai-review.js','harness-report-ai-live.mjs'].map(name=>[name,digest(fs.readFileSync(new URL(`../../monderman-api-first-run/${name}`,import.meta.url)))]));
 const walk=(value,packet,contract=currentContract)=>typeof value==='string'?contract.renderReportAIFacts(value,packet):Array.isArray(value)?value.map(v=>walk(v,packet,contract)):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).map(([key,v])=>[key,walk(v,packet,contract)])):value;
 
-export function acceptedPresentationCases(matrix,promptVersion,contract=currentContract){
+export function acceptedPresentationCases(matrix,promptVersion,contract=currentContract,{allowHistoricalDrafts=false}={}){
   assert.equal(matrix?.syntheticOnly,true,'synthetic_only_required');
   assert.equal(matrix?.mode,'live','live_matrix_required');
   assert.equal(matrix?.model,'claude-opus-5','unexpected_matrix_model');
   assert.ok(safePrompt.test(promptVersion||''),'explicit_prompt_version_required');
-  assert.ok(Array.isArray(matrix.cases)&&matrix.cases.length>0&&matrix.cases.length<=100,'invalid_matrix_cases');
+  assert.ok(Array.isArray(matrix.cases)&&matrix.cases.length>0&&matrix.cases.length<=200,'invalid_matrix_cases');
   assert.ok(typeof matrix.finishedAt==='string'&&Number.isFinite(Date.parse(matrix.finishedAt)),'completed_matrix_timestamp_required');
+  let manifestCases;
+  if(!allowHistoricalDrafts){
+    assert.equal(promptVersion,contract.REPORT_AI_PROMPT_VERSION,'current_prompt_version_required');
+    assert.equal(matrix.semanticReview,true,'mandatory_semantic_review_missing');
+    assert.equal(matrix.releaseCertificationEligible,true,'draft_only_cannot_certify_current_release');
+    assert.equal(matrix.manifest?.schemaVersion,'synthetic-report-ai-evaluation-3','reviewed_manifest_required');
+    assert.equal(matrix.manifest.semanticReview,true,'reviewed_manifest_required');
+    assert.equal(matrix.manifest.model,'claude-opus-5','reviewed_manifest_model_mismatch');
+    assert.equal(matrix.manifest.promptVersion,promptVersion,'reviewed_manifest_prompt_mismatch');
+    assert.equal(matrix.manifest.contractVersion,contract.REPORT_AI_CONTRACT_VERSION,'reviewed_manifest_contract_mismatch');
+    assert.equal(matrix.manifest.review?.promptVersion,REPORT_AI_REVIEW_PROMPT_VERSION,'review_prompt_mismatch');
+    assert.equal(matrix.manifest.review?.contractVersion,REPORT_AI_REVIEW_CONTRACT_VERSION,'review_contract_mismatch');
+    assert.equal(matrix.manifestSha256,evidenceDigest(matrix.manifest),'manifest_digest_mismatch');
+    assert.deepEqual(matrix.manifest.sourceDigests,currentSourcePins(),'current_source_pins_mismatch');
+    assert.ok(['initial','presentation-correction'].includes(matrix.manifest.promptMode),'manifest_prompt_mode_invalid');
+    assert.equal(matrix.promptMode,matrix.manifest.promptMode,'manifest_prompt_mode_mismatch');
+    assert.ok(Array.isArray(matrix.manifest.cases)&&matrix.manifest.cases.length>0&&matrix.manifest.cases.length<=200,'manifest_cases_required');
+    manifestCases=new Map();
+    for(const fixture of matrix.manifest.cases){
+      assert.ok(safeId.test(fixture.id||'')&&!manifestCases.has(fixture.id),'manifest_case_identity_invalid');
+      assert.ok(['diagnostic','synthesis','attack'].includes(fixture.kind),'manifest_case_kind_invalid');
+      manifestCases.set(fixture.id,fixture);
+    }
+  }
   const selected=matrix.cases.filter(entry=>ACCEPTED.has(entry.status));
   assert.ok(selected.length>0,'no_accepted_cases');
   const seen=new Set();
@@ -32,6 +58,15 @@ export function acceptedPresentationCases(matrix,promptVersion,contract=currentC
     assert.ok(safeId.test(entry.id||'')&&!seen.has(entry.id),'invalid_or_duplicate_case_id');seen.add(entry.id);
     assert.ok(['diagnostic','synthesis','attack'].includes(entry.kind),'unexpected_case_kind');
     const packet=entry.packet, metadata=entry.metadata;
+    if(!allowHistoricalDrafts){
+      const fixture=manifestCases.get(entry.id);
+      assert.ok(fixture,'case_absent_from_manifest');
+      assert.equal(entry.kind,fixture.kind,'case_manifest_kind_mismatch');
+      assert.equal(evidenceDigest(packet),fixture.packetSha256,'case_manifest_packet_mismatch');
+      const promptHash=evidenceDigest(contract.buildReportAIPrompt(packet,{presentationRetry:matrix.manifest.promptMode==='presentation-correction'}));
+      assert.equal(fixture.promptSha256,promptHash,'case_manifest_prompt_mismatch');
+      assert.equal(entry.promptSha256,promptHash,'case_saved_prompt_mismatch');
+    }
     assert.equal(metadata?.model,'claude-opus-5','unexpected_case_model');
     assert.equal(metadata?.stopReason,'end_turn','uncompleted_case_response');
     assert.ok(/^req_[A-Za-z0-9_-]{6,120}$/.test(metadata?.requestId||''),'request_metadata_required');
@@ -40,6 +75,23 @@ export function acceptedPresentationCases(matrix,promptVersion,contract=currentC
     assert.ok(entry.contractInterpretation&&entry.interpretation,'accepted_saved_interpretation_required');
     const normalized=contract.normalizeReportAICitations(entry.contractInterpretation,packet);
     contract.validateReportAIInterpretation(normalized,packet);
+    if(!allowHistoricalDrafts){
+      assert.equal(entry.draftStatus,'validated','validated_draft_required');
+      const review=entry.review;
+      assert.equal(review?.status,'approved','approved_review_required');
+      assert.equal(review.verdict,'approve','approved_review_required');
+      assert.deepEqual(review.findings,[],'review_findings_must_be_empty');
+      assert.equal(review.model,'claude-opus-5','review_model_mismatch');
+      assert.equal(review.snapshotId,packet.snapshot_id,'review_snapshot_mismatch');
+      assert.equal(review.draftHash,evidenceDigest(normalized),'review_draft_mismatch');
+      assert.equal(review.promptVersion,REPORT_AI_REVIEW_PROMPT_VERSION,'case_review_prompt_mismatch');
+      assert.equal(review.contractVersion,REPORT_AI_REVIEW_CONTRACT_VERSION,'case_review_contract_mismatch');
+      assert.equal(review.metadata?.model,'claude-opus-5','review_metadata_required');
+      assert.equal(review.metadata.stopReason,'end_turn','review_not_completed');
+      assert.match(review.metadata.requestId||'',/^req_[A-Za-z0-9_-]{6,120}$/,'review_request_metadata_required');
+      for(const key of ['inputTokens','outputTokens','cacheCreationInputTokens','cacheReadInputTokens'])assert.ok(Number.isSafeInteger(review.metadata[key])&&review.metadata[key]>=0,'review_usage_invalid');
+      assert.deepEqual(Object.keys(review.metadata).sort(),['model','requestId','inputTokens','outputTokens','cacheCreationInputTokens','cacheReadInputTokens','stopReason'].sort(),'unexpected_review_metadata_fields');
+    }
     // Use the saved rendered result, not newly invented display copy. A later
     // contract change that alters rendering must be reviewed, not hidden here.
     assert.deepEqual(walk(normalized,packet,contract),entry.interpretation,'saved_rendering_mismatch');
@@ -50,6 +102,9 @@ export function acceptedPresentationCases(matrix,promptVersion,contract=currentC
       interpretation:structuredClone(entry.interpretation),limitations:structuredClone(packet.limitations),
       sources:structuredClone(packet.research.sources),benchmark:structuredClone(packet.research.benchmark),
       evidence:structuredClone(packet.facts.filter(f=>f.provenance!=='one_participant_untrusted_observation')),usage:structuredClone(metadata)};
+    if(!allowHistoricalDrafts)report.automated_review={verdict:'approve',prompt_version:entry.review.promptVersion,
+      contract_version:entry.review.contractVersion,draft_sha256:entry.review.draftHash,snapshot_id:entry.review.snapshotId,
+      model:entry.review.model,usage:structuredClone(entry.review.metadata)};
     return {id:entry.id,kind:entry.kind,diagnostic:packet.diagnostic,reviewFlags:entry.semanticReviewFlags||[],
       envelope:{version:REPORT_AI_RELEASE,status:'complete',message:'AI-assisted interpretation, based on this saved result.',report}};
   });
@@ -73,8 +128,17 @@ function selfTest(){
   const interpretation={summary:'This is an offline fixture.',observations:[{text:'The supplied score is {{F1}}.',evidence_ids:['F1']}],hypotheses:[],recommendations:[],limitations:[]};
   const entry={id:'DV-self-test',kind:'diagnostic',status:'validated_requires_human_review',packet,contractInterpretation:interpretation,
     interpretation:walk(interpretation,packet),metadata:{model:'claude-opus-5',requestId:'req_synthetic123',inputTokens:100,outputTokens:100,cacheCreationInputTokens:0,cacheReadInputTokens:0,stopReason:'end_turn'}};
-  const fixture={syntheticOnly:true,mode:'live',model:'claude-opus-5',finishedAt:'2026-09-08T00:00:00Z',cases:[entry,{id:'never-render',status:'rejected',syntheticRejectedInterpretation:{summary:'MUST_NOT_RENDER'}}]};
-  const version='report-interpretation-opus5-20260908.4';
+  entry.draftStatus='validated';entry.review={status:'approved',verdict:'approve',findings:[],model:'claude-opus-5',
+    snapshotId:packet.snapshot_id,draftHash:evidenceDigest(interpretation),promptVersion:REPORT_AI_REVIEW_PROMPT_VERSION,
+    contractVersion:REPORT_AI_REVIEW_CONTRACT_VERSION,metadata:structuredClone(entry.metadata)};
+  const version=currentContract.REPORT_AI_PROMPT_VERSION;
+  entry.promptSha256=evidenceDigest(currentContract.buildReportAIPrompt(packet));
+  const fixture={syntheticOnly:true,mode:'live',promptMode:'initial',semanticReview:true,releaseCertificationEligible:true,
+    manifest:{schemaVersion:'synthetic-report-ai-evaluation-3',semanticReview:true,model:'claude-opus-5',promptVersion:version,
+      contractVersion:currentContract.REPORT_AI_CONTRACT_VERSION,review:{promptVersion:REPORT_AI_REVIEW_PROMPT_VERSION,contractVersion:REPORT_AI_REVIEW_CONTRACT_VERSION},
+      promptMode:'initial',sourceDigests:currentSourcePins(),cases:[{id:entry.id,kind:entry.kind,packetSha256:evidenceDigest(packet),promptSha256:entry.promptSha256}]},
+    model:'claude-opus-5',finishedAt:'2026-09-08T00:00:00Z',cases:[entry,{id:'never-render',status:'rejected',syntheticRejectedInterpretation:{summary:'MUST_NOT_RENDER'}}]};
+  fixture.manifestSha256=evidenceDigest(fixture.manifest);
   const cases=acceptedPresentationCases(fixture,version);
   assert.equal(cases.length,1);assert.equal(cases[0].envelope.report.interpretation.observations[0].text,'The supplied score is 70.');
   assert.equal(cases[0].envelope.report.evidence.length,1);assert.ok(!JSON.stringify(cases).includes('PRIVATE_SYNTHETIC_SENTINEL'));assert.ok(!JSON.stringify(cases).includes('MUST_NOT_RENDER'));
@@ -82,6 +146,21 @@ function selfTest(){
     const mutated=structuredClone(fixture);change(mutated);assert.throws(()=>acceptedPresentationCases(mutated,version));
   }
   assert.throws(()=>acceptedPresentationCases(fixture,''));
+  assert.throws(()=>acceptedPresentationCases(fixture,'report-interpretation-opus5-20260908.7'),/current_prompt_version_required/);
+  const unsafeReview=structuredClone(fixture);unsafeReview.cases[0].review.metadata.thinking='MUST_NOT_RENDER';
+  assert.throws(()=>acceptedPresentationCases(unsafeReview,version),/unexpected_review_metadata_fields/);
+  const badManifest=structuredClone(fixture);badManifest.manifestSha256='f'.repeat(64);
+  assert.throws(()=>acceptedPresentationCases(badManifest,version),/manifest_digest_mismatch/);
+  for(const change of [m=>m.manifest.sourceDigests['report-ai-interpretation-contract.js']='stale',m=>m.manifest.cases[0].packetSha256='a'.repeat(64),m=>m.cases[0].id='not-in-manifest',m=>m.manifest.cases.push(structuredClone(m.manifest.cases[0])),m=>m.manifest.cases[0].kind='synthesis',m=>m.manifest.cases[0].promptSha256='b'.repeat(64),m=>m.cases[0].promptSha256='c'.repeat(64)]){
+    const mutated=structuredClone(fixture);change(mutated);mutated.manifestSha256=evidenceDigest(mutated.manifest);
+    assert.throws(()=>acceptedPresentationCases(mutated,version));
+  }
+  for(const change of [m=>m.semanticReview=false,m=>m.manifest.semanticReview=false,m=>m.releaseCertificationEligible=false,m=>m.manifest.sourceDigests['report-ai-review.js']='changed',m=>m.cases[0].review.status='rejected',m=>m.cases[0].review.verdict='reject',m=>m.cases[0].review.findings=[{code:'uncertain',paths:['/summary']}],m=>m.cases[0].review.draftHash='a'.repeat(64),m=>m.cases[0].review.snapshotId='b'.repeat(64),m=>m.cases[0].review.metadata.stopReason='max_tokens']){
+    const mutated=structuredClone(fixture);change(mutated);assert.throws(()=>acceptedPresentationCases(mutated,version));
+  }
+  const historical=structuredClone(fixture);delete historical.manifest;delete historical.semanticReview;delete historical.cases[0].review;
+  assert.throws(()=>acceptedPresentationCases(historical,version));
+  assert.equal(acceptedPresentationCases(historical,version,currentContract,{allowHistoricalDrafts:true}).length,1,'explicitly selected historical artifacts remain available for display-only review');
   const metadata='Interpretation version: example. Prepared: today. Evidence reference: abc123.';
   for(const last of [metadata,' \n'+metadata+'\n ', 'Evidence reference: abc123.'])assert.throws(()=>assertPDFMetadataAccompanied(['Earlier report content.',last],metadata),/pdf_orphaned_metadata/);
   assertPDFMetadataAccompanied(['Earlier report content.','A reviewed practice source offers guidance rather than a numerical peer benchmark.\n'+metadata],metadata);
@@ -98,7 +177,7 @@ async function main(){
   if(args.includes('--self-test'))return selfTest();
   const inputPath=arg('--input'),promptVersion=arg('--prompt-version');
   assert.ok(inputPath,'input_file_required');
-  const stat=fs.statSync(inputPath);assert.ok(stat.isFile()&&stat.size<=16*1024*1024,'invalid_input_file');
+  const stat=fs.statSync(inputPath);assert.ok(stat.isFile()&&stat.size<=64*1024*1024,'invalid_input_file');
   const raw=fs.readFileSync(inputPath,'utf8'),matrix=JSON.parse(raw);
   let contract=currentContract;
   const historicalModule=arg('--validation-module');
@@ -112,7 +191,7 @@ async function main(){
   }
   const validation={path:validatorPath,sha256:validatorSha256,promptVersion:contract.REPORT_AI_PROMPT_VERSION,
     historical:Boolean(historicalModule),scope:historicalModule?'Historical contract for rendering unchanged actual text only; not current quality approval.':'Current contract.'};
-  const cases=acceptedPresentationCases(matrix,promptVersion,contract);
+  const cases=acceptedPresentationCases(matrix,promptVersion,contract,{allowHistoricalDrafts:Boolean(historicalModule)});
   if(args.includes('--dry-run')){console.log(JSON.stringify({acceptedCases:cases.map(c=>c.id),excludedCases:matrix.cases.length-cases.length,pdfCount:cases.length,renderCount:cases.length*3,inputSha256:digest(raw)}));return;}
   for(const name of ['pdfinfo','pdftoppm'])tool(name,['-v']);
   // PDF extraction uses pypdf from the configured Python runtime. This avoids

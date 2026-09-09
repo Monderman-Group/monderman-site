@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-20260908.2";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.2";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -1234,7 +1234,7 @@
         (arr(path.actions).length ? '<div class="mr-remedy-actions"><div class="mr-remedy-field-label">Suggested steps</div><ol>' + arr(path.actions).map((action) => '<li>' + esc(textItem(action)) + '</li>').join("") + '</ol></div>' : '') +
         '<div class="mr-remedy-tradeoffs">' + (benefit ? '<div><div class="mr-remedy-field-label">Potential benefit</div><p>' + esc(benefit) + '</p></div>' : '') + (path.risk ? '<div><div class="mr-remedy-field-label">Tradeoff</div><p>' + esc(path.risk) + '</p></div>' : '') + '</div></article>';
     }).join("") + '</div>' + (adjustedRemedyRecovery ? '<p class="mr-copy">The report-wide modeled recovery scenario is not divided among these options. Each option must be tested before any recovery is claimed.</p>' : '') : '';
-    if (obj(m.aiReport).status === "complete") return '<section class="mr-section mr-run-action-board"><h2>Measured priorities</h2>' + renderPriorityMatrix(m) + ladderHtml + '</section>';
+    if (obj(m.aiReport).status === "complete") return ladder.length ? '<section class="mr-section mr-run-action-board"><div class="mr-section-index">0' + n + ' · Measured priorities</div><h2>Measured priorities</h2>' + renderPriorityMatrix(m) + ladderHtml + '</section>' : '';
     return '<section class="mr-section mr-run-action-board"><div class="mr-section-index">0' + n + ' · What to test next</div><h2>Priorities and options</h2>' +
       '<p class="mr-lede">The priority list ranks measured issues. The options describe different scopes of change and do not correspond one-to-one with that list. None changes the score or predicts an outcome.</p>' + renderPriorityMatrix(m) + ladderHtml +
       (actions.length ? '<div class="mr-run-actions"><div class="mr-lens-label">Suggested order</div><ol>' + actions.map((action) => '<li>' + esc(action) + '</li>').join("") + '</ol></div>' : '') + remediesHtml + '</section>';
@@ -1792,6 +1792,11 @@
       .mr-leadership-sequence li{padding-bottom:12px}
       .mr-remeasurement-note{margin-top:16px}
       .mr-report .mr-report-boundary{margin-top:16px;padding:12px 16px}
+      /* A completed AI report ends at Method and limits. Keep its explanatory
+         paragraph with the boundary, instead of a nearly empty final page. */
+      .mr-run-method:has(+.mr-report-boundary){break-inside:auto;page-break-inside:auto;break-after:avoid;page-break-after:avoid}
+      .mr-run-method:has(+.mr-report-boundary)>.mr-method-copy:last-child{break-after:avoid;page-break-after:avoid}
+      .mr-run-method+.mr-report-boundary{break-before:avoid;page-break-before:avoid}
       .mr-priority-matrix,.mr-constraint-view,.mr-run-findings{break-inside:avoid;page-break-inside:avoid}
       .mr-leadership-grid>div,.mr-leadership-sequence li{break-inside:avoid;page-break-inside:avoid}
       .mr-section h3,.mr-lens-label,.mr-viz-title{break-after:avoid;page-break-after:avoid}

@@ -31,9 +31,13 @@ def validate():
         "show_results_to_assignee !== false",
         "This campaign is configured as anonymous.",
         "This campaign is attributable.",
-        "The quantitative score and written interpretation are generated deterministically",
-        "Optional written observations are displayed separately",
-        "not sent to an AI provider in this bounded pilot",
+        "The quantitative score is calculated by versioned application code from structured answers; AI does not calculate or set it.",
+        "When AI-assisted reporting is enabled",
+        "Anthropic's commercial API for a separate written interpretation",
+        "That interpretation can contain errors and must be reviewed before use.",
+        "Optional written observations are displayed separately and do not change the score.",
+        "They are included in AI interpretation only when that separate feature is enabled",
+        "the report states when they were not incorporated",
         "Privacy Notice",
         "You will see the individual report after a successful submission",
         "You will not receive an individual report after submission"
@@ -90,7 +94,7 @@ def validate():
 
     privacy = (ROOT / "privacy.html").read_text(errors="ignore")
     require(privacy, [
-        "Version 2026-09-08-beta", "Subprocessors and infrastructure page",
+        "Version 2026-09-09-beta", "Subprocessors and infrastructure page",
         "does not currently display a nonessential-cookie opt-in banner",
         "Monderman, LLC", "a South Dakota limited liability company", "41 W Highway 14, Unit #1225", "Spearfish, SD 57783", "generally acts as the controller or business",
         "generally acts as the customer's processor or service provider",
@@ -111,7 +115,7 @@ def validate():
     assert_no_drafting_markers(privacy, "Privacy Notice")
     terms = (ROOT / "terms.html").read_text(errors="ignore")
     require(terms, [
-        "Version 2026-09-08-beta", "affirmative agreement", "Terms version",
+        "Version 2026-09-09-beta", "affirmative agreement", "Terms version",
         "Privacy Notice version", "database-server timestamp", "source/context",
         "normalized account email verified at acceptance", "organization name verified at acceptance",
         "seven-year legal-acceptance retention period",

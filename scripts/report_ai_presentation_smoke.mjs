@@ -30,12 +30,19 @@ try{
   for(const width of [390,768,1440]){
    await page.setViewportSize({width,height:1000});await page.setContent(html);await page.evaluate(()=>document.fonts.ready);
    assert.equal(await page.locator('.mr-ai-interpretation').count(),1);
+   const indices=await page.locator('.mr-section-index').allTextContents();
+   assert.deepEqual(indices.map(text=>Number(text.match(/^\d+/)?.[0])),indices.map((_,i)=>i+1),'AI report sections must remain consecutively numbered');
+   assert.equal(await page.locator('.mr-run-action-board .mr-section-index').count(),1,'measured priorities retain their section number');
    const layout=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,ai:[...document.querySelectorAll('.mr-ai-interpretation *')].filter(el=>{const r=el.getBoundingClientRect();return r.width>0&&(r.left<0||r.right>innerWidth+1)}).map(el=>({tag:el.tagName,text:el.textContent.slice(0,60)}))}));
    assert.ok(layout.scrollWidth<=width+1,JSON.stringify({instrument,...layout}));assert.deepEqual(layout.ai,[]);
    await page.locator('.mr-ai-interpretation').screenshot({path:path.join(out,`${instrument}-${width}.png`)});
    checks.push({instrument,...layout});
   }
+  await page.emulateMedia({media:'print'});
+  assert.equal(await page.locator('.mr-run-method').evaluate(el=>getComputedStyle(el).breakAfter),'avoid','the final method explanation must stay with the interpretation boundary');
+  assert.equal(await page.locator('.mr-report-boundary').evaluate(el=>getComputedStyle(el).breakBefore),'avoid','the interpretation boundary must not be forced onto a page alone');
   if(process.env.REPORT_AI_TEST_PDF==='true')await page.pdf({path:path.join(out,`${instrument}.pdf`),format:'Letter',printBackground:true,preferCSSPageSize:true});
+  await page.emulateMedia({media:'screen'});
  }
  // Exercise the actual mount helper, including an existing pending section.
  await page.setContent('<!doctype html><html><head></head><body><div id="host"></div></body></html>');await page.addScriptTag({content:source});
