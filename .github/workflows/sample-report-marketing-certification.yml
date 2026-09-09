@@ -299,6 +299,11 @@ jobs:
           cat /tmp/report-cert-http.log
           exit 1
 
+      - name: Enforce homepage card rhythm at responsive seams
+        env:
+          SITE_BASE: http://127.0.0.1:8080
+        run: node scripts/homepage_card_rhythm_smoke.mjs
+
       - name: Reject public and populated Workspace presentation regressions
         env:
           SITE_BASE: http://127.0.0.1:8080
@@ -331,11 +336,6 @@ jobs:
         env:
           SITE_BASE: http://127.0.0.1:8080
         run: node scripts/site_system_visual_smoke.mjs
-
-      - name: Enforce homepage card rhythm at responsive seams
-        env:
-          SITE_BASE: http://127.0.0.1:8080
-        run: node scripts/homepage_card_rhythm_smoke.mjs
 
       - name: Verify the product walkthrough and Workspace states
         env:
