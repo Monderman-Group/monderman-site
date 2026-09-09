@@ -304,6 +304,16 @@ jobs:
           SITE_BASE: http://127.0.0.1:8080
         run: node scripts/homepage_card_rhythm_smoke.mjs
 
+      - name: Verify the product walkthrough and Workspace states
+        env:
+          SITE_BASE: http://127.0.0.1:8080
+          HOME_DEMO_OUT: /tmp/report-presentation-smoke/product-home
+          WORKSPACE_PRODUCT_OUT: /tmp/report-presentation-smoke/product-workspace
+        run: |
+          node scripts/homepage_workspace_demo_smoke.mjs
+          node scripts/workspace_product_design_smoke.mjs
+          node scripts/report_screen_experience_smoke.mjs
+
       - name: Reject public and populated Workspace presentation regressions
         env:
           SITE_BASE: http://127.0.0.1:8080
@@ -336,16 +346,6 @@ jobs:
         env:
           SITE_BASE: http://127.0.0.1:8080
         run: node scripts/site_system_visual_smoke.mjs
-
-      - name: Verify the product walkthrough and Workspace states
-        env:
-          SITE_BASE: http://127.0.0.1:8080
-          HOME_DEMO_OUT: /tmp/report-presentation-smoke/product-home
-          WORKSPACE_PRODUCT_OUT: /tmp/report-presentation-smoke/product-workspace
-        run: |
-          node scripts/homepage_workspace_demo_smoke.mjs
-          node scripts/workspace_product_design_smoke.mjs
-          node scripts/report_screen_experience_smoke.mjs
 
       - name: Render and verify ordinary-page print pagination
         env:

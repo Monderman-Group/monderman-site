@@ -7,6 +7,14 @@ const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright')
 const base = process.env.SITE_BASE || process.env.REPORT_BASE || 'http://127.0.0.1:8080';
 const out = process.env.REPORT_OUT || '/tmp/report-screen-experience';
 fs.mkdirSync(out, {recursive:true});
+async function emulateMediaAndSettle(page, media) {
+  await page.emulateMedia({media});
+  await page.waitForFunction(mode=>matchMedia(mode).matches,media);
+  // Emulation can update matchMedia before computed styles leave the previous
+  // medium. Let rendering settle before measuring either screen or print;
+  // the exact style assertions below still reject persistent regressions.
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+}
 // Validate the actual built HTML boundary before testing isolated result DOM.
 // A body-tag replacement inside an exported-report template can silently cut
 // off the host instrument's script, leaving its loading screen in place.
@@ -87,10 +95,10 @@ const invariants=await page.evaluate(async()=>{
   });
 });
 assert.ok(invariants.every(row=>row.intact&&!row.mutated&&row.unique),JSON.stringify(invariants));
-await page.emulateMedia({media:'print'});
+await emulateMediaAndSettle(page,'print');
 assert.equal(await page.locator('#report-depth .mr-screen-nav').isVisible(),false,'screen nav appears in print');
 assert.equal(await page.locator('#report-depth .mr-screen-next').isVisible(),false,'screen action appears in print');
-await page.emulateMedia({media:'screen'});
+await emulateMediaAndSettle(page,'screen');
 await page.setViewportSize({width:1440,height:1000});
 await page.evaluate(()=>{document.documentElement.style.scrollBehavior='auto';scrollTo(0,0)});
 await page.screenshot({path:path.join(out,'sample-library-desktop.png')});
@@ -120,9 +128,9 @@ for (const product of ['operational-systems','decision-velocity','structural-cla
     const bars=direct.locator('#clarityDimensionBars .bar-fill');
     assert.equal(await bars.count(),5,product+' fixture did not render the actual dimension chart');
     assert.ok((await bars.evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).backgroundColor))).every(color=>color==='rgb(8, 127, 140)'),product+' dimension categories retain decorative warning colors');
-    await direct.emulateMedia({media:'print'});
+    await emulateMediaAndSettle(direct,'print');
     assert.ok((await bars.evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).backgroundColor))).includes('rgb(201, 130, 31)'),product+' category restyle changed the original print chart');
-    await direct.emulateMedia({media:'screen'});
+    await emulateMediaAndSettle(direct,'screen');
   }
   const spacing=await direct.evaluate(()=>{
     const css=selector=>getComputedStyle(document.querySelector(selector));
