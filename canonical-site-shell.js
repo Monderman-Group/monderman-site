@@ -8,7 +8,7 @@
   if (!document.querySelector('link[href^="assets/brand/brand-lockup.css"]')) {
     const brandStyles = document.createElement("link");
     brandStyles.rel = "stylesheet";
-    brandStyles.href = "assets/brand/brand-lockup.css?v=20260824-wide1";
+    brandStyles.href = "assets/brand/brand-lockup.css?v=20260909-gradient1";
     document.head.appendChild(brandStyles);
   }
   const brandMark = '<svg class="monderman-lockup__mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M6 9.2 11 5.75 16 8.3 21 5.75 26 9.2V26L21 23.2 16 26 11 23.2 6 26Z" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 5.75V23.2M16 8.3V26M21 5.75V23.2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
