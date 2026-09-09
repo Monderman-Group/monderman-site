@@ -8,7 +8,7 @@ permissions:
   contents: read
 jobs:
   local-journey:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -18,7 +18,7 @@ jobs:
       - name: Install pinned browser tooling
         run: |
           npm install --no-save --package-lock=false playwright@1.55.0
-          npx playwright install --with-deps chromium webkit
+          bash scripts/install_ci_browsers.sh
       - name: Validate recovery and existing completion boundaries
         run: |
           node scripts/anonymous_decision_velocity_live_smoke.mjs --local-regression

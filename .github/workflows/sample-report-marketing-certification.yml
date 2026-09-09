@@ -3,6 +3,7 @@ name: Sample and Executive Report certification
 on:
   pull_request:
     paths:
+      - 'scripts/install_ci_browsers.sh'
       - '*.html'
       - 'sample-report.html'
       - 'sample-report-production.js'
@@ -98,6 +99,7 @@ on:
     branches:
       - main
     paths:
+      - 'scripts/install_ci_browsers.sh'
       - '*.html'
       - 'sample-report.html'
       - 'sample-report-production.js'
@@ -199,7 +201,7 @@ concurrency:
 
 jobs:
   certify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -260,7 +262,7 @@ jobs:
       - name: Install browser tooling
         run: |
           npm install --no-save --package-lock=false playwright@1.55.0
-          npx playwright install --with-deps chromium webkit
+          bash scripts/install_ci_browsers.sh
       - name: Preserve unavailable scores and Synthesis chart labels on all display sizes
         run: node scripts/report_synthesis_display_smoke.mjs
       - name: Verify Cross-Lens phone and print readability
