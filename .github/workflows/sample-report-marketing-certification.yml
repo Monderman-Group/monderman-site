@@ -263,6 +263,15 @@ jobs:
 
       - name: Install browser tooling
         run: |
+          # Tests use Playwright's pinned browsers, not the runner's Chrome.
+          # An unrelated Chrome index must not block Ubuntu dependency setup.
+          sudo python3 - <<'PY'
+          from pathlib import Path
+          for pattern in ("*.list", "*.sources"):
+              for source in Path("/etc/apt/sources.list.d").glob(pattern):
+                  if "dl.google.com/linux/chrome" in source.read_text():
+                      source.rename(source.with_suffix(source.suffix + ".disabled"))
+          PY
           npm install --no-save --package-lock=false playwright@1.55.0
           npx playwright install --with-deps chromium webkit
 
