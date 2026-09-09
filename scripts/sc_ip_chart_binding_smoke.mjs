@@ -29,7 +29,7 @@ for (const [file,spec] of Object.entries(specs)) {
     $:id=>({getContext:()=>id}),
     Chart:function(context,config){configs.push({context,config});}
   };
-  vm.runInNewContext(`let gapChart,dimensionChart;${declaration('getOperationalDimensions')}\n${declaration('renderCharts')}\nglobalThis.draw=renderCharts;`,sandbox);
+  vm.runInNewContext(`let gapChart,dimensionChart;${declaration('chartLabelLines')}\n${declaration('getOperationalDimensions')}\n${declaration('renderCharts')}\nglobalThis.draw=renderCharts;`,sandbox);
   for (const values of [[0,25,50,75,100],[null,undefined,NaN,false,'42'],[Infinity,-Infinity,0,null,1],[]]) {
     const result = {burden_breakdown:Object.fromEntries(spec.keys.map((key,i)=>[key,values[i]])),dimensions:Object.fromEntries(spec.keys.map(key=>[key,99]))};
     // These belong to another diagnostic and must never populate these charts.
@@ -47,5 +47,6 @@ for (const [file,spec] of Object.entries(specs)) {
   }
   assert.match(source,/Higher values show more reported difficulty/);
   assert.match(source,/Unmeasured areas are left blank/);
+  if (file==='institutional-performance.html') assert.doesNotMatch(source,/<h3>Structural gaps<\/h3>/);
 }
 console.log(`SC_IP_CHART_BINDING_PASS pages=2 datasets=${datasets} unchangedValues=true missingNotZero=true liveCalls=0`);

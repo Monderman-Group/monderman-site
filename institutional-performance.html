@@ -849,7 +849,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
                 <article class="chart-card"><h3>Institutional Condition × Compensatory Dependence</h3><div class="quadrant-wrap"><div class="quad-with-yaxis"><div class="axis-y">Institutional condition</div><div class="quadrant-box"><div class="q-label q-tl">Sound condition<br>Low compensation</div><div class="q-label q-tr">Sound condition<br>High compensation</div><div class="q-label q-bl">Weak condition<br>Low compensation</div><div class="q-label q-br">Weak condition<br>High compensation</div><div class="quad-dot" id="quadDot"></div></div></div><div class="axis-x">Compensatory dependence</div><div class="quad-guide-grid"><div class="quad-guide"><strong>Quadrant interpretation</strong><p class="tiny" id="quadrantInterpretationText">Quadrant interpretation will appear here after scoring.</p></div></div></div></article>
                 <article class="result-card"><h3>Time, money, and resources</h3><p class="result-copy" id="tmrText"></p><div class="compact-card" style="margin-top:14px;"><h3>Trade-off note</h3><p class="result-copy" id="tradeoffText"></p></div></article>
               </section>
-              <section class="grid-2"><article class="chart-card"><h3>Structural gaps</h3><div class="chart-wrap"><canvas id="gapChart"></canvas></div></article><article class="chart-card"><h3>Dimension profile</h3><div class="chart-wrap"><canvas id="dimensionChart"></canvas></div></article></section>
+              <section class="grid-2"><article class="chart-card"><h3>Reported performance difficulties</h3><div class="chart-wrap"><canvas id="gapChart"></canvas></div></article><article class="chart-card"><h3>Dimension profile</h3><div class="chart-wrap"><canvas id="dimensionChart"></canvas></div></article></section>
               <section class="grid-2"><article class="result-card"><h3>Intervention priority ladder</h3><div class="table-wrap"><table class="matrix"><thead><tr><th>Priority</th><th>Focus</th><th>Share</th></tr></thead><tbody id="priorityBody"></tbody></table></div></article><article class="result-card"><h3>Contradiction signals</h3><div class="tiles-grid" id="contradictionTiles"></div></article></section>
               <section class="grid-2"><article class="result-card"><h3>Labor exposure composition</h3><div class="table-wrap"><table class="matrix"><thead><tr><th>Category</th><th>Hours*</th><th>Meaning</th></tr></thead><tbody id="laborCompositionBody"></tbody></table></div></article><article class="result-card"><h3>Estimated labor-cost composition*</h3><div class="table-wrap"><table class="matrix"><thead><tr><th>Component</th><th>Value</th><th>Note</th></tr></thead><tbody id="costCompositionBody"></tbody></table></div></article></section>
               <section class="grid-2"><article class="result-card"><h3>Role cluster exposure</h3><div class="table-wrap"><table class="matrix"><thead><tr><th>Role cluster</th><th>People</th><th>Exposure significance</th></tr></thead><tbody id="roleClusterBody"></tbody></table></div></article><article class="result-card"><h3>Impact severity matrix</h3><div class="table-wrap"><table class="matrix"><thead><tr><th>Consequence</th><th>Severity</th><th>Meaning</th></tr></thead><tbody id="impactBody"></tbody></table></div></article></section>
@@ -3885,6 +3885,16 @@ quadDot.style.top = `${100 - _ey}%`;
 if (text) text.textContent = buildQuadrantInterpretation(result);
 }
 
+function chartLabelLines(value) {
+const lines = [""];
+for (const word of String(value).split(" ")) {
+const last = lines.length - 1;
+if (lines[last] && (lines[last] + " " + word).length > 12) lines.push(word);
+else lines[last] += (lines[last] ? " " : "") + word;
+}
+return lines;
+}
+
 function chartOptions() {
 return {
 responsive: true,
@@ -3925,9 +3935,13 @@ gapChart = new Chart(gapCtx, {
 type: "bar",
 data: {
 labels,
-datasets: [{ data: values }]
+datasets: [{ data: values, backgroundColor: "rgba(12,110,120,.65)", borderColor: "#0C6E78", borderWidth: 1 }]
 },
-options: chartOptions()
+options: { ...chartOptions(), indexAxis: "y", scales: {
+x: { beginAtZero: true, max: 100, ticks: { stepSize: 25, color: "#6E6F73" } },
+y: { grid: { display: false }, ticks: { autoSkip: false, font: { size: 10, family: '"Neue Haas Grotesk", "Helvetica Neue", Arial, sans-serif' },
+callback(value) { return chartLabelLines(this.getLabelForValue(value)); } } }
+} }
 });
 }
 if (dimCtx) {
@@ -3935,20 +3949,12 @@ dimensionChart = new Chart(dimCtx, {
 type: "radar",
 data: {
 labels,
-datasets: [{ data: values, fill: true }]
+datasets: [{ data: values, fill: true, backgroundColor: "rgba(12,110,120,.22)", borderColor: "#0C6E78", borderWidth: 2, pointBackgroundColor: "#0C6E78" }]
 },
 options: { ...chartOptions(), scales: { r: {
 beginAtZero: true, max: 100, ticks: { stepSize: 25 },
 pointLabels: { font: { family: '"Neue Haas Grotesk", "Helvetica Neue", Arial, sans-serif', size: 10 },
-callback(value) {
-const lines = [""];
-for (const word of String(value).split(" ")) {
-const last = lines.length - 1;
-if (lines[last] && (lines[last] + " " + word).length > 12) lines.push(word);
-else lines[last] += (lines[last] ? " " : "") + word;
-}
-return lines;
-} }
+callback: chartLabelLines }
 } } }
 });
 }

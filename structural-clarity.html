@@ -3894,6 +3894,16 @@ return {
 };
 }
 
+function chartLabelLines(value) {
+const lines = [""];
+for (const word of String(value).split(" ")) {
+const last = lines.length - 1;
+if (lines[last] && (lines[last] + " " + word).length > 12) lines.push(word);
+else lines[last] += (lines[last] ? " " : "") + word;
+}
+return lines;
+}
+
 function chartOptions() {
 return {
 responsive: true,
@@ -3934,9 +3944,13 @@ gapChart = new Chart(gapCtx, {
 type: "bar",
 data: {
 labels,
-datasets: [{ data: values }]
+datasets: [{ data: values, backgroundColor: "rgba(12,110,120,.65)", borderColor: "#0C6E78", borderWidth: 1 }]
 },
-options: chartOptions()
+options: { ...chartOptions(), indexAxis: "y", scales: {
+x: { beginAtZero: true, max: 100, ticks: { stepSize: 25, color: "#6E6F73" } },
+y: { grid: { display: false }, ticks: { autoSkip: false, font: { size: 10, family: '"Neue Haas Grotesk", "Helvetica Neue", Arial, sans-serif' },
+callback(value) { return chartLabelLines(this.getLabelForValue(value)); } } }
+} }
 });
 }
 if (dimCtx) {
@@ -3944,20 +3958,12 @@ dimensionChart = new Chart(dimCtx, {
 type: "radar",
 data: {
 labels,
-datasets: [{ data: values, fill: true }]
+datasets: [{ data: values, fill: true, backgroundColor: "rgba(12,110,120,.22)", borderColor: "#0C6E78", borderWidth: 2, pointBackgroundColor: "#0C6E78" }]
 },
 options: { ...chartOptions(), scales: { r: {
 beginAtZero: true, max: 100, ticks: { stepSize: 25 },
 pointLabels: { font: { family: '"Neue Haas Grotesk", "Helvetica Neue", Arial, sans-serif', size: 10 },
-callback(value) {
-const lines = [""];
-for (const word of String(value).split(" ")) {
-const last = lines.length - 1;
-if (lines[last] && (lines[last] + " " + word).length > 12) lines.push(word);
-else lines[last] += (lines[last] ? " " : "") + word;
-}
-return lines;
-} }
+callback: chartLabelLines }
 } } }
 });
 }
