@@ -18,6 +18,12 @@ const expected = {
 function assert(value, message) {
   if (!value) throw new Error(message);
 }
+async function emulateMediaAndSettle(page, media) {
+  await page.emulateMedia({ media });
+  await page.waitForFunction(mode => matchMedia(mode).matches, media);
+  // The toolbar's print visibility must be read after the media styles settle.
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+}
 
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 1100 } });
@@ -172,10 +178,10 @@ await page.setViewportSize({ width:390, height:844 });
 await page.locator('#tab-os').click();
 await page.screenshot({ path: path.join(out, 'os-390px.png'), fullPage: true });
 
-await page.emulateMedia({ media: 'print' });
+await emulateMediaAndSettle(page, 'print');
 assert(await page.locator('#report-os .mr-report').isVisible(), 'Diagnostic report disappears in print media');
 assert(await page.locator('#report-os .psr-toolbar').isVisible() === false, 'interactive toolbar remains visible in print media');
-await page.emulateMedia({ media: 'screen' });
+await emulateMediaAndSettle(page, 'screen');
 
 assert(errors.length === 0, errors.join('\n'));
 fs.writeFileSync(path.join(out, 'result.json'), JSON.stringify({

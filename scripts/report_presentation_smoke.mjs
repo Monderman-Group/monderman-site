@@ -38,6 +38,13 @@ async function loadStandalone(target, html) {
 function assert(ok, msg) { if (!ok) throw new Error(msg); }
 function isActualSerif(font) { return /Georgia|Times New Roman/i.test(font); }
 function isMondermanFont(font) { return /Neue Haas Grotesk/i.test(font); }
+async function emulateMediaAndSettle(target, media) {
+  await target.emulateMedia({ media });
+  await target.waitForFunction(mode => matchMedia(mode).matches, media);
+  // Media matching can precede style/layout updates; preserve the exact assertions
+  // below, but read them after two rendering frames in the requested medium.
+  await target.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+}
 
 await page.goto(`${base}/sample-report.html`, { waitUntil: 'networkidle', timeout: 90000 });
 await page.locator('body.production-samples-ready').waitFor({ state: 'attached', timeout: 30000 });
@@ -267,17 +274,17 @@ for (const [key, html] of Object.entries(authenticatedRunHtml)) {
 
   for (const viewport of viewports) {
     await runPage.setViewportSize({ width:viewport.width, height:viewport.height });
-    await runPage.emulateMedia({ media:'screen' });
+    await emulateMediaAndSettle(runPage, 'screen');
     await assertNoHorizontalOverflow(runPage, `${key} ${viewport.name}`);
     assert(await runPage.locator('.mr-run-score-stamp').isVisible(), `${key} score stamp hidden at ${viewport.name}`);
     assert(await runPage.locator('.mr-priority-matrix').isVisible(), `${key} priority matrix hidden at ${viewport.name}`);
     await runPage.screenshot({ path:path.join(out, `authenticated-${key}-${viewport.name}.png`), fullPage:true });
   }
 
-  await runPage.emulateMedia({ media:'print' });
   // Letter minus two 60pt margins: 656 x 896 CSS pixels. Atomic cards must fit
   // that real printable area, not merely a wide desktop viewport.
   await runPage.setViewportSize({width:656,height:896});
+  await emulateMediaAndSettle(runPage, 'print');
   // Keep complete options within one printable page. Text extraction alone
   // does not establish appearance; use independent PDF rasterizers to separate
   // actual pagination defects from resolution-specific preview artifacts.
@@ -313,12 +320,12 @@ for (const [key, html] of Object.entries(synthesisHtml)) {
   assert(await primaryVisual.isVisible(), `${key} primary visual missing`);
   for (const viewport of viewports) {
     await synthesisPage.setViewportSize({ width:viewport.width, height:viewport.height });
-    await synthesisPage.emulateMedia({ media:'screen' });
+    await emulateMediaAndSettle(synthesisPage, 'screen');
     await assertNoHorizontalOverflow(synthesisPage, `${key} ${viewport.name}`);
     assert(await primaryVisual.isVisible(), `${key} primary visual hidden at ${viewport.name}`);
     await synthesisPage.screenshot({ path:path.join(out, `${key}-${viewport.name}.png`), fullPage:true });
   }
-  await synthesisPage.emulateMedia({ media:'print' });
+  await emulateMediaAndSettle(synthesisPage, 'print');
   assert(await synthesisPage.locator('.mr-evidence-grid .mr-lens-card').evaluateAll(cards => cards.length > 0 && cards.every(card => getComputedStyle(card).display === 'block' && getComputedStyle(card).breakInside === 'avoid')), `${key} evidence rows no longer use intact block print flow`);
   await assertNoHorizontalOverflow(synthesisPage, `${key} print`);
   assert(await primaryVisual.isVisible(), `${key} primary visual hidden in print`);
