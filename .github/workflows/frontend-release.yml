@@ -65,6 +65,10 @@ jobs:
         run: node scripts/diagnostic_workspace_selection_smoke.mjs
       - name: Reject cross-Workspace data-surface regressions
         run: node scripts/workspace_tenant_scope_smoke.mjs
+      - name: Reject duplicate Synthesis submissions and premature deferred-report polling
+        run: |
+          node scripts/synthesis_request_state_smoke.mjs
+          node scripts/report_ai_deferred_poll_smoke.mjs
       - name: Reject Diagnostic completion-protection regressions
         run: node scripts/diagnostic_completion_reliability_smoke.mjs
       - run: python scripts/validate_frontend_release.py

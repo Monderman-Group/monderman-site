@@ -1372,7 +1372,11 @@
     const ai = obj(state);
     if (!ai.status) return "";
     const heading = '<h2>AI-assisted interpretation</h2>';
-    if (ai.status !== "complete") return '<section class="mr-section mr-ai-interpretation" aria-live="polite">' + heading + '<p>' + esc(ai.message) + '</p><p>The measured result remains available. Reopen this saved report to check progress; do not start another diagnostic.</p></section>';
+    if (ai.status !== "complete") {
+      const deferred=ai.status==='pending'&&typeof ai.deferUntil==='string'&&Number.isFinite(Date.parse(ai.deferUntil)) ? new Date(ai.deferUntil) : null;
+      const timing=deferred ? '<p>Processing can resume after <time datetime="'+esc(deferred.toISOString())+'">'+esc(deferred.toLocaleString())+'</time>. This is not a completion guarantee.</p>' : '';
+      return '<section class="mr-section mr-ai-interpretation" aria-live="polite">' + heading + '<p>' + esc(ai.message) + '</p>'+timing+'<p>The measured result remains available. Reopen this saved report to check progress; do not start another diagnostic.</p></section>';
+    }
     const report = obj(ai.report), interpretation = obj(report.interpretation);
     const paragraphs = (items, title) => arr(items).length ? '<h3>' + title + '</h3><ul>' + arr(items).map(item => '<li>' + esc(obj(item).text || item) + '</li>').join('') + '</ul>' : '';
     const sources = arr(report.sources).filter(source => /^https:\/\//i.test(firstStr(source.url)));
@@ -1407,25 +1411,35 @@
     // Reuse the report's interpretation position instead of displaying a
     // second pending block above its cover on a recovered saved report.
     if (existing) existing.replaceWith(section); else node.prepend(section);
-    let stopped = false, timer = null, attempts = 0;
+    let stopped = false, timer = null, attempts = 0, inFlight = false;
     const paint = () => { section.innerHTML = buildAIInterpretation(result.ai_report); };
     paint();
     const stop = () => { stopped = true; clearTimeout(timer); document.removeEventListener('visibilitychange', resume); window.removeEventListener('pagehide', stop); };
-    const resume = () => { if (!stopped && !document.hidden && !timer) timer = setTimeout(poll, 1000); };
+    const pollDelay = () => {
+      const ai=obj(result.ai_report),at=ai.status==='pending'&&typeof ai.deferUntil==='string' ? Date.parse(ai.deferUntil) : NaN;
+      // A daily budget wait is not a failed report. Avoid exhausting the read
+      // attempts before its next processing window; no new run is submitted.
+      return Number.isFinite(at) ? Math.min(86700000,Math.max(15000,at-Date.now())) : 15000;
+    };
+    const resume = () => { if (!stopped && !document.hidden && !timer && !inFlight) timer = setTimeout(poll, pollDelay()); };
     const poll = async () => {
       timer = null;
       if (stopped || !section.isConnected) return stop();
       if (document.hidden) return;
+      if (inFlight) return;
+      inFlight = true;
       try {
         const latest = await refresh();
         if (!latest || stopped || !section.isConnected) return stop();
         result.ai_report = latest.ai_report; paint();
         if (!['pending','processing'].includes(obj(result.ai_report).status)) return stop();
       } catch (_) { /* A temporary read failure must not strand a saved report. */ }
-      if (++attempts < 20) timer = setTimeout(poll, 15000); else stop();
+      finally { inFlight = false; }
+      if (stopped || !section.isConnected) return stop();
+      if (++attempts < 20) timer = setTimeout(poll, pollDelay()); else stop();
     };
     if (typeof refresh === 'function' && ['pending','processing'].includes(obj(result.ai_report).status)) {
-      timer=setTimeout(poll,15000);
+      timer=setTimeout(poll,pollDelay());
       document.addEventListener('visibilitychange',resume);
     }
     window.addEventListener('pagehide',stop,{once:true});
