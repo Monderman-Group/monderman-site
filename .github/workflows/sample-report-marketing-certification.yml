@@ -255,6 +255,9 @@ jobs:
           REPORT_OUT: /tmp/report-presentation-smoke
         run: node scripts/report_presentation_smoke.mjs
 
+      - name: Verify generated PDF geometry and remedy pagination
+        run: python scripts/validate_generated_pdf_layout.py /tmp/report-presentation-smoke
+
       - name: Withhold unpublished Institutional Performance recovery estimates
         env:
           REPORT_BASE: http://127.0.0.1:8080
@@ -283,9 +286,6 @@ jobs:
         run: |
           node scripts/ordinary_page_print_smoke.mjs
           python scripts/validate_ordinary_page_print.py
-
-      - name: Verify generated PDF geometry and remedy pagination
-        run: python scripts/validate_generated_pdf_layout.py /tmp/report-presentation-smoke
 
       - name: Verify homepage assistant launcher
         run: node scripts/homepage_assistant_smoke.mjs

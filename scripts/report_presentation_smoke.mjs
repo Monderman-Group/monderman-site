@@ -275,15 +275,20 @@ for (const [key, html] of Object.entries(authenticatedRunHtml)) {
   }
 
   await runPage.emulateMedia({ media:'print' });
+  // Letter minus two 60pt margins: 656 x 896 CSS pixels. Atomic cards must fit
+  // that real printable area, not merely a wide desktop viewport.
+  await runPage.setViewportSize({width:656,height:896});
   // Positioned cards and globally unbreakable nested list items caused real
   // Chromium PDF paint loss even when text extraction found all the words.
   // Keep the safe print flow explicit; raster review remains necessary.
   const optionPrintFlow = await runPage.locator('.mr-run-remedy').evaluateAll(cards => cards.map(card => ({
     display:getComputedStyle(card).display,
     position:getComputedStyle(card).position,
+    height:card.getBoundingClientRect().height,
     itemBreaks:[...card.querySelectorAll('li')].map(item => getComputedStyle(item).breakInside),
   })));
-  assert(optionPrintFlow.every(card => card.display === 'block' && card.position === 'static' && card.itemBreaks.every(value => value === 'auto')), `${key} unsafe nested option print fragmentation returned`);
+  assert(optionPrintFlow.every(card => card.display === 'inline-block' && card.position === 'static' && card.itemBreaks.every(value => value === 'auto')), `${key} unsafe nested option print fragmentation returned`);
+  assert(optionPrintFlow.every(card => card.height <= 872), `${key} option is too tall for one printed page including margins`);
   await assertNoHorizontalOverflow(runPage, `${key} print`);
   assert(await runPage.locator('.mr-run-score-stamp').isVisible(), `${key} score stamp hidden in print`);
   assert(await runPage.locator('.mr-leadership-close').isVisible(), `${key} leadership handoff hidden in print`);

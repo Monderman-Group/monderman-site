@@ -1778,7 +1778,9 @@
       /* Print fragmentation of nested CSS grids can hide otherwise extractable
          text. Use ordinary block flow for long evidence and option content. */
       .mr-run-evidence-grid,.mr-remedy-grid,.mr-remedy-card{display:block}
-      .mr-run-remedy{position:static}
+      /* Each bounded option is one print unit. A movable block with nested
+         lists can lose painted text in Chromium even when extraction passes. */
+      .mr-run-remedy{position:static;display:inline-block;width:100%;vertical-align:top}
       .mr-run-evidence-grid>div+div{margin-top:18px}
       .mr-run-remedy p,.mr-run-remedy li{font-size:10pt!important;line-height:1.5!important}
       .mr-remedy-head,.mr-remedy-tradeoffs>div{break-inside:avoid;page-break-inside:avoid}

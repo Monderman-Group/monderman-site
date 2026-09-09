@@ -32,7 +32,11 @@ def close(actual: float, expected: float) -> bool:
 
 
 def normalized(text: str) -> str:
-    return re.sub(r"\s+", " ", unicodedata.normalize("NFKC", text)).strip()
+    text = unicodedata.normalize("NFKC", text)
+    # A retained hard hyphen can be a legal line-wrap point (multi-\nparty).
+    # Join that line break only; do not erase hyphens or ordinary spaces.
+    text = re.sub(r"(?<=\w)-[ \t]*\r?\n[ \t]*(?=\w)", "-", text)
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def validate(path: Path) -> None:
@@ -82,6 +86,11 @@ def validate(path: Path) -> None:
 
 
 def main() -> None:
+    assert normalized("multi-\nstakeholder") == "multi-stakeholder"
+    assert normalized("multi-\r\n  stakeholder") == "multi-stakeholder"
+    assert normalized("multi- stakeholder") != "multi-stakeholder"
+    assert normalized("multi\nstakeholder") != "multi-stakeholder"
+    assert normalized("material-\nmissing") != "material-present"
     parser = argparse.ArgumentParser()
     parser.add_argument("directory", type=Path)
     directory = parser.parse_args().directory.resolve()
