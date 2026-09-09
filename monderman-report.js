@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.13";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.14";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -860,7 +860,7 @@
       svg += '<text x="' + (x + 70) + '" y="' + (y + 68) + '" fill="#9A9892" font-size="10">mean · n=' + esc(fmtWhole(lens.n)) + '</text>';
     });
     svg += '</svg>';
-    return '<div class="mr-viz-panel mr-system-panel"><div class="mr-viz-title">The operating system in one view</div>' + svg + '<p class="mr-copy">Every Diagnostic receives one vote in the center Composite; participant volume changes evidence strength, not lens weight. Connectors show composition, not causation.</p></div>';
+    return '<div class="mr-viz-panel mr-system-panel"><div class="mr-viz-title">The operating system in one view</div>' + svg + '<p class="mr-copy">Every Diagnostic receives one vote in the center Composite. Submitted run counts affect evidence coverage, not lens weight; they do not establish how many distinct people responded. Connectors show composition, not causation.</p></div>';
   }
 
   function renderCrossLensInteractionMatrix(m) {
@@ -1072,7 +1072,7 @@
   function renderMetaMethod(m, n) {
     const method = m.product === "depth"
       ? "The published condition is the median of the submitted scores from one Diagnostic. The observed distribution, differences between participant perspectives, scope, source identity, versions, measurement window, and sampling frame are reported separately. Sample size alone does not establish population representativeness."
-      : "When the Coherent or Strong evidence threshold is met, the published composite is the arithmetic mean of the contributing Diagnostic means, so each Diagnostic receives one vote regardless of participant count. Participant depth governs evidence strength and balance. A Comparison Only or Directional read withholds the composite. Diagnostic disagreement remains visible and is not subtracted from the condition score.";
+      : "When the Coherent or Strong evidence threshold is met, the published composite is the arithmetic mean of the contributing Diagnostic means, so each Diagnostic receives one vote regardless of submitted run count. Run counts contribute to evidence coverage and balance; they do not establish how many distinct people responded. A Comparison Only or Directional read withholds the composite. Diagnostic disagreement remains visible and is not subtracted from the condition score.";
     return '<section class="mr-section mr-meta-method"><h2>' + n + '. Method and limits</h2><p>' + esc(method) + '</p>' +
       (m.organizationalImplication ? '<div class="callout"><p><strong>Organizational implication.</strong> ' + esc(m.organizationalImplication) + '</p></div>' : '') + '</section>';
   }
@@ -1464,12 +1464,19 @@
     }
     const report = obj(ai.report), interpretation = obj(report.interpretation);
     const reviewedSelection = obj(report.composition).reviewed_version === 'report-reviewed-capabilities-20260909.1';
-    const paragraphs = (items, title) => arr(items).length ? '<h3>' + title + '</h3><ul>' + arr(items).map(item => '<li class="mr-ai-evidence-text">' + esc(obj(item).text || item) + '</li>').join('') + '</ul>' : '';
+    // Keep short reading units intact in print without making arbitrary long
+    // provider text unbreakable. Escape every unit; no HTML is model-owned.
+    const readingUnitClass = text => String(text).length <= 600 ? ' mr-ai-reading-unit' : '';
+    const paragraphs = (items, title) => arr(items).length ? '<h3>' + title + '</h3><ul>' + arr(items).map(item => {
+      const text = obj(item).text || item;
+      return '<li class="mr-ai-evidence-text"><span class="mr-ai-evidence-content' + readingUnitClass(text) + '">' + esc(text) + '</span></li>';
+    }).join('') + '</ul>' : '';
     const sources = arr(report.sources).filter(source => /^https:\/\//i.test(firstStr(source.url)));
     const actions = arr(interpretation.recommendations).map((item, index) => {
       const action = obj(item);
       const refs = sources.filter(source => arr(action.source_ids).includes(source.id));
-      return '<article class="mr-card mr-ai-action"><h3>' + (index + 1) + '. ' + esc(action.action) + '</h3><p class="mr-ai-reason">' + esc(action.reason) + '</p><dl>' +
+      const reasons = String(action.reason || '').split(/\n\s*\n/).filter(text => text.trim()).map(text => '<p class="mr-ai-reason' + readingUnitClass(text) + '">' + esc(text) + '</p>').join('');
+      return '<article class="mr-card mr-ai-action"><h3>' + (index + 1) + '. ' + esc(action.action) + '</h3>' + reasons + '<dl>' +
         [['Before trying it',action.prerequisite],['Risk to consider',action.risk],['What to check',action.success_check]].map(row=>'<div class="mr-ai-definition"><dt><strong>'+row[0]+'</strong></dt><dd>'+esc(row[1])+'</dd></div>').join('') + '</dl>' +
         (refs.length ? '<p>Practice references: ' + refs.map(source=>'<a href="'+esc(source.url)+'" target="_blank" rel="noopener noreferrer">'+esc(source.publisher)+'</a>').join('; ') + '.</p>' : '') + '</article>';
     }).join('');
@@ -1893,6 +1900,7 @@
          exposed sentence tails and card tags stranded across page breaks. */
       .mr-run-headline,.mr-lens-grid>.mr-lens-card{break-inside:avoid;page-break-inside:avoid}
       .mr-ai-interpretation>ul>.mr-ai-evidence-text{break-inside:avoid;page-break-inside:avoid;orphans:3;widows:3}
+      .mr-ai-reading-unit{display:inline-block;width:100%;vertical-align:top;break-inside:avoid;page-break-inside:avoid}
       /* Keep the bounded scenario introduction with its chart. A whole-section
          avoid can be relaxed by print layout; the paragraph also needs an
          explicit no-split and keep-with-next boundary. */

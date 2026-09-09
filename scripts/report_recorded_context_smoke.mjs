@@ -24,6 +24,17 @@ check(()=>assert.match(html,/records one contradiction flag\. A flag does not es
 check(()=>assert.ok(html.indexOf('Important context from the saved result')<html.indexOf('Suggested next steps')));
 check(()=>assert.doesNotMatch(html,/16|incomplete run|missed required|time per run|labor rate/));
 check(()=>assert.equal(JSON.stringify(full),before));
+const printUnits=state([]);
+printUnits.report.interpretation.observations=[{text:'Question: How many tools?\nParticipant estimate: 1'},{text:'x'.repeat(601)}];
+printUnits.report.interpretation.recommendations[0].reason='Question: Which step?\nParticipant answer: Review\n\nThis is a proposal, not proof of an outcome.\n\n'+'y'.repeat(601);
+const printBefore=JSON.stringify(printUnits),unitHTML=Report.buildAIInterpretation(printUnits);
+check(()=>assert.match(unitHTML,/mr-ai-evidence-content mr-ai-reading-unit">Question: How many tools\?\nParticipant estimate: 1/));
+check(()=>assert.ok(unitHTML.includes('class="mr-ai-evidence-content">'+'x'.repeat(601))));
+check(()=>assert.equal((unitHTML.match(/class="mr-ai-reason mr-ai-reading-unit"/g)||[]).length,2));
+check(()=>assert.ok(unitHTML.includes('class="mr-ai-reason">'+'y'.repeat(601))));
+check(()=>assert.equal(JSON.stringify(printUnits),printBefore));
+const unsafe=state([]);unsafe.report.interpretation.recommendations[0].reason='<script>bad()</script>\n\n<img src=x>';
+check(()=>assert.doesNotMatch(Report.buildAIInterpretation(unsafe),/<script>|<img /));
 const mixedIP=state([fact('Extra effort required evidence coverage','Not measured','deterministic_coverage'),fact('Results depend on extra effort','Results depend on extra effort','participant_structured_answer')]);
 mixedIP.report.interpretation.observations=[{text:'The recorded answer says results depend on extra effort.',source_ids:[]}];
 const mixedBefore=JSON.stringify(mixedIP),mixedHTML=Report.buildAIInterpretation(mixedIP);

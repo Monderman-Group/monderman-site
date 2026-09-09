@@ -7,7 +7,7 @@ const source=fs.readFileSync('monderman-report.js','utf8');
 const sandbox={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};
 vm.runInNewContext(source,sandbox);
 const report=sandbox.window.MondermanReport;
-assert.equal(report.rendererVersion,'diagnostic-renderer-ai-20260909.13');
+assert.equal(report.rendererVersion,'diagnostic-renderer-ai-20260909.14');
 const base=()=>({synthesis_product:'cross_lens_synthesis',score_status:'withheld',cross_diagnostic_score:null,
   condition_band:'Composite withheld',respondent_count:2,lens_count:2,
   source_groups:[{tool_type:'structural_clarity',tool_label:'Structural Clarity',respondents:1,mean_score:60,median_score:60,score_iqr:[60,60]},
@@ -28,8 +28,15 @@ for(const tool of ['depth_synthesis','cross_lens_synthesis']){
   assert.equal(model.reads,2);assert.deepEqual(Array.from(model.sourceGroups,g=>g.n),[1,1]);
   assert.match(html,/Counts refer to submitted runs, not verified distinct people/);
   assert.match(html,/Source-run identity/);
+  assert.doesNotMatch(html,/participant volume|regardless of participant count|Participant depth governs/);
+  if(tool==='cross_lens_synthesis'){
+    assert.match(html,/regardless of submitted run count/);
+    assert.match(html,/Submitted run counts affect evidence coverage, not lens weight/);
+    assert.match(html,/do not establish how many distinct people responded/);
+    deterministic+=3;
+  }
   if(tool==='depth_synthesis')assert.match(html,/mr-evidence-step is-active[^>]*><span><\/span><b>Limited/);
-  deterministic+=5;
+  deterministic+=6;
 }
 for(const [key,title] of Object.entries({structural_clarity:'Structural Clarity',decision_velocity:'Decision Velocity',operational_systems:'Operational Systems',institutional_performance:'Institutional Performance'})){
   const raw=base();raw.priority_actions[0].label=key+' depth';
