@@ -85,6 +85,7 @@ on:
       - 'scripts/report_actual_text_pagination_smoke.mjs'
       - 'test-fixtures/report-full-pagination-p19-historical.json'
       - 'scripts/report_synthesis_display_smoke.mjs'
+      - 'scripts/report_synthesis_chart_smoke.mjs'
       - 'scripts/report_cross_lens_phone_smoke.mjs'
       - 'scripts/sc_favorable_presentation_smoke.mjs'
       - 'scripts/dv_timing_presentation_smoke.mjs'
@@ -194,6 +195,7 @@ on:
       - 'scripts/report_actual_text_pagination_smoke.mjs'
       - 'test-fixtures/report-full-pagination-p19-historical.json'
       - 'scripts/report_synthesis_display_smoke.mjs'
+      - 'scripts/report_synthesis_chart_smoke.mjs'
       - 'scripts/report_cross_lens_phone_smoke.mjs'
       - 'scripts/sc_favorable_presentation_smoke.mjs'
       - 'scripts/dv_timing_presentation_smoke.mjs'
@@ -291,6 +293,10 @@ jobs:
           bash scripts/install_ci_browsers.sh
       - name: Preserve unavailable scores and Synthesis chart labels on all display sizes
         run: node scripts/report_synthesis_display_smoke.mjs
+      - name: Verify responsive Synthesis charts and print label containment
+        env:
+          REPORT_OUT: /tmp/report-presentation-smoke/synthesis-charts
+        run: node scripts/report_synthesis_chart_smoke.mjs
       - name: Verify Cross-Lens phone and print readability
         run: node scripts/report_cross_lens_phone_smoke.mjs
 

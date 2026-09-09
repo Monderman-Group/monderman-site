@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-screen-20260909.17";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-screen-20260909.18";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -754,7 +754,22 @@
       svg += '<text x="' + Math.min(W-R, X(mean)+12) + '" y="' + (y+18) + '" font-size="11" fill="#6E6F73">mean ' + esc(fmt1(mean)) + ' · median ' + esc(fmt1(med)) + '</text>';
     });
     svg += '</svg>';
-    return '<div class="mr-viz-panel"><div class="mr-viz-title">Distribution at a glance</div>' + svg + '<p class="mr-copy">Box = interquartile range; dark line = median; amber dot = mean. Vantage dots describe observed segments and do not reweight the Median Diagnostic Score.</p></div>';
+    // A fixed-width SVG scaled into a phone panel makes its labels unreadable.
+    // The compact view presents the same recorded values as native text.
+    const summary = '<div class="mr-synth-compact"><dl class="mr-synth-stat-list">' +
+      [['Median', fmt1(read.median)], ['Mean', strictFinite(read.mean) ? fmt1(read.mean) : 'Not available'],
+        ['Range', fmt1(read.min) + '–' + fmt1(read.max)], ['Interquartile range', fmtPair(read.iqr, fmt1)],
+        ...(strictFinite(read.sd) ? [['Sample standard deviation', fmt1(read.sd)]] : [])]
+        .map(([label,value]) => '<div><dt>' + esc(label) + '</dt><dd>' + esc(value) + '</dd></div>').join('') + '</dl>' +
+      (segments.length ? '<div class="mr-synth-segment-list">' + segments.map((segment) => {
+        const s = obj(segment);
+        const mean = strictFinite(s.mean_score) ? Number(s.mean_score) : Number(s.median_score);
+        const median = strictFinite(s.median_score) ? Number(s.median_score) : mean;
+        return '<div class="mr-synth-segment"><strong>' + esc(humanize(s.participant_mode)) + '</strong><span>' +
+          esc(fmtWhole(s.n)) + (Number(s.n) === 1 ? ' submitted run' : ' submitted runs') + '</span><dl class="mr-synth-stat-list"><div><dt>Mean</dt><dd>' +
+          esc(fmt1(mean)) + '</dd></div><div><dt>Median</dt><dd>' + esc(fmt1(median)) + '</dd></div></dl></div>';
+      }).join('') + '</div>' : '') + '</div>';
+    return '<div class="mr-viz-panel mr-depth-distribution-panel"><div class="mr-viz-title">Distribution at a glance</div>' + svg + summary + '<p class="mr-copy"><span class="mr-synth-wide-caption">Box = interquartile range; dark line = median; amber dot = mean. </span>Vantage results describe observed segments and do not reweight the Median Diagnostic Score.</p></div>';
   }
 
   function renderDepthDistribution(m, n) {
@@ -858,7 +873,7 @@
       const point = positions[index];
       svg += '<path d="M' + point[0] + ' ' + point[1] + ' L' + centerX + ' ' + centerY + '" stroke="rgba(12,110,120,.26)" stroke-width="2" fill="none"/>';
     });
-    svg += '<circle cx="' + centerX + '" cy="' + centerY + '" r="76" fill="url(#mr-system-gradient)"/>';
+    svg += '<circle class="mr-system-hub" cx="' + centerX + '" cy="' + centerY + '" r="76" fill="url(#mr-system-gradient)"/>';
     svg += '<circle cx="' + centerX + '" cy="' + centerY + '" r="83" fill="none" stroke="rgba(12,110,120,.16)" stroke-width="2"/>';
     svg += '<text x="' + centerX + '" y="' + (centerY - 23) + '" text-anchor="middle" fill="#A9CED1" font-size="10" font-weight="700" letter-spacing="1.6">CROSS-LENS</text>';
     // The lower label already states COMPOSITE WITHHELD. Repeating the long
@@ -872,16 +887,22 @@
     svg += '</text>';
     groups.forEach((lens, index) => {
       const point = positions[index], label = splitSvgLabel(lens.toolLabel);
-      const x = point[0] - 96, y = point[1] - 43;
-      svg += '<rect x="' + x + '" y="' + y + '" width="192" height="86" rx="11" fill="#FFF" stroke="#DCD8CF"/>';
-      svg += '<rect x="' + x + '" y="' + y + '" width="4" height="86" rx="2" fill="#0C6E78"/>';
+      const x = point[0] - 96, y = point[1] - 56;
+      svg += '<rect x="' + x + '" y="' + y + '" width="192" height="112" rx="11" fill="#FFF" stroke="#DCD8CF"/>';
+      svg += '<rect x="' + x + '" y="' + y + '" width="4" height="112" rx="2" fill="#0C6E78"/>';
       svg += '<text x="' + (x + 18) + '" y="' + (y + 24) + '" fill="#6E6F73" font-size="10" font-weight="700" letter-spacing=".7">' + esc(label[0].toUpperCase()) + '</text>';
       if (label[1]) svg += '<text x="' + (x + 18) + '" y="' + (y + 38) + '" fill="#6E6F73" font-size="10" font-weight="700" letter-spacing=".7">' + esc(label[1].toUpperCase()) + '</text>';
-      svg += '<text x="' + (x + 18) + '" y="' + (y + 69) + '" fill="#18191C" font-size="25" font-weight="700">' + esc(fmt1(lens.mean)) + '</text>';
-      svg += '<text x="' + (x + 70) + '" y="' + (y + 68) + '" fill="#9A9892" font-size="10">mean · n=' + esc(fmtWhole(lens.n)) + '</text>';
+      svg += '<text class="mr-system-lens-value" x="' + (x + 18) + '" y="' + (y + 69) + '" fill="#18191C" font-size="25" font-weight="700">' + esc(fmt1(lens.mean)) + '</text>';
+      svg += '<text class="mr-system-lens-meta" x="' + (x + 18) + '" y="' + (y + 93) + '" fill="#6E6F73" font-size="11">mean · n=' + esc(fmtWhole(lens.n)) + '</text>';
     });
     svg += '</svg>';
-    return '<div class="mr-viz-panel mr-system-panel"><div class="mr-viz-title">The operating system in one view</div>' + svg + '<p class="mr-copy">Every Diagnostic receives one vote in the center Composite. Submitted run counts affect evidence coverage, not lens weight; they do not establish how many distinct people responded. Connectors show composition, not causation.</p></div>';
+    const summary = '<div class="mr-synth-compact"><div class="mr-system-compact-composite"><strong>' +
+      esc(m.scorePublished ? 'Equal-lens Composite' : 'Composite withheld') + '</strong><span>' +
+      esc(m.scorePublished ? fmt1(m.score) : 'Unavailable') + '</span></div><div class="mr-synth-segment-list">' +
+      groups.map((lens) => '<div class="mr-synth-segment"><strong>' + esc(lens.toolLabel) + '</strong><span>' +
+        esc(fmtWhole(lens.n)) + (Number(lens.n) === 1 ? ' submitted run' : ' submitted runs') + '</span><dl class="mr-synth-stat-list"><div><dt>Mean</dt><dd>' +
+        esc(fmt1(lens.mean)) + '</dd></div></dl></div>').join('') + '</div></div>';
+    return '<div class="mr-viz-panel mr-system-panel"><div class="mr-viz-title">The operating system in one view</div>' + svg + summary + '<p class="mr-copy">Every Diagnostic receives one vote in the Composite. Submitted run counts affect evidence coverage, not lens weight; they do not establish how many distinct people responded.<span class="mr-synth-wide-caption"> Connectors show composition, not causation.</span></p></div>';
   }
 
   function renderCrossLensInteractionMatrix(m) {
@@ -1687,6 +1708,25 @@
     .mr-system-read{display:flex;flex-direction:column}.mr-system-read>.mr-system-panel{order:-1;margin-bottom:28px}
     .mr-system-panel{padding:22px 24px 18px!important;background:linear-gradient(180deg,#FAFAF8 0,#FFF 100%)}
     .mr-system-map{display:block;width:100%;height:auto;min-height:310px;font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif}
+    .mr-synth-compact{display:none}
+    @media screen and (max-width:800px){
+      .mr-depth-distribution-panel>.mr-synth-chart,.mr-system-panel>.mr-system-map,.mr-synth-wide-caption{display:none!important}
+      .mr-synth-compact{display:block;font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;color:#18191C}
+      .mr-synth-compact+.mr-copy{margin-top:16px!important}
+      .mr-synth-stat-list{margin:0;display:grid;gap:0}
+      .mr-synth-stat-list>div{display:flex;align-items:baseline;gap:12px;padding:9px 0;border-bottom:1px solid #EAE6DD}
+      .mr-synth-stat-list dt{flex:1;min-width:0;font-size:14px;color:#6E6F73;overflow-wrap:anywhere}
+      .mr-synth-stat-list dd{flex:0 0 auto;margin:0;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;color:#18191C;white-space:nowrap}
+      .mr-synth-segment-list{display:grid;gap:12px;margin-top:18px}
+      .mr-synth-segment{min-width:0;border:1px solid #EAE6DD;border-radius:9px;padding:14px}
+      .mr-synth-segment>strong{display:block;font-size:16px;line-height:1.35;color:#08383E;overflow-wrap:anywhere}
+      .mr-synth-segment>span{display:block;margin-top:5px;font-size:14px;color:#6E6F73}
+      .mr-synth-segment .mr-synth-stat-list{margin-top:8px}
+      .mr-synth-segment .mr-synth-stat-list>div:last-child{border-bottom:0;padding-bottom:0}
+      .mr-system-compact-composite{padding:16px;border-left:3px solid #0C6E78;background:#F6F3EC;border-radius:9px}
+      .mr-system-compact-composite>strong{display:block;font-size:14px;color:#08383E}
+      .mr-system-compact-composite>span{display:block;margin-top:6px;font-size:24px;line-height:1.2;font-weight:700;color:#18191C}
+    }
     .mr-system-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid #E0DCD3;border-radius:12px;overflow:hidden;margin:16px 0}
     .mr-system-decision{display:grid;grid-template-columns:1.3fr .7fr;border:1px solid #E0DCD3;border-radius:12px;overflow:hidden}.mr-system-decision>div{padding:22px 24px;background:#FFF}.mr-system-decision>div+div{border-left:1px solid #E0DCD3;background:#F7F5F0}.mr-system-decision h3{font-size:1.05rem!important;margin:8px 0!important}.mr-system-decision p{font-size:.9rem!important;line-height:1.57!important;margin:7px 0 0!important}.mr-system-decision strong{display:block;font-size:1.65rem;line-height:1.1;letter-spacing:-.03em;margin:9px 0 4px}
     .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
@@ -1906,6 +1946,8 @@
     }
     @page{size:Letter;margin:60pt}
     @media print{
+      .mr-system-map>.mr-system-hub{fill:#08383E}
+      .mr-map-signal,.mr-interaction-grid>.mr-interaction-label,.mr-interaction-grid>.mr-interaction-cell{break-inside:avoid;page-break-inside:avoid}
       /* Keep a standard report cover on one Letter page and keep its
          interpretation notice intact. Screen typography is unchanged. */
       .mr-report .mr-cover{break-inside:avoid;page-break-inside:avoid}
