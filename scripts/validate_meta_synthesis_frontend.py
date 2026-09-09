@@ -65,12 +65,15 @@ for token in (
     "function renderDepthDistribution",
     "function renderRequirements",
     "function renderMetaExposure",
-    "each Diagnostic receives one vote regardless of participant count",
+    "each Diagnostic receives one vote regardless of submitted run count",
+    "they do not establish how many distinct people responded",
     "Population generalization requires a documented sampling frame",
 ):
     require(REPORT, token, "monderman-report.js")
 
 for token in (
+    "regardless of participant count",
+    "Participant depth governs evidence strength",
     "function svgHeroMap",
     "function svgCascade",
     "function renderComposite",

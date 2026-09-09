@@ -681,9 +681,9 @@
   <div class="section-inner">
     <p class="section-eyebrow">ARCHITECTURE</p>
     <h2>How a Diagnostic moves from browser to saved result</h2>
-    <p>The Monderman site is served as static pages over HTTPS. Ordinary Diagnostics require a signed-in member session. Directed campaign assignment links are the limited exception and can be completed without the recipient becoming a Workspace member.</p>
-    <p>Diagnostics call a single API service on Render. The API performs authoritative scoring, calls Anthropic's commercial API for written interpretation, and writes results to Supabase Postgres. Service-role database credentials, Stripe secret keys, Anthropic credentials and email-provider credentials stay server-side and are not shipped to the browser.</p>
-    <p>Core outside services currently include Supabase for database and authentication, Render for the API, Anthropic for generated interpretation, Resend for email delivery, Stripe for billing, Cloudflare for bot verification, GitHub for the static site repository and hosting workflow, and public content-delivery networks for versioned browser libraries.</p>
+    <p>The Monderman site is served as static pages over HTTPS. A free first Decision Velocity run can show a score and band before sign-in; an account is required to save and open its full report. Other direct Diagnostics require a signed-in member session. Directed campaign assignment links can be completed without the recipient becoming a Workspace member.</p>
+    <p>Diagnostics call a single API service on Render. Monderman calculates and saves scores using versioned application code and Supabase Postgres. When AI-assisted reporting is enabled, the server sends selected report evidence to Anthropic's commercial API for a separate written interpretation. The interpretation does not change the saved score. Service-role database credentials, Stripe secret keys, Anthropic credentials and email-provider credentials stay server-side and are not shipped to the browser.</p>
+    <p>Core outside services currently include Supabase for database and authentication, Render for the API, Anthropic for AI-assisted report interpretation when enabled, Resend for email delivery, Stripe for billing, Cloudflare for bot verification, GitHub for the static site repository and hosting workflow, and public content-delivery networks for versioned browser libraries.</p>
   </div>
 </section>
 <section class="section">
@@ -696,8 +696,8 @@
 <section class="section">
   <div class="section-inner">
     <p class="section-eyebrow">DATABASE ACCESS</p>
-    <h2>Row-level security is the customer boundary</h2>
-    <p>All public Postgres tables currently have row-level security enabled. Customer browser access uses Supabase's public publishable key plus the signed-in user's session. The publishable key is intentionally visible in browser code; it is not a service-role secret.</p>
+    <h2>Row-level security and server-side authorization</h2>
+    <p>Monderman uses database row-level security and server-side authorization to restrict Workspace data access. Customer browser access uses Supabase's public publishable key plus the signed-in user's session. The publishable key is intentionally visible in browser code; it is not a service-role secret.</p>
     <p>Policies and authorization helpers restrict signed-in users to the Workspace operations their role allows. Service-only tables can have RLS enabled with no customer policies, which means browser roles cannot read or write those rows. Privileged server operations use server-side credentials.</p>
     <p>Client write privileges are also narrowed at the grant layer. Workspace administrators can change the Workspace name and review status through the customer interface, while plan, usage, billing and stored Diagnostic result fields remain server-managed.</p>
   </div>
@@ -723,7 +723,7 @@
     <p class="section-eyebrow">DIAGNOSTIC INTEGRITY</p>
     <h2>The server calculates and saves the score</h2>
     <p>The browser does not set the score for a saved Diagnostic. The API builds the scoring input, applies the versioned scoring logic, and saves the result. Directed assignments use the same server path rather than accepting a result calculated in the browser.</p>
-    <p>Optional experiential narrative can inform written interpretation but does not change the structured score.</p>
+    <p>Optional written observations are stored and displayed separately and do not change the structured score. They are sent for AI interpretation only when that separate feature is enabled; the report states when they were not incorporated.</p>
   </div>
 </section>
 <section class="section">
@@ -739,8 +739,8 @@
     <p class="section-eyebrow">AI PROCESSING</p>
     <h2>How AI-assisted interpretation is processed</h2>
     <p>Monderman does not use Customer responses, observations, reports or organization history for model training, fine-tuning, provider feedback, shared benchmarks or cross-customer research, including in aggregated or de-identified form. Saved results remain available to authorized users within their own organization. External practice guidance comes from reviewed public or properly licensed sources.</p>
-    <p>Content needed to produce written interpretation is sent from the API to Anthropic's commercial API. Anthropic states that <a href="https://privacy.anthropic.com/en/articles/7996868-is-my-data-used-for-model-training" target="_blank" rel="noopener noreferrer">commercial-product inputs and outputs are not used to train its models by default</a> unless the customer explicitly opts in or submits qualifying feedback.</p>
-    <p>Anthropic states that <a href="https://privacy.anthropic.com/en/articles/7996866-how-long-do-you-store-my-organization-s-data" target="_blank" rel="noopener noreferrer">standard API inputs and outputs are automatically deleted from its backend within 30 days</a>, subject to its documented usage-policy, legal, contractual, and customer-agreement exceptions. Monderman does not send Stripe card details or Monderman service credentials with Diagnostic interpretation requests.</p>
+    <p>When AI-assisted reporting is enabled, selected structured answers, computed results and context are sent to Anthropic's commercial API. Synthesis interpretation receives selected aggregate results, not individual written observations. In the current report design, Claude selects and prioritizes reviewed explanations and proposed next steps that are eligible for the supplied evidence. Monderman's code inserts their approved wording and supporting responses. Claude does not freely write new recommendations or calculate scores. Automated checks and AI review do not replace the customer's judgment; selected material can still be inappropriate or incomplete and must be reviewed before use. Anthropic states that <a href="https://privacy.anthropic.com/en/articles/7996868-is-my-data-used-for-model-training" target="_blank" rel="noopener noreferrer">commercial-product inputs and outputs are not used to train its models by default</a> unless the customer explicitly opts in or submits qualifying feedback.</p>
+    <p>Anthropic states that <a href="https://privacy.anthropic.com/en/articles/7996866-how-long-do-you-store-my-organization-s-data" target="_blank" rel="noopener noreferrer">standard API inputs and outputs are automatically deleted from its backend within 30 days</a>, subject to its documented usage-policy, legal, contractual, and customer-agreement exceptions. This is not a zero-retention arrangement. Monderman does not send Stripe card details or Monderman service credentials with Diagnostic interpretation requests.</p>
   </div>
 </section>
 <section class="section">

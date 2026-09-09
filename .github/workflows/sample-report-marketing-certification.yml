@@ -3,6 +3,7 @@ name: Sample and Executive Report certification
 on:
   pull_request:
     paths:
+      - 'scripts/install_ci_browsers.sh'
       - '*.html'
       - 'sample-report.html'
       - 'sample-report-production.js'
@@ -85,6 +86,19 @@ on:
       - 'scripts/report_presentation_smoke.mjs'
       - 'scripts/authenticated_report_engine_fixture.mjs'
       - 'scripts/report_pdf_smoke.mjs'
+      - 'scripts/report_full_pagination_smoke.mjs'
+      - 'scripts/report_actual_text_pagination_smoke.mjs'
+      - 'scripts/report_ai_action_pagination_smoke.mjs'
+      - 'test-fixtures/report-full-pagination-p19-historical.json'
+      - 'scripts/report_synthesis_display_smoke.mjs'
+      - 'scripts/report_synthesis_chart_smoke.mjs'
+      - 'scripts/report_cross_lens_phone_smoke.mjs'
+      - 'scripts/sc_favorable_presentation_smoke.mjs'
+      - 'scripts/dv_timing_presentation_smoke.mjs'
+      - 'scripts/dv_timing_display_smoke.mjs'
+      - 'test-fixtures/sc-favorable-presentation.json'
+      - 'monderman-viz.js'
+      - 'test-fixtures/report-full-pagination.json'
       - 'scripts/ip_missing_recovery_browser_smoke.mjs'
       - 'scripts/sample_product_fidelity_smoke.mjs'
       - 'scripts/sample_product_fidelity_smoke_v2.mjs'
@@ -105,6 +119,7 @@ on:
     branches:
       - main
     paths:
+      - 'scripts/install_ci_browsers.sh'
       - '*.html'
       - 'sample-report.html'
       - 'sample-report-production.js'
@@ -187,6 +202,19 @@ on:
       - 'scripts/report_presentation_smoke.mjs'
       - 'scripts/authenticated_report_engine_fixture.mjs'
       - 'scripts/report_pdf_smoke.mjs'
+      - 'scripts/report_full_pagination_smoke.mjs'
+      - 'scripts/report_actual_text_pagination_smoke.mjs'
+      - 'scripts/report_ai_action_pagination_smoke.mjs'
+      - 'test-fixtures/report-full-pagination-p19-historical.json'
+      - 'scripts/report_synthesis_display_smoke.mjs'
+      - 'scripts/report_synthesis_chart_smoke.mjs'
+      - 'scripts/report_cross_lens_phone_smoke.mjs'
+      - 'scripts/sc_favorable_presentation_smoke.mjs'
+      - 'scripts/dv_timing_presentation_smoke.mjs'
+      - 'scripts/dv_timing_display_smoke.mjs'
+      - 'test-fixtures/sc-favorable-presentation.json'
+      - 'monderman-viz.js'
+      - 'test-fixtures/report-full-pagination.json'
       - 'scripts/ip_missing_recovery_browser_smoke.mjs'
       - 'scripts/sample_product_fidelity_smoke.mjs'
       - 'scripts/sample_product_fidelity_smoke_v2.mjs'
@@ -213,7 +241,7 @@ concurrency:
 
 jobs:
   certify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -273,17 +301,16 @@ jobs:
 
       - name: Install browser tooling
         run: |
-          # Tests use Playwright's pinned browsers, not the runner's Chrome.
-          # An unrelated Chrome index must not block Ubuntu dependency setup.
-          sudo python3 - <<'PY'
-          from pathlib import Path
-          for pattern in ("*.list", "*.sources"):
-              for source in Path("/etc/apt/sources.list.d").glob(pattern):
-                  if "dl.google.com/linux/chrome" in source.read_text():
-                      source.rename(source.with_suffix(source.suffix + ".disabled"))
-          PY
           npm install --no-save --package-lock=false playwright@1.55.0
-          npx playwright install --with-deps chromium webkit
+          bash scripts/install_ci_browsers.sh
+      - name: Preserve unavailable scores and Synthesis chart labels on all display sizes
+        run: node scripts/report_synthesis_display_smoke.mjs
+      - name: Verify responsive Synthesis charts and print label containment
+        env:
+          REPORT_OUT: /tmp/report-presentation-smoke/synthesis-charts
+        run: node scripts/report_synthesis_chart_smoke.mjs
+      - name: Verify Cross-Lens phone and print readability
+        run: node scripts/report_cross_lens_phone_smoke.mjs
 
       - name: Serve candidate
         run: |
@@ -310,6 +337,19 @@ jobs:
 
       - name: Verify generated PDF geometry and remedy pagination
         run: python scripts/validate_generated_pdf_layout.py /tmp/report-presentation-smoke
+
+      - name: Verify full reports with long AI output and legacy reports
+        run: |
+          node scripts/report_full_pagination_smoke.mjs
+          node scripts/report_actual_text_pagination_smoke.mjs
+          node scripts/report_ai_action_pagination_smoke.mjs
+
+      - name: Verify favorable Structural Clarity charts and full report
+        run: |
+          node scripts/sc_favorable_presentation_smoke.mjs
+          SC_BROWSER=webkit node scripts/sc_favorable_presentation_smoke.mjs
+      - name: Verify DV missing-timing page and legacy PDF presentation
+        run: node scripts/dv_timing_presentation_smoke.mjs
 
       - name: Withhold unpublished Institutional Performance recovery estimates
         env:
@@ -340,7 +380,7 @@ jobs:
         run: |
           node scripts/homepage_workspace_demo_smoke.mjs
           node scripts/workspace_product_design_smoke.mjs
-          node scripts/report_screen_experience_smoke.mjs
+          REPORT_OUT=/tmp/report-presentation-smoke/report-screen-experience node scripts/report_screen_experience_smoke.mjs
 
       - name: Render and verify ordinary-page print pagination
         env:
@@ -394,6 +434,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: report-presentation-certification
-          path: /tmp/report-presentation-smoke
+          path: |
+            /tmp/report-presentation-smoke
+            /tmp/sc-favorable-presentation
           if-no-files-found: warn
           retention-days: 14

@@ -152,7 +152,58 @@ const rendererSandbox = { window: {} };
 vm.runInNewContext(rendererSource, rendererSandbox, { filename: "monderman-report.js" });
 const Report = rendererSandbox.window.MondermanReport;
 assert.ok(Report, "shared report renderer did not initialize");
-assert.equal(Report.rendererVersion, "diagnostic-renderer-screen-20260909.1", "display version was not advanced");
+assert.equal(Report.rendererVersion, "diagnostic-renderer-ai-screen-20260909.20", "display version was not advanced");
+
+const CONFIDENCE_CASES = Object.freeze([
+  {
+    name: "current scorer field is authoritative",
+    insight_depth: { confidence_level: "moderate" },
+    input_context: { confidenceLevel: "limited", confidence_level: "high" },
+    input_confidence_label: "High input depth",
+    expected: "Moderate"
+  },
+  {
+    name: "legacy raw context fallback",
+    input_context: { confidence_level: "limited" },
+    input_confidence_label: "Moderate input depth",
+    expected: "Limited"
+  },
+  {
+    name: "unknown authoritative scorer enum fails closed",
+    insight_depth: { confidence_level: "future_confidence" },
+    input_context: { confidenceLevel: "high" },
+    input_confidence_label: "High input depth",
+    expected: "Not recorded"
+  },
+  {
+    name: "malformed authoritative scorer field fails closed",
+    insight_depth: { confidence_level: { value: "high" } },
+    input_context: { confidenceLevel: "high" },
+    expected: "Not recorded"
+  },
+  {
+    name: "derived depth label is never reinterpreted as confidence",
+    input_confidence_label: "Moderate input depth",
+    expected: "Not recorded"
+  }
+]);
+
+for (const fixture of CONFIDENCE_CASES) {
+  const source = {
+    tool_type: "structural_clarity",
+    score: 92,
+    score_band: "Strong clarity",
+    ...structuredClone(fixture)
+  };
+  delete source.name;
+  delete source.expected;
+  const before = JSON.stringify(source);
+  const html = Report.buildReportHtml(Report.fromRun(source));
+  const displayed = html.match(/<dt>Reported answer confidence<\/dt><dd>([^<]*)<\/dd>/)?.[1];
+  assert.equal(displayed, fixture.expected, fixture.name);
+  assert.doesNotMatch(html, /<dt>Confidence in answers<\/dt>/, `${fixture.name}: ambiguous confidence label remains`);
+  assert.equal(JSON.stringify(source), before, `${fixture.name}: renderer mutated saved input`);
+}
 
 const RUN_CASES = Object.freeze({
   decision_velocity: {

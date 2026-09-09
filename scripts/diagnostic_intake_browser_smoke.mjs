@@ -108,6 +108,12 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
     await page.locator('#pageLoader').waitFor({state:'hidden'});
     await page.waitForFunction(()=>!document.getElementById('pageLoader')||getComputedStyle(document.getElementById('pageLoader')).pointerEvents==='none');
     await page.addStyleTag({content:'html{scroll-behavior:auto!important}'});
+    // A presentation-only stage change must not leave saved reports labelled
+    // as setup. No answer/start/finalize call is made by this DOM fixture.
+    for(const [stage,label] of [['questionStage','Step 2 of 3'],['processingStage','Preparing your result'],['resultsStage','Step 3 of 3'],['laneStage','Step 1 of 3']]){
+      await page.evaluate(id=>{document.querySelectorAll('.stage').forEach(el=>el.classList.toggle('active',el.id===id));},stage);
+      await page.waitForFunction(expected=>document.querySelector('.hero-step span:last-child')?.textContent.includes(expected),label);
+    }
     // Every role and run-length selection, including the previously missed executive route.
     for(const role of ['operational','managerial','executive']){
       if(name==='operational-systems')await checkTargets(page,'#laneStage .intake-actions button, #laneStage .intake-actions a',`${name}/${role}/role-before-selection`);

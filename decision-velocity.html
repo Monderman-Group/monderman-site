@@ -64,6 +64,15 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
 .environment{width:min(100%, 1080px);min-height:780px;background:#FFF;border:1px solid rgba(24,25,28,.08);border-radius:32px;box-shadow:var(--shadow-lg);overflow:hidden;margin:0 auto;position:relative}.environment::before{content:"";position:absolute;inset:0;pointer-events:none;background:none;opacity:0}.environment-inner{position:relative;z-index:1;display:grid;grid-template-rows:auto 1fr auto;min-height:780px}
 .env-head{padding:28px 32px 20px;border-bottom:1px solid rgba(24,25,28,.06);display:grid;gap:14px}.env-head-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.env-head-row{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap}.env-kicker{margin:0;font-size:.76rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}.env-status{display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:999px;background:#FFF;border:1px solid rgba(24,25,28,.08);box-shadow:var(--shadow-sm);font-size:.84rem;color:var(--ink-soft)}.env-status-dot{width:8px;height:8px;border-radius:999px;background:var(--accent)}.env-head h2{margin:0;font-size:1.42rem;line-height:1.08;letter-spacing:-.03em}.env-head p{margin:0;max-width:62ch;font-size:.96rem;line-height:1.65;color:var(--ink-soft)}
 .stage{padding:34px 32px 28px;display:none}.stage.active{display:block}
+/* A long result child must not expand the implicit grid track and get clipped
+   by the diagnostic frame on a phone. */
+#resultsStage .results-layout{grid-template-columns:minmax(0,1fr)}
+#resultsStage .results-layout > *{min-width:0}
+/* Missing-evidence and estimate qualifications must remain visible in full. */
+#resultsStage .summary-sub.tight{display:block;-webkit-line-clamp:unset;overflow:visible}
+#resultsStage .quadrant-box{margin-block:34px;overflow:visible}
+#resultsStage .q-tl,#resultsStage .q-tr{top:-34px}
+#resultsStage .q-bl,#resultsStage .q-br{bottom:-34px}
 .intro-layout{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(300px,.88fr);gap:26px;align-items:start}.card,.result-card,.chart-card{background:#FFF;border:1px solid rgba(24,25,28,.08);border-radius:24px;box-shadow:var(--shadow-md);padding:24px 24px 22px;overflow-wrap:break-word;word-break:normal;hyphens:none}.card.soft{background:#FAFAF8}.card h3,.result-card h3,.chart-card h3{margin:0 0 10px;font-size:1.02rem;line-height:1.2;letter-spacing:-.02em}.card p,.card li,.question-copy,.result-copy,.tiny{color:var(--ink-soft);line-height:1.65;font-size:.95rem}.card ul{margin:12px 0 0;padding-left:18px;display:grid;gap:8px}.notice-block{display:grid;gap:14px}.notice{padding:16px 16px 14px;border-radius:18px;border:1px solid rgba(12,110,120,.14);background:rgba(12,110,120,.05)}.notice strong{display:block;margin-bottom:6px;font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}.gentle-note{margin-top:14px;padding:14px 16px;border-radius:16px;background:#FAFAF8;border:1px solid rgba(24,25,28,.08)}.depth-intro{margin:0 0 18px;font-size:.94rem;line-height:1.62;color:var(--ink-soft)}.depth-footnote{margin-top:16px;padding-top:14px;border-top:1px solid rgba(24,25,28,.08);font-size:.88rem;line-height:1.58;color:var(--ink-soft)}.depth-support{display:grid;gap:18px}.sidebar-note{padding:14px 16px;border-radius:16px;background:#FFF;border:1px solid rgba(24,25,28,.08);font-size:.88rem;line-height:1.58;color:var(--ink-soft)}.sidebar-note strong{display:block;margin-bottom:6px;color:var(--ink);font-size:.84rem;letter-spacing:.06em}
 .checkbox-card{padding:18px;border-radius:18px;border:1px solid rgba(24,25,28,.08);background:var(--panel-soft)}.checkbox-row{display:flex;gap:12px;align-items:flex-start}.checkbox-row input{margin-top:3px;accent-color:var(--accent);transform:scale(1.08)}.checkbox-row label{font-size:.95rem;line-height:1.62;color:var(--ink)}
 
@@ -655,7 +664,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   <p id="processingStatus">The diagnostic engine is interpreting your decision pathway and preparing the final diagnostic readout.</p>
   <p class="tiny" id="processingHelp">The output sequence is assembling quantitative scoring, structured checks, interpretive context, exposure ranges, and the final narrative.</p>
   <div class="processing-list">
-    <div class="processing-item"><span class="pulse"></span><span>Scoring where the pathway is slowest</span></div>
+    <div class="processing-item"><span class="pulse"></span><span>Scoring the supplied indicators</span></div>
     <div class="processing-item"><span class="pulse"></span><span>Checking structured contradictions and interpretive bypass signals</span></div>
     <div class="processing-item"><span class="pulse"></span><span>Estimating rough time, cost, and capacity impact</span></div>
     <div class="processing-item"><span class="pulse"></span><span>Preparing the final readout</span></div>
@@ -749,7 +758,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
 
     <section class="diagnosis-grid">
       <article class="diagnosis-card"><p class="summary-label">Pathway condition</p><p class="summary-value" id="cycleConditionValue">--</p><p class="summary-sub tight" id="cycleConditionSub">Overall pathway diagnosis</p></article>
-      <article class="diagnosis-card"><p class="summary-label">Primary burden source</p><p class="summary-value" id="burdenConstraintValue">--</p><p class="summary-sub tight" id="burdenConstraintSub">Largest measured drag source in this run</p></article>
+      <article class="diagnosis-card"><p class="summary-label">Burden pattern</p><p class="summary-value" id="burdenConstraintValue">--</p><p class="summary-sub tight" id="burdenConstraintSub">Pattern among the supplied burden indicators</p></article>
       <article class="diagnosis-card"><p class="summary-label">Burden diagnosis</p><p class="summary-value" id="tradeoffDiagnosisValue">--</p><p class="summary-sub tight" id="tradeoffDiagnosisSub">Is current administrative weight justified?</p></article>
     </section>
 
@@ -766,7 +775,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
             <section class="economic-strip">
               <article class="economic-card"><p class="summary-label">Pathway hours*</p><p class="summary-value" id="economicHoursValue">--</p><p class="summary-sub tight" id="economicHoursSub">Directional yearly labor-hours signal tied to current pathway drag.</p></article>
               <article class="economic-card"><p class="summary-label">Estimated cost*</p><p class="summary-value" id="economicCostValue">--</p><p class="summary-sub tight" id="economicCostSub">Modeled annual labor cost based on the supplied time, frequency, and hourly-cost inputs. This is not an observed loss.</p></article>
-              <article class="economic-card"><p class="summary-label">Capacity drag*</p><p class="summary-value" id="economicCapacityValue">--</p><p class="summary-sub tight" id="economicCapacitySub">Estimated productive capacity being absorbed by recurring approval, coordination, and escalation drag.</p></article>
+              <article class="economic-card"><p class="summary-label">Modeled capacity share*</p><p class="summary-value" id="economicCapacityValue">--</p><p class="summary-sub tight" id="economicCapacitySub">A scenario estimate based on supplied workload and capacity inputs, not observed capacity lost or recovered.</p></article>
             </section>
             <section class="economic-strip" style="margin-top:14px;">
               <article class="reclaim-card"><p class="summary-label">Reclaim potential*</p><p class="summary-value" id="reclaimValue">--</p><p class="summary-sub tight" id="reclaimSub">Directional estimate of value that may be recoverable if the heaviest visible drag is reduced first.</p></article>
@@ -846,7 +855,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
           <div class="accordion-body">
             <div class="detail-content" id="detailContent">
               <section class="grid-2">
-                <article class="chart-card"><h3>Governance Weight × Execution Responsiveness</h3><div class="quadrant-wrap"><div class="quad-with-yaxis"><div class="axis-y">Execution responsiveness</div><div class="quadrant-box"><div class="q-label q-tl">Fast movement,<br>lighter governance</div><div class="q-label q-tr">Fast movement,<br>heavier governance</div><div class="q-label q-bl">Slow movement,<br>lighter governance</div><div class="q-label q-br">Slow movement,<br>heavier governance</div><div class="quad-dot" id="quadDot"></div></div></div><div class="axis-x">Governance weight</div><div class="quad-guide-grid"><div class="quad-guide"><strong>Quadrant interpretation</strong><p class="tiny" id="quadrantInterpretationText">Quadrant interpretation will appear here after scoring.</p></div></div></div></article>
+                <article class="chart-card"><h3>Governance Weight × Execution Responsiveness</h3><div class="quadrant-wrap"><div class="quad-with-yaxis"><div class="axis-y">Execution responsiveness</div><div class="quadrant-box"><div class="q-label q-tl">Higher responsiveness,<br>lighter governance</div><div class="q-label q-tr">Higher responsiveness,<br>heavier governance</div><div class="q-label q-bl">Lower responsiveness,<br>lighter governance</div><div class="q-label q-br">Lower responsiveness,<br>heavier governance</div><div class="quad-dot" id="quadDot"></div></div></div><div class="axis-x">Governance weight</div><div class="quad-guide-grid"><div class="quad-guide"><strong>Quadrant interpretation</strong><p class="tiny" id="quadrantInterpretationText">Quadrant interpretation will appear here after scoring.</p></div></div></div></article>
                 <article class="result-card"><h3>Time, money, and resources</h3><p class="result-copy" id="tmrText"></p><div class="compact-card" style="margin-top:14px;"><h3>Trade-off note</h3><p class="result-copy" id="tradeoffText"></p></div></article>
               </section>
               <section class="grid-2"><article class="chart-card"><h3>Decision-pathway drag</h3><div class="chart-wrap"><canvas id="gapChart"></canvas></div></article><article class="chart-card"><h3>Dimension profile</h3><div class="chart-wrap"><canvas id="dimensionChart"></canvas></div></article></section>
@@ -3740,6 +3749,40 @@ return {
 };
 }
 
+// Availability is supplied by the saved result, never inferred from its total
+// score. This controls explanatory copy only; it does not recalculate a result.
+function hasMeasuredDecisionTiming(result) {
+return Number.isFinite(result?.dimensions?.cycle_velocity)
+  && result?.measurement_coverage?.dimensions?.cycle_velocity?.status !== "not_measured";
+}
+
+function buildDecisionTimingContext(result) {
+if (hasMeasuredDecisionTiming(result)) return "Decision timing and the other indicators reflect the submitted answers, not independently observed speed.";
+const availability = result?.measurement_coverage?.dimensions?.cycle_velocity?.status === "not_measured"
+  ? "Decision timing was not measured."
+  : "Decision timing is unavailable in this saved result.";
+return `${availability} The supplied burden indicators do not establish whether decisions are fast or slow.`;
+}
+
+function displayedDecisionDimensionValue(result, key) {
+if (result?.measurement_coverage?.dimensions?.[key]?.status === "not_measured") return "Not measured";
+const value = result?.dimensions?.[key];
+return Number.isFinite(value) ? `${Math.round(value)} / 100` : "Score unavailable";
+}
+
+function buildDisplayedDecisionDiagnosis(result, burdenConstraint, harmonized) {
+if (!hasMeasuredDecisionTiming(result)) return {
+  burdenRead: buildDecisionTimingContext(result),
+  sourceRead: "Supplied burden indicators do not establish a cause of delay.",
+  diagnosisRead: "Review the supplied burden indicators without assuming their time cost or control benefit. Record decision timing before making a time comparison."
+};
+return Number(result?.score) >= 83 ? {
+  burdenRead: "The submitted answers produce a stronger-range Decision Velocity score. Save this result for comparison with a later run. It does not establish that performance will continue.",
+  sourceRead: "A stronger-range score is not evidence that any one decision step requires redesign.",
+  diagnosisRead: "A stronger-range score does not establish that the controls are necessary or effective. Any proposed change needs a specific reason and a bounded test."
+} : harmonized.diagnosisReads;
+}
+
 function derivePrimaryBurdenSource(result) {
 // Read from canonical_composition: single source of truth.
 // Eliminates the incorrect control_load → "Manual workaround dependence" mapping
@@ -3753,7 +3796,7 @@ if (pattern.dominant && pattern.dominant.label !== "No dominant source") {
   return {
     label: pattern.dominant.label,
     value: pattern.dominant.value,
-    note:  backendNote || "The primary burden source is constraining movement in this workflow."
+    note:  backendNote || "This is the largest supplied burden indicator, not an established cause of delay."
   };
 }
 return { label: "Mixed burden pattern", value: 0, note: "No single burden source clearly dominates the run." };
@@ -4808,7 +4851,7 @@ return `<svg width="220" height="140" viewBox="0 0 220 140" xmlns="http://www.w3
      <p class="cover-stat-sub">labor exposure*</p>
    </div>
    <div class="cover-stat">
-     <p class="cover-stat-label">Capacity absorbed</p>
+     <p class="cover-stat-label">Modeled capacity share</p>
      <p class="cover-stat-value">${escapeHtml(dragText)}</p>
      <p class="cover-stat-sub">of available capacity</p>
    </div>
@@ -5019,36 +5062,23 @@ return [crossRoleBullet, longitudinalBullet, adjacentBullet];
 function buildPrimaryReadSummary(result = {}, payload = {}) {
 const qualitative = detectQualitativeOverride(payload);
 if (qualitative.type !== "none") return qualitative.summary;
-const primary = derivePrimaryBurdenSource(result);
 if (Number(result?.score) >= 83) {
-  return `${primary.label || "The leading residual signal"} is the largest remaining source of friction in an otherwise healthy pathway. Preserve the current design and monitor this signal for verified drift rather than redesigning a pathway that is working.`;
+  return `The submitted answers produce a stronger-range score. This does not establish that the decision process is healthy or that its controls are effective. ${buildDecisionTimingContext(result)}`;
 }
-const trajectory = result?.trajectory?.direction === "up" ? " and the burden appears to be rising" : result?.trajectory?.direction === "down" ? " while some pressure may be easing" : " with no clear easing signal yet";
-const primaryNoteBase = (primary.note || "The pathway is carrying visible decision drag").replace(/\.\s*$/, "");
-return `${primaryNoteBase}${trajectory}.`;
+return `The result summarizes the supplied burden indicators. ${buildDecisionTimingContext(result)} A single run does not establish a change over time.`;
 }
 
 function buildLeadershipQuestion(result = {}, payload = {}, section = "executive") {
-const qualitative = detectQualitativeOverride(payload);
-const pattern = getBurdenCompositionPattern(result);
 if (section === "experience") return "Does the documented process still describe the process people actually use?";
-if (section === "composition") return pattern.shape === "concentrated" ? "Is the burden concentrated enough to remove surgically before it spreads?" : "Is burden distributed because the whole path is overbuilt, or because people have normalized compensating behavior?";
-if (section === "quadrant") {
-  // Quadrant-aware so the question matches the placement instead of always
-  // asking the upper-right-quadrant question regardless of where the dot lands.
-  const qk = String(result?.interpretive_state?.quadrantKey || result?.__interpretiveState?.quadrantKey || "upper_right").toLowerCase();
-  if (qk === "upper_left")  return "Is the lighter governance model durable as the workflow scales, or is current responsiveness masking gaps that have not yet surfaced?";
-  if (qk === "lower_left")  return "Is execution underpowered for the load it carries, or is governance too light to surface real friction?";
-  if (qk === "lower_right") return "Is governance load now absorbing the capacity that should be producing outcomes?";
-  return "Is the organization buying responsiveness with hidden managerial effort or excess governance weight?";
-}
-if (section === "remedy") return qualitative.type === "bypass_control_risk" ? "Is leadership trying to preserve formal control, or restore control that has already drifted into informal practice?" : "Is leadership trying to preserve control, reclaim capacity, or realign the formal path with how the work actually moves?";
-if (qualitative.type === "bypass_control_risk") return "Does the documented process still describe the process people actually use?";
-return "What does leadership need to admit about how this really works before the next change will stick?";
+if (section === "composition") return "Which supplied burden indicator should be checked against a specific example from the work first?";
+if (section === "quadrant") return "What direct evidence would help explain the reported governance and responsiveness indicators?";
+if (section === "remedy") return "What requirement does the control serve, and what evidence would justify a small test?";
+return "What should be checked before deciding whether any change is needed?";
 }
 
 function buildExecutiveReportHtml(result, payload) {
 const harmonized = buildHarmonizedNarrative(result, payload || {});
+const timingContext = buildDecisionTimingContext(result);
 const summary = buildCustomerExecutiveSummary(result, payload || {});
 const actions = buildPriorityActions(result, payload || {}).filter(Boolean);
 const benchmark = buildBenchmarkInterpretationText(result, payload || {});
@@ -5077,11 +5107,10 @@ const capacity = calculateCapacityComposition(result?.exposure);
 const capacityLabel = value => value > 0 && value < 1 ? "&lt;1%" : `${Math.round(value)}%`;
 const breakdown = asObject(result?.burden_breakdown);
 const dimensionRows = [
-  ["cycle_velocity","Cycle velocity"], ["approval_efficiency","Approval efficiency"],
-  ["coordination_load","Coordination load"], ["execution_stability","Execution stability"]
+  ["cycle_velocity","Decision timing"], ["approval_efficiency","Approval efficiency"],
+  ["coordination_load","Coordination"], ["execution_stability","Execution stability"]
 ].map(([key,label]) => {
-  const value = result?.dimensions?.[key];
-  return `<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #EAE6DD"><span>${escapeHtml(label)}</span><b>${Number.isFinite(value) ? `${Math.round(value)} / 100` : "Not measured"}</b></div>`;
+  return `<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #EAE6DD"><span>${escapeHtml(label)}</span><b>${displayedDecisionDimensionValue(result, key)}</b></div>`;
 }).join("");
 const donutSegments = buildDonutSegments(breakdown);
 const donutPattern = analyzeDonutPattern(donutSegments, result);
@@ -5272,7 +5301,7 @@ const gapCalloutHeader = (() => {
   return "Experiential-structural gap detected.";
 })();
 const contradictionHtml = contradictions.length
-? `<div class="panel" style="font-size:11.5px;padding:14px 20px"><h3 style="margin-bottom:6px">Structured-answer contradiction signals surfaced</h3>${contradictions.slice(0, 3).map((item) => `<p style="margin-bottom:6px"><b>${safe(item?.severity || "Signal")}.</b> ${safeWords(item?.message || item?.code || "Contradiction signal", 28)}</p>`).join("")}</div>`
+? `<div class="panel" style="font-size:11.5px;padding:14px 20px"><h3 style="margin-bottom:6px">Automated review flags</h3><p>A flag identifies something to review. It does not establish that answers conflict or identify a cause.</p>${contradictions.slice(0, 3).map((item) => `<p style="margin-bottom:6px"><b>${safe(item?.severity || "Signal")}.</b> ${safe(item?.message || item?.code || "Review flag")}</p>`).join("")}</div>`
 : serverGapForExport.type !== "none"
 ? `<div class="panel" style="font-size:11.5px;padding:14px 20px"><p><b>${gapCalloutHeader}</b> ${safeWords(serverGapForExport.description, 34)} This does not affect the quantitative score.</p></div>`
 : hasExperientialTension
@@ -5373,11 +5402,13 @@ return `<!doctype html>
   .gauge-score { position: absolute; top: 74px; left: 0; right: 0; text-align: center; font-size: 24px; font-weight: 700; }
   .gauge-label { position: absolute; bottom: 18px; left: 0; right: 0; text-align: center; color: #6E6F73; font-size: 9px; }
   .bench { margin-top: 28px; padding: 18px; }
-  .quadbox { height: 220px; position: relative; padding: 24px 50px 28px; }
-  .quad { position: absolute; left: 84px; right: 62px; top: 46px; bottom: 34px; border: 1px solid #EAE6DD; }
+  .quadbox { height: 250px; position: relative; padding: 24px 50px 28px; }
+  .quad { position: absolute; left: 84px; right: 62px; top: 46px; bottom: 64px; border: 1px solid #EAE6DD; }
   .quad:before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; border-left: 1px solid #EAE6DD; }
   .quad:after { content: ''; position: absolute; top: 50%; left: 0; right: 0; border-top: 1px solid #EAE6DD; }
   .qlabel { position: absolute; color: #6E6F73; font-size: 9px; line-height: 1.3; max-width: 150px; }
+  .qlabel:nth-child(-n+2) { top: -32px !important; }
+  .qlabel:nth-child(n+3) { bottom: -32px !important; }
   .qdot { position: absolute; width: 22px; height: 22px; border-radius: 50%; background: #0C6E78; box-shadow: 0 0 0 7px rgba(12,110,120,.12); border: 3px solid #fff; z-index: 2; transform: translate(-50%, -50%); }
   .axis-x { position: absolute; bottom: 10px; left: 0; right: 0; text-align: center; color: #6E6F73; font-size: 9px; }
   .axis-y { position: absolute; left: 14px; top: 50%; transform: rotate(-90deg) translateX(-50%); transform-origin: left top; color: #6E6F73; font-size: 9px; white-space: nowrap; }
@@ -5440,12 +5471,12 @@ return `<!doctype html>
     <div class="accent-rule"></div>
     <p class="run-meta">${safe(metaLine)}</p>
     <div class="primary-read"><span>Primary read</span><strong>${safe(primaryReadLabel)}</strong><p>${safeWords(primaryReadSummary, 38)}</p></div>
-    <p>This summary describes how decisions move and where the participant reports delays. The score and findings come from the submitted answers. Time and cost estimates are separate calculations based on those answers and the stated assumptions, not observed losses or promised savings.</p>
+    <p>${safe(timingContext)} The score and findings come from the submitted answers. Time and cost estimates, when available, are separate calculations based on supplied scenario inputs and stated assumptions, not observed losses or promised savings.</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(executiveQuestion)}</p></div>
     <div class="stat-strip">
       <div class="stat"><div class="stat-label">Decision velocity score</div><div class="stat-value">${exportScore}</div><div class="stat-sub">${safe(burdenCondition.label)}</div></div>
       <div class="stat"><div class="stat-label">Exposure range</div><div class="stat-value">${safe(annualCostText)}</div><div class="stat-sub">labor exposure*</div></div>
-      <div class="stat"><div class="stat-label">Capacity absorbed</div><div class="stat-value">${safe(dragDisplay)}</div><div class="stat-sub">${dragMeasured ? "of available capacity" : "missing capacity inputs"}</div></div>
+      <div class="stat"><div class="stat-label">Modeled capacity share</div><div class="stat-value">${safe(dragDisplay)}</div><div class="stat-sub">${dragMeasured ? "of supplied available capacity" : "missing capacity inputs"}</div></div>
     </div>
     <div class="kv"><b>WORKFLOW</b><span>${safe(processName)}</span><b>SECTOR</b><span>${safe(sectorName)}</span><b>GENERATED</b><span>${safe(generated)}</span></div>
   </div>
@@ -5458,7 +5489,7 @@ return `<!doctype html>
     <p class="lede">${safeWords(harmonized.headlineFinding || summary.body, 84)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(executiveQuestion)}</p></div>
     <p><span id="exposureNarrative">${safe(exposureNarrative)}</span> These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
-    <p>The practical question is not whether decisions are still getting made. It is what the submitted answers and scenario inputs record about the pathway. The score is a structured pathway-drag indicator. Experiential bypass signals, when present, do not change the score; they provide attributed context about how the participant describes the formal pathway and operating practice.</p><p>This run records reported chase effort, manager intervention, workaround maintenance, and escalation. It does not establish their cause, predict future pathway cost, or demonstrate that acceptable output depends on them.</p>
+    <p>The score summarizes the supplied structured answers. Written observations, when present, provide attributed context and do not change the score.</p><p>The report distinguishes supplied burden indicators from missing evidence. It does not establish a cause, predict future cost, or show that organizational performance depends on any reported burden.</p>
     ${capacity.measured ? `<div class="capacity"><div class="seg" style="width:${capacity.productive}%;background:#3C8A60">${capacityLabel(capacity.productive)}</div><div class="seg" style="width:${capacity.admin}%;background:#C9821F">${capacityLabel(capacity.admin)}</div><div class="seg" style="width:${capacity.drag}%;background:#B0392F">${capacityLabel(capacity.drag)}</div></div><div class="legend"><span><span class="dot" style="background:#3C8A60"></span>Productive work</span><span><span class="dot" style="background:#C9821F"></span>Routine coordination</span><span><span class="dot" style="background:#B0392F"></span>Recoverable drag*</span></div><p class="muted" style="font-size:8.5px">A modeled allocation based on the submitted workload and labor-cost inputs. Recoverable drag* is a scenario estimate, not observed loss or capacity the organization has realized.</p>` : `<div class="panel"><b>Capacity allocation not estimated.</b><p>The disclosed inputs were not sufficient to calculate a defensible capacity percentage.</p></div>`}
     <h3 style="margin-top:26px">Why this matters in ${safe(sectorName)}</h3>
     <p>${safeWords(industry.opportunityPattern, 44)}</p>
@@ -5470,14 +5501,14 @@ return `<!doctype html>
 <section class="page">
   ${footer(3)}
   <div class="content">
-    <p class="eyebrow">Where the drag is coming from</p><h2>Drag composition</h2>
+    <p class="eyebrow">What the answers indicate</p><h2>Burden indicator distribution</h2>
     <p>The composition view shows how the measured drag is distributed across approval density, coordination burden, handoff burden, escalation dependence, rework friction, and key-person brittleness. Dimensions with no material contribution to this run may be omitted from the chart below for clarity.</p><p class="muted">The distribution supports bounded testing. A concentrated pattern identifies one first test; a distributed pattern supports testing more than one dimension. Neither predicts the result of intervention.</p>
     <div class="panel donut-panel"><div class="donut-wrap"><svg width="150" height="150" viewBox="0 0 200 200">${donutPaths}</svg><div class="donut-center"><div><small>DOMINANT</small><b>${dominantPct}%</b></div></div></div><div>${segmentLegend}</div></div>
     <h3 style="margin-top:18px">Measured condition dimensions</h3><div class="panel">${dimensionRows}</div>
     <h3 style="margin-top:24px">What the composition tells us</h3>
     <p>${safeWords(concentrationProse, 76)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(compositionQuestion)}</p></div>
-    <div class="card-row"><div class="mini-card"><b>Concentrated drag</b><p>One drag source dominates this run and can be used as a bounded first test.</p></div><div class="mini-card"><b>Distributed drag</b><p>No single drag source dominates; test multiple sources and remeasure.</p></div></div>
+    <div class="card-row"><div class="mini-card"><b>Concentrated indicators</b><p>One supplied burden indicator has a larger share. Check it against a specific example from the work before considering a change.</p></div><div class="mini-card"><b>Distributed indicators</b><p>No single supplied burden indicator dominates. Compare examples before selecting a test.</p></div></div>
   </div>
 </section>
 
@@ -5496,8 +5527,8 @@ return `<!doctype html>
   ${footer(5)}
   <div class="content">
     <p class="eyebrow">Evidence and detail</p><h2 style="font-size:21px;margin-bottom:8px">Governance weight × execution responsiveness</h2>
-    <p style="margin-bottom:8px">This view places the run on two axes: how much governance weight the pathway is carrying, and how responsive execution appears under that weight.</p>
-    <div class="panel quadbox"><div class="axis-y">Execution responsiveness</div><div class="quad"><div class="qlabel" style="left:12px;top:12px">Fast movement,<br>lighter governance</div><div class="qlabel" style="right:12px;top:12px;text-align:right">Fast movement,<br>heavier governance</div><div class="qlabel" style="left:12px;bottom:12px">Slow movement,<br>lighter governance</div><div class="qlabel" style="right:12px;bottom:12px;text-align:right">Slow movement,<br>heavier governance</div>${quadrantCoordinates ? `<div class="qdot" style="left:${qLeft}%;top:${qTop}%"></div>` : ""}</div><div class="axis-x">Governance weight</div></div>
+    <p style="margin-bottom:8px">This view places the run on two calculated indices: governance weight and execution responsiveness. They are not independently observed operating measures. ${safe(timingContext)}</p>
+    <div class="panel quadbox"><div class="axis-y">Execution responsiveness</div><div class="quad"><div class="qlabel" style="left:12px;top:12px">Higher responsiveness,<br>lighter governance</div><div class="qlabel" style="right:12px;top:12px;text-align:right">Higher responsiveness,<br>heavier governance</div><div class="qlabel" style="left:12px;bottom:12px">Lower responsiveness,<br>lighter governance</div><div class="qlabel" style="right:12px;bottom:12px;text-align:right">Lower responsiveness,<br>heavier governance</div>${quadrantCoordinates ? `<div class="qdot" style="left:${qLeft}%;top:${qTop}%"></div>` : ""}</div><div class="axis-x">Governance weight</div></div>
     <h3>How to read this quadrant</h3><p>${safeWords(quadrantText, 80)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(quadrantQuestion)}</p></div>
     ${contradictionHtml}
@@ -5523,7 +5554,7 @@ ${decisionReviewPage}
   ${footer(methodPageNumber)}
   <div class="content">
     <p class="eyebrow">How to read this report</p><h2>How this was produced</h2>
-    <p>This diagnostic measures pathway drag across six dimensions: approval density, coordination burden, handoff burden, escalation dependence, rework friction, and key-person brittleness. It also estimates the amount of productive capacity being absorbed by sustaining the pathway itself rather than producing decisions. The diagnostic does not independently verify user inputs; it should be read as a directional pathway read rather than a full audit.</p>
+    <p>This diagnostic summarizes submitted answers about approvals, coordination, handoffs, escalation, repeated work, and reliance on key people. When usable sizing inputs are supplied, it also models a possible share of capacity associated with reported burden. It does not independently verify inputs, establish causes, or measure realized savings.</p>
     <div class="rule"></div>
     <div class="ring-row"><svg class="ring" viewBox="0 0 58 58"><circle cx="29" cy="29" r="23" fill="none" stroke="#EAE6DD" stroke-width="7"/><circle cx="29" cy="29" r="23" fill="none" stroke="#C9821F" stroke-width="7" stroke-dasharray="${insight.available ? Math.round(insight.score * 1.45) : 0} 145" transform="rotate(-90 29 29)"/></svg><div><div style="font-size:24px;font-weight:700">${insight.available ? Math.round(insight.score) : "Unavailable"}</div><p class="muted">Run evidence score${insight.available ? ` · ${escapeHtml(insight.band)}` : " · Awaiting data"}<br>${insight.available ? "Single-run signal-quality indicator, not a correctness score." : "Run evidence could not be loaded from the diagnostic backend."}</p></div></div>
     <p>${insight.available ? "This evidence rating reflects the diagnostic length and how confident the participant was in the answers. It is not a measure of the wider organization, and it is separate from the evidence ratings used in Depth Synthesis and Cross-Lens Synthesis." : "The evidence rating was unavailable for this run. The rest of the report remains valid."}</p>
@@ -5960,12 +5991,7 @@ const burdenDiagnosis = deriveBurdenDiagnosis(result, payload);
 const reclaim = estimateReclaimPotential(result, payload);
 const executiveSummary = buildCustomerExecutiveSummary(result, payload);
 const exposureNarrative = buildExposureNarrative(result?.exposure);
-const healthyCondition = Number(result?.score) >= 83;
-const diagnosisReads = healthyCondition ? {
-  burdenRead: "Measured decision velocity is strong. The leadership task is to preserve the conditions supporting that performance and watch for verified drift.",
-  sourceRead: `${burdenConstraint.label} is the largest residual signal, not evidence that the pathway requires redesign.`,
-  diagnosisRead: "The current time-and-control tradeoff appears proportionate. Any intervention should be evidence-triggered and narrowly targeted."
-} : harmonized.diagnosisReads;
+const diagnosisReads = buildDisplayedDecisionDiagnosis(result, burdenConstraint, harmonized);
 renderExperienceLayer(payload);
 
 animateNumber($("scoreNumber"), Number(result.score || 0));
@@ -5992,15 +6018,13 @@ $("trajectoryValueSub").textContent = result?.trajectory?.note || "Directional s
 const dimensionHost = $("measurementDimensionsGrid");
 if (dimensionHost) {
   const labels = {
-    cycle_velocity: "Cycle velocity",
+    cycle_velocity: "Decision timing",
     approval_efficiency: "Approval efficiency",
-    coordination_load: "Coordination load",
+    coordination_load: "Coordination",
     execution_stability: "Execution stability"
   };
   dimensionHost.innerHTML = Object.entries(labels).map(([key, label]) => {
-    const value = result?.dimensions?.[key];
-    const measured = value != null && Number.isFinite(Number(value));
-    return `<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #EAE6DD"><span>${escapeHtml(label)}</span><b>${measured ? `${Math.round(Number(value))} / 100` : "Not measured"}</b></div>`;
+    return `<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #EAE6DD"><span>${escapeHtml(label)}</span><b>${displayedDecisionDimensionValue(result, key)}</b></div>`;
   }).join("");
 }
 $("reclaimValue").textContent = reclaim.amount ? formatEstimateCurrencyRange(reclaim.amount) : "--";
@@ -6205,7 +6229,7 @@ const dimensionCard = $("dimensionChart")?.closest(".chart-card");
 if (dimensionCard && !dimensionCard.querySelector(".dim-note")) {
 const note = document.createElement("p");
 note.className = "dim-note";
-note.textContent = "Higher values indicate stronger decision velocity. Compare the measured shape across cycle velocity, approval efficiency, coordination load, and execution stability; unmeasured dimensions remain excluded.";
+note.textContent = "Higher values show more reported difficulty with approvals, coordination, handoffs, escalation, repeated work, or reliance on key people. The overall Decision Velocity score runs in the opposite direction: higher overall scores mean stronger decision velocity. Unmeasured areas remain excluded.";
 dimensionCard.appendChild(note);
 }
 renderShareBar(result);

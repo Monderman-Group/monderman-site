@@ -17,7 +17,8 @@ const shellScriptPattern = /<script\b[^>]*\bsrc=["']canonical-site-shell\.js[^"'
 const motifPattern = /<div\b(?=[^>]*\bclass=["'][^"']*\bmf-motif\b[^"']*["'])[^>]*>[\s\S]*?<\/svg>\s*<\/div>/i;
 const canonicalCssPattern = /canonical-site-shell\.css\?v=[^"']+/g;
 const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
-const shellRelease = "20260909-consistency1";
+// Combine reviewed AI display fixes with the approved product consistency release.
+const shellRelease = "20260909-report-product16";
 const productPages = new Set([
   "diagnostics.html", "platform-services.html", "plan-signal.html", "plan-pattern.html",
   "plan-enterprise.html", "new-in-the-role.html", "after-an-acquisition.html",
