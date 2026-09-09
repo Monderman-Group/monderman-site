@@ -44,7 +44,7 @@ for (const token of [
 for (const token of [
   "id=\"wsOnboarding\"",
   "renderOnboardingProgress",
-  "Establish one complete operating cycle.",
+  "Complete your first operating cycle",
   "Workspace confirmed",
   "Campaign launched",
   "Invite 6 to 12 participants from Measure. Participants do not need Workspace accounts.",

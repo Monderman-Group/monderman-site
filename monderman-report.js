@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.15";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-screen-20260909.16";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -1517,17 +1517,23 @@
   function mountAIInterpretation(node, result, refresh) {
     if (!node || !obj(result.ai_report).status) return () => {};
     if (!document.getElementById('mr-style')) {
-      const style=document.createElement('style');style.id='mr-style';style.textContent=REPORT_CSS+AI_CSS;document.head.appendChild(style);
+      const style=document.createElement('style');style.id='mr-style';style.textContent=REPORT_CSS+AI_CSS+SCREEN_CSS;document.head.appendChild(style);
     }
-    node.querySelector('.mr-ai-inline')?.remove();
-    const existing = node.querySelector('.mr-ai-interpretation');
+    const existing = node.querySelector('.mr-ai-inline') || node.querySelector('.mr-ai-interpretation');
     const section = document.createElement('div');
     section.className = 'mr-report mr-ai-inline';
     // Reuse the report's interpretation position instead of displaying a
     // second pending block above its cover on a recovered saved report.
-    if (existing) existing.replaceWith(section); else node.prepend(section);
+    if (existing) {
+      // Keep screen section links valid when a pending interpretation refreshes.
+      if (existing.id) section.id = existing.id;
+      existing.replaceWith(section);
+    } else node.prepend(section);
     let stopped = false, timer = null, attempts = 0, inFlight = false;
-    const paint = () => { section.innerHTML = buildAIInterpretation(result.ai_report); };
+    const paint = () => {
+      section.innerHTML = buildAIInterpretation(result.ai_report);
+      refreshScreenReportAI(section, result.ai_report);
+    };
     paint();
     const stop = () => { stopped = true; clearTimeout(timer); document.removeEventListener('visibilitychange', resume); window.removeEventListener('pagehide', stop); };
     const pollDelay = () => {
@@ -1972,15 +1978,211 @@
 
   const AI_CSS = '.mr-ai-interpretation{min-width:0;overflow-wrap:anywhere}.mr-ai-interpretation a{color:var(--accent,#0C6E78);text-decoration:underline;text-underline-offset:.16em}.mr-ai-inline{padding:24px;max-width:100%;box-sizing:border-box}.mr-ai-action{margin:20px 0;padding:24px;break-inside:avoid}.mr-ai-action dd{margin:4px 0 16px}.mr-ai-interpretation h3{margin-top:24px}.mr-ai-interpretation li+li{margin-top:12px}@media(max-width:600px){.mr-ai-inline,.mr-ai-action{padding:18px}.mr-ai-interpretation h2{font-size:1.45rem}.mr-ai-interpretation h3{font-size:1.12rem}}@media print{.mr-ai-interpretation .mr-ai-action{break-inside:auto;page-break-inside:auto}.mr-ai-action h3{break-after:avoid;page-break-after:avoid}.mr-ai-action p{orphans:3;widows:3}.mr-ai-action .mr-ai-definition{break-inside:avoid;page-break-inside:avoid}.mr-ai-action dt{break-after:avoid;page-break-after:avoid}.mr-ai-action dd{break-before:avoid;page-break-before:avoid}.mr-ai-action>dl,.mr-ai-action>dl>.mr-ai-definition:last-child{break-after:avoid;page-break-after:avoid}.mr-ai-action>p:last-child{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}.mr-ai-interpretation>.mr-method-copy:last-child{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}}';
 
+  function handleScreenNavigation(event) {
+    const link = event.target.closest('.mr-screen-only a[href^="#"]');
+    if (!link) return;
+    const report = link.closest('.mr-page');
+    const target = document.getElementById(link.getAttribute('href').slice(1));
+    if (!report || !target || !report.contains(target)) return;
+    // Do not trigger the host page's tab/history router for report sections.
+    event.preventDefault();
+    const contents = link.closest('details');
+    if (contents) contents.open = false;
+    target.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+    target.focus({ preventScroll:true });
+  }
+
+  const screenReportModels = new WeakMap();
+
+  function buildScreenReportControls(model, sections) {
+    const m = obj(model);
+    const find = (pattern) => sections.find(section => pattern.test(section.classes + " " + section.label));
+    const profile = find(/mr-run-dimensions|mr-system-read|mr-depth-system-read/);
+    const evidence = find(/mr-run-evidence|mr-evidence-status/);
+    const actions = obj(m.aiReport).status === "complete" ? find(/mr-ai-interpretation/) : find(/mr-run-action-board|Evidence-proportionate actions|Conclusion and next step/);
+    const method = find(/mr-run-method|mr-meta-method|Method and limits/);
+    const shortcuts = [{ section: sections[0], label: "Overview" },
+      { section: profile, label: m.product === "depth" ? "Distribution" : m.product === "cross_lens" ? "Compare lenses" : "Dimensions" },
+      { section: evidence, label: "Evidence" }, { section: actions, label: "Actions" }, { section: method, label: "Method & limits" }].filter(item => item.section);
+    const link = (section, label, css) => '<a' + (css ? ' class="' + css + '"' : '') + ' href="#' + section.id + '">' + label + '</a>';
+    const nav = '<nav class="mr-screen-only mr-screen-nav" aria-label="Explore this result"><div class="mr-screen-shortcuts">' + shortcuts.map(item => link(item.section, item.label)).join("") + '</div>' +
+      '<details class="mr-screen-contents"><summary>All sections <span aria-hidden="true">⌄</span></summary><div>' + sections.map(section => link(section, section.label)).join("") + '</div></details></nav>';
+    const ai = obj(m.aiReport);
+    const firstAction = ai.status === "complete"
+      ? firstStr(obj(arr(obj(obj(ai.report).interpretation).recommendations)[0]).action)
+      : firstStr(m.firstMove, textItem(arr(m.actions)[0]));
+    const nextMove = actions ? '<div class="mr-screen-only mr-screen-next"><div><span>Next step</span>' +
+      (firstAction ? '<p>' + esc(firstAction) + '</p>' : '<p>Review the suggested changes and their evidence before choosing a test.</p>') + '</div>' + link(actions, 'Explore actions <span aria-hidden="true">→</span>', 'mr-screen-action') + '</div>' : '';
+    return { nav, nextMove };
+  }
+
+  function refreshScreenReportAI(section, aiReport) {
+    const page = section.closest('.mr-page');
+    const context = page && screenReportModels.get(page);
+    if (!context) return;
+    // Preserve caller-owned models and every existing non-AI report node.
+    // Read mounted IDs rather than rebuilding indexes: completed reports may
+    // omit deterministic sections that remain in a pending report's live DOM.
+    context.model = { ...context.model, aiReport: obj(aiReport) };
+    const sections = Array.from(page.querySelectorAll('.mr-cover[id], .mr-section[id], .mr-ai-inline[id]'))
+      .filter(node => node.closest('.mr-page') === page)
+      .map(node => ({
+        id: node.id,
+        classes: node.classList.contains('mr-ai-inline') ? 'mr-section mr-ai-interpretation' : node.className,
+        label: node.classList.contains('mr-cover') ? 'Overview' : esc((node.querySelector('h2')?.textContent || 'Report section').replace(/^\d+\.\s*/, ''))
+      }));
+    const controls = buildScreenReportControls(context.model, sections);
+    const update = (selector, html, parent, prepend = false) => {
+      const current = page.querySelector(selector);
+      if (!html) { current?.remove(); return; }
+      const template = document.createElement('template');
+      template.innerHTML = html;
+      const replacement = template.content.firstElementChild;
+      const oldContents = current?.querySelector('details');
+      const newContents = replacement.querySelector('details');
+      if (oldContents && newContents) newContents.open = oldContents.open;
+      // A routine pending poll must not close contents or discard focus.
+      if (current?.isEqualNode(replacement)) return;
+      const focused = current?.contains(document.activeElement) ? document.activeElement : null;
+      const focusLabel = focused?.textContent;
+      if (current) current.replaceWith(replacement);
+      else if (parent) parent[prepend ? 'prepend' : 'append'](replacement);
+      if (focused) {
+        const target = Array.from(replacement.querySelectorAll('a, summary')).find(node => node.textContent === focusLabel);
+        target?.focus({ preventScroll: true });
+      }
+    };
+    update('.mr-screen-nav', controls.nav, page, true);
+    update('.mr-screen-next', controls.nextMove, page.querySelector('.mr-cover-white'));
+  }
+
+  // Screen navigation is a presentation of the existing report body. It never
+  // changes the measurement model or the content/order used by printing.
+  function buildScreenReportBody(model, instance) {
+    const m = obj(model);
+    const prefix = "mr-" + slug(m.filenameBase || m.product || "result") + (instance ? "-" + instance : "");
+    const sections = [];
+    const original = buildReportBody(m);
+    let body = original.replace(/<section\b([^>]*?)\bclass="([^"]+)"([^>]*)>/g, (tag, beforeClass, classes, afterClass, offset) => {
+      if (!/(?:^|\s)(?:mr-cover|mr-section)(?:\s|$)/.test(classes)) return tag;
+      const id = prefix + "-section-" + sections.length;
+      const next = original.indexOf('<section', offset + tag.length);
+      const segment = original.slice(offset, next < 0 ? undefined : next);
+      const heading = segment.match(/<h2[^>]*>([\s\S]*?)<\/h2>/);
+      const label = classes === "mr-cover" ? "Overview" : heading ? heading[1].replace(/<[^>]+>/g, "").replace(/^\d+\.\s*/, "") : "Report section";
+      sections.push({ id, classes, label });
+      // Preserve aria-live and any other section attributes in every state.
+      return tag.replace(/\s+id="[^"]*"/, '').replace(/^<section\b/, '<section id="' + id + '"');
+    });
+    const { nav, nextMove } = buildScreenReportControls(m, sections);
+    const boundary = m.kind === "run" && m.footnote ? '<div class="mr-screen-only mr-screen-boundary"><strong>' + esc(firstStr(m.evidenceBand, "Single-run evidence")) + '</strong><p>' + esc(m.footnote) + '</p></div>' : '';
+    // Insert alongside the score; the existing full interpretation boundary,
+    // method, provenance, and next-decision sections remain in the body.
+    const coverClose = '</div></section>';
+    // The first section is the cover. An exact suffix match keeps insertion
+    // safe if a future cover template changes its closing structure.
+    const coverEnd = body.indexOf('</section>');
+    const cover = coverEnd < 0 ? '' : body.slice(0, coverEnd + '</section>'.length);
+    if (cover.endsWith(coverClose)) body = cover.slice(0, -coverClose.length) + boundary + nextMove + coverClose + body.slice(cover.length);
+    // SVG definition IDs share the same per-mount namespace as the sections.
+    body = body.replace(/id="mr-system-gradient"/g, 'id="' + prefix + '-system-gradient"').replace(/url\(#mr-system-gradient\)/g, 'url(#' + prefix + '-system-gradient)');
+    return nav + body;
+  }
+
+  const SCREEN_CSS = `
+    @media screen {
+      .mr-report{--accent:#087F8C;--line:#DCE5E8;--page:#F4F7F8;--soft:#53676E;background:#F4F7F8}
+      .mr-report .mr-page{padding:24px 32px 48px;border-color:#DCE5E8;border-radius:14px;box-shadow:none}
+      .mr-screen-nav{position:sticky;top:0;z-index:8;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-1px 0 24px;padding:8px 0;background:#fff;border-bottom:1px solid #DCE5E8;font-size:.8rem}
+      .mr-screen-shortcuts{display:flex;flex-wrap:wrap;align-items:center;gap:2px}
+      .mr-screen-nav a{display:block;padding:9px 11px;border-radius:6px;color:#405D65;text-decoration:none;line-height:1.35;font-weight:500}
+      .mr-screen-nav a:hover{background:#EAF4F5;color:#065E68}
+      .mr-screen-nav a:focus-visible,.mr-screen-nav summary:focus-visible,.mr-screen-action:focus-visible{outline:3px solid #087F8C;outline-offset:3px}
+      .mr-screen-shortcuts>a:focus{color:#065E68;background:#EAF4F5}
+      .mr-screen-contents{position:relative;flex-shrink:0}
+      .mr-screen-contents summary{display:flex;align-items:center;gap:14px;padding:9px 12px;list-style:none;cursor:pointer;color:#405D65;border:1px solid #DCE5E8;border-radius:6px}
+      .mr-screen-contents summary::-webkit-details-marker{display:none}
+      .mr-screen-contents[open] summary{background:#EAF4F5;border-color:#87BDC3}
+      .mr-screen-contents>div{position:absolute;right:0;top:calc(100% + 8px);width:min(330px,80vw);max-height:60vh;overflow:auto;background:#fff;border:1px solid #DCE5E8;border-radius:10px;box-shadow:0 12px 40px rgba(4,24,27,.14);padding:8px}
+      .mr-report .mr-cover{margin-bottom:28px;border-radius:12px;border-color:#DCE5E8;background:#fff}
+      .mr-report .mr-cover-dark{padding:23px 26px 20px;background:#07343A}
+      .mr-report .mr-cover-mark{margin:0 0 9px!important;font-size:.62rem!important;letter-spacing:.14em;color:#A6D6D8!important}
+      .mr-report .mr-cover-rule{display:none}
+      .mr-report .mr-cover-title{max-width:none;font-size:clamp(1.55rem,2.7vw,2rem)!important;line-height:1.12!important;letter-spacing:-.03em!important}
+      .mr-report .mr-cover-sub{max-width:90ch;font-size:.86rem!important;line-height:1.5!important;margin-top:10px!important;color:#CEE1E3!important}
+      .mr-report .mr-cover-stripe{height:2px;background:#15949F}
+      .mr-report .mr-cover-white{padding:22px 26px 24px}
+      .mr-report .mr-cover-kicker{margin-bottom:12px!important;font-size:.61rem!important;letter-spacing:.12em}
+      .mr-report .mr-cover-score{font-size:3.6rem;line-height:.95;letter-spacing:-.055em;color:#07343A}
+      .mr-report .mr-cover-score-label{color:#087F8C;letter-spacing:.08em;font-size:.7rem}
+      .mr-report .mr-cover-meta{margin-top:17px;padding-top:13px;gap:10px 14px;border-color:#DCE5E8}
+      .mr-report .mr-cover-meta strong{color:#62777E;letter-spacing:.08em}
+      .mr-report .mr-cover-body{font-size:.98rem!important;line-height:1.55!important;margin-top:17px!important;padding-top:16px;border-color:#DCE5E8;max-width:85ch}
+      .mr-report .mr-cover-boundary{background:#F4F7F8;margin-top:16px;padding:12px 14px;border-color:#087F8C}
+      .mr-report .mr-screen-boundary{background:#F4F7F8;border-left:3px solid #087F8C;border-radius:0 6px 6px 0;padding:12px 14px;margin-top:16px;color:#53676E}
+      .mr-report .mr-screen-boundary strong{display:block;font-size:.72rem;color:#176772;margin-bottom:5px}
+      .mr-report .mr-screen-boundary p{margin:0;font-size:.8rem;line-height:1.5}
+      .mr-screen-next{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:17px;padding-top:17px;border-top:1px solid #DCE5E8}
+      .mr-screen-next>div{min-width:0}
+      .mr-screen-next>div>span{font-size:.68rem;font-weight:700;color:#087F8C}
+      .mr-report .mr-screen-next p{font-size:.86rem;line-height:1.45;margin:5px 0 0}
+      .mr-report .mr-screen-action{display:flex;align-items:center;justify-content:center;gap:10px;padding:11px 14px;flex-shrink:0;background:#087F8C;border:1px solid #087F8C;border-radius:7px;color:#fff;font-size:.8rem;font-weight:600;text-decoration:none;min-height:44px}
+      .mr-report .mr-screen-action:hover{background:#066C78}
+      .mr-report .mr-section,.mr-report .mr-ai-inline{scroll-margin-top:145px}
+      .mr-report .mr-cover{scroll-margin-top:145px}
+      .mr-report .mr-section>h2,.mr-report .mr-run-headline h2{font-size:1.35rem!important;line-height:1.22!important;max-width:none}
+      .mr-report .mr-section+.mr-section{margin-top:32px;padding-top:28px;border-color:#DCE5E8}
+      .mr-report .mr-exec-lede,.mr-report .mr-lede{font-size:.94rem!important;line-height:1.6!important}
+      .mr-report .mr-section-index{letter-spacing:.08em;font-size:.66rem}
+      .mr-report .mr-run-metrics,.mr-report .mr-evidence-summary{border-color:#DCE5E8;background:#F4F7F8;border-radius:9px}
+      .mr-report .mr-run-metric{padding:16px}
+      .mr-report .mr-run-metric-value{font-size:1.25rem;line-height:1.2}
+      .mr-report .mr-lens-label{letter-spacing:.08em;color:#526D75}
+      .mr-report .mr-viz-panel,.mr-report .mr-constraint-view{border-color:#DCE5E8;border-radius:9px;background:#FAFCFC}
+      .mr-report .mr-dimension-track{background:#E5ECEF}
+      .mr-report .mr-dimension-track>span{background:#087F8C}
+      .mr-report .mr-dimension-row.is-primary{background:#EAF4F5;border-color:#A3CFD2}
+      .mr-report .mr-run-decision-story{border-color:#DCE5E8;background:#fff}
+      .mr-report .mr-run-score-stamp{border-color:#DCE5E8;background:#F4F7F8;border-radius:10px}
+      .mr-report .mr-run-score-stamp strong{color:#07343A;font-size:2.7rem}
+      .mr-report .mr-leadership-close{padding:24px!important;border-color:#9ACBD0!important;background:#F2F8F8!important}
+      .mr-report .mr-leadership-close>h2{font-size:1.45rem!important;max-width:none!important}
+      .mr-report .mr-report-boundary,.mr-report .mr-run-method,.mr-report .mr-meta-method{background:#F4F7F8;border-color:#DCE5E8}
+      .mr-report .mr-remeasurement-note,.mr-report .mr-remedy-tradeoffs>div{background:#F4F7F8}
+      @media(max-width:760px){
+        .mr-report .mr-page{padding:16px 18px 32px}
+        .mr-screen-nav{align-items:flex-start;gap:5px;margin-bottom:16px;font-size:.73rem}
+        .mr-screen-nav a{padding:9px 8px}
+        .mr-screen-contents summary{padding:8px;gap:6px}
+        .mr-report .mr-cover-dark,.mr-report .mr-cover-white{padding:20px}
+        .mr-report .mr-cover-score{font-size:3rem}
+        .mr-report .mr-cover-score-copy{min-width:0}
+        .mr-report .mr-cover-meta{grid-template-columns:repeat(2,minmax(0,1fr))}
+        .mr-screen-next{flex-direction:column;align-items:stretch;gap:12px}
+        .mr-report .mr-screen-action{width:fit-content}
+      }
+      @media(max-width:480px){
+        .mr-screen-nav{flex-direction:column;align-items:stretch;position:relative;top:auto}
+        .mr-screen-shortcuts{justify-content:space-between}
+        .mr-screen-contents{align-self:flex-start}
+        .mr-screen-contents>div{left:0;right:auto}
+        .mr-report .mr-cover-dark,.mr-report .mr-cover-white{padding:18px}
+        .mr-report .mr-page{padding:12px}
+      }
+    }
+    @media print{.mr-screen-only{display:none!important}}
+  `;
+
   function buildReportHtml(model) {
     return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" />' +
       '<meta name="monderman-renderer-version" content="' + RENDERER_VERSION + '" />' +
       '<meta name="viewport" content="width=device-width, initial-scale=1.0" />' +
-      "<title>Monderman | Executive Report</title><style>" + REPORT_CSS + AI_CSS + "</style></head><body>" +
-      '<div class="mr-report"><div class="mr-page">' + buildReportBody(model) +
+      "<title>Monderman | Executive Report</title><style>" + REPORT_CSS + AI_CSS + SCREEN_CSS + "</style></head><body>" +
+      '<div class="mr-report"><div class="mr-page">' + buildScreenReportBody(model) +
       '<div class="actions"><button class="btn btn-accent" onclick="window.print()">Save / Print PDF</button>' +
       '<button class="btn" onclick="window.close()">Close report</button></div>' +
-      "</div></div></body></html>";
+      "</div></div><script>document.addEventListener('click'," + handleScreenNavigation.toString() + ");</script></body></html>";
   }
 
   // ---- artifacts + actions --------------------------------------------------
@@ -2045,15 +2247,19 @@
     triggerDownload(blob, "monderman-" + slug(filenameBase || "result") + ".json");
   }
 
+  let renderedReportCount = 0;
   function render(el, model) {
     const node = typeof el === "string" ? document.getElementById(el) : el;
     if (!node) return;
+    node.removeEventListener("click", handleScreenNavigation);
+    node.addEventListener("click", handleScreenNavigation);
     if (!document.getElementById("mr-style")) {
       const st = document.createElement("style");
-      st.id = "mr-style"; st.textContent = REPORT_CSS + AI_CSS;
+      st.id = "mr-style"; st.textContent = REPORT_CSS + AI_CSS + SCREEN_CSS;
       document.head.appendChild(st);
     }
-    node.innerHTML = '<div class="mr-report"><div class="mr-page" style="box-shadow:none;margin:0;max-width:none">' + buildReportBody(model) + "</div></div>";
+    node.innerHTML = '<div class="mr-report"><div class="mr-page" style="box-shadow:none;margin:0;max-width:none">' + buildScreenReportBody(model, ++renderedReportCount) + "</div></div>";
+    screenReportModels.set(node.querySelector('.mr-page'), { model: { ...obj(model) } });
   }
 
   window.MondermanReport = {

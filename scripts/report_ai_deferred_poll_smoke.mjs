@@ -47,6 +47,14 @@ class Element {
   }
   prepend(child) { child.parent = this; this.children.unshift(child); }
   appendChild(child) { child.parent = this; this.children.push(child); return child; }
+  closest(selector) {
+    assert.ok(/^\.[a-zA-Z0-9_-]+$/.test(selector), "mock closest supports a class selector");
+    const name = selector.slice(1);
+    for (let node = this; node; node = node.parent) {
+      if (String(node.className).split(/\s+/).includes(name)) return node;
+    }
+    return null;
+  }
   querySelector(selector) {
     if (!selector.startsWith(".")) return null;
     const name = selector.slice(1);

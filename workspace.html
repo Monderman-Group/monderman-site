@@ -396,6 +396,7 @@ body{transition:background-color .25s ease,color .25s ease}
   </script>
   <link rel="stylesheet" href="visual-polish.css?v=20260823-4">
   <link rel="stylesheet" href="workspace-cosmetic-audit.css?v=20260829-1">
+  <link rel="stylesheet" href="workspace-product-design.css?v=20260909-product1">
 </head>
 <body class="workspace-surface">
 
@@ -414,9 +415,7 @@ body{transition:background-color .25s ease,color .25s ease}
         var ov = document.getElementById("wsOverlay"); if (ov) ov.classList.add("hidden");
         if (window.__wsBooted === "rendered") return;
         var meta = document.getElementById("wsReadMeta");
-        var first = (window.__bootErrors && window.__bootErrors.length) ? window.__bootErrors[0]
-                    : ("the workspace script didn’t finish (reached: " + (window.__wsBooted || "not started") + ").");
-        if (meta){ meta.textContent = "Couldn’t load: " + first; meta.style.color = "var(--critical)"; }
+        if (meta){ meta.textContent = "This is taking longer than expected. You can reload this page or open Measure while we finish checking your Workspace."; }
       }, 4500);
     });
   </script>
@@ -464,46 +463,52 @@ body{transition:background-color .25s ease,color .25s ease}
       </div>
     </section>
 
+    <div class="ws-section-label"><h2>Latest measurements</h2><a class="ws-link" href="workspace-analysis.html">Compare results →</a></div>
+    <!-- the four Diagnostics -->
+    <section class="ws-instruments" id="wsInstruments" aria-label="The four Diagnostics">
+      <div class="ws-inst"><div class="name">Structural Clarity</div><div class="val empty">Loading…</div><div class="row"><span class="ws-muted" style="font-size:12.5px">Loading…</span></div></div>
+      <div class="ws-inst"><div class="name">Decision Velocity</div><div class="val empty">Loading…</div></div>
+      <div class="ws-inst"><div class="name">Operational Systems</div><div class="val empty">Loading…</div></div>
+      <div class="ws-inst"><div class="name">Institutional Performance</div><div class="val empty">Loading…</div></div>
+    </section>
+
+    <div class="ws-product-grid">
+      <section class="ws-product-panel" aria-labelledby="wsRecentHeading">
+        <div class="ws-section-label"><h2 id="wsRecentHeading">Recent results</h2><a class="ws-link" href="workspace-diagnostics.html">View history →</a></div>
+        <div class="ws-recent-list" id="wsRecentRuns" aria-live="polite"><p class="ws-muted">Loading saved results…</p></div>
+      </section>
+      <section class="ws-product-panel ws-next-step" aria-labelledby="wsRecSection">
+        <div class="ws-section-label"><h2 id="wsRecSection">Next action</h2></div>
+        <article class="ws-rec" id="wsRecCard" style="display:none">
+          <div class="body"><h3 id="wsRecText"></h3><p id="wsRecWhy"></p>
+            <div class="recfoot"><a class="ws-btn sm" id="wsRecBoardLink" href="workspace-actions.html">Review in Action Plans →</a></div>
+          </div>
+        </article>
+        <div class="ws-product-empty" id="wsNextEmpty"><strong>Start with a measured baseline</strong><p>Run a Diagnostic for one operating pathway. Use its findings to choose a first change to test.</p><a class="ws-link" href="workspace-diagnostics.html#launch">Choose a Diagnostic →</a></div>
+        <div class="ws-action-shortcuts">
+          <a href="workspace-diagnostics.html#campaigns"><b>Campaigns →</b><span>Invite participants and review responses</span></a>
+          <a href="workspace-actions.html"><b>Action Plans →</b><span>Assign owners and link remeasurement</span></a>
+        </div>
+      </section>
+    </div>
+    <div class="ws-section-label"><h2>Bring the evidence together</h2><a class="ws-link" href="workspace-analysis.html#synthesis">Open Synthesis →</a></div>
+    <section class="ws-instruments" id="wsSynthesisReadiness" aria-label="Synthesis readiness" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+      <div class="ws-inst"><div class="name">Depth Synthesis</div><div class="val empty">Checking candidates…</div></div>
+      <div class="ws-inst"><div class="name">Cross-Lens Synthesis</div><div class="val empty">Checking candidates…</div></div>
+    </section>
+    <p class="ws-readiness-note">Candidate counts indicate what to review. Analysis verifies scope, versions, and evidence before a Synthesis can be built.</p>
+
     <section class="ws-onboarding" id="wsOnboarding" aria-labelledby="wsOnboardingTitle" hidden>
       <div class="ws-onboarding-head">
-        <div><span class="ws-eyebrow">Workspace setup</span><h2 id="wsOnboardingTitle">Establish one complete operating cycle.</h2><p id="wsOnboardingMeta">Checking measurable setup progress…</p></div>
+        <div><span class="ws-eyebrow">Workspace setup</span><h2 id="wsOnboardingTitle">Complete your first operating cycle</h2><p id="wsOnboardingMeta">Checking setup progress…</p></div>
         <button class="ws-onboarding-hide" id="wsOnboardingHide" type="button">Hide for this session</button>
       </div>
       <div class="ws-onboarding-steps" id="wsOnboardingSteps"></div>
     </section>
 
-    <!-- the four Diagnostics -->
-    <section class="ws-instruments" id="wsInstruments" aria-label="The four Diagnostics">
-      <div class="ws-inst"><div class="name">Structural Clarity</div><div class="val empty">Not available</div><div class="row"><span class="ws-muted" style="font-size:12.5px">Loading…</span></div></div>
-      <div class="ws-inst"><div class="name">Decision Velocity</div><div class="val empty">Not available</div></div>
-      <div class="ws-inst"><div class="name">Operational Systems</div><div class="val empty">Not available</div></div>
-      <div class="ws-inst"><div class="name">Institutional Performance</div><div class="val empty">Not available</div></div>
-    </section>
-
-    <div class="ws-section-label"><span class="ws-eyebrow">Synthesis readiness</span><a class="ws-link" href="workspace-analysis.html#synthesis">Open Analysis →</a></div>
-    <section class="ws-instruments" id="wsSynthesisReadiness" aria-label="Synthesis readiness" style="grid-template-columns:repeat(2,minmax(0,1fr))">
-      <div class="ws-inst"><div class="name">Depth Synthesis</div><div class="val empty">Not available</div><div class="row"><span class="ws-muted" style="font-size:12.5px">Loading eligible candidates…</span></div></div>
-      <div class="ws-inst"><div class="name">Cross-Lens Synthesis</div><div class="val empty">Not available</div></div>
-    </section>
-
-    <!-- recommended next -->
-    <div class="ws-section-label" id="wsRecSection" style="display:none">
-      <span class="ws-eyebrow">Recommended next</span>
-      <a class="ws-link" href="workspace-actions.html">See all →</a>
-    </div>
-    <article class="ws-rec" id="wsRecCard" style="display:none">
-      <div class="body">
-        <h3 id="wsRecText">Not available</h3>
-        <p class="ws-muted" id="wsRecWhy"></p>
-        <div class="recfoot">
-          <a class="ws-btn ghost sm" id="wsRecBoardLink" href="workspace-actions.html">Open the action board</a>
-        </div>
-      </div>
-    </article>
-
     <!-- quiet drawer to the rest -->
     <nav class="ws-drawer" aria-label="More">
-      <a href="workspace-diagnostics.html">Run history <span class="n" id="wsAllReadsN">(0)</span></a>
+      <a href="workspace-diagnostics.html">Run history <span class="n" id="wsAllReadsN"></span></a>
       <a href="workspace-analysis.html#synthesis">Depth &amp; Cross-Lens Synthesis</a>
       <a href="workspace-diagnostics.html#campaigns">Diagnostic campaigns</a>
       <a href="workspace-settings.html">Plan &amp; settings</a>
@@ -529,7 +534,8 @@ body{transition:background-color .25s ease,color .25s ease}
     const supabase = await window.mondermanGetSupabaseClient();
     window.__wsBooted = "lib-loaded";
 
-    const state = { user:null, membership:null, organization:null, role:"viewer", runs:[] };
+    const API_BASE = "https://monderman-api.onrender.com";
+    const state = { user:null, membership:null, organization:null, role:"viewer", runs:[], runsError:false };
     const TOOLS = ["structural_clarity","decision_velocity","operational_systems","institutional_performance"];
     const PLAN_LABEL = { trial:"Trial", signal:"Signal", pattern:"Pattern", enterprise:"Enterprise", // legacy values kept so an old row still renders a name rather than a blank
                          free:"Trial", baseline:"Signal", advisory:"Pattern" };
@@ -664,27 +670,27 @@ body{transition:background-color .25s ease,color .25s ease}
     }
 
     function renderHero(byTool){
-      const represented=TOOLS.filter(t=>byTool[t]).length;
       const candidates=includedCandidates(state.runs);
+      const represented=TOOLS.filter(t=>candidates.some(run=>run.tool_type===t)).length;
       const orgName=state.organization?.name||"Your workspace";
       const dates=candidates.map(r=>r.created_at).filter(Boolean).sort((a,b)=>new Date(b)-new Date(a));
-      $("wsEyebrow").textContent=`${orgName} · ${dates.length?"latest included run "+monthLabel(dates[0]):"no included runs yet"}`;
+      $("wsEyebrow").textContent=`${orgName}${dates.length?" · latest included run "+monthLabel(dates[0]):""}`;
       const thesis=$("wsThesis"),meta=$("wsReadMeta"),cta=$("wsHeroCta");
       if(!candidates.length){
-        thesis.textContent="Measure one bounded operating pathway.";
+        thesis.textContent="Start your first measurement";
         meta.textContent="Four Diagnostics answer different questions. Completed runs are reviewed before they enter Analysis or Synthesis.";
         cta.textContent="Run a Diagnostic"; cta.href="workspace-diagnostics.html#launch";
       }else{
-        thesis.textContent=`${candidates.length} included Diagnostic run${candidates.length===1?"":"s"} available for Analysis.`;
-        meta.textContent=`${represented} of four Diagnostics represented in the latest included results. Scores remain scoped to their own pathway, unit, date, and vantage.`;
-        cta.textContent="Open Analysis →"; cta.href="workspace-analysis.html";
+        thesis.textContent="From evidence to your next decision";
+        meta.textContent=`${candidates.length} included run${candidates.length===1?"":"s"} across ${represented} of four Diagnostics. Each result keeps its own pathway, unit, date, and perspective.`;
+        cta.textContent="Review results →"; cta.href="workspace-analysis.html";
       }
     }
 
     function renderInstruments(byTool){
       $("wsInstruments").innerHTML=TOOLS.map(t=>{
         const e=byTool[t],label=toolName(t);
-        if(!e) return `<div class="ws-inst"><div class="name">${label}</div><div class="val empty">Not available</div><div class="row"><a class="ws-link" href="workspace-diagnostics.html#launch">Run →</a></div></div>`;
+        if(!e) return `<div class="ws-inst"><div class="name">${label}</div><div class="val empty">${state.runsError?"Could not load":"No result yet"}</div><div class="row"><a class="ws-link" href="workspace-diagnostics.html${state.runsError?"":"#launch"}">${state.runsError?"Open Measure →":"Run Diagnostic →"}</a></div></div>`;
         const r=e.run,score=(r.score!=null&&r.score!=="")?escapeHtml(String(r.score)):"Unavailable";
         const chip=r.band?`<span class="ws-chip ${bandClass(r.band,r.score)}">${escapeHtml(r.band)}</span>`:"";
         const scope=escapeHtml(r.business_unit||r.pathway_name||"Scope not labeled"),date=escapeHtml(monthLabel(r.created_at));
@@ -697,7 +703,7 @@ body{transition:background-color .25s ease,color .25s ease}
       const depthTools=TOOLS.filter(t=>(counts[t]||0)>=2); const lensCount=TOOLS.filter(t=>(counts[t]||0)>=1).length;
       const depth=depthTools.length?`${depthTools.length} Diagnostic${depthTools.length===1?"":"s"} with 2+ candidates`:"Needs 2+ eligible runs from one Diagnostic";
       const cross=lensCount>=2?`${lensCount} Diagnostic lenses represented`:"Needs eligible runs from at least 2 Diagnostics";
-      $("wsSynthesisReadiness").innerHTML=`<div class="ws-inst"><div class="name">Depth Synthesis</div><div class="val" style="font-size:18px">${escapeHtml(depthTools.length?"Available to build":"Not ready")}</div><div class="row"><span class="ws-muted" style="font-size:12.5px">${escapeHtml(depth)}. Analysis verifies scope and version eligibility.</span></div><div class="row"><a class="ws-link" href="workspace-analysis.html#synthesis">Build Depth Synthesis →</a></div></div><div class="ws-inst"><div class="name">Cross-Lens Synthesis</div><div class="val" style="font-size:18px">${escapeHtml(lensCount>=2?"Available to compare":"Not ready")}</div><div class="row"><span class="ws-muted" style="font-size:12.5px">${escapeHtml(cross)}. A Composite Score may still be withheld.</span></div><div class="row"><a class="ws-link" href="workspace-analysis.html#synthesis">Build Cross-Lens Synthesis →</a></div></div>`;
+      $("wsSynthesisReadiness").innerHTML=`<div class="ws-inst"><div class="name">Depth Synthesis</div><div class="val" style="font-size:18px">${escapeHtml(state.runsError?"Could not check":depthTools.length?"Review candidates":"More evidence needed")}</div><div class="row"><span class="ws-muted" style="font-size:12.5px">${escapeHtml(state.runsError?"Open Analysis to check your saved evidence":depth)}. Analysis verifies scope and version eligibility.</span></div><div class="row"><a class="ws-link" href="workspace-analysis.html#synthesis">Review Depth candidates →</a></div></div><div class="ws-inst"><div class="name">Cross-Lens Synthesis</div><div class="val" style="font-size:18px">${escapeHtml(state.runsError?"Could not check":lensCount>=2?"Review candidates":"More evidence needed")}</div><div class="row"><span class="ws-muted" style="font-size:12.5px">${escapeHtml(state.runsError?"Open Analysis to check your saved evidence":cross)}. A Composite Score may still be withheld.</span></div><div class="row"><a class="ws-link" href="workspace-analysis.html#synthesis">Review Cross-Lens candidates →</a></div></div>`;
     }
 
     function renderRecommended(runs){
@@ -707,7 +713,13 @@ body{transition:background-color .25s ease,color .25s ease}
         const acts = parseMaybe(r.priority_actions_json);
         if(Array.isArray(acts) && acts.length){ action = pickText(acts[0]); src = r; break; }
       }
-      if(!action){ $("wsRecSection").style.display="none"; $("wsRecCard").style.display="none"; return; }
+      $("wsNextEmpty").hidden=Boolean(action);
+      if(!action){
+        $("wsRecCard").style.display="none";
+        if(state.runsError) $("wsNextEmpty").innerHTML='<strong>Saved results could not load</strong><p>Open Measure to retry your result history. Existing plans remain available in Action Plans.</p><a class="ws-link" href="workspace-diagnostics.html">Open Measure →</a>';
+        else if(runs.length) $("wsNextEmpty").innerHTML='<strong>Choose a finding to act on</strong><p>Review a saved result, then use Action Plans to assign ownership and track a change.</p><a class="ws-link" href="workspace-actions.html">Open Action Plans →</a>';
+        return;
+      }
       $("wsRecSection").style.display=""; $("wsRecCard").style.display="";
       $("wsRecText").textContent = action;
       // "the" rather than "your": with the org-wide overview this read may be
@@ -716,8 +728,27 @@ body{transition:background-color .25s ease,color .25s ease}
       const boardLink = $("wsRecBoardLink");
       if(boardLink && src){
         boardLink.href = "workspace-actions.html?import_run=" + encodeURIComponent(src.id);
-        boardLink.textContent = "Send these findings to the action board \u2192";
+        boardLink.textContent = "Review in Action Plans \u2192";
       }
+    }
+
+    function renderRecentResults(){
+      const host=$("wsRecentRuns"),runs=[...state.runs].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,4);
+      if(!runs.length){
+        host.innerHTML=state.runsError?'<div class="ws-product-empty"><strong>Results are temporarily unavailable</strong><p>Your saved results have not been changed. Retry the page or open Measure.</p><button class="ws-retry" id="wsRetryResults" type="button">Retry loading</button></div>':'<div class="ws-product-empty"><strong>Your results will appear here</strong><p>Complete your first Diagnostic to establish a baseline for a specific operating pathway.</p><a class="ws-link" href="workspace-diagnostics.html#launch">Run your first Diagnostic →</a></div>';
+        $("wsRetryResults")?.addEventListener("click",()=>window.location.reload());
+        return;
+      }
+      host.innerHTML=runs.map(run=>{
+        const hasScore=run.score!=null&&run.score!=='';
+        const score=hasScore?escapeHtml(String(run.score)):'Unavailable';
+        const scope=escapeHtml(run.business_unit||run.pathway_name||'Scope not labeled');
+        const date=escapeHtml(monthLabel(run.created_at));
+        const included=run.status==='promoted'&&run.included_in_aggregates===true&&['included','included_with_caution'].includes(run.normalization_status);
+        const status=included?(run.normalization_status==='included_with_caution'?'Included with caution':'Included in Analysis'):'Not included in Analysis';
+        const canOpen=run.report_available===true&&run.locked!==true;
+        return `<div class="ws-recent-row"><span class="ws-recent-score tnum${hasScore?'':' is-unavailable'}">${score}</span><div class="ws-recent-copy"><strong>${escapeHtml(toolName(run.tool_type))}</strong><span>${scope} · ${date}</span><span>${status}</span></div><a class="ws-link" href="workspace-diagnostics.html${canOpen?'?report='+encodeURIComponent(run.id):''}">${canOpen?'Open report →':'View history →'}</a></div>`;
+      }).join('');
     }
 
     function wsNotice(msg){
@@ -815,6 +846,7 @@ body{transition:background-color .25s ease,color .25s ease}
         }catch(err){
           console.error(err);
           state.runs = [];
+          state.runsError = true;
           setStatus("Your workspace loaded, but saved reads couldn’t be read through the report service.", "error");
         }
 
@@ -823,7 +855,13 @@ body{transition:background-color .25s ease,color .25s ease}
         renderInstruments(byTool);
         renderSynthesisReadiness();
         renderRecommended(state.runs);
-        $("wsAllReadsN").textContent = `(${state.runs.length})`;
+        renderRecentResults();
+        if(state.runsError){
+          $("wsThesis").textContent="Your Workspace is ready. Results could not load.";
+          $("wsReadMeta").textContent="Retry the saved results below, or open Measure. Your existing work has not been changed.";
+          $("wsHeroCta").textContent="Open Measure →"; $("wsHeroCta").href="workspace-diagnostics.html";
+        }
+        $("wsAllReadsN").textContent = state.runsError?"":`(${state.runs.length})`;
         renderEntitlements();
         await renderOnboardingProgress();
 
@@ -831,9 +869,12 @@ body{transition:background-color .25s ease,color .25s ease}
         hideOverlay();
       }catch(err){
         console.error(err);
+        state.runsError=true;
+        renderInstruments({}); renderSynthesisReadiness(); renderRecentResults(); renderRecommended([]);
         $("wsThesis").textContent = "Workspace unavailable.";
-        $("wsReadMeta").textContent = "Sign-in or workspace resolution failed.";
-        setStatus(err?.message || "Workspace initialization failed. Check auth configuration or Supabase policies.", "error");
+        $("wsReadMeta").textContent = "We could not confirm access to this Workspace. Sign in again to retry.";
+        $("wsHeroCta").textContent="Sign in again →"; $("wsHeroCta").href="signin.html?next=workspace.html";
+        setStatus("Workspace access could not be confirmed. Please sign in again.", "error");
         hideOverlay();
       }
     }

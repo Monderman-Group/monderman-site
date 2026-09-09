@@ -1,0 +1,103 @@
+/* Product surfaces share the brand's typography and dark green anchor.
+   Research keeps its editorial palette; printed documents keep their own rules. */
+@media screen {
+  body.product-surface {
+    --mdm-teal: #087F8C;
+    --mdm-teal-dark: #066570;
+    --mdm-paper: #F4F7F8;
+    --mdm-rule: #DCE5E8;
+    --mdm-rule-strong: #C8D7DB;
+    --mdm-muted: #53656B;
+    --product-surface: #F4F7F8;
+    --product-line: #DCE5E8;
+    background: #FFFFFF;
+  }
+
+  body.product-surface :is(.hero, .ps-hero) {
+    background: linear-gradient(125deg, #073338, #04181B 80%);
+  }
+  @media (min-width: 961px) {
+    body.product-surface :is(.hero, .ps-hero) { min-height: 440px !important; }
+  }
+
+  /* The immediate task owns the filled action. The header becomes primary
+     again after scrolling, or when the mobile menu is opened. */
+  body:is(.product-surface, .homepage-enterprise) :is(.hero, .ps-hero)
+    :is(.btn-accent, .btn-primary, .pilot-primary) {
+    background: #A9D0D4 !important;
+    border-color: #A9D0D4 !important;
+    color: #04181B !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .12) !important;
+  }
+  body:is(.product-surface, .homepage-enterprise) :is(.hero, .ps-hero)
+    :is(.btn-accent, .btn-primary, .pilot-primary):is(:hover, :focus-visible) {
+    background: #C4E1E3 !important;
+    border-color: #C4E1E3 !important;
+    color: #04181B !important;
+  }
+  @media (min-width: 1181px) {
+    body:is(.product-surface, .homepage-enterprise):has(:is(.hero, .ps-hero) :is(.btn-accent, .btn-primary, .pilot-primary))
+      .header:not(.scrolled):not(.mobile-nav-open) .nav .site-entry-link {
+      background: transparent;
+      border-color: rgba(169, 208, 212, .5);
+      color: #C4E1E3 !important;
+      box-shadow: none;
+    }
+  }
+
+  body.product-surface :is(.btn, .ps-btn, .dx-btn) {
+    border-radius: 7px;
+    font-weight: 600;
+    transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+  }
+  body.product-surface :is(.btn, .ps-btn, .dx-btn):focus-visible {
+    outline: 3px solid #087F8C;
+    outline-offset: 3px;
+  }
+  body.product-surface :is(.hero, .ps-hero, .ps-enterprise, .ctaband)
+    :is(.btn, .ps-btn, .dx-btn):focus-visible {
+    outline-color: #A9D0D4;
+  }
+
+  body.product-surface :is(.ps-tier, .pl-card, .dx-card, .diagnostic-card, .moment-card) {
+    border-color: var(--product-line);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(4, 24, 27, .035);
+  }
+  body.product-surface :is(.ps-tier.featured, .pl-card.featured) {
+    border-color: #087F8C;
+    box-shadow: 0 0 0 1px #087F8C, 0 6px 20px rgba(8, 127, 140, .08);
+  }
+  body.product-surface :is(.ps-tier-name, .ps-price .amt, .ps-tier-for b) {
+    color: #102C33;
+  }
+  body.product-surface :is(.ps-tier-for, .ps-price-alt, .ps-tier-trigger, .ps-sub) {
+    color: var(--mdm-muted);
+  }
+  body.product-surface .ps-tier-trigger {
+    background: #F4F7F8;
+    border-color: #DCE5E8;
+  }
+  body.product-surface .ps-price .amt { font-variant-numeric: tabular-nums; }
+  body.product-surface :is(.ps-free, .ps-faq-item) {
+    background: #F4F7F8;
+    border-color: #DCE5E8;
+  }
+  body.product-surface .ps-free .btn { background: #FFFFFF; }
+  body.product-surface .ps-cmp-table {
+    border-color: #DCE5E8;
+    border-radius: 10px;
+  }
+
+  /* Short labels orient a working screen without competing with its content. */
+  body.product-surface :is(.ps-section-label, .pl-label, .eyebrow, .hero-eyebrow, .ps-eyebrow) {
+    letter-spacing: .11em;
+  }
+  body.product-surface :is(input, select, textarea):focus-visible {
+    outline: 3px solid #087F8C;
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    body.product-surface :is(.btn, .ps-btn, .dx-btn) { transition: none; }
+  }
+}

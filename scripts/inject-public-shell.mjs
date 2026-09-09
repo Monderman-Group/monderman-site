@@ -17,8 +17,25 @@ const shellScriptPattern = /<script\b[^>]*\bsrc=["']canonical-site-shell\.js[^"'
 const motifPattern = /<div\b(?=[^>]*\bclass=["'][^"']*\bmf-motif\b[^"']*["'])[^>]*>[\s\S]*?<\/svg>\s*<\/div>/i;
 const canonicalCssPattern = /canonical-site-shell\.css\?v=[^"']+/g;
 const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
-// This candidate includes the report display fixes and the approved header gradient.
-const shellRelease = "20260909-report-display11";
+// Combine the reviewed AI display fixes with the approved product-screen release.
+const shellRelease = "20260909-report-product12";
+const productPages = new Set([
+  "diagnostics.html", "platform-services.html", "plan-signal.html", "plan-pattern.html",
+  "plan-enterprise.html", "new-in-the-role.html", "after-an-acquisition.html",
+  "after-a-reorganization.html", "transformation-behind-schedule.html", "pilot.html",
+  "roi.html", "connect.html", "why-monderman.html", "security.html", "subprocessors.html",
+  "Monderman_Platform_Brief.html",
+]);
+const diagnosticPages = new Set([
+  "decision-velocity.html", "structural-clarity.html",
+  "operational-systems.html", "institutional-performance.html",
+]);
+const refreshedAssets = [
+  "monderman-report.js", "sample-report-production.js", "sample-report-production.css",
+  "homepage-hero-system.css", "homepage-workspace-demo.css", "homepage-workspace-demo.js",
+  "workspace-product-design.css", "report-screen-experience.css", "report-screen-experience.js",
+  "dv-result-dialog.css", "dv-result-dialog.js",
+];
 const versionScript = (html, fileName) => html.replace(
   new RegExp(`(["'])${fileName.replace(".", "\\.")}(?:\\?v=[^"']*)?\\1`, "g"),
   (_match, quote) => `${quote}${fileName}?v=${shellRelease}${quote}`,
@@ -34,15 +51,42 @@ for (const entry of await readdir(publishDirectory, { withFileTypes: true })) {
   let html = await readFile(path, "utf8");
   let changed = false;
 
+  if (diagnosticPages.has(entry.name)) {
+    if (!html.includes('href="report-screen-experience.css')) {
+      html = html.replace("</head>", `<link rel="stylesheet" href="report-screen-experience.css?v=${shellRelease}">\n</head>`);
+    }
+    if (!html.includes('src="report-screen-experience.js')) {
+      // Instruments contain complete HTML report templates inside inline JS.
+      // The first </body> belongs to one of those strings; inserting a raw
+      // </script> there would terminate the instrument script in the browser.
+      const documentBodyEnd = html.toLowerCase().lastIndexOf("</body>");
+      if (documentBodyEnd < 0) throw new Error(`Document body is missing in ${entry.name}`);
+      html = html.slice(0, documentBodyEnd) +
+        `<script src="report-screen-experience.js?v=${shellRelease}" defer></script>\n` +
+        html.slice(documentBodyEnd);
+    }
+    changed = true;
+  }
+
+  if (productPages.has(entry.name) || entry.name === "index.html") {
+    if (productPages.has(entry.name) && !/\bproduct-surface\b/.test(html)) {
+      html = html.replace(/(<body\b[^>]*\bclass=["'])/, "$1product-surface ");
+    }
+    if (!html.includes('href="public-product-design.css')) {
+      html = html.replace("</head>", `<link rel="stylesheet" href="public-product-design.css?v=${shellRelease}">\n</head>`);
+    }
+    changed = true;
+  }
+
   // Cache keys are normalized in the immutable public artifact so every page
   // receives the same shell release without modifying protected source pages.
   let versionedHtml = html
     .replace(canonicalCssPattern, `canonical-site-shell.css?v=${shellRelease}`)
     .replace(enterpriseCssPattern, `enterprise-site.css?v=${shellRelease}`);
   versionedHtml = versionScript(versionedHtml, "canonical-site-shell.js");
-  versionedHtml = versionScript(versionedHtml, "monderman-report.js");
   versionedHtml = versionScript(versionedHtml, "assistant.js");
   versionedHtml = versionScript(versionedHtml, "connect-widget.js");
+  for (const asset of refreshedAssets) versionedHtml = versionScript(versionedHtml, asset);
   if (versionedHtml !== html) {
     html = versionedHtml;
     changed = true;

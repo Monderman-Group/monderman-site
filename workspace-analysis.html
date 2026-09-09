@@ -414,6 +414,7 @@ body{transition:background-color .25s ease, color .25s ease}
   </style>
   <link rel="stylesheet" href="visual-polish.css?v=20260823-4">
   <link rel="stylesheet" href="workspace-cosmetic-audit.css?v=20260829-1">
+  <link rel="stylesheet" href="workspace-product-design.css?v=20260909-product1">
 </head>
 <body class="workspace-surface">
   <div class="ws5-shell">
@@ -489,7 +490,7 @@ body{transition:background-color .25s ease, color .25s ease}
         <!-- OVER TIME -->
         <section class="lens" data-lens="over-time" hidden>
           <div class="view-head">
-            <div><div class="eyebrow">Over time</div><h2>How has it moved?</h2><p>Repeated reads on the same instrument, plotted by when they were taken. The line is observed history, not a forecast.</p></div>
+            <div><div class="eyebrow">Over time</div><h2>Measurement history</h2><p>Repeated reads on the same instrument, plotted by when they were taken. The line is observed history, not a forecast.</p></div>
             <select class="selector" id="otSel" aria-label="Choose an instrument"></select>
           </div>
           <div id="otBody"></div>
@@ -499,7 +500,7 @@ body{transition:background-color .25s ease, color .25s ease}
         <!-- ACROSS UNITS -->
         <section class="lens" data-lens="across-units" hidden>
           <div class="view-head">
-            <div><div class="eyebrow">Across units</div><h2>Where does it sit, unit by unit?</h2><p>The most recent read of one instrument, compared across the business units that have taken it.</p></div>
+            <div><div class="eyebrow">Across units</div><h2>Compare units</h2><p>The most recent read of one instrument, compared across the business units that have taken it.</p></div>
             <select class="selector" id="auSel" aria-label="Choose an instrument"></select>
           </div>
           <div id="auBody"></div>
@@ -508,7 +509,7 @@ body{transition:background-color .25s ease, color .25s ease}
         <!-- ACROSS LENSES -->
         <section class="lens" data-lens="across-lenses">
           <div class="view-head">
-            <div><div class="eyebrow">Latest Diagnostic snapshot</div><h2>What is the latest included result from each Diagnostic?</h2><p>This is a side-by-side snapshot, not a Synthesis. Each card keeps its own scope and date; do not read the four scores as one organization-wide condition.</p></div>
+            <div><div class="eyebrow">Latest Diagnostic snapshot</div><h2>Latest results by Diagnostic</h2><p>This is a side-by-side snapshot, not a Synthesis. Each card keeps its own scope and date; do not read the four scores as one organization-wide condition.</p></div>
           </div>
           <div id="alBody"></div>
         </section>
@@ -516,7 +517,7 @@ body{transition:background-color .25s ease, color .25s ease}
         <!-- ACROSS VANTAGES -->
         <section class="lens" data-lens="across-vantages" hidden>
           <div class="view-head">
-            <div><div class="eyebrow">Across vantages</div><h2>Do participant vantages differ on a comparable pathway?</h2><p>Operational, Managerial, and Senior Leader results appear together only when Diagnostic version and operating-pathway scope are compatible.</p></div>
+            <div><div class="eyebrow">Across vantages</div><h2>Compare participant perspectives</h2><p>Operational, Managerial, and Senior Leader results appear together only when Diagnostic version and operating-pathway scope are compatible.</p></div>
             <select class="selector" id="avSel" aria-label="Choose an instrument"></select>
           </div>
           <div id="avBody"></div>
@@ -525,7 +526,7 @@ body{transition:background-color .25s ease, color .25s ease}
         <!-- CALIBRATION POSITION -->
         <section class="lens" data-lens="vs-sector" hidden>
           <div class="view-head">
-            <div><div class="eyebrow">Calibration position</div><h2>What calibration position did each Diagnostic report?</h2><p>These are the Diagnostic's reported design-reference positions. Monderman does not convert them into empirical peer percentiles unless a separate peer dataset supports that claim.</p></div>
+            <div><div class="eyebrow">Calibration position</div><h2>Design-reference position</h2><p>These are the Diagnostic's reported design-reference positions. Monderman does not convert them into empirical peer percentiles unless a separate peer dataset supports that claim.</p></div>
           </div>
           <div id="vsBody"></div>
         </section>
@@ -533,7 +534,7 @@ body{transition:background-color .25s ease, color .25s ease}
         <!-- BEFORE-AND-AFTER CHANGE -->
         <section class="lens" data-lens="intervention" hidden>
           <div class="view-head">
-            <div><div class="eyebrow">Before-and-after change</div><h2>What changed after the intervention?</h2><p>Uses an explicitly linked before result and later like-for-like remeasurement. The displayed delta is observed; it is not attributed causally to the intervention.</p></div>
+            <div><div class="eyebrow">Before-and-after change</div><h2>Compare before and after</h2><p>Uses an explicitly linked before result and later like-for-like remeasurement. The displayed delta is observed; it is not attributed causally to the intervention.</p></div>
             <select class="selector" id="ivSel" aria-label="Choose a before/after pair"></select>
           </div>
           <div id="ivBody"></div>
@@ -542,7 +543,7 @@ body{transition:background-color .25s ease, color .25s ease}
         </section>
         <section class="lens" data-lens="synthesis" hidden>
           <div class="view-head">
-            <div><div class="eyebrow">Syntheses</div><h2>Build a Depth Synthesis or Cross-Lens Synthesis</h2><p>Depth Synthesis combines two or more eligible runs from one Diagnostic. Cross-Lens Synthesis compares eligible runs from two or more Diagnostics. A Cross-Lens Composite Score is published only when the evidence is sufficiently coherent.</p></div>
+            <div><div class="eyebrow">Syntheses</div><h2>Build a Synthesis</h2><p>Depth Synthesis combines two or more eligible runs from one Diagnostic. Cross-Lens Synthesis compares eligible runs from two or more Diagnostics. A Cross-Lens Composite Score is published only when the evidence is sufficiently coherent.</p></div>
           </div>
           <div id="synthBody"></div>
           <p class="footnote">The API verifies unique source runs, organization scope, measurement window, instrument versions, participant depth, and lens balance. If a Cross-Lens Composite Score is withheld, the report states why and what actions could unlock one.</p>

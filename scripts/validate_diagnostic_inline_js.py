@@ -1,9 +1,10 @@
 from pathlib import Path
 import re
 import subprocess
+import sys
 import tempfile
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(__file__).resolve().parents[1]
 FILES = [
     "operational-systems.html",
     "decision-velocity.html",
