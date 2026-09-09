@@ -67,6 +67,8 @@ on:
       - 'scripts/report_presentation_smoke.mjs'
       - 'scripts/authenticated_report_engine_fixture.mjs'
       - 'scripts/report_pdf_smoke.mjs'
+      - 'scripts/report_full_pagination_smoke.mjs'
+      - 'test-fixtures/report-full-pagination.json'
       - 'scripts/ip_missing_recovery_browser_smoke.mjs'
       - 'scripts/sample_product_fidelity_smoke.mjs'
       - 'scripts/sample_product_fidelity_smoke_v2.mjs'
@@ -151,6 +153,8 @@ on:
       - 'scripts/report_presentation_smoke.mjs'
       - 'scripts/authenticated_report_engine_fixture.mjs'
       - 'scripts/report_pdf_smoke.mjs'
+      - 'scripts/report_full_pagination_smoke.mjs'
+      - 'test-fixtures/report-full-pagination.json'
       - 'scripts/ip_missing_recovery_browser_smoke.mjs'
       - 'scripts/sample_product_fidelity_smoke.mjs'
       - 'scripts/sample_product_fidelity_smoke_v2.mjs'
@@ -257,6 +261,9 @@ jobs:
 
       - name: Verify generated PDF geometry and remedy pagination
         run: python scripts/validate_generated_pdf_layout.py /tmp/report-presentation-smoke
+
+      - name: Verify full reports with long AI output and legacy reports
+        run: node scripts/report_full_pagination_smoke.mjs
 
       - name: Withhold unpublished Institutional Performance recovery estimates
         env:

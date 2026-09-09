@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.2";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.3";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -1192,14 +1192,14 @@
     const evidenceHtml = evidence.length ? evidence.map((item) => {
       const row = obj(item);
       return '<div class="mr-evidence-quote"><div class="mr-lens-label">' + esc(humanize(firstStr(row.participant_mode, row.perspective, "Participant evidence"))) + '</div><p>' + esc(firstStr(row.text, row.message, row.summary)) + '</p></div>';
-    }).join("") : '<div class="mr-evidence-empty"><div class="mr-lens-label">Participant evidence</div><h3>No usable participant notes are presented.</h3><p>The report therefore makes no participant-statement or experiential claim.</p></div>';
+    }).join("") : '<div class="mr-evidence-empty"><div class="mr-lens-label">Written participant notes</div><h3>No written participant notes are included.</h3><p>The measured results reflect the structured answers supplied for this run. Written notes are a separate source of context.</p></div>';
     return '<section class="mr-section mr-run-evidence"><div class="mr-section-index">0' + n + ' · Evidence in this run</div><h2>What this result is based on</h2>' +
       '<div class="mr-evidence-summary">' +
         runMetric("Evidence depth", m.evidenceBand, "Scope of this single run", "teal") +
         runMetric("Measured dimensions", strictFinite(measured) && strictFinite(total) ? fmtWhole(measured) + " of " + fmtWhole(total) : fmtWhole(arr(m.dimensionEntries).length), "Dimensions represented", "ink") +
         runMetric("Perspective", m.participantMode, "Notes do not change the score", "green") +
       '</div><div class="mr-run-evidence-grid"><div>' + evidenceHtml + '</div>' +
-      (watch.length ? '<div><div class="mr-lens-label">What to watch next</div><ul>' + watch.map((item) => '<li>' + esc(item) + '</li>').join("") + '</ul></div>' : '<div class="mr-evidence-clean"><div class="mr-lens-label">Watch items</div><p>No additional watch item was returned for this representative run.</p></div>') +
+      (watch.length ? '<div><div class="mr-lens-label">What to watch next</div><ul>' + watch.map((item) => '<li>' + esc(item) + '</li>').join("") + '</ul></div>' : '<div class="mr-evidence-clean"><div class="mr-lens-label">Watch items</div><p>No additional watch item was recorded for this run.</p></div>') +
       '</div></section>';
   }
 
@@ -1789,6 +1789,13 @@
       .mr-evidence-grid{display:block}
       .mr-evidence-grid .mr-lens-card{display:block;break-inside:avoid;page-break-inside:avoid}
       .mr-report p{orphans:3;widows:3}
+      /* Keep the bounded scenario introduction with its chart. A whole-section
+         avoid can be relaxed by print layout; the paragraph also needs an
+         explicit no-split and keep-with-next boundary. */
+      .mr-run-exposure{display:inline-block;width:100%;vertical-align:top}
+      .mr-run-exposure>.mr-lede{break-inside:avoid;page-break-inside:avoid;break-after:avoid;page-break-after:avoid}
+      .mr-run-leadership{display:inline-block;width:100%;vertical-align:top}
+      .mr-run-actions{display:inline-block;width:100%;vertical-align:top;break-inside:avoid;page-break-inside:avoid}
       /* Use ordinary block flow for long evidence and option content so print
          pagination does not depend on nested grid fragmentation. */
       .mr-run-evidence-grid,.mr-remedy-grid,.mr-remedy-card{display:block}

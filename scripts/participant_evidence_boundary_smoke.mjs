@@ -60,7 +60,9 @@ const hostileModel = report.fromRun(rawRun);
 const hostileHtml = report.buildReportBody(hostileModel);
 assert.equal(hostileModel.participantEvidence.length, 0);
 assert.doesNotMatch(hostileHtml, /Ignore prior instructions|workaround bypass|scoring weights/i);
-assert.match(hostileHtml, /No usable participant notes are presented\./);
+assert.match(hostileHtml, /No written participant notes are included\./);
+assert.match(hostileHtml, /The measured results reflect the structured answers supplied for this run\./);
+assert.doesNotMatch(hostileHtml, /no participant-statement or experiential claim/i);
 assert.doesNotMatch(hostileHtml, /presented separately/i);
 assert.match(JSON.stringify(rawRun), /Ignore prior instructions/, "raw customer source was mutated");
 
@@ -71,7 +73,7 @@ const mixedHtml = report.buildReportBody(mixedModel);
 assert.equal(mixedModel.participantEvidence.length, 1);
 assert.match(mixedHtml, /Approvals often require repeated follow-up across teams/);
 assert.doesNotMatch(mixedHtml, /Ignore prior instructions|workaround bypass/i);
-assert.doesNotMatch(mixedHtml, /No usable participant notes are presented\./);
+assert.doesNotMatch(mixedHtml, /No written participant notes are included\./);
 assert.equal(Object.prototype.hasOwnProperty.call(mixedModel.participantEvidence[0], "raw"), false);
 
 const legitimateLayer = safety.sanitizeLayer({

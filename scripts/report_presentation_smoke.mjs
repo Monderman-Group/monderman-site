@@ -85,7 +85,7 @@ for (const [key, expected] of Object.entries(diagnostics)) {
   assert(await shell.locator('.mr-run-remedy').count() === 3, `${key} remedy-path count mismatch`);
   assert(await shell.locator('.cover').count() === 0, `${key} legacy sample remains in the live DOM`);
   const text = await shell.textContent();
-  for (const token of ['Decision summary','Dimension profile','Where the measured issue appears','Evidence in this run','Priority order and measured severity','Method and limits','Interpretation boundary','No usable participant notes are presented.','Next decision']) {
+  for (const token of ['Decision summary','Dimension profile','Where the measured issue appears','Evidence in this run','Priority order and measured severity','Method and limits','Interpretation boundary','No written participant notes are included.','Next decision']) {
     assert(text.includes(token), `${key} production-contract section missing: ${token}`);
   }
   await page.screenshot({ path: path.join(out, `${key}-full.png`), fullPage: true });

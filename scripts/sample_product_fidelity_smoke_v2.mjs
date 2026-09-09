@@ -78,7 +78,7 @@ for (const [key, contract] of Object.entries(expected)) {
     'How the time and cost estimate is built', 'Priority order and measured severity',
     'What this may mean', 'What this result is based on',
     'Priorities and options', 'How this report was produced', 'Interpretation boundary',
-    'No usable participant notes are presented.', 'Turn the result into a small, measurable test',
+    'No written participant notes are included.', 'Turn the result into a small, measurable test',
   ]) assert(text.includes(token), `${key} missing production-equivalent content: ${token}`);
   for (const stale of ['Competing readings', 'What would update this read', 'Sample Depth Synthesis Report']) {
     assert(!text.includes(stale), `${key} still renders outdated content: ${stale}`);

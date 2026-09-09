@@ -90,7 +90,8 @@ for token in ['Report.fromRun(source)','Report.render(stage, model)','Report.dow
     req(token in production_renderer, f'public Diagnostic sample bypasses the certified engine bridge: {token}')
 for token in ['Decision summary','Dimension profile','Time and cost scenario','How to interpret the result','Evidence in this run','What to test next','Method and limits','Next decision','Interpretation boundary']:
     req(token in report, f'authenticated Diagnostic presentation missing: {token}')
-req('No usable participant notes are presented.' in report, 'empty or quarantined participant-evidence state is not explicit')
+req('No written participant notes are included.' in report, 'empty or quarantined written-note state is not explicit')
+req('The measured results reflect the structured answers supplied for this run.' in report, 'structured answers must remain distinct from absent written notes')
 for token in ['mr-run-decision','mr-dimension-profile','mr-constraint-view','mr-exposure-flow','mr-priority-matrix','mr-priority-ladder','mr-remedy-grid','mr-remedy-evidence','mr-run-method','mr-leadership-close']:
     req(token in report, f'premium Diagnostic visual contract missing: {token}')
 for token in ['mr-depth-system-read','mr-depth-metrics','mr-interaction-grid','mr-system-metrics']:
