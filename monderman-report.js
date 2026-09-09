@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-screen-20260909.16";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-screen-20260909.17";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -2116,7 +2116,7 @@
       .mr-report .mr-cover-stripe{height:2px;background:#15949F}
       .mr-report .mr-cover-white{padding:22px 26px 24px}
       .mr-report .mr-cover-kicker{margin-bottom:12px!important;font-size:.61rem!important;letter-spacing:.12em}
-      .mr-report .mr-cover-score{font-size:3.6rem;line-height:.95;letter-spacing:-.055em;color:#07343A}
+      .mr-report .mr-cover-score:not(.mr-cover-score-status){font-size:3.6rem;line-height:.95;letter-spacing:-.055em;color:#07343A}
       .mr-report .mr-cover-score-label{color:#087F8C;letter-spacing:.08em;font-size:.7rem}
       .mr-report .mr-cover-meta{margin-top:17px;padding-top:13px;gap:10px 14px;border-color:#DCE5E8}
       .mr-report .mr-cover-meta strong{color:#62777E;letter-spacing:.08em}
@@ -2158,7 +2158,7 @@
         .mr-screen-nav a{padding:9px 8px}
         .mr-screen-contents summary{padding:8px;gap:6px}
         .mr-report .mr-cover-dark,.mr-report .mr-cover-white{padding:20px}
-        .mr-report .mr-cover-score{font-size:3rem}
+        .mr-report .mr-cover-score:not(.mr-cover-score-status){font-size:3rem}
         .mr-report .mr-cover-score-copy{min-width:0}
         .mr-report .mr-cover-meta{grid-template-columns:repeat(2,minmax(0,1fr))}
         .mr-screen-next{flex-direction:column;align-items:stretch;gap:12px}

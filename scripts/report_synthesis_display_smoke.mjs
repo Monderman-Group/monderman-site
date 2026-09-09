@@ -7,7 +7,7 @@ const source=fs.readFileSync('monderman-report.js','utf8');
 const sandbox={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};
 vm.runInNewContext(source,sandbox);
 const report=sandbox.window.MondermanReport;
-assert.equal(report.rendererVersion,'diagnostic-renderer-ai-20260909.15');
+assert.equal(report.rendererVersion,'diagnostic-renderer-ai-screen-20260909.17');
 const base=()=>({synthesis_product:'cross_lens_synthesis',score_status:'withheld',cross_diagnostic_score:null,
   condition_band:'Composite withheld',respondent_count:2,lens_count:2,
   source_groups:[{tool_type:'structural_clarity',tool_label:'Structural Clarity',respondents:1,mean_score:60,median_score:60,score_iqr:[60,60]},
@@ -84,28 +84,42 @@ for(const [engine,type] of Object.entries({chromium,webkit})){
       await page.setContent(item.html,{waitUntil:'networkidle'});
       await page.evaluate(async()=>{await document.fonts.ready;});
       assert.ok(await page.evaluate(()=>document.fonts.check('16px "Neue Haas Grotesk"')),'candidate font required');
-      const measured=await page.evaluate(()=>{
-        const row=document.querySelector('.mr-cover-score-row'),r=row.getBoundingClientRect();
-        const values=[...row.children].map(el=>{const b=el.getBoundingClientRect(),c=getComputedStyle(el);return {class:el.className,text:el.textContent,x:b.x,right:b.right,width:b.width,client:el.clientWidth,scroll:el.scrollWidth,fontSize:parseFloat(c.fontSize),minWidth:c.minWidth};});
-        return {row:{x:r.x,right:r.right,width:r.width,client:row.clientWidth,scroll:row.scrollWidth},values,rootSize:parseFloat(getComputedStyle(document.documentElement).fontSize),caption:[...document.querySelectorAll('.mr-viz-panel')].find(el=>el.textContent.includes('Diagnostic lenses on one scale'))?.textContent||''};
-      });
-      assert.ok(measured.row.scroll<=measured.row.client+1,`${engine}/${width}/${item.id}: row overflow`);
-      for(const value of measured.values){
-        assert.ok(value.x>=measured.row.x-1&&value.right<=measured.row.right+1,`${engine}/${width}/${item.id}: child outside score row`);
-        assert.ok(value.scroll<=value.client+1,`${engine}/${width}/${item.id}: child text overflow`);
+      for(const media of ['screen','print']){
+        await page.emulateMedia({media});
+        const measured=await page.evaluate(()=>{
+          const row=document.querySelector('.mr-cover-score-row'),r=row.getBoundingClientRect();
+          const values=[...row.children].map(el=>{const b=el.getBoundingClientRect(),c=getComputedStyle(el);return {class:el.className,text:el.textContent,x:b.x,right:b.right,width:b.width,client:el.clientWidth,scroll:el.scrollWidth,fontSize:parseFloat(c.fontSize),lineHeight:parseFloat(c.lineHeight),letterSpacing:parseFloat(c.letterSpacing),minWidth:c.minWidth};});
+          return {row:{x:r.x,right:r.right,width:r.width,client:row.clientWidth,scroll:row.scrollWidth},values,rootSize:parseFloat(getComputedStyle(document.documentElement).fontSize),caption:[...document.querySelectorAll('.mr-viz-panel')].find(el=>el.textContent.includes('Diagnostic lenses on one scale'))?.textContent||''};
+        });
+        const state=`${engine}/${width}/${item.id}/${media}`;
+        assert.ok(measured.row.scroll<=measured.row.client+1,`${state}: row overflow`);
+        for(const value of measured.values){
+          assert.ok(value.x>=measured.row.x-1&&value.right<=measured.row.right+1,`${state}: child outside score row`);
+          assert.ok(value.scroll<=value.client+1,`${state}: child text overflow`);
+        }
+        const numericScale=media==='screen'?(width<=760?3:3.6):(width<=760?3.8:4.6);
+        const numericSize=measured.rootSize*numericScale,score=measured.values[0];
+        if(item.id==='withheld'){
+          const statusSize=Math.max(measured.rootSize*1.7,Math.min(width*.045,measured.rootSize*2.7));
+          assert.ok(score.class.includes('mr-cover-score-status'));
+          assert.ok(Math.abs(score.fontSize-statusSize)<.02,`${state}: compact status clamp changed`);
+          assert.ok(score.fontSize<numericSize,`${state}: status text must be smaller than the current numeric scale`);
+          assert.ok(Math.abs(score.lineHeight-statusSize*1.04)<.02,`${state}: status line height changed`);
+          assert.ok(Math.abs(score.letterSpacing-statusSize*-.035)<.02,`${state}: status spacing changed`);
+          assert.ok(!measured.caption.includes('dashed Composite'));
+        }else{
+          assert.ok(!score.class.includes('mr-cover-score-status'));
+          assert.ok(Math.abs(score.fontSize-numericSize)<.02,`${state}: ${media} numeric scale changed`);
+          assert.ok(Math.abs(score.lineHeight-numericSize*(media==='screen'?.95:.82))<.02,`${state}: numeric line height changed`);
+          assert.ok(Math.abs(score.letterSpacing-numericSize*(media==='screen'?-.055:-.07))<.02,`${state}: numeric spacing changed`);
+          if(item.id==='published')assert.ok(measured.caption.includes('dashed Composite'));
+        }
+        if(width<=760)assert.equal(measured.values[1].minWidth,'0px');
+        const suffix=media==='screen'?'':`-${media}`;
+        await page.locator('.mr-cover').screenshot({path:path.join(out,`${engine}-${width}-${item.id}${suffix}-cover.png`)});
+        records.push({engine,width,id:item.id,media,...measured});
       }
-      if(item.id==='withheld'){
-        assert.ok(measured.values[0].class.includes('mr-cover-score-status'));
-        assert.ok(measured.values[0].fontSize<measured.rootSize*(width<=760?3.8:4.6));
-        assert.ok(!measured.caption.includes('dashed Composite'));
-      }else{
-        assert.ok(!measured.values[0].class.includes('mr-cover-score-status'));
-        assert.ok(Math.abs(measured.values[0].fontSize-measured.rootSize*(width<=760?3.8:4.6))<.02,'numeric typography unchanged');
-        if(item.id==='published')assert.ok(measured.caption.includes('dashed Composite'));
-      }
-      if(width<=760)assert.equal(measured.values[1].minWidth,'0px');
-      await page.locator('.mr-cover').screenshot({path:path.join(out,`${engine}-${width}-${item.id}-cover.png`)});
-      records.push({engine,width,id:item.id,...measured});await page.close();
+      await page.close();
     }
   }finally{await browser.close();}
 }
