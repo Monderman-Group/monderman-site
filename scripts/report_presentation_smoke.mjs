@@ -306,24 +306,76 @@ const synthesisHtml = await page.evaluate(() => ({
   depth: window.MondermanReport.buildReportHtml(window.MondermanReport.fromSynthesis(window.MONDERMAN_REPRESENTATIVE_SYNTHESIS_FIXTURES.depth)),
 }));
 const synthesisResponsiveChecks = [];
+// Pin the recorded representative-fixture values, independently of renderer
+// output. Compact screen text replaces the SVG at <=800px; it is not optional.
+const compactSynthesisExpected = {
+  cross_lens: {
+    composite: ['Equal-lens Composite', '55.5'], stats: [],
+    segments: [
+      { label:'Structural Clarity', count:'12 submitted runs', stats:[['Mean','52']] },
+      { label:'Decision Velocity', count:'12 submitted runs', stats:[['Mean','63']] },
+      { label:'Operational Systems', count:'12 submitted runs', stats:[['Mean','49']] },
+      { label:'Institutional Performance', count:'12 submitted runs', stats:[['Mean','58']] },
+    ],
+  },
+  depth: {
+    composite: [],
+    stats: [['Median','56'],['Mean','57.2'],['Range','41–74'],['Interquartile range','50 – 64'],['Sample standard deviation','9.4']],
+    segments: [
+      { label:'Operational', count:'6 submitted runs', stats:[['Mean','49.5'],['Median','49']] },
+      { label:'Managerial', count:'6 submitted runs', stats:[['Mean','56.8'],['Median','56']] },
+      { label:'Senior Leader', count:'6 submitted runs', stats:[['Mean','65.3'],['Median','65']] },
+    ],
+  },
+};
 for (const [key, html] of Object.entries(synthesisHtml)) {
   const synthesisPage = await browser.newPage({ viewport:{ width:1440, height:1100 } });
   await loadStandalone(synthesisPage, html);
   const primaryVisual = key === 'cross_lens'
     ? synthesisPage.locator('svg[aria-label="Four Diagnostic lenses connected to the equal-lens Cross-Lens Composite Score"]')
     : synthesisPage.locator('svg[aria-label="Depth Synthesis score distribution"]');
+  const primaryPanel = synthesisPage.locator(key === 'cross_lens' ? '.mr-system-panel' : '.mr-depth-distribution-panel');
+  const compactVisual = primaryPanel.locator(':scope > .mr-synth-compact');
   assert(await primaryVisual.isVisible(), `${key} primary visual missing`);
   for (const viewport of viewports) {
     await synthesisPage.setViewportSize({ width:viewport.width, height:viewport.height });
     await synthesisPage.emulateMedia({ media:'screen' });
     await assertNoHorizontalOverflow(synthesisPage, `${key} ${viewport.name}`);
-    assert(await primaryVisual.isVisible(), `${key} primary visual hidden at ${viewport.name}`);
+    const compactExpected = viewport.width <= 800;
+    assert(await primaryPanel.isVisible(), `${key} primary panel hidden at ${viewport.name}`);
+    assert(await primaryVisual.isVisible() === !compactExpected, `${key} incorrect SVG visibility at ${viewport.name}`);
+    assert(await compactVisual.isVisible() === compactExpected, `${key} incorrect compact visibility at ${viewport.name}`);
+    if (compactExpected) {
+      const actual = await compactVisual.evaluate(el => {
+        const stats = parent => [...parent.querySelectorAll(':scope > .mr-synth-stat-list > div')]
+          .map(row => [row.querySelector('dt').textContent.trim(),row.querySelector('dd').textContent.trim()]);
+        return {
+          composite: [...el.querySelectorAll('.mr-system-compact-composite > strong, .mr-system-compact-composite > span')].map(node => node.textContent.trim()),
+          stats: stats(el),
+          segments: [...el.querySelectorAll('.mr-synth-segment')].map(segment => ({
+            label: segment.querySelector(':scope > strong').textContent.trim(),
+            count: segment.querySelector(':scope > span').textContent.trim(), stats: stats(segment),
+          })),
+        };
+      });
+      assert(JSON.stringify(actual) === JSON.stringify(compactSynthesisExpected[key]), `${key} compact values differ from the stored fixture at ${viewport.name}: ${JSON.stringify(actual)}`);
+      assert(await compactVisual.evaluate(el => {
+        const panel = el.parentElement.getBoundingClientRect();
+        return [...el.querySelectorAll('dt,dd,strong,span')].every(node => {
+          const rect = node.getBoundingClientRect(), style = getComputedStyle(node);
+          return rect.width > 0 && rect.height > 0 && style.visibility !== 'hidden'
+            && parseFloat(style.fontSize) >= 14 && rect.left >= panel.left - 1 && rect.right <= panel.right + 1
+            && node.scrollWidth <= node.clientWidth + 1;
+        });
+      }), `${key} compact values are hidden, clipped or unreadable at ${viewport.name}`);
+    }
     await synthesisPage.screenshot({ path:path.join(out, `${key}-${viewport.name}.png`), fullPage:true });
   }
   await synthesisPage.emulateMedia({ media:'print' });
   assert(await synthesisPage.locator('.mr-evidence-grid .mr-lens-card').evaluateAll(cards => cards.length > 0 && cards.every(card => getComputedStyle(card).display === 'block' && getComputedStyle(card).breakInside === 'avoid')), `${key} evidence rows no longer use intact block print flow`);
   await assertNoHorizontalOverflow(synthesisPage, `${key} print`);
   assert(await primaryVisual.isVisible(), `${key} primary visual hidden in print`);
+  assert(!await compactVisual.isVisible(), `${key} duplicates compact values alongside the print chart`);
   await synthesisPage.pdf({ path:path.join(out, `${key}.pdf`), printBackground:true, preferCSSPageSize:true });
   synthesisResponsiveChecks.push(key);
   await synthesisPage.close();
