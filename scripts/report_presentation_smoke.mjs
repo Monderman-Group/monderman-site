@@ -278,9 +278,9 @@ for (const [key, html] of Object.entries(authenticatedRunHtml)) {
   // Letter minus two 60pt margins: 656 x 896 CSS pixels. Atomic cards must fit
   // that real printable area, not merely a wide desktop viewport.
   await runPage.setViewportSize({width:656,height:896});
-  // Positioned cards and globally unbreakable nested list items caused real
-  // Chromium PDF paint loss even when text extraction found all the words.
-  // Keep the safe print flow explicit; raster review remains necessary.
+  // Keep complete options within one printable page. Text extraction alone
+  // does not establish appearance; use independent PDF rasterizers to separate
+  // actual pagination defects from resolution-specific preview artifacts.
   const optionPrintFlow = await runPage.locator('.mr-run-remedy').evaluateAll(cards => cards.map(card => ({
     display:getComputedStyle(card).display,
     position:getComputedStyle(card).position,
