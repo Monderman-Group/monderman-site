@@ -140,7 +140,7 @@ body.canonical-green-shell .article-hero h1 {
   letter-spacing: -.052em;
 }
 
-body.canonical-green-shell:not(.homepage-enterprise) .hero p,
+body.canonical-green-shell:not(.homepage-enterprise) .hero p:not(.eyebrow):not(.hero-eyebrow),
 body.canonical-green-shell .ps-hero .lede,
 body.canonical-green-shell .article-hero .article-dek {
   max-width: 700px;
@@ -157,6 +157,15 @@ body.canonical-green-shell:not(.homepage-enterprise) .hero .hero-actions {
   transform: none;
   animation: none;
   will-change: auto;
+}
+
+/* Eyebrows stay subordinate to the title instead of inheriting body-copy size. */
+body.canonical-green-shell:not(.homepage-enterprise) .hero :is(.eyebrow, .hero-eyebrow),
+body.canonical-green-shell .ps-hero .ps-eyebrow {
+  margin: 0 0 16px;
+  font-size: .72rem;
+  line-height: 1.4;
+  letter-spacing: .14em;
 }
 
 body.canonical-green-shell:not(.homepage-enterprise) .hero .hero-title {
@@ -998,10 +1007,6 @@ body.canonical-green-shell .mxps-card > a:focus-visible {
 
 body.canonical-green-shell .ps-tier-flag {
   color: var(--mdm-deep) !important;
-}
-
-body.canonical-green-shell.page-legal .section-inner {
-  max-width: 920px;
 }
 
 /* Research and editorial surfaces */

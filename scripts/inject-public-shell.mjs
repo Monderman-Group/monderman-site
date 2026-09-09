@@ -17,7 +17,7 @@ const shellScriptPattern = /<script\b[^>]*\bsrc=["']canonical-site-shell\.js[^"'
 const motifPattern = /<div\b(?=[^>]*\bclass=["'][^"']*\bmf-motif\b[^"']*["'])[^>]*>[\s\S]*?<\/svg>\s*<\/div>/i;
 const canonicalCssPattern = /canonical-site-shell\.css\?v=[^"']+/g;
 const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
-const shellRelease = "20260909-product1";
+const shellRelease = "20260909-consistency1";
 const productPages = new Set([
   "diagnostics.html", "platform-services.html", "plan-signal.html", "plan-pattern.html",
   "plan-enterprise.html", "new-in-the-role.html", "after-an-acquisition.html",
@@ -34,6 +34,8 @@ const refreshedAssets = [
   "homepage-hero-system.css", "homepage-workspace-demo.css", "homepage-workspace-demo.js",
   "workspace-product-design.css", "report-screen-experience.css", "report-screen-experience.js",
   "dv-result-dialog.css", "dv-result-dialog.js",
+  "visual-polish.css", "monderman-shell.css", "publication-hero.css", "first-run-moments.css",
+  "pilot-waitlist.css", "monderman-depth-lure-tile.css",
 ];
 const versionScript = (html, fileName) => html.replace(
   new RegExp(`(["'])${fileName.replace(".", "\\.")}(?:\\?v=[^"']*)?\\1`, "g"),
@@ -45,6 +47,14 @@ if (!motif) throw new Error("Canonical M motif is missing from the footer partia
 
 let normalized = 0;
 for (const entry of await readdir(publishDirectory, { withFileTypes: true })) {
+  if (entry.isFile() && entry.name.endsWith(".css")) {
+    const path = join(publishDirectory, entry.name);
+    const original = await readFile(path, "utf8");
+    let css = original;
+    for (const asset of refreshedAssets) css = versionScript(css, asset);
+    if (css !== original) await writeFile(path, css);
+    continue;
+  }
   if (!entry.isFile() || !entry.name.endsWith(".html")) continue;
   const path = join(publishDirectory, entry.name);
   let html = await readFile(path, "utf8");

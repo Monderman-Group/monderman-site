@@ -137,6 +137,24 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
         assert.equal(semantics.apiOpen, true, `${label}: API does not report the open dialog`);
         assert.equal(semantics.sourceCount, 1, `${label}: result content was cloned or lost`);
 
+        const surface = await page.evaluate(() => {
+          const css = selector => getComputedStyle(document.querySelector(selector));
+          const foreground = css('.dv-result-dialog__button--pilot').color;
+          const background = css('.dv-result-dialog__button--pilot').backgroundColor;
+          const luminance = color => color.match(/[\d.]+/g).slice(0,3).map(Number).map(value=>value/255).map(value=>value<=.04045?value/12.92:((value+.055)/1.055)**2.4).reduce((sum,value,index)=>sum+value*[.2126,.7152,.0722][index],0);
+          return {
+            headerPadding:css('.dv-result-dialog__header').paddingLeft,
+            bodyPadding:css('.dv-result-dialog__scroll').paddingLeft,
+            pilotBackground:css('.dv-result-dialog__pilot').backgroundColor,
+            buttonBackground:background,
+            contrast:(luminance(foreground)+.05)/(luminance(background)+.05)
+          };
+        });
+        assert.equal(surface.headerPadding,surface.bodyPadding,`${label}: header and body inset do not align`);
+        assert.equal(surface.pilotBackground,'rgb(244, 247, 248)',`${label}: pilot panel uses legacy paper surface`);
+        assert.equal(surface.buttonBackground,'rgb(8, 127, 140)',`${label}: pilot action uses decorative orange`);
+        assert.ok(surface.contrast>=4.5,`${label}: pilot action text has insufficient contrast`);
+
         const background = await page.evaluate(() => {
           const inspect = (selector) => {
             const node = document.querySelector(selector);
