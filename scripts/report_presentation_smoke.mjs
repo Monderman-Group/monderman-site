@@ -254,7 +254,9 @@ for (const [key, html] of Object.entries(authenticatedRunHtml)) {
   assert(await runPage.locator('.mr-priority-matrix').isVisible(), `${key} priority matrix missing`);
   assert(await runPage.locator('.mr-run-remedy').count() === 3, `${key} differentiated intervention paths missing`);
   assert(await runPage.locator('.mr-leadership-close').isVisible(), `${key} leadership handoff missing`);
-  assert(await runPage.locator('.mr-leadership-close').evaluate(el => el === document.querySelector('.mr-section:last-of-type')), `${key} leadership handoff is not the final substantive section`);
+  assert(await runPage.locator('.mr-leadership-close').evaluate(el => el === [...document.querySelectorAll('.mr-section')].at(-1)), `${key} leadership handoff is not the final substantive section`);
+  assert(await runPage.locator('.mr-report-boundary').count() === 1, `${key} must contain one complete interpretation boundary`);
+  assert(await runPage.locator('.mr-run-close-group > .mr-leadership-close + .mr-report-boundary').count() === 1, `${key} closing handoff and boundary must stay together in order`);
   // The scorer returns independently ordered priorities and options. Pairing
   // their array positions would manufacture a recommendation/evidence link.
   assert(await runPage.locator('.mr-run-remedy .mr-remedy-evidence').count() === 0, `${key} invents an option-to-priority evidence pairing`);
