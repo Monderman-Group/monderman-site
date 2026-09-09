@@ -18,6 +18,19 @@ on:
       - 'canonical-site-shell.css'
       - 'enterprise-site.css'
       - 'homepage-hero-system.css'
+      - 'public-product-design.css'
+      - 'homepage-workspace-demo.css'
+      - 'homepage-workspace-demo.js'
+      - 'workspace-product-design.css'
+      - 'report-screen-experience.css'
+      - 'report-screen-experience.js'
+      - 'dv-result-dialog.css'
+      - 'scripts/homepage_workspace_demo_smoke.mjs'
+      - 'scripts/workspace_product_design_smoke.mjs'
+      - 'scripts/report_screen_experience_smoke.mjs'
+      - 'scripts/inject-public-shell.mjs'
+      - 'scripts/render-static-build.sh'
+      - 'site-shell/**'
       - 'publication-hero.css'
       - 'index.html'
       - 'mobile-site-polish.css'
@@ -102,6 +115,19 @@ on:
       - 'canonical-site-shell.css'
       - 'enterprise-site.css'
       - 'homepage-hero-system.css'
+      - 'public-product-design.css'
+      - 'homepage-workspace-demo.css'
+      - 'homepage-workspace-demo.js'
+      - 'workspace-product-design.css'
+      - 'report-screen-experience.css'
+      - 'report-screen-experience.js'
+      - 'dv-result-dialog.css'
+      - 'scripts/homepage_workspace_demo_smoke.mjs'
+      - 'scripts/workspace_product_design_smoke.mjs'
+      - 'scripts/report_screen_experience_smoke.mjs'
+      - 'scripts/inject-public-shell.mjs'
+      - 'scripts/render-static-build.sh'
+      - 'site-shell/**'
       - 'publication-hero.css'
       - 'index.html'
       - 'mobile-site-polish.css'
@@ -278,6 +304,16 @@ jobs:
         env:
           SITE_BASE: http://127.0.0.1:8080
         run: node scripts/homepage_card_rhythm_smoke.mjs
+
+      - name: Verify the product walkthrough and Workspace states
+        env:
+          SITE_BASE: http://127.0.0.1:8080
+          HOME_DEMO_OUT: /tmp/report-presentation-smoke/product-home
+          WORKSPACE_PRODUCT_OUT: /tmp/report-presentation-smoke/product-workspace
+        run: |
+          node scripts/homepage_workspace_demo_smoke.mjs
+          node scripts/workspace_product_design_smoke.mjs
+          node scripts/report_screen_experience_smoke.mjs
 
       - name: Render and verify ordinary-page print pagination
         env:

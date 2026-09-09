@@ -15,7 +15,9 @@
     .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 
   function sectionLabel(node) {
-    if (node.classList.contains("mr-cover")) return "Executive cover";
+    if (node.classList.contains("mr-cover")) return "Overview";
+    if (node.classList.contains("mr-run-decision")) return "Decision summary";
+    if (node.classList.contains("mr-leadership-close")) return "Next decision";
     if (node.classList.contains("mr-report-boundary")) return "Interpretation boundary";
     const heading = node.querySelector("h2");
     return ((heading && heading.textContent) || "Report section")
@@ -28,7 +30,7 @@
     const nodes = Array.from(stage.querySelectorAll(".mr-cover, .mr-section, .mr-report-boundary"));
     const links = [];
     nodes.forEach((node, index) => {
-      const id = "sample-" + sourceKey.replace(/_/g, "-") + "-section-" + (index + 1);
+      const id = node.id || "sample-" + sourceKey.replace(/_/g, "-") + "-section-" + (index + 1);
       const label = sectionLabel(node);
       node.id = id;
       const li = document.createElement("li");
@@ -75,9 +77,9 @@
     shell.innerHTML = '<div class="toc-mobile psr-toc-mobile"><select aria-label="Jump to report section"><option value="">Jump to section…</option></select></div>' +
       '<div class="synthesis-doc-shell psr-doc-shell"><div class="synthesis-report-stage psr-main"><div class="psr-wrap" data-engine-commit="' + esc(engineCommit) +
       '" data-artifact-sha256="' + esc(artifactSha256) + '" data-source-key="' + esc(options.sourceKey) + '">' +
-      '<div class="psr-toolbar" aria-label="Sample report controls"><div><strong>' + esc(options.toolbarLabel || "Representative product output") + '</strong><span>' + esc(options.provenance || "Shared production report renderer") + '</span></div>' +
+      '<div class="psr-toolbar" aria-label="Sample report controls"><div><strong>' + esc(options.toolbarLabel || "Representative product output") + '</strong><span>Explore the result, then inspect its evidence and recommended actions.</span><details class="psr-provenance"><summary>Source details</summary><p>' + esc(options.provenance || "Shared production report renderer") + '</p></details></div>' +
       '<div class="psr-toolbar-actions"><button type="button" data-action="html">Download HTML</button>' +
-      '<button type="button" data-action="json">Download JSON</button><button type="button" data-action="print">Print or save PDF</button></div></div>' +
+      '<button type="button" data-action="json">Download JSON</button><button class="psr-primary" type="button" data-action="print">Print or save PDF</button></div></div>' +
       '<div class="psr-engine-stage"></div></div></div>' +
       '<aside class="toc-rail psr-toc" aria-label="' + esc(options.tocLabel || "Report contents") + '"><p class="toc-rail-label">Contents</p><ol></ol></aside></div>';
     return shell.querySelector(".psr-engine-stage");

@@ -6111,7 +6111,10 @@ const generated = new Date().toLocaleDateString("en-US", { year: "numeric", mont
 
 // Get current results HTML from DOM
 const resultsStage = document.getElementById("resultsStage");
-const resultsHTML = resultsStage ? resultsStage.innerHTML : "<p>Results not available</p>";
+const resultsClone = resultsStage?.cloneNode(true);
+// Screen navigation is an application control, not part of the report artifact.
+resultsClone?.querySelectorAll(".rsx-nav").forEach((node) => node.remove());
+const resultsHTML = resultsClone ? resultsClone.innerHTML : "<p>Results not available</p>";
 
 return `<!DOCTYPE html>
 
