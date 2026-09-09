@@ -16,7 +16,8 @@ page.on('console', m => { if (m.type() === 'error') errors.push(`console: ${m.te
 // render outside the site. During localhost certification, serve those exact
 // font requests from the checked-out candidate instead of depending on CORS
 // headers from the live site.
-await page.route(/^https:\/\/www\.monderman\.com\/(55|65|75)font\.woff2$/, async route => {
+async function useCandidateFonts(target) {
+await target.route(/^https:\/\/www\.monderman\.com\/(55|65|75)font\.woff2$/, async route => {
   const filename = new URL(route.request().url()).pathname.slice(1);
   await route.fulfill({
     status: 200,
@@ -24,6 +25,16 @@ await page.route(/^https:\/\/www\.monderman\.com\/(55|65|75)font\.woff2$/, async
     body: fs.readFileSync(path.resolve(filename)),
   });
 });
+}
+await useCandidateFonts(page);
+async function loadStandalone(target, html) {
+  await useCandidateFonts(target);
+  target.on('pageerror', e => errors.push(`standalone pageerror: ${e.message}`));
+  target.on('console', m => { if (m.type() === 'error') errors.push(`standalone console: ${m.text()}`); });
+  await target.setContent(html, {waitUntil:'networkidle'});
+  await target.evaluate(async () => { await document.fonts.ready; });
+  assert(await target.evaluate(() => document.fonts.check('16px "Neue Haas Grotesk"')), 'standalone candidate font did not load');
+}
 function assert(ok, msg) { if (!ok) throw new Error(msg); }
 function isActualSerif(font) { return /Georgia|Times New Roman/i.test(font); }
 function isMondermanFont(font) { return /Neue Haas Grotesk/i.test(font); }
@@ -194,7 +205,7 @@ const standaloneHtml = await page.evaluate(() => {
   return window.MondermanReport.buildReportHtml(window.MondermanReport.fromSynthesis(fx));
 });
 const standalone = await browser.newPage({ viewport: { width: 1100, height: 1000 } });
-await standalone.setContent(standaloneHtml, { waitUntil: 'domcontentloaded' });
+await loadStandalone(standalone, standaloneHtml);
 assert(await standalone.locator('.mr-cover').isVisible(), 'standalone report cover missing');
 assert((await standalone.locator('.mr-cover-score').textContent()).trim() === '55.5', 'standalone Cross-Lens score rounded');
 assert(await standalone.locator('.mr-cover .mr-cover-boundary').isVisible(), 'standalone cover interpretation boundary missing');
@@ -234,7 +245,7 @@ const viewports = [
 ];
 for (const [key, html] of Object.entries(authenticatedRunHtml)) {
   const runPage = await browser.newPage({ viewport: { width:1440, height:1100 } });
-  await runPage.setContent(html, { waitUntil:'domcontentloaded' });
+  await loadStandalone(runPage, html);
   assert(await runPage.locator('.mr-run-decision').isVisible(), `${key} authenticated executive brief missing`);
   assert(await runPage.locator('.mr-run-decision').evaluate(el => el === document.querySelector('.mr-section')), `${key} executive brief is not first`);
   assert(await runPage.locator('.mr-dimension-row').count() === runDimensions[key], `${key} authenticated dimension profile mismatch`);
@@ -281,7 +292,7 @@ const synthesisHtml = await page.evaluate(() => ({
 const synthesisResponsiveChecks = [];
 for (const [key, html] of Object.entries(synthesisHtml)) {
   const synthesisPage = await browser.newPage({ viewport:{ width:1440, height:1100 } });
-  await synthesisPage.setContent(html, { waitUntil:'domcontentloaded' });
+  await loadStandalone(synthesisPage, html);
   const primaryVisual = key === 'cross_lens'
     ? synthesisPage.locator('svg[aria-label="Four Diagnostic lenses connected to the equal-lens Cross-Lens Composite Score"]')
     : synthesisPage.locator('svg[aria-label="Depth Synthesis score distribution"]');

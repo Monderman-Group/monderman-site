@@ -974,7 +974,7 @@
   function renderRequirements(m, n) {
     const requirements = arr(m.requirements);
     if (!requirements.length) return "";
-    return '<section class="mr-section"><h2>' + n + '. What would strengthen the read</h2>' +
+    return '<section class="mr-section mr-requirements"><h2>' + n + '. What would strengthen the read</h2>' +
       requirements.map((item) => '<div class="mr-card mr-editorial-row mr-requirement-row"><span class="mr-pill">' + esc(humanize(item.type)) + '</span><p style="margin-top:10px">' + esc(item.text) + '</p></div>').join("") + '</section>';
   }
 
@@ -1045,7 +1045,7 @@
     const method = m.product === "depth"
       ? "The published condition is the median of the submitted scores from one Diagnostic. The observed distribution, differences between participant perspectives, scope, source identity, versions, measurement window, and sampling frame are reported separately. Sample size alone does not establish population representativeness."
       : "When the Coherent or Strong evidence threshold is met, the published composite is the arithmetic mean of the contributing Diagnostic means, so each Diagnostic receives one vote regardless of participant count. Participant depth governs evidence strength and balance. A Comparison Only or Directional read withholds the composite. Diagnostic disagreement remains visible and is not subtracted from the condition score.";
-    return '<section class="mr-section"><h2>' + n + '. Method and limits</h2><p>' + esc(method) + '</p>' +
+    return '<section class="mr-section mr-meta-method"><h2>' + n + '. Method and limits</h2><p>' + esc(method) + '</p>' +
       (m.organizationalImplication ? '<div class="callout"><p><strong>Organizational implication.</strong> ' + esc(m.organizationalImplication) + '</p></div>' : '') + '</section>';
   }
 
@@ -1758,6 +1758,30 @@
     }
     @page{size:Letter;margin:60pt}
     @media print{
+      /* Keep a standard report cover on one Letter page and keep its
+         interpretation notice intact. Screen typography is unchanged. */
+      .mr-report .mr-cover{break-inside:avoid;page-break-inside:avoid}
+      .mr-cover-dark{padding:28px 30px 24px}
+      .mr-cover-white{padding:22px 30px 24px}
+      .mr-cover-title{font-size:28pt!important;line-height:1.04!important}
+      .mr-cover-sub,.mr-cover-body{font-size:10pt!important;line-height:1.45!important}
+      .mr-cover-meta{margin-top:16px;padding-top:12px;gap:8px 12px}
+      .mr-cover-body{margin-top:14px!important;padding-top:12px}
+      .mr-cover-boundary{margin-top:14px;padding:10px 12px;break-inside:avoid;page-break-inside:avoid}
+      .mr-system-metrics,.mr-system-decision,.mr-depth-metrics,.mr-depth-reading-grid,.mr-editorial-row,.mr-report .callout{break-inside:avoid;page-break-inside:avoid}
+      .mr-section>h2{page-break-after:avoid}
+      .mr-section>h2+p{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}
+      .mr-report li,.mr-run-exposure,.mr-run-method,.mr-meta-method,.mr-requirements,.mr-depth-stats>.kvs{break-inside:avoid;page-break-inside:avoid}
+      .mr-evidence-grid{display:block}
+      .mr-evidence-grid .mr-lens-card{break-inside:avoid;page-break-inside:avoid}
+      .mr-report p{orphans:3;widows:3}
+      /* Print fragmentation of nested CSS grids can hide otherwise extractable
+         text. Use ordinary block flow for long evidence and option content. */
+      .mr-run-evidence-grid,.mr-remedy-grid,.mr-remedy-card{display:block}
+      .mr-run-evidence-grid>div+div{margin-top:18px}
+      .mr-run-remedy p,.mr-run-remedy li{font-size:10pt!important;line-height:1.5!important}
+      .mr-remedy-head,.mr-remedy-tradeoffs>div{break-inside:avoid;page-break-inside:avoid}
+      .mr-run-metric-value{font-size:13pt;overflow-wrap:normal}
       .mr-section h2,.mr-section h3,.mr-section-index,.mr-run-method dl>div{break-inside:avoid;page-break-inside:avoid}
       .mr-leadership-close{break-inside:avoid;page-break-inside:avoid;padding:24px!important}
       .mr-leadership-close>h2{font-size:22pt!important;line-height:1.12!important;max-width:none!important}
