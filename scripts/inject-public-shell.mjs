@@ -17,8 +17,8 @@ const shellScriptPattern = /<script\b[^>]*\bsrc=["']canonical-site-shell\.js[^"'
 const motifPattern = /<div\b(?=[^>]*\bclass=["'][^"']*\bmf-motif\b[^"']*["'])[^>]*>[\s\S]*?<\/svg>\s*<\/div>/i;
 const canonicalCssPattern = /canonical-site-shell\.css\?v=[^"']+/g;
 const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
-// Ship the reviewed report updates with the shared hero/footer brand release.
-const shellRelease = "20260909-brand2";
+// Preserve the hero/footer brand release while refreshing cached report code.
+const shellRelease = "20260909-report21";
 const productPages = new Set([
   "diagnostics.html", "platform-services.html", "plan-signal.html", "plan-pattern.html",
   "plan-enterprise.html", "new-in-the-role.html", "after-an-acquisition.html",

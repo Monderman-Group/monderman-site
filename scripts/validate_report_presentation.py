@@ -69,7 +69,7 @@ for token, msg in [
     ('mr-depth-stats', 'Depth statistics are not rendered as a continuous statistics block'),
     ('mr-editorial-row', 'Synthesis prose/action rows are still using undifferentiated card presentation'),
     ('Synthesis is an executive report, not a dashboard', 'editorial-family CSS contract missing'),
-    ('The operating system in one view', 'Cross-Lens lacks an early system picture'),
+    ('Diagnostic lenses at a glance', 'Cross-Lens lacks an early comparison picture'),
     ('mr-system-map', 'Cross-Lens system picture is not rendered as a substantive visual'),
     ('mr-decision-frame', 'Synthesis decision metrics are not rendered'),
     ('mr-evidence-ladder', 'Synthesis evidence strength ladder is missing'),

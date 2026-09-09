@@ -137,7 +137,7 @@ assert(crossText.includes('Evidence-proportionate actions'), 'Cross-Lens actions
 assert(!crossText.includes('Source-backed remedy paths'), 'Cross-Lens rendered source remedy prose even though the source-prose contract withholds it');
 assert(crossText.includes('Results by participant perspective'), 'Cross-Lens vantage-evidence layer missing');
 assert(await cross.locator('.mr-remedy-card').count() === 0, 'Cross-Lens rendered remedy cards without eligible source remedy prose');
-assert(crossText.includes('The operating system in one view'), 'Cross-Lens system picture label missing');
+assert(crossText.includes('Diagnostic lenses at a glance'), 'Cross-Lens comparison picture label missing');
 assert(await cross.locator('.mr-action-path .mr-action-step').count() >= 3, 'Cross-Lens visual action sequence is too thin');
 assert(await cross.locator('.mr-evidence-ladder .mr-evidence-step').count() === 4, 'Cross-Lens evidence ladder incomplete');
 assert(await cross.locator('#synthesisToc a').count() >= 10, 'Cross-Lens Contents rail is incomplete');

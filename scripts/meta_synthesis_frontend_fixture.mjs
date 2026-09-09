@@ -130,6 +130,22 @@ assert.match(depthHtml, /Range of modeled estimates/);
 assert.match(depthHtml, /Modeled annual-hours IQR/);
 assert.match(depthHtml, /Modeled annual-cost IQR/);
 
+const endpointRanges = structuredClone(depth);
+endpointRanges.pathway_exposure = commonExposure({
+  annual_hours: 16,
+  annual_hours_low: 1,
+  annual_hours_high: 32,
+  annual_cost: 100,
+  annual_cost_low: 100,
+  annual_cost_high: 100,
+});
+const endpointRangeHtml = Report.buildReportHtml(Report.fromSynthesis(endpointRanges));
+assert.match(endpointRangeHtml, /Modeled annual hours<\/strong><span>1 – 32<\/span>/);
+assert.match(endpointRangeHtml, /style="left:3\.13%;width:96\.87%"/);
+assert.doesNotMatch(endpointRangeHtml, /style="left:3\.13%;width:96\.88%"/);
+assert.match(endpointRangeHtml, /mr-range-iqr is-point is-right-edge" style="left:100\.00%;width:0\.00%"/);
+assert.match(endpointRangeHtml, /Modeled annual labor cost<\/strong><span>\$100 – \$100<\/span>/);
+
 const divided = structuredClone(depth);
 divided.sample_reads[0].consensus = { read: "divided", detail: "The observed runs form two materially separated score groups.", split: { lower_share_pct: 45, upper_share_pct: 55 } };
 divided.diagnosis = { name: "Divided observed respondent pattern", type: "Distribution finding", body: "The score distribution separates into two materially different groups." };
@@ -196,10 +212,10 @@ assert.match(comparisonHtml, /Operational Systems needs 32 additional runs/);
 assert.match(comparisonHtml, /Pathway exposure withheld/);
 assert.match(comparisonHtml, /aria-label="Four Diagnostic lenses connected to the equal-lens Cross-Lens Composite Score"/);
 assert.match(comparisonHtml, /COMPOSITE WITHHELD/);
-assert.match(comparisonHtml, /Lens interaction evidence/);
+assert.match(comparisonHtml, /Signals appearing across Diagnostics/);
 assert.match(comparisonHtml, /Review and operating overhead/);
-assert.match(comparisonHtml, /Compounding constraints to investigate/);
-assert.match(comparisonHtml, /Co-occurrence supports a systems hypothesis; it does not establish a causal chain/);
+assert.match(comparisonHtml, /Signals appearing in more than one Diagnostic/);
+assert.match(comparisonHtml, /A signal appearing in more than one Diagnostic is a reason to investigate it across lenses; it does not establish a causal chain/);
 assert.doesNotMatch(comparisonHtml, /Severe observed strain/);
 
 const coherent = structuredClone(comparison);
