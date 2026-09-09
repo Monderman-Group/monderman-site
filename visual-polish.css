@@ -50,9 +50,10 @@ body{
 
 /* Public reading pages: disciplined measure and section rhythm. */
 .page-legal .section-inner,
-.page-legal main>.section,
 .page-article main,
 .page-article .article-inner{max-width:var(--mond-reading)}
+/* Reading width belongs to the inner copy, not a full-width section band. */
+.page-legal main>.section{width:100%;max-width:none}
 .page-legal .section,
 .page-legal main>.section{padding-top:48px;padding-bottom:48px}
 .page-legal .section+ .section,

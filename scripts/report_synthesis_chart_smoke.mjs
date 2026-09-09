@@ -14,7 +14,9 @@ const base={synthesis_product:'cross_lens_synthesis',score_status:'withheld',cro
 const depth={...base,synthesis_product:'depth_synthesis',source_groups:[groups[0]],lens_count:1,sample_reads:[{tool_type:'structural_clarity',tool_label:'Structural Clarity',n:5,
  score:{min:0,max:100,mean:59.4,median:60,iqr:[30,80],sd:18.5},segments:[{participant_mode:'senior_leader',n:2,mean_score:70,median_score:75},{participant_mode:'managerial',n:3,mean_score:40,median_score:45}]}]};
 const zeroDepth={...depth,sample_reads:[{...depth.sample_reads[0],score:{min:0,max:0,mean:null,median:0,iqr:[0,0],sd:0},segments:[{participant_mode:'senior_leader',n:1,mean_score:0,median_score:0}]}]};
-const cases=[['depth',depth,'.mr-depth-distribution-panel'],['depth-zero-null',zeroDepth,'.mr-depth-distribution-panel'],['cross-withheld',base,'.mr-system-panel'],['cross-published',{...base,score_status:'published',cross_diagnostic_score:63.3},'.mr-system-panel']].map(([id,raw,selector])=>{
+const medianOnlyDepth={...depth,sample_reads:[{...depth.sample_reads[0],segments:[{participant_mode:'managerial',n:1,mean_score:null,median_score:60},{participant_mode:'operational',n:1,mean_score:null,median_score:0}]}]};
+const meanOnlyDepth={...depth,sample_reads:[{...depth.sample_reads[0],segments:[{participant_mode:'managerial',n:1,mean_score:100,median_score:null},{participant_mode:'operational',n:1,mean_score:0,median_score:null}]}]};
+const cases=[['depth',depth,'.mr-depth-distribution-panel'],['depth-zero-null',zeroDepth,'.mr-depth-distribution-panel'],['depth-median-only',medianOnlyDepth,'.mr-depth-distribution-panel'],['depth-mean-only',meanOnlyDepth,'.mr-depth-distribution-panel'],['cross-withheld',base,'.mr-system-panel'],['cross-published',{...base,score_status:'published',cross_diagnostic_score:63.3},'.mr-system-panel']].map(([id,raw,selector])=>{
  const before=JSON.stringify(raw),model=report.fromSynthesis(raw),modelBefore=JSON.stringify(model),html=report.buildReportHtml(model);
  assert.equal(JSON.stringify(raw),before,'saved source input changed');assert.equal(JSON.stringify(model),modelBefore,'render model changed');
  return {id,raw,html,selector};
@@ -38,7 +40,9 @@ for(const [engine,type] of Object.entries({chromium,webkit})){
     const compactVisible=getComputedStyle(compact).display!=='none';
     const labels=[...compact.querySelectorAll('dt,dd,strong,span')].map(el=>({text:el.textContent,tag:el.tagName,whiteSpace:getComputedStyle(el).whiteSpace,font:parseFloat(getComputedStyle(el).fontSize),...rect(el)}));
     const values=[...panel.querySelectorAll('.mr-system-lens-value')],meta=[...panel.querySelectorAll('.mr-system-lens-meta')];
-    return {compactVisible,svgVisible:getComputedStyle(svg).display!=='none',compactText:compact.textContent,labels,
+    return {compactVisible,svgVisible:getComputedStyle(svg).display!=='none',svgBox:rect(svg),compactText:compact.textContent,labels,
+     segments:[...compact.querySelectorAll('.mr-synth-segment')].map(el=>({values:[...el.querySelectorAll('dd')].map(x=>x.textContent)})),
+     segmentPlots:[...svg.querySelectorAll('.mr-depth-segment-plot')].map(el=>({meanMarkers:el.querySelectorAll('.mr-depth-segment-mean').length,medianMarkers:el.querySelectorAll('.mr-depth-segment-median').length,label:el.querySelector('.mr-depth-segment-label').textContent,labelBox:rect(el.querySelector('.mr-depth-segment-label')),markers:[...el.querySelectorAll('circle')].map(rect)})),
      panel:rect(panel),internalOverflow:[...compact.querySelectorAll('*')].filter(el=>el.clientWidth>0&&el.scrollWidth>el.clientWidth+2).map(el=>({tag:el.tagName,text:el.textContent,client:el.clientWidth,scroll:el.scrollWidth})),pairs:values.map((el,i)=>({value:el.textContent,meta:meta[i].textContent,valueBox:rect(el),metaBox:rect(meta[i])})),
      signalPrintBreak:getComputedStyle(document.querySelector('.mr-map-signal')||panel).breakInside,
      interactionBreaks:[...document.querySelectorAll('.mr-interaction-grid>.mr-interaction-label,.mr-interaction-grid>.mr-interaction-cell')].map(el=>getComputedStyle(el).breakInside),
@@ -50,8 +54,19 @@ for(const [engine,type] of Object.entries({chromium,webkit})){
    if(media==='screen')assert.equal(measured.documentOverflow,false,`${name}: document overflow`);
    if(compactExpected){assert.deepEqual(measured.internalOverflow,[],`${name}: internal text overflow`);for(const label of measured.labels){assert.ok(label.font>=14,`${name}: unreadable compact label ${label.text}`);assert.ok(label.left>=measured.panel.left-1&&label.right<=measured.panel.right+1,`${name}: summary label outside panel`);if(label.tag==='DD')assert.equal(label.whiteSpace,'nowrap',`${name}: numeric/range value can wrap`);}}
    if(item.id.startsWith('depth')){
-    const expected=item.id==='depth'?['60','59.4','0–100','30–80','18.5','75','45']:['Median0','MeanNotavailable','Range0–0','Interquartilerange0–0','Samplestandarddeviation0'];
+    const expected=item.id==='depth-zero-null'?['Median0','MeanNotavailable','Range0–0','Interquartilerange0–0','Samplestandarddeviation0']:['60','59.4','0–100','30–80','18.5'];
     for(const value of expected)assert.ok(measured.compactText.replace(/\s+/g,'').includes(value),`${name}: missing recorded value ${value}`);
+    const sourceSegments=item.raw.sample_reads[0].segments;
+    assert.equal(measured.segments.length,sourceSegments.length);assert.equal(measured.segmentPlots.length,sourceSegments.length);
+    sourceSegments.forEach((segment,i)=>{
+     const present=v=>v!==null&&v!==undefined&&Number.isFinite(Number(v));
+     const expectedMean=present(segment.mean_score)?String(segment.mean_score):'Not available',expectedMedian=present(segment.median_score)?String(segment.median_score):'Not available';
+     assert.deepEqual(measured.segments[i].values,[expectedMean,expectedMedian],`${name}: missing segment statistic must not be copied from the other statistic`);
+     const plot=measured.segmentPlots[i];assert.equal(plot.meanMarkers,Number(present(segment.mean_score)));assert.equal(plot.medianMarkers,Number(present(segment.median_score)));
+     assert.equal(plot.label,`mean ${expectedMean} · median ${expectedMedian}`);
+     if(!compactExpected){assert.ok(plot.labelBox.left>=measured.svgBox.left&&plot.labelBox.right<=measured.svgBox.right,`${name}: segment value label outside SVG`);assert.ok(plot.labelBox.bottom<=measured.svgBox.bottom,`${name}: segment label below SVG`);
+      if(!present(segment.mean_score)||!present(segment.median_score)||Number(segment.mean_score)>70)for(const marker of plot.markers)assert.ok(plot.labelBox.top>=marker.bottom,`${name}: missing/edge segment label overlaps marker`);}
+    });
    }
    else{
     assert.equal(measured.pairs.length,4);assert.ok(measured.compactText.includes(item.id==='cross-withheld'?'Composite withheldUnavailable':'Equal-lens Composite63.3'));

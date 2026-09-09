@@ -489,7 +489,7 @@ body{transition:background-color .25s ease, color .25s ease}
 <link rel="stylesheet" href="mobile-site-polish.css?v=20260825-2">
   <link rel="stylesheet" href="workspace-product-design.css?v=20260909-product1">
 </head>
-<body class="workspace-surface">
+<body class="workspace-surface workspace-measure-surface">
   <div class="ws5-shell">
     <aside class="ws5-rail">
       <div class="ws5-railscroll">
@@ -635,7 +635,7 @@ body{transition:background-color .25s ease, color .25s ease}
           </div>
 
           <details class="finetune">
-            <summary><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>Fine-tune <span class="ft-hint">depth, due date, message, response options</span></summary>
+            <summary><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg><span>Fine-tune <span class="ft-hint">depth, due date, message, response options</span></span></summary>
           <div class="grid">
             <div class="field">
               <label for="fDepth">Depth</label>
@@ -682,7 +682,7 @@ body{transition:background-color .25s ease, color .25s ease}
           <div class="section-label">Recipients</div>
           <div class="rcount" id="rCount" hidden></div>
           <table class="rtable">
-            <thead><tr><th>Email</th><th>Name</th><th>Business unit</th><th>Team</th><th class="col-rm"></th></tr></thead>
+            <thead><tr><th scope="col">Email</th><th scope="col">Name</th><th scope="col">Business unit</th><th scope="col">Team</th><th scope="col" class="col-rm"><span class="sr-only">Remove</span></th></tr></thead>
             <tbody id="rRows"></tbody>
           </table>
           <button class="add-row" id="btnAddRow" type="button">+ Add recipient</button>
@@ -1089,18 +1089,18 @@ body{transition:background-color .25s ease, color .25s ease}
       if(n > MAX_EDITABLE){
         const shown=Math.min(n,120); let rows="";
         for(let i=0;i<shown;i++){ const r=state.recipients[i];
-          rows += `<tr><td>${esc(r.email)}</td><td>${esc(r.full_name)}</td><td>${esc(r.business_unit)}</td><td>${esc(r.team)}</td><td class="col-rm"><button class="rm-btn" data-rm="${i}" type="button" title="Remove">\u00d7</button></td></tr>`;
+          rows += `<tr><td data-label="Email">${esc(r.email)}</td><td data-label="Name">${esc(r.full_name)}</td><td data-label="Business unit">${esc(r.business_unit)}</td><td data-label="Team">${esc(r.team)}</td><td class="col-rm"><button class="rm-btn" data-rm="${i}" type="button" title="Remove recipient ${i+1}" aria-label="Remove recipient ${i+1}">\u00d7</button></td></tr>`;
         }
         if(n>shown) rows += `<tr class="rmore"><td colspan="5">+ ${n-shown} more: all ${n} will be sent on dispatch. Use Clear all to start over.</td></tr>`;
         tb.innerHTML = rows;
       } else {
         tb.innerHTML = state.recipients.map((r,i)=>(
           `<tr>
-            <td><input type="email" data-i="${i}" data-f="email" value="${esc(r.email)}" placeholder="name@org.com"></td>
-            <td><input type="text" data-i="${i}" data-f="full_name" value="${esc(r.full_name)}" placeholder="Full name"></td>
-            <td><input type="text" data-i="${i}" data-f="business_unit" value="${esc(r.business_unit)}" placeholder="Unit"></td>
-            <td><input type="text" data-i="${i}" data-f="team" value="${esc(r.team)}" placeholder="Team"></td>
-            <td class="col-rm"><button class="rm-btn" data-rm="${i}" type="button" title="Remove">\u00d7</button></td>
+            <td data-label="Email"><input type="email" aria-label="Recipient ${i+1} email" data-i="${i}" data-f="email" value="${esc(r.email)}" placeholder="name@org.com"></td>
+            <td data-label="Name"><input type="text" aria-label="Recipient ${i+1} name" data-i="${i}" data-f="full_name" value="${esc(r.full_name)}" placeholder="Full name"></td>
+            <td data-label="Business unit"><input type="text" aria-label="Recipient ${i+1} business unit" data-i="${i}" data-f="business_unit" value="${esc(r.business_unit)}" placeholder="Unit"></td>
+            <td data-label="Team"><input type="text" aria-label="Recipient ${i+1} team" data-i="${i}" data-f="team" value="${esc(r.team)}" placeholder="Team"></td>
+            <td class="col-rm"><button class="rm-btn" data-rm="${i}" type="button" title="Remove recipient ${i+1}" aria-label="Remove recipient ${i+1}">\u00d7</button></td>
           </tr>`
         )).join("");
       }

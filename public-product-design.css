@@ -77,7 +77,10 @@
   body.product-surface .ps-tier-trigger {
     background: #F4F7F8;
     border-color: #DCE5E8;
+    padding: 16px 18px;
+    border-radius: 7px;
   }
+  body.product-surface .ps-roi-card .n { color: #A9D0D4; }
   body.product-surface .ps-price .amt { font-variant-numeric: tabular-nums; }
   body.product-surface :is(.ps-free, .ps-faq-item) {
     background: #F4F7F8;
@@ -96,6 +99,42 @@
   body.product-surface :is(input, select, textarea):focus-visible {
     outline: 3px solid #087F8C;
     outline-offset: 2px;
+  }
+
+  /* Trust uses the same content edges as its hero; only prose is constrained. */
+  body.product-surface.page-trust .section {
+    width: 100%;
+    max-width: none;
+    padding-block: 48px;
+    border-top: 0;
+    background: #FFFFFF;
+  }
+  body.product-surface.page-trust .hero ~ .section:nth-of-type(odd) {
+    background: #F4F7F8;
+  }
+  body.product-surface.page-trust .section-inner {
+    max-width: var(--mdm-hero-max);
+    padding-inline: clamp(20px, 4vw, 56px);
+  }
+  body.product-surface.page-trust .section h2 {
+    max-width: 30ch;
+    margin: 0 0 20px;
+    font-size: clamp(1.75rem, 2.4vw, 2.125rem);
+    line-height: 1.15;
+  }
+  body.product-surface.page-trust .section p:not(.section-eyebrow) {
+    max-width: 760px;
+    color: #40575E;
+    font-size: 1.025rem;
+    line-height: 1.7;
+  }
+  body.product-surface.page-trust .section-eyebrow {
+    margin: 0 0 12px;
+    font-size: .7rem;
+    line-height: 1.4;
+  }
+  @media (max-width: 640px) {
+    body.product-surface.page-trust .section { padding-block: 36px; }
   }
   @media (prefers-reduced-motion: reduce) {
     body.product-surface :is(.btn, .ps-btn, .dx-btn) { transition: none; }

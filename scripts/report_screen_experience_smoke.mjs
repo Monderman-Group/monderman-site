@@ -132,14 +132,35 @@ await page.locator('.sample-library-method summary').click();
 for(const key of ['os','dv','sc','ip','synthesis','depth']) {
   await page.locator(`[data-target="${key}"]`).click();
   const shell=page.locator(`[data-report="${key}"]`);
+  const surface=await shell.evaluate(root=>{
+    const css=selector=>getComputedStyle(root.querySelector(selector));
+    const method=css('.mr-run-method,.mr-meta-method');
+    return {
+      titleMargin:css('.mr-cover-title').marginTop,
+      headingWidth:css('.mr-section h2').maxWidth,
+      methodHeadingTop:css('.mr-run-method>h2,.mr-meta-method>h2').marginTop,
+      methodPadding:parseFloat(method.paddingLeft),
+      methodBackground:method.backgroundColor,
+      categories:[...root.querySelectorAll('.mr-run-metric[data-tone="amber"],.mr-action-step[data-tier="behavioral"]')].map(node=>getComputedStyle(node).borderTopColor)
+    };
+  });
+  assert.equal(surface.titleMargin,'0px',key+' cover heading gained editorial top spacing');
+  assert.equal(surface.headingWidth,'none',key+' compact heading kept oversized-type line restriction');
+  assert.equal(surface.methodHeadingTop,'0px',key+' section heading doubles its parent spacing');
+  assert.ok(surface.methodPadding>=18,key+' method panel has no inner horizontal spacing');
+  assert.equal(surface.methodBackground,'rgb(244, 247, 248)',key+' method panel uses a legacy paper surface');
+  assert.ok(surface.categories.length && surface.categories.every(color=>color==='rgb(94, 127, 152)'),key+' category accents use warning orange');
   const destinations=await shell.locator('.mr-screen-shortcuts a').evaluateAll(links=>links.map(link=>({text:link.textContent,id:link.hash.slice(1),exists:!!document.getElementById(link.hash.slice(1))})));
   assert.ok(destinations.length>=4 && destinations.every(link=>link.exists),key+' missing navigation target');
   const next=shell.locator('.mr-screen-next a');
   assert.equal(await next.count(),1,key+' missing supported action destination');
   await next.click();
   assert.ok(await next.evaluate(link=>document.activeElement?.id===link.getAttribute('href').slice(1)),key+' action destination cannot be reached');
+  assert.equal(await page.locator('.report-sheet>.dx-tabs-wrap').evaluate(node=>getComputedStyle(node).position),'relative','product tabs compete with report navigation for the same sticky position');
+  assert.ok(await shell.locator('.mr-screen-nav').evaluate(node=>node.getBoundingClientRect().top>=document.querySelector('.header').getBoundingClientRect().bottom),key+' sticky navigation overlaps the fixed site header');
   await page.setViewportSize({width:390,height:844});
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),key+' mobile overflow');
+  assert.equal(await shell.locator('.mr-screen-contents').isVisible(),false,key+' duplicates the mobile section selector');
   await shell.locator('.mr-cover').screenshot({path:path.join(out,key+'-cover-mobile.png')});
   await page.setViewportSize({width:1440,height:1000});
 }
@@ -191,6 +212,37 @@ for (const product of ['operational-systems','decision-velocity','structural-cla
   const binding=source.slice(start,source.indexOf('\nfunction ',start+10));
   await direct.evaluate(code=>new Function('$',code+';renderAccordionBindings();')(id=>document.getElementById(id)),binding);
   await direct.addScriptTag({content:fs.readFileSync('report-screen-experience.js','utf8')});
+  if(product==='structural-clarity'||product==='institutional-performance') {
+    const chartStart=source.indexOf('function renderClarityDimensionBars(');
+    const chartCode=source.slice(chartStart,source.indexOf('\nfunction ',chartStart+10));
+    const result=JSON.parse(fs.readFileSync('sample-data/production-diagnostic-samples.json','utf8')).outputs[product.replaceAll('-','_')].result;
+    await direct.evaluate(({code,result})=>new Function('$','result',code+'\nrenderClarityDimensionBars(result);')(id=>document.getElementById(id),result),{code:chartCode,result});
+    const bars=direct.locator('#clarityDimensionBars .bar-fill');
+    assert.equal(await bars.count(),5,product+' fixture did not render the actual dimension chart');
+    assert.ok((await bars.evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).backgroundColor))).every(color=>color==='rgb(8, 127, 140)'),product+' dimension categories retain decorative warning colors');
+    await direct.emulateMedia({media:'print'});
+    assert.ok((await bars.evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).backgroundColor))).includes('rgb(201, 130, 31)'),product+' category restyle changed the original print chart');
+    await direct.emulateMedia({media:'screen'});
+  }
+  const spacing=await direct.evaluate(()=>{
+    const css=selector=>getComputedStyle(document.querySelector(selector));
+    return {
+      findingTop:css('.finding-lead').marginTop,
+      findingBottom:css('.finding-lead').marginBottom,
+      contextTop:css('.score-meta-strip').marginTop,
+      closedBodyPadding:css('.accordion-section:not(.open) .accordion-body').paddingBottom,
+      reference:css('.industry-range').backgroundColor
+    };
+  });
+  assert.equal(spacing.findingTop,'0px',product+' finding has inherited paragraph top margin');
+  assert.equal(spacing.findingBottom,'0px',product+' finding has inherited paragraph bottom margin');
+  assert.equal(spacing.contextTop,'0px',product+' context strip doubles the grid gap');
+  assert.equal(spacing.closedBodyPadding,'0px',product+' collapsed accordion has phantom body spacing');
+  assert.equal(spacing.reference,'rgba(94, 127, 152, 0.18)',product+' reference range looks like a warning');
+  if(product==='decision-velocity') {
+    const pilot=await direct.locator('.pilot-result-invitation').evaluate(node=>({margin:getComputedStyle(node).marginTop,background:getComputedStyle(node).backgroundColor,buttonBackground:getComputedStyle(node.querySelector('.btn')).backgroundColor,buttonColor:getComputedStyle(node.querySelector('.btn')).color}));
+    assert.deepEqual(pilot,{margin:'0px',background:'rgb(244, 247, 248)',buttonBackground:'rgb(8, 127, 140)',buttonColor:'rgb(255, 255, 255)'},'pilot invitation spacing or primary contrast regressed');
+  }
   const evidence=direct.locator('.rsx-nav button').filter({hasText:/^Evidence$/});
   assert.equal(await evidence.isVisible(),false,product+' unavailable evidence has a dead shortcut');
   const contrast=await direct.locator('.finding-lead,.finding-body,.score-band,.score-summary,.insight-depth-label,.insight-depth-value,.insight-depth-copy,.score-panel .score-number,.score-panel .score-kicker,.score-panel .score-badge,.score-panel .score-meta-pill').evaluateAll(nodes=>{
@@ -205,6 +257,7 @@ for (const product of ['operational-systems','decision-velocity','structural-cla
   assert.ok(contrast.length>=7 && contrast.every(item=>item.ratio>=4.5),product+' insufficient result contrast: '+JSON.stringify(contrast));
   await direct.locator('.rsx-nav button').filter({hasText:/^Actions$/}).click();
   assert.ok(await direct.locator('[data-accordion="remedy"]').evaluate(el=>el.classList.contains('open')),product+' actions shortcut did not open existing accordion');
+  assert.equal(await direct.locator('[data-accordion="remedy"] .accordion-body').evaluate(el=>getComputedStyle(el).paddingBottom),'22px',product+' open accordion lost inner spacing');
   assert.ok(await direct.locator('[data-accordion="remedy"] .accordion-header').evaluate(el=>document.activeElement===el),product+' actions shortcut did not move focus');
   await direct.locator('.rsx-nav button').filter({hasText:/^Overview$/}).click();
   assert.ok(await direct.locator('.score-panel').evaluate(el=>document.activeElement===el),product+' overview did not move focus');
@@ -234,4 +287,4 @@ for (const product of ['operational-systems','decision-velocity','structural-cla
 }
 await verifyAIScreenRefresh(browser);
 await browser.close();
-console.log('REPORT_SCREEN_EXPERIENCE_PASS all6 navigation, originalBodyParity, uniqueMounts, immutableModels, mobile, printControls; all4 direct textContrast, availability, focus, accordion, exportExclusion');
+console.log('REPORT_SCREEN_EXPERIENCE_PASS all6 navigation, spacing, coolCategoryColors, originalBodyParity, uniqueMounts, immutableModels, mobile, printControls; all4 direct spacing, textContrast, availability, focus, accordion, exportExclusion');

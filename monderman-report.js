@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-screen-20260909.18";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-screen-20260909.19";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -725,7 +725,14 @@
     if (!strictFinite(read.min) || !strictFinite(read.max) || !strictFinite(read.median) || iqr.length < 2 || !strictFinite(iqr[0]) || !strictFinite(iqr[1])) return "";
     const W = 680, L = 52, R = 28, plotW = W - L - R;
     const segments = arr(read.segments).filter((s) => strictFinite(obj(s).mean_score) || strictFinite(obj(s).median_score));
-    const H = 148 + segments.length * 36;
+    const segmentRows = segments.map((segment) => {
+      const s = obj(segment), hasMean = strictFinite(s.mean_score), hasMedian = strictFinite(s.median_score);
+      // A missing statistic is not interchangeable with the other statistic.
+      // Long or right-edge value labels get their own row within the chart.
+      const labelBelow = !hasMean || !hasMedian || Number(s.mean_score) > 70;
+      return { s, hasMean, hasMedian, labelBelow, height: labelBelow ? 54 : 36 };
+    });
+    const H = 148 + segmentRows.reduce((height, row) => height + row.height, 0);
     const axisY = 72;
     const X = (v) => synthAxisX(v, L, plotW);
     let svg = '<svg class="mr-synth-chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Depth Synthesis score distribution" style="display:block;width:100%;height:auto;font-family:Neue Haas Grotesk,Helvetica Neue,Helvetica,Arial,sans-serif">';
@@ -742,16 +749,18 @@
     if (strictFinite(read.mean)) svg += '<circle cx="' + X(read.mean) + '" cy="' + axisY + '" r="5" fill="#C9821F" stroke="#fff" stroke-width="1.5"/>';
     svg += '<text x="' + X(read.median) + '" y="' + (axisY+34) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#08383E">median ' + esc(fmt1(read.median)) + '</text>';
     svg += '<text x="' + L + '" y="' + (axisY+55) + '" font-size="11" fill="#6E6F73">Range ' + esc(fmt1(read.min)) + '–' + esc(fmt1(read.max)) + ' · IQR ' + esc(fmtPair(read.iqr, fmt1)) + (strictFinite(read.sd) ? ' · sample sd ' + esc(fmt1(read.sd)) : '') + '</text>';
-    segments.forEach((segment, index) => {
-      const s = obj(segment);
-      const y = 146 + index * 36;
-      const mean = strictFinite(s.mean_score) ? Number(s.mean_score) : Number(s.median_score);
-      const med = strictFinite(s.median_score) ? Number(s.median_score) : mean;
+    let segmentY = 146;
+    segmentRows.forEach(({ s, hasMean, hasMedian, labelBelow, height }) => {
+      const y = segmentY;
+      segmentY += height;
+      const mean = hasMean ? Number(s.mean_score) : null;
+      const med = hasMedian ? Number(s.median_score) : null;
+      svg += '<g class="mr-depth-segment-plot">';
       svg += '<text x="' + L + '" y="' + (y+4) + '" font-size="12" font-weight="600" fill="#18191C">' + esc(humanize(s.participant_mode)) + ' · n=' + esc(fmtWhole(s.n)) + '</text>';
       svg += '<line x1="' + X(0) + '" y1="' + (y+14) + '" x2="' + X(100) + '" y2="' + (y+14) + '" stroke="rgba(24,25,28,.09)"/>';
-      svg += '<circle cx="' + X(mean) + '" cy="' + (y+14) + '" r="6" fill="#0C6E78"/>';
-      svg += '<circle cx="' + X(med) + '" cy="' + (y+14) + '" r="3" fill="#fff" stroke="#08383E" stroke-width="2"/>';
-      svg += '<text x="' + Math.min(W-R, X(mean)+12) + '" y="' + (y+18) + '" font-size="11" fill="#6E6F73">mean ' + esc(fmt1(mean)) + ' · median ' + esc(fmt1(med)) + '</text>';
+      if (hasMean) svg += '<circle class="mr-depth-segment-mean" cx="' + X(mean) + '" cy="' + (y+14) + '" r="6" fill="#0C6E78"/>';
+      if (hasMedian) svg += '<circle class="mr-depth-segment-median" cx="' + X(med) + '" cy="' + (y+14) + '" r="3" fill="#fff" stroke="#08383E" stroke-width="2"/>';
+      svg += '<text class="mr-depth-segment-label" x="' + (labelBelow ? W-R : X(mean)+12) + '" y="' + (y+(labelBelow ? 36 : 18)) + '" text-anchor="' + (labelBelow ? 'end' : 'start') + '" font-size="11" fill="#6E6F73">mean ' + esc(hasMean ? fmt1(mean) : 'Not available') + ' · median ' + esc(hasMedian ? fmt1(med) : 'Not available') + '</text></g>';
     });
     svg += '</svg>';
     // A fixed-width SVG scaled into a phone panel makes its labels unreadable.
@@ -763,11 +772,11 @@
         .map(([label,value]) => '<div><dt>' + esc(label) + '</dt><dd>' + esc(value) + '</dd></div>').join('') + '</dl>' +
       (segments.length ? '<div class="mr-synth-segment-list">' + segments.map((segment) => {
         const s = obj(segment);
-        const mean = strictFinite(s.mean_score) ? Number(s.mean_score) : Number(s.median_score);
-        const median = strictFinite(s.median_score) ? Number(s.median_score) : mean;
+        const mean = strictFinite(s.mean_score) ? fmt1(s.mean_score) : 'Not available';
+        const median = strictFinite(s.median_score) ? fmt1(s.median_score) : 'Not available';
         return '<div class="mr-synth-segment"><strong>' + esc(humanize(s.participant_mode)) + '</strong><span>' +
           esc(fmtWhole(s.n)) + (Number(s.n) === 1 ? ' submitted run' : ' submitted runs') + '</span><dl class="mr-synth-stat-list"><div><dt>Mean</dt><dd>' +
-          esc(fmt1(mean)) + '</dd></div><div><dt>Median</dt><dd>' + esc(fmt1(median)) + '</dd></div></dl></div>';
+          esc(mean) + '</dd></div><div><dt>Median</dt><dd>' + esc(median) + '</dd></div></dl></div>';
       }).join('') + '</div>' : '') + '</div>';
     return '<div class="mr-viz-panel mr-depth-distribution-panel"><div class="mr-viz-title">Distribution at a glance</div>' + svg + summary + '<p class="mr-copy"><span class="mr-synth-wide-caption">Box = interquartile range; dark line = median; amber dot = mean. </span>Vantage results describe observed segments and do not reweight the Median Diagnostic Score.</p></div>';
   }
@@ -2153,7 +2162,7 @@
       .mr-report .mr-cover-dark{padding:23px 26px 20px;background:#07343A}
       .mr-report .mr-cover-mark{margin:0 0 9px!important;font-size:.62rem!important;letter-spacing:.14em;color:#A6D6D8!important}
       .mr-report .mr-cover-rule{display:none}
-      .mr-report .mr-cover-title{max-width:none;font-size:clamp(1.55rem,2.7vw,2rem)!important;line-height:1.12!important;letter-spacing:-.03em!important}
+      .mr-report .mr-cover-title{margin:0!important;max-width:none;font-size:clamp(1.55rem,2.7vw,2rem)!important;line-height:1.12!important;letter-spacing:-.03em!important}
       .mr-report .mr-cover-sub{max-width:90ch;font-size:.86rem!important;line-height:1.5!important;margin-top:10px!important;color:#CEE1E3!important}
       .mr-report .mr-cover-stripe{height:2px;background:#15949F}
       .mr-report .mr-cover-white{padding:22px 26px 24px}
@@ -2175,12 +2184,16 @@
       .mr-report .mr-screen-action:hover{background:#066C78}
       .mr-report .mr-section,.mr-report .mr-ai-inline{scroll-margin-top:145px}
       .mr-report .mr-cover{scroll-margin-top:145px}
-      .mr-report .mr-section>h2,.mr-report .mr-run-headline h2{font-size:1.35rem!important;line-height:1.22!important;max-width:none}
+      .mr-report .mr-section>h2,.mr-report .mr-run-headline h2{margin-top:0!important;font-size:1.35rem!important;line-height:1.22!important;letter-spacing:-.025em!important;max-width:none!important}
       .mr-report .mr-section+.mr-section{margin-top:32px;padding-top:28px;border-color:#DCE5E8}
       .mr-report .mr-exec-lede,.mr-report .mr-lede{font-size:.94rem!important;line-height:1.6!important}
       .mr-report .mr-section-index{letter-spacing:.08em;font-size:.66rem}
       .mr-report .mr-run-metrics,.mr-report .mr-evidence-summary{border-color:#DCE5E8;background:#F4F7F8;border-radius:9px}
       .mr-report .mr-run-metric{padding:16px}
+      /* Categories use a cool palette; warning and score-band colors are retained. */
+      .mr-report .mr-run-metric[data-tone="amber"],.mr-report .mr-decision-metric:nth-child(2),.mr-report .mr-action-step[data-tier="behavioral"]{border-top-color:#5E7F98}
+      .mr-report .mr-action[data-tier="behavioral"],.mr-report .mr-indicator-tile[data-lens="sc"]{border-left-color:#5E7F98}
+      .mr-report .mr-action[data-tier="behavioral"] .mr-action-num{color:#4F708A}
       .mr-report .mr-run-metric-value{font-size:1.25rem;line-height:1.2}
       .mr-report .mr-lens-label{letter-spacing:.08em;color:#526D75}
       .mr-report .mr-viz-panel,.mr-report .mr-constraint-view{border-color:#DCE5E8;border-radius:9px;background:#FAFCFC}
@@ -2188,12 +2201,15 @@
       .mr-report .mr-dimension-track>span{background:#087F8C}
       .mr-report .mr-dimension-row.is-primary{background:#EAF4F5;border-color:#A3CFD2}
       .mr-report .mr-run-decision-story{border-color:#DCE5E8;background:#fff}
-      .mr-report .mr-run-score-stamp{border-color:#DCE5E8;background:#F4F7F8;border-radius:10px}
+      .mr-report .mr-run-headline{gap:24px}
+      .mr-report .mr-run-score-stamp{padding:16px;border:1px solid #DCE5E8;border-bottom:3px solid #087F8C;background:#F4F7F8;border-radius:10px;justify-items:start}
       .mr-report .mr-run-score-stamp strong{color:#07343A;font-size:2.7rem}
       .mr-report .mr-leadership-close{padding:24px!important;border-color:#9ACBD0!important;background:#F2F8F8!important}
       .mr-report .mr-leadership-close>h2{font-size:1.45rem!important;max-width:none!important}
       .mr-report .mr-report-boundary,.mr-report .mr-run-method,.mr-report .mr-meta-method{background:#F4F7F8;border-color:#DCE5E8}
-      .mr-report .mr-remeasurement-note,.mr-report .mr-remedy-tradeoffs>div{background:#F4F7F8}
+      .mr-report .mr-section.mr-run-method,.mr-report .mr-section.mr-meta-method{padding:24px;border:1px solid #DCE5E8;border-radius:10px}
+      .mr-report .mr-remeasurement-note,.mr-report .mr-remedy-tradeoffs>div,.mr-report .mr-run-findings,.mr-report .mr-run-actions,.mr-report .mr-priority-matrix,.mr-report .mr-evidence-boundary,.mr-report .mr-map-pattern,.mr-report .mr-compounding-read,.mr-report .callout{background:#F4F7F8;border-color:#DCE5E8;border-left-color:#087F8C}
+      .mr-report .mr-run-decision-story>div:first-child,.mr-report .mr-system-decision>div+div,.mr-report .mr-depth-reading-grid>div+div,.mr-report .mr-decision-story>div+div,.mr-report .mr-interaction-head{background:#F4F7F8}
       @media(max-width:760px){
         .mr-report .mr-page{padding:16px 18px 32px}
         .mr-screen-nav{align-items:flex-start;gap:5px;margin-bottom:16px;font-size:.73rem}
@@ -2203,6 +2219,8 @@
         .mr-report .mr-cover-score:not(.mr-cover-score-status){font-size:3rem}
         .mr-report .mr-cover-score-copy{min-width:0}
         .mr-report .mr-cover-meta{grid-template-columns:repeat(2,minmax(0,1fr))}
+        .mr-report .mr-section.mr-run-method,.mr-report .mr-section.mr-meta-method{padding:18px}
+        .mr-report .mr-run-headline{gap:16px}
         .mr-screen-next{flex-direction:column;align-items:stretch;gap:12px}
         .mr-report .mr-screen-action{width:fit-content}
       }
