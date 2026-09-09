@@ -65,22 +65,82 @@ function contrastOnBrand(color, backgrounds = []) {
   const values = [luminance(text), luminance(backdrop)].sort((a, b) => a - b);
   return (values[1] + .05) / (values[0] + .05);
 }
-async function surfaceState(page) {
-  return page.locator(surfaceSelector).evaluateAll(els => els.map(el => {
-    const style = getComputedStyle(el);
-    const box = el.getBoundingClientRect();
-    return {
-      selector: el.tagName.toLowerCase() + '.' + [...el.classList].join('.'),
-      background: style.backgroundImage, color: style.backgroundColor,
-      position: style.backgroundPosition, size: style.backgroundSize,
-      repeat: style.backgroundRepeat, blend: style.backgroundBlendMode,
-      width: box.width, height: box.height, display: style.display,
-      pseudos: ['::before', '::after'].map(pseudo => {
-        const s = getComputedStyle(el, pseudo);
-        return { pseudo, display: s.display, content: s.content, background: s.backgroundImage, color: s.backgroundColor };
-      }),
-    };
-  }));
+async function surfaceState(page, comparePrint = false) {
+  return page.evaluate(({ selector, comparePrint }) => {
+    const capture = () => [...document.querySelectorAll(selector)].map(el => {
+      const style = getComputedStyle(el);
+      const box = el.getBoundingClientRect();
+      return {
+        selector: el.tagName.toLowerCase() + '.' + [...el.classList].join('.'),
+        background: style.backgroundImage, color: style.backgroundColor,
+        position: style.backgroundPosition, size: style.backgroundSize,
+        repeat: style.backgroundRepeat, blend: style.backgroundBlendMode,
+        width: box.width, height: box.height, display: style.display,
+        pseudos: ['::before', '::after'].map(pseudo => {
+          const s = getComputedStyle(el, pseudo);
+          return { pseudo, display: s.display, content: s.content, background: s.backgroundImage, color: s.backgroundColor };
+        }),
+      };
+    });
+    if (!comparePrint) return capture();
+
+    const sheet = [...document.styleSheets].find(sheet => sheet.href?.includes('/brand-surfaces.css'));
+    if (!matchMedia('print').matches || !sheet || sheet.disabled) throw new Error('Print comparison requires print media and the enabled brand stylesheet');
+    // Keep the causal comparison in one task: font events, auth/bootstrap callbacks,
+    // and media listeners cannot interleave with the three forced style/layout reads.
+    const enabled = capture();
+    let disabled;
+    try {
+      sheet.disabled = true;
+      disabled = capture();
+    } finally {
+      sheet.disabled = false;
+    }
+    return { enabled, disabled, restored: capture() };
+  }, { selector: surfaceSelector, comparePrint });
+}
+function surfaceDifferences(before, after) {
+  const differences = [];
+  const visit = (left, right, location) => {
+    if (Object.is(left, right)) return;
+    if (left && right && typeof left === 'object' && typeof right === 'object') {
+      for (const key of new Set([...Object.keys(left), ...Object.keys(right)])) visit(left[key], right[key], `${location}.${key}`);
+    } else differences.push(`${location}: ${JSON.stringify(left)} -> ${JSON.stringify(right)}`);
+  };
+  if (before.length !== after.length) differences.push(`surface count: ${before.length} -> ${after.length}`);
+  for (let index = 0; index < Math.max(before.length, after.length); index++) {
+    visit(before[index], after[index], `surface[${index}] ${before[index]?.selector ?? after[index]?.selector}`);
+  }
+  return differences;
+}
+async function waitForStablePrint(page, label) {
+  await page.waitForFunction(() => matchMedia('print').matches);
+  await page.evaluate(async () => {
+    // Print styles may select fonts that were unused by the screen layout.
+    document.documentElement.getBoundingClientRect();
+    await document.fonts.ready;
+  });
+  const deadline = Date.now() + 5000;
+  let previous;
+  let lastDifferences = [];
+  let stableSince = Date.now();
+  let stableFrames = 0;
+  while (Date.now() < deadline) {
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(resolve)));
+    const current = await surfaceState(page);
+    const fontsLoaded = await page.evaluate(() => document.fonts.status === 'loaded');
+    const differences = previous ? surfaceDifferences(previous, current) : ['initial print layout'];
+    if (fontsLoaded && differences.length === 0) {
+      stableFrames++;
+      if (stableFrames >= 3 && Date.now() - stableSince >= 100) return;
+    } else {
+      stableSince = Date.now();
+      stableFrames = 0;
+      lastDifferences = differences;
+    }
+    previous = current;
+  }
+  throw new Error(`${label}: print layout did not stabilize with loaded fonts:\n${lastDifferences.join('\n')}`);
 }
 
 for (const [engineName, engine] of [['chromium', chromium], ['webkit', webkit]]) {
@@ -162,18 +222,18 @@ for (const [engineName, engine] of [['chromium', chromium], ['webkit', webkit]])
         }
         if (width === 1440 && printPages.has(file) && loading.loaded) {
           await page.emulateMedia({ media: 'print' });
-          await page.evaluate(() => document.fonts.ready);
           if (file === 'the-culture-trap-brief.html') await page.waitForFunction(() => getComputedStyle(document.querySelector('.publication-hero')).backgroundColor === 'rgb(255, 255, 255)', null, { timeout: 3000 });
+          await waitForStablePrint(page, label);
           const media = await page.evaluate(() => {
             const sheet = [...document.styleSheets].find(sheet => sheet.href?.includes('/brand-surfaces.css'));
             return { print: matchMedia('print').matches, rules: [...sheet.cssRules].map(rule => rule.media?.mediaText ?? 'outside media') };
           });
           check(media.print && media.rules.length === 1 && media.rules[0] === 'screen', `${label}: brand declarations escaped screen-only isolation`);
-          const printWithBrand = await surfaceState(page);
-          await page.evaluate(() => { [...document.styleSheets].find(sheet => sheet.href?.includes('/brand-surfaces.css')).disabled = true; });
-          const printWithoutBrand = await surfaceState(page);
-          check(JSON.stringify(printWithBrand) === JSON.stringify(printWithoutBrand), `${label}: shared brand stylesheet changes printed surfaces or geometry`);
-          await page.evaluate(() => { [...document.styleSheets].find(sheet => sheet.href?.includes('/brand-surfaces.css')).disabled = false; });
+          const print = await surfaceState(page, true);
+          const disabledDifferences = surfaceDifferences(print.enabled, print.disabled);
+          const restoredDifferences = surfaceDifferences(print.enabled, print.restored);
+          check(disabledDifferences.length === 0, `${label}: disabling shared brand CSS changes printed surfaces or geometry:\n${disabledDifferences.join('\n')}`);
+          check(restoredDifferences.length === 0, `${label}: restoring shared brand CSS changes printed surfaces or geometry:\n${restoredDifferences.join('\n')}`);
           await page.emulateMedia({ media: 'screen' });
         }
       }
