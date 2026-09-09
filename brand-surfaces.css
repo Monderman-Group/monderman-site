@@ -1,0 +1,53 @@
+/* One brand background for page heroes and site footers. Load after page styles.
+   The Workspace preview, report content, and printed documents keep their own surfaces. */
+@media screen {
+  :root {
+    --monderman-brand-surface:
+      radial-gradient(circle at 84% 18%, rgba(12, 110, 120, .16), transparent 34%),
+      linear-gradient(142deg, #073338 0%, #05292E 56%, #04181B 100%);
+  }
+
+  body.canonical-green-shell :is(.hero, .article-hero, .ps-hero, .pl-top),
+  body.canonical-green-shell > main.deck > .slide.cover,
+  body.page-report > main.shell > .hero,
+  footer.mond-footer {
+    background-color: #04181B !important;
+    background-image: var(--monderman-brand-surface) !important;
+    background-position: 0% 0% !important;
+    background-size: auto !important;
+    background-repeat: no-repeat !important;
+    background-attachment: scroll !important;
+    background-blend-mode: normal !important;
+  }
+
+  /* Legacy gradients, textures, and edge strips must not tint the shared surface. */
+  body.canonical-green-shell :is(.hero, .article-hero, .ps-hero, .pl-top)::before,
+  body.canonical-green-shell :is(.hero, .article-hero, .ps-hero, .pl-top)::after,
+  body.canonical-green-shell > main.deck > .slide.cover::before,
+  body.canonical-green-shell > main.deck > .slide.cover::after,
+  body.page-report > main.shell > .hero::before,
+  body.page-report > main.shell > .hero::after,
+  footer.mond-footer::before,
+  footer.mond-footer::after {
+    content: none !important;
+    display: none !important;
+    background: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Small footer labels remain readable over the brightest part of the gradient. */
+  footer.mond-footer :is(.mf-col-title, .mf-copyright) {
+    color: rgba(255, 255, 255, .64) !important;
+  }
+
+  /* These legacy labels used the teal intended for light surfaces. */
+  body.canonical-green-shell .hero > .wrap > .eyebrow,
+  body.research-page .hero :is(.eyebrow, .hs-label) {
+    color: #A9D0D4 !important;
+  }
+
+  /* These empty homepage layers formerly supplied the photographic scrim. */
+  body.homepage-enterprise .hero > :is(.hero-scrim, .hero-media-wrap) {
+    display: none !important;
+  }
+}

@@ -50,11 +50,14 @@
       footerBrand.querySelectorAll(".mf-dot").forEach((dot) => dot.remove());
       restoreWordmarkPeriod(footerBrand.querySelector(".mf-name"));
       const footerPanel = footerBrand.closest(".mf-brand");
-      if (footerPanel && !footerPanel.querySelector(".mf-tagline")) {
-        const tagline = document.createElement("p");
-        tagline.className = "mf-tagline";
-        tagline.textContent = "See how work and decisions move.";
-        footerBrand.insertAdjacentElement("afterend", tagline);
+      if (footerPanel) {
+        let tagline = footerPanel.querySelector(".mf-tagline");
+        if (!tagline) {
+          tagline = document.createElement("p");
+          tagline.className = "mf-tagline";
+          footerBrand.insertAdjacentElement("afterend", tagline);
+        }
+        tagline.textContent = "Make the work clearer. Make the next move count.";
       }
     });
     document.querySelectorAll(".mond-footer .mf-copy").forEach((copy) => {

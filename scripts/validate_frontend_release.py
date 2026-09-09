@@ -128,13 +128,20 @@ else:
  if 'latest-card-image"><img' in latest:e.append('homepage research carousel legacy image tile remains')
  for token in ['Built to Please','Why Consumer AI Tells You What You Want to Hear','Series, Part 3','Monderman_Insight_Built_to_Please_2026-09-02.pdf']:
   if token not in latest:e.append('homepage Built to Please card '+token)
- tuned_pos=latest.find('<h3 class="latest-card-title">Nothing Stays Tuned</h3>')
+ # Titles may carry a print-only modifier while the cover owns the screen heading.
+ # Preserve publication identity and order independently of additional CSS classes.
+ latest_titles=[(match.group(3).strip(),match.start())
+  for match in re.finditer(r'<h3\b[^>]*\sclass\s*=\s*(["\'])(.*?)\1[^>]*>(.*?)</h3>',latest,re.I|re.S)
+  if 'latest-card-title' in match.group(2).split()]
+ def latest_title_position(title):
+  return next((position for text,position in latest_titles if text==title),-1)
+ tuned_pos=latest_title_position('Nothing Stays Tuned')
  if tuned_pos<0:e.append('Nothing Stays Tuned homepage Perspective missing')
- new_perspective_pos=latest.find('<h3 class="latest-card-title">We Gave Bureaucracy the Fastest Tools in History. It Got Slower.</h3>')
- unmeasured_pos=latest.find('<h3 class="latest-card-title">The Unmeasured Layer</h3>')
+ new_perspective_pos=latest_title_position('We Gave Bureaucracy the Fastest Tools in History. It Got Slower.')
+ unmeasured_pos=latest_title_position('The Unmeasured Layer')
  if not (0<=tuned_pos<new_perspective_pos<unmeasured_pos):e.append('homepage new perspective placement')
  series_cards=['Merit After the Machine','Every Node for Itself','Built to Please']
- series_positions=[latest.find('<h3 class="latest-card-title">'+title+'</h3>') for title in series_cards]
+ series_positions=[latest_title_position(title) for title in series_cards]
  if not (all(pos>=0 for pos in series_positions) and series_positions==sorted(series_positions)):
   e.append('homepage series carousel reading order')
  for part in ['Series, Part 1','Series, Part 2','Series, Part 3']:

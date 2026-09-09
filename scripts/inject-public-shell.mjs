@@ -17,7 +17,7 @@ const shellScriptPattern = /<script\b[^>]*\bsrc=["']canonical-site-shell\.js[^"'
 const motifPattern = /<div\b(?=[^>]*\bclass=["'][^"']*\bmf-motif\b[^"']*["'])[^>]*>[\s\S]*?<\/svg>\s*<\/div>/i;
 const canonicalCssPattern = /canonical-site-shell\.css\?v=[^"']+/g;
 const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
-const shellRelease = "20260909-consistency1";
+const shellRelease = "20260909-brand2";
 const productPages = new Set([
   "diagnostics.html", "platform-services.html", "plan-signal.html", "plan-pattern.html",
   "plan-enterprise.html", "new-in-the-role.html", "after-an-acquisition.html",
@@ -36,6 +36,7 @@ const refreshedAssets = [
   "dv-result-dialog.css", "dv-result-dialog.js",
   "visual-polish.css", "monderman-shell.css", "publication-hero.css", "first-run-moments.css",
   "pilot-waitlist.css", "monderman-depth-lure-tile.css",
+  "brand-surfaces.css",
 ];
 const versionScript = (html, fileName) => html.replace(
   new RegExp(`(["'])${fileName.replace(".", "\\.")}(?:\\?v=[^"']*)?\\1`, "g"),
@@ -59,6 +60,8 @@ for (const entry of await readdir(publishDirectory, { withFileTypes: true })) {
   const path = join(publishDirectory, entry.name);
   let html = await readFile(path, "utf8");
   let changed = false;
+  const usesCanonicalShell = /<body\b[^>]*\bclass=["'][^"']*\bcanonical-green-shell\b/i.test(html)
+    && shellScriptPattern.test(html);
 
   if (diagnosticPages.has(entry.name)) {
     if (!html.includes('href="report-screen-experience.css')) {
@@ -83,6 +86,15 @@ for (const entry of await readdir(publishDirectory, { withFileTypes: true })) {
     }
     if (!html.includes('href="public-product-design.css')) {
       html = html.replace("</head>", `<link rel="stylesheet" href="public-product-design.css?v=${shellRelease}">\n</head>`);
+    }
+    changed = true;
+  }
+
+  // The final screen layer keeps page heroes and public footers on one brand
+  // surface, including the standalone cross-tool report introduction.
+  if (usesCanonicalShell || footerPattern.test(html) || entry.name === "cross-tool-synthesis.html") {
+    if (!html.includes('href="brand-surfaces.css')) {
+      html = html.replace("</head>", `<link rel="stylesheet" href="brand-surfaces.css?v=${shellRelease}">\n</head>`);
     }
     changed = true;
   }
@@ -112,8 +124,6 @@ for (const entry of await readdir(publishDirectory, { withFileTypes: true })) {
     changed = true;
   }
 
-  const usesCanonicalShell = /<body\b[^>]*\bclass=["'][^"']*\bcanonical-green-shell\b/i.test(html)
-    && shellScriptPattern.test(html);
   if (!usesCanonicalShell) {
     if (changed) await writeFile(path, html);
     continue;
