@@ -1,0 +1,69 @@
+/* Screen-only result surfaces. Questionnaire, model and export styles are unchanged. */
+@media screen {
+  #resultsStage { --accent:#087F8C; --dark:#07343A; --ink-soft:#53676E; --ink-muted:#62777E; --paper:#F4F7F8; }
+  #resultsStage .results-layout { gap:20px;grid-template-columns:minmax(0,1fr);min-width:0; }
+  #resultsStage .results-layout>*,#resultsStage .score-inner,#resultsStage .primary-anchor,#resultsStage .score-ref { min-width:0; }
+  #resultsStage .score-panel { background:#fff;border:1px solid #DCE5E8;border-radius:13px;box-shadow:0 2px 6px rgba(4,24,27,.025); }
+  #resultsStage .score-panel { color:#254C54;padding:0; }
+  #resultsStage .score-panel::before { display:none; }
+  #resultsStage .score-inner { padding:28px; }
+  #resultsStage .finding-lead { color:#07343A; }
+  #resultsStage .finding-body,#resultsStage .score-band,#resultsStage .score-summary,#resultsStage .insight-depth-copy { color:#53676E; }
+  #resultsStage .insight-depth-label { color:#53676E; }
+  #resultsStage .insight-depth-value { color:#254C54; }
+  #resultsStage .score-ref .insight-help,#resultsStage .insight-depth-row .insight-help { color:#53676E;border-color:#B4CBCF; }
+  #resultsStage .primary-anchor { gap:28px; }
+  #resultsStage .finding-lead { font-size:clamp(1.5rem,2.5vw,2.1rem);line-height:1.18;letter-spacing:-.032em;max-width:36ch; }
+  #resultsStage .finding-body { font-size:.97rem;line-height:1.6;max-width:75ch; }
+  #resultsStage .score-kicker { font-size:.68rem;letter-spacing:.1em;color:#087F8C; }
+  #resultsStage .score-ref { background:#F4F7F8;border:1px solid #DCE5E8;border-radius:10px;padding:20px; }
+  #resultsStage .score-number { font-size:4rem;line-height:1;color:#07343A;letter-spacing:-.055em; }
+  #resultsStage .score-band { font-size:.92rem; }
+  #resultsStage .score-badge { white-space:normal;max-width:100%;background:#EAF4F5;border-color:#C6DFE2;color:#076773; }
+  #resultsStage .insight-depth-block { border-color:#DCE5E8; }
+  #resultsStage .insight-depth-copy { font-size:.78rem;line-height:1.5; }
+  #resultsStage .score-meta-strip { margin-top:22px;padding-top:16px;border-color:#DCE5E8; }
+  #resultsStage .score-meta-pill { background:#F4F7F8;border-color:#DCE5E8;color:#53676E;border-radius:6px; }
+  #resultsStage :is(.result-card,.diagnosis-card,.viz-card,.economic-card,.reclaim-card,.compact-card,.advisory-card,.export-summary-card,.signal-tile,.remedy-card) { border-radius:10px;border-color:#DCE5E8;box-shadow:none; }
+  #resultsStage .diagnosis-card { background:#fff;padding:18px 20px;border-top:2px solid #6FAEB4; }
+  #resultsStage .summary-label { font-size:.68rem;letter-spacing:.09em;color:#53676E; }
+  #resultsStage .diagnosis-card .summary-value { font-size:1.3rem;line-height:1.25; }
+  #resultsStage .summary-sub { color:#53676E;line-height:1.5; }
+  #resultsStage .viz-card { background:#FBFDFD;padding:22px; }
+  #resultsStage .viz-card h4 { font-size:.9rem; }
+  #resultsStage .accordion-section { border-radius:10px;border:1px solid #DCE5E8;background:#fff;box-shadow:none; }
+  #resultsStage .accordion-header { padding:19px 22px;border-radius:9px; }
+  #resultsStage .accordion-header:hover { background:#F4F8F9; }
+  #resultsStage .accordion-title { font-size:1.03rem;letter-spacing:-.015em;color:#1C444D; }
+  #resultsStage .accordion-sub { color:#62777E;font-size:.8rem;line-height:1.5; }
+  #resultsStage .accordion-chevron { background:#EAF4F5;color:#087F8C;border-radius:6px; }
+  #resultsStage .accordion-body { padding:0 22px 22px; }
+  #resultsStage .accordion-toolbar button { border-color:#DCE5E8;color:#087F8C;border-radius:6px;min-height:38px; }
+  #resultsStage .btn-accent { background:#087F8C;border-color:#087F8C;color:#fff; }
+  #resultsStage :is(.result-card,.chart-card,.opportunity-tile,.quadrant-wrap,.quad-with-yaxis,.grid-2,.actions-left,.actions-right) { min-width:0;max-width:100%; }
+  #resultsStage .btn { white-space:normal;min-width:0;max-width:100%; }
+  #resultsStage .result-copy,#resultsStage .result-list { font-size:.91rem;line-height:1.65; }
+  #resultsStage .result-card h3 { font-size:1rem;line-height:1.3; }
+  #resultsStage .results-disclaimer { background:#F4F7F8;border-color:#DCE5E8;border-radius:8px; }
+  #resultsStage .rsx-nav { display:flex;align-items:center;justify-content:flex-start;gap:5px;flex-wrap:wrap;margin:0;padding:9px 12px;background:#fff;border:1px solid #DCE5E8;border-radius:10px; }
+  #resultsStage .rsx-nav span { padding:8px 12px 8px 5px;color:#62777E;font-size:.7rem; }
+  #resultsStage .rsx-nav button { appearance:none;border:0;background:transparent;color:#315C65;border-radius:6px;padding:10px 12px;min-height:40px;font:500 .8rem/1.3 "Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;cursor:pointer; }
+  #resultsStage .rsx-nav button[hidden] { display:none!important; }
+  #resultsStage .rsx-nav button:hover { background:#EAF4F5;color:#076773; }
+  #resultsStage .rsx-nav button:focus-visible { outline:3px solid #087F8C;outline-offset:2px; }
+  #resultsStage :is(.score-panel,.accordion-section) { scroll-margin-top:94px; }
+  #savedReportRecovery .mr-screen-nav { top:72px; }
+  @media(max-width:760px){
+    #resultsStage .grid-2{grid-template-columns:minmax(0,1fr)}
+    #resultsStage .score-inner{padding:20px}
+    #resultsStage .primary-anchor{gap:20px;grid-template-columns:minmax(0,1fr)}
+    #resultsStage .score-ref{padding:18px}
+    #resultsStage .finding-lead{font-size:1.65rem}
+    #resultsStage .accordion-header{padding:17px 18px}
+    #resultsStage .accordion-body{padding:0 18px 18px}
+    #resultsStage .rsx-nav{gap:0;padding:8px}
+    #resultsStage .rsx-nav span{width:100%;padding:4px 8px 6px}
+    #resultsStage .rsx-nav button{padding:9px 10px;font-size:.76rem}
+  }
+}
+@media print { .rsx-nav { display:none!important; } }

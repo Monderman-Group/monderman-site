@@ -45,7 +45,7 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
     const pilotAccent = await pilotLink.evaluate((node) => getComputedStyle(node).color);
     assert.equal(pilotAccent, "rgb(240, 196, 125)", `${browserName}/${viewport.name}: pilot availability signal is not amber`);
     const heroPrimaryColor = await page.locator(".hero-actions .btn-accent").evaluate((node) => getComputedStyle(node).backgroundColor);
-    const expectedHeroPrimaryColor = viewport.width >= 1181 ? "rgba(0, 0, 0, 0)" : "rgb(169, 208, 212)";
+    const expectedHeroPrimaryColor = "rgb(169, 208, 212)";
     assert.equal(heroPrimaryColor, expectedHeroPrimaryColor, `${browserName}/${viewport.name}: dark-surface action lost its sea-glass treatment`);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     assert.ok(overflow <= 1, `${browserName}/${viewport.name}: homepage overflows by ${overflow}px`);

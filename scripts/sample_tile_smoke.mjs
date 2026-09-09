@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { chromium } from 'playwright';
+const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
 const out = process.env.TILE_OUT || '/tmp/sample-tile-smoke';
@@ -28,6 +28,7 @@ try {
   for (const placement of placements) {
     for (const viewport of viewports) {
       const page = await browser.newPage({ viewport });
+      await page.route('**/*', route => new URL(route.request().url()).origin === new URL(base).origin ? route.continue() : route.abort());
       await page.goto(`${base}${placement.route}`, { waitUntil: 'networkidle', timeout: 90000 });
 
       const tile = page.locator('.hero-report-proof.has-sample-depth-tile');
@@ -41,6 +42,7 @@ try {
         const foot = el.querySelector('.md-foot');
         const slide = el.closest('.slide');
         const hero = el.closest('.hero');
+        const outputBand = el.closest('#sample-output');
         const heroRouteField = hero?.querySelector('.hero-route-field');
         const tileBox = el.getBoundingClientRect();
         const rootBox = root.getBoundingClientRect();
@@ -72,6 +74,8 @@ try {
           heroTop: heroBox?.top ?? null,
           heroBottom: heroBox?.bottom ?? null,
           heroHeight: heroBox?.height ?? null,
+          inOutputBand: !!outputBand,
+          outputBottom: outputBand?.getBoundingClientRect().bottom ?? null,
           hasHeroRouteField: !!heroRouteField,
           rootLeft: rootBox.left,
           rootRight: rootBox.right,
@@ -122,10 +126,10 @@ try {
       if (viewport.name === 'desktop-short') {
         assert(geometry.cardHeight <= 620, `${placement.name}/${viewport.name}: compact report card is too tall (${geometry.cardHeight}px)`);
         if (placement.name === 'homepage') {
-          assert(geometry.heroHeight <= geometry.viewportHeight + 2, `${placement.name}/${viewport.name}: hero exceeds one viewport after the bottom crop (${geometry.heroHeight}px > ${geometry.viewportHeight}px)`);
-          assert(geometry.heroTop >= -1 && geometry.heroBottom <= geometry.viewportHeight + 2, `${placement.name}/${viewport.name}: hero crop boundary escapes the viewport`);
-          assert(geometry.cardTop <= geometry.viewportHeight * 0.27, `${placement.name}/${viewport.name}: hero content remains vertically low (${geometry.cardTop}px)`);
-          assert(geometry.tileBottom <= geometry.viewportHeight + 1, `${placement.name}/${viewport.name}: complete tile falls below the hero viewport (${geometry.tileBottom}px > ${geometry.viewportHeight}px)`);
+          assert.equal(geometry.heroHeight, null, `${placement.name}/${viewport.name}: report unexpectedly returned to the product hero`);
+          assert.equal(geometry.inOutputBand, true, `${placement.name}/${viewport.name}: report lost its dedicated output section`);
+          assert(geometry.cardTop > geometry.viewportHeight * 0.5, `${placement.name}/${viewport.name}: report is competing with the opening product preview`);
+          assert(geometry.tileBottom <= geometry.outputBottom + 1, `${placement.name}/${viewport.name}: report escapes its output section`);
         } else {
           assert(geometry.slideHeight <= geometry.viewportHeight + 2, `${placement.name}/${viewport.name}: report tile expands the snap slide (${geometry.slideHeight}px > ${geometry.viewportHeight}px)`);
           assert(geometry.slideScrollHeight <= geometry.slideClientHeight + 1, `${placement.name}/${viewport.name}: report tile creates internal slide overflow`);

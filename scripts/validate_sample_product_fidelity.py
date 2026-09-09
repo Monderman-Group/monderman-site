@@ -59,8 +59,8 @@ for key, contract in expected.items():
     require(result.get("interpretive_prose", {}).get("executive_summary"), f"{key} executive summary missing")
     require(result.get("canonical_descriptor", {}).get("priority_ladder"), f"{key} canonical priority ladder missing")
 
-require('sample-report-production.css?v=20260824-sample-alignment' in sample, "sample page does not load the aligned production-contract presentation")
-require('sample-report-production.js?v=20260824-sample-alignment2' in sample, "sample page does not load the aligned production-contract renderer")
+require('sample-report-production.css?v=20260909-product-screen' in sample, "sample page does not load the aligned production-contract presentation")
+require('sample-report-production.js?v=20260909-product-screen' in sample, "sample page does not load the aligned production-contract renderer")
 require('sample-data/production-diagnostic-samples.json?v=447cdd78f6fc' in renderer, "renderer does not load the reviewed artifact")
 for key in ["operational_systems", "decision_velocity", "structural_clarity", "institutional_performance"]:
     require(key in renderer, f"renderer omits {key}")
