@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.7";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.8";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -907,9 +907,9 @@
     const isCrossLens = m.product === "cross_lens";
     const cards = arr(m.sourceGroups).map((lens) => {
       return '<div class="mr-lens-card"' + (isCrossLens ? ' role="listitem"' : '') + '><div class="mr-lens-label"' + (isCrossLens ? ' role="heading" aria-level="3"' : '') + '>' + esc(lens.toolLabel) + '</div>' +
-        '<div style="font-family:\"Neue Haas Grotesk\",\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:2rem;font-weight:700;margin:8px 0 4px">' + esc(fmt1(lens.mean)) + '</div>' +
-        '<p class="mr-copy">Mean score · median ' + esc(fmt1(lens.median)) + ' · n=' + esc(fmtWhole(lens.n)) + '</p>' +
-        '<p class="mr-copy">IQR ' + esc(fmtPair(lens.iqr, fmt1)) + ' · range ' + esc(fmtPair(lens.range, fmt1)) + '</p>' +
+        '<div class="mr-contributing-score' + (strictFinite(lens.mean) ? '' : ' is-unavailable') + '">' + esc(fmt1(lens.mean)) + '<span>Mean score</span></div>' +
+        '<p class="mr-copy mr-contributing-meta"><span>Median score: ' + esc(fmt1(lens.median)) + '</span><span>Submitted runs: ' + esc(fmtWhole(lens.n)) + '</span></p>' +
+        '<p class="mr-copy">Middle half of scores: ' + esc(fmtPair(lens.iqr, fmt1)) + '<br>Full score range: ' + esc(fmtPair(lens.range, fmt1)) + '</p>' +
         (lens.driver ? '<span class="mr-pill">' + esc(humanize(lens.driver)) + '</span>' : '') +
       '</div>';
     }).join("");
@@ -1431,12 +1431,12 @@
       return '<section class="mr-section mr-ai-interpretation" aria-live="polite">' + heading + '<p>' + esc(ai.message) + '</p>'+timing+'<p>The measured result remains available. Reopen this saved report to check progress; do not start another diagnostic.</p></section>';
     }
     const report = obj(ai.report), interpretation = obj(report.interpretation);
-    const paragraphs = (items, title) => arr(items).length ? '<h3>' + title + '</h3><ul>' + arr(items).map(item => '<li>' + esc(obj(item).text || item) + '</li>').join('') + '</ul>' : '';
+    const paragraphs = (items, title) => arr(items).length ? '<h3>' + title + '</h3><ul>' + arr(items).map(item => '<li class="mr-ai-evidence-text">' + esc(obj(item).text || item) + '</li>').join('') + '</ul>' : '';
     const sources = arr(report.sources).filter(source => /^https:\/\//i.test(firstStr(source.url)));
     const actions = arr(interpretation.recommendations).map((item, index) => {
       const action = obj(item);
       const refs = sources.filter(source => arr(action.source_ids).includes(source.id));
-      return '<article class="mr-card mr-ai-action"><h3>' + (index + 1) + '. ' + esc(action.action) + '</h3><p>' + esc(action.reason) + '</p><dl>' +
+      return '<article class="mr-card mr-ai-action"><h3>' + (index + 1) + '. ' + esc(action.action) + '</h3><p class="mr-ai-reason">' + esc(action.reason) + '</p><dl>' +
         [['Before trying it',action.prerequisite],['Risk to consider',action.risk],['What to check',action.success_check]].map(row=>'<dt><strong>'+row[0]+'</strong></dt><dd>'+esc(row[1])+'</dd>').join('') + '</dl>' +
         (refs.length ? '<p>Practice references: ' + refs.map(source=>'<a href="'+esc(source.url)+'" target="_blank" rel="noopener noreferrer">'+esc(source.publisher)+'</a>').join('; ') + '.</p>' : '') + '</article>';
     }).join('');
@@ -1559,6 +1559,8 @@
     '.mr-report .btn-accent{background:#0C6E78;color:#FFF;border-color:rgba(12,110,120,.18)}' +
     '@media print{.mr-report{background:#fff}.mr-report .mr-page{border:0;border-radius:0;box-shadow:none;max-width:none;padding:28px 32px}.mr-report .actions{display:none!important}}' +
 
+    '.mr-contributing-score{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;font-size:2rem;font-weight:700;line-height:1.2;margin:8px 0}.mr-contributing-score.is-unavailable{font-size:18px;font-weight:600}.mr-contributing-score span{font-size:14px;font-weight:400;color:var(--soft)}.mr-contributing-meta{display:flex;flex-wrap:wrap;gap:4px 16px}.mr-contributing-meta span{white-space:nowrap}' +
+    '.mr-ai-evidence-text,.mr-ai-reason{white-space:pre-line;overflow-wrap:anywhere}' +
     // ═══ Synthesis crown-jewel section styles ═══
     `
     @font-face{font-family:"Neue Haas Grotesk";src:url("https://www.monderman.com/55font.woff2") format("woff2");font-style:normal;font-weight:400;font-display:swap}

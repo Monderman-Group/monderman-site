@@ -6,7 +6,7 @@ import vm from 'node:vm';
 const sandbox={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};
 vm.runInNewContext(fs.readFileSync('monderman-report.js','utf8'),sandbox);
 const report=sandbox.window.MondermanReport;
-assert.equal(report.rendererVersion,'diagnostic-renderer-ai-20260909.7');
+assert.equal(report.rendererVersion,'diagnostic-renderer-ai-20260909.8');
 const groups=[
   {tool_type:'structural_clarity',tool_label:'Structural Clarity',respondents:1,mean_score:0,median_score:0,score_iqr:[0,0],score_range:[0,0]},
   {tool_type:'decision_velocity',tool_label:'Decision Velocity',respondents:2,mean_score:70,median_score:69,score_iqr:[65,75],score_range:[60,80]},
@@ -42,8 +42,10 @@ for(const [name,type] of Object.entries({chromium,webkit})){
       assert.equal(await chart.isVisible(),width>600,'phone-only alternative must not affect wider screen');
       assert.equal(await list.getByRole('listitem').count(),4);assert.equal(await list.getByRole('heading',{level:3}).count(),4);
       const values=await list.getByRole('listitem').allInnerTexts();
-      const expected=[['Structural Clarity','0','median 0','n=1','IQR 0 – 0','range 0 – 0'],['Decision Velocity','70','median 69','n=2','IQR 65 – 75','range 60 – 80'],['Operational Systems','65.5','median 66.5','n=3','IQR 60.5 – 70.5','range 50.5 – 80.5'],['Institutional Performance','Unavailable','median Unavailable','n=0','IQR Unavailable','range Unavailable']];
+      const expected=[['Structural Clarity','0','Median score: 0','Submitted runs: 1','Middle half of scores: 0 – 0','Full score range: 0 – 0'],['Decision Velocity','70','Median score: 69','Submitted runs: 2','Middle half of scores: 65 – 75','Full score range: 60 – 80'],['Operational Systems','65.5','Median score: 66.5','Submitted runs: 3','Middle half of scores: 60.5 – 70.5','Full score range: 50.5 – 80.5'],['Institutional Performance','Unavailable','Median score: Unavailable','Submitted runs: 0','Middle half of scores: Unavailable','Full score range: Unavailable']];
       for(let i=0;i<4;i++)for(const value of expected[i])assert.ok(values[i].toLowerCase().includes(value.toLowerCase()),`${name}/${width}: ${value} missing`);
+      const scoreStyles=await list.locator('.mr-contributing-score').evaluateAll(nodes=>nodes.map(node=>({missing:node.classList.contains('is-unavailable'),fontSize:parseFloat(getComputedStyle(node).fontSize),weight:getComputedStyle(node).fontWeight,attributes:[...node.attributes].map(a=>a.name)})));
+      assert.equal(scoreStyles.length,4);for(const style of scoreStyles){assert.ok(style.missing?style.fontSize>=14&&style.fontSize<=20:style.fontSize>=24,'numeric and unavailable typography must actually apply');assert.equal(style.weight,style.missing?'600':'700');assert.deepEqual(style.attributes,['class']);}
       const geometry=await section.evaluate(section=>({viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,
         nodes:[...section.querySelectorAll('.mr-lens-grid .mr-lens-card,.mr-lens-grid .mr-lens-label,.mr-lens-grid .mr-copy')].map(el=>{const r=el.getBoundingClientRect();return {class:el.className,x:r.x,right:r.right,client:el.clientWidth,scroll:el.scrollWidth,fontSize:parseFloat(getComputedStyle(el).fontSize)};})}));
       assert.ok(geometry.documentWidth<=width+1);

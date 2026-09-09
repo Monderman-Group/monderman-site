@@ -12,6 +12,8 @@ import * as currentContract from '../../monderman-api-first-run/report-ai-interp
 import {REPORT_AI_RELEASE} from '../../monderman-api-first-run/report-ai-service.js';
 import {buildReportAIReviewPrompt,REPORT_AI_REVIEW_PROMPT_VERSION,REPORT_AI_REVIEW_CONTRACT_VERSION} from '../../monderman-api-first-run/report-ai-review.js';
 import {buildReportQuantityCatalog,REPORT_QUANTITY_STATEMENT_VERSION} from '../../monderman-api-first-run/report-ai-quantity-statements.js';
+import {buildReportFactualCatalog,REPORT_FACTUAL_STATEMENT_VERSION} from '../../monderman-api-first-run/report-ai-factual-statements.js';
+import {selectReportResearch} from '../../monderman-api-first-run/report-research-library.js';
 import {buildReportAIComposition,assertReportAIComposition,REPORT_AI_COMPOSITION_VERSION,REPORT_AI_QUANTITY_PROSE_POLICY_VERSION} from '../../monderman-api-first-run/report-ai-composition.js';
 
 const SITE_ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
@@ -23,7 +25,7 @@ const currentSourcePins=()=>{
   const registry=fs.readFileSync(new URL('../../monderman-api-first-run/questionnaire-version-registry.js',import.meta.url),'utf8');
   const banks=[...registry.matchAll(/^import (\w+) from "\.\/([^"]+)" with \{ type: "json" \};$/gm)].map(match=>match[2]);
   assert.equal(banks.length,8,'complete_questionnaire_registry_required');
-  return Object.fromEntries(['report-ai-provider.js','report-ai-interpretation-contract.js','report-ai-review.js','report-ai-evidence-encoding.js','report-ai-quantity-statements.js','report-ai-composition.js','report-evidence-packet.js','report-research-library.js','questionnaire-version-registry.js',...banks,'harness-report-ai-live.mjs'].map(name=>[name,digest(fs.readFileSync(new URL(`../../monderman-api-first-run/${name}`,import.meta.url)))]));
+  return Object.fromEntries(['report-ai-provider.js','report-ai-interpretation-contract.js','report-ai-review.js','report-ai-evidence-encoding.js','report-ai-quantity-statements.js','report-ai-factual-statements.js','report-ai-composition.js','report-evidence-packet.js','report-research-library.js','questionnaire-version-registry.js',...banks,'harness-report-ai-live.mjs'].map(name=>[name,digest(fs.readFileSync(new URL(`../../monderman-api-first-run/${name}`,import.meta.url)))]));
 };
 const walk=(value,packet,contract=currentContract)=>typeof value==='string'?contract.renderReportAIFacts(value,packet):Array.isArray(value)?value.map(v=>walk(v,packet,contract)):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).map(([key,v])=>[key,walk(v,packet,contract)])):value;
 
@@ -39,7 +41,8 @@ export function acceptedPresentationCases(matrix,promptVersion,contract=currentC
     assert.equal(promptVersion,contract.REPORT_AI_PROMPT_VERSION,'current_prompt_version_required');
     assert.equal(matrix.semanticReview,true,'mandatory_semantic_review_missing');
     assert.equal(matrix.releaseCertificationEligible,true,'draft_only_cannot_certify_current_release');
-    assert.equal(matrix.manifest?.schemaVersion,'synthetic-report-ai-evaluation-4','reviewed_manifest_required');
+    assert.equal(matrix.manifest?.schemaVersion,'synthetic-report-ai-evaluation-5','reviewed_manifest_required');
+    assert.equal(matrix.manifest.factualVersion,REPORT_FACTUAL_STATEMENT_VERSION,'factual_version_mismatch');
     assert.equal(matrix.manifest.compositionVersion,REPORT_AI_COMPOSITION_VERSION,'composition_version_mismatch');
     assert.equal(matrix.manifest.quantityVersion,REPORT_QUANTITY_STATEMENT_VERSION,'quantity_version_mismatch');
     assert.equal(matrix.manifest.quantityProsePolicyVersion,REPORT_AI_QUANTITY_PROSE_POLICY_VERSION,'quantity_prose_policy_mismatch');
@@ -82,8 +85,10 @@ export function acceptedPresentationCases(matrix,promptVersion,contract=currentC
       assert.equal(entry.kind,fixture.kind,'case_manifest_kind_mismatch');
       assert.equal(evidenceDigest(packet),fixture.packetSha256,'case_manifest_packet_mismatch');
       const quantityCatalog=buildReportQuantityCatalog(packet);
+      const factualCatalog=buildReportFactualCatalog(packet);
       assert.equal(fixture.catalogSha256,quantityCatalog.catalog_sha256,'case_catalog_mismatch');
-      const promptHash=evidenceDigest(contract.buildReportAIPrompt(packet,{presentationRetry:matrix.manifest.promptMode==='presentation-correction',quantityRetry:matrix.manifest.promptMode==='quantity-correction',quantityCatalog}));
+      assert.equal(fixture.factualCatalogSha256,factualCatalog.catalog_sha256,'case_factual_catalog_mismatch');
+      const promptHash=evidenceDigest(contract.buildReportAIPrompt(packet,{presentationRetry:matrix.manifest.promptMode==='presentation-correction',quantityRetry:matrix.manifest.promptMode==='quantity-correction',quantityCatalog,factualCatalog}));
       assert.equal(fixture.promptSha256,promptHash,'case_manifest_prompt_mismatch');
       assert.equal(entry.promptSha256,promptHash,'case_saved_prompt_mismatch');
     }
@@ -125,20 +130,22 @@ export function acceptedPresentationCases(matrix,promptVersion,contract=currentC
     // contract change that alters rendering must be reviewed, not hidden here.
     assert.deepEqual(composition?composition.interpretation:walk(normalized,packet,contract),entry.interpretation,'saved_rendering_mismatch');
     for(const source of packet.research.sources)assert.ok(typeof source.url==='string'&&/^https:\/\//.test(source.url),'source_url_required');
-    const report={version:REPORT_AI_RELEASE,snapshot_id:packet.snapshot_id,model:metadata.model,
+    const reportVersion=allowHistoricalDrafts?`historical-display-only (${promptVersion})`:REPORT_AI_RELEASE;
+    const report={version:reportVersion,snapshot_id:packet.snapshot_id,model:metadata.model,
       prompt_version:promptVersion,evidence_version:packet.version,questionnaire_version:packet.questionnaire_version,
       research_version:packet.research.version,generated_at:matrix.finishedAt,
       interpretation:structuredClone(entry.interpretation),limitations:structuredClone(packet.limitations),
       sources:structuredClone(packet.research.sources),benchmark:structuredClone(packet.research.benchmark),
       evidence:structuredClone(packet.facts.filter(f=>f.provenance!=='one_participant_untrusted_observation')),usage:structuredClone(metadata)};
     if(!allowHistoricalDrafts)report.composition={version:composition.version,quantity_version:composition.quantityVersion,
+      factual_version:composition.factualVersion,factual_catalog_sha256:composition.factualCatalogHash,factual_paragraphs:composition.factualParagraphs,
       quantity_prose_policy_version:composition.quantityProsePolicyVersion,snapshot_id:composition.snapshotId,catalog_sha256:composition.catalogHash,
       wire_sha256:composition.wireHash,compiled_sha256:composition.compiledHash,quantity_paragraphs:composition.quantityParagraphs};
     if(!allowHistoricalDrafts)report.automated_review={verdict:'approve',prompt_version:entry.review.promptVersion,
       contract_version:entry.review.contractVersion,draft_sha256:entry.review.draftHash,snapshot_id:entry.review.snapshotId,
       model:entry.review.model,usage:structuredClone(entry.review.metadata)};
     return {id:entry.id,kind:entry.kind,diagnostic:packet.diagnostic,reviewFlags:entry.semanticReviewFlags||[],
-      envelope:{version:REPORT_AI_RELEASE,status:'complete',message:'AI-assisted interpretation, based on this saved result.',report}};
+      envelope:{version:reportVersion,status:'complete',message:'AI-assisted interpretation, based on this saved result.',report}};
   });
 }
 
@@ -157,10 +164,10 @@ function selfTest(){
     {id:'F2',label:'Participant observation',value:'PRIVATE_SYNTHETIC_SENTINEL',provenance:'one_participant_untrusted_observation',interpretation:'Unverified account.'},
     {id:'F3',label:'Contradictions flagged',value:2,provenance:'deterministic_result',interpretation:'Count of flagged contradictions, not conflicting answers or people.'},
     {id:'F4',label:'Result band',value:'Compounding',provenance:'deterministic_result',interpretation:'The exact saved band label.'}
-  ],research:{version:'self-test',sources:[],benchmark:{status:'not_available',explanation:'No comparison is supplied.'}},limitations:['Synthetic test only.']};
+  ],research:selectReportResearch({diagnostic:'decision_velocity',sector:'other'}),limitations:['Synthetic test only.']};
   const packet={...content,snapshot_id:evidenceDigest(content)};
-  const interpretation={summary:'This is an offline fixture.',observations:[{text:'The result band is {{F4}}.',evidence_ids:['F4']},{text:'{{Q1}}',evidence_ids:[]}],hypotheses:[],recommendations:[],limitations:[]};
-  const composition=buildReportAIComposition(interpretation,packet),quantityCatalog=buildReportQuantityCatalog(packet);
+  const interpretation={summary:'S1',observations:[{text:'E4'},{text:'E3'}],hypotheses:[],recommendations:[],limitations:[]};
+  const composition=buildReportAIComposition(interpretation,packet),quantityCatalog=buildReportQuantityCatalog(packet),factualCatalog=buildReportFactualCatalog(packet);
   const entry={id:'DV-self-test',kind:'diagnostic',promptMode:'initial',status:'validated_requires_human_review',packet,contractInterpretation:composition.wire,
     interpretation:composition.interpretation,syntheticOriginalInterpretation:interpretation,syntheticDraftInterpretation:composition.interpretation,
     wireHash:composition.wireHash,draftHash:composition.compiledHash,composition:assertReportAIComposition(composition,{packet}),
@@ -170,27 +177,34 @@ function selfTest(){
     promptSha256:evidenceDigest(buildReportAIReviewPrompt(packet,composition.interpretation,{composition})),
     contractVersion:REPORT_AI_REVIEW_CONTRACT_VERSION,metadata:structuredClone(entry.metadata)};
   const version=currentContract.REPORT_AI_PROMPT_VERSION;
-  entry.promptSha256=evidenceDigest(currentContract.buildReportAIPrompt(packet,{quantityCatalog}));
+  entry.promptSha256=evidenceDigest(currentContract.buildReportAIPrompt(packet,{quantityCatalog,factualCatalog}));
   const fixture={syntheticOnly:true,mode:'live',promptMode:'initial',presentationRetry:false,quantityRetry:false,semanticReview:true,releaseCertificationEligible:true,
-    manifest:{schemaVersion:'synthetic-report-ai-evaluation-4',semanticReview:true,model:'claude-opus-5',promptVersion:version,
+    manifest:{schemaVersion:'synthetic-report-ai-evaluation-5',factualVersion:REPORT_FACTUAL_STATEMENT_VERSION,semanticReview:true,model:'claude-opus-5',promptVersion:version,
       compositionVersion:REPORT_AI_COMPOSITION_VERSION,quantityVersion:REPORT_QUANTITY_STATEMENT_VERSION,quantityProsePolicyVersion:REPORT_AI_QUANTITY_PROSE_POLICY_VERSION,draftHashMeaning:'compiled-customer-interpretation',
       contractVersion:currentContract.REPORT_AI_CONTRACT_VERSION,review:{promptVersion:REPORT_AI_REVIEW_PROMPT_VERSION,contractVersion:REPORT_AI_REVIEW_CONTRACT_VERSION},
-      promptMode:'initial',sourceDigests:currentSourcePins(),cases:[{id:entry.id,kind:entry.kind,packetSha256:evidenceDigest(packet),catalogSha256:quantityCatalog.catalog_sha256,promptSha256:entry.promptSha256}]},
+      promptMode:'initial',sourceDigests:currentSourcePins(),cases:[{id:entry.id,kind:entry.kind,packetSha256:evidenceDigest(packet),catalogSha256:quantityCatalog.catalog_sha256,factualCatalogSha256:factualCatalog.catalog_sha256,promptSha256:entry.promptSha256}]},
     model:'claude-opus-5',finishedAt:'2026-09-08T00:00:00Z',cases:[entry,{id:'never-render',status:'rejected',syntheticRejectedInterpretation:{summary:'MUST_NOT_RENDER'}}]};
   fixture.manifestSha256=evidenceDigest(fixture.manifest);
   const cases=acceptedPresentationCases(fixture,version);
-  assert.equal(cases.length,1);assert.equal(cases[0].envelope.report.interpretation.observations[0].text,'The result band is Compounding.');
+  assert.equal(cases.length,1);assert.equal(cases[0].envelope.report.interpretation.observations[0].text,'Result band: Compounding.');
   assert.equal(cases[0].envelope.report.evidence.length,3);assert.ok(!JSON.stringify(cases).includes('PRIVATE_SYNTHETIC_SENTINEL'));assert.ok(!JSON.stringify(cases).includes('MUST_NOT_RENDER'));
   assert.equal(cases[0].envelope.report.interpretation.observations[1].text,quantityCatalog.statements[0].text);
   assert.notEqual(entry.wireHash,entry.draftHash);assert.equal(cases[0].envelope.report.automated_review.draft_sha256,entry.draftHash);
   assert.equal(cases[0].envelope.report.composition.quantity_prose_policy_version,REPORT_AI_QUANTITY_PROSE_POLICY_VERSION);
+  assert.equal(cases[0].envelope.report.composition.factual_version,REPORT_FACTUAL_STATEMENT_VERSION);
+  assert.equal(cases[0].envelope.report.composition.factual_catalog_sha256,factualCatalog.catalog_sha256);
+  assert.deepEqual(cases[0].envelope.report.composition.factual_paragraphs,composition.factualParagraphs);
+  for(const change of [m=>m.manifest.factualVersion='old',m=>m.manifest.cases[0].factualCatalogSha256='a'.repeat(64),m=>m.manifest.sourceDigests['report-ai-factual-statements.js']='a'.repeat(64),m=>m.cases[0].composition.factualVersion='old',m=>m.cases[0].composition.factualCatalogHash='a'.repeat(64),m=>m.cases[0].composition.factualParagraphs=[],m=>m.cases[0].syntheticOriginalInterpretation.summary='S1 extra prose',m=>m.cases[0].syntheticOriginalInterpretation.observations[0].text='Result band: Compounding.']){
+    const mutated=structuredClone(fixture);change(mutated);mutated.manifestSha256=evidenceDigest(mutated.manifest);
+    assert.throws(()=>acceptedPresentationCases(mutated,version),'changed factual source, selection, or compiled binding must reject');
+  }
   // Correction receipts are display evidence only for that distinct request.
   // Never relabel an initial draft or accept an unbound mode/flag combination.
   for(const mode of ['presentation-correction','quantity-correction']){
     const corrected=structuredClone(fixture);corrected.cases=corrected.cases.slice(0,1);
     corrected.promptMode=corrected.manifest.promptMode=corrected.cases[0].promptMode=mode;
     corrected.presentationRetry=mode==='presentation-correction';corrected.quantityRetry=mode==='quantity-correction';
-    const hash=evidenceDigest(currentContract.buildReportAIPrompt(packet,{presentationRetry:corrected.presentationRetry,quantityRetry:corrected.quantityRetry,quantityCatalog}));
+    const hash=evidenceDigest(currentContract.buildReportAIPrompt(packet,{presentationRetry:corrected.presentationRetry,quantityRetry:corrected.quantityRetry,quantityCatalog,factualCatalog}));
     assert.notEqual(hash,fixture.cases[0].promptSha256);
     corrected.cases[0].promptSha256=corrected.manifest.cases[0].promptSha256=hash;
     corrected.manifestSha256=evidenceDigest(corrected.manifest);
@@ -221,7 +235,7 @@ function selfTest(){
     const mutated=structuredClone(fixture);change(mutated);mutated.manifestSha256=evidenceDigest(mutated.manifest);
     assert.throws(()=>acceptedPresentationCases(mutated,version));
   }
-  historical.cases[0].contractInterpretation={...structuredClone(interpretation),observations:[structuredClone(interpretation.observations[0])]};
+  historical.cases[0].contractInterpretation={summary:'This is an explicitly historical offline fixture.',observations:[{text:'The result band is {{F4}}.',evidence_ids:['F4']}],hypotheses:[],recommendations:[],limitations:[]};
   historical.cases[0].interpretation=walk(historical.cases[0].contractInterpretation,packet);
   assert.throws(()=>acceptedPresentationCases(historical,version));
   assert.equal(acceptedPresentationCases(historical,version,currentContract,{allowHistoricalDrafts:true}).length,1,'explicitly selected historical artifacts remain available for display-only review');
