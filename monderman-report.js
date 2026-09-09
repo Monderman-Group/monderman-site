@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.5";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.6";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -174,10 +174,19 @@
         additionalRuns: strictNum(requirement.additional_runs_needed)
       };
     }).filter((item) => item.text);
+    // Display-only compatibility for recognized legacy coverage labels. Never
+    // rewrite saved action records or infer a label for an unknown action.
+    const legacyCoverageLabels = {
+      "structural_clarity depth": "Structural Clarity coverage",
+      "decision_velocity depth": "Decision Velocity coverage",
+      "operational_systems depth": "Operational Systems coverage",
+      "institutional_performance depth": "Institutional Performance coverage"
+    };
     const actions = arr(r.priority_actions).map((item) => {
       const action = typeof item === "string" ? { text: item } : obj(item);
+      const label = firstStr(action.label, "Action");
       return {
-        label: firstStr(action.label, "Action"),
+        label: Object.prototype.hasOwnProperty.call(legacyCoverageLabels, label) ? legacyCoverageLabels[label] : label,
         text: firstStr(action.text, action.summary),
         tier: firstStr(action.tier),
         source: firstStr(action.source)
@@ -783,7 +792,8 @@
       svg += '<line x1="' + X(tick) + '" y1="38" x2="' + X(tick) + '" y2="' + (H-28) + '" stroke="rgba(24,25,28,.07)"/>';
       svg += '<text x="' + X(tick) + '" y="28" text-anchor="middle" font-size="11" fill="#9A9892">' + tick + '</text>';
     });
-    if (m.scorePublished && strictFinite(m.score)) {
+    const showComposite = m.scorePublished && strictFinite(m.score);
+    if (showComposite) {
       svg += '<line x1="' + X(m.score) + '" y1="36" x2="' + X(m.score) + '" y2="' + (H-28) + '" stroke="#08383E" stroke-width="2.5" stroke-dasharray="5 4"/>';
       svg += '<text x="' + X(m.score) + '" y="14" text-anchor="middle" font-size="11" font-weight="700" fill="#08383E">Composite ' + esc(fmt1(m.score)) + '</text>';
     }
@@ -798,7 +808,7 @@
       svg += '<text x="' + (labelW-12) + '" y="' + (y+20) + '" text-anchor="end" font-size="10.5" fill="#9A9892">median ' + esc(fmt1(lens.median)) + ' · n=' + esc(fmtWhole(lens.n)) + '</text>';
     });
     svg += '</svg>';
-    return '<div class="mr-viz-panel"><div class="mr-viz-title">Diagnostic lenses on one scale</div>' + svg + '<p class="mr-copy">Dots are per-Diagnostic mean scores; horizontal marks show each lens IQR when available. The dashed Composite line is the equal-lens mean. Participant volume strengthens evidence but does not give a larger lens more weight.</p></div>';
+    return '<div class="mr-viz-panel"><div class="mr-viz-title">Diagnostic lenses on one scale</div>' + svg + '<p class="mr-copy">Dots are per-Diagnostic mean scores; horizontal marks show each lens IQR when available. ' + (showComposite ? 'The dashed Composite line is the equal-lens mean. ' : '') + 'Run count does not change a lens\'s weight in a published Composite score.</p></div>';
   }
 
   function splitSvgLabel(label) {
@@ -1375,6 +1385,7 @@
     const scoreLabel = m.kind === "meta-synthesis" ? firstStr(m.scoreLabel, defaultScoreLabel) : defaultScoreLabel;
     const evidenceLabel = m.kind === "meta-synthesis" ? firstStr(m.evidenceLabel) : "";
     const scoreBandDisplay = m.kind === "meta-synthesis" ? firstStr(m.conditionBand, m.headlineBand) : firstStr(m.headlineBand);
+    const scoreClass = "mr-cover-score" + (strictFinite(m.headlineScore) ? "" : " mr-cover-score-status");
     const metaHtml = meta.map((x) => '<span><strong>' + esc(x.label) + '</strong>' + esc(x.value) + '</span>').join("");
     const statusPills = [
       evidenceLabel ? '<span class="mr-cover-pill mr-cover-pill-accent">' + esc(evidenceLabel) + ' evidence</span>' : ''
@@ -1384,7 +1395,7 @@
       '<h1 class="mr-cover-title">' + esc(m.title) + '</h1><p class="mr-cover-sub">' + esc(m.subtitle) + '</p></div>' +
       '<div class="mr-cover-stripe"></div>' +
       '<div class="mr-cover-white"><p class="mr-cover-kicker">Executive Report</p>' +
-      '<div class="mr-cover-score-row"><div class="mr-cover-score">' + esc(m.headlineScore == null ? "Unavailable" : m.headlineScore) + '</div>' +
+      '<div class="mr-cover-score-row"><div class="' + scoreClass + '">' + esc(m.headlineScore == null ? "Unavailable" : m.headlineScore) + '</div>' +
       '<div class="mr-cover-score-copy"><div class="mr-cover-score-label">' + esc(scoreLabel) + '</div><div class="mr-cover-score-band">' + esc(scoreBandDisplay) + '</div></div></div>' +
       (statusPills ? '<div class="mr-cover-pills">' + statusPills + '</div>' : '') +
       (metaHtml ? '<div class="mr-cover-meta">' + metaHtml + '</div>' : '') +
@@ -1563,6 +1574,7 @@
     .mr-cover-kicker{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif!important;margin:0 0 12px!important;font-size:.67rem!important;letter-spacing:.22em;text-transform:uppercase;color:#6E6F73!important;font-weight:700}
     .mr-cover-score-row{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap}
     .mr-cover-score{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;font-size:4.6rem;line-height:.82;font-weight:700;letter-spacing:-.07em;color:#18191C;font-variant-numeric:tabular-nums}
+    .mr-cover-score.mr-cover-score-status{font-size:clamp(1.7rem,4.5vw,2.7rem);line-height:1.04;letter-spacing:-.035em;min-width:0;max-width:100%;overflow-wrap:anywhere}
     .mr-cover-score-copy{padding-bottom:3px;min-width:220px;max-width:520px}
     .mr-cover-score-label{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:#0C6E78;font-weight:700;margin-bottom:5px}
     .mr-cover-score-band{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;font-size:.97rem;line-height:1.35;color:#6E6F73}
@@ -1634,7 +1646,7 @@
     .mr-range-median{position:absolute;top:-4px;width:3px;height:20px;border-radius:2px;background:#08383E;transform:translateX(-1.5px)}
     .mr-range-foot{margin-top:7px;font-size:.76rem;color:#6E6F73}
     @media(max-width:760px){.mr-map-lenses{grid-template-columns:repeat(2,minmax(0,1fr))}.mr-map-signal{grid-template-columns:1fr}.mr-map-tools{justify-content:flex-start;max-width:none}.mr-system-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.mr-system-metrics .mr-run-metric:nth-child(3){border-left:0}.mr-system-decision{grid-template-columns:1fr}.mr-system-decision>div+div{border-left:0;border-top:1px solid #E0DCD3}}
-    @media(max-width:760px){.mr-cover-dark{padding:38px 28px 32px}.mr-cover-white{padding:28px}.mr-cover-title{font-size:2.35rem!important}.mr-cover-score{font-size:3.8rem}.mr-cover-meta{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:760px){.mr-cover-dark{padding:38px 28px 32px}.mr-cover-white{padding:28px}.mr-cover-title{font-size:2.35rem!important}.mr-cover-score{font-size:3.8rem}.mr-cover-score-copy{min-width:0;max-width:100%}.mr-cover-meta{grid-template-columns:repeat(2,minmax(0,1fr))}}
     .mr-diag-section { margin: 24px 0 36px; }
     .mr-diag-hero { background:#F6F3EC; border:1px solid rgba(12,110,120,0.20); border-left:4px solid #0C6E78; border-radius:14px; padding:40px 44px 32px; }
     .mr-diag-eyebrow { font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif; font-size:0.72rem; letter-spacing:0.24em; text-transform:uppercase; color:#0C6E78; font-weight:700; margin:0 0 14px; }

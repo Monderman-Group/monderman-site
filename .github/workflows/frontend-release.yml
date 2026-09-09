@@ -50,6 +50,7 @@ jobs:
         run: |
           node scripts/report_language_provenance_smoke.mjs
           node scripts/report_missing_estimate_smoke.mjs
+          node scripts/report_synthesis_display_smoke.mjs --deterministic-only
       - name: Verify diagnostic labels and immutable saved-report presentation
         run: |
           node scripts/diagnostic_display_language_smoke.mjs
