@@ -124,7 +124,11 @@ assert.match(depthHtml, /Perspective difference/);
 assert.match(depthHtml, /Agreement versus divergence/);
 assert.match(depthHtml, /Outlier status/);
 assert.match(depthHtml, /Not classified from aggregate source data/);
-assert.match(depthHtml, /Vantage difference/);
+assert.match(depthHtml, /Difference between perspectives/);
+assert.match(depthHtml, /Results by participant perspective/);
+assert.match(depthHtml, /Range of modeled estimates/);
+assert.match(depthHtml, /Modeled annual-hours IQR/);
+assert.match(depthHtml, /Modeled annual-cost IQR/);
 
 const divided = structuredClone(depth);
 divided.sample_reads[0].consensus = { read: "divided", detail: "The observed runs form two materially separated score groups.", split: { lower_share_pct: 45, upper_share_pct: 55 } };
@@ -232,6 +236,8 @@ assert.match(coherentHtml, />60</);
 assert.match(coherentHtml, /EQUAL-LENS COMPOSITE/);
 assert.match(coherentHtml, /Strongest observed lens/);
 assert.match(coherentHtml, /Weakest observed lens/);
+assert.match(coherentHtml, /Largest-to-smallest submitted-run count ratio: 1:1/);
+assert.match(coherentHtml, /Modeled time and labor-cost estimates/);
 
 const missingEconomics = structuredClone(coherent);
 missingEconomics.pathway_exposure = { status: "unavailable", label: "Pathway exposure unavailable", withheld_reason: "The submitted results do not contain source-backed exposure estimates." };

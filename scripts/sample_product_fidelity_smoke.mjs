@@ -17,6 +17,12 @@ function assert(ok, msg) { if (!ok) throw new Error(msg); }
 const browser = await chromium.launch({ headless:true });
 const page = await browser.newPage({ viewport:{ width:1440, height:1100 } });
 const errors = [];
+// Match the newer fidelity harness: exported HTML uses absolute font URLs,
+// while localhost must exercise the candidate fonts without production CORS.
+await page.route(/^https:\/\/www\.monderman\.com\/(55|65|75)font\.woff2$/, async route => {
+  const filename = new URL(route.request().url()).pathname.slice(1);
+  await route.fulfill({status:200,contentType:'font/woff2',body:fs.readFileSync(path.resolve(filename))});
+});
 page.on('pageerror', error => errors.push(`pageerror: ${error.message}`));
 page.on('console', message => {
   if (message.type() === 'error' && !/supabase|connect|assistant/i.test(message.text())) errors.push(`console: ${message.text()}`);
@@ -40,7 +46,8 @@ for (const [key, contract] of Object.entries(diagnostics)) {
   assert(await shell.locator('.mr-exposure-flow').isVisible(), `${key} capacity/burden view missing`);
   assert(await shell.locator('.mr-priority-matrix').isVisible(), `${key} priority matrix missing`);
   assert(await shell.locator('.mr-run-remedy').count() === 3, `${key} intervention paths changed`);
-  assert(await shell.locator('.mr-remedy-evidence').count() === 3, `${key} evidence-linked recommendations missing`);
+  assert(await shell.locator('.mr-run-remedy .mr-remedy-evidence').count() === 0, `${key} invents an option-to-priority evidence pairing`);
+  assert((await shell.locator('.mr-run-action-board .mr-lede').textContent()).includes('do not correspond one-to-one'), `${key} independent option/priority disclosure missing`);
   assert(await shell.locator('.mr-leadership-close').evaluate(el => el === el.parentElement.querySelector('.mr-section:last-of-type')), `${key} leadership handoff is not final`);
   assert(await shell.locator('.cover').count() === 0, `${key} legacy hand-authored sample remains in the live DOM`);
   const text = await shell.textContent();

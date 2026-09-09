@@ -42,7 +42,7 @@ for token, msg in [
     ('Cross-lens evidence map', 'Cross-Lens evidence map label missing'),
     ('it does not assert a causal pathway', 'Cross-Lens evidence map lacks explicit non-causal boundary'),
     ('function renderExposureRangeGraphic', 'source-backed exposure-range visual missing'),
-    ('Observed exposure ranges', 'exposure-range visual label missing'),
+    ('Range of modeled estimates', 'exposure-range visual label missing'),
     ('bar lengths should not be compared across the two metrics', 'exposure-range local-scale warning missing'),
 ]:
     req(token in report, msg)
@@ -88,7 +88,7 @@ req('sample-data/production-diagnostic-samples.json?v=447cdd78f6fc' in productio
 req('data-engine-commit' in production_renderer and 'data-artifact-sha256' in production_renderer, 'visible sample provenance missing')
 for token in ['Report.fromRun(source)','Report.render(stage, model)','Report.downloadHtml(model)','Report.downloadJson(source','Report.downloadPdf(model)']:
     req(token in production_renderer, f'public Diagnostic sample bypasses the certified engine bridge: {token}')
-for token in ['Executive decision brief','Dimension profile','Capacity exposure','Leadership read','Evidence status','Action architecture','Method and limits','Leadership handoff','Interpretation boundary']:
+for token in ['Decision summary','Dimension profile','Time and cost scenario','How to interpret the result','Evidence in this run','What to test next','Method and limits','Next decision','Interpretation boundary']:
     req(token in report, f'authenticated Diagnostic presentation missing: {token}')
 req('No usable participant notes are presented.' in report, 'empty or quarantined participant-evidence state is not explicit')
 for token in ['mr-run-decision','mr-dimension-profile','mr-constraint-view','mr-exposure-flow','mr-priority-matrix','mr-priority-ladder','mr-remedy-grid','mr-remedy-evidence','mr-run-method','mr-leadership-close']:

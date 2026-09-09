@@ -17,6 +17,9 @@
    ============================================================================ */
 (function () {
   "use strict";
+  // This identifies the code displaying/exporting the report now, not the
+  // renderer that may have displayed a historical run when it was created.
+  const RENDERER_VERSION = "diagnostic-renderer-ai-20260908.2";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -218,12 +221,13 @@
 
     return {
       kind: "meta-synthesis",
+      aiReport: obj(r.ai_report),
       compatibility: compatibility,
       product: product,
       mastline: "Monderman. " + modeLabel,
       title: product === "depth" ? "Depth Synthesis Executive Report" : "Cross-Lens Synthesis Executive Report",
       subtitle: product === "depth"
-        ? "A same-Diagnostic read across multiple eligible runs: reporting the observed median, distribution, vantage differences, and evidence limits."
+        ? "A same-Diagnostic read across multiple eligible runs: reporting the observed median, distribution, differences between participant perspectives, and evidence limits."
         : "A multi-lens read that separates lens comparison from a coherent composite and states exactly what evidence supports each conclusion.",
       meta: [
         { label: "Generated", value: nowLabel() },
@@ -285,11 +289,9 @@
   // Reads the run's exported result shape (full_result_json) with broad fallbacks,
   // mirroring the synthesis lib's extractor so field names line up.
   // All four scorers emit `trajectory` as an object ({direction, label, ...}).
-  // Customer reports express directional state as organizational health direction,
-  // not as the direction of a negative condition. Internal scorer direction values
-  // remain untouched: `up` still means more burden/drag/strain and therefore maps
-  // to Worsening; `down` maps to Improving. Structural Clarity is a change-pressure
-  // risk signal rather than a trend signal, so its scorer label remains explicit.
+  // This is a participant's current report of change, not a measured trend.
+  // Internal direction values remain untouched. Structural Clarity describes
+  // change pressure, so keep its distinct scorer label.
   function labelFromTrajectory(toolType, t) {
     if (!t || typeof t !== "object") return "";
     const raw = typeof t.label === "string" ? t.label.trim() : "";
@@ -298,10 +300,87 @@
     if (t.self_reported === false || t.measurement_basis === "not_measured" || t.delta === null || /not established/i.test(raw)) return "Not established";
     if (t.stated === "unsure" || /unclear/i.test(raw)) return "Direction unclear";
     const dir = String(t.direction || "").toLowerCase();
-    if (dir === "up") return "Worsening";
-    if (dir === "down") return "Improving";
-    if (dir === "flat") return "Steady";
+    const subject = toolKey === "decision_velocity" ? "delay" : toolKey === "operational_systems" ? "administrative work" : "strain";
+    if (dir === "up") return "Participant reports more " + subject;
+    if (dir === "down") return "Participant reports less " + subject;
+    if (dir === "flat") return "Participant reports little change";
     return raw;
+  }
+
+  const RUN_DIMENSION_LABELS = Object.freeze({
+    decision_velocity: Object.freeze({
+      cycle_velocity: "Decision timing",
+      approval_efficiency: "Approval efficiency",
+      coordination_load: "Coordination",
+      execution_stability: "Execution stability"
+    }),
+    structural_clarity: Object.freeze({
+      role_clarity: "Role clarity",
+      decision_rights_clarity: "Decision authority",
+      handoff_clarity: "Handoff clarity",
+      accountability_clarity: "Accountability",
+      duplicate_approvals_inverse: "Avoidance of duplicate approvals"
+    }),
+    operational_systems: Object.freeze({
+      process_density: "Process steps",
+      systems_friction: "Work across systems",
+      reporting_exception_burden: "Reporting and exception handling",
+      workaround_dependence: "Work outside the usual process",
+      control_load: "Control requirements",
+      upkeep_burden: "Administrative maintenance"
+    }),
+    institutional_performance: Object.freeze({
+      execution_coherence: "Execution",
+      decision_reliability: "Decision reliability",
+      adaptive_capacity: "Ability to adapt",
+      institutional_confidence: "Confidence in formal systems",
+      performance_stability: "Performance stability",
+      compensatory_effort: "Extra effort required"
+    })
+  });
+
+  function displayRunDimensionLabel(toolType, key, fallback) {
+    const toolKey = String(toolType || "").trim().toLowerCase().replace(/[-\s]+/g, "_");
+    const dimensionKey = String(key || "").trim().toLowerCase();
+    return firstStr(RUN_DIMENSION_LABELS[toolKey]?.[dimensionKey], fallback, humanize(key));
+  }
+
+  function displayCalculationMethod(value) {
+    const method = firstStr(value);
+    if (method === "directional_scenario_not_empirical_benchmark") {
+      return "Directional planning scenario, not an empirical benchmark";
+    }
+    return method ? humanize(method) : "";
+  }
+
+  const SCORING_VERSION_LABELS = Object.freeze({
+    structural_clarity_high_score_good_2026_08_11_methodology_v4: "Structural Clarity scoring method, methodology version 4, August 11, 2026",
+    decision_velocity_high_score_good_2026_08_12_release_v3: "Decision Velocity scoring method, release 3, August 12, 2026",
+    operational_systems_high_score_good_2026_08_13_experience_neutral_v3: "Operational Systems scoring method, experience-neutral release 3, August 13, 2026",
+    institutional_performance_high_score_good_2026_08_10_missingness_v2: "Institutional Performance scoring method, missing-data version 2, August 10, 2026"
+  });
+
+  function displayScoringVersion(value) {
+    const version = firstStr(value);
+    return firstStr(SCORING_VERSION_LABELS[version], version, "Not recorded");
+  }
+
+  function hasGeneratedRemedyRecoveryRange(value) {
+    const text = firstStr(value);
+    return /\bDirectional reclaim band:\s*(?:\$[\d,.]+(?:\s*[–-]\s*\$[\d,.]+)?|Not estimated)\*{0,2}\.?\s*$/i.test(text)
+      || /\bScenario value band:\s*(?:\$[\d,.]+(?:\s*[–-]\s*\$[\d,.]+)?|Not estimated);\s*this is not observed or protected value\.?\s*$/i.test(text)
+      || /^(?:Scenario comparison band:|Low-disruption test\.\s*The scenario model shows up to|Targeted redesign test\.\s*The scenario model shows up to|Broadest scenario test\.\s*The model shows up to)/i.test(text);
+  }
+
+  function displayRemedyBenefit(value) {
+    const text = firstStr(value);
+    if (!text) return "";
+    const withoutGeneratedSuffix = text
+      .replace(/\s+Directional reclaim band:\s*(?:\$[\d,.]+(?:\s*[–-]\s*\$[\d,.]+)?|Not estimated)\*{0,2}\.?\s*$/i, "")
+      .replace(/\s+Scenario value band:\s*(?:\$[\d,.]+(?:\s*[–-]\s*\$[\d,.]+)?|Not estimated);\s*this is not observed or protected value\.?\s*$/i, "")
+      .trim();
+    if (withoutGeneratedSuffix !== text) return withoutGeneratedSuffix;
+    return hasGeneratedRemedyRecoveryRange(text) ? "" : text;
   }
 
   function fromRun(run) {
@@ -309,7 +388,7 @@
     const r = obj(envelope.result).tool_type ? obj(envelope.result) : envelope;
     const compatibility = obj(r._claims_compatibility);
     const context = obj(envelope.input_context || r.input_context);
-    const provenance = obj(envelope.provenance);
+    const provenance = obj(envelope.provenance || envelope.provenance_json || r.provenance || r.provenance_json);
     const exposure = obj(r.exposure);
     const descriptor = obj(r.canonical_descriptor);
     const prose = obj(r.interpretive_prose);
@@ -321,7 +400,11 @@
     const dimensionLabels = obj(descriptor.dimension_display || r.dimension_labels);
 
     const toolType = firstStr(r.tool_type);
-    const toolLabel = firstStr(r.tool_label, toolType);
+    const canonicalToolLabels = {
+      decision_velocity: "Decision Velocity", structural_clarity: "Structural Clarity",
+      operational_systems: "Operational Systems", institutional_performance: "Institutional Performance"
+    };
+    const toolLabel = firstStr(canonicalToolLabels[toolType], r.tool_label, toolType);
     const score = r.score != null ? r.score : (r.cross_diagnostic_score != null ? r.cross_diagnostic_score : "Unavailable");
     const band = firstStr(r.band, r.score_band, r.condition_band, "Unavailable");
     const benchmark = firstStr(r.benchmark_position, r.benchmarkPosition, r.peer_position, "Unavailable");
@@ -348,13 +431,13 @@
     const summary = firstStr(
       summaryBlock.body, narrative.executive, narrative.headlineFinding,
       r.executive_summary, r.summary,
-      "This executive read summarizes the diagnostic's quantified condition, its primary structural signal, and the recommended first moves."
+      "This summary explains the score, the main measured issue, and the first actions to consider."
     );
     const headline = firstStr(summaryBlock.headline, narrative.headlineFinding, r.score_band_note, summary);
     const bottomLine = sentenceLead(firstStr(
       narrative.opportunity, narrative.organizational_implication, r.organizational_implication,
       narrative.leadership_implication, r.leadership_implication, driver !== "Unavailable" ? driver : "",
-      "Treat this as a directional read of the measured condition."
+      "Treat this as an initial interpretation of the measured condition."
     ), 2);
 
     const sections = [
@@ -369,7 +452,7 @@
     const kvs = [
       { k: "Primary signal", v: driver },
       { k: "Benchmark position", v: benchmark },
-      { k: "Trajectory", v: trajectory }
+      { k: "Participant-reported change", v: trajectory }
     ];
     if (annualHours) kvs.push({ k: "Annual hours*", v: num(annualHours) });
     if (annualCost) kvs.push({ k: "Annual cost*", v: cur(annualCost) });
@@ -387,7 +470,7 @@
     const participantMode = humanize(firstStr(r.participant_mode, context.participantMode, context.participant_mode, "managerial"));
     const dimensionEntries = Object.keys(dimensions).map((key) => ({
       key: key,
-      label: firstStr(dimensionLabels[key], humanize(key)),
+      label: displayRunDimensionLabel(toolType, key, dimensionLabels[key]),
       score: strictFinite(dimensions[key]) ? Number(dimensions[key]) : null,
       coverage: obj(obj(coverage.dimensions)[key])
     })).filter((item) => item.score !== null);
@@ -402,20 +485,21 @@
     const benchmarkDetail = firstStr(prose.benchmark_interpretation, narrative.benchmark, benchmark);
     const tradeoff = firstStr(narrative.tradeoff, r.score_band_note);
     const firstMove = firstStr(textItem(actions[0]));
-    const findingScope = firstStr(processName, metaScope, "the assessed operating scope");
+    const findingScope = firstStr(processName, metaScope, "the work described");
     const findingScopeWithArticle = /^[a-z]/.test(findingScope) && !/^(?:the|this|that)\b/i.test(findingScope)
       ? "the " + findingScope : findingScope;
     const centralFinding = primarySignal && primarySignal !== "Unavailable"
-      ? primarySignal + " is the clearest measured constraint in " + findingScopeWithArticle + "."
+      ? "Main measured focus for " + findingScopeWithArticle + ": " + primarySignal + "."
       : sentenceLead(headline, 1);
 
     return {
       kind: "run",
+      aiReport: obj(r.ai_report),
       compatibility: compatibility,
       product: "diagnostic",
       mastline: "Monderman. " + (toolLabel || "Diagnostic"),
       title: (toolLabel || "Diagnostic") + ": Executive Report",
-      subtitle: "An organizational read of this diagnostic: its quantified condition, primary structural signal, and recommended first moves.",
+      subtitle: "What this run measured, what the result may mean, what remains uncertain, and what to test next.",
       meta: [
         { label: "Generated", value: nowLabel() },
         { label: "Instrument", value: toolLabel || "Unavailable" }
@@ -461,9 +545,12 @@
       watch: watch,
       actions: actions,
       provenance: provenance,
+      questionnaireVersion: firstStr(r.questionnaire_version, r.config_version, provenance.questionnaire_version, provenance.config_version),
+      scorerVersion: firstStr(r.scorer_version, provenance.scorer_version),
+      reportLanguage: obj(r.report_language || provenance.report_language),
       kvs: kvs,
       sections: sections,
-      footnote: "This is one bounded Diagnostic run. It supports a directional operating read and an action hypothesis; it does not establish prevalence, population representativeness, causation, or verified returned capacity. Time, cost, and capacity figures, where shown, are directional scenario estimates.",
+      footnote: "This report is based on one participant's answers for the stated scope. It suggests issues to investigate and changes to test. It does not show how common these conditions are, prove their causes, predict performance, or confirm time or money saved. Time, cost, and capacity figures are estimates based on stated assumptions.",
       filenameBase: slug(toolType || "diagnostic"),
       source: obj(envelope.result).tool_type ? envelope : r
     };
@@ -508,8 +595,8 @@
     const exp = obj(m.exposure);
     const diagnosis = obj(m.diagnosis);
     const firstAction = arr(m.actions)[0] || {};
-    const annualCost = strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) : "Not priceable";
-    const annualHours = strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " hrs" : "Not priceable";
+    const annualCost = strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) : "Cost not calculated";
+    const annualHours = strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " hrs" : "Cost not calculated";
     const scoreValue = m.scorePublished && strictFinite(m.score) ? fmt1(m.score) : "Withheld";
     const metrics = [
       ["Condition", scoreValue, m.product === "depth" ? "Observed median" : "Equal-lens composite"],
@@ -525,7 +612,7 @@
       '<div class="mr-decision-frame">' + metrics + '</div>' +
       '<div class="mr-decision-story">' +
         (finding ? '<div><div class="mr-lens-label">What the evidence says</div><p>' + esc(finding) + '</p></div>' : '') +
-        (actionText ? '<div><div class="mr-lens-label">First supported move</div><h3>' + esc(actionLabel) + '</h3><p>' + esc(actionText) + '</p></div>' : '') +
+        (actionText ? '<div><div class="mr-lens-label">First thing to test</div><h3>' + esc(actionLabel) + '</h3><p>' + esc(actionText) + '</p></div>' : '') +
       '</div></section>';
   }
 
@@ -555,13 +642,13 @@
         m.scoreBasis
       ),
       evidenceCard("Scope", firstStr(scope.label, humanize(scope.status)), firstStr(scope.statement)),
-      evidenceCard("Lens balance", firstStr(humanize(balance.status), "Not applicable"), strictFinite(balance.ratio) ? "Strongest-to-weakest lens ratio: " + fmt1(balance.ratio) + ":1" : "Not applicable to one-Diagnostic Depth Synthesis."),
+      evidenceCard("Run-count balance across Diagnostics", firstStr(humanize(balance.status), "Not applicable"), strictFinite(balance.ratio) ? "Largest-to-smallest submitted-run count ratio: " + fmt1(balance.ratio) + ":1" : "Not applicable to one-Diagnostic Depth Synthesis."),
       evidenceCard("Diagnostic/scorer versions", firstStr(versions.label, humanize(versions.status)), versions.conflicting_lenses?.length ? "Conflicting Diagnostics: " + versions.conflicting_lenses.map(humanize).join(", ") : ""),
       evidenceCard("Source identity", humanize(identity.status), firstStr(identity.statement)),
       evidenceCard("Measurement window", humanize(timeWindow.status), firstStr(timeWindow.statement)),
       evidenceCard("Representativeness", firstStr(representative.label, humanize(representative.status)), firstStr(representative.statement))
     ].filter(Boolean).join("");
-    return '<section class="mr-section mr-evidence-status"><h2>' + n + '. Evidence status</h2>' +
+    return '<section class="mr-section mr-evidence-status"><h2>' + n + '. Evidence in this run</h2>' +
       '<div class="callout"><p><strong>' + esc(m.evidenceLabel) + '.</strong> ' + esc(m.evidenceDescription || "The evidence band governs what this Synthesis is allowed to claim.") + '</p></div>' +
       renderEvidenceLadder(m) +
       '<div class="mr-lens-grid mr-evidence-grid">' + cards + '</div></section>';
@@ -643,8 +730,8 @@
           '<div class="k">Outlier status</div><div>' + esc(outlierRead) + '</div>' +
         '</div>' +
         (consensus.detail ? '<div class="callout"><p><strong>' + esc(humanize(consensus.read)) + '.</strong> ' + esc(consensus.detail) + '</p></div>' : '') +
-        (segments ? '<h3 style="margin-top:20px">Observed vantage segments</h3><div class="kvs">' + segments + '</div>' : '') +
-        (read.vantageGap?.statement ? '<p class="mr-copy"><strong>Vantage difference:</strong> ' + esc(read.vantageGap.statement) + '</p>' : '') +
+        (segments ? '<h3 style="margin-top:20px">Results by participant perspective</h3><div class="kvs">' + segments + '</div>' : '') +
+        (read.vantageGap?.statement ? '<p class="mr-copy"><strong>Difference between perspectives:</strong> ' + esc(read.vantageGap.statement) + '</p>' : '') +
         (read.interpretationLimit ? '<p class="mr-copy">' + esc(read.interpretationLimit) + '</p>' : '') +
       '</div>';
     }).join("");
@@ -662,7 +749,7 @@
       '<div class="mr-depth-metrics">' +
         runMetric("Median Diagnostic Score", fmt1(read.median), firstStr(read.observedBand, m.conditionBand), "teal") +
         runMetric("Interquartile range", fmtPair(read.iqr, fmt1), "Middle 50% of eligible runs", "ink") +
-        runMetric("Perspective difference", strictFinite(gap.gap) ? fmt1(gap.gap) + " pts" : "Not established", strictFinite(gap.gap) ? humanize(gap.low_segment) + " to " + humanize(gap.high_segment) : "No published vantage gap", "amber") +
+        runMetric("Perspective difference", strictFinite(gap.gap) ? fmt1(gap.gap) + " pts" : "Not established", strictFinite(gap.gap) ? humanize(gap.low_segment) + " to " + humanize(gap.high_segment) : "No published difference between participant perspectives", "amber") +
         runMetric("Coverage", strictFinite(read.n) ? fmtWhole(read.n) + " runs" : fmtWhole(m.reads) + " runs", m.evidenceLabel, "green") +
       '</div><div class="mr-depth-reading-grid"><div><div class="mr-lens-label">Agreement versus divergence</div><p>' + esc(firstStr(obj(read.consensus).detail, "The distribution should be read with its spread and perspective segments, not as a uniform participant experience.")) + '</p></div>' +
       '<div><div class="mr-lens-label">Center stability</div><strong>' + esc(strictFinite(meanMedianGap) ? fmt1(meanMedianGap) + " pt mean–median gap" : "Not calculable") + '</strong><p>' + esc(strictFinite(meanMedianGap) && meanMedianGap <= 2 ? "The mean and median are closely aligned in the submitted set." : "The difference between mean and median should remain visible when interpreting the center.") + '</p></div></div></section>';
@@ -784,8 +871,8 @@
         runMetric("Weakest observed lens", lowest ? lowest.toolLabel : "Unavailable", lowest ? fmt1(lowest.mean) + " mean" : "", "amber") +
         runMetric("Observed spread", strictFinite(spread) ? fmt1(spread) + " pts" : "Unavailable", m.evidenceLabel, "ink") +
       '</div><div class="mr-system-decision">' +
-        (firstAction.text ? '<div><div class="mr-lens-label">First evidence-proportionate move</div><h3>' + esc(firstStr(firstAction.label, "First supported move")) + '</h3><p>' + esc(firstAction.text) + '</p></div>' : '') +
-        '<div><div class="mr-lens-label">Source-backed exposure</div><strong>' + esc(strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) : "Not priceable") + '</strong><p>' + esc(strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " median annual burden hours" : "Exposure is withheld or unavailable for the submitted runs.") + '</p></div>' +
+        (firstAction.text ? '<div><div class="mr-lens-label">First evidence-proportionate move</div><h3>' + esc(firstStr(firstAction.label, "First thing to test")) + '</h3><p>' + esc(firstAction.text) + '</p></div>' : '') +
+        '<div><div class="mr-lens-label">Source-backed exposure</div><strong>' + esc(strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) : "Cost not calculated") + '</strong><p>' + esc(strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " median annual burden hours" : "Exposure is withheld or unavailable for the submitted runs.") + '</p></div>' +
       '</div></section>';
   }
 
@@ -858,36 +945,36 @@
         '<div class="mr-range-track"><span class="mr-range-iqr" style="left:' + left.toFixed(2) + '%;width:' + width.toFixed(2) + '%"></span><span class="mr-range-median" style="left:' + median.toFixed(2) + '%"></span></div>' +
         '<div class="mr-range-foot">Median ' + esc(formatter(md)) + '</div></div>');
     }
-    row('Annual burden hours', exp.annual_hours_low, exp.annual_hours, exp.annual_hours_high, fmtWhole);
-    row('Annual labor cost', exp.annual_cost_low, exp.annual_cost, exp.annual_cost_high, fmtMoney);
+    row('Modeled annual hours', exp.annual_hours_low, exp.annual_hours, exp.annual_hours_high, fmtWhole);
+    row('Modeled annual labor cost', exp.annual_cost_low, exp.annual_cost, exp.annual_cost_high, fmtMoney);
     if (!rows.length) return "";
-    return '<div class="mr-viz-panel mr-exposure-range"><div class="mr-viz-title">Observed exposure ranges</div>' + rows.join("") + '<p class="mr-copy">Range bars summarize the submitted priceable runs. Hours and cost use separate local scales; bar lengths should not be compared across the two metrics.</p></div>';
+    return '<div class="mr-viz-panel mr-exposure-range"><div class="mr-viz-title">Range of modeled estimates</div>' + rows.join("") + '<p class="mr-copy">Range bars summarize modeled estimates from runs with enough data for a cost estimate. Hours and cost use separate local scales; bar lengths should not be compared across the two metrics.</p></div>';
   }
 
   function renderMetaExposure(m, n) {
     const exp = obj(m.exposure);
     if (!exp.status) return "";
     if (exp.status === "withheld" || exp.status === "unavailable") {
-      return '<section class="mr-section"><h2>' + n + '. Pathway exposure</h2><div class="callout"><p><strong>' + esc(firstStr(exp.label, "Exposure withheld")) + '.</strong> ' + esc(firstStr(exp.withheld_reason, "The submitted runs do not contain enough source-backed economic data.")) + '</p></div></section>';
+      return '<section class="mr-section"><h2>' + n + '. Modeled time and labor-cost estimates</h2><div class="callout"><p><strong>' + esc(firstStr(exp.label, "Exposure withheld")) + '.</strong> ' + esc(firstStr(exp.withheld_reason, "The submitted runs do not contain enough data for modeled time and labor-cost estimates.")) + '</p></div></section>';
     }
     const kvs = [
       ["Status", humanize(exp.status)],
-      ["Priceable runs", fmtWhole(exp.priceable_runs) + " of " + fmtWhole(exp.total_runs)],
-      ["Median annual hours", fmtWhole(exp.annual_hours)],
-      ["Observed hours IQR", strictFinite(exp.annual_hours_low) && strictFinite(exp.annual_hours_high) ? fmtWhole(exp.annual_hours_low) + " – " + fmtWhole(exp.annual_hours_high) : "Unavailable"],
-      ["Median annual labor cost", fmtMoney(exp.annual_cost)],
-      ["Observed cost IQR", strictFinite(exp.annual_cost_low) && strictFinite(exp.annual_cost_high) ? fmtMoney(exp.annual_cost_low) + " – " + fmtMoney(exp.annual_cost_high) : "Unavailable"],
+      ["Runs with enough data for a cost estimate", fmtWhole(exp.priceable_runs) + " of " + fmtWhole(exp.total_runs)],
+      ["Median modeled annual hours", fmtWhole(exp.annual_hours)],
+      ["Modeled annual-hours IQR", strictFinite(exp.annual_hours_low) && strictFinite(exp.annual_hours_high) ? fmtWhole(exp.annual_hours_low) + " – " + fmtWhole(exp.annual_hours_high) : "Unavailable"],
+      ["Median modeled annual labor cost", fmtMoney(exp.annual_cost)],
+      ["Modeled annual-cost IQR", strictFinite(exp.annual_cost_low) && strictFinite(exp.annual_cost_high) ? fmtMoney(exp.annual_cost_low) + " – " + fmtMoney(exp.annual_cost_high) : "Unavailable"],
       ["Median capacity drag", fmtPercent(exp.capacity_drag_percent)],
       ["Recoverable range across Diagnostic medians", strictFinite(exp.recoverable_cost_low) && strictFinite(exp.recoverable_cost_high) ? fmtMoney(exp.recoverable_cost_low) + " – " + fmtMoney(exp.recoverable_cost_high) : "Unavailable"]
     ].map(([k, v]) => '<div class="k">' + esc(k) + '</div><div>' + esc(v) + '</div>').join("");
-    return '<section class="mr-section"><h2>' + n + '. Source-backed pathway exposure</h2>' + renderExposureRangeGraphic(exp) + '<div class="kvs">' + kvs + '</div>' +
+    return '<section class="mr-section"><h2>' + n + '. Modeled time and labor-cost estimates</h2>' + renderExposureRangeGraphic(exp) + '<div class="kvs">' + kvs + '</div>' +
       '<div class="callout"><p><strong>Aggregation rule.</strong> ' + esc(firstStr(exp.basis, "Repeated estimates are summarized, not added together.")) + '</p></div></section>';
   }
 
   function renderRequirements(m, n) {
     const requirements = arr(m.requirements);
     if (!requirements.length) return "";
-    return '<section class="mr-section"><h2>' + n + '. What would strengthen the read</h2>' +
+    return '<section class="mr-section mr-requirements"><h2>' + n + '. What would strengthen the read</h2>' +
       requirements.map((item) => '<div class="mr-card mr-editorial-row mr-requirement-row"><span class="mr-pill">' + esc(humanize(item.type)) + '</span><p style="margin-top:10px">' + esc(item.text) + '</p></div>').join("") + '</section>';
   }
 
@@ -916,8 +1003,8 @@
       (m.remedyStatement ? '<p class="mr-copy">' + esc(m.remedyStatement) + '</p>' : '') +
       '<div class="mr-remedy-grid">' + paths.map((path, index) =>
         '<div class="mr-card mr-remedy-card">' +
-          '<div class="mr-remedy-head"><span class="mr-remedy-number">0' + (index + 1) + '</span><div><div class="mr-lens-label">' + esc(path.kicker || path.sourceLens || "Candidate path") + '</div>' +
-          '<h3>' + esc(path.label || "Remedy path") + '</h3>' +
+          '<div class="mr-remedy-head"><span class="mr-remedy-number">0' + (index + 1) + '</span><div><div class="mr-lens-label">' + esc(path.kicker || path.sourceLens || "Option") + '</div>' +
+          '<h3>' + esc(path.label || "Option") + '</h3>' +
           '</div></div>' +
           (path.summary ? '<p>' + esc(path.summary) + '</p>' : '') +
           (path.actions.length ? '<div class="mr-remedy-actions"><div class="mr-remedy-field-label">Recommended actions</div><ol>' + path.actions.map((action) => '<li>' + esc(action) + '</li>').join("") + '</ol></div>' : '') +
@@ -938,7 +1025,7 @@
       ["Senior Leader", firstStr(experience.senior_leader, experience.senior_leaders)]
     ].filter(([, value]) => value);
     if (!entries.length && !experience.interpretation_limit) return "";
-    const heading = experience.participant_reports_available ? "What participants reported" : "Vantage evidence";
+    const heading = experience.participant_reports_available ? "What participants reported" : "Results by participant perspective";
     return '<section class="mr-section"><h2>' + n + '. ' + heading + '</h2>' +
       entries.map(([label, value]) => '<div class="mr-card mr-editorial-row mr-vantage-row"><h3>' + esc(label) + '</h3><p>' + esc(value) + '</p></div>').join("") +
       (experience.interpretation_limit ? '<p class="mr-copy">' + esc(experience.interpretation_limit) + '</p>' : '') + '</section>';
@@ -956,9 +1043,9 @@
 
   function renderMetaMethod(m, n) {
     const method = m.product === "depth"
-      ? "The published condition is the median of the submitted scores from one Diagnostic. The observed distribution, vantage differences, scope, source identity, versions, measurement window, and sampling frame are reported separately. Sample size alone does not establish population representativeness."
+      ? "The published condition is the median of the submitted scores from one Diagnostic. The observed distribution, differences between participant perspectives, scope, source identity, versions, measurement window, and sampling frame are reported separately. Sample size alone does not establish population representativeness."
       : "When the Coherent or Strong evidence threshold is met, the published composite is the arithmetic mean of the contributing Diagnostic means, so each Diagnostic receives one vote regardless of participant count. Participant depth governs evidence strength and balance. A Comparison Only or Directional read withholds the composite. Diagnostic disagreement remains visible and is not subtracted from the condition score.";
-    return '<section class="mr-section"><h2>' + n + '. Method and limits</h2><p>' + esc(method) + '</p>' +
+    return '<section class="mr-section mr-meta-method"><h2>' + n + '. Method and limits</h2><p>' + esc(method) + '</p>' +
       (m.organizationalImplication ? '<div class="callout"><p><strong>Organizational implication.</strong> ' + esc(m.organizationalImplication) + '</p></div>' : '') + '</section>';
   }
 
@@ -992,6 +1079,9 @@
     ];
     let html = "", n = 1;
     renderers.forEach((renderer) => {
+      // A completed interpretation supplies the tailored options. Preserve the
+      // measured findings and method without a competing generic action plan.
+      if (obj(m.aiReport).status === 'complete' && [renderMetaActions, renderMetaRemedyPaths, renderMetaIndicators].includes(renderer)) return;
       const block = renderer(m, n);
       if (block) { html += block; n += 1; }
     });
@@ -1011,21 +1101,21 @@
   function renderRunDecisionBrief(m, n) {
     const exp = obj(m.exposure);
     const score = strictFinite(m.score) ? fmt1(m.score) : "Unavailable";
-    const hours = strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " hrs" : "Not priceable";
-    const cost = strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) : "Not priceable";
+    const hours = strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " hrs" : "Cost not calculated";
+    const cost = strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) : "Cost not calculated";
     const drag = strictFinite(exp.capacity_drag_percent) ? fmtPercent(exp.capacity_drag_percent) : "Not estimated";
-    return '<section class="mr-section mr-run-decision"><div class="mr-section-index">0' + n + ' · Executive decision brief</div>' +
+    return '<section class="mr-section mr-run-decision"><div class="mr-section-index">0' + n + ' · Decision summary</div>' +
       '<div class="mr-run-headline"><div><h2>' + esc(m.headline || "Measured operating condition") + '</h2><p class="mr-exec-lede">' + esc(m.execSummary) + '</p></div>' +
       '<div class="mr-run-score-stamp"><span>Diagnostic score</span><strong>' + esc(score) + '</strong><em>' + esc(m.band) + '</em></div></div>' +
       '<div class="mr-run-metrics">' +
         runMetric("Primary measured focus", m.primarySignal, m.primarySignalNote, "teal") +
-        runMetric("Annual burden", hours, cost + " directional labor exposure", "ink") +
-        runMetric("Capacity equivalent", drag, strictFinite(exp.total_capacity_hours) ? fmtWhole(exp.total_capacity_hours) + " disclosed annual capacity hours" : "Scenario estimate", "amber") +
+        runMetric("Modeled annual time", hours, cost + " modeled annual labor cost", "ink") +
+        runMetric("Modeled share of capacity", drag, strictFinite(exp.total_capacity_hours) ? fmtWhole(exp.total_capacity_hours) + " annual capacity hours used in the model" : "Scenario estimate", "amber") +
         runMetric("Evidence depth", m.evidenceBand, m.participantMode + " perspective", "green") +
       '</div>' +
       '<div class="mr-run-decision-story">' +
-        '<div><div class="mr-lens-label">Leadership implication</div><p>' + esc(m.bottomLine) + '</p></div>' +
-        (m.firstMove ? '<div><div class="mr-lens-label">First supported move</div><p>' + esc(m.firstMove) + '</p></div>' : '') +
+        '<div><div class="mr-lens-label">What this may mean</div><p>' + esc(m.bottomLine) + '</p></div>' +
+        (m.firstMove ? '<div><div class="mr-lens-label">First thing to test</div><p>' + esc(m.firstMove) + '</p></div>' : '') +
       '</div></section>';
   }
 
@@ -1037,8 +1127,8 @@
     const bar = segments.map((segment, index) => '<span style="width:' + Math.max(0, Math.min(100, Number(segment.pct))).toFixed(2) + '%;background:' + palette[index % palette.length] + '" title="' + esc(firstStr(segment.label, humanize(segment.key)) + ": " + fmt1(segment.pct) + "% of measured constraint") + '"></span>').join("");
     const legend = segments.map((segment, index) => '<div><i style="background:' + palette[index % palette.length] + '"></i><span>' + esc(firstStr(segment.label, humanize(segment.key))) + '</span><strong>' + esc(fmt1(segment.pct)) + '%</strong></div>').join("");
     const primary = obj(composition.primary);
-    return '<div class="mr-constraint-view"><div class="mr-viz-title">Constraint concentration</div><div class="mr-constraint-bar" role="img" aria-label="Measured constraint composition by dimension">' + bar + '</div>' +
-      '<div class="mr-constraint-legend">' + legend + '</div><div class="mr-constraint-read"><div><div class="mr-lens-label">Profile shape</div><strong>' + esc(humanize(firstStr(composition.shape, obj(m.descriptor).burden_distribution_type, "Not classified"))) + '</strong></div>' +
+    return '<div class="mr-constraint-view"><div class="mr-viz-title">Where the measured issue appears</div><div class="mr-constraint-bar" role="img" aria-label="Share of the measured issue by dimension">' + bar + '</div>' +
+      '<div class="mr-constraint-legend">' + legend + '</div><div class="mr-constraint-read"><div><div class="mr-lens-label">Pattern across dimensions</div><strong>' + esc(humanize(firstStr(composition.shape, obj(m.descriptor).burden_distribution_type, "Not classified"))) + '</strong></div>' +
       '<p>' + esc(firstStr(obj(m.descriptor).dominant_burden_note, primary.label ? primary.label + " carries the largest measured share of the constraint profile." : "The chart shows how the measured constraint is distributed across dimensions.")) + '</p></div></div>';
   }
 
@@ -1047,7 +1137,7 @@
     if (!dimensions.length) return "";
     const rows = dimensions.map((dimension) => {
       const score = Math.max(0, Math.min(100, Number(dimension.score)));
-      const evidenceCount = strictFinite(dimension.coverage.evidence_count) ? fmtWhole(dimension.coverage.evidence_count) + " scored inputs" : "Measured dimension";
+      const evidenceCount = strictFinite(dimension.coverage.evidence_count) ? fmtWhole(dimension.coverage.evidence_count) + (dimension.coverage.evidence_count === 1 ? " scored input" : " scored inputs") : "Measured dimension";
       const isPrimary = String(dimension.label).toLowerCase() === String(m.primarySignal).toLowerCase();
       return '<div class="mr-dimension-row' + (isPrimary ? ' is-primary' : '') + '">' +
         '<div class="mr-dimension-copy"><strong>' + esc(dimension.label) + '</strong><span>' + esc(fmt1(score)) + '</span></div>' +
@@ -1056,10 +1146,10 @@
     }).join("");
     const findings = arr(m.findings).map(textItem).filter(Boolean);
     return '<section class="mr-section mr-run-dimensions"><div class="mr-section-index">0' + n + ' · Measured condition</div>' +
-      '<h2>Dimension profile</h2><p class="mr-lede">The profile keeps the total score and its contributing dimensions visible together. Lower values indicate the areas carrying the greatest measured constraint in this Diagnostic.</p>' +
+      '<h2>Dimension profile</h2><p class="mr-lede">The profile keeps the total score and its contributing dimensions visible together. For condition dimensions, lower values indicate greater measured constraint. For Compensatory Effort, when shown, higher values indicate more reported extra effort.</p>' +
       '<div class="mr-dimension-axis" aria-hidden="true"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>' +
       '<div class="mr-dimension-profile">' + rows + '</div>' + renderConstraintConcentration(m) +
-      (findings.length ? '<div class="mr-run-findings"><div class="mr-lens-label">Scorer findings</div><ul>' + findings.map((item) => '<li>' + esc(item) + '</li>').join("") + '</ul></div>' : '') + '</section>';
+      (findings.length ? '<div class="mr-run-findings"><div class="mr-lens-label">Findings from scored answers</div><ul>' + findings.map((item) => '<li>' + esc(item) + '</li>').join("") + '</ul></div>' : '') + '</section>';
   }
 
   function renderRunExposure(m, n) {
@@ -1071,25 +1161,25 @@
     const meetingHours = context.meetingHours ?? context.meeting_hours;
     const hourlyCost = exp.average_hourly_cost ?? exp.hourly_cost ?? context.hourlyCost ?? context.hourly_cost;
     const steps = [
-      ["01", "Disclosed workload", strictFinite(people) ? fmtWhole(people) + " people" : "Bounded scope", [strictFinite(cycles) ? fmtWhole(cycles) + " annual cycles" : "", strictFinite(meetingHours) ? fmt1(meetingHours) + " hours per run" : ""].filter(Boolean).join(" · ")],
-      ["02", "Attributed burden", strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " hours" : "Not priceable", firstStr(model.formula, exp.unpriced_reason, "Directional scenario")],
-      ["03", "Labor exposure", strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) : "Not priceable", strictFinite(hourlyCost) ? fmtMoney(hourlyCost) + " loaded hourly cost" : firstStr(exp.unpriced_reason)],
-      ["04", "Potentially reclaimable", strictFinite(exp.recoverable_cost) ? fmtMoney(exp.recoverable_cost) : "Not established", strictFinite(exp.recoverable_share_percent) ? fmtPercent(exp.recoverable_share_percent) + " modeled share" : "Not claimed"]
+      ["01", "Workload entered", strictFinite(people) ? fmtWhole(people) + " people" : "Bounded scope", [strictFinite(cycles) ? fmtWhole(cycles) + " annual cycles" : "", strictFinite(meetingHours) ? fmt1(meetingHours) + " hours per run" : ""].filter(Boolean).join(" · ")],
+      ["02", "Modeled burden time", strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " hours" : "Cost not calculated", firstStr(model.formula, exp.unpriced_reason, "Directional scenario")],
+      ["03", "Modeled labor cost", strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) : "Cost not calculated", strictFinite(hourlyCost) ? fmtMoney(hourlyCost) + " loaded hourly cost" : firstStr(exp.unpriced_reason)],
+      ["04", "Modeled recovery scenario", strictFinite(exp.recoverable_cost) ? fmtMoney(exp.recoverable_cost) : "Not established", strictFinite(exp.recoverable_share_percent) ? fmtPercent(exp.recoverable_share_percent) + " modeled share" : "Not claimed"]
     ];
-    return '<section class="mr-section mr-run-exposure"><div class="mr-section-index">0' + n + ' · Capacity exposure</div><h2>How the disclosed scenario becomes exposure</h2>' +
-      '<p class="mr-lede">Workload assumptions, attributed burden, labor exposure, and reclaimable potential remain separate so the estimate can be audited instead of mistaken for an empirical benchmark.</p>' +
+    return '<section class="mr-section mr-run-exposure"><div class="mr-section-index">0' + n + ' · Time and cost scenario</div><h2>How the time and cost estimate is built</h2>' +
+      '<p class="mr-lede">Workload assumptions, modeled time, modeled labor cost, and the recovery scenario stay separate so each assumption can be reviewed. None is an audited or realized saving.</p>' +
       '<div class="mr-exposure-flow">' + steps.map((step) => '<div class="mr-exposure-step"><span>' + step[0] + '</span><div class="mr-lens-label">' + esc(step[1]) + '</div><strong>' + esc(step[2]) + '</strong><p>' + esc(step[3]) + '</p></div>').join("") + '</div>' +
       (model.note ? '<p class="mr-model-note">' + esc(model.note) + '</p>' : '') + '</section>';
   }
 
   function renderRunGovernance(m, n) {
     if (!m.benchmarkDetail && !m.tradeoff && !m.trajectoryLabel && !m.quadrant) return "";
-    return '<section class="mr-section mr-run-leadership"><div class="mr-section-index">0' + n + ' · Leadership read</div><h2>What leadership should, and should not, take from the result</h2>' +
+    return '<section class="mr-section mr-run-leadership"><div class="mr-section-index">0' + n + ' · How to interpret the result</div><h2>What the result supports and what it does not</h2>' +
       '<div class="mr-leadership-grid">' +
-        (m.benchmarkDetail ? '<div><div class="mr-lens-label">Design-reference context</div><p>' + esc(m.benchmarkDetail) + '</p></div>' : '') +
-        (m.tradeoff ? '<div><div class="mr-lens-label">Tradeoff to preserve</div><p>' + esc(m.tradeoff) + '</p></div>' : '') +
-        (m.quadrant ? '<div><div class="mr-lens-label">Governance × execution interpretation</div><p>' + esc(m.quadrant) + '</p></div>' : '') +
-        (m.trajectoryLabel ? '<div><div class="mr-lens-label">Directional signal</div><strong>' + esc(m.trajectoryLabel) + '</strong>' + (m.trajectoryNote ? '<p>' + esc(m.trajectoryNote) + '</p>' : '') + '</div>' : '') +
+        (m.benchmarkDetail ? '<div><div class="mr-lens-label">Design reference (not a peer benchmark)</div><p>' + esc(m.benchmarkDetail) + '</p></div>' : '') +
+        (m.tradeoff ? '<div><div class="mr-lens-label">Tradeoff to consider</div><p>' + esc(m.tradeoff) + '</p></div>' : '') +
+        (m.quadrant ? '<div><div class="mr-lens-label">Relationship between the measured dimensions</div><p>' + esc(m.quadrant) + '</p></div>' : '') +
+        (m.trajectoryLabel ? '<div><div class="mr-lens-label">Participant-reported change</div><strong>' + esc(m.trajectoryLabel) + '</strong>' + (m.trajectoryNote ? '<p>' + esc(m.trajectoryNote) + '</p>' : '') + '</div>' : '') +
       '</div></section>';
   }
 
@@ -1103,11 +1193,11 @@
       const row = obj(item);
       return '<div class="mr-evidence-quote"><div class="mr-lens-label">' + esc(humanize(firstStr(row.participant_mode, row.perspective, "Participant evidence"))) + '</div><p>' + esc(firstStr(row.text, row.message, row.summary)) + '</p></div>';
     }).join("") : '<div class="mr-evidence-empty"><div class="mr-lens-label">Participant evidence</div><h3>No usable participant notes are presented.</h3><p>The report therefore makes no participant-statement or experiential claim.</p></div>';
-    return '<section class="mr-section mr-run-evidence"><div class="mr-section-index">0' + n + ' · Evidence status</div><h2>What evidence is, and is not, in this run</h2>' +
+    return '<section class="mr-section mr-run-evidence"><div class="mr-section-index">0' + n + ' · Evidence in this run</div><h2>What this result is based on</h2>' +
       '<div class="mr-evidence-summary">' +
-        runMetric("Evidence depth", m.evidenceBand, "Single-run claim strength", "teal") +
-        runMetric("Measured dimensions", strictFinite(measured) && strictFinite(total) ? fmtWhole(measured) + " of " + fmtWhole(total) : fmtWhole(arr(m.dimensionEntries).length), "Scored condition coverage", "ink") +
-        runMetric("Perspective", m.participantMode, "Reported separately from scored inputs", "green") +
+        runMetric("Evidence depth", m.evidenceBand, "Scope of this single run", "teal") +
+        runMetric("Measured dimensions", strictFinite(measured) && strictFinite(total) ? fmtWhole(measured) + " of " + fmtWhole(total) : fmtWhole(arr(m.dimensionEntries).length), "Dimensions represented", "ink") +
+        runMetric("Perspective", m.participantMode, "Notes do not change the score", "green") +
       '</div><div class="mr-run-evidence-grid"><div>' + evidenceHtml + '</div>' +
       (watch.length ? '<div><div class="mr-lens-label">What to watch next</div><ul>' + watch.map((item) => '<li>' + esc(item) + '</li>').join("") + '</ul></div>' : '<div class="mr-evidence-clean"><div class="mr-lens-label">Watch items</div><p>No additional watch item was returned for this representative run.</p></div>') +
       '</div></section>';
@@ -1122,9 +1212,9 @@
       const severity = strictFinite(row.severity) ? Number(row.severity) : (strictFinite(row.weakness) ? Number(row.weakness) : 50);
       const x = 28 + (Math.max(0, Math.min(100, severity)) / 100) * 64;
       const y = yPositions[index] || 94;
-      return '<div class="mr-priority-point" style="left:' + x.toFixed(2) + '%;top:' + y + '%" data-rank="' + (index + 1) + '"><span>' + (index + 1) + '</span><div><strong>' + esc(firstStr(row.focus, row.label, "Measured focus")) + '</strong><small>' + esc(firstStr(row.priority, "Priority")) + ' · ' + esc(fmt1(severity)) + '</small></div></div>';
+      return '<div class="mr-priority-point' + (x > 50 ? ' mr-priority-label-left' : '') + '" style="left:' + x.toFixed(2) + '%;top:' + y + '%" data-rank="' + (index + 1) + '"><span>' + (index + 1) + '</span><div><strong>' + esc(firstStr(row.focus, row.label, "Measured focus")) + '</strong><small>' + esc(firstStr(row.priority, "Priority")) + ' · ' + esc(fmt1(severity)) + '</small></div></div>';
     }).join("");
-    return '<div class="mr-priority-matrix"><div class="mr-viz-title">Priority map · scorer sequence × measured constraint</div><div class="mr-priority-plot" role="img" aria-label="Priority sequence plotted against measured constraint severity"><span class="mr-priority-axis-y">Earlier in sequence</span><span class="mr-priority-axis-x">Greater measured constraint →</span><i class="mr-priority-grid-x"></i><i class="mr-priority-grid-y"></i>' + points + '</div><p class="mr-copy">Horizontal position uses the returned weakness or severity value. Vertical position preserves the scorer’s returned action sequence; it is not a separately calculated risk score.</p></div>';
+    return '<div class="mr-priority-matrix"><div class="mr-viz-title">Priority order and measured severity</div><div class="mr-priority-plot" role="img" aria-label="Priority order plotted against measured severity"><span class="mr-priority-axis-y">Test earlier</span><span class="mr-priority-axis-x">Greater measured severity →</span><i class="mr-priority-grid-x"></i><i class="mr-priority-grid-y"></i>' + points + '</div><p class="mr-copy">Horizontal position shows measured severity. Vertical position follows the report\'s suggested testing order; it is not a separate risk score.</p></div>';
   }
 
   function renderRunActions(m, n) {
@@ -1135,35 +1225,43 @@
       const severity = strictFinite(row.severity) ? row.severity : (strictFinite(row.weakness) ? row.weakness : null);
       return '<div class="mr-priority-row"><span>0' + (index + 1) + '</span><div><div class="mr-lens-label">' + esc(firstStr(row.priority, "Priority")) + '</div><strong>' + esc(firstStr(row.focus, row.label, "Measured focus")) + '</strong></div><em>' + esc(severity === null ? "Unavailable" : fmt1(severity)) + '</em></div>';
     }).join("") + '</div>' : '';
+    const adjustedRemedyRecovery = remedies.some((item) => hasGeneratedRemedyRecoveryRange(obj(item).benefit));
     const remediesHtml = remedies.length ? '<div class="mr-remedy-grid">' + remedies.slice(0, 3).map((item, index) => {
       const path = obj(item);
-      const evidenceRow = obj(ladder[Math.min(index, Math.max(0, ladder.length - 1))]);
-      const evidenceSeverity = strictFinite(evidenceRow.severity) ? evidenceRow.severity : evidenceRow.weakness;
-      const evidenceBasis = firstStr(evidenceRow.focus, evidenceRow.label, m.primarySignal) + (strictFinite(evidenceSeverity) ? " · " + fmt1(evidenceSeverity) + " measured constraint" : "");
-      return '<article class="mr-card mr-remedy-card mr-run-remedy" data-path-depth="' + (index + 1) + '"><div class="mr-remedy-head"><span class="mr-remedy-number">0' + (index + 1) + '</span><div><div class="mr-lens-label">' + esc(firstStr(path.kicker, "Candidate path")) + '</div><h3>' + esc(firstStr(path.label, "Remedy path")) + '</h3></div></div>' +
+      const benefit = displayRemedyBenefit(path.benefit);
+      return '<article class="mr-card mr-remedy-card mr-run-remedy" data-path-depth="' + (index + 1) + '"><div class="mr-remedy-head"><span class="mr-remedy-number">0' + (index + 1) + '</span><div><div class="mr-lens-label">' + esc(firstStr(path.kicker, "Option")) + '</div><h3>' + esc(firstStr(path.label, "Option")) + '</h3></div></div>' +
         (path.summary ? '<p>' + esc(path.summary) + '</p>' : '') +
-        (arr(path.actions).length ? '<div class="mr-remedy-actions"><div class="mr-remedy-field-label">Engine-generated actions</div><ol>' + arr(path.actions).map((action) => '<li>' + esc(textItem(action)) + '</li>').join("") + '</ol></div>' : '') +
-        '<div class="mr-remedy-tradeoffs">' + (path.benefit ? '<div><div class="mr-remedy-field-label">Potential benefit</div><p>' + esc(path.benefit) + '</p></div>' : '') + (path.risk ? '<div><div class="mr-remedy-field-label">Tradeoff</div><p>' + esc(path.risk) + '</p></div>' : '') + '</div><div class="mr-remedy-evidence"><span>Measured evidence link</span><strong>' + esc(evidenceBasis) + '</strong></div></article>';
-    }).join("") + '</div>' : '';
-    return '<section class="mr-section mr-run-action-board"><div class="mr-section-index">0' + n + ' · Action architecture</div><h2>Priorities and graduated remedy paths</h2>' +
-      '<p class="mr-lede">The priority ladder identifies what to address first. Remedy paths increase intervention depth without changing the measured result.</p>' + renderPriorityMatrix(m) + ladderHtml +
-      (actions.length ? '<div class="mr-run-actions"><div class="mr-lens-label">Recommended sequence</div><ol>' + actions.map((action) => '<li>' + esc(action) + '</li>').join("") + '</ol></div>' : '') + remediesHtml + '</section>';
+        (arr(path.actions).length ? '<div class="mr-remedy-actions"><div class="mr-remedy-field-label">Suggested steps</div><ol>' + arr(path.actions).map((action) => '<li>' + esc(textItem(action)) + '</li>').join("") + '</ol></div>' : '') +
+        '<div class="mr-remedy-tradeoffs">' + (benefit ? '<div><div class="mr-remedy-field-label">Potential benefit</div><p>' + esc(benefit) + '</p></div>' : '') + (path.risk ? '<div><div class="mr-remedy-field-label">Tradeoff</div><p>' + esc(path.risk) + '</p></div>' : '') + '</div></article>';
+    }).join("") + '</div>' + (adjustedRemedyRecovery ? '<p class="mr-copy">The report-wide modeled recovery scenario is not divided among these options. Each option must be tested before any recovery is claimed.</p>' : '') : '';
+    if (obj(m.aiReport).status === "complete") return '<section class="mr-section mr-run-action-board"><h2>Measured priorities</h2>' + renderPriorityMatrix(m) + ladderHtml + '</section>';
+    return '<section class="mr-section mr-run-action-board"><div class="mr-section-index">0' + n + ' · What to test next</div><h2>Priorities and options</h2>' +
+      '<p class="mr-lede">The priority list ranks measured issues. The options describe different scopes of change and do not correspond one-to-one with that list. None changes the score or predicts an outcome.</p>' + renderPriorityMatrix(m) + ladderHtml +
+      (actions.length ? '<div class="mr-run-actions"><div class="mr-lens-label">Suggested order</div><ol>' + actions.map((action) => '<li>' + esc(action) + '</li>').join("") + '</ol></div>' : '') + remediesHtml + '</section>';
   }
 
   function renderRunMethod(m, n) {
     const p = obj(m.provenance), c = obj(m.context), model = obj(obj(m.exposure).model);
+    const language = obj(m.reportLanguage), migration = obj(language.migration);
     const rows = [
       ["Instrument", m.toolLabel], ["Operating scope", firstStr(m.processName, m.scopeLabel)],
-      ["Participant perspective", m.participantMode], ["Input depth", firstStr(obj(m.source).input_confidence_label, c.confidenceLevel, c.confidence_level)],
-      ["Trajectory", m.trajectoryLabel], ["Exposure model", firstStr(model.version, model.model_type)],
+      ["Participant perspective", m.participantMode], ["Confidence in answers", firstStr(obj(m.source).input_confidence_label, c.confidenceLevel, c.confidence_level)],
+      ["Reported change", m.trajectoryLabel], ["Calculation method", displayCalculationMethod(model.model_type)],
+      ["Calculation version", firstStr(model.version)],
+      ["Questionnaire version", m.questionnaireVersion || "Not recorded"],
+      ["Scoring version", displayScoringVersion(m.scorerVersion)],
+      ["Report wording version", firstStr(language.generation_version, "Not recorded")],
+      ["Current display version", RENDERER_VERSION],
       ["Engine revision", firstStr(p.engine_commit)], ["Artifact digest", firstStr(p.artifact_sha256)]
     ].filter((row) => row[1]);
-    return '<section class="mr-section mr-run-method"><div class="mr-section-index">0' + n + ' · Method and limits</div><h2>Basis of this read</h2><dl>' +
+    return '<section class="mr-section mr-run-method"><div class="mr-section-index">0' + n + ' · Method and limits</div><h2>How this report was produced</h2><dl>' +
       rows.map((row) => '<div><dt>' + esc(row[0]) + '</dt><dd>' + esc(row[1]) + '</dd></div>').join("") + '</dl>' +
-      '<p class="mr-method-copy">The Diagnostic score and dimensions come from the submitted scored inputs. Participant statements, where present, remain separate and do not reweight the score. Design-reference language is instrument calibration, not a sampled peer benchmark.</p></section>';
+      (migration.from_version ? '<p class="mr-method-copy">Report wording was generated with a newer template when this run completed. The recorded answers, scoring method, and numeric result were preserved. Original wording version: ' + esc(migration.from_version) + '.</p>' : '') +
+      '<p class="mr-method-copy">The score and dimension values come from the submitted answers. Participant notes, when present, are shown separately and do not change the score. Time and cost calculations are modeled planning scenarios, not measured benchmarks. The design reference was set when the instrument was designed; it is not a comparison with customer or industry data.</p></section>';
   }
 
   function renderRunLeadershipClose(m, n) {
+    if (obj(m.aiReport).status === "complete") return "";
     const ladder = arr(m.priorityLadder);
     const indicators = ladder.slice(0, 3).map((item) => firstStr(obj(item).focus, obj(item).label)).filter(Boolean);
     const scope = firstStr(m.processName, m.scopeLabel, "the measured operating scope");
@@ -1174,14 +1272,14 @@
       "What observable result will count as improvement, and what would show that burden was only displaced?",
       "Which owner will preserve the same scope and inputs for like-for-like remeasurement?"
     ];
-    return '<section class="mr-section mr-leadership-close"><div class="mr-section-index">0' + n + ' · Leadership handoff</div><h2>Turn the read into a bounded operating decision</h2>' +
+    return '<section class="mr-section mr-leadership-close"><div class="mr-section-index">0' + n + ' · Next decision</div><h2>Turn the result into a small, measurable test</h2>' +
       '<div class="mr-leadership-close-grid"><div class="mr-leadership-sequence"><div class="mr-lens-label">Sequence</div><ol>' +
         '<li><strong>Assign ownership.</strong><span>Name one accountable owner for ' + esc(firstStr(m.primarySignal, "the primary measured constraint")) + '.</span></li>' +
-        '<li><strong>Run the first bounded move.</strong><span>' + esc(firstAction || "Select the smallest returned action that can test the diagnosis without adding new operating burden.") + '</span></li>' +
+        '<li><strong>Run the first test.</strong><span>' + esc(firstAction || "Select the smallest returned action that can test the diagnosis without adding new operating burden.") + '</span></li>' +
         '<li><strong>Watch the measured indicators.</strong><span>' + esc(indicators.length ? indicators.join(" · ") : "The score, primary dimension, burden estimate, and any returned watch items") + '</span></li>' +
-        '<li><strong>Remeasure like for like.</strong><span>Repeat the same Diagnostic with the same scope and comparable inputs; compare the score, dimensions, and exposure before attributing improvement.</span></li>' +
-      '</ol></div><div class="mr-ownership-questions"><div class="mr-lens-label">Questions leadership must answer</div>' + questions.map((question, index) => '<div><span>0' + (index + 1) + '</span><p>' + esc(question) + '</p></div>').join("") + '</div></div>' +
-      '<div class="mr-remeasurement-note"><div class="mr-lens-label">Remeasurement discipline</div><p>A lower score or burden estimate is decision-useful only when the scope, participant perspective, configuration, and key workload assumptions remain comparable. Record any material change rather than treating unlike runs as a trend.</p></div></section>';
+        '<li><strong>Repeat under comparable conditions.</strong><span>Repeat the same Diagnostic with the same scope and comparable inputs; compare the score, dimensions, and exposure before attributing improvement.</span></li>' +
+      '</ol></div><div class="mr-ownership-questions"><div class="mr-lens-label">Questions to answer before acting</div>' + questions.map((question, index) => '<div><span>0' + (index + 1) + '</span><p>' + esc(question) + '</p></div>').join("") + '</div></div>' +
+      '<div class="mr-remeasurement-note"><div class="mr-lens-label">How to compare later</div><p>Compare runs only when the scope, participant perspective, instrument version, and key workload assumptions are comparable. Record any important difference instead of treating unlike runs as a trend.</p></div></section>';
   }
 
   function renderRunReport(m) {
@@ -1270,17 +1368,82 @@
     return '<aside class="mr-compatibility-notice"><div class="mr-compatibility-mark"></div><div><p class="mr-compatibility-label">Legacy report view</p><p>' + esc(notice) + '</p></div></aside>';
   }
 
+  function buildAIInterpretation(state) {
+    const ai = obj(state);
+    if (!ai.status) return "";
+    const heading = '<h2>AI-assisted interpretation</h2>';
+    if (ai.status !== "complete") return '<section class="mr-section mr-ai-interpretation" aria-live="polite">' + heading + '<p>' + esc(ai.message) + '</p><p>The measured result remains available. Reopen this saved report to check progress; do not start another diagnostic.</p></section>';
+    const report = obj(ai.report), interpretation = obj(report.interpretation);
+    const paragraphs = (items, title) => arr(items).length ? '<h3>' + title + '</h3><ul>' + arr(items).map(item => '<li>' + esc(obj(item).text || item) + '</li>').join('') + '</ul>' : '';
+    const sources = arr(report.sources).filter(source => /^https:\/\//i.test(firstStr(source.url)));
+    const actions = arr(interpretation.recommendations).map((item, index) => {
+      const action = obj(item);
+      const refs = sources.filter(source => arr(action.source_ids).includes(source.id));
+      return '<article class="mr-card mr-ai-action"><h3>' + (index + 1) + '. ' + esc(action.action) + '</h3><p>' + esc(action.reason) + '</p><dl>' +
+        [['Before trying it',action.prerequisite],['Risk to consider',action.risk],['What to check',action.success_check]].map(row=>'<dt><strong>'+row[0]+'</strong></dt><dd>'+esc(row[1])+'</dd>').join('') + '</dl>' +
+        (refs.length ? '<p>Practice references: ' + refs.map(source=>'<a href="'+esc(source.url)+'" target="_blank" rel="noopener noreferrer">'+esc(source.publisher)+'</a>').join('; ') + '.</p>' : '') + '</article>';
+    }).join('');
+    return '<section class="mr-section mr-ai-interpretation">' + heading +
+      '<p class="mr-method-copy">Prepared with '+esc(report.model === 'claude-opus-5' ? 'Claude Opus 5' : report.model)+' from this saved result. The interpretation does not change the score. Review it before acting.</p><p>'+esc(interpretation.summary)+'</p>' +
+      paragraphs(interpretation.observations,'What the responses suggest') + paragraphs(interpretation.hypotheses,'Possible explanations to investigate') +
+      (actions ? '<h3>Changes to test</h3><div class="mr-ai-actions">'+actions+'</div>' : '') +
+      paragraphs(arr(report.limitations).concat(arr(interpretation.limitations)),'Limits of this interpretation') +
+      '<h3>Sector comparison</h3><p>'+esc(obj(report.benchmark).explanation)+'</p>' +
+      (sources.length ? '<h3>External practice sources</h3><ul>'+sources.map(source=>'<li><a href="'+esc(source.url)+'" target="_blank" rel="noopener noreferrer">'+esc(source.title)+'</a>. '+esc(source.publisher)+'. Reviewed '+esc(source.reviewed)+'. Practice guidance, not a Monderman peer benchmark.</li>').join('')+'</ul>' : '') +
+      '<p class="mr-method-copy">Interpretation version: '+esc(report.version)+'. Prepared: '+esc(report.generated_at)+'. Evidence reference: '+esc(report.snapshot_id)+'.</p></section>';
+  }
+
+  // An existing authorized report read supplies refresh. No credentials,
+  // endpoints, admissions or new diagnostic requests are invented here.
+  function mountAIInterpretation(node, result, refresh) {
+    if (!node || !obj(result.ai_report).status) return () => {};
+    if (!document.getElementById('mr-style')) {
+      const style=document.createElement('style');style.id='mr-style';style.textContent=REPORT_CSS+AI_CSS;document.head.appendChild(style);
+    }
+    node.querySelector('.mr-ai-inline')?.remove();
+    const existing = node.querySelector('.mr-ai-interpretation');
+    const section = document.createElement('div');
+    section.className = 'mr-report mr-ai-inline';
+    // Reuse the report's interpretation position instead of displaying a
+    // second pending block above its cover on a recovered saved report.
+    if (existing) existing.replaceWith(section); else node.prepend(section);
+    let stopped = false, timer = null, attempts = 0;
+    const paint = () => { section.innerHTML = buildAIInterpretation(result.ai_report); };
+    paint();
+    const stop = () => { stopped = true; clearTimeout(timer); document.removeEventListener('visibilitychange', resume); window.removeEventListener('pagehide', stop); };
+    const resume = () => { if (!stopped && !document.hidden && !timer) timer = setTimeout(poll, 1000); };
+    const poll = async () => {
+      timer = null;
+      if (stopped || !section.isConnected) return stop();
+      if (document.hidden) return;
+      try {
+        const latest = await refresh();
+        if (!latest || stopped || !section.isConnected) return stop();
+        result.ai_report = latest.ai_report; paint();
+        if (!['pending','processing'].includes(obj(result.ai_report).status)) return stop();
+      } catch (_) { /* A temporary read failure must not strand a saved report. */ }
+      if (++attempts < 20) timer = setTimeout(poll, 15000); else stop();
+    };
+    if (typeof refresh === 'function' && ['pending','processing'].includes(obj(result.ai_report).status)) {
+      timer=setTimeout(poll,15000);
+      document.addEventListener('visibilitychange',resume);
+    }
+    window.addEventListener('pagehide',stop,{once:true});
+    return stop;
+  }
+
   function buildReportBody(model) {
     const m = obj(model);
     const coverBlock = buildReportCover(m);
     const compatibilityBlock = buildCompatibilityNotice(m);
+    const aiBlock = buildAIInterpretation(m.aiReport);
 
     if (m.kind === "meta-synthesis") {
-      return coverBlock + compatibilityBlock + renderMetaSynthesis(m) + buildReportBoundary(m);
+      return coverBlock + compatibilityBlock + aiBlock + renderMetaSynthesis(m) + buildReportBoundary(m);
     }
 
     if (m.kind === "run") {
-      return coverBlock + compatibilityBlock + renderRunReport(m) + buildReportBoundary(m);
+      return coverBlock + compatibilityBlock + aiBlock + renderRunReport(m) + buildReportBoundary(m);
     }
 
     const kvs = arr(m.kvs).map((x) => '<div class="k">' + esc(x.k) + "</div><div>" + esc(x.v) + "</div>").join("");
@@ -1565,6 +1728,8 @@
     .mr-evidence-boundary{display:grid;grid-template-columns:5px minmax(0,1fr);gap:14px;margin-top:24px;padding:18px 20px;border:1px solid #E0DCD3;border-radius:10px;background:#FAFAF8}.mr-evidence-boundary>span{border-radius:5px;background:#0C6E78}.mr-evidence-boundary p{font-size:.86rem!important;color:#6E6F73!important;line-height:1.55!important;margin:6px 0 0!important}
     .mr-priority-ladder{border-top:1px solid #DCD8CF;margin:23px 0 28px}.mr-priority-row{display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:16px;align-items:center;padding:17px 4px;border-bottom:1px solid #EAE6DD}.mr-priority-row>span{font-size:1.8rem;font-weight:700;color:rgba(12,110,120,.2)}.mr-priority-row strong{font-size:1rem}.mr-priority-row em{font-style:normal;font-size:1.25rem;font-weight:700;color:#0C6E78;font-variant-numeric:tabular-nums}
     .mr-priority-matrix{margin:22px 0;padding:22px 24px;border:1px solid #E0DCD3;border-radius:12px;background:#FAFAF8}.mr-priority-plot{position:relative;height:280px;margin:24px 8px 12px 86px;border-left:1px solid #9A9892;border-bottom:1px solid #9A9892;background:linear-gradient(90deg,transparent 49.7%,rgba(24,25,28,.06) 50%,transparent 50.3%),linear-gradient(180deg,transparent 49.7%,rgba(24,25,28,.06) 50%,transparent 50.3%)}.mr-priority-axis-y{position:absolute;left:-79px;top:8px;width:70px;color:#6E6F73;font-size:.63rem;line-height:1.25;text-transform:uppercase;letter-spacing:.08em}.mr-priority-axis-x{position:absolute;right:0;bottom:-25px;color:#6E6F73;font-size:.63rem;text-transform:uppercase;letter-spacing:.08em}.mr-priority-point{position:absolute;transform:translate(-14px,-14px);display:flex;align-items:center;gap:8px;z-index:1}.mr-priority-point>span{display:grid;place-items:center;width:29px;height:29px;border-radius:50%;background:#0C6E78;color:#FFF;font-size:.75rem;font-weight:700;box-shadow:0 0 0 5px rgba(12,110,120,.1)}.mr-priority-point>div{display:none;position:absolute;left:37px;top:-5px;width:155px;padding:7px 9px;border:1px solid #E0DCD3;border-radius:7px;background:#FFF;box-shadow:0 4px 12px rgba(8,56,62,.08)}.mr-priority-point:nth-of-type(-n+4)>div{display:block}.mr-priority-point strong{display:block;font-size:.72rem;line-height:1.3}.mr-priority-point small{display:block;color:#6E6F73;font-size:.62rem;margin-top:3px}.mr-run-remedy{position:relative;border-top:4px solid #7FB0B6!important}.mr-run-remedy[data-path-depth="2"]{border-top-color:#0C6E78!important}.mr-run-remedy[data-path-depth="3"]{border-top-color:#08383E!important}
+    .mr-priority-point.mr-priority-label-left>div{left:auto;right:37px}
+    .mr-priority-plot{margin-bottom:44px}
     .mr-run-actions{margin:0 0 28px;padding:22px 24px 20px;border-left:3px solid #0C6E78;background:#F7F5F0}.mr-run-actions ol{margin-top:13px!important;padding-left:22px!important}.mr-run-actions li{padding-left:5px}
     .mr-run-method dl{margin:20px 0;border-top:1px solid #DCD8CF}.mr-run-method dl>div{display:grid;grid-template-columns:190px minmax(0,1fr);gap:22px;padding:13px 0;border-bottom:1px solid #EAE6DD}.mr-run-method dt{font-size:.68rem;letter-spacing:.11em;text-transform:uppercase;color:#6E6F73}.mr-run-method dd{margin:0;font-size:.83rem;line-height:1.5;overflow-wrap:anywhere}.mr-method-copy{margin-top:22px!important;font-size:.9rem!important;color:#6E6F73!important;max-width:72ch}
     .mr-leadership-close{padding:32px!important;border:1px solid #0C6E78!important;border-radius:14px;background:linear-gradient(145deg,#F7FAF9,#FFF)!important}.mr-leadership-close>h2{font-size:clamp(1.8rem,3.4vw,2.8rem)!important;line-height:1.03!important;letter-spacing:-.04em!important;max-width:19ch!important}.mr-leadership-close-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:28px;margin-top:24px}.mr-leadership-sequence ol{list-style:none;margin:14px 0 0!important;padding:0!important;counter-reset:handoff}.mr-leadership-sequence li{position:relative;padding:0 0 18px 39px;margin:0!important;counter-increment:handoff}.mr-leadership-sequence li:not(:last-child)::before{content:"";position:absolute;left:13px;top:25px;bottom:0;width:1px;background:#B8D1D3}.mr-leadership-sequence li::after{content:counter(handoff);position:absolute;left:0;top:0;display:grid;place-items:center;width:27px;height:27px;border-radius:50%;background:#08383E;color:#FFF;font-size:.72rem;font-weight:700}.mr-leadership-sequence li strong{display:block;font-size:.9rem}.mr-leadership-sequence li span{display:block;margin-top:4px;color:#6E6F73;font-size:.8rem;line-height:1.5}.mr-ownership-questions>div:not(.mr-lens-label){display:grid;grid-template-columns:31px 1fr;gap:10px;padding:13px 0;border-bottom:1px solid #EAE6DD}.mr-ownership-questions>div>span{color:rgba(12,110,120,.3);font-size:1.25rem;font-weight:700}.mr-ownership-questions p{font-size:.85rem!important;line-height:1.5!important;margin:0!important}.mr-remeasurement-note{margin-top:22px;padding:17px 19px;border-left:3px solid #0C6E78;background:#F7F5F0}.mr-remeasurement-note p{font-size:.84rem!important;line-height:1.55!important;margin:6px 0 0!important}
@@ -1593,14 +1758,54 @@
     }
     @page{size:Letter;margin:60pt}
     @media print{
+      /* Keep a standard report cover on one Letter page and keep its
+         interpretation notice intact. Screen typography is unchanged. */
+      .mr-report .mr-cover{break-inside:avoid;page-break-inside:avoid}
+      .mr-cover-dark{padding:28px 30px 24px}
+      .mr-cover-white{padding:22px 30px 24px}
+      .mr-cover-title{font-size:28pt!important;line-height:1.04!important}
+      .mr-cover-sub,.mr-cover-body{font-size:10pt!important;line-height:1.45!important}
+      .mr-cover-meta{margin-top:16px;padding-top:12px;gap:8px 12px}
+      .mr-cover-body{margin-top:14px!important;padding-top:12px}
+      .mr-cover-boundary{margin-top:14px;padding:10px 12px;break-inside:avoid;page-break-inside:avoid}
+      .mr-system-metrics,.mr-system-decision,.mr-depth-metrics,.mr-depth-reading-grid,.mr-editorial-row,.mr-report .callout{break-inside:avoid;page-break-inside:avoid}
+      .mr-section>h2{page-break-after:avoid}
+      .mr-section>h2+p{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}
+      .mr-section>ul>li,.mr-run-exposure,.mr-run-method,.mr-meta-method,.mr-requirements,.mr-depth-stats>.kvs{break-inside:avoid;page-break-inside:avoid}
+      .mr-evidence-grid{display:block}
+      .mr-evidence-grid .mr-lens-card{display:block;break-inside:avoid;page-break-inside:avoid}
+      .mr-report p{orphans:3;widows:3}
+      /* Use ordinary block flow for long evidence and option content so print
+         pagination does not depend on nested grid fragmentation. */
+      .mr-run-evidence-grid,.mr-remedy-grid,.mr-remedy-card{display:block}
+      /* Each bounded option is one print unit. Verify the actual PDF with
+         more than one rasterizer; low-resolution previews can omit glyphs. */
+      .mr-run-remedy{position:static;display:inline-block;width:100%;vertical-align:top}
+      .mr-run-evidence-grid>div+div{margin-top:18px}
+      .mr-run-remedy p,.mr-run-remedy li{font-size:10pt!important;line-height:1.5!important}
+      .mr-remedy-head,.mr-remedy-tradeoffs>div{break-inside:avoid;page-break-inside:avoid}
+      .mr-run-metric-value{font-size:13pt;overflow-wrap:normal}
+      .mr-section h2,.mr-section h3,.mr-section-index,.mr-run-method dl>div{break-inside:avoid;page-break-inside:avoid}
+      .mr-leadership-close{break-inside:avoid;page-break-inside:avoid;padding:24px!important}
+      .mr-leadership-close>h2{font-size:22pt!important;line-height:1.12!important;max-width:none!important}
+      .mr-leadership-close-grid{grid-template-columns:1.05fr .95fr;gap:22px}
+      .mr-leadership-sequence li{padding-bottom:12px}
+      .mr-remeasurement-note{margin-top:16px}
+      .mr-report .mr-report-boundary{margin-top:16px;padding:12px 16px}
+      .mr-priority-matrix,.mr-constraint-view,.mr-run-findings{break-inside:avoid;page-break-inside:avoid}
+      .mr-leadership-grid>div,.mr-leadership-sequence li{break-inside:avoid;page-break-inside:avoid}
+      .mr-section h3,.mr-lens-label,.mr-viz-title{break-after:avoid;page-break-after:avoid}
       html,body{background:#FFF!important;margin:0!important}.mr-report .mr-page{padding:0!important}.mr-cover{break-after:page}.mr-compatibility-notice{break-inside:avoid}.mr-section{break-before:auto}.mr-section h2,.mr-section-index{break-after:avoid}.mr-run-metric,.mr-dimension-row,.mr-exposure-step,.mr-remedy-card,.mr-priority-row,.mr-evidence-quote,.mr-viz-panel{break-inside:avoid}.mr-run-metrics,.mr-exposure-flow,.mr-evidence-summary{break-inside:avoid}.mr-remedy-grid{grid-template-columns:1fr;gap:12px;break-inside:auto}.mr-remedy-card{overflow:visible}.mr-run-decision-story{break-inside:avoid}.mr-report-boundary{break-inside:avoid}.mr-report .mr-section+.mr-section{margin-top:34px;padding-top:28px}
     }
     `;
 
+  const AI_CSS = '.mr-ai-interpretation{min-width:0;overflow-wrap:anywhere}.mr-ai-interpretation a{color:var(--accent,#0C6E78);text-decoration:underline;text-underline-offset:.16em}.mr-ai-inline{padding:24px;max-width:100%;box-sizing:border-box}.mr-ai-action{margin:20px 0;padding:24px;break-inside:avoid}.mr-ai-action dd{margin:4px 0 16px}.mr-ai-interpretation h3{margin-top:24px}.mr-ai-interpretation li+li{margin-top:12px}@media(max-width:600px){.mr-ai-inline,.mr-ai-action{padding:18px}.mr-ai-interpretation h2{font-size:1.45rem}.mr-ai-interpretation h3{font-size:1.12rem}}@media print{.mr-ai-interpretation>.mr-method-copy:last-child{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}}';
+
   function buildReportHtml(model) {
     return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" />' +
+      '<meta name="monderman-renderer-version" content="' + RENDERER_VERSION + '" />' +
       '<meta name="viewport" content="width=device-width, initial-scale=1.0" />' +
-      "<title>Monderman | Executive Report</title><style>" + REPORT_CSS + "</style></head><body>" +
+      "<title>Monderman | Executive Report</title><style>" + REPORT_CSS + AI_CSS + "</style></head><body>" +
       '<div class="mr-report"><div class="mr-page">' + buildReportBody(model) +
       '<div class="actions"><button class="btn btn-accent" onclick="window.print()">Save / Print PDF</button>' +
       '<button class="btn" onclick="window.close()">Close report</button></div>' +
@@ -1674,19 +1879,22 @@
     if (!node) return;
     if (!document.getElementById("mr-style")) {
       const st = document.createElement("style");
-      st.id = "mr-style"; st.textContent = REPORT_CSS;
+      st.id = "mr-style"; st.textContent = REPORT_CSS + AI_CSS;
       document.head.appendChild(st);
     }
     node.innerHTML = '<div class="mr-report"><div class="mr-page" style="box-shadow:none;margin:0;max-width:none">' + buildReportBody(model) + "</div></div>";
   }
 
   window.MondermanReport = {
+    rendererVersion: RENDERER_VERSION,
     fromRun: fromRun,
     fromSynthesis: fromSynthesis,
     buildReportBody: buildReportBody,
     buildReportHtml: buildReportHtml,
     createArtifact: createArtifact,
     render: render,
+    buildAIInterpretation: buildAIInterpretation,
+    mountAIInterpretation: mountAIInterpretation,
     reserveReportWindow: reserveReportWindow,
     closeReservedReportWindow: closeReservedReportWindow,
     openReport: openReport,

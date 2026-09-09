@@ -28,7 +28,7 @@ class SessionStore {
 function inputState() {
   return {
     runId: ids.run, sessionCapability: capability, mode: "managerial", depth: "10",
-    configVersion: "dv.v1.2", started: true, experienceIndex: 0, experienceComplete: false,
+    configVersion: "1.1.0", started: true, experienceIndex: 0, experienceComplete: false,
     preflight: {
       processName: "Synthetic approval", businessUnit: "Synthetic operations",
       industry: "technology_software", regulatoryIntensity: "moderate", decisionType: "program",
@@ -48,7 +48,7 @@ function inputState() {
 
 function remoteState() {
   return {
-    ok: true, runId: ids.run, role: "managerial", depth: 10, configVersion: "dv.v1.2",
+    ok: true, runId: ids.run, role: "managerial", depth: 10, configVersion: "1.1.0",
     nextItem: { id: "server-q2", questionType: "single_select", options: [{ value: "low", label: "Low" }] },
     answerHistory: [{ itemId: "server-q1", item: { id: "server-q1" }, value: "low", meta: {} }],
     sessionRevision: 3, shouldStop: false, finalized: false
@@ -80,6 +80,7 @@ function runtime({ storage = new SessionStore(), user = null, org = null, search
   function controller(state = inputState(), overrides = {}) {
     return api.createController({
       state,
+      supportedQuestionnaireVersions: ["1.0.0", "1.1.0"],
       validateRemote: async (request) => {
         current.remoteCalls.push(clone(request));
         if (current.remoteError) throw current.remoteError;
@@ -309,12 +310,82 @@ for (const status of [403, 404, 410, 503]) {
   }
 }
 
-const mismatchedRemote = await savedAnonymous();
-const changedConfig = runtime({ storage: mismatchedRemote.storage });
-changedConfig.current.remote.configVersion = "different.version";
-assert.equal(await changedConfig.controller().activate(), false);
-assert.equal(changedConfig.storage.getItem(key), null);
-assert.equal(changedConfig.current.restores.length, 0);
+// Every supported response alias must identify the same saved version.
+const versionAliases = ['questionnaire_version','configVersion','currentVersion','routingVersion','config_version','routingMeta.configVersion'];
+function withVersions(values) {
+  const remote = remoteState();
+  delete remote.configVersion;
+  for (const [alias, value] of Object.entries(values)) {
+    if (alias === 'routingMeta.configVersion') remote.routingMeta = {configVersion:value};
+    else remote[alias] = value;
+  }
+  return remote;
+}
+for (const alias of versionAliases) {
+  const original = await savedAnonymous();
+  const env = runtime({storage:original.storage});
+  env.current.remote = withVersions({[alias]:'1.1.0'});
+  assert.equal(await env.controller().activate(),true,alias+' must resolve');
+  assert.equal(env.current.restores[0].remote.configVersion,'1.1.0');
+}
+const badVersions = [
+  ['missing',{}], ['unknown',{configVersion:'unknown-version'}], ['known mismatch',{configVersion:'1.0.0'}],
+  ...versionAliases.map(alias=>['conflicting '+alias,{questionnaire_version:'1.1.0',configVersion:'1.1.0',[alias]:'unknown-version'}]),
+  ['empty',{configVersion:''}], ['wrong type',{configVersion:12}]
+];
+for (const [label, values] of badVersions) {
+  const original = await savedAnonymous();
+  const env = runtime({storage:original.storage});
+  const before = env.storage.getItem(key);
+  env.current.remote = withVersions(values);
+  const controller = env.controller();
+  assert.equal(await controller.activate(),false,label);
+  assert.equal(env.storage.getItem(key),before,label+' must preserve exact bytes');
+  assert.equal(env.current.restores.length,0,label+' must not render');
+  assert.equal(controller.isActive(),false,label+' must disable saves');
+  assert.equal(controller.save(),false,label+' must not overwrite withheld data');
+  assert.equal(env.storage.getItem(key),before);
+  assert.deepEqual(env.current.issues[0],{reason:'questionnaire_version_unavailable',retryable:true});
+  env.current.remote=remoteState();
+  assert.equal(await controller.activate(),true,label+' can recover after correction');
+}
+// Even mutually matching unknown local/server versions are not supported copy.
+const unknownSaved = await savedAnonymous();
+const unknownRecord = JSON.parse(unknownSaved.storage.getItem(key));
+unknownRecord.state.configVersion='unknown-version';
+unknownSaved.storage.setItem(key,JSON.stringify(unknownRecord));
+const unknownEnv=runtime({storage:unknownSaved.storage});
+unknownEnv.current.remote=withVersions({configVersion:'unknown-version'});
+const unknownBytes=unknownEnv.storage.getItem(key);
+assert.equal(await unknownEnv.controller().activate(),false);
+assert.equal(unknownEnv.storage.getItem(key),unknownBytes);
+assert.equal(unknownEnv.current.restores.length,0);
+// A backend409 and a page-copy validation failure use the same non-destructive path.
+for (const atRestore of [false,true]) {
+  const original=await savedAnonymous();
+  const env=runtime({storage:original.storage});
+  const before=env.storage.getItem(key);
+  const error=Object.assign(new Error('version unavailable'),{status:409,code:'QUESTIONNAIRE_VERSION_UNAVAILABLE'});
+  if(!atRestore)env.current.remoteError=error;
+  const controller=env.controller({},atRestore?{restore:async()=>{throw error;}}:{});
+  assert.equal(await controller.activate(),false);
+  assert.equal(env.storage.getItem(key),before);
+  assert.equal(controller.save(),false);
+  assert.deepEqual(env.current.issues[0],{reason:'questionnaire_version_unavailable',retryable:true});
+}
+// Do not rewrite identity metadata before a blocked authenticated return is verified.
+const blockedReturn=await savedAnonymous('teaser');
+blockedReturn.savedController.prepareSignIn();
+const returnBytes=blockedReturn.storage.getItem(key);
+const returnEnv=runtime({storage:blockedReturn.storage,user:ids.user,org:ids.org,search:'?resume=1'});
+returnEnv.current.remote=withVersions({configVersion:'1.0.0'});
+const returnController=returnEnv.controller();
+assert.equal(await returnController.activate(),false);
+assert.equal(returnEnv.storage.getItem(key),returnBytes);
+returnEnv.current.remote=remoteState();
+assert.equal(await returnController.activate(),true);
+assert.equal(JSON.parse(returnEnv.storage.getItem(key)).owner_user_id,ids.user);
+assert.equal(JSON.parse(returnEnv.storage.getItem(key)).owner_organization_id,ids.org);
 
 const completed = await savedAnonymous("finalizing");
 completed.state.result = { score: 74 };

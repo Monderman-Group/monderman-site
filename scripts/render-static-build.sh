@@ -73,6 +73,7 @@ for private_path in scripts site-shell .github docs pdf-src test-fixtures node_m
 done
 
 node scripts/inject-public-shell.mjs "$publish_dir"
+node scripts/configure_questionnaire_release.mjs "$publish_dir"
 
 marker_tmp="$publish_dir/.well-known/monderman-release.json.tmp"
 printf '{"revision":"%s"}\n' "$release_revision" > "$marker_tmp"

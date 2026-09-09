@@ -75,7 +75,7 @@ for name in ['structural-clarity.html','decision-velocity.html','operational-sys
   '...exposureAssumptionRows(result?.exposure)',
   'Burden attribution*',
   'Capacity assumption*',
-  'Recoverable share*',
+  'Modeled recovery percentage*',
  ]:
   if token not in t:e.append(name+': complete exposure-method disclosure '+token)
  # Keep the final methodology disclosure from overflowing into the fixed PDF
@@ -501,7 +501,7 @@ for name in ['connect.html','plan-enterprise.html']:
 
 # Public beta privacy/security disclosures must match current architecture and trial rules.
 privacy=(r/'privacy.html').read_text(errors='ignore')
-for token in ['Last updated: August 26, 2026','currently in public beta','one-time Pattern-trial anti-abuse record','survive Workspace deletion','Anthropic\'s commercial API','not used to train its models by default','automatically deleted from its backend within 30 days','Stripe handles payment details','does not receive or store your full card number','anonymous campaign responses','authorized Monderman personnel','first-party browser storage for Supabase authentication','not directed to children','a South Dakota limited liability company','41 W Highway 14, Unit #1225','Spearfish, SD 57783']:
+for token in ['Last updated: September 8, 2026','currently in public beta','one-time Pattern-trial anti-abuse record','survive Workspace deletion','Anthropic\'s commercial API','does not use inputs and outputs for training by default','can remain with Anthropic for up to 30 days','subject to its stated safety, legal and contractual exceptions','This is not a zero-retention arrangement','Stripe handles payment details','does not receive or store your full card number','anonymous campaign responses','authorized Monderman personnel','first-party browser storage for Supabase authentication','not directed to children','a South Dakota limited liability company','41 W Highway 14, Unit #1225','Spearfish, SD 57783']:
  if token.lower() not in privacy.lower():e.append('privacy disclosure '+token)
 security=(r/'security.html').read_text(errors='ignore')
 for token in ['currently in public beta','Ordinary Diagnostics require a signed-in member session','Directed campaign assignment links','All public Postgres tables currently have row-level security enabled','public publishable key','service-role database credentials','Anthropic\'s commercial API','durable one-time redemption record','Deleting a Workspace therefore does not create another trial','does not currently claim SOC 2','four-hour cutoff','durable Supabase snapshot','plan, usage, billing and stored Diagnostic result fields remain server-managed','request-size and rate limits','Controlled release checks currently cover current Chrome/Chromium and automated WebKit rendering','Native Safari and browser-managed print dialogs remain beta and best-effort']:
@@ -564,7 +564,7 @@ for name in ['index.html','why-monderman.html']:
 
 # Public beta Terms must exist and remain wired at acceptance points.
 terms=(r/'terms.html').read_text(errors='ignore')
-for token in ['Public Beta Terms of Use','Version 2026-08-26-beta','does not auto-renew','once per eligible account identity','not legal, medical, accounting, investment, safety, employment','not designed, validated or offered as employee-selection procedures','must not attempt to identify an anonymous Participant','The Customer will defend, indemnify and hold harmless Monderman','a South Dakota limited liability company','41 W Highway 14, Unit #1225','Spearfish, SD 57783','connect@monderman.com','privacy.html','security.html']:
+for token in ['Public Beta Terms of Use','Version 2026-09-08-beta','does not auto-renew','once per eligible account identity','not legal, medical, accounting, investment, safety, employment','not designed, validated or offered as employee-selection procedures','must not attempt to identify an anonymous Participant','The Customer will defend, indemnify and hold harmless Monderman','a South Dakota limited liability company','41 W Highway 14, Unit #1225','Spearfish, SD 57783','connect@monderman.com','privacy.html','security.html']:
  if token not in terms:e.append('public beta terms '+token)
 trial=(r/'pattern-trial.html').read_text(errors='ignore')
 for token in ['href="terms.html"','href="privacy.html"','I agree to the']:

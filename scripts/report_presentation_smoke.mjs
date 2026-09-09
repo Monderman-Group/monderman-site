@@ -16,7 +16,8 @@ page.on('console', m => { if (m.type() === 'error') errors.push(`console: ${m.te
 // render outside the site. During localhost certification, serve those exact
 // font requests from the checked-out candidate instead of depending on CORS
 // headers from the live site.
-await page.route(/^https:\/\/www\.monderman\.com\/(55|65|75)font\.woff2$/, async route => {
+async function useCandidateFonts(target) {
+await target.route(/^https:\/\/www\.monderman\.com\/(55|65|75)font\.woff2$/, async route => {
   const filename = new URL(route.request().url()).pathname.slice(1);
   await route.fulfill({
     status: 200,
@@ -24,6 +25,16 @@ await page.route(/^https:\/\/www\.monderman\.com\/(55|65|75)font\.woff2$/, async
     body: fs.readFileSync(path.resolve(filename)),
   });
 });
+}
+await useCandidateFonts(page);
+async function loadStandalone(target, html) {
+  await useCandidateFonts(target);
+  target.on('pageerror', e => errors.push(`standalone pageerror: ${e.message}`));
+  target.on('console', m => { if (m.type() === 'error') errors.push(`standalone console: ${m.text()}`); });
+  await target.setContent(html, {waitUntil:'networkidle'});
+  await target.evaluate(async () => { await document.fonts.ready; });
+  assert(await target.evaluate(() => document.fonts.check('16px "Neue Haas Grotesk"')), 'standalone candidate font did not load');
+}
 function assert(ok, msg) { if (!ok) throw new Error(msg); }
 function isActualSerif(font) { return /Georgia|Times New Roman/i.test(font); }
 function isMondermanFont(font) { return /Neue Haas Grotesk/i.test(font); }
@@ -74,7 +85,7 @@ for (const [key, expected] of Object.entries(diagnostics)) {
   assert(await shell.locator('.mr-run-remedy').count() === 3, `${key} remedy-path count mismatch`);
   assert(await shell.locator('.cover').count() === 0, `${key} legacy sample remains in the live DOM`);
   const text = await shell.textContent();
-  for (const token of ['Executive decision brief','Dimension profile','Constraint concentration','Evidence status','Priority map','Method and limits','Interpretation boundary','No usable participant notes are presented.','Leadership handoff']) {
+  for (const token of ['Decision summary','Dimension profile','Where the measured issue appears','Evidence in this run','Priority order and measured severity','Method and limits','Interpretation boundary','No usable participant notes are presented.','Next decision']) {
     assert(text.includes(token), `${key} production-contract section missing: ${token}`);
   }
   await page.screenshot({ path: path.join(out, `${key}-full.png`), fullPage: true });
@@ -118,7 +129,7 @@ assert(crossText.includes('Executive synthesis'), 'Cross-Lens executive synthesi
 assert(crossText.includes('Agreements and differences'), 'Cross-Lens agreements/differences missing');
 assert(crossText.includes('Evidence-proportionate actions'), 'Cross-Lens actions missing');
 assert(!crossText.includes('Source-backed remedy paths'), 'Cross-Lens rendered source remedy prose even though the source-prose contract withholds it');
-assert(crossText.includes('Vantage evidence'), 'Cross-Lens vantage-evidence layer missing');
+assert(crossText.includes('Results by participant perspective'), 'Cross-Lens vantage-evidence layer missing');
 assert(await cross.locator('.mr-remedy-card').count() === 0, 'Cross-Lens rendered remedy cards without eligible source remedy prose');
 assert(crossText.includes('The operating system in one view'), 'Cross-Lens system picture label missing');
 assert(await cross.locator('.mr-action-path .mr-action-step').count() >= 3, 'Cross-Lens visual action sequence is too thin');
@@ -167,7 +178,7 @@ assert(depthTop - depthStart < 1150, `Depth chart is still buried ${Math.round(d
 assert((await depth.textContent()).includes('15.8'), 'Depth vantage gap not visible');
 assert((await depth.textContent()).includes('Evidence-proportionate actions'), 'Depth actions missing');
 assert(!(await depth.textContent()).includes('Source-backed remedy paths'), 'Depth rendered source remedy prose even though the source-prose contract withholds it');
-assert((await depth.textContent()).includes('Vantage evidence'), 'Depth vantage-evidence layer missing');
+assert((await depth.textContent()).includes('Results by participant perspective'), 'Depth vantage-evidence layer missing');
 assert(await depth.locator('.mr-remedy-card').count() === 0, 'Depth rendered remedy cards without eligible source remedy prose');
 assert((await depth.textContent()).includes('Agreement, divergence, and coverage'), 'Depth agreement/divergence section missing');
 assert(await depth.locator('.mr-depth-metrics .mr-run-metric').count() === 4, 'Depth opening read does not show four executive metrics');
@@ -194,7 +205,7 @@ const standaloneHtml = await page.evaluate(() => {
   return window.MondermanReport.buildReportHtml(window.MondermanReport.fromSynthesis(fx));
 });
 const standalone = await browser.newPage({ viewport: { width: 1100, height: 1000 } });
-await standalone.setContent(standaloneHtml, { waitUntil: 'domcontentloaded' });
+await loadStandalone(standalone, standaloneHtml);
 assert(await standalone.locator('.mr-cover').isVisible(), 'standalone report cover missing');
 assert((await standalone.locator('.mr-cover-score').textContent()).trim() === '55.5', 'standalone Cross-Lens score rounded');
 assert(await standalone.locator('.mr-cover .mr-cover-boundary').isVisible(), 'standalone cover interpretation boundary missing');
@@ -234,7 +245,7 @@ const viewports = [
 ];
 for (const [key, html] of Object.entries(authenticatedRunHtml)) {
   const runPage = await browser.newPage({ viewport: { width:1440, height:1100 } });
-  await runPage.setContent(html, { waitUntil:'domcontentloaded' });
+  await loadStandalone(runPage, html);
   assert(await runPage.locator('.mr-run-decision').isVisible(), `${key} authenticated executive brief missing`);
   assert(await runPage.locator('.mr-run-decision').evaluate(el => el === document.querySelector('.mr-section')), `${key} executive brief is not first`);
   assert(await runPage.locator('.mr-dimension-row').count() === runDimensions[key], `${key} authenticated dimension profile mismatch`);
@@ -244,7 +255,10 @@ for (const [key, html] of Object.entries(authenticatedRunHtml)) {
   assert(await runPage.locator('.mr-run-remedy').count() === 3, `${key} differentiated intervention paths missing`);
   assert(await runPage.locator('.mr-leadership-close').isVisible(), `${key} leadership handoff missing`);
   assert(await runPage.locator('.mr-leadership-close').evaluate(el => el === document.querySelector('.mr-section:last-of-type')), `${key} leadership handoff is not the final substantive section`);
-  assert(await runPage.locator('.mr-remedy-evidence').count() === 3, `${key} recommendation-to-evidence links missing`);
+  // The scorer returns independently ordered priorities and options. Pairing
+  // their array positions would manufacture a recommendation/evidence link.
+  assert(await runPage.locator('.mr-run-remedy .mr-remedy-evidence').count() === 0, `${key} invents an option-to-priority evidence pairing`);
+  assert((await runPage.locator('.mr-run-action-board .mr-lede').textContent()).includes('do not correspond one-to-one'), `${key} independent option/priority disclosure missing`);
   const reportText = await runPage.locator('.mr-report').textContent();
   assert(!/\[object Object\]|\bundefined\b|\bNaN\b/.test(reportText), `${key} exposes an invalid serialized value`);
   assert(!/None of this looks like an emergency/i.test(reportText), `${key} retains the rejected generic caveat`);
@@ -261,6 +275,20 @@ for (const [key, html] of Object.entries(authenticatedRunHtml)) {
   }
 
   await runPage.emulateMedia({ media:'print' });
+  // Letter minus two 60pt margins: 656 x 896 CSS pixels. Atomic cards must fit
+  // that real printable area, not merely a wide desktop viewport.
+  await runPage.setViewportSize({width:656,height:896});
+  // Keep complete options within one printable page. Text extraction alone
+  // does not establish appearance; use independent PDF rasterizers to separate
+  // actual pagination defects from resolution-specific preview artifacts.
+  const optionPrintFlow = await runPage.locator('.mr-run-remedy').evaluateAll(cards => cards.map(card => ({
+    display:getComputedStyle(card).display,
+    position:getComputedStyle(card).position,
+    height:card.getBoundingClientRect().height,
+    itemBreaks:[...card.querySelectorAll('li')].map(item => getComputedStyle(item).breakInside),
+  })));
+  assert(optionPrintFlow.every(card => card.display === 'inline-block' && card.position === 'static' && card.itemBreaks.every(value => value === 'auto')), `${key} unsafe nested option print fragmentation returned`);
+  assert(optionPrintFlow.every(card => card.height <= 872), `${key} option is too tall for one printed page including margins`);
   await assertNoHorizontalOverflow(runPage, `${key} print`);
   assert(await runPage.locator('.mr-run-score-stamp').isVisible(), `${key} score stamp hidden in print`);
   assert(await runPage.locator('.mr-leadership-close').isVisible(), `${key} leadership handoff hidden in print`);
@@ -278,7 +306,7 @@ const synthesisHtml = await page.evaluate(() => ({
 const synthesisResponsiveChecks = [];
 for (const [key, html] of Object.entries(synthesisHtml)) {
   const synthesisPage = await browser.newPage({ viewport:{ width:1440, height:1100 } });
-  await synthesisPage.setContent(html, { waitUntil:'domcontentloaded' });
+  await loadStandalone(synthesisPage, html);
   const primaryVisual = key === 'cross_lens'
     ? synthesisPage.locator('svg[aria-label="Four Diagnostic lenses connected to the equal-lens Cross-Lens Composite Score"]')
     : synthesisPage.locator('svg[aria-label="Depth Synthesis score distribution"]');
@@ -291,6 +319,7 @@ for (const [key, html] of Object.entries(synthesisHtml)) {
     await synthesisPage.screenshot({ path:path.join(out, `${key}-${viewport.name}.png`), fullPage:true });
   }
   await synthesisPage.emulateMedia({ media:'print' });
+  assert(await synthesisPage.locator('.mr-evidence-grid .mr-lens-card').evaluateAll(cards => cards.length > 0 && cards.every(card => getComputedStyle(card).display === 'block' && getComputedStyle(card).breakInside === 'avoid')), `${key} evidence rows no longer use intact block print flow`);
   await assertNoHorizontalOverflow(synthesisPage, `${key} print`);
   assert(await primaryVisual.isVisible(), `${key} primary visual hidden in print`);
   await synthesisPage.pdf({ path:path.join(out, `${key}.pdf`), printBackground:true, preferCSSPageSize:true });

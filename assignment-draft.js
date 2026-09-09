@@ -16,7 +16,7 @@
   var STATE_FIELDS = [
     "mode", "depth", "started", "preflight", "runId", "currentItem",
     "currentProgress", "roleForText", "answerCache", "questionHistory",
-    "experienceIndex", "experienceComplete", "experiential"
+    "experienceIndex", "experienceComplete", "experiential", "configVersion"
   ];
 
   function storageGet(key) {
@@ -165,9 +165,9 @@
 
     function restoreStage(saved) {
       var stages = options.stages || {};
-      // Opt-in only: DV reconciles an existing run with the server before any
-      // cached question or delayed control restoration can become visible.
-      // Other instruments and preflight-only drafts retain their prior path.
+      // Opt-in: reconcile an existing run with the server before any cached
+      // question or delayed control restoration can become visible.
+      // Preflight-only drafts retain their established path.
       if (state.runId && options.authoritativeRunRestore === true && typeof options.onRestore === "function") {
         restoring = true;
         Promise.resolve(options.onRestore(saved)).then(function (restored) {

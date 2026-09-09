@@ -24,12 +24,21 @@ function validateHelper(source) {
   assert.match(source, /String\(saved\.state\.configVersion \|\| ""\) !== saved\.config_version/);
   assert.match(source, /cleanUuid\(saved\.state\.runId\) !== saved\.draft_id/);
   assert.ok(!/addEventListener\(["'](?:input|change|pagehide)/.test(source), "drafts may save only from accepted-answer call sites");
+  assert.match(source, /options\.authoritativeRunRestore === true/);
+  assert.match(source, /!active \|\| restoring \|\| !userId \|\| !organizationId/);
 }
 
 function validateDiagnostic(source, tool) {
   assert.ok(source.includes('<script src="self-diagnostic-draft.js"></script>'));
   assert.ok(source.includes(`tool: "${tool}"`));
-  assert.match(source, /state\.configVersion = data\?\.routingMeta\?\.configVersion \|\| data\?\.routingVersion/);
+  assert.match(source, /pinQuestionnaireVersion\(data\);/);
+  assert.match(source, /\[data\?\.questionnaire_version, data\?\.configVersion, data\?\.routingMeta\?\.configVersion, data\?\.routingVersion, data\?\.config_version, data\?\.currentVersion\]/);
+  assert.match(source, /new Set\(versions\)\.size !== 1/);
+  assert.match(source, /Object\.hasOwn\(EXPERIENCE_PROMPT_SETS_BY_VERSION, version\)/);
+  assert.match(source, /state\.configVersion && state\.configVersion !== version/);
+  assert.match(source, /authoritativeRunRestore: true/);
+  assert.match(source, /pinQuestionnaireVersion\(remote\);/);
+  assert.match(source, /if \(!ensureQuestionnaireCopyReady\(\)\) return;/);
   if (tool === "decision_velocity") {
     assert.match(source, /function saveJourneyProgress\(\)\s*\{\s*if \(selfDraft\) selfDraft\.saveAccepted\(\);/, "Decision Velocity's consolidated save must retain authenticated draft persistence");
     assert.ok((source.match(/saveJourneyProgress\(\);/g) || []).length >= 5, "Decision Velocity must save every accepted-answer path through its shared helper");
@@ -63,6 +72,7 @@ function validateDiagnostic(source, tool) {
 }
 
 validateHelper(helperSource);
+assert.match(read('assignment-draft.js'), /"experiential", "configVersion"/,'assignment drafts must retain the authoritative questionnaire version');
 for (const [path, tool] of diagnostics) validateDiagnostic(read(path), tool);
 
 // Deliberate negative mutations: each essential protection must be gate-owned.
@@ -71,6 +81,7 @@ for (const [label, mutated] of [
   ["organization binding", helperSource.replace("saved.organization_id !== organizationId || ", "")],
   ["configuration binding", helperSource.replace('String(saved.state.configVersion || "") !== saved.config_version', "false")],
   ["expiry", helperSource.replace("Date.now() - savedAt > MAX_AGE_MS", "false")],
+  ["authoritative recovery write lock", helperSource.replace('!active || restoring || !userId || !organizationId','!active || !userId || !organizationId')],
   ["Resume", helperSource.replace(/Resume/g, "Continue")],
   ["Start over", helperSource.replace(/Start over/g, "Discard")]
 ]) assert.throws(() => validateHelper(mutated), undefined, `negative mutation must fail: ${label}`);
@@ -78,7 +89,11 @@ for (const [label, mutated] of [
 for (const [path, tool] of diagnostics) {
   const source = read(path);
   for (const [label, mutated] of [
-    ["start-response routing version", source.replace(" || data?.routingVersion", "")],
+    ["start-response routing version", source.replace("data?.routingVersion, ", "")],
+    ["unknown wording rejection", source.replace('Object.hasOwn(EXPERIENCE_PROMPT_SETS_BY_VERSION, version)', 'true')],
+    ["mixed wording rejection", source.replace('new Set(versions).size !== 1', 'false')],
+    ["saved wording mismatch", source.replace('state.configVersion && state.configVersion !== version', 'false')],
+    ["authoritative restore opt-in", source.replace(/authoritativeRunRestore: true/g, 'authoritativeRunRestore: false')],
     ["accepted-answer saving", source.replace(/if \(selfDraft\) selfDraft\.saveAccepted\(\);/g, "")],
     ["draft clearing", source.replace(/if \(selfDraft\) selfDraft\.clear\(\);/g, "")],
     ["duplicate protection", source.replace("if (state.finalizeInFlight) return;", "")],

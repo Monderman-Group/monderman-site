@@ -90,7 +90,7 @@ def validate():
 
     privacy = (ROOT / "privacy.html").read_text(errors="ignore")
     require(privacy, [
-        "Version 2026-08-26-beta", "Subprocessors and infrastructure page",
+        "Version 2026-09-08-beta", "Subprocessors and infrastructure page",
         "does not currently display a nonessential-cookie opt-in banner",
         "Monderman, LLC", "a South Dakota limited liability company", "41 W Highway 14, Unit #1225", "Spearfish, SD 57783", "generally acts as the controller or business",
         "generally acts as the customer's processor or service provider",
@@ -102,14 +102,16 @@ def validate():
         "Pattern-trial anti-abuse record is retained for three years",
         "removed from active systems within 30 days", "provider's controlled deletion schedule",
         "EU Standard Contractual Clauses", "must not submit that information through the self-service beta",
-        "Anthropic does not calculate or set those scores", "Monderman does not opt customer content into general model training",
-        "AGGREGATED &amp; DE-IDENTIFIED INFORMATION", "cannot reasonably identify a customer or person",
+        "Anthropic does not calculate or set those scores", "Monderman does not use customer content for model training or fine-tuning",
+        "Monderman does not pool this content across customers", "add it to a shared research or benchmark library",
+        "De-identifying customer content does not create an exception to this restriction",
+        "subject to its stated safety, legal and contractual exceptions", "This is not a zero-retention arrangement",
         "Social Security or other government identification numbers", "lodge a complaint"
     ], "Privacy Notice")
     assert_no_drafting_markers(privacy, "Privacy Notice")
     terms = (ROOT / "terms.html").read_text(errors="ignore")
     require(terms, [
-        "Version 2026-08-26-beta", "affirmative agreement", "Terms version",
+        "Version 2026-09-08-beta", "affirmative agreement", "Terms version",
         "Privacy Notice version", "database-server timestamp", "source/context",
         "normalized account email verified at acceptance", "organization name verified at acceptance",
         "seven-year legal-acceptance retention period",
@@ -125,7 +127,7 @@ def validate():
         "Public informational pages may remain accessible globally",
         "not designed, validated or offered as employee-selection procedures",
         "must not attempt to identify an anonymous Participant",
-        "Monderman does not opt Customer content into general model training",
+        "Monderman does not use Customer content for model training or fine-tuning",
         "The Customer will defend, indemnify and hold harmless Monderman",
         "must be filed within 12 months after the claim accrued",
         "requires fresh affirmative acceptance"

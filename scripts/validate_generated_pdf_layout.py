@@ -4,7 +4,10 @@
 from __future__ import annotations
 
 import argparse
+import json
 import logging
+import re
+import unicodedata
 from pathlib import Path
 
 import pdfplumber
@@ -28,6 +31,14 @@ def close(actual: float, expected: float) -> bool:
     return abs(float(actual) - expected) <= TOLERANCE
 
 
+def normalized(text: str) -> str:
+    text = unicodedata.normalize("NFKC", text)
+    # A retained hard hyphen can be a legal line-wrap point (multi-\nparty).
+    # Join that line break only; do not erase hyphens or ordinary spaces.
+    text = re.sub(r"(?<=\w)-[ \t]*\r?\n[ \t]*(?=\w)", "-", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
 def validate(path: Path) -> None:
     reader = PdfReader(path)
     if not reader.pages:
@@ -45,29 +56,41 @@ def validate(path: Path) -> None:
 
     with pdfplumber.open(path) as document:
         texts = [(page.extract_text() or "") for page in document.pages]
-    remedy_titles = (
-        "LOW DISRUPTION",
-        "TARGETED REDESIGN",
-        "FASTEST STRUCTURAL RESET",
-    )
-    remedy_pages: set[int] = set()
-    for title in remedy_titles:
+    # These locked fixtures contain independent option and priority lists, not
+    # per-option evidence IDs. Enforce complete cards using their actual text,
+    # not the removed, invented array-position evidence footer.
+    artifact = json.loads((Path(__file__).resolve().parents[1] /
+        "test-fixtures/authenticated-report-engine-runs.json").read_text())
+    key = path.stem.removeprefix("authenticated-")
+    source = artifact["outputs"][key]
+    result = source.get("result", source)
+    remedies = result.get("interpretive_prose", {}).get("remedy_paths", result.get("remedy_paths", []))
+    if len(remedies) != 3:
+        raise AssertionError(f"{path.name}: fixture does not contain three options")
+    complete_text = normalized(" ".join(texts))
+    if "do not correspond one-to-one with that list" not in complete_text:
+        raise AssertionError(f"{path.name}: independent option/priority disclosure missing")
+    if "WHY THIS OPTION APPEARS HERE" in complete_text:
+        raise AssertionError(f"{path.name}: invented option-to-priority evidence pairing returned")
+    for remedy in remedies:
+        title = remedy["kicker"].upper()
         matches = [index for index, text in enumerate(texts) if title in text]
         if len(matches) != 1:
             raise AssertionError(f"{path.name}: expected one complete {title!r}, found {matches}")
         page_index = matches[0]
-        remedy_pages.add(page_index)
-        if "MEASURED EVIDENCE LINK" not in texts[page_index]:
-            raise AssertionError(f"{path.name}: {title!r} is separated from its evidence footer")
-
-    for page_index, text in enumerate(texts):
-        if "MEASURED EVIDENCE LINK" in text and page_index not in remedy_pages:
-            raise AssertionError(
-                f"{path.name}: orphaned remedy evidence fragment on page {page_index + 1}"
-            )
+        page_text = normalized(texts[page_index])
+        retained = [remedy["label"], remedy["summary"], *remedy["actions"], remedy["risk"]]
+        for field in retained:
+            if normalized(field) not in page_text:
+                raise AssertionError(f"{path.name}: {title!r} has missing or split card content: {field!r}")
 
 
 def main() -> None:
+    assert normalized("multi-\nstakeholder") == "multi-stakeholder"
+    assert normalized("multi-\r\n  stakeholder") == "multi-stakeholder"
+    assert normalized("multi- stakeholder") != "multi-stakeholder"
+    assert normalized("multi\nstakeholder") != "multi-stakeholder"
+    assert normalized("material-\nmissing") != "material-present"
     parser = argparse.ArgumentParser()
     parser.add_argument("directory", type=Path)
     directory = parser.parse_args().directory.resolve()

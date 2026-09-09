@@ -7,7 +7,9 @@ import http from 'node:http';
 import { chromium, webkit } from 'playwright';
 
 const root = path.resolve('.render-public');
-const output = path.resolve('output/dv-journey-browser');
+const output = path.resolve(process.env.DV_JOURNEY_OUT || 'output/dv-journey-browser');
+const releaseChannel=JSON.parse(fs.readFileSync(path.join(root,'.well-known/monderman-questionnaire-release.json'))).channel;
+assert.ok(['legacy','current'].includes(releaseChannel));
 fs.mkdirSync(output, {recursive:true});
 const mime = {'.html':'text/html','.js':'application/javascript','.css':'text/css','.svg':'image/svg+xml','.woff2':'font/woff2','.png':'image/png','.ico':'image/x-icon','.pdf':'application/pdf'};
 const server = http.createServer((req,res) => {
@@ -47,6 +49,8 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
   const footerEvidence=[];
   page.on('pageerror', e=>errors.push(e.message));
   let starts=0,revision=1,finalized=false,history=[],commits=0,finalizations=0,legalAccepted=false,denySavedReport=false,delaySavedReport=false;
+  let questionnaireVersion=releaseChannel==='current'?'1.1.0':'1.0.0';
+  let responseVersionOverride=null,versionUnavailableResponse=false;
   let failAnswerAck=true,failRevisionAck=true,failAlternate=2,failFinalize=true,rejectCountOnce=true;
   const requests=[],receipts=new Map();
   const next = () => {
@@ -55,7 +59,8 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
     if(history[0].value==='fast')return history.length===1?questions.alternate:null;
     return [questions.route,questions.count,questions.detail,questions.last][history.length]||null;
   };
-  const snapshot = extra => ({ok:true,runId,role:'managerial',depth:10,routingVersion:'fixture-v1',configVersion:'fixture-v1',sessionRevision:revision,nextItem:next(),shouldStop:!next(),finalized,answerHistory:history.map(e=>({...e,item:questions[e.itemId]})),progress:{answeredCount:history.length},...extra});
+  const versionMetadata = () => responseVersionOverride || ({questionnaire_version:questionnaireVersion,routingVersion:questionnaireVersion,configVersion:questionnaireVersion});
+  const snapshot = extra => ({ok:true,runId,role:'managerial',depth:10,...versionMetadata(),sessionRevision:revision,nextItem:next(),shouldStop:!next(),finalized,answerHistory:history.map(e=>({...e,item:questions[e.itemId]})),progress:{answeredCount:history.length},...extra});
   const json=(route,status,body)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(body)});
   await context.route('**/workspace-access-gate.js*',route=>route.fulfill({contentType:'application/javascript',body:gate}));
   await context.route('**/@supabase/**',route=>route.fulfill({contentType:'application/javascript',body:'/* auth fixture installed before page */'}));
@@ -73,8 +78,8 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
       const allowed=!!req.headers().authorization&&!denySavedReport;
       return json(route,allowed?200:403,{ok:allowed,runId:savedId,...(allowed?{result:sample.result}:{})});
     }
-    if(url.pathname.endsWith('/run/start')){starts++;return json(route,200,snapshot({sessionCapability:capability}));}
-    if(req.method()==='GET'&&url.pathname.endsWith('/run/'+runId))return json(route,200,snapshot());
+    if(url.pathname.endsWith('/run/start')){assert.equal(data.questionnaire_copy_version,releaseChannel==='current'?'diagnostic-language-20260908':undefined);starts++;return json(route,200,snapshot({sessionCapability:capability}));}
+    if(req.method()==='GET'&&url.pathname.endsWith('/run/'+runId))return versionUnavailableResponse ? json(route,409,{ok:false,error:'QUESTIONNAIRE_VERSION_UNAVAILABLE'}) : json(route,200,snapshot());
     if(url.pathname.endsWith('/answer')){
       if(data.itemId==='count'&&rejectCountOnce){rejectCountOnce=false;return json(route,400,{ok:false,error:'invalid_numeric_answer'});}
       const old=history.find(e=>e.itemId===data.itemId);
@@ -102,8 +107,8 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
       if(failFinalize){failFinalize=false;return json(route,503,{ok:false,error:'temporary_test_failure'});}
       if(data.expectedRevision!==revision)return json(route,409,{ok:false,error:'stale_run_revision'});
       finalized=true;
-      if(!req.headers().authorization)return json(route,200,{ok:true,locked:true,reason:'signup_required',teaser:{score:sample.result.score,band:sample.result.score_band},message:'Create a free account to unlock the full report.'});
-      return json(route,200,{ok:true,savedRunId:savedId,result:sample.result,legacyPayload:sample.input_context});
+      if(!req.headers().authorization)return json(route,200,{ok:true,...versionMetadata(),locked:true,reason:'signup_required',teaser:{score:sample.result.score,band:sample.result.score_band},message:'Create a free account to unlock the full report.'});
+      return json(route,200,{ok:true,...versionMetadata(),savedRunId:savedId,result:sample.result,legacyPayload:sample.input_context});
     }
     return json(route,200,{ok:true});
   });
@@ -128,18 +133,62 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
   await numeric('abc');assert.equal(history.length,1,'invalid numeric must not send');
   await numeric('5',true);await page.waitForFunction(()=>document.querySelector('#requiredNotice')?.textContent.includes('That answer was not accepted'));
   assert.equal(requests.filter(e=>e.path.endsWith('/answer')&&e.body.itemId==='count').length,1,'validation errors must not auto-retry');
-  await numeric('5',true);await question('detail');await pick('yes');await question('last');
+  await numeric('5',true);await question('detail');
+  async function expectBlockedMutation(action, suffix, restoredQuestion) {
+    const before=requests.filter(e=>e.path.endsWith(suffix)).length;
+    responseVersionOverride={questionnaire_version:questionnaireVersion,configVersion:'unknown-after-accepted-mutation'};
+    await action();
+    await page.waitForFunction(()=>document.querySelector('#questionTitle')?.textContent==='Your saved questionnaire needs verification');
+    await page.waitForTimeout(400);
+    assert.equal(requests.filter(e=>e.path.endsWith(suffix)).length,before+1,suffix+': copy conflict must not auto-retry an accepted mutation');
+    assert.equal(await page.locator('#questionBody input,#questionBody textarea,#questionBody .choice').count(),0,suffix+': no incompatible question');
+    assert.equal(await page.locator('#continueBtn').isDisabled(),true);
+    assert.equal(starts,1,suffix+': no replacement admission');
+    responseVersionOverride=null;
+    await page.reload({waitUntil:'domcontentloaded'});await question(restoredQuestion);
+    assert.equal(starts,1,suffix+': recover the same saved run');
+  }
+  await expectBlockedMutation(()=>pick('yes'),'/answer','last');
   await page.locator('#backBtn').click();await question('detail');await page.locator('#backBtn').click();await question('count');
   await numeric('6',true);await question('detail');
   assert.deepEqual(history.map(e=>e.itemId),['route','count']);assert.equal(history[1].value,6);
   const edits=requests.filter(e=>e.path.endsWith('/revise'));assert.equal(edits.length,2);assert.equal(edits[0].body.mutationId,edits[1].body.mutationId);
   await page.locator('#backBtn').click();await question('count');await numeric('6');await question('detail');assert.equal(requests.filter(e=>e.path.endsWith('/revise')).length,2,'unchanged review sends no edit');
-  await page.locator('#backBtn').click();await question('count');await page.locator('#backBtn').click();await question('route');await pick('fast',true);await question('alternate');
+  await page.locator('#backBtn').click();await question('count');await page.locator('#backBtn').click();await question('route');
+  await expectBlockedMutation(()=>pick('fast',true),'/revise','alternate');
   assert.deepEqual(history.map(e=>e.itemId),['route']);
   console.log(`${browserName}: answer revisions passed`);
   // Simulate a lost finalize/edit race: local phase cannot override server nextItem.
   await page.evaluate(()=>{const key='monderman.dvJourney.v1';const saved=JSON.parse(sessionStorage.getItem(key));saved.phase='finalizing';saved.state.preflight.confidenceLevel='high';sessionStorage.setItem(key,JSON.stringify(saved));});
   await page.reload({waitUntil:'domcontentloaded'});await question('alternate');assert.equal(starts,1,'refresh must not start');assert.equal(finalizations,0,'server frontier must outrank stale finalizing phase');
+  // A successful HTTP response with unknown/conflicting copy is still unsafe.
+  // This path is stopped by the journey helper, before the generic page pin UI.
+  const blockedVersionCases=[
+    ['unknown',{configVersion:'unknown-fixture-version'}],
+    ['known mismatch',{configVersion:questionnaireVersion==='1.1.0'?'1.0.0':'1.1.0'}],
+    ['missing',{}],
+    ...['questionnaire_version','configVersion','currentVersion','routingVersion','config_version','routingMeta.configVersion'].map(alias=>[
+      'conflicting '+alias,
+      alias==='routingMeta.configVersion'?{configVersion:questionnaireVersion,routingMeta:{configVersion:'unknown-fixture-version'}}:{questionnaire_version:questionnaireVersion,configVersion:questionnaireVersion,[alias]:'unknown-fixture-version'}
+    ]),
+    ['backend409',null]
+  ];
+  for(const [label,metadata] of blockedVersionCases){
+    const preservedDraft=await page.evaluate(()=>sessionStorage.getItem('monderman.dvJourney.v1'));
+    const writesBeforeUnknown=requests.filter(e=>e.method==='POST'&&/\/run\//.test(e.path)).length;
+    responseVersionOverride=metadata;versionUnavailableResponse=label==='backend409';
+    await page.reload({waitUntil:'domcontentloaded'});
+    const notice=page.locator('#journeyRecoveryNotice[data-reason="questionnaire_version_unavailable"][role="status"]');
+    await notice.waitFor({state:'visible'});
+    assert.match(await notice.textContent(),/saved answers have not been removed/);
+    assert.match(await notice.textContent(),/Refresh to retry/);
+    assert.equal(await page.locator('#questionBody input,#questionBody textarea,#questionBody .choice').count(),0,label+': no cached questions');
+    assert.equal(await page.evaluate(()=>sessionStorage.getItem('monderman.dvJourney.v1')),preservedDraft,label+': preserve exact draft');
+    assert.equal(requests.filter(e=>e.method==='POST'&&/\/run\//.test(e.path)).length,writesBeforeUnknown,label+': no mutation or admission');
+    assert.equal(await page.locator('#beginBtn').isDisabled(),true,label+': cannot start over implicitly');
+    responseVersionOverride=null;versionUnavailableResponse=false;
+    await page.reload({waitUntil:'domcontentloaded'});await question('alternate');assert.equal(starts,1);
+  }
   await numeric('7');await page.waitForFunction(()=>document.querySelector('#continueBtn')?.textContent==='Try again');
   assert.equal(history.length,1);
   const ambiguousRequests=requests.length;
