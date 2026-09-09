@@ -109,7 +109,7 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]].filter(([en
     return fails;
    });
    report.push({engine,width,theme,name,state,...layout,contrast});
-   if(layout.scroll>width+1&&state==='populated')console.log(await page.evaluate(()=>[...document.body.querySelectorAll('*')].filter(e=>e.getClientRects().length&&e.scrollWidth>e.clientWidth+1).map(e=>({el:e.tagName+'#'+e.id+'.'+e.className,right:e.getBoundingClientRect().right,width:e.clientWidth,scroll:e.scrollWidth})).slice(0,45)));  
+   if(layout.scroll>width+1&&state==='populated')console.log(await page.evaluate(()=>[...document.body.querySelectorAll('*')].filter(e=>e.getClientRects().length&&e.scrollWidth>e.clientWidth+1).map(e=>({el:e.tagName+'#'+e.id+'.'+e.className,right:e.getBoundingClientRect().right,width:e.clientWidth,scroll:e.scrollWidth})).slice(0,45)));
    if(!auditOnly&&(layout.scroll>width+1||layout.overflow.length||contrast.length)){
     await page.evaluate(()=>window.scrollTo(0,0));
     await page.screenshot({path:path.join(out,`${engine}-${name}-${state}-${theme}-${width}-failure.png`),fullPage:true});

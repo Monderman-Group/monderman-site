@@ -744,15 +744,15 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
           </div>
         </div>
       </div>
-      <div class="score-meta-strip"><div class="score-meta-note"><span class="score-meta-pill" id="scoreMetaIndustry">Industry: --</span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaShapeText">Clarity profile: --</span> <span class="insight-help" id="profileShapeInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="profileShapeTooltip"><strong>Clarity profile</strong><br>Concentrated means one dimension is the primary measured legibility constraint. Distributed means measured clarity weaknesses are spread across dimensions. Self-contradictory means the submitted answers contain incompatible structural signals.</span></span></span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaTrajectoryText">Reported change pressure: --</span> <span class="insight-help" id="trajectoryInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="trajectoryTooltip"><strong>Reported change pressure</strong><br>This is a participant response from the current run. It does not predict drift or measure improvement or decline over time.</span></span></span></div></div>
+      <div class="score-meta-strip"><div class="score-meta-note"><span class="score-meta-pill" id="scoreMetaIndustry">Industry: --</span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaShapeText">Clarity profile: --</span> <span class="insight-help" id="profileShapeInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="profileShapeTooltip"><strong>Clarity profile</strong><br>Concentrated means one dimension contributes the largest share of the combined distance from the top of the clarity scale. Distributed means those differences are spread across dimensions. These comparisons alone do not establish a defect. Self-contradictory means the submitted answers contain incompatible structural signals.</span></span></span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaTrajectoryText">Reported change pressure: --</span> <span class="insight-help" id="trajectoryInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="trajectoryTooltip"><strong>Reported change pressure</strong><br>This is a participant response from the current run. It does not predict drift or measure improvement or decline over time.</span></span></span></div></div>
     </div></section>
 
-    <section class="primary-waterfall"><div class="viz-card"><h4>Structural clarity by dimension</h4><div class="bar-stack" id="clarityDimensionBars"><p class="viz-note" id="clarityDimensionNote">Clarity dimension breakdown will appear here after scoring.</p></div></div><div class="viz-card"><h4>Where the capacity goes</h4><div id="effortFlowSankey"></div><p class="viz-note">Total annual capacity split across productive effort, structural overhead, and the published recoverable-cost estimate: directional, not audited.</p></div></section>
+    <section class="primary-waterfall"><div class="viz-card"><h4>Structural clarity by dimension</h4><div class="bar-stack" id="clarityDimensionBars"><p class="viz-note" id="clarityDimensionNote">Clarity dimension breakdown will appear here after scoring.</p></div></div><div class="viz-card"><h4>Modeled capacity context</h4><div id="effortFlowSankey"></div><p class="viz-note">Scenario comparison of stated annual participant capacity, modeled administrative hours, and the modeled reduction estimate. Directional, not audited.</p></div></section>
 
     <section class="diagnosis-grid">
       <article class="diagnosis-card"><p class="summary-label">Legibility condition</p><p class="summary-value" id="cycleConditionValue">--</p><p class="summary-sub tight" id="cycleConditionSub">Overall structural clarity read</p></article>
-      <article class="diagnosis-card"><p class="summary-label">Primary clarity constraint</p><p class="summary-value" id="burdenConstraintValue">--</p><p class="summary-sub tight" id="burdenConstraintSub">Dimension most limiting structural legibility</p></article>
-      <article class="diagnosis-card"><p class="summary-label">Legibility failure mode</p><p class="summary-value" id="tradeoffDiagnosisValue">--</p><p class="summary-sub tight" id="tradeoffDiagnosisSub">Absent, incoherent, or self-contradictory</p></article>
+      <article class="diagnosis-card"><p class="summary-label">First dimension to review</p><p class="summary-value" id="burdenConstraintValue">--</p><p class="summary-sub tight" id="burdenConstraintSub">Dimension with the largest distance from the top of the clarity scale</p></article>
+      <article class="diagnosis-card"><p class="summary-label">Clarity pattern</p><p class="summary-value" id="tradeoffDiagnosisValue">--</p><p class="summary-sub tight" id="tradeoffDiagnosisSub">Summary classification from submitted answers</p></article>
     </section>
 
     <section>
@@ -761,34 +761,34 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
 
         <article class="accordion-section accordion-priority" data-accordion="economic">
           <button class="accordion-header" type="button">
-            <div class="accordion-header-main"><span class="accordion-title">Economic exposure</span><span class="accordion-sub">Burden hours, cost exposure, capacity drag, and reclaim potential.</span></div>
+            <div class="accordion-header-main"><span class="accordion-title">Modeled time and cost</span><span class="accordion-sub">Directional scenario from the submitted time, frequency, labor-cost, and clarity-score inputs.</span></div>
             <span class="accordion-chevron">⌄</span>
           </button>
           <div class="accordion-body">
             <section class="economic-strip">
-              <article class="economic-card"><p class="summary-label">Compensation hours*</p><p class="summary-value" id="economicHoursValue">--</p><p class="summary-sub tight" id="economicHoursSub">Modeled annual hours attributable to structural ambiguity under the disclosed scenario assumption.</p></article>
+              <article class="economic-card"><p class="summary-label">Modeled annual hours*</p><p class="summary-value" id="economicHoursValue">--</p><p class="summary-sub tight" id="economicHoursSub">Calculated from the submitted hours, annual cycles, and clarity score. This is not observed lost time.</p></article>
               <article class="economic-card"><p class="summary-label">Estimated cost*</p><p class="summary-value" id="economicCostValue">--</p><p class="summary-sub tight" id="economicCostSub">Modeled annual labor cost based on the supplied time, frequency, and hourly-cost inputs. This is not an observed loss.</p></article>
-              <article class="economic-card"><p class="summary-label">Capacity drag*</p><p class="summary-value" id="economicCapacityValue">--</p><p class="summary-sub tight" id="economicCapacitySub">Estimated capacity absorbed by compensating for structural ambiguity rather than outcome-generating work.</p></article>
+              <article class="economic-card"><p class="summary-label">Modeled capacity share*</p><p class="summary-value" id="economicCapacityValue">--</p><p class="summary-sub tight" id="economicCapacitySub">Modeled annual hours as a share of the stated annual participant capacity. This is not measured lost capacity.</p></article>
             </section>
             <section class="economic-strip" style="margin-top:14px;">
-              <article class="reclaim-card"><p class="summary-label">Legibility recovery potential*</p><p class="summary-value" id="reclaimValue">--</p><p class="summary-sub tight" id="reclaimSub">Directional estimate of capacity that may be recoverable if the primary clarity constraint is addressed first.</p></article>
+              <article class="reclaim-card"><p class="summary-label">Modeled reduction scenario*</p><p class="summary-value" id="reclaimValue">--</p><p class="summary-sub tight" id="reclaimSub">A directional subset of modeled labor exposure under the published formula. It does not establish a need for change or achievable savings.</p></article>
             </section>
           </div>
         </article>
 
         <article class="accordion-section accordion-priority" data-accordion="narrative">
           <button class="accordion-header" type="button">
-            <div class="accordion-header-main"><span class="accordion-title">Drag narrative</span><span class="accordion-sub">Pathway drag, cost of drag, priority actions, and leadership read.</span></div>
+            <div class="accordion-header-main"><span class="accordion-title">Structural clarity details</span><span class="accordion-sub">Reported conditions, modeled exposure, and suggested review priorities.</span></div>
             <span class="accordion-chevron">⌄</span>
           </button>
           <div class="accordion-body">
-            <div class="viz-card"><h4>Where the drag lands</h4><div id="severityDotsMount"></div><p class="viz-note">Higher values mark where this pathway carries the heaviest drag, by dimension.</p></div>
-            <div class="viz-card" style="margin-top:14px;"><h4>Burden composition</h4><div id="shareBarMount"></div><p class="viz-note" id="burdenDonutNote">Each dimension's share of the total visible burden.</p></div>
-            <div class="viz-card" style="margin-top:14px;"><h4>Intervention order</h4><div id="priorityPathMount"></div><p class="viz-note">Where to act first across the heaviest dimensions: fix now, fix next, monitor.</p></div>
+            <div class="viz-card"><h4>Reported difficulty by dimension</h4><div id="severityDotsMount"></div><p class="viz-note">Higher indicators reflect more reported difficulty. A comparison alone does not establish a need for change.</p></div>
+            <div class="viz-card" style="margin-top:14px;"><h4>Difficulty indicator distribution</h4><div id="shareBarMount"></div><p class="viz-note" id="burdenDonutNote">Each dimension's share of the combined difficulty indicators, not its share of time, cost, or risk.</p></div>
+            <div class="viz-card" style="margin-top:14px;"><h4>Suggested review order</h4><div id="priorityPathMount"></div><p class="viz-note">Review the measured dimensions in this order. Confirm any reported problem before deciding whether to change the structure.</p></div>
             <div style="display:none;" aria-hidden="true"><canvas id="burdenDonutChart"></canvas><div class="donut-center"><strong id="donutCenterValue">--</strong></div><div class="treemap" id="burdenTreemap"></div></div>
             <section class="economic-strip">
               <article class="result-card"><h3>Structural clarity result</h3><div class="section-divider"></div><div id="trajectorySignalWrap" class="result-copy" style="margin-bottom:12px;">Change-pressure risk signal will appear here after scoring.</div><p class="result-copy" id="executiveText"></p><div class="premium-note" id="conditionSupportText" style="display:none"></div></article>
-              <article class="result-card"><h3>Cost of current administrative burden</h3><div class="section-divider"></div><p class="result-copy" id="roiNarrativeText">This section translates recurring process burden into labor cost, management attention, and the productive capacity the organization could reclaim by reducing unnecessary administrative load.</p></article>
+              <article class="result-card"><h3>Modeled time and cost scenario</h3><div class="section-divider"></div><p class="result-copy" id="roiNarrativeText">The modeled scenario and its assumptions will appear here after scoring.</p></article>
               <article class="result-card"><h3>Priority actions</h3><div class="section-divider"></div><ul class="result-list" id="actionsList"></ul><div class="compact-card" style="margin-top:14px;"><h3>Organizational implication</h3><ul class="result-list" id="leadershipList"></ul></div></article>
               <article class="result-card"><h3>Design reference and operating read</h3><div class="section-divider"></div><p class="result-copy" id="benchmarkInterpretationText">Design-reference interpretation will appear here after scoring.</p><div class="premium-note" id="tradeoffReadingText" style="display:none"></div></article>
             </section>
@@ -1540,9 +1540,22 @@ return { strength: "low", type: "none", label: "No experiential interpretive sig
 }
 
 function getBurdenCompositionPattern(result = {}) {
-// Read from canonical_composition returned by the backend scorer.
-// This is the single authoritative source: all 6 dimensions included,
-// pre-sorted, pre-percentaged, consistent with the priority ladder.
+// Current SC descriptors store clarity scores and difficulty separately.
+// Preserve their order/percentages; these charts plot weakness, not clarity.
+const descriptorComposition = result?.canonical_descriptor?.composition;
+if (descriptorComposition && Array.isArray(descriptorComposition.segments)) {
+  const segments = descriptorComposition.segments
+    .filter(s => typeof s.weakness === "number" && Number.isFinite(s.weakness))
+    .map(s => ({ ...s, value: s.weakness }));
+  return {
+    segments,
+    total: segments.reduce((sum, s) => sum + s.value, 0),
+    dominant: segments[0] || { label: "No measured difficulty", value: 0, pct: 0 },
+    dominantPct: segments[0]?.pct || 0,
+    shape: descriptorComposition.shape
+  };
+}
+// Older saved results may expose the already-calculated composition here.
 const c = result?.canonical_composition;
 if (c && Array.isArray(c.segments) && c.segments.length > 0) {
   return {
@@ -1556,12 +1569,11 @@ if (c && Array.isArray(c.segments) && c.segments.length > 0) {
 // Legacy fallback for runs that predate the canonical descriptor (read-only, not recalculated)
 const breakdown = asObject(result?.burden_breakdown);
 const LABELS = {
-  approval:     "Approval density",
-  coordination: "Coordination burden",
-  handoff:      "Handoff burden",
-  escalation:   "Escalation dependence",
-  rework:       "Rework friction",
-  key_person:   "Key-person brittleness"
+  role:            "Role clarity",
+  decision_rights: "Decision rights clarity",
+  handoff:         "Handoff integrity",
+  accountability: "Accountability clarity",
+  governance:     "Governance proportionality"
 };
 const segments = Object.entries(LABELS)
   .map(([key, label]) => ({ label, value: Math.max(0, Number(breakdown[key] || 0)) }))
@@ -3611,7 +3623,7 @@ if (pattern.dominant && pattern.dominant.label !== "No dominant source") {
   return {
     label: pattern.dominant?.label || result?.canonical_descriptor?.primary_constraint_label || 'Structural clarity',
     value: pattern.dominant.value,
-    note:  backendNote || "The primary clarity constraint is constraining movement in this workflow."
+    note:  backendNote || "First measured dimension in this comparison."
   };
 }
 return { label: "Distributed clarity weakness", value: 0, note: "No single clarity constraint clearly dominates the run." };
@@ -4169,11 +4181,15 @@ function renderShareBar(result) {
   try {
     var mountEl = document.getElementById("shareBarMount");
     if (!mountEl || !window.MViz || typeof MViz.shareBar !== "function") return;
-    var segs = (result && result.canonical_composition && result.canonical_composition.segments) || [];
+    mountEl.textContent = "";
+    var segs = getBurdenCompositionPattern(result).segments;
     var segments = segs.map(function (s) { return { label: s.label || s.key || "", pct: Number(s.pct) || 0 }; })
                        .filter(function (s) { return s.pct > 0; });
-    if (!segments.length) return;
-    MViz.shareBar(mountEl, { segments: segments });
+    if (!segments.length) {
+      mountEl.textContent = segs.length ? "No reported difficulty to distribute." : "Not enough measured data to show a distribution.";
+      return;
+    }
+    MViz.shareBar(mountEl, { segments: segments, difficultyIndicators: true });
   } catch (e) { console.warn("shareBar skipped:", e && e.message); }
 }
 
@@ -4181,11 +4197,12 @@ function renderSeverityDots(result) {
   try {
     var mountEl = document.getElementById("severityDotsMount");
     if (!mountEl || !window.MViz || typeof MViz.severityDots !== "function") return;
-    var segs = (result && result.canonical_composition && result.canonical_composition.segments) || [];
+    mountEl.textContent = "";
+    var segs = getBurdenCompositionPattern(result).segments;
     var rows = segs.map(function (s) { return { label: s.label || s.key || "", value: Number(s.value) || 0 }; })
-                   .filter(function (r) { return r.value > 0; });
-    if (!rows.length) return;
-    MViz.severityDots(mountEl, { rows: rows });
+                   .filter(function (r) { return r.value >= 0; });
+    if (!rows.length) { mountEl.textContent = "Not enough measured data to show difficulty indicators."; return; }
+    MViz.severityDots(mountEl, { rows: rows, difficultyIndicators: true });
   } catch (e) { console.warn("severityDots skipped:", e && e.message); }
 }
 
@@ -4193,13 +4210,15 @@ function renderPriorityPath(result) {
   try {
     var mountEl = document.getElementById("priorityPathMount");
     if (!mountEl || !window.MViz || typeof MViz.priorityPath !== "function") return;
-    var segs = (result && result.canonical_composition && result.canonical_composition.segments) || [];
-    var steps = segs.map(function (s) { return { label: s.label || s.key || "", severity: Number(s.value) || 0 }; })
-                    .filter(function (s) { return s.severity > 0; })
-                    .sort(function (a, b) { return b.severity - a.severity; })
-                    .slice(0, 3);
-    if (!steps.length) return;
-    MViz.priorityPath(mountEl, { steps: steps });
+    mountEl.textContent = "";
+    var ladder = result && result.canonical_descriptor && result.canonical_descriptor.priority_ladder;
+    var steps = Array.isArray(ladder) ? ladder.map(function (s) {
+      return { label: s.focus || s.label || s.key || "", severity: s.weakness, priority: s.priority };
+    }).slice(0, 3) : getBurdenCompositionPattern(result).segments.slice(0, 3).map(function (s) {
+      return { label: s.label || s.key || "", severity: s.value };
+    });
+    if (!steps.length) { mountEl.textContent = "No review order is available for this result."; return; }
+    MViz.priorityPath(mountEl, { steps: steps, suppliedPriorities: true });
   } catch (e) { console.warn("priorityPath skipped:", e && e.message); }
 }
 
@@ -4272,17 +4291,25 @@ function renderEffortFlow(result) {
   try {
     const mountEl = document.getElementById("effortFlowSankey");
     if (!mountEl || !window.MViz || typeof window.MViz.effortFlow !== "function") return;
+    mountEl.textContent = "";
     const ex = (result && result.exposure) || {};
     const burdenCost = Number(ex.annual_cost) || 0;
     const burdenHours = Number(ex.annual_hours) || 0;
     const dragPct = Number(ex.capacity_drag_percent) || 0;
-    if (burdenCost <= 0 || dragPct <= 0) return; // can't build a faithful flow: leave the bar as fallback
+    const capacityCost = Number(ex.total_capacity_cost);
+    const hasCapacityCost = Number.isFinite(capacityCost) && capacityCost > 0;
+    // A rounded 0% share must not erase a nonzero modeled amount when its
+    // authoritative capacity denominator is present. No new value is scored.
+    if (burdenCost <= 0 || (!hasCapacityCost && dragPct <= 0)) {
+      mountEl.textContent = "Not enough modeled time and cost data to show this comparison.";
+      return;
+    }
 
     // Totals come from the published capacity fields. They used to be
     // back-calculated from the drag percentage, so the capacity total was
     // implied rather than measured and moved whenever drag changed meaning.
-    const totalCost = Number(ex.total_capacity_cost) > 0
-      ? Number(ex.total_capacity_cost)
+    const totalCost = hasCapacityCost
+      ? capacityCost
       : burdenCost / (dragPct / 100);
     const totalHours = Number(ex.total_capacity_hours) > 0
       ? Number(ex.total_capacity_hours)
@@ -4319,7 +4346,8 @@ function renderEffortFlow(result) {
       productiveCost: productiveCost, productiveHours: productiveHours,
       structuralCost: structuralCost, reclaimCost: reclaimCost,
       dims: dims,
-      note: "Published directional estimate. Dimension dollars apportion the recoverable burden by measured clarity weakness, not audited."
+      scenarioLabels: true,
+      note: "Published directional scenario. Dimension dollars distribute the modeled reduction amount by distance from the top of the clarity scale; not observed or audited."
     });
 
     // The Sankey supersedes the segmented bar: hide the now-redundant bar, legend, and note.
@@ -4377,7 +4405,7 @@ requestAnimationFrame(() => {
 });
 const primary = entries.find(entry => entry.value !== null);
 if (note) note.textContent = primary
-  ? `Primary clarity constraint: ${primary.label} (${primary.value}/100). Lower scores indicate where the structure is least readable.`
+  ? `First dimension to review: ${primary.label} (${primary.value}/100). Lower scores are farther from the top of the clarity scale.`
   : "No structural clarity dimensions were measured in this run.";
 }
 // Alias for backward compat
@@ -4736,9 +4764,9 @@ return `<svg width="220" height="140" viewBox="0 0 220 140" xmlns="http://www.w3
 <div class="capacity-legend">
   <div class="capacity-legend-item"><span class="capacity-legend-dot" style="background:#3C8A60"></span>Productive work</div>
   <div class="capacity-legend-item"><span class="capacity-legend-dot" style="background:#C9821F"></span>Routine coordination</div>
-  <div class="capacity-legend-item"><span class="capacity-legend-dot" style="background:#B0392F"></span>Recoverable ambiguity cost*</div>
+  <div class="capacity-legend-item"><span class="capacity-legend-dot" style="background:#B0392F"></span>Modeled reduction scenario*</div>
 </div>
-<p class="caption">A modeled allocation based on the submitted workload and labor-cost inputs. Recoverable ambiguity cost* is a scenario estimate, not observed loss or capacity the organization has realized.</p>`;
+<p class="caption">A modeled allocation based on the submitted workload and labor-cost inputs. The modeled reduction scenario* is not observed loss or capacity the organization has realized.</p>`;
 
 }
 
@@ -5443,8 +5471,8 @@ return `<!doctype html>
     <p>Directional modeling suggests ${safe(annualHoursText)} and about ${safe(annualCostText)} in labor exposure, with capacity drag around ${dragPct}%*. These are directional estimates, not audited measurements. Use this as a strategic signal, not a stand-alone operating decision.</p>
     <p>The question is not whether work is getting done: it is what the submitted answers and scenario inputs record about ownership, clarification, and coordination. This run does not establish that structural conditions caused any reported effort. Participant notes do not change the score; they provide attributed context about the submitted experience.</p>
     <div class="capacity"><div class="seg" style="width:${capacity.productive}%;background:#3C8A60">${capacity.productive}%</div><div class="seg" style="width:${capacity.admin}%;background:#C9821F">${capacity.admin}%</div><div class="seg" style="width:${capacity.drag}%;background:#B0392F">${capacity.drag}%</div></div>
-    <div class="legend"><span><span class="dot" style="background:#3C8A60"></span>Productive work</span><span><span class="dot" style="background:#C9821F"></span>Routine coordination</span><span><span class="dot" style="background:#B0392F"></span>Recoverable ambiguity cost*</span></div>
-    <p class="muted" style="font-size:8.5px">A modeled allocation based on the submitted workload and labor-cost inputs. Recoverable ambiguity cost* is a scenario estimate, not observed loss or capacity the organization has realized.</p>
+    <div class="legend"><span><span class="dot" style="background:#3C8A60"></span>Productive work</span><span><span class="dot" style="background:#C9821F"></span>Routine coordination</span><span><span class="dot" style="background:#B0392F"></span>Modeled reduction scenario*</span></div>
+    <p class="muted" style="font-size:8.5px">A modeled allocation based on the submitted workload and labor-cost inputs. The modeled reduction scenario* is not observed loss or capacity the organization has realized.</p>
     <h3 style="margin-top:26px">Why this matters in ${safe(sectorName)}</h3>
     <p>${safeWords(industry.opportunityPattern, 44)}</p>
     <p>${safeWords(trajectoryProse, 36)}</p>
@@ -5507,7 +5535,7 @@ ${decisionReviewPage}
   ${footer(methodPageNumber)}
   <div class="content">
     <p class="eyebrow">How to read this report</p><h2>How this was produced</h2>
-    <p>This diagnostic measures structural clarity across five dimensions: role clarity, decision rights clarity, handoff integrity, accountability clarity, and governance proportionality. This run covered ${safe(coverageText)}; unmeasured dimensions were excluded rather than scored. It also models the share of supplied coordination time that may be attributable to structural ambiguity under the disclosed scenario assumption. The diagnostic does not independently verify user inputs; it should be read as a directional structural read rather than a full audit.</p>
+    <p>This diagnostic measures structural clarity across five dimensions: role clarity, decision rights clarity, handoff integrity, accountability clarity, and governance proportionality. This run covered ${safe(coverageText)}; unmeasured dimensions were excluded rather than scored. It also models the share of supplied coordination time assigned by the published score-responsive scenario formula. The diagnostic does not independently verify user inputs; it should be read as a directional structural read rather than a full audit.</p>
     <div class="rule"></div>
     <div class="ring-row"><svg class="ring" viewBox="0 0 58 58"><circle cx="29" cy="29" r="23" fill="none" stroke="#EAE6DD" stroke-width="7"/><circle cx="29" cy="29" r="23" fill="none" stroke="#C9821F" stroke-width="7" stroke-dasharray="${insight.available ? Math.round(insight.score * 1.45) : 0} 145" transform="rotate(-90 29 29)"/></svg><div><div style="font-size:24px;font-weight:700">${insight.available ? Math.round(insight.score) : "Unavailable"}</div><p class="muted">Run evidence score${insight.available ? ` · ${escapeHtml(insight.band)}` : " · Awaiting data"}<br>${insight.available ? "Single-run signal-quality indicator, not a correctness score." : "Run evidence could not be loaded from the diagnostic backend."}</p></div></div>
     <p>${insight.available ? "This evidence rating reflects the diagnostic length and how confident the participant was in the answers. It is not a measure of the wider organization, and it is separate from the evidence ratings used in Depth Synthesis and Cross-Lens Synthesis." : "The evidence rating was unavailable for this run. The rest of the report remains valid."}</p>
@@ -5999,7 +6027,7 @@ $("trajectoryValueSub").textContent = result?.trajectory?.note || "Directional s
   const amt = Number.isFinite(canonicalRecovery) && canonicalRecovery > 0 ? canonicalRecovery : null;
   $("reclaimValue").textContent = amt ? formatCurrency(amt) : "Not estimated";
   $("reclaimSub").textContent = amt
-    ? "Directional range centered on the same recoverable-cost estimate used throughout this report."
+    ? "Directional modeled reduction estimate from the same scenario inputs. This is not observed or guaranteed savings."
     : result?.exposure?.hours_estimated === false
       ? "Not calculated because per-run hours or annual cycles were not provided."
       : result?.exposure?.cost_estimated === false
@@ -6048,7 +6076,7 @@ $("execLeadershipWatchoutText").textContent = `What leadership should avoid: ${h
 
 $("exportMetaBenchmark").textContent = `Design reference: ${result.benchmark_position || "Not measured"}`;
 $("exportMetaTrajectory").textContent = `Change-pressure risk: ${result?.trajectory?.label || "No elevated signal"}`;
-$("exportMetaOpportunity").textContent = `Primary clarity constraint: ${burdenConstraint.label}`;
+$("exportMetaOpportunity").textContent = `First dimension to review: ${burdenConstraint.label}`;
 
 renderList("leadershipList", harmonized.leadership);
 renderList("flagsList", harmonized.keyFlags);
@@ -6145,7 +6173,7 @@ renderTableBody("costCompositionBody", [
 { label: "Average hourly cost*", value: formatCurrency(result?.exposure?.average_hourly_cost || payload?.hourlyCost), note: "Directional labor-cost assumption per materially involved participant." },
 { label: "Annual labor hours*", value: result?.exposure?.annual_hours ? formatRoundedHours(result.exposure.annual_hours, { suffix: " hrs" }) : "--", note: "Modeled across the workflow volume you provided." },
 { label: "Annual labor exposure*", value: formatEstimateCurrencyRange(result?.exposure?.annual_cost), note: "Directional labor-cost impact from keeping the workflow moving." },
-{ label: "Capacity drag*", value: result?.exposure?.capacity_drag_percent != null ? `${Math.round(Number(result.exposure.capacity_drag_percent))}%` : "--", note: "Estimated share of capacity absorbed by structural drag." },
+{ label: "Modeled capacity share*", value: result?.exposure?.capacity_drag_percent != null ? `${Math.round(Number(result.exposure.capacity_drag_percent))}%` : "--", note: "Modeled annual hours divided by the stated annual participant capacity; not observed lost capacity." },
 ...exposureAssumptionRows(result?.exposure)
 ], (row) => [`<td>${escapeHtml(row.label)}</td>`, `<td>${escapeHtml(row.value)}</td>`, `<td>${escapeHtml(row.note)}</td>`]);
 

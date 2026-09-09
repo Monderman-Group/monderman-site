@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-screen-20260909.1";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-screen-20260909.20";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -113,7 +113,7 @@
       return {
         toolType: firstStr(g.tool_type),
         toolLabel: firstStr(g.tool_label, g.tool_type),
-        n: strictNum(g.respondents ?? g.n),
+        n: strictNum(g.submitted_runs ?? g.respondents ?? g.n),
         mean: strictNum(g.mean_score),
         median: strictNum(g.median_score),
         iqr: arr(g.score_iqr),
@@ -174,10 +174,19 @@
         additionalRuns: strictNum(requirement.additional_runs_needed)
       };
     }).filter((item) => item.text);
+    // Display-only compatibility for recognized legacy coverage labels. Never
+    // rewrite saved action records or infer a label for an unknown action.
+    const legacyCoverageLabels = {
+      "structural_clarity depth": "Structural Clarity coverage",
+      "decision_velocity depth": "Decision Velocity coverage",
+      "operational_systems depth": "Operational Systems coverage",
+      "institutional_performance depth": "Institutional Performance coverage"
+    };
     const actions = arr(r.priority_actions).map((item) => {
       const action = typeof item === "string" ? { text: item } : obj(item);
+      const label = firstStr(action.label, "Action");
       return {
-        label: firstStr(action.label, "Action"),
+        label: Object.prototype.hasOwnProperty.call(legacyCoverageLabels, label) ? legacyCoverageLabels[label] : label,
         text: firstStr(action.text, action.summary),
         tier: firstStr(action.tier),
         source: firstStr(action.source)
@@ -210,7 +219,7 @@
     const experiential = obj(r.experiential);
     const briefParagraphs = arr(briefing.paragraphs).map(firstStr).filter(Boolean);
     const modeLabel = product === "depth" ? "Depth Synthesis" : "Cross-Lens Synthesis";
-    const reads = strictNum(r.respondent_count) ?? sourceGroups.reduce((sum, group) => sum + (group.n || 0), 0);
+    const reads = strictNum(r.submitted_run_count ?? r.source_result_count ?? r.respondent_count) ?? sourceGroups.reduce((sum, group) => sum + (group.n || 0), 0);
     const lensCount = strictNum(r.lens_count) ?? sourceGroups.length;
     const evidenceLabel = firstStr(evidence.evidence_label, r.readiness_label, "Evidence band unavailable");
     const conditionBand = firstStr(r.condition_band, scorePublished ? "Observed condition" : "Composite withheld");
@@ -247,6 +256,7 @@
       conditionSpread: obj(r.condition_spread),
       evidence: evidence,
       reads: reads,
+      runCountNote: firstStr(r.participant_count_note, "Counts refer to submitted runs, not verified distinct people. One person may contribute more than one run."),
       lensCount: lensCount,
       evidenceLabel: evidenceLabel,
       evidenceDescription: firstStr(evidence.evidence_description),
@@ -365,6 +375,27 @@
     return firstStr(SCORING_VERSION_LABELS[version], version, "Not recorded");
   }
 
+  const REPORTED_CONFIDENCE_LABELS = Object.freeze({
+    high: "High",
+    moderate: "Moderate",
+    limited: "Limited"
+  });
+
+  function displayReportedAnswerConfidence(insightDepth, context) {
+    const insight = obj(insightDepth);
+    const savedContext = obj(context);
+    const raw = Object.prototype.hasOwnProperty.call(insight, "confidence_level")
+      ? insight.confidence_level
+      : (Object.prototype.hasOwnProperty.call(savedContext, "confidenceLevel")
+        ? savedContext.confidenceLevel
+        : savedContext.confidence_level);
+    if (typeof raw !== "string") return "Not recorded";
+    const key = raw.trim().toLowerCase();
+    return Object.prototype.hasOwnProperty.call(REPORTED_CONFIDENCE_LABELS, key)
+      ? REPORTED_CONFIDENCE_LABELS[key]
+      : "Not recorded";
+  }
+
   function hasGeneratedRemedyRecoveryRange(value) {
     const text = firstStr(value);
     return /\bDirectional reclaim band:\s*(?:\$[\d,.]+(?:\s*[–-]\s*\$[\d,.]+)?|Not estimated)\*{0,2}\.?\s*$/i.test(text)
@@ -381,6 +412,26 @@
       .trim();
     if (withoutGeneratedSuffix !== text) return withoutGeneratedSuffix;
     return hasGeneratedRemedyRecoveryRange(text) ? "" : text;
+  }
+
+  function displayRunFindings(toolType, result, values) {
+    // Historical OS results used one sentence for both comparison flags and
+    // single-answer probes. A flag alone does not establish conflicting answers.
+    // Adapt that exact display sentence without changing the saved result.
+    if (toolType !== "operational_systems") return values;
+    const legacy = "Some submitted answers conflict about formal-system burden and reported operating experience; broader evidence is needed.";
+    const flags = result.contradictions;
+    const validFlags = Array.isArray(flags) && flags.length > 0 && flags.every(flag =>
+      (typeof flag === "string" && flag.trim().length > 0)
+      || (flag && typeof flag === "object" && !Array.isArray(flag)
+        && [flag.code, flag.message, flag.label].some(value => typeof value === "string" && value.trim().length > 0))
+    );
+    const replacement = !validFlags
+      ? "The saved report includes a caution flag, but this view does not establish which responses or conditions it concerns."
+      : flags.length === 1
+        ? "The saved result flags one response pattern. Review its recorded condition and qualification before drawing a conclusion."
+        : "The saved result flags " + flags.length + " response patterns. Review each recorded condition and qualification before drawing a conclusion.";
+    return values.map(value => value === legacy ? replacement : value);
   }
 
   function fromRun(run) {
@@ -413,8 +464,8 @@
       r.primary_driver, r.primary_constraint, r.primary_exposure_source,
       r.primary_burden_source, r.primary_structural_weakness, "Unavailable"
     );
-    const findings = arr(r.key_findings).length ? arr(r.key_findings)
-      : (arr(r.flags).length ? arr(r.flags) : arr(r.findings));
+    const findings = displayRunFindings(toolType, r, arr(r.key_findings).length ? arr(r.key_findings)
+      : (arr(r.flags).length ? arr(r.flags) : arr(r.findings)));
     const watch = arr(r.watch_items).length ? arr(r.watch_items) : arr(r.contradictions);
     const actions = arr(prose.priority_actions).length ? arr(prose.priority_actions)
       : (arr(r.priority_actions).length ? arr(r.priority_actions)
@@ -431,7 +482,7 @@
     const summary = firstStr(
       summaryBlock.body, narrative.executive, narrative.headlineFinding,
       r.executive_summary, r.summary,
-      "This summary explains the score, the main measured issue, and the first actions to consider."
+      toolType === "structural_clarity" ? "This summary explains the score, the main measured focus, and the first checks to consider." : "This summary explains the score, the main measured issue, and the first actions to consider."
     );
     const headline = firstStr(summaryBlock.headline, narrative.headlineFinding, r.score_band_note, summary);
     const bottomLine = sentenceLead(firstStr(
@@ -456,7 +507,7 @@
     ];
     if (annualHours) kvs.push({ k: "Annual hours*", v: num(annualHours) });
     if (annualCost) kvs.push({ k: "Annual cost*", v: cur(annualCost) });
-    if (drag) kvs.push({ k: "Capacity drag*", v: pct(drag) });
+    if (drag) kvs.push({ k: toolType === "structural_clarity" ? "Modeled capacity share*" : "Capacity drag*", v: pct(drag) });
     if (depth) kvs.push({ k: "Depth", v: depth + "-minute diagnostic" });
 
     const metaScope = firstStr(
@@ -468,12 +519,12 @@
       r.process_name, r.processName, r.pathway_name, metaScope
     );
     const participantMode = humanize(firstStr(r.participant_mode, context.participantMode, context.participant_mode, "managerial"));
-    const dimensionEntries = Object.keys(dimensions).map((key) => ({
+    const dimensionEntries = Object.keys({...obj(coverage.dimensions),...dimensions}).map((key) => ({
       key: key,
       label: displayRunDimensionLabel(toolType, key, dimensionLabels[key]),
       score: strictFinite(dimensions[key]) ? Number(dimensions[key]) : null,
       coverage: obj(obj(coverage.dimensions)[key])
-    })).filter((item) => item.score !== null);
+    }));
     const primarySignal = firstStr(
       descriptor.primary_constraint_label, descriptor.dominant_burden_label,
       r.primary_driver, r.primary_constraint, driver
@@ -550,7 +601,7 @@
       reportLanguage: obj(r.report_language || provenance.report_language),
       kvs: kvs,
       sections: sections,
-      footnote: "This report is based on one participant's answers for the stated scope. It suggests issues to investigate and changes to test. It does not show how common these conditions are, prove their causes, predict performance, or confirm time or money saved. Time, cost, and capacity figures are estimates based on stated assumptions.",
+      footnote: "This report is based on one participant's answers for the stated scope. " + (toolType === "structural_clarity" ? "It identifies dimensions to compare and checks to consider; a comparison alone does not establish a need for change. " : "It suggests issues to investigate and changes to test. ") + "It does not show how common these conditions are, prove their causes, predict performance, or confirm time or money saved. Time, cost, and capacity figures are estimates based on stated assumptions.",
       filenameBase: slug(toolType || "diagnostic"),
       source: obj(envelope.result).tool_type ? envelope : r
     };
@@ -591,12 +642,28 @@
     return String(item);
   }
 
+  // These are explanations of stored scorer statuses, not deductions about
+  // which answers a participant omitted. Never expose internal status keys or
+  // turn an unavailable value into zero.
+  function exposureReason(value) {
+    const reasons = {
+      missing_sizing_inputs: "Required sizing inputs are missing or unusable.",
+      missing_hours_per_run: "Time per run is missing or unusable.",
+      missing_annual_cycles: "Annual frequency is missing or unusable.",
+      missing_hourly_cost: "Hourly labor cost is missing or unusable.",
+      missing_hourly_rate: "Hourly labor rate is missing or unusable.",
+      input_saturation: "The modeled hours meet or exceed the available capacity used in the calculation.",
+      attributed_hours_exceed_available_capacity: "Attributed hours exceed the supplied available capacity."
+    };
+    return typeof value === 'string' && Object.hasOwn(reasons, value) ? reasons[value] : "An explanation for the unavailable estimate was not recorded.";
+  }
+
   function renderExecutiveDecisionFrame(m, n) {
     const exp = obj(m.exposure);
     const diagnosis = obj(m.diagnosis);
     const firstAction = arr(m.actions)[0] || {};
     const annualCost = strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) : "Cost not calculated";
-    const annualHours = strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " hrs" : "Cost not calculated";
+    const annualHours = strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " hrs" : "Time not calculated";
     const scoreValue = m.scorePublished && strictFinite(m.score) ? fmt1(m.score) : "Withheld";
     const metrics = [
       ["Condition", scoreValue, m.product === "depth" ? "Observed median" : "Equal-lens composite"],
@@ -618,7 +685,7 @@
 
   function renderEvidenceLadder(m) {
     const labels = m.product === "depth"
-      ? ["Minimal", "Developing", "Substantial", "Large"]
+      ? ["Limited", "Developing", "Substantial", "Large"]
       : ["Comparison", "Directional", "Coherent", "Strong"];
     const active = String(m.evidenceLabel || "").toLowerCase();
     const steps = labels.map((label) => {
@@ -644,13 +711,13 @@
       evidenceCard("Scope", firstStr(scope.label, humanize(scope.status)), firstStr(scope.statement)),
       evidenceCard("Run-count balance across Diagnostics", firstStr(humanize(balance.status), "Not applicable"), strictFinite(balance.ratio) ? "Largest-to-smallest submitted-run count ratio: " + fmt1(balance.ratio) + ":1" : "Not applicable to one-Diagnostic Depth Synthesis."),
       evidenceCard("Diagnostic/scorer versions", firstStr(versions.label, humanize(versions.status)), versions.conflicting_lenses?.length ? "Conflicting Diagnostics: " + versions.conflicting_lenses.map(humanize).join(", ") : ""),
-      evidenceCard("Source identity", humanize(identity.status), firstStr(identity.statement)),
+      evidenceCard("Source-run identity", humanize(identity.status), firstStr(identity.statement)),
       evidenceCard("Measurement window", humanize(timeWindow.status), firstStr(timeWindow.statement)),
       evidenceCard("Representativeness", firstStr(representative.label, humanize(representative.status)), firstStr(representative.statement))
     ].filter(Boolean).join("");
     return '<section class="mr-section mr-evidence-status"><h2>' + n + '. Evidence in this run</h2>' +
       '<div class="callout"><p><strong>' + esc(m.evidenceLabel) + '.</strong> ' + esc(m.evidenceDescription || "The evidence band governs what this Synthesis is allowed to claim.") + '</p></div>' +
-      renderEvidenceLadder(m) +
+      '<p class="mr-copy mr-run-count-note">'+esc(m.runCountNote)+'</p>'+renderEvidenceLadder(m) +
       '<div class="mr-lens-grid mr-evidence-grid">' + cards + '</div></section>';
   }
 
@@ -678,7 +745,14 @@
     if (!strictFinite(read.min) || !strictFinite(read.max) || !strictFinite(read.median) || iqr.length < 2 || !strictFinite(iqr[0]) || !strictFinite(iqr[1])) return "";
     const W = 680, L = 52, R = 28, plotW = W - L - R;
     const segments = arr(read.segments).filter((s) => strictFinite(obj(s).mean_score) || strictFinite(obj(s).median_score));
-    const H = 148 + segments.length * 36;
+    const segmentRows = segments.map((segment) => {
+      const s = obj(segment), hasMean = strictFinite(s.mean_score), hasMedian = strictFinite(s.median_score);
+      // A missing statistic is not interchangeable with the other statistic.
+      // Long or right-edge value labels get their own row within the chart.
+      const labelBelow = !hasMean || !hasMedian || Number(s.mean_score) > 70;
+      return { s, hasMean, hasMedian, labelBelow, height: labelBelow ? 54 : 36 };
+    });
+    const H = 148 + segmentRows.reduce((height, row) => height + row.height, 0);
     const axisY = 72;
     const X = (v) => synthAxisX(v, L, plotW);
     let svg = '<svg class="mr-synth-chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Depth Synthesis score distribution" style="display:block;width:100%;height:auto;font-family:Neue Haas Grotesk,Helvetica Neue,Helvetica,Arial,sans-serif">';
@@ -695,19 +769,36 @@
     if (strictFinite(read.mean)) svg += '<circle cx="' + X(read.mean) + '" cy="' + axisY + '" r="5" fill="#C9821F" stroke="#fff" stroke-width="1.5"/>';
     svg += '<text x="' + X(read.median) + '" y="' + (axisY+34) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#08383E">median ' + esc(fmt1(read.median)) + '</text>';
     svg += '<text x="' + L + '" y="' + (axisY+55) + '" font-size="11" fill="#6E6F73">Range ' + esc(fmt1(read.min)) + '–' + esc(fmt1(read.max)) + ' · IQR ' + esc(fmtPair(read.iqr, fmt1)) + (strictFinite(read.sd) ? ' · sample sd ' + esc(fmt1(read.sd)) : '') + '</text>';
-    segments.forEach((segment, index) => {
-      const s = obj(segment);
-      const y = 146 + index * 36;
-      const mean = strictFinite(s.mean_score) ? Number(s.mean_score) : Number(s.median_score);
-      const med = strictFinite(s.median_score) ? Number(s.median_score) : mean;
+    let segmentY = 146;
+    segmentRows.forEach(({ s, hasMean, hasMedian, labelBelow, height }) => {
+      const y = segmentY;
+      segmentY += height;
+      const mean = hasMean ? Number(s.mean_score) : null;
+      const med = hasMedian ? Number(s.median_score) : null;
+      svg += '<g class="mr-depth-segment-plot">';
       svg += '<text x="' + L + '" y="' + (y+4) + '" font-size="12" font-weight="600" fill="#18191C">' + esc(humanize(s.participant_mode)) + ' · n=' + esc(fmtWhole(s.n)) + '</text>';
       svg += '<line x1="' + X(0) + '" y1="' + (y+14) + '" x2="' + X(100) + '" y2="' + (y+14) + '" stroke="rgba(24,25,28,.09)"/>';
-      svg += '<circle cx="' + X(mean) + '" cy="' + (y+14) + '" r="6" fill="#0C6E78"/>';
-      svg += '<circle cx="' + X(med) + '" cy="' + (y+14) + '" r="3" fill="#fff" stroke="#08383E" stroke-width="2"/>';
-      svg += '<text x="' + Math.min(W-R, X(mean)+12) + '" y="' + (y+18) + '" font-size="11" fill="#6E6F73">mean ' + esc(fmt1(mean)) + ' · median ' + esc(fmt1(med)) + '</text>';
+      if (hasMean) svg += '<circle class="mr-depth-segment-mean" cx="' + X(mean) + '" cy="' + (y+14) + '" r="6" fill="#0C6E78"/>';
+      if (hasMedian) svg += '<circle class="mr-depth-segment-median" cx="' + X(med) + '" cy="' + (y+14) + '" r="3" fill="#fff" stroke="#08383E" stroke-width="2"/>';
+      svg += '<text class="mr-depth-segment-label" x="' + (labelBelow ? W-R : X(mean)+12) + '" y="' + (y+(labelBelow ? 36 : 18)) + '" text-anchor="' + (labelBelow ? 'end' : 'start') + '" font-size="11" fill="#6E6F73">mean ' + esc(hasMean ? fmt1(mean) : 'Not available') + ' · median ' + esc(hasMedian ? fmt1(med) : 'Not available') + '</text></g>';
     });
     svg += '</svg>';
-    return '<div class="mr-viz-panel"><div class="mr-viz-title">Distribution at a glance</div>' + svg + '<p class="mr-copy">Box = interquartile range; dark line = median; amber dot = mean. Vantage dots describe observed segments and do not reweight the Median Diagnostic Score.</p></div>';
+    // A fixed-width SVG scaled into a phone panel makes its labels unreadable.
+    // The compact view presents the same recorded values as native text.
+    const summary = '<div class="mr-synth-compact"><dl class="mr-synth-stat-list">' +
+      [['Median', fmt1(read.median)], ['Mean', strictFinite(read.mean) ? fmt1(read.mean) : 'Not available'],
+        ['Range', fmt1(read.min) + '–' + fmt1(read.max)], ['Interquartile range', fmtPair(read.iqr, fmt1)],
+        ...(strictFinite(read.sd) ? [['Sample standard deviation', fmt1(read.sd)]] : [])]
+        .map(([label,value]) => '<div><dt>' + esc(label) + '</dt><dd>' + esc(value) + '</dd></div>').join('') + '</dl>' +
+      (segments.length ? '<div class="mr-synth-segment-list">' + segments.map((segment) => {
+        const s = obj(segment);
+        const mean = strictFinite(s.mean_score) ? fmt1(s.mean_score) : 'Not available';
+        const median = strictFinite(s.median_score) ? fmt1(s.median_score) : 'Not available';
+        return '<div class="mr-synth-segment"><strong>' + esc(humanize(s.participant_mode)) + '</strong><span>' +
+          esc(fmtWhole(s.n)) + (Number(s.n) === 1 ? ' submitted run' : ' submitted runs') + '</span><dl class="mr-synth-stat-list"><div><dt>Mean</dt><dd>' +
+          esc(mean) + '</dd></div><div><dt>Median</dt><dd>' + esc(median) + '</dd></div></dl></div>';
+      }).join('') + '</div>' : '') + '</div>';
+    return '<div class="mr-viz-panel mr-depth-distribution-panel"><div class="mr-viz-title">Distribution at a glance</div>' + svg + summary + '<p class="mr-copy"><span class="mr-synth-wide-caption">Box = interquartile range; dark line = median; amber dot = mean. </span>Vantage results describe observed segments and do not reweight the Median Diagnostic Score.</p></div>';
   }
 
   function renderDepthDistribution(m, n) {
@@ -767,7 +858,8 @@
       svg += '<line x1="' + X(tick) + '" y1="38" x2="' + X(tick) + '" y2="' + (H-28) + '" stroke="rgba(24,25,28,.07)"/>';
       svg += '<text x="' + X(tick) + '" y="28" text-anchor="middle" font-size="11" fill="#9A9892">' + tick + '</text>';
     });
-    if (m.scorePublished && strictFinite(m.score)) {
+    const showComposite = m.scorePublished && strictFinite(m.score);
+    if (showComposite) {
       svg += '<line x1="' + X(m.score) + '" y1="36" x2="' + X(m.score) + '" y2="' + (H-28) + '" stroke="#08383E" stroke-width="2.5" stroke-dasharray="5 4"/>';
       svg += '<text x="' + X(m.score) + '" y="14" text-anchor="middle" font-size="11" font-weight="700" fill="#08383E">Composite ' + esc(fmt1(m.score)) + '</text>';
     }
@@ -782,7 +874,7 @@
       svg += '<text x="' + (labelW-12) + '" y="' + (y+20) + '" text-anchor="end" font-size="10.5" fill="#9A9892">median ' + esc(fmt1(lens.median)) + ' · n=' + esc(fmtWhole(lens.n)) + '</text>';
     });
     svg += '</svg>';
-    return '<div class="mr-viz-panel"><div class="mr-viz-title">Diagnostic lenses on one scale</div>' + svg + '<p class="mr-copy">Dots are per-Diagnostic mean scores; horizontal marks show each lens IQR when available. The dashed Composite line is the equal-lens mean. Participant volume strengthens evidence but does not give a larger lens more weight.</p></div>';
+    return '<div class="mr-viz-panel mr-cross-lens-comparison"><div class="mr-viz-title">Diagnostic lenses on one scale</div>' + svg + '<p class="mr-copy">Dots are per-Diagnostic mean scores; horizontal marks show each lens IQR when available. ' + (showComposite ? 'The dashed Composite line is the equal-lens mean. ' : '') + 'Run count does not change a lens\'s weight in a published Composite score.</p></div>';
   }
 
   function splitSvgLabel(label) {
@@ -810,7 +902,7 @@
       const point = positions[index];
       svg += '<path d="M' + point[0] + ' ' + point[1] + ' L' + centerX + ' ' + centerY + '" stroke="rgba(12,110,120,.26)" stroke-width="2" fill="none"/>';
     });
-    svg += '<circle cx="' + centerX + '" cy="' + centerY + '" r="76" fill="url(#mr-system-gradient)"/>';
+    svg += '<circle class="mr-system-hub" cx="' + centerX + '" cy="' + centerY + '" r="76" fill="url(#mr-system-gradient)"/>';
     svg += '<circle cx="' + centerX + '" cy="' + centerY + '" r="83" fill="none" stroke="rgba(12,110,120,.16)" stroke-width="2"/>';
     svg += '<text x="' + centerX + '" y="' + (centerY - 23) + '" text-anchor="middle" fill="#A9CED1" font-size="10" font-weight="700" letter-spacing="1.6">CROSS-LENS</text>';
     // The lower label already states COMPOSITE WITHHELD. Repeating the long
@@ -824,16 +916,22 @@
     svg += '</text>';
     groups.forEach((lens, index) => {
       const point = positions[index], label = splitSvgLabel(lens.toolLabel);
-      const x = point[0] - 96, y = point[1] - 43;
-      svg += '<rect x="' + x + '" y="' + y + '" width="192" height="86" rx="11" fill="#FFF" stroke="#DCD8CF"/>';
-      svg += '<rect x="' + x + '" y="' + y + '" width="4" height="86" rx="2" fill="#0C6E78"/>';
+      const x = point[0] - 96, y = point[1] - 56;
+      svg += '<rect x="' + x + '" y="' + y + '" width="192" height="112" rx="11" fill="#FFF" stroke="#DCD8CF"/>';
+      svg += '<rect x="' + x + '" y="' + y + '" width="4" height="112" rx="2" fill="#0C6E78"/>';
       svg += '<text x="' + (x + 18) + '" y="' + (y + 24) + '" fill="#6E6F73" font-size="10" font-weight="700" letter-spacing=".7">' + esc(label[0].toUpperCase()) + '</text>';
       if (label[1]) svg += '<text x="' + (x + 18) + '" y="' + (y + 38) + '" fill="#6E6F73" font-size="10" font-weight="700" letter-spacing=".7">' + esc(label[1].toUpperCase()) + '</text>';
-      svg += '<text x="' + (x + 18) + '" y="' + (y + 69) + '" fill="#18191C" font-size="25" font-weight="700">' + esc(fmt1(lens.mean)) + '</text>';
-      svg += '<text x="' + (x + 70) + '" y="' + (y + 68) + '" fill="#9A9892" font-size="10">mean · n=' + esc(fmtWhole(lens.n)) + '</text>';
+      svg += '<text class="mr-system-lens-value" x="' + (x + 18) + '" y="' + (y + 69) + '" fill="#18191C" font-size="25" font-weight="700">' + esc(fmt1(lens.mean)) + '</text>';
+      svg += '<text class="mr-system-lens-meta" x="' + (x + 18) + '" y="' + (y + 93) + '" fill="#6E6F73" font-size="11">mean · n=' + esc(fmtWhole(lens.n)) + '</text>';
     });
     svg += '</svg>';
-    return '<div class="mr-viz-panel mr-system-panel"><div class="mr-viz-title">The operating system in one view</div>' + svg + '<p class="mr-copy">Every Diagnostic receives one vote in the center Composite; participant volume changes evidence strength, not lens weight. Connectors show composition, not causation.</p></div>';
+    const summary = '<div class="mr-synth-compact"><div class="mr-system-compact-composite"><strong>' +
+      esc(m.scorePublished ? 'Equal-lens Composite' : 'Composite withheld') + '</strong><span>' +
+      esc(m.scorePublished ? fmt1(m.score) : 'Unavailable') + '</span></div><div class="mr-synth-segment-list">' +
+      groups.map((lens) => '<div class="mr-synth-segment"><strong>' + esc(lens.toolLabel) + '</strong><span>' +
+        esc(fmtWhole(lens.n)) + (Number(lens.n) === 1 ? ' submitted run' : ' submitted runs') + '</span><dl class="mr-synth-stat-list"><div><dt>Mean</dt><dd>' +
+        esc(fmt1(lens.mean)) + '</dd></div></dl></div>').join('') + '</div></div>';
+    return '<div class="mr-viz-panel mr-system-panel"><div class="mr-viz-title">The operating system in one view</div>' + svg + summary + '<p class="mr-copy">Every Diagnostic receives one vote in the Composite. Submitted run counts affect evidence coverage, not lens weight; they do not establish how many distinct people responded.<span class="mr-synth-wide-caption"> Connectors show composition, not causation.</span></p></div>';
   }
 
   function renderCrossLensInteractionMatrix(m) {
@@ -878,17 +976,18 @@
 
   function renderLensSummary(m, n) {
     if (!arr(m.sourceGroups).length) return "";
+    const isCrossLens = m.product === "cross_lens";
     const cards = arr(m.sourceGroups).map((lens) => {
-      return '<div class="mr-lens-card"><div class="mr-lens-label">' + esc(lens.toolLabel) + '</div>' +
-        '<div style="font-family:\"Neue Haas Grotesk\",\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:2rem;font-weight:700;margin:8px 0 4px">' + esc(fmt1(lens.mean)) + '</div>' +
-        '<p class="mr-copy">Mean score · median ' + esc(fmt1(lens.median)) + ' · n=' + esc(fmtWhole(lens.n)) + '</p>' +
-        '<p class="mr-copy">IQR ' + esc(fmtPair(lens.iqr, fmt1)) + ' · range ' + esc(fmtPair(lens.range, fmt1)) + '</p>' +
+      return '<div class="mr-lens-card"' + (isCrossLens ? ' role="listitem"' : '') + '><div class="mr-lens-label"' + (isCrossLens ? ' role="heading" aria-level="3"' : '') + '>' + esc(lens.toolLabel) + '</div>' +
+        '<div class="mr-contributing-score' + (strictFinite(lens.mean) ? '' : ' is-unavailable') + '">' + esc(fmt1(lens.mean)) + '<span>Mean score</span></div>' +
+        '<p class="mr-copy mr-contributing-meta"><span>Median score: ' + esc(fmt1(lens.median)) + '</span><span>Submitted runs: ' + esc(fmtWhole(lens.n)) + '</span></p>' +
+        '<p class="mr-copy">Middle half of scores: ' + esc(fmtPair(lens.iqr, fmt1)) + '<br>Full score range: ' + esc(fmtPair(lens.range, fmt1)) + '</p>' +
         (lens.driver ? '<span class="mr-pill">' + esc(humanize(lens.driver)) + '</span>' : '') +
       '</div>';
     }).join("");
-    const graphic = m.product === "cross_lens" ? renderCrossLensGraphic(m) : "";
-    return '<section class="mr-section"><h2>' + n + '. Contributing Diagnostic lens' + (m.sourceGroups.length === 1 ? '' : 'es') + '</h2>' + graphic +
-      '<div class="mr-lens-grid">' + cards + '</div></section>';
+    const graphic = isCrossLens ? renderCrossLensGraphic(m) : "";
+    return '<section class="mr-section' + (isCrossLens ? ' mr-cross-lens-summary' : '') + '"><h2>' + n + '. Contributing Diagnostic lens' + (m.sourceGroups.length === 1 ? '' : 'es') + '</h2>' + graphic +
+      '<div class="mr-lens-grid"' + (isCrossLens ? ' role="list" aria-label="Contributing Diagnostic lenses"' : '') + '>' + cards + '</div></section>';
   }
 
   function renderCrossLensEvidenceMap(m) {
@@ -1044,7 +1143,7 @@
   function renderMetaMethod(m, n) {
     const method = m.product === "depth"
       ? "The published condition is the median of the submitted scores from one Diagnostic. The observed distribution, differences between participant perspectives, scope, source identity, versions, measurement window, and sampling frame are reported separately. Sample size alone does not establish population representativeness."
-      : "When the Coherent or Strong evidence threshold is met, the published composite is the arithmetic mean of the contributing Diagnostic means, so each Diagnostic receives one vote regardless of participant count. Participant depth governs evidence strength and balance. A Comparison Only or Directional read withholds the composite. Diagnostic disagreement remains visible and is not subtracted from the condition score.";
+      : "When the Coherent or Strong evidence threshold is met, the published composite is the arithmetic mean of the contributing Diagnostic means, so each Diagnostic receives one vote regardless of submitted run count. Run counts contribute to evidence coverage and balance; they do not establish how many distinct people responded. A Comparison Only or Directional read withholds the composite. Diagnostic disagreement remains visible and is not subtracted from the condition score.";
     return '<section class="mr-section mr-meta-method"><h2>' + n + '. Method and limits</h2><p>' + esc(method) + '</p>' +
       (m.organizationalImplication ? '<div class="callout"><p><strong>Organizational implication.</strong> ' + esc(m.organizationalImplication) + '</p></div>' : '') + '</section>';
   }
@@ -1101,41 +1200,49 @@
   function renderRunDecisionBrief(m, n) {
     const exp = obj(m.exposure);
     const score = strictFinite(m.score) ? fmt1(m.score) : "Unavailable";
-    const hours = strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " hrs" : "Cost not calculated";
-    const cost = strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) : "Cost not calculated";
+    const hours = strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " hrs" : "Time not calculated";
+    const costDetail = strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) + " modeled annual labor cost" : "Labor cost not calculated";
     const drag = strictFinite(exp.capacity_drag_percent) ? fmtPercent(exp.capacity_drag_percent) : "Not estimated";
     return '<section class="mr-section mr-run-decision"><div class="mr-section-index">0' + n + ' · Decision summary</div>' +
       '<div class="mr-run-headline"><div><h2>' + esc(m.headline || "Measured operating condition") + '</h2><p class="mr-exec-lede">' + esc(m.execSummary) + '</p></div>' +
       '<div class="mr-run-score-stamp"><span>Diagnostic score</span><strong>' + esc(score) + '</strong><em>' + esc(m.band) + '</em></div></div>' +
       '<div class="mr-run-metrics">' +
         runMetric("Primary measured focus", m.primarySignal, m.primarySignalNote, "teal") +
-        runMetric("Modeled annual time", hours, cost + " modeled annual labor cost", "ink") +
+        runMetric("Modeled annual time", hours, costDetail, "ink") +
         runMetric("Modeled share of capacity", drag, strictFinite(exp.total_capacity_hours) ? fmtWhole(exp.total_capacity_hours) + " annual capacity hours used in the model" : "Scenario estimate", "amber") +
         runMetric("Evidence depth", m.evidenceBand, m.participantMode + " perspective", "green") +
       '</div>' +
-      '<div class="mr-run-decision-story">' +
+      '<div class="mr-run-decision-story' + (m.firstMove && obj(m.aiReport).status !== 'complete' ? '' : ' is-single') + '">' +
         '<div><div class="mr-lens-label">What this may mean</div><p>' + esc(m.bottomLine) + '</p></div>' +
-        (m.firstMove ? '<div><div class="mr-lens-label">First thing to test</div><p>' + esc(m.firstMove) + '</p></div>' : '') +
+        (m.firstMove && obj(m.aiReport).status !== 'complete' ? '<div><div class="mr-lens-label">First thing to test</div><p>' + esc(m.firstMove) + '</p></div>' : '') +
       '</div></section>';
   }
 
   function renderConstraintConcentration(m) {
+    const isClarity = m.toolType === "structural_clarity";
     const composition = obj(obj(m.descriptor).composition);
     const segments = arr(composition.segments).filter((segment) => strictFinite(obj(segment).pct)).slice(0, 8);
     if (!segments.length) return "";
     const palette = ["#08383E", "#0C6E78", "#3E8A92", "#7FB0B6", "#A9CED1", "#C9DCDE", "#DDE8E9", "#EAE6DD"];
-    const bar = segments.map((segment, index) => '<span style="width:' + Math.max(0, Math.min(100, Number(segment.pct))).toFixed(2) + '%;background:' + palette[index % palette.length] + '" title="' + esc(firstStr(segment.label, humanize(segment.key)) + ": " + fmt1(segment.pct) + "% of measured constraint") + '"></span>').join("");
+    const shareLabel = isClarity ? "% of the combined distance from the scale maximum" : "% of measured constraint";
+    const bar = segments.map((segment, index) => '<span style="width:' + Math.max(0, Math.min(100, Number(segment.pct))).toFixed(2) + '%;background:' + palette[index % palette.length] + '" title="' + esc(firstStr(segment.label, humanize(segment.key)) + ": " + fmt1(segment.pct) + shareLabel) + '"></span>').join("");
     const legend = segments.map((segment, index) => '<div><i style="background:' + palette[index % palette.length] + '"></i><span>' + esc(firstStr(segment.label, humanize(segment.key))) + '</span><strong>' + esc(fmt1(segment.pct)) + '%</strong></div>').join("");
     const primary = obj(composition.primary);
-    return '<div class="mr-constraint-view"><div class="mr-viz-title">Where the measured issue appears</div><div class="mr-constraint-bar" role="img" aria-label="Share of the measured issue by dimension">' + bar + '</div>' +
+    const heading = isClarity ? "Clarity indicator distribution" : "Where the measured issue appears";
+    const label = isClarity ? "Each dimension's share of the combined distance from the top of the clarity scale" : "Share of the measured issue by dimension";
+    return '<div class="mr-constraint-view"><div class="mr-viz-title">' + heading + '</div><div class="mr-constraint-bar" role="img" aria-label="' + esc(label) + '">' + bar + '</div>' +
       '<div class="mr-constraint-legend">' + legend + '</div><div class="mr-constraint-read"><div><div class="mr-lens-label">Pattern across dimensions</div><strong>' + esc(humanize(firstStr(composition.shape, obj(m.descriptor).burden_distribution_type, "Not classified"))) + '</strong></div>' +
-      '<p>' + esc(firstStr(obj(m.descriptor).dominant_burden_note, primary.label ? primary.label + " carries the largest measured share of the constraint profile." : "The chart shows how the measured constraint is distributed across dimensions.")) + '</p></div></div>';
+      '<p>' + esc(isClarity ? "The chart compares each dimension's distance from the top of the scoring scale. Shares do not measure hours, cost, or risk, and do not by themselves establish a problem." : firstStr(obj(m.descriptor).dominant_burden_note, primary.label ? primary.label + " carries the largest measured share of the constraint profile." : "The chart shows how the measured constraint is distributed across dimensions.")) + '</p></div></div>';
   }
 
   function renderRunDimensions(m, n) {
     const dimensions = arr(m.dimensionEntries);
     if (!dimensions.length) return "";
     const rows = dimensions.map((dimension) => {
+      if (dimension.score === null) {
+        const unmeasured = dimension.coverage.status === 'not_measured';
+        return '<div class="mr-dimension-row '+(unmeasured?'is-unmeasured':'is-unavailable')+'"><div class="mr-dimension-copy"><strong>' + esc(dimension.label) + '</strong><span>'+(unmeasured?'Not measured':'Score unavailable')+'</span></div><div class="mr-dimension-detail">'+(unmeasured?'No score is available for this dimension. Related answers may still be reported separately.':'No score is available in this saved report.')+'</div></div>';
+      }
       const score = Math.max(0, Math.min(100, Number(dimension.score)));
       const evidenceCount = strictFinite(dimension.coverage.evidence_count) ? fmtWhole(dimension.coverage.evidence_count) + (dimension.coverage.evidence_count === 1 ? " scored input" : " scored inputs") : "Measured dimension";
       const isPrimary = String(dimension.label).toLowerCase() === String(m.primarySignal).toLowerCase();
@@ -1162,8 +1269,8 @@
     const hourlyCost = exp.average_hourly_cost ?? exp.hourly_cost ?? context.hourlyCost ?? context.hourly_cost;
     const steps = [
       ["01", "Workload entered", strictFinite(people) ? fmtWhole(people) + " people" : "Bounded scope", [strictFinite(cycles) ? fmtWhole(cycles) + " annual cycles" : "", strictFinite(meetingHours) ? fmt1(meetingHours) + " hours per run" : ""].filter(Boolean).join(" · ")],
-      ["02", "Modeled burden time", strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " hours" : "Cost not calculated", firstStr(model.formula, exp.unpriced_reason, "Directional scenario")],
-      ["03", "Modeled labor cost", strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) : "Cost not calculated", strictFinite(hourlyCost) ? fmtMoney(hourlyCost) + " loaded hourly cost" : firstStr(exp.unpriced_reason)],
+      ["02", "Modeled burden time", strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " hours" : "Time not calculated", strictFinite(exp.annual_hours) ? firstStr(model.formula, "Directional scenario") : exposureReason(exp.unpriced_reason)],
+      ["03", "Modeled labor cost", strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) : "Cost not calculated", strictFinite(hourlyCost) ? fmtMoney(hourlyCost) + " loaded hourly cost" : strictFinite(exp.annual_cost) ? "Directional scenario" : exposureReason(exp.unpriced_reason)],
       ["04", "Modeled recovery scenario", strictFinite(exp.recoverable_cost) ? fmtMoney(exp.recoverable_cost) : "Not established", strictFinite(exp.recoverable_share_percent) ? fmtPercent(exp.recoverable_share_percent) + " modeled share" : "Not claimed"]
     ];
     return '<section class="mr-section mr-run-exposure"><div class="mr-section-index">0' + n + ' · Time and cost scenario</div><h2>How the time and cost estimate is built</h2>' +
@@ -1192,18 +1299,19 @@
     const evidenceHtml = evidence.length ? evidence.map((item) => {
       const row = obj(item);
       return '<div class="mr-evidence-quote"><div class="mr-lens-label">' + esc(humanize(firstStr(row.participant_mode, row.perspective, "Participant evidence"))) + '</div><p>' + esc(firstStr(row.text, row.message, row.summary)) + '</p></div>';
-    }).join("") : '<div class="mr-evidence-empty"><div class="mr-lens-label">Participant evidence</div><h3>No usable participant notes are presented.</h3><p>The report therefore makes no participant-statement or experiential claim.</p></div>';
+    }).join("") : '<div class="mr-evidence-empty"><div class="mr-lens-label">Written participant notes</div><h3>No written participant notes are included.</h3><p>The measured results reflect the structured answers supplied for this run. Written notes are a separate source of context.</p></div>';
     return '<section class="mr-section mr-run-evidence"><div class="mr-section-index">0' + n + ' · Evidence in this run</div><h2>What this result is based on</h2>' +
       '<div class="mr-evidence-summary">' +
         runMetric("Evidence depth", m.evidenceBand, "Scope of this single run", "teal") +
-        runMetric("Measured dimensions", strictFinite(measured) && strictFinite(total) ? fmtWhole(measured) + " of " + fmtWhole(total) : fmtWhole(arr(m.dimensionEntries).length), "Dimensions represented", "ink") +
+        runMetric("Measured dimensions", strictFinite(measured) && strictFinite(total) ? fmtWhole(measured) + " of " + fmtWhole(total) : fmtWhole(arr(m.dimensionEntries).filter(item=>item.score!==null).length), "Dimensions represented", "ink") +
         runMetric("Perspective", m.participantMode, "Notes do not change the score", "green") +
       '</div><div class="mr-run-evidence-grid"><div>' + evidenceHtml + '</div>' +
-      (watch.length ? '<div><div class="mr-lens-label">What to watch next</div><ul>' + watch.map((item) => '<li>' + esc(item) + '</li>').join("") + '</ul></div>' : '<div class="mr-evidence-clean"><div class="mr-lens-label">Watch items</div><p>No additional watch item was returned for this representative run.</p></div>') +
+      (watch.length ? '<div><div class="mr-lens-label">What to watch next</div><ul>' + watch.map((item) => '<li>' + esc(item) + '</li>').join("") + '</ul></div>' : '<div class="mr-evidence-clean"><div class="mr-lens-label">Watch items</div><p>No additional watch item was recorded for this run.</p></div>') +
       '</div></section>';
   }
 
   function renderPriorityMatrix(m) {
+    const isClarity = m.toolType === "structural_clarity";
     const ladder = arr(m.priorityLadder).slice(0, 5);
     if (!ladder.length) return "";
     const yPositions = [24, 52, 78, 88, 94];
@@ -1214,11 +1322,17 @@
       const y = yPositions[index] || 94;
       return '<div class="mr-priority-point' + (x > 50 ? ' mr-priority-label-left' : '') + '" style="left:' + x.toFixed(2) + '%;top:' + y + '%" data-rank="' + (index + 1) + '"><span>' + (index + 1) + '</span><div><strong>' + esc(firstStr(row.focus, row.label, "Measured focus")) + '</strong><small>' + esc(firstStr(row.priority, "Priority")) + ' · ' + esc(fmt1(severity)) + '</small></div></div>';
     }).join("");
-    return '<div class="mr-priority-matrix"><div class="mr-viz-title">Priority order and measured severity</div><div class="mr-priority-plot" role="img" aria-label="Priority order plotted against measured severity"><span class="mr-priority-axis-y">Test earlier</span><span class="mr-priority-axis-x">Greater measured severity →</span><i class="mr-priority-grid-x"></i><i class="mr-priority-grid-y"></i>' + points + '</div><p class="mr-copy">Horizontal position shows measured severity. Vertical position follows the report\'s suggested testing order; it is not a separate risk score.</p></div>';
+    const heading = isClarity ? "Review order and clarity indicators" : "Priority order and measured severity";
+    const vertical = isClarity ? "Review earlier" : "Test earlier";
+    const horizontal = isClarity ? "Distance from scale maximum →" : "Greater measured severity →";
+    const note = isClarity ? "Horizontal position shows distance from the top of the clarity scale. Vertical position follows the suggested review order, not urgency or a separate risk score." : "Horizontal position shows measured severity. Vertical position follows the report's suggested testing order; it is not a separate risk score.";
+    return '<div class="mr-priority-matrix"><div class="mr-viz-title">' + heading + '</div><div class="mr-priority-plot" role="img" aria-label="' + esc(heading) + '"><span class="mr-priority-axis-y">' + vertical + '</span><span class="mr-priority-axis-x">' + horizontal + '</span><i class="mr-priority-grid-x"></i><i class="mr-priority-grid-y"></i>' + points + '</div><p class="mr-copy">' + esc(note) + '</p></div>';
   }
 
   function renderRunActions(m, n) {
     const ladder = arr(m.priorityLadder), actions = arr(m.actions).map(textItem).filter(Boolean), remedies = arr(m.remedyPaths);
+    // Follow the saved priority labels. Do not rewrite a historical ladder.
+    const monitoring = m.toolType === "structural_clarity" && ladder.length > 0 && ladder.every(item => obj(item).priority === "Monitor");
     if (!ladder.length && !actions.length && !remedies.length) return "";
     const ladderHtml = ladder.length ? '<div class="mr-priority-ladder">' + ladder.map((item, index) => {
       const row = obj(item);
@@ -1234,9 +1348,12 @@
         (arr(path.actions).length ? '<div class="mr-remedy-actions"><div class="mr-remedy-field-label">Suggested steps</div><ol>' + arr(path.actions).map((action) => '<li>' + esc(textItem(action)) + '</li>').join("") + '</ol></div>' : '') +
         '<div class="mr-remedy-tradeoffs">' + (benefit ? '<div><div class="mr-remedy-field-label">Potential benefit</div><p>' + esc(benefit) + '</p></div>' : '') + (path.risk ? '<div><div class="mr-remedy-field-label">Tradeoff</div><p>' + esc(path.risk) + '</p></div>' : '') + '</div></article>';
     }).join("") + '</div>' + (adjustedRemedyRecovery ? '<p class="mr-copy">The report-wide modeled recovery scenario is not divided among these options. Each option must be tested before any recovery is claimed.</p>' : '') : '';
-    if (obj(m.aiReport).status === "complete") return '<section class="mr-section mr-run-action-board"><h2>Measured priorities</h2>' + renderPriorityMatrix(m) + ladderHtml + '</section>';
-    return '<section class="mr-section mr-run-action-board"><div class="mr-section-index">0' + n + ' · What to test next</div><h2>Priorities and options</h2>' +
-      '<p class="mr-lede">The priority list ranks measured issues. The options describe different scopes of change and do not correspond one-to-one with that list. None changes the score or predicts an outcome.</p>' + renderPriorityMatrix(m) + ladderHtml +
+    const aiHeading = monitoring ? "Monitoring priorities" : "Measured priorities";
+    if (obj(m.aiReport).status === "complete") return ladder.length ? '<section class="mr-section mr-run-action-board"><div class="mr-priority-intro"><div class="mr-section-index">0' + n + ' · ' + aiHeading + '</div><h2>' + aiHeading + '</h2>' + renderPriorityMatrix(m) + '</div>' + ladderHtml + '</section>' : '';
+    const actionHeading = monitoring ? "Monitoring priorities and options" : "Priorities and options";
+    const actionNote = monitoring ? "The list orders dimensions for monitoring. A rank is not proof of a defect; any change needs supporting evidence. The options do not change the score or predict an outcome." : "The priority list ranks measured issues. The options describe different scopes of change and do not correspond one-to-one with that list. None changes the score or predicts an outcome.";
+    return '<section class="mr-section mr-run-action-board"><div class="mr-priority-intro"><div class="mr-section-index">0' + n + ' · ' + (monitoring ? "What to monitor" : "What to test next") + '</div><h2>' + actionHeading + '</h2>' +
+      '<p class="mr-lede">' + actionNote + '</p>' + renderPriorityMatrix(m) + '</div>' + ladderHtml +
       (actions.length ? '<div class="mr-run-actions"><div class="mr-lens-label">Suggested order</div><ol>' + actions.map((action) => '<li>' + esc(action) + '</li>').join("") + '</ol></div>' : '') + remediesHtml + '</section>';
   }
 
@@ -1245,7 +1362,7 @@
     const language = obj(m.reportLanguage), migration = obj(language.migration);
     const rows = [
       ["Instrument", m.toolLabel], ["Operating scope", firstStr(m.processName, m.scopeLabel)],
-      ["Participant perspective", m.participantMode], ["Confidence in answers", firstStr(obj(m.source).input_confidence_label, c.confidenceLevel, c.confidence_level)],
+      ["Participant perspective", m.participantMode], ["Reported answer confidence", displayReportedAnswerConfidence(m.insightDepth, c)],
       ["Reported change", m.trajectoryLabel], ["Calculation method", displayCalculationMethod(model.model_type)],
       ["Calculation version", firstStr(model.version)],
       ["Questionnaire version", m.questionnaireVersion || "Not recorded"],
@@ -1263,18 +1380,23 @@
   function renderRunLeadershipClose(m, n) {
     if (obj(m.aiReport).status === "complete") return "";
     const ladder = arr(m.priorityLadder);
+    const monitoring = m.toolType === "structural_clarity" && ladder.length > 0 && ladder.every(item => obj(item).priority === "Monitor");
     const indicators = ladder.slice(0, 3).map((item) => firstStr(obj(item).focus, obj(item).label)).filter(Boolean);
     const scope = firstStr(m.processName, m.scopeLabel, "the measured operating scope");
     const scopeWithArticle = /^[a-z]/.test(scope) && !/^(?:the|this|that)\b/i.test(scope) ? "the " + scope : scope;
     const firstAction = firstStr(m.firstMove, textItem(arr(m.actions)[0]));
-    const questions = [
+    const questions = monitoring ? [
+      "Who is responsible for checking the reported clarity against routine work in " + scopeWithArticle + "?",
+      "What separate evidence would justify a change to the current arrangements?",
+      "Which owner will preserve the same scope and inputs for the next comparison?"
+    ] : [
       "Who has the authority to change " + firstStr(m.primarySignal, "the primary measured constraint") + " in " + scopeWithArticle + "?",
       "What observable result will count as improvement, and what would show that burden was only displaced?",
       "Which owner will preserve the same scope and inputs for like-for-like remeasurement?"
     ];
-    return '<section class="mr-section mr-leadership-close"><div class="mr-section-index">0' + n + ' · Next decision</div><h2>Turn the result into a small, measurable test</h2>' +
+    return '<section class="mr-section mr-leadership-close"><div class="mr-section-index">0' + n + ' · Next decision</div><h2>' + (monitoring ? 'Check routine work and plan the next comparison' : 'Turn the result into a small, measurable test') + '</h2>' +
       '<div class="mr-leadership-close-grid"><div class="mr-leadership-sequence"><div class="mr-lens-label">Sequence</div><ol>' +
-        '<li><strong>Assign ownership.</strong><span>Name one accountable owner for ' + esc(firstStr(m.primarySignal, "the primary measured constraint")) + '.</span></li>' +
+        '<li><strong>' + (monitoring ? 'Confirm the review owner.' : 'Assign ownership.') + '</strong><span>' + (monitoring ? 'Ask the person responsible for this structure to coordinate the review.' : 'Name one accountable owner for ' + esc(firstStr(m.primarySignal, "the primary measured constraint")) + '.') + '</span></li>' +
         '<li><strong>Run the first test.</strong><span>' + esc(firstAction || "Select the smallest returned action that can test the diagnosis without adding new operating burden.") + '</span></li>' +
         '<li><strong>Watch the measured indicators.</strong><span>' + esc(indicators.length ? indicators.join(" · ") : "The score, primary dimension, burden estimate, and any returned watch items") + '</span></li>' +
         '<li><strong>Repeat under comparable conditions.</strong><span>Repeat the same Diagnostic with the same scope and comparable inputs; compare the score, dimensions, and exposure before attributing improvement.</span></li>' +
@@ -1284,12 +1406,18 @@
 
   function renderRunReport(m) {
     const renderers = [renderRunDecisionBrief, renderRunDimensions, renderRunExposure, renderRunGovernance, renderRunEvidence, renderRunActions, renderRunMethod, renderRunLeadershipClose];
-    let html = "", n = 1;
+    let html = "", n = 1, closingBoundary = false;
     renderers.forEach((renderer) => {
       const block = renderer(m, n);
-      if (block) { html += block; n += 1; }
+      if (block) {
+        if (renderer === renderRunLeadershipClose) {
+          html += '<div class="mr-run-close-group">' + block + buildReportBoundary(m) + '</div>';
+          closingBoundary = true;
+        } else html += block;
+        n += 1;
+      }
     });
-    return html;
+    return html + (closingBoundary ? '' : buildReportBoundary(m));
   }
 
   function sectionHtml(s, n) {
@@ -1334,6 +1462,7 @@
     const scoreLabel = m.kind === "meta-synthesis" ? firstStr(m.scoreLabel, defaultScoreLabel) : defaultScoreLabel;
     const evidenceLabel = m.kind === "meta-synthesis" ? firstStr(m.evidenceLabel) : "";
     const scoreBandDisplay = m.kind === "meta-synthesis" ? firstStr(m.conditionBand, m.headlineBand) : firstStr(m.headlineBand);
+    const scoreClass = "mr-cover-score" + (strictFinite(m.headlineScore) ? "" : " mr-cover-score-status");
     const metaHtml = meta.map((x) => '<span><strong>' + esc(x.label) + '</strong>' + esc(x.value) + '</span>').join("");
     const statusPills = [
       evidenceLabel ? '<span class="mr-cover-pill mr-cover-pill-accent">' + esc(evidenceLabel) + ' evidence</span>' : ''
@@ -1343,7 +1472,7 @@
       '<h1 class="mr-cover-title">' + esc(m.title) + '</h1><p class="mr-cover-sub">' + esc(m.subtitle) + '</p></div>' +
       '<div class="mr-cover-stripe"></div>' +
       '<div class="mr-cover-white"><p class="mr-cover-kicker">Executive Report</p>' +
-      '<div class="mr-cover-score-row"><div class="mr-cover-score">' + esc(m.headlineScore == null ? "Unavailable" : m.headlineScore) + '</div>' +
+      '<div class="mr-cover-score-row"><div class="' + scoreClass + '">' + esc(m.headlineScore == null ? "Unavailable" : m.headlineScore) + '</div>' +
       '<div class="mr-cover-score-copy"><div class="mr-cover-score-label">' + esc(scoreLabel) + '</div><div class="mr-cover-score-band">' + esc(scoreBandDisplay) + '</div></div></div>' +
       (statusPills ? '<div class="mr-cover-pills">' + statusPills + '</div>' : '') +
       (metaHtml ? '<div class="mr-cover-meta">' + metaHtml + '</div>' : '') +
@@ -1368,25 +1497,65 @@
     return '<aside class="mr-compatibility-notice"><div class="mr-compatibility-mark"></div><div><p class="mr-compatibility-label">Legacy report view</p><p>' + esc(notice) + '</p></div></aside>';
   }
 
+  // Saved evidence, not model-selected emphasis. These qualifications must
+  // remain visible even when Claude selects different observations/actions.
+  function buildAIRecordedContext(report) {
+    const facts = arr(report.evidence).map(obj);
+    const missing = facts.filter(f=>f.provenance==='deterministic_coverage' && f.value==='Not measured' && typeof f.label==='string' && f.label.endsWith(' evidence coverage'));
+    const notes = [];
+    if (missing.length) {
+      const names = [...new Set(missing.map(f=>f.label.slice(0,-' evidence coverage'.length)))];
+      notes.push('Not measured: '+names.join('; ')+'. '+(names.length===1?'No score is available for this dimension.':'No scores are available for these dimensions.')+' Related answers may still be reported separately.');
+    }
+    const scenarioLabels = ['Modeled annual hours of exposure','Modeled annual labor-cost exposure','Scenario recovery hours','Scenario recovery cost'];
+    const unavailable = facts.filter(f=>f.provenance==='modeled_scenario' && scenarioLabels.includes(f.label) && f.value===null);
+    if (unavailable.length) {
+      const allUnavailable = scenarioLabels.every(label=>unavailable.some(f=>f.label===label));
+      const reason = facts.find(f=>f.provenance==='deterministic_sizing_status' && f.label==='Reason an exposure estimate was withheld' && typeof f.value==='string' && f.value.trim());
+      notes.push((allUnavailable?'Time and cost estimates are unavailable.':'Some modeled time or cost estimates are unavailable.')+(reason?' Recorded reason: '+reason.value+'.':''));
+    }
+    const flagged = facts.find(f=>f.provenance==='deterministic_result' && f.label==='Contradictions flagged' && Number.isSafeInteger(f.value) && f.value>0);
+    if (flagged) notes.push('The saved result records '+(flagged.value===1?'one contradiction flag':flagged.value+' contradiction flags')+'. A flag does not establish that answers conflict or identify a cause, person, or answer pair.');
+    return notes.length?'<aside class="mr-ai-recorded-context"><h3>Important context from the saved result</h3><ul>'+notes.map(text=>'<li>'+esc(text)+'</li>').join('')+'</ul></aside>':'';
+  }
+
   function buildAIInterpretation(state) {
     const ai = obj(state);
     if (!ai.status) return "";
     const heading = '<h2>AI-assisted interpretation</h2>';
-    if (ai.status !== "complete") return '<section class="mr-section mr-ai-interpretation" aria-live="polite">' + heading + '<p>' + esc(ai.message) + '</p><p>The measured result remains available. Reopen this saved report to check progress; do not start another diagnostic.</p></section>';
+    if (ai.status !== "complete") {
+      const deferred=ai.status==='pending'&&typeof ai.deferUntil==='string'&&Number.isFinite(Date.parse(ai.deferUntil)) ? new Date(ai.deferUntil) : null;
+      const timing=deferred ? '<p>Processing can resume after <time datetime="'+esc(deferred.toISOString())+'">'+esc(deferred.toLocaleString())+'</time>. This is not a completion guarantee.</p>' : '';
+      const followUp = ai.status === 'attention_required'
+        ? 'Contact Monderman support about this saved report; do not start another diagnostic.'
+        : ['pending','processing'].includes(ai.status)
+          ? 'Reopen this saved report to check progress; do not start another diagnostic.'
+          : 'Keep this saved report; no new diagnostic is needed.';
+      return '<section class="mr-section mr-ai-interpretation" aria-live="polite">' + heading + '<p>' + esc(ai.message) + '</p>'+timing+'<p>The measured result remains available. '+followUp+'</p></section>';
+    }
     const report = obj(ai.report), interpretation = obj(report.interpretation);
-    const paragraphs = (items, title) => arr(items).length ? '<h3>' + title + '</h3><ul>' + arr(items).map(item => '<li>' + esc(obj(item).text || item) + '</li>').join('') + '</ul>' : '';
+    const reviewedSelection = obj(report.composition).reviewed_version === 'report-reviewed-capabilities-20260909.1';
+    // Keep short reading units intact in print without making arbitrary long
+    // provider text unbreakable. Escape every unit; no HTML is model-owned.
+    const readingUnitClass = text => String(text).length <= 600 ? ' mr-ai-reading-unit' : '';
+    const paragraphs = (items, title) => arr(items).length ? '<h3>' + title + '</h3><ul>' + arr(items).map(item => {
+      const text = obj(item).text || item;
+      return '<li class="mr-ai-evidence-text"><span class="mr-ai-evidence-content' + readingUnitClass(text) + '">' + esc(text) + '</span></li>';
+    }).join('') + '</ul>' : '';
     const sources = arr(report.sources).filter(source => /^https:\/\//i.test(firstStr(source.url)));
     const actions = arr(interpretation.recommendations).map((item, index) => {
       const action = obj(item);
       const refs = sources.filter(source => arr(action.source_ids).includes(source.id));
-      return '<article class="mr-card mr-ai-action"><h3>' + (index + 1) + '. ' + esc(action.action) + '</h3><p>' + esc(action.reason) + '</p><dl>' +
-        [['Before trying it',action.prerequisite],['Risk to consider',action.risk],['What to check',action.success_check]].map(row=>'<dt><strong>'+row[0]+'</strong></dt><dd>'+esc(row[1])+'</dd>').join('') + '</dl>' +
+      const reasons = String(action.reason || '').split(/\n\s*\n/).filter(text => text.trim()).map(text => '<p class="mr-ai-reason' + readingUnitClass(text) + '">' + esc(text) + '</p>').join('');
+      return '<article class="mr-card mr-ai-action"><h3>' + (index + 1) + '. ' + esc(action.action) + '</h3>' + reasons + '<dl>' +
+        [['Before trying it',action.prerequisite],['Risk to consider',action.risk],['What to check',action.success_check]].map(row=>'<div class="mr-ai-definition"><dt><strong>'+row[0]+'</strong></dt><dd>'+esc(row[1])+'</dd></div>').join('') + '</dl>' +
         (refs.length ? '<p>Practice references: ' + refs.map(source=>'<a href="'+esc(source.url)+'" target="_blank" rel="noopener noreferrer">'+esc(source.publisher)+'</a>').join('; ') + '.</p>' : '') + '</article>';
     }).join('');
     return '<section class="mr-section mr-ai-interpretation">' + heading +
-      '<p class="mr-method-copy">Prepared with '+esc(report.model === 'claude-opus-5' ? 'Claude Opus 5' : report.model)+' from this saved result. The interpretation does not change the score. Review it before acting.</p><p>'+esc(interpretation.summary)+'</p>' +
-      paragraphs(interpretation.observations,'What the responses suggest') + paragraphs(interpretation.hypotheses,'Possible explanations to investigate') +
-      (actions ? '<h3>Changes to test</h3><div class="mr-ai-actions">'+actions+'</div>' : '') +
+      '<p class="mr-method-copy">Prepared with '+esc(report.model === 'claude-opus-5' ? 'Claude Opus 5' : report.model)+' from this saved result. '+(reviewedSelection?'Claude selected and prioritized reviewed explanations and next steps. Monderman inserted their approved wording and the supporting responses. ':'')+'The interpretation does not change the score. Review it before acting.</p><p>'+esc(interpretation.summary)+'</p>' +
+      (reviewedSelection?buildAIRecordedContext(report):'') +
+      paragraphs(interpretation.observations,reviewedSelection?'Selected responses and results':'What the responses suggest') + paragraphs(interpretation.hypotheses,'Possible explanations to investigate') +
+      (actions ? '<h3>'+(reviewedSelection?'Suggested next steps':'Changes to test')+'</h3><div class="mr-ai-actions">'+actions+'</div>' : '') +
       paragraphs(arr(report.limitations).concat(arr(interpretation.limitations)),'Limits of this interpretation') +
       '<h3>Sector comparison</h3><p>'+esc(obj(report.benchmark).explanation)+'</p>' +
       (sources.length ? '<h3>External practice sources</h3><ul>'+sources.map(source=>'<li><a href="'+esc(source.url)+'" target="_blank" rel="noopener noreferrer">'+esc(source.title)+'</a>. '+esc(source.publisher)+'. Reviewed '+esc(source.reviewed)+'. Practice guidance, not a Monderman peer benchmark.</li>').join('')+'</ul>' : '') +
@@ -1400,8 +1569,7 @@
     if (!document.getElementById('mr-style')) {
       const style=document.createElement('style');style.id='mr-style';style.textContent=REPORT_CSS+AI_CSS+SCREEN_CSS;document.head.appendChild(style);
     }
-    node.querySelector('.mr-ai-inline')?.remove();
-    const existing = node.querySelector('.mr-ai-interpretation');
+    const existing = node.querySelector('.mr-ai-inline') || node.querySelector('.mr-ai-interpretation');
     const section = document.createElement('div');
     section.className = 'mr-report mr-ai-inline';
     // Reuse the report's interpretation position instead of displaying a
@@ -1411,25 +1579,38 @@
       if (existing.id) section.id = existing.id;
       existing.replaceWith(section);
     } else node.prepend(section);
-    let stopped = false, timer = null, attempts = 0;
-    const paint = () => { section.innerHTML = buildAIInterpretation(result.ai_report); };
+    let stopped = false, timer = null, attempts = 0, inFlight = false;
+    const paint = () => {
+      section.innerHTML = buildAIInterpretation(result.ai_report);
+      refreshScreenReportAI(section, result.ai_report);
+    };
     paint();
     const stop = () => { stopped = true; clearTimeout(timer); document.removeEventListener('visibilitychange', resume); window.removeEventListener('pagehide', stop); };
-    const resume = () => { if (!stopped && !document.hidden && !timer) timer = setTimeout(poll, 1000); };
+    const pollDelay = () => {
+      const ai=obj(result.ai_report),at=ai.status==='pending'&&typeof ai.deferUntil==='string' ? Date.parse(ai.deferUntil) : NaN;
+      // A daily budget wait is not a failed report. Avoid exhausting the read
+      // attempts before its next processing window; no new run is submitted.
+      return Number.isFinite(at) ? Math.min(86700000,Math.max(15000,at-Date.now())) : 15000;
+    };
+    const resume = () => { if (!stopped && !document.hidden && !timer && !inFlight) timer = setTimeout(poll, pollDelay()); };
     const poll = async () => {
       timer = null;
       if (stopped || !section.isConnected) return stop();
       if (document.hidden) return;
+      if (inFlight) return;
+      inFlight = true;
       try {
         const latest = await refresh();
         if (!latest || stopped || !section.isConnected) return stop();
         result.ai_report = latest.ai_report; paint();
         if (!['pending','processing'].includes(obj(result.ai_report).status)) return stop();
       } catch (_) { /* A temporary read failure must not strand a saved report. */ }
-      if (++attempts < 20) timer = setTimeout(poll, 15000); else stop();
+      finally { inFlight = false; }
+      if (stopped || !section.isConnected) return stop();
+      if (++attempts < 20) timer = setTimeout(poll, pollDelay()); else stop();
     };
     if (typeof refresh === 'function' && ['pending','processing'].includes(obj(result.ai_report).status)) {
-      timer=setTimeout(poll,15000);
+      timer=setTimeout(poll,pollDelay());
       document.addEventListener('visibilitychange',resume);
     }
     window.addEventListener('pagehide',stop,{once:true});
@@ -1447,7 +1628,7 @@
     }
 
     if (m.kind === "run") {
-      return coverBlock + compatibilityBlock + aiBlock + renderRunReport(m) + buildReportBoundary(m);
+      return coverBlock + compatibilityBlock + aiBlock + renderRunReport(m);
     }
 
     const kvs = arr(m.kvs).map((x) => '<div class="k">' + esc(x.k) + "</div><div>" + esc(x.v) + "</div>").join("");
@@ -1496,6 +1677,9 @@
     '.mr-report .btn-accent{background:#0C6E78;color:#FFF;border-color:rgba(12,110,120,.18)}' +
     '@media print{.mr-report{background:#fff}.mr-report .mr-page{border:0;border-radius:0;box-shadow:none;max-width:none;padding:28px 32px}.mr-report .actions{display:none!important}}' +
 
+    '.mr-contributing-score{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;font-size:2rem;font-weight:700;line-height:1.2;margin:8px 0}.mr-contributing-score.is-unavailable{font-size:18px;font-weight:600}.mr-contributing-score span{font-size:14px;font-weight:400;color:var(--soft)}.mr-contributing-meta{display:flex;flex-wrap:wrap;gap:4px 16px}.mr-contributing-meta span{white-space:nowrap}' +
+    '.mr-ai-evidence-text,.mr-ai-reason{white-space:pre-line;overflow-wrap:anywhere}' +
+    '.mr-run-decision-story.is-single{grid-template-columns:minmax(0,1fr)}' +
     // ═══ Synthesis crown-jewel section styles ═══
     `
     @font-face{font-family:"Neue Haas Grotesk";src:url("https://www.monderman.com/55font.woff2") format("woff2");font-style:normal;font-weight:400;font-display:swap}
@@ -1512,6 +1696,7 @@
     .mr-cover-kicker{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif!important;margin:0 0 12px!important;font-size:.67rem!important;letter-spacing:.22em;text-transform:uppercase;color:#6E6F73!important;font-weight:700}
     .mr-cover-score-row{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap}
     .mr-cover-score{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;font-size:4.6rem;line-height:.82;font-weight:700;letter-spacing:-.07em;color:#18191C;font-variant-numeric:tabular-nums}
+    .mr-cover-score.mr-cover-score-status{font-size:clamp(1.7rem,4.5vw,2.7rem);line-height:1.04;letter-spacing:-.035em;min-width:0;max-width:100%;overflow-wrap:anywhere}
     .mr-cover-score-copy{padding-bottom:3px;min-width:220px;max-width:520px}
     .mr-cover-score-label{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:#0C6E78;font-weight:700;margin-bottom:5px}
     .mr-cover-score-band{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;font-size:.97rem;line-height:1.35;color:#6E6F73}
@@ -1552,6 +1737,25 @@
     .mr-system-read{display:flex;flex-direction:column}.mr-system-read>.mr-system-panel{order:-1;margin-bottom:28px}
     .mr-system-panel{padding:22px 24px 18px!important;background:linear-gradient(180deg,#FAFAF8 0,#FFF 100%)}
     .mr-system-map{display:block;width:100%;height:auto;min-height:310px;font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif}
+    .mr-synth-compact{display:none}
+    @media screen and (max-width:800px){
+      .mr-depth-distribution-panel>.mr-synth-chart,.mr-system-panel>.mr-system-map,.mr-synth-wide-caption{display:none!important}
+      .mr-synth-compact{display:block;font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;color:#18191C}
+      .mr-synth-compact+.mr-copy{margin-top:16px!important}
+      .mr-synth-stat-list{margin:0;display:grid;gap:0}
+      .mr-synth-stat-list>div{display:flex;align-items:baseline;gap:12px;padding:9px 0;border-bottom:1px solid #EAE6DD}
+      .mr-synth-stat-list dt{flex:1;min-width:0;font-size:14px;color:#6E6F73;overflow-wrap:anywhere}
+      .mr-synth-stat-list dd{flex:0 0 auto;margin:0;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;color:#18191C;white-space:nowrap}
+      .mr-synth-segment-list{display:grid;gap:12px;margin-top:18px}
+      .mr-synth-segment{min-width:0;border:1px solid #EAE6DD;border-radius:9px;padding:14px}
+      .mr-synth-segment>strong{display:block;font-size:16px;line-height:1.35;color:#08383E;overflow-wrap:anywhere}
+      .mr-synth-segment>span{display:block;margin-top:5px;font-size:14px;color:#6E6F73}
+      .mr-synth-segment .mr-synth-stat-list{margin-top:8px}
+      .mr-synth-segment .mr-synth-stat-list>div:last-child{border-bottom:0;padding-bottom:0}
+      .mr-system-compact-composite{padding:16px;border-left:3px solid #0C6E78;background:#F6F3EC;border-radius:9px}
+      .mr-system-compact-composite>strong{display:block;font-size:14px;color:#08383E}
+      .mr-system-compact-composite>span{display:block;margin-top:6px;font-size:24px;line-height:1.2;font-weight:700;color:#18191C}
+    }
     .mr-system-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid #E0DCD3;border-radius:12px;overflow:hidden;margin:16px 0}
     .mr-system-decision{display:grid;grid-template-columns:1.3fr .7fr;border:1px solid #E0DCD3;border-radius:12px;overflow:hidden}.mr-system-decision>div{padding:22px 24px;background:#FFF}.mr-system-decision>div+div{border-left:1px solid #E0DCD3;background:#F7F5F0}.mr-system-decision h3{font-size:1.05rem!important;margin:8px 0!important}.mr-system-decision p{font-size:.9rem!important;line-height:1.57!important;margin:7px 0 0!important}.mr-system-decision strong{display:block;font-size:1.65rem;line-height:1.1;letter-spacing:-.03em;margin:9px 0 4px}
     .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
@@ -1583,7 +1787,7 @@
     .mr-range-median{position:absolute;top:-4px;width:3px;height:20px;border-radius:2px;background:#08383E;transform:translateX(-1.5px)}
     .mr-range-foot{margin-top:7px;font-size:.76rem;color:#6E6F73}
     @media(max-width:760px){.mr-map-lenses{grid-template-columns:repeat(2,minmax(0,1fr))}.mr-map-signal{grid-template-columns:1fr}.mr-map-tools{justify-content:flex-start;max-width:none}.mr-system-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.mr-system-metrics .mr-run-metric:nth-child(3){border-left:0}.mr-system-decision{grid-template-columns:1fr}.mr-system-decision>div+div{border-left:0;border-top:1px solid #E0DCD3}}
-    @media(max-width:760px){.mr-cover-dark{padding:38px 28px 32px}.mr-cover-white{padding:28px}.mr-cover-title{font-size:2.35rem!important}.mr-cover-score{font-size:3.8rem}.mr-cover-meta{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:760px){.mr-cover-dark{padding:38px 28px 32px}.mr-cover-white{padding:28px}.mr-cover-title{font-size:2.35rem!important}.mr-cover-score{font-size:3.8rem}.mr-cover-score-copy{min-width:0;max-width:100%}.mr-cover-meta{grid-template-columns:repeat(2,minmax(0,1fr))}}
     .mr-diag-section { margin: 24px 0 36px; }
     .mr-diag-hero { background:#F6F3EC; border:1px solid rgba(12,110,120,0.20); border-left:4px solid #0C6E78; border-radius:14px; padding:40px 44px 32px; }
     .mr-diag-eyebrow { font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif; font-size:0.72rem; letter-spacing:0.24em; text-transform:uppercase; color:#0C6E78; font-weight:700; margin:0 0 14px; }
@@ -1760,8 +1964,19 @@
       .mr-confidence-row { grid-template-columns:1fr; gap:8px; }
       .mr-confidence-tier { text-align:left; }
     }
+    /* On phones, the adjacent lens list already carries every plotted value,
+       including unavailable values. Keep the SVG comparison for wider screens
+       and print without shrinking its labels below legibility. */
+    @media screen and (max-width:600px){
+      .mr-cross-lens-summary>.mr-cross-lens-comparison{display:none}
+      .mr-cross-lens-summary>.mr-lens-grid>.mr-lens-card{min-width:0;overflow-wrap:anywhere}
+      .mr-cross-lens-summary>.mr-lens-grid>.mr-lens-card>.mr-lens-label{font-size:14px;line-height:1.4}
+      .mr-cross-lens-summary>.mr-lens-grid>.mr-lens-card>.mr-copy{font-size:14px;line-height:1.5}
+    }
     @page{size:Letter;margin:60pt}
     @media print{
+      .mr-system-map>.mr-system-hub{fill:#08383E}
+      .mr-map-signal,.mr-interaction-grid>.mr-interaction-label,.mr-interaction-grid>.mr-interaction-cell{break-inside:avoid;page-break-inside:avoid}
       /* Keep a standard report cover on one Letter page and keep its
          interpretation notice intact. Screen typography is unchanged. */
       .mr-report .mr-cover{break-inside:avoid;page-break-inside:avoid}
@@ -1779,6 +1994,19 @@
       .mr-evidence-grid{display:block}
       .mr-evidence-grid .mr-lens-card{display:block;break-inside:avoid;page-break-inside:avoid}
       .mr-report p{orphans:3;widows:3}
+      /* Keep these bounded reading units intact. Actual generated reports
+         exposed sentence tails and card tags stranded across page breaks. */
+      .mr-run-headline,.mr-lens-grid>.mr-lens-card{break-inside:avoid;page-break-inside:avoid}
+      .mr-ai-interpretation>ul>.mr-ai-evidence-text{break-inside:avoid;page-break-inside:avoid;orphans:3;widows:3}
+      .mr-ai-reading-unit{display:inline-block;width:100%;vertical-align:top;break-inside:avoid;page-break-inside:avoid}
+      /* Keep the bounded scenario introduction with its chart. A whole-section
+         avoid can be relaxed by print layout; the paragraph also needs an
+         explicit no-split and keep-with-next boundary. */
+      .mr-run-exposure{display:inline-block;width:100%;vertical-align:top}
+      .mr-run-exposure>.mr-lede{break-inside:avoid;page-break-inside:avoid;break-after:avoid;page-break-after:avoid}
+      .mr-run-leadership{display:inline-block;width:100%;vertical-align:top}
+      .mr-run-actions{display:inline-block;width:100%;vertical-align:top;break-inside:avoid;page-break-inside:avoid}
+      .mr-priority-intro{display:inline-block;width:100%;vertical-align:top;break-inside:avoid;page-break-inside:avoid}
       /* Use ordinary block flow for long evidence and option content so print
          pagination does not depend on nested grid fragmentation. */
       .mr-run-evidence-grid,.mr-remedy-grid,.mr-remedy-card{display:block}
@@ -1791,11 +2019,27 @@
       .mr-run-metric-value{font-size:13pt;overflow-wrap:normal}
       .mr-section h2,.mr-section h3,.mr-section-index,.mr-run-method dl>div{break-inside:avoid;page-break-inside:avoid}
       .mr-leadership-close{break-inside:avoid;page-break-inside:avoid;padding:24px!important}
+      /* One atomic print unit: Linux Chromium otherwise fragments the final
+         grid paragraph even when sibling keep-together rules are present. */
+      .mr-run-close-group{display:inline-block;width:100%;vertical-align:top;break-inside:avoid;page-break-inside:avoid}
+      .mr-run-close-group>.mr-leadership-close{margin-top:0!important}
       .mr-leadership-close>h2{font-size:22pt!important;line-height:1.12!important;max-width:none!important}
+      .mr-leadership-close p,.mr-leadership-close li,.mr-leadership-close li span{font-size:10pt!important;line-height:1.45!important}
+      .mr-leadership-close{break-after:avoid;page-break-after:avoid}
+      .mr-leadership-close+.mr-report-boundary{break-before:avoid;page-break-before:avoid}
       .mr-leadership-close-grid{grid-template-columns:1.05fr .95fr;gap:22px}
       .mr-leadership-sequence li{padding-bottom:12px}
-      .mr-remeasurement-note{margin-top:16px}
+      .mr-remeasurement-note{margin-top:16px;padding:12px 14px}
       .mr-report .mr-report-boundary{margin-top:16px;padding:12px 16px}
+      .mr-report-boundary p:last-child{font-size:10pt!important;line-height:1.45!important}
+      /* A completed AI report ends at Method and limits. Keep its explanatory
+         paragraph with the boundary, instead of a nearly empty final page. */
+      .mr-run-method:has(+.mr-report-boundary){break-inside:auto;page-break-inside:auto;break-after:avoid;page-break-after:avoid}
+      .mr-run-method:has(+.mr-report-boundary)>.mr-method-copy:last-child{break-after:avoid;page-break-after:avoid}
+      .mr-run-method+.mr-report-boundary{break-before:avoid;page-break-before:avoid}
+      .mr-run-method dl{margin:14px 0}
+      .mr-run-method dl>div{padding:8px 0;gap:14px}
+      .mr-run-method .mr-method-copy{margin-top:14px!important;font-size:10pt!important;line-height:1.45!important}
       .mr-priority-matrix,.mr-constraint-view,.mr-run-findings{break-inside:avoid;page-break-inside:avoid}
       .mr-leadership-grid>div,.mr-leadership-sequence li{break-inside:avoid;page-break-inside:avoid}
       .mr-section h3,.mr-lens-label,.mr-viz-title{break-after:avoid;page-break-after:avoid}
@@ -1803,7 +2047,7 @@
     }
     `;
 
-  const AI_CSS = '.mr-ai-interpretation{min-width:0;overflow-wrap:anywhere}.mr-ai-interpretation a{color:var(--accent,#0C6E78);text-decoration:underline;text-underline-offset:.16em}.mr-ai-inline{padding:24px;max-width:100%;box-sizing:border-box}.mr-ai-action{margin:20px 0;padding:24px;break-inside:avoid}.mr-ai-action dd{margin:4px 0 16px}.mr-ai-interpretation h3{margin-top:24px}.mr-ai-interpretation li+li{margin-top:12px}@media(max-width:600px){.mr-ai-inline,.mr-ai-action{padding:18px}.mr-ai-interpretation h2{font-size:1.45rem}.mr-ai-interpretation h3{font-size:1.12rem}}@media print{.mr-ai-interpretation>.mr-method-copy:last-child{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}}';
+  const AI_CSS = '.mr-ai-interpretation{min-width:0;overflow-wrap:anywhere}.mr-ai-interpretation a{color:var(--accent,#0C6E78);text-decoration:underline;text-underline-offset:.16em}.mr-ai-inline{padding:24px;max-width:100%;box-sizing:border-box}.mr-ai-action{margin:20px 0;padding:24px;break-inside:avoid}.mr-ai-action dd{margin:4px 0 16px}.mr-ai-interpretation h3{margin-top:24px}.mr-ai-interpretation li+li{margin-top:12px}@media(max-width:600px){.mr-ai-inline,.mr-ai-action{padding:18px}.mr-ai-interpretation h2{font-size:1.45rem}.mr-ai-interpretation h3{font-size:1.12rem}}@media print{.mr-ai-interpretation .mr-ai-action{break-inside:auto;page-break-inside:auto}.mr-ai-action h3{break-after:avoid;page-break-after:avoid}.mr-ai-action p{orphans:3;widows:3}.mr-ai-action .mr-ai-definition{break-inside:avoid;page-break-inside:avoid}.mr-ai-action dt{break-after:avoid;page-break-after:avoid}.mr-ai-action dd{break-before:avoid;page-break-before:avoid}.mr-ai-action>dl:has(+p),.mr-ai-action>dl:has(+p)>.mr-ai-definition:last-child{break-after:avoid;page-break-after:avoid}.mr-ai-action>p:last-child{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}.mr-ai-interpretation>.mr-method-copy:last-child{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}}';
 
   function handleScreenNavigation(event) {
     const link = event.target.closest('.mr-screen-only a[href^="#"]');
@@ -1820,22 +2064,10 @@
     target.focus({ preventScroll:true });
   }
 
-  // Screen navigation is a presentation of the existing report body. It never
-  // changes the measurement model or the content/order used by printing.
-  function buildScreenReportBody(model, instance) {
+  const screenReportModels = new WeakMap();
+
+  function buildScreenReportControls(model, sections) {
     const m = obj(model);
-    const prefix = "mr-" + slug(m.filenameBase || m.product || "result") + (instance ? "-" + instance : "");
-    const sections = [];
-    const original = buildReportBody(m);
-    let body = original.replace(/<section class="(mr-cover|mr-section[^\"]*)">/g, (tag, classes, offset) => {
-      const id = prefix + "-section-" + sections.length;
-      const next = original.indexOf('<section class="', offset + tag.length);
-      const segment = original.slice(offset, next < 0 ? undefined : next);
-      const heading = segment.match(/<h2[^>]*>([\s\S]*?)<\/h2>/);
-      const label = classes === "mr-cover" ? "Overview" : heading ? heading[1].replace(/<[^>]+>/g, "").replace(/^\d+\.\s*/, "") : "Report section";
-      sections.push({ id, classes, label });
-      return '<section id="' + id + '" class="' + classes + '">';
-    });
     const find = (pattern) => sections.find(section => pattern.test(section.classes + " " + section.label));
     const profile = find(/mr-run-dimensions|mr-system-read|mr-depth-system-read/);
     const evidence = find(/mr-run-evidence|mr-evidence-status/);
@@ -1850,9 +2082,73 @@
     const ai = obj(m.aiReport);
     const firstAction = ai.status === "complete"
       ? firstStr(obj(arr(obj(obj(ai.report).interpretation).recommendations)[0]).action)
-      : firstStr(m.firstMove, textItem(arr(m.actions)[0]));
+      // Deterministic firstMove can be an action-card category, not an action.
+      // Keep the full guidance below instead of presenting its title as a task.
+      : "";
     const nextMove = actions ? '<div class="mr-screen-only mr-screen-next"><div><span>Next step</span>' +
       (firstAction ? '<p>' + esc(firstAction) + '</p>' : '<p>Review the suggested changes and their evidence before choosing a test.</p>') + '</div>' + link(actions, 'Explore actions <span aria-hidden="true">→</span>', 'mr-screen-action') + '</div>' : '';
+    return { nav, nextMove };
+  }
+
+  function refreshScreenReportAI(section, aiReport) {
+    const page = section.closest('.mr-page');
+    const context = page && screenReportModels.get(page);
+    if (!context) return;
+    // Preserve caller-owned models and every existing non-AI report node.
+    // Read mounted IDs rather than rebuilding indexes: completed reports may
+    // omit deterministic sections that remain in a pending report's live DOM.
+    context.model = { ...context.model, aiReport: obj(aiReport) };
+    const sections = Array.from(page.querySelectorAll('.mr-cover[id], .mr-section[id], .mr-ai-inline[id]'))
+      .filter(node => node.closest('.mr-page') === page)
+      .map(node => ({
+        id: node.id,
+        classes: node.classList.contains('mr-ai-inline') ? 'mr-section mr-ai-interpretation' : node.className,
+        label: node.classList.contains('mr-cover') ? 'Overview' : esc((node.querySelector('h2')?.textContent || 'Report section').replace(/^\d+\.\s*/, ''))
+      }));
+    const controls = buildScreenReportControls(context.model, sections);
+    const update = (selector, html, parent, prepend = false) => {
+      const current = page.querySelector(selector);
+      if (!html) { current?.remove(); return; }
+      const template = document.createElement('template');
+      template.innerHTML = html;
+      const replacement = template.content.firstElementChild;
+      const oldContents = current?.querySelector('details');
+      const newContents = replacement.querySelector('details');
+      if (oldContents && newContents) newContents.open = oldContents.open;
+      // A routine pending poll must not close contents or discard focus.
+      if (current?.isEqualNode(replacement)) return;
+      const focused = current?.contains(document.activeElement) ? document.activeElement : null;
+      const focusLabel = focused?.textContent;
+      if (current) current.replaceWith(replacement);
+      else if (parent) parent[prepend ? 'prepend' : 'append'](replacement);
+      if (focused) {
+        const target = Array.from(replacement.querySelectorAll('a, summary')).find(node => node.textContent === focusLabel);
+        target?.focus({ preventScroll: true });
+      }
+    };
+    update('.mr-screen-nav', controls.nav, page, true);
+    update('.mr-screen-next', controls.nextMove, page.querySelector('.mr-cover-white'));
+  }
+
+  // Screen navigation is a presentation of the existing report body. It never
+  // changes the measurement model or the content/order used by printing.
+  function buildScreenReportBody(model, instance) {
+    const m = obj(model);
+    const prefix = "mr-" + slug(m.filenameBase || m.product || "result") + (instance ? "-" + instance : "");
+    const sections = [];
+    const original = buildReportBody(m);
+    let body = original.replace(/<section\b([^>]*?)\bclass="([^"]+)"([^>]*)>/g, (tag, beforeClass, classes, afterClass, offset) => {
+      if (!/(?:^|\s)(?:mr-cover|mr-section)(?:\s|$)/.test(classes)) return tag;
+      const id = prefix + "-section-" + sections.length;
+      const next = original.indexOf('<section', offset + tag.length);
+      const segment = original.slice(offset, next < 0 ? undefined : next);
+      const heading = segment.match(/<h2[^>]*>([\s\S]*?)<\/h2>/);
+      const label = classes === "mr-cover" ? "Overview" : heading ? heading[1].replace(/<[^>]+>/g, "").replace(/^\d+\.\s*/, "") : "Report section";
+      sections.push({ id, classes, label });
+      // Preserve aria-live and any other section attributes in every state.
+      return tag.replace(/\s+id="[^"]*"/, '').replace(/^<section\b/, '<section id="' + id + '"');
+    });
+    const { nav, nextMove } = buildScreenReportControls(m, sections);
     const boundary = m.kind === "run" && m.footnote ? '<div class="mr-screen-only mr-screen-boundary"><strong>' + esc(firstStr(m.evidenceBand, "Single-run evidence")) + '</strong><p>' + esc(m.footnote) + '</p></div>' : '';
     // Insert alongside the score; the existing full interpretation boundary,
     // method, provenance, and next-decision sections remain in the body.
@@ -1891,7 +2187,7 @@
       .mr-report .mr-cover-stripe{height:2px;background:#15949F}
       .mr-report .mr-cover-white{padding:22px 26px 24px}
       .mr-report .mr-cover-kicker{margin-bottom:12px!important;font-size:.61rem!important;letter-spacing:.12em}
-      .mr-report .mr-cover-score{font-size:3.6rem;line-height:.95;letter-spacing:-.055em;color:#07343A}
+      .mr-report .mr-cover-score:not(.mr-cover-score-status){font-size:3.6rem;line-height:.95;letter-spacing:-.055em;color:#07343A}
       .mr-report .mr-cover-score-label{color:#087F8C;letter-spacing:.08em;font-size:.7rem}
       .mr-report .mr-cover-meta{margin-top:17px;padding-top:13px;gap:10px 14px;border-color:#DCE5E8}
       .mr-report .mr-cover-meta strong{color:#62777E;letter-spacing:.08em}
@@ -1940,7 +2236,7 @@
         .mr-screen-nav a{padding:9px 8px}
         .mr-screen-contents summary{padding:8px;gap:6px}
         .mr-report .mr-cover-dark,.mr-report .mr-cover-white{padding:20px}
-        .mr-report .mr-cover-score{font-size:3rem}
+        .mr-report .mr-cover-score:not(.mr-cover-score-status){font-size:3rem}
         .mr-report .mr-cover-score-copy{min-width:0}
         .mr-report .mr-cover-meta{grid-template-columns:repeat(2,minmax(0,1fr))}
         .mr-report .mr-section.mr-run-method,.mr-report .mr-section.mr-meta-method{padding:18px}
@@ -2045,6 +2341,7 @@
       document.head.appendChild(st);
     }
     node.innerHTML = '<div class="mr-report"><div class="mr-page" style="box-shadow:none;margin:0;max-width:none">' + buildScreenReportBody(model, ++renderedReportCount) + "</div></div>";
+    screenReportModels.set(node.querySelector('.mr-page'), { model: { ...obj(model) } });
   }
 
   window.MondermanReport = {

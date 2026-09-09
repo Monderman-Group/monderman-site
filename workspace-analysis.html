@@ -556,11 +556,14 @@ body{transition:background-color .25s ease, color .25s ease}
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
   <script src="workspace-access-gate.js"></script>
 <script type="module">
+    import {createSynthesisRequestStore} from './synthesis-request-state.js?v=20260909-idempotent1';
     const workspaceAccess = await window.mondermanWorkspaceAccessReady;
     if (!workspaceAccess?.allowed) await new Promise(function () {});
     const supabase = await window.mondermanGetSupabaseClient();
     const API_BASE = "https://monderman-api.onrender.com";
     let ws5OrgId = null, ws5Role = "viewer";
+    const synthesisRequestStore=createSynthesisRequestStore();
+    let synthesisInFlight=false,lastSynthesisRequest=null;
 
     const PLAN_LABEL = { trial:"Trial", signal:"Signal", pattern:"Pattern", enterprise:"Enterprise", // legacy values kept so an old row still renders a name rather than a blank
                          free:"Trial", baseline:"Signal", advisory:"Pattern" };
@@ -984,24 +987,52 @@ body{transition:background-color .25s ease, color .25s ease}
     }
 
     async function runSynthesis(){
-      const ids=[...synthSel], pre=synthesisPreflight(), btn=$("synthRun"), result=$("synthResult");
+      if(synthesisInFlight) return;
+      // Selection is a set, not a user-defined sequence. A refreshed retry
+      // must retain its identity even when the boxes are selected in another order.
+      const ids=[...synthSel].sort(), pre=synthesisPreflight(), btn=$("synthRun"), result=$("synthResult");
       if(ids.length<2||!pre.mode) return;
       if(ids.length>SYNTH_MAX_SELECTED){ if(result) result.innerHTML=`<div class="synth-error">Select no more than ${SYNTH_MAX_SELECTED.toLocaleString()} runs.</div>`; return; }
+      const organizationId=ws5OrgId;
+      const options={mode:pre.mode,scopePolicy:$("synthScopePolicy")?.value||"warn",includeNarrative:true,includeExport:true};
+      if(pre.mode==="depth") options.samplingFrame=readSamplingFrame();
+      synthesisInFlight=true;
       if(btn){btn.disabled=true;btn.textContent="Building synthesis…";}
+      let ticket=null;
       try{
         const {data}=await supabase.auth.getSession();
         const token=data?.session?.access_token;
         if(!token) throw new Error("Your workspace session has expired. Sign in again before synthesizing stored runs.");
-        const options={mode:pre.mode,scopePolicy:$("synthScopePolicy")?.value||"warn",includeNarrative:true,includeExport:true};
-        if(pre.mode==="depth") options.samplingFrame=readSamplingFrame();
-        const response=await fetch(`${API_BASE}/api/synthesis`,{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token,"X-Monderman-Organization-Id":ws5OrgId},body:JSON.stringify({run_ids:ids,options})});
+        const requestBody={run_ids:ids,options};
+        ticket=await synthesisRequestStore.prepare(organizationId,data.session.user.id,requestBody);
+        const response=await fetch(`${API_BASE}/api/synthesis`,{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token,"X-Monderman-Organization-Id":organizationId},body:JSON.stringify({...requestBody,request_id:ticket.requestId})});
         const payload=await response.json().catch(()=>({}));
-        if(!response.ok||payload.ok===false||!payload.result) throw new Error(payload.message||payload.error||`HTTP ${response.status}`);
+        if(!response.ok||payload.ok===false||!payload.result){
+          const failure=new Error(payload.message||payload.error||`HTTP ${response.status}`);
+          failure.savedRequestDeleted=response.status===410&&payload.error==="synthesis_request_deleted";
+          throw failure;
+        }
+        synthesisRequestStore.complete(ticket);lastSynthesisRequest=ticket;
+        if(ws5OrgId!==organizationId) return;
         try{sessionStorage.setItem(SYNTH_STORAGE_KEY,JSON.stringify(payload.result));}catch(error){}
         renderSynthResult(payload.result,payload.synthesis?.id||payload.result?.synthesis_id||null);
       }catch(error){
         if(result) result.innerHTML=`<div class="synth-error">Couldn’t build this synthesis: ${sEsc(error.message||"please try again.")}</div>`;
+        if(error.savedRequestDeleted&&ticket&&result&&ws5OrgId===organizationId){
+          const startNew=document.createElement("button");startNew.type="button";startNew.className="synth-btn ghost";startNew.textContent="Start a new Synthesis";
+          startNew.addEventListener("click",()=>{
+            try{
+              // The server has confirmed a terminal tombstone. Renew only on
+              // this explicit action, never after an uncertain lost response.
+              synthesisRequestStore.complete(ticket);synthesisRequestStore.beginNew(ticket);
+              lastSynthesisRequest=null;result.innerHTML="";
+            }catch(storageError){result.innerHTML=`<div class="synth-error">${sEsc(storageError.message)}</div>`;}
+          });
+          result.appendChild(startNew);
+        }
         if(btn){btn.disabled=false;btn.textContent=pre.mode==="depth"?"Build Depth Synthesis":"Build Cross-Lens Synthesis";}
+      }finally{
+        synthesisInFlight=false;
       }
     }
 
@@ -1026,7 +1057,10 @@ body{transition:background-color .25s ease, color .25s ease}
       $("synthPdf")?.addEventListener("click",()=>window.MondermanReport.openReport(model));
       $("synthHtml")?.addEventListener("click",()=>window.MondermanReport.downloadHtml(model));
       $("synthJson")?.addEventListener("click",()=>window.MondermanReport.downloadJson(result,String(filename).replace(/\.json$/i,"")));
-      $("synthBack")?.addEventListener("click",()=>{ SYNTH_RUNS=null; loadSynthesisRuns(); });
+      $("synthBack")?.addEventListener("click",()=>{
+        try{synthesisRequestStore.beginNew(lastSynthesisRequest);lastSynthesisRequest=null;SYNTH_RUNS=null;loadSynthesisRuns();}
+        catch(error){const target=$("synthResult")||$("synthBody");if(target)target.insertAdjacentHTML("beforeend",`<div class="synth-error">${sEsc(error.message)}</div>`);}
+      });
     }
 
     function wireTabs(){

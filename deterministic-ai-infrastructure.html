@@ -9,8 +9,8 @@
 <meta property="og:title" content="Deterministic AI Infrastructure | Monderman"/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://www.monderman.com/deterministic-ai-infrastructure.html"/>
-<meta property="og:description" content="How Monderman separates versioned scoring from the generative AI used for limited interview and reporting tasks."/>
-  <meta name="description" content="How Monderman separates versioned scoring from the generative AI used for limited interview and reporting tasks." />
+<meta property="og:description" content="How Monderman separates versioned scoring from AI-assisted report interpretation when enabled."/>
+  <meta name="description" content="How Monderman separates versioned scoring from AI-assisted report interpretation when enabled." />
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260906-enterprise1">
   <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260906-enterprise1">
   <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260906-enterprise1">
@@ -562,7 +562,7 @@
     <div class="ps-hero-inner publication-hero__inner">
       <span class="ps-eyebrow">Method and architecture</span>
       <h1>Deterministic AI Infrastructure</h1>
-      <p class="lede">Monderman separates scoring from generative AI. Within the same instrument and scorer version, identical structured answers produce the same score. AI is limited to phrasing interview questions, coding free text into existing answer options, and helping explain the completed result.</p>
+      <p class="lede">Monderman separates scoring from generative AI. Within the same instrument and scorer version, identical structured answers produce the same score. When enabled, AI helps explain a completed Diagnostic or Synthesis result. It does not calculate or change the score.</p>
       <div class="ps-hero-actions">
         <a class="btn btn-accent" href="Monderman_Insight_From_Tokens_to_Outcomes_2026-08.pdf?v=20260906-publication2">Download the full paper &rarr;</a>
       </div>
@@ -574,7 +574,7 @@
       <span class="ps-section-label">What it is</span>
       <h2 class="ps-h2">AI assists with language. Versioned rules determine the score.</h2>
       <p class="ps-sub">A generative model can produce different language from the same prompt. That variation can be useful when drafting text. It is not appropriate for the calculation behind a score that an executive may compare over time.</p>
-      <p class="ps-sub">Deterministic AI Infrastructure (DAII) separates scoring from model assistance. Proprietary, versioned rules turn structured answers into a score. A language model may phrase interview questions, code free-text replies into the instrument&rsquo;s existing answer options, and help interpret a completed result within fixed facts. It does not calculate or set the score.</p>
+      <p class="ps-sub">Deterministic AI Infrastructure (DAII) separates scoring from model assistance. Proprietary, versioned rules turn structured answers into a score. When enabled, a language model helps explain a completed Diagnostic or Synthesis result using selected evidence. It does not calculate or set the score. Generated interpretation can contain errors and requires review. The current Diagnostic uses guided questions; interview mode is not available.</p>
       <p class="ps-sub">In this context, &#8220;deterministic&#8221; means that the scoring rules are stable within a stated version. It does not mean that every organization receives the same result.</p>
       <p class="ps-sub"><strong>Structured answers are the scoring inputs.</strong> Different answer sets can produce different scores, whether they come from another participant or a later compatible run.</p>
       <p class="ps-sub"><strong>The engine does not.</strong> The arithmetic that turns answers into a number is fixed. It does not learn from prior runs, drift with usage, or vary by who is asking. Within a fixed instrument/scorer version, give it the same answers to the same questions and it returns the same number.</p>
@@ -636,7 +636,7 @@
       <div class="daii-props">
         <div class="p"><h4>Reproducible</h4><span>Within the same instrument/scorer version, the same answers to the same questions produce the same score on every run. Nothing in the scoring path is probabilistic.</span></div>
         <div class="p"><h4>Versioned</h4><span>When an instrument or scorer changes, the platform records a new version. Like-for-like comparisons require compatible versions.</span></div>
-        <div class="p"><h4>Limited AI role</h4><span>The language model works within fixed facts when it helps explain a finished result. It never sets the score.</span></div>
+        <div class="p"><h4>Limited AI role</h4><span>When enabled, the language model receives selected evidence to help explain a finished result. It never sets the score. Automated checks do not guarantee accurate interpretation.</span></div>
         <div class="p"><h4>Separate estimates</h4><span>When required context is available, time and cost scenarios use customer-provided inputs and remain separate from the score.</span></div>
       </div>
     </div>

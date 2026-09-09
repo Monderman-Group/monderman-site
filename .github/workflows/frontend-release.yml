@@ -28,6 +28,8 @@ jobs:
         with:
           node-version: '22'
       - run: python scripts/validate_stabilization.py
+      - name: Keep public search copy and disclosures current
+        run: python scripts/build_public_search_index.py --check
       - name: Reject scanner-consumed email authentication regressions
         run: node scripts/signin_email_otp_smoke.mjs
       - run: node scripts/workspace_legal_gate_smoke.mjs
@@ -45,10 +47,15 @@ jobs:
       - name: Reject authenticated Diagnostic draft-recovery regressions
         run: node scripts/diagnostic_draft_recovery_smoke.mjs
       - name: Preserve report wording and display-version provenance
-        run: node scripts/report_language_provenance_smoke.mjs
+        run: |
+          node scripts/report_language_provenance_smoke.mjs
+          node scripts/report_recorded_context_smoke.mjs
+          node scripts/report_missing_estimate_smoke.mjs
+          node scripts/report_synthesis_display_smoke.mjs --deterministic-only
       - name: Verify diagnostic labels and immutable saved-report presentation
         run: |
           node scripts/diagnostic_display_language_smoke.mjs
+          node scripts/dv_timing_display_smoke.mjs
           node scripts/sc_ip_chart_binding_smoke.mjs
           node scripts/authenticated_report_engine_fixture.mjs
       - name: Verify compatibility bridge and explicit questionnaire activation
@@ -65,6 +72,10 @@ jobs:
         run: node scripts/diagnostic_workspace_selection_smoke.mjs
       - name: Reject cross-Workspace data-surface regressions
         run: node scripts/workspace_tenant_scope_smoke.mjs
+      - name: Reject duplicate Synthesis submissions and premature deferred-report polling
+        run: |
+          node scripts/synthesis_request_state_smoke.mjs
+          node scripts/report_ai_deferred_poll_smoke.mjs
       - name: Reject Diagnostic completion-protection regressions
         run: node scripts/diagnostic_completion_reliability_smoke.mjs
       - run: python scripts/validate_frontend_release.py

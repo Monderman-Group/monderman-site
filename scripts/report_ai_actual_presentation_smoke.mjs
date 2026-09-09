@@ -10,21 +10,76 @@ import {fileURLToPath,pathToFileURL} from 'node:url';
 import {evidenceDigest} from '../../monderman-api-first-run/report-evidence-packet.js';
 import * as currentContract from '../../monderman-api-first-run/report-ai-interpretation-contract.js';
 import {REPORT_AI_RELEASE} from '../../monderman-api-first-run/report-ai-service.js';
+import {buildReportAIReviewPrompt,REPORT_AI_REVIEW_PROMPT_VERSION,REPORT_AI_REVIEW_CONTRACT_VERSION,REPORT_AI_REVIEW_MAX_INPUT_TOKENS,REPORT_AI_REVIEW_MAX_OUTPUT_TOKENS,REPORT_AI_REVIEW_EFFORT,REPORT_AI_REVIEW_TIMEOUT_MS} from '../../monderman-api-first-run/report-ai-review.js';
+import {estimateReportAIInputTokens,REPORT_AI_DEFAULT_OUTPUT_TOKENS} from '../../monderman-api-first-run/report-ai-provider.js';
+import {buildReportQuantityCatalog,REPORT_QUANTITY_STATEMENT_VERSION} from '../../monderman-api-first-run/report-ai-quantity-statements.js';
+import {buildReportFactualCatalog,REPORT_FACTUAL_STATEMENT_VERSION} from '../../monderman-api-first-run/report-ai-factual-statements.js';
+import {buildReportReviewedCatalog,REPORT_REVIEWED_CATALOG_VERSION} from '../../monderman-api-first-run/report-ai-reviewed-catalog.js';
+import {questionnaireConfigForVersion} from '../../monderman-api-first-run/questionnaire-version-registry.js';
+import {selectReportResearch} from '../../monderman-api-first-run/report-research-library.js';
+import {buildReportAIComposition,assertReportAIComposition,REPORT_AI_COMPOSITION_VERSION,REPORT_AI_QUANTITY_PROSE_POLICY_VERSION} from '../../monderman-api-first-run/report-ai-composition.js';
 
 const SITE_ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const ACCEPTED=new Set(['validated_requires_human_review','validated_with_review_flags']);
 const safeId=/^[A-Za-z0-9][A-Za-z0-9_-]{0,99}$/;
 const safePrompt=/^report-interpretation-opus5-[0-9]{8}\.[0-9]+$/;
 const digest=value=>createHash('sha256').update(value).digest('hex');
+const currentSourcePins=()=>{
+  const registry=fs.readFileSync(new URL('../../monderman-api-first-run/questionnaire-version-registry.js',import.meta.url),'utf8');
+  const banks=[...registry.matchAll(/^import (\w+) from "\.\/([^"]+)" with \{ type: "json" \};$/gm)].map(match=>match[2]);
+  assert.equal(banks.length,8,'complete_questionnaire_registry_required');
+  return Object.fromEntries(['report-ai-provider.js','report-ai-interpretation-contract.js','report-ai-review.js','report-ai-evidence-encoding.js','report-ai-quantity-statements.js','report-ai-factual-statements.js','report-ai-reviewed-catalog.js','report-ai-reviewed-sc-dv.js','report-ai-reviewed-os-ip.js','report-ai-reviewed-synthesis.js','report-ai-composition.js','report-evidence-packet.js','report-research-library.js','questionnaire-version-registry.js',...banks,'harness-report-ai-live.mjs'].map(name=>[name,digest(fs.readFileSync(new URL(`../../monderman-api-first-run/${name}`,import.meta.url)))]));
+};
 const walk=(value,packet,contract=currentContract)=>typeof value==='string'?contract.renderReportAIFacts(value,packet):Array.isArray(value)?value.map(v=>walk(v,packet,contract)):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).map(([key,v])=>[key,walk(v,packet,contract)])):value;
 
-export function acceptedPresentationCases(matrix,promptVersion,contract=currentContract){
+export function acceptedPresentationCases(matrix,promptVersion,contract=currentContract,{allowHistoricalDrafts=false}={}){
   assert.equal(matrix?.syntheticOnly,true,'synthetic_only_required');
   assert.equal(matrix?.mode,'live','live_matrix_required');
   assert.equal(matrix?.model,'claude-opus-5','unexpected_matrix_model');
   assert.ok(safePrompt.test(promptVersion||''),'explicit_prompt_version_required');
-  assert.ok(Array.isArray(matrix.cases)&&matrix.cases.length>0&&matrix.cases.length<=100,'invalid_matrix_cases');
+  assert.ok(Array.isArray(matrix.cases)&&matrix.cases.length>0&&matrix.cases.length<=200,'invalid_matrix_cases');
   assert.ok(typeof matrix.finishedAt==='string'&&Number.isFinite(Date.parse(matrix.finishedAt)),'completed_matrix_timestamp_required');
+  let manifestCases;
+  if(!allowHistoricalDrafts){
+    assert.equal(promptVersion,contract.REPORT_AI_PROMPT_VERSION,'current_prompt_version_required');
+    assert.equal(matrix.semanticReview,true,'mandatory_semantic_review_missing');
+    assert.equal(matrix.releaseCertificationEligible,true,'draft_only_cannot_certify_current_release');
+    assert.equal(matrix.manifest?.schemaVersion,'synthetic-report-ai-evaluation-6','reviewed_manifest_required');
+    assert.equal(matrix.manifest.reviewedVersion,REPORT_REVIEWED_CATALOG_VERSION,'reviewed_catalog_version_mismatch');
+    assert.equal(matrix.manifest.factualVersion,REPORT_FACTUAL_STATEMENT_VERSION,'factual_version_mismatch');
+    assert.equal(matrix.manifest.compositionVersion,REPORT_AI_COMPOSITION_VERSION,'composition_version_mismatch');
+    assert.equal(matrix.manifest.quantityVersion,REPORT_QUANTITY_STATEMENT_VERSION,'quantity_version_mismatch');
+    assert.equal(matrix.manifest.quantityProsePolicyVersion,REPORT_AI_QUANTITY_PROSE_POLICY_VERSION,'quantity_prose_policy_mismatch');
+    assert.equal(matrix.manifest.draftHashMeaning,'compiled-customer-interpretation','compiled_hash_meaning_required');
+    assert.equal(matrix.manifest.semanticReview,true,'reviewed_manifest_required');
+    assert.equal(matrix.manifest.model,'claude-opus-5','reviewed_manifest_model_mismatch');
+    assert.equal(matrix.manifest.promptVersion,promptVersion,'reviewed_manifest_prompt_mismatch');
+    assert.equal(matrix.manifest.contractVersion,contract.REPORT_AI_CONTRACT_VERSION,'reviewed_manifest_contract_mismatch');
+    assert.equal(matrix.manifest.review?.promptVersion,REPORT_AI_REVIEW_PROMPT_VERSION,'review_prompt_mismatch');
+    assert.equal(matrix.manifest.review?.contractVersion,REPORT_AI_REVIEW_CONTRACT_VERSION,'review_contract_mismatch');
+    assert.equal(matrix.manifest.outputTokens,REPORT_AI_DEFAULT_OUTPUT_TOKENS,'draft_output_cap_mismatch');
+    assert.equal(matrix.manifest.review.maxInputTokens,REPORT_AI_REVIEW_MAX_INPUT_TOKENS,'review_input_cap_mismatch');
+    assert.equal(matrix.manifest.review.maxOutputTokens,REPORT_AI_REVIEW_MAX_OUTPUT_TOKENS,'review_output_cap_mismatch');
+    assert.equal(matrix.manifest.review.effort,REPORT_AI_REVIEW_EFFORT,'review_effort_mismatch');
+    assert.equal(matrix.manifest.review.timeoutMs,REPORT_AI_REVIEW_TIMEOUT_MS,'review_timeout_mismatch');
+    assert.equal(matrix.manifestSha256,evidenceDigest(matrix.manifest),'manifest_digest_mismatch');
+    assert.deepEqual(matrix.manifest.sourceDigests,currentSourcePins(),'current_source_pins_mismatch');
+    assert.ok(['initial','presentation-correction','quantity-correction'].includes(matrix.manifest.promptMode),'manifest_prompt_mode_invalid');
+    assert.equal(matrix.promptMode,matrix.manifest.promptMode,'manifest_prompt_mode_mismatch');
+    assert.equal(matrix.presentationRetry,matrix.promptMode==='presentation-correction','presentation_retry_flag_mismatch');
+    assert.equal(matrix.quantityRetry,matrix.promptMode==='quantity-correction','quantity_retry_flag_mismatch');
+    assert.ok(Array.isArray(matrix.manifest.cases)&&matrix.manifest.cases.length>0&&matrix.manifest.cases.length<=200,'manifest_cases_required');
+    if(matrix.promptMode!=='initial'){
+      assert.equal(matrix.manifest.cases.length,1,'correction_requires_single_manifest_case');
+      assert.equal(matrix.cases.length,1,'correction_requires_single_receipt_case');
+    }
+    manifestCases=new Map();
+    for(const fixture of matrix.manifest.cases){
+      assert.ok(safeId.test(fixture.id||'')&&!manifestCases.has(fixture.id),'manifest_case_identity_invalid');
+      assert.ok(['diagnostic','synthesis','attack'].includes(fixture.kind),'manifest_case_kind_invalid');
+      manifestCases.set(fixture.id,fixture);
+    }
+  }
   const selected=matrix.cases.filter(entry=>ACCEPTED.has(entry.status));
   assert.ok(selected.length>0,'no_accepted_cases');
   const seen=new Set();
@@ -32,26 +87,90 @@ export function acceptedPresentationCases(matrix,promptVersion,contract=currentC
     assert.ok(safeId.test(entry.id||'')&&!seen.has(entry.id),'invalid_or_duplicate_case_id');seen.add(entry.id);
     assert.ok(['diagnostic','synthesis','attack'].includes(entry.kind),'unexpected_case_kind');
     const packet=entry.packet, metadata=entry.metadata;
+    if(!allowHistoricalDrafts){
+      const fixture=manifestCases.get(entry.id);
+      assert.ok(fixture,'case_absent_from_manifest');
+      assert.equal(entry.promptMode,matrix.promptMode,'case_prompt_mode_mismatch');
+      assert.equal(entry.kind,fixture.kind,'case_manifest_kind_mismatch');
+      assert.equal(evidenceDigest(packet),fixture.packetSha256,'case_manifest_packet_mismatch');
+      const quantityCatalog=buildReportQuantityCatalog(packet);
+      const factualCatalog=buildReportFactualCatalog(packet);
+      const reviewedCatalog=buildReportReviewedCatalog(packet,{factualCatalog});
+      assert.equal(fixture.catalogSha256,quantityCatalog.catalog_sha256,'case_catalog_mismatch');
+      assert.equal(fixture.factualCatalogSha256,factualCatalog.catalog_sha256,'case_factual_catalog_mismatch');
+      assert.equal(fixture.reviewedCatalogSha256,reviewedCatalog.catalog_sha256,'case_reviewed_catalog_mismatch');
+      const draftPrompt=contract.buildReportAIPrompt(packet,{presentationRetry:matrix.manifest.promptMode==='presentation-correction',quantityRetry:matrix.manifest.promptMode==='quantity-correction',quantityCatalog,factualCatalog});
+      const promptHash=evidenceDigest(draftPrompt),inputReservation=estimateReportAIInputTokens(draftPrompt);
+      assert.equal(fixture.inputReservation,inputReservation,'case_manifest_input_mismatch');
+      assert.equal(entry.inputReservation,inputReservation,'case_input_reservation_mismatch');
+      assert.ok(!entry.failureStage&&!entry.errorCode&&entry.usageUnknown!==true,'accepted_case_failure_metadata');
+      assert.ok(Array.isArray(entry.semanticReviewFlags)&&entry.semanticReviewFlags.every(flag=>typeof flag==='string'),'review_flags_invalid');
+      assert.equal(entry.status,entry.semanticReviewFlags.length?'validated_with_review_flags':'validated_requires_human_review','review_flags_status_mismatch');
+      assert.ok(metadata?.inputTokens<=inputReservation&&metadata?.outputTokens<=REPORT_AI_DEFAULT_OUTPUT_TOKENS,'draft_usage_exceeds_bound');
+      assert.equal(fixture.promptSha256,promptHash,'case_manifest_prompt_mismatch');
+      assert.equal(entry.promptSha256,promptHash,'case_saved_prompt_mismatch');
+    }
     assert.equal(metadata?.model,'claude-opus-5','unexpected_case_model');
     assert.equal(metadata?.stopReason,'end_turn','uncompleted_case_response');
     assert.ok(/^req_[A-Za-z0-9_-]{6,120}$/.test(metadata?.requestId||''),'request_metadata_required');
     for(const key of ['inputTokens','outputTokens','cacheCreationInputTokens','cacheReadInputTokens'])assert.ok(Number.isSafeInteger(metadata[key])&&metadata[key]>=0,'invalid_usage_metadata');
     assert.deepEqual(Object.keys(metadata).sort(),['model','requestId','inputTokens','outputTokens','cacheCreationInputTokens','cacheReadInputTokens','stopReason'].sort(),'unexpected_usage_metadata_fields');
     assert.ok(entry.contractInterpretation&&entry.interpretation,'accepted_saved_interpretation_required');
-    const normalized=contract.normalizeReportAICitations(entry.contractInterpretation,packet);
-    contract.validateReportAIInterpretation(normalized,packet);
+    const composition=allowHistoricalDrafts?null:buildReportAIComposition(entry.contractInterpretation,packet);
+    const normalized=composition?composition.wire:contract.normalizeReportAICitations(entry.contractInterpretation,packet);
+    if(!composition)contract.validateReportAIInterpretation(normalized,packet);
+    if(!allowHistoricalDrafts){
+      const original=buildReportAIComposition(entry.syntheticOriginalInterpretation,packet);
+      assert.deepEqual(entry.composition,assertReportAIComposition(composition,{packet}),'composition_binding_mismatch');
+      assert.equal(composition.reviewedVersion,matrix.manifest.reviewedVersion,'composition_reviewed_version_mismatch');
+      assert.equal(composition.reviewedCatalogHash,manifestCases.get(entry.id).reviewedCatalogSha256,'composition_reviewed_catalog_mismatch');
+      assert.equal(entry.wireHash,composition.wireHash,'wire_hash_mismatch');
+      assert.equal(evidenceDigest(entry.contractInterpretation),composition.wireHash,'normalized_wire_mismatch');
+      assert.equal(original.wireHash,composition.wireHash,'original_wire_mismatch');
+      assert.equal(entry.draftHash,composition.compiledHash,'compiled_draft_mismatch');
+      assert.deepEqual(entry.syntheticDraftInterpretation,composition.interpretation,'saved_compiled_draft_mismatch');
+      assert.equal(entry.draftStatus,'validated','validated_draft_required');
+      const review=entry.review;
+      assert.equal(review?.status,'approved','approved_review_required');
+      assert.ok(!review.errorCode&&review.usageUnknown!==true,'approved_review_failure_metadata');
+      assert.equal(review.verdict,'approve','approved_review_required');
+      assert.deepEqual(review.findings,[],'review_findings_must_be_empty');
+      assert.equal(review.model,'claude-opus-5','review_model_mismatch');
+      assert.equal(review.snapshotId,packet.snapshot_id,'review_snapshot_mismatch');
+      assert.equal(review.draftHash,composition.compiledHash,'review_draft_mismatch');
+      const reviewPrompt=buildReportAIReviewPrompt(packet,composition.interpretation,{composition});
+      assert.equal(review.promptSha256,evidenceDigest(reviewPrompt),'review_prompt_hash_mismatch');
+      assert.equal(review.inputReservation,estimateReportAIInputTokens(reviewPrompt),'review_input_reservation_mismatch');
+      assert.equal(review.promptVersion,REPORT_AI_REVIEW_PROMPT_VERSION,'case_review_prompt_mismatch');
+      assert.equal(review.contractVersion,REPORT_AI_REVIEW_CONTRACT_VERSION,'case_review_contract_mismatch');
+      assert.equal(review.metadata?.model,'claude-opus-5','review_metadata_required');
+      assert.equal(review.metadata.stopReason,'end_turn','review_not_completed');
+      assert.match(review.metadata.requestId||'',/^req_[A-Za-z0-9_-]{6,120}$/,'review_request_metadata_required');
+      for(const key of ['inputTokens','outputTokens','cacheCreationInputTokens','cacheReadInputTokens'])assert.ok(Number.isSafeInteger(review.metadata[key])&&review.metadata[key]>=0,'review_usage_invalid');
+      assert.ok(review.metadata.inputTokens<=review.inputReservation&&review.metadata.outputTokens<=REPORT_AI_REVIEW_MAX_OUTPUT_TOKENS,'review_usage_exceeds_bound');
+      assert.deepEqual(Object.keys(review.metadata).sort(),['model','requestId','inputTokens','outputTokens','cacheCreationInputTokens','cacheReadInputTokens','stopReason'].sort(),'unexpected_review_metadata_fields');
+    }
     // Use the saved rendered result, not newly invented display copy. A later
     // contract change that alters rendering must be reviewed, not hidden here.
-    assert.deepEqual(walk(normalized,packet,contract),entry.interpretation,'saved_rendering_mismatch');
+    assert.deepEqual(composition?composition.interpretation:walk(normalized,packet,contract),entry.interpretation,'saved_rendering_mismatch');
     for(const source of packet.research.sources)assert.ok(typeof source.url==='string'&&/^https:\/\//.test(source.url),'source_url_required');
-    const report={version:REPORT_AI_RELEASE,snapshot_id:packet.snapshot_id,model:metadata.model,
+    const reportVersion=allowHistoricalDrafts?`historical-display-only (${promptVersion})`:REPORT_AI_RELEASE;
+    const report={version:reportVersion,snapshot_id:packet.snapshot_id,model:metadata.model,
       prompt_version:promptVersion,evidence_version:packet.version,questionnaire_version:packet.questionnaire_version,
       research_version:packet.research.version,generated_at:matrix.finishedAt,
       interpretation:structuredClone(entry.interpretation),limitations:structuredClone(packet.limitations),
       sources:structuredClone(packet.research.sources),benchmark:structuredClone(packet.research.benchmark),
       evidence:structuredClone(packet.facts.filter(f=>f.provenance!=='one_participant_untrusted_observation')),usage:structuredClone(metadata)};
+    if(!allowHistoricalDrafts)report.composition={version:composition.version,quantity_version:composition.quantityVersion,
+      reviewed_version:composition.reviewedVersion,reviewed_catalog_sha256:composition.reviewedCatalogHash,reviewed_selections:structuredClone(composition.reviewedSelections),
+      factual_version:composition.factualVersion,factual_catalog_sha256:composition.factualCatalogHash,factual_paragraphs:composition.factualParagraphs,
+      quantity_prose_policy_version:composition.quantityProsePolicyVersion,snapshot_id:composition.snapshotId,catalog_sha256:composition.catalogHash,
+      wire_sha256:composition.wireHash,compiled_sha256:composition.compiledHash,quantity_paragraphs:composition.quantityParagraphs};
+    if(!allowHistoricalDrafts)report.automated_review={verdict:'approve',prompt_version:entry.review.promptVersion,
+      contract_version:entry.review.contractVersion,draft_sha256:entry.review.draftHash,snapshot_id:entry.review.snapshotId,
+      model:entry.review.model,usage:structuredClone(entry.review.metadata)};
     return {id:entry.id,kind:entry.kind,diagnostic:packet.diagnostic,reviewFlags:entry.semanticReviewFlags||[],
-      envelope:{version:REPORT_AI_RELEASE,status:'complete',message:'AI-assisted interpretation, based on this saved result.',report}};
+      envelope:{version:reportVersion,status:'complete',message:'AI-assisted interpretation, based on this saved result.',report}};
   });
 }
 
@@ -65,27 +184,134 @@ export function assertPDFMetadataAccompanied(pageTexts,metadata){
 }
 
 function selfTest(){
-  const content={version:'synthetic-self-test',diagnostic:'Decision Velocity',tool:'decision_velocity',role:'managerial',depth:10,sector:'other',questionnaire_version:'1.1.0',facts:[
+  const question=questionnaireConfigForVersion('decision_velocity','1.1.0').items.find(item=>item.id==='dv_g1_primary_drag_source');
+  const content={version:'report-evidence-20260909.1',diagnostic:'Decision Velocity',tool:'decision_velocity',role:'managerial',depth:10,sector:'other',questionnaire_version:'1.1.0',facts:[
     {id:'F1',label:'Diagnostic score',value:70,provenance:'deterministic_result',interpretation:'A supplied value.'},
-    {id:'F2',label:'Participant observation',value:'PRIVATE_SYNTHETIC_SENTINEL',provenance:'one_participant_untrusted_observation',interpretation:'Unverified account.'}
-  ],research:{version:'self-test',sources:[],benchmark:{status:'not_available',explanation:'No comparison is supplied.'}},limitations:['Synthetic test only.']};
+    {id:'F2',label:'Participant observation',value:'PRIVATE_SYNTHETIC_SENTINEL',provenance:'one_participant_untrusted_observation',interpretation:'Unverified account.'},
+    {id:'F3',label:'Contradictions flagged',value:2,provenance:'deterministic_result',interpretation:'Count of flagged contradictions, not conflicting answers or people.'},
+    {id:'F4',label:'Result band',value:'Compounding',provenance:'deterministic_result',interpretation:'The exact saved band label.'},
+    {id:'F5',label:question.text.managerial,value:question.options.find(option=>option.value==='coordination').label,provenance:'participant_structured_answer',interpretation:'Reported by this participant; not independently observed.'}
+  ],research:selectReportResearch({diagnostic:'decision_velocity',sector:'other'}),limitations:['Synthetic test only.']};
   const packet={...content,snapshot_id:evidenceDigest(content)};
-  const interpretation={summary:'This is an offline fixture.',observations:[{text:'The supplied score is {{F1}}.',evidence_ids:['F1']}],hypotheses:[],recommendations:[],limitations:[]};
-  const entry={id:'DV-self-test',kind:'diagnostic',status:'validated_requires_human_review',packet,contractInterpretation:interpretation,
-    interpretation:walk(interpretation,packet),metadata:{model:'claude-opus-5',requestId:'req_synthetic123',inputTokens:100,outputTokens:100,cacheCreationInputTokens:0,cacheReadInputTokens:0,stopReason:'end_turn'}};
-  const fixture={syntheticOnly:true,mode:'live',model:'claude-opus-5',finishedAt:'2026-09-08T00:00:00Z',cases:[entry,{id:'never-render',status:'rejected',syntheticRejectedInterpretation:{summary:'MUST_NOT_RENDER'}}]};
-  const version='report-interpretation-opus5-20260908.4';
+  const quantityCatalog=buildReportQuantityCatalog(packet),factualCatalog=buildReportFactualCatalog(packet),reviewedCatalog=buildReportReviewedCatalog(packet,{factualCatalog});
+  const capability=reviewedCatalog.capabilities.find(row=>row.explanationId);assert.ok(capability,'reviewed_action_fixture_required');
+  const interpretation={catalog_sha256:reviewedCatalog.catalog_sha256,summary:'S1',observations:[{text:'E4'},{text:'E3'}],hypotheses:[{text:capability.explanationId}],recommendations:[{action:capability.actionId}],limitations:[]};
+  const composition=buildReportAIComposition(interpretation,packet);
+  const entry={id:'DV-self-test',kind:'diagnostic',promptMode:'initial',status:'validated_requires_human_review',packet,contractInterpretation:composition.wire,
+    interpretation:composition.interpretation,syntheticOriginalInterpretation:interpretation,syntheticDraftInterpretation:composition.interpretation,
+    wireHash:composition.wireHash,draftHash:composition.compiledHash,composition:assertReportAIComposition(composition,{packet}),semanticReviewFlags:[],
+    metadata:{model:'claude-opus-5',requestId:'req_synthetic123',inputTokens:100,outputTokens:100,cacheCreationInputTokens:0,cacheReadInputTokens:0,stopReason:'end_turn'}};
+  entry.draftStatus='validated';entry.review={status:'approved',verdict:'approve',findings:[],model:'claude-opus-5',
+    snapshotId:packet.snapshot_id,draftHash:composition.compiledHash,promptVersion:REPORT_AI_REVIEW_PROMPT_VERSION,
+    promptSha256:evidenceDigest(buildReportAIReviewPrompt(packet,composition.interpretation,{composition})),
+    inputReservation:estimateReportAIInputTokens(buildReportAIReviewPrompt(packet,composition.interpretation,{composition})),
+    contractVersion:REPORT_AI_REVIEW_CONTRACT_VERSION,metadata:structuredClone(entry.metadata)};
+  const version=currentContract.REPORT_AI_PROMPT_VERSION;
+  entry.promptSha256=evidenceDigest(currentContract.buildReportAIPrompt(packet,{quantityCatalog,factualCatalog}));
+  entry.inputReservation=estimateReportAIInputTokens(currentContract.buildReportAIPrompt(packet,{quantityCatalog,factualCatalog}));
+  const fixture={syntheticOnly:true,mode:'live',promptMode:'initial',presentationRetry:false,quantityRetry:false,semanticReview:true,releaseCertificationEligible:true,
+    manifest:{schemaVersion:'synthetic-report-ai-evaluation-6',factualVersion:REPORT_FACTUAL_STATEMENT_VERSION,reviewedVersion:REPORT_REVIEWED_CATALOG_VERSION,semanticReview:true,model:'claude-opus-5',promptVersion:version,
+      compositionVersion:REPORT_AI_COMPOSITION_VERSION,quantityVersion:REPORT_QUANTITY_STATEMENT_VERSION,quantityProsePolicyVersion:REPORT_AI_QUANTITY_PROSE_POLICY_VERSION,draftHashMeaning:'compiled-customer-interpretation',
+      outputTokens:REPORT_AI_DEFAULT_OUTPUT_TOKENS,contractVersion:currentContract.REPORT_AI_CONTRACT_VERSION,review:{promptVersion:REPORT_AI_REVIEW_PROMPT_VERSION,contractVersion:REPORT_AI_REVIEW_CONTRACT_VERSION,maxInputTokens:REPORT_AI_REVIEW_MAX_INPUT_TOKENS,maxOutputTokens:REPORT_AI_REVIEW_MAX_OUTPUT_TOKENS,effort:REPORT_AI_REVIEW_EFFORT,timeoutMs:REPORT_AI_REVIEW_TIMEOUT_MS},
+      promptMode:'initial',sourceDigests:currentSourcePins(),cases:[{id:entry.id,kind:entry.kind,packetSha256:evidenceDigest(packet),catalogSha256:quantityCatalog.catalog_sha256,factualCatalogSha256:factualCatalog.catalog_sha256,reviewedCatalogSha256:reviewedCatalog.catalog_sha256,promptSha256:entry.promptSha256,inputReservation:entry.inputReservation}]},
+    model:'claude-opus-5',finishedAt:'2026-09-08T00:00:00Z',cases:[entry,{id:'never-render',status:'rejected',syntheticRejectedInterpretation:{summary:'MUST_NOT_RENDER'}}]};
+  fixture.manifestSha256=evidenceDigest(fixture.manifest);
   const cases=acceptedPresentationCases(fixture,version);
-  assert.equal(cases.length,1);assert.equal(cases[0].envelope.report.interpretation.observations[0].text,'The supplied score is 70.');
-  assert.equal(cases[0].envelope.report.evidence.length,1);assert.ok(!JSON.stringify(cases).includes('PRIVATE_SYNTHETIC_SENTINEL'));assert.ok(!JSON.stringify(cases).includes('MUST_NOT_RENDER'));
+  assert.equal(cases.length,1);assert.equal(cases[0].envelope.report.interpretation.observations[0].text,'Result band: Compounding.');
+  assert.equal(cases[0].envelope.report.evidence.length,4);assert.ok(!JSON.stringify(cases).includes('PRIVATE_SYNTHETIC_SENTINEL'));assert.ok(!JSON.stringify(cases).includes('MUST_NOT_RENDER'));
+  assert.equal(cases[0].envelope.report.interpretation.observations[1].text,quantityCatalog.statements[0].text);
+  assert.notEqual(entry.wireHash,entry.draftHash);assert.equal(cases[0].envelope.report.automated_review.draft_sha256,entry.draftHash);
+  assert.equal(cases[0].envelope.report.composition.quantity_prose_policy_version,REPORT_AI_QUANTITY_PROSE_POLICY_VERSION);
+  assert.equal(cases[0].envelope.report.composition.factual_version,REPORT_FACTUAL_STATEMENT_VERSION);
+  assert.equal(cases[0].envelope.report.composition.factual_catalog_sha256,factualCatalog.catalog_sha256);
+  assert.deepEqual(cases[0].envelope.report.composition.factual_paragraphs,composition.factualParagraphs);
+  assert.equal(Object.keys(fixture.manifest.sourceDigests).length,23);
+  assert.equal(cases[0].envelope.report.composition.reviewed_version,REPORT_REVIEWED_CATALOG_VERSION);
+  assert.equal(cases[0].envelope.report.composition.reviewed_catalog_sha256,reviewedCatalog.catalog_sha256);
+  assert.deepEqual(cases[0].envelope.report.composition.reviewed_selections,composition.reviewedSelections);
+  assert.equal(cases[0].envelope.report.interpretation.recommendations[0].action,capability.action);
+  assert.equal(cases[0].envelope.report.interpretation.hypotheses[0].text,capability.explanation);
+  for(const change of [m=>m.manifest.factualVersion='old',m=>m.manifest.cases[0].factualCatalogSha256='a'.repeat(64),m=>m.manifest.sourceDigests['report-ai-factual-statements.js']='a'.repeat(64),m=>m.cases[0].composition.factualVersion='old',m=>m.cases[0].composition.factualCatalogHash='a'.repeat(64),m=>m.cases[0].composition.factualParagraphs=[],m=>m.cases[0].syntheticOriginalInterpretation.summary='S1 extra prose',m=>m.cases[0].syntheticOriginalInterpretation.observations[0].text='Result band: Compounding.']){
+    const mutated=structuredClone(fixture);change(mutated);mutated.manifestSha256=evidenceDigest(mutated.manifest);
+    assert.throws(()=>acceptedPresentationCases(mutated,version),'changed factual source, selection, or compiled binding must reject');
+  }
+  let reviewedTamperChecks=0;
+  const reviewedMutations=[
+    ...['report-ai-reviewed-catalog.js','report-ai-reviewed-sc-dv.js','report-ai-reviewed-os-ip.js','report-ai-reviewed-synthesis.js'].map(name=>m=>m.manifest.sourceDigests[name]='a'.repeat(64)),
+    m=>m.manifest.schemaVersion='synthetic-report-ai-evaluation-5',
+    m=>m.manifest.reviewedVersion='old',m=>m.manifest.cases[0].reviewedCatalogSha256='a'.repeat(64),
+    m=>m.cases[0].composition.reviewedVersion='old',m=>m.cases[0].composition.reviewedCatalogHash='a'.repeat(64),
+    m=>m.cases[0].composition.reviewedSelections=[],m=>m.cases[0].composition.reviewedSelections[0].premiseIds=['E999'],
+    m=>m.cases[0].composition.reviewedSelections[0].scopeBindings=[],
+    m=>m.cases[0].composition.reviewedSelections[0].targetDimensions=[],
+    m=>m.cases[0].contractInterpretation.catalog_sha256='a'.repeat(64),
+    m=>m.cases[0].syntheticOriginalInterpretation.catalog_sha256='a'.repeat(64),
+    m=>m.cases[0].contractInterpretation.recommendations[0].action='A9999',
+    m=>m.cases[0].contractInterpretation.recommendations=[],
+    m=>m.cases[0].contractInterpretation.hypotheses[0].text='H9999',
+    m=>m.cases[0].interpretation.recommendations[0].success_check='Unreviewed replacement.',
+    m=>m.cases[0].draftStatus='pending',m=>m.cases[0].failureStage='review',m=>m.cases[0].errorCode='report_ai_review_rejected',
+    m=>m.cases[0].usageUnknown=true,m=>m.cases[0].review.errorCode='report_ai_review_unavailable',m=>m.cases[0].review.usageUnknown=true,
+    m=>m.cases[0].semanticReviewFlags='not-an-array',m=>m.cases[0].semanticReviewFlags=['flag without matching status'],
+    m=>m.manifest.outputTokens++,m=>m.manifest.review.maxInputTokens++,m=>m.manifest.review.maxOutputTokens++,
+    m=>m.manifest.review.effort='low',m=>m.manifest.review.timeoutMs++,
+    m=>m.cases[0].inputReservation++,m=>m.manifest.cases[0].inputReservation++,m=>m.cases[0].review.inputReservation++,
+    m=>m.cases[0].metadata.inputTokens=m.cases[0].inputReservation+1,
+    m=>m.cases[0].metadata.outputTokens=REPORT_AI_DEFAULT_OUTPUT_TOKENS+1,
+    m=>m.cases[0].review.metadata.inputTokens=m.cases[0].review.inputReservation+1,
+    m=>m.cases[0].review.metadata.outputTokens=REPORT_AI_REVIEW_MAX_OUTPUT_TOKENS+1,
+  ];
+  for(const change of reviewedMutations){
+    const mutated=structuredClone(fixture);change(mutated);mutated.manifestSha256=evidenceDigest(mutated.manifest);
+    assert.throws(()=>acceptedPresentationCases(mutated,version),'changed reviewed selection, scope or request metadata must reject');reviewedTamperChecks++;
+  }
+  // Correction receipts are display evidence only for that distinct request.
+  // Never relabel an initial draft or accept an unbound mode/flag combination.
+  for(const mode of ['presentation-correction','quantity-correction']){
+    const corrected=structuredClone(fixture);corrected.cases=corrected.cases.slice(0,1);
+    corrected.promptMode=corrected.manifest.promptMode=corrected.cases[0].promptMode=mode;
+    corrected.presentationRetry=mode==='presentation-correction';corrected.quantityRetry=mode==='quantity-correction';
+    const correctedPrompt=currentContract.buildReportAIPrompt(packet,{presentationRetry:corrected.presentationRetry,quantityRetry:corrected.quantityRetry,quantityCatalog,factualCatalog});
+    const hash=evidenceDigest(correctedPrompt);
+    assert.notEqual(hash,fixture.cases[0].promptSha256);
+    corrected.cases[0].promptSha256=corrected.manifest.cases[0].promptSha256=hash;
+    corrected.cases[0].inputReservation=corrected.manifest.cases[0].inputReservation=estimateReportAIInputTokens(correctedPrompt);
+    corrected.manifestSha256=evidenceDigest(corrected.manifest);
+    assert.equal(acceptedPresentationCases(corrected,version).length,1);
+    for(const change of [m=>m.presentationRetry=!m.presentationRetry,m=>m.quantityRetry=!m.quantityRetry,m=>m.cases[0].promptMode='initial',m=>m.cases[0].promptSha256=fixture.cases[0].promptSha256,m=>m.manifest.cases[0].promptSha256=fixture.cases[0].promptSha256,m=>m.cases.push({id:'extra-rejected',status:'rejected'}),m=>m.manifest.cases.push({...m.manifest.cases[0],id:'extra'})]){
+      const invalid=structuredClone(corrected);change(invalid);invalid.manifestSha256=evidenceDigest(invalid.manifest);
+      assert.throws(()=>acceptedPresentationCases(invalid,version));
+    }
+  }
   for(const change of [m=>m.syntheticOnly=false,m=>m.mode='dry',m=>m.model='other',m=>delete m.finishedAt,m=>m.cases[0].metadata.stopReason='max_tokens',m=>m.cases[0].status='rejected',m=>m.cases[0].interpretation.summary='changed',m=>m.cases[0].packet.facts[0].value=71,m=>m.cases[0].metadata.thinking='secret',m=>m.cases[0].id='../escape']){
     const mutated=structuredClone(fixture);change(mutated);assert.throws(()=>acceptedPresentationCases(mutated,version));
   }
   assert.throws(()=>acceptedPresentationCases(fixture,''));
+  assert.throws(()=>acceptedPresentationCases(fixture,'report-interpretation-opus5-20260908.7'),/current_prompt_version_required/);
+  const unsafeReview=structuredClone(fixture);unsafeReview.cases[0].review.metadata.thinking='MUST_NOT_RENDER';
+  assert.throws(()=>acceptedPresentationCases(unsafeReview,version),/unexpected_review_metadata_fields/);
+  const badManifest=structuredClone(fixture);badManifest.manifestSha256='f'.repeat(64);
+  assert.throws(()=>acceptedPresentationCases(badManifest,version),/manifest_digest_mismatch/);
+  for(const change of [m=>m.manifest.sourceDigests['report-ai-interpretation-contract.js']='stale',m=>m.manifest.cases[0].packetSha256='a'.repeat(64),m=>m.cases[0].id='not-in-manifest',m=>m.manifest.cases.push(structuredClone(m.manifest.cases[0])),m=>m.manifest.cases[0].kind='synthesis',m=>m.manifest.cases[0].promptSha256='b'.repeat(64),m=>m.cases[0].promptSha256='c'.repeat(64)]){
+    const mutated=structuredClone(fixture);change(mutated);mutated.manifestSha256=evidenceDigest(mutated.manifest);
+    assert.throws(()=>acceptedPresentationCases(mutated,version));
+  }
+  for(const change of [m=>m.semanticReview=false,m=>m.manifest.semanticReview=false,m=>m.releaseCertificationEligible=false,m=>m.manifest.sourceDigests['report-ai-review.js']='changed',m=>m.cases[0].review.status='rejected',m=>m.cases[0].review.verdict='reject',m=>m.cases[0].review.findings=[{code:'uncertain',paths:['/summary']}],m=>m.cases[0].review.draftHash='a'.repeat(64),m=>m.cases[0].review.snapshotId='b'.repeat(64),m=>m.cases[0].review.metadata.stopReason='max_tokens']){
+    const mutated=structuredClone(fixture);change(mutated);assert.throws(()=>acceptedPresentationCases(mutated,version));
+  }
+  const historical=structuredClone(fixture);delete historical.manifest;delete historical.semanticReview;delete historical.cases[0].review;
+  for(const change of [m=>m.manifest.schemaVersion='synthetic-report-ai-evaluation-3',m=>m.manifest.compositionVersion='old',m=>m.manifest.quantityVersion='old',m=>m.manifest.quantityProsePolicyVersion='old',m=>m.manifest.draftHashMeaning='wire',m=>m.manifest.cases[0].catalogSha256='a'.repeat(64),m=>m.manifest.sourceDigests['report-ai-composition.js']='a'.repeat(64),m=>m.manifest.sourceDigests['report-ai-evidence-encoding.js']='a'.repeat(64),m=>m.cases[0].wireHash='a'.repeat(64),m=>m.cases[0].draftHash=m.cases[0].wireHash,m=>m.cases[0].review.draftHash=m.cases[0].wireHash,m=>m.cases[0].composition.catalogHash='a'.repeat(64),m=>m.cases[0].syntheticOriginalInterpretation.observations[1].text='{{Q1}} conflicting answers',m=>m.cases[0].syntheticDraftInterpretation.summary='changed',m=>m.cases[0].review.promptSha256='a'.repeat(64)]){
+    const mutated=structuredClone(fixture);change(mutated);mutated.manifestSha256=evidenceDigest(mutated.manifest);
+    assert.throws(()=>acceptedPresentationCases(mutated,version));
+  }
+  historical.cases[0].contractInterpretation={summary:'This is an explicitly historical offline fixture.',observations:[{text:'The result band is {{F4}}.',evidence_ids:['F4']}],hypotheses:[],recommendations:[],limitations:[]};
+  historical.cases[0].interpretation=walk(historical.cases[0].contractInterpretation,packet);
+  assert.throws(()=>acceptedPresentationCases(historical,version));
+  assert.equal(acceptedPresentationCases(historical,version,currentContract,{allowHistoricalDrafts:true}).length,1,'explicitly selected historical artifacts remain available for display-only review');
   const metadata='Interpretation version: example. Prepared: today. Evidence reference: abc123.';
   for(const last of [metadata,' \n'+metadata+'\n ', 'Evidence reference: abc123.'])assert.throws(()=>assertPDFMetadataAccompanied(['Earlier report content.',last],metadata),/pdf_orphaned_metadata/);
   assertPDFMetadataAccompanied(['Earlier report content.','A reviewed practice source offers guidance rather than a numerical peer benchmark.\n'+metadata],metadata);
-  console.log('PASS actual-report presentation input self-test: accepted synthetic live cases only; exact saved text, immutable evidence, safe metadata, no rejected/private-text rendering. No browser, PDF or network calls.');
+  console.log(JSON.stringify({passed:true,scope:'Receipt admission only; no browser, PDF, network or model calls.',schema:'synthetic-report-ai-evaluation-6',sourcePins:23,reviewedTamperChecks,historicalDisplayOnlyPreserved:true,exactHypothesisActionTextPreserved:true,existingTamperChecksPreserved:true}));
 }
 
 function tool(name,args){
@@ -98,7 +324,7 @@ async function main(){
   if(args.includes('--self-test'))return selfTest();
   const inputPath=arg('--input'),promptVersion=arg('--prompt-version');
   assert.ok(inputPath,'input_file_required');
-  const stat=fs.statSync(inputPath);assert.ok(stat.isFile()&&stat.size<=16*1024*1024,'invalid_input_file');
+  const stat=fs.statSync(inputPath);assert.ok(stat.isFile()&&stat.size<=64*1024*1024,'invalid_input_file');
   const raw=fs.readFileSync(inputPath,'utf8'),matrix=JSON.parse(raw);
   let contract=currentContract;
   const historicalModule=arg('--validation-module');
@@ -112,7 +338,7 @@ async function main(){
   }
   const validation={path:validatorPath,sha256:validatorSha256,promptVersion:contract.REPORT_AI_PROMPT_VERSION,
     historical:Boolean(historicalModule),scope:historicalModule?'Historical contract for rendering unchanged actual text only; not current quality approval.':'Current contract.'};
-  const cases=acceptedPresentationCases(matrix,promptVersion,contract);
+  const cases=acceptedPresentationCases(matrix,promptVersion,contract,{allowHistoricalDrafts:Boolean(historicalModule)});
   if(args.includes('--dry-run')){console.log(JSON.stringify({acceptedCases:cases.map(c=>c.id),excludedCases:matrix.cases.length-cases.length,pdfCount:cases.length,renderCount:cases.length*3,inputSha256:digest(raw)}));return;}
   for(const name of ['pdfinfo','pdftoppm'])tool(name,['-v']);
   // PDF extraction uses pypdf from the configured Python runtime. This avoids

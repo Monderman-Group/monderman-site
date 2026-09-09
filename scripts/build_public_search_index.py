@@ -3,14 +3,32 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import re
+import sys
 from html.parser import HTMLParser
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "public-search-index.json"
+
+# These superseded statements materially misdescribe the current AI and
+# customer-data boundaries. The browser search surface must never revive them
+# after the public pages have been corrected.
+FORBIDDEN_DISCLOSURE_PHRASES = (
+    "Automated systems may help phrase questions, code free text into existing options, and explain a completed result.",
+    "In Interview mode, AI may phrase a question or code a free-text reply into an existing answer option.",
+    "Monderman may send the content needed for Diagnostic written interpretation, interview-mode coding, optional experiential-text refinement, the public assistant, and the Workspace assistant to Anthropic's commercial API.",
+    "Monderman may create and use aggregated statistics and de-identified information derived from service operation and Customer content",
+)
+
+REQUIRED_DISCLOSURE_PHRASES = (
+    "interview mode is not available",
+    "Automated validation is not expert review",
+    "Customer content is for that Customer, not a shared training or benchmark resource.",
+)
 
 PAGES = {
     "index.html": "Overview",
@@ -89,7 +107,7 @@ class PublicCopyParser(HTMLParser):
         attrs_dict = dict(attrs)
         classes = set((attrs_dict.get("class") or "").split())
         inline_hidden = "display:none" in (attrs_dict.get("style") or "").replace(" ", "").lower()
-        if self.skip_depth or tag in self.SKIP or "hidden" in attrs_dict or attrs_dict.get("aria-hidden") == "true" or inline_hidden or classes.intersection({"differentiators-compact", "visually-hidden"}):
+        if self.skip_depth or tag in self.SKIP or "hidden" in attrs_dict or attrs_dict.get("aria-hidden") == "true" or inline_hidden or classes.intersection({"differentiators-compact", "visually-hidden", "latest-card-title--print"}):
             self.skip_depth += 1
             return
         if tag == "main":
@@ -144,5 +162,58 @@ def build() -> list[dict[str, str]]:
     return records
 
 
+def serialize(records: list[dict[str, str]]) -> str:
+    return json.dumps(records, ensure_ascii=False, separators=(",", ":")) + "\n"
+
+
+def validate_disclosures(encoded: str) -> None:
+    for phrase in FORBIDDEN_DISCLOSURE_PHRASES:
+        if phrase in encoded:
+            raise ValueError(f"public search contains superseded disclosure: {phrase}")
+    for phrase in REQUIRED_DISCLOSURE_PHRASES:
+        if phrase not in encoded:
+            raise ValueError(f"public search is missing current disclosure: {phrase}")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="fail unless the committed index exactly matches current public HTML",
+    )
+    args = parser.parse_args()
+
+    expected = serialize(build())
+    try:
+        validate_disclosures(expected)
+    except ValueError as error:
+        print(error, file=sys.stderr)
+        return 1
+
+    if args.check:
+        try:
+            actual = OUTPUT.read_text(encoding="utf-8")
+        except FileNotFoundError:
+            print(f"public search index is missing: {OUTPUT}", file=sys.stderr)
+            return 1
+        if actual != expected:
+            print(
+                "public-search-index.json is stale; run "
+                "python3 scripts/build_public_search_index.py",
+                file=sys.stderr,
+            )
+            return 1
+        try:
+            validate_disclosures(actual)
+        except ValueError as error:
+            print(error, file=sys.stderr)
+            return 1
+        return 0
+
+    OUTPUT.write_text(expected, encoding="utf-8")
+    return 0
+
+
 if __name__ == "__main__":
-    OUTPUT.write_text(json.dumps(build(), ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
+    raise SystemExit(main())

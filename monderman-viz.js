@@ -19,7 +19,7 @@
  * API (each takes a container element or id, plus a data object):
  *   MViz.severityDots(el, { rows:[{label,value}], thresholds })
  *   MViz.shareBar(el, { segments:[{label,pct}] })
- *   MViz.priorityPath(el, { steps:[{label,severity}] })
+ *   MViz.priorityPath(el, { steps:[{label,severity,priority?}], suppliedPriorities? })
  *   MViz.effortFlow(el, { totalCost, structuralCost, reclaimCost, dims, note })
  */
 (function (global) {
@@ -86,6 +86,32 @@
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
   function fmt(n) { return Number(n).toLocaleString("en-US"); }
 
+  // SC's wide SVGs remain available for desktop/print. At phone widths, use
+  // the same values as readable rows rather than shrinking their labels.
+  function compactRows(svg, rows, label) {
+    if (!svg || !svg.parentElement) return;
+    if (!document.getElementById("mvg-compact-style")) {
+      const style = document.createElement("style");
+      style.id = "mvg-compact-style";
+      style.textContent = ".mvg-compact{display:none}@media screen and (max-width:600px){.mvg-responsive>svg{display:none!important}.mvg-responsive>.mvg-compact{display:grid;gap:12px;font-size:14px;line-height:1.5}.mvg-compact-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:start;padding-bottom:12px;border-bottom:1px solid rgba(24,25,28,.1)}.mvg-compact-row>span{overflow-wrap:anywhere}.mvg-compact-row>strong{text-align:right;max-width:10ch;overflow-wrap:anywhere}}";
+      document.head.appendChild(style);
+    }
+    const host = svg.parentElement;
+    host.classList.add("mvg-responsive");
+    const list = document.createElement("div");
+    list.className = "mvg-compact";
+    list.setAttribute("role", "list");
+    list.setAttribute("aria-label", label);
+    rows.forEach(row => {
+      const item = document.createElement("div"), name = document.createElement("span"), value = document.createElement("strong");
+      item.className = "mvg-compact-row";
+      item.setAttribute("role", "listitem");
+      name.textContent = row.label; value.textContent = row.value;
+      item.appendChild(name); item.appendChild(value); list.appendChild(item);
+    });
+    host.appendChild(list);
+  }
+
   /* ════════════════════════════════════════════════════════════════════
    * 1. severityDots: ranked dot plot replacing the donut.
    *    Each burden dimension as a dot on a 0–100 severity axis, with
@@ -94,10 +120,11 @@
    *    ABSOLUTE severity: pair with shareBar, which shows SHARE.
    * ════════════════════════════════════════════════════════════════════ */
   function severityDots(el, data) {
+    const difficultyIndicators = data && data.difficultyIndicators === true;
     const rows = ((data && data.rows) || [])
       .map((r) => ({ label: String(r.label || ""), value: num(r.value) }))
       .filter((r) => r.value !== null)
-      .sort((a, b) => b.value - a.value);
+      .sort((a, b) => difficultyIndicators ? 0 : b.value - a.value);
     if (!rows.length) return;
     const th = (data && data.thresholds) || { strained: 35, severe: 55 };
 
@@ -107,7 +134,7 @@
     const axW = W - L - R;
     const X = (v) => L + (clamp(v, 0, 100) / 100) * axW;
 
-    const svg = mount(el, W, H, "Burden severity by dimension");
+    const svg = mount(el, W, H, difficultyIndicators ? "Reported difficulty by dimension" : "Burden severity by dimension");
     if (!svg) return;
 
     /* zones */
@@ -115,9 +142,9 @@
     S("rect", { x: X(0), y: zoneTop, width: X(th.strained) - X(0), height: zoneH, fill: T.zoneHealthy }, svg);
     S("rect", { x: X(th.strained), y: zoneTop, width: X(th.severe) - X(th.strained), height: zoneH, fill: T.zoneStrained }, svg);
     S("rect", { x: X(th.severe), y: zoneTop, width: X(100) - X(th.severe), height: zoneH, fill: T.zoneSevere }, svg);
-    txt(svg, X(th.strained / 2), zoneTop - 6, "CONTAINED", { anchor: "middle", fill: T.success, spacing: ".09em", size: "10px" });
-    txt(svg, X((th.strained + th.severe) / 2), zoneTop - 6, "STRAINED", { anchor: "middle", fill: T.warning, spacing: ".09em", size: "10px" });
-    txt(svg, X((th.severe + 100) / 2), zoneTop - 6, "SEVERE", { anchor: "middle", fill: T.danger, spacing: ".09em", size: "10px" });
+    txt(svg, X(th.strained / 2), zoneTop - 6, difficultyIndicators ? "LOWER" : "CONTAINED", { anchor: "middle", fill: T.success, spacing: ".09em", size: "10px" });
+    txt(svg, X((th.strained + th.severe) / 2), zoneTop - 6, difficultyIndicators ? "MODERATE" : "STRAINED", { anchor: "middle", fill: T.warning, spacing: ".09em", size: "10px" });
+    txt(svg, X((th.severe + 100) / 2), zoneTop - 6, difficultyIndicators ? "HIGHER" : "SEVERE", { anchor: "middle", fill: T.danger, spacing: ".09em", size: "10px" });
 
     /* gridlines */
     [0, 25, 50, 75, 100].forEach((v) => {
@@ -134,6 +161,7 @@
       S("circle", { cx: X(r.value), cy, r: dominant ? 6.5 : 5, fill: dotColor, stroke: "#fff", "stroke-width": 1 }, svg);
       txt(svg, clamp(X(r.value) + 12, L, W - R - 8), cy + 4, String(Math.round(r.value)), { fill: T.ink, size: T.fontValue, weight: dominant ? 700 : 500 });
     });
+    if (difficultyIndicators) compactRows(svg, rows.map(r => ({label:r.label,value:String(Math.round(r.value))})), "Reported difficulty indicators, higher means more difficulty");
   }
 
   /* ════════════════════════════════════════════════════════════════════
@@ -144,16 +172,17 @@
    *    visible instead of confusable.
    * ════════════════════════════════════════════════════════════════════ */
   function shareBar(el, data) {
+    const difficultyIndicators = data && data.difficultyIndicators === true;
     const segs = ((data && data.segments) || [])
       .map((s) => ({ label: String(s.label || ""), pct: num(s.pct) }))
       .filter((s) => s.pct !== null && s.pct > 0)
-      .sort((a, b) => b.pct - a.pct);
+      .sort((a, b) => difficultyIndicators ? 0 : b.pct - a.pct);
     if (!segs.length) return;
 
     const W = 640, barH = 26, legendRowH = 24;
     const legendRows = segs.length;
     const H = 16 + barH + 18 + legendRows * legendRowH + 6;
-    const svg = mount(el, W, H, "Burden composition: share of total");
+    const svg = mount(el, W, H, difficultyIndicators ? "Difficulty indicator distribution" : "Burden composition: share of total");
     if (!svg) return;
 
     const palette = [T.accentDark, T.accent, "#3E8A92", "#7FB0B6", "#B5D0D3", "#DCE8E9"];
@@ -170,8 +199,9 @@
       const ly = 16 + barH + 18 + i * legendRowH + 8;
       S("rect", { x: 0, y: ly - 9, width: 11, height: 11, rx: 2.5, fill: palette[i % palette.length] }, svg);
       txt(svg, 18, ly, g.label, { fill: i === 0 ? T.ink : T.inkSoft, size: T.fontLabel, weight: i === 0 ? 700 : 400 });
-      txt(svg, W, ly, Math.round(g.pct) + "% of total burden", { anchor: "end", fill: T.muted, size: T.fontAxis });
+      txt(svg, W, ly, Math.round(g.pct) + (difficultyIndicators ? "% of combined difficulty indicators" : "% of total burden"), { anchor: "end", fill: T.muted, size: T.fontAxis });
     });
+    if (difficultyIndicators) compactRows(svg, segs.map(g => ({label:g.label,value:Math.round(g.pct)+"%"})), "Share of combined difficulty indicators, not hours or cost");
   }
 
   /* ════════════════════════════════════════════════════════════════════
@@ -184,9 +214,11 @@
       .slice(0, 3);
     if (!steps.length) return;
     const titles = ["FIX NOW", "FIX NEXT", "MONITOR"];
+    const suppliedPriorities = data && data.suppliedPriorities === true;
+    const allowedPriorities = { "Fix now": "FIX NOW", "Fix next": "FIX NEXT", "Monitor": "MONITOR" };
 
     const W = 640, colW = W / steps.length, H = 118;
-    const svg = mount(el, W, H, "Intervention order");
+    const svg = mount(el, W, H, suppliedPriorities ? "Suggested review order" : "Intervention order");
     if (!svg) return;
 
     steps.forEach((s, i) => {
@@ -199,7 +231,10 @@
       /* number badge */
       S("circle", { cx: cx + 14, cy: 18, r: 12, fill: i === 0 ? T.accentDark : "rgba(12,110,120,.14)" }, svg);
       txt(svg, cx + 14, 22.5, String(i + 1), { anchor: "middle", fill: i === 0 ? "#fff" : T.accentDark, size: "12px", weight: 700 });
-      txt(svg, cx + 34, 14, titles[i] || "", { fill: T.muted, size: "10px", spacing: ".11em" });
+      const title = suppliedPriorities
+        ? (Object.prototype.hasOwnProperty.call(allowedPriorities, s.priority) ? allowedPriorities[s.priority] : "PRIORITY " + (i + 1))
+        : titles[i];
+      txt(svg, cx + 34, 14, title || "", { fill: T.muted, size: "10px", spacing: ".11em" });
       /* label: wrap to two lines max */
       const words = String(s.label).split(" ");
       let line1 = "", line2 = "";
@@ -210,15 +245,19 @@
       txt(svg, cx + 34, 34, line1, { fill: T.ink, size: "13.5px", weight: i === 0 ? 700 : 500 });
       if (line2) txt(svg, cx + 34, 52, line2, { fill: T.ink, size: "13.5px", weight: i === 0 ? 700 : 500 });
       /* severity chip */
-      const sev = num(s.severity);
+      const sev = s.severity == null ? null : num(s.severity);
       if (sev !== null) {
         const chipY = line2 ? 64 : 48;
         const chipColor = sev >= 55 ? T.danger : sev >= 35 ? T.warning : T.success;
-        S("rect", { x: cx + 34, y: chipY, width: 86, height: 20, rx: 3, fill: "rgba(24,25,28,.04)" }, svg);
+        S("rect", { x: cx + 34, y: chipY, width: suppliedPriorities ? 94 : 86, height: 20, rx: 3, fill: "rgba(24,25,28,.04)" }, svg);
         S("circle", { cx: cx + 45, cy: chipY + 10, r: 4, fill: chipColor }, svg);
-        txt(svg, cx + 54, chipY + 14, "severity " + Math.round(sev), { fill: T.inkSoft, size: "11px" });
+        txt(svg, cx + 54, chipY + 14, (suppliedPriorities ? "difficulty " : "severity ") + Math.round(sev), { fill: T.inkSoft, size: "11px" });
       }
     });
+    if (suppliedPriorities) compactRows(svg, steps.map((s,i) => ({
+      label: (i+1) + ". " + (Object.prototype.hasOwnProperty.call(allowedPriorities,s.priority) ? s.priority : "Priority") + ": " + s.label,
+      value: s.severity == null || num(s.severity) === null ? "Unavailable" : "Difficulty " + Math.round(num(s.severity))
+    })), "Suggested review order");
   }
 
   /* ════════════════════════════════════════════════════════════════════
@@ -262,6 +301,7 @@
   }
   function effortFlow(el, data) {
     const d = data || {};
+    const scenarioLabels = d.scenarioLabels === true;
     const totalCost = num(d.totalCost);
     if (totalCost === null || totalCost <= 0) return;
     const productiveCost = Math.max(0, num(d.productiveCost) || 0);
@@ -280,7 +320,7 @@
     if (dims.length > 4) {
       const rest = dims.slice(4).reduce((s, x) => s + x.cost, 0);
       dims = dims.slice(0, 4);
-      if (rest > 0) dims.push({ label: "Other burden", cost: rest });
+      if (rest > 0) dims.push({ label: scenarioLabels ? "Other modeled amount" : "Other burden", cost: rest });
     }
 
     /* geometry */
@@ -293,13 +333,13 @@
     const C_PROD = T.accent, C_STRUCT = T.muted, C_RECLAIM = T.danger;
     const bDefs = hasSplit
       ? [
-          { key: "prod",    label: "Productive effort",   cost: productiveCost, hours: d.productiveHours, color: C_PROD },
-          { key: "struct",  label: "Structural overhead", cost: structuralCost, hours: null,              color: C_STRUCT, sub: "proportionate to operating in this sector" },
-          { key: "reclaim", label: "Recoverable burden",  cost: reclaimCost,    hours: null,              color: C_RECLAIM, sub: "excess drag: the reclaim opportunity" }
+          { key: "prod",    label: scenarioLabels ? "Remaining capacity" : "Productive effort", cost: productiveCost, hours: d.productiveHours, color: C_PROD },
+          { key: "struct",  label: scenarioLabels ? "Modeled overhead" : "Structural overhead", cost: structuralCost, hours: null, color: C_STRUCT, sub: scenarioLabels ? "scenario allocation" : "proportionate to operating in this sector" },
+          { key: "reclaim", label: scenarioLabels ? "Modeled reduction" : "Recoverable burden", cost: reclaimCost, hours: null, color: C_RECLAIM, sub: scenarioLabels ? "not observed savings" : "excess drag: the reclaim opportunity" }
         ]
       : [
-          { key: "prod",  label: "Productive effort",   cost: productiveCost, hours: d.productiveHours, color: C_PROD },
-          { key: "admin", label: "Administrative load", cost: adminCost,      hours: null,              color: C_RECLAIM }
+          { key: "prod",  label: scenarioLabels ? "Remaining capacity" : "Productive effort", cost: productiveCost, hours: d.productiveHours, color: C_PROD },
+          { key: "admin", label: scenarioLabels ? "Modeled overhead" : "Administrative load", cost: adminCost, hours: null, color: C_RECLAIM }
         ];
     let yCursor = top;
     bDefs.forEach((n) => { n.h = hOf(n.cost); n.y = yCursor; yCursor += n.h + gapB; });
@@ -323,7 +363,7 @@
     const noteLines = d.note ? Math.min(3, Math.ceil(String(d.note).length / 116)) : 0;
     const H = Math.max(top + plotH + 46, Math.ceil(lastLy + 14 + 22)) + Math.max(0, noteLines - 1) * 13;
 
-    const svg = mount(el, W, H, "Where annual labor capacity goes");
+    const svg = mount(el, W, H, scenarioLabels ? "Modeled annual capacity scenario" : "Where annual labor capacity goes");
     if (!svg) return;
     S("defs", {}, svg);
     const leafTints = ["rgba(176,57,47,.90)", "rgba(176,57,47,.70)", "rgba(176,57,47,.54)", "rgba(176,57,47,.40)", "rgba(176,57,47,.28)"];
@@ -377,6 +417,11 @@
       if (line.trim()) lines.push(line.trim());
       lines.slice(0, 3).forEach((l, i) => txt(svg, 2, H - 8 - (Math.min(lines.length, 3) - 1 - i) * 13, l, { fill: T.muted, size: "10px" }));
     }
+    if (scenarioLabels) compactRows(svg, [
+      {label:"Stated annual capacity",value:fmtMoney(totalCost)},
+      ...bDefs.map(n => ({label:n.label,value:fmtMoney(n.cost)})),
+      ...dims.map(x => ({label:"Modeled share: " + x.label,value:fmtMoney(x.cost)}))
+    ], "Modeled annual capacity scenario, not observed savings");
   }
 
   /* ── export ────────────────────────────────────────────────────────── */

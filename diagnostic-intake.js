@@ -80,6 +80,28 @@
   window.MondermanIntake = {enhanceFields};
   function boot() {
     if (!document.body.classList.contains('diagnostic-instrument')) return;
+    const stageLabel = document.querySelector('.hero-step span:last-child');
+    if (stageLabel) {
+      // Presentation only: follow the existing active stage without changing
+      // its routing, answers, saved-report recovery or admission state.
+      const labels = {
+        laneStage: 'Step 1 of 3 · choose your role and diagnostic length',
+        depthStage: 'Step 1 of 3 · choose your role and diagnostic length',
+        introStage: 'Step 1 of 3 · before you begin',
+        questionStage: 'Step 2 of 3 · answer the questions',
+        processingStage: 'Preparing your result',
+        resultsStage: 'Step 3 of 3 · your result',
+        exhaustedStage: 'Available runs',
+      };
+      const syncStageLabel = () => {
+        const active = document.querySelector('.stage.active');
+        if (active && labels[active.id]) stageLabel.textContent = labels[active.id];
+      };
+      const observer = new MutationObserver(syncStageLabel);
+      document.querySelectorAll('.stage').forEach(stage => observer.observe(stage, {attributes:true,attributeFilter:['class']}));
+      syncStageLabel();
+      window.addEventListener('pagehide', () => observer.disconnect(), {once:true});
+    }
     if (typeof PRESTART_FIELDS !== 'undefined') enhanceFields(document.getElementById('preflightContextMount'), PRESTART_FIELDS);
     const environment = document.querySelector('.environment-inner');
     if (!environment || environment.querySelector('.diagnostic-support')) return;

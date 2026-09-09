@@ -5,7 +5,34 @@ import re
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TERMS_VERSION = "2026-09-08-beta"
+TERMS_VERSION = "2026-09-09-beta"
+# Accepted historical editions are immutable, even if someone edits the manifest.
+HISTORICAL_DOCUMENTS = {
+    "2026-08-20-beta": {
+        "terms_file": "terms-2026-08-20-beta.html",
+        "terms_file_sha256": "7d7ed07a7904e897f624a3edb73ec5eb322ac5c49523655fa4e11840a2bfae68",
+        "privacy_notice_file": "privacy-2026-08-20-beta.html",
+        "privacy_notice_file_sha256": "80f313b0e486ec855993ed10a4a57a15c452e9c65ce7e308eddce65754004066"
+    },
+    "2026-08-24-beta": {
+        "terms_file": "terms-2026-08-24-beta.html",
+        "terms_file_sha256": "756e909580be2d10477f2318689f5d99c39f19a53e5231b4d865a676d0750135",
+        "privacy_notice_file": "privacy-2026-08-24-beta.html",
+        "privacy_notice_file_sha256": "fe905ab7fa7aa214d71a5c266ba4e2a09eada459ee9a93c75de8d8f5a9d355f9"
+    },
+    "2026-08-26-beta": {
+        "terms_file": "terms-2026-08-26-beta.html",
+        "terms_file_sha256": "e3919457bca412da2b97c21fc5e6d5176b5db9a57523155e3b6cbe90bb8c9512",
+        "privacy_notice_file": "privacy-2026-08-26-beta.html",
+        "privacy_notice_file_sha256": "1b6f44df91d4b9e74ca964a624291790c3ed649fd24e746021661cd48b493d38"
+    },
+    "2026-09-08-beta": {
+        "terms_file": "terms-2026-09-08-beta.html",
+        "terms_file_sha256": "cfc6a93958590cbe20cf1c8cf4c241027ad6e9f0d9ab4d2de9ebecd01b7f3662",
+        "privacy_notice_file": "privacy-2026-09-08-beta.html",
+        "privacy_notice_file_sha256": "65e8da04c5dabee9800afec4732bba0ed278182639ed995c95fa748d69d19b42"
+    }
+}
 ACKNOWLEDGEMENT = (
     "financial, time, capacity, productivity and recovery figures are directional estimates, "
     "not guaranteed outcomes, and that my organization is responsible for its data, decisions, "
@@ -143,8 +170,11 @@ def validate():
             raise AssertionError(f"legal document manifest {key} does not match reviewed content")
 
     document_manifest = manifest.get("documents") or {}
-    if set(document_manifest) != {"2026-08-20-beta", "2026-08-24-beta", "2026-08-26-beta", TERMS_VERSION}:
+    if set(document_manifest) != set(HISTORICAL_DOCUMENTS) | {TERMS_VERSION}:
         raise AssertionError("legal document manifest must retain every prior and current beta version")
+    for version, files in HISTORICAL_DOCUMENTS.items():
+        if document_manifest.get(version) != files:
+            raise AssertionError(f"historical legal manifest changed for {version}")
     for version, files in document_manifest.items():
         for file_key, hash_key in [
             ("terms_file", "terms_file_sha256"),
@@ -161,6 +191,60 @@ def validate():
         raise AssertionError("current versioned Terms must exactly match terms.html")
     if (ROOT / document_manifest[TERMS_VERSION]["privacy_notice_file"]).read_text(errors="strict") != privacy:
         raise AssertionError("current versioned Privacy Notice must exactly match privacy.html")
+
+    require(privacy, [
+        "AI-assisted reports use Anthropic's commercial API when enabled",
+        "Synthesis interpretation receives selected aggregate results, not individual written observations.",
+        "only when that separate interpretation feature is enabled",
+        "The public and Workspace assistants currently use rule-based replies",
+        "without a model-provider call",
+        "Interview mode is not currently available.",
+        "This is not a zero-retention arrangement.",
+        "Standard API content can remain with Anthropic for up to 30 days",
+        "subject to its stated safety, legal and contractual exceptions",
+        "No-training and no-retention are different commitments."
+    ], "current AI processing and retention boundaries")
+    require(terms, [
+        "AI-assisted Diagnostic and Synthesis interpretation uses third-party language models when enabled.",
+        "Automated validation is not expert review.",
+        "The Customer must review it before relying on or sharing it",
+        "no-training does not mean zero retention."
+    ], "AI review responsibility")
+    if "including intellectual property, aggregated and de-identified information" in terms:
+        raise AssertionError("removed aggregated-content permission must not survive termination")
+    security = (ROOT / "security.html").read_text(errors="strict")
+    require(security, [
+        "When AI-assisted reporting is enabled",
+        "The interpretation does not change the saved score.",
+        "Automated checks and AI review do not replace the customer's judgment",
+        "Claude selects and prioritizes reviewed explanations and proposed next steps",
+        "Claude does not freely write new recommendations or calculate scores.",
+        "This is not a zero-retention arrangement.",
+        "row-level security and server-side authorization"
+    ], "conditional AI and layered access controls")
+    if "All public Postgres tables currently have row-level security enabled" in security:
+        raise AssertionError("unverified universal live RLS claim must not return")
+    subprocessors = (ROOT / "subprocessors.html").read_text(errors="strict")
+    require(subprocessors, [
+        "Selection, prioritization and review of evidence-matched Diagnostic and Synthesis report material when enabled",
+        "Anthropic does not calculate scores.",
+        "selected aggregate results for Synthesis",
+        "written observations only when separately enabled",
+        "Standard API retention is not zero"
+    ], "Anthropic purpose and retention disclosure")
+    if "enabled assistant functions" in subprocessors:
+        raise AssertionError("rule-based assistants must not be listed as Anthropic processing")
+    capability_pages = [
+        "index.html", "deterministic-ai-infrastructure.html", "platform-services.html",
+        "roi.html", "plan-signal.html", "why-monderman.html", "Monderman_Platform_Brief.html"
+    ]
+    for name in capability_pages:
+        text = (ROOT / name).read_text(errors="strict")
+        require(text, ["When enabled", "interpretation", "review"], f"conditional AI on {name}")
+        if not re.search(r"[Ii]nterview mode is not (?:currently )?available", text):
+            raise AssertionError(f"{name} must state the current interview boundary")
+    if "precise narrative inside locked computed facts" in (ROOT / "roi.html").read_text(errors="strict"):
+        raise AssertionError("selected evidence must not be described as a guarantee of precise AI prose")
 
     require(checkout, [
         '<script src="workspace-access-gate.js"></script>',

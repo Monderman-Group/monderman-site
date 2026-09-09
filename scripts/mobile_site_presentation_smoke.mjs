@@ -22,12 +22,12 @@ const canonicalPages = pages.filter((name) => {
 const footerPages = pages.filter((name) => canonicalPages.includes(name) || /\bmond-footer\b/.test(sourceByPage.get(name)));
 const shellFreePages = pages.filter((name) => !canonicalPages.includes(name) && !footerPages.includes(name));
 
-// September 8 adds the immutable Terms and Privacy editions. Keep both in the
-// full viewport sweep rather than excluding archived legal pages from coverage.
-assert.equal(pages.length, 72, 'rendered root-page inventory changed unexpectedly');
-assert.equal(canonicalPages.length, 54, 'canonical header + footer inventory changed unexpectedly');
-assert.equal(footerPages.length, 58, 'footer inventory changed unexpectedly');
-for (const legalEdition of ['terms-2026-09-08-beta.html', 'privacy-2026-09-08-beta.html']) {
+// September 9 adds a second immutable Terms and Privacy edition. Keep all four
+// in the full viewport sweep; archived legal pages are not excluded from coverage.
+assert.equal(pages.length, 74, 'rendered root-page inventory changed unexpectedly');
+assert.equal(canonicalPages.length, 56, 'canonical header + footer inventory changed unexpectedly');
+assert.equal(footerPages.length, 60, 'footer inventory changed unexpectedly');
+for (const legalEdition of ['terms-2026-09-08-beta.html', 'privacy-2026-09-08-beta.html', 'terms-2026-09-09-beta.html', 'privacy-2026-09-09-beta.html']) {
   assert.ok(canonicalPages.includes(legalEdition), `${legalEdition}: archived legal page missing from canonical sweep`);
 }
 assert.equal(shellFreePages.length, 14, 'functional shell-free page inventory changed unexpectedly');
@@ -45,6 +45,13 @@ const headerPattern = /<header\b(?=[^>]*\bid=["']siteHeader["'])[^>]*>[\s\S]*?<\
 const footerPattern = /<footer\b(?=[^>]*\bclass=["'][^"']*\bmond-footer\b[^"']*["'])[^>]*>[\s\S]*?<\/footer>/i;
 const expectedHeader = fs.readFileSync('site-shell/header.html', 'utf8').trim();
 const expectedFooter = fs.readFileSync('site-shell/footer.html', 'utf8').trim();
+const shellRelease = fs.readFileSync('scripts/inject-public-shell.mjs', 'utf8').match(/const shellRelease = "([^"]+)";/)?.[1];
+assert.ok(shellRelease, 'shared asset release key must be explicit');
+for (const pageName of sourceHtmlNames) {
+  const built = fs.readFileSync(path.join(publishDirectory, pageName), 'utf8');
+  const refs = [...built.matchAll(/src=["'](monderman-report\.js(?:\?[^"']*)?)["']/g)];
+  for (const ref of refs) assert.equal(ref[1], `monderman-report.js?v=${shellRelease}`, `${pageName}: report renderer cache identity is stale`);
+}
 for (const pageName of canonicalPages) {
   const built = fs.readFileSync(path.join(publishDirectory, pageName), 'utf8');
   assert.equal(built.match(headerPattern)?.[0], expectedHeader, `${pageName}: built header is not the canonical partial`);
@@ -577,6 +584,17 @@ try {
             failures.push(`${label}: Contact and Assistant are not balanced compact-menu actions (${JSON.stringify(opened)})`);
           }
           if (opened.documentWidth > opened.viewportWidth + 1) failures.push(`${label}: opening the navigation creates horizontal overflow`);
+
+          // Escape belongs to the open search dialog, not its underlying menu.
+          // Closing both left focus on a hidden Search button on compact screens.
+          await page.locator('.site-search-button').click();
+          await page.locator('.site-search-input').focus();
+          await page.keyboard.press('Shift+Tab');
+          if (!await page.locator('.site-search-close').evaluate(node => node === document.activeElement)) failures.push(`${label}: reverse Tab escaped the empty search dialog`);
+          await page.keyboard.press('Tab');
+          if (!await page.locator('.site-search-input').evaluate(node => node === document.activeElement)) failures.push(`${label}: forward Tab escaped the empty search dialog`);
+          await page.keyboard.press('Escape');
+          if (!await page.locator('.site-search-button').evaluate(node => node === document.activeElement && node.getClientRects().length > 0)) failures.push(`${label}: search dismissal did not restore visible trigger focus`);
 
           await page.locator('#siteHeader .nav-parent').first().scrollIntoViewIfNeeded();
           await page.locator('#siteHeader .nav-parent').first().click();

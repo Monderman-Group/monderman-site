@@ -6,6 +6,7 @@ import vm from 'node:vm';
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const base = process.env.SITE_BASE || process.env.REPORT_BASE || 'http://127.0.0.1:8080';
 const out = process.env.REPORT_OUT || '/tmp/report-screen-experience';
+const aiRefreshOnly = process.argv.includes('--ai-refresh-only');
 fs.mkdirSync(out, {recursive:true});
 async function emulateMediaAndSettle(page, media) {
   await page.emulateMedia({media});
@@ -15,10 +16,103 @@ async function emulateMediaAndSettle(page, media) {
   // the exact style assertions below still reject persistent regressions.
   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
 }
+
+async function verifyAIScreenRefresh(browser) {
+  const artifact = JSON.parse(fs.readFileSync('sample-data/production-diagnostic-samples.json','utf8'));
+  const sample = fs.readFileSync('sample-report.html','utf8');
+  const fixtureStart = sample.indexOf('window.MONDERMAN_REPRESENTATIVE_SYNTHESIS_FIXTURES =');
+  const fixtureEnd = sample.indexOf('(function renderRepresentativeSyntheses()',fixtureStart);
+  assert.ok(fixtureStart >= 0 && fixtureEnd > fixtureStart);
+  const fixtureScope = {window:{}};
+  vm.runInNewContext(sample.slice(fixtureStart,fixtureEnd),fixtureScope);
+  const fixtures = Object.entries(artifact.outputs).map(([name,source])=>({name,source,kind:'run'}));
+  fixtures.push(...Object.entries(fixtureScope.window.MONDERMAN_REPRESENTATIVE_SYNTHESIS_FIXTURES).map(([name,source])=>({name,source,kind:'synthesis'})));
+  assert.equal(fixtures.length,6);
+  const lifecycle = await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
+  const errors = [], rows = [];
+  lifecycle.on('pageerror',error=>errors.push(error.message));
+  // Synthetic display data only: never visit a service or a customer account.
+  await lifecycle.route('**/*',route=>route.abort());
+  await lifecycle.setContent('<!doctype html><html><head></head><body><div id="refresh-primary"></div><div id="refresh-peer"></div></body></html>');
+  await lifecycle.addScriptTag({content:fs.readFileSync('monderman-report.js','utf8')});
+  await lifecycle.clock.install({time:new Date('2026-09-09T12:00:00Z')});
+  try {
+    for (const fixture of fixtures) {
+      const initial = await lifecycle.evaluate(fixture=>{
+        const R=MondermanReport,host=document.getElementById('refresh-primary'),peer=document.getElementById('refresh-peer');
+        const base=fixture.kind==='run'?R.fromRun(fixture.source):R.fromSynthesis(fixture.source);
+        const complete={status:'complete',report:{model:'synthetic-display-only',interpretation:{summary:'Synthetic screen refresh fixture.',recommendations:[{action:'CURRENT_AI_ACTION '+fixture.name,reason:'Review the supplied evidence first.',prerequisite:'REQUIRED_CONTEXT '+fixture.name,risk:'REQUIRED_RISK '+fixture.name,success_check:'Check the same bounded work.'}]}}};
+        const pending={status:'pending',message:'Synthetic interpretation pending.',report:{interpretation:{recommendations:[{action:'STALE_AI_ACTION'}]}}};
+        const model={...base,aiReport:structuredClone(pending)},before=JSON.stringify(model);
+        R.render(host,model);R.render(peer,model);
+        const initialAI=host.querySelector('.mr-ai-interpretation'),aiId=initialAI.id;
+        const result={ai_report:structuredClone(pending)};
+        let calls=0;
+        const stop=R.mountAIInterpretation(host,result,async()=>({ai_report:structuredClone(++calls===1?pending:complete)}));
+        const reportPage=host.querySelector('.mr-page'),nav=host.querySelector('.mr-screen-nav'),contents=nav.querySelector('details'),summary=contents.querySelector('summary');
+        contents.open=true;summary.focus({preventScroll:true});
+        const nonAI=Array.from(reportPage.children).filter(node=>!node.matches('.mr-screen-only,.mr-ai-inline'));
+        const bodySnapshot=()=>{const clone=reportPage.cloneNode(true);clone.querySelectorAll('.mr-screen-only,.mr-ai-inline').forEach(node=>node.remove());return clone.innerHTML;};
+        window.screenRefresh={base,model,before,complete,pending,result,stop,host,peer,aiId,nav,contents,summary,reportPage,nonAI,bodySnapshot,bodyBefore:bodySnapshot(),calls:()=>calls,scrollY};
+        const ids=Array.from(document.querySelectorAll('[id]')).map(node=>node.id);
+        return {aiId,liveAttribute:host.querySelector('.mr-ai-interpretation').getAttribute('aria-live'),allSectionsIncludesAI:!!Array.from(nav.querySelectorAll('a')).find(link=>link.getAttribute('href')==='#'+aiId),noStale:!host.textContent.includes('STALE_AI_ACTION'),unique:ids.length===new Set(ids).size,unmutated:JSON.stringify(model)===before,pendingNextStep:host.querySelector('.mr-screen-next p')?.textContent};
+      },fixture);
+      assert.ok(initial.aiId && initial.allSectionsIncludesAI,fixture.name+' pending AI is missing its stable navigation target');
+      assert.equal(initial.liveAttribute,'polite');
+      assert.equal(initial.pendingNextStep,'Review the suggested changes and their evidence before choosing a test.',fixture.name+' must not present a category label as a task');
+      assert.ok(initial.noStale && initial.unique && initial.unmutated,JSON.stringify({name:fixture.name,...initial}));
+      await lifecycle.clock.fastForward(15000);
+      const unchanged = await lifecycle.evaluate(()=>{const x=screenRefresh;return {calls:x.calls(),navSame:x.nav===x.host.querySelector('.mr-screen-nav'),contentsSame:x.contents===x.host.querySelector('.mr-screen-contents'),open:x.contents.open,focus:document.activeElement===x.summary,bodySame:x.bodySnapshot()===x.bodyBefore};});
+      assert.deepEqual(unchanged,{calls:1,navSame:true,contentsSame:true,open:true,focus:true,bodySame:true},fixture.name+' unchanged pending poll replaced controls or report content');
+      await lifecycle.clock.fastForward(15000);
+      const completed = await lifecycle.evaluate(()=>{
+        const x=screenRefresh,host=x.host,nav=host.querySelector('.mr-screen-nav'),action=Array.from(nav.querySelectorAll('.mr-screen-shortcuts a')).find(link=>link.textContent==='Actions');
+        return {calls:x.calls(),aiId:host.querySelector('.mr-ai-inline').id,actionTarget:action?.getAttribute('href'),coverTarget:host.querySelector('.mr-screen-next a')?.getAttribute('href'),coverText:host.querySelector('.mr-screen-next')?.textContent,mainContext:host.querySelector('.mr-ai-interpretation').textContent,peerPending:x.peer.textContent.includes('Synthetic interpretation pending.')&&!x.peer.textContent.includes('CURRENT_AI_ACTION'),pageSame:x.reportPage===host.querySelector('.mr-page'),nodesSame:x.nonAI.every(node=>node.isConnected&&x.reportPage.contains(node)),bodySame:x.bodySnapshot()===x.bodyBefore,unmutated:JSON.stringify(x.model)===x.before,contentsOpen:nav.querySelector('details').open,summaryFocused:document.activeElement===nav.querySelector('summary'),scrollSame:scrollY===x.scrollY};
+      });
+      assert.equal(completed.calls,2);assert.equal(completed.aiId,initial.aiId);
+      assert.equal(completed.actionTarget,'#'+initial.aiId);assert.equal(completed.coverTarget,'#'+initial.aiId);
+      assert.ok(completed.coverText.includes('CURRENT_AI_ACTION '+fixture.name));
+      assert.ok(completed.mainContext.includes('REQUIRED_CONTEXT '+fixture.name)&&completed.mainContext.includes('REQUIRED_RISK '+fixture.name));
+      for(const key of ['peerPending','pageSame','nodesSame','bodySame','unmutated','contentsOpen','summaryFocused','scrollSame'])assert.equal(completed[key],true,fixture.name+' completion changed '+key);
+      await lifecycle.locator('#refresh-primary .mr-screen-shortcuts a').filter({hasText:/^Actions$/}).click();
+      assert.equal(await lifecycle.evaluate(()=>document.activeElement.id),initial.aiId,fixture.name+' completed action shortcut has the wrong focus target');
+      const remount = await lifecycle.evaluate(()=>{const x=screenRefresh;x.stop();const stop=MondermanReport.mountAIInterpretation(x.host,x.result);stop();return {wrappers:x.host.querySelectorAll('.mr-ai-inline').length,sections:x.host.querySelectorAll('.mr-ai-interpretation').length,id:x.host.querySelector('.mr-ai-inline').id,inside:x.reportPage.contains(x.host.querySelector('.mr-ai-inline'))};});
+      assert.deepEqual(remount,{wrappers:1,sections:1,id:initial.aiId,inside:true},fixture.name+' remount detached or duplicated the AI section');
+      await emulateMediaAndSettle(lifecycle,'print');
+      assert.equal(await lifecycle.locator('#refresh-primary .mr-screen-nav').isVisible(),false);
+      assert.equal(await lifecycle.locator('#refresh-primary .mr-screen-next').isVisible(),false);
+      assert.equal(await lifecycle.locator('#refresh-primary .mr-ai-interpretation').isVisible(),true);
+      await emulateMediaAndSettle(lifecycle,'screen');
+      await lifecycle.setViewportSize({width:390,height:844});
+      await lifecycle.locator('#refresh-primary .mr-cover').screenshot({path:path.join(out,fixture.name+'-ai-refreshed-cover-mobile.png')});
+      await lifecycle.setViewportSize({width:1440,height:1000});
+      const terminalStates=[];
+      for(const status of ['pending','processing','attention_required','rejected']) {
+        await lifecycle.evaluate(status=>{
+          const x=screenRefresh,model={...x.base,aiReport:structuredClone(x.pending)},result={ai_report:structuredClone(x.pending)};
+          MondermanReport.render(x.host,model);
+          const before=JSON.stringify(model);
+          const next={status,message:'Synthetic '+status,report:{interpretation:{recommendations:[{action:'STALE_AI_ACTION'}]}}};
+          let calls=0;
+          x.stateTest={model,before,calls:()=>calls,stop:MondermanReport.mountAIInterpretation(x.host,result,async()=>{calls++;return {ai_report:next};})};
+        },status);
+        await lifecycle.clock.fastForward(15000);
+        const state=await lifecycle.evaluate(()=>{const x=screenRefresh,t=x.stateTest;t.stop();const ids=Array.from(document.querySelectorAll('[id]')).map(node=>node.id);return {calls:t.calls(),noStale:!x.host.textContent.includes('STALE_AI_ACTION'),unmutated:JSON.stringify(t.model)===t.before,unique:ids.length===new Set(ids).size,allTargetsLocal:Array.from(x.host.querySelectorAll('.mr-screen-nav a,.mr-screen-next a')).every(link=>x.host.contains(document.getElementById(link.getAttribute('href').slice(1))))};});
+        assert.deepEqual(state,{calls:1,noStale:true,unmutated:true,unique:true,allTargetsLocal:true},fixture.name+' '+status+' exposed stale action or invalid target');
+        terminalStates.push(status);
+      }
+      rows.push({product:fixture.name,initial,unchanged,completed,remount,terminalStates});
+    }
+    assert.deepEqual(errors,[]);
+    fs.writeFileSync(path.join(out,'ai-refresh-checks.json'),JSON.stringify({syntheticOnly:true,networkBlocked:true,products:rows.length,rows,errors},null,2));
+    return rows;
+  } finally { await lifecycle.close(); }
+}
+
 // Validate the actual built HTML boundary before testing isolated result DOM.
 // A body-tag replacement inside an exported-report template can silently cut
 // off the host instrument's script, leaving its loading screen in place.
-for (const product of ['operational-systems','decision-velocity','structural-clarity','institutional-performance']) {
+if (!aiRefreshOnly) for (const product of ['operational-systems','decision-velocity','structural-clarity','institutional-performance']) {
   const built=fs.readFileSync(path.join('.render-public',product+'.html'),'utf8');
   let screenLoaders=0;
   for (const [tag,attributes,code] of built.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
@@ -29,6 +123,12 @@ for (const product of ['operational-systems','decision-velocity','structural-cla
   assert.equal(screenLoaders,1,product+' must load result navigation as a real external script');
 }
 const browser = await chromium.launch({headless:true});
+if (aiRefreshOnly) {
+  await verifyAIScreenRefresh(browser);
+  await browser.close();
+  console.log('REPORT_SCREEN_AI_REFRESH_PASS all6 pending/complete/attention/rejected, stableTargets, isolatedMounts, unchangedModelAndBody, focus, printControls; network blocked');
+  process.exit(0);
+}
 const page = await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
 await page.route(/^https:\/\/www\.monderman\.com\/(55|65|75)font\.woff2$/, route => route.fulfill({contentType:'font/woff2',body:fs.readFileSync(path.basename(new URL(route.request().url()).pathname))}));
 await page.goto(base+'/sample-report.html',{waitUntil:'networkidle'});
@@ -193,5 +293,6 @@ for (const product of ['operational-systems','decision-velocity','structural-cla
   }
   await direct.close();
 }
+await verifyAIScreenRefresh(browser);
 await browser.close();
 console.log('REPORT_SCREEN_EXPERIENCE_PASS all6 navigation, spacing, coolCategoryColors, originalBodyParity, uniqueMounts, immutableModels, mobile, printControls; all4 direct spacing, textContrast, availability, focus, accordion, exportExclusion');

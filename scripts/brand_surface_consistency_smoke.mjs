@@ -18,11 +18,11 @@ const pages = [
   'operational-systems.html', 'pilot.html', 'plan-enterprise.html', 'plan-pattern.html',
   'plan-signal.html', 'platform-services.html', 'privacy-2026-08-20-beta.html',
   'privacy-2026-08-24-beta.html', 'privacy-2026-08-26-beta.html', 'privacy-2026-09-08-beta.html',
-  'privacy.html', 'quarter-trillion-friction-us-healthcare.html', 'research.html', 'roi.html',
+  'privacy-2026-09-09-beta.html', 'privacy.html', 'quarter-trillion-friction-us-healthcare.html', 'research.html', 'roi.html',
   'sample-report.html', 'security.html', 'structural-clarity-article.html', 'structural-clarity.html',
   'subprocessors.html', 'terminal-fidelity.html', 'terms-2026-08-20-beta.html',
   'terms-2026-08-24-beta.html', 'terms-2026-08-26-beta.html', 'terms-2026-09-08-beta.html',
-  'terms.html', 'the-art-of-interior-reasoning.html', 'the-culture-trap-brief.html',
+  'terms-2026-09-09-beta.html', 'terms.html', 'the-art-of-interior-reasoning.html', 'the-culture-trap-brief.html',
   'the-culture-trap.html', 'the-drift-problem.html', 'the-unmeasured-layer.html',
   'transformation-behind-schedule.html', 'we-gave-bureaucracy-the-fastest-tools.html',
   'when-bureaucracy-became-the-obstacle.html', 'why-monderman.html',
@@ -32,8 +32,8 @@ const heroSelector = 'body.canonical-green-shell :is(.hero,.article-hero,.ps-her
 const surfaceSelector = `${heroSelector},footer.mond-footer`;
 const tagline = 'Make the work clearer. Make the next move count.';
 const printPages = new Set(['index.html', 'Monderman_Platform_Brief.html', 'privacy.html', 'the-culture-trap-brief.html', 'cross-tool-synthesis.html', 'operational-systems.html', 'sample-report.html']);
-assert.equal(pages.length, 59);
-assert.equal(pages.length - footerOnly.size, 53);
+assert.equal(pages.length, 61);
+assert.equal(pages.length - footerOnly.size, 55);
 for (const file of pages) assert(fs.existsSync(path.join(root, file)), `Missing inventoried page ${file}`);
 
 const publishedSurfaces = fs.readdirSync(root).filter(file => file.endsWith('.html')).filter(file => {
@@ -243,10 +243,10 @@ for (const [engineName, engine] of [['chromium', chromium], ['webkit', webkit]])
           await page.emulateMedia({ media: 'screen' });
         }
       }
-      check(heroCount === 53 && footerCount === 58, `${engineName}/${width}: incomplete53hero/58footer coverage`);
+      check(heroCount === 55 && footerCount === 60, `${engineName}/${width}: incomplete55hero/60footer coverage`);
       await page.close();
     }
   } finally { await browser.close(); }
 }
 assert.deepEqual(failures, [], `${failures.length} brand surface failures:\n${failures.join('\n')}`);
-console.log(`Brand surface consistency smoke passed: ${checks} checks,53heroes+58footers,59pages at1440/390 in Chromium+WebKit; exact backgrounds, overlays, footer copy/contrast and print isolation.`);
+console.log(`Brand surface consistency smoke passed: ${checks} checks,55heroes+60footers,61pages at1440/390 in Chromium+WebKit; exact backgrounds, overlays, footer copy/contrast and print isolation.`);
