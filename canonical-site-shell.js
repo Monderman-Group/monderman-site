@@ -57,7 +57,7 @@
           tagline.className = "mf-tagline";
           footerBrand.insertAdjacentElement("afterend", tagline);
         }
-        tagline.textContent = "Make the work clearer. Make the next move count.";
+        tagline.textContent = "See the work clearly. Make the next move count.";
       }
     });
     document.querySelectorAll(".mond-footer .mf-copy").forEach((copy) => {
