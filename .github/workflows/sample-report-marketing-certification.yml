@@ -73,6 +73,8 @@ on:
       - 'scripts/report_synthesis_display_smoke.mjs'
       - 'scripts/report_cross_lens_phone_smoke.mjs'
       - 'scripts/sc_favorable_presentation_smoke.mjs'
+      - 'scripts/dv_timing_presentation_smoke.mjs'
+      - 'scripts/dv_timing_display_smoke.mjs'
       - 'test-fixtures/sc-favorable-presentation.json'
       - 'monderman-viz.js'
       - 'test-fixtures/report-full-pagination.json'
@@ -166,6 +168,8 @@ on:
       - 'scripts/report_synthesis_display_smoke.mjs'
       - 'scripts/report_cross_lens_phone_smoke.mjs'
       - 'scripts/sc_favorable_presentation_smoke.mjs'
+      - 'scripts/dv_timing_presentation_smoke.mjs'
+      - 'scripts/dv_timing_display_smoke.mjs'
       - 'test-fixtures/sc-favorable-presentation.json'
       - 'monderman-viz.js'
       - 'test-fixtures/report-full-pagination.json'
@@ -289,6 +293,8 @@ jobs:
         run: |
           node scripts/sc_favorable_presentation_smoke.mjs
           SC_BROWSER=webkit node scripts/sc_favorable_presentation_smoke.mjs
+      - name: Verify DV missing-timing page and legacy PDF presentation
+        run: node scripts/dv_timing_presentation_smoke.mjs
 
       - name: Withhold unpublished Institutional Performance recovery estimates
         env:
