@@ -148,10 +148,11 @@ function selfTest(){
   const content={version:'report-evidence-20260909.1',diagnostic:'Decision Velocity',tool:'decision_velocity',role:'managerial',depth:10,sector:'other',questionnaire_version:'1.1.0',facts:[
     {id:'F1',label:'Diagnostic score',value:70,provenance:'deterministic_result',interpretation:'A supplied value.'},
     {id:'F2',label:'Participant observation',value:'PRIVATE_SYNTHETIC_SENTINEL',provenance:'one_participant_untrusted_observation',interpretation:'Unverified account.'},
-    {id:'F3',label:'Contradictions flagged',value:2,provenance:'deterministic_result',interpretation:'Count of flagged contradictions, not conflicting answers or people.'}
+    {id:'F3',label:'Contradictions flagged',value:2,provenance:'deterministic_result',interpretation:'Count of flagged contradictions, not conflicting answers or people.'},
+    {id:'F4',label:'Result band',value:'Compounding',provenance:'deterministic_result',interpretation:'The exact saved band label.'}
   ],research:{version:'self-test',sources:[],benchmark:{status:'not_available',explanation:'No comparison is supplied.'}},limitations:['Synthetic test only.']};
   const packet={...content,snapshot_id:evidenceDigest(content)};
-  const interpretation={summary:'This is an offline fixture.',observations:[{text:'The supplied score is {{F1}}.',evidence_ids:['F1']},{text:'{{Q1}}',evidence_ids:[]}],hypotheses:[],recommendations:[],limitations:[]};
+  const interpretation={summary:'This is an offline fixture.',observations:[{text:'The result band is {{F4}}.',evidence_ids:['F4']},{text:'{{Q1}}',evidence_ids:[]}],hypotheses:[],recommendations:[],limitations:[]};
   const composition=buildReportAIComposition(interpretation,packet),quantityCatalog=buildReportQuantityCatalog(packet);
   const entry={id:'DV-self-test',kind:'diagnostic',status:'validated_requires_human_review',packet,contractInterpretation:composition.wire,
     interpretation:composition.interpretation,syntheticOriginalInterpretation:interpretation,syntheticDraftInterpretation:composition.interpretation,
@@ -171,8 +172,8 @@ function selfTest(){
     model:'claude-opus-5',finishedAt:'2026-09-08T00:00:00Z',cases:[entry,{id:'never-render',status:'rejected',syntheticRejectedInterpretation:{summary:'MUST_NOT_RENDER'}}]};
   fixture.manifestSha256=evidenceDigest(fixture.manifest);
   const cases=acceptedPresentationCases(fixture,version);
-  assert.equal(cases.length,1);assert.equal(cases[0].envelope.report.interpretation.observations[0].text,'The supplied score is 70.');
-  assert.equal(cases[0].envelope.report.evidence.length,2);assert.ok(!JSON.stringify(cases).includes('PRIVATE_SYNTHETIC_SENTINEL'));assert.ok(!JSON.stringify(cases).includes('MUST_NOT_RENDER'));
+  assert.equal(cases.length,1);assert.equal(cases[0].envelope.report.interpretation.observations[0].text,'The result band is Compounding.');
+  assert.equal(cases[0].envelope.report.evidence.length,3);assert.ok(!JSON.stringify(cases).includes('PRIVATE_SYNTHETIC_SENTINEL'));assert.ok(!JSON.stringify(cases).includes('MUST_NOT_RENDER'));
   assert.equal(cases[0].envelope.report.interpretation.observations[1].text,quantityCatalog.statements[0].text);
   assert.notEqual(entry.wireHash,entry.draftHash);assert.equal(cases[0].envelope.report.automated_review.draft_sha256,entry.draftHash);
   assert.equal(cases[0].envelope.report.composition.quantity_prose_policy_version,REPORT_AI_QUANTITY_PROSE_POLICY_VERSION);
