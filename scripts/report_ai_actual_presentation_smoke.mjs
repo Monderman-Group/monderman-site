@@ -52,9 +52,15 @@ export function acceptedPresentationCases(matrix,promptVersion,contract=currentC
     assert.equal(matrix.manifest.review?.contractVersion,REPORT_AI_REVIEW_CONTRACT_VERSION,'review_contract_mismatch');
     assert.equal(matrix.manifestSha256,evidenceDigest(matrix.manifest),'manifest_digest_mismatch');
     assert.deepEqual(matrix.manifest.sourceDigests,currentSourcePins(),'current_source_pins_mismatch');
-    assert.ok(['initial','presentation-correction'].includes(matrix.manifest.promptMode),'manifest_prompt_mode_invalid');
+    assert.ok(['initial','presentation-correction','quantity-correction'].includes(matrix.manifest.promptMode),'manifest_prompt_mode_invalid');
     assert.equal(matrix.promptMode,matrix.manifest.promptMode,'manifest_prompt_mode_mismatch');
+    assert.equal(matrix.presentationRetry,matrix.promptMode==='presentation-correction','presentation_retry_flag_mismatch');
+    assert.equal(matrix.quantityRetry,matrix.promptMode==='quantity-correction','quantity_retry_flag_mismatch');
     assert.ok(Array.isArray(matrix.manifest.cases)&&matrix.manifest.cases.length>0&&matrix.manifest.cases.length<=200,'manifest_cases_required');
+    if(matrix.promptMode!=='initial'){
+      assert.equal(matrix.manifest.cases.length,1,'correction_requires_single_manifest_case');
+      assert.equal(matrix.cases.length,1,'correction_requires_single_receipt_case');
+    }
     manifestCases=new Map();
     for(const fixture of matrix.manifest.cases){
       assert.ok(safeId.test(fixture.id||'')&&!manifestCases.has(fixture.id),'manifest_case_identity_invalid');
@@ -72,11 +78,12 @@ export function acceptedPresentationCases(matrix,promptVersion,contract=currentC
     if(!allowHistoricalDrafts){
       const fixture=manifestCases.get(entry.id);
       assert.ok(fixture,'case_absent_from_manifest');
+      assert.equal(entry.promptMode,matrix.promptMode,'case_prompt_mode_mismatch');
       assert.equal(entry.kind,fixture.kind,'case_manifest_kind_mismatch');
       assert.equal(evidenceDigest(packet),fixture.packetSha256,'case_manifest_packet_mismatch');
       const quantityCatalog=buildReportQuantityCatalog(packet);
       assert.equal(fixture.catalogSha256,quantityCatalog.catalog_sha256,'case_catalog_mismatch');
-      const promptHash=evidenceDigest(contract.buildReportAIPrompt(packet,{presentationRetry:matrix.manifest.promptMode==='presentation-correction',quantityCatalog}));
+      const promptHash=evidenceDigest(contract.buildReportAIPrompt(packet,{presentationRetry:matrix.manifest.promptMode==='presentation-correction',quantityRetry:matrix.manifest.promptMode==='quantity-correction',quantityCatalog}));
       assert.equal(fixture.promptSha256,promptHash,'case_manifest_prompt_mismatch');
       assert.equal(entry.promptSha256,promptHash,'case_saved_prompt_mismatch');
     }
@@ -154,7 +161,7 @@ function selfTest(){
   const packet={...content,snapshot_id:evidenceDigest(content)};
   const interpretation={summary:'This is an offline fixture.',observations:[{text:'The result band is {{F4}}.',evidence_ids:['F4']},{text:'{{Q1}}',evidence_ids:[]}],hypotheses:[],recommendations:[],limitations:[]};
   const composition=buildReportAIComposition(interpretation,packet),quantityCatalog=buildReportQuantityCatalog(packet);
-  const entry={id:'DV-self-test',kind:'diagnostic',status:'validated_requires_human_review',packet,contractInterpretation:composition.wire,
+  const entry={id:'DV-self-test',kind:'diagnostic',promptMode:'initial',status:'validated_requires_human_review',packet,contractInterpretation:composition.wire,
     interpretation:composition.interpretation,syntheticOriginalInterpretation:interpretation,syntheticDraftInterpretation:composition.interpretation,
     wireHash:composition.wireHash,draftHash:composition.compiledHash,composition:assertReportAIComposition(composition,{packet}),
     metadata:{model:'claude-opus-5',requestId:'req_synthetic123',inputTokens:100,outputTokens:100,cacheCreationInputTokens:0,cacheReadInputTokens:0,stopReason:'end_turn'}};
@@ -164,7 +171,7 @@ function selfTest(){
     contractVersion:REPORT_AI_REVIEW_CONTRACT_VERSION,metadata:structuredClone(entry.metadata)};
   const version=currentContract.REPORT_AI_PROMPT_VERSION;
   entry.promptSha256=evidenceDigest(currentContract.buildReportAIPrompt(packet,{quantityCatalog}));
-  const fixture={syntheticOnly:true,mode:'live',promptMode:'initial',semanticReview:true,releaseCertificationEligible:true,
+  const fixture={syntheticOnly:true,mode:'live',promptMode:'initial',presentationRetry:false,quantityRetry:false,semanticReview:true,releaseCertificationEligible:true,
     manifest:{schemaVersion:'synthetic-report-ai-evaluation-4',semanticReview:true,model:'claude-opus-5',promptVersion:version,
       compositionVersion:REPORT_AI_COMPOSITION_VERSION,quantityVersion:REPORT_QUANTITY_STATEMENT_VERSION,quantityProsePolicyVersion:REPORT_AI_QUANTITY_PROSE_POLICY_VERSION,draftHashMeaning:'compiled-customer-interpretation',
       contractVersion:currentContract.REPORT_AI_CONTRACT_VERSION,review:{promptVersion:REPORT_AI_REVIEW_PROMPT_VERSION,contractVersion:REPORT_AI_REVIEW_CONTRACT_VERSION},
@@ -177,6 +184,22 @@ function selfTest(){
   assert.equal(cases[0].envelope.report.interpretation.observations[1].text,quantityCatalog.statements[0].text);
   assert.notEqual(entry.wireHash,entry.draftHash);assert.equal(cases[0].envelope.report.automated_review.draft_sha256,entry.draftHash);
   assert.equal(cases[0].envelope.report.composition.quantity_prose_policy_version,REPORT_AI_QUANTITY_PROSE_POLICY_VERSION);
+  // Correction receipts are display evidence only for that distinct request.
+  // Never relabel an initial draft or accept an unbound mode/flag combination.
+  for(const mode of ['presentation-correction','quantity-correction']){
+    const corrected=structuredClone(fixture);corrected.cases=corrected.cases.slice(0,1);
+    corrected.promptMode=corrected.manifest.promptMode=corrected.cases[0].promptMode=mode;
+    corrected.presentationRetry=mode==='presentation-correction';corrected.quantityRetry=mode==='quantity-correction';
+    const hash=evidenceDigest(currentContract.buildReportAIPrompt(packet,{presentationRetry:corrected.presentationRetry,quantityRetry:corrected.quantityRetry,quantityCatalog}));
+    assert.notEqual(hash,fixture.cases[0].promptSha256);
+    corrected.cases[0].promptSha256=corrected.manifest.cases[0].promptSha256=hash;
+    corrected.manifestSha256=evidenceDigest(corrected.manifest);
+    assert.equal(acceptedPresentationCases(corrected,version).length,1);
+    for(const change of [m=>m.presentationRetry=!m.presentationRetry,m=>m.quantityRetry=!m.quantityRetry,m=>m.cases[0].promptMode='initial',m=>m.cases[0].promptSha256=fixture.cases[0].promptSha256,m=>m.manifest.cases[0].promptSha256=fixture.cases[0].promptSha256,m=>m.cases.push({id:'extra-rejected',status:'rejected'}),m=>m.manifest.cases.push({...m.manifest.cases[0],id:'extra'})]){
+      const invalid=structuredClone(corrected);change(invalid);invalid.manifestSha256=evidenceDigest(invalid.manifest);
+      assert.throws(()=>acceptedPresentationCases(invalid,version));
+    }
+  }
   for(const change of [m=>m.syntheticOnly=false,m=>m.mode='dry',m=>m.model='other',m=>delete m.finishedAt,m=>m.cases[0].metadata.stopReason='max_tokens',m=>m.cases[0].status='rejected',m=>m.cases[0].interpretation.summary='changed',m=>m.cases[0].packet.facts[0].value=71,m=>m.cases[0].metadata.thinking='secret',m=>m.cases[0].id='../escape']){
     const mutated=structuredClone(fixture);change(mutated);assert.throws(()=>acceptedPresentationCases(mutated,version));
   }
