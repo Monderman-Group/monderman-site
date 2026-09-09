@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.6";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.7";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -808,7 +808,7 @@
       svg += '<text x="' + (labelW-12) + '" y="' + (y+20) + '" text-anchor="end" font-size="10.5" fill="#9A9892">median ' + esc(fmt1(lens.median)) + ' · n=' + esc(fmtWhole(lens.n)) + '</text>';
     });
     svg += '</svg>';
-    return '<div class="mr-viz-panel"><div class="mr-viz-title">Diagnostic lenses on one scale</div>' + svg + '<p class="mr-copy">Dots are per-Diagnostic mean scores; horizontal marks show each lens IQR when available. ' + (showComposite ? 'The dashed Composite line is the equal-lens mean. ' : '') + 'Run count does not change a lens\'s weight in a published Composite score.</p></div>';
+    return '<div class="mr-viz-panel mr-cross-lens-comparison"><div class="mr-viz-title">Diagnostic lenses on one scale</div>' + svg + '<p class="mr-copy">Dots are per-Diagnostic mean scores; horizontal marks show each lens IQR when available. ' + (showComposite ? 'The dashed Composite line is the equal-lens mean. ' : '') + 'Run count does not change a lens\'s weight in a published Composite score.</p></div>';
   }
 
   function splitSvgLabel(label) {
@@ -904,17 +904,18 @@
 
   function renderLensSummary(m, n) {
     if (!arr(m.sourceGroups).length) return "";
+    const isCrossLens = m.product === "cross_lens";
     const cards = arr(m.sourceGroups).map((lens) => {
-      return '<div class="mr-lens-card"><div class="mr-lens-label">' + esc(lens.toolLabel) + '</div>' +
+      return '<div class="mr-lens-card"' + (isCrossLens ? ' role="listitem"' : '') + '><div class="mr-lens-label"' + (isCrossLens ? ' role="heading" aria-level="3"' : '') + '>' + esc(lens.toolLabel) + '</div>' +
         '<div style="font-family:\"Neue Haas Grotesk\",\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:2rem;font-weight:700;margin:8px 0 4px">' + esc(fmt1(lens.mean)) + '</div>' +
         '<p class="mr-copy">Mean score · median ' + esc(fmt1(lens.median)) + ' · n=' + esc(fmtWhole(lens.n)) + '</p>' +
         '<p class="mr-copy">IQR ' + esc(fmtPair(lens.iqr, fmt1)) + ' · range ' + esc(fmtPair(lens.range, fmt1)) + '</p>' +
         (lens.driver ? '<span class="mr-pill">' + esc(humanize(lens.driver)) + '</span>' : '') +
       '</div>';
     }).join("");
-    const graphic = m.product === "cross_lens" ? renderCrossLensGraphic(m) : "";
-    return '<section class="mr-section"><h2>' + n + '. Contributing Diagnostic lens' + (m.sourceGroups.length === 1 ? '' : 'es') + '</h2>' + graphic +
-      '<div class="mr-lens-grid">' + cards + '</div></section>';
+    const graphic = isCrossLens ? renderCrossLensGraphic(m) : "";
+    return '<section class="mr-section' + (isCrossLens ? ' mr-cross-lens-summary' : '') + '"><h2>' + n + '. Contributing Diagnostic lens' + (m.sourceGroups.length === 1 ? '' : 'es') + '</h2>' + graphic +
+      '<div class="mr-lens-grid"' + (isCrossLens ? ' role="list" aria-label="Contributing Diagnostic lenses"' : '') + '>' + cards + '</div></section>';
   }
 
   function renderCrossLensEvidenceMap(m) {
@@ -1822,6 +1823,15 @@
       .mr-action { grid-template-columns:32px 1fr; gap:12px; }
       .mr-confidence-row { grid-template-columns:1fr; gap:8px; }
       .mr-confidence-tier { text-align:left; }
+    }
+    /* On phones, the adjacent lens list already carries every plotted value,
+       including unavailable values. Keep the SVG comparison for wider screens
+       and print without shrinking its labels below legibility. */
+    @media screen and (max-width:600px){
+      .mr-cross-lens-summary>.mr-cross-lens-comparison{display:none}
+      .mr-cross-lens-summary>.mr-lens-grid>.mr-lens-card{min-width:0;overflow-wrap:anywhere}
+      .mr-cross-lens-summary>.mr-lens-grid>.mr-lens-card>.mr-lens-label{font-size:14px;line-height:1.4}
+      .mr-cross-lens-summary>.mr-lens-grid>.mr-lens-card>.mr-copy{font-size:14px;line-height:1.5}
     }
     @page{size:Letter;margin:60pt}
     @media print{

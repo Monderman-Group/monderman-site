@@ -69,6 +69,7 @@ on:
       - 'scripts/report_pdf_smoke.mjs'
       - 'scripts/report_full_pagination_smoke.mjs'
       - 'scripts/report_synthesis_display_smoke.mjs'
+      - 'scripts/report_cross_lens_phone_smoke.mjs'
       - 'scripts/sc_favorable_presentation_smoke.mjs'
       - 'test-fixtures/sc-favorable-presentation.json'
       - 'monderman-viz.js'
@@ -159,6 +160,7 @@ on:
       - 'scripts/report_pdf_smoke.mjs'
       - 'scripts/report_full_pagination_smoke.mjs'
       - 'scripts/report_synthesis_display_smoke.mjs'
+      - 'scripts/report_cross_lens_phone_smoke.mjs'
       - 'scripts/sc_favorable_presentation_smoke.mjs'
       - 'test-fixtures/sc-favorable-presentation.json'
       - 'monderman-viz.js'
@@ -253,6 +255,8 @@ jobs:
           npx playwright install --with-deps chromium webkit
       - name: Preserve unavailable scores and Synthesis chart labels on all display sizes
         run: node scripts/report_synthesis_display_smoke.mjs
+      - name: Verify Cross-Lens phone and print readability
+        run: node scripts/report_cross_lens_phone_smoke.mjs
 
       - name: Serve candidate
         run: |
