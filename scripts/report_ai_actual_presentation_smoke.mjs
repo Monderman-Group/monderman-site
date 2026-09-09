@@ -10,14 +10,21 @@ import {fileURLToPath,pathToFileURL} from 'node:url';
 import {evidenceDigest} from '../../monderman-api-first-run/report-evidence-packet.js';
 import * as currentContract from '../../monderman-api-first-run/report-ai-interpretation-contract.js';
 import {REPORT_AI_RELEASE} from '../../monderman-api-first-run/report-ai-service.js';
-import {REPORT_AI_REVIEW_PROMPT_VERSION,REPORT_AI_REVIEW_CONTRACT_VERSION} from '../../monderman-api-first-run/report-ai-review.js';
+import {buildReportAIReviewPrompt,REPORT_AI_REVIEW_PROMPT_VERSION,REPORT_AI_REVIEW_CONTRACT_VERSION} from '../../monderman-api-first-run/report-ai-review.js';
+import {buildReportQuantityCatalog,REPORT_QUANTITY_STATEMENT_VERSION} from '../../monderman-api-first-run/report-ai-quantity-statements.js';
+import {buildReportAIComposition,assertReportAIComposition,REPORT_AI_COMPOSITION_VERSION,REPORT_AI_QUANTITY_PROSE_POLICY_VERSION} from '../../monderman-api-first-run/report-ai-composition.js';
 
 const SITE_ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const ACCEPTED=new Set(['validated_requires_human_review','validated_with_review_flags']);
 const safeId=/^[A-Za-z0-9][A-Za-z0-9_-]{0,99}$/;
 const safePrompt=/^report-interpretation-opus5-[0-9]{8}\.[0-9]+$/;
 const digest=value=>createHash('sha256').update(value).digest('hex');
-const currentSourcePins=()=>Object.fromEntries(['report-ai-provider.js','report-ai-interpretation-contract.js','report-ai-review.js','harness-report-ai-live.mjs'].map(name=>[name,digest(fs.readFileSync(new URL(`../../monderman-api-first-run/${name}`,import.meta.url)))]));
+const currentSourcePins=()=>{
+  const registry=fs.readFileSync(new URL('../../monderman-api-first-run/questionnaire-version-registry.js',import.meta.url),'utf8');
+  const banks=[...registry.matchAll(/^import (\w+) from "\.\/([^"]+)" with \{ type: "json" \};$/gm)].map(match=>match[2]);
+  assert.equal(banks.length,8,'complete_questionnaire_registry_required');
+  return Object.fromEntries(['report-ai-provider.js','report-ai-interpretation-contract.js','report-ai-review.js','report-ai-evidence-encoding.js','report-ai-quantity-statements.js','report-ai-composition.js','report-evidence-packet.js','report-research-library.js','questionnaire-version-registry.js',...banks,'harness-report-ai-live.mjs'].map(name=>[name,digest(fs.readFileSync(new URL(`../../monderman-api-first-run/${name}`,import.meta.url)))]));
+};
 const walk=(value,packet,contract=currentContract)=>typeof value==='string'?contract.renderReportAIFacts(value,packet):Array.isArray(value)?value.map(v=>walk(v,packet,contract)):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).map(([key,v])=>[key,walk(v,packet,contract)])):value;
 
 export function acceptedPresentationCases(matrix,promptVersion,contract=currentContract,{allowHistoricalDrafts=false}={}){
@@ -32,7 +39,11 @@ export function acceptedPresentationCases(matrix,promptVersion,contract=currentC
     assert.equal(promptVersion,contract.REPORT_AI_PROMPT_VERSION,'current_prompt_version_required');
     assert.equal(matrix.semanticReview,true,'mandatory_semantic_review_missing');
     assert.equal(matrix.releaseCertificationEligible,true,'draft_only_cannot_certify_current_release');
-    assert.equal(matrix.manifest?.schemaVersion,'synthetic-report-ai-evaluation-3','reviewed_manifest_required');
+    assert.equal(matrix.manifest?.schemaVersion,'synthetic-report-ai-evaluation-4','reviewed_manifest_required');
+    assert.equal(matrix.manifest.compositionVersion,REPORT_AI_COMPOSITION_VERSION,'composition_version_mismatch');
+    assert.equal(matrix.manifest.quantityVersion,REPORT_QUANTITY_STATEMENT_VERSION,'quantity_version_mismatch');
+    assert.equal(matrix.manifest.quantityProsePolicyVersion,REPORT_AI_QUANTITY_PROSE_POLICY_VERSION,'quantity_prose_policy_mismatch');
+    assert.equal(matrix.manifest.draftHashMeaning,'compiled-customer-interpretation','compiled_hash_meaning_required');
     assert.equal(matrix.manifest.semanticReview,true,'reviewed_manifest_required');
     assert.equal(matrix.manifest.model,'claude-opus-5','reviewed_manifest_model_mismatch');
     assert.equal(matrix.manifest.promptVersion,promptVersion,'reviewed_manifest_prompt_mismatch');
@@ -63,7 +74,9 @@ export function acceptedPresentationCases(matrix,promptVersion,contract=currentC
       assert.ok(fixture,'case_absent_from_manifest');
       assert.equal(entry.kind,fixture.kind,'case_manifest_kind_mismatch');
       assert.equal(evidenceDigest(packet),fixture.packetSha256,'case_manifest_packet_mismatch');
-      const promptHash=evidenceDigest(contract.buildReportAIPrompt(packet,{presentationRetry:matrix.manifest.promptMode==='presentation-correction'}));
+      const quantityCatalog=buildReportQuantityCatalog(packet);
+      assert.equal(fixture.catalogSha256,quantityCatalog.catalog_sha256,'case_catalog_mismatch');
+      const promptHash=evidenceDigest(contract.buildReportAIPrompt(packet,{presentationRetry:matrix.manifest.promptMode==='presentation-correction',quantityCatalog}));
       assert.equal(fixture.promptSha256,promptHash,'case_manifest_prompt_mismatch');
       assert.equal(entry.promptSha256,promptHash,'case_saved_prompt_mismatch');
     }
@@ -73,9 +86,17 @@ export function acceptedPresentationCases(matrix,promptVersion,contract=currentC
     for(const key of ['inputTokens','outputTokens','cacheCreationInputTokens','cacheReadInputTokens'])assert.ok(Number.isSafeInteger(metadata[key])&&metadata[key]>=0,'invalid_usage_metadata');
     assert.deepEqual(Object.keys(metadata).sort(),['model','requestId','inputTokens','outputTokens','cacheCreationInputTokens','cacheReadInputTokens','stopReason'].sort(),'unexpected_usage_metadata_fields');
     assert.ok(entry.contractInterpretation&&entry.interpretation,'accepted_saved_interpretation_required');
-    const normalized=contract.normalizeReportAICitations(entry.contractInterpretation,packet);
-    contract.validateReportAIInterpretation(normalized,packet);
+    const composition=allowHistoricalDrafts?null:buildReportAIComposition(entry.contractInterpretation,packet);
+    const normalized=composition?composition.wire:contract.normalizeReportAICitations(entry.contractInterpretation,packet);
+    if(!composition)contract.validateReportAIInterpretation(normalized,packet);
     if(!allowHistoricalDrafts){
+      const original=buildReportAIComposition(entry.syntheticOriginalInterpretation,packet);
+      assert.deepEqual(entry.composition,assertReportAIComposition(composition,{packet}),'composition_binding_mismatch');
+      assert.equal(entry.wireHash,composition.wireHash,'wire_hash_mismatch');
+      assert.equal(evidenceDigest(entry.contractInterpretation),composition.wireHash,'normalized_wire_mismatch');
+      assert.equal(original.wireHash,composition.wireHash,'original_wire_mismatch');
+      assert.equal(entry.draftHash,composition.compiledHash,'compiled_draft_mismatch');
+      assert.deepEqual(entry.syntheticDraftInterpretation,composition.interpretation,'saved_compiled_draft_mismatch');
       assert.equal(entry.draftStatus,'validated','validated_draft_required');
       const review=entry.review;
       assert.equal(review?.status,'approved','approved_review_required');
@@ -83,7 +104,8 @@ export function acceptedPresentationCases(matrix,promptVersion,contract=currentC
       assert.deepEqual(review.findings,[],'review_findings_must_be_empty');
       assert.equal(review.model,'claude-opus-5','review_model_mismatch');
       assert.equal(review.snapshotId,packet.snapshot_id,'review_snapshot_mismatch');
-      assert.equal(review.draftHash,evidenceDigest(normalized),'review_draft_mismatch');
+      assert.equal(review.draftHash,composition.compiledHash,'review_draft_mismatch');
+      assert.equal(review.promptSha256,evidenceDigest(buildReportAIReviewPrompt(packet,composition.interpretation,{composition})),'review_prompt_hash_mismatch');
       assert.equal(review.promptVersion,REPORT_AI_REVIEW_PROMPT_VERSION,'case_review_prompt_mismatch');
       assert.equal(review.contractVersion,REPORT_AI_REVIEW_CONTRACT_VERSION,'case_review_contract_mismatch');
       assert.equal(review.metadata?.model,'claude-opus-5','review_metadata_required');
@@ -94,7 +116,7 @@ export function acceptedPresentationCases(matrix,promptVersion,contract=currentC
     }
     // Use the saved rendered result, not newly invented display copy. A later
     // contract change that alters rendering must be reviewed, not hidden here.
-    assert.deepEqual(walk(normalized,packet,contract),entry.interpretation,'saved_rendering_mismatch');
+    assert.deepEqual(composition?composition.interpretation:walk(normalized,packet,contract),entry.interpretation,'saved_rendering_mismatch');
     for(const source of packet.research.sources)assert.ok(typeof source.url==='string'&&/^https:\/\//.test(source.url),'source_url_required');
     const report={version:REPORT_AI_RELEASE,snapshot_id:packet.snapshot_id,model:metadata.model,
       prompt_version:promptVersion,evidence_version:packet.version,questionnaire_version:packet.questionnaire_version,
@@ -102,6 +124,9 @@ export function acceptedPresentationCases(matrix,promptVersion,contract=currentC
       interpretation:structuredClone(entry.interpretation),limitations:structuredClone(packet.limitations),
       sources:structuredClone(packet.research.sources),benchmark:structuredClone(packet.research.benchmark),
       evidence:structuredClone(packet.facts.filter(f=>f.provenance!=='one_participant_untrusted_observation')),usage:structuredClone(metadata)};
+    if(!allowHistoricalDrafts)report.composition={version:composition.version,quantity_version:composition.quantityVersion,
+      quantity_prose_policy_version:composition.quantityProsePolicyVersion,snapshot_id:composition.snapshotId,catalog_sha256:composition.catalogHash,
+      wire_sha256:composition.wireHash,compiled_sha256:composition.compiledHash,quantity_paragraphs:composition.quantityParagraphs};
     if(!allowHistoricalDrafts)report.automated_review={verdict:'approve',prompt_version:entry.review.promptVersion,
       contract_version:entry.review.contractVersion,draft_sha256:entry.review.draftHash,snapshot_id:entry.review.snapshotId,
       model:entry.review.model,usage:structuredClone(entry.review.metadata)};
@@ -120,28 +145,37 @@ export function assertPDFMetadataAccompanied(pageTexts,metadata){
 }
 
 function selfTest(){
-  const content={version:'synthetic-self-test',diagnostic:'Decision Velocity',tool:'decision_velocity',role:'managerial',depth:10,sector:'other',questionnaire_version:'1.1.0',facts:[
+  const content={version:'report-evidence-20260909.1',diagnostic:'Decision Velocity',tool:'decision_velocity',role:'managerial',depth:10,sector:'other',questionnaire_version:'1.1.0',facts:[
     {id:'F1',label:'Diagnostic score',value:70,provenance:'deterministic_result',interpretation:'A supplied value.'},
-    {id:'F2',label:'Participant observation',value:'PRIVATE_SYNTHETIC_SENTINEL',provenance:'one_participant_untrusted_observation',interpretation:'Unverified account.'}
+    {id:'F2',label:'Participant observation',value:'PRIVATE_SYNTHETIC_SENTINEL',provenance:'one_participant_untrusted_observation',interpretation:'Unverified account.'},
+    {id:'F3',label:'Contradictions flagged',value:2,provenance:'deterministic_result',interpretation:'Count of flagged contradictions, not conflicting answers or people.'}
   ],research:{version:'self-test',sources:[],benchmark:{status:'not_available',explanation:'No comparison is supplied.'}},limitations:['Synthetic test only.']};
   const packet={...content,snapshot_id:evidenceDigest(content)};
-  const interpretation={summary:'This is an offline fixture.',observations:[{text:'The supplied score is {{F1}}.',evidence_ids:['F1']}],hypotheses:[],recommendations:[],limitations:[]};
-  const entry={id:'DV-self-test',kind:'diagnostic',status:'validated_requires_human_review',packet,contractInterpretation:interpretation,
-    interpretation:walk(interpretation,packet),metadata:{model:'claude-opus-5',requestId:'req_synthetic123',inputTokens:100,outputTokens:100,cacheCreationInputTokens:0,cacheReadInputTokens:0,stopReason:'end_turn'}};
+  const interpretation={summary:'This is an offline fixture.',observations:[{text:'The supplied score is {{F1}}.',evidence_ids:['F1']},{text:'{{Q1}}',evidence_ids:[]}],hypotheses:[],recommendations:[],limitations:[]};
+  const composition=buildReportAIComposition(interpretation,packet),quantityCatalog=buildReportQuantityCatalog(packet);
+  const entry={id:'DV-self-test',kind:'diagnostic',status:'validated_requires_human_review',packet,contractInterpretation:composition.wire,
+    interpretation:composition.interpretation,syntheticOriginalInterpretation:interpretation,syntheticDraftInterpretation:composition.interpretation,
+    wireHash:composition.wireHash,draftHash:composition.compiledHash,composition:assertReportAIComposition(composition,{packet}),
+    metadata:{model:'claude-opus-5',requestId:'req_synthetic123',inputTokens:100,outputTokens:100,cacheCreationInputTokens:0,cacheReadInputTokens:0,stopReason:'end_turn'}};
   entry.draftStatus='validated';entry.review={status:'approved',verdict:'approve',findings:[],model:'claude-opus-5',
-    snapshotId:packet.snapshot_id,draftHash:evidenceDigest(interpretation),promptVersion:REPORT_AI_REVIEW_PROMPT_VERSION,
+    snapshotId:packet.snapshot_id,draftHash:composition.compiledHash,promptVersion:REPORT_AI_REVIEW_PROMPT_VERSION,
+    promptSha256:evidenceDigest(buildReportAIReviewPrompt(packet,composition.interpretation,{composition})),
     contractVersion:REPORT_AI_REVIEW_CONTRACT_VERSION,metadata:structuredClone(entry.metadata)};
   const version=currentContract.REPORT_AI_PROMPT_VERSION;
-  entry.promptSha256=evidenceDigest(currentContract.buildReportAIPrompt(packet));
+  entry.promptSha256=evidenceDigest(currentContract.buildReportAIPrompt(packet,{quantityCatalog}));
   const fixture={syntheticOnly:true,mode:'live',promptMode:'initial',semanticReview:true,releaseCertificationEligible:true,
-    manifest:{schemaVersion:'synthetic-report-ai-evaluation-3',semanticReview:true,model:'claude-opus-5',promptVersion:version,
+    manifest:{schemaVersion:'synthetic-report-ai-evaluation-4',semanticReview:true,model:'claude-opus-5',promptVersion:version,
+      compositionVersion:REPORT_AI_COMPOSITION_VERSION,quantityVersion:REPORT_QUANTITY_STATEMENT_VERSION,quantityProsePolicyVersion:REPORT_AI_QUANTITY_PROSE_POLICY_VERSION,draftHashMeaning:'compiled-customer-interpretation',
       contractVersion:currentContract.REPORT_AI_CONTRACT_VERSION,review:{promptVersion:REPORT_AI_REVIEW_PROMPT_VERSION,contractVersion:REPORT_AI_REVIEW_CONTRACT_VERSION},
-      promptMode:'initial',sourceDigests:currentSourcePins(),cases:[{id:entry.id,kind:entry.kind,packetSha256:evidenceDigest(packet),promptSha256:entry.promptSha256}]},
+      promptMode:'initial',sourceDigests:currentSourcePins(),cases:[{id:entry.id,kind:entry.kind,packetSha256:evidenceDigest(packet),catalogSha256:quantityCatalog.catalog_sha256,promptSha256:entry.promptSha256}]},
     model:'claude-opus-5',finishedAt:'2026-09-08T00:00:00Z',cases:[entry,{id:'never-render',status:'rejected',syntheticRejectedInterpretation:{summary:'MUST_NOT_RENDER'}}]};
   fixture.manifestSha256=evidenceDigest(fixture.manifest);
   const cases=acceptedPresentationCases(fixture,version);
   assert.equal(cases.length,1);assert.equal(cases[0].envelope.report.interpretation.observations[0].text,'The supplied score is 70.');
-  assert.equal(cases[0].envelope.report.evidence.length,1);assert.ok(!JSON.stringify(cases).includes('PRIVATE_SYNTHETIC_SENTINEL'));assert.ok(!JSON.stringify(cases).includes('MUST_NOT_RENDER'));
+  assert.equal(cases[0].envelope.report.evidence.length,2);assert.ok(!JSON.stringify(cases).includes('PRIVATE_SYNTHETIC_SENTINEL'));assert.ok(!JSON.stringify(cases).includes('MUST_NOT_RENDER'));
+  assert.equal(cases[0].envelope.report.interpretation.observations[1].text,quantityCatalog.statements[0].text);
+  assert.notEqual(entry.wireHash,entry.draftHash);assert.equal(cases[0].envelope.report.automated_review.draft_sha256,entry.draftHash);
+  assert.equal(cases[0].envelope.report.composition.quantity_prose_policy_version,REPORT_AI_QUANTITY_PROSE_POLICY_VERSION);
   for(const change of [m=>m.syntheticOnly=false,m=>m.mode='dry',m=>m.model='other',m=>delete m.finishedAt,m=>m.cases[0].metadata.stopReason='max_tokens',m=>m.cases[0].status='rejected',m=>m.cases[0].interpretation.summary='changed',m=>m.cases[0].packet.facts[0].value=71,m=>m.cases[0].metadata.thinking='secret',m=>m.cases[0].id='../escape']){
     const mutated=structuredClone(fixture);change(mutated);assert.throws(()=>acceptedPresentationCases(mutated,version));
   }
@@ -159,6 +193,12 @@ function selfTest(){
     const mutated=structuredClone(fixture);change(mutated);assert.throws(()=>acceptedPresentationCases(mutated,version));
   }
   const historical=structuredClone(fixture);delete historical.manifest;delete historical.semanticReview;delete historical.cases[0].review;
+  for(const change of [m=>m.manifest.schemaVersion='synthetic-report-ai-evaluation-3',m=>m.manifest.compositionVersion='old',m=>m.manifest.quantityVersion='old',m=>m.manifest.quantityProsePolicyVersion='old',m=>m.manifest.draftHashMeaning='wire',m=>m.manifest.cases[0].catalogSha256='a'.repeat(64),m=>m.manifest.sourceDigests['report-ai-composition.js']='a'.repeat(64),m=>m.manifest.sourceDigests['report-ai-evidence-encoding.js']='a'.repeat(64),m=>m.cases[0].wireHash='a'.repeat(64),m=>m.cases[0].draftHash=m.cases[0].wireHash,m=>m.cases[0].review.draftHash=m.cases[0].wireHash,m=>m.cases[0].composition.catalogHash='a'.repeat(64),m=>m.cases[0].syntheticOriginalInterpretation.observations[1].text='{{Q1}} conflicting answers',m=>m.cases[0].syntheticDraftInterpretation.summary='changed',m=>m.cases[0].review.promptSha256='a'.repeat(64)]){
+    const mutated=structuredClone(fixture);change(mutated);mutated.manifestSha256=evidenceDigest(mutated.manifest);
+    assert.throws(()=>acceptedPresentationCases(mutated,version));
+  }
+  historical.cases[0].contractInterpretation={...structuredClone(interpretation),observations:[structuredClone(interpretation.observations[0])]};
+  historical.cases[0].interpretation=walk(historical.cases[0].contractInterpretation,packet);
   assert.throws(()=>acceptedPresentationCases(historical,version));
   assert.equal(acceptedPresentationCases(historical,version,currentContract,{allowHistoricalDrafts:true}).length,1,'explicitly selected historical artifacts remain available for display-only review');
   const metadata='Interpretation version: example. Prepared: today. Evidence reference: abc123.';
