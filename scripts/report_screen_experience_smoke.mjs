@@ -2,10 +2,24 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import vm from 'node:vm';
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const base = process.env.SITE_BASE || process.env.REPORT_BASE || 'http://127.0.0.1:8080';
 const out = process.env.REPORT_OUT || '/tmp/report-screen-experience';
 fs.mkdirSync(out, {recursive:true});
+// Validate the actual built HTML boundary before testing isolated result DOM.
+// A body-tag replacement inside an exported-report template can silently cut
+// off the host instrument's script, leaving its loading screen in place.
+for (const product of ['operational-systems','decision-velocity','structural-clarity','institutional-performance']) {
+  const built=fs.readFileSync(path.join('.render-public',product+'.html'),'utf8');
+  let screenLoaders=0;
+  for (const [tag,attributes,code] of built.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
+    if (/\bsrc=["']report-screen-experience\.js(?:\?[^"']*)?["']/i.test(attributes)) screenLoaders++;
+    if (/\bsrc=|\btype=["'](?:module|application\/ld\+json)["']/i.test(attributes) || !code.trim()) continue;
+    new vm.Script(code,{filename:product+'.html inline script'});
+  }
+  assert.equal(screenLoaders,1,product+' must load result navigation as a real external script');
+}
 const browser = await chromium.launch({headless:true});
 const page = await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
 await page.route(/^https:\/\/www\.monderman\.com\/(55|65|75)font\.woff2$/, route => route.fulfill({contentType:'font/woff2',body:fs.readFileSync(path.basename(new URL(route.request().url()).pathname))}));

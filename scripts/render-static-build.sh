@@ -74,6 +74,8 @@ done
 
 node scripts/inject-public-shell.mjs "$publish_dir"
 node scripts/configure_questionnaire_release.mjs "$publish_dir"
+# Validate the transformed artifact, including script boundaries after injection.
+python3 scripts/validate_diagnostic_inline_js.py "$publish_dir"
 
 marker_tmp="$publish_dir/.well-known/monderman-release.json.tmp"
 printf '{"revision":"%s"}\n' "$release_revision" > "$marker_tmp"

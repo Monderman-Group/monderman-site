@@ -55,7 +55,14 @@ for (const entry of await readdir(publishDirectory, { withFileTypes: true })) {
       html = html.replace("</head>", `<link rel="stylesheet" href="report-screen-experience.css?v=${shellRelease}">\n</head>`);
     }
     if (!html.includes('src="report-screen-experience.js')) {
-      html = html.replace("</body>", `<script src="report-screen-experience.js?v=${shellRelease}" defer></script>\n</body>`);
+      // Instruments contain complete HTML report templates inside inline JS.
+      // The first </body> belongs to one of those strings; inserting a raw
+      // </script> there would terminate the instrument script in the browser.
+      const documentBodyEnd = html.toLowerCase().lastIndexOf("</body>");
+      if (documentBodyEnd < 0) throw new Error(`Document body is missing in ${entry.name}`);
+      html = html.slice(0, documentBodyEnd) +
+        `<script src="report-screen-experience.js?v=${shellRelease}" defer></script>\n` +
+        html.slice(documentBodyEnd);
     }
     changed = true;
   }
