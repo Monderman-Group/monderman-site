@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.11";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.12";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -477,12 +477,12 @@
       r.process_name, r.processName, r.pathway_name, metaScope
     );
     const participantMode = humanize(firstStr(r.participant_mode, context.participantMode, context.participant_mode, "managerial"));
-    const dimensionEntries = Object.keys(dimensions).map((key) => ({
+    const dimensionEntries = Object.keys({...obj(coverage.dimensions),...dimensions}).map((key) => ({
       key: key,
       label: displayRunDimensionLabel(toolType, key, dimensionLabels[key]),
       score: strictFinite(dimensions[key]) ? Number(dimensions[key]) : null,
       coverage: obj(obj(coverage.dimensions)[key])
-    })).filter((item) => item.score !== null);
+    }));
     const primarySignal = firstStr(
       descriptor.primary_constraint_label, descriptor.dominant_burden_label,
       r.primary_driver, r.primary_constraint, driver
@@ -1167,6 +1167,10 @@
     const dimensions = arr(m.dimensionEntries);
     if (!dimensions.length) return "";
     const rows = dimensions.map((dimension) => {
+      if (dimension.score === null) {
+        const unmeasured = dimension.coverage.status === 'not_measured';
+        return '<div class="mr-dimension-row '+(unmeasured?'is-unmeasured':'is-unavailable')+'"><div class="mr-dimension-copy"><strong>' + esc(dimension.label) + '</strong><span>'+(unmeasured?'Not measured':'Score unavailable')+'</span></div><div class="mr-dimension-detail">'+(unmeasured?'No score is available for this dimension. Its condition remains unknown.':'No score is available in this saved report.')+'</div></div>';
+      }
       const score = Math.max(0, Math.min(100, Number(dimension.score)));
       const evidenceCount = strictFinite(dimension.coverage.evidence_count) ? fmtWhole(dimension.coverage.evidence_count) + (dimension.coverage.evidence_count === 1 ? " scored input" : " scored inputs") : "Measured dimension";
       const isPrimary = String(dimension.label).toLowerCase() === String(m.primarySignal).toLowerCase();
@@ -1227,7 +1231,7 @@
     return '<section class="mr-section mr-run-evidence"><div class="mr-section-index">0' + n + ' · Evidence in this run</div><h2>What this result is based on</h2>' +
       '<div class="mr-evidence-summary">' +
         runMetric("Evidence depth", m.evidenceBand, "Scope of this single run", "teal") +
-        runMetric("Measured dimensions", strictFinite(measured) && strictFinite(total) ? fmtWhole(measured) + " of " + fmtWhole(total) : fmtWhole(arr(m.dimensionEntries).length), "Dimensions represented", "ink") +
+        runMetric("Measured dimensions", strictFinite(measured) && strictFinite(total) ? fmtWhole(measured) + " of " + fmtWhole(total) : fmtWhole(arr(m.dimensionEntries).filter(item=>item.score!==null).length), "Dimensions represented", "ink") +
         runMetric("Perspective", m.participantMode, "Notes do not change the score", "green") +
       '</div><div class="mr-run-evidence-grid"><div>' + evidenceHtml + '</div>' +
       (watch.length ? '<div><div class="mr-lens-label">What to watch next</div><ul>' + watch.map((item) => '<li>' + esc(item) + '</li>').join("") + '</ul></div>' : '<div class="mr-evidence-clean"><div class="mr-lens-label">Watch items</div><p>No additional watch item was recorded for this run.</p></div>') +
@@ -1421,6 +1425,28 @@
     return '<aside class="mr-compatibility-notice"><div class="mr-compatibility-mark"></div><div><p class="mr-compatibility-label">Legacy report view</p><p>' + esc(notice) + '</p></div></aside>';
   }
 
+  // Saved evidence, not model-selected emphasis. These qualifications must
+  // remain visible even when Claude selects different observations/actions.
+  function buildAIRecordedContext(report) {
+    const facts = arr(report.evidence).map(obj);
+    const missing = facts.filter(f=>f.provenance==='deterministic_coverage' && f.value==='Not measured' && typeof f.label==='string' && f.label.endsWith(' evidence coverage'));
+    const notes = [];
+    if (missing.length) {
+      const names = [...new Set(missing.map(f=>f.label.slice(0,-' evidence coverage'.length)))];
+      notes.push('Not measured: '+names.join('; ')+'. '+(names.length===1?'This condition remains unknown.':'These conditions remain unknown.'));
+    }
+    const scenarioLabels = ['Modeled annual hours of exposure','Modeled annual labor-cost exposure','Scenario recovery hours','Scenario recovery cost'];
+    const unavailable = facts.filter(f=>f.provenance==='modeled_scenario' && scenarioLabels.includes(f.label) && f.value===null);
+    if (unavailable.length) {
+      const allUnavailable = scenarioLabels.every(label=>unavailable.some(f=>f.label===label));
+      const reason = facts.find(f=>f.provenance==='deterministic_sizing_status' && f.label==='Reason an exposure estimate was withheld' && typeof f.value==='string' && f.value.trim());
+      notes.push((allUnavailable?'Time and cost estimates are unavailable.':'Some modeled time or cost estimates are unavailable.')+(reason?' Recorded reason: '+reason.value+'.':''));
+    }
+    const flagged = facts.find(f=>f.provenance==='deterministic_result' && f.label==='Contradictions flagged' && Number.isSafeInteger(f.value) && f.value>0);
+    if (flagged) notes.push('The saved result records '+(flagged.value===1?'one contradiction flag':flagged.value+' contradiction flags')+'. A flag does not establish that answers conflict or identify a cause, person, or answer pair.');
+    return notes.length?'<aside class="mr-ai-recorded-context"><h3>Important context from the saved result</h3><ul>'+notes.map(text=>'<li>'+esc(text)+'</li>').join('')+'</ul></aside>':'';
+  }
+
   function buildAIInterpretation(state) {
     const ai = obj(state);
     if (!ai.status) return "";
@@ -1448,6 +1474,7 @@
     }).join('');
     return '<section class="mr-section mr-ai-interpretation">' + heading +
       '<p class="mr-method-copy">Prepared with '+esc(report.model === 'claude-opus-5' ? 'Claude Opus 5' : report.model)+' from this saved result. '+(reviewedSelection?'Claude selected and prioritized reviewed explanations and next steps. Monderman inserted their approved wording and the supporting responses. ':'')+'The interpretation does not change the score. Review it before acting.</p><p>'+esc(interpretation.summary)+'</p>' +
+      (reviewedSelection?buildAIRecordedContext(report):'') +
       paragraphs(interpretation.observations,reviewedSelection?'Selected responses and results':'What the responses suggest') + paragraphs(interpretation.hypotheses,'Possible explanations to investigate') +
       (actions ? '<h3>'+(reviewedSelection?'Suggested next steps':'Changes to test')+'</h3><div class="mr-ai-actions">'+actions+'</div>' : '') +
       paragraphs(arr(report.limitations).concat(arr(interpretation.limitations)),'Limits of this interpretation') +
