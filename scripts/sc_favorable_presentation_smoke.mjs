@@ -88,10 +88,13 @@ try{
  assert.match(html,/Clarity indicator distribution/);assert.match(html,/Review order and clarity indicators/);assert.match(html,/Monitoring priorities/);
  for(const width of [390,768,1440]){
   await page.setViewportSize({width,height:1000});await page.setContent(html);await page.evaluate(async()=>{await document.fonts.ready});
+  assert.equal(await page.locator('.mr-report-boundary').count(),1,'Exactly one final boundary must remain');
+  assert.equal(await page.locator('.mr-run-close-group > .mr-report-boundary').count(),1,'Closing and boundary must be one print unit');
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Full report overflow '+width);
   await page.screenshot({path:path.join(out,'full-'+width+'.png'),fullPage:true});evidence.widths.push(width);
  }
  if(engine==='chromium'){
+ const expectedBoundary=(await page.locator('.mr-report-boundary p:last-child').innerText()).replace(/\s+/g,' ').trim();
  await page.emulateMedia({media:'print'});await page.pdf({path:path.join(out,'report.pdf'),format:'Letter',preferCSSPageSize:true,printBackground:true});
  const pdf=spawnSync(process.env.PDF_PYTHON||'python3',['-c','import sys,json;from pypdf import PdfReader;print(json.dumps([p.extract_text() or "" for p in PdfReader(sys.argv[1]).pages]))',path.join(out,'report.pdf')],{encoding:'utf8',maxBuffer:8*1024*1024});assert.equal(pdf.status,0,pdf.stderr);
  const pages=JSON.parse(pdf.stdout).map(t=>t.replace(/\s+/g,' ').trim());assert.ok(pages.length>1&&pages.length<40);assert.ok(pages.every(t=>t.length>20));
@@ -100,6 +103,7 @@ try{
  assert.ok(pages.some(t=>/Monitoring priorities and options/i.test(t)&&/Review order and clarity indicators/i.test(t)),'Priority introduction separated from its chart');
  assert.doesNotMatch(pages.join('\n'),/Who has the authority to change|Name one accountable owner for Role|suggests issues to investigate/);
  assert.match(pages.at(-1),/Next decision/i,'Interpretation boundary orphaned on a separate page');
+ assert.ok(pages.at(-1).includes(expectedBoundary),'Final interpretation boundary is missing or split');
  fs.writeFileSync(path.join(out,'pages.json'),JSON.stringify(pages,null,2));evidence.pdfPages=pages.length;
  }
  assert.equal(JSON.stringify(run),unchanged);assert.deepEqual(evidence.errors,[]);evidence.passed=true;console.log(JSON.stringify(evidence));

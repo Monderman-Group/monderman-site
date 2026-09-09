@@ -1303,12 +1303,18 @@
 
   function renderRunReport(m) {
     const renderers = [renderRunDecisionBrief, renderRunDimensions, renderRunExposure, renderRunGovernance, renderRunEvidence, renderRunActions, renderRunMethod, renderRunLeadershipClose];
-    let html = "", n = 1;
+    let html = "", n = 1, closingBoundary = false;
     renderers.forEach((renderer) => {
       const block = renderer(m, n);
-      if (block) { html += block; n += 1; }
+      if (block) {
+        if (renderer === renderRunLeadershipClose) {
+          html += '<div class="mr-run-close-group">' + block + buildReportBoundary(m) + '</div>';
+          closingBoundary = true;
+        } else html += block;
+        n += 1;
+      }
     });
-    return html;
+    return html + (closingBoundary ? '' : buildReportBoundary(m));
   }
 
   function sectionHtml(s, n) {
@@ -1476,7 +1482,7 @@
     }
 
     if (m.kind === "run") {
-      return coverBlock + compatibilityBlock + aiBlock + renderRunReport(m) + buildReportBoundary(m);
+      return coverBlock + compatibilityBlock + aiBlock + renderRunReport(m);
     }
 
     const kvs = arr(m.kvs).map((x) => '<div class="k">' + esc(x.k) + "</div><div>" + esc(x.v) + "</div>").join("");
@@ -1828,14 +1834,19 @@
       .mr-run-metric-value{font-size:13pt;overflow-wrap:normal}
       .mr-section h2,.mr-section h3,.mr-section-index,.mr-run-method dl>div{break-inside:avoid;page-break-inside:avoid}
       .mr-leadership-close{break-inside:avoid;page-break-inside:avoid;padding:24px!important}
+      /* One atomic print unit: Linux Chromium otherwise fragments the final
+         grid paragraph even when sibling keep-together rules are present. */
+      .mr-run-close-group{display:inline-block;width:100%;vertical-align:top;break-inside:avoid;page-break-inside:avoid}
+      .mr-run-close-group>.mr-leadership-close{margin-top:0!important}
       .mr-leadership-close>h2{font-size:22pt!important;line-height:1.12!important;max-width:none!important}
       .mr-leadership-close p,.mr-leadership-close li,.mr-leadership-close li span{font-size:10pt!important;line-height:1.45!important}
       .mr-leadership-close{break-after:avoid;page-break-after:avoid}
       .mr-leadership-close+.mr-report-boundary{break-before:avoid;page-break-before:avoid}
       .mr-leadership-close-grid{grid-template-columns:1.05fr .95fr;gap:22px}
       .mr-leadership-sequence li{padding-bottom:12px}
-      .mr-remeasurement-note{margin-top:16px}
+      .mr-remeasurement-note{margin-top:16px;padding:12px 14px}
       .mr-report .mr-report-boundary{margin-top:16px;padding:12px 16px}
+      .mr-report-boundary p:last-child{font-size:10pt!important;line-height:1.45!important}
       /* A completed AI report ends at Method and limits. Keep its explanatory
          paragraph with the boundary, instead of a nearly empty final page. */
       .mr-run-method:has(+.mr-report-boundary){break-inside:auto;page-break-inside:auto;break-after:avoid;page-break-after:avoid}

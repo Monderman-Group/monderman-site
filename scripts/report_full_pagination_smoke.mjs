@@ -37,6 +37,7 @@ try{
   const check={id:item.id,widths:[],pdfPages:0};evidence.checks.push(check);
   for(const width of [390,768,1440]){
    await page.setViewportSize({width,height:1000});await page.setContent(html);
+   assert.equal(await page.locator('.mr-report-boundary').count(),1,'Exactly one final boundary: '+item.id);
    await page.evaluate(async()=>{await Promise.all([400,500,700].map(w=>document.fonts.load(`${w} 16px "Neue Haas Grotesk"`)));await document.fonts.ready;});
    assert.equal(await page.evaluate(()=>[...document.fonts].filter(f=>f.family==='Neue Haas Grotesk'&&f.status==='loaded').length),3);
    const overflow=await page.evaluate(()=>({width:innerWidth,document:document.documentElement.scrollWidth,elements:[...document.querySelectorAll('.mr-page *')].filter(el=>{const r=el.getBoundingClientRect();return r.width>0&&(r.left<-.5||r.right>innerWidth+1);}).map(el=>el.className)}));
@@ -49,6 +50,8 @@ try{
   const result=spawnSync(process.env.PDF_PYTHON||'python3',['-c','import sys,json;from pypdf import PdfReader;print(json.dumps([p.extract_text() or "" for p in PdfReader(sys.argv[1]).pages]))',pdf],{encoding:'utf8',maxBuffer:8*1024*1024});
   assert.equal(result.status,0,'PDF extraction failed: '+result.stderr);
   const pages=JSON.parse(result.stdout).map(t=>t.replace(/\s+/g,' ').trim());check.pdfPages=pages.length;
+  const expectedBoundary=(await page.locator('.mr-report-boundary p:last-child').innerText()).replace(/\s+/g,' ').trim();
+  assert.ok(pages.at(-1).includes(expectedBoundary),'Final boundary missing or split: '+item.id);
   assert.ok(pages.length>1&&pages.length<40);assert.ok(pages.every(t=>t.length>20),'Empty or text-orphan page');
   const scenario=pages.filter(t=>t.includes('How the time and cost estimate is built'));
   assert.equal(scenario.length,1);assert.ok(scenario[0].includes('None is an audited or realized saving.'),'Scenario paragraph split');
