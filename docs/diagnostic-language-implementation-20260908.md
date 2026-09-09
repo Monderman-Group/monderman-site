@@ -14,6 +14,10 @@ The browser recovery suite also passed all 140 authoritative-history cases. GitH
 
 One explicitly authorized controlled signed-in DV run completed through Terms acceptance and the real queue/model path with its original stored result unchanged. General AI generation remains disabled. Final prompt .8 actual-model evaluation accepted 9/14 ordinary cases, 4/4 same-score comparison cases and 5/5 legitimate outputs under injected-instruction tests. Five ordinary cases were rejected; independent review also found factual wording defects in accepted outputs. **NO-GO for unattended AI publication.** Current state and exact receipts are recorded in the API's `docs/ai-output-restoration-plan-20260908.md` and the workspace's `output/diagnostic-language-20260908/opus5-prompt8-final-review.md`. Site publication still requires the release checks and public hash/channel readback; this checkpoint is not a deployment receipt.
 
+### Final print-flow follow-up
+
+Independent raster review found the `print-reviewed` iteration still lost SC option 3 actions despite passing PDF text extraction. The revised `print-safe` candidate removes relative positioning from printed option cards, restricts list-item break avoidance to direct section lists, and uses block flow inside synthesis evidence rows. The full option now paints, and the representativeness label, status and explanation stay together. Explicit computed-style regression checks guard these print-flow constraints. Earlier failed artifacts are retained; extraction alone is not accepted as proof of visible PDF completeness.
+
 ## Earlier implementation record (historical)
 
 8 September 2026. This document supersedes the broader-candidate status in `diagnostic-language-release-holds.md`. The earlier document is retained as the record of the already-deployed intake/mobile correction.

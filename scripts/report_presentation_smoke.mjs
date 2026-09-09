@@ -275,6 +275,15 @@ for (const [key, html] of Object.entries(authenticatedRunHtml)) {
   }
 
   await runPage.emulateMedia({ media:'print' });
+  // Positioned cards and globally unbreakable nested list items caused real
+  // Chromium PDF paint loss even when text extraction found all the words.
+  // Keep the safe print flow explicit; raster review remains necessary.
+  const optionPrintFlow = await runPage.locator('.mr-run-remedy').evaluateAll(cards => cards.map(card => ({
+    display:getComputedStyle(card).display,
+    position:getComputedStyle(card).position,
+    itemBreaks:[...card.querySelectorAll('li')].map(item => getComputedStyle(item).breakInside),
+  })));
+  assert(optionPrintFlow.every(card => card.display === 'block' && card.position === 'static' && card.itemBreaks.every(value => value === 'auto')), `${key} unsafe nested option print fragmentation returned`);
   await assertNoHorizontalOverflow(runPage, `${key} print`);
   assert(await runPage.locator('.mr-run-score-stamp').isVisible(), `${key} score stamp hidden in print`);
   assert(await runPage.locator('.mr-leadership-close').isVisible(), `${key} leadership handoff hidden in print`);
@@ -305,6 +314,7 @@ for (const [key, html] of Object.entries(synthesisHtml)) {
     await synthesisPage.screenshot({ path:path.join(out, `${key}-${viewport.name}.png`), fullPage:true });
   }
   await synthesisPage.emulateMedia({ media:'print' });
+  assert(await synthesisPage.locator('.mr-evidence-grid .mr-lens-card').evaluateAll(cards => cards.length > 0 && cards.every(card => getComputedStyle(card).display === 'block' && getComputedStyle(card).breakInside === 'avoid')), `${key} evidence rows no longer use intact block print flow`);
   await assertNoHorizontalOverflow(synthesisPage, `${key} print`);
   assert(await primaryVisual.isVisible(), `${key} primary visual hidden in print`);
   await synthesisPage.pdf({ path:path.join(out, `${key}.pdf`), printBackground:true, preferCSSPageSize:true });
