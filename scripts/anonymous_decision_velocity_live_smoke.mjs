@@ -9,6 +9,23 @@ const API = 'https://monderman-api.onrender.com';
 const AUTH = 'https://ptkxrzgmeldalrkfruth.supabase.co';
 const revisionPattern = /^[a-f0-9]{40}$/;
 const uuidPattern = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+const CONFIDENCE_TEXT_BY_VERSION = Object.freeze({
+  '1.0.0':'How confident are you in the accuracy of the information you provided across this run?',
+  '1.1.0':'How confident are you that the answers you provided are accurate?'
+});
+
+function confidenceForInitialResponse(initial) {
+  // Pin the expectation to server-saved provenance, never the visible question
+  // or the current site release. Alias-only, unknown, and conflicting versions
+  // must fail rather than silently selecting the newest wording.
+  const version = initial?.questionnaire_version;
+  assert.equal(typeof version,'string','missing_questionnaire_version');
+  assert.ok(Object.hasOwn(CONFIDENCE_TEXT_BY_VERSION,version),'unknown_questionnaire_version');
+  const aliases = [initial.configVersion,initial.routingMeta?.configVersion,
+    initial.routingVersion,initial.config_version,initial.currentVersion].filter(value=>value!=null);
+  assert.ok(aliases.every(value=>value===version),'conflicting_questionnaire_version');
+  return {version,text:CONFIDENCE_TEXT_BY_VERSION[version]};
+}
 
 function classify(request) {
   // A successful CORS preflight (204) is not an answer or a second admission.
@@ -62,6 +79,19 @@ async function localRegression() {
   // Offline coverage of the exact predicate and orchestration used below.
   // No Playwright import, browser, HTTP request, or production admission.
   const {runInNewContext} = await import('node:vm');
+  for (const [version,text] of [
+    ['1.0.0','How confident are you in the accuracy of the information you provided across this run?'],
+    ['1.1.0','How confident are you that the answers you provided are accurate?']
+  ]) {
+    assert.deepEqual(confidenceForInitialResponse({questionnaire_version:version,routingVersion:version}),{version,text});
+    assert.deepEqual(confidenceForInitialResponse({questionnaire_version:version}),{version,text});
+  }
+  for (const initial of [undefined,null,{}, {routingVersion:'1.1.0'},
+    {questionnaire_version:1.1},{questionnaire_version:''},{questionnaire_version:'1.2.0'},
+    {questionnaire_version:'__proto__'},{questionnaire_version:'1.1.0',routingVersion:'1.0.0'},
+    {questionnaire_version:'1.1.0',routingMeta:{configVersion:'1.0.0'}}]) {
+    assert.throws(()=>confidenceForInitialResponse(initial),assert.AssertionError);
+  }
   const id = '11111111-1111-4111-8111-111111111111';
   const request = (method, suffix='answer') => ({method:()=>method,url:()=>`${API}/api/decision-velocity/run/${id}/${suffix}`});
   assert.equal(classify(request('OPTIONS')),null);
@@ -93,10 +123,10 @@ async function localRegression() {
   assert.equal(settled,false);assert.equal(actionCount,1);assert.equal(readyCalls,0);
   release({nextItem:{id:'next',questionType:'numeric',text:{managerial:'Numeric question'}}});
   assert.equal((await pending).id,'next');assert.equal(readyCalls,1);assert.equal(actionCount,1);
-  console.log('ANONYMOUS_DV_LOCAL_REGRESSION_PASS: delayed response, matched title/type, busy/transition/disabled controls, local prompts, OPTIONS exclusion, no browser or network.');
+  console.log('ANONYMOUS_DV_LOCAL_REGRESSION_PASS: exact 1.0.0/1.1.0 confidence mapping; missing/unknown/conflicting version rejection; delayed response, matched title/type, busy/transition/disabled controls, local prompts, OPTIONS exclusion, no browser or network.');
 }
 
-if (process.argv.includes('--local-regression')) {
+if (process.argv.includes('--local-regression') || process.argv.includes('--self-test')) {
   await localRegression();
   process.exit(0);
 }
@@ -206,6 +236,7 @@ try {
     await page.locator('.preflight-next').click();
   }
   const initial=await responseJson(await startResponse);assert.ok(uuidPattern.test(initial.runId),'missing_session_identifier');
+  const confidence=confidenceForInitialResponse(initial);summary.questionnaireVersion=confidence.version;
   summary.sessionRunId=initial.runId;let frontier=itemView(initial.nextItem);assert.ok(frontier,'missing_initial_question');
   stage('RESPONSE_DRIVEN_ANSWERS');
   for(let turn=0;frontier && turn<80;turn+=1){
@@ -221,7 +252,7 @@ try {
     const before=summary.traffic.length;await page.locator('#skipBtn').click();await readyQuestion(null,title);
     assert.equal(summary.traffic.length,before,'local_prompt_made_service_request');
   }
-  assert.equal(await page.locator('#questionTitle').textContent(),'How confident are you in the accuracy of the information you provided across this run?','unexpected_confidence_prompt');
+  assert.equal(await page.locator('#questionTitle').textContent(),confidence.text,'unexpected_confidence_prompt');
   const finalize=responseFor('finalize');await page.locator('#questionBody .choice').first().click();
   const teaser=await responseJson(await finalize);assert.equal(teaser.reason,'signup_required','expected_anonymous_teaser');
   assert.ok(Number.isFinite(teaser.teaser?.score),'missing_teaser_score');summary.score=teaser.teaser.score;
