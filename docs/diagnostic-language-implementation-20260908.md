@@ -1,5 +1,19 @@
 # Diagnostic language implementation and release status
 
+## Current checkpoint: 9 September 2026 UTC
+
+The material below is the earlier implementation record, not the current deployment state. The authorized DV calendar-time definition and OS answer-scale clarification are implemented and versioned in the API. The compatible API `1d77abb` is live; revised questionnaires have already been activated. Do not use the old hold statements below as current operational instructions.
+
+The website candidate preserves the independent `a45fb75` publisher-book-cover change. Its current renderer is `diagnostic-renderer-ai-20260908.2`. It displays stored report/AI provenance without rewriting historical results. SC/IP charts now bind to their own five burden indicators, preserve missing values instead of turning them into zero, constrain nested grids and chart containers, and wrap radar labels at narrow widths. Changes are display-only; no scores are recalculated.
+
+The September 8 Terms and Privacy source documents and their acceptance hashes are unchanged in this checkpoint. Release validators now require those actual documents and their stricter no-training/no-cross-customer-content commitments; they no longer require the superseded August language. Full-file manifest hashes refer to source archives. The static shell build changes header/footer bytes, while the legally material CONTENT regions remain equal.
+
+Owner checks: frontend release, beta compliance, cosmetic certification with 12 deliberate-regression rejections, all frontend release-gate scripts, and 1,968 Chromium/WebKit question layouts at 390/768/1440 passed. The SC/IP chart test uses the exact SRI-verified Chart.js asset rather than the earlier stub; it records before-scroll card containment, real datasets, missingness, screenshots and browser errors. Earlier failed chart attempts are retained as evidence. Physical iPhone use and fresh-reader comprehension are not certified by browser emulation.
+
+One explicitly authorized controlled signed-in DV run completed through Terms acceptance and the real queue/model path with its original stored result unchanged. General AI generation remains disabled. Final prompt .8 actual-model evaluation accepted 9/14 ordinary cases, 4/4 same-score comparison cases and 5/5 legitimate outputs under injected-instruction tests. Five ordinary cases were rejected; independent review also found factual wording defects in accepted outputs. **NO-GO for unattended AI publication.** Current state and exact receipts are recorded in the API's `docs/ai-output-restoration-plan-20260908.md` and the workspace's `output/diagnostic-language-20260908/opus5-prompt8-final-review.md`. Site publication still requires the release checks and public hash/channel readback; this checkpoint is not a deployment receipt.
+
+## Earlier implementation record (historical)
+
 8 September 2026. This document supersedes the broader-candidate status in `diagnostic-language-release-holds.md`. The earlier document is retained as the record of the already-deployed intake/mobile correction.
 
 ## Outcome

@@ -285,6 +285,11 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
 .viz-card h4{margin:0 0 10px;font-size:.94rem;line-height:1.2}
 .viz-note{margin-top:10px;font-size:.84rem;line-height:1.55;color:var(--ink-soft)}
 .canvas-wrap{position:relative;height:240px}
+#resultsStage .results-layout,#resultsStage .accordion-stack,#resultsStage .detail-content{grid-template-columns:minmax(0,1fr);min-width:0}
+#resultsStage .results-layout>*,#resultsStage .accordion-section,#resultsStage .accordion-body{min-width:0}
+#resultsStage .chart-card,#resultsStage .chart-wrap{min-width:0}
+#resultsStage .chart-wrap{position:relative;width:100%;height:280px}
+#resultsStage .chart-wrap canvas{max-width:100%}
 .donut-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
 .donut-center strong{font-size:1.6rem;line-height:1;letter-spacing:-.04em;font-weight:700;color:var(--ink)}
 .capacity-waterfall{display:grid;gap:10px}
@@ -3941,7 +3946,19 @@ data: {
 labels,
 datasets: [{ data: values, fill: true }]
 },
-options: { ...chartOptions(), scales: { r: { beginAtZero: true, max: 100 } } }
+options: { ...chartOptions(), scales: { r: {
+beginAtZero: true, max: 100, ticks: { stepSize: 25 },
+pointLabels: { font: { family: '"Neue Haas Grotesk", "Helvetica Neue", Arial, sans-serif', size: 10 },
+callback(value) {
+const lines = [""];
+for (const word of String(value).split(" ")) {
+const last = lines.length - 1;
+if (lines[last] && (lines[last] + " " + word).length > 12) lines.push(word);
+else lines[last] += (lines[last] ? " " : "") + word;
+}
+return lines;
+} }
+} } }
 });
 }
 }
