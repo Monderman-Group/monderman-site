@@ -13,7 +13,9 @@ if [[ ! -s "$pw_ubuntu_sources" || ! -f node_modules/playwright/cli.js ]]; then
   echo 'Expected Ubuntu sources or pinned Playwright installation is missing.' >&2
   exit 1
 fi
-pw_apt_dir=$(mktemp -d "${RUNNER_TEMP:?}/playwright-apt.XXXXXX")
+# RUNNER_TEMP can have a private parent directory that APT's _apt user cannot
+# traverse. Use /tmp and verify read access before starting package downloads.
+pw_apt_dir=$(mktemp -d /tmp/monderman-browser-apt.XXXXXX)
 if [[ "$pw_apt_dir" == *[!a-zA-Z0-9_./-]* ]]; then
   echo 'Unexpected runner temporary path; cannot construct APT configuration.' >&2
   exit 1
@@ -23,6 +25,7 @@ mkdir "$pw_apt_dir/empty-sourceparts" "$pw_apt_dir/lists"
 printf 'Dir::Etc::sourcelist "%s";\nDir::Etc::sourceparts "%s";\nDir::State::lists "%s";\n' \
   "$pw_ubuntu_sources" "$pw_apt_dir/empty-sourceparts" "$pw_apt_dir/lists" \
   > "$pw_apt_dir/apt.conf"
+sudo -u _apt test -r "$pw_apt_dir/apt.conf"
 
 # APT reads its normal configuration too. Fail closed if it overrides our
 # source isolation, rather than silently consulting the vendor repositories.
