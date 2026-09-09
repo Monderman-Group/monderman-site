@@ -17,6 +17,7 @@ on:
       - 'monderman-report.js'
       - 'canonical-site-shell.js'
       - 'canonical-site-shell.css'
+      - 'brand-surfaces.css'
       - 'enterprise-site.css'
       - 'homepage-hero-system.css'
       - 'public-product-design.css'
@@ -30,6 +31,7 @@ on:
       - 'scripts/workspace_product_design_smoke.mjs'
       - 'scripts/report_screen_experience_smoke.mjs'
       - 'scripts/public_surface_consistency_smoke.mjs'
+      - 'scripts/brand_surface_consistency_smoke.mjs'
       - 'scripts/workspace_layout_audit_smoke.mjs'
       - 'scripts/inject-public-shell.mjs'
       - 'scripts/render-static-build.sh'
@@ -133,6 +135,7 @@ on:
       - 'monderman-report.js'
       - 'canonical-site-shell.js'
       - 'canonical-site-shell.css'
+      - 'brand-surfaces.css'
       - 'enterprise-site.css'
       - 'homepage-hero-system.css'
       - 'public-product-design.css'
@@ -146,6 +149,7 @@ on:
       - 'scripts/workspace_product_design_smoke.mjs'
       - 'scripts/report_screen_experience_smoke.mjs'
       - 'scripts/public_surface_consistency_smoke.mjs'
+      - 'scripts/brand_surface_consistency_smoke.mjs'
       - 'scripts/workspace_layout_audit_smoke.mjs'
       - 'scripts/inject-public-shell.mjs'
       - 'scripts/render-static-build.sh'
@@ -242,7 +246,7 @@ concurrency:
 jobs:
   certify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -322,11 +326,27 @@ jobs:
           cat /tmp/report-cert-http.log
           exit 1
 
+      - name: Enforce homepage card rhythm at responsive seams
+        env:
+          SITE_BASE: http://127.0.0.1:8080
+        run: node scripts/homepage_card_rhythm_smoke.mjs
+
+      - name: Verify the product walkthrough and Workspace states
+        env:
+          SITE_BASE: http://127.0.0.1:8080
+          HOME_DEMO_OUT: /tmp/report-presentation-smoke/product-home
+          WORKSPACE_PRODUCT_OUT: /tmp/report-presentation-smoke/product-workspace
+        run: |
+          node scripts/homepage_workspace_demo_smoke.mjs
+          node scripts/workspace_product_design_smoke.mjs
+          REPORT_OUT=/tmp/report-presentation-smoke/report-screen-experience node scripts/report_screen_experience_smoke.mjs
+
       - name: Reject public and populated Workspace presentation regressions
         env:
           SITE_BASE: http://127.0.0.1:8080
           WORKSPACE_LAYOUT_OUT: /tmp/report-presentation-smoke/workspace-layout
         run: |
+          node scripts/brand_surface_consistency_smoke.mjs
           node scripts/public_surface_consistency_smoke.mjs
           node scripts/workspace_layout_audit_smoke.mjs
 
@@ -366,21 +386,6 @@ jobs:
         env:
           SITE_BASE: http://127.0.0.1:8080
         run: node scripts/site_system_visual_smoke.mjs
-
-      - name: Enforce homepage card rhythm at responsive seams
-        env:
-          SITE_BASE: http://127.0.0.1:8080
-        run: node scripts/homepage_card_rhythm_smoke.mjs
-
-      - name: Verify the product walkthrough and Workspace states
-        env:
-          SITE_BASE: http://127.0.0.1:8080
-          HOME_DEMO_OUT: /tmp/report-presentation-smoke/product-home
-          WORKSPACE_PRODUCT_OUT: /tmp/report-presentation-smoke/product-workspace
-        run: |
-          node scripts/homepage_workspace_demo_smoke.mjs
-          node scripts/workspace_product_design_smoke.mjs
-          REPORT_OUT=/tmp/report-presentation-smoke/report-screen-experience node scripts/report_screen_experience_smoke.mjs
 
       - name: Render and verify ordinary-page print pagination
         env:
