@@ -7,7 +7,7 @@ const source=fs.readFileSync('monderman-report.js','utf8');
 const sandbox={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};
 vm.runInNewContext(source,sandbox);
 const report=sandbox.window.MondermanReport;
-assert.equal(report.rendererVersion,'diagnostic-renderer-ai-20260909.8');
+assert.equal(report.rendererVersion,'diagnostic-renderer-ai-20260909.9');
 const base=()=>({synthesis_product:'cross_lens_synthesis',score_status:'withheld',cross_diagnostic_score:null,
   condition_band:'Composite withheld',respondent_count:2,lens_count:2,
   source_groups:[{tool_type:'structural_clarity',tool_label:'Structural Clarity',respondents:1,mean_score:60,median_score:60,score_iqr:[60,60]},

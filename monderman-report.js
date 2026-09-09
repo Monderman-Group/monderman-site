@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.8";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.9";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -1140,7 +1140,7 @@
         runMetric("Modeled share of capacity", drag, strictFinite(exp.total_capacity_hours) ? fmtWhole(exp.total_capacity_hours) + " annual capacity hours used in the model" : "Scenario estimate", "amber") +
         runMetric("Evidence depth", m.evidenceBand, m.participantMode + " perspective", "green") +
       '</div>' +
-      '<div class="mr-run-decision-story">' +
+      '<div class="mr-run-decision-story' + (m.firstMove && obj(m.aiReport).status !== 'complete' ? '' : ' is-single') + '">' +
         '<div><div class="mr-lens-label">What this may mean</div><p>' + esc(m.bottomLine) + '</p></div>' +
         (m.firstMove && obj(m.aiReport).status !== 'complete' ? '<div><div class="mr-lens-label">First thing to test</div><p>' + esc(m.firstMove) + '</p></div>' : '') +
       '</div></section>';
@@ -1561,6 +1561,7 @@
 
     '.mr-contributing-score{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;font-size:2rem;font-weight:700;line-height:1.2;margin:8px 0}.mr-contributing-score.is-unavailable{font-size:18px;font-weight:600}.mr-contributing-score span{font-size:14px;font-weight:400;color:var(--soft)}.mr-contributing-meta{display:flex;flex-wrap:wrap;gap:4px 16px}.mr-contributing-meta span{white-space:nowrap}' +
     '.mr-ai-evidence-text,.mr-ai-reason{white-space:pre-line;overflow-wrap:anywhere}' +
+    '.mr-run-decision-story.is-single{grid-template-columns:minmax(0,1fr)}' +
     // ═══ Synthesis crown-jewel section styles ═══
     `
     @font-face{font-family:"Neue Haas Grotesk";src:url("https://www.monderman.com/55font.woff2") format("woff2");font-style:normal;font-weight:400;font-display:swap}
@@ -1892,6 +1893,9 @@
       .mr-run-method:has(+.mr-report-boundary){break-inside:auto;page-break-inside:auto;break-after:avoid;page-break-after:avoid}
       .mr-run-method:has(+.mr-report-boundary)>.mr-method-copy:last-child{break-after:avoid;page-break-after:avoid}
       .mr-run-method+.mr-report-boundary{break-before:avoid;page-break-before:avoid}
+      .mr-run-method dl{margin:14px 0}
+      .mr-run-method dl>div{padding:8px 0;gap:14px}
+      .mr-run-method .mr-method-copy{margin-top:14px!important;font-size:10pt!important;line-height:1.45!important}
       .mr-priority-matrix,.mr-constraint-view,.mr-run-findings{break-inside:avoid;page-break-inside:avoid}
       .mr-leadership-grid>div,.mr-leadership-sequence li{break-inside:avoid;page-break-inside:avoid}
       .mr-section h3,.mr-lens-label,.mr-viz-title{break-after:avoid;page-break-after:avoid}

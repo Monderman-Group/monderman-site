@@ -6,7 +6,7 @@ import vm from 'node:vm';
 const sandbox={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};
 vm.runInNewContext(fs.readFileSync('monderman-report.js','utf8'),sandbox);
 const report=sandbox.window.MondermanReport;
-assert.equal(report.rendererVersion,'diagnostic-renderer-ai-20260909.8');
+assert.equal(report.rendererVersion,'diagnostic-renderer-ai-20260909.9');
 const groups=[
   {tool_type:'structural_clarity',tool_label:'Structural Clarity',respondents:1,mean_score:0,median_score:0,score_iqr:[0,0],score_range:[0,0]},
   {tool_type:'decision_velocity',tool_label:'Decision Velocity',respondents:2,mean_score:70,median_score:69,score_iqr:[65,75],score_range:[60,80]},

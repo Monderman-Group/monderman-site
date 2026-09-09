@@ -33,6 +33,9 @@ try{
    const indices=await page.locator('.mr-section-index').allTextContents();
    assert.deepEqual(indices.map(text=>Number(text.match(/^\d+/)?.[0])),indices.map((_,i)=>i+1),'AI report sections must remain consecutively numbered');
    assert.equal(await page.locator('.mr-run-action-board .mr-section-index').count(),1,'measured priorities retain their section number');
+   const story=page.locator('.mr-run-decision-story');
+   assert.equal(await story.locator(':scope > div').count(),1,'complete AI report must not repeat a generic first action');
+   assert.ok(await story.evaluate(el=>Math.abs(el.firstElementChild.getBoundingClientRect().width-el.clientWidth)<=2),'a single meaning panel must use the available width');
    const layout=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,ai:[...document.querySelectorAll('.mr-ai-interpretation *')].filter(el=>{const r=el.getBoundingClientRect();return r.width>0&&(r.left<0||r.right>innerWidth+1)}).map(el=>({tag:el.tagName,text:el.textContent.slice(0,60)}))}));
    assert.ok(layout.scrollWidth<=width+1,JSON.stringify({instrument,...layout}));assert.deepEqual(layout.ai,[]);
    await page.locator('.mr-ai-interpretation').screenshot({path:path.join(out,`${instrument}-${width}.png`)});
