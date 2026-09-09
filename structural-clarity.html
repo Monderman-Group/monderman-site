@@ -942,6 +942,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   </footer>
   <script src="participant-evidence-safety.js?v=20260905-report-quarantine"></script>
   <script src="monderman-viz.js"></script>
+  <script src="monderman-report.js"></script>
   <script src="assignment-mode.js"></script>
   <script src="assignment-draft.js"></script>
   <script src="self-diagnostic-draft.js"></script>
@@ -3412,6 +3413,14 @@ if (window.MondermanAssignment && window.MondermanAssignment.active()) {
 }
 setProcessingStep(3, "Rendering charts and final report modules...");
 renderResults(result, payload, "Structural Clarity Diagnostic");
+if (data.savedRunId && !window.MondermanAssignment?.active?.()) {
+  window.MondermanReport?.mountAIInterpretation(resultsStage, result, async () => {
+    const response=await fetchWithTimeout(`${API_BASE}/api/runs/${encodeURIComponent(data.savedRunId)}/report`);
+    const saved=await response.json();
+    if(!response.ok || !saved.ok || saved.runId!==data.savedRunId) throw new Error('saved_report_unavailable');
+    return saved.result;
+  });
+}
 // Do not write this run into localStorage automatically; repeated testing should not mutate future visible context or counts.
 setHeader("Diagnostic output", "Your results are based on the answers you provided.", "Output generated");
 if (state.gateNotice) {
@@ -5463,6 +5472,7 @@ return `${base}-full-report.html`;
 }
 
 function exportExecutiveReport(result, payload) {
+if (result?.ai_report?.status && window.MondermanReport) return window.MondermanReport.downloadPdf(window.MondermanReport.fromRun(result));
 const html = buildExecutiveReportHtml(result, payload);
 const blob = new Blob([html], { type: "text/html;charset=utf-8" });
 const url = URL.createObjectURL(blob);
@@ -6207,6 +6217,7 @@ document.querySelector("#laneStage .step-chip")?.scrollIntoView({ behavior: "smo
 });
 
 function exportFullReportHTML(result, payload, title = "Structural Clarity Report") {
+if (result?.ai_report?.status && window.MondermanReport) return window.MondermanReport.downloadHtml(window.MondermanReport.fromRun(result));
 if (!result || !payload) return;
 
 try {

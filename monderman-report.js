@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-20260908";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-20260908.1";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -221,6 +221,7 @@
 
     return {
       kind: "meta-synthesis",
+      aiReport: obj(r.ai_report),
       compatibility: compatibility,
       product: product,
       mastline: "Monderman. " + modeLabel,
@@ -417,6 +418,7 @@
 
     return {
       kind: "run",
+      aiReport: obj(r.ai_report),
       compatibility: compatibility,
       product: "diagnostic",
       mastline: "Monderman. " + (toolLabel || "Diagnostic"),
@@ -1001,6 +1003,9 @@
     ];
     let html = "", n = 1;
     renderers.forEach((renderer) => {
+      // A completed interpretation supplies the tailored options. Preserve the
+      // measured findings and method without a competing generic action plan.
+      if (obj(m.aiReport).status === 'complete' && [renderMetaActions, renderMetaRemedyPaths, renderMetaIndicators].includes(renderer)) return;
       const block = renderer(m, n);
       if (block) { html += block; n += 1; }
     });
@@ -1151,6 +1156,7 @@
         (arr(path.actions).length ? '<div class="mr-remedy-actions"><div class="mr-remedy-field-label">Suggested steps</div><ol>' + arr(path.actions).map((action) => '<li>' + esc(textItem(action)) + '</li>').join("") + '</ol></div>' : '') +
         '<div class="mr-remedy-tradeoffs">' + (path.benefit ? '<div><div class="mr-remedy-field-label">Potential benefit</div><p>' + esc(path.benefit) + '</p></div>' : '') + (path.risk ? '<div><div class="mr-remedy-field-label">Tradeoff</div><p>' + esc(path.risk) + '</p></div>' : '') + '</div></article>';
     }).join("") + '</div>' : '';
+    if (obj(m.aiReport).status === "complete") return '<section class="mr-section mr-run-action-board"><h2>Measured priorities</h2>' + renderPriorityMatrix(m) + ladderHtml + '</section>';
     return '<section class="mr-section mr-run-action-board"><div class="mr-section-index">0' + n + ' · What to test next</div><h2>Priorities and options</h2>' +
       '<p class="mr-lede">The priority list ranks measured issues. The options describe different scopes of change and do not correspond one-to-one with that list. None changes the score or predicts an outcome.</p>' + renderPriorityMatrix(m) + ladderHtml +
       (actions.length ? '<div class="mr-run-actions"><div class="mr-lens-label">Suggested order</div><ol>' + actions.map((action) => '<li>' + esc(action) + '</li>').join("") + '</ol></div>' : '') + remediesHtml + '</section>';
@@ -1176,6 +1182,7 @@
   }
 
   function renderRunLeadershipClose(m, n) {
+    if (obj(m.aiReport).status === "complete") return "";
     const ladder = arr(m.priorityLadder);
     const indicators = ladder.slice(0, 3).map((item) => firstStr(obj(item).focus, obj(item).label)).filter(Boolean);
     const scope = firstStr(m.processName, m.scopeLabel, "the measured operating scope");
@@ -1282,17 +1289,82 @@
     return '<aside class="mr-compatibility-notice"><div class="mr-compatibility-mark"></div><div><p class="mr-compatibility-label">Legacy report view</p><p>' + esc(notice) + '</p></div></aside>';
   }
 
+  function buildAIInterpretation(state) {
+    const ai = obj(state);
+    if (!ai.status) return "";
+    const heading = '<h2>AI-assisted interpretation</h2>';
+    if (ai.status !== "complete") return '<section class="mr-section mr-ai-interpretation" aria-live="polite">' + heading + '<p>' + esc(ai.message) + '</p><p>The measured result remains available. Reopen this saved report to check progress; do not start another diagnostic.</p></section>';
+    const report = obj(ai.report), interpretation = obj(report.interpretation);
+    const paragraphs = (items, title) => arr(items).length ? '<h3>' + title + '</h3><ul>' + arr(items).map(item => '<li>' + esc(obj(item).text || item) + '</li>').join('') + '</ul>' : '';
+    const sources = arr(report.sources).filter(source => /^https:\/\//i.test(firstStr(source.url)));
+    const actions = arr(interpretation.recommendations).map((item, index) => {
+      const action = obj(item);
+      const refs = sources.filter(source => arr(action.source_ids).includes(source.id));
+      return '<article class="mr-card mr-ai-action"><h3>' + (index + 1) + '. ' + esc(action.action) + '</h3><p>' + esc(action.reason) + '</p><dl>' +
+        [['Before trying it',action.prerequisite],['Risk to consider',action.risk],['What to check',action.success_check]].map(row=>'<dt><strong>'+row[0]+'</strong></dt><dd>'+esc(row[1])+'</dd>').join('') + '</dl>' +
+        (refs.length ? '<p>Practice references: ' + refs.map(source=>'<a href="'+esc(source.url)+'" target="_blank" rel="noopener noreferrer">'+esc(source.publisher)+'</a>').join('; ') + '.</p>' : '') + '</article>';
+    }).join('');
+    return '<section class="mr-section mr-ai-interpretation">' + heading +
+      '<p class="mr-method-copy">Prepared with '+esc(report.model === 'claude-opus-5' ? 'Claude Opus 5' : report.model)+' from this saved result. The interpretation does not change the score. Review it before acting.</p><p>'+esc(interpretation.summary)+'</p>' +
+      paragraphs(interpretation.observations,'What the responses suggest') + paragraphs(interpretation.hypotheses,'Possible explanations to investigate') +
+      (actions ? '<h3>Changes to test</h3><div class="mr-ai-actions">'+actions+'</div>' : '') +
+      paragraphs(arr(report.limitations).concat(arr(interpretation.limitations)),'Limits of this interpretation') +
+      '<h3>Sector comparison</h3><p>'+esc(obj(report.benchmark).explanation)+'</p>' +
+      (sources.length ? '<h3>External practice sources</h3><ul>'+sources.map(source=>'<li><a href="'+esc(source.url)+'" target="_blank" rel="noopener noreferrer">'+esc(source.title)+'</a>. '+esc(source.publisher)+'. Reviewed '+esc(source.reviewed)+'. Practice guidance, not a Monderman peer benchmark.</li>').join('')+'</ul>' : '') +
+      '<p class="mr-method-copy">Interpretation version: '+esc(report.version)+'. Prepared: '+esc(report.generated_at)+'. Evidence reference: '+esc(report.snapshot_id)+'.</p></section>';
+  }
+
+  // An existing authorized report read supplies refresh. No credentials,
+  // endpoints, admissions or new diagnostic requests are invented here.
+  function mountAIInterpretation(node, result, refresh) {
+    if (!node || !obj(result.ai_report).status) return () => {};
+    if (!document.getElementById('mr-style')) {
+      const style=document.createElement('style');style.id='mr-style';style.textContent=REPORT_CSS+AI_CSS;document.head.appendChild(style);
+    }
+    node.querySelector('.mr-ai-inline')?.remove();
+    const existing = node.querySelector('.mr-ai-interpretation');
+    const section = document.createElement('div');
+    section.className = 'mr-report mr-ai-inline';
+    // Reuse the report's interpretation position instead of displaying a
+    // second pending block above its cover on a recovered saved report.
+    if (existing) existing.replaceWith(section); else node.prepend(section);
+    let stopped = false, timer = null, attempts = 0;
+    const paint = () => { section.innerHTML = buildAIInterpretation(result.ai_report); };
+    paint();
+    const stop = () => { stopped = true; clearTimeout(timer); document.removeEventListener('visibilitychange', resume); window.removeEventListener('pagehide', stop); };
+    const resume = () => { if (!stopped && !document.hidden && !timer) timer = setTimeout(poll, 1000); };
+    const poll = async () => {
+      timer = null;
+      if (stopped || !section.isConnected) return stop();
+      if (document.hidden) return;
+      try {
+        const latest = await refresh();
+        if (!latest || stopped || !section.isConnected) return stop();
+        result.ai_report = latest.ai_report; paint();
+        if (!['pending','processing'].includes(obj(result.ai_report).status)) return stop();
+      } catch (_) { /* A temporary read failure must not strand a saved report. */ }
+      if (++attempts < 20) timer = setTimeout(poll, 15000); else stop();
+    };
+    if (typeof refresh === 'function' && ['pending','processing'].includes(obj(result.ai_report).status)) {
+      timer=setTimeout(poll,15000);
+      document.addEventListener('visibilitychange',resume);
+    }
+    window.addEventListener('pagehide',stop,{once:true});
+    return stop;
+  }
+
   function buildReportBody(model) {
     const m = obj(model);
     const coverBlock = buildReportCover(m);
     const compatibilityBlock = buildCompatibilityNotice(m);
+    const aiBlock = buildAIInterpretation(m.aiReport);
 
     if (m.kind === "meta-synthesis") {
-      return coverBlock + compatibilityBlock + renderMetaSynthesis(m) + buildReportBoundary(m);
+      return coverBlock + compatibilityBlock + aiBlock + renderMetaSynthesis(m) + buildReportBoundary(m);
     }
 
     if (m.kind === "run") {
-      return coverBlock + compatibilityBlock + renderRunReport(m) + buildReportBoundary(m);
+      return coverBlock + compatibilityBlock + aiBlock + renderRunReport(m) + buildReportBoundary(m);
     }
 
     const kvs = arr(m.kvs).map((x) => '<div class="k">' + esc(x.k) + "</div><div>" + esc(x.v) + "</div>").join("");
@@ -1621,11 +1693,13 @@
     }
     `;
 
+  const AI_CSS = '.mr-ai-interpretation{min-width:0;overflow-wrap:anywhere}.mr-ai-interpretation a{color:var(--accent,#0C6E78);text-decoration:underline;text-underline-offset:.16em}.mr-ai-inline{padding:24px;max-width:100%;box-sizing:border-box}.mr-ai-action{margin:20px 0;padding:24px;break-inside:avoid}.mr-ai-action dd{margin:4px 0 16px}.mr-ai-interpretation h3{margin-top:24px}.mr-ai-interpretation li+li{margin-top:12px}@media(max-width:600px){.mr-ai-inline,.mr-ai-action{padding:18px}.mr-ai-interpretation h2{font-size:1.45rem}.mr-ai-interpretation h3{font-size:1.12rem}}';
+
   function buildReportHtml(model) {
     return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" />' +
       '<meta name="monderman-renderer-version" content="' + RENDERER_VERSION + '" />' +
       '<meta name="viewport" content="width=device-width, initial-scale=1.0" />' +
-      "<title>Monderman | Executive Report</title><style>" + REPORT_CSS + "</style></head><body>" +
+      "<title>Monderman | Executive Report</title><style>" + REPORT_CSS + AI_CSS + "</style></head><body>" +
       '<div class="mr-report"><div class="mr-page">' + buildReportBody(model) +
       '<div class="actions"><button class="btn btn-accent" onclick="window.print()">Save / Print PDF</button>' +
       '<button class="btn" onclick="window.close()">Close report</button></div>' +
@@ -1699,7 +1773,7 @@
     if (!node) return;
     if (!document.getElementById("mr-style")) {
       const st = document.createElement("style");
-      st.id = "mr-style"; st.textContent = REPORT_CSS;
+      st.id = "mr-style"; st.textContent = REPORT_CSS + AI_CSS;
       document.head.appendChild(st);
     }
     node.innerHTML = '<div class="mr-report"><div class="mr-page" style="box-shadow:none;margin:0;max-width:none">' + buildReportBody(model) + "</div></div>";
@@ -1713,6 +1787,8 @@
     buildReportHtml: buildReportHtml,
     createArtifact: createArtifact,
     render: render,
+    buildAIInterpretation: buildAIInterpretation,
+    mountAIInterpretation: mountAIInterpretation,
     reserveReportWindow: reserveReportWindow,
     closeReservedReportWindow: closeReservedReportWindow,
     openReport: openReport,

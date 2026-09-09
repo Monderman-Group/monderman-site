@@ -3546,6 +3546,14 @@ if (window.MondermanAssignment && window.MondermanAssignment.active()) {
 }
 setProcessingStep(3, "Rendering charts and final report modules...");
 renderResults(result, payload, "Decision Velocity Diagnostic");
+if (data.savedRunId && !window.MondermanAssignment?.active?.()) {
+  window.MondermanReport?.mountAIInterpretation(resultsStage, result, async () => {
+    const response=await fetchWithTimeout(`${API_BASE}/api/runs/${encodeURIComponent(data.savedRunId)}/report`);
+    const saved=await response.json();
+    if(!response.ok || !saved.ok || saved.runId!==data.savedRunId) throw new Error('saved_report_unavailable');
+    return saved.result;
+  });
+}
 // Do not write this run into localStorage automatically; repeated testing should not mutate future visible context or counts.
 setHeader("Diagnostic output", "Your results are based on the answers you provided.", "Output generated");
 if (state.gateNotice) {
@@ -5503,6 +5511,7 @@ return `${base}-full-report.html`;
 }
 
 function exportExecutiveReport(result, payload) {
+if (result?.ai_report?.status && window.MondermanReport) return window.MondermanReport.downloadPdf(window.MondermanReport.fromRun(result));
 const html = buildExecutiveReportHtml(result, payload);
 const blob = new Blob([html], { type: "text/html;charset=utf-8" });
 const url = URL.createObjectURL(blob);
@@ -6225,6 +6234,7 @@ document.querySelector("#laneStage .step-chip")?.scrollIntoView({ behavior: "smo
 });
 
 function exportFullReportHTML(result, payload, title = "Monderman Decision Velocity Report") {
+if (result?.ai_report?.status && window.MondermanReport) return window.MondermanReport.downloadHtml(window.MondermanReport.fromRun(result));
 if (!result || !payload) return;
 
 try {
@@ -6870,10 +6880,23 @@ const journeyReady = (async () => {
       if (!response.ok || !data.ok || !data.result || data.runId !== savedReport || (data.result.tool_type && data.result.tool_type !== 'decision_velocity')) throw new Error('saved_report_unavailable');
       // Use exactly the same saved-result renderer as Workspace, not a new score
       // or another finalization. The report endpoint owns access and claims checks.
-      const model = window.MondermanReport.fromRun(data.result);
+      let model = window.MondermanReport.fromRun(data.result);
       const report = document.createElement('div');
       window.MondermanReport.render(report, model);
       panel.appendChild(report);
+      if (['pending','processing'].includes(data.result.ai_report?.status)) {
+        window.MondermanReport.mountAIInterpretation(report, data.result, async () => {
+          if (state.journeyInvalidated) throw new Error('identity_changed');
+          const response=await fetchWithTimeout(`${API_BASE}/api/runs/${savedReport}/report`);
+          const saved=await response.json();
+          if (state.journeyInvalidated || !response.ok || !saved.ok || saved.runId!==savedReport) throw new Error('saved_report_unavailable');
+          if (saved.result.ai_report?.status==='complete') {
+            model=window.MondermanReport.fromRun(saved.result);
+            window.MondermanReport.render(report,model);
+          }
+          return saved.result;
+        });
+      }
       const actions = document.createElement('div');
       actions.className = 'dv-result-dialog__actions';
       for (const [label, action] of [['Download full report (HTML)', () => window.MondermanReport.downloadHtml(model)], ['Print / save PDF', () => window.MondermanReport.downloadPdf(model)]]) {

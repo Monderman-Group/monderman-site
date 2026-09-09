@@ -5,7 +5,7 @@ import re
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TERMS_VERSION = "2026-08-26-beta"
+TERMS_VERSION = "2026-09-08-beta"
 ACKNOWLEDGEMENT = (
     "financial, time, capacity, productivity and recovery figures are directional estimates, "
     "not guaranteed outcomes, and that my organization is responsible for its data, decisions, "
@@ -48,9 +48,9 @@ def validate():
         "not designed, validated or offered as employee-selection procedures",
         "Participants are not customers and are not third-party beneficiaries",
         "must not attempt to identify an anonymous Participant",
-        "This right continues after the relationship ends.",
-        "will not use this right to identify a Customer or person",
-        "Monderman does not opt Customer content into general model training",
+        "These restrictions apply even if the content could be aggregated or de-identified.",
+        "Customer content is for that Customer, not a shared training or benchmark resource.",
+        "Monderman does not use Customer content for model training or fine-tuning",
         "Outputs are licensed for the Customer's internal business use.",
         "No person outside the Customer may rely on an Output",
         "use access to the service or its materials to build, train, evaluate, improve or inform a competing product",
@@ -120,9 +120,9 @@ def validate():
     ], "trial clickwrap")
     require(privacy, [
         f"Version {TERMS_VERSION}",
-        "AGGREGATED &amp; DE-IDENTIFIED INFORMATION",
-        "cannot reasonably identify a customer or person",
-        "Monderman does not opt customer content into general model training",
+        "ORGANIZATION DATA &amp; RESEARCH",
+        "De-identifying customer content does not create an exception",
+        "Monderman does not use customer content for model training or fine-tuning",
         "Social Security or other government identification numbers"
     ], "aligned Privacy Notice")
 
@@ -143,7 +143,7 @@ def validate():
             raise AssertionError(f"legal document manifest {key} does not match reviewed content")
 
     document_manifest = manifest.get("documents") or {}
-    if set(document_manifest) != {"2026-08-20-beta", "2026-08-24-beta", TERMS_VERSION}:
+    if set(document_manifest) != {"2026-08-20-beta", "2026-08-24-beta", "2026-08-26-beta", TERMS_VERSION}:
         raise AssertionError("legal document manifest must retain every prior and current beta version")
     for version, files in document_manifest.items():
         for file_key, hash_key in [
