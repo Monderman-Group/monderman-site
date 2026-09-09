@@ -170,6 +170,7 @@
       document.addEventListener("click", (event) => { if (!nav.contains(event.target)) closeMenus(); });
       document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") {
+          if (document.querySelector('.site-search-overlay.is-open')) return;
           closeMenus();
           if (header.classList.contains("mobile-nav-open")) closeMobileNav({ restoreFocus: true });
           else nav.querySelector(".nav-menu:focus-within .nav-parent")?.focus();
@@ -205,7 +206,7 @@
       const status = overlay.querySelector(".site-search-status");
       const results = overlay.querySelector(".site-search-results");
       let searchIndex;
-      const loadIndex = () => searchIndex || (searchIndex = fetch("public-search-index.json?v=20260906-enterprise1").then((response) => {
+      const loadIndex = () => searchIndex || (searchIndex = fetch("public-search-index.json?v=20260909-disclosure1").then((response) => {
         if (!response.ok) throw new Error("Search index unavailable");
         return response.json();
       }));
@@ -287,7 +288,8 @@
       const closeSearch = () => {
         overlay.classList.remove("is-open");
         document.body.classList.remove("site-search-locked");
-        searchButton.focus();
+        const returnTarget = searchButton.getClientRects().length ? searchButton : header.querySelector('.site-menu-button');
+        returnTarget?.focus();
       };
       searchButton.addEventListener("click", openSearch);
       overlay.querySelector(".site-search-close").addEventListener("click", closeSearch);
@@ -297,8 +299,14 @@
           event.preventDefault();
           openSearch();
         } else if (event.key === "Escape" && overlay.classList.contains("is-open")) {
+          event.preventDefault();
           closeSearch();
-        } else if (event.key === "ArrowDown" && overlay.classList.contains("is-open")) {
+        } else if (event.key === "Tab" && overlay.classList.contains("is-open")) {
+          const controls = [...overlay.querySelectorAll('input,button,a[href]')].filter(node => node.getClientRects().length);
+          const first = controls[0], last = controls.at(-1);
+          if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+          else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+        } else if (event.key === "ArrowDown" && overlay.classList.contains("is-open") && event.target === input) {
           const first = results.querySelector("a");
           if (first) { event.preventDefault(); first.focus(); }
         }

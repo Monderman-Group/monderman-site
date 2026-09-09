@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.4";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.5";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -591,12 +591,28 @@
     return String(item);
   }
 
+  // These are explanations of stored scorer statuses, not deductions about
+  // which answers a participant omitted. Never expose internal status keys or
+  // turn an unavailable value into zero.
+  function exposureReason(value) {
+    const reasons = {
+      missing_sizing_inputs: "Required sizing inputs are missing or unusable.",
+      missing_hours_per_run: "Time per run is missing or unusable.",
+      missing_annual_cycles: "Annual frequency is missing or unusable.",
+      missing_hourly_cost: "Hourly labor cost is missing or unusable.",
+      missing_hourly_rate: "Hourly labor rate is missing or unusable.",
+      input_saturation: "The model flagged the supplied inputs as outside its supported range.",
+      attributed_hours_exceed_available_capacity: "Attributed hours exceed the supplied available capacity."
+    };
+    return Object.hasOwn(reasons, value) ? reasons[value] : "An explanation for the unavailable estimate was not recorded.";
+  }
+
   function renderExecutiveDecisionFrame(m, n) {
     const exp = obj(m.exposure);
     const diagnosis = obj(m.diagnosis);
     const firstAction = arr(m.actions)[0] || {};
     const annualCost = strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) : "Cost not calculated";
-    const annualHours = strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " hrs" : "Cost not calculated";
+    const annualHours = strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " hrs" : "Time not calculated";
     const scoreValue = m.scorePublished && strictFinite(m.score) ? fmt1(m.score) : "Withheld";
     const metrics = [
       ["Condition", scoreValue, m.product === "depth" ? "Observed median" : "Equal-lens composite"],
@@ -1101,15 +1117,15 @@
   function renderRunDecisionBrief(m, n) {
     const exp = obj(m.exposure);
     const score = strictFinite(m.score) ? fmt1(m.score) : "Unavailable";
-    const hours = strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " hrs" : "Cost not calculated";
-    const cost = strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) : "Cost not calculated";
+    const hours = strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " hrs" : "Time not calculated";
+    const costDetail = strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) + " modeled annual labor cost" : "Labor cost not calculated";
     const drag = strictFinite(exp.capacity_drag_percent) ? fmtPercent(exp.capacity_drag_percent) : "Not estimated";
     return '<section class="mr-section mr-run-decision"><div class="mr-section-index">0' + n + ' · Decision summary</div>' +
       '<div class="mr-run-headline"><div><h2>' + esc(m.headline || "Measured operating condition") + '</h2><p class="mr-exec-lede">' + esc(m.execSummary) + '</p></div>' +
       '<div class="mr-run-score-stamp"><span>Diagnostic score</span><strong>' + esc(score) + '</strong><em>' + esc(m.band) + '</em></div></div>' +
       '<div class="mr-run-metrics">' +
         runMetric("Primary measured focus", m.primarySignal, m.primarySignalNote, "teal") +
-        runMetric("Modeled annual time", hours, cost + " modeled annual labor cost", "ink") +
+        runMetric("Modeled annual time", hours, costDetail, "ink") +
         runMetric("Modeled share of capacity", drag, strictFinite(exp.total_capacity_hours) ? fmtWhole(exp.total_capacity_hours) + " annual capacity hours used in the model" : "Scenario estimate", "amber") +
         runMetric("Evidence depth", m.evidenceBand, m.participantMode + " perspective", "green") +
       '</div>' +
@@ -1166,8 +1182,8 @@
     const hourlyCost = exp.average_hourly_cost ?? exp.hourly_cost ?? context.hourlyCost ?? context.hourly_cost;
     const steps = [
       ["01", "Workload entered", strictFinite(people) ? fmtWhole(people) + " people" : "Bounded scope", [strictFinite(cycles) ? fmtWhole(cycles) + " annual cycles" : "", strictFinite(meetingHours) ? fmt1(meetingHours) + " hours per run" : ""].filter(Boolean).join(" · ")],
-      ["02", "Modeled burden time", strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " hours" : "Cost not calculated", firstStr(model.formula, exp.unpriced_reason, "Directional scenario")],
-      ["03", "Modeled labor cost", strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) : "Cost not calculated", strictFinite(hourlyCost) ? fmtMoney(hourlyCost) + " loaded hourly cost" : firstStr(exp.unpriced_reason)],
+      ["02", "Modeled burden time", strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " hours" : "Time not calculated", strictFinite(exp.annual_hours) ? firstStr(model.formula, "Directional scenario") : exposureReason(exp.unpriced_reason)],
+      ["03", "Modeled labor cost", strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) : "Cost not calculated", strictFinite(hourlyCost) ? fmtMoney(hourlyCost) + " loaded hourly cost" : strictFinite(exp.annual_cost) ? "Directional scenario" : exposureReason(exp.unpriced_reason)],
       ["04", "Modeled recovery scenario", strictFinite(exp.recoverable_cost) ? fmtMoney(exp.recoverable_cost) : "Not established", strictFinite(exp.recoverable_share_percent) ? fmtPercent(exp.recoverable_share_percent) + " modeled share" : "Not claimed"]
     ];
     return '<section class="mr-section mr-run-exposure"><div class="mr-section-index">0' + n + ' · Time and cost scenario</div><h2>How the time and cost estimate is built</h2>' +

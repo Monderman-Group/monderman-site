@@ -578,6 +578,17 @@ try {
           }
           if (opened.documentWidth > opened.viewportWidth + 1) failures.push(`${label}: opening the navigation creates horizontal overflow`);
 
+          // Escape belongs to the open search dialog, not its underlying menu.
+          // Closing both left focus on a hidden Search button on compact screens.
+          await page.locator('.site-search-button').click();
+          await page.locator('.site-search-input').focus();
+          await page.keyboard.press('Shift+Tab');
+          if (!await page.locator('.site-search-close').evaluate(node => node === document.activeElement)) failures.push(`${label}: reverse Tab escaped the empty search dialog`);
+          await page.keyboard.press('Tab');
+          if (!await page.locator('.site-search-input').evaluate(node => node === document.activeElement)) failures.push(`${label}: forward Tab escaped the empty search dialog`);
+          await page.keyboard.press('Escape');
+          if (!await page.locator('.site-search-button').evaluate(node => node === document.activeElement && node.getClientRects().length > 0)) failures.push(`${label}: search dismissal did not restore visible trigger focus`);
+
           await page.locator('#siteHeader .nav-parent').first().scrollIntoViewIfNeeded();
           await page.locator('#siteHeader .nav-parent').first().click();
           const submenu = await page.evaluate(() => {
