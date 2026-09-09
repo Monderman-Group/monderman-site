@@ -821,12 +821,12 @@
           '<div class="k">Interquartile range</div><div>' + esc(fmtPair(read.iqr, fmt1)) + '</div>' +
           '<div class="k">Sample standard deviation</div><div>' + esc(fmt1(read.sd)) + '</div>' +
           '<div class="k">Outlier status</div><div>' + esc(outlierRead) + '</div>' +
-        '</div>' +
+        '</div><div class="mr-depth-stat-interpretation">' +
         (consensus.detail ? '<div class="callout"><p><strong>' + esc(humanize(consensus.read)) + '.</strong> ' + esc(consensus.detail) + '</p></div>' : '') +
         (segments ? '<h3 style="margin-top:20px">Results by participant perspective</h3><div class="kvs">' + segments + '</div>' : '') +
         (read.vantageGap?.statement ? '<p class="mr-copy"><strong>Difference between perspectives:</strong> ' + esc(read.vantageGap.statement) + '</p>' : '') +
         (read.interpretationLimit ? '<p class="mr-copy">' + esc(read.interpretationLimit) + '</p>' : '') +
-      '</div>';
+      '</div></div>';
     }).join("");
     return '<section class="mr-section mr-depth-detail"><h2>' + n + '. Agreement, divergence, and coverage</h2>' + cards + '</section>';
   }
@@ -1914,8 +1914,9 @@
     .mr-diagnosis-block h3{font-size:1.22rem!important;line-height:1.3;margin-bottom:10px!important}
     .mr-diagnosis-block p{font-size:1.04rem!important;line-height:1.65!important;max-width:68ch}
     .mr-depth-stats{background:transparent!important;border:0!important;border-radius:0!important;padding:0 0 6px!important;margin:26px 0 4px!important}
-    .mr-depth-stats>h3{font-size:1.1rem!important;margin:0 0 12px!important}
-    .mr-depth-stats>.kvs{border-top:1px solid #EAE6DD;border-bottom:1px solid #EAE6DD;padding:14px 0;margin:0 0 18px}
+    .mr-depth-stats>h3,.mr-depth-stat-interpretation>h3{font-size:1.1rem!important;margin:0 0 12px!important}
+    .mr-depth-stats>.kvs,.mr-depth-stat-interpretation>.kvs{border-top:1px solid #EAE6DD;border-bottom:1px solid #EAE6DD;padding:14px 0;margin:0 0 18px}
+    .mr-depth-stat-interpretation{display:contents}
     .mr-editorial-row{background:transparent!important;border:0!important;border-top:1px solid #EAE6DD!important;border-radius:0!important;padding:18px 0!important;margin:0!important}
     .mr-editorial-row:last-of-type{border-bottom:1px solid #EAE6DD!important}
     .mr-editorial-row h3{font-size:1.08rem!important;line-height:1.35;margin-bottom:7px!important}
@@ -2013,7 +2014,7 @@
       .mr-system-metrics,.mr-system-decision,.mr-depth-metrics,.mr-depth-reading-grid,.mr-editorial-row,.mr-report .callout{break-inside:avoid;page-break-inside:avoid}
       .mr-section>h2{page-break-after:avoid}
       .mr-section>h2+p{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}
-      .mr-section>ul>li,.mr-run-exposure,.mr-run-method,.mr-meta-method,.mr-requirements,.mr-depth-stats>.kvs{break-inside:avoid;page-break-inside:avoid}
+      .mr-section>ul>li,.mr-run-exposure,.mr-run-method,.mr-meta-method,.mr-requirements,.mr-depth-stats>.kvs,.mr-depth-stat-interpretation>.kvs{break-inside:avoid;page-break-inside:avoid}
       .mr-evidence-grid{display:block}
       .mr-evidence-group{display:block;break-inside:avoid;page-break-inside:avoid}
       .mr-evidence-group+.mr-evidence-group{margin-top:12px}
@@ -2071,12 +2072,13 @@
       .mr-leadership-grid>div,.mr-leadership-sequence li{break-inside:avoid;page-break-inside:avoid}
       .mr-section h3,.mr-lens-label,.mr-viz-title{break-after:avoid;page-break-after:avoid}
       html,body{background:#FFF!important;margin:0!important}.mr-report .mr-page{padding:0!important}.mr-cover{break-after:page}.mr-compatibility-notice{break-inside:avoid}.mr-section{break-before:auto}.mr-section h2,.mr-section-index{break-after:avoid}.mr-run-metric,.mr-dimension-row,.mr-exposure-step,.mr-remedy-card,.mr-priority-row,.mr-evidence-quote,.mr-viz-panel{break-inside:avoid}.mr-run-metrics,.mr-exposure-flow,.mr-evidence-summary{break-inside:avoid}.mr-remedy-grid{grid-template-columns:1fr;gap:12px;break-inside:auto}.mr-remedy-card{overflow:visible}.mr-run-decision-story{break-inside:avoid}.mr-report-boundary{break-inside:avoid}.mr-report .mr-section+.mr-section{margin-top:34px;padding-top:28px}
-      .mr-run-decision,.mr-run-evidence,.mr-dimension-opening,.mr-dimension-chart,.mr-depth-stats,.mr-executive-synthesis,.mr-cross-lens-summary>.mr-lens-grid{break-inside:avoid;page-break-inside:avoid}
+      .mr-run-decision,.mr-run-evidence,.mr-dimension-opening,.mr-dimension-chart,.mr-executive-synthesis,.mr-cross-lens-summary>.mr-lens-grid{break-inside:avoid;page-break-inside:avoid}
+      .mr-depth-stat-interpretation{display:block;break-inside:avoid;page-break-inside:avoid}
       .mr-executive-synthesis>p:has(+.callout){break-after:avoid;page-break-after:avoid}
       .mr-executive-synthesis>.callout:last-child{break-before:avoid;page-break-before:avoid}
       .mr-interaction-panel{break-inside:auto;page-break-inside:auto}
       .mr-interaction-panel{padding:18px!important}
-      .mr-interaction-grid{grid-template-columns:minmax(280px,1fr) repeat(var(--lens-count),minmax(48px,55px));margin:14px 0}
+      .mr-interaction-grid{grid-template-columns:minmax(190px,1.4fr) repeat(var(--lens-count),minmax(72px,.55fr));margin:14px 0}
       .mr-interaction-head{padding:8px 4px}
       .mr-interaction-label{padding:10px 12px}
       .mr-interaction-grid,.mr-compounding-read{break-inside:avoid;page-break-inside:avoid}
