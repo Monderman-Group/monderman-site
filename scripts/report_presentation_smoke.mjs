@@ -244,7 +244,10 @@ for (const [key, html] of Object.entries(authenticatedRunHtml)) {
   assert(await runPage.locator('.mr-run-remedy').count() === 3, `${key} differentiated intervention paths missing`);
   assert(await runPage.locator('.mr-leadership-close').isVisible(), `${key} leadership handoff missing`);
   assert(await runPage.locator('.mr-leadership-close').evaluate(el => el === document.querySelector('.mr-section:last-of-type')), `${key} leadership handoff is not the final substantive section`);
-  assert(await runPage.locator('.mr-remedy-evidence').count() === 3, `${key} recommendation-to-evidence links missing`);
+  // The scorer returns independently ordered priorities and options. Pairing
+  // their array positions would manufacture a recommendation/evidence link.
+  assert(await runPage.locator('.mr-run-remedy .mr-remedy-evidence').count() === 0, `${key} invents an option-to-priority evidence pairing`);
+  assert((await runPage.locator('.mr-run-action-board .mr-lede').textContent()).includes('do not correspond one-to-one'), `${key} independent option/priority disclosure missing`);
   const reportText = await runPage.locator('.mr-report').textContent();
   assert(!/\[object Object\]|\bundefined\b|\bNaN\b/.test(reportText), `${key} exposes an invalid serialized value`);
   assert(!/None of this looks like an emergency/i.test(reportText), `${key} retains the rejected generic caveat`);

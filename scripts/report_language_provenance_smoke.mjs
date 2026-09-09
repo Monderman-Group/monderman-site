@@ -19,6 +19,19 @@ const currentHtml = report.buildReportHtml(report.fromRun(current));
 assert.doesNotMatch(currentHtml,/Why this option appears here/,'independent remedy and priority lists must not invent an array-index evidence pairing');
 for (const text of ['1.3.0','original-scorer','diagnostic-report-language-20260908','diagnostic-renderer-ai-20260908.2']) assert.ok(currentHtml.includes(text),text);
 assert.equal(JSON.stringify(current),currentBefore);
+// Real populated, deliberately different lists: an empty fixture cannot catch
+// reintroducing the former array-position evidence pairing.
+const independent = make({
+  priority_ladder:[{focus:'Measured stability',severity:40,priority:'First'}],
+  remedy_paths:[{label:'Small test',summary:'Test one change.',actions:['Name an owner.'],benefit:'Learn before extending the change.'}]
+});
+const independentBefore = JSON.stringify(independent);
+const independentHtml = report.buildReportHtml(report.fromRun(independent));
+assert.match(independentHtml,/mr-run-remedy/,'populated recommendation fixture must render');
+assert.match(independentHtml,/Measured stability/,'measured priority must remain visible');
+assert.match(independentHtml,/do not correspond one-to-one/,'independent lists need an explicit interpretation boundary');
+assert.doesNotMatch(independentHtml,/<div class="mr-remedy-evidence"|Why this option appears here/,'do not manufacture evidence by array position');
+assert.equal(JSON.stringify(independent),independentBefore);
 const migrated = make({report_language:{origin_version:'diagnostic-report-language-pre-20260908',generation_version:'diagnostic-report-language-20260908',migration:{from_version:'diagnostic-report-language-pre-20260908'}}});
 assert.match(report.buildReportHtml(report.fromRun(migrated)),/Report wording was generated with a newer template/);
 const hostile = make({report_language:{generation_version:'<script>alert(1)</script>'},questionnaire_version:'<img src=x onerror=alert(1)>'});
