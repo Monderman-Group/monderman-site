@@ -18,7 +18,7 @@ const motifPattern = /<div\b(?=[^>]*\bclass=["'][^"']*\bmf-motif\b[^"']*["'])[^>
 const canonicalCssPattern = /canonical-site-shell\.css\?v=[^"']+/g;
 const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
 // This candidate includes the report display fixes and the approved header gradient.
-const shellRelease = "20260909-report-display10";
+const shellRelease = "20260909-report-display11";
 const versionScript = (html, fileName) => html.replace(
   new RegExp(`(["'])${fileName.replace(".", "\\.")}(?:\\?v=[^"']*)?\\1`, "g"),
   (_match, quote) => `${quote}${fileName}?v=${shellRelease}${quote}`,

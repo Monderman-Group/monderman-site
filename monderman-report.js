@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.14";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.15";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -373,6 +373,27 @@
   function displayScoringVersion(value) {
     const version = firstStr(value);
     return firstStr(SCORING_VERSION_LABELS[version], version, "Not recorded");
+  }
+
+  const REPORTED_CONFIDENCE_LABELS = Object.freeze({
+    high: "High",
+    moderate: "Moderate",
+    limited: "Limited"
+  });
+
+  function displayReportedAnswerConfidence(insightDepth, context) {
+    const insight = obj(insightDepth);
+    const savedContext = obj(context);
+    const raw = Object.prototype.hasOwnProperty.call(insight, "confidence_level")
+      ? insight.confidence_level
+      : (Object.prototype.hasOwnProperty.call(savedContext, "confidenceLevel")
+        ? savedContext.confidenceLevel
+        : savedContext.confidence_level);
+    if (typeof raw !== "string") return "Not recorded";
+    const key = raw.trim().toLowerCase();
+    return Object.prototype.hasOwnProperty.call(REPORTED_CONFIDENCE_LABELS, key)
+      ? REPORTED_CONFIDENCE_LABELS[key]
+      : "Not recorded";
   }
 
   function hasGeneratedRemedyRecoveryRange(value) {
@@ -1291,7 +1312,7 @@
     const language = obj(m.reportLanguage), migration = obj(language.migration);
     const rows = [
       ["Instrument", m.toolLabel], ["Operating scope", firstStr(m.processName, m.scopeLabel)],
-      ["Participant perspective", m.participantMode], ["Confidence in answers", firstStr(obj(m.source).input_confidence_label, c.confidenceLevel, c.confidence_level)],
+      ["Participant perspective", m.participantMode], ["Reported answer confidence", displayReportedAnswerConfidence(m.insightDepth, c)],
       ["Reported change", m.trajectoryLabel], ["Calculation method", displayCalculationMethod(model.model_type)],
       ["Calculation version", firstStr(model.version)],
       ["Questionnaire version", m.questionnaireVersion || "Not recorded"],
