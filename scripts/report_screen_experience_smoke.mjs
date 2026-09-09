@@ -47,10 +47,11 @@ async function verifyAIScreenRefresh(browser) {
         const bodySnapshot=()=>{const clone=reportPage.cloneNode(true);clone.querySelectorAll('.mr-screen-only,.mr-ai-inline').forEach(node=>node.remove());return clone.innerHTML;};
         window.screenRefresh={base,model,before,complete,pending,result,stop,host,peer,aiId,nav,contents,summary,reportPage,nonAI,bodySnapshot,bodyBefore:bodySnapshot(),calls:()=>calls,scrollY};
         const ids=Array.from(document.querySelectorAll('[id]')).map(node=>node.id);
-        return {aiId,liveAttribute:host.querySelector('.mr-ai-interpretation').getAttribute('aria-live'),allSectionsIncludesAI:!!Array.from(nav.querySelectorAll('a')).find(link=>link.getAttribute('href')==='#'+aiId),noStale:!host.textContent.includes('STALE_AI_ACTION'),unique:ids.length===new Set(ids).size,unmutated:JSON.stringify(model)===before};
+        return {aiId,liveAttribute:host.querySelector('.mr-ai-interpretation').getAttribute('aria-live'),allSectionsIncludesAI:!!Array.from(nav.querySelectorAll('a')).find(link=>link.getAttribute('href')==='#'+aiId),noStale:!host.textContent.includes('STALE_AI_ACTION'),unique:ids.length===new Set(ids).size,unmutated:JSON.stringify(model)===before,pendingNextStep:host.querySelector('.mr-screen-next p')?.textContent};
       },fixture);
       assert.ok(initial.aiId && initial.allSectionsIncludesAI,fixture.name+' pending AI is missing its stable navigation target');
       assert.equal(initial.liveAttribute,'polite');
+      assert.equal(initial.pendingNextStep,'Review the suggested changes and their evidence before choosing a test.',fixture.name+' must not present a category label as a task');
       assert.ok(initial.noStale && initial.unique && initial.unmutated,JSON.stringify({name:fixture.name,...initial}));
       await lifecycle.clock.fastForward(15000);
       const unchanged = await lifecycle.evaluate(()=>{const x=screenRefresh;return {calls:x.calls(),navSame:x.nav===x.host.querySelector('.mr-screen-nav'),contentsSame:x.contents===x.host.querySelector('.mr-screen-contents'),open:x.contents.open,focus:document.activeElement===x.summary,bodySame:x.bodySnapshot()===x.bodyBefore};});

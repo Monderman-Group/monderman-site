@@ -2011,7 +2011,9 @@
     const ai = obj(m.aiReport);
     const firstAction = ai.status === "complete"
       ? firstStr(obj(arr(obj(obj(ai.report).interpretation).recommendations)[0]).action)
-      : firstStr(m.firstMove, textItem(arr(m.actions)[0]));
+      // Deterministic firstMove can be an action-card category, not an action.
+      // Keep the full guidance below instead of presenting its title as a task.
+      : "";
     const nextMove = actions ? '<div class="mr-screen-only mr-screen-next"><div><span>Next step</span>' +
       (firstAction ? '<p>' + esc(firstAction) + '</p>' : '<p>Review the suggested changes and their evidence before choosing a test.</p>') + '</div>' + link(actions, 'Explore actions <span aria-hidden="true">→</span>', 'mr-screen-action') + '</div>' : '';
     return { nav, nextMove };
