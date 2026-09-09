@@ -216,7 +216,9 @@ def validate():
     require(security, [
         "When AI-assisted reporting is enabled",
         "The interpretation does not change the saved score.",
-        "Automated validation is not expert review",
+        "Automated checks and AI review do not replace the customer's judgment",
+        "Claude selects and prioritizes reviewed explanations and proposed next steps",
+        "Claude does not freely write new recommendations or calculate scores.",
         "This is not a zero-retention arrangement.",
         "row-level security and server-side authorization"
     ], "conditional AI and layered access controls")
@@ -224,7 +226,8 @@ def validate():
         raise AssertionError("unverified universal live RLS claim must not return")
     subprocessors = (ROOT / "subprocessors.html").read_text(errors="strict")
     require(subprocessors, [
-        "AI-assisted Diagnostic and Synthesis report interpretation when enabled",
+        "Selection, prioritization and review of evidence-matched Diagnostic and Synthesis report material when enabled",
+        "Anthropic does not calculate scores.",
         "selected aggregate results for Synthesis",
         "written observations only when separately enabled",
         "Standard API retention is not zero"

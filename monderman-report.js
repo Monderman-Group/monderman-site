@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.10";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.11";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -1436,19 +1436,20 @@
       return '<section class="mr-section mr-ai-interpretation" aria-live="polite">' + heading + '<p>' + esc(ai.message) + '</p>'+timing+'<p>The measured result remains available. '+followUp+'</p></section>';
     }
     const report = obj(ai.report), interpretation = obj(report.interpretation);
+    const reviewedSelection = obj(report.composition).reviewed_version === 'report-reviewed-capabilities-20260909.1';
     const paragraphs = (items, title) => arr(items).length ? '<h3>' + title + '</h3><ul>' + arr(items).map(item => '<li class="mr-ai-evidence-text">' + esc(obj(item).text || item) + '</li>').join('') + '</ul>' : '';
     const sources = arr(report.sources).filter(source => /^https:\/\//i.test(firstStr(source.url)));
     const actions = arr(interpretation.recommendations).map((item, index) => {
       const action = obj(item);
       const refs = sources.filter(source => arr(action.source_ids).includes(source.id));
       return '<article class="mr-card mr-ai-action"><h3>' + (index + 1) + '. ' + esc(action.action) + '</h3><p class="mr-ai-reason">' + esc(action.reason) + '</p><dl>' +
-        [['Before trying it',action.prerequisite],['Risk to consider',action.risk],['What to check',action.success_check]].map(row=>'<dt><strong>'+row[0]+'</strong></dt><dd>'+esc(row[1])+'</dd>').join('') + '</dl>' +
+        [['Before trying it',action.prerequisite],['Risk to consider',action.risk],['What to check',action.success_check]].map(row=>'<div class="mr-ai-definition"><dt><strong>'+row[0]+'</strong></dt><dd>'+esc(row[1])+'</dd></div>').join('') + '</dl>' +
         (refs.length ? '<p>Practice references: ' + refs.map(source=>'<a href="'+esc(source.url)+'" target="_blank" rel="noopener noreferrer">'+esc(source.publisher)+'</a>').join('; ') + '.</p>' : '') + '</article>';
     }).join('');
     return '<section class="mr-section mr-ai-interpretation">' + heading +
-      '<p class="mr-method-copy">Prepared with '+esc(report.model === 'claude-opus-5' ? 'Claude Opus 5' : report.model)+' from this saved result. The interpretation does not change the score. Review it before acting.</p><p>'+esc(interpretation.summary)+'</p>' +
-      paragraphs(interpretation.observations,'What the responses suggest') + paragraphs(interpretation.hypotheses,'Possible explanations to investigate') +
-      (actions ? '<h3>Changes to test</h3><div class="mr-ai-actions">'+actions+'</div>' : '') +
+      '<p class="mr-method-copy">Prepared with '+esc(report.model === 'claude-opus-5' ? 'Claude Opus 5' : report.model)+' from this saved result. '+(reviewedSelection?'Claude selected and prioritized reviewed explanations and next steps. Monderman inserted their approved wording and the supporting responses. ':'')+'The interpretation does not change the score. Review it before acting.</p><p>'+esc(interpretation.summary)+'</p>' +
+      paragraphs(interpretation.observations,reviewedSelection?'Selected responses and results':'What the responses suggest') + paragraphs(interpretation.hypotheses,'Possible explanations to investigate') +
+      (actions ? '<h3>'+(reviewedSelection?'Suggested next steps':'Changes to test')+'</h3><div class="mr-ai-actions">'+actions+'</div>' : '') +
       paragraphs(arr(report.limitations).concat(arr(interpretation.limitations)),'Limits of this interpretation') +
       '<h3>Sector comparison</h3><p>'+esc(obj(report.benchmark).explanation)+'</p>' +
       (sources.length ? '<h3>External practice sources</h3><ul>'+sources.map(source=>'<li><a href="'+esc(source.url)+'" target="_blank" rel="noopener noreferrer">'+esc(source.title)+'</a>. '+esc(source.publisher)+'. Reviewed '+esc(source.reviewed)+'. Practice guidance, not a Monderman peer benchmark.</li>').join('')+'</ul>' : '') +
@@ -1912,7 +1913,7 @@
     }
     `;
 
-  const AI_CSS = '.mr-ai-interpretation{min-width:0;overflow-wrap:anywhere}.mr-ai-interpretation a{color:var(--accent,#0C6E78);text-decoration:underline;text-underline-offset:.16em}.mr-ai-inline{padding:24px;max-width:100%;box-sizing:border-box}.mr-ai-action{margin:20px 0;padding:24px;break-inside:avoid}.mr-ai-action dd{margin:4px 0 16px}.mr-ai-interpretation h3{margin-top:24px}.mr-ai-interpretation li+li{margin-top:12px}@media(max-width:600px){.mr-ai-inline,.mr-ai-action{padding:18px}.mr-ai-interpretation h2{font-size:1.45rem}.mr-ai-interpretation h3{font-size:1.12rem}}@media print{.mr-ai-interpretation>.mr-method-copy:last-child{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}}';
+  const AI_CSS = '.mr-ai-interpretation{min-width:0;overflow-wrap:anywhere}.mr-ai-interpretation a{color:var(--accent,#0C6E78);text-decoration:underline;text-underline-offset:.16em}.mr-ai-inline{padding:24px;max-width:100%;box-sizing:border-box}.mr-ai-action{margin:20px 0;padding:24px;break-inside:avoid}.mr-ai-action dd{margin:4px 0 16px}.mr-ai-interpretation h3{margin-top:24px}.mr-ai-interpretation li+li{margin-top:12px}@media(max-width:600px){.mr-ai-inline,.mr-ai-action{padding:18px}.mr-ai-interpretation h2{font-size:1.45rem}.mr-ai-interpretation h3{font-size:1.12rem}}@media print{.mr-ai-interpretation .mr-ai-action{break-inside:auto;page-break-inside:auto}.mr-ai-action h3{break-after:avoid;page-break-after:avoid}.mr-ai-action p{orphans:3;widows:3}.mr-ai-action .mr-ai-definition{break-inside:avoid;page-break-inside:avoid}.mr-ai-action dt{break-after:avoid;page-break-after:avoid}.mr-ai-action dd{break-before:avoid;page-break-before:avoid}.mr-ai-action>dl,.mr-ai-action>dl>.mr-ai-definition:last-child{break-after:avoid;page-break-after:avoid}.mr-ai-action>p:last-child{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}.mr-ai-interpretation>.mr-method-copy:last-child{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}}';
 
   function buildReportHtml(model) {
     return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" />' +

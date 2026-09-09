@@ -74,10 +74,19 @@ try{
     assert.deepEqual(blocks.map(block=>block.id),expected[item.id]);
     for(const block of blocks.filter(b=>b.id.startsWith('contribution-')))assert.equal(block.parts.length,5);
     result.atomicBlocks=blocks;
+    const actionBlocks=await page.locator('.mr-ai-action').evaluateAll(elements=>elements.flatMap((element,index)=>{
+      const definitions=[...element.querySelectorAll('dl>.mr-ai-definition')];
+      if(definitions.length!==3||definitions.some(pair=>pair.children.length!==2||pair.children[0].tagName!=='DT'||pair.children[1].tagName!=='DD'))throw Error('Invalid definition pairing');
+      const pairs=definitions.map((pair,i)=>({id:`action-${index}-definition-${i}`,parts:[...pair.children].map(child=>child.textContent)}));
+      const reference=element.lastElementChild?.tagName==='P'?element.lastElementChild.textContent:null;
+      if(reference)pairs.push({id:`action-${index}-reference`,parts:[...definitions.at(-1).children].map(child=>child.textContent).concat(reference)});
+      return pairs;
+    }));
+    result.actionBlocks=actionBlocks;
     const pdf=path.join(dir,'report.pdf');await page.pdf({path:pdf,format:'Letter',preferCSSPageSize:true,printBackground:true});
     const extraction=spawnSync(process.env.PDF_PYTHON||'python3',['-c','import sys,json;from pypdf import PdfReader;print(json.dumps([p.extract_text() or "" for p in PdfReader(sys.argv[1]).pages]))',pdf],{encoding:'utf8',maxBuffer:8*1024*1024});
     assert.equal(extraction.status,0,extraction.stderr);
-    const pages=JSON.parse(extraction.stdout);assertAtomic(pages,blocks);result.pages=pages.length;
+    const pages=JSON.parse(extraction.stdout);assertAtomic(pages,blocks);if(actionBlocks.length)assertAtomic(pages,actionBlocks);result.pages=pages.length;
     assert.ok(pages.length>1&&pages.length<40);assert.ok(pages.every(text=>text.trim().length>20));
     assert.ok(compact(pages.at(-1)).includes(compact(await page.locator('.mr-report-boundary p:last-child').innerText())),'Final boundary split or absent');
     const text=compact(pages.join('\n')),report=item.run.ai_report.report,interpretation=report.interpretation;
