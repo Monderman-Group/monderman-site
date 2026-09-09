@@ -18,12 +18,19 @@ const state=rows=>({status:'complete',report:{model:'claude-opus-5',composition:
 let checks=0;
 function check(fn){fn();checks++;}
 const full=state(evidence),before=JSON.stringify(full),html=Report.buildAIInterpretation(full);
-check(()=>assert.match(html,/Not measured: Decision timing\. This condition remains unknown\./));
+check(()=>assert.match(html,/Not measured: Decision timing\. No score is available for this dimension\. Related answers may still be reported separately\./));
 check(()=>assert.match(html,/Time and cost estimates are unavailable\. Recorded reason: Required sizing inputs missing or unusable\./));
 check(()=>assert.match(html,/records one contradiction flag\. A flag does not establish that answers conflict or identify a cause, person, or answer pair\./));
 check(()=>assert.ok(html.indexOf('Important context from the saved result')<html.indexOf('Suggested next steps')));
 check(()=>assert.doesNotMatch(html,/16|incomplete run|missed required|time per run|labor rate/));
 check(()=>assert.equal(JSON.stringify(full),before));
+const mixedIP=state([fact('Extra effort required evidence coverage','Not measured','deterministic_coverage'),fact('Results depend on extra effort','Results depend on extra effort','participant_structured_answer')]);
+mixedIP.report.interpretation.observations=[{text:'The recorded answer says results depend on extra effort.',source_ids:[]}];
+const mixedBefore=JSON.stringify(mixedIP),mixedHTML=Report.buildAIInterpretation(mixedIP);
+check(()=>assert.match(mixedHTML,/Not measured: Extra effort required\. No score is available for this dimension/));
+check(()=>assert.match(mixedHTML,/The recorded answer says results depend on extra effort/));
+check(()=>assert.doesNotMatch(mixedHTML,/condition remains unknown|conditions remain unknown/));
+check(()=>assert.equal(JSON.stringify(mixedIP),mixedBefore));
 check(()=>assert.doesNotMatch(Report.buildAIInterpretation(state([])),/mr-ai-recorded-context/));
 check(()=>assert.doesNotMatch(Report.buildAIInterpretation(state([evidence.at(-1)])),/mr-ai-recorded-context/));
 check(()=>assert.match(Report.buildAIInterpretation(state([fact(scenario[0],null,'modeled_scenario')])),/Some modeled time or cost estimates are unavailable/));
@@ -44,7 +51,7 @@ for(const tool of ['structural_clarity','decision_velocity','operational_systems
   check(()=>assert.equal(m.dimensionEntries.filter(row=>row.score===null).length,2));
   check(()=>assert.equal((page.match(/class="mr-dimension-row is-unmeasured"/g)||[]).length,2));
   check(()=>assert.equal((page.match(/class="mr-dimension-track"/g)||[]).length,1));
-  check(()=>assert.match(page,/Its condition remains unknown/));
+  check(()=>assert.match(page,/No score is available for this dimension\. Related answers may still be reported separately/));
   check(()=>assert.equal(JSON.stringify(run),original));
 }
 for(const coverage of [{status:'measured',value:80},{status:'measured'},{}]){

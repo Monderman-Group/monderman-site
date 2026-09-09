@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.12";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.13";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -113,7 +113,7 @@
       return {
         toolType: firstStr(g.tool_type),
         toolLabel: firstStr(g.tool_label, g.tool_type),
-        n: strictNum(g.respondents ?? g.n),
+        n: strictNum(g.submitted_runs ?? g.respondents ?? g.n),
         mean: strictNum(g.mean_score),
         median: strictNum(g.median_score),
         iqr: arr(g.score_iqr),
@@ -219,7 +219,7 @@
     const experiential = obj(r.experiential);
     const briefParagraphs = arr(briefing.paragraphs).map(firstStr).filter(Boolean);
     const modeLabel = product === "depth" ? "Depth Synthesis" : "Cross-Lens Synthesis";
-    const reads = strictNum(r.respondent_count) ?? sourceGroups.reduce((sum, group) => sum + (group.n || 0), 0);
+    const reads = strictNum(r.submitted_run_count ?? r.source_result_count ?? r.respondent_count) ?? sourceGroups.reduce((sum, group) => sum + (group.n || 0), 0);
     const lensCount = strictNum(r.lens_count) ?? sourceGroups.length;
     const evidenceLabel = firstStr(evidence.evidence_label, r.readiness_label, "Evidence band unavailable");
     const conditionBand = firstStr(r.condition_band, scorePublished ? "Observed condition" : "Composite withheld");
@@ -256,6 +256,7 @@
       conditionSpread: obj(r.condition_spread),
       evidence: evidence,
       reads: reads,
+      runCountNote: firstStr(r.participant_count_note, "Counts refer to submitted runs, not verified distinct people. One person may contribute more than one run."),
       lensCount: lensCount,
       evidenceLabel: evidenceLabel,
       evidenceDescription: firstStr(evidence.evidence_description),
@@ -643,7 +644,7 @@
 
   function renderEvidenceLadder(m) {
     const labels = m.product === "depth"
-      ? ["Minimal", "Developing", "Substantial", "Large"]
+      ? ["Limited", "Developing", "Substantial", "Large"]
       : ["Comparison", "Directional", "Coherent", "Strong"];
     const active = String(m.evidenceLabel || "").toLowerCase();
     const steps = labels.map((label) => {
@@ -669,13 +670,13 @@
       evidenceCard("Scope", firstStr(scope.label, humanize(scope.status)), firstStr(scope.statement)),
       evidenceCard("Run-count balance across Diagnostics", firstStr(humanize(balance.status), "Not applicable"), strictFinite(balance.ratio) ? "Largest-to-smallest submitted-run count ratio: " + fmt1(balance.ratio) + ":1" : "Not applicable to one-Diagnostic Depth Synthesis."),
       evidenceCard("Diagnostic/scorer versions", firstStr(versions.label, humanize(versions.status)), versions.conflicting_lenses?.length ? "Conflicting Diagnostics: " + versions.conflicting_lenses.map(humanize).join(", ") : ""),
-      evidenceCard("Source identity", humanize(identity.status), firstStr(identity.statement)),
+      evidenceCard("Source-run identity", humanize(identity.status), firstStr(identity.statement)),
       evidenceCard("Measurement window", humanize(timeWindow.status), firstStr(timeWindow.statement)),
       evidenceCard("Representativeness", firstStr(representative.label, humanize(representative.status)), firstStr(representative.statement))
     ].filter(Boolean).join("");
     return '<section class="mr-section mr-evidence-status"><h2>' + n + '. Evidence in this run</h2>' +
       '<div class="callout"><p><strong>' + esc(m.evidenceLabel) + '.</strong> ' + esc(m.evidenceDescription || "The evidence band governs what this Synthesis is allowed to claim.") + '</p></div>' +
-      renderEvidenceLadder(m) +
+      '<p class="mr-copy mr-run-count-note">'+esc(m.runCountNote)+'</p>'+renderEvidenceLadder(m) +
       '<div class="mr-lens-grid mr-evidence-grid">' + cards + '</div></section>';
   }
 
@@ -1169,7 +1170,7 @@
     const rows = dimensions.map((dimension) => {
       if (dimension.score === null) {
         const unmeasured = dimension.coverage.status === 'not_measured';
-        return '<div class="mr-dimension-row '+(unmeasured?'is-unmeasured':'is-unavailable')+'"><div class="mr-dimension-copy"><strong>' + esc(dimension.label) + '</strong><span>'+(unmeasured?'Not measured':'Score unavailable')+'</span></div><div class="mr-dimension-detail">'+(unmeasured?'No score is available for this dimension. Its condition remains unknown.':'No score is available in this saved report.')+'</div></div>';
+        return '<div class="mr-dimension-row '+(unmeasured?'is-unmeasured':'is-unavailable')+'"><div class="mr-dimension-copy"><strong>' + esc(dimension.label) + '</strong><span>'+(unmeasured?'Not measured':'Score unavailable')+'</span></div><div class="mr-dimension-detail">'+(unmeasured?'No score is available for this dimension. Related answers may still be reported separately.':'No score is available in this saved report.')+'</div></div>';
       }
       const score = Math.max(0, Math.min(100, Number(dimension.score)));
       const evidenceCount = strictFinite(dimension.coverage.evidence_count) ? fmtWhole(dimension.coverage.evidence_count) + (dimension.coverage.evidence_count === 1 ? " scored input" : " scored inputs") : "Measured dimension";
@@ -1433,7 +1434,7 @@
     const notes = [];
     if (missing.length) {
       const names = [...new Set(missing.map(f=>f.label.slice(0,-' evidence coverage'.length)))];
-      notes.push('Not measured: '+names.join('; ')+'. '+(names.length===1?'This condition remains unknown.':'These conditions remain unknown.'));
+      notes.push('Not measured: '+names.join('; ')+'. '+(names.length===1?'No score is available for this dimension.':'No scores are available for these dimensions.')+' Related answers may still be reported separately.');
     }
     const scenarioLabels = ['Modeled annual hours of exposure','Modeled annual labor-cost exposure','Scenario recovery hours','Scenario recovery cost'];
     const unavailable = facts.filter(f=>f.provenance==='modeled_scenario' && scenarioLabels.includes(f.label) && f.value===null);
