@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.3";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.4";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -431,7 +431,7 @@
     const summary = firstStr(
       summaryBlock.body, narrative.executive, narrative.headlineFinding,
       r.executive_summary, r.summary,
-      "This summary explains the score, the main measured issue, and the first actions to consider."
+      toolType === "structural_clarity" ? "This summary explains the score, the main measured focus, and the first checks to consider." : "This summary explains the score, the main measured issue, and the first actions to consider."
     );
     const headline = firstStr(summaryBlock.headline, narrative.headlineFinding, r.score_band_note, summary);
     const bottomLine = sentenceLead(firstStr(
@@ -456,7 +456,7 @@
     ];
     if (annualHours) kvs.push({ k: "Annual hours*", v: num(annualHours) });
     if (annualCost) kvs.push({ k: "Annual cost*", v: cur(annualCost) });
-    if (drag) kvs.push({ k: "Capacity drag*", v: pct(drag) });
+    if (drag) kvs.push({ k: toolType === "structural_clarity" ? "Modeled capacity share*" : "Capacity drag*", v: pct(drag) });
     if (depth) kvs.push({ k: "Depth", v: depth + "-minute diagnostic" });
 
     const metaScope = firstStr(
@@ -550,7 +550,7 @@
       reportLanguage: obj(r.report_language || provenance.report_language),
       kvs: kvs,
       sections: sections,
-      footnote: "This report is based on one participant's answers for the stated scope. It suggests issues to investigate and changes to test. It does not show how common these conditions are, prove their causes, predict performance, or confirm time or money saved. Time, cost, and capacity figures are estimates based on stated assumptions.",
+      footnote: "This report is based on one participant's answers for the stated scope. " + (toolType === "structural_clarity" ? "It identifies dimensions to compare and checks to consider; a comparison alone does not establish a need for change. " : "It suggests issues to investigate and changes to test. ") + "It does not show how common these conditions are, prove their causes, predict performance, or confirm time or money saved. Time, cost, and capacity figures are estimates based on stated assumptions.",
       filenameBase: slug(toolType || "diagnostic"),
       source: obj(envelope.result).tool_type ? envelope : r
     };
@@ -1120,16 +1120,20 @@
   }
 
   function renderConstraintConcentration(m) {
+    const isClarity = m.toolType === "structural_clarity";
     const composition = obj(obj(m.descriptor).composition);
     const segments = arr(composition.segments).filter((segment) => strictFinite(obj(segment).pct)).slice(0, 8);
     if (!segments.length) return "";
     const palette = ["#08383E", "#0C6E78", "#3E8A92", "#7FB0B6", "#A9CED1", "#C9DCDE", "#DDE8E9", "#EAE6DD"];
-    const bar = segments.map((segment, index) => '<span style="width:' + Math.max(0, Math.min(100, Number(segment.pct))).toFixed(2) + '%;background:' + palette[index % palette.length] + '" title="' + esc(firstStr(segment.label, humanize(segment.key)) + ": " + fmt1(segment.pct) + "% of measured constraint") + '"></span>').join("");
+    const shareLabel = isClarity ? "% of the combined distance from the scale maximum" : "% of measured constraint";
+    const bar = segments.map((segment, index) => '<span style="width:' + Math.max(0, Math.min(100, Number(segment.pct))).toFixed(2) + '%;background:' + palette[index % palette.length] + '" title="' + esc(firstStr(segment.label, humanize(segment.key)) + ": " + fmt1(segment.pct) + shareLabel) + '"></span>').join("");
     const legend = segments.map((segment, index) => '<div><i style="background:' + palette[index % palette.length] + '"></i><span>' + esc(firstStr(segment.label, humanize(segment.key))) + '</span><strong>' + esc(fmt1(segment.pct)) + '%</strong></div>').join("");
     const primary = obj(composition.primary);
-    return '<div class="mr-constraint-view"><div class="mr-viz-title">Where the measured issue appears</div><div class="mr-constraint-bar" role="img" aria-label="Share of the measured issue by dimension">' + bar + '</div>' +
+    const heading = isClarity ? "Clarity indicator distribution" : "Where the measured issue appears";
+    const label = isClarity ? "Each dimension's share of the combined distance from the top of the clarity scale" : "Share of the measured issue by dimension";
+    return '<div class="mr-constraint-view"><div class="mr-viz-title">' + heading + '</div><div class="mr-constraint-bar" role="img" aria-label="' + esc(label) + '">' + bar + '</div>' +
       '<div class="mr-constraint-legend">' + legend + '</div><div class="mr-constraint-read"><div><div class="mr-lens-label">Pattern across dimensions</div><strong>' + esc(humanize(firstStr(composition.shape, obj(m.descriptor).burden_distribution_type, "Not classified"))) + '</strong></div>' +
-      '<p>' + esc(firstStr(obj(m.descriptor).dominant_burden_note, primary.label ? primary.label + " carries the largest measured share of the constraint profile." : "The chart shows how the measured constraint is distributed across dimensions.")) + '</p></div></div>';
+      '<p>' + esc(isClarity ? "The chart compares each dimension's distance from the top of the scoring scale. Shares do not measure hours, cost, or risk, and do not by themselves establish a problem." : firstStr(obj(m.descriptor).dominant_burden_note, primary.label ? primary.label + " carries the largest measured share of the constraint profile." : "The chart shows how the measured constraint is distributed across dimensions.")) + '</p></div></div>';
   }
 
   function renderRunDimensions(m, n) {
@@ -1204,6 +1208,7 @@
   }
 
   function renderPriorityMatrix(m) {
+    const isClarity = m.toolType === "structural_clarity";
     const ladder = arr(m.priorityLadder).slice(0, 5);
     if (!ladder.length) return "";
     const yPositions = [24, 52, 78, 88, 94];
@@ -1214,11 +1219,17 @@
       const y = yPositions[index] || 94;
       return '<div class="mr-priority-point' + (x > 50 ? ' mr-priority-label-left' : '') + '" style="left:' + x.toFixed(2) + '%;top:' + y + '%" data-rank="' + (index + 1) + '"><span>' + (index + 1) + '</span><div><strong>' + esc(firstStr(row.focus, row.label, "Measured focus")) + '</strong><small>' + esc(firstStr(row.priority, "Priority")) + ' · ' + esc(fmt1(severity)) + '</small></div></div>';
     }).join("");
-    return '<div class="mr-priority-matrix"><div class="mr-viz-title">Priority order and measured severity</div><div class="mr-priority-plot" role="img" aria-label="Priority order plotted against measured severity"><span class="mr-priority-axis-y">Test earlier</span><span class="mr-priority-axis-x">Greater measured severity →</span><i class="mr-priority-grid-x"></i><i class="mr-priority-grid-y"></i>' + points + '</div><p class="mr-copy">Horizontal position shows measured severity. Vertical position follows the report\'s suggested testing order; it is not a separate risk score.</p></div>';
+    const heading = isClarity ? "Review order and clarity indicators" : "Priority order and measured severity";
+    const vertical = isClarity ? "Review earlier" : "Test earlier";
+    const horizontal = isClarity ? "Distance from scale maximum →" : "Greater measured severity →";
+    const note = isClarity ? "Horizontal position shows distance from the top of the clarity scale. Vertical position follows the suggested review order, not urgency or a separate risk score." : "Horizontal position shows measured severity. Vertical position follows the report's suggested testing order; it is not a separate risk score.";
+    return '<div class="mr-priority-matrix"><div class="mr-viz-title">' + heading + '</div><div class="mr-priority-plot" role="img" aria-label="' + esc(heading) + '"><span class="mr-priority-axis-y">' + vertical + '</span><span class="mr-priority-axis-x">' + horizontal + '</span><i class="mr-priority-grid-x"></i><i class="mr-priority-grid-y"></i>' + points + '</div><p class="mr-copy">' + esc(note) + '</p></div>';
   }
 
   function renderRunActions(m, n) {
     const ladder = arr(m.priorityLadder), actions = arr(m.actions).map(textItem).filter(Boolean), remedies = arr(m.remedyPaths);
+    // Follow the saved priority labels. Do not rewrite a historical ladder.
+    const monitoring = m.toolType === "structural_clarity" && ladder.length > 0 && ladder.every(item => obj(item).priority === "Monitor");
     if (!ladder.length && !actions.length && !remedies.length) return "";
     const ladderHtml = ladder.length ? '<div class="mr-priority-ladder">' + ladder.map((item, index) => {
       const row = obj(item);
@@ -1234,9 +1245,12 @@
         (arr(path.actions).length ? '<div class="mr-remedy-actions"><div class="mr-remedy-field-label">Suggested steps</div><ol>' + arr(path.actions).map((action) => '<li>' + esc(textItem(action)) + '</li>').join("") + '</ol></div>' : '') +
         '<div class="mr-remedy-tradeoffs">' + (benefit ? '<div><div class="mr-remedy-field-label">Potential benefit</div><p>' + esc(benefit) + '</p></div>' : '') + (path.risk ? '<div><div class="mr-remedy-field-label">Tradeoff</div><p>' + esc(path.risk) + '</p></div>' : '') + '</div></article>';
     }).join("") + '</div>' + (adjustedRemedyRecovery ? '<p class="mr-copy">The report-wide modeled recovery scenario is not divided among these options. Each option must be tested before any recovery is claimed.</p>' : '') : '';
-    if (obj(m.aiReport).status === "complete") return ladder.length ? '<section class="mr-section mr-run-action-board"><div class="mr-section-index">0' + n + ' · Measured priorities</div><h2>Measured priorities</h2>' + renderPriorityMatrix(m) + ladderHtml + '</section>' : '';
-    return '<section class="mr-section mr-run-action-board"><div class="mr-section-index">0' + n + ' · What to test next</div><h2>Priorities and options</h2>' +
-      '<p class="mr-lede">The priority list ranks measured issues. The options describe different scopes of change and do not correspond one-to-one with that list. None changes the score or predicts an outcome.</p>' + renderPriorityMatrix(m) + ladderHtml +
+    const aiHeading = monitoring ? "Monitoring priorities" : "Measured priorities";
+    if (obj(m.aiReport).status === "complete") return ladder.length ? '<section class="mr-section mr-run-action-board"><div class="mr-priority-intro"><div class="mr-section-index">0' + n + ' · ' + aiHeading + '</div><h2>' + aiHeading + '</h2>' + renderPriorityMatrix(m) + '</div>' + ladderHtml + '</section>' : '';
+    const actionHeading = monitoring ? "Monitoring priorities and options" : "Priorities and options";
+    const actionNote = monitoring ? "The list orders dimensions for monitoring. A rank is not proof of a defect; any change needs supporting evidence. The options do not change the score or predict an outcome." : "The priority list ranks measured issues. The options describe different scopes of change and do not correspond one-to-one with that list. None changes the score or predicts an outcome.";
+    return '<section class="mr-section mr-run-action-board"><div class="mr-priority-intro"><div class="mr-section-index">0' + n + ' · ' + (monitoring ? "What to monitor" : "What to test next") + '</div><h2>' + actionHeading + '</h2>' +
+      '<p class="mr-lede">' + actionNote + '</p>' + renderPriorityMatrix(m) + '</div>' + ladderHtml +
       (actions.length ? '<div class="mr-run-actions"><div class="mr-lens-label">Suggested order</div><ol>' + actions.map((action) => '<li>' + esc(action) + '</li>').join("") + '</ol></div>' : '') + remediesHtml + '</section>';
   }
 
@@ -1263,18 +1277,23 @@
   function renderRunLeadershipClose(m, n) {
     if (obj(m.aiReport).status === "complete") return "";
     const ladder = arr(m.priorityLadder);
+    const monitoring = m.toolType === "structural_clarity" && ladder.length > 0 && ladder.every(item => obj(item).priority === "Monitor");
     const indicators = ladder.slice(0, 3).map((item) => firstStr(obj(item).focus, obj(item).label)).filter(Boolean);
     const scope = firstStr(m.processName, m.scopeLabel, "the measured operating scope");
     const scopeWithArticle = /^[a-z]/.test(scope) && !/^(?:the|this|that)\b/i.test(scope) ? "the " + scope : scope;
     const firstAction = firstStr(m.firstMove, textItem(arr(m.actions)[0]));
-    const questions = [
+    const questions = monitoring ? [
+      "Who is responsible for checking the reported clarity against routine work in " + scopeWithArticle + "?",
+      "What separate evidence would justify a change to the current arrangements?",
+      "Which owner will preserve the same scope and inputs for the next comparison?"
+    ] : [
       "Who has the authority to change " + firstStr(m.primarySignal, "the primary measured constraint") + " in " + scopeWithArticle + "?",
       "What observable result will count as improvement, and what would show that burden was only displaced?",
       "Which owner will preserve the same scope and inputs for like-for-like remeasurement?"
     ];
-    return '<section class="mr-section mr-leadership-close"><div class="mr-section-index">0' + n + ' · Next decision</div><h2>Turn the result into a small, measurable test</h2>' +
+    return '<section class="mr-section mr-leadership-close"><div class="mr-section-index">0' + n + ' · Next decision</div><h2>' + (monitoring ? 'Check routine work and plan the next comparison' : 'Turn the result into a small, measurable test') + '</h2>' +
       '<div class="mr-leadership-close-grid"><div class="mr-leadership-sequence"><div class="mr-lens-label">Sequence</div><ol>' +
-        '<li><strong>Assign ownership.</strong><span>Name one accountable owner for ' + esc(firstStr(m.primarySignal, "the primary measured constraint")) + '.</span></li>' +
+        '<li><strong>' + (monitoring ? 'Confirm the review owner.' : 'Assign ownership.') + '</strong><span>' + (monitoring ? 'Ask the person responsible for this structure to coordinate the review.' : 'Name one accountable owner for ' + esc(firstStr(m.primarySignal, "the primary measured constraint")) + '.') + '</span></li>' +
         '<li><strong>Run the first test.</strong><span>' + esc(firstAction || "Select the smallest returned action that can test the diagnosis without adding new operating burden.") + '</span></li>' +
         '<li><strong>Watch the measured indicators.</strong><span>' + esc(indicators.length ? indicators.join(" · ") : "The score, primary dimension, burden estimate, and any returned watch items") + '</span></li>' +
         '<li><strong>Repeat under comparable conditions.</strong><span>Repeat the same Diagnostic with the same scope and comparable inputs; compare the score, dimensions, and exposure before attributing improvement.</span></li>' +
@@ -1796,6 +1815,7 @@
       .mr-run-exposure>.mr-lede{break-inside:avoid;page-break-inside:avoid;break-after:avoid;page-break-after:avoid}
       .mr-run-leadership{display:inline-block;width:100%;vertical-align:top}
       .mr-run-actions{display:inline-block;width:100%;vertical-align:top;break-inside:avoid;page-break-inside:avoid}
+      .mr-priority-intro{display:inline-block;width:100%;vertical-align:top;break-inside:avoid;page-break-inside:avoid}
       /* Use ordinary block flow for long evidence and option content so print
          pagination does not depend on nested grid fragmentation. */
       .mr-run-evidence-grid,.mr-remedy-grid,.mr-remedy-card{display:block}
@@ -1809,6 +1829,9 @@
       .mr-section h2,.mr-section h3,.mr-section-index,.mr-run-method dl>div{break-inside:avoid;page-break-inside:avoid}
       .mr-leadership-close{break-inside:avoid;page-break-inside:avoid;padding:24px!important}
       .mr-leadership-close>h2{font-size:22pt!important;line-height:1.12!important;max-width:none!important}
+      .mr-leadership-close p,.mr-leadership-close li,.mr-leadership-close li span{font-size:10pt!important;line-height:1.45!important}
+      .mr-leadership-close{break-after:avoid;page-break-after:avoid}
+      .mr-leadership-close+.mr-report-boundary{break-before:avoid;page-break-before:avoid}
       .mr-leadership-close-grid{grid-template-columns:1.05fr .95fr;gap:22px}
       .mr-leadership-sequence li{padding-bottom:12px}
       .mr-remeasurement-note{margin-top:16px}

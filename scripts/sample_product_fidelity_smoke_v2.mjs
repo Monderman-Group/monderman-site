@@ -74,8 +74,8 @@ for (const [key, contract] of Object.entries(expected)) {
   assert((await executiveRead.textContent()).includes('Decision summary'), `${key} executive decision brief label is missing`);
   const text = await shell.textContent();
   for (const token of [
-    'Decision summary', 'Dimension profile', 'Where the measured issue appears',
-    'How the time and cost estimate is built', 'Priority order and measured severity',
+    'Decision summary', 'Dimension profile', key==='sc'?'Clarity indicator distribution':'Where the measured issue appears',
+    'How the time and cost estimate is built', key==='sc'?'Review order and clarity indicators':'Priority order and measured severity',
     'What this may mean', 'What this result is based on',
     'Priorities and options', 'How this report was produced', 'Interpretation boundary',
     'No written participant notes are included.', 'Turn the result into a small, measurable test',
