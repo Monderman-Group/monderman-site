@@ -50,12 +50,13 @@ try {
     assert.equal(editorial.visibleSecondReadHeadings, 1, `${viewport.name}: duplicate second-read headings are visible`);
     assert.deepEqual(editorial.visibleSections, [
       'hero',
+      'measurement-loop',
+      'approach',
+      'first-run-moments',
       'proof-band',
       'mxidx-band',
       'systems-analysis-bridge',
-      'approach',
-      'first-run-moments',
-      'measurement-loop',
+      'home-output-band',
       'book-band',
       'latest',
       'connect',
