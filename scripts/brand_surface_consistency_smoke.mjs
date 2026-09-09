@@ -118,7 +118,10 @@ async function waitForStablePrint(page, label) {
   await page.evaluate(async () => {
     // Print styles may select fonts that were unused by the screen layout.
     document.documentElement.getBoundingClientRect();
-    await document.fonts.ready;
+    await new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error('Print fonts did not become ready within 5 seconds')), 5000);
+      document.fonts.ready.then(() => { clearTimeout(timeout); resolve(); }, reject);
+    });
   });
   const deadline = Date.now() + 5000;
   let previous;
@@ -126,7 +129,10 @@ async function waitForStablePrint(page, label) {
   let stableSince = Date.now();
   let stableFrames = 0;
   while (Date.now() < deadline) {
-    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(resolve)));
+    await page.evaluate(() => new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error('Print layout animation frame timed out')), 1000);
+      requestAnimationFrame(() => { clearTimeout(timeout); resolve(); });
+    }));
     const current = await surfaceState(page);
     const fontsLoaded = await page.evaluate(() => document.fonts.status === 'loaded');
     const differences = previous ? surfaceDifferences(previous, current) : ['initial print layout'];
