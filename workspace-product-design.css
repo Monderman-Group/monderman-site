@@ -7,6 +7,7 @@
   --accent:#087F8C; --accent-d:#066B76; --accent-bg:#E4F2F3; --accent-fg:#066B76;
   --shadow-card:0 1px 3px rgba(15,43,49,.04);
   --product-rail:#10272C; --product-rail-active:#1B4148; --product-button-text:#FFFFFF;
+  --product-select-chevron:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23596C73' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 4.5 3 3 3-3'/%3E%3C/svg%3E");
 }
 html[data-theme="dark"] {
   --paper:#102126; --canvas:#102126; --surface:#172D33; --card:#172D33; --panel:#1D363D;
@@ -15,6 +16,7 @@ html[data-theme="dark"] {
   --teal:#A9D0D4; --teal-hover:#C0E3E6; --teal-ink:#A9D0D4; --teal-bg:#24434A;
   --accent:#A9D0D4; --accent-d:#C0E3E6; --accent-bg:#24434A; --accent-fg:#A9D0D4;
   --product-rail:#0B1D22; --product-rail-active:#20434B; --product-button-text:#10272C;
+  --product-select-chevron:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23B0C2C7' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 4.5 3 3 3-3'/%3E%3C/svg%3E");
 }
 .workspace-surface { background:var(--canvas); color:var(--text); }
 .workspace-surface .sr-only { position:absolute; width:1px; height:1px; padding:0; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; }
@@ -51,6 +53,12 @@ html[data-theme="dark"] {
 /* Keep populated controls inside their working surface at narrow widths. */
 .workspace-surface :is(.board-select,.board-inp) { min-width:0; max-width:100%; }
 .workspace-surface select { overflow:hidden; text-overflow:ellipsis; }
+/* Keep native selection behavior while avoiding platform menu-button text overflow. */
+body.workspace-actions-surface :is(.board-select,.mini-select) {
+  appearance:none; -webkit-appearance:none; padding-right:32px;
+  background-image:var(--product-select-chevron); background-repeat:no-repeat;
+  background-position:right 10px center; background-size:12px 12px;
+}
 .workspace-surface .card-h { flex-wrap:wrap; row-gap:6px; }
 .workspace-surface .synth-products { grid-template-columns:repeat(2,minmax(0,1fr)); }
 .workspace-surface .synth-products .synth-stat b { font-size:18px; line-height:1.3; }

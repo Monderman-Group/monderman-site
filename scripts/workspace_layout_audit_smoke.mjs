@@ -68,6 +68,15 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]].filter(([en
    await page.locator('.ai-card').first().waitFor();
    await page.locator('#btnImportFindings').click();
    await page.locator('#importList input').first().waitFor();
+   const owner=page.locator('select[data-ownerfor]').first();
+   const ownerValue=await owner.inputValue();
+   await owner.click();
+   await owner.press('Escape');
+   assert.equal(await owner.inputValue(),ownerValue,'Opening and closing the native owner menu must preserve its selection');
+   await page.keyboard.press('Tab');
+   await owner.focus();
+   assert.equal(await owner.evaluate(el=>document.activeElement===el),true,'Owner control remains keyboard focusable');
+   assert.ok(await owner.evaluate(el=>parseFloat(getComputedStyle(el).outlineWidth)>=2),'Owner control retains a visible keyboard focus outline');
   }
   if(name==='analysis')await page.locator('#trustCard').waitFor();
   if(name==='diagnostics')await page.waitForFunction(()=>!document.querySelector('#runsBody')?.textContent.includes('Loading'));
@@ -101,6 +110,10 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]].filter(([en
    });
    report.push({engine,width,theme,name,state,...layout,contrast});
    if(layout.scroll>width+1&&state==='populated')console.log(await page.evaluate(()=>[...document.body.querySelectorAll('*')].filter(e=>e.getClientRects().length&&e.scrollWidth>e.clientWidth+1).map(e=>({el:e.tagName+'#'+e.id+'.'+e.className,right:e.getBoundingClientRect().right,width:e.clientWidth,scroll:e.scrollWidth})).slice(0,45)));  
+   if(!auditOnly&&(layout.scroll>width+1||layout.overflow.length||contrast.length)){
+    await page.evaluate(()=>window.scrollTo(0,0));
+    await page.screenshot({path:path.join(out,`${engine}-${name}-${state}-${theme}-${width}-failure.png`),fullPage:true});
+   }
    if(!auditOnly){assert.ok(layout.scroll<=width+1,JSON.stringify(report.at(-1)));assert.deepEqual(layout.overflow,[],JSON.stringify(report.at(-1)));assert.deepEqual(contrast,[],JSON.stringify(report.at(-1)));}
    if(name==='actions'&&theme==='dark'&&!auditOnly)assert.equal(layout.colors['.btn-mini:not(.ghost)'].fg,'rgb(16, 39, 44)');
    if(name==='settings'&&!auditOnly)assert.notEqual(layout.colors['#scheduleWorkspaceDeletion'].bg,theme==='dark'?'rgb(169, 208, 212)':'rgb(8, 127, 140)');

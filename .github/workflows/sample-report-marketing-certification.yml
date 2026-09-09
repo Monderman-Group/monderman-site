@@ -295,6 +295,14 @@ jobs:
           cat /tmp/report-cert-http.log
           exit 1
 
+      - name: Reject public and populated Workspace presentation regressions
+        env:
+          SITE_BASE: http://127.0.0.1:8080
+          WORKSPACE_LAYOUT_OUT: /tmp/report-presentation-smoke/workspace-layout
+        run: |
+          node scripts/public_surface_consistency_smoke.mjs
+          node scripts/workspace_layout_audit_smoke.mjs
+
       - name: Render and verify customer report surfaces
         env:
           REPORT_OUT: /tmp/report-presentation-smoke
@@ -333,8 +341,6 @@ jobs:
           node scripts/homepage_workspace_demo_smoke.mjs
           node scripts/workspace_product_design_smoke.mjs
           node scripts/report_screen_experience_smoke.mjs
-          node scripts/workspace_layout_audit_smoke.mjs
-          node scripts/public_surface_consistency_smoke.mjs
 
       - name: Render and verify ordinary-page print pagination
         env:
