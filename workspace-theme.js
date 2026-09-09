@@ -22,7 +22,7 @@
   if (!document.querySelector('link[href="assets/brand/brand-lockup.css"]')) {
     var brandStyles = document.createElement("link");
     brandStyles.rel = "stylesheet";
-    brandStyles.href = "assets/brand/brand-lockup.css";
+    brandStyles.href = "assets/brand/brand-lockup.css?v=20260909-gradient1";
     document.head.appendChild(brandStyles);
   }
   var KEY = "mndTheme";
