@@ -17,12 +17,18 @@ const surfaces = [
 fs.mkdirSync(out, { recursive: true });
 const browser = await chromium.launch({ headless: true });
 const manifest = {};
+async function emulateMediaAndSettle(page, media) {
+  await page.emulateMedia({ media });
+  await page.waitForFunction(mode => matchMedia(mode).matches, media);
+  // Wait for the requested print styles before checking visibility and geometry.
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+}
 
 try {
   for (const pageName of surfaces) {
     const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
     await page.goto(`${base}/${pageName}`, { waitUntil: 'networkidle', timeout: 30000 });
-    await page.emulateMedia({ media: 'print' });
+    await emulateMediaAndSettle(page, 'print');
     const state = await page.evaluate(() => {
       const display = (selector) => {
         const element = document.querySelector(selector);

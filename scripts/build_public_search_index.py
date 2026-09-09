@@ -107,7 +107,7 @@ class PublicCopyParser(HTMLParser):
         attrs_dict = dict(attrs)
         classes = set((attrs_dict.get("class") or "").split())
         inline_hidden = "display:none" in (attrs_dict.get("style") or "").replace(" ", "").lower()
-        if self.skip_depth or tag in self.SKIP or "hidden" in attrs_dict or attrs_dict.get("aria-hidden") == "true" or inline_hidden or classes.intersection({"differentiators-compact", "visually-hidden"}):
+        if self.skip_depth or tag in self.SKIP or "hidden" in attrs_dict or attrs_dict.get("aria-hidden") == "true" or inline_hidden or classes.intersection({"differentiators-compact", "visually-hidden", "latest-card-title--print"}):
             self.skip_depth += 1
             return
         if tag == "main":
