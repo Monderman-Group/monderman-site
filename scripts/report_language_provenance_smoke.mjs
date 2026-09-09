@@ -32,6 +32,14 @@ assert.match(independentHtml,/Measured stability/,'measured priority must remain
 assert.match(independentHtml,/do not correspond one-to-one/,'independent lists need an explicit interpretation boundary');
 assert.doesNotMatch(independentHtml,/<div class="mr-remedy-evidence"|Why this option appears here/,'do not manufacture evidence by array position');
 assert.equal(JSON.stringify(independent),independentBefore);
+for (const status of ['pending','deferred','failed','complete']) {
+  const run=make({priority_actions:['GENERIC_FIRST_TEST_FIXTURE'],ai_report:{status,report:{interpretation:{summary:'Reviewed tailored interpretation.',observations:[],hypotheses:[],recommendations:[],limitations:[]}}}});
+  const before=JSON.stringify(run);
+  const html=report.buildReportHtml(report.fromRun(run));
+  if(status==='complete')assert.doesNotMatch(html,/GENERIC_FIRST_TEST_FIXTURE/,'completed AI recommendations must not compete with the generic first move');
+  else assert.match(html,/GENERIC_FIRST_TEST_FIXTURE/,'keep the deterministic fallback when reviewed AI is unavailable');
+  assert.equal(JSON.stringify(run),before);
+}
 const migrated = make({report_language:{origin_version:'diagnostic-report-language-pre-20260908',generation_version:'diagnostic-report-language-20260908',migration:{from_version:'diagnostic-report-language-pre-20260908'}}});
 assert.match(report.buildReportHtml(report.fromRun(migrated)),/Report wording was generated with a newer template/);
 const hostile = make({report_language:{generation_version:'<script>alert(1)</script>'},questionnaire_version:'<img src=x onerror=alert(1)>'});

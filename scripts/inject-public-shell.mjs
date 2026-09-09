@@ -17,7 +17,7 @@ const shellScriptPattern = /<script\b[^>]*\bsrc=["']canonical-site-shell\.js[^"'
 const motifPattern = /<div\b(?=[^>]*\bclass=["'][^"']*\bmf-motif\b[^"']*["'])[^>]*>[\s\S]*?<\/svg>\s*<\/div>/i;
 const canonicalCssPattern = /canonical-site-shell\.css\?v=[^"']+/g;
 const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
-const shellRelease = "20260907-card-rhythm7";
+const shellRelease = "20260909-report-search1";
 const versionScript = (html, fileName) => html.replace(
   new RegExp(`(["'])${fileName.replace(".", "\\.")}(?:\\?v=[^"']*)?\\1`, "g"),
   (_match, quote) => `${quote}${fileName}?v=${shellRelease}${quote}`,
@@ -39,6 +39,7 @@ for (const entry of await readdir(publishDirectory, { withFileTypes: true })) {
     .replace(canonicalCssPattern, `canonical-site-shell.css?v=${shellRelease}`)
     .replace(enterpriseCssPattern, `enterprise-site.css?v=${shellRelease}`);
   versionedHtml = versionScript(versionedHtml, "canonical-site-shell.js");
+  versionedHtml = versionScript(versionedHtml, "monderman-report.js");
   versionedHtml = versionScript(versionedHtml, "assistant.js");
   versionedHtml = versionScript(versionedHtml, "connect-widget.js");
   if (versionedHtml !== html) {

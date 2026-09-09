@@ -28,9 +28,13 @@ for(const tool of ['structural_clarity','decision_velocity','operational_systems
  assert.match(timeMetric(cost),/Time not calculated/);assert.match(timeMetric(cost),/\$800 modeled annual labor cost/);checks++;
  const unknown=render(tool,{annual_hours:null,annual_cost:null,priceable:false,unpriced_reason:'PRIVATE_INTERNAL_CODE<script>alert(1)</script>'});
  assert.doesNotMatch(unknown,/PRIVATE_INTERNAL_CODE|<script>alert/);assert.match(unknown,/An explanation for the unavailable estimate was not recorded\./);checks++;
- for(const [reason,text] of Object.entries({missing_hours_per_run:'Time per run is missing or unusable.',missing_annual_cycles:'Annual frequency is missing or unusable.',missing_hourly_cost:'Hourly labor cost is missing or unusable.',input_saturation:'The model flagged the supplied inputs as outside its supported range.',attributed_hours_exceed_available_capacity:'Attributed hours exceed the supplied available capacity.'})){
+ for(const [reason,text] of Object.entries({missing_hours_per_run:'Time per run is missing or unusable.',missing_annual_cycles:'Annual frequency is missing or unusable.',missing_hourly_cost:'Hourly labor cost is missing or unusable.',input_saturation:'The modeled hours meet or exceed the available capacity used in the calculation.',attributed_hours_exceed_available_capacity:'Attributed hours exceed the supplied available capacity.'})){
   const html=render(tool,{annual_hours:null,annual_cost:null,priceable:false,unpriced_reason:reason});
   assert(html.includes(text),reason);assert(!html.includes(reason),reason);checks++;
+ }
+ for(const reason of [null,{toString:0},['missing_sizing_inputs']]){
+  const html=render(tool,{annual_hours:null,annual_cost:null,priceable:false,unpriced_reason:reason});
+  assert(html.includes('An explanation for the unavailable estimate was not recorded.'));checks++;
  }
 }
 console.log(`REPORT_MISSING_ESTIMATE_PASS: ${checks} cases; four lenses, zero/missing/partial values, safe reason labels, immutable inputs.`);

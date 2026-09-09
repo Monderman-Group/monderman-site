@@ -45,6 +45,13 @@ const headerPattern = /<header\b(?=[^>]*\bid=["']siteHeader["'])[^>]*>[\s\S]*?<\
 const footerPattern = /<footer\b(?=[^>]*\bclass=["'][^"']*\bmond-footer\b[^"']*["'])[^>]*>[\s\S]*?<\/footer>/i;
 const expectedHeader = fs.readFileSync('site-shell/header.html', 'utf8').trim();
 const expectedFooter = fs.readFileSync('site-shell/footer.html', 'utf8').trim();
+const shellRelease = fs.readFileSync('scripts/inject-public-shell.mjs', 'utf8').match(/const shellRelease = "([^"]+)";/)?.[1];
+assert.ok(shellRelease, 'shared asset release key must be explicit');
+for (const pageName of sourceHtmlNames) {
+  const built = fs.readFileSync(path.join(publishDirectory, pageName), 'utf8');
+  const refs = [...built.matchAll(/src=["'](monderman-report\.js(?:\?[^"']*)?)["']/g)];
+  for (const ref of refs) assert.equal(ref[1], `monderman-report.js?v=${shellRelease}`, `${pageName}: report renderer cache identity is stale`);
+}
 for (const pageName of canonicalPages) {
   const built = fs.readFileSync(path.join(publishDirectory, pageName), 'utf8');
   assert.equal(built.match(headerPattern)?.[0], expectedHeader, `${pageName}: built header is not the canonical partial`);

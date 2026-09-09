@@ -601,10 +601,10 @@
       missing_annual_cycles: "Annual frequency is missing or unusable.",
       missing_hourly_cost: "Hourly labor cost is missing or unusable.",
       missing_hourly_rate: "Hourly labor rate is missing or unusable.",
-      input_saturation: "The model flagged the supplied inputs as outside its supported range.",
+      input_saturation: "The modeled hours meet or exceed the available capacity used in the calculation.",
       attributed_hours_exceed_available_capacity: "Attributed hours exceed the supplied available capacity."
     };
-    return Object.hasOwn(reasons, value) ? reasons[value] : "An explanation for the unavailable estimate was not recorded.";
+    return typeof value === 'string' && Object.hasOwn(reasons, value) ? reasons[value] : "An explanation for the unavailable estimate was not recorded.";
   }
 
   function renderExecutiveDecisionFrame(m, n) {
@@ -1131,7 +1131,7 @@
       '</div>' +
       '<div class="mr-run-decision-story">' +
         '<div><div class="mr-lens-label">What this may mean</div><p>' + esc(m.bottomLine) + '</p></div>' +
-        (m.firstMove ? '<div><div class="mr-lens-label">First thing to test</div><p>' + esc(m.firstMove) + '</p></div>' : '') +
+        (m.firstMove && obj(m.aiReport).status !== 'complete' ? '<div><div class="mr-lens-label">First thing to test</div><p>' + esc(m.firstMove) + '</p></div>' : '') +
       '</div></section>';
   }
 
