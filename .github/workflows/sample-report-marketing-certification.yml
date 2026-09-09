@@ -88,6 +88,7 @@ on:
       - 'scripts/report_pdf_smoke.mjs'
       - 'scripts/report_full_pagination_smoke.mjs'
       - 'scripts/report_actual_text_pagination_smoke.mjs'
+      - 'scripts/report_ai_action_pagination_smoke.mjs'
       - 'test-fixtures/report-full-pagination-p19-historical.json'
       - 'scripts/report_synthesis_display_smoke.mjs'
       - 'scripts/report_synthesis_chart_smoke.mjs'
@@ -203,6 +204,7 @@ on:
       - 'scripts/report_pdf_smoke.mjs'
       - 'scripts/report_full_pagination_smoke.mjs'
       - 'scripts/report_actual_text_pagination_smoke.mjs'
+      - 'scripts/report_ai_action_pagination_smoke.mjs'
       - 'test-fixtures/report-full-pagination-p19-historical.json'
       - 'scripts/report_synthesis_display_smoke.mjs'
       - 'scripts/report_synthesis_chart_smoke.mjs'
@@ -340,6 +342,7 @@ jobs:
         run: |
           node scripts/report_full_pagination_smoke.mjs
           node scripts/report_actual_text_pagination_smoke.mjs
+          node scripts/report_ai_action_pagination_smoke.mjs
 
       - name: Verify favorable Structural Clarity charts and full report
         run: |

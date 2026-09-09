@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-screen-20260909.19";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-screen-20260909.20";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -414,6 +414,26 @@
     return hasGeneratedRemedyRecoveryRange(text) ? "" : text;
   }
 
+  function displayRunFindings(toolType, result, values) {
+    // Historical OS results used one sentence for both comparison flags and
+    // single-answer probes. A flag alone does not establish conflicting answers.
+    // Adapt that exact display sentence without changing the saved result.
+    if (toolType !== "operational_systems") return values;
+    const legacy = "Some submitted answers conflict about formal-system burden and reported operating experience; broader evidence is needed.";
+    const flags = result.contradictions;
+    const validFlags = Array.isArray(flags) && flags.length > 0 && flags.every(flag =>
+      (typeof flag === "string" && flag.trim().length > 0)
+      || (flag && typeof flag === "object" && !Array.isArray(flag)
+        && [flag.code, flag.message, flag.label].some(value => typeof value === "string" && value.trim().length > 0))
+    );
+    const replacement = !validFlags
+      ? "The saved report includes a caution flag, but this view does not establish which responses or conditions it concerns."
+      : flags.length === 1
+        ? "The saved result flags one response pattern. Review its recorded condition and qualification before drawing a conclusion."
+        : "The saved result flags " + flags.length + " response patterns. Review each recorded condition and qualification before drawing a conclusion.";
+    return values.map(value => value === legacy ? replacement : value);
+  }
+
   function fromRun(run) {
     const envelope = obj(run);
     const r = obj(envelope.result).tool_type ? obj(envelope.result) : envelope;
@@ -444,8 +464,8 @@
       r.primary_driver, r.primary_constraint, r.primary_exposure_source,
       r.primary_burden_source, r.primary_structural_weakness, "Unavailable"
     );
-    const findings = arr(r.key_findings).length ? arr(r.key_findings)
-      : (arr(r.flags).length ? arr(r.flags) : arr(r.findings));
+    const findings = displayRunFindings(toolType, r, arr(r.key_findings).length ? arr(r.key_findings)
+      : (arr(r.flags).length ? arr(r.flags) : arr(r.findings)));
     const watch = arr(r.watch_items).length ? arr(r.watch_items) : arr(r.contradictions);
     const actions = arr(prose.priority_actions).length ? arr(prose.priority_actions)
       : (arr(r.priority_actions).length ? arr(r.priority_actions)
@@ -2027,7 +2047,7 @@
     }
     `;
 
-  const AI_CSS = '.mr-ai-interpretation{min-width:0;overflow-wrap:anywhere}.mr-ai-interpretation a{color:var(--accent,#0C6E78);text-decoration:underline;text-underline-offset:.16em}.mr-ai-inline{padding:24px;max-width:100%;box-sizing:border-box}.mr-ai-action{margin:20px 0;padding:24px;break-inside:avoid}.mr-ai-action dd{margin:4px 0 16px}.mr-ai-interpretation h3{margin-top:24px}.mr-ai-interpretation li+li{margin-top:12px}@media(max-width:600px){.mr-ai-inline,.mr-ai-action{padding:18px}.mr-ai-interpretation h2{font-size:1.45rem}.mr-ai-interpretation h3{font-size:1.12rem}}@media print{.mr-ai-interpretation .mr-ai-action{break-inside:auto;page-break-inside:auto}.mr-ai-action h3{break-after:avoid;page-break-after:avoid}.mr-ai-action p{orphans:3;widows:3}.mr-ai-action .mr-ai-definition{break-inside:avoid;page-break-inside:avoid}.mr-ai-action dt{break-after:avoid;page-break-after:avoid}.mr-ai-action dd{break-before:avoid;page-break-before:avoid}.mr-ai-action>dl,.mr-ai-action>dl>.mr-ai-definition:last-child{break-after:avoid;page-break-after:avoid}.mr-ai-action>p:last-child{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}.mr-ai-interpretation>.mr-method-copy:last-child{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}}';
+  const AI_CSS = '.mr-ai-interpretation{min-width:0;overflow-wrap:anywhere}.mr-ai-interpretation a{color:var(--accent,#0C6E78);text-decoration:underline;text-underline-offset:.16em}.mr-ai-inline{padding:24px;max-width:100%;box-sizing:border-box}.mr-ai-action{margin:20px 0;padding:24px;break-inside:avoid}.mr-ai-action dd{margin:4px 0 16px}.mr-ai-interpretation h3{margin-top:24px}.mr-ai-interpretation li+li{margin-top:12px}@media(max-width:600px){.mr-ai-inline,.mr-ai-action{padding:18px}.mr-ai-interpretation h2{font-size:1.45rem}.mr-ai-interpretation h3{font-size:1.12rem}}@media print{.mr-ai-interpretation .mr-ai-action{break-inside:auto;page-break-inside:auto}.mr-ai-action h3{break-after:avoid;page-break-after:avoid}.mr-ai-action p{orphans:3;widows:3}.mr-ai-action .mr-ai-definition{break-inside:avoid;page-break-inside:avoid}.mr-ai-action dt{break-after:avoid;page-break-after:avoid}.mr-ai-action dd{break-before:avoid;page-break-before:avoid}.mr-ai-action>dl:has(+p),.mr-ai-action>dl:has(+p)>.mr-ai-definition:last-child{break-after:avoid;page-break-after:avoid}.mr-ai-action>p:last-child{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}.mr-ai-interpretation>.mr-method-copy:last-child{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}}';
 
   function handleScreenNavigation(event) {
     const link = event.target.closest('.mr-screen-only a[href^="#"]');
