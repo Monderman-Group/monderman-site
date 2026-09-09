@@ -234,4 +234,25 @@ await test("disconnect, pagehide and explicit stop each cancel without a read", 
   }
 });
 
+await test("status instructions distinguish active work from support-required or unknown states", async () => {
+  for (const status of ["pending", "processing", "attention_required", "unknown"]) {
+    const state = runtime(), host = new Element("main");
+    let calls = 0;
+    const stop = state.Report.mountAIInterpretation(host, { ai_report:{ status, message:"Synthetic status." } }, async () => { calls += 1; return null; });
+    const html = host.children[0].innerHTML;
+    assert.match(html, /The measured result remains available/);
+    if (["pending", "processing"].includes(status)) {
+      assert.match(html, /Reopen this saved report to check progress/);
+      assert.doesNotMatch(html, /Contact Monderman support/);
+      assert.equal(state.timers.values.size, 1);
+    } else {
+      assert.doesNotMatch(html, /check progress/);
+      assert.equal(state.timers.values.size, 0);
+      if (status === "attention_required") assert.match(html, /Contact Monderman support about this saved report; do not start another diagnostic/);
+      else assert.match(html, /Keep this saved report; no new diagnostic is needed/);
+    }
+    assert.equal(calls, 0); stop();
+  }
+});
+
 console.log(`Report AI deferred polling: ${checks} mock-only lifecycle checks passed. No API, customer account, model, database, or network was used.`);

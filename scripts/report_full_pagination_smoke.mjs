@@ -6,6 +6,14 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {spawnSync} from 'node:child_process';
 const {chromium}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
+// PDF font extraction may insert spaces inside a word. Tolerate that only;
+// the complete boundary must still be on the final page, never joined pages.
+const compact=text=>String(text).replace(/\s+/g,'');
+const boundaryOnFinalPage=(pages,boundary)=>Boolean(compact(boundary))&&compact(pages.at(-1)||'').includes(compact(boundary));
+assert.equal(boundaryOnFinalPage(['The answ ers show  how assumptions apply.'],'The answers show how assumptions apply.'),true);
+assert.equal(boundaryOnFinalPage(['The answers show how','assumptions apply.'],'The answers show how assumptions apply.'),false);
+assert.equal(boundaryOnFinalPage(['The answers show how assumptions apply.','Other text.'],'The answers show how assumptions apply.'),false);
+assert.equal(boundaryOnFinalPage(['Anything.'],''),false);
 const root=path.resolve(import.meta.dirname,'..');
 const out=path.resolve(process.env.REPORT_FULL_PAGINATION_OUT||'/tmp/report-presentation-smoke/full-pagination');
 fs.mkdirSync(out,{recursive:true});
@@ -51,7 +59,7 @@ try{
   assert.equal(result.status,0,'PDF extraction failed: '+result.stderr);
   const pages=JSON.parse(result.stdout).map(t=>t.replace(/\s+/g,' ').trim());check.pdfPages=pages.length;
   const expectedBoundary=(await page.locator('.mr-report-boundary p:last-child').innerText()).replace(/\s+/g,' ').trim();
-  assert.ok(pages.at(-1).includes(expectedBoundary),'Final boundary missing or split: '+item.id);
+  assert.ok(boundaryOnFinalPage(pages,expectedBoundary),'Final boundary missing or split: '+item.id);
   assert.ok(pages.length>1&&pages.length<40);assert.ok(pages.every(t=>t.length>20),'Empty or text-orphan page');
   const scenario=pages.filter(t=>t.includes('How the time and cost estimate is built'));
   assert.equal(scenario.length,1);assert.ok(scenario[0].includes('None is an audited or realized saving.'),'Scenario paragraph split');

@@ -152,7 +152,7 @@ const rendererSandbox = { window: {} };
 vm.runInNewContext(rendererSource, rendererSandbox, { filename: "monderman-report.js" });
 const Report = rendererSandbox.window.MondermanReport;
 assert.ok(Report, "shared report renderer did not initialize");
-assert.equal(Report.rendererVersion, "diagnostic-renderer-ai-20260909.9", "display version was not advanced");
+assert.equal(Report.rendererVersion, "diagnostic-renderer-ai-20260909.10", "display version was not advanced");
 
 const RUN_CASES = Object.freeze({
   decision_velocity: {

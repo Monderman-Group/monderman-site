@@ -68,6 +68,8 @@ on:
       - 'scripts/authenticated_report_engine_fixture.mjs'
       - 'scripts/report_pdf_smoke.mjs'
       - 'scripts/report_full_pagination_smoke.mjs'
+      - 'scripts/report_actual_text_pagination_smoke.mjs'
+      - 'test-fixtures/report-full-pagination-p19-historical.json'
       - 'scripts/report_synthesis_display_smoke.mjs'
       - 'scripts/report_cross_lens_phone_smoke.mjs'
       - 'scripts/sc_favorable_presentation_smoke.mjs'
@@ -159,6 +161,8 @@ on:
       - 'scripts/authenticated_report_engine_fixture.mjs'
       - 'scripts/report_pdf_smoke.mjs'
       - 'scripts/report_full_pagination_smoke.mjs'
+      - 'scripts/report_actual_text_pagination_smoke.mjs'
+      - 'test-fixtures/report-full-pagination-p19-historical.json'
       - 'scripts/report_synthesis_display_smoke.mjs'
       - 'scripts/report_cross_lens_phone_smoke.mjs'
       - 'scripts/sc_favorable_presentation_smoke.mjs'
@@ -277,7 +281,9 @@ jobs:
         run: python scripts/validate_generated_pdf_layout.py /tmp/report-presentation-smoke
 
       - name: Verify full reports with long AI output and legacy reports
-        run: node scripts/report_full_pagination_smoke.mjs
+        run: |
+          node scripts/report_full_pagination_smoke.mjs
+          node scripts/report_actual_text_pagination_smoke.mjs
 
       - name: Verify favorable Structural Clarity charts and full report
         run: |

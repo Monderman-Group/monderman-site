@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.9";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-20260909.10";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -1428,7 +1428,12 @@
     if (ai.status !== "complete") {
       const deferred=ai.status==='pending'&&typeof ai.deferUntil==='string'&&Number.isFinite(Date.parse(ai.deferUntil)) ? new Date(ai.deferUntil) : null;
       const timing=deferred ? '<p>Processing can resume after <time datetime="'+esc(deferred.toISOString())+'">'+esc(deferred.toLocaleString())+'</time>. This is not a completion guarantee.</p>' : '';
-      return '<section class="mr-section mr-ai-interpretation" aria-live="polite">' + heading + '<p>' + esc(ai.message) + '</p>'+timing+'<p>The measured result remains available. Reopen this saved report to check progress; do not start another diagnostic.</p></section>';
+      const followUp = ai.status === 'attention_required'
+        ? 'Contact Monderman support about this saved report; do not start another diagnostic.'
+        : ['pending','processing'].includes(ai.status)
+          ? 'Reopen this saved report to check progress; do not start another diagnostic.'
+          : 'Keep this saved report; no new diagnostic is needed.';
+      return '<section class="mr-section mr-ai-interpretation" aria-live="polite">' + heading + '<p>' + esc(ai.message) + '</p>'+timing+'<p>The measured result remains available. '+followUp+'</p></section>';
     }
     const report = obj(ai.report), interpretation = obj(report.interpretation);
     const paragraphs = (items, title) => arr(items).length ? '<h3>' + title + '</h3><ul>' + arr(items).map(item => '<li class="mr-ai-evidence-text">' + esc(obj(item).text || item) + '</li>').join('') + '</ul>' : '';
@@ -1855,6 +1860,10 @@
       .mr-evidence-grid{display:block}
       .mr-evidence-grid .mr-lens-card{display:block;break-inside:avoid;page-break-inside:avoid}
       .mr-report p{orphans:3;widows:3}
+      /* Keep these bounded reading units intact. Actual generated reports
+         exposed sentence tails and card tags stranded across page breaks. */
+      .mr-run-headline,.mr-lens-grid>.mr-lens-card{break-inside:avoid;page-break-inside:avoid}
+      .mr-ai-interpretation>ul>.mr-ai-evidence-text{break-inside:avoid;page-break-inside:avoid;orphans:3;widows:3}
       /* Keep the bounded scenario introduction with its chart. A whole-section
          avoid can be relaxed by print layout; the paragraph also needs an
          explicit no-split and keep-with-next boundary. */
