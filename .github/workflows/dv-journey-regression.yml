@@ -49,7 +49,9 @@ jobs:
           DV_JOURNEY_OUT: output/dv-journey-browser-current
         run: node scripts/dv_journey_browser_smoke.mjs
       - name: Test OS recovery identity and draft ownership boundaries
-        run: node scripts/os_recovery_identity_smoke.mjs
+        run: |
+          node scripts/os_recovery_identity_smoke.mjs
+          node scripts/diagnostic_question_header_smoke.mjs
       - name: Test OS registry compatibility and same-session recovery/revision
         run: node scripts/os_same_session_browser_smoke.mjs
       - uses: actions/upload-artifact@v4

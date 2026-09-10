@@ -110,7 +110,13 @@ async function runCase(browser,engine,version,role,depth,kind='matrix'){
   });
   const page=await context.newPage();page.setDefaultTimeout(15000);page.on('pageerror',error=>errors.push(error.message));
   const text=item=>typeof item.text==='string'?item.text:item.text[role];
-  async function question(item){await page.waitForFunction(expected=>document.getElementById('questionTitle')?.textContent===expected,text(item));await page.waitForTimeout(180);}
+  async function assertRunHeader(){
+    const label=role==='senior_leader'?'Senior Leaders':role==='managerial'?'Managerial':'Operational';
+    assert.equal(await page.locator('#envHeadline').textContent(),`${label} perspective selected • ${depth}-minute diagnostic`);
+    assert.equal(await page.locator('#envSubcopy').textContent(),'Questions adjust to your answers.');
+    assert.equal(await page.locator('#statusPill').textContent(),'Diagnostic in progress');
+  }
+  async function question(item){await page.waitForFunction(expected=>document.getElementById('questionTitle')?.textContent===expected,text(item));await page.waitForTimeout(180);await assertRunHeader();}
   async function pick(option,double=false){const button=page.getByRole('button',{name:option.label,exact:true});if(double)await button.evaluate(el=>{el.click();el.click();});else await button.click();}
   async function numeric(value){await page.locator('#questionBody input').fill(String(value));await page.locator('#continueBtn').evaluate(el=>{el.click();el.click();});}
   async function start(){
@@ -127,7 +133,7 @@ async function runCase(browser,engine,version,role,depth,kind='matrix'){
     }
   }
   try{
-    const fresh=version===contract.versions.current&&kind!=='denied';
+    const fresh=version===contract.versions.current&&!['denied','resume'].includes(kind);
     await page.goto(base+'/operational-systems.html'+(fresh?'':'?resume_run='+runId),{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>window.__mondermanTestHooks&&(!document.getElementById('pageLoader')||getComputedStyle(document.getElementById('pageLoader')).visibility==='hidden'));
     if(fresh)await start();else await page.locator('#resumeSavedRunBtn').click();
@@ -147,6 +153,17 @@ async function runCase(browser,engine,version,role,depth,kind='matrix'){
     assert.equal(new URL(page.url()).searchParams.get('resume_run'),runId);
     await page.reload({waitUntil:'domcontentloaded'});await page.locator('#selfDiagnosticDraftResume').click();await question(first);
     assert.equal(state.starts,expectedStarts);assert.equal(state.writes,0);
+    // Capture the actual restored header/question together at common widths.
+    if(kind==='resume'){
+      await page.waitForFunction(()=>{const loader=document.getElementById('pageLoader');return !loader||(getComputedStyle(loader).visibility==='hidden'&&getComputedStyle(loader).opacity==='0');});
+      for(const width of [390,768,1440]){
+        await page.setViewportSize({width,height:900});
+        await page.locator('#envHeadline').scrollIntoViewIfNeeded();
+        await assertRunHeader();
+        await page.screenshot({path:path.join(output,`recovered-header-${engine}-${width}.png`)});
+      }
+      await page.setViewportSize({width:390,height:844});
+    }
     await pick(first.options[0],true);await question(number);assert.equal(state.history.length,1);
     await numeric(5);await question(last);
     await page.locator('#backBtn').click();await question(number);await numeric(6);await question(last);
@@ -155,13 +172,14 @@ async function runCase(browser,engine,version,role,depth,kind='matrix'){
     await pick(first.options[1],true);await question(alternate);assert.equal(state.history.length,1);
     await numeric(3);
     for(let i=0;i<3;i++){
-      await page.locator('#questionBody textarea').waitFor();await page.locator('#skipBtn').click();
+      await page.locator('#questionBody textarea').waitFor();await assertRunHeader();await page.locator('#skipBtn').click();
     }
     await page.waitForFunction(()=>document.getElementById('questionTitle')?.textContent.includes('How confident'));
     const confidence=await page.locator('#questionTitle').textContent();
     assert.ok(confidence.includes(version===contract.versions.legacy?'accuracy of the information':'answers you provided'));
     await page.reload({waitUntil:'domcontentloaded'});await page.locator('#selfDiagnosticDraftResume').click();
     await page.waitForFunction(()=>document.getElementById('questionTitle')?.textContent.includes('How confident'));
+    await assertRunHeader();
     assert.equal(state.starts,expectedStarts);assert.equal(state.writes,5);
     assert.ok(requests.filter(r=>r.path.endsWith('/revise')).length>=3);
     // A link for another run must neither reveal this run nor erase its draft.
@@ -179,7 +197,7 @@ let browser;
 try{
   for(const [engine,type]of[['chromium',chromium],['webkit',webkit]]){
     browser=await type.launch({headless:true});
-    const jobs=[];
+    const jobs=[()=>runCase(browser,engine,contract.versions.current,'operational',10,'resume')];
     for(const version of versions)for(const role of ['operational','managerial','senior_leader'])for(const depth of [10,30,60])jobs.push(()=>runCase(browser,engine,version,role,depth));
     jobs.push(()=>runCase(browser,engine,contract.versions.current,'operational',10,'unknown-start'));
     jobs.push(()=>runCase(browser,engine,contract.versions.current,'operational',10,'denied'));
