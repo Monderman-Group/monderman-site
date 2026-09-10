@@ -29,7 +29,7 @@ for (const [path, tool] of pages) {
   assert.match(html, new RegExp(`tool: "${tool}"`), `${path} scopes drafts to its Diagnostic`);
   assert.match(html, /participantDraft\.activate\(cfg\)/, `${path} restores only after authoritative assignment resolution`);
   assert.match(html, /participantDraft\.clear\(\)/, `${path} supports explicit draft clearing`);
-  if (tool === 'decision_velocity') {
+  if (['decision_velocity','operational_systems'].includes(tool)) {
     // DV now revises one authoritative run; requiring its old restart/replay
     // mechanism would reintroduce unintended admission consumption.
     const replay = html.match(/async function replayAnswersAndResume\(changedItemId, changedValue\) \{[\s\S]*?\n\}/)?.[0];

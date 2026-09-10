@@ -48,6 +48,10 @@ jobs:
         env:
           DV_JOURNEY_OUT: output/dv-journey-browser-current
         run: node scripts/dv_journey_browser_smoke.mjs
+      - name: Test OS recovery identity and draft ownership boundaries
+        run: node scripts/os_recovery_identity_smoke.mjs
+      - name: Test OS registry compatibility and same-session recovery/revision
+        run: node scripts/os_same_session_browser_smoke.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -58,3 +62,23 @@ jobs:
             output/dv-journey-browser
             output/dv-journey-browser-current
             output/authoritative-history-browser
+            output/os-same-session-browser
+  intake-text-resizing:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned browser tooling
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          bash scripts/install_ci_browsers.sh
+      - name: Verify sidebar and final intake actions with enlarged text
+        run: node scripts/diagnostic_intake_rail_zoom_smoke.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: intake-text-resizing-evidence
+          path: output/diagnostic-intake-rail-zoom

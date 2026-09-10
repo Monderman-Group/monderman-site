@@ -542,7 +542,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
     <div class="intake-content">
       <p class="intake-step-kicker">Step 2 &middot; Length</p>
       <h3 class="intake-step-title">Choose the diagnostic length</h3>
-      <p class="intake-step-copy">Pick the shortest run that still fits the importance of the workflow. For most first passes, the 30-minute version is the best starting point. Shorter runs still deliver useful signal; longer runs uncover more hidden patterning over time.</p>
+      <p class="intake-step-copy">Pick the shortest run that still fits the importance of the workflow. For most first passes, the 30-minute version is the best starting point. A shorter run gives an initial view; longer runs ask more questions and provide more detail.</p>
 <p style="margin:10px 0 0;font-size:13.5px;"><a href="sample-report.html#os" style="color:#0C6E78;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(12,110,120,.35);padding-bottom:1px;">See exactly what you&rsquo;ll receive: a completed sample report &rarr;</a></p>
       <div class="intake-options">
         <button class="intake-option" type="button" data-depth="10"><span class="intake-option-radio"><span class="intake-option-radio-check">&#10003;</span></span><div class="intake-option-body"><p class="intake-option-name">10-minute diagnostic <span class="intake-option-tag">Light &middot; directional signal</span></p><p class="intake-option-desc">A shorter diagnostic for an initial view or a repeat check after a change.</p></div></button>
@@ -1103,6 +1103,13 @@ started: false,
 preflight: {},
 runId: null,
 sessionCapability: null,
+configVersion: null,
+sessionRevision: null,
+startInFlight: false,
+answerInFlight: false,
+pendingAnswerMutation: null,
+recoveryInFlight: false,
+recoveryRequested: false,
 currentItem: null,
 currentProgress: null,
 roleForText: "senior_leader",
@@ -2559,6 +2566,8 @@ pathHint.textContent = "";
 }
 
 async function startAdaptiveRun() {
+if (state.startInFlight || state.answerInFlight || state.finalizeInFlight || state.recoveryRequested) return;
+if (state.runId) { showQuestionnaireVersionUnavailable(); return; }
 if (!state.mode || !state.depth) return;
 if (!validatePreflightForm()) return;
 if (!preStartConsent.checked) {
@@ -2575,13 +2584,14 @@ const inferredCoverage = inferParticipantCoverage();
 
 // Keep the user on introStage during warmup+start: processingStage is
 // reserved for actual output generation so it doesn't look like questions were skipped.
+state.startInFlight = true;
 beginBtn.disabled = true;
 beginBtn.textContent = "Starting...";
 setHeader("Starting your diagnostic", "Preparing your questions. This may take a moment.", "Starting...");
 
 const participantLevels = inferredCoverage.levelsCovered;
 const body = {
-questionnaire_copy_version: state._replayQuestionnaireVersion === '1.2.0' ? undefined : state._replayQuestionnaireVersion === '1.3.0' ? "diagnostic-language-20260908" : ACTIVE_QUESTIONNAIRE_COPY_VERSION,
+questionnaire_copy_version: ACTIVE_QUESTIONNAIRE_COPY_VERSION,
 assignment_token: (window.MondermanAssignment && window.MondermanAssignment.active && window.MondermanAssignment.active()) ? window.MondermanAssignment.token() : undefined,
 role,
 participantMode: role,
@@ -2655,8 +2665,10 @@ if (!response.ok || !data?.ok) {
   throw new Error(data?.message || data?.error || "Unable to start the diagnostic.");
 }
 
+if (!isRunUuid(data.runId)) throw questionnaireCopyError();
 state.runId = data.runId;
 state.sessionCapability = data.sessionCapability || null;
+checkpointSameRunUrl();
 pinQuestionnaireVersion(data);
 state.currentItem = data.nextItem;
 state.currentProgress = data.progress || null;
@@ -2679,6 +2691,7 @@ if (data.finalized) {
 showStage(questionStage);
 if (data.shouldStop && !data.nextItem) queueExperienceQuestion(0);
 else renderQuestion();
+if (selfDraft) selfDraft.saveAccepted();
 
 } catch (error) {
 if (error?.code === "QUESTIONNAIRE_VERSION_UNAVAILABLE") { showQuestionnaireVersionUnavailable(error); return; }
@@ -2688,7 +2701,7 @@ beginBtn.textContent = "Begin Diagnostic";
 setHeader("Unable to start", "The diagnostic could not start. Please refresh and try again.", "Start failed");
 showStage(introStage);
 showToast(error?.message || "Unable to start the diagnostic.");
-}
+} finally { state.startInFlight = false; }
 }
 
 function buildConfidenceQuestion() {
@@ -2793,11 +2806,13 @@ executive: [
 
 const EXPERIENCE_PROMPT_SETS_BY_VERSION = Object.freeze({
   '1.2.0': LEGACY_EXPERIENCE_PROMPT_SETS,
-  '1.3.0': EXPERIENCE_PROMPT_SETS
+  '1.3.0': EXPERIENCE_PROMPT_SETS,
+  '1.3.1': EXPERIENCE_PROMPT_SETS
 });
 const CONFIDENCE_TEXT_BY_VERSION = Object.freeze({
   '1.2.0': "How confident are you in the accuracy of the information you provided across this run?",
-  '1.3.0': 'How confident are you that the answers you provided are accurate?'
+  '1.3.0': 'How confident are you that the answers you provided are accurate?',
+  '1.3.1': 'How confident are you that the answers you provided are accurate?'
 });
 
 // The server's saved questionnaire version pins all client-owned questions too.
@@ -2821,7 +2836,6 @@ function requireQuestionnaireVersion(version = state.configVersion) {
 function pinQuestionnaireVersion(data) {
   const version = requireQuestionnaireVersion(readQuestionnaireVersion(data));
   if (state.configVersion && state.configVersion !== version) throw questionnaireCopyError();
-  if (state._replayQuestionnaireVersion && state._replayQuestionnaireVersion !== version) throw questionnaireCopyError();
   state.configVersion = version;
   questionnaireCopyVerifiedRunId = state.runId;
   return version;
@@ -2909,6 +2923,8 @@ function installAuthoritativeQuestionnaireHistory(remote, { preserveLocal = true
   state.assignmentRecoveryWithholdResults = Boolean(remote.finalized && window.MondermanAssignment?.active()
     && window.MondermanAssignment.config()?.is_anonymous_response === true);
   reviewingHistoryItemId = null;
+  reviewFrontierItem = null;
+  state.pendingAnswerMutation = null;
 }
 
 function showQuestionnaireVersionUnavailable(error = questionnaireCopyError()) {
@@ -2920,6 +2936,113 @@ function showQuestionnaireVersionUnavailable(error = questionnaireCopyError()) {
   showStage(questionStage, {scroll:false});
   const notice = document.getElementById('persistenceNotice');
   if (notice) { notice.textContent = questionCopy.textContent; notice.style.display = 'block'; }
+  if (isRunUuid(state.runId) && !window.MondermanAssignment?.active?.()) {
+    checkpointSameRunUrl();
+    const retry = document.createElement('button');
+    retry.id = 'resumeSavedRunBtn'; retry.type = 'button'; retry.className = 'btn btn-accent';
+    retry.textContent = 'Check this saved run again';
+    retry.addEventListener('click', () => {
+      if (state.recoveryInFlight || state.answerInFlight || state.finalizeInFlight || state.startInFlight) return;
+      // A failed draft verification must retry through its controller so that
+      // successful verification also releases the controller's save guard.
+      if (selfDraft?.restore(state.runId)) return;
+      return resumeOperationalSession(state.runId);
+    });
+    questionBody.appendChild(retry);
+  }
+}
+
+function isRunUuid(value) {
+  return typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+function checkpointSameRunUrl() {
+  if (!isRunUuid(state.runId) || !isRunUuid(window.__mondermanActiveOrganizationId)
+    || window.MondermanAssignment?.active?.() || new URLSearchParams(location.search).has('assignment_token')) return;
+  const url = new URL(location.href);
+  url.searchParams.set('resume_run', state.runId);
+  // A run identifier is not a credential. Recovery still requires the original
+  // authenticated user and organization; never put a session capability here.
+  history.replaceState(null, '', url.pathname + url.search + url.hash);
+}
+function clearSameRunUrl() {
+  const url = new URL(location.href);
+  if (!url.searchParams.has('resume_run')) return;
+  url.searchParams.delete('resume_run');
+  history.replaceState(null, '', url.pathname + url.search + url.hash);
+}
+async function resumeOperationalSession(runId) {
+  if (state.recoveryInFlight || state.answerInFlight || state.finalizeInFlight || state.startInFlight) return false;
+  state.recoveryRequested = true;
+  state.recoveryInFlight = true;
+  [beginBtn, backBtn, continueBtn, skipBtn].forEach(button => { button.disabled = true; });
+  const retry = document.getElementById('resumeSavedRunBtn');
+  if (retry) retry.disabled = true;
+  try {
+    if (!isRunUuid(runId) || new URLSearchParams(location.search).has('assignment_token')
+      || window.MondermanAssignment?.active?.()) throw questionnaireCopyError();
+    const access = await window.mondermanWorkspaceAccessReady;
+    const client = await window.mondermanGetSupabaseClient();
+    const verified = await client.auth.getUser();
+    const userId = verified?.data?.user?.id;
+    const organizationId = window.__mondermanActiveOrganizationId;
+    if (access?.allowed !== true || access.context !== 'workspace' || verified.error
+      || !isRunUuid(userId) || !isRunUuid(organizationId)) throw new Error('Sign in to the same account and select the original Workspace to resume this run.');
+    const response = await fetchWithTimeout(API_BASE + '/api/operational-systems/run/' + encodeURIComponent(runId));
+    const remote = await response.json().catch(() => null);
+    const currentUser = await client.auth.getUser();
+    if (!response.ok || remote?.ok !== true || remote.runId !== runId
+      || currentUser.error || currentUser.data?.user?.id !== userId
+      || window.__mondermanActiveOrganizationId !== organizationId) throw new Error('This saved run could not be verified for the current account and Workspace. No new run was started.');
+    state.runId = runId;
+    if (!['operational','managerial','senior_leader'].includes(remote.role)
+      || ![10,30,60].includes(Number(remote.depth)) || !remote.context || typeof remote.context !== 'object') throw questionnaireCopyError();
+    const version = requireQuestionnaireVersion(readQuestionnaireVersion(remote));
+    // Only the authenticated server response supplies reconstruction state.
+    state.configVersion = version;
+    state.mode = remote.role === 'senior_leader' ? 'executive' : remote.role;
+    state.roleForText = remote.role;
+    state.depth = String(remote.depth);
+    const context = remote.context;
+    state.preflight = {};
+    for (const field of PRESTART_FIELDS) {
+      const value = field.id === 'peopleInvolved' ? context.peopleAffected : context[field.id];
+      if (['string','number'].includes(typeof value)) state.preflight[field.id] = value;
+    }
+    resetExperientialLayer();
+    pinQuestionnaireVersion(remote);
+    installAuthoritativeQuestionnaireHistory(remote, { preserveLocal: false });
+    state.started = true;
+    state.currentProgress = remote.progress || null;
+    state.recoveryRequested = false;
+    checkpointSameRunUrl();
+    if (remote.finalized) {
+      state.currentItem = null;
+      questionTitle.textContent = 'Your answers are closed for editing';
+      questionCopy.textContent = 'Continue to finish this report or reopen its saved result. This keeps the same run.';
+      questionBody.replaceChildren();
+      const finish = document.createElement('button'); finish.type = 'button'; finish.id = 'finishSavedRunBtn';
+      finish.className = 'btn btn-accent'; finish.textContent = 'Finish or open this report';
+      finish.addEventListener('click', () => finalizeAdaptiveRun()); questionBody.appendChild(finish);
+      return true;
+    }
+    state.currentItem = remote.nextItem;
+    showStage(questionStage, {scroll:false});
+    if (remote.shouldStop && !remote.nextItem) queueExperienceQuestion(0);
+    else renderQuestion();
+    await selfDraft?.activate();
+    selfDraft?.saveAccepted();
+    setAnswerControlsBusy(false);
+    const notice = document.getElementById('persistenceNotice');
+    if (notice) { notice.textContent = 'Your saved run is ready. No new run was started.'; notice.style.display = 'block'; }
+    return true;
+  } catch (error) {
+    showQuestionnaireVersionUnavailable(error);
+    return false;
+  } finally {
+    state.recoveryInFlight = false;
+    const button = document.getElementById('resumeSavedRunBtn');
+    if (button) button.disabled = false;
+  }
 }
 function ensureQuestionnaireCopyReady() {
   try {
@@ -3112,8 +3235,41 @@ state.currentItem = buildConfidenceQuestion();
 renderQuestion();
 }
 
+function setAnswerControlsBusy(busy) {
+  busy = busy || (state.runId && questionnaireCopyVerifiedRunId !== state.runId);
+  [backBtn, continueBtn, skipBtn, restartBtn].forEach(button => { if (button) button.disabled = Boolean(busy); });
+  questionBody.querySelectorAll('button,input,textarea,select').forEach(control => { control.disabled = Boolean(busy); });
+  questionStage.setAttribute('aria-busy', busy ? 'true' : 'false');
+}
+
+function saveJourneyProgress() {
+  if (selfDraft) selfDraft.saveAccepted();
+  checkpointSameRunUrl();
+}
+
+function answerFailureMessage(error) {
+  if (error?.status === 409) return 'This run changed in another request. Refresh to recover the latest saved answers, then review your answer again.';
+  if (error?.status === 401 || error?.status === 403) return 'This session could not be verified. Refresh to recover it or sign in with the same account.';
+  if (error?.status === 404 || error?.status === 410) return 'This run is no longer available. A new run requires choosing Start over.';
+  if (error?.status === 400 || error?.status === 422) return 'That answer was not accepted. Check your entry and try again.';
+  return 'Your answer has not been confirmed. Keep this page open and try the same answer again. This will not start another run.';
+}
+
 async function submitAnswer(itemId, value, meta = {}) {
 if (!ensureQuestionnaireCopyReady()) return;
+// All input types share one mutation lock, including double taps and retries.
+if (state.answerInFlight || state.finalizeInFlight || state.currentItem?.id !== itemId) return;
+state.answerInFlight = true;
+setAnswerControlsBusy(true);
+try {
+await submitAnswerLocked(itemId, value, meta);
+} finally {
+state.answerInFlight = false;
+setAnswerControlsBusy(false);
+}
+}
+
+async function submitAnswerLocked(itemId, value, meta = {}) {
 if (String(itemId || "").startsWith("_*experience*")) {
 recordExperienceAnswer(itemId, value);
 state.answerCache[itemId] = value || "";
@@ -3124,7 +3280,7 @@ queueExperienceQuestion(nextIndex);
 state.experienceComplete = true;
 queueConfidenceQuestion();
 }
-if (selfDraft) selfDraft.saveAccepted();
+saveJourneyProgress();
 return;
 }
 // Do not auto-replay cached answers. Every value in this run must be user-authored in the current pass.
@@ -3134,7 +3290,7 @@ showQuestionRequired('This question is required.');
 return;
 }
 state.preflight.confidenceLevel = value;
-if (selfDraft) selfDraft.saveAccepted();
+saveJourneyProgress();
 continueBtn.disabled = true;
 skipBtn.disabled = true;
 continueBtn.textContent = "Generating output...";
@@ -3155,46 +3311,72 @@ showQuestionRequired('This question is required.');
 return;
 }
 clearQuestionRequired();
-// Push to history before advancing so back can restore this question + answer
-if (state.currentItem && itemId !== "**confidenceLevel**") {
-state.questionHistory.push({ item: state.currentItem, value });
+const reviewIndex = reviewingHistoryItemId === itemId ? state.questionHistory.findIndex(entry => entry.item.id === itemId) : -1;
+const oldEntry = reviewIndex >= 0 ? state.questionHistory[reviewIndex] : null;
+if (!state.pendingAnswerMutation && oldEntry && JSON.stringify(oldEntry.value) === JSON.stringify(value) && JSON.stringify(oldEntry.meta || {}) === JSON.stringify(meta)) {
+  // Reviewing an unchanged answer is navigation, not a write or a new admission.
+  const nextEntry = state.questionHistory[reviewIndex + 1];
+  reviewingHistoryItemId = nextEntry?.item.id || null;
+  state.currentItem = nextEntry?.item || reviewFrontierItem;
+  if (nextEntry) state.answerCache[nextEntry.item.id] = nextEntry.value;
+  if (!nextEntry) reviewFrontierItem = null;
+  renderQuestion();
+  return;
 }
-continueBtn.disabled = true;
-skipBtn.disabled = true;
+const operation = oldEntry ? 'revise' : 'answer';
+const intent = JSON.stringify({itemId, value, meta, operation, expectedRevision: state.sessionRevision});
+if (state.pendingAnswerMutation && state.pendingAnswerMutation.intent !== intent) {
+  showQuestionRequired('A previous answer has not been confirmed. Retry that same answer or refresh to recover the saved run before changing it.');
+  return;
+}
+if (!state.pendingAnswerMutation) {
+  state.pendingAnswerMutation = {intent, mutationId: crypto.randomUUID()};
+}
+const requestBody = JSON.stringify({
+  itemId, value, meta,
+  expectedRevision: state.sessionRevision ?? undefined,
+  ...(oldEntry ? {expectedValue: oldEntry.value, mutationId: state.pendingAnswerMutation.mutationId} : {}),
+  assignment_token: (window.MondermanAssignment && window.MondermanAssignment.active && window.MondermanAssignment.active()) ? window.MondermanAssignment.token() : undefined,
+  session_capability: state.sessionCapability || undefined
+});
 continueBtn.textContent = 'Continue';
 
-let renderedNextQuestion = false;
 let attempt = 0;
 try {
 while (attempt < 2) {
 attempt += 1;
 try {
-const response = await fetchWithTimeout(`${API_BASE}/api/operational-systems/run/${state.runId}/answer`, {
+const response = await fetchWithTimeout(`${API_BASE}/api/operational-systems/run/${state.runId}/${operation}`, {
 method: "POST",
 headers: { "Content-Type": "application/json" },
-body: JSON.stringify({
-itemId, value, meta,
-assignment_token: (window.MondermanAssignment && window.MondermanAssignment.active && window.MondermanAssignment.active()) ? window.MondermanAssignment.token() : undefined,
-session_capability: state.sessionCapability || undefined
-})
+body: requestBody
 }, ANSWER_TIMEOUT_MS);
 const data = await response.json().catch(() => null);
 if (!response.ok || !data?.ok) {
-throw new Error(data?.error || 'Unable to submit answer.');
+const failure = new Error('Answer request was not accepted.');
+failure.status = response.status;
+throw failure;
 }
 pinQuestionnaireVersion(data);
+state.pendingAnswerMutation = null;
+state.sessionRevision = data.sessionRevision ?? state.sessionRevision;
+installAuthoritativeQuestionnaireHistory(data, { preserveLocal: false });
+reviewingHistoryItemId = null;
+reviewFrontierItem = null;
+if (oldEntry) {
+  resetExperientialLayer();
+  delete state.preflight.confidenceLevel;
+}
 state.currentProgress = data.progress || state.currentProgress;
 if (data.shouldStop || !data.nextItem) {
 if (!state.experienceComplete) {
 queueExperienceQuestion(0);
-if (selfDraft) selfDraft.saveAccepted();
-renderedNextQuestion = true;
+saveJourneyProgress();
 return;
 }
 if (!state.preflight.confidenceLevel) {
 queueConfidenceQuestion();
-if (selfDraft) selfDraft.saveAccepted();
-renderedNextQuestion = true;
+saveJourneyProgress();
 return;
 }
 await finalizeAdaptiveRun();
@@ -3202,8 +3384,7 @@ return;
 }
 state.currentItem = data.nextItem;
 renderQuestion();
-if (selfDraft) selfDraft.saveAccepted();
-renderedNextQuestion = true;
+saveJourneyProgress();
 return;
 } catch (error) {
 // Don't retry client errors (4xx): only timeouts and server errors
@@ -3217,49 +3398,20 @@ throw error;
 }
 }
 } catch (error) {
+// Validation failures are definitive. Ambiguous network/server failures keep
+// the exact mutation identity so an acknowledgement lost in transit is safe.
 if (error?.code === 'QUESTIONNAIRE_VERSION_UNAVAILABLE') { showQuestionnaireVersionUnavailable(error); return; }
-console.error('Adaptive answer failed', error);
-showQuestionRequired(error?.message || 'Unable to advance the question. Please try again.');
+if (error?.status >= 400 && error?.status < 500 && error.status !== 429) state.pendingAnswerMutation = null;
+showQuestionRequired(answerFailureMessage(error));
 continueBtn.textContent = 'Try again';
-showToast(error?.message || 'Unable to advance the question. Please try again.');
-} finally {
-if (!renderedNextQuestion && questionnaireCopyVerifiedRunId === state.runId) {
-continueBtn.disabled = false;
-skipBtn.disabled = false;
-}
+showToast(answerFailureMessage(error));
 }
 }
 
-// Silently replay all cached answers from the beginning when the user
-// goes back and changes an answer mid-run.
+// Legacy callers share the same-session edit path. Never start a replacement run.
 async function replayAnswersAndResume(changedItemId, changedValue) {
-beginBtn.disabled = true;
-beginBtn.textContent = "Restarting...";
-
-// Build the replay cache: all history up to (not including) the changed item,
-// plus the new answer for the changed item.
-const replayCache = {};
-for (const entry of state.questionHistory) {
-replayCache[entry.item.id] = entry.value;
+return submitAnswer(changedItemId, changedValue);
 }
-replayCache[changedItemId] = changedValue;
-
-// Full restart: state will be reset by restartDiagnostic, so save everything needed
-const savedPreflight = { ...state.preflight };
-const savedMode = state.mode;
-const savedDepth = state.depth;
-const savedQuestionnaireVersion = requireQuestionnaireVersion();
-restartDiagnostic(true);
-state.preflight = savedPreflight;
-state.mode = savedMode;
-state.depth = savedDepth;
-state._replayQuestionnaireVersion = savedQuestionnaireVersion;
-state._replayCache = replayCache;
-state._replaying = true;
-
-await startAdaptiveRun();
-}
-
 
 async function renderAssignedCompletionAcknowledgment(savedRunId) {
   // Completed anonymous submissions recover only their acknowledgment.
@@ -3303,6 +3455,7 @@ assignment_token: (window.MondermanAssignment && window.MondermanAssignment.acti
 session_capability: state.sessionCapability || undefined,
 confidenceLevel: state.preflight.confidenceLevel,
 confidence_level: state.preflight.confidenceLevel,
+expectedRevision: state.sessionRevision ?? undefined,
 peopleAffected: state.preflight.peopleInvolved,
 peopleInvolved: state.preflight.peopleInvolved,
 hourlyCost: state.preflight.hourlyCost,
@@ -3459,6 +3612,7 @@ if (state.gateNotice) {
 }
 showStage(resultsStage);
 if (selfDraft) selfDraft.clear();
+clearSameRunUrl();
 clearTimeout(slowFinalizeTimer);
 
 } catch (error) {
@@ -3505,6 +3659,7 @@ state.finalizeInFlight = false;
 }
 
 function confirmRestart() {
+  if (state.answerInFlight || state.finalizeInFlight || state.startInFlight || state.recoveryInFlight) return;
   if ((state.runId || state.started) &&
       !window.confirm("Start over? This clears all your answers and restarts the diagnostic from the beginning.")) {
     return;
@@ -3516,13 +3671,17 @@ function restartDiagnostic(preserveParticipantDraft = false) {
 if (!preserveParticipantDraft && participantDraft && window.MondermanAssignment && window.MondermanAssignment.active()) participantDraft.clear();
 if (!preserveParticipantDraft && selfDraft) selfDraft.clear();
 reviewingHistoryItemId = null;
+reviewFrontierItem = null;
+state.pendingAnswerMutation = null;
+state.sessionRevision = null;
+state.recoveryRequested = false;
+clearSameRunUrl();
 state.started = false;
 state.runId = null;
 state.sessionCapability = null;
 state.currentItem = null;
 state.currentProgress = null;
 state.configVersion = null;
-state._replayQuestionnaireVersion = null;
 questionnaireCopyVerifiedRunId = null;
 state.result = null;
 state.renderPayload = null;
@@ -6236,35 +6395,32 @@ learnMoreToggle.addEventListener("click", () => learnMorePanel.classList.toggle(
 preStartConsent.addEventListener("change", syncBeginButton);
 beginBtn.addEventListener("click", startAdaptiveRun);
 let reviewingHistoryItemId = null;
+let reviewFrontierItem = null;
 continueBtn.addEventListener("click", async () => {
-if (!state.currentItem) return;
+if (!state.currentItem || state.answerInFlight || state.finalizeInFlight) return;
 const value = readCurrentAnswer();
 const itemId = state.currentItem.id;
 state.answerCache[itemId] = value;
-// Only Back navigation authorizes a restart/replay. A recovered or repeated
-// adaptive item may legitimately have a cached value and must keep advancing.
-if (reviewingHistoryItemId === itemId && !state._replaying) {
-reviewingHistoryItemId = null;
-await replayAnswersAndResume(itemId, value);
-return;
-}
-reviewingHistoryItemId = null;
 await submitAnswer(itemId, value);
 });
 backBtn.addEventListener("click", async () => {
-if (!state.questionHistory.length) {
+if (state.answerInFlight || state.finalizeInFlight) return;
+if (state.pendingAnswerMutation) {
+showToast('Retry the unconfirmed answer or refresh to recover the saved run before reviewing earlier answers.');
+return;
+}
+const index = reviewingHistoryItemId ? state.questionHistory.findIndex(entry => entry.item.id === reviewingHistoryItemId) - 1 : state.questionHistory.length - 1;
+if (index < 0) {
 showToast("Nothing to go back to yet.");
 return;
 }
-// Pop the last answered question and re-render it with its cached value.
-// If the user changes the answer and continues, the run will restart and
-// silently replay all prior cached answers up to that point.
-const prev = state.questionHistory.pop();
+if (!reviewingHistoryItemId) reviewFrontierItem = state.currentItem;
+const prev = state.questionHistory[index];
 state.currentItem = prev.item;
 state.answerCache[prev.item.id] = prev.value;
 reviewingHistoryItemId = prev.item.id;
 renderQuestion();
-showToast("Reviewing previous answer. Change it and continue to restart from here.");
+showToast("Reviewing a saved answer. Changing it keeps this run and recalculates the questions that follow.");
 });
 skipBtn.addEventListener("click", async () => {
 if (!state.currentItem?.isOptional) {
@@ -6361,6 +6517,8 @@ syncBeginButton();
 // Old assignment drafts have no configVersion; only the saved server run may supply it.
 async function restorePinnedQuestionnaireDraft(saved) {
   if (!state.runId) return true;
+  if (state.recoveryInFlight || state.answerInFlight || state.finalizeInFlight || state.startInFlight) return false;
+  state.recoveryInFlight = true;
   const runId = state.runId;
   const mode = state.mode;
   const depth = String(state.depth);
@@ -6368,9 +6526,14 @@ async function restorePinnedQuestionnaireDraft(saved) {
   const assignment = window.MondermanAssignment;
   const token = assignment?.active() ? assignment.token() : null;
   const assignmentId = token ? String(assignment.config()?.id || assignment.config()?.assignment_id || '') : null;
-  const identityUnchanged = () => state.runId === runId && state.mode === mode && String(state.depth) === depth
+  let recoveryUser = null;
+  let recoveryOrganization = null;
+  let recoveryClient = null;
+  const flowUnchanged = () => state.runId === runId && state.mode === mode && String(state.depth) === depth
     && (!token || (assignment?.active() && assignment.token() === token
       && String(assignment.config()?.id || assignment.config()?.assignment_id || '') === assignmentId));
+  const identityUnchanged = () => flowUnchanged()
+    && (token || window.__mondermanActiveOrganizationId === recoveryOrganization);
   questionnaireCopyVerifiedRunId = null;
   questionBody.replaceChildren();
   questionTitle.textContent = 'Checking your saved questionnaire';
@@ -6378,10 +6541,24 @@ async function restorePinnedQuestionnaireDraft(saved) {
   [backBtn, continueBtn, skipBtn, beginBtn].forEach(button => { if (button) button.disabled = true; });
   showStage(questionStage, {scroll:false});
   try {
+    if (!token) {
+      const access = await window.mondermanWorkspaceAccessReady;
+      recoveryClient = await window.mondermanGetSupabaseClient();
+      const verified = await recoveryClient.auth.getUser();
+      recoveryUser = verified?.data?.user?.id;
+      recoveryOrganization = window.__mondermanActiveOrganizationId;
+      if (access?.allowed !== true || access.context !== 'workspace' || verified.error
+        || !isRunUuid(recoveryUser) || !isRunUuid(recoveryOrganization)
+        || saved?.user_id !== recoveryUser || saved?.organization_id !== recoveryOrganization) throw questionnaireCopyError();
+    }
     const response = await fetchWithTimeout(API_BASE + '/api/operational-systems/run/' + encodeURIComponent(runId), {
       headers: token ? {'X-Monderman-Assignment-Token': token} : {}
     }, ANSWER_TIMEOUT_MS);
     const remote = await response.json().catch(() => null);
+    if (!token) {
+      const currentUser = await recoveryClient.auth.getUser();
+      if (currentUser.error || currentUser.data?.user?.id !== recoveryUser) throw questionnaireCopyError();
+    }
     if (!response.ok || !remote?.ok || remote.runId !== runId || !identityUnchanged()
       || remote.role !== mapFrontendModeToBackendRole(mode) || String(remote.depth) !== depth) throw questionnaireCopyError();
     pinQuestionnaireVersion(remote);
@@ -6417,8 +6594,17 @@ async function restorePinnedQuestionnaireDraft(saved) {
     }
     const notice = document.getElementById('persistenceNotice');
     if (notice) { notice.textContent = 'Your saved answers and original questionnaire wording were recovered. No new run was started.'; notice.style.display = 'block'; }
+    state.started = true;
+    state.recoveryRequested = false;
+    setAnswerControlsBusy(false);
     return true;
-  } catch (error) { showQuestionnaireVersionUnavailable(error); return false; }
+  } catch (error) {
+    // A stale response must not replace a newer explicitly selected flow.
+    if (flowUnchanged()) showQuestionnaireVersionUnavailable(error);
+    return false;
+  } finally {
+    state.recoveryInFlight = false;
+  }
 }
 
 const participantDraft = window.MondermanAssignmentDraft && window.MondermanAssignmentDraft.createController({
@@ -6434,6 +6620,7 @@ const participantDraft = window.MondermanAssignmentDraft && window.MondermanAssi
 
 const selfDraft = window.MondermanSelfDiagnosticDraft && window.MondermanSelfDiagnosticDraft.createController({
   tool: "operational_systems",
+  resumeRunId: new URLSearchParams(location.search).get('resume_run') || null,
   state,
   questionStage,
   renderQuestion,
@@ -6442,7 +6629,7 @@ const selfDraft = window.MondermanSelfDiagnosticDraft && window.MondermanSelfDia
   authoritativeRunRestore: true,
   onRestore: restorePinnedQuestionnaireDraft
 });
-if (selfDraft) void selfDraft.activate();
+if (selfDraft && !new URLSearchParams(location.search).has('resume_run')) void selfDraft.activate();
 
 // ── Directed (campaign) mode: when opened from an assignment link, lock the
 //    vantage to the admin's choice and skip the chooser. No-op otherwise. ──
@@ -6695,6 +6882,31 @@ if (typeof window !== "undefined") {
     getRenderPayload: () => state.renderPayload
   };
 }
+
+// Normal recovery entry, including a start acknowledged before the first answer.
+// The URL carries an identifier only; the server and verified Workspace identity
+// remain authoritative. Unknown IDs never cause an automatic replacement start.
+queueMicrotask(async () => {
+  const ids = new URLSearchParams(location.search).getAll('resume_run');
+  if (!ids.length) return;
+  state.recoveryRequested = true;
+  [beginBtn, backBtn, continueBtn, skipBtn].forEach(button => { button.disabled = true; });
+  showStage(questionStage, {scroll:false});
+  questionBody.replaceChildren();
+  questionTitle.textContent = 'Resume your saved diagnostic';
+  questionCopy.textContent = 'Sign in with the original account and Workspace. Resuming does not start another run.';
+  if (ids.length !== 1 || !isRunUuid(ids[0]) || new URLSearchParams(location.search).has('assignment_token')) {
+    questionCopy.textContent = 'This recovery link is not valid. No run was started.';
+    return;
+  }
+  const hasMatchingDraft = await selfDraft?.activate();
+  if (hasMatchingDraft) return;
+  const button = document.createElement('button');
+  button.id = 'resumeSavedRunBtn'; button.type = 'button'; button.className = 'btn btn-accent';
+  button.textContent = 'Resume saved run';
+  button.addEventListener('click', () => resumeOperationalSession(ids[0]));
+  questionBody.appendChild(button);
+});
 
 // Return empty object (all code runs in IIFE context)
 return {};
