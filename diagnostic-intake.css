@@ -12,6 +12,13 @@ body.diagnostic-instrument .env-head-actions {
 }
 body.diagnostic-instrument .tool-title h1,
 body.diagnostic-instrument .env-head h2 { overflow-wrap: anywhere; }
+/* Preserve enlarged text inside narrow status tiles instead of clipping it. */
+body.diagnostic-instrument .calibration-text { min-width: 0; }
+body.diagnostic-instrument .calibration-step-label,
+body.diagnostic-instrument .calibration-step-value {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 body.diagnostic-instrument .learnmore-toggle {
   min-width: 0;
   max-width: 100%;
