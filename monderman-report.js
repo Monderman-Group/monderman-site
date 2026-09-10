@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-screen-20260910.22";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-screen-20260910.23";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -599,6 +599,7 @@
       questionnaireVersion: firstStr(r.questionnaire_version, r.config_version, provenance.questionnaire_version, provenance.config_version),
       scorerVersion: firstStr(r.scorer_version, provenance.scorer_version),
       reportLanguage: obj(r.report_language || provenance.report_language),
+      presentationCompatibility: obj(r._presentation_compatibility),
       kvs: kvs,
       sections: sections,
       footnote: "This report is based on one participant's answers for the stated scope. " + (toolType === "structural_clarity" ? "It identifies dimensions to compare and checks to consider; a comparison alone does not establish a need for change. " : "It suggests issues to investigate and changes to test. ") + "It does not show how common these conditions are, prove their causes, predict performance, or confirm time or money saved. Time, cost, and capacity figures are estimates based on stated assumptions.",
@@ -1373,6 +1374,16 @@
   function renderRunMethod(m, n) {
     const p = obj(m.provenance), c = obj(m.context), model = obj(obj(m.exposure).model);
     const language = obj(m.reportLanguage), migration = obj(language.migration);
+    const correction = obj(m.presentationCompatibility), correctedFields = arr(correction.corrected_fields);
+    // This is an explicit server-issued display correction, not a rewrite of
+    // the saved report, its original wording version, or its reviewed AI text.
+    const hasCorrection = m.toolType === "operational_systems" && correction.status === "known_legacy_text_corrected"
+      && typeof correction.version === "string" && correction.version.length <= 80
+      && /^os-presentation-\d{4}-\d{2}-\d{2}\.\d+$/.test(correction.version)
+      && correctedFields.length > 0 && correctedFields.length <= 64
+      && correctedFields.every(field => typeof field === "string" && field.length <= 256 && /^[a-zA-Z0-9_.\[\]-]+$/.test(field))
+      && typeof correction.notice === "string" && correction.notice.trim().length > 0;
+    const correctionNotice = hasCorrection ? correction.notice.trim().slice(0, 512) : "";
     const rows = [
       ["Instrument", m.toolLabel], ["Operating scope", firstStr(m.processName, m.scopeLabel)],
       ["Participant perspective", m.participantMode], ["Reported answer confidence", displayReportedAnswerConfidence(m.insightDepth, c)],
@@ -1382,6 +1393,8 @@
       ["Scoring version", displayScoringVersion(m.scorerVersion)],
       ["Report wording version", firstStr(language.generation_version, "Not recorded")],
       ["Current display version", RENDERER_VERSION],
+      ["Presentation correction version", hasCorrection ? correction.version : ""],
+      ["Presentation correction notice", correctionNotice],
       ["Engine revision", firstStr(p.engine_commit)], ["Artifact digest", firstStr(p.artifact_sha256)]
     ].filter((row) => row[1]);
     const methodTextLength = rows.reduce((total, row) => total + row.join("").length, 0) + String(migration.from_version || "").length;
