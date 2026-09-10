@@ -7,7 +7,7 @@ const source=fs.readFileSync('monderman-report.js','utf8');
 const sandbox={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};
 vm.runInNewContext(source,sandbox);
 const report=sandbox.window.MondermanReport;
-assert.equal(report.rendererVersion,'diagnostic-renderer-ai-screen-20260910.23');
+assert.equal(report.rendererVersion,'diagnostic-renderer-ai-screen-20260910.24');
 const labels=['Structural Clarity','Decision Velocity','Operational Systems','Institutional Performance'];
 const types=['structural_clarity','decision_velocity','operational_systems','institutional_performance'];
 const freeze=value=>{if(value&&typeof value==='object'){Object.freeze(value);Object.values(value).forEach(freeze);}return value;};

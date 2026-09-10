@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-screen-20260910.23";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-screen-20260910.24";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -1547,6 +1547,15 @@
     return notes.length?'<aside class="mr-ai-recorded-context"><h3>Important context from the saved result</h3><ul>'+notes.map(text=>'<li>'+esc(text)+'</li>').join('')+'</ul></aside>':'';
   }
 
+  // Only a nonblank action can produce a recommendation card or action CTA.
+  // Share this predicate so screen navigation never promises absent advice.
+  function renderedAIRecommendations(state) {
+    const ai = obj(state);
+    if (ai.status !== "complete") return [];
+    return arr(obj(obj(ai.report).interpretation).recommendations)
+      .filter(item => typeof obj(item).action === "string" && item.action.trim());
+  }
+
   function buildAIInterpretation(state) {
     const ai = obj(state);
     if (!ai.status) return "";
@@ -1576,7 +1585,7 @@
       ).join('') + '</ul></div>';
     };
     const sources = arr(report.sources).filter(source => /^https:\/\//i.test(firstStr(source.url)));
-    const actions = arr(interpretation.recommendations).map((item, index) => {
+    const actions = renderedAIRecommendations(ai).map((item, index) => {
       const action = obj(item);
       const refs = sources.filter(source => arr(action.source_ids).includes(source.id));
       const reasons = String(action.reason || '').split(/\n\s*\n/).filter(text => text.trim()).map(text => '<p class="mr-ai-reason' + readingUnitClass(text) + '">' + esc(text) + '</p>').join('');
@@ -1589,7 +1598,7 @@
         (refs.length ? '<p>Practice references: ' + refs.map(source=>'<a href="'+esc(source.url)+'" target="_blank" rel="noopener noreferrer">'+esc(source.publisher)+'</a>').join('; ') + '.</p>' : '') + '</article>';
     }).join('');
     return '<section class="mr-section mr-ai-interpretation">' + heading +
-      '<p class="mr-method-copy">Prepared with '+esc(report.model === 'claude-opus-5' ? 'Claude Opus 5' : report.model)+' from this saved result. '+(reviewedSelection?'Claude selected and prioritized reviewed explanations and next steps. Monderman inserted their approved wording and the supporting responses. ':'')+'The interpretation does not change the score. Review it before acting.</p><p>'+esc(interpretation.summary)+'</p>' +
+      '<p class="mr-method-copy">Prepared with '+esc(report.model === 'claude-opus-5' ? 'Claude Opus 5' : report.model)+' from this saved result. '+(reviewedSelection?(actions?'Claude selected and prioritized reviewed explanations and next steps. ':'Claude selected reviewed explanations. ')+'Monderman inserted their approved wording and the supporting responses. ':'')+'The interpretation does not change the score. Review it before acting.</p><p>'+esc(interpretation.summary)+'</p>' +
       (reviewedSelection?buildAIRecordedContext(report):'') +
       paragraphs(interpretation.observations,reviewedSelection?'Selected responses and results':'What the responses suggest') + paragraphs(interpretation.hypotheses,'Possible explanations to investigate') +
       (actions ? '<h3>'+(reviewedSelection?'Suggested next steps':'Changes to test')+'</h3><div class="mr-ai-actions">'+actions+'</div>' : '') +
@@ -2129,6 +2138,9 @@
 
   function buildScreenReportControls(model, sections) {
     const m = obj(model);
+    const ai = obj(m.aiReport);
+    const recommendations = renderedAIRecommendations(ai);
+    const interpretationOnly = ai.status === "complete" && !recommendations.length;
     const find = (pattern) => sections.find(section => pattern.test(section.classes + " " + section.label));
     const profile = find(/mr-run-dimensions|mr-system-read|mr-depth-system-read/);
     const evidence = find(/mr-run-evidence|mr-evidence-status/);
@@ -2136,18 +2148,17 @@
     const method = find(/mr-run-method|mr-meta-method|Method and limits/);
     const shortcuts = [{ section: sections[0], label: "Overview" },
       { section: profile, label: m.product === "depth" ? "Distribution" : m.product === "cross_lens" ? "Compare lenses" : "Dimensions" },
-      { section: evidence, label: "Evidence" }, { section: actions, label: "Actions" }, { section: method, label: "Method & limits" }].filter(item => item.section);
-    const link = (section, label, css) => '<a' + (css ? ' class="' + css + '"' : '') + ' href="#' + section.id + '">' + label + '</a>';
-    const nav = '<nav class="mr-screen-only mr-screen-nav" aria-label="Explore this result"><div class="mr-screen-shortcuts">' + shortcuts.map(item => link(item.section, item.label)).join("") + '</div>' +
+      { section: evidence, label: "Evidence" }, { section: actions, label: interpretationOnly ? "Interpretation" : "Actions", role: "guidance" }, { section: method, label: "Method & limits" }].filter(item => item.section);
+    const link = (section, label, css, role) => '<a' + (css ? ' class="' + css + '"' : '') + (role ? ' data-report-link-role="' + role + '"' : '') + ' href="#' + section.id + '">' + label + '</a>';
+    const nav = '<nav class="mr-screen-only mr-screen-nav" aria-label="Explore this result"><div class="mr-screen-shortcuts">' + shortcuts.map(item => link(item.section, item.label, "", item.role)).join("") + '</div>' +
       '<details class="mr-screen-contents"><summary>All sections <span aria-hidden="true">⌄</span></summary><div>' + sections.map(section => link(section, section.label)).join("") + '</div></details></nav>';
-    const ai = obj(m.aiReport);
     const firstAction = ai.status === "complete"
-      ? firstStr(obj(arr(obj(obj(ai.report).interpretation).recommendations)[0]).action)
+      ? firstStr(obj(recommendations[0]).action)
       // Deterministic firstMove can be an action-card category, not an action.
       // Keep the full guidance below instead of presenting its title as a task.
       : "";
     const nextMove = actions ? '<div class="mr-screen-only mr-screen-next"><div><span>Next step</span>' +
-      (firstAction ? '<p>' + esc(firstAction) + '</p>' : '<p>Review the suggested changes and their evidence before choosing a test.</p>') + '</div>' + link(actions, 'Explore actions <span aria-hidden="true">→</span>', 'mr-screen-action') + '</div>' : '';
+      (firstAction ? '<p>' + esc(firstAction) + '</p>' : interpretationOnly ? '<p>Review the interpretation and its limits.</p>' : '<p>Review the suggested changes and their evidence before choosing a test.</p>') + '</div>' + link(actions, (interpretationOnly ? 'Review interpretation' : 'Explore actions') + ' <span aria-hidden="true">→</span>', 'mr-screen-action', 'guidance') + '</div>' : '';
     return { nav, nextMove };
   }
 
@@ -2180,10 +2191,17 @@
       if (current?.isEqualNode(replacement)) return;
       const focused = current?.contains(document.activeElement) ? document.activeElement : null;
       const focusLabel = focused?.textContent;
+      const focusRole = focused?.getAttribute('data-report-link-role');
+      const focusHref = focused?.getAttribute('href');
       if (current) current.replaceWith(replacement);
       else if (parent) parent[prepend ? 'prepend' : 'append'](replacement);
       if (focused) {
-        const target = Array.from(replacement.querySelectorAll('a, summary')).find(node => node.textContent === focusLabel);
+        const candidates = Array.from(replacement.querySelectorAll('a, summary'));
+        // A completed factual-only report renames Actions to Interpretation.
+        // Preserve the focused guidance control even if its label/target changes.
+        const target = (focusRole && candidates.find(node => node.getAttribute('data-report-link-role') === focusRole)) ||
+          candidates.find(node => node.textContent === focusLabel) ||
+          (focusHref && candidates.find(node => node.getAttribute('href') === focusHref));
         target?.focus({ preventScroll: true });
       }
     };
