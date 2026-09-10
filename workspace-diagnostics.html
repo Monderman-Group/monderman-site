@@ -1235,7 +1235,11 @@ body{transition:background-color .25s ease, color .25s ease}
       return null;
     }
     function flash(id,msg,kind){ $(id).innerHTML = `<div class="note ${kind}">${esc(msg)}</div>`; }
-    function busy(id,on,label){ const b=$(id); b.disabled=on; if(label!==undefined) b.textContent= on?label:b.dataset.label; }
+    function busy(id,on,label){
+      const b=$(id); b.disabled=on;
+      if(on && label!==undefined) b.textContent=label;
+      if(!on && b.dataset.label!==undefined) b.textContent=b.dataset.label;
+    }
 
     function campaignAttemptStorageKey(){ return `mondermanCampaignSendAttempt:${state.orgId||"unknown"}`; }
     async function campaignPayloadFingerprint(){
