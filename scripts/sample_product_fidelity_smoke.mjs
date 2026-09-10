@@ -57,7 +57,7 @@ for (const [key, contract] of Object.entries(diagnostics)) {
 
 await page.locator('#tab-synthesis').click();
 const cross = page.locator('#report-synthesis');
-for (const token of ['Cross-Lens Composite Score','55.5','Equal-lens mean','Lens interaction evidence','Evidence-proportionate actions','Interpretation boundary']) {
+for (const token of ['Cross-Lens Composite Score','55.5','Equal-lens mean','Signals appearing across Diagnostics','Evidence-proportionate actions','Interpretation boundary']) {
   assert((await cross.textContent()).includes(token), `Cross-Lens missing ${token}`);
 }
 assert(!(await cross.textContent()).includes('Source-backed remedy paths'), 'Cross-Lens rendered remedy prose that its source-prose contract withholds');

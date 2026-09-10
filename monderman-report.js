@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-screen-20260909.20";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-screen-20260909.21";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -714,11 +714,13 @@
       evidenceCard("Source-run identity", humanize(identity.status), firstStr(identity.statement)),
       evidenceCard("Measurement window", humanize(timeWindow.status), firstStr(timeWindow.statement)),
       evidenceCard("Representativeness", firstStr(representative.label, humanize(representative.status)), firstStr(representative.statement))
-    ].filter(Boolean).join("");
+    ].filter(Boolean);
+    const cardGroups = [cards.slice(0, 4), cards.slice(4)].filter((group) => group.length)
+      .map((group) => '<div class="mr-evidence-group">' + group.join("") + '</div>').join("");
     return '<section class="mr-section mr-evidence-status"><h2>' + n + '. Evidence in this run</h2>' +
       '<div class="callout"><p><strong>' + esc(m.evidenceLabel) + '.</strong> ' + esc(m.evidenceDescription || "The evidence band governs what this Synthesis is allowed to claim.") + '</p></div>' +
       '<p class="mr-copy mr-run-count-note">'+esc(m.runCountNote)+'</p>'+renderEvidenceLadder(m) +
-      '<div class="mr-lens-grid mr-evidence-grid">' + cards + '</div></section>';
+      '<div class="mr-lens-grid mr-evidence-grid">' + cardGroups + '</div></section>';
   }
 
   function renderMetaFinding(m, n) {
@@ -819,12 +821,12 @@
           '<div class="k">Interquartile range</div><div>' + esc(fmtPair(read.iqr, fmt1)) + '</div>' +
           '<div class="k">Sample standard deviation</div><div>' + esc(fmt1(read.sd)) + '</div>' +
           '<div class="k">Outlier status</div><div>' + esc(outlierRead) + '</div>' +
-        '</div>' +
+        '</div><div class="mr-depth-stat-interpretation">' +
         (consensus.detail ? '<div class="callout"><p><strong>' + esc(humanize(consensus.read)) + '.</strong> ' + esc(consensus.detail) + '</p></div>' : '') +
         (segments ? '<h3 style="margin-top:20px">Results by participant perspective</h3><div class="kvs">' + segments + '</div>' : '') +
         (read.vantageGap?.statement ? '<p class="mr-copy"><strong>Difference between perspectives:</strong> ' + esc(read.vantageGap.statement) + '</p>' : '') +
         (read.interpretationLimit ? '<p class="mr-copy">' + esc(read.interpretationLimit) + '</p>' : '') +
-      '</div>';
+      '</div></div>';
     }).join("");
     return '<section class="mr-section mr-depth-detail"><h2>' + n + '. Agreement, divergence, and coverage</h2>' + cards + '</section>';
   }
@@ -931,7 +933,7 @@
       groups.map((lens) => '<div class="mr-synth-segment"><strong>' + esc(lens.toolLabel) + '</strong><span>' +
         esc(fmtWhole(lens.n)) + (Number(lens.n) === 1 ? ' submitted run' : ' submitted runs') + '</span><dl class="mr-synth-stat-list"><div><dt>Mean</dt><dd>' +
         esc(fmt1(lens.mean)) + '</dd></div></dl></div>').join('') + '</div></div>';
-    return '<div class="mr-viz-panel mr-system-panel"><div class="mr-viz-title">The operating system in one view</div>' + svg + summary + '<p class="mr-copy">Every Diagnostic receives one vote in the Composite. Submitted run counts affect evidence coverage, not lens weight; they do not establish how many distinct people responded.<span class="mr-synth-wide-caption"> Connectors show composition, not causation.</span></p></div>';
+    return '<div class="mr-viz-panel mr-system-panel"><div class="mr-viz-title">Diagnostic lenses at a glance</div>' + svg + summary + '<p class="mr-copy">Every Diagnostic receives one vote in the Composite. Submitted run counts affect evidence coverage, not lens weight; they do not establish how many distinct people responded.<span class="mr-synth-wide-caption"> Connectors show composition, not causation.</span></p></div>';
   }
 
   function renderCrossLensInteractionMatrix(m) {
@@ -948,9 +950,9 @@
       }).join("");
     }).join("");
     const compounding = signals.filter((signal) => arr(signal.tools).length >= 2).slice(0, 3);
-    return '<div class="mr-viz-panel mr-interaction-panel"><div class="mr-viz-title">Lens interaction evidence</div><div class="mr-interaction-grid" style="--lens-count:' + groups.length + '">' + header + rows + '</div>' +
-      (compounding.length ? '<div class="mr-compounding-read"><div class="mr-lens-label">Compounding constraints to investigate</div>' + compounding.map((signal) => '<p><strong>' + esc(signal.label) + '.</strong> ' + esc(signal.text) + '</p>').join("") + '</div>' : '') +
-      '<p class="mr-copy">Filled marks show which Diagnostic evidence participates in each recurring signal. Co-occurrence supports a systems hypothesis; it does not establish a causal chain.</p></div>';
+    return '<div class="mr-viz-panel mr-interaction-panel"><div class="mr-viz-title">Signals appearing across Diagnostics</div><div class="mr-interaction-grid" style="--lens-count:' + groups.length + '">' + header + rows + '</div>' +
+      (compounding.length ? '<div class="mr-compounding-read"><div class="mr-lens-label">Signals appearing in more than one Diagnostic</div>' + compounding.map((signal) => '<p><strong>' + esc(signal.label) + '.</strong> ' + esc(signal.text) + '</p>').join("") + '</div>' : '') +
+      '<p class="mr-copy">Filled marks show which Diagnostic evidence participates in each recurring signal. A signal appearing in more than one Diagnostic is a reason to investigate it across lenses; it does not establish a causal chain.</p></div>';
   }
 
   function renderCrossLensSystemRead(m, n) {
@@ -961,7 +963,7 @@
     const lowest = groups.reduce((best, lens) => !best || Number(lens.mean) < Number(best.mean) ? lens : best, null);
     const spread = values.length ? Math.max.apply(null, values) - Math.min.apply(null, values) : null;
     const exp = obj(m.exposure), firstAction = arr(m.actions)[0] || {};
-    return '<section class="mr-section mr-system-read"><div class="mr-section-index">0' + n + ' · System read</div><h2>' + esc(firstStr(obj(m.diagnosis).name, "Cross-Lens operating pattern")) + '</h2>' +
+    return '<section class="mr-section mr-system-read"><div class="mr-section-index">0' + n + ' · Diagnostic comparison</div><h2>' + esc(firstStr(obj(m.diagnosis).name, "Cross-Lens operating pattern")) + '</h2>' +
       '<p class="mr-exec-lede">' + esc(firstStr(obj(m.diagnosis).body, m.primaryPattern, m.briefing?.lede)) + '</p>' + renderCrossLensSystemGraphic(m) + renderCrossLensInteractionMatrix(m) +
       '<div class="mr-system-metrics">' +
         runMetric("Composite condition", m.scorePublished ? fmt1(m.score) : "Withheld", firstStr(m.conditionBand, m.scoreBasis), "teal") +
@@ -1038,10 +1040,17 @@
       if (!strictFinite(low) || !strictFinite(mid) || !strictFinite(high) || Number(high) <= 0) return;
       const hi = Number(high), lo = Math.max(0, Number(low)), md = Math.max(0, Number(mid));
       const left = Math.max(0, Math.min(100, (lo / hi) * 100));
-      const width = Math.max(1.5, Math.min(100 - left, ((hi - lo) / hi) * 100));
+      // Serialize the two endpoints before deriving the width. Rounding the
+      // complementary percentages independently can otherwise emit a strip
+      // whose right edge is 100.01% (for example, low 1 / high 32).
+      const serializedLeft = Number(left.toFixed(2));
+      const serializedWidth = Number(Math.max(0, 100 - serializedLeft).toFixed(2));
       const median = Math.max(0, Math.min(100, (md / hi) * 100));
+      const pointClass = serializedWidth === 0
+        ? ' is-point' + (serializedLeft === 0 ? ' is-left-edge' : serializedLeft === 100 ? ' is-right-edge' : '')
+        : '';
       rows.push('<div class="mr-range-row"><div class="mr-range-head"><strong>' + esc(label) + '</strong><span>' + esc(formatter(lo)) + ' – ' + esc(formatter(hi)) + '</span></div>' +
-        '<div class="mr-range-track"><span class="mr-range-iqr" style="left:' + left.toFixed(2) + '%;width:' + width.toFixed(2) + '%"></span><span class="mr-range-median" style="left:' + median.toFixed(2) + '%"></span></div>' +
+        '<div class="mr-range-track"><span class="mr-range-iqr' + pointClass + '" style="left:' + serializedLeft.toFixed(2) + '%;width:' + serializedWidth.toFixed(2) + '%"></span><span class="mr-range-median" style="left:' + median.toFixed(2) + '%"></span></div>' +
         '<div class="mr-range-foot">Median ' + esc(formatter(md)) + '</div></div>');
     }
     row('Modeled annual hours', exp.annual_hours_low, exp.annual_hours, exp.annual_hours_high, fmtWhole);
@@ -1252,10 +1261,10 @@
         '<div class="mr-dimension-detail">' + esc(evidenceCount) + (isPrimary ? '<b>Primary measured focus</b>' : '') + '</div></div>';
     }).join("");
     const findings = arr(m.findings).map(textItem).filter(Boolean);
-    return '<section class="mr-section mr-run-dimensions"><div class="mr-section-index">0' + n + ' · Measured condition</div>' +
+    return '<section class="mr-section mr-run-dimensions"><div class="mr-dimension-opening"><div class="mr-section-index">0' + n + ' · Measured condition</div>' +
       '<h2>Dimension profile</h2><p class="mr-lede">The profile keeps the total score and its contributing dimensions visible together. For condition dimensions, lower values indicate greater measured constraint. For Compensatory Effort, when shown, higher values indicate more reported extra effort.</p>' +
-      '<div class="mr-dimension-axis" aria-hidden="true"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>' +
-      '<div class="mr-dimension-profile">' + rows + '</div>' + renderConstraintConcentration(m) +
+      '<div class="mr-dimension-chart"><div class="mr-dimension-axis" aria-hidden="true"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>' +
+      '<div class="mr-dimension-profile">' + rows + '</div></div></div>' + renderConstraintConcentration(m) +
       (findings.length ? '<div class="mr-run-findings"><div class="mr-lens-label">Findings from scored answers</div><ul>' + findings.map((item) => '<li>' + esc(item) + '</li>').join("") + '</ul></div>' : '') + '</section>';
   }
 
@@ -1371,7 +1380,9 @@
       ["Current display version", RENDERER_VERSION],
       ["Engine revision", firstStr(p.engine_commit)], ["Artifact digest", firstStr(p.artifact_sha256)]
     ].filter((row) => row[1]);
-    return '<section class="mr-section mr-run-method"><div class="mr-section-index">0' + n + ' · Method and limits</div><h2>How this report was produced</h2><dl>' +
+    const methodTextLength = rows.reduce((total, row) => total + row.join("").length, 0) + String(migration.from_version || "").length;
+    const boundedMethodClass = methodTextLength <= 2200 ? ' mr-run-method-bounded' : '';
+    return '<section class="mr-section mr-run-method' + boundedMethodClass + '"><div class="mr-section-index">0' + n + ' · Method and limits</div><h2>How this report was produced</h2><dl>' +
       rows.map((row) => '<div><dt>' + esc(row[0]) + '</dt><dd>' + esc(row[1]) + '</dd></div>').join("") + '</dl>' +
       (migration.from_version ? '<p class="mr-method-copy">Report wording was generated with a newer template when this run completed. The recorded answers, scoring method, and numeric result were preserved. Original wording version: ' + esc(migration.from_version) + '.</p>' : '') +
       '<p class="mr-method-copy">The score and dimension values come from the submitted answers. Participant notes, when present, are shown separately and do not change the score. Time and cost calculations are modeled planning scenarios, not measured benchmarks. The design reference was set when the instrument was designed; it is not a comparison with customer or industry data.</p></section>';
@@ -1538,16 +1549,25 @@
     // Keep short reading units intact in print without making arbitrary long
     // provider text unbreakable. Escape every unit; no HTML is model-owned.
     const readingUnitClass = text => String(text).length <= 600 ? ' mr-ai-reading-unit' : '';
-    const paragraphs = (items, title) => arr(items).length ? '<h3>' + title + '</h3><ul>' + arr(items).map(item => {
-      const text = obj(item).text || item;
-      return '<li class="mr-ai-evidence-text"><span class="mr-ai-evidence-content' + readingUnitClass(text) + '">' + esc(text) + '</span></li>';
-    }).join('') + '</ul>' : '';
+    const paragraphs = (items, title) => {
+      const rows = arr(items);
+      if (!rows.length) return '';
+      const texts = rows.map(item => obj(item).text || item);
+      const boundedListClass = texts.reduce((total, text) => total + String(text || '').length, 0) <= 1600 ? ' mr-ai-list-bounded' : '';
+      return '<div class="mr-ai-list' + boundedListClass + '"><h3>' + title + '</h3><ul>' + texts.map(text =>
+        '<li class="mr-ai-evidence-text"><span class="mr-ai-evidence-content' + readingUnitClass(text) + '">' + esc(text) + '</span></li>'
+      ).join('') + '</ul></div>';
+    };
     const sources = arr(report.sources).filter(source => /^https:\/\//i.test(firstStr(source.url)));
     const actions = arr(interpretation.recommendations).map((item, index) => {
       const action = obj(item);
       const refs = sources.filter(source => arr(action.source_ids).includes(source.id));
       const reasons = String(action.reason || '').split(/\n\s*\n/).filter(text => text.trim()).map(text => '<p class="mr-ai-reason' + readingUnitClass(text) + '">' + esc(text) + '</p>').join('');
-      return '<article class="mr-card mr-ai-action"><h3>' + (index + 1) + '. ' + esc(action.action) + '</h3>' + reasons + '<dl>' +
+      const actionTextLength = [action.action, action.reason, action.prerequisite, action.risk, action.success_check]
+        .reduce((total, value) => total + String(value || '').length, 0) +
+        refs.reduce((total, source) => total + String(source.publisher || '').length, 0);
+      const boundedActionClass = actionTextLength <= 1300 ? ' mr-ai-action-bounded' : '';
+      return '<article class="mr-card mr-ai-action' + boundedActionClass + '"><h3>' + (index + 1) + '. ' + esc(action.action) + '</h3>' + reasons + '<dl>' +
         [['Before trying it',action.prerequisite],['Risk to consider',action.risk],['What to check',action.success_check]].map(row=>'<div class="mr-ai-definition"><dt><strong>'+row[0]+'</strong></dt><dd>'+esc(row[1])+'</dd></div>').join('') + '</dl>' +
         (refs.length ? '<p>Practice references: ' + refs.map(source=>'<a href="'+esc(source.url)+'" target="_blank" rel="noopener noreferrer">'+esc(source.publisher)+'</a>').join('; ') + '.</p>' : '') + '</article>';
     }).join('');
@@ -1558,7 +1578,7 @@
       (actions ? '<h3>'+(reviewedSelection?'Suggested next steps':'Changes to test')+'</h3><div class="mr-ai-actions">'+actions+'</div>' : '') +
       paragraphs(arr(report.limitations).concat(arr(interpretation.limitations)),'Limits of this interpretation') +
       '<h3>Sector comparison</h3><p>'+esc(obj(report.benchmark).explanation)+'</p>' +
-      (sources.length ? '<h3>External practice sources</h3><ul>'+sources.map(source=>'<li><a href="'+esc(source.url)+'" target="_blank" rel="noopener noreferrer">'+esc(source.title)+'</a>. '+esc(source.publisher)+'. Reviewed '+esc(source.reviewed)+'. Practice guidance, not a Monderman peer benchmark.</li>').join('')+'</ul>' : '') +
+      (sources.length ? '<div class="mr-ai-sources' + (sources.reduce((total, source) => total + [source.title, source.publisher, source.reviewed].reduce((n, value) => n + String(value || '').length, 0), 0) <= 1200 ? ' mr-ai-sources-bounded' : '') + '"><h3>External practice sources</h3><ul>'+sources.map(source=>'<li><a href="'+esc(source.url)+'" target="_blank" rel="noopener noreferrer">'+esc(source.title)+'</a>. '+esc(source.publisher)+'. Reviewed '+esc(source.reviewed)+'. Practice guidance, not a Monderman peer benchmark.</li>').join('')+'</ul></div>' : '') +
       '<p class="mr-method-copy">Interpretation version: '+esc(report.version)+'. Prepared: '+esc(report.generated_at)+'. Evidence reference: '+esc(report.snapshot_id)+'.</p></section>';
   }
 
@@ -1784,6 +1804,8 @@
     .mr-range-head span{color:#6E6F73;font-variant-numeric:tabular-nums}
     .mr-range-track{position:relative;height:12px;border-radius:999px;background:#EAE6DD;margin-top:9px;overflow:visible}
     .mr-range-iqr{position:absolute;top:0;height:12px;border-radius:999px;background:rgba(12,110,120,.30)}
+    .mr-range-iqr.is-point::after{content:"";position:absolute;left:50%;top:0;width:2px;height:12px;border-radius:2px;background:rgba(12,110,120,.72);transform:translateX(-50%)}
+    .mr-range-iqr.is-point.is-left-edge::after{left:0;transform:none}.mr-range-iqr.is-point.is-right-edge::after{left:100%;transform:translateX(-100%)}
     .mr-range-median{position:absolute;top:-4px;width:3px;height:20px;border-radius:2px;background:#08383E;transform:translateX(-1.5px)}
     .mr-range-foot{margin-top:7px;font-size:.76rem;color:#6E6F73}
     @media(max-width:760px){.mr-map-lenses{grid-template-columns:repeat(2,minmax(0,1fr))}.mr-map-signal{grid-template-columns:1fr}.mr-map-tools{justify-content:flex-start;max-width:none}.mr-system-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.mr-system-metrics .mr-run-metric:nth-child(3){border-left:0}.mr-system-decision{grid-template-columns:1fr}.mr-system-decision>div+div{border-left:0;border-top:1px solid #E0DCD3}}
@@ -1816,6 +1838,7 @@
 
     .mr-lenses-section { margin:24px 0 32px; }
     .mr-lens-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:16px; font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif; }
+    .mr-evidence-group{display:contents}
     .mr-lens-card { background:#FFF; border:1px solid #EAE6DD; border-radius:10px; padding:16px 18px; }
     .mr-lens-label { font-size:0.68rem; letter-spacing:0.16em; text-transform:uppercase; color:#0C6E78; font-weight:700; margin:0 0 6px; }
     .mr-lens-score { font-size:2rem; font-weight:700; color:#18191C; letter-spacing:-0.03em; margin:0 0 4px; }
@@ -1891,8 +1914,9 @@
     .mr-diagnosis-block h3{font-size:1.22rem!important;line-height:1.3;margin-bottom:10px!important}
     .mr-diagnosis-block p{font-size:1.04rem!important;line-height:1.65!important;max-width:68ch}
     .mr-depth-stats{background:transparent!important;border:0!important;border-radius:0!important;padding:0 0 6px!important;margin:26px 0 4px!important}
-    .mr-depth-stats>h3{font-size:1.1rem!important;margin:0 0 12px!important}
-    .mr-depth-stats>.kvs{border-top:1px solid #EAE6DD;border-bottom:1px solid #EAE6DD;padding:14px 0;margin:0 0 18px}
+    .mr-depth-stats>h3,.mr-depth-stat-interpretation>h3{font-size:1.1rem!important;margin:0 0 12px!important}
+    .mr-depth-stats>.kvs,.mr-depth-stat-interpretation>.kvs{border-top:1px solid #EAE6DD;border-bottom:1px solid #EAE6DD;padding:14px 0;margin:0 0 18px}
+    .mr-depth-stat-interpretation{display:contents}
     .mr-editorial-row{background:transparent!important;border:0!important;border-top:1px solid #EAE6DD!important;border-radius:0!important;padding:18px 0!important;margin:0!important}
     .mr-editorial-row:last-of-type{border-bottom:1px solid #EAE6DD!important}
     .mr-editorial-row h3{font-size:1.08rem!important;line-height:1.35;margin-bottom:7px!important}
@@ -1920,7 +1944,7 @@
     .mr-dimension-axis{display:grid;grid-template-columns:repeat(5,1fr);margin:25px 6px 4px 246px;color:#9A9892;font-size:.65rem;font-variant-numeric:tabular-nums;text-align:center}.mr-dimension-axis span:first-child{text-align:left}.mr-dimension-axis span:last-child{text-align:right}
     .mr-dimension-profile{border-top:1px solid #EAE6DD}
     .mr-dimension-row{display:grid;grid-template-columns:226px minmax(0,1fr);gap:10px 20px;padding:17px 4px;border-bottom:1px solid #EAE6DD;align-items:center}
-    .mr-dimension-copy{display:flex;align-items:baseline;justify-content:space-between;gap:12px}.mr-dimension-copy strong{font-size:.9rem;line-height:1.35}.mr-dimension-copy span{color:#0C6E78;font-weight:700;font-variant-numeric:tabular-nums}
+    .mr-dimension-copy{display:flex;align-items:baseline;justify-content:space-between;column-gap:12px;row-gap:2px;flex-wrap:wrap;min-width:0}.mr-dimension-copy strong{min-width:0;font-size:.9rem;line-height:1.35;overflow-wrap:anywhere}.mr-dimension-copy span{flex:0 0 auto;color:#0C6E78;font-weight:700;font-variant-numeric:tabular-nums}
     .mr-dimension-track{position:relative;height:10px;border-radius:999px;background:linear-gradient(90deg,#EEEAE2 0,#EEEAE2 25%,#E8E4DB 25%,#E8E4DB 50%,#E1DDD4 50%,#E1DDD4 75%,#DAD6CD 75%);overflow:visible}
     .mr-dimension-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#08383E,#0C6E78)}.mr-dimension-track i{position:absolute;top:-4px;width:2px;height:18px;background:#08383E;transform:translateX(-1px)}
     .mr-dimension-detail{grid-column:2;font-size:.7rem;color:#9A9892;margin-top:-4px}.mr-dimension-detail b{float:right;color:#0C6E78;text-transform:uppercase;letter-spacing:.1em;font-size:.61rem}
@@ -1990,14 +2014,17 @@
       .mr-system-metrics,.mr-system-decision,.mr-depth-metrics,.mr-depth-reading-grid,.mr-editorial-row,.mr-report .callout{break-inside:avoid;page-break-inside:avoid}
       .mr-section>h2{page-break-after:avoid}
       .mr-section>h2+p{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}
-      .mr-section>ul>li,.mr-run-exposure,.mr-run-method,.mr-meta-method,.mr-requirements,.mr-depth-stats>.kvs{break-inside:avoid;page-break-inside:avoid}
+      .mr-section>ul>li,.mr-run-exposure,.mr-run-method,.mr-meta-method,.mr-requirements,.mr-depth-stats>.kvs,.mr-depth-stat-interpretation>.kvs{break-inside:avoid;page-break-inside:avoid}
       .mr-evidence-grid{display:block}
+      .mr-evidence-group{display:block;break-inside:avoid;page-break-inside:avoid}
+      .mr-evidence-group+.mr-evidence-group{margin-top:12px}
       .mr-evidence-grid .mr-lens-card{display:block;break-inside:avoid;page-break-inside:avoid}
+      .mr-evidence-grid .mr-lens-card+.mr-lens-card{margin-top:12px}
       .mr-report p{orphans:3;widows:3}
       /* Keep these bounded reading units intact. Actual generated reports
          exposed sentence tails and card tags stranded across page breaks. */
       .mr-run-headline,.mr-lens-grid>.mr-lens-card{break-inside:avoid;page-break-inside:avoid}
-      .mr-ai-interpretation>ul>.mr-ai-evidence-text{break-inside:avoid;page-break-inside:avoid;orphans:3;widows:3}
+      .mr-ai-interpretation ul>.mr-ai-evidence-text{break-inside:avoid;page-break-inside:avoid;orphans:3;widows:3}
       .mr-ai-reading-unit{display:inline-block;width:100%;vertical-align:top;break-inside:avoid;page-break-inside:avoid}
       /* Keep the bounded scenario introduction with its chart. A whole-section
          avoid can be relaxed by print layout; the paragraph also needs an
@@ -2035,6 +2062,7 @@
       /* A completed AI report ends at Method and limits. Keep its explanatory
          paragraph with the boundary, instead of a nearly empty final page. */
       .mr-run-method:has(+.mr-report-boundary){break-inside:auto;page-break-inside:auto;break-after:avoid;page-break-after:avoid}
+      .mr-run-method-bounded:has(+.mr-report-boundary){break-inside:avoid;page-break-inside:avoid}
       .mr-run-method:has(+.mr-report-boundary)>.mr-method-copy:last-child{break-after:avoid;page-break-after:avoid}
       .mr-run-method+.mr-report-boundary{break-before:avoid;page-break-before:avoid}
       .mr-run-method dl{margin:14px 0}
@@ -2044,10 +2072,26 @@
       .mr-leadership-grid>div,.mr-leadership-sequence li{break-inside:avoid;page-break-inside:avoid}
       .mr-section h3,.mr-lens-label,.mr-viz-title{break-after:avoid;page-break-after:avoid}
       html,body{background:#FFF!important;margin:0!important}.mr-report .mr-page{padding:0!important}.mr-cover{break-after:page}.mr-compatibility-notice{break-inside:avoid}.mr-section{break-before:auto}.mr-section h2,.mr-section-index{break-after:avoid}.mr-run-metric,.mr-dimension-row,.mr-exposure-step,.mr-remedy-card,.mr-priority-row,.mr-evidence-quote,.mr-viz-panel{break-inside:avoid}.mr-run-metrics,.mr-exposure-flow,.mr-evidence-summary{break-inside:avoid}.mr-remedy-grid{grid-template-columns:1fr;gap:12px;break-inside:auto}.mr-remedy-card{overflow:visible}.mr-run-decision-story{break-inside:avoid}.mr-report-boundary{break-inside:avoid}.mr-report .mr-section+.mr-section{margin-top:34px;padding-top:28px}
+      .mr-run-decision,.mr-run-evidence,.mr-dimension-opening,.mr-dimension-chart,.mr-executive-synthesis,.mr-cross-lens-summary>.mr-lens-grid{break-inside:avoid;page-break-inside:avoid}
+      .mr-depth-stat-interpretation{display:block;break-inside:avoid;page-break-inside:avoid}
+      .mr-executive-synthesis>p:has(+.callout){break-after:avoid;page-break-after:avoid}
+      .mr-executive-synthesis>.callout:last-child{break-before:avoid;page-break-before:avoid}
+      .mr-interaction-panel{break-inside:auto;page-break-inside:auto}
+      .mr-interaction-panel{padding:18px!important}
+      .mr-interaction-grid{grid-template-columns:minmax(190px,1.4fr) repeat(var(--lens-count),minmax(72px,.55fr));margin:14px 0}
+      .mr-interaction-head{padding:8px 4px}
+      .mr-interaction-label{padding:10px 12px}
+      .mr-interaction-grid,.mr-compounding-read{break-inside:avoid;page-break-inside:avoid}
+      .mr-compounding-read{break-after:avoid;page-break-after:avoid}
+      .mr-interaction-panel>.mr-copy:last-child{break-before:avoid;page-break-before:avoid}
+      .mr-cross-lens-map{padding:18px!important;margin:14px 0;break-inside:auto;page-break-inside:auto}
+      .mr-cross-lens-map .mr-map-pattern{padding:12px 16px}
+      .mr-cross-lens-map .mr-map-signal{padding:10px 14px}
+      .mr-cross-lens-map .mr-map-signals{break-inside:avoid;page-break-inside:avoid}
     }
     `;
 
-  const AI_CSS = '.mr-ai-interpretation{min-width:0;overflow-wrap:anywhere}.mr-ai-interpretation a{color:var(--accent,#0C6E78);text-decoration:underline;text-underline-offset:.16em}.mr-ai-inline{padding:24px;max-width:100%;box-sizing:border-box}.mr-ai-action{margin:20px 0;padding:24px;break-inside:avoid}.mr-ai-action dd{margin:4px 0 16px}.mr-ai-interpretation h3{margin-top:24px}.mr-ai-interpretation li+li{margin-top:12px}@media(max-width:600px){.mr-ai-inline,.mr-ai-action{padding:18px}.mr-ai-interpretation h2{font-size:1.45rem}.mr-ai-interpretation h3{font-size:1.12rem}}@media print{.mr-ai-interpretation .mr-ai-action{break-inside:auto;page-break-inside:auto}.mr-ai-action h3{break-after:avoid;page-break-after:avoid}.mr-ai-action p{orphans:3;widows:3}.mr-ai-action .mr-ai-definition{break-inside:avoid;page-break-inside:avoid}.mr-ai-action dt{break-after:avoid;page-break-after:avoid}.mr-ai-action dd{break-before:avoid;page-break-before:avoid}.mr-ai-action>dl:has(+p),.mr-ai-action>dl:has(+p)>.mr-ai-definition:last-child{break-after:avoid;page-break-after:avoid}.mr-ai-action>p:last-child{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}.mr-ai-interpretation>.mr-method-copy:last-child{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}}';
+  const AI_CSS = '.mr-ai-interpretation{min-width:0;overflow-wrap:anywhere}.mr-ai-interpretation a{color:var(--accent,#0C6E78);text-decoration:underline;text-underline-offset:.16em}.mr-ai-inline{padding:24px;max-width:100%;box-sizing:border-box}.mr-ai-action{margin:20px 0;padding:24px;break-inside:avoid}.mr-ai-action dd{margin:4px 0 16px}.mr-ai-interpretation h3{margin-top:24px}.mr-ai-interpretation li+li{margin-top:12px}@media(max-width:600px){.mr-ai-inline,.mr-ai-action{padding:18px}.mr-ai-interpretation h2{font-size:1.45rem}.mr-ai-interpretation h3{font-size:1.12rem}}@media print{.mr-ai-interpretation .mr-ai-action{margin:12px 0;padding:16px;break-inside:auto;page-break-inside:auto}.mr-ai-interpretation .mr-ai-action-bounded,.mr-ai-interpretation .mr-ai-list-bounded,.mr-ai-interpretation .mr-ai-sources-bounded{break-inside:avoid;page-break-inside:avoid}.mr-ai-action h3{break-after:avoid;page-break-after:avoid}.mr-ai-action p{orphans:3;widows:3}.mr-ai-action .mr-ai-definition{break-inside:avoid;page-break-inside:avoid}.mr-ai-action dt{break-after:avoid;page-break-after:avoid}.mr-ai-action dd{margin-bottom:10px;break-before:avoid;page-break-before:avoid}.mr-ai-action>dl:has(+p),.mr-ai-action>dl:has(+p)>.mr-ai-definition:last-child{break-after:avoid;page-break-after:avoid}.mr-ai-action>p:last-child{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}.mr-ai-list>h3,.mr-ai-sources>h3{break-after:avoid;page-break-after:avoid}.mr-ai-sources li{break-inside:avoid;page-break-inside:avoid}.mr-ai-interpretation>.mr-method-copy:last-child{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}}';
 
   function handleScreenNavigation(event) {
     const link = event.target.closest('.mr-screen-only a[href^="#"]');

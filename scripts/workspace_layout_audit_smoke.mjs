@@ -9,6 +9,11 @@ const auditOnly=process.env.WORKSPACE_LAYOUT_AUDIT==='1';
 fs.mkdirSync(out,{recursive:true});
 const report=[];
 const runs=['operational_systems','decision_velocity','structural_clarity','institutional_performance'].map((tool,i)=>({id:`fixture-${i}`,tool_type:tool,score:44+i*7,band:i?'Mixed':'Drag',status:'promoted',included_in_aggregates:true,normalization_status:i===1?'included_with_caution':'included',business_unit:'Capital approval pathway',pathway_name:'Long-running capital approval and procurement pathway',created_at:`2026-09-0${i+1}T09:30:00Z`,config_version:'fixture-1',scorer_version:'fixture-1',vantage:'executive',diagnostic_depth:'full',report_available:true}));
+// Mixed saved states must not inflate eligible counts or the Synthesis picker.
+for(const [i,patch] of [
+ {status:'staged',normalization_status:null}, {status:'archived'}, {report_available:false},
+ {locked:true}, {included_in_aggregates:false}, {normalization_status:'excluded_from_aggregates'},
+].entries()) runs.push({...runs[1],id:`fixture-ineligible-${i}`,diagnostic_depth:'unavailable-depth',...patch});
 for(const [engine,type] of [['chromium',chromium],['webkit',webkit]].filter(([engine])=>!process.env.WORKSPACE_LAYOUT_ENGINE||process.env.WORKSPACE_LAYOUT_ENGINE===engine)){
  const browser=await type.launch({headless:true});
  for(const width of process.env.WORKSPACE_LAYOUT_WIDTH?[Number(process.env.WORKSPACE_LAYOUT_WIDTH)]:[1440,390,320])for(const theme of ['light','dark'])for(const name of (process.env.WORKSPACE_LAYOUT_PAGE?[process.env.WORKSPACE_LAYOUT_PAGE]:['settings','actions','analysis','diagnostics'])){
@@ -26,7 +31,7 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]].filter(([en
     participants:[{id:'fixture-person',full_name:'Alexandertheverylongunbrokenfirstname Morgan',email:'long.participant.coordination.team@example.invalid',business_unit:'Capital approvals',team:'Procurement'}],
     action_plans:[{id:'fixture-plan',name:'Capital approvals operating plan for procurement and operations',status:'active',created_at:'2026-09-01T09:30:00Z'}],
     action_items:['proposed','todo','in_progress','done'].map((status,i)=>({id:`fixture-action-${i}`,organization_id:org.id,plan_id:'fixture-plan',title:['Review one approval checkpoint','Clarify the handoff between teams','Test one reporting step with a named owner','Review the completed process change'][i],detail:'An illustrative action recorded for this operating pathway. Keep the source finding and owner visible.',decision:i?'adopted':'proposed',status:i?status:'todo',position:i,source_run_id:'fixture-0',source_finding_json:{label:'Approval and procurement coordination',tool_type:'operational_systems'},owner_user_id:i?'fixture-other':null,created_at:'2026-09-01T09:30:00Z'})),
-    org_snapshots:runs.map(r=>({...r,source_run_id:r.id,as_of:r.created_at,period_label:'September 2026'})),
+    org_snapshots:runs.filter(r=>!r.id.startsWith('fixture-ineligible-')).map(r=>({...r,source_run_id:r.id,as_of:r.created_at,period_label:'September 2026'})),
     diagnostic_assignments:[{id:'fixture-assignment',recipient_email:'long.participant.coordination.team@example.invalid',recipient_name:'Alex Morgan',tool_type:'operational_systems',participant_lens:'executive',campaign_label:'Capital approvals and procurement pathway',campaign_id:'fixture-campaign',status:'sent',token:'fixture-token',created_at:'2026-09-09T09:30:00Z',opened_at:'2026-09-09T10:30:00Z',send_status:'sent',email_sent_at:'2026-09-09T09:30:00Z'}],campaign_drafts:[]
    };
    window.__fixtureWrites=[];
@@ -78,7 +83,15 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]].filter(([en
    assert.equal(await owner.evaluate(el=>document.activeElement===el),true,'Owner control remains keyboard focusable');
    assert.ok(await owner.evaluate(el=>parseFloat(getComputedStyle(el).outlineWidth)>=2),'Owner control retains a visible keyboard focus outline');
   }
-  if(name==='analysis')await page.locator('#trustCard').waitFor();
+  if(name==='analysis'){
+   await page.locator('#trustCard').waitFor();
+   assert.equal(await page.locator('#tsTotal').textContent(),'10');
+   assert.equal(await page.locator('#tsIncl').textContent(),'3');
+   assert.equal(await page.locator('#tsCaut').textContent(),'1');
+   assert.equal(await page.locator('#tsRichLabel').textContent(),'4 eligible');
+   assert.match(await page.locator('#tsRichSub').textContent(),/4 runs eligible for aggregates · 1 depth/);
+   assert.match(await page.locator('#tsNote').textContent(),/Screened 9 of 10 runs/);
+  }
   if(name==='diagnostics')await page.waitForFunction(()=>!document.querySelector('#runsBody')?.textContent.includes('Loading'));
   async function inspect(state){
    const layout=await page.evaluate(()=>{
@@ -123,6 +136,7 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]].filter(([en
   if(name==='analysis'){
    await page.locator('.subtabs a[data-lens="synthesis"]').click();
    await page.locator('#synthScopePolicy').waitFor();
+   assert.equal(await page.locator('#synthBody [data-srun]').count(),4,'Only the same four eligible runs appear in Synthesis');
    await inspect('synthesis');
   }
   if(name==='diagnostics'){

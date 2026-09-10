@@ -75,6 +75,7 @@ jobs:
       - name: Reject duplicate Synthesis submissions and premature deferred-report polling
         run: |
           node scripts/synthesis_request_state_smoke.mjs
+          node scripts/workspace_analysis_eligibility_smoke.mjs
           node scripts/report_ai_deferred_poll_smoke.mjs
       - name: Reject Diagnostic completion-protection regressions
         run: node scripts/diagnostic_completion_reliability_smoke.mjs
