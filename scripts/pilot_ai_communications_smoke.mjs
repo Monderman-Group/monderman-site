@@ -9,10 +9,15 @@ import { execFileSync } from 'node:child_process';
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const baseRef = process.env.PILOT_COPY_BASE_REF || 'ffdc81ae868475cb0e933d87f374f4c0c199fe11';
-const files = ['pilot.html', 'pattern-trial.html', 'security.html', 'privacy.html', 'subprocessors.html'];
+const files = ['pilot.html', 'pattern-trial.html', 'security.html', 'subprocessors.html'];
 const textOf = html => html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 const blocks = (html, tag) => [...html.matchAll(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`, 'gi'))].map(match => match[0]);
 const controls = html => [...html.matchAll(/<(?:form|input|textarea|select|option|button)\b[^>]*>/gi)].map(match => match[0]);
+assert.equal(
+  fs.readFileSync(path.join(root, 'privacy.html'), 'utf8'),
+  execFileSync('git', ['show', `${baseRef}:privacy.html`], { cwd: root, encoding: 'utf8' }),
+  'Accepted Privacy Notice must remain byte-identical to the pinned release'
+);
 
 for (const file of files) {
   const html = fs.readFileSync(path.join(root, file), 'utf8');
@@ -44,7 +49,7 @@ for (const file of files) {
     assert.match(html, /href="privacy\.html"/);
   }
 }
-console.log('PILOT_AI_COPY_STATIC_PASS_5_PAGES_SCRIPTS_STYLES_CONTROLS_UNCHANGED');
+console.log('PILOT_AI_COPY_STATIC_PASS_4_PAGES_SCRIPTS_STYLES_CONTROLS_UNCHANGED_PRIVACY_BYTE_IDENTICAL');
 if (process.argv.includes('--static-only')) process.exit(0);
 
 const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
