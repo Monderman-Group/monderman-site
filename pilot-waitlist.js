@@ -6,6 +6,8 @@
     "https://monderman-api.onrender.com"
   ];
   var selectedBase = "";
+  var pendingSubmission = null;
+  var submitting = false;
 
   function requestId() {
     if (window.crypto && typeof window.crypto.randomUUID === "function") return window.crypto.randomUUID();
@@ -50,20 +52,9 @@
     return ["homepage", "decision_velocity", "pilot_page"].indexOf(value) >= 0 ? value : "other";
   }
 
-  function journeyId() {
-    if (window.MondermanFirstRun && typeof window.MondermanFirstRun.journeyId === "function") {
-      return window.MondermanFirstRun.journeyId();
-    }
-    try { return window.sessionStorage.getItem("monderman_first_run_journey") || ""; }
-    catch (_error) { return ""; }
-  }
-
   async function submit(form) {
-    var id = requestId();
     var source = sourceFromLocation();
     var payload = {
-      requestId: id,
-      journeyId: journeyId(),
       fullName: value(form, "fullName"),
       workEmail: value(form, "workEmail"),
       organization: value(form, "organization"),
@@ -75,9 +66,17 @@
       website: value(form, "website"),
       source: source
     };
-    var base = await chooseBase();
+    // Keep an unchanged explicit retry bound to its original server request.
+    // This transient snapshot stays in memory, never analytics or storage.
+    var fingerprint = JSON.stringify(payload);
+    if (!pendingSubmission || pendingSubmission.fingerprint !== fingerprint) {
+      pendingSubmission = { fingerprint: fingerprint, id: requestId() };
+    }
+    var id = pendingSubmission.id;
+    payload.requestId = id;
     var response;
     try {
+      var base = await chooseBase();
       response = await fetchWithTimeout(base + "/api/pilot-waitlist", {
         method: "POST",
         headers: { "Accept": "application/json", "Content-Type": "application/json" },
@@ -110,12 +109,15 @@
 
     form.addEventListener("submit", async function (event) {
       event.preventDefault();
+      if (submitting) return;
+      submitting = true;
       status.textContent = "";
       status.className = "pilot-form-status";
       submitButton.disabled = true;
       submitButton.textContent = "Submitting...";
       try {
         await submit(form);
+        pendingSubmission = null;
         window.MondermanFirstRun?.track("pilot_waitlist_submitted");
         form.hidden = true;
         confirmation.hidden = false;
@@ -124,6 +126,7 @@
         status.textContent = `${error.message} You can also email connect@monderman.com. Reference: ${error.requestId || "unavailable"}`;
         status.className = "pilot-form-status is-error";
       } finally {
+        submitting = false;
         submitButton.disabled = false;
         submitButton.textContent = "Apply to the pilot waitlist";
       }

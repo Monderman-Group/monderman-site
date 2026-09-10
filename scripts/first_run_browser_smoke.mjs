@@ -36,7 +36,7 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
     assert.equal(await page.locator(".first-run-moment").count(), 4);
     const pilotLink = page.locator('.hero-pilot-cta[href="pilot.html?source=homepage"]');
     assert.equal(await pilotLink.count(), 1);
-    assert.match(await pilotLink.textContent(), /Filling up/);
+    assert.match(await pilotLink.textContent(), /Applications open/);
     assert.equal(await page.locator('.hero-actions .btn-accent[href="decision-velocity.html?source=homepage"]').count(), 1);
     await page.waitForFunction(() => {
       const link = document.querySelector('.hero-pilot-cta[href="pilot.html?source=homepage"]');
