@@ -36,7 +36,9 @@ jobs:
       - name: Reject purchase-confirmation and onboarding regressions
         run: node scripts/signup_package_smoke.mjs
       - name: Verify free entry and pilot funnel contracts
-        run: node scripts/first_run_entry_smoke.mjs
+        run: |
+          node scripts/first_run_entry_smoke.mjs
+          node scripts/acquisition_attribution_smoke.mjs
       - name: Verify transparent email mark asset
         run: node scripts/email_mark_asset_smoke.mjs
       - name: Reject private Pattern pilot feedback regressions
