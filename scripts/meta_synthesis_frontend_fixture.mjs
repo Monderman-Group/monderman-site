@@ -250,8 +250,8 @@ assert.match(coherentHtml, /Equal-lens composite condition score/);
 assert.match(coherentHtml, /Each diagnostic lens receives one vote/);
 assert.match(coherentHtml, />60</);
 assert.match(coherentHtml, /EQUAL-LENS COMPOSITE/);
-assert.match(coherentHtml, /Strongest observed lens/);
-assert.match(coherentHtml, /Weakest observed lens/);
+assert.match(coherentHtml, /Highest mean/);
+assert.match(coherentHtml, /Lowest mean/);
 assert.match(coherentHtml, /Largest-to-smallest submitted-run count ratio: 1:1/);
 assert.match(coherentHtml, /Modeled time and labor-cost estimates/);
 

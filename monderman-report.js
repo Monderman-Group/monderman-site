@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-screen-20260909.21";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-screen-20260910.22";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -959,16 +959,20 @@
     if (m.product !== "cross_lens") return "";
     const groups = arr(m.sourceGroups).filter((lens) => strictFinite(lens.mean));
     const values = groups.map((lens) => Number(lens.mean));
-    const highest = groups.reduce((best, lens) => !best || Number(lens.mean) > Number(best.mean) ? lens : best, null);
-    const lowest = groups.reduce((best, lens) => !best || Number(lens.mean) < Number(best.mean) ? lens : best, null);
+    const highest = values.length ? Math.max.apply(null, values) : null;
+    const lowest = values.length ? Math.min.apply(null, values) : null;
+    // Equal means do not establish a single strongest or weakest lens.
+    // Keep every joint extreme, independent of the submitted group order.
+    const highestLabels = groups.filter((lens) => Number(lens.mean) === highest).map((lens) => lens.toolLabel).sort();
+    const lowestLabels = groups.filter((lens) => Number(lens.mean) === lowest).map((lens) => lens.toolLabel).sort();
     const spread = values.length ? Math.max.apply(null, values) - Math.min.apply(null, values) : null;
     const exp = obj(m.exposure), firstAction = arr(m.actions)[0] || {};
     return '<section class="mr-section mr-system-read"><div class="mr-section-index">0' + n + ' · Diagnostic comparison</div><h2>' + esc(firstStr(obj(m.diagnosis).name, "Cross-Lens operating pattern")) + '</h2>' +
       '<p class="mr-exec-lede">' + esc(firstStr(obj(m.diagnosis).body, m.primaryPattern, m.briefing?.lede)) + '</p>' + renderCrossLensSystemGraphic(m) + renderCrossLensInteractionMatrix(m) +
       '<div class="mr-system-metrics">' +
         runMetric("Composite condition", m.scorePublished ? fmt1(m.score) : "Withheld", firstStr(m.conditionBand, m.scoreBasis), "teal") +
-        runMetric("Strongest observed lens", highest ? highest.toolLabel : "Unavailable", highest ? fmt1(highest.mean) + " mean" : "", "green") +
-        runMetric("Weakest observed lens", lowest ? lowest.toolLabel : "Unavailable", lowest ? fmt1(lowest.mean) + " mean" : "", "amber") +
+        runMetric(highestLabels.length > 1 ? "Joint highest mean" : "Highest mean", highestLabels.join(", ") || "Unavailable", highestLabels.length ? fmt1(highest) + " mean" : "", "green") +
+        runMetric(lowestLabels.length > 1 ? "Joint lowest mean" : "Lowest mean", lowestLabels.join(", ") || "Unavailable", lowestLabels.length ? fmt1(lowest) + " mean" : "", "amber") +
         runMetric("Observed spread", strictFinite(spread) ? fmt1(spread) + " pts" : "Unavailable", m.evidenceLabel, "ink") +
       '</div><div class="mr-system-decision">' +
         (firstAction.text ? '<div><div class="mr-lens-label">First evidence-proportionate move</div><h3>' + esc(firstStr(firstAction.label, "First thing to test")) + '</h3><p>' + esc(firstAction.text) + '</p></div>' : '') +
