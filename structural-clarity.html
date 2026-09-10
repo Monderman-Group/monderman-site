@@ -2412,6 +2412,12 @@ function renderQuestion() {
 if (!ensureQuestionnaireCopyReady()) return;
 const item = state.currentItem;
 if (!item) return;
+// Refresh the run header for verified questions, including recovered runs.
+setHeader(
+  `${laneConfigs[state.mode]?.header || "Perspective selected"} • ${depthConfigs[state.depth]?.label || "Adaptive run"}`,
+  "Questions adjust to your answers.",
+  "Diagnostic in progress"
+);
 const dimLabel = displayQuestionTopic(item);
 const card = document.querySelector("#questionStage .question-card");
 

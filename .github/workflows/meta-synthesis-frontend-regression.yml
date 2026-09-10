@@ -14,6 +14,7 @@ on:
       - 'cross-tool-synthesis.html'
       - 'scripts/validate_meta_synthesis_frontend.py'
       - 'scripts/meta_synthesis_frontend_fixture.mjs'
+      - 'scripts/report_cross_lens_extrema_smoke.mjs'
       - '.github/workflows/meta-synthesis-frontend-regression.yml'
   pull_request:
     branches: [main]
@@ -28,6 +29,7 @@ on:
       - 'cross-tool-synthesis.html'
       - 'scripts/validate_meta_synthesis_frontend.py'
       - 'scripts/meta_synthesis_frontend_fixture.mjs'
+      - 'scripts/report_cross_lens_extrema_smoke.mjs'
       - '.github/workflows/meta-synthesis-frontend-regression.yml'
   workflow_dispatch:
 
@@ -55,6 +57,9 @@ jobs:
 
       - name: Validate depth and cross-lens customer contracts
         run: python scripts/validate_meta_synthesis_frontend.py
+
+      - name: Verify tied lens means do not select arbitrary winners
+        run: node scripts/report_cross_lens_extrema_smoke.mjs --deterministic-only
 
       - name: Run general frontend release validator
         run: python scripts/validate_frontend_release.py
