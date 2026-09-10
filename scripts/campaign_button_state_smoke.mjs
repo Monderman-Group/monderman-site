@@ -29,8 +29,11 @@ const functionNames = [
   "campaignAttemptStorageKey", "campaignPayloadFingerprint", "prepareCampaignSendAttempt",
   "clearCampaignSendAttempt", "doPreview", "renderPreview", "doSend"
 ];
+for (const name of ["campaignPayloadMaterial", "invalidateCampaignPreview", "campaignPreviewMatches"]) {
+  if (composer.includes(`function ${name}(`)) functionNames.push(name);
+}
 const helperSource = functionNames.map(productionFunction).join("\n")
-  + "\n({busy,doPreview,doSend})";
+  + "\n({busy,doPreview,doSend,invalidateCampaignPreview:typeof invalidateCampaignPreview==='function'?invalidateCampaignPreview:()=>{}})";
 
 function deferred() {
   let resolve;
@@ -48,7 +51,7 @@ function fixture() {
   };
   const state = { orgId: "org_controlled", userId: "user_controlled", lastReady: 0, campaignSendKey: null,
     recipients: [{ email: "controlled@example.test", full_name: "Controlled Person", business_unit: "Operations", team: "" }] };
-  const calls = { requests: [], generatedKeys: 0, clearDraft: 0, loadTracking: 0 };
+  const calls = { requests: [], generatedKeys: 0, clearDraft: 0, loadTracking: 0, scheduleSave: 0 };
   const store = new Map();
   const responses = [];
   const handlers = vm.runInNewContext(helperSource, {
@@ -64,6 +67,7 @@ function fixture() {
     localStorage: { getItem: (key) => store.get(key) ?? null, setItem: (key, value) => store.set(key, String(value)), removeItem: (key) => store.delete(key) },
     async apiAuthHeaders() { return { "X-Monderman-Organization-Id": state.orgId }; },
     clearDraft() { calls.clearDraft += 1; }, loadTracking() { calls.loadTracking += 1; },
+    scheduleSave() { calls.scheduleSave += 1; },
     async fetch(url, options) {
       assert.match(url, /^https:\/\/api\.example\.test\/api\/workspace\/assignments\/(?:preview|send)-batch$/,
         "this test must not contact real services or start a Diagnostic");
@@ -197,3 +201,5 @@ for (const failure of [
 }
 
 console.log(`Campaign button-state handlers: ${cases} isolated scenarios passed${revision ? ` (source ${revision})` : ""}.`);
+const { runCampaignPreviewSnapshotChecks } = await import('./campaign_preview_snapshot_smoke.mjs');
+await runCampaignPreviewSnapshotChecks({ fixture, previewReady, button, source });

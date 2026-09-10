@@ -1064,7 +1064,7 @@ body{transition:background-color .25s ease, color .25s ease}
       tb.addEventListener("input", (e)=>{
         const t=e.target; if(t.dataset.i==null || t.dataset.f==null) return;
         const i=+t.dataset.i; if(!state.recipients[i]) return;
-        state.recipients[i][t.dataset.f]=t.value; scheduleSave();
+        state.recipients[i][t.dataset.f]=t.value; invalidateCampaignPreview(); scheduleSave();
       });
       tb.addEventListener("click", (e)=>{
         const b=e.target.closest(".rm-btn"); if(!b) return;
@@ -1076,6 +1076,7 @@ body{transition:background-color .25s ease, color .25s ease}
     }
     function recipientCount(){ return state.recipients.filter(r=>r.email && r.email.trim()).length; }
     function renderRecipients(){
+      invalidateCampaignPreview();
       const tb=$("rRows"); if(!tb) return;
       wireRecipientRows(tb);
       const n=state.recipients.length, valid=recipientCount();
@@ -1242,14 +1243,24 @@ body{transition:background-color .25s ease, color .25s ease}
     }
 
     function campaignAttemptStorageKey(){ return `mondermanCampaignSendAttempt:${state.orgId||"unknown"}`; }
-    async function campaignPayloadFingerprint(){
-      const material=JSON.stringify({organization_id:state.orgId,csv:buildCSV(),defaults:buildDefaults(),batch_label:buildDefaults().event_path_name||""});
+    function campaignPayloadMaterial(){
+      return JSON.stringify({organization_id:state.orgId,csv:buildCSV(),defaults:buildDefaults(),batch_label:buildDefaults().event_path_name||""});
+    }
+    function invalidateCampaignPreview(){
+      state.previewRevision=(state.previewRevision||0)+1;
+      state.lastReady=0; state.previewMaterial=null; state.campaignSendKey=null;
+      const button=$("btnSend"); if(button) button.disabled=true;
+    }
+    function campaignPreviewMatches(material,revision){
+      return revision===state.previewRevision && material===campaignPayloadMaterial();
+    }
+    async function campaignPayloadFingerprint(material=campaignPayloadMaterial()){
       const bytes=new TextEncoder().encode(material);
       const digest=await crypto.subtle.digest("SHA-256",bytes);
       return Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,"0")).join("");
     }
-    async function prepareCampaignSendAttempt(){
-      const fingerprint=await campaignPayloadFingerprint();
+    async function prepareCampaignSendAttempt(material=campaignPayloadMaterial()){
+      const fingerprint=await campaignPayloadFingerprint(material);
       try{
         const saved=JSON.parse(localStorage.getItem(campaignAttemptStorageKey())||"null");
         if(saved?.fingerprint===fingerprint && /^[0-9a-f-]{36}$/i.test(saved?.key||"")) return saved.key;
@@ -1265,22 +1276,31 @@ body{transition:background-color .25s ease, color .25s ease}
 
     // ---- preview ----
     async function doPreview(){
+      if(state.previewing || state.sending) return;
+      invalidateCampaignPreview();
       const err=validate(); if(err){ flash("previewOut",err,"bad"); return; }
+      const material=campaignPayloadMaterial(), revision=state.previewRevision;
       $("sendOut").innerHTML="";
       const fd=new FormData();
       fd.append("file", new Blob([buildCSV()],{type:"text/csv"}), "recipients.csv");
       fd.append("defaults", JSON.stringify(buildDefaults()));
+      state.previewing=true;
       $("btnPreview").dataset.label="Preview"; busy("btnPreview",true,"Checking\u2026");
       try{
         const res=await fetch(`${API_BASE}/api/workspace/assignments/preview-batch`, { method:"POST", headers: await apiAuthHeaders(), body:fd });
         const data=await res.json().catch(()=>({}));
         if(!res.ok || data.ok===false) throw new Error(data.error || ("HTTP "+res.status));
+        const ready = (data.ready_rows||[]).length || (data.summary && data.summary.valid) || 0;
+        const key = ready > 0 ? await prepareCampaignSendAttempt(material) : null;
+        if(!campaignPreviewMatches(material,revision)){
+          invalidateCampaignPreview();
+          flash("previewOut","The campaign changed. Preview it again before sending.","bad"); return;
+        }
         renderPreview(data);
-        state.lastReady = (data.ready_rows||[]).length || (data.summary && data.summary.valid) || 0;
-        state.campaignSendKey = state.lastReady > 0 ? await prepareCampaignSendAttempt() : null;
+        state.lastReady=ready; state.previewMaterial=material; state.campaignSendKey=key;
         $("btnSend").disabled = state.lastReady < 1;
       }catch(e){ flash("previewOut","Preview failed: "+e.message,"bad"); state.lastReady=0; $("btnSend").disabled=true; }
-      finally{ busy("btnPreview",false); }
+      finally{ state.previewing=false; busy("btnPreview",false); }
     }
     function renderPreview(d){
       const ready=(d.ready_rows||[]).length, invalid=(d.invalid_rows||[]), dups=(d.duplicate_rows||[]);
@@ -1298,16 +1318,21 @@ body{transition:background-color .25s ease, color .25s ease}
 
     // ---- send ----
     async function doSend(){
-      if(state.lastReady<1){ flash("sendOut","Run a preview first.","bad"); return; }
+      if(state.sending || state.previewing) return;
+      if(state.lastReady<1 || !state.campaignSendKey || state.previewMaterial!==campaignPayloadMaterial()){
+        invalidateCampaignPreview(); flash("sendOut","Run a preview first.","bad"); return;
+      }
+      const err=validate(); if(err){ invalidateCampaignPreview(); flash("sendOut",err,"bad"); return; }
       if(!state.orgId){ flash("sendOut","No organization is linked to your account.","bad"); return; }
+      const sentMaterial=state.previewMaterial, sentRevision=state.previewRevision;
       const fd=new FormData();
       fd.append("file", new Blob([buildCSV()],{type:"text/csv"}), "recipients.csv");
       fd.append("defaults", JSON.stringify(buildDefaults()));
       fd.append("organization_id", state.orgId);
       fd.append("sender_user_id", state.userId);
       fd.append("batch_label", buildDefaults().event_path_name || "");
-      state.campaignSendKey = state.campaignSendKey || await prepareCampaignSendAttempt();
       fd.append("campaign_send_key", state.campaignSendKey);
+      state.sending=true; $("btnPreview").disabled=true;
       $("btnSend").dataset.label="Send campaign"; busy("btnSend",true,"Sending\u2026");
       try{
         const res=await fetch(`${API_BASE}/api/workspace/assignments/send-batch`, { method:"POST", headers: await apiAuthHeaders(), body:fd });
@@ -1315,10 +1340,12 @@ body{transition:background-color .25s ease, color .25s ease}
         if(!res.ok || data.ok===false) throw new Error(data.error || ("HTTP "+res.status));
         const queued = (data.queued ? data.queued.length : undefined) ?? data.queued_count ?? data.assignments_created ?? state.lastReady;
         flash("sendOut", `Campaign created: ${queued} participant invitation${queued===1?"":"s"} queued for delivery. Delivery retries automatically if the email provider is temporarily unavailable.`, "ok");
-        state.lastReady=0; clearCampaignSendAttempt(); $("btnSend").disabled=true; $("previewOut").innerHTML=""; clearDraft();
+        const unchanged=campaignPreviewMatches(sentMaterial,sentRevision);
+        state.lastReady=0; state.previewMaterial=null; clearCampaignSendAttempt(); $("btnSend").disabled=true; $("previewOut").innerHTML="";
+        if(unchanged) clearDraft(); else scheduleSave();
         loadTracking();
       }catch(e){ flash("sendOut","Send failed: "+e.message,"bad"); }
-      finally{ busy("btnSend",false); $("btnSend").disabled = state.lastReady < 1; }
+      finally{ state.sending=false; busy("btnSend",false); $("btnSend").disabled = state.lastReady < 1; $("btnPreview").disabled=false; }
     }
 
     // ---- tracking ----
@@ -1614,7 +1641,7 @@ body{transition:background-color .25s ease, color .25s ease}
     }
     function setupComposerAutosave(){
       ["fPath","fTool","fVantage","fDepth","fDue","fMessage","fShowResults","fAnon"].forEach(id=>{
-        const el=$(id); if(el){ el.addEventListener("input", scheduleSave); el.addEventListener("change", scheduleSave); }
+        const el=$(id); if(el){ for(const type of ["input","change"]) el.addEventListener(type,()=>{invalidateCampaignPreview(); scheduleSave();}); }
       });
       const b=$("btnDiscard"); if(b) b.addEventListener("click", discardDraft);
     }
