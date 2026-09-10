@@ -55,9 +55,12 @@ for token in [
     "/api/billing/pattern-pilot-invitation",
     'id="workspaceName"',
     'sb.rpc("bootstrap_my_workspace"',
-    "JSON.stringify({organization_id:organizationId})",
+    "const activationOrganizationId=organizationId;",
+    "JSON.stringify({organization_id:activationOrganizationId})",
     "pattern_pilot_invitation_required",
-    'source:"trial",organization_id:organizationId',
+    'source:"trial",organization_id:activationOrganizationId',
+    'source:"trial", organization_id:activationOrganizationId',
+    "if(activationInProgress || !invitationReady || !workspaceIsReady() || !ack.checked) return;",
 ]:
     assert token in trial, f"Pattern organization selection contract missing {token}"
 assert ".limit(1)" not in trial

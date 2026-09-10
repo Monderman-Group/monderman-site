@@ -89,7 +89,7 @@ def validate():
     trial = (ROOT / "pattern-trial.html").read_text(errors="ignore")
     require(trial, [
         "I agree to the", "and acknowledge the", 'source:\"trial\"',
-        "organization_id:organizationId", "/api/legal/acceptance/status", "/api/legal/acceptance"
+        "const activationOrganizationId=organizationId;", "organization_id:activationOrganizationId", "/api/legal/acceptance/status", "/api/legal/acceptance"
     ], "trial acceptance")
 
     privacy = (ROOT / "privacy.html").read_text(errors="ignore")

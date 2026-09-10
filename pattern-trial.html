@@ -81,14 +81,16 @@
     const choice = document.getElementById("workspaceChoice"), organizationSelect = document.getElementById("organizationSelect"), organizationName = document.getElementById("organizationName");
     const pilotInvitation = document.getElementById("pilotInvitation"), pilotInvitationTitle = document.getElementById("pilotInvitationTitle"), pilotInvitationHelp = document.getElementById("pilotInvitationHelp");
     const workspaceBootstrap = document.getElementById("workspaceBootstrap"), workspaceName = document.getElementById("workspaceName");
-    let invitationReady=false, sessionReady=false, createWorkspace=false, organizationId=null, currentDocuments=null;
+    let invitationReady=false, sessionReady=false, createWorkspace=false, organizationId=null, currentDocuments=null, activationInProgress=false;
     function show(text, kind="err"){ msg.textContent=text; msg.className="msg "+kind; }
     function workspaceIsReady(){ return sessionReady || (createWorkspace && workspaceName.value.trim().length>=2); }
     function syncStart(){
       const ready=invitationReady && workspaceIsReady();
-      ack.disabled=!ready;
+      ack.disabled=!ready || activationInProgress;
       if(!ready) ack.checked=false;
-      btn.disabled=!(ready && ack.checked);
+      btn.disabled=activationInProgress || !(ready && ack.checked);
+      organizationSelect.disabled=activationInProgress;
+      workspaceName.disabled=activationInProgress;
     }
     function denyStart(text, invitationDenied=true){
       sessionReady=false; createWorkspace=false;
@@ -99,6 +101,14 @@
         pilotInvitationHelp.textContent="Use the email address that received the Monderman invitation, or contact Monderman for assistance.";
       }
       syncStart(); show(text);
+    }
+    function unavailableStart(text){
+      if(!invitationReady){
+        pilotInvitation.dataset.state="unavailable";
+        pilotInvitationTitle.textContent="We couldn’t check your pilot invitation.";
+        pilotInvitationHelp.textContent="Please refresh and try again. This does not mean your invitation is invalid.";
+      }
+      denyStart(text,false);
     }
     function legalDocumentPath(kind, version){
       const normalized=String(version||"");
@@ -111,9 +121,10 @@
       currentDocuments={termsVersion:documents.termsVersion,privacyNoticeVersion:documents.privacyNoticeVersion};
     }
     function selectOrganization(organization){
+      if(organizationId && organizationId!==organization?.id) ack.checked=false;
       organizationId=organization?.id || null;
       sessionReady=!!organizationId;
-      choice.hidden=!organizationId;
+      choice.hidden=!organizationId && organizationSelect.hidden;
       organizationName.textContent=organizationId ? `This Pattern trial will start for ${organization.name || "the selected Workspace"}.` : "";
       if(organizationId) sessionStorage.setItem("monderman_active_organization_id", organizationId);
       syncStart();
@@ -123,15 +134,12 @@
     else {
       try{
         const token=data.session.access_token || "";
-        const [legalStatusResponse, invitationResponse]=await Promise.all([
-          fetch(API_BASE+"/api/legal/acceptance/status?source=trial",{headers:{authorization:"Bearer "+token}}),
-          fetch(API_BASE+"/api/billing/pattern-pilot-invitation",{headers:{authorization:"Bearer "+token}})
-        ]);
-        const legalStatus=await legalStatusResponse.json().catch(()=>({}));
-        if(!legalStatusResponse.ok || !legalStatus.ok) throw new Error(legalStatus.error || "legal_acceptance_status_failed");
-        setExactLegalDocumentLinks(legalStatus);
+        const invitationResponse=await fetch(API_BASE+"/api/billing/pattern-pilot-invitation",{headers:{authorization:"Bearer "+token}});
         const invitation=await invitationResponse.json().catch(()=>({}));
-        if(!invitationResponse.ok || !invitation.ok){ denyStart("A current, email-bound invitation is required to start this private pilot."); }
+        if(invitationResponse.status===404 && invitation.error==="pattern_pilot_invitation_required"){
+          denyStart("A current, email-bound invitation is required to start this private pilot.");
+        }
+        else if(!invitationResponse.ok || !invitation.ok){ throw new Error("pattern_pilot_invitation_unavailable"); }
         else{
           invitationReady=true;
           pilotInvitation.dataset.state="verified";
@@ -140,6 +148,13 @@
           pilotInvitationHelp.textContent=expires ? `This invitation can be activated through ${expires}. The 30-day pilot begins only when you continue below.` : "The 30-day pilot begins only when you continue below.";
         }
         if(!invitationReady) throw new Error("pattern_pilot_invitation_required");
+        // Discover current document versions only. Trial acceptance is checked
+        // for the selected Workspace below, immediately before activation.
+        const legalStatusResponse=await fetch(API_BASE+"/api/legal/acceptance/status?source=signup",{headers:{authorization:"Bearer "+token}});
+        const legalStatus=await legalStatusResponse.json().catch(()=>({}));
+        if(!legalStatusResponse.ok || !legalStatus.ok) throw new Error("legal_documents_unavailable");
+        try{ setExactLegalDocumentLinks(legalStatus); }
+        catch{ throw new Error("legal_documents_unavailable"); }
         const query=new URLSearchParams({purpose:"trial"});
         const requestedOrganizationId=new URLSearchParams(location.search).get("organization_id") || sessionStorage.getItem("monderman_active_organization_id") || "";
         if(requestedOrganizationId) query.set("organization_id",requestedOrganizationId);
@@ -174,17 +189,21 @@
           organizations.forEach((org)=>organizationSelect.add(new Option(org.name || "Workspace", org.id)));
           organizationSelect.addEventListener("change",()=>{
             const organization=organizations.find((org)=>org.id===organizationSelect.value);
-            if(organization) selectOrganization(organization);
+            selectOrganization(organization);
           });
         }
       }catch(e){
-        if(e?.message!=="pattern_pilot_invitation_required") denyStart("We couldn’t verify this Workspace’s trial eligibility. Please try again.",!invitationReady);
+        if(e?.message!=="pattern_pilot_invitation_required") unavailableStart(e?.message==="legal_documents_unavailable"
+          ? "We couldn’t load the current terms. Please refresh and try again."
+          : "We couldn’t verify this Workspace’s trial eligibility. Please refresh and try again.");
       }
     }
     ack.addEventListener("change",syncStart);
-    workspaceName.addEventListener("input",syncStart);
+    workspaceName.addEventListener("input",()=>{ ack.checked=false; syncStart(); });
     btn.addEventListener("click", async()=>{
-      btn.disabled=true; btn.textContent="Starting your trial…"; msg.className="msg";
+      if(activationInProgress || !invitationReady || !workspaceIsReady() || !ack.checked) return;
+      activationInProgress=true; syncStart();
+      btn.textContent="Starting your trial…"; msg.className="msg";
       try{
         const { data:s } = await sb.auth.getSession();
         const token = s?.session?.access_token || "";
@@ -198,7 +217,8 @@
           createWorkspace=false;
           workspaceBootstrap.hidden=true;
         }
-        const statusQuery = new URLSearchParams({ source:"trial", organization_id:organizationId });
+        const activationOrganizationId=organizationId;
+        const statusQuery = new URLSearchParams({ source:"trial", organization_id:activationOrganizationId });
         const statusResponse = await fetch(API_BASE+"/api/legal/acceptance/status?"+statusQuery.toString(), { headers:{authorization:"Bearer "+token} });
         const status = await statusResponse.json().catch(()=>({}));
         if(!statusResponse.ok || !status.ok) throw new Error(status.error || "legal_acceptance_status_failed");
@@ -209,11 +229,11 @@
           throw new Error("legal_documents_changed");
         }
         if(status.requiresAcceptance){
-          const acceptanceResponse = await fetch(API_BASE+"/api/legal/acceptance", {method:"POST", headers:{"content-type":"application/json",authorization:"Bearer "+token}, body:JSON.stringify({agreed:true,source:"trial",organization_id:organizationId,terms_version:status.termsVersion,privacy_notice_version:status.privacyNoticeVersion})});
+          const acceptanceResponse = await fetch(API_BASE+"/api/legal/acceptance", {method:"POST", headers:{"content-type":"application/json",authorization:"Bearer "+token}, body:JSON.stringify({agreed:true,source:"trial",organization_id:activationOrganizationId,terms_version:status.termsVersion,privacy_notice_version:status.privacyNoticeVersion})});
           const acceptance = await acceptanceResponse.json().catch(()=>({}));
           if(!acceptanceResponse.ok || !acceptance.ok) throw new Error(acceptance.error || "legal_acceptance_failed");
         }
-        const res = await fetch(API_BASE+"/api/billing/start-pattern-trial", {method:"POST", headers:{"content-type":"application/json","authorization":"Bearer "+(s?.session?.access_token||"")}, body:JSON.stringify({organization_id:organizationId})});
+        const res = await fetch(API_BASE+"/api/billing/start-pattern-trial", {method:"POST", headers:{"content-type":"application/json","authorization":"Bearer "+(s?.session?.access_token||"")}, body:JSON.stringify({organization_id:activationOrganizationId})});
         const out = await res.json().catch(()=>({}));
         if(res.ok && out.ok){ show("Pattern is active. Opening your Workspace…","ok"); setTimeout(()=>location.href="workspace.html",700); return; }
         const messages={
@@ -232,7 +252,7 @@
           ? "The Terms or Privacy Notice changed while this page was open. Review the current documents, select the acknowledgement again, and continue."
           : "The Pattern trial could not be reached. Nothing was charged. Please try again.");
       }
-      btn.textContent="Start my 30-day Pattern Pilot"; syncStart();
+      activationInProgress=false; btn.textContent="Start my 30-day Pattern Pilot"; syncStart();
     });
   </script>
 </body>
