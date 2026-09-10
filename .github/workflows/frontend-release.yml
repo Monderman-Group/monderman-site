@@ -62,6 +62,10 @@ jobs:
           node scripts/authenticated_report_engine_fixture.mjs
       - name: Verify compatibility bridge and explicit questionnaire activation
         run: node scripts/questionnaire_release_build_smoke.mjs
+      - name: Preserve legal editions and refresh chatbot assets in the built site
+        run: |
+          RENDER_GIT_COMMIT="${{ github.sha }}" bash scripts/render-static-build.sh
+          node scripts/chatbot_release_artifact_smoke.mjs
       - name: Keep modeled currency display ranges consistent and bounded
         run: node scripts/diagnostic_currency_display_smoke.mjs
       - name: Keep AI Interview collection outside the bounded pilot

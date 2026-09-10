@@ -30,7 +30,9 @@ assert.doesNotMatch(synthesisReport, /\.from\("synthesis_runs"\)/);
 assert.match(synthesisReport, /\/api\/synthesis-runs\/\$\{encodeURIComponent\(id\)\}/);
 
 assert.match(assistant, /function workspaceStorageKey\(\)/);
-assert.match(assistant, /STORAGE_KEY \+ ":" \+ organizationId/);
+assert.match(assistant, /STORAGE_KEY \+ ":v2:" \+ currentUserId \+ ":" \+ organizationId/, "Hans history must be scoped to both account and Workspace, not an organization shared across users");
+assert.match(assistant, /version !== requestVersion \|\| refreshScope\(\) !== scope/, "Hans must reject in-flight replies after account or Workspace changes");
+assert.match(assistant, /client\.auth\.onAuthStateChange/, "Hans must clear scoped history after sign out or account changes");
 assert.match(assistant, /"X-Monderman-Organization-Id": window\.__mondermanActiveOrganizationId/);
 
 console.log(JSON.stringify({

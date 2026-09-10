@@ -54,7 +54,7 @@
   window.__mondermanAssistantLoaded = true;
   var API_URL    = "https://monderman-api.onrender.com/api/site-assistant";
   var STORAGE_KEY = "mndAssistantHistory";              // survives page-to-page within a tab
-  var GREETING   = "Hi. I can help you find your way around Monderman. Ask about the four diagnostics, how to run one, or where something lives on the site.";
+  var GREETING   = "Hi. I’m Monderman’s AI site guide. Ask what the diagnostics cover, how to start the free Decision Velocity run, or how the pilot works. I explain the product, not its private implementation. I can make mistakes; check important details with the team.";
 
   // Keep the floating controls out of the footer. The footer already carries
   // contact routes, so the closed launchers retire when it enters the viewport.
@@ -123,7 +123,7 @@
     + '#mnd-head .mnd-sub{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-top:3px}'
     + '#mnd-close{background:transparent;border:none;color:rgba(255,255,255,.7);font-size:24px;line-height:1;cursor:pointer;padding:0 2px}'
     + '#mnd-close:hover{color:#fff}'
-    + '#mnd-head .mnd-head-actions{display:flex;align-items:center;gap:10px}'
+    + '#mnd-head>div:first-child{flex:1 1 180px;min-width:0}#mnd-head .mnd-head-actions{display:flex;flex:0 0 auto;align-items:center;gap:6px}'
     + '#mnd-new{background:transparent;border:1px solid rgba(255,255,255,.28);color:rgba(255,255,255,.85);font:inherit;font-size:11.5px;font-weight:500;letter-spacing:.02em;padding:5px 10px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:background .15s ease,border-color .15s ease,color .15s ease}'
     + '#mnd-new:hover{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.5);color:#fff}'
     + '#mnd-msgs{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px;background:#F6F3EC}'
@@ -144,7 +144,12 @@
     + '#mnd-launcher.mnd-dock-left{left:20px;right:auto}'
     + '#mnd-panel.mnd-dock-left{left:20px;right:auto}'
     + '@media (max-width:1180px){#mnd-launcher{right:20px;width:48px;height:48px}#mnd-launcher svg{width:22px;height:22px}}'
-    + '@media (max-width:480px){#mnd-panel{right:0;bottom:0;width:100vw;max-width:100vw;height:88vh;max-height:88vh;border-radius:18px 18px 0 0}#mnd-launcher{right:16px;bottom:16px}#mnd-launcher.mnd-dock-left{left:16px;right:auto}#mnd-panel.mnd-dock-left{left:0;right:0;width:100vw;max-width:100vw}}';
+    + '#mnd-panel,#mnd-panel *{box-sizing:border-box}#mnd-head,#mnd-foot{flex-shrink:0}#mnd-head{flex-wrap:wrap}#mnd-head .mnd-head-actions{margin-left:auto}'
+    + '#mnd-msgs{min-height:0;min-width:0}.mnd-msg{flex-shrink:0;min-width:0;overflow-wrap:anywhere}#mnd-input{min-width:0;min-height:44px;width:0;font-size:16px}#mnd-send,#mnd-close,#mnd-new{min-height:44px}#mnd-close{min-width:44px}'
+    + '#mnd-notice,#mnd-status{flex-shrink:0;margin:0;padding:8px 12px;font-size:12px;line-height:1.45;color:#4B4D52;background:#fff;overflow-wrap:anywhere}#mnd-notice a{color:#0A5B63;text-decoration:underline}#mnd-status:empty{display:none}#mnd-status{color:#8B3434}'
+    + '#mnd-panel button:focus-visible,#mnd-panel a:focus-visible{outline:3px solid #83BAC0;outline-offset:2px}'
+    + '@media(prefers-reduced-motion:reduce){.mnd-typing span{animation:none}#mnd-launcher{transition:none}}'
+    + '@media (max-width:480px){#mnd-panel{right:0;bottom:0;width:100%;max-width:100%;height:88vh;height:88dvh;max-height:88vh;max-height:88dvh;border-radius:18px 18px 0 0}#mnd-foot{padding-bottom:max(12px,env(safe-area-inset-bottom))}#mnd-launcher{right:16px;bottom:16px}#mnd-launcher.mnd-dock-left{left:16px;right:auto}#mnd-panel.mnd-dock-left{left:0;right:0;width:100%;max-width:100%}}';
   var style = document.createElement("style");
   style.textContent = css;
   document.head.appendChild(style);
@@ -152,15 +157,19 @@
   var launcher = document.createElement("button");
   launcher.id = "mnd-launcher";
   launcher.setAttribute("aria-label", "Open the Monderman assistant");
+  launcher.setAttribute("aria-controls", "mnd-panel");
+  launcher.setAttribute("aria-expanded", "false");
   launcher.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 3v-3H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>';
   var panel = document.createElement("div");
   panel.id = "mnd-panel";
   panel.setAttribute("role", "dialog");
   panel.setAttribute("aria-label", "Monderman assistant");
   panel.innerHTML =
-    '<div id="mnd-head"><div><div class="mnd-title">Monderman assistant</div><div class="mnd-sub">Here to help you navigate</div></div><div class="mnd-head-actions"><button id="mnd-new" aria-label="Start a new chat">New chat</button><button id="mnd-close" aria-label="Close assistant">&times;</button></div></div>'
-    + '<div id="mnd-msgs"></div>'
-    + '<div id="mnd-foot"><textarea id="mnd-input" rows="1" placeholder="Ask about Monderman…" aria-label="Type your question"></textarea><button id="mnd-send">Send</button></div>';
+    '<div id="mnd-head"><div><div class="mnd-title">Monderman assistant</div><div class="mnd-sub">AI site guide</div></div><div class="mnd-head-actions"><button id="mnd-new" aria-label="Start a new chat">New chat</button><button id="mnd-close" aria-label="Close assistant">&times;</button></div></div>'
+    + '<div id="mnd-msgs" role="log" aria-live="polite" aria-relevant="additions" aria-label="Conversation"></div>'
+    + '<p id="mnd-notice">Messages are sent to Anthropic to provide AI guidance. Do not paste personal, confidential, classified or controlled information. <a href="privacy.html">Privacy</a></p>'
+    + '<p id="mnd-status" role="status" aria-live="polite"></p>'
+    + '<div id="mnd-foot"><textarea id="mnd-input" rows="1" maxlength="2000" aria-describedby="mnd-notice mnd-status" placeholder="Ask about Monderman…" aria-label="Type your question"></textarea><button id="mnd-send">Send</button></div>';
   document.body.appendChild(launcher);
   document.body.appendChild(panel);
   footerDock.update();
@@ -177,13 +186,37 @@
   var sendEl  = panel.querySelector("#mnd-send");
   var history = loadHistory();
   var busy = false;
+  var requestVersion = 0;
+  var activeRequest = null;
+  var statusEl = panel.querySelector("#mnd-status");
   /* ---- helpers ------------------------------------------------------------- */
   function loadHistory() {
-    try { var raw = sessionStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : []; }
+    try { var raw = sessionStorage.getItem(STORAGE_KEY); return cleanHistory(raw ? JSON.parse(raw) : []); }
     catch (e) { return []; }
   }
   function saveHistory() {
     try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(history)); } catch (e) {}
+  }
+  function cleanHistory(value) {
+    if (!Array.isArray(value)) return [];
+    var pairs = [];
+    for (var i = 0; i + 1 < value.length; i += 2) {
+      var question = value[i], answer = value[i + 1];
+      if (!question || !answer || question.role !== "user" || answer.role !== "assistant" ||
+          typeof question.content !== "string" || typeof answer.content !== "string" ||
+          !question.content.trim() || question.content.length > 2000 || !answer.content.trim() || answer.content.length > 8000) return [];
+      pairs.push({ role: "user", content: question.content }, { role: "assistant", content: answer.content });
+    }
+    return pairs.slice(-20);
+  }
+  function requestMessages(text) {
+    var messages = history.slice(-10).map(function (message) {
+      var content = message.content.slice(0, 2000).replace(/[\uD800-\uDBFF]$/, "");
+      return { role: message.role, content: content };
+    }).concat({ role: "user", content: text });
+    var encoder = new TextEncoder();
+    while (messages.length > 1 && messages.reduce(function (total, message) { return total + encoder.encode(message.content).length; }, 0) > 8000) messages.splice(0, 2);
+    return messages;
   }
   function escapeHtml(s) {
     return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -192,6 +225,10 @@
     return escapeHtml(s).replace(/(https?:\/\/[^\s<]+)/g, function (u) {
       var clean = u.replace(/[.,;:)\]]+$/, "");        // keep trailing punctuation out of the link
       var trail = u.slice(clean.length);
+      try {
+        var url = new URL(clean.replace(/&amp;/g, "&"));
+        if (url.protocol !== "https:" || !["www.monderman.com", "monderman.com"].includes(url.hostname) || url.username || url.password || url.port) return u;
+      } catch (_error) { return u; }
       return '<a href="' + clean + '" target="_blank" rel="noopener noreferrer">' + clean + '</a>' + trail;
     });
   }
@@ -205,6 +242,8 @@
   function showTyping() {
     var t = document.createElement("div");
     t.className = "mnd-typing"; t.id = "mnd-typing";
+    t.setAttribute("role", "status");
+    t.setAttribute("aria-label", "Assistant is replying");
     t.innerHTML = "<span></span><span></span><span></span>";
     msgsEl.appendChild(t); msgsEl.scrollTop = msgsEl.scrollHeight;
   }
@@ -218,12 +257,14 @@
     var openContactClose = document.querySelector("#mdn-cn-panel.mdn-cn-open .mdn-cn-close");
     if (openContactClose) openContactClose.click();
     panel.classList.add("mnd-open");
+    launcher.setAttribute("aria-expanded", "true");
     launcher.style.display = "none";
     footerDock.update();
     inputEl.focus();
   }
   function close() {
     panel.classList.remove("mnd-open");
+    launcher.setAttribute("aria-expanded", "false");
     launcher.style.display = "";
     footerDock.update();
     var menuAction = document.querySelector('[data-site-widget-action="assistant"]');
@@ -236,36 +277,58 @@
   async function send() {
     var text = inputEl.value.trim();
     if (!text || busy) return;
+    if (text.length > 2000) { statusEl.textContent = "Please shorten your question to 2,000 characters or fewer."; return; }
+    statusEl.textContent = "";
+    var version = ++requestVersion;
+    var controller = new AbortController();
+    activeRequest = controller;
+    var timeout = setTimeout(function () { controller.abort(); }, 45000);
     inputEl.value = ""; inputEl.style.height = "auto";
     addMsg("user", text);
-    history.push({ role: "user", content: text });
-    saveHistory();
-    busy = true; sendEl.disabled = true; showTyping();
+    busy = true; sendEl.disabled = true; inputEl.readOnly = true; showTyping();
     try {
       var res = await fetch(API_URL, {
         method: "POST",
+        signal: controller.signal,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: history.slice(-12) })
+        body: JSON.stringify({ messages: requestMessages(text) })
       });
       var data = await res.json().catch(function () { return null; });
+      if (version !== requestVersion) return;
+      if (!res.ok) { var failure = new Error("request_failed"); failure.status = res.status; throw failure; }
+      if (data && data.source === "fallback") throw new Error("assistant_unavailable");
+      if (!data || typeof data.reply !== "string" || !data.reply.trim() || data.reply.length > 8000) throw new Error("invalid_reply");
       hideTyping();
-      var reply = (data && data.reply)
-        ? data.reply
-        : "Sorry, I had trouble answering just now. You can reach the team at connect@monderman.com.";
+      var reply = data.reply;
       addMsg("assistant", reply);
-      history.push({ role: "assistant", content: reply });
-      saveHistory();
+      // Show a safe refusal without feeding its rejected prompt back into the
+      // next request. Provider fallbacks are handled as retryable failures.
+      if (data.source !== "policy") {
+        history = cleanHistory(history.concat({ role: "user", content: text }, { role: "assistant", content: reply }));
+        saveHistory();
+      }
     } catch (e) {
-      hideTyping();
-      addMsg("assistant", "Sorry, I couldn't reach the assistant. Please try again, or email connect@monderman.com.");
+      if (version !== requestVersion) return;
+      render();
+      inputEl.value = text;
+      statusEl.textContent = e.status === 429 ? "The assistant is busy. Wait a moment, then select Send to try again. Your question has not been added to the conversation."
+        : "The assistant could not reply. Your question is still here. Select Send to try again, or email connect@monderman.com.";
     } finally {
-      busy = false; sendEl.disabled = false; inputEl.focus();
+      clearTimeout(timeout);
+      if (version === requestVersion) {
+        activeRequest = null; busy = false; sendEl.disabled = false; inputEl.readOnly = false;
+        if (panel.classList.contains("mnd-open")) inputEl.focus();
+      }
     }
   }
   /* ---- events -------------------------------------------------------------- */
   launcher.addEventListener("click", open);
   panel.querySelector("#mnd-close").addEventListener("click", close);
   panel.querySelector("#mnd-new").addEventListener("click", function () {
+    requestVersion += 1;
+    if (activeRequest) activeRequest.abort();
+    activeRequest = null; busy = false; sendEl.disabled = false; inputEl.readOnly = false;
+    inputEl.value = ""; statusEl.textContent = "";
     history = [];
     saveHistory();   // clears the saved copy too, so the reset carries across pages
     render();        // back to just the greeting
@@ -274,8 +337,8 @@
   sendEl.addEventListener("click", send);
   inputEl.addEventListener("keydown", function (e) {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
-    else if (e.key === "Escape") { close(); }
   });
+  panel.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.preventDefault(); close(); } });
   inputEl.addEventListener("input", function () {
     inputEl.style.height = "auto";
     inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + "px";

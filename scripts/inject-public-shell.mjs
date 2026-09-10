@@ -19,6 +19,7 @@ const canonicalCssPattern = /canonical-site-shell\.css\?v=[^"']+/g;
 const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
 // Refresh both the reviewed report renderer and the newer shared brand release.
 const shellRelease = "20260910-report22-brand3";
+const assistantRelease = "20260910-bounded-chat1";
 const productPages = new Set([
   "diagnostics.html", "platform-services.html", "plan-signal.html", "plan-pattern.html",
   "plan-enterprise.html", "new-in-the-role.html", "after-an-acquisition.html",
@@ -41,7 +42,7 @@ const refreshedAssets = [
 ];
 const versionScript = (html, fileName) => html.replace(
   new RegExp(`(["'])${fileName.replace(".", "\\.")}(?:\\?v=[^"']*)?\\1`, "g"),
-  (_match, quote) => `${quote}${fileName}?v=${shellRelease}${quote}`,
+  (_match, quote) => `${quote}${fileName}?v=${["assistant.js", "workspace-assistant.js"].includes(fileName) ? assistantRelease : shellRelease}${quote}`,
 );
 const motif = footer.match(motifPattern)?.[0];
 
@@ -58,6 +59,9 @@ for (const entry of await readdir(publishDirectory, { withFileTypes: true })) {
     continue;
   }
   if (!entry.isFile() || !entry.name.endsWith(".html")) continue;
+  // Versioned legal editions are evidence of what users acknowledged. Preserve
+  // their full bytes, not merely their wording, when refreshing shared assets.
+  if (/^(?:terms|privacy)-\d{4}-\d{2}-\d{2}-beta\.html$/.test(entry.name)) continue;
   const path = join(publishDirectory, entry.name);
   let html = await readFile(path, "utf8");
   let changed = false;
@@ -107,6 +111,7 @@ for (const entry of await readdir(publishDirectory, { withFileTypes: true })) {
     .replace(enterpriseCssPattern, `enterprise-site.css?v=${shellRelease}`);
   versionedHtml = versionScript(versionedHtml, "canonical-site-shell.js");
   versionedHtml = versionScript(versionedHtml, "assistant.js");
+  versionedHtml = versionScript(versionedHtml, "workspace-assistant.js");
   versionedHtml = versionScript(versionedHtml, "connect-widget.js");
   for (const asset of refreshedAssets) versionedHtml = versionScript(versionedHtml, asset);
   if (versionedHtml !== html) {
