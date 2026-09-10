@@ -21,16 +21,18 @@ const canonicalPages = pages.filter((name) => {
 });
 const footerPages = pages.filter((name) => canonicalPages.includes(name) || /\bmond-footer\b/.test(sourceByPage.get(name)));
 const shellFreePages = pages.filter((name) => !canonicalPages.includes(name) && !footerPages.includes(name));
+const immutableLegalPages = new Set(pages.filter((name) => /^(?:terms|privacy)-\d{4}-\d{2}-\d{2}-beta\.html$/.test(name)));
 
-// September 9 adds a second immutable Terms and Privacy edition. Keep all four
-// in the full viewport sweep; archived legal pages are not excluded from coverage.
-assert.equal(pages.length, 74, 'rendered root-page inventory changed unexpectedly');
-assert.equal(canonicalPages.length, 56, 'canonical header + footer inventory changed unexpectedly');
-assert.equal(footerPages.length, 60, 'footer inventory changed unexpectedly');
-for (const legalEdition of ['terms-2026-09-08-beta.html', 'privacy-2026-09-08-beta.html', 'terms-2026-09-09-beta.html', 'privacy-2026-09-09-beta.html']) {
+// September 10 adds an immutable Privacy edition while Terms remain September 9.
+// Preserve every previous legal edition in the full viewport sweep.
+assert.equal(pages.length, 75, 'rendered root-page inventory changed unexpectedly');
+assert.equal(canonicalPages.length, 57, 'canonical header + footer inventory changed unexpectedly');
+assert.equal(footerPages.length, 61, 'footer inventory changed unexpectedly');
+for (const legalEdition of ['terms-2026-09-08-beta.html', 'privacy-2026-09-08-beta.html', 'terms-2026-09-09-beta.html', 'privacy-2026-09-09-beta.html', 'privacy-2026-09-10-beta.html']) {
   assert.ok(canonicalPages.includes(legalEdition), `${legalEdition}: archived legal page missing from canonical sweep`);
 }
 assert.equal(shellFreePages.length, 14, 'functional shell-free page inventory changed unexpectedly');
+assert.equal(immutableLegalPages.size, 11, 'immutable legal-page inventory changed unexpectedly');
 
 // The deployed artifact must contain one exact copy of each source page and one
 // exact shared shell. This rejects accidental Finder-style duplicate files and

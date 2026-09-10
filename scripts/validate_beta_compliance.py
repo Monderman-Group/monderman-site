@@ -94,7 +94,7 @@ def validate():
 
     privacy = (ROOT / "privacy.html").read_text(errors="ignore")
     require(privacy, [
-        "Version 2026-09-09-beta", "Subprocessors and infrastructure page",
+        "Version 2026-09-10-beta", "Subprocessors and infrastructure page",
         "does not currently display a nonessential-cookie opt-in banner",
         "Monderman, LLC", "a South Dakota limited liability company", "41 W Highway 14, Unit #1225", "Spearfish, SD 57783", "generally acts as the controller or business",
         "generally acts as the customer's processor or service provider",

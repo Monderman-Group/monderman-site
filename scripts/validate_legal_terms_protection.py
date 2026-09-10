@@ -6,6 +6,7 @@ import re
 
 ROOT = Path(__file__).resolve().parents[1]
 TERMS_VERSION = "2026-09-09-beta"
+PRIVACY_VERSION = "2026-09-10-beta"
 # Accepted historical editions are immutable, even if someone edits the manifest.
 HISTORICAL_DOCUMENTS = {
     "2026-08-20-beta": {
@@ -31,6 +32,12 @@ HISTORICAL_DOCUMENTS = {
         "terms_file_sha256": "cfc6a93958590cbe20cf1c8cf4c241027ad6e9f0d9ab4d2de9ebecd01b7f3662",
         "privacy_notice_file": "privacy-2026-09-08-beta.html",
         "privacy_notice_file_sha256": "65e8da04c5dabee9800afec4732bba0ed278182639ed995c95fa748d69d19b42"
+    },
+    "2026-09-09-beta": {
+        "terms_file": "terms-2026-09-09-beta.html",
+        "terms_file_sha256": "8653646c8e9b3a27a457be8b1026d3859814b48bf784b209fb51811e5b5494a6",
+        "privacy_notice_file": "privacy-2026-09-09-beta.html",
+        "privacy_notice_file_sha256": "3eff91338e588a4cc74d5ec801d50c810fb06b9f272becee40f6731d20dca639"
     }
 }
 ACKNOWLEDGEMENT = (
@@ -146,14 +153,14 @@ def validate():
         'legal_documents_changed'
     ], "trial clickwrap")
     require(privacy, [
-        f"Version {TERMS_VERSION}",
+        f"Version {PRIVACY_VERSION}",
         "ORGANIZATION DATA &amp; RESEARCH",
         "De-identifying customer content does not create an exception",
         "Monderman does not use customer content for model training or fine-tuning",
         "Social Security or other government identification numbers"
     ], "aligned Privacy Notice")
 
-    if manifest["terms_version"] != TERMS_VERSION or manifest["privacy_notice_version"] != TERMS_VERSION:
+    if manifest["terms_version"] != TERMS_VERSION or manifest["privacy_notice_version"] != PRIVACY_VERSION:
         raise AssertionError("legal document manifest versions do not match the displayed documents")
     if manifest["acceptance_copy"] != (
         "I agree to the Terms of Service and acknowledge the Privacy Notice. I understand that "
@@ -170,7 +177,7 @@ def validate():
             raise AssertionError(f"legal document manifest {key} does not match reviewed content")
 
     document_manifest = manifest.get("documents") or {}
-    if set(document_manifest) != set(HISTORICAL_DOCUMENTS) | {TERMS_VERSION}:
+    if set(document_manifest) != set(HISTORICAL_DOCUMENTS) | {TERMS_VERSION, PRIVACY_VERSION}:
         raise AssertionError("legal document manifest must retain every prior and current beta version")
     for version, files in HISTORICAL_DOCUMENTS.items():
         if document_manifest.get(version) != files:
@@ -180,6 +187,10 @@ def validate():
             ("terms_file", "terms_file_sha256"),
             ("privacy_notice_file", "privacy_notice_file_sha256")
         ]:
+            if version == PRIVACY_VERSION and file_key == "terms_file" and TERMS_VERSION != PRIVACY_VERSION:
+                if file_key in files or hash_key in files:
+                    raise AssertionError("Privacy-only update must not reissue unchanged Terms")
+                continue
             path = ROOT / files[file_key]
             if not path.is_file() or path.name != files[file_key]:
                 raise AssertionError(f"versioned legal document missing for {version}: {files[file_key]}")
@@ -189,14 +200,17 @@ def validate():
                 raise AssertionError(f"versioned legal document displays the wrong version: {files[file_key]}")
     if (ROOT / document_manifest[TERMS_VERSION]["terms_file"]).read_text(errors="strict") != terms:
         raise AssertionError("current versioned Terms must exactly match terms.html")
-    if (ROOT / document_manifest[TERMS_VERSION]["privacy_notice_file"]).read_text(errors="strict") != privacy:
+    if (ROOT / document_manifest[PRIVACY_VERSION]["privacy_notice_file"]).read_text(errors="strict") != privacy:
         raise AssertionError("current versioned Privacy Notice must exactly match privacy.html")
 
     require(privacy, [
         "AI-assisted reports use Anthropic's commercial API when enabled",
         "Synthesis interpretation receives selected aggregate results, not individual written observations.",
         "only when that separate interpretation feature is enabled",
-        "The public and Workspace assistants currently use rule-based replies",
+        "The public assistant and Hans, the Workspace assistant, use Anthropic's commercial API",
+        "do not automatically retrieve Diagnostic answers, saved reports, participant records",
+        "does not store chat transcripts in its database",
+        "New chat clears that local conversation; it does not recall requests already processed by Anthropic.",
         "without a model-provider call",
         "Interview mode is not currently available.",
         "This is not a zero-retention arrangement.",
@@ -232,8 +246,13 @@ def validate():
         "written observations only when separately enabled",
         "Standard API retention is not zero"
     ], "Anthropic purpose and retention disclosure")
-    if "enabled assistant functions" in subprocessors:
-        raise AssertionError("rule-based assistants must not be listed as Anthropic processing")
+    require(subprocessors, [
+        "Conversational product guidance through the public assistant and Hans is a separate use.",
+        "For chat: submitted messages and limited recent replies",
+        "server-checked plan and role"
+    ], "assistant processing disclosure")
+    if "assistants currently use rule-based replies" in privacy:
+        raise AssertionError("current Privacy Notice must disclose restored AI chat processing")
     capability_pages = [
         "index.html", "deterministic-ai-infrastructure.html", "platform-services.html",
         "roi.html", "plan-signal.html", "why-monderman.html", "Monderman_Platform_Brief.html"

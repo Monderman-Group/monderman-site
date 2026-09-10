@@ -19,8 +19,8 @@
 
   var API_URL     = "https://monderman-api.onrender.com/api/workspace-assistant";
   var STORAGE_KEY = "mndHansHistory";
-  var GREETING    = "I’m Hans, your guide to the Monderman workspace. Ask me what an instrument is for, how to send a diagnostic to your team, or how to make sense of your analysis, and I’ll walk you through it.";
-  var INFO_TEXT   = "Hans is a workspace assistant, calibrated to help you use Monderman: what each of the four instruments is for, how to compose and track a campaign, and how to read your analysis. Hans explains how to operate the workspace; it won’t interpret your organization’s results or reveal the methodology behind the scores.";
+  var GREETING    = "I’m Hans, your AI workspace guide. I can walk you through campaigns, reviewing completed runs, Synthesis and finding saved reports. I cannot see your reports or participants’ answers. Describe the step you need help with, without pasting customer information.";
+  var INFO_TEXT   = "Hans is an AI guide, not a person. Messages are sent to Anthropic for guidance about using Monderman. Hans receives the conversation and a limited page, plan and role label, not your saved results, participants’ answers or organization’s records.\n\nAsk for detailed instructions about campaigns, completed runs, Synthesis and reports. Hans does not disclose private code, scoring rules or implementation details. It can make mistakes; confirm important account or product details with the team.\n\nConversation history is kept in this browser tab, separately for your account and Workspace. New chat clears the current conversation. Signing out clears Hans history in this tab.";
 
   /* ---- styles (scoped under #hans-*) -------------------------------------- */
   var css = ''
@@ -67,7 +67,12 @@
     + '#hans-info-panel p{margin:0 0 12px;font-size:13.5px;line-height:1.6;color:#4B4D52;white-space:pre-wrap}'
     + '#hans-info-done{align-self:flex-start;margin-top:6px;border:none;border-radius:7px;background:#0C6E78;color:#fff;font:inherit;font-size:13px;font-weight:500;padding:9px 18px;cursor:pointer}'
     + '#hans-info-done:hover{background:#0A5B63}'
-    + '@media (max-width:480px){#hans-panel{right:0;bottom:0;width:100vw;max-width:100vw;height:88vh;max-height:88vh;border-radius:18px 18px 0 0}#hans-launcher{right:16px;bottom:16px}}';
+    + '#hans-panel,#hans-panel *{box-sizing:border-box}#hans-panel{font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif}#hans-head,#hans-foot{flex-shrink:0}#hans-head{flex-wrap:wrap}#hans-head .hans-actions{margin-left:auto}'
+    + '#hans-msgs{min-height:0;min-width:0}.hans-msg{flex-shrink:0;min-width:0;overflow-wrap:anywhere}#hans-input{min-width:0;min-height:44px;width:0;font-size:16px}#hans-send,#hans-close,#hans-new,#hans-info-btn,#hans-info-done{min-height:44px}#hans-close,#hans-info-btn{min-width:44px}'
+    + '#hans-notice,#hans-status{flex-shrink:0;margin:0;padding:8px 12px;font-size:12px;line-height:1.45;color:#4B4D52;background:#fff;overflow-wrap:anywhere}#hans-notice a{color:#0A5B63;text-decoration:underline}#hans-status:empty{display:none}#hans-status{color:#8B3434}'
+    + '#hans-panel button:focus-visible,#hans-panel a:focus-visible{outline:3px solid #83BAC0;outline-offset:2px}'
+    + '@media(prefers-reduced-motion:reduce){.hans-typing span{animation:none}#hans-launcher{transition:none}}'
+    + '@media (max-width:480px){#hans-panel{right:0;bottom:0;width:100%;max-width:100%;height:88vh;height:88dvh;max-height:88vh;max-height:88dvh;border-radius:18px 18px 0 0}#hans-foot{padding-bottom:max(12px,env(safe-area-inset-bottom))}#hans-launcher{right:16px;bottom:16px}}';
 
   var style = document.createElement("style");
   style.textContent = css;
@@ -77,6 +82,8 @@
   var launcher = document.createElement("button");
   launcher.id = "hans-launcher";
   launcher.setAttribute("aria-label", "Open Hans, the workspace guide");
+  launcher.setAttribute("aria-controls", "hans-panel");
+  launcher.setAttribute("aria-expanded", "false");
   launcher.innerHTML = '<span class="hans-mono">H</span><span class="hans-spark"></span>';
 
   var panel = document.createElement("div");
@@ -94,8 +101,10 @@
     +   '</div>'
     + '</div>'
     + '<div id="hans-body">'
-    +   '<div id="hans-msgs"></div>'
-    +   '<div id="hans-foot"><textarea id="hans-input" rows="1" placeholder="Ask Hans about the workspace…" aria-label="Type your question"></textarea><button id="hans-send">Send</button></div>'
+    +   '<div id="hans-msgs" role="log" aria-live="polite" aria-relevant="additions" aria-label="Conversation"></div>'
+    +   '<p id="hans-notice">AI guidance by Anthropic. Do not paste personal, confidential, classified or controlled information. <a href="privacy.html">Privacy</a></p>'
+    +   '<p id="hans-status" role="status" aria-live="polite"></p>'
+    +   '<div id="hans-foot"><textarea id="hans-input" rows="1" maxlength="2000" aria-describedby="hans-notice hans-status" placeholder="Ask Hans about the workspace…" aria-label="Type your question"></textarea><button id="hans-send">Send</button></div>'
     +   '<div id="hans-info-panel" role="region" aria-label="About Hans">'
     +     '<div class="hans-info-h"><div class="hans-info-ava" aria-hidden="true">H</div><b>About Hans</b></div>'
     +     '<p id="hans-info-text"></p>'
@@ -111,23 +120,74 @@
   var inputEl = panel.querySelector("#hans-input");
   var sendEl  = panel.querySelector("#hans-send");
   var infoEl  = panel.querySelector("#hans-info-panel");
+  var statusEl = panel.querySelector("#hans-status");
 
   var history = [];
   var busy = false;
   var authClientPromise = null;
+  var currentUserId = null;
+  var currentScope = null;
+  var requestVersion = 0;
+  var activeRequest = null;
 
-  function accessToken() {
+  function authClient() {
     if (!authClientPromise) {
-      authClientPromise = window.mondermanWorkspaceAccessReady.then(function (access) {
+      authClientPromise = Promise.resolve(window.mondermanWorkspaceAccessReady).then(function (access) {
         if (!access || !access.allowed) throw new Error("workspace_access_not_allowed");
         return window.mondermanGetSupabaseClient();
+      }).then(function (client) {
+        client.auth.onAuthStateChange(function (_event, session) {
+          // Synchronous callback: do not re-enter Supabase Auth from its lock.
+          acceptSession(session);
+        });
+        return client;
       });
     }
-    return authClientPromise.then(function (client) {
-      return client.auth.getSession();
-    }).then(function (result) {
-      return result && result.data && result.data.session ? result.data.session.access_token : null;
-    });
+    return authClientPromise;
+  }
+  async function currentSession() {
+    var client = await authClient();
+    var result = await client.auth.getSession();
+    var session = result && !result.error && result.data && result.data.session;
+    acceptSession(session);
+    return session;
+  }
+  function clearSavedHistory(retainUserId) {
+    try {
+      Object.keys(sessionStorage).forEach(function (key) {
+        if ((key === STORAGE_KEY || key.indexOf(STORAGE_KEY + ":") === 0) &&
+            (!retainUserId || key.indexOf(STORAGE_KEY + ":v2:" + retainUserId + ":") !== 0)) sessionStorage.removeItem(key);
+      });
+    } catch (_error) {}
+  }
+  function acceptSession(session) {
+    var nextUserId = session && session.user && session.user.id || null;
+    if (!nextUserId) clearSavedHistory();
+    if (nextUserId !== currentUserId) {
+      clearSavedHistory(currentUserId ? null : nextUserId);
+      currentUserId = nextUserId;
+    }
+    refreshScope();
+  }
+  function refreshScope() {
+    var next = workspaceStorageKey();
+    if (next !== currentScope) {
+      currentScope = next;
+      cancelPending();
+      history = loadHistory();
+      inputEl.value = ""; statusEl.textContent = next ? "" : "Sign in to your Workspace to use Hans.";
+      render();
+    }
+    return currentScope;
+  }
+  function workspaceStorageKey() {
+    var organizationId = window.__mondermanActiveOrganizationId;
+    return currentUserId && organizationId ? STORAGE_KEY + ":v2:" + currentUserId + ":" + organizationId : null;
+  }
+  function cancelPending() {
+    requestVersion += 1;
+    if (activeRequest) activeRequest.abort();
+    activeRequest = null; busy = false; sendEl.disabled = false; inputEl.readOnly = false;
   }
 
   // Customer-safe UI context only. No result data, diagnostic inputs, org data,
@@ -145,26 +205,50 @@
     var roleEl = document.getElementById("ws5UserRole");
     return {
       page: pageMap[file] || null,
-      plan: planEl ? String(planEl.textContent || "").trim().toLowerCase() : null,
-      role: roleEl ? String(roleEl.textContent || "").trim().toLowerCase() : null
+      plan: approvedLabel(planEl, ["trial", "signal", "pattern", "enterprise"]),
+      role: approvedLabel(roleEl, ["admin", "analyst", "member"])
     };
   }
-
-  function workspaceStorageKey() {
-    var organizationId = window.__mondermanActiveOrganizationId;
-    return organizationId ? STORAGE_KEY + ":" + organizationId : STORAGE_KEY + ":unscoped";
+  function approvedLabel(element, allowed) {
+    var value = element ? String(element.textContent || "").trim().toLowerCase() : "";
+    return allowed.includes(value) ? value : null;
   }
 
   /* ---- helpers ------------------------------------------------------------- */
   function loadHistory() {
-    try { var raw = sessionStorage.getItem(workspaceStorageKey()); return raw ? JSON.parse(raw) : []; }
+    try { var raw = currentScope && sessionStorage.getItem(currentScope); return cleanHistory(raw ? JSON.parse(raw) : []); }
     catch (e) { return []; }
   }
-  function saveHistory() { try { sessionStorage.setItem(workspaceStorageKey(), JSON.stringify(history)); } catch (e) {} }
+  function saveHistory() { try { if (currentScope) sessionStorage.setItem(currentScope, JSON.stringify(history)); } catch (e) {} }
+  function cleanHistory(value) {
+    if (!Array.isArray(value)) return [];
+    var pairs = [];
+    for (var i = 0; i + 1 < value.length; i += 2) {
+      var question = value[i], answer = value[i + 1];
+      if (!question || !answer || question.role !== "user" || answer.role !== "assistant" ||
+          typeof question.content !== "string" || typeof answer.content !== "string" ||
+          !question.content.trim() || question.content.length > 2000 || !answer.content.trim() || answer.content.length > 8000) return [];
+      pairs.push({ role: "user", content: question.content }, { role: "assistant", content: answer.content });
+    }
+    return pairs.slice(-20);
+  }
+  function requestMessages(text) {
+    var messages = history.slice(-10).map(function (message) {
+      var content = message.content.slice(0, 2000).replace(/[\uD800-\uDBFF]$/, "");
+      return { role: message.role, content: content };
+    }).concat({ role: "user", content: text });
+    var encoder = new TextEncoder();
+    while (messages.length > 1 && messages.reduce(function (total, message) { return total + encoder.encode(message.content).length; }, 0) > 8000) messages.splice(0, 2);
+    return messages;
+  }
   function escapeHtml(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
   function linkify(s) {
     return escapeHtml(s).replace(/(https?:\/\/[^\s<]+)/g, function (u) {
       var clean = u.replace(/[.,;:)\]]+$/, ""); var trail = u.slice(clean.length);
+      try {
+        var url = new URL(clean.replace(/&amp;/g, "&"));
+        if (url.protocol !== "https:" || !["www.monderman.com", "monderman.com"].includes(url.hostname) || url.username || url.password || url.port) return u;
+      } catch (_error) { return u; }
       return '<a href="' + clean + '" target="_blank" rel="noopener noreferrer">' + clean + '</a>' + trail;
     });
   }
@@ -176,6 +260,8 @@
   }
   function showTyping() {
     var t = document.createElement("div"); t.className = "hans-typing"; t.id = "hans-typing";
+    t.setAttribute("role", "status");
+    t.setAttribute("aria-label", "Hans is replying");
     t.innerHTML = "<span></span><span></span><span></span>";
     msgsEl.appendChild(t); msgsEl.scrollTop = msgsEl.scrollHeight;
   }
@@ -185,53 +271,101 @@
     addMsg("assistant", GREETING);                 // greeting is client-only, never sent to the API
     history.forEach(function (m) { addMsg(m.role, m.content); });
   }
-  function open()  { panel.classList.add("hans-open");  launcher.style.display = "none"; inputEl.focus(); }
-  function close() { panel.classList.remove("hans-open"); launcher.style.display = ""; }
+  function open()  {
+    refreshScope(); panel.classList.add("hans-open"); launcher.setAttribute("aria-expanded", "true"); launcher.style.display = "none"; inputEl.focus();
+    currentSession().catch(function () { statusEl.textContent = "Sign in to your Workspace to use Hans."; });
+  }
+  function close() { panel.classList.remove("hans-open"); launcher.setAttribute("aria-expanded", "false"); launcher.style.display = ""; launcher.focus(); }
 
   async function send() {
     var text = inputEl.value.trim();
     if (!text || busy) return;
+    if (text.length > 2000) { statusEl.textContent = "Please shorten your question to 2,000 characters or fewer."; return; }
+    var scope = currentScope;
+    if (!scope || refreshScope() !== scope) { statusEl.textContent = "Your account or Workspace changed. Please enter your question again."; return; }
+    statusEl.textContent = "";
+    var version = ++requestVersion;
+    var controller = new AbortController(); activeRequest = controller;
+    var timeout = setTimeout(function () { controller.abort(); }, 45000);
     inputEl.value = ""; inputEl.style.height = "auto";
-    addMsg("user", text); history.push({ role: "user", content: text }); saveHistory();
-    busy = true; sendEl.disabled = true; showTyping();
+    addMsg("user", text);
+    busy = true; sendEl.disabled = true; inputEl.readOnly = true; showTyping();
     try {
-      var token = await accessToken();
+      var session = await currentSession();
+      if (version !== requestVersion || refreshScope() !== scope) return;
+      var token = session && session.access_token;
       if (!token) throw new Error("sign_in_required");
       var res = await fetch(API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token, ...(window.__mondermanActiveOrganizationId ? { "X-Monderman-Organization-Id": window.__mondermanActiveOrganizationId } : {}) },
-        body: JSON.stringify({ messages: history.slice(-12), context: workspaceContext() })
+        signal: controller.signal,
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token, "X-Monderman-Organization-Id": window.__mondermanActiveOrganizationId },
+        body: JSON.stringify({ messages: requestMessages(text), context: workspaceContext() })
       });
       var data = await res.json().catch(function () { return null; });
+      if (version !== requestVersion || refreshScope() !== scope) return;
+      if (!res.ok) { var failure = new Error("request_failed"); failure.status = res.status; throw failure; }
+      if (data && data.source === "fallback") throw new Error("assistant_unavailable");
+      if (!data || typeof data.reply !== "string" || !data.reply.trim() || data.reply.length > 8000) throw new Error("invalid_reply");
       hideTyping();
-      var reply = (data && data.reply) ? data.reply
-        : "Sorry, I had trouble answering just now. You can reach the team at connect@monderman.com.";
-      addMsg("assistant", reply); history.push({ role: "assistant", content: reply }); saveHistory();
+      var reply = data.reply;
+      addMsg("assistant", reply);
+      if (data.source !== "policy") {
+        history = cleanHistory(history.concat({ role: "user", content: text }, { role: "assistant", content: reply })); saveHistory();
+      }
     } catch (e) {
-      hideTyping();
-      addMsg("assistant", "Sorry, I couldn’t reach the workspace assistant. Please try again, or email connect@monderman.com.");
-    } finally { busy = false; sendEl.disabled = false; inputEl.focus(); }
+      if (version !== requestVersion || refreshScope() !== scope) return;
+      render(); inputEl.value = text;
+      statusEl.textContent = e.status === 428 ? "Please review the current Privacy Notice before using Hans. Your question is still here; it has not been added to the conversation. "
+        : e.status === 401 || e.status === 403 || e.message === "sign_in_required" ? "Hans could not verify your Workspace access. Sign in again before retrying."
+        : e.status === 429 ? "Hans is busy. Wait a moment, then select Send to try again. Your question has not been added to the conversation."
+        : "Hans could not reply. Your question is still here. Select Send to try again, or email connect@monderman.com.";
+      if (e.status === 428) {
+        var reviewLink = document.createElement("a");
+        reviewLink.href = "signin.html?next=workspace-diagnostics.html";
+        reviewLink.textContent = "Sign in and review";
+        statusEl.appendChild(reviewLink);
+      }
+    } finally {
+      clearTimeout(timeout);
+      if (version === requestVersion) {
+        activeRequest = null; busy = false; sendEl.disabled = false; inputEl.readOnly = false;
+        if (panel.classList.contains("hans-open")) inputEl.focus();
+      }
+    }
   }
 
   /* ---- events -------------------------------------------------------------- */
   launcher.addEventListener("click", open);
   panel.querySelector("#hans-close").addEventListener("click", close);
-  panel.querySelector("#hans-info-btn").addEventListener("click", function () { infoEl.classList.add("hans-show"); });
-  panel.querySelector("#hans-info-done").addEventListener("click", function () { infoEl.classList.remove("hans-show"); inputEl.focus(); });
+  panel.querySelector("#hans-info-btn").addEventListener("click", function () {
+    infoEl.classList.add("hans-show");
+    [msgsEl, inputEl.parentElement, statusEl, panel.querySelector("#hans-notice")].forEach(function (element) { element.inert = true; });
+    panel.querySelector("#hans-info-done").focus();
+  });
+  function closeInfo() {
+    infoEl.classList.remove("hans-show");
+    [msgsEl, inputEl.parentElement, statusEl, panel.querySelector("#hans-notice")].forEach(function (element) { element.inert = false; });
+    panel.querySelector("#hans-info-btn").focus();
+  }
+  panel.querySelector("#hans-info-done").addEventListener("click", closeInfo);
   panel.querySelector("#hans-new").addEventListener("click", function () {
-    history = []; saveHistory(); render(); inputEl.focus();
+    cancelPending(); history = []; inputEl.value = ""; statusEl.textContent = ""; saveHistory(); render(); inputEl.focus();
   });
   sendEl.addEventListener("click", send);
   inputEl.addEventListener("keydown", function (e) {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
-    else if (e.key === "Escape") { if (infoEl.classList.contains("hans-show")) infoEl.classList.remove("hans-show"); else close(); }
+  });
+  panel.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") { e.preventDefault(); if (infoEl.classList.contains("hans-show")) closeInfo(); else close(); }
   });
   inputEl.addEventListener("input", function () {
     inputEl.style.height = "auto"; inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + "px";
   });
 
-  window.mondermanWorkspaceAccessReady.then(function (access) {
-    if (access && access.allowed) history = loadHistory();
-    render();
-  }).catch(render);
+  // Scope changes cancel in-flight replies before any history can cross accounts
+  // or Workspaces. The API still independently authenticates every request.
+  window.addEventListener("focus", refreshScope);
+  window.addEventListener("pageshow", refreshScope);
+  setInterval(refreshScope, 500);
+  currentSession().then(render).catch(render);
 })();
