@@ -27,7 +27,7 @@ const html=fs.readFileSync(path.join(site,'operational-systems.html'),'utf8');
 const fields=vm.runInNewContext(html.match(/const PRESTART_FIELDS = (\[[\s\S]*?\n\]);/)[1]);
 const mapBlock=html.slice(html.indexOf('const EXPERIENCE_PROMPT_SETS ='),html.indexOf('function assertCachedStaticQuestion('));
 const pins=vm.createContext({state:{runId:'11111111-1111-4111-8111-111111111111',configVersion:null}});
-vm.runInContext(mapBlock+'\nglobalThis.maps={experience:Object.keys(EXPERIENCE_PROMPT_SETS_BY_VERSION),confidence:Object.keys(CONFIDENCE_TEXT_BY_VERSION),pin:pinQuestionnaireVersion};',pins);
+vm.runInContext(mapBlock+'\nglobalThis.maps={experience:Object.keys(EXPERIENCE_PROMPT_SETS_BY_VERSION),experiencePrompts:EXPERIENCE_PROMPT_SETS_BY_VERSION,confidence:Object.keys(CONFIDENCE_TEXT_BY_VERSION),pin:pinQuestionnaireVersion};',pins);
 assert.deepEqual([...pins.maps.experience],versions);assert.deepEqual([...pins.maps.confidence],versions);
 for(const version of versions){pins.state.configVersion=null;assert.equal(pins.maps.pin({questionnaire_version:version,configVersion:version,routingVersion:version}),version);}
 assert.throws(()=>pins.maps.pin({questionnaire_version:'unknown'}));
@@ -57,7 +57,7 @@ async function runCase(browser,engine,version,role,depth,kind='matrix'){
   const [first,last]=choices,[number,alternate]=numbers;
   const questionItems=[first,number,last,alternate];
   const state={revision:1,history:[],starts:0,reads:0,writes:0,receipts:new Map(),failedAnswer:false,failedRevision:false,unknown:kind==='unknown-start'};
-  const requests=[],errors=[];
+  const requests=[],errors=[],optionalProgress=[];
   const contextData={processName:'Fabricated browser process',businessUnit:'Fixture unit',industry:'technology_software',description:'',employeeCount:250,peopleAffected:8,hourlyCost:90,annualVolume:24,meetingHours:3,decisionType:'program',regulatoryIntensity:'moderate'};
   function next(){
     if(!state.history.length)return first;
@@ -109,6 +109,11 @@ async function runCase(browser,engine,version,role,depth,kind='matrix'){
     throw new Error('Unexpected mutation '+url.pathname);
   });
   const page=await context.newPage();page.setDefaultTimeout(15000);page.on('pageerror',error=>errors.push(error.message));
+  const observedQuestion=()=>page.evaluate(()=>{
+    const saved=window.__mondermanTestHooks?.getState();
+    const textarea=document.querySelector('#questionBody textarea');
+    return {itemId:saved?.currentItem?.id,experienceIndex:saved?.experienceIndex,answerInFlight:saved?.answerInFlight,title:document.getElementById('questionTitle')?.textContent,textareaId:textarea?.id,textareaVisible:Boolean(textarea?.getClientRects().length),ariaBusy:document.getElementById('questionStage')?.getAttribute('aria-busy'),transitioning:document.querySelector('#questionStage .question-card')?.classList.contains('question-transitioning'),skipDisabled:document.getElementById('skipBtn')?.disabled};
+  });
   const text=item=>typeof item.text==='string'?item.text:item.text[role];
   async function assertRunHeader(){
     const label=role==='senior_leader'?'Senior Leaders':role==='managerial'?'Managerial':'Operational';
@@ -171,8 +176,31 @@ async function runCase(browser,engine,version,role,depth,kind='matrix'){
     await page.locator('#backBtn').click();await question(number);await page.locator('#backBtn').click();await question(first);
     await pick(first.options[1],true);await question(alternate);assert.equal(state.history.length,1);
     await numeric(3);
-    for(let i=0;i<3;i++){
-      await page.locator('#questionBody textarea').waitFor();await assertRunHeader();await page.locator('#skipBtn').click();
+    const optionalPrompts=clone(pins.maps.experiencePrompts[version][role==='senior_leader'?'executive':role]);
+    assert.equal(optionalPrompts.length,3);
+    for(let i=0;i<optionalPrompts.length;i++){
+      const expected={id:'_*experience*'+optionalPrompts[i].key,title:optionalPrompts[i].text,index:i};
+      // All three prompts use a textarea, but renderQuestion replaces its DOM
+      // after a transition. Wait for this exact version-pinned prompt, not any
+      // still-visible textarea from the previous prompt, before clicking Skip.
+      await page.waitForFunction(({id,title,index})=>{
+        const saved=window.__mondermanTestHooks?.getState();
+        const textarea=document.querySelector('#questionBody textarea');
+        return saved?.currentItem?.id===id && saved.experienceIndex===index && !saved.answerInFlight
+          && document.getElementById('questionTitle')?.textContent===title
+          && textarea?.id==='field_'+id && textarea.getClientRects().length>0 && !textarea.disabled
+          && document.getElementById('questionStage')?.getAttribute('aria-busy')==='false'
+          && !document.querySelector('#questionStage .question-card')?.classList.contains('question-transitioning')
+          && !document.getElementById('skipBtn')?.disabled;
+      },expected);
+      await assertRunHeader();optionalProgress.push({phase:'before-skip',...await observedQuestion()});
+      await page.locator('#skipBtn').click();
+      const nextId=i+1<optionalPrompts.length?'_*experience*'+optionalPrompts[i+1].key:'**confidenceLevel**';
+      await page.waitForFunction(id=>{
+        const saved=window.__mondermanTestHooks?.getState();
+        return saved?.currentItem?.id===id && !saved.answerInFlight;
+      },nextId);
+      optionalProgress.push({phase:'after-skip',...await observedQuestion()});
     }
     await page.waitForFunction(()=>document.getElementById('questionTitle')?.textContent.includes('How confident'));
     const confidence=await page.locator('#questionTitle').textContent();
@@ -190,8 +218,8 @@ async function runCase(browser,engine,version,role,depth,kind='matrix'){
     const after=await page.evaluate(()=>Object.fromEntries(Object.keys(sessionStorage).filter(k=>k.startsWith('monderman.selfDiagnosticDraft.')).map(k=>[k,sessionStorage.getItem(k)])));
     assert.deepEqual(after,before,'different-run link must not erase the existing draft');
     assert.deepEqual(errors,[]);
-  }catch(error){failures.push({engine,version,role,depth,kind,error:error.stack,errors,requests});await page.screenshot({path:path.join(output,['FAIL',engine,version,role,depth,kind].join('-')+'.png')}).catch(()=>{});throw error;}
-  finally{results.push({engine,version,role,depth,kind,passed:!failures.some(f=>f.engine===engine&&f.version===version&&f.role===role&&f.depth===depth&&f.kind===kind),starts:state.starts,reads:state.reads,writes:state.writes,requests});await context.close();}
+  }catch(error){failures.push({engine,version,role,depth,kind,error:error.stack,errors,requests,optionalProgress,question:await observedQuestion().catch(()=>null)});await page.screenshot({path:path.join(output,['FAIL',engine,version,role,depth,kind].join('-')+'.png')}).catch(()=>{});throw error;}
+  finally{results.push({engine,version,role,depth,kind,passed:!failures.some(f=>f.engine===engine&&f.version===version&&f.role===role&&f.depth===depth&&f.kind===kind),starts:state.starts,reads:state.reads,writes:state.writes,requests,optionalProgress});await context.close();}
 }
 let browser;
 try{
