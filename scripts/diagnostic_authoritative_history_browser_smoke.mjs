@@ -8,6 +8,8 @@ const site=path.resolve(process.env.SITE_ROOT || path.resolve(import.meta.dirnam
 const here=import.meta.dirname;
 const out=process.env.HISTORY_TEST_OUTPUT || path.resolve('output/authoritative-history-browser');fs.mkdirSync(out,{recursive:true});
 const tools=['operational-systems','structural-clarity','institutional-performance'];
+const osRegistry=JSON.parse(fs.readFileSync(path.join(site,'test-fixtures/os-questionnaire-registry-contract.json')));
+const versionsFor=tool=>tool==='operational-systems'?Object.values(osRegistry.versions):tool==='decision-velocity'?['1.0.0','1.1.0']:['1.2.0','1.3.0'];
 const runId='11111111-1111-4111-8111-111111111111',assignmentId='22222222-2222-4222-8222-222222222222';
 const userId='33333333-3333-4333-8333-333333333333',organizationId='44444444-4444-4444-8444-444444444444';
 const token='fixture-assignment-exact-credential';
@@ -186,7 +188,7 @@ try{
  for(const [engine,type]of[['chromium',chromium],['webkit',webkit]]){
   browser=await type.launch({headless:true});
   const jobs=[];
-  for(const tool of tools)for(const version of ['1.2.0','1.3.0']){
+  for(const tool of tools)for(const version of versionsFor(tool)){
    for(const controller of ['assignment','self']){
     jobs.push(()=>runCase(browser,engine,tool,version,'ordinary',controller));
     jobs.push(()=>runCase(browser,engine,tool,version,'optional',controller));
@@ -194,7 +196,7 @@ try{
    jobs.push(()=>runCase(browser,engine,tool,version,'confidence','self'));
    for(const kind of ['changed-frontier','static-mismatch','missing-history','finalized'])jobs.push(()=>runCase(browser,engine,tool,version,kind));
   }
-  for(const tool of [...tools,'decision-velocity'])for(const version of tool==='decision-velocity'?['1.0.0','1.1.0']:['1.2.0','1.3.0']){
+  for(const tool of [...tools,'decision-velocity'])for(const version of versionsFor(tool)){
    jobs.push(()=>runCase(browser,engine,tool,version,'reused'));
    jobs.push(()=>runCase(browser,engine,tool,version,'reused-finalized'));
   }

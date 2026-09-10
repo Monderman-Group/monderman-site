@@ -32,8 +32,15 @@ const contractHashes = {
   'operational-systems':'1fcd0cbe64ad1295d9bc887fa1735be75e93222cedec7d9610dccb210341b12b',
   'institutional-performance':'4f76c81b608b0e263c26a17cdb9bf6b616a7cab7c73d8e16a6aad4e51020ab1f',
 };
+const lengthGuidance = {
+  'decision-velocity':'For a first run, the 10-minute version is the recommended starting point. Choose 30 or 60 minutes when you want more pattern detail. Every version produces a score and band. A free account unlocks the full Executive Report and saves the run.',
+  'structural-clarity':'Pick the shortest run that fits the responsibilities, authority, and handoffs you want to examine. For most first passes, the 30-minute version is the best starting point. A shorter run gives an initial view; longer runs ask more questions and provide more detail.',
+  'operational-systems':'Pick the shortest run that still fits the importance of the workflow. For most first passes, the 30-minute version is the best starting point. A shorter run gives an initial view; longer runs ask more questions and provide more detail.',
+  'institutional-performance':'Pick the shortest run that still fits the importance of the unit you are assessing. For most first passes, the 30-minute version is the best starting point. A shorter run gives an initial view; longer runs ask more questions and provide more detail.',
+};
 const evidence=[];
 const browsers=[];
+let actionPairChecks=0;
 async function checkTargets(page, selector, label) {
   const targets = page.locator(selector);
   assert.ok(await targets.count(), `${label}: targets exist`);
@@ -61,9 +68,37 @@ async function checkTargets(page, selector, label) {
     assert.equal(data.continueLines,1,`${label}: Continue split mid-word`);
   }
 }
+async function checkActionPair(page, selector, label, {requireSameLine=false, expectedNext=null}={}) {
+  const row=page.locator(selector);
+  assert.equal(await row.count(),1,`${label}: one visible action row`);
+  assert.equal(await row.isVisible(),true,`${label}: action row is visible`);
+  const data=await row.evaluate(el=>{
+    const buttons=[...el.children].filter(child=>child.matches('.intake-pill-btn')&&getComputedStyle(child).display!=='none');
+    const rects=buttons.map(button=>({text:button.textContent.trim(),rect:button.getBoundingClientRect().toJSON()}));
+    const rowRect=el.getBoundingClientRect();
+    return {rects,row:rowRect.toJSON(),viewport:innerWidth};
+  });
+  assert.equal(data.rects.length,2,`${label}: Back and next buttons exist ${JSON.stringify(data)}`);
+  const [back,next]=data.rects;
+  assert.match(back.text,/Back/,`${label}: Back label`);
+  if(expectedNext)assert.equal(next.text,expectedNext,`${label}: final action label`);
+  for(const button of data.rects){
+    assert.ok(button.rect.width>0&&button.rect.height>=47.5,`${label}: valid touch target ${JSON.stringify(data)}`);
+    assert.ok(button.rect.left>=data.row.left-.5&&button.rect.right<=data.row.right+.5,`${label}: button outside row ${JSON.stringify(data)}`);
+    assert.ok(button.rect.left>=-.5&&button.rect.right<=data.viewport+.5,`${label}: button offscreen ${JSON.stringify(data)}`);
+  }
+  const sameLine=Math.abs(back.rect.top-next.rect.top)<=.75;
+  if(requireSameLine)assert.equal(sameLine,true,`${label}: buttons must share a flex line ${JSON.stringify(data)}`);
+  if(sameLine){
+    assert.ok(Math.abs(back.rect.height-next.rect.height)<=.75,`${label}: side-by-side heights differ ${JSON.stringify(data)}`);
+    assert.ok(Math.abs(back.rect.bottom-next.rect.bottom)<=.75,`${label}: side-by-side bottoms differ ${JSON.stringify(data)}`);
+  }
+  actionPairChecks++;
+}
 async function capture(page,name,browser,width,field,suffix='') {
   await page.setViewportSize({width,height:width>=768?1000:844});
   await checkTargets(page,'.preflight-pager button, .preflight-pager a',`${name}/${browser}/${width}/${field}${suffix}`);
+  await checkActionPair(page,'.preflight-pager .intake-actions-right',`${name}/${browser}/${width}/${field}${suffix}/action-pair`);
   await page.locator('#preflightContextMount').evaluate(el=>el.scrollIntoView({block:'center',behavior:'instant'}));
   const layout=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,field:document.querySelector('#preflightContextMount .field:not([style*="display: none"])')?.getBoundingClientRect().toJSON(),buttons:[...document.querySelectorAll('.preflight-pager button')].map(el=>({text:el.textContent,rect:el.getBoundingClientRect().toJSON(),font:getComputedStyle(el).fontSize})),widgets:[...document.querySelectorAll('.mdn-fb-launch,#mnd-launcher,.mdn-cn-launch')].map(el=>({id:el.id||el.className,visibility:getComputedStyle(el).visibility}))}));
   const filename=`${name}-${browser}-${width}-${field}${suffix}.png`;
@@ -142,6 +177,11 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
     await page.waitForFunction(()=>document.getElementById('preflight_processName')?.getAttribute('aria-invalid')==='true');
     assert.equal(await page.locator('#preflight_processName_error').textContent(),'Enter a short answer to continue.');
     const source=fs.readFileSync(`${name}.html`,'utf8');
+    const lengthMatch=source.match(/<h3 class="intake-step-title">Choose the diagnostic length<\/h3>\s*<p class="intake-step-copy">([^<]+)<\/p>/);
+    assert.ok(lengthMatch,`${name}: length guidance exists`);
+    assert.equal(lengthMatch[1],lengthGuidance[name],`${name}: length guidance changed unexpectedly`);
+    if(name!=='decision-velocity')assert.doesNotMatch(lengthMatch[1],/useful signal|hidden patterning/,`${name}: abstract length promise returned`);
+    if(name==='structural-clarity')assert.doesNotMatch(lengthMatch[1],/decision pathway/,`${name}: wrong-lens length term returned`);
     const fields=vm.runInNewContext(source.match(/const PRESTART_FIELDS = (\[[\s\S]*?\n\]);/)[1]);
     const contract=fields.map(({label,placeholder,helper,...rest})=>rest);
     assert.equal(createHash('sha256').update(JSON.stringify(contract)).digest('hex'),contractHashes[name],`${name}: intake value contract changed`);
@@ -190,6 +230,11 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
       }
       if(i<fields.length-1)await page.locator('.preflight-next').click();
     }
+    for(const width of [390,768,1440]){
+      await page.setViewportSize({width,height:width>=768?1000:844});
+      await checkActionPair(page,'.preflight-pager .intake-actions-right',`${name}/${browserName}/${width}/final-action-pair`,{requireSameLine:true,expectedNext:'Begin Diagnostic \u2192'});
+    }
+    await page.setViewportSize({width:390,height:844});
     // Support remains reachable in normal flow; do not send a feedback/chat request.
     await checkTargets(page,'.diagnostic-support button,.diagnostic-support a',`${name}/support`);
     for(const [action,panel,openClass,close] of [['feedback','#mdn-fb-panel','mdn-fb-open','.mdn-fb-x'],['assistant','#mnd-panel','mnd-open','#mnd-close']]){
@@ -214,4 +259,4 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
   for(const browser of browsers)await browser.close();
   await new Promise(resolve=>server.close(resolve));
 }
-console.log(`DIAGNOSTIC_INTAKE_PASS: ${evidence.length} layout captures; all external services intercepted`);
+console.log(`DIAGNOSTIC_INTAKE_PASS: ${evidence.length} layout captures and ${actionPairChecks} action-pair checks; all external services intercepted`);

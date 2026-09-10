@@ -146,10 +146,11 @@
     }
 
     function clear() {
-      if (key) storageRemove(key);
       var indexed = indexKey ? storageGet(indexKey) : null;
-      if (indexed && indexed.indexOf(identityPrefix(userId, organizationId, tool)) === 0) storageRemove(indexed);
-      if (indexKey) storageRemove(indexKey);
+      var ownsIndex = Boolean(key && indexed === key);
+      if (key) storageRemove(key);
+      // Declining another run's draft does not grant ownership of its index.
+      if (ownsIndex) storageRemove(indexKey);
       key = "";
       pending = null;
       removeDialog();
@@ -170,8 +171,10 @@
       return true;
     }
 
-    function restore() {
-      if (!pending) return false;
+    function restore(expectedRunId) {
+      // A directed retry may restore only its matching, identity-scoped draft.
+      // The dialog's MouseEvent keeps the ordinary no-argument behavior.
+      if (!pending || (typeof expectedRunId === "string" && pending.draft_id !== cleanUuid(expectedRunId))) return false;
       STATE_FIELDS.forEach(function (field) {
         if (pending.state[field] !== undefined && pending.state[field] !== null) state[field] = cloneJson(pending.state[field], pending.state[field]);
       });
@@ -268,6 +271,9 @@
         storageRemove(indexKey);
         return false;
       }
+      // An explicit authenticated resume URL may name a different durable run.
+      // Do not restore, replace or delete another valid tab draft in that case.
+      if (options.resumeRunId && cleanUuid(options.resumeRunId) !== saved.draft_id) return false;
       key = indexed;
       pending = saved;
       showDialog(restore, function () {

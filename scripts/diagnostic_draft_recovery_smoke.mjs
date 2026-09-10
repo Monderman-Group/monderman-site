@@ -39,7 +39,7 @@ function validateDiagnostic(source, tool) {
   assert.match(source, /authoritativeRunRestore: true/);
   assert.match(source, /pinQuestionnaireVersion\(remote\);/);
   assert.match(source, /if \(!ensureQuestionnaireCopyReady\(\)\) return;/);
-  if (tool === "decision_velocity") {
+  if (["decision_velocity", "operational_systems"].includes(tool)) {
     assert.match(source, /function saveJourneyProgress\(\)\s*\{\s*if \(selfDraft\) selfDraft\.saveAccepted\(\);/, "Decision Velocity's consolidated save must retain authenticated draft persistence");
     assert.ok((source.match(/saveJourneyProgress\(\);/g) || []).length >= 5, "Decision Velocity must save every accepted-answer path through its shared helper");
   } else {
@@ -50,14 +50,14 @@ function validateDiagnostic(source, tool) {
   assert.match(source, /if \(!preserveParticipantDraft && selfDraft\) selfDraft\.clear\(\);/, `${tool} Start over must clear its scoped draft`);
   assert.match(source, /if \(state\.finalizeInFlight\) return;/, `${tool} must retain single-flight finalization`);
   assert.match(source, /let reviewingHistoryItemId = null;/, `${tool} must mark intentional Back review explicitly`);
-  if (tool === "decision_velocity") {
+  if (["decision_velocity", "operational_systems"].includes(tool)) {
     const answerStart = source.indexOf("async function submitAnswerLocked(");
     const answerEnd = source.indexOf("async function finalizeAdaptiveRun()", answerStart);
     assert.ok(answerStart >= 0 && answerEnd > answerStart, "Decision Velocity's answer path must be independently bounded");
     const answer = source.slice(answerStart, answerEnd);
     assert.match(answer, /const reviewIndex = reviewingHistoryItemId === itemId \?/, "Decision Velocity must revise only an intentionally reviewed answer");
     assert.match(answer, /const operation = oldEntry \? 'revise' : 'answer';/, "Decision Velocity must use the same-run revision endpoint for corrections");
-    assert.match(answer, /\/api\/decision-velocity\/run\/\$\{state\.runId\}\/\$\{operation\}/, "Decision Velocity corrections must target the active run");
+    assert.match(answer, /\/api\/(?:decision-velocity|operational-systems)\/run\/\$\{state\.runId\}\/\$\{operation\}/, "Same-session corrections must target the active run");
     assert.doesNotMatch(answer, /startAdaptiveRun\(|restartDiagnostic\(|\/run\/start/, "Decision Velocity answer correction must not consume another start admission");
     assert.doesNotMatch(source, /_replayCache|_replaying/, "Decision Velocity must not retain the obsolete restart/replay state");
     if (source.includes("async function replayAnswersAndResume(")) {
@@ -98,10 +98,10 @@ for (const [path, tool] of diagnostics) {
     ["draft clearing", source.replace(/if \(selfDraft\) selfDraft\.clear\(\);/g, "")],
     ["duplicate protection", source.replace("if (state.finalizeInFlight) return;", "")],
     ["explicit Back marker", source.replace("reviewingHistoryItemId = prev.item.id;", "")],
-    ["Back marker reset", tool === "decision_velocity"
+    ["Back marker reset", ["decision_velocity", "operational_systems"].includes(tool)
       ? source.replace(/(function restartDiagnostic[\s\S]*?)reviewingHistoryItemId = null;/, "$1")
       : source.replace("reviewingHistoryItemId = null;\nstate.started = false;", "state.started = false;")],
-    ...(tool === "decision_velocity" ? [
+    ...(["decision_velocity", "operational_systems"].includes(tool) ? [
       ["consolidated save call sites", source.replace(/saveJourneyProgress\(\);/g, "")],
       ["same-run revision", source.replace("const operation = oldEntry ? 'revise' : 'answer';", "const operation = 'answer';")],
       ["revision starts another run", source.replace("const operation = oldEntry ? 'revise' : 'answer';", "await startAdaptiveRun();\nconst operation = oldEntry ? 'revise' : 'answer';")]
