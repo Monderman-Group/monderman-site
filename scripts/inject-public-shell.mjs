@@ -59,9 +59,6 @@ for (const entry of await readdir(publishDirectory, { withFileTypes: true })) {
     continue;
   }
   if (!entry.isFile() || !entry.name.endsWith(".html")) continue;
-  // Versioned legal editions are evidence of what users acknowledged. Preserve
-  // their full bytes, not merely their wording, when refreshing shared assets.
-  if (/^(?:terms|privacy)-\d{4}-\d{2}-\d{2}-beta\.html$/.test(entry.name)) continue;
   const path = join(publishDirectory, entry.name);
   let html = await readFile(path, "utf8");
   let changed = false;
