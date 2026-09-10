@@ -94,6 +94,7 @@ on:
       - 'test-fixtures/report-full-pagination-p19-historical.json'
       - 'scripts/report_synthesis_display_smoke.mjs'
       - 'scripts/report_presentation_provenance_smoke.mjs'
+      - 'scripts/report_empty_ai_actions_smoke.mjs'
       - 'scripts/report_synthesis_chart_smoke.mjs'
       - 'scripts/report_cross_lens_phone_smoke.mjs'
       - 'scripts/sc_favorable_presentation_smoke.mjs'
@@ -213,6 +214,7 @@ on:
       - 'test-fixtures/report-full-pagination-p19-historical.json'
       - 'scripts/report_synthesis_display_smoke.mjs'
       - 'scripts/report_presentation_provenance_smoke.mjs'
+      - 'scripts/report_empty_ai_actions_smoke.mjs'
       - 'scripts/report_synthesis_chart_smoke.mjs'
       - 'scripts/report_cross_lens_phone_smoke.mjs'
       - 'scripts/sc_favorable_presentation_smoke.mjs'
@@ -315,6 +317,10 @@ jobs:
         env:
           REPORT_OUT: /tmp/report-presentation-smoke/presentation-provenance
         run: node scripts/report_presentation_provenance_smoke.mjs
+      - name: Keep facts-only AI report controls and disclosures truthful
+        env:
+          REPORT_OUT: /tmp/report-presentation-smoke/empty-ai-actions
+        run: node scripts/report_empty_ai_actions_smoke.mjs
       - name: Verify responsive Synthesis charts and print label containment
         env:
           REPORT_OUT: /tmp/report-presentation-smoke/synthesis-charts

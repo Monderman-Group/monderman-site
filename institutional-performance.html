@@ -783,8 +783,8 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
           <div class="accordion-body">
             <div class="viz-card"><h4>Where the drag lands</h4><div id="severityDotsMount"></div><p class="viz-note">Higher values mark where this pathway carries the heaviest drag, by dimension.</p></div>
             <div class="viz-card" style="margin-top:14px;"><h4>Burden composition</h4><div id="shareBarMount"></div><p class="viz-note" id="burdenDonutNote">Each dimension's share of the total visible burden.</p></div>
-            <div class="viz-card" style="margin-top:14px;"><h4>Where the capacity goes</h4><div id="capacityFlow"></div><p class="viz-note">Total annual capacity split across productive effort, structural overhead, and recoverable burden: midpoint of the modeled range, directional, not audited.</p></div>
-            <div class="viz-card" style="margin-top:14px;"><h4>Intervention order</h4><div id="priorityPathMount"></div><p class="viz-note">Where to act first across the heaviest dimensions: fix now, fix next, monitor.</p></div>
+            <div class="viz-card" style="margin-top:14px;"><h4>Time and cost scenario</h4><div id="capacityFlow"></div></div>
+            <div class="viz-card" style="margin-top:14px;"><h4>Review priorities</h4><div id="priorityPathMount"></div><p class="viz-note">The labels and order come from this result. A monitoring priority does not by itself call for a change.</p></div>
             <div style="display:none;" aria-hidden="true"><canvas id="burdenDonutChart"></canvas><div class="donut-center"><strong id="donutCenterValue">--</strong></div><div class="treemap" id="burdenTreemap"></div></div>
             <section class="economic-strip">
               <article class="result-card"><h3>Institutional performance result</h3><div class="section-divider"></div><div id="trajectorySignalWrap" class="result-copy" style="margin-bottom:12px;">Self-reported change signal will appear here after scoring.</div><p class="result-copy" id="executiveText"></p><div class="premium-note" id="conditionSupportText" style="display:none"></div></article>
@@ -4195,13 +4195,17 @@ function renderPriorityPath(result) {
   try {
     var mountEl = document.getElementById("priorityPathMount");
     if (!mountEl || !window.MViz || typeof MViz.priorityPath !== "function") return;
-    var segs = (result && result.canonical_composition && result.canonical_composition.segments) || [];
-    var steps = segs.map(function (s) { return { label: s.label || s.key || "", severity: Number(s.value) || 0 }; })
-                    .filter(function (s) { return s.severity > 0; })
-                    .sort(function (a, b) { return b.severity - a.severity; })
-                    .slice(0, 3);
-    if (!steps.length) return;
-    MViz.priorityPath(mountEl, { steps: steps });
+    mountEl.textContent = "";
+    // Keep the published order and priority. A ranked dimension alone does
+    // not establish urgency, and an empty ladder must clear the prior chart.
+    var ladder = Array.isArray(result && result.intervention_priority_ladder)
+      ? result.intervention_priority_ladder
+      : result && result.canonical_descriptor && result.canonical_descriptor.priority_ladder;
+    var steps = Array.isArray(ladder) ? ladder.filter(function (s) { return s && (s.focus || s.label || s.key); }).slice(0, 3).map(function (s) {
+      return { label: s.focus || s.label || s.key, severity: s.severity, priority: s.priority };
+    }) : [];
+    if (!steps.length) { mountEl.textContent = "No review order is available for this result."; return; }
+    MViz.priorityPath(mountEl, { steps: steps, suppliedPriorities: true });
   } catch (e) { console.warn("priorityPath skipped:", e && e.message); }
 }
 
@@ -5911,28 +5915,11 @@ const mount = $("burdenStack");
 if (mount) mount.innerHTML = '<div class="viz-empty">N/A, not enough signal is available to decompose burden components for this run.</div>';
 }
 
-/* capacity-flow (effortFlow): reuses this report's own exposure figures */
-try {
-  if (reclaimAmount == null && $("capacityFlow")) {
-    $("capacityFlow").innerHTML = '<div class="viz-empty">N/A, no recoverable-cost estimate was published for this run.</div>';
-  } else if (window.MViz && typeof MViz.effortFlow === "function" && $("capacityFlow")) {
-    const _exp = (result && result.exposure) ? result.exposure : {};
-    const _total = Number(_exp.annual_cost) || 0;
-    const _hours = Number(_exp.annual_hours) || 0;
-    const _comp = calculateCapacityComposition(_exp);
-    const _reclaimC = Number(reclaimAmount);
-    const _prodC = _total * (_comp.productive / 100);
-    const _structC = Math.max(0, _total - _prodC - _reclaimC);
-    const _dimTot = burdenBarRows.reduce((acc, r) => acc + (Number(r.value) || 0), 0) || 1;
-    MViz.effortFlow($("capacityFlow"), {
-      totalCost: _total, totalHours: _hours,
-      productiveCost: _prodC, productiveHours: _hours * (_comp.productive / 100),
-      structuralCost: _structC, reclaimCost: _reclaimC,
-      dims: burdenBarRows.map(r => ({ label: r.label, cost: _reclaimC * ((Number(r.value) || 0) / _dimTot) })),
-      note: "Midpoint of the modeled exposure range. Dimension dollars apportion the recoverable burden by composition: directional, not audited."
-    });
-  }
-} catch (e) { /* viz is decorative: never break the report */ }
+/* Published whole-model fields only; no dimension dollar allocation. */
+if ($("capacityFlow")) $("capacityFlow").textContent = "Time and cost details are unavailable in this view. Open the saved report in Workspace.";
+if (window.MViz && typeof MViz.timeCostScenario === "function") {
+  MViz.timeCostScenario($("capacityFlow"), result && result.exposure);
+}
 
 const delayBarRows = [
 { label: "Intake", value: Number(result?.delay_concentration?.intake || 0) },
@@ -6656,7 +6643,7 @@ return {};
 })();
 
   </script>
-<script src="monderman-viz.js" defer></script>
+<script src="monderman-viz.js?v=20260910-inline-scenario1" defer></script>
   <script src="assistant.js?v=20260828-footer-dock4" defer></script>
   <script src="feedback-widget.js" defer></script>
 </body>

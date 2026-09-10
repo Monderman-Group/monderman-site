@@ -17,7 +17,7 @@ const current = make({questionnaire_version:'1.3.0',config_version:'1.3.0',score
 const currentBefore = JSON.stringify(current);
 const currentHtml = report.buildReportHtml(report.fromRun(current));
 assert.doesNotMatch(currentHtml,/Why this option appears here/,'independent remedy and priority lists must not invent an array-index evidence pairing');
-for (const text of ['1.3.0','original-scorer','diagnostic-report-language-20260908','diagnostic-renderer-ai-screen-20260910.23']) assert.ok(currentHtml.includes(text),text);
+for (const text of ['1.3.0','original-scorer','diagnostic-report-language-20260908','diagnostic-renderer-ai-screen-20260910.24']) assert.ok(currentHtml.includes(text),text);
 assert.equal(JSON.stringify(current),currentBefore);
 // Real populated, deliberately different lists: an empty fixture cannot catch
 // reintroducing the former array-position evidence pairing.

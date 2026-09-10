@@ -70,9 +70,11 @@ try{
  assert.deepEqual(await page.locator('#priorityPathMount svg text').allTextContents(),['1','MONITOR','Role clarity','difficulty 9','2','MONITOR','Decision rights','clarity','difficulty 8','3','MONITOR','Handoff integrity','difficulty 8']);
  assert.equal(await page.locator('#shareBarMount svg').getAttribute('aria-label'),'Difficulty indicator distribution');
  assert.equal(await page.locator('#severityDotsMount svg').getAttribute('aria-label'),'Reported difficulty by dimension');
- assert.equal(await page.locator('#effortFlowSankey svg').getAttribute('aria-label'),'Modeled annual capacity scenario','Rounded 0% must not hide nonzero modeled amounts');
+ assert.equal(await page.locator('#effortFlowSankey .mvg-scenario').getAttribute('aria-label'),'Published time and cost scenario','Rounded 0% must not hide published nonzero modeled amounts');
+ assert.match(await page.locator('#effortFlowSankey').innerText(),/Modeled annual time/);
+ assert.doesNotMatch(await page.locator('#effortFlowSankey').innerText(),/Modeled share:|Role clarity|Decision rights|Remaining capacity/,'Scores must not allocate time or dollars');
  assert.doesNotMatch(await page.locator('main').innerText(),/FIX NOW|FIX NEXT|total burden|STRAINED|SEVERE/);
- for(const width of [390,768,1440]){await page.setViewportSize({width,height:1000});await page.evaluate(async()=>{await document.fonts.ready});await checkBounds('SC charts '+width);if(width===390){assert.equal(await page.locator('.mvg-compact:visible').count(),4);assert.ok(await page.locator('.mvg-compact-row span').first().evaluate(e=>parseFloat(getComputedStyle(e).fontSize)>=14));}await page.screenshot({path:path.join(out,'charts-'+width+'.png'),fullPage:true});}
+ for(const width of [390,768,1440]){await page.setViewportSize({width,height:1000});await page.evaluate(async()=>{await document.fonts.ready});await checkBounds('SC charts '+width);if(width===390){assert.equal(await page.locator('.mvg-compact:visible').count(),3);assert.equal(await page.locator('.mvg-scenario:visible').count(),1);assert.ok(await page.locator('.mvg-compact-row span').first().evaluate(e=>parseFloat(getComputedStyle(e).fontSize)>=14));}await page.screenshot({path:path.join(out,'charts-'+width+'.png'),fullPage:true});}
  await page.evaluate(r=>{renderShareBar(r);renderSeverityDots(r);renderPriorityPath(r)},zero);
  assert.equal(await page.locator('#shareBarMount').textContent(),'No reported difficulty to distribute.');
  assert.equal(await page.locator('#severityDotsMount svg').count(),1,'Measured zero indicators must remain visible');

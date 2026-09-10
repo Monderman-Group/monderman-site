@@ -1,0 +1,746 @@
+{
+  "syntheticOnly": true,
+  "providerCalls": 0,
+  "provenance": "Actual fabricated second controlled OS Operational/10 result saved after the 2026-09-10 deterministic presentation correction. No account, invitation, session, or AI-provider identifiers are included.",
+  "sourceReceiptSHA256": "648a197d733bf4bac3ff3721869a9befd1f25f806ac58f430dc3e425a48491d2",
+  "result": {
+    "band": "Light",
+    "flags": [],
+    "score": 84,
+    "exposure": {
+      "model": {
+        "note": "The 55% attribution is an explicit instrument assumption applied consistently to pathway sizing, not an observed time study or peer benchmark.",
+        "formula": "annual burden hours = round(hours per run × annual runs × 55% attribution share)",
+        "model_type": "directional_scenario_not_empirical_benchmark",
+        "annual_cycles": 12,
+        "capacity_formula": "people involved × 1,800 available hours per person per year",
+        "attribution_method": "fixed_scenario_share",
+        "annual_cost_formula": "round(annual burden hours × supplied average hourly cost)",
+        "attribution_formula": "fixed 55 percent of supplied coordination hours",
+        "capacity_limit_rule": "withhold annual hours, cost, capacity drag, and recovery outputs when attributed hours exceed available capacity",
+        "empirical_benchmark": false,
+        "input_hours_per_run": 6,
+        "capacity_drag_formula": "round(annual burden hours ÷ total available capacity hours × 100)",
+        "recoverable_share_bands": "score ≤48: 28–42%; 49–66: 18–27%; 67–82: 10–17%; 83–100: 5–10%",
+        "recoverable_cost_formula": "round(annual labor exposure × recoverable share)",
+        "recoverable_share_formula": "interpolate within the score-band range using the worst measured burden severity",
+        "capacity_hours_per_person_year": 1800,
+        "attributable_burden_share_percent": 55,
+        "attributed_hours_before_capacity_check": 40
+      },
+      "priceable": true,
+      "annual_cost": 1800,
+      "composition": null,
+      "hourly_cost": 45,
+      "annual_hours": 40,
+      "sizing_status": "estimated",
+      "cost_estimated": true,
+      "hours_estimated": true,
+      "unpriced_reason": null,
+      "recoverable_cost": 108,
+      "average_hourly_cost": 45,
+      "total_capacity_cost": 243000,
+      "total_capacity_hours": 5400,
+      "capacity_drag_percent": 1,
+      "recoverable_share_percent": 6
+    },
+    "industry": "professional_services",
+    "patterns": [
+      "balanced_operating_environment"
+    ],
+    "severity": "low",
+    "benchmark": {
+      "basis": "expert_authored_design_reference",
+      "label": "Professional services",
+      "healthyMax": 73,
+      "healthyMin": 58,
+      "moderateMax": 73,
+      "moderateMin": 58,
+      "referenceMax": 73,
+      "referenceMin": 58,
+      "opportunityMax": 88,
+      "opportunityMin": 76
+    },
+    "tool_type": "operational_systems",
+    "dimensions": {
+      "control_load": 89,
+      "upkeep_burden": 91,
+      "process_density": 75.5,
+      "systems_friction": 73,
+      "workaround_dependence": 82,
+      "reporting_exception_burden": 100
+    },
+    "score_band": "Light",
+    "trajectory": {
+      "note": "This is a self-reported change signal from the current run, not a measured longitudinal trend.",
+      "delta": -1,
+      "glyph": "→",
+      "label": "Operating burden appears relatively steady",
+      "direction": "flat",
+      "evidence_type": "self_reported_change_signal",
+      "experiential_signal": "none",
+      "longitudinal_measurement": false
+    },
+    "watch_items": [
+      "No major contradiction signals surfaced in this run."
+    ],
+    "context_note": null,
+    "key_findings": [],
+    "process_name": "Pilot delivery check — supplier onboarding",
+    "remedy_paths": [
+      {
+        "risk": "A favorable score does not rule out local exceptions.",
+        "label": "Document the current arrangements",
+        "kicker": "Preserve",
+        "actions": [
+          "Monitor systems friction in the next comparison. Its rank identifies a measured burden source, not a defect requiring repair.",
+          "Name a comparison measure and a remeasurement date."
+        ],
+        "benefit": "Provides a documented baseline without assuming the current design caused the score.",
+        "summary": "Keep the current operating arrangements and record the measured burden profile for a later comparison.",
+        "source_basis": "diagnostic_priority_actions"
+      },
+      {
+        "risk": "One reported exception may not describe the wider operating environment.",
+        "label": "Review a reported exception",
+        "kicker": "Check",
+        "actions": [
+          "Keep process density in the same comparison and check reported exceptions before deciding whether a change is needed.",
+          "Compare the reported difficulty with operating evidence before changing the process."
+        ],
+        "benefit": "Allows a local concern to be examined without assuming a general defect.",
+        "summary": "Review a specific reported difficulty before deciding whether a bounded change is warranted.",
+        "source_basis": "diagnostic_priority_actions"
+      },
+      {
+        "risk": "A later score alone cannot show which change caused a difference.",
+        "label": "Repeat after an important change",
+        "kicker": "Monitor",
+        "actions": [
+          "Preserve the current arrangements unless separate evidence supports a change. Repeat the diagnostic after an important operating change or a reported increase in burden."
+        ],
+        "benefit": "Provides another descriptive measurement without claiming cause or lasting performance.",
+        "summary": "Compare the same measures after an important operating change. This result does not justify a broad redesign.",
+        "source_basis": "diagnostic_priority_actions"
+      }
+    ],
+    "score_source": "structured_quantitative_inputs_only",
+    "business_unit": "Controlled pilot operations",
+    "insight_depth": {
+      "band": "Narrow - first signal",
+      "score": 3,
+      "ceiling": 8,
+      "run_depth": 10,
+      "confidence_level": "moderate",
+      "participant_count": 1,
+      "levels_covered_count": 1,
+      "cross_synthesis_count": 1
+    },
+    "rawExperience": {
+      "self": "",
+      "observedExecutive": "",
+      "observedManagerial": "",
+      "observedOperational": "",
+      "observedSeniorLeader": ""
+    },
+    "config_version": "1.3.1",
+    "contradictions": [],
+    "industry_label": "Professional services",
+    "primary_driver": "Systems friction",
+    "raw_experience": {
+      "self": "",
+      "observedExecutive": "",
+      "observedManagerial": "",
+      "observedOperational": "",
+      "observedSeniorLeader": ""
+    },
+    "scorer_version": "operational_systems_high_score_good_2026_08_13_experience_neutral_v3",
+    "sector_context": {
+      "marginTerm": "client-facing and billable capacity",
+      "sectorName": "professional services",
+      "calibration": {
+        "basis": "Expert-authored instrument design reference; not an empirical sector norm or validated external benchmark.",
+        "industryMax": 73,
+        "industryMin": 58,
+        "typicalDrag": 20,
+        "opportunityMax": 88,
+        "opportunityMin": 76
+      },
+      "industryKey": "professional_services",
+      "workflowKey": "procurement",
+      "openingClause": "client responsiveness and margin preservation",
+      "benchmarkAbove": "An above-range score means this run shows lighter measured burden than the instrument's expert-authored design reference. Verify that interpretation against workflow evidence.",
+      "benchmarkBelow": "A below-range score means this run shows heavier measured burden than the instrument's expert-authored design reference. The score does not by itself identify the cause.",
+      "benchmarkWithin": "A within-range score means this result falls inside the instrument's expert-authored design reference. It can still coexist with meaningful burden in individual dimensions.",
+      "sector_hypotheses": {
+        "basis": "Expert-authored candidates for organization-specific testing; not observed facts or validated sector generalizations.",
+        "risk_candidates": [
+          "hidden compensation",
+          "normalized workarounds",
+          "control without control benefit"
+        ],
+        "intervention_options": [
+          "risk-tiering",
+          "standard work redesign",
+          "clear exception thresholds",
+          "pathway ownership"
+        ],
+        "bottleneck_candidates": [
+          "unclear routing",
+          "duplicate handling",
+          "manual coordination",
+          "control layers that are not risk-tiered"
+        ]
+      },
+      "opportunityPattern": "A sector-informed hypothesis to test in professional services is whether billable-versus-nonbillable drift, client-facing time getting eroded, and margin getting compressed by internal maintenance work.",
+      "workflowRemedyLanguage": {
+        "playbooks": "approval playbooks",
+        "routineWork": "routine procurement approvals",
+        "controlReset": "approval control, managerial cover, and senior-leader visibility",
+        "trueExceptions": "true exceptions"
+      }
+    },
+    "value_judgment": {
+      "note": "Administrative upkeep is lower in this run. Durability and future drift were not measured.",
+      "label": "Lower measured operating burden"
+    },
+    "recommendations": [
+      "Monitor systems friction in the next comparison. Its rank identifies a measured burden source, not a defect requiring repair.",
+      "Keep process density in the same comparison and check reported exceptions before deciding whether a change is needed.",
+      "Preserve the current arrangements unless separate evidence supports a change. Repeat the diagnostic after an important operating change or a reported increase in burden."
+    ],
+    "report_language": {
+      "origin_basis": "captured_template_version",
+      "origin_version": "diagnostic-report-language-20260909.1",
+      "generation_version": "diagnostic-report-language-20260909.1"
+    },
+    "score_band_note": "The submitted answers place the operating environment in the instrument's strongest, lowest-burden range; no effect on work or durability is inferred.",
+    "burden_breakdown": {
+      "control_load": 11,
+      "upkeep_burden": 9,
+      "process_density": 24.5,
+      "systems_friction": 27,
+      "workaround_dependence": 18,
+      "reporting_exception_burden": 0
+    },
+    "burden_diagnosis": {
+      "note": "The current burden falls in the instrument's lower range. Document the current design and repeat the heaviest measured pressure after a defined interval.",
+      "label": "Lower measured burden"
+    },
+    "input_confidence": "moderate",
+    "participant_mode": "operational",
+    "priority_actions": [
+      "Monitor systems friction in the next comparison. Its rank identifies a measured burden source, not a defect requiring repair.",
+      "Keep process density in the same comparison and check reported exceptions before deciding whether a change is needed.",
+      "Preserve the current arrangements unless separate evidence supports a change. Repeat the diagnostic after an important operating change or a reported increase in burden."
+    ],
+    "benchmark_context": {
+      "note": "The range is an expert-authored instrument design reference, not a measured peer distribution.",
+      "basis": "expert_authored_design_reference",
+      "empirical_sample": false
+    },
+    "reclaim_potential": {
+      "amount": 108,
+      "factor": 6,
+      "impact": "Low",
+      "driverText": "Uses the same disclosed Operational Systems scenario estimate published in the report; no sector peer factor is added."
+    },
+    "benchmark_position": "Above design reference range",
+    "dimension_coverage": {
+      "dimensions": {
+        "control_load": {
+          "value": 89,
+          "status": "measured",
+          "evidence_count": 1
+        },
+        "upkeep_burden": {
+          "value": 91,
+          "status": "measured",
+          "evidence_count": 1
+        },
+        "process_density": {
+          "value": 75.5,
+          "status": "measured",
+          "evidence_count": 2
+        },
+        "systems_friction": {
+          "value": 73,
+          "status": "measured",
+          "evidence_count": 2
+        },
+        "workaround_dependence": {
+          "value": 82,
+          "status": "measured",
+          "evidence_count": 2
+        },
+        "reporting_exception_burden": {
+          "value": 100,
+          "status": "measured",
+          "evidence_count": 1
+        }
+      },
+      "coverage_percent": 100,
+      "measured_dimensions": [
+        "process_density",
+        "systems_friction",
+        "reporting_exception_burden",
+        "workaround_dependence",
+        "control_load",
+        "upkeep_burden"
+      ],
+      "total_dimension_count": 6,
+      "unmeasured_dimensions": [],
+      "measured_dimension_count": 6
+    },
+    "interpretive_prose": {
+      "remedy_paths": [
+        {
+          "risk": "Limitation: documentation adds activity that should be measured separately from the current burden result.",
+          "label": "Document the current design",
+          "kicker": "Low disruption",
+          "actions": [
+            "Document the controls, handoffs, and system choices present alongside the favorable measured burden profile around this workflow; this run does not establish which ones produced it."
+          ],
+          "benefit": "Records a current comparison point. Scenario value band: $20–$30*; this is not observed or protected value.",
+          "summary": "Document the controls, handoffs, and system choices present alongside the favorable systems friction measurement; their effect was not tested."
+        },
+        {
+          "risk": "Limitation: the comparison provides no observations between measurement points.",
+          "label": "Repeat the highest measured dimension",
+          "kicker": "Focused monitoring",
+          "actions": [
+            "Document the controls, handoffs, and system choices present alongside the favorable measured burden profile around this workflow; this run does not establish which ones produced it.",
+            "Repeat the currently heaviest measured dimension after material volume, staffing, system, or regulatory changes and compare the result without predicting drift."
+          ],
+          "benefit": "Defines a repeated measure. Scenario value band: $40–$60*; this is not observed or protected value.",
+          "summary": "Set a review date for systems friction after a material shift in volume, staffing, systems, or regulation; this is a comparison point, not a predictive indicator."
+        },
+        {
+          "risk": "Limitation: a trigger authorizes review only; it does not establish the effect of a later change.",
+          "label": "Define a follow-up review rule",
+          "kicker": "Contingency design",
+          "actions": [
+            "Document the controls, handoffs, and system choices present alongside the favorable measured burden profile around this workflow; this run does not establish which ones produced it.",
+            "Repeat the currently heaviest measured dimension after material volume, staffing, system, or regulatory changes and compare the result without predicting drift.",
+            "Re-measure after the first bounded test while documenting other changed conditions; the result is not causally attributable."
+          ],
+          "benefit": "Defines what evidence would authorize considering a later test. Scenario value band: $60–$100*; this is not observed or protected value.",
+          "summary": "Define when systems friction would justify a targeted adjustment, while leaving the current workflow intact until that evidence appears."
+        }
+      ],
+      "priority_actions": [
+        "Document the controls, handoffs, and system choices present alongside the favorable measured burden profile around this workflow; this run does not establish which ones produced it.",
+        "Repeat the currently heaviest measured dimension after material volume, staffing, system, or regulatory changes and compare the result without predicting drift."
+      ],
+      "executive_summary": {
+        "body": "This workflow shows light overall operating burden. Systems friction is the largest remaining measured pressure, but the run does not support a broad redesign. The self-reported comparison is broadly steady; repeat measurement is needed before interpreting a trend.",
+        "headline": "This workflow: Preserve the current low-burden design and monitor important changes.",
+        "opportunity": "Document the current design. Track Systems friction and Process density, then compare the same administrative work and the value of the control measures after an important change. The comparison will not show cause."
+      },
+      "harmonized_narrative": {
+        "tmr": "Using the submitted assumptions, the scenario estimates about 40 annual hours, $1,800 in modeled annual labor cost, 1% of the annual capacity entered for this scope. These figures are modeled, not observed or audited.",
+        "state": {
+          "topFocus": "Systems friction",
+          "quadrantKey": "upper_left",
+          "sectorLabel": "Professional services",
+          "benchmarkPos": "Above design reference range",
+          "execResponsive": 85.54,
+          "directionSummary": "burden pressure is relatively steady",
+          "governanceInputs": {
+            "orgSize": "small",
+            "regulatory": "unknown",
+            "meetingLoad": 6,
+            "decisionType": "procurement",
+            "employeeCount": 12,
+            "participantLoad": 3,
+            "governanceFromInputs": 42
+          },
+          "governanceWeight": 42,
+          "burdenProfileShape": "mixed",
+          "trajectoryDirection": "flat"
+        },
+        "keyFlags": [
+          "Systems friction is measured at burden severity 27/100.",
+          "Process density is measured at burden severity 25/100.",
+          "Off-formal-path execution is measured at burden severity 18/100.",
+          "Control load is measured at burden severity 11/100.",
+          "Administrative upkeep burden is measured at burden severity 9/100."
+        ],
+        "tradeoff": "The submitted answers may pair acceptable output with administrative effort. This run does not establish a relationship between them. Record the work, the control it supports, and the operating result separately in any test.",
+        "benchmark": "This workflow sits above the instrument's expert-authored professional services design reference. This reference comes from the instrument's design, not customer or industry data. It does not change the score or the modeled recovery scenario. Use the workload assumptions, measured dimensions, and repeated measurements when deciding what to do.",
+        "executive": "This workflow received a score of 84 in the light band. The measured burden is spread across several areas, with some contributing more than others. Systems friction is the largest measured contributor. The ranking does not establish cause or a need for repair.\n\nThe reported position is above design-reference range against the 58–73 design reference. The current-run operating burden signal is not strongly directional. This single-run signal does not establish observed change or stability over time.",
+        "leadership": [
+          "Document the current workflow while the measured condition remains in the stronger range.",
+          "Track Systems friction, the highest measured dimension, without treating it as a present failure or a prediction.",
+          "Repeat the same measures after an important change or a visible loss of performance."
+        ],
+        "opportunity": "Document the current design. Track Systems friction and Process density, then compare the same administrative work and the value of the control measures after an important change. The comparison will not show cause.",
+        "diagnosisReads": {
+          "burdenRead": "The submitted answers place the operating environment in the instrument's strongest, lowest-burden range; no effect on work or durability is inferred. The measured burden is spread across several areas, with some contributing more than others. This distribution does not establish cause, labor effects, or a need for repair.",
+          "sourceRead": "Duplicate entry, manual handoffs, and coordination friction form the highest measured burden grouping in this workflow; this run does not establish their effect on cycle time or labor.",
+          "severityRead": "No measured burden dimension crossed the higher review threshold; a bounded comparison may still be used if the organization wants more evidence.",
+          "diagnosisRead": "The run records the measured burden profile for client responsiveness and margin preservation. This diagnostic does not determine which parts are necessary or what effects they have."
+        },
+        "headlineFinding": "This workflow shows light overall operating burden. Systems friction is the largest remaining measured pressure, but the run does not support a broad redesign. The self-reported comparison is broadly steady; repeat measurement is needed before interpreting a trend.",
+        "opportunityFields": {
+          "title": "Document and repeat the current workflow measurement",
+          "opening": "This stronger-range result supports documenting the current workflow and measuring it again before making changes.",
+          "watchout": "Do not treat one favorable run as proof that the workflow is effective or durable. Test any proposed change separately.",
+          "firstMoves": "Systems friction is the highest measured dimension. Document the current design and repeat this dimension before considering intervention. Process density should also be monitored. Review it after an important change or if the favorable result no longer holds. The sequence records the current result, adds a review trigger, and leaves any later intervention contingent on separate evidence.",
+          "runIndicates": "This run records a stronger-range measured condition. Systems friction is the highest measured dimension, not a verified failure or predictive indicator.",
+          "sectorDynamic": "Examine whether process and control steps in Professional services add work without enough operating value in this workflow.",
+          "buildAdvantage": "Document the current stronger-range result and measure it again after a defined interval. This result does not prove advantage, durability, or future change."
+        },
+        "recommendedActions": [
+          "Document the current workflow and avoid adding a new review or approval without a stated need.",
+          "Repeat systems friction and process density after a defined interval.",
+          "Repeat the diagnostic after an important operating change."
+        ]
+      },
+      "benchmark_interpretation": "This workflow sits above the instrument's expert-authored professional services design reference. This reference comes from the instrument's design, not customer or industry data. It does not change the score or the modeled recovery scenario. Use the workload assumptions, measured dimensions, and repeated measurements when deciding what to do."
+    },
+    "interpretive_state": {
+      "quadrantKey": "upper_left",
+      "execResponsive": 85.54,
+      "governanceInputs": {
+        "orgSize": "small",
+        "regulatory": "unknown",
+        "meetingLoad": 6,
+        "decisionType": "procurement",
+        "employeeCount": 12,
+        "participantLoad": 3,
+        "governanceFromInputs": 42
+      },
+      "governanceWeight": 42,
+      "trajectoryDirection": "flat"
+    },
+    "primary_constraint": "systems_friction",
+    "max_burden_severity": 27,
+    "canonical_descriptor": {
+      "score": 84,
+      "fix_now": "Systems friction",
+      "monitor": "Off-formal-path execution",
+      "fix_next": "Process density",
+      "tool_type": "operational_systems",
+      "composition": {
+        "shape": "mixed",
+        "total": 89.5,
+        "dominant": {
+          "key": "systems_friction",
+          "pct": 30,
+          "label": "Systems friction",
+          "value": 27
+        },
+        "segments": [
+          {
+            "key": "systems_friction",
+            "pct": 30,
+            "label": "Systems friction",
+            "value": 27
+          },
+          {
+            "key": "process_density",
+            "pct": 27,
+            "label": "Process density",
+            "value": 24.5
+          },
+          {
+            "key": "workaround_dependence",
+            "pct": 20,
+            "label": "Off-formal-path execution",
+            "value": 18
+          },
+          {
+            "key": "control_load",
+            "pct": 12,
+            "label": "Control load",
+            "value": 11
+          },
+          {
+            "key": "upkeep_burden",
+            "pct": 11,
+            "label": "Administrative upkeep burden",
+            "value": 9
+          }
+        ],
+        "dominant_pct": 30
+      },
+      "primary_story": "systems_friction",
+      "benchmark_text": "Above design reference range",
+      "priority_ladder": [
+        {
+          "key": "systems_friction",
+          "pct": 30,
+          "focus": "Systems friction",
+          "priority": "Monitor",
+          "severity": 27
+        },
+        {
+          "key": "process_density",
+          "pct": 27,
+          "focus": "Process density",
+          "priority": "Monitor",
+          "severity": 24.5
+        },
+        {
+          "key": "workaround_dependence",
+          "pct": 20,
+          "focus": "Off-formal-path execution",
+          "priority": "Monitor",
+          "severity": 18
+        }
+      ],
+      "reference_range": {
+        "max": 73,
+        "min": 58
+      },
+      "score_band_text": "Light",
+      "trajectory_note": "This is a self-reported change signal from the current run, not a measured longitudinal trend.",
+      "trajectory_text": "Operating burden appears relatively steady",
+      "forbidden_claims": [
+        "process density is the primary burden source",
+        "process density is the dominant source",
+        "reporting burden is the primary burden source",
+        "reporting burden is the dominant source",
+        "off-formal-path execution is the primary burden source",
+        "off-formal-path execution is the dominant source",
+        "control load is the primary burden source",
+        "control load is the dominant source",
+        "administrative upkeep burden is the primary burden source",
+        "administrative upkeep burden is the dominant source",
+        "process density should be addressed before systems friction",
+        "off-formal-path execution should be addressed before systems friction",
+        "decision velocity",
+        "the pathway slows",
+        "pathway slows at",
+        "drag pattern",
+        "pathway drag",
+        "time disappears",
+        "decision pathway",
+        "escalation dependence",
+        "key-person brittleness",
+        "approval density",
+        "approval bottleneck",
+        "coordination burden",
+        "handoff burden",
+        "rework friction",
+        "structural clarity",
+        "structural legibility",
+        "legibility failure",
+        "clarity breakdown",
+        "structural clarity breakdown",
+        "legibility of the",
+        "absent structure",
+        "authority gap",
+        "ownership blur",
+        "handoff breakdown",
+        "structurally ambiguous",
+        "ownership ambiguity",
+        "authority blur",
+        "structural coherence",
+        "legibility of the system",
+        "ownership is ambiguous",
+        "authority is blurred",
+        "the structure is unclear",
+        "compensatory structure",
+        "institutional performance",
+        "institutional condition",
+        "performance is borrowed",
+        "borrowed performance",
+        "the institution is fragile",
+        "execution fragility",
+        "confidence erosion",
+        "trust erosion",
+        "adaptive strain",
+        "compensatory dependence",
+        "informal-absorption dependence",
+        "fragility driver",
+        "durable performance"
+      ],
+      "dimension_display": {
+        "control_load": "Control load",
+        "upkeep_burden": "Administrative upkeep burden",
+        "process_density": "Process density",
+        "systems_friction": "Systems friction",
+        "workaround_dependence": "Off-formal-path execution",
+        "reporting_exception_burden": "Reporting burden"
+      },
+      "opportunity_range": {
+        "max": 88,
+        "min": 76
+      },
+      "dominant_burden_pct": 30,
+      "first_move_sentence": "Monitor systems friction in the next comparison. Its rank identifies a measured burden source, not a defect requiring repair.",
+      "dominant_burden_note": "System switching and duplicate entry are one of several measured burden sources. This dimension does not allocate the overall modeled time or cost estimate.",
+      "has_experiential_gap": false,
+      "presentation_version": "os-presentation-2026-09-10.1",
+      "second_move_sentence": "Keep process density in the same comparison and check reported exceptions before deciding whether a change is needed.",
+      "trajectory_direction": "flat",
+      "dominant_burden_label": "Systems friction",
+      "intervention_sentences": [
+        "Monitor systems friction in the next comparison. Its rank identifies a measured burden source, not a defect requiring repair.",
+        "Keep process density in the same comparison and check reported exceptions before deciding whether a change is needed.",
+        "Preserve the current arrangements unless separate evidence supports a change. Repeat the diagnostic after an important operating change or a reported increase in burden."
+      ],
+      "burden_distribution_type": "mixed",
+      "experiential_signal_type": "none",
+      "experiential_signal_label": "No qualitative risk signal supplied",
+      "experiential_structural_gap": {
+        "type": "none",
+        "label": "",
+        "description": ""
+      }
+    },
+    "measurement_coverage": {
+      "dimensions": {
+        "control_load": {
+          "value": 89,
+          "status": "measured",
+          "evidence_count": 1
+        },
+        "upkeep_burden": {
+          "value": 91,
+          "status": "measured",
+          "evidence_count": 1
+        },
+        "process_density": {
+          "value": 75.5,
+          "status": "measured",
+          "evidence_count": 2
+        },
+        "systems_friction": {
+          "value": 73,
+          "status": "measured",
+          "evidence_count": 2
+        },
+        "workaround_dependence": {
+          "value": 82,
+          "status": "measured",
+          "evidence_count": 2
+        },
+        "reporting_exception_burden": {
+          "value": 100,
+          "status": "measured",
+          "evidence_count": 1
+        }
+      },
+      "coverage_percent": 100,
+      "measured_dimensions": [
+        "process_density",
+        "systems_friction",
+        "reporting_exception_burden",
+        "workaround_dependence",
+        "control_load",
+        "upkeep_burden"
+      ],
+      "total_dimension_count": 6,
+      "unmeasured_dimensions": [],
+      "measured_dimension_count": 6
+    },
+    "participant_evidence": [],
+    "canonical_composition": {
+      "shape": "mixed",
+      "total": 89.5,
+      "dominant": {
+        "key": "systems_friction",
+        "pct": 30,
+        "label": "Systems friction",
+        "value": 27
+      },
+      "segments": [
+        {
+          "key": "systems_friction",
+          "pct": 30,
+          "label": "Systems friction",
+          "value": 27
+        },
+        {
+          "key": "process_density",
+          "pct": 27,
+          "label": "Process density",
+          "value": 24.5
+        },
+        {
+          "key": "workaround_dependence",
+          "pct": 20,
+          "label": "Off-formal-path execution",
+          "value": 18
+        },
+        {
+          "key": "control_load",
+          "pct": 12,
+          "label": "Control load",
+          "value": 11
+        },
+        {
+          "key": "upkeep_burden",
+          "pct": 11,
+          "label": "Administrative upkeep burden",
+          "value": 9
+        }
+      ],
+      "dominant_pct": 30
+    },
+    "concentration_penalty": 0,
+    "context_note_withheld": true,
+    "primary_burden_source": "Systems friction",
+    "questionnaire_version": "1.3.1",
+    "raw_dimension_average": 85,
+    "input_confidence_label": "Moderate input depth",
+    "intervention_priorities": [
+      "Monitor systems friction in the next comparison. Its rank identifies a measured burden source, not a defect requiring repair.",
+      "Keep process density in the same comparison and check reported exceptions before deciding whether a change is needed.",
+      "Preserve the current arrangements unless separate evidence supports a change. Repeat the diagnostic after an important operating change or a reported increase in burden."
+    ],
+    "primary_exposure_source": "Systems friction",
+    "qualitative_risk_signal": {
+      "type": "none",
+      "label": "No qualitative risk signal supplied",
+      "strength": "none",
+      "score_cap": null,
+      "score_penalty": 0,
+      "interpretive_only": true
+    },
+    "experiential_score_effect": "none",
+    "questionnaire_copy_version": "diagnostic-language-20260908",
+    "experiential_structural_gap": {
+      "type": "none",
+      "label": "",
+      "description": ""
+    },
+    "intervention_priority_ladder": [
+      {
+        "key": "systems_friction",
+        "pct": 30,
+        "focus": "Systems friction",
+        "priority": "Monitor",
+        "severity": 27
+      },
+      {
+        "key": "process_density",
+        "pct": 27,
+        "focus": "Process density",
+        "priority": "Monitor",
+        "severity": 24.5
+      },
+      {
+        "key": "workaround_dependence",
+        "pct": 20,
+        "focus": "Off-formal-path execution",
+        "priority": "Monitor",
+        "severity": 18
+      }
+    ],
+    "quadrant_interpretation_text": "Movement is relatively strong and governance weight is comparatively light. This is the chart's strongest measured placement, not evidence of cause, durability, or future performance.",
+    "score_before_risk_adjustment": 84,
+    "qualitative_interpretive_signal": {
+      "type": "none",
+      "label": "No qualitative risk signal supplied",
+      "strength": "none",
+      "score_cap": null,
+      "score_penalty": 0,
+      "interpretive_only": true
+    },
+    "structured_score_before_rounding": 84
+  }
+}
