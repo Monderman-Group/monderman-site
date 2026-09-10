@@ -747,7 +747,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
       <div class="score-meta-strip"><div class="score-meta-note"><span class="score-meta-pill" id="scoreMetaIndustry">Industry: --</span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaShapeText">Clarity profile: --</span> <span class="insight-help" id="profileShapeInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="profileShapeTooltip"><strong>Clarity profile</strong><br>Concentrated means one dimension contributes the largest share of the combined distance from the top of the clarity scale. Distributed means those differences are spread across dimensions. These comparisons alone do not establish a defect. Self-contradictory means the submitted answers contain incompatible structural signals.</span></span></span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaTrajectoryText">Reported change pressure: --</span> <span class="insight-help" id="trajectoryInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="trajectoryTooltip"><strong>Reported change pressure</strong><br>This is a participant response from the current run. It does not predict drift or measure improvement or decline over time.</span></span></span></div></div>
     </div></section>
 
-    <section class="primary-waterfall"><div class="viz-card"><h4>Structural clarity by dimension</h4><div class="bar-stack" id="clarityDimensionBars"><p class="viz-note" id="clarityDimensionNote">Clarity dimension breakdown will appear here after scoring.</p></div></div><div class="viz-card"><h4>Modeled capacity context</h4><div id="effortFlowSankey"></div><p class="viz-note">Scenario comparison of stated annual participant capacity, modeled administrative hours, and the modeled reduction estimate. Directional, not audited.</p></div></section>
+    <section class="primary-waterfall"><div class="viz-card"><h4>Structural clarity by dimension</h4><div class="bar-stack" id="clarityDimensionBars"><p class="viz-note" id="clarityDimensionNote">Clarity dimension breakdown will appear here after scoring.</p></div></div><div class="viz-card"><h4>Time and cost scenario</h4><div id="effortFlowSankey"></div></div></section>
 
     <section class="diagnosis-grid">
       <article class="diagnosis-card"><p class="summary-label">Legibility condition</p><p class="summary-value" id="cycleConditionValue">--</p><p class="summary-sub tight" id="cycleConditionSub">Overall structural clarity read</p></article>
@@ -946,7 +946,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
     </div>
   </footer>
   <script src="participant-evidence-safety.js?v=20260905-report-quarantine"></script>
-  <script src="monderman-viz.js"></script>
+  <script src="monderman-viz.js?v=20260910-inline-scenario1"></script>
   <script src="monderman-report.js"></script>
   <script src="assignment-mode.js"></script>
   <script src="assignment-draft.js"></script>
@@ -4305,77 +4305,11 @@ plugins: [burdenCenterPlugin]
 }
 
 function renderEffortFlow(result) {
-  try {
-    const mountEl = document.getElementById("effortFlowSankey");
-    if (!mountEl || !window.MViz || typeof window.MViz.effortFlow !== "function") return;
-    mountEl.textContent = "";
-    const ex = (result && result.exposure) || {};
-    const burdenCost = Number(ex.annual_cost) || 0;
-    const burdenHours = Number(ex.annual_hours) || 0;
-    const dragPct = Number(ex.capacity_drag_percent) || 0;
-    const capacityCost = Number(ex.total_capacity_cost);
-    const hasCapacityCost = Number.isFinite(capacityCost) && capacityCost > 0;
-    // A rounded 0% share must not erase a nonzero modeled amount when its
-    // authoritative capacity denominator is present. No new value is scored.
-    if (burdenCost <= 0 || (!hasCapacityCost && dragPct <= 0)) {
-      mountEl.textContent = "Not enough modeled time and cost data to show this comparison.";
-      return;
-    }
-
-    // Totals come from the published capacity fields. They used to be
-    // back-calculated from the drag percentage, so the capacity total was
-    // implied rather than measured and moved whenever drag changed meaning.
-    const totalCost = hasCapacityCost
-      ? capacityCost
-      : burdenCost / (dragPct / 100);
-    const totalHours = Number(ex.total_capacity_hours) > 0
-      ? Number(ex.total_capacity_hours)
-      : (burdenHours > 0 ? burdenHours / (dragPct / 100) : null);
-    // Recoverable is a published field on every instrument now. The
-    // reclaim_potential lookup remains only so runs stored before this field
-    // existed still render.
-    const reclaimCost = Number(ex.recoverable_cost) > 0
-      ? Number(ex.recoverable_cost)
-      : (Number(result && result.reclaim_potential && result.reclaim_potential.amount) || 0);
-    const structuralCost = Math.max(0, burdenCost - reclaimCost);
-    const productiveCost = Math.max(0, totalCost - burdenCost);
-    const productiveHours = totalHours != null ? Math.max(0, totalHours - burdenHours) : null;
-
-    // recoverable burden, apportioned by canonical composition (fallback: burden_breakdown)
-    let dims = [];
-    const segs = (result && result.canonical_descriptor && result.canonical_descriptor.composition && result.canonical_descriptor.composition.segments)
-      || (result && result.canonical_composition && result.canonical_composition.segments)
-      || [];
-    if (segs.length) {
-      dims = segs.map(function (s) { return { label: s.label || s.key || "", cost: reclaimCost * ((Number(s.pct) || 0) / 100) }; })
-                 .filter(function (d) { return d.cost > 0; });
-    }
-    if (!dims.length && result && result.burden_breakdown) {
-      const bb = result.burden_breakdown;
-      const totalRaw = Object.keys(bb).reduce(function (s, k) { return s + (Number(bb[k]) || 0); }, 0) || 1;
-      dims = Object.keys(bb).map(function (k) {
-        return { label: k.replace(/_/g, " ").replace(/\b\w/g, function (c) { return c.toUpperCase(); }), cost: reclaimCost * ((Number(bb[k]) || 0) / totalRaw) };
-      }).filter(function (d) { return d.cost > 0; });
-    }
-
-    window.MViz.effortFlow(mountEl, {
-      totalCost: totalCost, totalHours: totalHours,
-      productiveCost: productiveCost, productiveHours: productiveHours,
-      structuralCost: structuralCost, reclaimCost: reclaimCost,
-      dims: dims,
-      scenarioLabels: true,
-      note: "Published directional scenario. Dimension dollars distribute the modeled reduction amount by distance from the top of the clarity scale; not observed or audited."
-    });
-
-    // The Sankey supersedes the segmented bar: hide the now-redundant bar, legend, and note.
-    const bar = document.getElementById("capacityWaterfall");
-    const legend = mountEl.parentElement ? mountEl.parentElement.querySelector(".capacity-legend") : null;
-    const note = document.getElementById("capacityWaterfallNote");
-    if (bar) bar.style.display = "none";
-    if (legend) legend.style.display = "none";
-    if (note) note.style.display = "none";
-  } catch (e) {
-    console.warn("effort-flow render skipped:", e && e.message);
+  const mountEl = document.getElementById("effortFlowSankey");
+  if (!mountEl) return;
+  mountEl.textContent = "Time and cost details are unavailable in this view. Open the saved report in Workspace.";
+  if (window.MViz && typeof MViz.timeCostScenario === "function") {
+    MViz.timeCostScenario(mountEl, result && result.exposure);
   }
 }
 

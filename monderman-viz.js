@@ -21,6 +21,7 @@
  *   MViz.shareBar(el, { segments:[{label,pct}] })
  *   MViz.priorityPath(el, { steps:[{label,severity,priority?}], suppliedPriorities? })
  *   MViz.effortFlow(el, { totalCost, structuralCost, reclaimCost, dims, note })
+ *   MViz.timeCostScenario(el, exposure) — published whole-model fields only
  */
 (function (global) {
   "use strict";
@@ -220,6 +221,9 @@
     const W = 640, colW = W / steps.length, H = 118;
     const svg = mount(el, W, H, suppliedPriorities ? "Suggested review order" : "Intervention order");
     if (!svg) return;
+    if (suppliedPriorities) svg.setAttribute("aria-label", "Suggested review order. " + steps.map((s, i) =>
+      (i + 1) + ". " + (Object.prototype.hasOwnProperty.call(allowedPriorities, s.priority) ? s.priority : "Priority") + ": " + String(s.label)
+    ).join(". "));
 
     steps.forEach((s, i) => {
       const cx = i * colW;
@@ -242,6 +246,9 @@
         if ((line1 + " " + w).trim().length <= 20 && !line2) line1 = (line1 + " " + w).trim();
         else line2 = (line2 + " " + w).trim();
       });
+      // Long supplied labels remain complete in the accessible compact rows;
+      // keep the desktop SVG inside its column without interpreting the text.
+      if (suppliedPriorities && line2.length > 22) line2 = line2.slice(0, 21).trimEnd() + "…";
       txt(svg, cx + 34, 34, line1, { fill: T.ink, size: "13.5px", weight: i === 0 ? 700 : 500 });
       if (line2) txt(svg, cx + 34, 52, line2, { fill: T.ink, size: "13.5px", weight: i === 0 ? 700 : 500 });
       /* severity chip */
@@ -424,6 +431,71 @@
     ], "Modeled annual capacity scenario, not observed savings");
   }
 
+  // A dimension's score/share is not a time or dollar allocation. Inline
+  // reports therefore show only the scorer's published overall quantities,
+  // never a productive remainder, inferred denominator, or dimension fan-out.
+  function timeCostScenario(el, exposure) {
+    const host = typeof el === "string" ? document.getElementById(el) : el;
+    if (!host) return;
+    host.textContent = "";
+    const e = exposure && typeof exposure === "object" ? exposure : {};
+    const measured = key => typeof e[key] === "number" && Number.isFinite(e[key]) && e[key] >= 0;
+    const exact = value => value > 0 && value < 0.01 ? "<0.01" : value.toLocaleString("en-US", { maximumFractionDigits: 2 });
+    const currency = value => value > 0 && value < 0.01 ? "<$0.01" : "$" + exact(value);
+    const status = typeof e.sizing_status === "string" ? e.sizing_status : "";
+    const reason = typeof e.unpriced_reason === "string" ? e.unpriced_reason : "";
+    const statusNotices = {
+      withheld: "Time, cost and recovery estimates were withheld for this run.",
+      not_estimated: "Time, cost and recovery estimates were not calculated for this run.",
+      input_saturation: "The model flagged the capacity limit. Time, cost and recovery estimates are withheld.",
+      missing_hours_inputs: "The required time inputs are missing or unusable. Time, cost and recovery estimates are withheld.",
+      insufficient_hours_inputs: "The time inputs do not support an estimate. Time, cost and recovery estimates are withheld."
+    };
+    const hasStatusNotice = Object.prototype.hasOwnProperty.call(statusNotices, status);
+    const knownStatus = !status || hasStatusNotice || ["estimated", "partial", "hours_only", "hours_only_missing_labor_rate"].includes(status);
+    const blockedReason = ["missing_sizing_inputs", "missing_hours_per_run", "missing_annual_cycles", "input_saturation", "attributed_hours_exceed_available_capacity"].includes(reason);
+    const hoursAllowed = knownStatus && !hasStatusNotice && !blockedReason && e.hours_estimated !== false && !["withheld", "unavailable"].includes(e.status);
+    const costAllowed = hoursAllowed && e.cost_estimated !== false && e.priceable !== false
+      && !["hours_only", "hours_only_missing_labor_rate"].includes(status) && !["missing_hourly_cost", "missing_hourly_rate"].includes(reason);
+    const availability = hasStatusNotice ? statusNotices[status] : !hoursAllowed
+      ? "Time, cost and recovery estimates were not published for this run."
+      : !costAllowed ? "Labor-cost and recovery estimates were not published for this run." : "";
+    const fields = [
+      ["annual_hours", "Modeled annual time", value => exact(value) + " hours", hoursAllowed],
+      ["annual_cost", "Modeled annual labor cost", currency, costAllowed],
+      ["recoverable_cost", "Modeled recovery scenario", currency, costAllowed],
+      ["total_capacity_hours", "Assumed annual participant capacity", value => exact(value) + " hours", true],
+      ["capacity_drag_percent", "Modeled share of assumed capacity", value => exact(value) + "%", hoursAllowed]
+    ];
+    const rows = fields.filter(([key, , , allowed]) => allowed && measured(key));
+    if (!rows.length) {
+      host.textContent = availability || "Not enough published time and cost data to show this scenario.";
+      return;
+    }
+    // Keep styles with the rendered DOM so the ordinary cloned HTML export
+    // retains the same readable layout. Values themselves are static text.
+    const style = document.createElement("style");
+    style.textContent = ".mvg-scenario{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 24px;margin:0}.mvg-scenario>div{min-width:0;padding:0 0 14px;border-bottom:1px solid rgba(24,25,28,.1);break-inside:avoid}.mvg-scenario dt{font-size:14px;line-height:1.5;color:#3A4754;overflow-wrap:anywhere}.mvg-scenario dd{font-size:20px;line-height:1.4;font-weight:600;color:#18191C;margin:6px 0 0;overflow-wrap:anywhere}.mvg-scenario-note{font-size:14px;line-height:1.6;margin:16px 0 0;color:#3A4754;overflow-wrap:anywhere}@media(max-width:600px){.mvg-scenario{grid-template-columns:minmax(0,1fr)}}";
+    host.appendChild(style);
+    const list = document.createElement("dl");
+    list.className = "mvg-scenario";
+    list.setAttribute("aria-label", "Published time and cost scenario");
+    rows.forEach(([key,label,format]) => {
+      const row = document.createElement("div"), name = document.createElement("dt"), value = document.createElement("dd");
+      name.textContent = label; value.textContent = format(e[key]);
+      row.appendChild(name); row.appendChild(value); list.appendChild(row);
+    });
+    host.appendChild(list);
+    if (availability) {
+      const notice = document.createElement("p");
+      notice.className = "mvg-scenario-note"; notice.textContent = availability; host.appendChild(notice);
+    }
+    const note = document.createElement("p");
+    note.className = "mvg-scenario-note";
+    note.textContent = "These estimates use the supplied workload and labor-cost assumptions. They are not measured time or realized savings. Dimension scores do not allocate hours or dollars.";
+    host.appendChild(note);
+  }
+
   /* ── export ────────────────────────────────────────────────────────── */
   global.MViz = {
     theme: T,
@@ -431,6 +503,7 @@
     shareBar,
     priorityPath,
     effortFlow,
+    timeCostScenario,
     fmt,
     fmtMoney,
     fmtHours
