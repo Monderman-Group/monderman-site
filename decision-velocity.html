@@ -2253,8 +2253,19 @@ stepHeader.innerHTML = '<p class="preflight-step-kicker">Before the questions</p
 if (progressEl) progressEl.textContent = "Setup " + (idx + 1) + " of " + total;
       backBtn.textContent = "\u2190 Back";
       nextBtn.textContent = (idx === total - 1) ? "Begin Diagnostic \u2192" : "Continue \u2192";
-      var inp = fieldEls[idx].querySelector("input, select, textarea");
-      setTimeout(function () { try { if (inp) inp.focus({ preventScroll: true }); } catch (e) {} }, 60);
+      var focusField = fieldEls[idx];
+      // Focus the visible choice, never the aria-hidden value-mirror select.
+      var inp = focusField.querySelector('.opt-choice[aria-checked="true"]')
+        || focusField.querySelector('.opt-choice')
+        || focusField.querySelector('input:not([hidden]):not([aria-hidden="true"]), textarea:not([hidden]):not([aria-hidden="true"]), select:not(.opt-choice-mirror):not([hidden]):not([aria-hidden="true"])');
+      setTimeout(function () {
+        try {
+          if (fieldEls[idx] !== focusField || !inp || !inp.isConnected
+            || inp.closest('[hidden], [inert], [aria-hidden="true"]')
+            || !inp.getClientRects().length || getComputedStyle(inp).visibility !== "visible") return;
+          inp.focus({ preventScroll: true });
+        } catch (e) {}
+      }, 60);
     }
 
     function startRun() {

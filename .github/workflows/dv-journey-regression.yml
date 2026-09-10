@@ -34,6 +34,7 @@ jobs:
         run: bash scripts/render-static-build.sh
       - name: Test dialog and complete journey with synthetic services
         run: |
+          node scripts/diagnostic_intake_focus_smoke.mjs
           node scripts/diagnostic_intake_browser_smoke.mjs
           node scripts/dv_result_dialog_smoke.mjs
           node scripts/dv_journey_browser_smoke.mjs
@@ -59,6 +60,7 @@ jobs:
         with:
           name: dv-local-journey-evidence
           path: |
+            output/diagnostic-intake-focus
             output/diagnostic-intake-browser
             output/dv-result-dialog-smoke
             output/dv-journey-browser
