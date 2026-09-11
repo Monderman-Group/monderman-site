@@ -263,7 +263,21 @@ assert.match(missingHtml, /do not contain source-backed exposure estimates/);
 assert.doesNotMatch(missingHtml, /\$0/);
 
 const allHtml = [depthHtml, dividedHtml, comparisonHtml, coherentHtml, missingHtml].join("\n");
-assert.doesNotMatch(allHtml, /poll[_ -]?grade|population read|compensation hours|compounded exposure|correction horizon|root cause|\[object Object\]|undefined|NaN/i);
+// Check complete HTML, including numeric styles, without interpreting the
+// letters "nan" inside the legitimate provenance class as a missing number.
+const forbiddenOutput = /poll[_ -]?grade|population read|compensation hours|compounded exposure|correction horizon|root cause|\[object Object\]|undefined|\bNaN\b/i;
+assert.doesNotMatch(allHtml, forbiddenOutput);
+assert.doesNotMatch('<section class="mr-sample-provenance">Source provenance</section>', forbiddenOutput);
+for (const defect of [
+  '<p>NaN</p>',
+  '<span style="width:NaN%"></span>',
+  '<p>undefined</p>',
+  '<p>[object Object]</p>',
+  '<p>This establishes the root cause.</p>',
+]) {
+  assert.throws(() => assert.doesNotMatch(allHtml + defect, forbiddenOutput),
+    assert.AssertionError, `output guard must reject ${defect}`);
+}
 assert.doesNotMatch(allHtml, /Structural corrections must precede behavioral ones|Reversing the order regenerates|Visible operating performance is intact/i);
 
 console.log(JSON.stringify({
