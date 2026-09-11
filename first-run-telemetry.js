@@ -251,17 +251,24 @@
     // keep its own readable foreground without changing any global design rule.
     style.textContent += '#mnd-measurement-panel h2,#mnd-measurement-panel p,#mnd-measurement-panel button,#mnd-measurement-settings button,#mnd-measurement-status{color:#08383E!important}#mnd-measurement-panel a{color:#0A5B63!important}';
     style.textContent += '#mnd-measurement-panel,#mnd-measurement-panel *,#mnd-measurement-settings,#mnd-measurement-settings *{opacity:1!important;animation:none!important;transform:none!important;-webkit-text-fill-color:currentColor!important}';
+    // A separate utility surface follows the opening section, on the same rail.
+    // It must not enlarge the hero or compete with its product actions.
+    style.textContent += '#mnd-measurement-panel{width:calc(min(100%,1320px) - clamp(40px,8vw,112px));margin:24px auto}#mnd-measurement-panel.mnd-measurement-before-main{width:min(1240px,100%)}';
     document.head.append(style);
-    panel = document.createElement("section");
+    panel = document.createElement("aside");
     panel.id = "mnd-measurement-panel";
     panel.setAttribute("aria-labelledby", "mnd-measurement-title");
     panel.setAttribute("tabindex", "-1");
     panel.innerHTML = '<h2 id="mnd-measurement-title">Optional measurement</h2><p>A random visit ID and limited campaign labels help us count steps through the free diagnostic and pilot application. Measurement events exclude diagnostic answers and contact details. If you apply, your application may include the same campaign labels. You can use Monderman without this measurement. <a href="privacy.html#optional-measurement">Privacy details</a></p><div class="mnd-measurement-actions"><button type="button" id="mnd-measurement-allow">Allow measurement</button><button type="button" id="mnd-measurement-deny">Continue without measurement</button></div>';
-    var actions = document.querySelector(".hero-actions,.hero .actions");
-    if (actions) actions.insertAdjacentElement("afterend", panel);
+    var opening = document.querySelector(".hero,.ps-hero,.article-hero,.cover");
+    if (opening) opening.insertAdjacentElement("afterend", panel);
     else {
       var main = document.querySelector("main");
-      (main || document.body).prepend(panel);
+      if (main) {
+        panel.classList.add("mnd-measurement-before-main");
+        main.insertAdjacentElement("beforebegin", panel);
+      }
+      else document.body.prepend(panel);
     }
     var settings = document.createElement("section");
     settings.id = "mnd-measurement-settings";

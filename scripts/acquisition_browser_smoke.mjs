@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { chromium, webkit } from 'playwright';
 const root = path.resolve('.render-public');
-const out = path.resolve('output/acquisition-browser');
+const out = path.resolve(process.env.ACQUISITION_OUT || 'output/acquisition-browser');
 fs.mkdirSync(out, { recursive: true });
 const base = 'http://127.0.0.1:4197';
 const mime = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.woff2': 'font/woff2', '.woff': 'font/woff', '.json': 'application/json', '.ico': 'image/x-icon' };
@@ -13,6 +13,9 @@ let checks = 0;
 const equal = (a, b, label) => { assert.deepEqual(a, b, label); checks++; };
 const ok = (a, label) => { assert.ok(a, label); checks++; };
 const results = [];
+const placementResults = [];
+const measurementPages = ['Monderman_Platform_Brief.html','after-a-reorganization.html','after-an-acquisition.html','decision-velocity.html','diagnostics.html','index.html','new-in-the-role.html','pilot.html','roi.html','transformation-behind-schedule.html','why-monderman.html'];
+equal(fs.readdirSync(root).filter(name=>name.endsWith('.html')&&fs.readFileSync(path.join(root,name),'utf8').includes('first-run-telemetry.js')).sort(),measurementPages.slice().sort(),'placement manifest includes every measurement-bearing page');
 async function contrast(page,label) {
   const colors=await page.locator('#mnd-measurement-panel').evaluate(panel=>({background:getComputedStyle(panel).backgroundColor,foreground:[...panel.querySelectorAll('h2,p,a,button')].map(node=>{const style=getComputedStyle(node);let opacity=1,filters=[];for(let current=node;current;current=current.parentElement){const value=getComputedStyle(current);opacity*=Number(value.opacity);filters.push(value.filter);}return {color:style.color,fill:style.webkitTextFillColor,opacity,filters};})}));
   const luminance=value=>{const rgb=value.match(/[\d.]+/g).slice(0,3).map(Number).map(n=>{n/=255;return n<=.04045?n/12.92:((n+.055)/1.055)**2.4});return rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722;};
@@ -221,10 +224,51 @@ for (const [engine, type] of Object.entries({ chromium, webkit })) {
           ok(await current.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${label}/${mode}: no overflow`);
         } finally { await isolated.close(); }
       }
+      const placementContext = await browser.newContext({viewport:{width,height:1000},serviceWorkers:'block'});
+      await placementContext.route('**/*',handleRoute);
+      try {
+        for (const pageName of measurementPages) {
+          const placement = await placementContext.newPage();
+          placement.on('pageerror',error=>errors.push(error.message));
+          await placement.goto(`${base}/${pageName}`,{waitUntil:'load'});
+          await placement.evaluate(()=>document.fonts.ready);
+          if(await placement.locator('#pageLoader').count())await placement.locator('#pageLoader').waitFor({state:'hidden',timeout:15000});
+          for (const scale of [1,2]) {
+            if (scale===2) await placement.addStyleTag({content:'#mnd-measurement-panel{font-size:28px!important}#mnd-measurement-panel h2{font-size:32px!important}'});
+            const panel=placement.locator('#mnd-measurement-panel');
+            await panel.scrollIntoViewIfNeeded();
+            const layout=await panel.evaluate(node=>{
+              const opening=document.querySelector('.hero,.ps-hero,.article-hero,.cover'),main=document.querySelector('main');
+              const rect=element=>{const b=element.getBoundingClientRect();return {left:b.left,right:b.right,top:b.top,bottom:b.bottom,width:b.width,height:b.height}};
+              return {nested:Boolean(node.closest('.hero,.ps-hero,.article-hero,.cover,header,#siteHeader')),tag:node.tagName,position:getComputedStyle(node).position,panel:rect(node),correctSibling:opening?opening.nextElementSibling===node:main?.previousElementSibling===node,opening:opening&&rect(opening),main:main&&rect(main),buttons:[...node.querySelectorAll('button')].map(button=>({...rect(button),background:getComputedStyle(button).backgroundColor})),overflow:document.documentElement.scrollWidth>innerWidth+1};
+            });
+            const caseLabel=`${label}/${pageName}/${scale*100}%`;
+            equal(layout.nested,false,`${caseLabel}: panel never inside hero, cover or header`);
+            equal(layout.tag,'ASIDE',`${caseLabel}: complementary control, not an editorial section`);
+            equal(layout.correctSibling,true,`${caseLabel}: follows complete opening or precedes main`);
+            ok(!['fixed','absolute'].includes(layout.position),`${caseLabel}: normal flow`);
+            ok(!layout.overflow&&layout.panel.left>=0&&layout.panel.right<=width+1,`${caseLabel}: panel and page contained`);
+            const rail=pageName==='decision-velocity.html'?layout.main.left:Math.max(0,(width-1320)/2)+Math.min(56,Math.max(20,width*.04));
+            ok(Math.abs(layout.panel.left-rail)<2,`${caseLabel}: existing content rail`);
+            ok(layout.opening?layout.panel.top>=layout.opening.bottom:layout.panel.bottom<=layout.main.top,`${caseLabel}: no opening/main overlap`);
+            equal(layout.buttons.length,2,`${caseLabel}: two explicit choices`);
+            ok(layout.buttons.every(button=>button.height>=44&&button.left>=layout.panel.left&&button.right<=layout.panel.right&&button.bottom<=layout.panel.bottom),`${caseLabel}: contained touch targets`);
+            equal(layout.buttons[0].background,layout.buttons[1].background,`${caseLabel}: equal choice styling`);
+            ok(Math.abs(layout.buttons[0].width-layout.buttons[1].width)<2,`${caseLabel}: equal widths`);
+            await contrast(placement,caseLabel);
+            placementResults.push({engine,width,page:pageName,scale,status:'pass'});
+            if (['diagnostics.html','pilot.html','index.html','decision-velocity.html'].includes(pageName)) {
+              await panel.screenshot({path:path.join(out,`${engine}-${width}-${pageName}-${scale}-separate-panel.png`)});
+              if(scale===1)await placement.screenshot({path:path.join(out,`${engine}-${width}-${pageName}-separate-context.png`),fullPage:false});
+            }
+          }
+          await placement.close();
+        }
+      } finally {await placementContext.close();}
       equal(unexpectedPosts,[],`${label}: all test scenarios stayed inside fixtures`);
       equal(errors,[],`${label}: all choice scenarios free of unhandled errors`);
     }
   } finally { await browser.close(); }
 }
-fs.writeFileSync(path.join(out, 'results.json'), JSON.stringify({ checks, results, liveRequests: 0 }, null, 2));
+fs.writeFileSync(path.join(out, 'results.json'), JSON.stringify({ checks, results, placementResults, liveRequests: 0 }, null, 2));
 console.log(`ACQUISITION_BROWSER_PASS ${checks} assertions; six Chromium/WebKit viewport cases; zero live requests`);
