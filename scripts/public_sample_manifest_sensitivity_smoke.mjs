@@ -17,7 +17,7 @@ const artifactName='sample-data/production-diagnostic-samples.json';
 const manifestName='sample-data/production-sample-release.json';
 const adapterName='scripts/public_sample_fixture.mjs';
 const sourceNames=[
-  'monderman-report.js','public-sample-model.js','sample-report-production.js',
+  'monderman-report.js','participant-evidence-safety.js','public-sample-model.js','sample-report-production.js',
   'scripts/refresh_public_sample_previews.mjs','scripts/templates/home-workspace-preview.html',
 ];
 const names=[artifactName,manifestName,adapterName,...sourceNames];

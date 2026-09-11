@@ -57,6 +57,9 @@ function browser(storage=new Storage()){
 const b=browser();let release;b.state.deferSession=new Promise(resolve=>release=resolve);
 const pending=b.context.invoke();await b.context.invoke();equal(b.requests.length,0,'double tap ignored while session awaits');release();await pending;
 equal(b.requests.length,1,'actual browser function sends one POST for two taps');
+equal(b.requests[0].body.analysis_mode,'self_run_synthesis','own-run comparison uses the distinct server-enforced mode');
+equal(b.requests[0].body.options.scopePolicy,'portfolio','self-run request cannot select a population scope');
+equal(Object.hasOwn(b.requests[0].body.options,'samplingFrame'),false,'self-run request carries no invented population');
 assert.match(b.requests[0].body.request_id,/^[0-9a-f-]{36}$/);checks++;
 equal(b.requests[0].options.headers['X-Monderman-Organization-Id'],'org-a','selected organization accompanies key');
 equal(b.rendered.length,1,'saved result rendered once');

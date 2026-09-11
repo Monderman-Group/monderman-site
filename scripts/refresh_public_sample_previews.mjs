@@ -9,6 +9,7 @@ const check = process.argv.includes('--check');
 const artifact = JSON.parse(fs.readFileSync(path.join(root, 'sample-data/production-diagnostic-samples.json'), 'utf8'));
 const context = {window:{},console,Intl,Date,URL,Blob,setTimeout,clearTimeout};
 vm.createContext(context);
+vm.runInContext(fs.readFileSync(path.join(root,'participant-evidence-safety.js'),'utf8'), context);
 vm.runInContext(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8'), context);
 vm.runInContext(fs.readFileSync(path.join(root,'public-sample-model.js'),'utf8'), context);
 context.window.MondermanPublicSamples.validate(artifact);

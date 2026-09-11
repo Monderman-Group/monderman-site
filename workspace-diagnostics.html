@@ -724,6 +724,7 @@ body{transition:background-color .25s ease, color .25s ease}
   <script src="workspace-access-gate.js"></script>
   <script src="campaign-access.js"></script>
 <script type="module">
+    import {confirmRunInclusion} from './run-inclusion-review.js?v=20260911-1';
     const workspaceAccess = await window.mondermanWorkspaceAccessReady;
     if (!workspaceAccess?.allowed) await new Promise(function () {});
     const supabase = await window.mondermanGetSupabaseClient();
@@ -831,8 +832,10 @@ body{transition:background-color .25s ease, color .25s ease}
       return `<span class="spill">Not yet reviewed</span>`;
     }
     function actionsFor(r){
-      if(!["admin","owner"].includes(String(state.role||"").toLowerCase())) return "";
+      const role=String(state.role||'').toLowerCase();
+      if(!['admin','analyst'].includes(role)) return '';
       const id = r.id;
+      if(role==='analyst')return r.status==='staged'&&!r.narrative_pending&&!r.claims_quarantined?`<button class="ract primary" data-act="promoted" data-id="${id}">Review & include</button>`:'';
       if(r.narrative_pending||r.claims_quarantined) return r.status==="archived"?`<button class="ract" data-act="staged" data-id="${id}">Restore</button>`:`<button class="ract danger" data-act="archived" data-id="${id}">Archive</button>`;
       if(r.status==="promoted"){
         return `<button class="ract" data-act="staged" data-id="${id}">Remove from analysis</button><button class="ract danger" data-act="archived" data-id="${id}">Archive</button>`;
@@ -875,58 +878,53 @@ body{transition:background-color .25s ease, color .25s ease}
 
     function flash(kind,msg){ $("runMsg").innerHTML = `<div class="msg ${kind}">${esc(msg)}</div>`; if(kind==="ok") setTimeout(()=>{ if($("runMsg")) $("runMsg").innerHTML=""; }, 4000); }
 
-    const REVIEW_ELIGIBLE = new Set(["included", "included_with_caution"]);
+    const inclusionInFlight = new Set();
     async function reviewRunForInclusion(run){
       const { data } = await supabase.auth.getSession();
       const token = data?.session?.access_token;
       if(!token) throw new Error("Your Workspace session has expired. Sign in again before reviewing this run.");
       const response = await fetch(`${API_BASE}/api/normalization/normalize-run/${encodeURIComponent(run.id)}`, {
         method:"POST",
-        headers:{ "Content-Type":"application/json", Authorization:"Bearer "+token },
+        headers:{ "Content-Type":"application/json", Authorization:"Bearer "+token, "X-Monderman-Organization-Id":state.orgId },
         body:"{}"
       });
       const payload = await response.json().catch(()=>({}));
       if(!response.ok || payload.ok===false) throw new Error(payload.error || `Review failed (HTTP ${response.status})`);
-      const reviewed = payload.run || {};
-      const quality = reviewed.normalization_status || payload.normalization?.normalization_status || null;
-      const aggregateEligible = reviewed.included_in_aggregates ?? payload.normalization?.included_in_aggregates;
-      run.normalization_status = quality;
-      run.included_in_aggregates = aggregateEligible === true;
-      if(reviewed.normalization_score!==undefined) run.normalization_score=reviewed.normalization_score;
-      return REVIEW_ELIGIBLE.has(quality) && aggregateEligible === true;
+      return confirmRunInclusion({run,preview:payload});
     }
 
     async function setStatus(id, status){
       const run = state.runs.find(r=>r.id===id); if(!run) return;
+      if(inclusionInFlight.has(id))return;inclusionInFlight.add(id);
       const prev = run.status;
+      const organizationId=state.orgId;
       try{
+        let review=null;
         if(status==="promoted"){
-          const eligible = await reviewRunForInclusion(run);
-          if(!eligible){
-            render();
-            flash("bad", "Review complete: this run is not eligible for Analysis or Synthesis. It remains Staged.");
-            return;
-          }
+          review = await reviewRunForInclusion(run);
+          if(!review)return;
         }
+        if(state.orgId!==organizationId)throw new Error('The selected organization changed. Review the response again.');
         const { data } = await supabase.auth.getSession();
         const token = data?.session?.access_token;
         if(!token) throw new Error("Your Workspace session has expired. Sign in again before updating this run.");
         const response = await fetch(`${API_BASE}/api/runs/${encodeURIComponent(id)}/status`, {
           method:"PATCH",
           headers:{ "Content-Type":"application/json", Authorization:"Bearer "+token, "X-Monderman-Organization-Id":state.orgId },
-          body:JSON.stringify({ status })
+          body:JSON.stringify({ status, ...(review||{}) })
         });
         const payload = await response.json().catch(()=>({}));
         if(!response.ok || payload.ok===false) throw new Error(payload.error || `Update failed (HTTP ${response.status})`);
         run.status = status;
+        if(status==='promoted'&&payload.run){run.normalization_status=payload.run.normalization_status;run.included_in_aggregates=payload.run.included_in_aggregates===true;}
         render();
-        const note = status==="promoted" ? "Reviewed and Included: this run is now eligible for Analysis and Synthesis."
+        const note = status==="promoted" ? "Review recorded and response included. Campaign readiness is evaluated separately in Analysis."
           : (prev==="promoted" && status==="staged") ? "Removed from analysis and returned to Staged."
           : status==="archived" ? "Archived." : "Restored to staged.";
         flash("ok", note);
       }catch(e){
         flash("bad", "Couldn’t update that run: " + (e.message||"please try again.") );
-      }
+      }finally{inclusionInFlight.delete(id);}
     }
 
     function reserveWorkspaceReportWindow(){

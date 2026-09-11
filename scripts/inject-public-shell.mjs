@@ -18,7 +18,7 @@ const motifPattern = /<div\b(?=[^>]*\bclass=["'][^"']*\bmf-motif\b[^"']*["'])[^>
 const canonicalCssPattern = /canonical-site-shell\.css\?v=[^"']+/g;
 const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
 // Refresh both the reviewed report renderer and the newer shared brand release.
-const shellRelease = "20260910-report22-brand3";
+const shellRelease = "20260911-evidence-report1";
 const assistantRelease = "20260910-bounded-chat1";
 const acquisitionRelease = "20260910-measurement-choice1";
 const productPages = new Set([
@@ -37,6 +37,8 @@ const refreshedAssets = [
   "homepage-hero-system.css", "homepage-workspace-demo.css", "homepage-workspace-demo.js",
   "workspace-product-design.css", "report-screen-experience.css", "report-screen-experience.js",
   "dv-result-dialog.css", "dv-result-dialog.js",
+  "diagnostic-intake.css", "diagnostic-note-permission.js", "participant-evidence-safety.js",
+  "campaign-analysis.css", "campaign-analysis.js", "run-inclusion-review.js",
   "visual-polish.css", "monderman-shell.css", "publication-hero.css", "first-run-moments.css",
   "pilot-waitlist.css", "monderman-depth-lure-tile.css",
   "brand-surfaces.css",

@@ -34,6 +34,9 @@ for(const created_at of [null,'invalid','2999-01-01T00:00:00Z','2020-01-01T00:00
   assert.equal(context.computeTrust([{...eligible,created_at}]).recent,0);checks++;
 }
 assert.equal(context.computeTrust([]).inAggN,0);checks++;
-assert.match(html,/Screened \$\{t\.screened\} of \$\{t\.total\} runs/);
+assert(html.includes('${t.screened} of ${t.total} runs have a recorded quality status.'),'stored quality counts must not claim a fresh screening');
+assert(html.includes('Unusual answers are not automatically excluded.'),'quality boundary missing');
+assert(html.includes("analysis_mode:'self_run_synthesis'"),'self-run request must use bounded mode');
+assert(html.includes('run.self_run_owned_by_caller===true&&selected.has'),'self-run selection requires server-owned provenance');
 assert.doesNotMatch(html,/const inAgg=st!=="excluded_from_aggregates"/);
 console.log(`PASS workspace eligibility: ${checks} cases; actual inline summary/picker predicate; synthetic records only, no network or writes.`);

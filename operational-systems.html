@@ -475,6 +475,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
 <link rel="stylesheet" href="mobile-site-polish.css?v=20260825-2">
 <link rel="stylesheet" href="diagnostic-intake.css?v=20260908-intake1">
 <script src="diagnostic-intake.js?v=20260908-intake1" defer></script>
+<script src="diagnostic-note-permission.js?v=20260911" defer></script>
 </head>
 <body class="diagnostic-instrument">
   <div class="loading-screen" id="pageLoader" aria-live="polite"><div class="loading-box"><div class="ws-loader" aria-hidden="true"><i></i><i></i></div><p class="loading-title">Loading diagnostic environment</p><p class="loading-copy">Preparing Monderman's operational systems environment.</p></div></div>
@@ -2556,6 +2557,7 @@ return wrap;
 }
 
 wrap.innerHTML = `<div class="field"><label for="field_${item.id}">Your answer</label><textarea id="field_${item.id}" placeholder="Enter your answer">${escapeHtml(String(cached ?? ""))}</textarea></div>`;
+if(item.isExperienceLayer)window.MondermanNotePermission?.mount(wrap,state.runId);
 return wrap;
 }
 
@@ -3478,6 +3480,7 @@ peopleInvolved: state.preflight.peopleInvolved,
 hourlyCost: state.preflight.hourlyCost,
 annualVolume: state.preflight.annualVolume,
 meetingHours: state.preflight.meetingHours,
+notes_processing_permission: window.MondermanNotePermission?.value(state.runId),
 rawExperience: {
   self: state.experiential.self || "",
   observedOperational: state.experiential.observedOperational || "",
@@ -3893,7 +3896,12 @@ return asArray(result?.priority_actions).length
 }
 
 
+function individualNextStepsOnly(result) {
+return result?.output_policy?.version === "individual-report-action-policy-20260911.1" && result.output_policy.individual_next_steps_only === true;
+}
+
 function buildRemedyPaths(result, payload) {
+if (individualNextStepsOnly(result)) return [];
 // Passthrough: backend narrativeBuilders.js produces remedy paths and
 // attaches them as result.interpretive_prose.remedy_paths. The branching
 // logic keyed off qualitative override type, sector workflow knowledge,
@@ -5486,7 +5494,7 @@ return `${base}-full-report.html`;
 }
 
 function exportExecutiveReport(result, payload) {
-if (result?.ai_report?.status && window.MondermanReport) return window.MondermanReport.downloadPdf(window.MondermanReport.fromRun(result));
+if ((result?.ai_report?.status || individualNextStepsOnly(result)) && window.MondermanReport) return window.MondermanReport.downloadPdf(window.MondermanReport.fromRun(result));
 const html = buildExecutiveReportHtml(result, payload);
 const blob = new Blob([html], { type: "text/html;charset=utf-8" });
 const url = URL.createObjectURL(blob);
@@ -6090,6 +6098,7 @@ renderUnavailableTable("impactBody", 3, "N/A, not enough signal is available to 
 const remedies = buildRemedyPaths(result, payload);
 const remedyWrap = $("remedyTreeWrap");
 const remedyGrid = $("remedyGrid");
+if (remedyWrap) remedyWrap.hidden = individualNextStepsOnly(result);
 if (remedyWrap && remedyGrid) {
 remedyGrid.innerHTML = remedies.map((path) => {
   const benefit = String(path.benefit || "").replace(/\*{2,}/g, "*");
@@ -6180,7 +6189,7 @@ document.querySelector("#laneStage .step-chip")?.scrollIntoView({ behavior: "smo
 });
 
 function exportFullReportHTML(result, payload, title = "Monderman Operational Systems Report") {
-if (result?.ai_report?.status && window.MondermanReport) return window.MondermanReport.downloadHtml(window.MondermanReport.fromRun(result));
+if ((result?.ai_report?.status || individualNextStepsOnly(result)) && window.MondermanReport) return window.MondermanReport.downloadHtml(window.MondermanReport.fromRun(result));
 if (!result || !payload) return;
 
 try {

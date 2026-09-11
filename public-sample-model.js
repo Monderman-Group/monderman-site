@@ -1,6 +1,6 @@
 (function () {
   "use strict";
-  const CONTRACT = "monderman-public-product-samples/v2";
+  const CONTRACT = "monderman-public-product-samples/v3";
   const PRODUCTS = {
     os: "operational_systems", dv: "decision_velocity", sc: "structural_clarity",
     ip: "institutional_performance", depth: "depth_synthesis", synthesis: "cross_lens_synthesis"
@@ -12,7 +12,7 @@
     if (object(artifact).contract !== CONTRACT || artifact.synthetic !== true) throw new Error("Unexpected public sample contract");
     if (!sha256(artifact.artifact_sha256)) throw new Error("Sample artifact reference is missing");
     const projection = object(artifact.publication_projection);
-    if (projection.version !== 'monderman-public-sample-projection-20260911.2' || !sha256(projection.source_sha256) || !/^[a-f0-9]{40}$/.test(projection.projection_commit || '')) throw new Error("Sample publication version is missing");
+    if (projection.version !== 'monderman-public-sample-projection-20260911.3' || !sha256(projection.source_sha256) || !/^[a-f0-9]{40}$/.test(projection.projection_commit || '')) throw new Error("Sample publication version is missing");
     const outputs = object(artifact.outputs);
     for (const [tab, key] of Object.entries(PRODUCTS)) {
       const entry = object(outputs[key]), source = object(entry.source), p = object(entry.provenance);
@@ -34,7 +34,7 @@
     const p = entry.provenance;
     const result = entry.kind === "synthesis" ? Report.fromSynthesis(entry.source) : Report.fromRun(entry.source);
     const created = new Date(p.generated_at).toLocaleDateString("en-US", {year:"numeric", month:"long", day:"numeric", timeZone:"UTC"});
-    result.meta = [{label:"Sample created", value:created}, ...result.meta.filter(row => row.label !== "Generated")];
+    result.meta = [{label:"Sample created", value:created}, ...result.meta.filter(row => !['Generated','Recorded'].includes(row.label))];
     result.sampleProvenance = {
       synthetic:true, generated_at:p.generated_at, rendered_at:new Date().toISOString(), engine_commit:artifact.engine_commit,
       artifact_sha256:artifact.artifact_sha256, input_digest:p.input_sha256, result_digest:p.result_sha256,

@@ -21,7 +21,7 @@ const plain = value => value && typeof value === 'object' && !Array.isArray(valu
 export const publicResult = entry => entry.kind === 'diagnostic' && entry.source?.result?.tool_type ? entry.source.result : entry.source;
 const DEFAULT_ROOT = fileURLToPath(new URL('../',import.meta.url));
 const REQUIRED_SOURCE_FILES = [
-  'monderman-report.js','public-sample-model.js','sample-report-production.js',
+  'monderman-report.js','participant-evidence-safety.js','public-sample-model.js','sample-report-production.js',
   'scripts/refresh_public_sample_previews.mjs','scripts/templates/home-workspace-preview.html',
 ];
 
@@ -41,7 +41,7 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
   assert.ok(validTime(manifest.reviewed_at),'actual fidelity-review time is missing');
   assert.ok(validHash(manifest.artifact_file_sha256));
   assert.equal(sha(artifactBytes),manifest.artifact_file_sha256,'public artifact bytes differ from the reviewed release');
-  assert.equal(artifact.contract,'monderman-public-product-samples/v2');
+  assert.equal(artifact.contract,'monderman-public-product-samples/v3');
   assert.equal(artifact.synthetic,true,'the entire artifact must be explicitly synthetic');
   assert.ok(!/dry|pending|not_for_publication|candidate/i.test(artifact.status||''),'unapproved intermediate artifact');
   assert.ok(validHash(artifact.artifact_sha256));
@@ -53,7 +53,7 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
   assert.equal(artifact.engine_commit,manifest.engine_commit);
   assert.ok(validTime(artifact.generated_at));
   assert.equal(artifact.generated_at,manifest.generated_at);
-  assert.equal(artifact.publication_projection?.version,'monderman-public-sample-projection-20260911.2');
+  assert.equal(artifact.publication_projection?.version,'monderman-public-sample-projection-20260911.3');
   assert.ok(validHash(artifact.publication_projection.source_sha256));
   assert.match(artifact.publication_projection.projection_commit,/^[a-f0-9]{40}$/);
   assert.deepEqual(artifact.publication_projection,manifest.publication_projection,'publication projection differs from reviewed export');
@@ -126,10 +126,11 @@ export function createPublicSampleModels(options={}) {
   const root=path.resolve(options.root||DEFAULT_ROOT);
   const context={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};
   vm.createContext(context);
+  vm.runInContext(fs.readFileSync(path.join(root,'participant-evidence-safety.js'),'utf8'),context,{filename:'participant-evidence-safety.js'});
   vm.runInContext(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8'),context,{filename:'monderman-report.js'});
   vm.runInContext(fs.readFileSync(path.join(root,'public-sample-model.js'),'utf8'),context,{filename:'public-sample-model.js'});
   const Report=context.window.MondermanReport,Public=context.window.MondermanPublicSamples;
-  assert.equal(Report.rendererVersion,'diagnostic-renderer-ai-screen-20260911.25');
+  assert.equal(Report.rendererVersion,'diagnostic-renderer-evidence-reading-20260911.26');
   assert.equal(Report.rendererVersion,fixture.manifest.renderer_version);
   Public.validate(fixture.artifact);
   const models={};

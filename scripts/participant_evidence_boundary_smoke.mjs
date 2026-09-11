@@ -83,6 +83,14 @@ const legitimateLayer = safety.sanitizeLayer({
 assert.equal(legitimateLayer.entries.length, 1);
 assert.equal(legitimateLayer.entries[0].text, legitimate);
 assert.equal(Object.prototype.hasOwnProperty.call(legitimateLayer.entries[0], "raw"), false);
+for(const layer of [{entries:[{key:'self',label:'Own observation',text:ordinary}]},{self:{key:'self',label:'Own observation',text:ordinary},observedManagerial:{key:'observedManagerial',label:'Observed management practice',text:legitimate}}]){
+  const sample=report.fromRun({tool_type:'decision_velocity',score:72,experientialLayer:layer});
+  const html=report.buildReportBody(sample);
+  assert.match(html,/Approvals often require repeated follow-up/);
+  assert.doesNotMatch(html,/No written participant notes are included/);
+}
+const hostileLayer=report.fromRun({tool_type:'decision_velocity',score:72,experientialLayer:{self:{text:attacks[0]}}});
+assert.equal(hostileLayer.participantEvidence.length,0);
 
 const pages = [
   "structural-clarity.html",
