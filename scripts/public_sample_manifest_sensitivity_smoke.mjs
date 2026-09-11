@@ -168,5 +168,3 @@ try {
 }
 // Deliberately preserve the validated baseline, mutant copies and receipt in the
 // exact mkdtemp directory. No cleanup can erase original checkout or evidence.
-
-
