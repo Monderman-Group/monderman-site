@@ -14,6 +14,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR = ROOT / "scripts" / "validate_production_cosmetic_certification.py"
+rejected_mutations = 0
 
 
 def copy_fixture(target: Path) -> None:
@@ -53,6 +54,7 @@ def alter_binary(path: Path) -> None:
 
 
 def expect_rejection(fixture: Path, label: str, expected: str, mutate, restore: list[str]) -> None:
+    global rejected_mutations
     mutate()
     result = validate(fixture)
     output = result.stdout + result.stderr
@@ -66,6 +68,7 @@ def expect_rejection(fixture: Path, label: str, expected: str, mutate, restore: 
         target = fixture / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target)
+    rejected_mutations += 1
     print(f"GUARD_SENSITIVITY_REJECTED {label}")
 
 
@@ -132,6 +135,23 @@ with tempfile.TemporaryDirectory(prefix="monderman-cert-sensitivity-") as temp:
         ),
         ["about.html"],
     )
+    published_privacy_archive = "privacy-2026-09-10-optional-measurement-v1.html"
+    for icon in ["favicon.svg", "favicon.ico", "favicon-192.png", "apple-touch-icon.png"]:
+        expect_rejection(
+            fixture,
+            f"published Privacy archive missing {icon}",
+            f"{published_privacy_archive}: real favicon link is missing or duplicated: {icon}?v=20260830-cert1",
+            lambda icon=icon: rewrite(
+                fixture / published_privacy_archive,
+                lambda value: re.sub(
+                    r'<link\b[^>]*href="' + re.escape(icon) + r'\?v=20260830-cert1"[^>]*>',
+                    "",
+                    value,
+                    count=1,
+                ),
+            ),
+            [published_privacy_archive],
+        )
     expect_rejection(
         fixture,
         "commented print contract",
@@ -248,4 +268,4 @@ with tempfile.TemporaryDirectory(prefix="monderman-cert-sensitivity-") as temp:
     if final.returncode:
         raise AssertionError(f"fixture did not return to certified baseline\n{final.stdout}{final.stderr}")
 
-print("CERTIFICATION_GUARD_SENSITIVITY_PASS (12 deliberate regressions rejected)")
+print(f"CERTIFICATION_GUARD_SENSITIVITY_PASS ({rejected_mutations} deliberate regressions rejected)")
