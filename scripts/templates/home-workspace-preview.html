@@ -1,0 +1,53 @@
+<aside class="home-workspace-preview" aria-label="Illustrative Workspace tour with a generated Decision Velocity result" data-sample-id="decision_velocity" data-artifact-sha256="{{artifactSha}}">
+  <div class="home-preview-label"><span>Explore Workspace</span><span>Fictional inputs</span></div>
+  <div class="hwd-app" data-workspace-demo>
+    <div class="hwd-topbar"><span class="hwd-brand">Monderman<span>.</span></span><span class="hwd-workspace-name">Sample workspace</span><span class="hwd-sample-chip">Preview</span></div>
+    <div class="hwd-tabs" role="tablist" aria-label="Explore the measurement workflow">
+      <button id="hwd-tab-measure" type="button" role="tab" aria-controls="hwd-panel-measure" aria-selected="false" tabindex="-1"><span>01</span>Measure</button>
+      <button id="hwd-tab-analysis" type="button" role="tab" aria-controls="hwd-panel-analysis" aria-selected="true" tabindex="0"><span>02</span>Inspect</button>
+      <button id="hwd-tab-actions" type="button" role="tab" aria-controls="hwd-panel-actions" aria-selected="false" tabindex="-1"><span>03</span>Act</button>
+      <button id="hwd-tab-return" type="button" role="tab" aria-controls="hwd-panel-return" aria-selected="false" tabindex="-1"><span>04</span>Return</button>
+    </div>
+    <div class="hwd-panels">
+      <section class="hwd-panel" id="hwd-panel-measure" role="tabpanel" aria-labelledby="hwd-tab-measure" tabindex="0" hidden>
+        <div class="hwd-page-heading"><div><p class="hwd-eyebrow">Measure</p><h2>Start with one question.</h2></div><span class="hwd-badge">4 diagnostics</span></div>
+        <p class="hwd-description">Choose a diagnostic for a team, unit, or decision path.</p>
+        <div class="hwd-diagnostic-grid">
+          <div class="hwd-diagnostic"><span class="hwd-instrument-number">01</span><h3>Structural Clarity</h3><p>Who owns the work?</p></div>
+          <div class="hwd-diagnostic is-chosen"><span class="hwd-instrument-number">02</span><h3>Decision Velocity</h3><p>Where do decisions stall?</p><span class="hwd-chosen-label">Shown in this preview</span></div>
+          <div class="hwd-diagnostic"><span class="hwd-instrument-number">03</span><h3>Operational Systems</h3><p>Where does effort accumulate?</p></div>
+          <div class="hwd-diagnostic"><span class="hwd-instrument-number">04</span><h3>Institutional Performance</h3><p>What sits beneath performance?</p></div>
+        </div>
+        <div class="hwd-next"><span>Define the scope. Record structured answers.</span><button type="button" data-demo-next="analysis">Inspect sample result <span aria-hidden="true">&rarr;</span></button></div>
+      </section>
+      <section class="hwd-panel" id="hwd-panel-analysis" role="tabpanel" aria-labelledby="hwd-tab-analysis" tabindex="0">
+        <div class="hwd-page-heading"><div><p class="hwd-eyebrow">Analysis &middot; Decision Velocity</p><h2>Find the place to look first.</h2></div><span class="hwd-badge">Sample result</span></div>
+        <p class="hwd-description">{{scope}}</p>
+        <!-- Generated from the approved current public artifact. Do not edit the figures or interpretation here. -->
+        <div class="hwd-result-summary"><div class="hwd-score"><strong data-demo-score="decision_velocity">{{score}}</strong><span>Diagnostic score<span class="hwd-score-band">{{band}}</span></span></div><div class="hwd-reading"><span class="hwd-eyebrow">Modeled annual recovery opportunity</span><strong data-demo-recovery>{{recovery}}</strong><p>Before costs; not guaranteed savings.</p></div></div>
+        <div class="hwd-chart" aria-label="Measured burden severity on a scale of zero to one hundred; higher means more burden">
+          <div class="hwd-chart-head"><h3>Where does the result show friction?</h3><span>Severity / 100</span></div>
+{{burdenRows}}
+          <p class="hwd-chart-note">Three highest burden measures &middot; Higher means more burden</p>
+        </div>
+        <div class="hwd-next"><span>Structured answers identify a condition, not its cause.</span><button type="button" data-demo-next="actions">See the next step <span aria-hidden="true">&rarr;</span></button></div>
+      </section>
+      <section class="hwd-panel" id="hwd-panel-actions" role="tabpanel" aria-labelledby="hwd-tab-actions" tabindex="0" hidden>
+        <div class="hwd-page-heading"><div><p class="hwd-eyebrow">Action Plans</p><h2>Turn a finding into a test.</h2></div><span class="hwd-badge">From this report</span></div>
+        <p class="hwd-description">Keep an action connected to the result that prompted it.</p>
+        <div class="hwd-action-card"><div class="hwd-action-meta"><span>Decision Velocity</span><span class="hwd-status">To do</span></div><h3>A recommended next step.</h3><p>{{action}}</p><div class="hwd-action-boundary">Review an authorized example, not a general pattern. Process changes need separate approval. <a href="sample-report.html#dv">Full recommendation</a></div><div class="hwd-action-owner"><span>Owner</span><strong>Unassigned</strong></div></div>
+        <div class="hwd-plan-flow"><span>Review a finding</span><span aria-hidden="true">&rarr;</span><span>Adopt an action</span><span aria-hidden="true">&rarr;</span><span>Assign an owner</span></div>
+        <div class="hwd-next"><span>Admins can adopt actions, assign owners, and update status.</span><button type="button" data-demo-next="return">Close the loop <span aria-hidden="true">&rarr;</span></button></div>
+      </section>
+      <section class="hwd-panel" id="hwd-panel-return" role="tabpanel" aria-labelledby="hwd-tab-return" tabindex="0" hidden>
+        <div class="hwd-page-heading"><div><p class="hwd-eyebrow">Remeasure</p><h2>Return with a useful baseline.</h2></div><span class="hwd-badge">Same scope</span></div>
+        <p class="hwd-description">Repeat compatible measures after a bounded change.</p>
+        <div class="hwd-baseline-grid"><div class="hwd-baseline"><span>Sample baseline</span><strong>{{score}}</strong><p>Decision Velocity</p><span class="hwd-baseline-state">Result preserved</span></div><div class="hwd-baseline is-pending"><span>Compatible later run</span><strong aria-label="No later result">&middot;&middot;&middot;</strong><p>Ready when you return</p><span class="hwd-baseline-state">No later result in this sample</span></div></div>
+        <div class="hwd-return-note"><span class="hwd-check" aria-hidden="true">&#10003;</span><p>Keep the instrument version and operating scope compatible so the difference can be interpreted.</p></div>
+        <div class="hwd-next"><span>A changed score does not, by itself, establish cause.</span><a href="sample-report.html">Explore full sample reports <span aria-hidden="true">&rarr;</span></a></div>
+      </section>
+    </div>
+    <div class="hwd-footer"><span><i aria-hidden="true"></i>Public sample data</span><span>Measure. Understand. Return.</span></div>
+  </div>
+  <p class="home-preview-caption">Illustrative interface with generated sample content. This preview does not create or change a workspace. Financial assumptions: {{assumptions}} <a href="sample-report.html#dv">Read the full example.</a></p>
+</aside>

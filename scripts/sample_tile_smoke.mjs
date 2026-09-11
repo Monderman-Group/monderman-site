@@ -6,6 +6,8 @@ const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright')
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
 const out = process.env.TILE_OUT || '/tmp/sample-tile-smoke';
 fs.mkdirSync(out, { recursive: true });
+const artifact=JSON.parse(fs.readFileSync(new URL('../sample-data/production-diagnostic-samples.json',import.meta.url),'utf8'));
+const source=artifact.outputs.depth_synthesis.source, exposure=source.pathway_exposure||source.compounded_exposure;
 
 const browser = await chromium.launch({ headless: true });
 const placements = [
@@ -33,13 +35,24 @@ try {
 
       const tile = page.locator('.hero-report-proof.has-sample-depth-tile');
       await tile.waitFor({ state: 'attached', timeout: 10000 });
-      assert.equal(await tile.locator('.hero-report-link').getAttribute('href'), 'sample-report.html', `${placement.name}/${viewport.name}: whole-card sample route changed`);
+      if (await tile.isVisible()) {
+        await tile.scrollIntoViewIfNeeded();
+        await page.waitForFunction(el => {
+          for (let node=el;node;node=node.parentElement) {
+            const style=getComputedStyle(node);
+            if (Number(style.opacity)<.99 || style.visibility==='hidden') return false;
+          }
+          return true;
+        }, await tile.elementHandle());
+      }
+      assert.equal(await tile.locator('.hero-report-link').getAttribute('href'), 'sample-report.html#depth', `${placement.name}/${viewport.name}: whole-card sample route changed`);
+      assert.equal(await tile.getAttribute('data-artifact-sha256'),artifact.artifact_sha256);
 
       const geometry = await tile.evaluate((el) => {
         const root = el.querySelector('#monderman-depth-lure-composite');
         const card = el.querySelector('.md-tile');
-        const panels = [...el.querySelectorAll('.md-opening,.md-panel,.md-action')];
-        const foot = el.querySelector('.md-foot');
+        const panels = [...el.querySelectorAll('.md-opportunity,.md-economics,.md-score-summary,.md-action,.md-basis')];
+        const foot = el.querySelector('.md-basis');
         const slide = el.closest('.slide');
         const hero = el.closest('.hero');
         const outputBand = el.closest('#sample-output');
@@ -69,6 +82,7 @@ try {
           cardLeft: cardBox.left,
           cardRight: cardBox.right,
           cardTop: cardBox.top,
+          cardDocumentTop: cardBox.top + window.scrollY,
           cardBottom: cardBox.bottom,
           tileBottom: tileBox.bottom,
           heroTop: heroBox?.top ?? null,
@@ -89,9 +103,11 @@ try {
             return { left: box.left, right: box.right, top: box.top, bottom: box.bottom };
           }),
           hasWrongRaster: !!el.querySelector('.sample-depth-tile-approved-image'),
-          exposureRangeCount: el.querySelectorAll('.md-exposure-track').length,
-          vantageRowCount: el.querySelectorAll('.md-vantage-row').length,
-          actionText: el.querySelector('.md-action')?.textContent.replace(/\s+/g, ' ').trim(),
+          recovery: el.querySelector('[data-promo-recovery]')?.textContent,
+          cost: el.querySelector('[data-promo-cost]')?.textContent,
+          hours: el.querySelector('[data-promo-hours]')?.textContent,
+          actionText: el.querySelector('.md-action p')?.textContent,
+          qualification: el.querySelector('.md-opportunity p')?.textContent,
           viewportWidth: document.documentElement.clientWidth,
           viewportHeight: document.documentElement.clientHeight,
           documentWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
@@ -113,10 +129,12 @@ try {
       assert.equal(geometry.linkDisplay, 'block', `${placement.name}/${viewport.name}: sample tile link is hidden`);
       assert(geometry.width > 260 && geometry.width <= 580.5, `${placement.name}/${viewport.name}: tile width is outside the approved seat: ${geometry.width}`);
       assert.equal(geometry.hasWrongRaster, false, `${placement.name}/${viewport.name}: superseded screenshot artifact returned`);
-      assert.equal(geometry.exposureRangeCount, 2, `${placement.name}/${viewport.name}: source exposure composition changed`);
-      assert.equal(geometry.vantageRowCount, 3, `${placement.name}/${viewport.name}: source vantage composition changed`);
-      assert.equal(geometry.actionText, 'Investigate the ownership transfer point. Then repeat a compatible run.', `${placement.name}/${viewport.name}: source leadership move changed`);
-      assert.equal(geometry.footDisplay, 'none', `${placement.name}/${viewport.name}: redundant qualification footer returned`);
+      assert.equal(geometry.recovery,'$'+exposure.recoverable_cost.toLocaleString('en-US'));
+      assert.equal(geometry.cost,'$'+exposure.annual_cost.toLocaleString('en-US'));
+      assert.equal(geometry.hours,exposure.annual_hours.toLocaleString('en-US')+' hours');
+      assert.equal(geometry.actionText,source.ai_report.report.interpretation.recommendations.find(a=>a.action?.trim()).action);
+      assert.match(geometry.qualification,/Median of submitted recovery scenarios.*Before subscription and implementation costs; not guaranteed savings/);
+      assert.notEqual(geometry.footDisplay, 'none', `${placement.name}/${viewport.name}: sample and aggregation qualification hidden`);
       assert(geometry.documentWidth <= geometry.viewportWidth + 1, `${placement.name}/${viewport.name}: page overflows horizontally`);
       assert(geometry.rootLeft >= geometry.cardLeft - 1 && geometry.rootRight <= geometry.cardRight + 1, `${placement.name}/${viewport.name}: source component escapes the card horizontally`);
       for (const [index, panel] of geometry.panelBoxes.entries()) {
@@ -128,7 +146,7 @@ try {
         if (placement.name === 'homepage') {
           assert.equal(geometry.heroHeight, null, `${placement.name}/${viewport.name}: report unexpectedly returned to the product hero`);
           assert.equal(geometry.inOutputBand, true, `${placement.name}/${viewport.name}: report lost its dedicated output section`);
-          assert(geometry.cardTop > geometry.viewportHeight * 0.5, `${placement.name}/${viewport.name}: report is competing with the opening product preview`);
+          assert(geometry.cardDocumentTop > geometry.viewportHeight * 0.5, `${placement.name}/${viewport.name}: report is competing with the opening product preview`);
           assert(geometry.tileBottom <= geometry.outputBottom + 1, `${placement.name}/${viewport.name}: report escapes its output section`);
         } else {
           assert(geometry.slideHeight <= geometry.viewportHeight + 2, `${placement.name}/${viewport.name}: report tile expands the snap slide (${geometry.slideHeight}px > ${geometry.viewportHeight}px)`);

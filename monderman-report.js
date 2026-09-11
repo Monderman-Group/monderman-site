@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-ai-screen-20260910.24";
+  const RENDERER_VERSION = "diagnostic-renderer-ai-screen-20260911.25";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -1663,18 +1663,43 @@
     return stop;
   }
 
+  // Public examples keep their source date and provenance in the portable
+  // report, not only in the surrounding marketing page. This optional block
+  // does not modify a saved customer result or supply missing source versions.
+  function buildSampleProvenance(model) {
+    const p = obj(obj(model).sampleProvenance);
+    if (p.synthetic !== true) return "";
+    const rows = [
+      ["Sample content generated", p.generated_at],
+      ["Display / export prepared", p.rendered_at],
+      ["Questionnaire version", p.questionnaire_version],
+      ["Scoring version", p.scorer_version],
+      ["Report wording version", p.report_language_version],
+      ["AI release", p.report_ai_release],
+      ["Engine revision", p.engine_commit],
+      ["Sample artifact", p.artifact_sha256],
+      ["Recorded input reference", p.input_digest],
+      ["Recorded result reference", p.result_digest],
+      ["Accepted interpretation reference", p.approved_output_sha256]
+    ].filter(row => typeof row[1] === "string" && row[1].trim());
+    return '<section class="mr-section mr-run-method mr-sample-provenance"><h2>About this example</h2>' +
+      '<p>This report was generated from fictional inputs using the recorded product version. It is not a customer case study. Financial figures are modeled scenarios, not realized savings or a net return on investment.</p>' +
+      '<dl>' + rows.map(row => '<div><dt>' + esc(row[0]) + '</dt><dd>' + esc(row[1]) + '</dd></div>').join('') + '</dl></section>';
+  }
+
   function buildReportBody(model) {
     const m = obj(model);
     const coverBlock = buildReportCover(m);
     const compatibilityBlock = buildCompatibilityNotice(m);
     const aiBlock = buildAIInterpretation(m.aiReport);
+    const sampleBlock = buildSampleProvenance(m);
 
     if (m.kind === "meta-synthesis") {
-      return coverBlock + compatibilityBlock + aiBlock + renderMetaSynthesis(m) + buildReportBoundary(m);
+      return coverBlock + compatibilityBlock + aiBlock + renderMetaSynthesis(m) + sampleBlock + buildReportBoundary(m);
     }
 
     if (m.kind === "run") {
-      return coverBlock + compatibilityBlock + aiBlock + renderRunReport(m);
+      return coverBlock + compatibilityBlock + aiBlock + renderRunReport(m) + sampleBlock;
     }
 
     const kvs = arr(m.kvs).map((x) => '<div class="k">' + esc(x.k) + "</div><div>" + esc(x.v) + "</div>").join("");
@@ -1686,7 +1711,7 @@
       arr(m.sections).map((s) => '<section class="mr-section">' + sectionHtml(s, (n += 1) + 1) + '</section>').join("") +
       '<section class="mr-section"><h2>' + (n + 2) + '. Conclusion and next step</h2><p>This Executive Report is a directional read of the measured condition. Use the reported evidence, limitations, and recommended first moves as the basis for a bounded operating decision and like-for-like remeasurement.</p></section>';
 
-    return coverBlock + compatibilityBlock + secHtml + buildReportBoundary(m);
+    return coverBlock + compatibilityBlock + secHtml + sampleBlock + buildReportBoundary(m);
   }
 
   var REPORT_CSS =
@@ -2094,6 +2119,14 @@
       .mr-run-method dl{margin:14px 0}
       .mr-run-method dl>div{padding:8px 0;gap:14px}
       .mr-run-method .mr-method-copy{margin-top:14px!important;font-size:10pt!important;line-height:1.45!important}
+      /* Public-sample references are an appendix, not a second report. Keep
+         every reference readable without orphaning one digest on a new page. */
+      .mr-report .mr-sample-provenance{break-inside:avoid;page-break-inside:avoid}
+      .mr-report .mr-sample-provenance>p{font-size:10pt!important;line-height:1.45!important}
+      .mr-sample-provenance dl{margin:10px 0}
+      .mr-sample-provenance dl>div{grid-template-columns:140px minmax(0,1fr);padding:6px 0;gap:14px}
+      .mr-sample-provenance dt{font-size:9pt;line-height:1.35}
+      .mr-sample-provenance dd{font-size:10pt;line-height:1.4}
       .mr-priority-matrix,.mr-constraint-view,.mr-run-findings{break-inside:avoid;page-break-inside:avoid}
       .mr-leadership-grid>div,.mr-leadership-sequence li{break-inside:avoid;page-break-inside:avoid}
       .mr-section h3,.mr-lens-label,.mr-viz-title{break-after:avoid;page-break-after:avoid}

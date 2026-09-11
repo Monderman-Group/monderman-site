@@ -9,6 +9,12 @@ on:
       - 'sample-report-production.js'
       - 'sample-report-production.css'
       - 'sample-data/production-diagnostic-samples.json'
+      - 'sample-data/production-sample-release.json'
+      - 'public-sample-model.js'
+      - 'scripts/public_sample_fixture.mjs'
+      - 'scripts/public_sample_manifest_sensitivity_smoke.mjs'
+      - 'scripts/refresh_public_sample_previews.mjs'
+      - 'scripts/templates/home-workspace-preview.html'
       - 'test-fixtures/authenticated-report-engine-runs.json'
       - 'operational-systems.html'
       - 'decision-velocity.html'
@@ -129,6 +135,12 @@ on:
       - 'sample-report-production.js'
       - 'sample-report-production.css'
       - 'sample-data/production-diagnostic-samples.json'
+      - 'sample-data/production-sample-release.json'
+      - 'public-sample-model.js'
+      - 'scripts/public_sample_fixture.mjs'
+      - 'scripts/public_sample_manifest_sensitivity_smoke.mjs'
+      - 'scripts/refresh_public_sample_previews.mjs'
+      - 'scripts/templates/home-workspace-preview.html'
       - 'test-fixtures/authenticated-report-engine-runs.json'
       - 'operational-systems.html'
       - 'decision-velocity.html'
@@ -267,6 +279,10 @@ jobs:
         run: |
           node --check monderman-report.js
           node --check sample-report-production.js
+          node --check public-sample-model.js
+          node scripts/public_sample_fixture.mjs --check
+          node scripts/public_sample_manifest_sensitivity_smoke.mjs --check
+          node scripts/refresh_public_sample_previews.mjs --check
           node --check scripts/generate_production_sample_outputs.mjs
           node --check scripts/authenticated_report_engine_fixture.mjs
           node --check scripts/report_presentation_smoke.mjs

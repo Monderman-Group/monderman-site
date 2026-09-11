@@ -46,7 +46,8 @@ s=(r/'sample-report.html').read_text()
 if len(re.findall(r'<h1\b',s,re.I))!=1:e.append('sample library single h1 hierarchy')
 if '<h1 class="sample-library-heading"' not in s:e.append('sample library h1')
 if '<h1 class="mr-cover-title">' not in (r/'monderman-report.js').read_text(errors='ignore'):e.append('generated report h1')
-if s.count('aria-label="Jump to report section"')<4:e.append('sample selects')
+sample_bridge=(r/'sample-report-production.js').read_text(errors='ignore')
+if '<select aria-label="Jump to report section">' not in sample_bridge:e.append('generated sample section navigator')
 for k in ['os','dv','sc','ip','synthesis','depth']:
  if f'aria-controls="report-{k}"' not in s or f'role="tabpanel"' not in s:e.append('sample tabs '+k)
 for token in ["t.tabIndex = on ? 0 : -1", "event.key === 'ArrowRight'", "event.key === 'ArrowLeft'", "event.key === 'Home'", "event.key === 'End'", 'nextTab.focus()']:
@@ -281,39 +282,47 @@ diagnostics=(r/'diagnostics.html').read_text(errors='ignore')
 for stale in ['Under Development','Privacy Policy']:
  if stale in diagnostics:e.append('Diagnostics stale public state '+stale)
 
-# The two compact promotional report placements must remain a defensible
-# composite of generated Depth output. Keep the data contract, the responsive
-# layout, and the whole-card route aligned while keeping the dense preview
-# off phone screens, where the architectural hero is the clearer lure.
+# The two compact promotional placements are generated from the same reviewed
+# saved Depth output as the sample library. Exact generator parity replaces the
+# former hand-written numbers and plot coordinates; layout/routing guards stay.
 brief=(r/'Monderman_Platform_Brief.html').read_text(errors='ignore')
 sample_tile_css=(r/'sample-report-tile.css').read_text(errors='ignore') if (r/'sample-report-tile.css').exists() else ''
 lure_tile_css=(r/'monderman-depth-lure-tile.css').read_text(errors='ignore') if (r/'monderman-depth-lure-tile.css').exists() else ''
+for script,args in [
+ ('scripts/public_sample_fixture.mjs',['--check','--root',str(r.resolve())]),
+ ('scripts/refresh_public_sample_previews.mjs',['--check']),
+]:
+ try:
+  subprocess.run(['node',script,*args],cwd=r,check=True,capture_output=True,text=True)
+ except subprocess.CalledProcessError as exc:
+  e.append('reviewed public preview parity: '+script+': '+(exc.stderr or exc.stdout)[-2000:])
 tile_required=[
- 'sample-report-tile.css?v=20260824-depth4',
- 'monderman-depth-lure-tile.css?v=20260825-mobile4',
  'class="hero-report-proof has-sample-depth-tile"',
  'id="monderman-depth-lure-composite"',
  'class="md-tile"',
- 'class="md-opening"',
- 'class="md-exposure-track"',
- 'class="md-vantage-row"',
- 'href="sample-report.html"',
+ 'class="md-opportunity"',
+ 'class="md-economics"',
+ 'class="md-score-summary"',
+ 'href="sample-report.html#depth"',
  'Depth Synthesis',
- 'Observed exposure ranges',
- '4,800','7,900','6,100',
- '$432,000','$711,000','$549,000','$120,000','$210,000',
- '49.5','56.8','65.3',
- 'Investigate the ownership transfer point.',
+ 'Modeled annual recovery opportunity',
+ 'Before subscription and implementation costs; not guaranteed savings.',
+ 'Repeated estimates are summarized, not added.',
+ 'Fictional inputs, not customer results.',
+ 'Full assumptions in the report.',
+ 'data-promo-recovery','data-promo-cost','data-promo-hours','data-promo-score',
 ]
 for name,text in [('index.html',idx),('Monderman_Platform_Brief.html',brief)]:
+ for asset in ['sample-report-tile.css','monderman-depth-lure-tile.css']:
+  if not re.search(re.escape(asset)+r'\?v=[^"\s]+',text):e.append(name+': versioned sample stylesheet '+asset)
  for token in tile_required:
   if token not in text:e.append(name+': generated-output sample tile '+token)
- tile_match=re.search(r'<aside class="hero-report-proof has-sample-depth-tile".*?</aside>',text,re.I|re.S)
- if not tile_match:
-  e.append(name+': generated-output sample tile boundary missing')
+ tile_matches=list(re.finditer(r'<aside class="hero-report-proof has-sample-depth-tile".*?</aside>',text,re.I|re.S))
+ if len(tile_matches)!=1:
+  e.append(name+': generated-output sample tile boundary must occur exactly once')
  else:
-  tile=tile_match.group(0)
-  for stale in ['5,280 hrs','$411,840','$123,552','hrp-recovery-ring','hrp-composition-bars','sample-depth-tile-approved-image','sample-depth-synthesis-composite-approved.png']:
+  tile=tile_matches[0].group(0)
+  for stale in ['5,280 hrs','$411,840','$123,552','hrp-recovery-ring','hrp-composition-bars','sample-depth-tile-approved-image','sample-depth-synthesis-composite-approved.png','Observed exposure ranges','Actual generated output']:
    if stale in tile:e.append(name+': stale promotional sample tile value '+stale)
 if not sample_tile_css:
  e.append('generated-output sample tile stylesheet missing')
@@ -331,17 +340,17 @@ else:
  for token in [
   '#monderman-depth-lure-composite',
   'width:min(100%,580px)',
-  'grid-template-columns:112px minmax(0,1fr)',
-  'grid-template-columns:repeat(2,minmax(0,1fr))',
-  'left:60.76%',
-  'left:77.22%',
-  'grid-template-columns:92px minmax(130px,1fr) 136px',
-  '.md-foot{',
+  'grid-template-columns:minmax(0,1fr)',
+  'grid-template-columns:1fr 1fr',
+  '.md-opportunity',
+  '.md-score-summary',
+  'overflow-wrap:anywhere',
+  'font-variant-numeric:tabular-nums',
   'display:none',
   'min-height:calc(100svh - 128px)',
   '@media (max-width:640px)',
   'object-position:48.75% 50%!important',
-  '@container monderman-composite (max-width:520px)',
+  '@container monderman-composite (max-width:380px)',
  ]:
   if token not in lure_tile_css:e.append('in-chat source sample tile contract '+token)
 if '<script src="assistant.js?v=20260828-footer-dock4" defer></script>' not in idx:

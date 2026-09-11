@@ -1,4 +1,6 @@
 import json
+import re
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -80,13 +82,14 @@ for token, msg in [
 # Marketing sample disclosure and production-artifact renderer parity.
 production_renderer = (ROOT / "sample-report-production.js").read_text(encoding="utf-8")
 production_styles = (ROOT / "sample-report-production.css").read_text(encoding="utf-8")
+public_model = (ROOT / "public-sample-model.js").read_text(encoding="utf-8")
 req('Representative product outputs, not customer data.' in sample, 'top representative-output disclosure missing')
-req('synthesis-report-stage' in sample, 'Synthesis report stage wrapper missing')
-req('sample-report-production.js?v=20260909-product-screen' in sample, 'aligned production sample renderer missing')
-req('sample-report-production.css?v=20260909-product-screen' in sample, 'aligned production sample presentation missing')
-req('sample-data/production-diagnostic-samples.json?v=447cdd78f6fc' in production_renderer, 'production artifact URL mismatch')
+req('synthesis-report-stage' in production_renderer, 'Synthesis report stage wrapper missing')
+req(re.search(r'sample-report-production\.js\?v=[^"\s]+', sample), 'versioned production sample renderer missing')
+req(re.search(r'sample-report-production\.css\?v=[^"\s]+', sample), 'versioned production sample presentation missing')
+req(re.search(r'sample-data/production-diagnostic-samples\.json\?v=[^"\s]+', production_renderer), 'versioned production artifact URL missing')
 req('data-engine-commit' in production_renderer and 'data-artifact-sha256' in production_renderer, 'visible sample provenance missing')
-for token in ['Report.fromRun(source)','Report.render(stage, model)','Report.downloadHtml(model)','Report.downloadJson(source','Report.downloadPdf(model)']:
+for token in ['MondermanPublicSamples.model(entry, artifact)','Report.render(stage, model)','Report.downloadHtml(model)','Report.downloadJson(source','Report.downloadPdf(model)']:
     req(token in production_renderer, f'public Diagnostic sample bypasses the certified engine bridge: {token}')
 for token in ['Decision summary','Dimension profile','Time and cost scenario','How to interpret the result','Evidence in this run','What to test next','Method and limits','Next decision','Interpretation boundary']:
     req(token in report, f'authenticated Diagnostic presentation missing: {token}')
@@ -111,19 +114,23 @@ req('.mr-card.mr-remedy-card{background:#fff}' in report, 'Synthesis remedy card
 req('border-top:3px solid #C9821F' not in report and '.mr-remedy-card:nth-child(' not in report, 'Synthesis remedy cards still carry option-specific top borders')
 req('gap:56px;' in sample and '.synthesis-report-stage .mr-page{box-shadow:0 20px 54px rgba(8,56,62,.07)!important;}' in sample, 'Synthesis sample canvas does not match the Diagnostic viewer grid and frame')
 req('.synthesis-report-stage .mr-card.mr-remedy-card{border-top:1px solid #EAE6DD!important;}' in sample, 'sample page does not preserve neutral remedy-card borders')
-req('MondermanSampleReportShell.mount' in sample, 'Synthesis samples bypass the shared promotional frame')
+req('function mountReport(options)' in production_renderer and 'mountReport({' in production_renderer, 'all-six samples bypass the shared promotional frame')
 req('psr-doc-shell' in production_renderer and 'psr-toc-mobile' in production_renderer and 'psr-toc' in production_renderer, 'all-six responsive contents navigation missing')
 req('mr-system-composite-label' in report and '["EQUAL-LENS", "COMPOSITE"]' in report, 'Cross-Lens composite label is not bounded to two lines')
-req('MondermanReport.fromSynthesis(fixtures.crossLens)' in sample, 'Cross-Lens sample is not using shared customer renderer')
-req('MondermanReport.fromSynthesis(fixtures.depth)' in sample, 'Depth sample is not using shared customer renderer')
+req('Report.fromSynthesis(entry.source)' in public_model, 'Synthesis samples are not using the shared customer renderer')
+req('Report.fromRun(entry.source)' in public_model, 'Diagnostic samples are not using the shared customer renderer')
+req('MONDERMAN_REPRESENTATIVE_SYNTHESIS_FIXTURES' not in sample, 'hand-authored inline Synthesis source remains')
 req('Sankey' not in sample, 'sample library labels an allocation view as a Sankey')
 
-# Existing Synthesis fidelity requirements remain mandatory.
-for token in [
-    'cross_diagnostic_score: 55.5', 'evidence_label: "Strong"',
-    'aggregate_score: 56', 'evidence_label: "Substantial"',
-]:
-    req(token in sample, f'missing product-fidelity token: {token}')
+# Current sample values come from the separately approved six-product artifact,
+# not inline literals. Historical four-Diagnostic coverage above remains intact.
+try:
+    subprocess.run(
+        ["node", str(ROOT / "scripts" / "public_sample_fixture.mjs"), "--check", "--root", str(ROOT)],
+        check=True, capture_output=True, text=True,
+    )
+except subprocess.CalledProcessError as exc:
+    req(False, "current six-product provenance/rendering gate failed: " + (exc.stderr or exc.stdout)[-2000:])
 
 if errors:
     print('REPORT_PRESENTATION_STATIC_FAIL')
