@@ -12,7 +12,19 @@ const baseRef = process.env.PILOT_COPY_BASE_REF || 'ffdc81ae868475cb0e933d87f374
 const files = ['pilot.html', 'pattern-trial.html', 'security.html', 'subprocessors.html'];
 const textOf = html => html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 const blocks = (html, tag) => [...html.matchAll(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`, 'gi'))].map(match => match[0]);
-const controls = html => [...html.matchAll(/<(?:form|input|textarea|select|option|button)\b[^>]*>/gi)].map(match => match[0]);
+const focusPlaceholders = new Set([
+  'For example, capital approvals in one operating unit or the handoff between sales and delivery.',
+  'For example, unclear responsibilities between teams, delayed approvals, or repeated reporting work.'
+]);
+const controls = html => [...html.matchAll(/<(?:form|input|textarea|select|option|button)\b[^>]*>/gi)].map(match => {
+  const tag = match[0];
+  if (!/^<textarea\b[^>]*\bid="decisionFocus"/.test(tag)) return tag;
+  const placeholder = tag.match(/\bplaceholder="([^"]*)"/);
+  assert.ok(placeholder && focusPlaceholders.has(placeholder[1]), 'Only the reviewed pilot-scope placeholder copy may differ');
+  // Placeholder copy is not the form contract; every other attribute remains
+  // byte-compared, including its name, id, required state and length limits.
+  return tag.replace(/\bplaceholder="[^"]*"/, 'placeholder="REVIEWED_SCOPE_EXAMPLE"');
+});
 assert.equal(
   fs.readFileSync(path.join(root, 'privacy.html'), 'utf8'),
   execFileSync('git', ['show', `${baseRef}:privacy.html`], { cwd: root, encoding: 'utf8' }),
@@ -49,7 +61,7 @@ for (const file of files) {
     assert.match(html, /href="privacy\.html"/);
   }
 }
-console.log('PILOT_AI_COPY_STATIC_PASS_4_PAGES_SCRIPTS_STYLES_CONTROLS_UNCHANGED_PRIVACY_BYTE_IDENTICAL');
+console.log('PILOT_AI_COPY_STATIC_PASS_4_PAGES_SCRIPTS_STYLES_CONTROL_SCHEMA_UNCHANGED_REVIEWED_PLACEHOLDER_PRIVACY_BYTE_IDENTICAL');
 if (process.argv.includes('--static-only')) process.exit(0);
 
 const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
