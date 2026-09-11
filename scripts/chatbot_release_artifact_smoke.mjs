@@ -31,7 +31,7 @@ assert.deepEqual(manifest, JSON.parse(await readSource("legal-document-manifest.
 assert.equal(manifest.file_hash_scope, "repository_source_html"); checks++;
 const recordedArchives = Object.values(manifest.documents).flatMap(files =>
   [files.terms_file, files.privacy_notice_file].filter(Boolean)).sort();
-const archiveNames = entries => entries.filter(name => /^(?:terms|privacy)-\d{4}-\d{2}-\d{2}-beta\.html$/.test(name)).sort();
+const archiveNames = entries => entries.filter(name => /^(?:terms|privacy)-\d{4}-\d{2}-\d{2}-(?:beta|optional-measurement-v1)\.html$/.test(name)).sort();
 assert.deepEqual(recordedArchives, archiveNames(await readdir(sourceRoot)), "every source legal edition is pinned"); checks++;
 assert.deepEqual(recordedArchives, archiveNames(await readdir(root)), "every pinned legal edition is built"); checks++;
 for (const files of Object.values(manifest.documents)) {
@@ -48,15 +48,22 @@ for (const files of Object.values(manifest.documents)) {
 }
 assert.equal(manifest.terms_version,"2026-09-09-beta"); checks++;
 assert.equal(manifest.privacy_notice_version,"2026-09-10-beta"); checks++;
+assert.deepEqual(manifest.required_acknowledgement,{terms_version:"2026-09-09-beta",privacy_notice_version:"2026-09-10-beta"}); checks++;
+assert.equal(manifest.published_privacy_notice_version,"2026-09-10-optional-measurement-v1"); checks++;
+assert.equal(manifest.published_privacy_notice_file,"privacy-2026-09-10-optional-measurement-v1.html"); checks++;
 for (const page of ["index.html","privacy.html","security.html","pilot.html"]) {
   assert.match(await read(page),/src="assistant\.js\?v=20260910-bounded-chat1"/); checks++;
 }
 for (const page of ["workspace.html","workspace-diagnostics.html","workspace-analysis.html","workspace-actions.html","workspace-settings.html"]) {
   assert.match(await read(page),/src="workspace-assistant\.js\?v=20260910-bounded-chat1"/); checks++;
 }
-for (const kind of ["terms","privacy_notice"]) {
-  const html=await read(kind==="terms"?"terms.html":"privacy.html");
-  const content=markedContent(html, kind).replace(/^\n+|\n+$/g,"")+"\n";
-  assert.equal(hash(content),manifest[kind+"_content_sha256"]); checks++;
+for (const [page, hashKey] of [
+  ["terms.html","terms_content_sha256"],
+  ["privacy-2026-09-10-beta.html","privacy_notice_content_sha256"],
+  ["privacy.html","published_privacy_notice_content_sha256"]
+]) {
+  const content=markedContent(await read(page), page).replace(/^\n+|\n+$/g,"")+"\n";
+  assert.equal(hash(content),manifest[hashKey]); checks++;
 }
+assert.equal(markedContent(await read("privacy.html"),"published Privacy"),markedContent(await read(manifest.published_privacy_notice_file),"published archive")); checks++;
 console.log(JSON.stringify({ok:true,checks,archives:recordedArchives.length,scope:"Repository: immutable legal source fingerprints. Build: exact archived legal content, current content hashes, public and Hans cache versions. Full served-artifact bytes require the separate release comparison."}));

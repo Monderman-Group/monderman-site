@@ -7,6 +7,8 @@ import re
 ROOT = Path(__file__).resolve().parents[1]
 TERMS_VERSION = "2026-09-09-beta"
 PRIVACY_VERSION = "2026-09-10-beta"
+PUBLISHED_PRIVACY_VERSION = "2026-09-10-optional-measurement-v1"
+PUBLISHED_PRIVACY_SHA256 = "3f080b978419e5ed4d6e20776322db7962b512254febcfcc6db34d97933b45d0"
 # Accepted historical editions are immutable, even if someone edits the manifest.
 HISTORICAL_DOCUMENTS = {
     "2026-08-20-beta": {
@@ -38,6 +40,10 @@ HISTORICAL_DOCUMENTS = {
         "terms_file_sha256": "8653646c8e9b3a27a457be8b1026d3859814b48bf784b209fb51811e5b5494a6",
         "privacy_notice_file": "privacy-2026-09-09-beta.html",
         "privacy_notice_file_sha256": "3eff91338e588a4cc74d5ec801d50c810fb06b9f272becee40f6731d20dca639"
+    },
+    "2026-09-10-beta": {
+        "privacy_notice_file": "privacy-2026-09-10-beta.html",
+        "privacy_notice_file_sha256": "b8d0279861a5ab30f9e1c2875d8237c9fb6df92abf02982e309092c3fc138185"
     }
 }
 ACKNOWLEDGEMENT = (
@@ -70,6 +76,7 @@ def validate():
     signin = (ROOT / "signin.html").read_text(errors="strict")
     trial = (ROOT / "pattern-trial.html").read_text(errors="strict")
     privacy = (ROOT / "privacy.html").read_text(errors="strict")
+    acknowledged_privacy = (ROOT / f"privacy-{PRIVACY_VERSION}.html").read_text(errors="strict")
     manifest = json.loads((ROOT / "legal-document-manifest.json").read_text(errors="strict"))
     checkout = (ROOT / "checkout.html").read_text(errors="strict")
     workspace_gate = (ROOT / "workspace-access-gate.js").read_text(errors="strict")
@@ -153,7 +160,7 @@ def validate():
         'legal_documents_changed'
     ], "trial clickwrap")
     require(privacy, [
-        f"Version {PRIVACY_VERSION}",
+        f"Version {PUBLISHED_PRIVACY_VERSION}",
         "ORGANIZATION DATA &amp; RESEARCH",
         "De-identifying customer content does not create an exception",
         "Monderman does not use customer content for model training or fine-tuning",
@@ -161,7 +168,13 @@ def validate():
     ], "aligned Privacy Notice")
 
     if manifest["terms_version"] != TERMS_VERSION or manifest["privacy_notice_version"] != PRIVACY_VERSION:
-        raise AssertionError("legal document manifest versions do not match the displayed documents")
+        raise AssertionError("required legal acknowledgement versions must not change with optional measurement publication")
+    if manifest.get("required_acknowledgement") != {
+        "terms_version": TERMS_VERSION, "privacy_notice_version": PRIVACY_VERSION
+    }:
+        raise AssertionError("manifest must explicitly preserve required account acknowledgement versions")
+    if manifest.get("published_privacy_notice_version") != PUBLISHED_PRIVACY_VERSION or manifest.get("published_privacy_notice_file") != f"privacy-{PUBLISHED_PRIVACY_VERSION}.html":
+        raise AssertionError("published Privacy Notice must have its own explicit edition and archive")
     if manifest["acceptance_copy"] != (
         "I agree to the Terms of Service and acknowledge the Privacy Notice. I understand that "
         + ACKNOWLEDGEMENT + "."
@@ -169,7 +182,8 @@ def validate():
         raise AssertionError("legal document manifest acceptance copy does not match the reviewed clickwrap")
     expected_hashes = {
         "terms_content_sha256": sha256(content_between_markers(terms, "Terms")),
-        "privacy_notice_content_sha256": sha256(content_between_markers(privacy, "Privacy Notice")),
+        "privacy_notice_content_sha256": sha256(content_between_markers(acknowledged_privacy, "Acknowledged Privacy Notice")),
+        "published_privacy_notice_content_sha256": sha256(content_between_markers(privacy, "Published Privacy Notice")),
         "acceptance_copy_sha256": sha256(manifest["acceptance_copy"])
     }
     for key, expected in expected_hashes.items():
@@ -177,8 +191,8 @@ def validate():
             raise AssertionError(f"legal document manifest {key} does not match reviewed content")
 
     document_manifest = manifest.get("documents") or {}
-    if set(document_manifest) != set(HISTORICAL_DOCUMENTS) | {TERMS_VERSION, PRIVACY_VERSION}:
-        raise AssertionError("legal document manifest must retain every prior and current beta version")
+    if set(document_manifest) != set(HISTORICAL_DOCUMENTS) | {TERMS_VERSION, PRIVACY_VERSION, PUBLISHED_PRIVACY_VERSION}:
+        raise AssertionError("legal document manifest must retain every acknowledged and published version")
     for version, files in HISTORICAL_DOCUMENTS.items():
         if document_manifest.get(version) != files:
             raise AssertionError(f"historical legal manifest changed for {version}")
@@ -187,7 +201,7 @@ def validate():
             ("terms_file", "terms_file_sha256"),
             ("privacy_notice_file", "privacy_notice_file_sha256")
         ]:
-            if version == PRIVACY_VERSION and file_key == "terms_file" and TERMS_VERSION != PRIVACY_VERSION:
+            if version in {PRIVACY_VERSION, PUBLISHED_PRIVACY_VERSION} and file_key == "terms_file":
                 if file_key in files or hash_key in files:
                     raise AssertionError("Privacy-only update must not reissue unchanged Terms")
                 continue
@@ -200,8 +214,26 @@ def validate():
                 raise AssertionError(f"versioned legal document displays the wrong version: {files[file_key]}")
     if (ROOT / document_manifest[TERMS_VERSION]["terms_file"]).read_text(errors="strict") != terms:
         raise AssertionError("current versioned Terms must exactly match terms.html")
-    if (ROOT / document_manifest[PRIVACY_VERSION]["privacy_notice_file"]).read_text(errors="strict") != privacy:
-        raise AssertionError("current versioned Privacy Notice must exactly match privacy.html")
+    if (ROOT / document_manifest[PUBLISHED_PRIVACY_VERSION]["privacy_notice_file"]).read_text(errors="strict") != privacy:
+        raise AssertionError("published versioned Privacy Notice must exactly match privacy.html")
+    if sha256(privacy) != PUBLISHED_PRIVACY_SHA256:
+        raise AssertionError("published Privacy Notice must match its separately reviewed fingerprint")
+    require(privacy, [
+        'id="optional-measurement"',
+        "This choice is separate from account Terms acceptance and Privacy Notice acknowledgement.",
+        "Either choice leaves the diagnostic, results, reports, sign-in and pilot application available.",
+        "Before you allow measurement, we do not read or create a measurement visit identifier",
+        "We do not attach the random measurement visit identifier to the application",
+        "Those application details are separate from optional outreach labels.",
+        "Normal hosting and security systems can still receive request and network metadata",
+        "Withdrawal does not recall a request already sent or automatically erase earlier server records.",
+        "Cleanup is triggered by accepted measurement events, at most once a day",
+        "They are not subject to the event table's 90-day cleanup.",
+        "Your choice applies to this browser",
+        "without clearing your sign-in or saved work"
+    ], "optional measurement disclosure and unchanged access boundaries")
+    if "does not currently display a nonessential-cookie opt-in banner" in privacy:
+        raise AssertionError("published Privacy Notice must not describe optional measurement as essential storage")
 
     require(privacy, [
         "AI-assisted reports use Anthropic's commercial API when enabled",

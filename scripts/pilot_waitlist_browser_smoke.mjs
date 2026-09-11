@@ -48,7 +48,9 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
     assert.equal(submitted?.completedDecisionVelocity, true);
     assert.equal(submitted?.privacyConsent, true);
     assert.match(submitted?.requestId || "", /^[0-9a-f-]{36}$/i);
-    assert.equal(Object.hasOwn(submitted, "journeyId"), false, "Application must not identify an anonymous journey");
+    assert.equal(Object.hasOwn(submitted, "journeyId"), false, "Application must not link an anonymous journey to a person");
+    assert.equal(submitted?.acquisitionSource, "unknown");
+    assert.equal(submitted?.acquisitionCampaign, null);
     assert.deepEqual(pageErrors, [], `${browserName}/${viewport.name}: ${pageErrors.join("; ")}`);
     await context.close();
   }

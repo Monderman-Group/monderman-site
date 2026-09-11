@@ -3,7 +3,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import crypto from 'node:crypto';
 import { chromium, webkit } from 'playwright';
 const root = path.resolve('.render-public'), out = path.resolve('output/pilot-safe-browser');
 fs.mkdirSync(out, { recursive: true });
@@ -12,9 +11,11 @@ const mime = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascri
 let checks = 0;
 const equal = (a, b, message) => { assert.deepEqual(a, b, message); checks++; };
 const ok = (value, message) => { assert.ok(value, message); checks++; };
-equal(crypto.createHash('sha256').update(fs.readFileSync('first-run-telemetry.js')).digest('hex'), '63bf1680a08fd4879a6a2f5d75979e82ec447a3b22d209c9cfacbeb2cd988afa', 'anonymous telemetry remains exact de01 source');
-equal(fs.readFileSync(path.join(root, 'first-run-telemetry.js'), 'utf8'), fs.readFileSync('first-run-telemetry.js', 'utf8'), 'built telemetry unchanged');
-ok(!/sessionStorage|localStorage|acquisitionSource|acquisitionCampaign|utm_|journeyId/.test(fs.readFileSync('pilot-waitlist.js', 'utf8')), 'pilot adds no storage, source tags or anonymous identifier');
+// Safe-release retry coverage is retained under the new opt-in-only policy.
+// The separate acquisition suite exercises affirmative Allow and withdrawal.
+ok(fs.readFileSync('first-run-telemetry.js','utf8').includes('var CONSENT_VERSION = "2026-09-10-v1";'), 'explicit versioned measurement choice');
+equal(fs.readFileSync(path.join(root, 'first-run-telemetry.js'), 'utf8'), fs.readFileSync('first-run-telemetry.js', 'utf8'), 'built measurement script equals reviewed source');
+ok(!/sessionStorage|localStorage|utm_|journeyId/.test(fs.readFileSync('pilot-waitlist.js', 'utf8')), 'pilot reads no optional storage or raw campaign parameters and carries no visit identifier');
 const results = [];
 for (const [engine, type] of Object.entries({ chromium, webkit })) {
   const browser = await type.launch({ headless: true });
@@ -65,7 +66,7 @@ for (const [engine, type] of Object.entries({ chromium, webkit })) {
         await page.screenshot({ path: path.join(out, `${engine}-${width}-home.png`) });
         await dv.click(); await page.waitForURL('**/decision-velocity.html?source=homepage');
         await page.waitForFunction(() => window.MondermanFirstRun);
-        equal(await page.evaluate(() => Object.keys(window.MondermanFirstRun).sort()), ['journeyId', 'track', 'trackOnce'], `${label}: no attribution API added`);
+        equal(await page.evaluate(() => [window.MondermanFirstRun.isMeasurementAllowed(),window.MondermanFirstRun.journeyId(),window.MondermanFirstRun.measurementConsentVersion(),window.MondermanFirstRun.attribution()]),[false,'',null,{acquisitionSource:'unknown',acquisitionCampaign:null}],`${label}: all optional helpers remain inactive without consent`);
         const protectedLinks = ['signin.html?next=decision-velocity.html%3Fresume%3D1', 'workspace-diagnostics.html?report=00000000-0000-4000-8000-000000000001', 'decision-velocity.html?resume=1'];
         equal(await page.evaluate(links => links.map(href => { const a = document.createElement('a'); a.href = href; document.body.append(a); a.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true })); return a.getAttribute('href'); }), protectedLinks), protectedLinks, `${label}: auth/saved report/resume URLs untouched`);
         // Dynamic result-link fixture uses the unchanged existing destination;
@@ -100,14 +101,15 @@ for (const [engine, type] of Object.entries({ chromium, webkit })) {
         ok(applications[4].requestId !== applications[3].requestId, `${label}: edited body gets new key`);
         for (const [index, payload] of applications.entries()) {
           equal(payload.source, index < 3 ? 'decision_velocity' : 'homepage', `${label}: existing entry source`);
-          equal(Object.keys(payload).sort(), ['completedDecisionVelocity','decisionFocus','fullName','organization','participantGroupSize','privacyConsent','requestId','roleTitle','source','website','workEmail'].sort(), `${label}: no journey ID or acquisition fields`);
+          equal(Object.keys(payload).sort(), ['acquisitionSource','acquisitionCampaign','completedDecisionVelocity','decisionFocus','fullName','organization','participantGroupSize','privacyConsent','requestId','roleTitle','source','website','workEmail'].sort(), `${label}: no journey ID or unearned measurement consent`);
+          equal([payload.acquisitionSource,payload.acquisitionCampaign],['unknown',null],`${label}: no campaign attribution without consent`);
         }
-        ok(events.some(event => event.eventName === 'pilot_waitlist_submitted'), `${label}: existing success event preserved`);
-        ok(events.every(event => Object.keys(event).every(key => ['eventName','journeyId','pagePath','diagnosticDepth'].includes(key))), `${label}: no new telemetry fields`);
+        equal(events,[], `${label}: pilot success creates no optional events before permission`);
+        equal(await application.evaluate(()=>window.MondermanFirstRun.measurementConsentVersion()),null,`${label}: required application privacy check does not grant optional consent`);
         ok(!JSON.stringify(events).includes('PRIVATE_') && !JSON.stringify(events).includes('linkedin'), `${label}: no form data or campaign capture`);
         for (const current of [page, application, edited]) {
           const storage = await current.evaluate(() => ({ session: { ...sessionStorage }, local: { ...localStorage } }));
-          equal(Object.keys(storage.session).filter(key => key !== 'monderman_first_run_journey'), [], `${label}: no new session storage`);
+          equal(Object.keys(storage.session), [], `${label}: no optional session storage`);
           equal(Object.keys(storage.local), [], `${label}: no new local storage`);
           ok(!JSON.stringify(storage).includes('PRIVATE_'), `${label}: form data not persisted`);
           ok(await current.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${label}: no overflow`);
