@@ -20,7 +20,7 @@ const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
 // Refresh both the reviewed report renderer and the newer shared brand release.
 const shellRelease = "20260910-report22-brand3";
 const assistantRelease = "20260910-bounded-chat1";
-const acquisitionRelease = "20260910-acquisition1";
+const acquisitionRelease = "20260910-measurement-choice1";
 const productPages = new Set([
   "diagnostics.html", "platform-services.html", "plan-signal.html", "plan-pattern.html",
   "plan-enterprise.html", "new-in-the-role.html", "after-an-acquisition.html",

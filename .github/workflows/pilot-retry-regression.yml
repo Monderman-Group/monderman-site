@@ -1,0 +1,37 @@
+name: Pilot availability and retry regression
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  pilot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned browser tooling
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          bash scripts/install_ci_browsers.sh
+      - name: Build and test using intercepted requests only
+        env:
+          RENDER_GIT_COMMIT: ${{ github.sha }}
+          MONDERMAN_QUESTIONNAIRE_RELEASE: current
+        run: |
+          bash scripts/render-static-build.sh
+          node scripts/first_run_entry_smoke.mjs
+          node scripts/pilot_retry_browser_smoke.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pilot-retry-local-evidence
+          path: output/pilot-safe-browser

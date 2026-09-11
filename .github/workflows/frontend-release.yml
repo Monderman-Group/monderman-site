@@ -66,6 +66,7 @@ jobs:
         run: node scripts/questionnaire_release_build_smoke.mjs
       - name: Preserve legal editions and refresh chatbot assets in the built site
         run: |
+          python scripts/optional_measurement_publication_smoke.py
           RENDER_GIT_COMMIT="${{ github.sha }}" bash scripts/render-static-build.sh
           node scripts/chatbot_release_artifact_smoke.mjs
       - name: Keep modeled currency display ranges consistent and bounded

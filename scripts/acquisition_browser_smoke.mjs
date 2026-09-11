@@ -13,15 +13,24 @@ let checks = 0;
 const equal = (a, b, label) => { assert.deepEqual(a, b, label); checks++; };
 const ok = (a, label) => { assert.ok(a, label); checks++; };
 const results = [];
+async function contrast(page,label) {
+  const colors=await page.locator('#mnd-measurement-panel').evaluate(panel=>({background:getComputedStyle(panel).backgroundColor,foreground:[...panel.querySelectorAll('h2,p,a,button')].map(node=>{const style=getComputedStyle(node);let opacity=1,filters=[];for(let current=node;current;current=current.parentElement){const value=getComputedStyle(current);opacity*=Number(value.opacity);filters.push(value.filter);}return {color:style.color,fill:style.webkitTextFillColor,opacity,filters};})}));
+  const luminance=value=>{const rgb=value.match(/[\d.]+/g).slice(0,3).map(Number).map(n=>{n/=255;return n<=.04045?n/12.92:((n+.055)/1.055)**2.4});return rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722;};
+  const background=luminance(colors.background);
+  ok(colors.foreground.every(item=>item.opacity>=.999&&item.filters.every(filter=>filter==='none')&&item.fill===item.color),`${label}: no ancestor opacity, filter or text-fill contrast override`);
+  const spacing=await page.locator('#mnd-measurement-panel').evaluate(panel=>{const p=panel.querySelector('p'),actions=panel.querySelector('.mnd-measurement-actions');return {transform:getComputedStyle(p).transform,gap:actions.getBoundingClientRect().top-p.getBoundingClientRect().bottom};});
+  if(await page.locator('#mnd-measurement-panel').isVisible())ok(spacing.transform==='none'&&spacing.gap>=11,`${label}: motion cannot overlap explanatory text with choice buttons`);
+  ok(colors.foreground.every(item=>{const value=luminance(item.fill);return (Math.max(value,background)+.05)/(Math.min(value,background)+.05)>=4.5;}),`${label}: actual panel text/link contrast at least 4.5:1`);
+}
 for (const [engine, type] of Object.entries({ chromium, webkit })) {
   const browser = await type.launch({ headless: true });
   try {
     for (const width of [390, 768, 1440]) {
       const label = `${engine}/${width}`, events = [], applications = [], errors = [], unexpectedPosts = [];
-      let held = null;
+      let held = null, holdApplications = true;
       const context = await browser.newContext({ viewport: { width, height: width < 500 ? 844 : 1000 }, serviceWorkers: 'block' });
       context.on('page', page => page.on('pageerror', error => errors.push(error.message)));
-      await context.route('**/*', async route => {
+      const handleRoute = async route => {
         const request = route.request(), url = new URL(request.url());
         if (url.origin === base) {
           const file = path.resolve(root, '.' + (url.pathname === '/' ? '/index.html' : url.pathname));
@@ -38,14 +47,15 @@ for (const [engine, type] of Object.entries({ chromium, webkit })) {
         if (url.pathname === '/api/health') return route.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' });
         if (url.pathname === '/api/pilot-waitlist') {
           applications.push(request.postDataJSON());
-          if (applications.length === 1) { held = route; return; }
-          if (applications.length === 2) return route.abort();
+          if (holdApplications && applications.length === 1) { held = route; return; }
+          if (holdApplications && applications.length === 2) return route.abort();
           return route.fulfill({ status: 202, contentType: 'application/json', body: '{"ok":true}' });
         }
         if (url.href.includes('@supabase/')) return route.fulfill({ contentType: 'application/javascript', body: 'window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:null}}),getUser:async()=>({data:{user:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}})};' });
         if (request.method() !== 'GET') unexpectedPosts.push({ method: request.method(), path: url.pathname });
         return route.abort();
-      });
+      };
+      await context.route('**/*', handleRoute);
       try {
         const page = await context.newPage();
         await page.goto(`${base}/index.html?utm_source=linkedin&utm_campaign=first-dv-202609&email=PRIVATE_EMAIL&referrer=PRIVATE_REFERRER`, { waitUntil: 'domcontentloaded' });
@@ -53,6 +63,30 @@ for (const [engine, type] of Object.entries({ chromium, webkit })) {
         equal((await pilot.textContent()).trim(), 'Join the pilot waitlist · Applications open', `${label}: honest availability`);
         equal(await pilot.evaluate(node => getComputedStyle(node).color), 'rgb(240, 196, 125)', `${label}: amber preserved`);
         const cta = page.locator('.hero-actions .btn-accent');
+        await page.locator('#mnd-measurement-panel').waitFor({state:'visible'});
+        const untouched = await cta.getAttribute('href');
+        equal(new URL(untouched,base).search, '?source=homepage', `${label}: default-off CTA preserves entry surface only`);
+        equal(events, [], `${label}: default off sends no events`);
+        equal(await page.evaluate(()=>window.MondermanFirstRun.journeyId()), '', `${label}: no default-off ID`);
+        equal(await page.evaluate(()=>Object.keys(sessionStorage).filter(key=>key.startsWith('monderman_first_run'))), [], `${label}: no default-off optional storage`);
+        const geometry = await page.evaluate(()=>{
+          const panel=document.querySelector('#mnd-measurement-panel'), buttons=[...panel.querySelectorAll('button')].map(node=>{const r=node.getBoundingClientRect(); return {height:r.height,width:r.width,left:r.left,right:r.right,background:getComputedStyle(node).backgroundColor};});
+          return {buttons,position:getComputedStyle(panel).position,top:panel.getBoundingClientRect().top,ctaBottom:document.querySelector('.hero-actions').getBoundingClientRect().bottom};
+        });
+        ok(geometry.top>=geometry.ctaBottom, `${label}: choice does not displace hero CTA`);
+        ok(geometry.buttons.every(button=>button.height>=44&&button.left>=0&&button.right<=width), `${label}: contained accessible choice targets`);
+        equal(geometry.buttons[0].background,geometry.buttons[1].background, `${label}: equal choice styling`);
+        ok(Math.abs(geometry.buttons[0].width-geometry.buttons[1].width)<2, `${label}: equal choice widths`);
+        ok(!['fixed','absolute'].includes(geometry.position), `${label}: nonblocking in-flow choice`);
+        equal(await page.locator('#mnd-measurement-panel a').getAttribute('href'),'privacy.html#optional-measurement',`${label}: explanatory notice link`);
+        await contrast(page,`${label}/homepage`);
+        await page.screenshot({path:path.join(out,`${engine}-${width}-default-off.png`)});
+        await page.locator('#mnd-measurement-panel').screenshot({path:path.join(out,`${engine}-${width}-choice-panel.png`)});
+        await page.locator('#mnd-measurement-allow').focus();
+        await page.keyboard.press('Tab');
+        equal(await page.evaluate(()=>document.activeElement.id),'mnd-measurement-deny',`${label}: keyboard gives equal access to decline`);
+        await page.locator('#mnd-measurement-allow').click();
+        equal(events, [], `${label}: Allow does not replay homepage actions`);
         const tagged = new URL(await cta.getAttribute('href'), base);
         equal(tagged.pathname, '/decision-velocity.html', `${label}: same CTA destination`);
         equal(tagged.searchParams.get('utm_source'), 'linkedin', `${label}: landing attribution`);
@@ -96,26 +130,99 @@ for (const [engine, type] of Object.entries({ chromium, webkit })) {
         equal(applications.length, 2, `${label}: manual retry only`);
         equal(applications[0].requestId, applications[1].requestId, `${label}: unchanged retry keeps idempotency key`);
         await application.locator('[name=decisionFocus]').fill('PRIVATE_ANSWER revised fabricated unit.');
+        await application.locator('[name=completedDecisionVelocity]').uncheck();
         await application.locator('#pilotSubmit').click();
         await application.locator('#pilotConfirmation').waitFor({ state: 'visible' });
         equal(applications.length, 3, `${label}: edited explicit resubmission`);
         ok(applications[2].requestId !== applications[1].requestId, `${label}: changed payload gets new key`);
+        equal(applications.map(payload=>payload.completedDecisionVelocity),[true,true,false],`${label}: prefilled completed-DV answer respects explicit uncheck`);
         for (const payload of applications) {
           equal(payload.source, 'decision_velocity', `${label}: entry surface preserved`);
           equal(payload.acquisitionSource, 'linkedin', `${label}: application source`);
           equal(payload.acquisitionCampaign, 'first-dv-202609', `${label}: application campaign`);
+          equal(payload.measurementConsentVersion,'2026-09-10-v1',`${label}: application carries affirmative choice version`);
           equal(Object.hasOwn(payload, 'journeyId'), false, `${label}: no anonymous/person link`);
         }
         ok(events.some(event => event.eventName === 'pilot_waitlist_submitted'), `${label}: success event emitted`);
-        ok(events.every(event => Object.keys(event).every(key => ['eventName', 'journeyId', 'pagePath', 'diagnosticDepth', 'acquisitionSource', 'acquisitionCampaign'].includes(key))), `${label}: finite telemetry fields`);
+        ok(events.every(event => Object.keys(event).every(key => ['eventName', 'journeyId', 'pagePath', 'diagnosticDepth', 'acquisitionSource', 'acquisitionCampaign', 'measurementConsentVersion'].includes(key))), `${label}: finite telemetry fields`);
+        ok(events.every(event=>event.measurementConsentVersion==='2026-09-10-v1'),`${label}: every event has explicit choice version`);
         ok(!JSON.stringify(events).includes('PRIVATE_'), `${label}: form/query data absent from analytics`);
         ok(!(await application.evaluate(() => JSON.stringify({ ...sessionStorage, ...localStorage }))).includes('PRIVATE_'), `${label}: form/query data absent from storage`);
         equal(unexpectedPosts, [], `${label}: no scoring/auth/model/form traffic escapes fixtures`);
         equal(errors, [], `${label}: no unhandled page errors`);
         for (const current of [page, application]) ok(await current.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${label}: no horizontal overflow`);
         await application.screenshot({ path: path.join(out, `${engine}-${width}-pilot-confirmation.png`), fullPage: true });
+        await application.evaluate(()=>{sessionStorage.setItem('fixture-auth','KEEP'); sessionStorage.setItem('fixture-report','KEEP');});
+        await application.locator('#mnd-measurement-settings-button').click();
+        await contrast(application,`${label}/pilot`);
+        equal(await application.evaluate(()=>document.activeElement.id),'mnd-measurement-panel',`${label}: settings reopen focuses choices`);
+        await application.addStyleTag({content:'#mnd-measurement-panel,#mnd-measurement-settings{font-size:28px!important}'});
+        ok(await application.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${label}: 200 percent choice text remains contained`);
+        await application.locator('#mnd-measurement-panel').screenshot({path:path.join(out,`${engine}-${width}-choices-large-text.png`)});
+        await application.locator('#mnd-measurement-deny').click();
+        const beforeWithdraw=events.length;
+        await application.evaluate(()=>window.MondermanFirstRun.track('score_displayed'));
+        equal(events.length,beforeWithdraw,`${label}: explicit withdrawal stops future events`);
+        equal(await application.evaluate(()=>[sessionStorage.getItem('fixture-auth'),sessionStorage.getItem('fixture-report')]),['KEEP','KEEP'],`${label}: withdrawal preserves auth and report state`);
+        equal(await application.evaluate(()=>Object.keys(sessionStorage).filter(key=>key.startsWith('monderman_first_run'))),[],`${label}: withdrawal clears only optional state`);
+        await page.waitForFunction(()=>!window.MondermanFirstRun.isMeasurementAllowed());
+        equal(await page.evaluate(()=>window.MondermanFirstRun.journeyId()),'',`${label}: cross-tab withdrawal stops original tab`);
+        await application.reload({waitUntil:'domcontentloaded'});
+        equal(await application.evaluate(()=>window.MondermanFirstRun.isMeasurementAllowed()),false,`${label}: declined refresh remains off`);
+        equal(events.length,beforeWithdraw,`${label}: refresh adds no events after withdrawal`);
         results.push({ engine, width, mockedApplications: applications.length, anonymousEvents: events.length, unexpectedPosts: 0, errors: 0 });
       } finally { await context.close(); }
+      holdApplications=false;
+      // Independent no-choice/declined and unavailable-storage journeys. All
+      // application responses remain fabricated; no diagnostic run is started.
+      for (const mode of ['decline','storage-unavailable','malformed','failed-withdrawal']) {
+        const isolated=await browser.newContext({viewport:{width,height:844},serviceWorkers:'block'});
+        await isolated.route('**/*',handleRoute);
+        isolated.on('page',page=>page.on('pageerror',error=>errors.push(error.message)));
+        if(mode==='malformed') await isolated.addInitScript(()=>{if(location.hostname==='127.0.0.1')localStorage.setItem('monderman_measurement_choice','{bad')});
+        if(mode==='storage-unavailable') await isolated.addInitScript(()=>{Storage.prototype.getItem=function(){throw Error('fixture blocked')};Storage.prototype.setItem=function(){throw Error('fixture blocked')};});
+        if(mode==='failed-withdrawal') await isolated.addInitScript(()=>{if(location.hostname!=='127.0.0.1')return;localStorage.setItem('monderman_measurement_choice',JSON.stringify({version:'2026-09-10-v1',choice:'allow'}));const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(this===localStorage)throw Error('fixture quota');return original.call(this,key,value)};const remove=Storage.prototype.removeItem;Storage.prototype.removeItem=function(key){if(this===localStorage)throw Error('fixture blocked removal');return remove.call(this,key)};});
+        try {
+          const current=await isolated.newPage(), eventStart=events.length;
+          await current.goto(`${base}/index.html?utm_source=email&utm_campaign=first-dv-202609`,{waitUntil:'domcontentloaded'});
+          if(mode==='failed-withdrawal') await current.locator('#mnd-measurement-settings-button').click();
+          if(mode==='storage-unavailable') await current.locator('#mnd-measurement-allow').click();
+          if(mode!=='malformed') await current.locator('#mnd-measurement-deny').click();
+          if(mode==='failed-withdrawal') await current.evaluate(()=>{dispatchEvent(new Event('focus'));dispatchEvent(new Event('pageshow'));});
+          equal(await current.evaluate(()=>window.MondermanFirstRun.isMeasurementAllowed()),false,`${label}/${mode}: remains off`);
+          equal(new URL(await current.locator('.hero-actions .btn-accent').getAttribute('href'),base).search,'?source=homepage',`${label}/${mode}: no acquisition forwarding`);
+          if(mode==='failed-withdrawal') { equal(events.length,eventStart,`${label}: failed withdrawal cannot re-enable old Allow`); continue; }
+          await current.locator('.hero-actions .btn-accent').click();
+          await current.waitForURL('**/decision-velocity.html?source=homepage');
+          await contrast(current,`${label}/${mode}/DV`);
+          await current.locator('[data-lane="operational"]').click();
+          await current.locator('#laneContinueBtn').click();
+          await current.locator('[data-depth="10"]').click();
+          await current.locator('#depthContinueBtn').click();
+          ok(await current.locator('#introStage').isVisible(),`${label}/${mode}: diagnostic setup works without measurement`);
+          equal(events.length,eventStart,`${label}/${mode}: setup has no optional requests`);
+          await current.screenshot({path:path.join(out,`${engine}-${width}-${mode}-dv.png`),fullPage:true});
+          await current.goto(`${base}/pilot.html?source=${mode==='malformed'?'homepage':'decision_velocity'}`,{waitUntil:'domcontentloaded'});
+          equal(await current.locator('[name=completedDecisionVelocity]').isChecked(),mode!=='malformed',`${label}/${mode}: only DV entry prefills completion answer`);
+          await current.locator('[name=completedDecisionVelocity]').uncheck();
+          await current.locator('[name=fullName]').fill('PRIVATE_NAME Fixture');
+          await current.locator('[name=workEmail]').fill('PRIVATE_EMAIL@example.test');
+          await current.locator('[name=organization]').fill('PRIVATE_ORG Fixture');
+          await current.locator('[name=decisionFocus]').fill('PRIVATE_ANSWER fabricated unit');
+          await current.locator('[name=privacyConsent]').check();
+          await current.locator('#pilotSubmit').click();
+          await current.locator('#pilotConfirmation').waitFor({state:'visible'});
+          const payload=applications.at(-1);
+          equal(payload.completedDecisionVelocity,false,`${label}/${mode}: checkbox answer, not entry URL, controls self-report`);
+          equal([payload.acquisitionSource,payload.acquisitionCampaign],['unknown',null],`${label}/${mode}: pilot works with no attribution`);
+          equal(Object.hasOwn(payload,'measurementConsentVersion'),false,`${label}/${mode}: required form privacy check is not measurement consent`);
+          equal(Object.hasOwn(payload,'journeyId'),false,`${label}/${mode}: no visit/person linking`);
+          equal(events.length,eventStart,`${label}/${mode}: pilot success not measured while off`);
+          ok(await current.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${label}/${mode}: no overflow`);
+        } finally { await isolated.close(); }
+      }
+      equal(unexpectedPosts,[],`${label}: all test scenarios stayed inside fixtures`);
+      equal(errors,[],`${label}: all choice scenarios free of unhandled errors`);
     }
   } finally { await browser.close(); }
 }

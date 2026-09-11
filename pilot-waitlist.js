@@ -54,7 +54,9 @@
 
   async function submit(form) {
     var source = sourceFromLocation();
-    var acquisition = window.MondermanFirstRun?.attribution?.() || {};
+    var consentVersion = window.MondermanFirstRun?.measurementConsentVersion?.();
+    var hasConsent = consentVersion === "2026-09-10-v1";
+    var acquisition = hasConsent ? window.MondermanFirstRun?.attribution?.() || {} : {};
     var acquisitionSource = typeof acquisition.acquisitionSource === "string" ? acquisition.acquisitionSource.trim().toLowerCase() : "unknown";
     var payload = {
       fullName: value(form, "fullName"),
@@ -63,13 +65,14 @@
       roleTitle: value(form, "roleTitle"),
       participantGroupSize: value(form, "participantGroupSize"),
       decisionFocus: value(form, "decisionFocus"),
-      completedDecisionVelocity: Boolean(form.elements.namedItem("completedDecisionVelocity")?.checked || source === "decision_velocity"),
+      completedDecisionVelocity: Boolean(form.elements.namedItem("completedDecisionVelocity")?.checked),
       privacyConsent: Boolean(form.elements.namedItem("privacyConsent")?.checked),
       website: value(form, "website"),
       source: source,
       acquisitionSource: ["linkedin", "facebook", "x", "email", "referral", "direct", "unknown"].indexOf(acquisitionSource) >= 0 ? acquisitionSource : "unknown",
       acquisitionCampaign: acquisition.acquisitionCampaign === "first-dv-202609" ? "first-dv-202609" : null
     };
+    if (hasConsent) payload.measurementConsentVersion = consentVersion;
     // Only an unchanged explicit retry reuses the same server idempotency key.
     // Keep this transient form snapshot in memory, never analytics or storage.
     var fingerprint = JSON.stringify(payload);
@@ -81,6 +84,18 @@
     var response;
     try {
       var base = await chooseBase();
+      // A functional health probe may finish after the visitor withdraws.
+      // Recheck at the actual submission boundary; never send stale consent.
+      if (hasConsent && window.MondermanFirstRun?.measurementConsentVersion?.() !== "2026-09-10-v1") {
+        payload.acquisitionSource = "unknown";
+        payload.acquisitionCampaign = null;
+        delete payload.measurementConsentVersion;
+        delete payload.requestId;
+        fingerprint = JSON.stringify(payload);
+        if (!pendingSubmission || pendingSubmission.fingerprint !== fingerprint) pendingSubmission = { fingerprint: fingerprint, id: requestId() };
+        id = pendingSubmission.id;
+        payload.requestId = id;
+      }
       response = await fetchWithTimeout(base + "/api/pilot-waitlist", {
         method: "POST",
         headers: { "Accept": "application/json", "Content-Type": "application/json" },
