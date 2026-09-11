@@ -74,6 +74,39 @@ for (const match of pilot.matchAll(/href="([^"#]+)(?:#[^"]*)?"/g)) {
   assert.ok(fs.existsSync(path.join(root, href.split("?")[0])), `pilot.html has unresolved link ${href}`);
 }
 
+// The pilot is an evaluation of the relevant suite, not a mandatory four-lens
+// sequence or a twelve-person entitlement. Keep this in the existing CI gate.
+const guide = pilot.match(/<section\b[^>]*id="evaluation-plan"[\s\S]*?<\/section>/)?.[0];
+assert.ok(guide, "pilot.html: linked evaluation plan missing");
+const guideHeadings = [...guide.matchAll(/<h3>(.*?)<\/h3>/g)].map(match => match[1]);
+assert.deepEqual(guideHeadings, [
+  "Choose a real organizational question.",
+  "Run the first relevant diagnostic with your team.",
+  "Add other diagnostics when they answer another question.",
+  "Use Synthesis to examine the submitted evidence.",
+  "Choose a practical action and a later measurement."
+]);
+for (const name of ["Structural Clarity", "Decision Velocity", "Operational Systems", "Institutional Performance"])
+  assert.ok(guide.includes(`<strong>${name}:</strong>`), `pilot guide missing ${name}`);
+for (const required of [
+  "You do not need to use every diagnostic", "500 completed campaign responses",
+  "One person completing four assigned diagnostics uses four responses",
+  "Pending invitations also reserve capacity", "A Workspace admin",
+  "Depth Synthesis", "Cross-Lens Synthesis", "a Composite Score is withheld",
+  "may not be enough to demonstrate sustained improvement", "does not prove"
+]) assert.ok(guide.includes(required), `pilot guide missing ${required}`);
+const activation = fs.readFileSync(path.join(root, "pattern-trial.html"), "utf8");
+for (const required of [
+  'href="pilot.html#evaluation-plan"', 'id="pilotEvaluationPlan"',
+  "suggested starting group, not a hard cap", "none is universally required",
+  "500 completed campaign responses", "uses four of the 500 campaign responses",
+  "Pending invitations also reserve capacity", "Individual runs are unlimited",
+  "10, 30, and 60 minutes", "Operational, Managerial, and Senior Leader",
+  "does not guarantee a Composite Score", "does not renew automatically"
+]) assert.ok(activation.includes(required), `pilot activation guide missing ${required}`);
+assert.doesNotMatch(pilot, /Apply for a 30-day Monderman Pattern Pilot with 6 to 12 people/,
+  "pilot metadata must not imply a twelve-person limit");
+
 for (const file of ["why-monderman.html", "roi.html"]) {
   const html = fs.readFileSync(path.join(root, file), "utf8");
   assert.doesNotMatch(html, />Start the standard Trial</);
