@@ -6,6 +6,7 @@ const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright')
 const base = process.env.REPORT_BASE || 'http://127.0.0.1:8080';
 const out = process.env.REPORT_OUT || '/tmp/report-presentation-smoke';
 fs.mkdirSync(out, { recursive: true });
+const artifact=JSON.parse(fs.readFileSync(new URL('../sample-data/production-diagnostic-samples.json',import.meta.url),'utf8'));
 
 function assert(ok, msg) { if (!ok) throw new Error(msg); }
 function isMondermanFont(font) { return /Neue Haas Grotesk/i.test(font); }
@@ -14,13 +15,14 @@ const browser = await chromium.launch({ headless: true });
 const source = await browser.newPage({ viewport: { width: 1200, height: 900 } });
 await source.goto(`${base}/sample-report.html`, { waitUntil: 'networkidle', timeout: 90000 });
 
-const html = await source.evaluate(() => {
-  const fixtures = window.MONDERMAN_REPRESENTATIVE_SYNTHESIS_FIXTURES;
+const html = await source.evaluate((artifact) => {
+  const sample = window.MondermanPublicSamples;
+  sample.validate(artifact);
   return {
-    cross: window.MondermanReport.buildReportHtml(window.MondermanReport.fromSynthesis(fixtures.crossLens)),
-    depth: window.MondermanReport.buildReportHtml(window.MondermanReport.fromSynthesis(fixtures.depth)),
+    cross: window.MondermanReport.buildReportHtml(sample.model(artifact.outputs.cross_lens_synthesis,artifact)),
+    depth: window.MondermanReport.buildReportHtml(sample.model(artifact.outputs.depth_synthesis,artifact)),
   };
-});
+},artifact);
 
 async function certifyPdf({ key, reportHtml, chartLabel, expectedScore, expectedVisual }) {
   const page = await browser.newPage({ viewport: { width: 1100, height: 1000 } });
@@ -67,14 +69,14 @@ const cross = await certifyPdf({
   key: 'cross-lens',
   reportHtml: html.cross,
   chartLabel: 'Cross-Lens Diagnostic score comparison',
-  expectedScore: '55.5',
+  expectedScore: String(artifact.outputs.cross_lens_synthesis.source.cross_diagnostic_score),
   expectedVisual: '.mr-cross-lens-map',
 });
 const depth = await certifyPdf({
   key: 'depth',
   reportHtml: html.depth,
   chartLabel: 'Depth Synthesis score distribution',
-  expectedScore: '56',
+  expectedScore: String(artifact.outputs.depth_synthesis.source.aggregate_score),
   expectedVisual: '.mr-viz-panel',
 });
 

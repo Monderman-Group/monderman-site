@@ -6,14 +6,13 @@ const base = process.env.SAMPLE_BASE || 'http://127.0.0.1:8080';
 const out = process.env.SAMPLE_OUT || '/tmp/sample-product-fidelity-smoke';
 fs.mkdirSync(out, { recursive: true });
 
-const expectedEngine = '07328e2a15ee16262e98e573e97c6bfd65659260';
-const expectedArtifact = '447cdd78f6fceecdecfdd8f31ef99de048b96aace73de835757ff51cc79be6d7';
-const expected = {
-  os: { source: 'operational_systems', score: '44', dimensions: 6 },
-  dv: { source: 'decision_velocity', score: '51', dimensions: 4 },
-  sc: { source: 'structural_clarity', score: '51', dimensions: 5 },
-  ip: { source: 'institutional_performance', score: '48', dimensions: 6 },
-};
+const artifact=JSON.parse(fs.readFileSync(new URL('../sample-data/production-diagnostic-samples.json',import.meta.url),'utf8'));
+const expectedEngine = artifact.engine_commit;
+const expectedArtifact = artifact.artifact_sha256;
+const expected = Object.fromEntries(Object.entries({os:'operational_systems',dv:'decision_velocity',sc:'structural_clarity',ip:'institutional_performance'}).map(([tab,key])=>{
+  const result=artifact.outputs[key].source;
+  return [tab,{source:key,score:String(result.score),dimensions:Object.keys(result.dimensions).length,result}];
+}));
 
 function assert(value, message) {
   if (!value) throw new Error(message);
@@ -46,6 +45,7 @@ await page.route(/^https:\/\/www\.monderman\.com\/(55|65|75)font\.woff2$/, async
 
 await page.goto(`${base}/sample-report.html#os`, { waitUntil: 'networkidle', timeout: 90000 });
 await page.locator('body.production-samples-ready').waitFor({ state: 'attached', timeout: 30000 });
+assert(await page.locator('.report-shell select[aria-label="Jump to report section"]').count() === 6, 'all six generated reports require an accessible section navigator');
 assert(await page.locator('main').count() === 1, 'sample library must expose exactly one main landmark');
 assert(await page.locator('h1:visible').count() === 1, 'active sample must expose exactly one visible h1');
 assert(await page.locator('.skip-link').getAttribute('href') === '#main-content', 'sample library skip link is missing');
@@ -73,7 +73,8 @@ for (const [key, contract] of Object.entries(expected)) {
   assert(await report.getAttribute('data-source-key') === contract.source, `${key} source identity mismatch`);
   assert((await shell.locator('.mr-run-score-stamp strong').innerText()).trim() === contract.score, `${key} generated score mismatch`);
   assert(await shell.locator('.mr-dimension-row').count() === contract.dimensions, `${key} generated dimension count mismatch`);
-  assert(await shell.locator('.mr-run-remedy').count() === 3, `${key} must show three engine-generated remedy paths`);
+  assert(await shell.locator('.mr-run-remedy').count() === 0, `${key} duplicates fallback advice after accepted AI`);
+  assert(await shell.locator('.mr-ai-action').count() === contract.result.ai_report.report.interpretation.recommendations.filter(a=>a.action?.trim()).length, `${key} is missing accepted AI actions`);
   assert(await shell.locator('.cover').count() === 0, `${key} legacy hand-authored report remains in the live DOM`);
   const executiveRead = shell.locator('.mr-run-decision');
   assert(await executiveRead.isVisible(), `${key} executive headline block is not visible`);
@@ -83,8 +84,8 @@ for (const [key, contract] of Object.entries(expected)) {
     'Decision summary', 'Dimension profile', key==='sc'?'Clarity indicator distribution':'Where the measured issue appears',
     'How the time and cost estimate is built', key==='sc'?'Review order and clarity indicators':'Priority order and measured severity',
     'What this may mean', 'What this result is based on',
-    'Priorities and options', 'How this report was produced', 'Interpretation boundary',
-    'No written participant notes are included.', 'Turn the result into a small, measurable test',
+    'AI-assisted interpretation', 'How this report was produced', 'Interpretation boundary', 'About this example',
+    'No written participant notes are included.',
   ]) assert(text.includes(token), `${key} missing production-equivalent content: ${token}`);
   for (const stale of ['Competing readings', 'What would update this read', 'Sample Depth Synthesis Report']) {
     assert(!text.includes(stale), `${key} still renders outdated content: ${stale}`);
@@ -118,11 +119,17 @@ await page.locator('#tab-synthesis').click();
 const cross = page.locator('#report-synthesis');
 assert(await cross.locator('.psr-doc-shell').count() === 1, 'Cross-Lens shared promotional report frame is missing');
 assert(await cross.locator('.psr-toolbar').isVisible(), 'Cross-Lens shared report controls are missing');
-const crossText = await cross.innerText();
-for (const token of ['Cross-Lens Composite Score', '55.5', 'Strong', 'Equal-lens mean', 'Evidence-proportionate actions', 'Interpretation boundary']) {
+const crossText = await cross.textContent();
+assert(artifact.outputs.cross_lens_synthesis.source.score_type === 'equal_lens_mean', 'Cross-Lens must preserve its equal-lens mean basis');
+assert(crossText.includes(artifact.outputs.cross_lens_synthesis.source.score_basis), 'Cross-Lens saved score basis is missing');
+for (const token of ['Cross-Lens Composite Score', String(artifact.outputs.cross_lens_synthesis.source.cross_diagnostic_score), artifact.outputs.cross_lens_synthesis.source.evidence_assessment.evidence_label, 'equal-lens mean', 'AI-assisted interpretation', 'Interpretation boundary']) {
   assert(crossText.includes(token), `Cross-Lens sample missing ${token}`);
 }
 assert(!crossText.includes('Source-backed remedy paths'), 'Cross-Lens sample rendered remedy prose that its source-prose contract withholds');
+const crossActions=artifact.outputs.cross_lens_synthesis.source.ai_report.report.interpretation.recommendations.filter(row=>row.action?.trim()).map(row=>row.action);
+assert(await cross.locator('.mr-ai-action').count()===crossActions.length, 'Cross-Lens accepted action count differs');
+for(const action of crossActions)assert(crossText.includes(action), 'Cross-Lens accepted action text differs');
+assert(await cross.locator('.mr-action-path .mr-action-step').count()===0, 'Cross-Lens duplicates fallback actions beside accepted AI');
 assert(await cross.locator('.mr-remedy-card').count() === 0, 'Cross-Lens sample rendered remedy cards without eligible source prose');
 assert(await cross.locator('svg[aria-label="Cross-Lens Diagnostic score comparison"]').isVisible(), 'Cross-Lens comparison visual is not visible');
 const crossCompositeLabel = await cross.locator('.mr-system-composite-label').evaluate((el) => {
@@ -140,8 +147,8 @@ await page.locator('#tab-depth').click();
 const depth = page.locator('#report-depth');
 assert(await depth.locator('.psr-doc-shell').count() === 1, 'Depth shared promotional report frame is missing');
 assert(await depth.locator('.psr-toolbar').isVisible(), 'Depth shared report controls are missing');
-const depthText = await depth.innerText();
-for (const token of ['Median Diagnostic Score', '56', 'Substantial', '18', 'Agreement, divergence, and coverage', 'Interpretation boundary']) {
+const depthText = await depth.textContent();
+for (const token of ['Median Diagnostic Score', String(artifact.outputs.depth_synthesis.source.aggregate_score), artifact.outputs.depth_synthesis.source.evidence_assessment.evidence_label, String(artifact.outputs.depth_synthesis.source.submitted_run_count), 'Agreement, divergence, and coverage', 'Interpretation boundary']) {
   assert(depthText.includes(token), `Depth sample missing ${token}`);
 }
 assert(await depth.locator('svg[aria-label="Depth Synthesis score distribution"]').isVisible(), 'Depth distribution visual is not visible');

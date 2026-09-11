@@ -24,7 +24,7 @@ const base = `http://127.0.0.1:${server.address().port}`;
 const savedId = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
 const runId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const capability = 'a'.repeat(43);
-const sample = JSON.parse(fs.readFileSync('sample-data/production-diagnostic-samples.json')).outputs.decision_velocity;
+const sample = JSON.parse(fs.readFileSync('test-fixtures/authenticated-report-engine-runs.json')).outputs.decision_velocity;
 const answer = (id,type,options=[]) => ({id,questionType:type,dimension:'approval',isOptional:false,text:{managerial:id,operational:id,senior_leader:id},options:options.map(value=>({value,label:value}))});
 const questions = {route:answer('route','single_select',['slow','fast']),count:answer('count','numeric'),detail:answer('detail','single_select',['yes','no']),last:answer('last','numeric'),alternate:answer('alternate','numeric')};
 const fixtureAuth = `(() => {

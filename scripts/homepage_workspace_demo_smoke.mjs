@@ -4,7 +4,9 @@ import path from 'node:path';
 const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const base = process.env.SITE_BASE || 'http://127.0.0.1:4175';
 const root = path.resolve(import.meta.dirname, '..');
-const source = JSON.parse(fs.readFileSync(path.join(root, 'sample-data/production-diagnostic-samples.json'), 'utf8')).outputs.decision_velocity.result;
+const artifact = JSON.parse(fs.readFileSync(path.join(root, 'sample-data/production-diagnostic-samples.json'), 'utf8'));
+const source = artifact.outputs.decision_velocity.source;
+const expectedBurdens = Object.entries(source.burden_breakdown).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,3);
 const out = process.env.HOME_DEMO_OUT;
 if (out) fs.mkdirSync(out, { recursive: true });
 for (const [name, type] of [['chromium', chromium], ['webkit', webkit]]) {
@@ -21,15 +23,18 @@ for (const [name, type] of [['chromium', chromium], ['webkit', webkit]]) {
       const substantiveSizes = await app.locator('.hwd-description,.hwd-chart-row,.hwd-action-card p,.hwd-return-note p').evaluateAll(items => items.map(el => parseFloat(getComputedStyle(el).fontSize)));
       assert.ok(substantiveSizes.every(size => size >= 12), `${name}/${width}: substantive preview copy falls below 12px`);
       assert.equal(await app.locator('[data-demo-score]').textContent(), String(source.score), `${name}/${width}: sample score differs from production fixture`);
-      for (const key of ['coordination', 'handoff', 'approval']) {
+      for (const [key] of expectedBurdens) {
         const value = app.locator(`[data-demo-burden="${key}"]`);
         assert.equal(await value.textContent(), String(source.burden_breakdown[key]));
         const plotted = await value.locator('..').locator('.hwd-track > i').evaluate(el => el.style.width);
         assert.equal(plotted, `${source.burden_breakdown[key]}%`, `${name}/${width}: chart value and plot disagree`);
       }
       const actionText = await app.locator('.hwd-action-card p').textContent();
-      assert.equal(actionText, source.interpretive_prose.priority_actions[0], 'Action detail must preserve its sample source');
-      assert.match(await page.locator('.home-workspace-preview').textContent(), /Illustrative data/);
+      assert.equal(actionText, source.ai_report.report.interpretation.recommendations.find(a=>a.action?.trim()).action, 'Action detail must preserve its accepted AI source');
+      assert.equal(await app.locator('[data-demo-recovery]').textContent(), '$'+source.exposure.recoverable_cost.toLocaleString('en-US'));
+      assert.match(await app.textContent(), /Before costs; not guaranteed savings/);
+      assert.equal(await page.locator('.home-workspace-preview').getAttribute('data-artifact-sha256'),artifact.artifact_sha256);
+      assert.match(await page.locator('.home-workspace-preview').textContent(), /Fictional inputs/);
       assert.match(await page.locator('.home-preview-caption').textContent(), /does not create or change a workspace/);
       const expected = ['measure', 'analysis', 'actions', 'return'];
       const heights = [];
@@ -86,7 +91,7 @@ for (const [name, type] of [['chromium', chromium], ['webkit', webkit]]) {
       assert.equal(cta.bg, 'rgb(169, 208, 212)');
       assert.equal(cta.color, 'rgb(4, 24, 27)');
       assert.equal(await page.locator('.hero .hero-report-proof').count(), 0, 'Report must no longer occupy hero');
-      assert.equal(await page.locator('#sample-output .hero-report-link').getAttribute('href'), 'sample-report.html');
+      assert.equal(await page.locator('#sample-output .hero-report-link').getAttribute('href'), 'sample-report.html#depth');
       if (out && [390,1440].includes(width)) {
         await app.locator('#hwd-tab-analysis').click();
         await page.evaluate(() => scrollTo(0,0));

@@ -9,9 +9,8 @@ const source=fs.readFileSync(process.env.REPORT_RENDERER_SOURCE||path.join(root,
 const scope={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};
 vm.runInNewContext(source,scope);const R=scope.window.MondermanReport;
 const samples=JSON.parse(fs.readFileSync(path.join(root,'sample-data/production-diagnostic-samples.json'),'utf8'));
-const sample=fs.readFileSync(path.join(root,'sample-report.html'),'utf8'),start=sample.indexOf('window.MONDERMAN_REPRESENTATIVE_SYNTHESIS_FIXTURES ='),end=sample.indexOf('(function renderRepresentativeSyntheses()',start),fixtureScope={window:{}};
-assert.ok(start>=0&&end>start);vm.runInNewContext(sample.slice(start,end),fixtureScope);
-const fixtures=[...Object.entries(samples.outputs).map(([name,raw])=>({name,raw,kind:'run'})),...Object.entries(fixtureScope.window.MONDERMAN_REPRESENTATIVE_SYNTHESIS_FIXTURES).map(([name,raw])=>({name,raw,kind:'synthesis'}))];
+assert.equal(samples.contract,'monderman-public-product-samples/v2');
+const fixtures=Object.entries(samples.outputs).map(([name,entry])=>({name,raw:entry.source,kind:entry.kind==='diagnostic'?'run':'synthesis'}));
 assert.equal(fixtures.length,6);
 const freeze=value=>{if(value&&typeof value==='object'){Object.freeze(value);Object.values(value).forEach(freeze);}return value;};
 const state=(recommendations,status='complete')=>({status,message:'Synthetic '+status,report:{model:'synthetic-display-only',composition:{reviewed_version:'report-reviewed-capabilities-20260909.1'},interpretation:{summary:'SAVED_FACTS_ONLY',observations:[{text:'Two submitted runs do not establish two distinct people.'}],recommendations},limitations:['No population conclusion.']}});

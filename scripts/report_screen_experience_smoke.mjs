@@ -19,14 +19,8 @@ async function emulateMediaAndSettle(page, media) {
 
 async function verifyAIScreenRefresh(browser) {
   const artifact = JSON.parse(fs.readFileSync('sample-data/production-diagnostic-samples.json','utf8'));
-  const sample = fs.readFileSync('sample-report.html','utf8');
-  const fixtureStart = sample.indexOf('window.MONDERMAN_REPRESENTATIVE_SYNTHESIS_FIXTURES =');
-  const fixtureEnd = sample.indexOf('(function renderRepresentativeSyntheses()',fixtureStart);
-  assert.ok(fixtureStart >= 0 && fixtureEnd > fixtureStart);
-  const fixtureScope = {window:{}};
-  vm.runInNewContext(sample.slice(fixtureStart,fixtureEnd),fixtureScope);
-  const fixtures = Object.entries(artifact.outputs).map(([name,source])=>({name,source,kind:'run'}));
-  fixtures.push(...Object.entries(fixtureScope.window.MONDERMAN_REPRESENTATIVE_SYNTHESIS_FIXTURES).map(([name,source])=>({name,source,kind:'synthesis'})));
+  assert.equal(artifact.contract,'monderman-public-product-samples/v2');
+  const fixtures = Object.entries(artifact.outputs).map(([name,entry])=>({name,source:entry.source,kind:entry.kind==='diagnostic'?'run':'synthesis'}));
   assert.equal(fixtures.length,6);
   const lifecycle = await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
   const errors = [], rows = [];
@@ -173,9 +167,9 @@ for(const key of ['os','dv','sc','ip','synthesis','depth']) {
   await page.setViewportSize({width:1440,height:1000});
 }
 const invariants=await page.evaluate(async()=>{
-  const artifact=await fetch('sample-data/production-diagnostic-samples.json?v=447cdd78f6fc').then(r=>r.json());
-  const models=Object.values(artifact.outputs).map(run=>MondermanReport.fromRun(run));
-  models.push(MondermanReport.fromSynthesis(MONDERMAN_REPRESENTATIVE_SYNTHESIS_FIXTURES.crossLens),MondermanReport.fromSynthesis(MONDERMAN_REPRESENTATIVE_SYNTHESIS_FIXTURES.depth));
+  const artifact=await fetch('sample-data/production-diagnostic-samples.json').then(r=>r.json());
+  MondermanPublicSamples.validate(artifact);
+  const models=Object.values(artifact.outputs).map(entry=>MondermanPublicSamples.model(entry,artifact));
   return models.map(model=>{
     const before=JSON.stringify(model);
     const wrapper=document.createElement('div');document.body.append(wrapper);
@@ -223,7 +217,7 @@ for (const product of ['operational-systems','decision-velocity','structural-cla
   if(product==='structural-clarity'||product==='institutional-performance') {
     const chartStart=source.indexOf('function renderClarityDimensionBars(');
     const chartCode=source.slice(chartStart,source.indexOf('\nfunction ',chartStart+10));
-    const result=JSON.parse(fs.readFileSync('sample-data/production-diagnostic-samples.json','utf8')).outputs[product.replaceAll('-','_')].result;
+    const result=JSON.parse(fs.readFileSync('test-fixtures/authenticated-report-engine-runs.json','utf8')).outputs[product.replaceAll('-','_')].result;
     await direct.evaluate(({code,result})=>new Function('$','result',code+'\nrenderClarityDimensionBars(result);')(id=>document.getElementById(id),result),{code:chartCode,result});
     const bars=direct.locator('#clarityDimensionBars .bar-fill');
     assert.equal(await bars.count(),5,product+' fixture did not render the actual dimension chart');

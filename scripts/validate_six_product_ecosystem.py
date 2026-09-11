@@ -1,5 +1,7 @@
 from pathlib import Path
 import re
+import json
+import subprocess
 
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -68,21 +70,41 @@ report=text('cross-tool-synthesis.html')
 for token in ['/api/synthesis-runs/','Median Diagnostic Score','Cross-Lens Composite Score withheld','Print or save as PDF']:
     require(report,token,'Synthesis report')
 
-# The flagship marketing sample should demonstrate the strongest valid outcome,
-# not default to a withholding case. Withholding remains certified above.
+# The flagship marketing sample demonstrates a valid published result using
+# the reviewed artifact, not hand-authored scores or participant-count literals.
+# Withholding remains certified on the actual product surface above.
 sample=text('sample-report.html')
+subprocess.run(
+    ['node',str(ROOT/'scripts/public_sample_fixture.mjs'),'--check','--root',str(ROOT)],
+    check=True, capture_output=True, text=True,
+)
+artifact=json.loads(text('sample-data/production-diagnostic-samples.json'))
 for token in [
-    'Cross-Lens Synthesis','Median Diagnostic Score','Cross-Lens Composite Score',
-    'score_status: "published"','evidence_label: "Strong"','cross_diagnostic_score: 55.5',
+    'Cross-Lens Synthesis','Depth Synthesis',
     'Structural Clarity','Decision Velocity','Operational Systems','Institutional Performance',
-    'evidence_label: "Substantial"','respondent_count: 18',
-    'Representative sample','Directional single-run evidence','Evidence status.','What the participant added'
+    'Representative product outputs, not customer data.',
 ]:
     require(sample,token,'Sample report')
+for tab in ['os','dv','sc','ip','synthesis','depth']:
+    require(sample,f'id="report-{tab}"','Sample report')
+    require(sample,f'aria-controls="report-{tab}"','Sample report accessible tab')
+cross=artifact['outputs']['cross_lens_synthesis']['source']
+depth=artifact['outputs']['depth_synthesis']['source']
+assert cross['score_status']=='published', 'flagship Cross-Lens must be eligible for publication'
+assert cross['score_type']=='equal_lens_mean', 'flagship Cross-Lens score basis changed'
+assert cross['evidence_assessment']['evidence_label']=='Strong', 'flagship Cross-Lens requires strong submitted evidence'
+assert isinstance(cross['cross_diagnostic_score'],(int,float)), 'published Cross-Lens score missing'
+assert depth['score_type']=='within_lens_median', 'Depth score basis changed'
+assert depth['evidence_assessment']['evidence_label']=='Substantial', 'Depth submitted-evidence label changed'
+assert isinstance(depth['aggregate_score'],(int,float)), 'Depth median missing'
+for result in [cross,depth]:
+    assert result['participant_count'] is None and result['respondent_count'] is None, 'submitted runs must not be relabeled as distinct people'
+    assert isinstance(result['submitted_run_count'],int) and result['submitted_run_count']>0
 for token in [
+    'MONDERMAN_REPRESENTATIVE_SYNTHESIS_FIXTURES',
     'Composite Score withheld','Comparison Only','insight-depth','Insight depth',
     'four-instrument composed','compounded exposure','executive-seat','one per seat',
-    'per seat-year','unedited output','identical to a real run'
+    'per seat-year','unedited output','identical to a real run',
 ]:
     forbid(sample,token,'Sample report')
 

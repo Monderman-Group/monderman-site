@@ -145,10 +145,10 @@ for (const [engineName, engine] of [['chromium', chromium], ['webkit', webkit]])
       }));
       check(contrast(pilot.color, pilot.background) >= 4.5, `${at('pilot.html')}: submit label contrast is too low`);
       await visit(page, 'index.html');
-      await noWarm(page, '.md-recovery-read', ['borderLeftColor'], at('index.html'));
+      await noWarm(page, '.md-opportunity', ['borderLeftColor'], at('index.html'));
 
       await visit(page, 'Monderman_Platform_Brief.html');
-      await noWarm(page, '.md-recovery-read', ['borderLeftColor'], at('Monderman_Platform_Brief.html'));
+      await noWarm(page, '.md-opportunity', ['borderLeftColor'], at('Monderman_Platform_Brief.html'));
       for (const [selector, properties, pseudo] of [
         ['.progress-dot[aria-current="true"]', ['backgroundColor', 'borderLeftColor']],
         ['.layer.three', ['borderLeftColor']],

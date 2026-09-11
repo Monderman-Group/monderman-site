@@ -1,3 +1,6 @@
+// Historical September 5 compatibility fixture only. Current promotional
+// artifacts are prepared and reviewed with the API current-product-sample
+// harness; this script must never replace the accepted public library.
 import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
@@ -272,6 +275,9 @@ const outIndex = process.argv.indexOf("--out");
 if (outIndex >= 0) {
   const destination = process.argv[outIndex + 1];
   if (!destination) throw new Error("--out requires a path");
+  if (path.resolve(destination) === path.resolve(new URL("../sample-data/production-diagnostic-samples.json", import.meta.url).pathname)) {
+    throw new Error("Historical fixtures cannot overwrite the current public sample artifact");
+  }
   fs.mkdirSync(path.dirname(destination), { recursive: true });
   fs.writeFileSync(destination, output, "utf8");
 } else {
