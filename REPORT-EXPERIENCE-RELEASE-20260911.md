@@ -30,16 +30,17 @@ These are separate tests, not one end-to-end production certification.
 | Individual/self-run presentation | 86 actual renderer/native helper assertions, including legacy/new output policy separation, original timestamps, missing dates, incompatible medians, Admin/Analyst/Member controls and actual in-script result-container hiding. Source checks additionally reject executable text after the HTML document. |
 | Existing report compatibility | Five structured legacy reports rendered and exported as PDFs; 42 deterministic Synthesis cases and 48 existing browser states passed. |
 | Other regressions | Participant-evidence boundary, 52 missing-estimate cases, 73 recorded-context cases, 46 Synthesis retry-state cases, 18 eligibility cases, 10 deferred-poll lifecycle cases, legal-document protection and all instrument inline-script parsing pass. |
+| Independent database transactions | [Evidence concurrency CI](https://github.com/Monderman-Group/monderman-api/actions/runs/34652172846) passed 58 checks on PostgreSQL 17.11, with distinct control/worker processes and observed lock waits before release. Checked stale-source rejection, permission grants, duplicate saves/reviews and research reservation/dispatch/settlement races. This is a disposable database test, not a production migration or live customer test. |
 
 Mock prose is **not** proof of Claude's live output quality. Screenshot capture and geometry checks are **not** the same as personally inspecting every page at full resolution. Contact-sheet inspection and targeted full-page inspection found and drove the evidence-register, action-card, number-alignment and date fixes. Final real-output visual approval remains required.
 
 ## Release gates still required
 
-1. Complete and review the isolated PostgreSQL concurrent-transaction CI run. Local PGlite tests do not establish independent-session race behavior.
+1. Complete the broader customer-release CI gate on the final candidate. Both isolated PostgreSQL concurrency lanes have passed. Local current-authored receipt tests now cover all 171 fixtures, 103 tampered receipts and eight malformed budgets. Those tests use clearly marked synthetic receipts, not live provider results. The unchanged $100 default still correctly refuses the full matrix's $131.218890 conservative reservation; an explicit synthetic planning ceiling in the test grants no spending authority.
 2. Confirm the Render workspace before deployment. Target services are the existing Monderman API and website, not new infrastructure.
 3. Approve the fresh paid-output test budget and verify the separate public-research provider workspace's spend limit. Native search intermediate input is not capped by the output-token limit. An internal reservation is not a vendor-enforced spending ceiling.
 4. Publish and read back the immutable Privacy edition before activating it in the database. Do not create acknowledgements on behalf of participants.
-5. Apply the reviewed additive migrations and deploy the API candidate. Verify actual release/model configuration, saved-run processing, consent exclusion, quota preservation and retry/recovery behavior with controlled test data.
+5. Apply the reviewed additive migrations and deploy the API candidate. Verify actual release/model configuration, saved-run processing, consent exclusion, quota preservation and retry/recovery behavior with controlled test data. Fresh model checks must also cover personal same-lens and Cross-Lens reports and the source-paraphrase attack recorded in the API red-team audit; the existing 171-case matrix alone does not cover those new paths.
 6. Generate and review the six real Claude-authored promotional reports from the approved fictional inputs, including current public-research evidence. Replace the public JSON, PDFs, previews and approval manifest together.
 7. Deploy the final site and run live smoke, including authenticated saved-report recovery, campaign readiness, explicit quality review and all report exports.
 
@@ -50,3 +51,5 @@ The site branch's new sample adapter deliberately requires the new v3 artifact. 
 The prior production API commit is `91f049156aab136f6f0e17c81cafe3908e938e6b`; prior website commit is `b038a7413251e2be03c7811422eb5d31dc7c4935`. Keep these deployment targets available. Do not roll back by deleting participant permission, review or audit records. An older API must not process newly authorized written notes under incompatible assumptions; disable affected AI jobs before a rollback if necessary.
 
 Both repositories use the implementation branch `codex/evidence-report-experience-20260911`. No release status in this document authorizes stronger marketing claims than the evidence supports.
+
+The API candidate is retained in [draft PR 133](https://github.com/Monderman-Group/monderman-api/pull/133). Both implementation branches are pushed remotely. Main branches remain unchanged; no production migration or deployment has occurred in this release task.
