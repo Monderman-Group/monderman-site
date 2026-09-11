@@ -20,6 +20,7 @@ const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
 // Refresh both the reviewed report renderer and the newer shared brand release.
 const shellRelease = "20260910-report22-brand3";
 const assistantRelease = "20260910-bounded-chat1";
+const pilotRelease = "20260910-pilot-retry1";
 const productPages = new Set([
   "diagnostics.html", "platform-services.html", "plan-signal.html", "plan-pattern.html",
   "plan-enterprise.html", "new-in-the-role.html", "after-an-acquisition.html",
@@ -42,7 +43,7 @@ const refreshedAssets = [
 ];
 const versionScript = (html, fileName) => html.replace(
   new RegExp(`(["'])${fileName.replace(".", "\\.")}(?:\\?v=[^"']*)?\\1`, "g"),
-  (_match, quote) => `${quote}${fileName}?v=${["assistant.js", "workspace-assistant.js"].includes(fileName) ? assistantRelease : shellRelease}${quote}`,
+  (_match, quote) => `${quote}${fileName}?v=${fileName === "pilot-waitlist.js" ? pilotRelease : ["assistant.js", "workspace-assistant.js"].includes(fileName) ? assistantRelease : shellRelease}${quote}`,
 );
 const motif = footer.match(motifPattern)?.[0];
 
@@ -110,6 +111,7 @@ for (const entry of await readdir(publishDirectory, { withFileTypes: true })) {
   versionedHtml = versionScript(versionedHtml, "assistant.js");
   versionedHtml = versionScript(versionedHtml, "workspace-assistant.js");
   versionedHtml = versionScript(versionedHtml, "connect-widget.js");
+  versionedHtml = versionScript(versionedHtml, "pilot-waitlist.js");
   for (const asset of refreshedAssets) versionedHtml = versionScript(versionedHtml, asset);
   if (versionedHtml !== html) {
     html = versionedHtml;
