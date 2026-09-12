@@ -8,15 +8,19 @@ const out=process.env.WORKSPACE_LAYOUT_OUT||'/tmp/monderman-workspace-layout';
 const auditOnly=process.env.WORKSPACE_LAYOUT_AUDIT==='1';
 fs.mkdirSync(out,{recursive:true});
 const report=[];
-const runs=['operational_systems','decision_velocity','structural_clarity','institutional_performance'].map((tool,i)=>({id:`fixture-${i}`,tool_type:tool,score:44+i*7,band:i?'Mixed':'Drag',status:'promoted',included_in_aggregates:true,normalization_status:i===1?'included_with_caution':'included',business_unit:'Capital approval pathway',pathway_name:'Long-running capital approval and procurement pathway',created_at:`2026-09-0${i+1}T09:30:00Z`,config_version:'fixture-1',scorer_version:'fixture-1',vantage:'executive',diagnostic_depth:'full',report_available:true}));
+const runs=['operational_systems','decision_velocity','structural_clarity','institutional_performance'].map((tool,i)=>({id:`fixture-${i}`,tool_type:tool,score:44+i*7,band:i?'Mixed':'Drag',status:'promoted',included_in_aggregates:true,normalization_status:i===1?'included_with_caution':'included',business_unit:'Capital approval pathway',pathway_name:'Long-running capital approval and procurement pathway',created_at:`2026-09-0${i+1}T09:30:00Z`,config_version:'fixture-1',scorer_version:'fixture-1',vantage:'executive',diagnostic_depth:'full',report_available:true,self_run_owned_by_caller:true}));
 // Mixed saved states must not inflate eligible counts or the Synthesis picker.
 for(const [i,patch] of [
  {status:'staged',normalization_status:null}, {status:'archived'}, {report_available:false},
  {locked:true}, {included_in_aggregates:false}, {normalization_status:'excluded_from_aggregates'},
 ].entries()) runs.push({...runs[1],id:`fixture-ineligible-${i}`,diagnostic_depth:'unavailable-depth',...patch});
+// Eligible Workspace evidence is not necessarily the caller's own response.
+// This server-owned provenance flag must keep another person's run out of the
+// personal Synthesis picker without concealing it from the Workspace summary.
+runs.push({...runs[0],id:'fixture-unowned',self_run_owned_by_caller:false});
 for(const [engine,type] of [['chromium',chromium],['webkit',webkit]].filter(([engine])=>!process.env.WORKSPACE_LAYOUT_ENGINE||process.env.WORKSPACE_LAYOUT_ENGINE===engine)){
  const browser=await type.launch({headless:true});
- for(const width of process.env.WORKSPACE_LAYOUT_WIDTH?[Number(process.env.WORKSPACE_LAYOUT_WIDTH)]:[1440,390,320])for(const theme of ['light','dark'])for(const name of (process.env.WORKSPACE_LAYOUT_PAGE?[process.env.WORKSPACE_LAYOUT_PAGE]:['settings','actions','analysis','diagnostics'])){
+ for(const width of process.env.WORKSPACE_LAYOUT_WIDTH?[Number(process.env.WORKSPACE_LAYOUT_WIDTH)]:[1440,834,390,320])for(const theme of ['light','dark'])for(const name of (process.env.WORKSPACE_LAYOUT_PAGE?[process.env.WORKSPACE_LAYOUT_PAGE]:['settings','actions','analysis','diagnostics'])){
   const page=await browser.newPage({viewport:{width,height:1000}});
   const errors=[],unexpected=[];
   page.on('pageerror',e=>errors.push(e.message));
@@ -54,6 +58,7 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]].filter(([en
     if(request.method()!=='GET'){unexpected.push(request.method()+' '+url.pathname);return route.abort();}
     let payload;
     if(url.pathname==='/api/normalization/workspace-runs/fixture-org')payload={ok:true,runs};
+    else if(url.pathname==='/api/campaign-analysis/fixture-org')payload={ok:true,campaigns:[],scopes:[]};
     else if(url.pathname==='/api/synthesis-runs')payload={ok:true,syntheses:[]};
     else if(url.pathname==='/api/workspace/members')payload={ok:true,members:[{user_id:'fixture-other',name:'Alexandertheverylongunbrokenfirstname Morgan',email:'fixture@example.invalid'}]};
     else if(url.pathname==='/api/account/workspace-deletion'){assert.equal(url.searchParams.get('organization_id'),'fixture-org');payload={ok:true,request:null};}
@@ -85,12 +90,14 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]].filter(([en
   }
   if(name==='analysis'){
    await page.locator('#trustCard').waitFor();
-   assert.equal(await page.locator('#tsTotal').textContent(),'10');
-   assert.equal(await page.locator('#tsIncl').textContent(),'3');
+   assert.equal(await page.locator('#trustRunBtn').isVisible(),false,'Retired organization-wide screening must not be displayed');
+   assert.equal(await page.locator('#trustRunBtn').count(),0,'Retired screening control must be removed, not hidden behind overridable CSS');
+   assert.equal(await page.locator('#tsTotal').textContent(),'11');
+   assert.equal(await page.locator('#tsIncl').textContent(),'4');
    assert.equal(await page.locator('#tsCaut').textContent(),'1');
-   assert.equal(await page.locator('#tsRichLabel').textContent(),'4 eligible');
-   assert.match(await page.locator('#tsRichSub').textContent(),/4 runs eligible for aggregates · 1 depth/);
-   assert.match(await page.locator('#tsNote').textContent(),/Screened 9 of 10 runs/);
+   assert.equal(await page.locator('#tsRichLabel').textContent(),'5 eligible');
+   assert.match(await page.locator('#tsRichSub').textContent(),/^5 runs eligible for aggregates · 1 depth · 1 participant vantage ·/);
+   assert.equal(await page.locator('#tsNote').textContent(),'10 of 11 runs have a recorded quality status. 5 are Included; 1 is set aside. These counts alone do not establish campaign readiness. Choose a campaign above for scoped response-quality review. Unusual answers are not automatically excluded.');
   }
   if(name==='diagnostics')await page.waitForFunction(()=>!document.querySelector('#runsBody')?.textContent.includes('Loading'));
   async function inspect(state){
@@ -106,17 +113,19 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]].filter(([en
     const over=(front,back)=>front.slice(0,3).map((n,i)=>n*front[3]+back[i]*(1-front[3]));
     const lum=c=>c.map(n=>{n/=255;return n<=.04045?n/12.92:((n+.055)/1.055)**2.4;}).reduce((n,v,i)=>n+v*[.2126,.7152,.0722][i],0);
     const fails=[];
-    for(const el of document.querySelectorAll('.content button,.ws5-topbar .ws5-btn')){
-     if(!el.getClientRects().length||el.disabled||!el.textContent.trim())continue;
+    for(const el of document.querySelectorAll('.content button,.ws5-topbar .ws5-btn,.ca-panel input:not([type="checkbox"]):not([type="radio"]),.ca-panel select,.ca-panel textarea')){
+     const formControl=el.matches('input,select,textarea');
+     if(!el.getClientRects().length||el.disabled||(!formControl&&!el.textContent.trim()))continue;
      const cs=getComputedStyle(el);if(cs.opacity!=='1')continue;
-     const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let node;const sources=[];
-     while(node=walker.nextNode())if(node.textContent.trim())sources.push(node.parentElement);
+     const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let node;const sources=formControl?[el]:[];
+     if(!formControl)while(node=walker.nextNode())if(node.textContent.trim())sources.push(node.parentElement);
      for(const source of new Set(sources)){
      const textStyle=getComputedStyle(source);
      const chain=[];for(let p=source;p;p=p.parentElement)chain.unshift(p);
      let bg=[255,255,255];for(const p of chain)bg=over(rgb(getComputedStyle(p).backgroundColor),bg);
      const fg=over(rgb(textStyle.color),bg),ls=[lum(fg),lum(bg)].sort((a,b)=>b-a),ratio=(ls[0]+.05)/(ls[1]+.05);
-     if(ratio<4.5)fails.push({selector:el.tagName+'#'+el.id+'.'+el.className,text:el.textContent.trim().slice(0,60),ratio:Number(ratio.toFixed(2)),fg:textStyle.color,bg});
+     if(ratio<4.5)fails.push({selector:el.tagName+'#'+el.id+'.'+el.className,text:(el.value||el.getAttribute('placeholder')||el.textContent).trim().slice(0,60),ratio:Number(ratio.toFixed(2)),fg:textStyle.color,bg});
+     if(formControl&&el.getAttribute('placeholder')&&!el.value){const placeholder=getComputedStyle(el,'::placeholder'),color=rgb(placeholder.color);color[3]*=Number(placeholder.opacity);const placeholderFg=over(color,bg),levels=[lum(placeholderFg),lum(bg)].sort((a,b)=>b-a),placeholderRatio=(levels[0]+.05)/(levels[1]+.05);if(placeholderRatio<4.5)fails.push({selector:el.tagName+'::placeholder',text:el.getAttribute('placeholder'),ratio:Number(placeholderRatio.toFixed(2)),fg:placeholder.color,bg});}
      }
     }
     return fails;
@@ -134,9 +143,18 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]].filter(([en
   }
   await inspect('populated');
   if(name==='analysis'){
+   await page.locator('[data-ca-define]').click();
+   await page.locator('[data-ca-form]').waitFor({state:'visible'});
+   assert.equal(await page.locator('[data-ca-create] input:not([type="checkbox"])').count(),7,'Campaign definition fields remain available');
+   await inspect('campaign-definition');
+   await page.locator('[data-ca-cancel]').click();
+   assert(await page.locator('[data-ca-define]').evaluate(el=>document.activeElement===el),'Definition cancel restores focus without submitting');
    await page.locator('.subtabs a[data-lens="synthesis"]').click();
-   await page.locator('#synthScopePolicy').waitFor();
-   assert.equal(await page.locator('#synthBody [data-srun]').count(),4,'Only the same four eligible runs appear in Synthesis');
+   await page.locator('#synthPreflight').waitFor();
+   assert.equal(await page.locator('#synthScopePolicy').count(),0,'Personal Synthesis cannot choose a population scope policy');
+   assert.deepEqual(await page.locator('#synthBody [data-srun]').evaluateAll(nodes=>nodes.map(node=>node.dataset.srun)),['fixture-0','fixture-1','fixture-2','fixture-3'],'Only the four eligible server-confirmed own runs appear in personal Synthesis');
+   assert.equal(await page.locator('#synthBody [data-srun="fixture-unowned"]').count(),0,'Eligible evidence owned by another participant cannot enter personal Synthesis');
+   assert.match(await page.locator('#synthBody').innerText(),/Your individual-run Synthesis remains available under your plan\. It does not establish campaign readiness or treat repeat runs as additional people\./);
    await inspect('synthesis');
   }
   if(name==='diagnostics'){
@@ -162,6 +180,8 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]].filter(([en
  }
  await browser.close();
 }
+const analysisSource=fs.readFileSync(new URL('../workspace-analysis.html',import.meta.url),'utf8');
+assert.doesNotMatch(analysisSource,/\/api\/normalization\/normalize-organization\//,'The retired organization-wide mutation must have no remaining client request path');
 fs.writeFileSync(path.join(out,'layout-results.json'),JSON.stringify(report,null,2));
 console.log(JSON.stringify({checks:report.length,overflow:report.filter(r=>r.overflow.length||r.scroll>r.width+1||r.contrast.length)},null,2));
 console.log('Workspace layout audit completed with isolated fixture data. All external writes and unexpected APIs blocked.');

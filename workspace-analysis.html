@@ -93,9 +93,6 @@
     .trust-title{display:flex;align-items:center;gap:9px;font-size:18px;font-weight:600;letter-spacing:-.02em;color:var(--text);margin-top:5px}
     .trust-i{width:18px;height:18px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--muted);font-size:11px;font-weight:700;line-height:1;cursor:pointer;font-family:Georgia,'Times New Roman',serif;font-style:italic;display:inline-flex;align-items:center;justify-content:center;padding:0;flex:0 0 auto}
     .trust-i:hover{color:var(--text);border-color:var(--muted-2)}
-    .trust-run{align-self:center;display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border:0;border-radius:9px;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
-    .trust-run:hover{background:var(--accent-d)}
-    .trust-run:disabled{opacity:.55;cursor:default}
     .trust-info{margin:14px 0 0;padding:13px 15px;background:var(--accent-bg);border-radius:10px;font-size:12.5px;line-height:1.55;color:var(--text)}
     .trust-info[hidden]{display:none}
     .trust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
@@ -114,7 +111,7 @@
     .trust-meter-sub{margin:7px 2px 0;font-size:11.5px;color:var(--muted-2)}
     .trust-note{margin:16px 0 0;font-size:12.5px;line-height:1.55;color:var(--muted)}
     .trust-note b{color:var(--text);font-weight:600}
-    @media (max-width:560px){ .trust-grid{grid-template-columns:repeat(2,1fr)} .trust-run{align-self:stretch;justify-content:center} }
+    @media (max-width:560px){ .trust-grid{grid-template-columns:repeat(2,1fr)} }
 
     .empty{background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:42px 30px;text-align:center;color:var(--muted)}
     .empty svg{width:30px;height:30px;color:var(--muted-2);stroke-width:1.6;margin-bottom:12px}
@@ -470,7 +467,6 @@ body{transition:background-color .25s ease, color .25s ease}
               <div class="eyebrow">Data quality</div>
               <div class="trust-title">Stored response status<button type="button" class="trust-i" id="trustInfoBtn" aria-label="About response-quality review" aria-expanded="false">i</button></div>
             </div>
-            <button type="button" class="trust-run" id="trustRunBtn" hidden>Run screening</button>
           </div>
           <div class="trust-info" id="trustInfo" hidden>
             <p style="margin:0">These are stored inclusion states, including earlier reviews. New response-quality checks flag information for review; they do not automatically exclude unusual or critical responses. Admins and Analysts can choose a campaign above, preview changes and record an explicit inclusion decision. Scores and original answers are retained.</p>
@@ -1062,7 +1058,7 @@ body{transition:background-color .25s ease, color .25s ease}
       if(!t.screened) bits.push("These runs have not been screened yet; quality status is not available.");
       else bits.push(`${t.screened} of ${t.total} runs have a recorded quality status. ${t.inAggN} are Included; ${t.excl} ${t.excl===1?"is":"are"} set aside. These counts alone do not establish campaign readiness.`);
       bits.push('Choose a campaign above for scoped response-quality review. Unusual answers are not automatically excluded.');
-      const note=$("tsNote"); if(note) note.innerHTML=bits.join(" "); const btn=$("trustRunBtn"); if(btn)btn.hidden=true;
+      const note=$("tsNote"); if(note) note.innerHTML=bits.join(" ");
     }
     async function loadAndRenderTrust(){
       if(!ws5OrgId) return;                          // personal workspace → no org-level screening
@@ -1078,24 +1074,6 @@ body{transition:background-color .25s ease, color .25s ease}
         if(!box) return;
         const show = box.hidden; box.hidden = !show;
         btn?.setAttribute("aria-expanded", show ? "true" : "false");
-      });
-      $("trustRunBtn")?.addEventListener("click", async ()=>{
-        const btn=$("trustRunBtn"); if(!btn || !ws5OrgId) return;
-        const orig=btn.textContent; btn.disabled=true; btn.textContent="Screening\u2026";
-        try{
-          const { data:sess } = await supabase.auth.getSession();
-          const token = sess?.session?.access_token;
-          const res = await fetch(`${API_BASE}/api/normalization/normalize-organization/${ws5OrgId}`, {
-            method:"POST", headers: token ? { Authorization:"Bearer "+token } : {}
-          });
-          if(!res.ok) throw new Error("HTTP "+res.status);
-          await loadAndRenderTrust();
-        }catch(e){
-          btn.textContent="Couldn\u2019t screen: retry";
-          setTimeout(()=>{ try{ btn.textContent=orig; }catch(_){} }, 2600);
-        }finally{
-          btn.disabled=false;
-        }
       });
     }
 
