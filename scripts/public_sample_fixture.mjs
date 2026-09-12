@@ -176,7 +176,7 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
   assert.equal(artifact.engine_commit,manifest.engine_commit);
   assert.ok(validTime(artifact.generated_at));
   assert.equal(artifact.generated_at,manifest.generated_at);
-  assert.equal(artifact.publication_projection?.version,'monderman-public-sample-projection-20260911.4');
+  assert.equal(artifact.publication_projection?.version,'monderman-public-sample-projection-20260912.5');
   assert.ok(validHash(artifact.publication_projection.source_sha256));
   assert.match(artifact.publication_projection.projection_commit,/^[a-f0-9]{40}$/);
   assert.deepEqual(artifact.publication_projection,manifest.publication_projection,'publication projection differs from reviewed export');
