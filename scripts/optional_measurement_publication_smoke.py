@@ -32,7 +32,7 @@ check(True, "full protective legal validation")
 check(published == read_text(archive_path), "published edition has an exact archive")
 check(hashlib.sha256(ack.encode()).hexdigest() == "b8d0279861a5ab30f9e1c2875d8237c9fb6df92abf02982e309092c3fc138185", "mandatory acknowledged edition remains byte-identical")
 check(manifest["privacy_notice_content_sha256"] == manifest["published_privacy_notice_content_sha256"], "approved AI-evidence edition is both the publication and next required notice")
-check(manifest["required_acknowledgement"] == {"terms_version": "2026-09-09-beta", "privacy_notice_version": "2026-09-11-ai-evidence-v1"}, "Terms unchanged; next Privacy version explicitly pinned, not a fabricated acceptance")
+check(manifest["required_acknowledgement"] == {"terms_version": "2026-09-09-beta", "privacy_notice_version": "2026-09-12-ai-source-evidence-v2"}, "Terms unchanged; next Privacy version explicitly pinned, not a fabricated acceptance")
 
 
 def sections(text):

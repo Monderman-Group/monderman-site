@@ -6,11 +6,15 @@ import re
 
 ROOT = Path(__file__).resolve().parents[1]
 TERMS_VERSION = "2026-09-09-beta"
-PRIVACY_VERSION = "2026-09-11-ai-evidence-v1"
-PUBLISHED_PRIVACY_VERSION = "2026-09-11-ai-evidence-v1"
-PUBLISHED_PRIVACY_SHA256 = "9286991d6f104c50a401fb4f987bdd751523e74d3fda713ceab17b5fdf49f460"
+PRIVACY_VERSION = "2026-09-12-ai-source-evidence-v2"
+PUBLISHED_PRIVACY_VERSION = "2026-09-12-ai-source-evidence-v2"
+PUBLISHED_PRIVACY_SHA256 = "41e4ef0367e55a4bff255934c42ea14b4b4e49a69dca78e4f14357f08bc2e3cc"
 # Accepted historical editions are immutable, even if someone edits the manifest.
 HISTORICAL_DOCUMENTS = {
+    "2026-09-11-ai-evidence-v1": {
+        "privacy_notice_file": "privacy-2026-09-11-ai-evidence-v1.html",
+        "privacy_notice_file_sha256": "9286991d6f104c50a401fb4f987bdd751523e74d3fda713ceab17b5fdf49f460"
+    },
     "2026-08-20-beta": {
         "terms_file": "terms-2026-08-20-beta.html",
         "terms_file_sha256": "7d7ed07a7904e897f624a3edb73ec5eb322ac5c49523655fa4e11840a2bfae68",
@@ -254,6 +258,15 @@ def validate():
         "AI-assisted reports use Anthropic's commercial API when enabled",
         "a bounded selection of participant observations",
         "Earlier observations are not automatically made eligible for this new processing.",
+        "For Synthesis of your own saved runs",
+        "selected original structured answers and their questions",
+        "descriptive distributions of recorded answers to the same question",
+        "not named participants' individual answer records",
+        "Small or insufficiently supported groups are withheld.",
+        "A permission recorded for an earlier notice does not authorize this expanded use.",
+        "Leaving the optional choice unchecked does not change the structured score",
+        "check request size before drafting or review",
+        "This check can occur even when no interpretation is generated.",
         "The Monderman diagnostic engine determines scores, classifications, evidence limits and available action options.",
         "Customer answers, observations, organization names and Workspace history are not sent to that search",
         "The public assistant and Hans, the Workspace assistant, use Anthropic's commercial API",
@@ -284,7 +297,11 @@ def validate():
         "Monderman's diagnostic engine produces the scores, classifications, evidence limits and available action options.",
         "Claude supports research and writes the explanation from authorized evidence within those rules.",
         "they do not establish scientific validity or guarantee an outcome.",
-        "a bounded selection of permitted participant observations",
+        "A bounded selection of permitted participant observations",
+        "Synthesis of your own saved runs can include selected original structured answers",
+        "Campaign Synthesis can include descriptive answer distributions for each exact question and context",
+        "new per-run permission under the September 12 notice",
+        "request-size checks before drafting or review",
         "Reports show the research date or disclose that no newly checked research is included.",
         "This is not a zero-retention arrangement.",
         "row-level security and server-side authorization"
@@ -295,8 +312,11 @@ def validate():
     require(subprocessors, [
         "Research support, authored explanations and review within Monderman's engine-defined evidence and action limits.",
         "Anthropic does not calculate scores.",
-        "selected aggregate results for Synthesis",
-        "written observations only with the participant's recorded permission for the applicable processing",
+        "for Synthesis of your own saved runs, selected original structured answers and exact questions",
+        "for campaign Synthesis, descriptive answer distributions grouped by exact question and context",
+        "written observations only with the participant's recorded permission under the September 12 notice for those saved observations",
+        "Earlier permission does not authorize this expanded use.",
+        "request-size checks before drafting or review",
         "Earlier observations are not automatically made eligible.",
         "Public research uses predefined sector and Diagnostic categories without customer content.",
         "Standard API retention is not zero"

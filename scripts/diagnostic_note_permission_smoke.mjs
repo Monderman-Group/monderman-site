@@ -46,11 +46,14 @@ try{for(const [name,engine]of [['chromium',chromium],['webkit',webkit]]){
       document.getElementById('pageLoader')?.remove();
     },{runId,experience});}
     await page.goto(base+'/'+tool+'.html',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__mondermanTestHooks&&window.MondermanNotePermission);
+    await page.evaluate(()=>sessionStorage.setItem('monderman-note-choice-v1:note-fixture-one',JSON.stringify({version:'2026-09-11-ai-evidence-v1',allowed:true,at:Date.now()})));
     await mount();const checkbox=page.locator('.diagnostic-note-permission input');
-    assert.equal(await checkbox.isChecked(),false);assert.equal(await checkbox.getAttribute('required'),null);
+    assert.equal(await checkbox.isChecked(),false,'an earlier notice choice does not authorize v2');assert.equal(await checkbox.getAttribute('required'),null);
+    assert.equal(await page.locator('.diagnostic-note-permission a').getAttribute('href'),'privacy-2026-09-12-ai-source-evidence-v2.html');
+    assert.equal(await page.evaluate(()=>window.MondermanNotePermission.version),'2026-09-12-ai-source-evidence-v2');
     assert.equal(await page.evaluate(()=>window.MondermanNotePermission.value('note-fixture-one')),undefined);
     await checkbox.focus();await page.keyboard.press('Space');
-    assert.deepEqual(await page.evaluate(()=>window.MondermanNotePermission.value('note-fixture-one')),{version:'2026-09-11-ai-evidence-v1',allowed:true});
+    assert.deepEqual(await page.evaluate(()=>window.MondermanNotePermission.value('note-fixture-one')),{version:'2026-09-12-ai-source-evidence-v2',allowed:true});
     await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__mondermanTestHooks&&window.MondermanNotePermission);await mount();assert(await checkbox.isChecked(),'same-run choice survives refresh');
     await mount('note-fixture-two');assert.equal(await checkbox.isChecked(),false,'no consent inherited by another run');
     await mount();await checkbox.uncheck();assert.equal(await page.evaluate(()=>window.MondermanNotePermission.value('note-fixture-one')),undefined);
@@ -58,7 +61,7 @@ try{for(const [name,engine]of [['chromium',chromium],['webkit',webkit]]){
       await page.setViewportSize({width,height:1000});await page.evaluate(()=>document.fonts.ready);await checkbox.scrollIntoViewIfNeeded();
       const layout=await checkbox.evaluate(el=>{const r=el.closest('label').getBoundingClientRect();return{width:innerWidth,scrollWidth:document.documentElement.scrollWidth,left:r.left,right:r.right,height:r.height};});
       assert(layout.scrollWidth<=width+1&&layout.left>=0&&layout.right<=width+1,JSON.stringify({tool,name,width,layout}));assert(layout.height>=44);
-      await page.locator('.diagnostic-note-permission').screenshot({path:path.join(out,`${tool}-${name}-${width}.png`)});checks.push({tool,name,width,unchecked:true,refresh:true,runIsolation:true,keyboard:true,overflow:false});
+      await page.locator('.diagnostic-note-permission').screenshot({path:path.join(out,`${tool}-${name}-${width}.png`)});checks.push({tool,name,width,unchecked:true,priorNoticeRejected:true,currentNoticeLinked:true,refresh:true,runIsolation:true,keyboard:true,overflow:false});
     }
     await mount('note-fixture-one',false);assert.equal(await page.locator('.diagnostic-note-permission').count(),0,'ordinary scored answers have no note permission checkbox');
     const source=fs.readFileSync(tool+'.html','utf8');assert.match(source,/notes_processing_permission: window\.MondermanNotePermission\?\.value\(state\.runId\),/);

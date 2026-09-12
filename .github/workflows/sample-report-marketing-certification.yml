@@ -19,6 +19,7 @@ on:
       - 'test-fixtures/evidence-api.manifest.json'
       - 'campaign-analysis.js'
       - 'scripts/diagnostic_note_permission_smoke.mjs'
+      - 'scripts/ai_source_privacy_notice_smoke.mjs'
       - 'scripts/run_inclusion_review_smoke.mjs'
       - 'scripts/individual_output_policy_smoke.mjs'
       - 'run-inclusion-review.js'
@@ -169,6 +170,7 @@ on:
       - 'test-fixtures/evidence-api.manifest.json'
       - 'campaign-analysis.js'
       - 'scripts/diagnostic_note_permission_smoke.mjs'
+      - 'scripts/ai_source_privacy_notice_smoke.mjs'
       - 'scripts/run_inclusion_review_smoke.mjs'
       - 'scripts/individual_output_policy_smoke.mjs'
       - 'run-inclusion-review.js'
@@ -429,6 +431,8 @@ jobs:
         env:
           NOTE_TEST_OUT: /tmp/report-presentation-smoke/note-permission
         run: node scripts/diagnostic_note_permission_smoke.mjs
+      - name: Verify source-evidence privacy disclosure and immutable history
+        run: node scripts/ai_source_privacy_notice_smoke.mjs
 
       - name: Reject private source in public build and index
         run: node scripts/private_source_absence_smoke.mjs --publish-dir .render-public
