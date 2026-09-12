@@ -155,6 +155,9 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]].filter(([en
    assert.deepEqual(await page.locator('#synthBody [data-srun]').evaluateAll(nodes=>nodes.map(node=>node.dataset.srun)),['fixture-0','fixture-1','fixture-2','fixture-3'],'Only the four eligible server-confirmed own runs appear in personal Synthesis');
    assert.equal(await page.locator('#synthBody [data-srun="fixture-unowned"]').count(),0,'Eligible evidence owned by another participant cannot enter personal Synthesis');
    assert.match(await page.locator('#synthBody').innerText(),/Your individual-run Synthesis remains available under your plan\. It does not establish campaign readiness or treat repeat runs as additional people\./);
+   const synthesis=page.locator('section.lens[data-lens="synthesis"]');
+   assert.equal(await synthesis.locator('.view-head p').innerText(),'Campaign Synthesis uses the scoped evidence checks above. Personal Synthesis compares eligible runs from your own account: two or more from one Diagnostic for Depth Synthesis, or two or more Diagnostics for Cross-Lens Synthesis. Personal Cross-Lens Synthesis never publishes a Composite Score.');
+   assert.equal(await synthesis.locator(':scope > .footnote').innerText(),'Personal Depth Synthesis may show the median of your selected scores when the runs cover compatible work, dates, versions and perspectives. Personal runs do not establish campaign readiness or unlock a Cross-Lens Composite Score, organizational change alternatives or a recommended path.');
    await inspect('synthesis');
   }
   if(name==='diagnostics'){

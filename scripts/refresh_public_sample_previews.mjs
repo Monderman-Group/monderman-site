@@ -1,18 +1,40 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
+import {readPublicSampleFixture,evidenceDigest} from './public_sample_fixture.mjs';
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const check = process.argv.includes('--check');
-const artifact = JSON.parse(fs.readFileSync(path.join(root, 'sample-data/production-diagnostic-samples.json'), 'utf8'));
-const context = {window:{},console,Intl,Date,URL,Blob,setTimeout,clearTimeout};
-vm.createContext(context);
-vm.runInContext(fs.readFileSync(path.join(root,'participant-evidence-safety.js'),'utf8'), context);
-vm.runInContext(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8'), context);
-vm.runInContext(fs.readFileSync(path.join(root,'public-sample-model.js'),'utf8'), context);
-context.window.MondermanPublicSamples.validate(artifact);
+// Extract only the engine's saved score distribution. The caller first checks
+// the full publication manifest; this additional boundary rejects missing,
+// ambiguous or changed source values instead of mining model prose for them.
+export function depthPreviewEvidence(entry){
+  assert.equal(entry?.kind,'synthesis');
+  const source=entry.source,p=entry.provenance;
+  assert.equal(p?.synthetic,true);
+  assert.equal(evidenceDigest(source),p.public_source_sha256,'Depth preview source differs from its reviewed projection');
+  assert.equal(source?.synthesis_product,'depth_synthesis');
+  assert.equal(source.source_groups?.length,1,'Depth preview requires one recorded lens');
+  const group=source.source_groups[0];
+  assert.equal(group.tool_type,'structural_clarity');
+  assert.ok(Number.isSafeInteger(group.submitted_runs)&&group.submitted_runs>0);
+  assert.equal(group.submitted_runs,source.submitted_run_count);
+  assert.equal(group.submitted_runs,p.submitted_run_count);
+  const reads=(source.sample_reads||[]).filter(row=>row.tool_type==='structural_clarity');
+  assert.equal(reads.length,1,'Depth preview requires one unambiguous saved distribution reading');
+  assert.equal(reads[0].n,group.submitted_runs);
+  const labels={aligned:'Scores are closely aligned',divided:'Two separated score groups',dispersed:'Scores vary substantially',mixed:'Moderate variation'};
+  assert.ok(Object.hasOwn(labels,reads[0].consensus?.read),'Depth preview spread classification is missing or unsupported');
+  const score=value=>{assert.ok(typeof value==='number'&&Number.isFinite(value)&&value>=0&&value<=100,'Depth preview score must be recorded on its original scale');return value;};
+  const pair=value=>{assert.ok(Array.isArray(value)&&value.length===2);const values=value.map(score);assert.ok(values[0]<=values[1]);return values;};
+  const median=score(group.median_score),iqr=pair(group.score_iqr),range=pair(group.score_range);
+  assert.ok(range[0]<=iqr[0]&&iqr[0]<=median&&median<=iqr[1]&&iqr[1]<=range[1],'Depth preview distribution bounds disagree');
+  return {group,median,iqr,range,spreadLabel:labels[reads[0].consensus.read]};
+}
+
+export function refreshPublicSamplePreviews({root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'),check=false}={}){
+// A current v3 artifact and independent release manifest are prerequisites to
+// either checking or writing promotional HTML. No v2 or candidate fallback.
+const {artifact}=readPublicSampleFixture({root});
 const escape = value => String(value ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const number = value => {assert.equal(typeof value,'number');assert.ok(Number.isFinite(value)&&value>=0);return value;};
 const whole = value => number(value).toLocaleString('en-US',{maximumFractionDigits:0});
@@ -51,12 +73,7 @@ function depthCard(place) {
   assert.equal(e.not_compounded,true);
   assert.ok(e.priceable_runs<=e.total_runs);
   const heading=place==='brief'?'h3':'h2';
-  const group=depth.source_groups.find(g=>g.tool_type==='structural_clarity');
-  assert.ok(group);
-  const med=number(group.median_score);
-  const range=group.score_iqr;
-  const spread=depth.ai_report.report.interpretation.recommendations[0].reason.match(/variation in submitted scores: ([^.]+)\./)?.[1];
-  assert.ok(spread,'Featured action must retain its recorded variation label');
+  const {group,median:med,iqr:range,spreadLabel:spread}=depthPreviewEvidence(artifact.outputs.depth_synthesis);
   const full='sample-report.html#depth';
   return '<aside class="hero-report-proof has-sample-depth-tile" aria-label="Generated Depth Synthesis example from fictional inputs" data-sample-id="depth_synthesis" data-artifact-sha256="'+artifact.artifact_sha256+'">\n'+
 '  <a class="hero-report-link" href="'+full+'" aria-label="Read the complete Depth Synthesis example">\n'+
@@ -92,3 +109,9 @@ for(const [file,place] of [['index.html','home'],['Monderman_Platform_Brief.html
  else fs.writeFileSync(filename,next);
 }
 console.log('PUBLIC_SAMPLE_PREVIEWS_'+(check?'CHECKED':'GENERATED')+' '+artifact.artifact_sha256);
+}
+if(process.argv[1]&&fs.realpathSync(process.argv[1])===fs.realpathSync(fileURLToPath(import.meta.url))){
+  const args=process.argv.slice(2);
+  assert.ok(args.length===0||args.length===1&&args[0]==='--check','Only optional --check is supported');
+  refreshPublicSamplePreviews({check:args.includes('--check')});
+}
