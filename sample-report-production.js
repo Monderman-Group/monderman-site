@@ -10,6 +10,34 @@
     depth: "depth_synthesis",
     synthesis: "cross_lens_synthesis"
   };
+  let reportsReady = false;
+  const mountedPrintControls = new Map();
+
+  function selectedPrintControl() {
+    if (!reportsReady || mountedPrintControls.size !== Object.keys(REPORT_KEYS).length) return null;
+    const shells = Array.from(document.querySelectorAll('.report-shell:not([hidden])'));
+    if (shells.length !== 1 || getComputedStyle(shells[0]).display === 'none' || getComputedStyle(shells[0]).visibility === 'hidden') return null;
+    const control = mountedPrintControls.get(shells[0]);
+    return control && control.isConnected && !control.disabled && shells[0].contains(control) ? control : null;
+  }
+
+  function syncSelectedPdf() {
+    const button = document.getElementById('sample-selected-pdf');
+    if (button) button.disabled = !selectedPrintControl();
+  }
+
+  function wireSelectedPdf() {
+    const button = document.getElementById('sample-selected-pdf');
+    if (!button) return;
+    button.addEventListener('click', () => {
+      const control = selectedPrintControl();
+      if (control) control.click();
+      else syncSelectedPdf();
+    });
+    const sheet = document.querySelector('.report-sheet');
+    if (sheet) new MutationObserver(syncSelectedPdf).observe(sheet, {attributes:true,attributeFilter:['hidden','style','class','disabled'],childList:true,subtree:true});
+    syncSelectedPdf();
+  }
 
   const obj = (value) => value && typeof value === "object" && !Array.isArray(value) ? value : {};
   const esc = (value) => String(value == null ? "" : value)
@@ -126,9 +154,13 @@
       tocLabel: sourceKey.replace(/_/g, " ") + " contents",
       tocId: sourceKey.replace(/_/g, "-") + "Toc"
     });
+    mountedPrintControls.set(shell, shell.querySelector('[data-action="print"]'));
   }
 
   function showFailure(error) {
+    reportsReady = false;
+    mountedPrintControls.clear();
+    syncSelectedPdf();
     Object.keys(REPORT_KEYS).forEach((tabKey) => {
       const shell = document.getElementById("report-" + tabKey);
       if (!shell) return;
@@ -154,6 +186,8 @@
         wireReport(shell, entry, artifact, sourceKey);
       });
 
+      reportsReady = true;
+      syncSelectedPdf();
       document.body.classList.add("production-samples-ready");
       document.dispatchEvent(new CustomEvent("monderman:production-samples-ready", { detail: {
         engineCommit: artifact.engine_commit,
@@ -168,6 +202,7 @@
 
   window.MondermanSampleReportShell = { mount: mountReport };
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", render, { once: true });
-  else render();
+  function start() { wireSelectedPdf(); render(); }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true });
+  else start();
 })();

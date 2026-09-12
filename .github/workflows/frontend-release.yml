@@ -99,3 +99,32 @@ jobs:
           python scripts/certification_guard_sensitivity_smoke.py
       - name: Verify candidate diff integrity
         run: git diff --check
+  saved-synthesis-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned browser test dependencies
+        run: |
+          npm install --no-save --package-lock=false --ignore-scripts playwright@1.55.0
+          bash scripts/install_ci_browsers.sh
+      - name: Verify saved personal and campaign reports with synthetic API responses
+        env:
+          SAVED_SYNTHESIS_OUT: ${{ runner.temp }}/saved-synthesis-page
+        run: node scripts/saved_synthesis_page_smoke.mjs
+      - name: Verify the sample PDF button exports only the selected report
+        run: node scripts/sample_selected_pdf_route_smoke.mjs --output=${{ runner.temp }}/sample-selected-pdf
+      - name: Preserve synthetic saved-page screenshots and exact source bindings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: saved-synthesis-page-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/saved-synthesis-page
+            ${{ runner.temp }}/sample-selected-pdf
+          if-no-files-found: error

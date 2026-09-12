@@ -163,6 +163,9 @@
     }
 
     /* Report meta bar */
+    @media screen {
+      html.canonical-shell-js body.page-report #main-content { padding-top: 72px; }
+    }
     .meta-bar {
       background: var(--bg-soft);
       border-bottom: 1px solid var(--line);
@@ -179,14 +182,24 @@
       color: var(--muted); font-weight: 600;
     }
     .meta-bar-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-    .meta-bar-actions a {
+    .meta-bar-actions a,
+    .meta-bar-actions button {
       font-size: 0.84rem; font-weight: 500;
-      color: var(--accent);
+      color: var(--mdm-link);
       border-bottom: 1px solid rgba(12,110,120,0.3);
       padding-bottom: 1px;
       transition: border-color 180ms ease;
     }
-    .meta-bar-actions a:hover { border-color: var(--accent); }
+    .meta-bar-actions button {
+      appearance: none; background: transparent; border: 0;
+      border-bottom: 1px solid rgba(12,110,120,0.3);
+      padding: 8px 0; font-family: inherit; cursor: pointer;
+      scroll-margin-top: 120px;
+    }
+    .meta-bar-actions a:hover,
+    .meta-bar-actions button:not(:disabled):hover { color: var(--mdm-link-hover); border-color: var(--mdm-link-hover); }
+    .meta-bar-actions button:focus-visible { outline: 3px solid var(--mdm-focus-ring); outline-offset: 4px; }
+    .meta-bar-actions button:disabled { opacity: .55; cursor: not-allowed; }
     .meta-bar-actions .meta-divider { color: var(--muted); }
 
     /* Mobile TOC select */
@@ -1609,7 +1622,7 @@
     <div class="meta-bar-actions">
       <a href="https://www.monderman.com/diagnostics.html">← Back to diagnostics</a>
       <span class="meta-divider">·</span>
-      <a href="javascript:window.print()">Download PDF</a>
+      <button type="button" id="sample-selected-pdf" disabled>Download PDF</button>
     </div>
       
   </div>
