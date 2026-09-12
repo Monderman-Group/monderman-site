@@ -12,7 +12,7 @@ const files=['sample-report.html','sample-report-production.js','monderman-repor
 const pins=Object.fromEntries(files.map(file=>[file,sha(fs.readFileSync(path.join(root,file)))]));
 const artifact=JSON.parse(fs.readFileSync(path.join(root,files[4]),'utf8'));
 artifact.contract='monderman-public-product-samples/v3';artifact.synthetic=true;
-artifact.publication_projection={version:'monderman-public-sample-projection-20260912.5',source_sha256:'a'.repeat(64),projection_commit:'b'.repeat(40)};
+artifact.publication_projection={version:'monderman-public-sample-projection-20260912.6',source_sha256:'a'.repeat(64),projection_commit:'b'.repeat(40)};
 const outputArg=process.argv.find(arg=>arg.startsWith('--output='));
 const out=outputArg?outputArg.slice(9):fs.mkdtempSync('/tmp/sample-selected-pdf-MOCK-');
 if(outputArg){assert.ok(path.isAbsolute(out));fs.mkdirSync(out,{mode:0o700});}

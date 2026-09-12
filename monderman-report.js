@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260912.29";
+  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260912.30";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -1515,12 +1515,12 @@
     const productLabel = m.selfRun ? (m.comparisonOnly?'Self-run comparison':'Self-run Synthesis') : m.comparisonOnly ? 'Response comparison' : m.product === "depth" ? "Depth Synthesis" : m.product === "cross_lens" ? "Cross-Lens Synthesis" : firstStr(m.mastline).replace(/^Monderman\.?\s*(?:[•·]\s*)?/i, "") || "Diagnostic";
     const defaultScoreLabel = m.product === "depth" ? "Median Diagnostic Score" : m.product === "cross_lens" ? "Cross-Lens Composite Score" : "Diagnostic Score";
     const scoreLabel = m.selfRun && !m.scorePublished ? 'No combined score' : m.kind === "meta-synthesis" ? firstStr(m.scoreLabel, defaultScoreLabel) : defaultScoreLabel;
-    const evidenceLabel = m.selfRun ? 'One account, not independent participants' : m.comparisonOnly ? 'Included responses only' : m.campaignEvidence?.depth ? 'Campaign checks recorded' : m.kind === "meta-synthesis" ? firstStr(m.evidenceLabel) : "";
+    const evidenceLabel = m.selfRun ? 'One account’s recorded views' : m.comparisonOnly ? 'Included responses only' : m.campaignEvidence?.depth ? 'Campaign checks recorded' : m.kind === "meta-synthesis" ? firstStr(m.evidenceLabel) : "";
     const scoreBandDisplay = m.selfRun ? (m.scorePublished ? m.headlineBand : '') : m.kind === "meta-synthesis" ? firstStr(m.conditionBand, m.headlineBand) : firstStr(m.headlineBand);
     const scoreClass = "mr-cover-score" + (strictFinite(m.headlineScore) ? "" : " mr-cover-score-status");
     const metaHtml = meta.map((x) => '<span><strong>' + esc(x.label) + '</strong>' + esc(x.value) + '</span>').join("");
     const statusPills = [
-      evidenceLabel ? '<span class="mr-cover-pill mr-cover-pill-accent">' + esc(evidenceLabel) + ' evidence</span>' : ''
+      evidenceLabel ? '<span class="mr-cover-pill mr-cover-pill-accent">' + esc(evidenceLabel) + (m.selfRun?'':' evidence')+'</span>' : ''
     ].filter(Boolean).join("");
     return '<section class="mr-cover">' +
       '<div class="mr-cover-dark"><p class="mr-cover-mark">MONDERMAN. ' + esc(productLabel) + '</p><div class="mr-cover-rule"></div>' +
@@ -1755,6 +1755,48 @@
     return mapped;
   }
 
+  // Render the engine-owned question/answer unit separately from interpretation.
+  // Only the closed, internally consistent saved graph earns this treatment.
+  // Old text-only reports retain their original display; malformed metadata is
+  // never treated as evidence or used to rewrite their saved prose.
+  function buildPersonalQuestionBlock(item,report,attributions) {
+    const exact=(value,keys)=>value&&typeof value==='object'&&!Array.isArray(value)
+      &&Object.keys(value).sort().join('|')===[...keys].sort().join('|');
+    const block=item.evidence_block,context=block&&block.context;
+    const text=value=>typeof value==='string'&&value.length>0&&value.length<=4096;
+    const lenses={structural_clarity:'Structural Clarity',decision_velocity:'Decision Velocity',operational_systems:'Operational Systems',institutional_performance:'Institutional Performance'};
+    const roles={operational:'People doing the work',managerial:'Managers',senior_leader:'Senior leaders'};
+    if(!report.source_evidence||report.campaign_answer_evidence
+      ||!exact(block,['question','context','answers','selection_scope'])
+      ||!exact(context,['tool','role','depth','questionnaire_version'])
+      ||!text(block.question)||!Object.hasOwn(lenses,context.tool)||!Object.hasOwn(roles,context.role)
+      ||![10,30,60].includes(context.depth)||!text(context.questionnaire_version)||!/^\d+\.\d+\.\d+$/.test(context.questionnaire_version)
+      ||!['all_matching_sources','selected_sources'].includes(block.selection_scope)
+      ||!Array.isArray(block.answers)||!block.answers.length||block.answers.length>12
+      ||typeof item.interpretation_text!=='string'||item.interpretation_text.length>900)return null;
+    const selected=new Set(),used=new Set(),refs=arr(item.evidence_ids),facts=arr(report.evidence);
+    for(const answer of block.answers){
+      if(!exact(answer,['source_label','answer'])||!text(answer.answer)||selected.has(answer.source_label))return null;
+      const source=arr(report.source_evidence.sources).find(source=>source.label===answer.source_label);
+      if(!source||source.status!=='available'||Object.keys(context).some(key=>source[key]!==context[key]))return null;
+      const matching=facts.filter(fact=>refs.includes(fact.id)&&arr(source.fact_ids).includes(fact.id)
+        &&attributions.has(fact.id)&&fact.provenance==='participant_structured_answer'
+        &&fact.label===block.question&&fact.value===answer.answer);
+      if(matching.length!==1)return null;
+      selected.add(answer.source_label);used.add(matching[0].id);
+    }
+    if(facts.some(fact=>refs.includes(fact.id)&&fact.provenance==='participant_structured_answer'&&!used.has(fact.id)))return null;
+    const contextText=lenses[context.tool]+' · '+roles[context.role]+' · '+context.depth+'-minute depth · Questionnaire '+context.questionnaire_version;
+    const subset=block.selection_scope==='selected_sources';
+    const fallback='Question: '+block.question+'\n'+contextText+'\n'+(subset?'Selected source reports\n':'')
+      +block.answers.map(answer=>answer.source_label+': “'+answer.answer+'”').join('\n')
+      +(item.interpretation_text?'\n\n'+item.interpretation_text:'');
+    if(item.text!==fallback)return null;
+    return '<div class="mr-question-evidence"><p class="mr-question-label">Recorded question</p><p class="mr-question-text">'+esc(block.question)+'</p><p class="mr-reading-context">'+esc(contextText)+'</p>'
+      +(subset?'<p class="mr-question-subset">Selected source reports</p>':'')+'<dl>'+block.answers.map(answer=>'<div class="mr-question-answer'+(answer.answer.length<=600?' mr-question-answer-bounded':'')+'"><dt>'+esc(answer.source_label)+'</dt><dd>'+esc(answer.answer)+'</dd></div>').join('')+'</dl></div>'
+      +(item.interpretation_text?'<p class="mr-question-interpretation">'+esc(item.interpretation_text)+'</p>':'');
+  }
+
   function buildAuthoredInterpretation(report) {
     const interpretation=obj(report.interpretation), sources=arr(report.sources).filter(source=>/^https:\/\//i.test(firstStr(source.url)));
     const evidence=arr(report.evidence).concat(arr(report.experiential_evidence));
@@ -1770,7 +1812,7 @@
       const printed='<p class="mr-print-support">'+(numbers.length?'Supporting evidence: '+numbers.join(', ')+'. See the evidence register.':'')+(refs.length?' Practice sources: '+refs.map(s=>sources.indexOf(s)+1).join(', ')+'. See Research and sector context.':'')+'</p>';
       return '<details class="mr-evidence-detail"><summary>See the supporting evidence</summary><div>'+facts.map(f=>'<div class="mr-evidence-entry">'+attribution(f)+'<strong>'+esc(evidenceLabel(f))+'</strong><p>'+esc(evidenceText(f))+'</p></div>').join('')+(refs.length?'<p class="mr-source-links">Relevant practice: '+refs.map(s=>'<a href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">'+esc(firstStr(s.title,s.publisher))+'</a>').join('; ')+'</p>':'')+'</div></details>'+printed;
     };
-    const findings=(items,title,explanation)=>arr(items).length?'<div class="mr-evidence-reading"><h3>'+title+'</h3>'+(explanation?'<p class="mr-reading-context">'+explanation+'</p>':'')+arr(items).map(item=>'<article class="mr-finding"><p>'+esc(firstStr(obj(item).text,typeof item==='string'?item:''))+'</p>'+support(obj(item))+'</article>').join('')+'</div>':'';
+    const findings=(items,title,explanation,questionBlocks=false)=>arr(items).length?'<div class="mr-evidence-reading"><h3>'+title+'</h3>'+(explanation?'<p class="mr-reading-context">'+explanation+'</p>':'')+arr(items).map(item=>'<article class="mr-finding">'+((questionBlocks&&buildPersonalQuestionBlock(obj(item),report,attributions))||'<p>'+esc(firstStr(obj(item).text,typeof item==='string'?item:''))+'</p>')+support(obj(item))+'</article>').join('')+'</div>':'';
     const actionCard=(item,index,option=false)=>{
       const action=obj(item),labels={limited:'Limited change',moderate:'Moderate change',structural:'Structural change'};
       const bounded=[action.action,action.reason,action.prerequisite,action.risk,action.success_check].reduce((n,text)=>n+String(text||'').length,0)<=1400;
@@ -1789,7 +1831,7 @@
     const research=obj(report.research_context),checked=firstStr(research.checked_at,research.checkedAt),date=checked&&Number.isFinite(Date.parse(checked))?new Date(checked).toISOString().slice(0,10):'';
     const researchText=['fresh','reviewed'].includes(research.status)?'Public-source research checked '+date+'. Sources inform the options; they do not establish how this organization performs.':research.status==='no_current_sources'?'A public-source search was completed on '+date+', but it did not produce suitable current evidence for this report.':research.status==='stale'?'The available research snapshot is dated '+date+'. It is outside the current research window and was not added as fresh guidance.':'No newly checked public-source research is included. Any listed practice sources are dated references, not a current sector benchmark.';
     const content='<section class="mr-section mr-ai-interpretation mr-authored-report"><h2>Interpretation and next steps</h2><p class="mr-executive-read">'+esc(interpretation.summary)+'</p>'+support({evidence_ids:obj(report.evidence_references).summary,source_ids:obj(report.evidence_references).summary_sources})+buildAIRecordedContext(report)+
-      findings(interpretation.observations,'What the evidence shows','These findings distinguish scored results from what participants reported.')+
+      findings(interpretation.observations,'What the evidence shows','These findings distinguish scored results from what participants reported.',true)+
       findings(interpretation.hypotheses,'What may explain it','Possible explanations to investigate, not established causes.')+
       (actions.length?'<div class="mr-report-nextsteps"><div class="mr-action-intro"><h3>Practical next steps</h3><p class="mr-reading-context">Start with these practical checks or focused changes.</p></div>'+actions.map((item,index)=>actionCard(item,index)).join('')+'</div>':'')+
       (options.length?'<div class="mr-report-options"><div class="mr-action-intro"><h3>Three levels of change</h3><p class="mr-reading-context">These are alternatives, not a sequence or a presumption that a larger change is better. Check each option’s prerequisites and risks.</p></div>'+options.map((item,index)=>actionCard(item,index,true)).join('')+'</div>':'')+
@@ -1797,7 +1839,10 @@
       findings([...new Set(arr(report.limitations).concat(arr(interpretation.limitations)))],'What this report cannot establish','')+
       '<div class="mr-research-context"><h3>Research and sector context</h3><p>'+esc(researchText)+'</p>'+(obj(report.benchmark).explanation?'<p>'+esc(report.benchmark.explanation)+'</p>':'')+(sources.length?'<ol>'+sources.map(s=>'<li><a href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">'+esc(s.title)+'</a>'+(s.publisher?' · '+esc(s.publisher):'')+(s.published?' · Published '+esc(s.published):'')+(s.reviewed?' · Checked '+esc(s.reviewed):'')+'</li>').join('')+'</ol>':'')+'</div>'+
       '<details class="mr-report-method"><summary>How Monderman produced this interpretation</summary><div><p>Monderman’s diagnostic engine produces the scores and determines which findings and recommendations the evidence supports. AI contributes research and explanation within those rules. Automated checks and a separate AI review check the interpretation against its supporting evidence before publication.</p><p>Prepared '+esc(report.generated_at)+'. Model '+esc(report.model)+'. Report version '+esc(report.version)+'. This report preserves the evidence and research used when it was prepared.</p></div></details></section>';
-    const register=printEvidence.size?'<div class="mr-print-evidence"><h3>Supporting evidence register</h3><p>Each item is listed once. Numbers beside findings and actions refer to these saved values or attributed observations.</p><dl>'+Array.from(printEvidence.values()).map(({number,fact:f})=>'<div class="mr-evidence-entry"><dt>'+attribution(f)+'<strong>'+number+'. '+esc(evidenceLabel(f))+'</strong></dt><dd>'+esc(evidenceText(f))+'</dd></div>').join('')+'</dl></div>':'';
+    const longEvidence=fact=>evidenceText(fact).length+evidenceLabel(fact).length>1200;
+    const longRegister=Array.from(printEvidence.values()).some(({fact})=>longEvidence(fact));
+    const boundedRegister=Array.from(printEvidence.values()).reduce((total,{fact})=>total+evidenceText(fact).length+evidenceLabel(fact).length+attribution(fact).length,0)<=1600;
+    const register=printEvidence.size?'<div class="mr-print-evidence"><h3>Supporting evidence register</h3><p>Each item is listed once. Numbers beside findings and actions refer to these saved values or attributed observations.</p><dl'+(longRegister?' data-long-evidence="true"':'')+(boundedRegister?' data-bounded-evidence="true"':'')+'>'+Array.from(printEvidence.values()).map(({number,fact:f})=>'<div class="mr-evidence-entry"'+(longEvidence(f)?' data-long-evidence="true"':'')+'><dt>'+attribution(f)+'<strong>'+number+'. '+esc(evidenceLabel(f))+'</strong></dt><dd>'+esc(evidenceText(f))+'</dd></div>').join('')+'</dl></div>':'';
     return content.replace('<div class="mr-research-context">',register+'<div class="mr-research-context">');
   }
 
@@ -2339,6 +2384,15 @@
     .mr-authored-report .mr-reading-context{font-size:.9rem;color:#53676E;line-height:1.55;max-width:78ch}
     .mr-authored-report .mr-finding{padding:18px 0;border-bottom:1px solid #E8EEEF}
     .mr-authored-report .mr-finding>p{margin:0;line-height:1.65;max-width:82ch}
+    .mr-question-evidence{padding:16px 20px;border-left:3px solid #BFD7DB;background:#F3F7F7;overflow-wrap:anywhere}
+    .mr-authored-report .mr-question-label{margin:0 0 8px;font-size:.82rem;font-weight:600;color:#53676E;line-height:1.4}
+    .mr-authored-report .mr-question-text{margin:0 0 8px;font-weight:600;line-height:1.5}
+    .mr-question-evidence .mr-reading-context{margin:0 0 16px}
+    .mr-question-evidence dl{margin:0;display:grid;gap:14px}
+    .mr-question-answer dt{font-size:.86rem;font-weight:600;line-height:1.4;color:#183F47}
+    .mr-question-answer dd{margin:4px 0 0;line-height:1.55}
+    .mr-authored-report .mr-finding>.mr-question-interpretation{margin-top:18px}
+    .mr-question-subset{margin:0 0 12px;font-size:.88rem;font-weight:600}
     .mr-evidence-detail{margin-top:14px;font-size:.88rem;line-height:1.55}
     .mr-authored-report .mr-action-heading{margin-top:0;font-size:1rem;color:#176f79}
     .mr-authored-report .mr-action-proposal{font-weight:600;line-height:1.5}
@@ -2366,6 +2420,11 @@
       .mr-print-support{font-size:9pt!important;line-height:1.4!important;color:#52666a;margin:10px 0!important}
       .mr-print-evidence{margin-top:24px;padding-top:18px;border-top:1px solid #dce5e8}
       .mr-print-evidence dl{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px}
+      .mr-print-evidence>h3,.mr-print-evidence>p{break-after:avoid;page-break-after:avoid}
+      .mr-print-evidence>p,.mr-print-evidence:has(>dl[data-bounded-evidence="true"]){break-inside:avoid;page-break-inside:avoid}
+      .mr-print-evidence dl{break-before:avoid;page-break-before:avoid}
+      .mr-print-evidence dl[data-long-evidence="true"]{display:block}
+      .mr-print-evidence .mr-evidence-entry[data-long-evidence="true"]{break-inside:auto;page-break-inside:auto}
       .mr-print-evidence .mr-evidence-entry{margin:0;padding:10px 0 0;border-top:1px solid #DCE5E8}
       .mr-print-evidence dd{margin:5px 0 12px;white-space:pre-wrap}
       .mr-meta-method:has(+.mr-report-boundary){break-after:avoid;page-break-after:avoid}
@@ -2373,6 +2432,9 @@
       .mr-authored-report .mr-executive-read{font-size:11pt;line-height:1.55}
       .mr-authored-report .mr-evidence-reading,.mr-authored-report .mr-report-nextsteps,.mr-authored-report .mr-report-options,.mr-authored-report .mr-research-context{margin-top:22px;padding-top:18px}
       .mr-authored-report .mr-finding,.mr-authored-report .mr-ai-action{break-inside:auto;page-break-inside:auto}
+      .mr-question-evidence{padding:12px 16px;break-inside:auto;page-break-inside:auto}
+      .mr-question-evidence .mr-question-label,.mr-question-evidence .mr-question-text,.mr-question-evidence .mr-reading-context,.mr-question-answer dt{break-after:avoid;page-break-after:avoid}
+      .mr-question-answer-bounded{break-inside:avoid;page-break-inside:avoid}
       .mr-authored-report .mr-ai-action-bounded{break-inside:avoid;page-break-inside:avoid}
       .mr-authored-report .mr-action-intro{break-inside:avoid;page-break-inside:avoid;break-after:avoid;page-break-after:avoid}
       .mr-authored-report .mr-finding>p,.mr-authored-report .mr-ai-action>p{orphans:3;widows:3}

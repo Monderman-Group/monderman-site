@@ -6,7 +6,7 @@ import vm from 'node:vm';
 const source=fs.readFileSync(new URL('../public-sample-model.js',import.meta.url),'utf8');
 const scope={window:{}};vm.runInNewContext(source,scope);
 const adapter=scope.window.MondermanPublicSamples;
-const version='monderman-public-sample-projection-20260912.5';
+const version='monderman-public-sample-projection-20260912.6';
 const hash='a'.repeat(64),commit='b'.repeat(40),date='2026-09-12T18:00:00.000Z';
 const artifact={contract:'monderman-public-product-samples/v3',synthetic:true,artifact_sha256:hash,
   publication_projection:{version,source_sha256:hash,projection_commit:commit},outputs:{}};

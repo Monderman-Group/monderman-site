@@ -12,8 +12,8 @@ const out=process.env.SAVED_SYNTHESIS_OUT||fs.mkdtempSync('/tmp/saved-synthesis-
 if(process.env.SAVED_SYNTHESIS_OUT)fs.mkdirSync(out,{recursive:false,mode:0o700});
 const pageSource=fs.readFileSync(path.join(root,'cross-tool-synthesis.html'),'utf8');
 const rendererSource=fs.readFileSync(path.join(root,'monderman-report.js'),'utf8');
-assert.match(rendererSource,/RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260912\.29"/);
-assert.match(pageSource,/monderman-report\.js\?v=20260912\.29/);
+assert.match(rendererSource,/RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260912\.30"/);
+assert.match(pageSource,/monderman-report\.js\?v=20260912\.30/);
 const ORG='22222222-2222-4222-8222-222222222222',ID='33333333-3333-4333-8333-333333333333';
 const SOURCE_IDS=['44444444-4444-4444-8444-444444444444','55555555-5555-4555-8555-555555555555'];
 function fixture({personal,depth,published}){
