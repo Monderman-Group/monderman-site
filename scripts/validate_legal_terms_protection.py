@@ -6,9 +6,9 @@ import re
 
 ROOT = Path(__file__).resolve().parents[1]
 TERMS_VERSION = "2026-09-09-beta"
-PRIVACY_VERSION = "2026-09-10-beta"
-PUBLISHED_PRIVACY_VERSION = "2026-09-10-optional-measurement-v1"
-PUBLISHED_PRIVACY_SHA256 = "3f080b978419e5ed4d6e20776322db7962b512254febcfcc6db34d97933b45d0"
+PRIVACY_VERSION = "2026-09-11-ai-evidence-v1"
+PUBLISHED_PRIVACY_VERSION = "2026-09-11-ai-evidence-v1"
+PUBLISHED_PRIVACY_SHA256 = "c2756a97a1eade4eac6fa306fb5d98cc6a226c68f79288b8a31af19611489539"
 # Accepted historical editions are immutable, even if someone edits the manifest.
 HISTORICAL_DOCUMENTS = {
     "2026-08-20-beta": {
@@ -41,6 +41,7 @@ HISTORICAL_DOCUMENTS = {
         "privacy_notice_file": "privacy-2026-09-09-beta.html",
         "privacy_notice_file_sha256": "3eff91338e588a4cc74d5ec801d50c810fb06b9f272becee40f6731d20dca639"
     },
+    "2026-09-10-optional-measurement-v1": { "privacy_notice_file": "privacy-2026-09-10-optional-measurement-v1.html", "privacy_notice_file_sha256": "3f080b978419e5ed4d6e20776322db7962b512254febcfcc6db34d97933b45d0" },
     "2026-09-10-beta": {
         "privacy_notice_file": "privacy-2026-09-10-beta.html",
         "privacy_notice_file_sha256": "b8d0279861a5ab30f9e1c2875d8237c9fb6df92abf02982e309092c3fc138185"
@@ -168,11 +169,11 @@ def validate():
     ], "aligned Privacy Notice")
 
     if manifest["terms_version"] != TERMS_VERSION or manifest["privacy_notice_version"] != PRIVACY_VERSION:
-        raise AssertionError("required legal acknowledgement versions must not change with optional measurement publication")
+        raise AssertionError("required legal versions must match the explicit AI-evidence activation")
     if manifest.get("required_acknowledgement") != {
         "terms_version": TERMS_VERSION, "privacy_notice_version": PRIVACY_VERSION
     }:
-        raise AssertionError("manifest must explicitly preserve required account acknowledgement versions")
+        raise AssertionError("manifest must explicitly record the required account acknowledgement versions")
     if manifest.get("published_privacy_notice_version") != PUBLISHED_PRIVACY_VERSION or manifest.get("published_privacy_notice_file") != f"privacy-{PUBLISHED_PRIVACY_VERSION}.html":
         raise AssertionError("published Privacy Notice must have its own explicit edition and archive")
     if manifest["acceptance_copy"] != (
@@ -204,6 +205,8 @@ def validate():
             if version in {PRIVACY_VERSION, PUBLISHED_PRIVACY_VERSION} and file_key == "terms_file":
                 if file_key in files or hash_key in files:
                     raise AssertionError("Privacy-only update must not reissue unchanged Terms")
+                continue
+            if file_key == "terms_file" and version in HISTORICAL_DOCUMENTS and file_key not in HISTORICAL_DOCUMENTS[version]:
                 continue
             path = ROOT / files[file_key]
             if not path.is_file() or path.name != files[file_key]:
@@ -237,8 +240,10 @@ def validate():
 
     require(privacy, [
         "AI-assisted reports use Anthropic's commercial API when enabled",
-        "Synthesis interpretation receives selected aggregate results, not individual written observations.",
-        "only when that separate interpretation feature is enabled",
+        "a bounded selection of participant observations",
+        "Earlier observations are not automatically made eligible for this new processing.",
+        "The Monderman diagnostic engine determines scores, classifications, evidence limits and available action options.",
+        "Customer answers, observations, organization names and Workspace history are not sent to that search",
         "The public assistant and Hans, the Workspace assistant, use Anthropic's commercial API",
         "do not automatically retrieve Diagnostic answers, saved reports, participant records",
         "does not store chat transcripts in its database",
@@ -262,9 +267,11 @@ def validate():
     require(security, [
         "When AI-assisted reporting is enabled",
         "The interpretation does not change the saved score.",
-        "Automated checks and AI review do not replace the customer's judgment",
-        "Claude selects and prioritizes reviewed explanations and proposed next steps",
-        "Claude does not freely write new recommendations or calculate scores.",
+        "Monderman's diagnostic engine produces the scores, classifications, evidence limits and available action options.",
+        "Claude supports research and writes the explanation from authorized evidence within those rules.",
+        "they do not establish scientific validity or guarantee an outcome.",
+        "a bounded selection of permitted participant observations",
+        "Reports show the research date or disclose that no newly checked research is included.",
         "This is not a zero-retention arrangement.",
         "row-level security and server-side authorization"
     ], "conditional AI and layered access controls")
@@ -272,10 +279,12 @@ def validate():
         raise AssertionError("unverified universal live RLS claim must not return")
     subprocessors = (ROOT / "subprocessors.html").read_text(errors="strict")
     require(subprocessors, [
-        "Selection, prioritization and review of evidence-matched Diagnostic and Synthesis report material when enabled",
+        "Research support, authored explanations and review within Monderman's engine-defined evidence and action limits.",
         "Anthropic does not calculate scores.",
         "selected aggregate results for Synthesis",
-        "written observations only when separately enabled",
+        "written observations only with the participant's recorded permission for the applicable processing",
+        "Earlier observations are not automatically made eligible.",
+        "Public research uses predefined sector and Diagnostic categories without customer content.",
         "Standard API retention is not zero"
     ], "Anthropic purpose and retention disclosure")
     require(subprocessors, [
