@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260911.28";
+  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260912.29";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -1527,7 +1527,7 @@
       '<h1 class="mr-cover-title">' + esc(m.title) + '</h1><p class="mr-cover-sub">' + esc(m.subtitle) + '</p></div>' +
       '<div class="mr-cover-stripe"></div>' +
       '<div class="mr-cover-white"><p class="mr-cover-kicker">Executive Report</p>' +
-      (obj(m.sampleProvenance).synthetic===true?'<p class="mr-sample-disclosure">Illustrative report generated from fictional inputs, not a customer case study. Financial figures are modeled scenarios, not realized savings.</p>':'') +
+      (obj(m.sampleProvenance).synthetic===true?'<p class="mr-sample-disclosure">Sample report · Example data</p>':'') +
       '<div class="mr-cover-score-row"><div class="' + scoreClass + '">' + esc(m.headlineScore == null ? "Unavailable" : m.headlineScore) + '</div>' +
       '<div class="mr-cover-score-copy"><div class="mr-cover-score-label">' + esc(scoreLabel) + '</div><div class="mr-cover-score-band">' + esc(scoreBandDisplay) + '</div></div></div>' +
       (statusPills ? '<div class="mr-cover-pills">' + statusPills + '</div>' : '') +
@@ -1632,15 +1632,19 @@
       paragraphs(interpretation.observations,reviewedSelection?'Selected responses and results':'What the responses suggest') + paragraphs(interpretation.hypotheses,'Possible explanations to investigate') +
       (actions ? '<h3>'+(reviewedSelection?'Suggested next steps':'Changes to test')+'</h3><div class="mr-ai-actions">'+actions+'</div>' : '') +
       paragraphs(arr(report.limitations).concat(arr(interpretation.limitations)),'Limits of this interpretation') +
-      '<h3>Sector comparison</h3><p>'+esc(obj(report.benchmark).explanation)+'</p>' +
+      (firstStr(obj(report.benchmark).explanation) ? '<h3>Sector comparison</h3><p>'+esc(report.benchmark.explanation)+'</p>' : '') +
       (sources.length ? '<div class="mr-ai-sources' + (sources.reduce((total, source) => total + [source.title, source.publisher, source.reviewed].reduce((n, value) => n + String(value || '').length, 0), 0) <= 1200 ? ' mr-ai-sources-bounded' : '') + '"><h3>External practice sources</h3><ul>'+sources.map(source=>'<li><a href="'+esc(source.url)+'" target="_blank" rel="noopener noreferrer">'+esc(source.title)+'</a>. '+esc(source.publisher)+'. Reviewed '+esc(source.reviewed)+'. Practice guidance, not a Monderman peer benchmark.</li>').join('')+'</ul></div>' : '') +
-      '<p class="mr-method-copy">The Monderman diagnostic engine produced this report’s scores, classifications and evidence limits. '+(reviewedSelection?'This saved edition uses reviewed explanations selected by Claude and inserted by Monderman. ':'Claude assisted with the interpretation within the saved report’s evidence limits. ')+'It did not determine the score. Interpretation version: '+esc(report.version)+'. Prepared: '+esc(report.generated_at)+'. Evidence reference: '+esc(report.snapshot_id)+'.</p></section>';
+      '<p class="mr-method-copy">The Monderman diagnostic engine produced this report’s scores, classifications and evidence limits. '+(reviewedSelection?'This saved edition uses reviewed explanations selected by Claude and inserted by Monderman. ':'Claude assisted with the interpretation within the saved report’s evidence limits. ')+'It did not determine the score.'+[["Interpretation version",report.version],["Prepared",report.generated_at],["Evidence reference",report.snapshot_id]].filter(row=>firstStr(row[1])).map(row=>' '+row[0]+': '+esc(row[1])+'.').join('')+'</p></section>';
   }
 
   // Display attribution only when the saved evidence row and the closed source
   // channel agree. Never infer a source from its position or print private IDs,
   // hashes, prompt instructions, or arbitrary metadata supplied as a label.
   function sourceEvidenceAttributions(report) {
+    if(report.campaign_answer_evidence){
+      if(report.source_evidence)return new Map();
+      return campaignEvidenceAttributions(report);
+    }
     const channel=obj(report.source_evidence),sources=arr(channel.sources),mapped=new Map(),used=new Set();
     if(channel.version!=='personal-source-evidence-20260912.1'||!sources.length||sources.length>5000)return mapped;
     const lenses={structural_clarity:'Structural Clarity',decision_velocity:'Decision Velocity',operational_systems:'Operational Systems',institutional_performance:'Institutional Performance'};
@@ -1661,7 +1665,7 @@
         continue;
       }
       if(source.status!=='available'||!Object.hasOwn(lenses,source.tool)||!Object.hasOwn(perspectives,source.role)
-        ||![10,30,60].includes(source.depth)||!Array.isArray(source.fact_ids)||!source.fact_ids.length||source.fact_ids.length>512)return new Map();
+        ||![10,30,60].includes(source.depth)||!Array.isArray(source.fact_ids)||source.fact_ids.length>512)return new Map();
       for(const id of source.fact_ids){
         if(typeof id!=='string'||!/^F[1-9]\d{0,3}$/.test(id)||used.has(id))return new Map();
         used.add(id);
@@ -1673,11 +1677,90 @@
     return mapped;
   }
 
+  // This browser mapping checks the public graph's internal consistency. The
+  // server separately binds it to authorized original packets and validates the
+  // question bank. Do not copy private question banks or infer missing groups.
+  function campaignEvidenceAttributions(report) {
+    const channel=obj(report.campaign_answer_evidence),coverage=obj(channel.coverage),groups=arr(channel.groups);
+    const mapped=new Map(),used=new Set(),contexts=new Set(),facts=new Map();
+    const lenses={structural_clarity:'Structural Clarity',decision_velocity:'Decision Velocity',operational_systems:'Operational Systems',institutional_performance:'Institutional Performance'};
+    const perspectives={operational:'People doing the work',managerial:'Managers',senior_leader:'Senior leaders'};
+    const count=value=>Number.isSafeInteger(value)&&value>=0;
+    const finite=value=>typeof value==='number'&&Number.isFinite(value);
+    const text=value=>typeof value==='string'&&value.length>0&&value.trim()===value;
+    if(channel.version!=='campaign-recorded-answer-summary-20260912.1'||!Array.isArray(channel.groups)
+      ||!count(coverage.selected_sources)||coverage.selected_sources<2||coverage.selected_sources>5000
+      ||!count(coverage.original_packets_available)||coverage.original_packets_available>coverage.selected_sources
+      ||!count(coverage.available_question_groups)||!count(coverage.included_question_groups)
+      ||coverage.included_question_groups>coverage.available_question_groups||groups.length>coverage.included_question_groups
+      ||!['available','partially_available','unavailable'].includes(coverage.source_detail_status)
+      ||coverage.source_detail_status==='available'&&coverage.original_packets_available!==coverage.selected_sources
+      ||groups.length&&coverage.source_detail_status==='unavailable'
+      ||!['included','not_included_limit'].includes(coverage.detail_status)
+      ||coverage.detail_status==='included'&&coverage.included_question_groups!==coverage.available_question_groups
+      ||coverage.detail_status==='not_included_limit'&&coverage.included_question_groups!==0)return mapped;
+    for(const fact of arr(report.evidence)){
+      if(!fact||facts.has(fact.id))return new Map();
+      facts.set(fact.id,fact);
+    }
+    let prior=0;
+    for(const raw of groups){
+      const group=obj(raw),measures=obj(group.measures),keys=Object.keys(measures);
+      const number=typeof group.group_ref==='string'&&/^G[1-9]\d*$/.test(group.group_ref)?Number(group.group_ref.slice(1)):NaN;
+      const label='Recorded answers: '+lenses[group.tool]+' / '+perspectives[group.role];
+      if(!Number.isSafeInteger(number)||number<=prior||number>coverage.included_question_groups
+        ||!Object.hasOwn(lenses,group.tool)||!Object.hasOwn(perspectives,group.role)||group.label!==label
+        ||![10,30,60].includes(group.depth)||!text(group.questionnaire_version)||!/^\d+\.\d+\.\d+(?:[-+][A-Za-z0-9.-]+)?$/.test(group.questionnaire_version)
+        ||!text(group.question)||group.question.length>2000||group.unit!==null
+        ||group.unit_and_condition_basis!=='exact_original_question'||group.denominator_basis!=='recorded_answers_to_this_exact_question'
+        ||!['numeric','single_choice','selected_option_combination'].includes(group.response_format))return new Map();
+      prior=number;
+      const context=JSON.stringify([group.tool,group.role,group.depth,group.questionnaire_version,group.question]);
+      if(contexts.has(context))return new Map();contexts.add(context);
+      for(const id of Object.values(measures)){
+        const fact=facts.get(id);
+        if(typeof id!=='string'||!/^F[1-9]\d{0,3}$/.test(id)||used.has(id)||!fact
+          ||fact.provenance!=='deterministic_campaign_answer_summary'||fact.group_ref!==group.group_ref||fact.group_label!==label
+          ||fact.unit!=null||!finite(fact.value))return new Map();
+        used.add(id);
+      }
+      const n=facts.get(measures.answered_responses)?.value,matching=group.matching_source_packets;
+      if(!count(n)||n<5||!count(matching)||matching<n||matching>coverage.original_packets_available)return new Map();
+      if(facts.get(measures.answered_responses).label!=='Recorded answers')return new Map();
+      if(group.response_format==='numeric'){
+        if([...keys].sort().join('|')!=='answered_responses|lower_quartile|median|upper_quartile')return new Map();
+        const median=facts.get(measures.median),low=facts.get(measures.lower_quartile),high=facts.get(measures.upper_quartile);
+        if(median.label!=='Median reported estimate'||low.label!=='Lower quartile of reported estimates'
+          ||high.label!=='Upper quartile of reported estimates'||low.value>median.value||median.value>high.value)return new Map();
+      }else{
+        if(keys.length<2||!keys.includes('answered_responses'))return new Map();
+        const answers=[];let total=0;
+        for(let index=1;index<=keys.length-1;index++){
+          const fact=facts.get(measures['category_'+index]),start='Recorded selection: ';
+          if(!fact||typeof fact.label!=='string'||!fact.label.startsWith(start)||!count(fact.value)||fact.value<5
+            ||fact.value>n||n-fact.value>0&&n-fact.value<5)return new Map();
+          const answer=fact.label.slice(start.length);
+          if(!text(answer)||answers.includes(answer)||answers.length&&answers[answers.length-1].localeCompare(answer)>0)return new Map();
+          answers.push(answer);total+=fact.value;
+        }
+        if(total!==n)return new Map();
+      }
+      const attribution=label+' · '+group.depth+'-minute depth · Questionnaire '+group.questionnaire_version
+        +' · '+n.toLocaleString('en-US')+' recorded answers · '+matching.toLocaleString('en-US')+' matching saved reports';
+      // Restore the exact question once in each evidence entry's display label.
+      // The saved compact fact and authored prose stay unchanged.
+      for(const id of Object.values(measures))mapped.set(id,{context:attribution,label:group.question+' — '+facts.get(id).label});
+    }
+    if(arr(report.evidence).some(fact=>fact.provenance==='deterministic_campaign_answer_summary'&&!used.has(fact.id)))return new Map();
+    return mapped;
+  }
+
   function buildAuthoredInterpretation(report) {
     const interpretation=obj(report.interpretation), sources=arr(report.sources).filter(source=>/^https:\/\//i.test(firstStr(source.url)));
     const evidence=arr(report.evidence).concat(arr(report.experiential_evidence));
     const attributions=sourceEvidenceAttributions(report);
-    const attribution=fact=>attributions.has(fact.id)?'<span class="mr-evidence-attribution">'+esc(attributions.get(fact.id))+'</span>':'';
+    const attribution=fact=>attributions.has(fact.id)?'<span class="mr-evidence-attribution">'+esc(typeof attributions.get(fact.id)==='string'?attributions.get(fact.id):attributions.get(fact.id).context)+'</span>':'';
+    const evidenceLabel=fact=>firstStr(obj(attributions.get(fact.id)).label,fact.label,fact.role?'Participant observation · '+fact.role:'Recorded response');
     const printEvidence=new Map();
     const evidenceText=fact=>typeof fact.value==='number'?(fact.unit==='USD'?'US$':'')+fact.value.toLocaleString('en-US')+(fact.unit==='hours'?' hours':''):firstStr(fact.text,typeof fact.value==='string'?fact.value:'',Array.isArray(fact.value)?fact.value.join('; '):'');
     const support=item=>{
@@ -1685,7 +1768,7 @@
       if(!facts.length&&!refs.length)return '';
       const numbers=facts.map(f=>{if(!printEvidence.has(f.id))printEvidence.set(f.id,{number:printEvidence.size+1,fact:f});return printEvidence.get(f.id).number;});
       const printed='<p class="mr-print-support">'+(numbers.length?'Supporting evidence: '+numbers.join(', ')+'. See the evidence register.':'')+(refs.length?' Practice sources: '+refs.map(s=>sources.indexOf(s)+1).join(', ')+'. See Research and sector context.':'')+'</p>';
-      return '<details class="mr-evidence-detail"><summary>See the supporting evidence</summary><div>'+facts.map(f=>'<div class="mr-evidence-entry">'+attribution(f)+'<strong>'+esc(firstStr(f.label,f.role?'Participant observation · '+f.role:'Recorded response'))+'</strong><p>'+esc(evidenceText(f))+'</p></div>').join('')+(refs.length?'<p class="mr-source-links">Relevant practice: '+refs.map(s=>'<a href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">'+esc(firstStr(s.title,s.publisher))+'</a>').join('; ')+'</p>':'')+'</div></details>'+printed;
+      return '<details class="mr-evidence-detail"><summary>See the supporting evidence</summary><div>'+facts.map(f=>'<div class="mr-evidence-entry">'+attribution(f)+'<strong>'+esc(evidenceLabel(f))+'</strong><p>'+esc(evidenceText(f))+'</p></div>').join('')+(refs.length?'<p class="mr-source-links">Relevant practice: '+refs.map(s=>'<a href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">'+esc(firstStr(s.title,s.publisher))+'</a>').join('; ')+'</p>':'')+'</div></details>'+printed;
     };
     const findings=(items,title,explanation)=>arr(items).length?'<div class="mr-evidence-reading"><h3>'+title+'</h3>'+(explanation?'<p class="mr-reading-context">'+explanation+'</p>':'')+arr(items).map(item=>'<article class="mr-finding"><p>'+esc(firstStr(obj(item).text,typeof item==='string'?item:''))+'</p>'+support(obj(item))+'</article>').join('')+'</div>':'';
     const actionCard=(item,index,option=false)=>{
@@ -1698,7 +1781,7 @@
       // Evaluate support at its original reading position so the evidence
       // register keeps its existing numbering. Only printed text determines
       // whether this callout is short enough to keep together on one page.
-      const supporting=support(preferred),boundary='Available because this campaign met the evidence checks and an authorized reviewer recorded operating evidence and safeguards. Effectiveness is not guaranteed.';
+      const supporting=support(preferred),boundary='This campaign met the evidence checks for a recommended path, with operating evidence and safeguards recorded by an authorized reviewer.';
       const printedSupport=(supporting.match(/<p class="mr-print-support">([\s\S]*?)<\/p>/)||[])[1]||'';
       const bounded=['Recommended path',preferredOption.action,preferred.reason,printedSupport,boundary].reduce((n,text)=>n+String(text||'').length,0)<=1100;
       return '<aside class="mr-recommended-path'+(bounded?' mr-recommended-path-bounded':'')+'"><p class="mr-action-level">Recommended path</p><h3>'+esc(preferredOption.action)+'</h3><p>'+esc(preferred.reason)+'</p>'+supporting+'<p class="mr-reading-context">'+boundary+'</p></aside>';
@@ -1708,13 +1791,13 @@
     const content='<section class="mr-section mr-ai-interpretation mr-authored-report"><h2>Interpretation and next steps</h2><p class="mr-executive-read">'+esc(interpretation.summary)+'</p>'+support({evidence_ids:obj(report.evidence_references).summary,source_ids:obj(report.evidence_references).summary_sources})+buildAIRecordedContext(report)+
       findings(interpretation.observations,'What the evidence shows','These findings distinguish scored results from what participants reported.')+
       findings(interpretation.hypotheses,'What may explain it','Possible explanations to investigate, not established causes.')+
-      (actions.length?'<div class="mr-report-nextsteps"><div class="mr-action-intro"><h3>Practical next steps</h3><p class="mr-reading-context">Use these to check the finding and learn from a bounded change. They do not require a population-wide conclusion.</p></div>'+actions.map((item,index)=>actionCard(item,index)).join('')+'</div>':'')+
+      (actions.length?'<div class="mr-report-nextsteps"><div class="mr-action-intro"><h3>Practical next steps</h3><p class="mr-reading-context">Start with these practical checks or focused changes.</p></div>'+actions.map((item,index)=>actionCard(item,index)).join('')+'</div>':'')+
       (options.length?'<div class="mr-report-options"><div class="mr-action-intro"><h3>Three levels of change</h3><p class="mr-reading-context">These are alternatives, not a sequence or a presumption that a larger change is better. Check each option’s prerequisites and risks.</p></div>'+options.map((item,index)=>actionCard(item,index,true)).join('')+'</div>':'')+
       (preferredOption?preferredPath():options.length?'<p class="mr-not-yet"><strong>No preferred option is selected.</strong> Review operating evidence and the campaign’s remaining readiness checks before choosing a recommended path.</p>':'')+
       findings([...new Set(arr(report.limitations).concat(arr(interpretation.limitations)))],'What this report cannot establish','')+
       '<div class="mr-research-context"><h3>Research and sector context</h3><p>'+esc(researchText)+'</p>'+(obj(report.benchmark).explanation?'<p>'+esc(report.benchmark.explanation)+'</p>':'')+(sources.length?'<ol>'+sources.map(s=>'<li><a href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">'+esc(s.title)+'</a>'+(s.publisher?' · '+esc(s.publisher):'')+(s.published?' · Published '+esc(s.published):'')+(s.reviewed?' · Checked '+esc(s.reviewed):'')+'</li>').join('')+'</ol>':'')+'</div>'+
-      '<details class="mr-report-method"><summary>How Monderman produced this interpretation</summary><div><p>The Monderman diagnostic engine determines the scores, classifications, evidence limits and available action options. Claude supports research and writes the explanation from the authorized evidence within those rules. Code checks and a separate AI review screen the completed interpretation before it is released. Neither review establishes scientific validity or guarantees a result.</p><p>Prepared '+esc(report.generated_at)+'. Model '+esc(report.model)+'. Report version '+esc(report.version)+'. This issued report retains its research and evidence snapshot; later research does not silently rewrite it.</p></div></details></section>';
-    const register=printEvidence.size?'<div class="mr-print-evidence"><h3>Supporting evidence register</h3><p>Each item is listed once. Numbers beside findings and actions refer to these saved values or attributed observations.</p><dl>'+Array.from(printEvidence.values()).map(({number,fact:f})=>'<div class="mr-evidence-entry"><dt>'+attribution(f)+'<strong>'+number+'. '+esc(firstStr(f.label,f.role?'Participant observation · '+f.role:'Recorded response'))+'</strong></dt><dd>'+esc(evidenceText(f))+'</dd></div>').join('')+'</dl></div>':'';
+      '<details class="mr-report-method"><summary>How Monderman produced this interpretation</summary><div><p>Monderman’s diagnostic engine produces the scores and determines which findings and recommendations the evidence supports. AI contributes research and explanation within those rules. Automated checks and a separate AI review check the interpretation against its supporting evidence before publication.</p><p>Prepared '+esc(report.generated_at)+'. Model '+esc(report.model)+'. Report version '+esc(report.version)+'. This report preserves the evidence and research used when it was prepared.</p></div></details></section>';
+    const register=printEvidence.size?'<div class="mr-print-evidence"><h3>Supporting evidence register</h3><p>Each item is listed once. Numbers beside findings and actions refer to these saved values or attributed observations.</p><dl>'+Array.from(printEvidence.values()).map(({number,fact:f})=>'<div class="mr-evidence-entry"><dt>'+attribution(f)+'<strong>'+number+'. '+esc(evidenceLabel(f))+'</strong></dt><dd>'+esc(evidenceText(f))+'</dd></div>').join('')+'</dl></div>':'';
     return content.replace('<div class="mr-research-context">',register+'<div class="mr-research-context">');
   }
 
@@ -1774,7 +1857,7 @@
   }
 
   // Publication provenance remains in the signed sample artifact and portable
-  // model. The cover carries its clear fictional-input disclosure. Do not add
+  // model. The cover identifies the report as using example data. Do not add
   // a second explanatory sample card; genuine-run method sections are retained.
   function buildSampleProvenance(model) {
     return '';

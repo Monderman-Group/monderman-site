@@ -24,8 +24,8 @@ async function assertPromotionalBoundary(shell,key) {
   const text=await shell.textContent();
   assert(!text.includes('About this example'),`${key} retains the redundant promotional provenance section`);
   const disclosure=shell.locator('.mr-sample-disclosure');
-  assert(await disclosure.count()===1&&await disclosure.isVisible(),`${key} must disclose its fictional inputs on the cover`);
-  assert((await disclosure.innerText()).trim()==='Illustrative report generated from fictional inputs, not a customer case study. Financial figures are modeled scenarios, not realized savings.',`${key} fictional-input and modeled-return boundary differs`);
+  assert(await disclosure.count()===1&&await disclosure.isVisible(),`${key} must identify example data once on the cover`);
+  assert((await disclosure.innerText()).trim()==='Sample report · Example data',`${key} approved example-data label differs`);
   assert(await shell.locator('.mr-run-method,.mr-meta-method').count()===1,`${key} promotional simplification removed the real report method`);
   // Paired rendering uses the same actual source without the promotional
   // marker. It proves genuine-report method retention, not a customer run.

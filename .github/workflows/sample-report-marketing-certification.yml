@@ -7,6 +7,7 @@ on:
       - 'scripts/report_authored_print_smoke.mjs'
       - 'scripts/report_source_attribution_smoke.mjs'
       - 'scripts/campaign_report_experience_smoke.mjs'
+      - 'scripts/campaign_review_keyboard_smoke.mjs'
       - 'scripts/build_private_evidence_api_fixture.mjs'
       - 'scripts/evidence_api_fixture.mjs'
       - 'scripts/evidence_api_fixture_smoke.mjs'
@@ -155,6 +156,7 @@ on:
       - 'scripts/report_authored_print_smoke.mjs'
       - 'scripts/report_source_attribution_smoke.mjs'
       - 'scripts/campaign_report_experience_smoke.mjs'
+      - 'scripts/campaign_review_keyboard_smoke.mjs'
       - 'scripts/build_private_evidence_api_fixture.mjs'
       - 'scripts/evidence_api_fixture.mjs'
       - 'scripts/evidence_api_fixture_smoke.mjs'
@@ -339,6 +341,10 @@ jobs:
           node --check scripts/report_pdf_smoke.mjs
           node --check scripts/report_authored_print_smoke.mjs
           node --check scripts/report_source_attribution_smoke.mjs
+          node --check scripts/campaign_review_keyboard_smoke.mjs
+          node --check scripts/report_campaign_attribution_smoke.mjs
+          node --check scripts/report_sample_copy_smoke.mjs
+          node --check scripts/sample_marketing_language_hover_smoke.mjs
           node --check scripts/ip_missing_recovery_browser_smoke.mjs
           node --check scripts/sample_product_fidelity_smoke.mjs
           node --check scripts/sample_product_fidelity_smoke_v2.mjs
@@ -380,7 +386,11 @@ jobs:
           npm install --no-save --package-lock=false playwright@1.55.0
           bash scripts/install_ci_browsers.sh
       - name: Verify source attribution in screen and print markup without PDFs
-        run: node scripts/report_source_attribution_smoke.mjs
+        run: |
+          node scripts/report_source_attribution_smoke.mjs
+          node scripts/report_campaign_attribution_smoke.mjs
+          node scripts/report_sample_copy_smoke.mjs
+          node scripts/sample_marketing_language_hover_smoke.mjs
       - name: Verify authored evidence alignment and callout pagination with MOCK text
         env:
           REPORT_PRINT_OUT: /tmp/report-presentation-smoke/authored-print
@@ -429,7 +439,9 @@ jobs:
         env:
           SAMPLE_BASE: http://127.0.0.1:8080
           SAMPLE_OUT: /tmp/report-presentation-smoke/campaign-experience
-        run: node scripts/campaign_report_experience_smoke.mjs
+        run: |
+          node scripts/campaign_report_experience_smoke.mjs
+          node scripts/campaign_review_keyboard_smoke.mjs
 
       - name: Verify explicit response inclusion and accessible review dialog
         env:

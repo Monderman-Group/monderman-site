@@ -33,9 +33,11 @@ for(const job of prepared.privateEvidence.jobs){
     action_options:plan.options.map(o=>({option_id:o.id,action:o.action,reason:'Consider this '+o.intensity+' alternative only after checking the stated prerequisites and safeguards against the observed work.',evidence_ids:o.evidence_ids,source_ids:o.source_ids})),
     recommended_option:plan.preferred_option_id?{option_id:plan.preferred_option_id,reason:'The authorized operating review supports testing this option within the recorded safeguards.',evidence_ids:plan.options.find(o=>o.id===plan.preferred_option_id).evidence_ids,source_ids:[]}:null,limitations:[]};
   const composition=buildReportAIComposition(wire,packet);
+  const groupFacts=new Map((packet.campaign_source_evidence?.groups||[]).flatMap(group=>Object.values(group.measures).map(id=>[id,{group_ref:group.group_ref,group_label:group.label}])));
   const report={version:'MOCK-PROSE-NOT-PUBLICATION',model:'claude-opus-5',generated_at:'2026-09-11T12:00:00Z',snapshot_id:packet.snapshot_id,
     composition:{version:composition.version,authorship:composition.authorship,engine_bound:true},interpretation:composition.interpretation,
-    evidence:packet.facts,experiential_evidence:packet.experiential_records||[],evidence_references:{summary:composition.summaryEvidence.evidence_ids,summary_sources:composition.summaryEvidence.source_ids},
+    evidence:packet.facts.map(f=>({...f,...(groupFacts.get(f.id)||{})})),experiential_evidence:packet.experiential_records||[],evidence_references:{summary:composition.summaryEvidence.evidence_ids,summary_sources:composition.summaryEvidence.source_ids},
+    ...(packet.campaign_source_evidence?{campaign_answer_evidence:structuredClone(packet.campaign_source_evidence)}:{}),
     sources:packet.research.sources,benchmark:packet.research.benchmark,limitations:packet.limitations,research_context:{status:'not_started',checked_at:null}};
   const ai={status:'complete',report},entry=prepared.publicDraft.outputs[job.key];
   results.push({key:job.key,projection:'private',source:{...job.source,ai_report:ai},provenance:entry.provenance});
@@ -60,7 +62,8 @@ for(const [name,engine]of [['chromium',chromium],['webkit',webkit]]){
       await page.setContent('<!doctype html><html><body></body></html>');await page.addScriptTag({content:safety});await page.addScriptTag({content:renderer});
       const html=await page.evaluate(({source,provenance,key})=>{const m=key.endsWith('synthesis')?MondermanReport.fromSynthesis(source):MondermanReport.fromRun(source);m.sampleProvenance=provenance;return MondermanReport.buildReportHtml(m);},result);
       assert.doesNotMatch(html,/About this example|\[object Object\]|\bundefined\b|\bNaN\b/);
-      assert.match(html,/Illustrative report generated from fictional inputs/);
+      assert.match(html,/Sample report · Example data/);
+      assert.doesNotMatch(html,/fictional inputs|Neither review establishes scientific validity or guarantees a result/);
       if(!result.key.endsWith('synthesis'))assert.doesNotMatch(html,/No written participant notes are included/,'Actual saved observations must appear in the evidence section');
       for(const width of [1440,834,390,320]){
         await page.setViewportSize({width,height:1000});await page.setContent(html);await page.evaluate(()=>document.fonts.ready);

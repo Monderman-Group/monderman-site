@@ -110,7 +110,9 @@ for token in (
     'self_run_owned_by_caller===true',
     'It does not publish a Cross-Lens Composite Score or an organization-wide recommended path.',
     'mondermanCrossDiagnosticSynthesis',
-    'If a Cross-Lens Composite Score is withheld, the report states why and what actions could unlock one.',
+    'Personal Cross-Lens Synthesis never publishes a Composite Score.',
+    'Personal Depth Synthesis may show the median of your selected scores when the runs cover compatible work, dates, versions and perspectives.',
+    'Personal runs do not establish campaign readiness or unlock a Cross-Lens Composite Score, organizational change alternatives or a recommended path.',
     '/api/synthesis',
     '/api/synthesis-runs',
     'Build self-run Synthesis',
@@ -123,6 +125,7 @@ for token in ('Build Depth Synthesis', 'Build Cross-Lens Synthesis', 'View respo
     require(CAMPAIGN, token, 'campaign-analysis.js')
 
 for token in (
+    'what actions could unlock one',
     ".limit(200)",
     "population statistics",
     "body: JSON.stringify({ results",

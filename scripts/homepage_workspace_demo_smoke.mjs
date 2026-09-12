@@ -32,10 +32,11 @@ for (const [name, type] of [['chromium', chromium], ['webkit', webkit]]) {
       const actionText = await app.locator('.hwd-action-card p').textContent();
       assert.equal(actionText, source.ai_report.report.interpretation.recommendations.find(a=>a.action?.trim()).action, 'Action detail must preserve its accepted AI source');
       assert.equal(await app.locator('[data-demo-recovery]').textContent(), '$'+source.exposure.recoverable_cost.toLocaleString('en-US'));
-      assert.match(await app.textContent(), /Before costs; not guaranteed savings/);
+      assert.match(await app.textContent(), /Based on the assumptions shown in the report, before subscription and implementation costs\./);
       assert.equal(await page.locator('.home-workspace-preview').getAttribute('data-artifact-sha256'),artifact.artifact_sha256);
-      assert.match(await page.locator('.home-workspace-preview').textContent(), /Fictional inputs/);
-      assert.match(await page.locator('.home-preview-caption').textContent(), /does not create or change a workspace/);
+      assert.equal(await page.locator('.home-preview-label span:last-child').textContent(), 'Sample data');
+      assert.equal(await page.locator('.home-preview-caption').textContent(), 'See how diagnostic results become clear findings, practical next steps, and a baseline for tracking change.');
+      assert.match(await page.locator('.home-preview-method').textContent(), /Recovery is a modeled share of the estimated burden, not a measured saving\./);
       const expected = ['measure', 'analysis', 'actions', 'return'];
       const heights = [];
       for (const id of expected) {
