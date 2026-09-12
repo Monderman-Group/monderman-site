@@ -94,7 +94,7 @@ def validate():
 
     privacy = (ROOT / "privacy.html").read_text(errors="ignore")
     require(privacy, [
-        "Version 2026-09-10-optional-measurement-v1", "Subprocessors and infrastructure page",
+        "Version 2026-09-11-ai-evidence-v1", "Subprocessors and infrastructure page",
         'id="optional-measurement"',
         "Optional website measurement uses separate first-party browser storage only after the choice described below.",
         "Either choice leaves the diagnostic, results, reports, sign-in and pilot application available.",
