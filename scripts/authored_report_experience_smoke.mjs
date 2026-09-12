@@ -3,18 +3,25 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import {createHash} from 'node:crypto';
 import {chromium,webkit} from 'playwright';
-import {loadEvidenceApi,verifyEvidenceFixture} from './evidence_api_fixture.mjs';
+import {loadEvidenceApi,verifyEvidenceFixture,EVIDENCE_MANIFEST} from './evidence_api_fixture.mjs';
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 const privateMode=Boolean(process.env.MONDERMAN_EVIDENCE_FIXTURE_DIR);
 const out=process.env.SAMPLE_OUT||'/tmp/monderman-authored-report-layout';
 fs.mkdirSync(out,{recursive:true});
 globalThis.fetch=()=>{throw Error('No network permitted in synthetic layout generation');};
 const renderer=fs.readFileSync('monderman-report.js','utf8'),safety=fs.readFileSync('participant-evidence-safety.js','utf8'),results=[];
-let sourceCommit,fixtureLabel;
+const sha256=value=>createHash('sha256').update(value).digest('hex');
+const harnessFile=new URL(import.meta.url);
+const sourceBindings={renderer_sha256:sha256(renderer),safety_sha256:sha256(safety),harness_sha256:sha256(fs.readFileSync(harnessFile)),fixture_manifest_sha256:null};
+let sourceCommit,fixtureLabel,fixtureManifestFile;
 if(privateMode){
+const verifiedFixture=verifyEvidenceFixture(process.env.MONDERMAN_EVIDENCE_FIXTURE_DIR);
+fixtureManifestFile=path.join(verifiedFixture.directory,EVIDENCE_MANIFEST);
+sourceBindings.fixture_manifest_sha256=sha256(fs.readFileSync(fixtureManifestFile));
 const {prepareCurrentSamples,buildReportProsePlan,REPORT_PROSE_VERSION,buildReportAIComposition,publicAIState}=await loadEvidenceApi();
-sourceCommit=verifyEvidenceFixture(process.env.MONDERMAN_EVIDENCE_FIXTURE_DIR).manifest.source_commit;
+sourceCommit=verifiedFixture.manifest.source_commit;
 const prepared=await prepareCurrentSamples({generatedAt:'2026-09-11T12:00:00.000Z',engineCommit:sourceCommit});
 fixtureLabel='PRIVATE release gate: actual committed deterministic inputs and private/public projections; prose is MOCK, not live output evidence.';
 for(const job of prepared.privateEvidence.jobs){
@@ -80,4 +87,8 @@ for(const [name,engine]of [['chromium',chromium],['webkit',webkit]]){
     }
   }finally{await browser.close();}
 }
-assert.deepEqual(errors,[]);fs.writeFileSync(path.join(out,'checks.json'),JSON.stringify({status:'PASS',sourceCommit,fixture:fixtureLabel,checks,errors,productionCalls:0},null,2));console.log(JSON.stringify({status:'PASS',mode:privateMode?'private-engine-mock-prose':'reviewed-public-samples',renders:checks.length,engines:['chromium','webkit'],projections:privateMode?['private','public']:['public'],pdfs:results.length,productionCalls:0,out}));
+// A passing receipt must identify the bytes actually rendered, and must not
+// survive a concurrent candidate/fixture edit during this multi-browser run.
+assert.deepEqual({renderer_sha256:sha256(fs.readFileSync('monderman-report.js')),safety_sha256:sha256(fs.readFileSync('participant-evidence-safety.js')),harness_sha256:sha256(fs.readFileSync(harnessFile)),fixture_manifest_sha256:fixtureManifestFile?sha256(fs.readFileSync(fixtureManifestFile)):null},sourceBindings,'Rendering sources changed during the run; discard these artifacts and rerun');
+if(privateMode)assert.equal(verifyEvidenceFixture(process.env.MONDERMAN_EVIDENCE_FIXTURE_DIR).manifest.source_commit,sourceCommit);
+assert.deepEqual(errors,[]);fs.writeFileSync(path.join(out,'checks.json'),JSON.stringify({receipt_version:'authored-report-experience/v2',status:'PASS',sourceCommit,sourceBindings,fixture:fixtureLabel,checks,errors,productionCalls:0},null,2));console.log(JSON.stringify({status:'PASS',mode:privateMode?'private-engine-mock-prose':'reviewed-public-samples',renders:checks.length,engines:['chromium','webkit'],projections:privateMode?['private','public']:['public'],pdfs:results.length,productionCalls:0,out}));

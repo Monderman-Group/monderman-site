@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'scripts/authored_report_experience_smoke.mjs'
+      - 'scripts/report_authored_print_smoke.mjs'
       - 'scripts/campaign_report_experience_smoke.mjs'
       - 'scripts/build_private_evidence_api_fixture.mjs'
       - 'scripts/evidence_api_fixture.mjs'
@@ -147,6 +148,7 @@ on:
       - main
     paths:
       - 'scripts/authored_report_experience_smoke.mjs'
+      - 'scripts/report_authored_print_smoke.mjs'
       - 'scripts/campaign_report_experience_smoke.mjs'
       - 'scripts/build_private_evidence_api_fixture.mjs'
       - 'scripts/evidence_api_fixture.mjs'
@@ -323,6 +325,7 @@ jobs:
           node --check scripts/authenticated_report_engine_fixture.mjs
           node --check scripts/report_presentation_smoke.mjs
           node --check scripts/report_pdf_smoke.mjs
+          node --check scripts/report_authored_print_smoke.mjs
           node --check scripts/ip_missing_recovery_browser_smoke.mjs
           node --check scripts/sample_product_fidelity_smoke.mjs
           node --check scripts/sample_product_fidelity_smoke_v2.mjs
@@ -363,6 +366,10 @@ jobs:
         run: |
           npm install --no-save --package-lock=false playwright@1.55.0
           bash scripts/install_ci_browsers.sh
+      - name: Verify authored evidence alignment and callout pagination with MOCK text
+        env:
+          REPORT_PRINT_OUT: /tmp/report-presentation-smoke/authored-print
+        run: node scripts/report_authored_print_smoke.mjs
       - name: Preserve unavailable scores and Synthesis chart labels on all display sizes
         run: node scripts/report_synthesis_display_smoke.mjs
       - name: Preserve presentation correction provenance in HTML and PDF

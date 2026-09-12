@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260911.26";
+  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260911.27";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -1656,6 +1656,15 @@
       return '<article class="mr-card mr-ai-action'+(bounded?' mr-ai-action-bounded':'')+'"><h3 class="mr-action-heading">'+(option?esc(labels[action.intensity]||'Action option'):'Next step '+(index+1))+'</h3><p class="mr-action-proposal">'+esc(action.action)+'</p><p>'+esc(action.reason)+'</p>'+support(action)+'<dl class="mr-action-conditions">'+[['Before trying it',action.prerequisite],['Risk to consider',action.risk],['How to judge the test',action.success_check]].filter(([,value])=>value).map(([label,value])=>'<div class="mr-ai-definition"><dt>'+label+'</dt><dd>'+esc(value)+'</dd></div>').join('')+'</dl></article>';
     };
     const actions=arr(interpretation.recommendations),options=arr(interpretation.action_options),preferred=obj(interpretation.recommended_option),preferredOption=options.find(o=>o.option_id===preferred.option_id);
+    const preferredPath=()=>{
+      // Evaluate support at its original reading position so the evidence
+      // register keeps its existing numbering. Only printed text determines
+      // whether this callout is short enough to keep together on one page.
+      const supporting=support(preferred),boundary='Available because this campaign met the evidence checks and an authorized reviewer recorded operating evidence and safeguards. Effectiveness is not guaranteed.';
+      const printedSupport=(supporting.match(/<p class="mr-print-support">([\s\S]*?)<\/p>/)||[])[1]||'';
+      const bounded=['Recommended path',preferredOption.action,preferred.reason,printedSupport,boundary].reduce((n,text)=>n+String(text||'').length,0)<=1100;
+      return '<aside class="mr-recommended-path'+(bounded?' mr-recommended-path-bounded':'')+'"><p class="mr-action-level">Recommended path</p><h3>'+esc(preferredOption.action)+'</h3><p>'+esc(preferred.reason)+'</p>'+supporting+'<p class="mr-reading-context">'+boundary+'</p></aside>';
+    };
     const research=obj(report.research_context),checked=firstStr(research.checked_at,research.checkedAt),date=checked&&Number.isFinite(Date.parse(checked))?new Date(checked).toISOString().slice(0,10):'';
     const researchText=['fresh','reviewed'].includes(research.status)?'Public-source research checked '+date+'. Sources inform the options; they do not establish how this organization performs.':research.status==='no_current_sources'?'A public-source search was completed on '+date+', but it did not produce suitable current evidence for this report.':research.status==='stale'?'The available research snapshot is dated '+date+'. It is outside the current research window and was not added as fresh guidance.':'No newly checked public-source research is included. Any listed practice sources are dated references, not a current sector benchmark.';
     const content='<section class="mr-section mr-ai-interpretation mr-authored-report"><h2>Interpretation and next steps</h2><p class="mr-executive-read">'+esc(interpretation.summary)+'</p>'+support({evidence_ids:obj(report.evidence_references).summary,source_ids:obj(report.evidence_references).summary_sources})+buildAIRecordedContext(report)+
@@ -1663,7 +1672,7 @@
       findings(interpretation.hypotheses,'What may explain it','Possible explanations to investigate, not established causes.')+
       (actions.length?'<div class="mr-report-nextsteps"><div class="mr-action-intro"><h3>Practical next steps</h3><p class="mr-reading-context">Use these to check the finding and learn from a bounded change. They do not require a population-wide conclusion.</p></div>'+actions.map((item,index)=>actionCard(item,index)).join('')+'</div>':'')+
       (options.length?'<div class="mr-report-options"><div class="mr-action-intro"><h3>Three levels of change</h3><p class="mr-reading-context">These are alternatives, not a sequence or a presumption that a larger change is better. Check each option’s prerequisites and risks.</p></div>'+options.map((item,index)=>actionCard(item,index,true)).join('')+'</div>':'')+
-      (preferredOption?'<aside class="mr-recommended-path"><p class="mr-action-level">Recommended path</p><h3>'+esc(preferredOption.action)+'</h3><p>'+esc(preferred.reason)+'</p>'+support(preferred)+'<p class="mr-reading-context">Available because this campaign met the evidence checks and an authorized reviewer recorded operating evidence and safeguards. Effectiveness is not guaranteed.</p></aside>':options.length?'<p class="mr-not-yet"><strong>No preferred option is selected.</strong> Review operating evidence and the campaign’s remaining readiness checks before choosing a recommended path.</p>':'')+
+      (preferredOption?preferredPath():options.length?'<p class="mr-not-yet"><strong>No preferred option is selected.</strong> Review operating evidence and the campaign’s remaining readiness checks before choosing a recommended path.</p>':'')+
       findings([...new Set(arr(report.limitations).concat(arr(interpretation.limitations)))],'What this report cannot establish','')+
       '<div class="mr-research-context"><h3>Research and sector context</h3><p>'+esc(researchText)+'</p>'+(obj(report.benchmark).explanation?'<p>'+esc(report.benchmark.explanation)+'</p>':'')+(sources.length?'<ol>'+sources.map(s=>'<li><a href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">'+esc(s.title)+'</a>'+(s.publisher?' · '+esc(s.publisher):'')+(s.published?' · Published '+esc(s.published):'')+(s.reviewed?' · Checked '+esc(s.reviewed):'')+'</li>').join('')+'</ol>':'')+'</div>'+
       '<details class="mr-report-method"><summary>How Monderman produced this interpretation</summary><div><p>The Monderman diagnostic engine determines the scores, classifications, evidence limits and available action options. Claude supports research and writes the explanation from the authorized evidence within those rules. Code checks and a separate AI review screen the completed interpretation before it is released. Neither review establishes scientific validity or guarantees a result.</p><p>Prepared '+esc(report.generated_at)+'. Model '+esc(report.model)+'. Report version '+esc(report.version)+'. This issued report retains its research and evidence snapshot; later research does not silently rewrite it.</p></div></details></section>';
@@ -2235,6 +2244,7 @@
       .mr-print-support{font-size:9pt!important;line-height:1.4!important;color:#52666a;margin:10px 0!important}
       .mr-print-evidence{margin-top:24px;padding-top:18px;border-top:1px solid #dce5e8}
       .mr-print-evidence dl{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px}
+      .mr-print-evidence .mr-evidence-entry{margin:0;padding:10px 0 0;border-top:1px solid #DCE5E8}
       .mr-print-evidence dd{margin:5px 0 12px;white-space:pre-wrap}
       .mr-meta-method:has(+.mr-report-boundary){break-after:avoid;page-break-after:avoid}
       .mr-meta-method+.mr-report-boundary{break-before:avoid;page-break-before:avoid}
@@ -2250,6 +2260,7 @@
       .mr-evidence-detail summary,.mr-report-method summary{list-style:none;break-after:avoid}
       .mr-evidence-entry{break-inside:avoid;page-break-inside:avoid}
       .mr-recommended-path{break-inside:auto;page-break-inside:auto}
+      .mr-recommended-path-bounded{break-inside:avoid;page-break-inside:avoid}
     }`;
 
   function handleScreenNavigation(event) {
