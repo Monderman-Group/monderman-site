@@ -276,6 +276,8 @@ def validate():
     if "including intellectual property, aggregated and de-identified information" in terms:
         raise AssertionError("removed aggregated-content permission must not survive termination")
     security = (ROOT / "security.html").read_text(errors="strict")
+    # Full-feature release: these disclosures ship with API activation.
+    # The separate Privacy publication did not activate authored reporting.
     require(security, [
         "When AI-assisted reporting is enabled",
         "The interpretation does not change the saved score.",
