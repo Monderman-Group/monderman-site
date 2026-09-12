@@ -1,20 +1,22 @@
-// Actual current deterministic sample inputs + deliberately mocked prose.
-// This proves rendering, not provider quality or live release readiness.
+// Public CI: actual approved public samples only, no private engine source.
+// Explicit private release mode: committed engine inputs + mocked prose.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import {pathToFileURL} from 'node:url';
 import {chromium,webkit} from 'playwright';
-const apiRoot=process.env.MONDERMAN_API_ROOT||path.resolve('../monderman-api-evidence-report-20260911');
-const load=name=>import(pathToFileURL(path.join(apiRoot,name)));
-const {prepareCurrentSamples}=await load('certification/current-product-samples.mjs');
-const {buildReportProsePlan,REPORT_PROSE_VERSION}=await load('report-prose-output.js');
-const {buildReportAIComposition}=await load('report-ai-composition.js');
+import {loadEvidenceApi,verifyEvidenceFixture} from './evidence_api_fixture.mjs';
+import {readPublicSampleFixture} from './public_sample_fixture.mjs';
+const privateMode=Boolean(process.env.MONDERMAN_EVIDENCE_FIXTURE_DIR);
 const out=process.env.SAMPLE_OUT||'/tmp/monderman-authored-report-layout';
 fs.mkdirSync(out,{recursive:true});
 globalThis.fetch=()=>{throw Error('No network permitted in synthetic layout generation');};
-const prepared=await prepareCurrentSamples({generatedAt:'2026-09-11T12:00:00.000Z'});
 const renderer=fs.readFileSync('monderman-report.js','utf8'),safety=fs.readFileSync('participant-evidence-safety.js','utf8'),results=[];
+let sourceCommit,fixtureLabel;
+if(privateMode){
+const {prepareCurrentSamples,buildReportProsePlan,REPORT_PROSE_VERSION,buildReportAIComposition,publicAIState}=await loadEvidenceApi();
+sourceCommit=verifyEvidenceFixture(process.env.MONDERMAN_EVIDENCE_FIXTURE_DIR).manifest.source_commit;
+const prepared=await prepareCurrentSamples({generatedAt:'2026-09-11T12:00:00.000Z',engineCommit:sourceCommit});
+fixtureLabel='PRIVATE release gate: actual committed deterministic inputs and private/public projections; prose is MOCK, not live output evidence.';
 for(const job of prepared.privateEvidence.jobs){
   const packet=job.packet,plan=buildReportProsePlan(packet);
   const wire={version:REPORT_PROSE_VERSION,engine_catalog_sha256:plan.catalog_sha256,
@@ -28,8 +30,19 @@ for(const job of prepared.privateEvidence.jobs){
     composition:{version:composition.version,authorship:composition.authorship,engine_bound:true},interpretation:composition.interpretation,
     evidence:packet.facts,experiential_evidence:packet.experiential_records||[],evidence_references:{summary:composition.summaryEvidence.evidence_ids,summary_sources:composition.summaryEvidence.source_ids},
     sources:packet.research.sources,benchmark:packet.research.benchmark,limitations:packet.limitations,research_context:{status:'not_started',checked_at:null}};
-  results.push({key:job.key,source:{...job.source,ai_report:{status:'complete',report}},provenance:prepared.publicDraft.outputs[job.key].provenance});
+  const ai={status:'complete',report},entry=prepared.publicDraft.outputs[job.key];
+  results.push({key:job.key,projection:'private',source:{...job.source,ai_report:ai},provenance:entry.provenance});
+  // Exercise the actual committed public projection, not only the richer
+  // private packet. Missing evidence references must fail this same display
+  // gate; mocked prose remains explicitly non-publication in both variants.
+  results.push({key:job.key,projection:'public',source:{...entry.source,ai_report:publicAIState(ai)},provenance:entry.provenance});
 }
+}else{
+  const {artifact}=readPublicSampleFixture();sourceCommit=artifact.engine_commit;
+  fixtureLabel='PUBLIC CI: actual reviewed public sample artifact and public display only; no private source or private engine execution.';
+  for(const [key,entry]of Object.entries(artifact.outputs))results.push({key,projection:'public',source:entry.source,provenance:entry.provenance});
+}
+const outputLabel=privateMode?'MOCK':'REVIEWED-PUBLIC';
 const checks=[],errors=[];
 for(const [name,engine]of [['chromium',chromium],['webkit',webkit]]){
   const browser=await engine.launch({headless:true});
@@ -45,25 +58,26 @@ for(const [name,engine]of [['chromium',chromium],['webkit',webkit]]){
       for(const width of [1440,834,390,320]){
         await page.setViewportSize({width,height:1000});await page.setContent(html);await page.evaluate(()=>document.fonts.ready);
         assert.equal(await page.locator('.mr-authored-report').count(),1);
-        assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${name}/${result.key}/${width}: overflow`);
+        assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${name}/${result.projection}/${result.key}/${width}: overflow`);
         const missing=await page.locator('.mr-screen-nav a,.mr-screen-action').evaluateAll(links=>links.filter(a=>!document.getElementById(a.hash.slice(1))).map(a=>a.hash));assert.deepEqual(missing,[]);
         assert(await page.locator('.mr-cover .mr-sample-disclosure').isVisible());
+        assert(await page.locator('.mr-evidence-detail').count()>0,`${result.projection}/${result.key}: saved supporting evidence is missing`);
         const detail=page.locator('.mr-evidence-detail').first();await detail.locator('summary').focus();await page.keyboard.press('Enter');assert(await detail.getAttribute('open')!==null);
         if(result.key.endsWith('synthesis')){assert.equal(await page.locator('.mr-report-options .mr-ai-action').count(),3);assert.equal(await page.locator('.mr-recommended-path').count(),1);}
         else assert.equal(await page.locator('.mr-report-options').count(),0);
         const link=page.locator('.mr-screen-shortcuts [data-report-link-role=guidance]');if(await link.count()){await link.click();const target=await link.getAttribute('href');assert(await page.locator(target).evaluate(el=>el===document.activeElement));}
-        if(width===390||width===1440)await page.locator('.mr-authored-report').screenshot({path:path.join(out,`${name}-${result.key}-${width}.png`)});
-        checks.push({engine:name,key:result.key,width,overflow:false,keyboardEvidence:true,navigationTargets:true});
+        if(width===390||width===1440)await page.locator('.mr-authored-report').screenshot({path:path.join(out,`${name}-${result.projection}-${result.key}-${width}.png`)});
+        checks.push({engine:name,projection:result.projection,key:result.key,width,overflow:false,keyboardEvidence:true,navigationTargets:true});
       }
       if(name==='chromium'){
         await page.emulateMedia({media:'print'});
         // Closed evidence must appear in the actual PDF, not merely in the DOM.
         await page.locator('.mr-evidence-detail').evaluateAll(nodes=>nodes.forEach(n=>n.open=false));
-        await page.pdf({path:path.join(out,`${result.key}-MOCK.pdf`),format:'Letter',printBackground:true,preferCSSPageSize:true});
+        await page.pdf({path:path.join(out,`${result.projection}-${result.key}-${outputLabel}.pdf`),format:'Letter',printBackground:true,preferCSSPageSize:true});
         await page.emulateMedia({media:'screen'});
-        fs.writeFileSync(path.join(out,`${result.key}-MOCK.html`),html);
+        fs.writeFileSync(path.join(out,`${result.projection}-${result.key}-${outputLabel}.html`),html);
       }
     }
   }finally{await browser.close();}
 }
-assert.deepEqual(errors,[]);fs.writeFileSync(path.join(out,'checks.json'),JSON.stringify({status:'PASS',fixture:'Actual deterministic current inputs; prose is mocked, no provider quality claim.',checks,errors,productionCalls:0},null,2));console.log(JSON.stringify({status:'PASS',renders:checks.length,engines:['chromium','webkit'],pdfs:6,productionCalls:0,out}));
+assert.deepEqual(errors,[]);fs.writeFileSync(path.join(out,'checks.json'),JSON.stringify({status:'PASS',sourceCommit,fixture:fixtureLabel,checks,errors,productionCalls:0},null,2));console.log(JSON.stringify({status:'PASS',mode:privateMode?'private-engine-mock-prose':'reviewed-public-samples',renders:checks.length,engines:['chromium','webkit'],projections:privateMode?['private','public']:['public'],pdfs:results.length,productionCalls:0,out}));

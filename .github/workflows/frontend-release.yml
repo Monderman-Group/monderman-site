@@ -27,6 +27,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Keep private engine source out of this public repository
+        run: node scripts/private_source_absence_smoke.mjs
       - run: python scripts/validate_stabilization.py
       - name: Keep public search copy and disclosures current
         run: python scripts/build_public_search_index.py --check
@@ -86,6 +88,8 @@ jobs:
           node scripts/synthesis_request_state_smoke.mjs
           node scripts/workspace_analysis_eligibility_smoke.mjs
           node scripts/report_ai_deferred_poll_smoke.mjs
+      - name: Preserve ordinary next steps and historical report policy
+        run: node scripts/individual_output_policy_smoke.mjs
       - name: Reject Diagnostic completion-protection regressions
         run: node scripts/diagnostic_completion_reliability_smoke.mjs
       - run: python scripts/validate_frontend_release.py

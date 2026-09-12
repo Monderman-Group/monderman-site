@@ -1,21 +1,42 @@
 import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
+import {readPublicSampleFixture,publicResult} from './public_sample_fixture.mjs';
 
 const base = process.env.SAMPLE_BASE || 'http://127.0.0.1:8080';
 const out = process.env.SAMPLE_OUT || '/tmp/sample-product-fidelity-smoke';
 fs.mkdirSync(out, { recursive: true });
 
-const artifact=JSON.parse(fs.readFileSync(new URL('../sample-data/production-diagnostic-samples.json',import.meta.url),'utf8'));
+// A stale or unapproved artifact must fail before browser layout is mistaken
+// for current-output fidelity. Never repin or replace it with mocked prose.
+const {artifact}=readPublicSampleFixture();
 const expectedEngine = artifact.engine_commit;
 const expectedArtifact = artifact.artifact_sha256;
 const expected = Object.fromEntries(Object.entries({os:'operational_systems',dv:'decision_velocity',sc:'structural_clarity',ip:'institutional_performance'}).map(([tab,key])=>{
-  const result=artifact.outputs[key].source;
+  const result=publicResult(artifact.outputs[key]);
   return [tab,{source:key,score:String(result.score),dimensions:Object.keys(result.dimensions).length,result}];
 }));
 
 function assert(value, message) {
   if (!value) throw new Error(message);
+}
+async function assertPromotionalBoundary(shell,key) {
+  const text=await shell.textContent();
+  assert(!text.includes('About this example'),`${key} retains the redundant promotional provenance section`);
+  const disclosure=shell.locator('.mr-sample-disclosure');
+  assert(await disclosure.count()===1&&await disclosure.isVisible(),`${key} must disclose its fictional inputs on the cover`);
+  assert((await disclosure.innerText()).trim()==='Illustrative report generated from fictional inputs, not a customer case study. Financial figures are modeled scenarios, not realized savings.',`${key} fictional-input and modeled-return boundary differs`);
+  assert(await shell.locator('.mr-run-method,.mr-meta-method').count()===1,`${key} promotional simplification removed the real report method`);
+  // Paired rendering uses the same actual source without the promotional
+  // marker. It proves genuine-report method retention, not a customer run.
+  const entry=artifact.outputs[key];
+  const paired=await shell.evaluate((_node,entry)=>{
+    const report=window.MondermanReport;
+    const model=entry.kind==='synthesis'?report.fromSynthesis(entry.source):report.fromRun(entry.source);
+    const doc=new DOMParser().parseFromString(report.buildReportHtml(model),'text/html');
+    return {method:doc.querySelectorAll('.mr-run-method,.mr-meta-method').length,fictionalDisclosure:doc.querySelectorAll('.mr-sample-disclosure').length};
+  },entry);
+  assert(paired.method===1&&paired.fictionalDisclosure===0,`${key} genuine-report method or promotional-marker boundary regressed`);
 }
 async function emulateMediaAndSettle(page, media) {
   await page.emulateMedia({ media });
@@ -84,9 +105,14 @@ for (const [key, contract] of Object.entries(expected)) {
     'Decision summary', 'Dimension profile', key==='sc'?'Clarity indicator distribution':'Where the measured issue appears',
     'How the time and cost estimate is built', key==='sc'?'Review order and clarity indicators':'Priority order and measured severity',
     'What this may mean', 'What this result is based on',
-    'AI-assisted interpretation', 'How this report was produced', 'Interpretation boundary', 'About this example',
-    'No written participant notes are included.',
+    'Interpretation and next steps', 'How this report was produced', 'Interpretation boundary',
   ]) assert(text.includes(token), `${key} missing production-equivalent content: ${token}`);
+  await assertPromotionalBoundary(shell,contract.source);
+  const notes=contract.result.participant_evidence||[];
+  assert(notes.length>0,`${key} approved fictional participant observations are missing`);
+  const evidence=await shell.locator('.mr-run-evidence').textContent();
+  for(const note of notes)assert(typeof note.text==='string'&&note.text.trim()&&evidence.includes(note.text),`${key} saved participant observation is missing or rewritten`);
+  assert(!text.includes('No written participant notes are included.'),`${key} falsely says the saved observations are absent`);
   for (const stale of ['Competing readings', 'What would update this read', 'Sample Depth Synthesis Report']) {
     assert(!text.includes(stale), `${key} still renders outdated content: ${stale}`);
   }
@@ -122,15 +148,17 @@ assert(await cross.locator('.psr-toolbar').isVisible(), 'Cross-Lens shared repor
 const crossText = await cross.textContent();
 assert(artifact.outputs.cross_lens_synthesis.source.score_type === 'equal_lens_mean', 'Cross-Lens must preserve its equal-lens mean basis');
 assert(crossText.includes(artifact.outputs.cross_lens_synthesis.source.score_basis), 'Cross-Lens saved score basis is missing');
-for (const token of ['Cross-Lens Composite Score', String(artifact.outputs.cross_lens_synthesis.source.cross_diagnostic_score), artifact.outputs.cross_lens_synthesis.source.evidence_assessment.evidence_label, 'equal-lens mean', 'AI-assisted interpretation', 'Interpretation boundary']) {
+for (const token of ['Cross-Lens Composite Score', String(artifact.outputs.cross_lens_synthesis.source.cross_diagnostic_score), artifact.outputs.cross_lens_synthesis.source.evidence_assessment.evidence_label, 'equal-lens mean', 'Interpretation and next steps', 'Interpretation boundary']) {
   assert(crossText.includes(token), `Cross-Lens sample missing ${token}`);
 }
 assert(!crossText.includes('Source-backed remedy paths'), 'Cross-Lens sample rendered remedy prose that its source-prose contract withholds');
 const crossActions=artifact.outputs.cross_lens_synthesis.source.ai_report.report.interpretation.recommendations.filter(row=>row.action?.trim()).map(row=>row.action);
-assert(await cross.locator('.mr-ai-action').count()===crossActions.length, 'Cross-Lens accepted action count differs');
+assert(await cross.locator('.mr-report-nextsteps .mr-ai-action').count()===crossActions.length, 'Cross-Lens accepted next-step count differs');
+assert(await cross.locator('.mr-report-options .mr-ai-action').count()===(artifact.outputs.cross_lens_synthesis.source.ai_report.report.interpretation.action_options||[]).length, 'Cross-Lens accepted alternatives count differs');
 for(const action of crossActions)assert(crossText.includes(action), 'Cross-Lens accepted action text differs');
 assert(await cross.locator('.mr-action-path .mr-action-step').count()===0, 'Cross-Lens duplicates fallback actions beside accepted AI');
 assert(await cross.locator('.mr-remedy-card').count() === 0, 'Cross-Lens sample rendered remedy cards without eligible source prose');
+await assertPromotionalBoundary(cross,'cross_lens_synthesis');
 assert(await cross.locator('svg[aria-label="Cross-Lens Diagnostic score comparison"]').isVisible(), 'Cross-Lens comparison visual is not visible');
 const crossCompositeLabel = await cross.locator('.mr-system-composite-label').evaluate((el) => {
   const box = el.getBBox();
@@ -148,6 +176,7 @@ const depth = page.locator('#report-depth');
 assert(await depth.locator('.psr-doc-shell').count() === 1, 'Depth shared promotional report frame is missing');
 assert(await depth.locator('.psr-toolbar').isVisible(), 'Depth shared report controls are missing');
 const depthText = await depth.textContent();
+await assertPromotionalBoundary(depth,'depth_synthesis');
 for (const token of ['Median Diagnostic Score', String(artifact.outputs.depth_synthesis.source.aggregate_score), artifact.outputs.depth_synthesis.source.evidence_assessment.evidence_label, String(artifact.outputs.depth_synthesis.source.submitted_run_count), 'Agreement, divergence, and coverage', 'Interpretation boundary']) {
   assert(depthText.includes(token), `Depth sample missing ${token}`);
 }

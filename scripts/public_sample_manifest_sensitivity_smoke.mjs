@@ -105,10 +105,16 @@ for(const key of keys) {
 }
 for(const key of ['depth_synthesis','cross_lens_synthesis']) {
   cases.push(artifactMutation(key+'-fabricated-participants',a=>{
-    const r=result(a.outputs[key]);assert.equal(r.participant_count,null);r.participant_count=r.submitted_run_count;
+    const entry=a.outputs[key],r=result(entry),people=entry.provenance.distinct_included_participants;
+    assert.ok(Number.isSafeInteger(people)&&people>0);assert.equal(r.participant_count,people);
+    // Depth has one run per person, so replacing people with submitted runs
+    // would not mutate it. Add one unsupported person without altering pins.
+    r.participant_count=people+1;
   }));
   cases.push(artifactMutation(key+'-fabricated-respondents',a=>{
-    const r=result(a.outputs[key]);assert.equal(r.respondent_count,null);r.respondent_count=r.submitted_run_count;
+    const entry=a.outputs[key],r=result(entry),people=entry.provenance.distinct_included_participants;
+    assert.ok(Number.isSafeInteger(people)&&people>0);assert.equal(r.respondent_count,people);
+    r.respondent_count=people+1;
   }));
   cases.push(artifactMutation(key+'-compounded-economics',a=>{
     const r=result(a.outputs[key]),e=r.pathway_exposure||r.compounded_exposure;
@@ -141,7 +147,10 @@ for(const name of sourceNames) {
     },
   });
 }
-assert.equal(cases.length,59,'bounded sensitivity inventory changed; review before expanding');
+// Four score cases, five bindings per product, three per Synthesis, nine
+// release-level cases, plus manifest/content drift for all six display files.
+assert.equal(cases.length,4+5*6+3*2+9+2*sourceNames.length,'bounded sensitivity inventory changed; review before expanding');
+assert.equal(cases.length,61,'review the six-source sensitivity inventory before expanding');
 assert.equal(new Set(cases.map(item=>item.label)).size,cases.length);
 try {
   const baseline=run(prepare('baseline'));

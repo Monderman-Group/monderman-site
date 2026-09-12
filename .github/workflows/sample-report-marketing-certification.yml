@@ -3,6 +3,23 @@ name: Sample and Executive Report certification
 on:
   pull_request:
     paths:
+      - 'scripts/authored_report_experience_smoke.mjs'
+      - 'scripts/campaign_report_experience_smoke.mjs'
+      - 'scripts/build_private_evidence_api_fixture.mjs'
+      - 'scripts/evidence_api_fixture.mjs'
+      - 'scripts/evidence_api_fixture_smoke.mjs'
+      - 'scripts/private_source_absence_smoke.mjs'
+      - 'scripts/campaign_ui_mock_fixture.mjs'
+      - 'scripts/PRIVATE-EVIDENCE-FIXTURE.md'
+      - '.gitignore'
+      - 'test-fixtures/evidence-api.cjs'
+      - 'test-fixtures/evidence-api.manifest.json'
+      - 'campaign-analysis.js'
+      - 'scripts/diagnostic_note_permission_smoke.mjs'
+      - 'scripts/run_inclusion_review_smoke.mjs'
+      - 'scripts/individual_output_policy_smoke.mjs'
+      - 'run-inclusion-review.js'
+      - 'campaign-analysis.css'
       - 'scripts/install_ci_browsers.sh'
       - '*.html'
       - 'sample-report.html'
@@ -129,6 +146,23 @@ on:
     branches:
       - main
     paths:
+      - 'scripts/authored_report_experience_smoke.mjs'
+      - 'scripts/campaign_report_experience_smoke.mjs'
+      - 'scripts/build_private_evidence_api_fixture.mjs'
+      - 'scripts/evidence_api_fixture.mjs'
+      - 'scripts/evidence_api_fixture_smoke.mjs'
+      - 'scripts/private_source_absence_smoke.mjs'
+      - 'scripts/campaign_ui_mock_fixture.mjs'
+      - 'scripts/PRIVATE-EVIDENCE-FIXTURE.md'
+      - '.gitignore'
+      - 'test-fixtures/evidence-api.cjs'
+      - 'test-fixtures/evidence-api.manifest.json'
+      - 'campaign-analysis.js'
+      - 'scripts/diagnostic_note_permission_smoke.mjs'
+      - 'scripts/run_inclusion_review_smoke.mjs'
+      - 'scripts/individual_output_policy_smoke.mjs'
+      - 'run-inclusion-review.js'
+      - 'campaign-analysis.css'
       - 'scripts/install_ci_browsers.sh'
       - '*.html'
       - 'sample-report.html'
@@ -268,6 +302,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Reject private source in public checkout and index
+        run: node scripts/private_source_absence_smoke.mjs
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -353,6 +389,31 @@ jobs:
           for i in {1..20}; do curl -fsS http://127.0.0.1:8080/sample-report.html >/dev/null && exit 0; sleep 1; done
           cat /tmp/report-cert-http.log
           exit 1
+
+      - name: Verify separate note permission on every instrument
+        env:
+          NOTE_TEST_OUT: /tmp/report-presentation-smoke/note-permission
+        run: node scripts/diagnostic_note_permission_smoke.mjs
+
+      - name: Reject private source in public build and index
+        run: node scripts/private_source_absence_smoke.mjs --publish-dir .render-public
+
+      - name: Verify 48 reviewed public sample reading states without private engine source
+        env:
+          SAMPLE_OUT: /tmp/report-presentation-smoke/authored-experience
+        run: node scripts/authored_report_experience_smoke.mjs
+
+      - name: Verify campaign UI with explicitly MOCK display data only
+        env:
+          SAMPLE_BASE: http://127.0.0.1:8080
+          SAMPLE_OUT: /tmp/report-presentation-smoke/campaign-experience
+        run: node scripts/campaign_report_experience_smoke.mjs
+
+      - name: Verify explicit response inclusion and accessible review dialog
+        env:
+          SAMPLE_BASE: http://127.0.0.1:8080
+          SAMPLE_OUT: /tmp/report-presentation-smoke/run-inclusion
+        run: node scripts/run_inclusion_review_smoke.mjs
 
       - name: Enforce homepage card rhythm at responsive seams
         env:
