@@ -91,5 +91,13 @@ rejects("editing both an old archive and its manifest pin cannot pass", {ack_pat
 rejects("published wording cannot change without separate review", {published_path: published.replace("does not recall a request already sent", "recalls every request already sent")})
 rejects("new published edition cannot be relabeled as the old acknowledged edition", {published_path: published.replace("Version " + legal.PUBLISHED_PRIVACY_VERSION, "Version 2026-09-10-beta")})
 rejects("archive must be byte-identical to its published alias", {archive_path: published + "\n"})
+rejects("new AI edition cannot claim no new acknowledgement is required", {
+    published_path: published.replace("Publishing this notice does not change an earlier acknowledgement", "This publication does not change the Terms or require a new account acknowledgement"),
+    archive_path: published.replace("Publishing this notice does not change an earlier acknowledgement", "This publication does not change the Terms or require a new account acknowledgement")
+})
+rejects("new AI edition cannot hard-code the old active acknowledgement", {
+    published_path: published.replace("Your account or campaign shows the edition you are asked to acknowledge.", "The account acknowledgement currently refers to the September 10 edition."),
+    archive_path: published.replace("Your account or campaign shows the edition you are asked to acknowledge.", "The account acknowledgement currently refers to the September 10 edition.")
+})
 
 print(json.dumps({"ok": True, "checks": checks, "mutationsRejected": mutations, "requiredPrivacy": legal.PRIVACY_VERSION, "publishedPrivacy": legal.PUBLISHED_PRIVACY_VERSION, "scope": "Offline source and mutation checks, including the prior optional-publication scope; no legal acceptance, customer record, browser choice, or network request changed."}))

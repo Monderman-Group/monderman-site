@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TERMS_VERSION = "2026-09-09-beta"
 PRIVACY_VERSION = "2026-09-11-ai-evidence-v1"
 PUBLISHED_PRIVACY_VERSION = "2026-09-11-ai-evidence-v1"
-PUBLISHED_PRIVACY_SHA256 = "c2756a97a1eade4eac6fa306fb5d98cc6a226c68f79288b8a31af19611489539"
+PUBLISHED_PRIVACY_SHA256 = "9286991d6f104c50a401fb4f987bdd751523e74d3fda713ceab17b5fdf49f460"
 # Accepted historical editions are immutable, even if someone edits the manifest.
 HISTORICAL_DOCUMENTS = {
     "2026-08-20-beta": {
@@ -167,6 +167,18 @@ def validate():
         "Monderman does not use customer content for model training or fine-tuning",
         "Social Security or other government identification numbers"
     ], "aligned Privacy Notice")
+    for label, notice in [("current Privacy Notice", privacy), ("new Privacy edition", acknowledged_privacy)]:
+        require(notice, [
+            "Publishing this notice does not change an earlier acknowledgement",
+            "Where a new acknowledgement is required, Monderman asks for it",
+            "Permission to use optional written observations is a separate choice",
+            "publication of this notice does not activate a feature or regenerate an earlier report",
+            "Reports using this research process identify its date and limitations"
+        ], label + " activation boundary")
+        if "does not change the Terms or require a new account acknowledgement" in notice:
+            raise AssertionError(label + " retains the superseded optional-measurement transition")
+        if "The account acknowledgement currently refers to" in notice:
+            raise AssertionError(label + " hard-codes an obsolete active acknowledgement")
 
     if manifest["terms_version"] != TERMS_VERSION or manifest["privacy_notice_version"] != PRIVACY_VERSION:
         raise AssertionError("required legal versions must match the explicit AI-evidence activation")
@@ -264,14 +276,15 @@ def validate():
     if "including intellectual property, aggregated and de-identified information" in terms:
         raise AssertionError("removed aggregated-content permission must not survive termination")
     security = (ROOT / "security.html").read_text(errors="strict")
+    # Publication-only release: these two operational pages still describe the
+    # currently deployed selector pipeline. Their authored-prose disclosures
+    # ship with API activation, not ahead of it. Require the exact current copy.
     require(security, [
         "When AI-assisted reporting is enabled",
         "The interpretation does not change the saved score.",
-        "Monderman's diagnostic engine produces the scores, classifications, evidence limits and available action options.",
-        "Claude supports research and writes the explanation from authorized evidence within those rules.",
-        "they do not establish scientific validity or guarantee an outcome.",
-        "a bounded selection of permitted participant observations",
-        "Reports show the research date or disclose that no newly checked research is included.",
+        "Automated checks and AI review do not replace the customer's judgment",
+        "Claude selects and prioritizes reviewed explanations and proposed next steps",
+        "Claude does not freely write new recommendations or calculate scores.",
         "This is not a zero-retention arrangement.",
         "row-level security and server-side authorization"
     ], "conditional AI and layered access controls")
@@ -279,12 +292,10 @@ def validate():
         raise AssertionError("unverified universal live RLS claim must not return")
     subprocessors = (ROOT / "subprocessors.html").read_text(errors="strict")
     require(subprocessors, [
-        "Research support, authored explanations and review within Monderman's engine-defined evidence and action limits.",
+        "Selection, prioritization and review of evidence-matched Diagnostic and Synthesis report material when enabled",
         "Anthropic does not calculate scores.",
         "selected aggregate results for Synthesis",
-        "written observations only with the participant's recorded permission for the applicable processing",
-        "Earlier observations are not automatically made eligible.",
-        "Public research uses predefined sector and Diagnostic categories without customer content.",
+        "written observations only when separately enabled",
         "Standard API retention is not zero"
     ], "Anthropic purpose and retention disclosure")
     require(subprocessors, [
