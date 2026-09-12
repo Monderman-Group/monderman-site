@@ -6,9 +6,9 @@ import re
 
 ROOT = Path(__file__).resolve().parents[1]
 TERMS_VERSION = "2026-09-09-beta"
-PRIVACY_VERSION = "2026-09-10-beta"
-PUBLISHED_PRIVACY_VERSION = "2026-09-10-optional-measurement-v1"
-PUBLISHED_PRIVACY_SHA256 = "3f080b978419e5ed4d6e20776322db7962b512254febcfcc6db34d97933b45d0"
+PRIVACY_VERSION = "2026-09-11-ai-evidence-v1"
+PUBLISHED_PRIVACY_VERSION = "2026-09-11-ai-evidence-v1"
+PUBLISHED_PRIVACY_SHA256 = "9286991d6f104c50a401fb4f987bdd751523e74d3fda713ceab17b5fdf49f460"
 # Accepted historical editions are immutable, even if someone edits the manifest.
 HISTORICAL_DOCUMENTS = {
     "2026-08-20-beta": {
@@ -41,6 +41,7 @@ HISTORICAL_DOCUMENTS = {
         "privacy_notice_file": "privacy-2026-09-09-beta.html",
         "privacy_notice_file_sha256": "3eff91338e588a4cc74d5ec801d50c810fb06b9f272becee40f6731d20dca639"
     },
+    "2026-09-10-optional-measurement-v1": { "privacy_notice_file": "privacy-2026-09-10-optional-measurement-v1.html", "privacy_notice_file_sha256": "3f080b978419e5ed4d6e20776322db7962b512254febcfcc6db34d97933b45d0" },
     "2026-09-10-beta": {
         "privacy_notice_file": "privacy-2026-09-10-beta.html",
         "privacy_notice_file_sha256": "b8d0279861a5ab30f9e1c2875d8237c9fb6df92abf02982e309092c3fc138185"
@@ -166,13 +167,25 @@ def validate():
         "Monderman does not use customer content for model training or fine-tuning",
         "Social Security or other government identification numbers"
     ], "aligned Privacy Notice")
+    for label, notice in [("current Privacy Notice", privacy), ("new Privacy edition", acknowledged_privacy)]:
+        require(notice, [
+            "Publishing this notice does not change an earlier acknowledgement",
+            "Where a new acknowledgement is required, Monderman asks for it",
+            "Permission to use optional written observations is a separate choice",
+            "publication of this notice does not activate a feature or regenerate an earlier report",
+            "Reports using this research process identify its date and limitations"
+        ], label + " activation boundary")
+        if "does not change the Terms or require a new account acknowledgement" in notice:
+            raise AssertionError(label + " retains the superseded optional-measurement transition")
+        if "The account acknowledgement currently refers to" in notice:
+            raise AssertionError(label + " hard-codes an obsolete active acknowledgement")
 
     if manifest["terms_version"] != TERMS_VERSION or manifest["privacy_notice_version"] != PRIVACY_VERSION:
-        raise AssertionError("required legal acknowledgement versions must not change with optional measurement publication")
+        raise AssertionError("required legal versions must match the explicit AI-evidence activation")
     if manifest.get("required_acknowledgement") != {
         "terms_version": TERMS_VERSION, "privacy_notice_version": PRIVACY_VERSION
     }:
-        raise AssertionError("manifest must explicitly preserve required account acknowledgement versions")
+        raise AssertionError("manifest must explicitly record the required account acknowledgement versions")
     if manifest.get("published_privacy_notice_version") != PUBLISHED_PRIVACY_VERSION or manifest.get("published_privacy_notice_file") != f"privacy-{PUBLISHED_PRIVACY_VERSION}.html":
         raise AssertionError("published Privacy Notice must have its own explicit edition and archive")
     if manifest["acceptance_copy"] != (
@@ -204,6 +217,8 @@ def validate():
             if version in {PRIVACY_VERSION, PUBLISHED_PRIVACY_VERSION} and file_key == "terms_file":
                 if file_key in files or hash_key in files:
                     raise AssertionError("Privacy-only update must not reissue unchanged Terms")
+                continue
+            if file_key == "terms_file" and version in HISTORICAL_DOCUMENTS and file_key not in HISTORICAL_DOCUMENTS[version]:
                 continue
             path = ROOT / files[file_key]
             if not path.is_file() or path.name != files[file_key]:
@@ -237,8 +252,10 @@ def validate():
 
     require(privacy, [
         "AI-assisted reports use Anthropic's commercial API when enabled",
-        "Synthesis interpretation receives selected aggregate results, not individual written observations.",
-        "only when that separate interpretation feature is enabled",
+        "a bounded selection of participant observations",
+        "Earlier observations are not automatically made eligible for this new processing.",
+        "The Monderman diagnostic engine determines scores, classifications, evidence limits and available action options.",
+        "Customer answers, observations, organization names and Workspace history are not sent to that search",
         "The public assistant and Hans, the Workspace assistant, use Anthropic's commercial API",
         "do not automatically retrieve Diagnostic answers, saved reports, participant records",
         "does not store chat transcripts in its database",
@@ -259,6 +276,9 @@ def validate():
     if "including intellectual property, aggregated and de-identified information" in terms:
         raise AssertionError("removed aggregated-content permission must not survive termination")
     security = (ROOT / "security.html").read_text(errors="strict")
+    # Publication-only release: these two operational pages still describe the
+    # currently deployed selector pipeline. Their authored-prose disclosures
+    # ship with API activation, not ahead of it. Require the exact current copy.
     require(security, [
         "When AI-assisted reporting is enabled",
         "The interpretation does not change the saved score.",
