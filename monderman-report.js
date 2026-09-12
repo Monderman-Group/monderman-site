@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260911.27";
+  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260911.28";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -249,7 +249,7 @@
       product: product,
       mastline: "Monderman. " + modeLabel,
       title: selfRun ? 'Your saved runs, considered together' : comparisonOnly ? 'Campaign response comparison' : product === "depth" ? "Depth Synthesis Executive Report" : "Cross-Lens Synthesis Executive Report",
-      subtitle: selfRun ? 'A comparison of your own recorded views. Repeated runs do not count as independent participants, establish an organizational pattern or unlock campaign action alternatives.' : comparisonOnly ? 'What the included participants reported, where their views differ and what to investigate next. This is not a population conclusion or an unlocked Synthesis.' : product === "depth"
+      subtitle: selfRun ? 'A comparison of your own recorded views.' : comparisonOnly ? 'What the included participants reported, where their views differ and what to investigate next. This is not a population conclusion or an unlocked Synthesis.' : product === "depth"
         ? "A same-Diagnostic read across multiple eligible runs: reporting the observed median, distribution, differences between participant perspectives, and evidence limits."
         : "A multi-lens read that separates lens comparison from a coherent composite and states exactly what evidence supports each conclusion.",
       meta: [
@@ -259,7 +259,7 @@
         { label: "Lenses", value: lensCount == null ? "Unavailable" : num(lensCount) },
         { label: "Evidence", value: evidenceLabel }
       ],
-      headlineScore: scorePublished ? (Number.isInteger(score) ? score : Math.round(score * 10) / 10) : "Unavailable",
+      headlineScore: scorePublished ? (Number.isInteger(score) ? score : Math.round(score * 10) / 10) : selfRun ? 'Your comparison' : "Unavailable",
       headlineBand: selfRun ? (scorePublished?'Your selected scores only':'No combined score') : scorePublished ? (firstStr(r.score_label, conditionBand) + " · " + conditionBand) : "Composite withheld",
       coverBody: coverBody,
       scorePublished: scorePublished,
@@ -1514,9 +1514,9 @@
     const meta = arr(m.meta);
     const productLabel = m.selfRun ? (m.comparisonOnly?'Self-run comparison':'Self-run Synthesis') : m.comparisonOnly ? 'Response comparison' : m.product === "depth" ? "Depth Synthesis" : m.product === "cross_lens" ? "Cross-Lens Synthesis" : firstStr(m.mastline).replace(/^Monderman\.?\s*(?:[•·]\s*)?/i, "") || "Diagnostic";
     const defaultScoreLabel = m.product === "depth" ? "Median Diagnostic Score" : m.product === "cross_lens" ? "Cross-Lens Composite Score" : "Diagnostic Score";
-    const scoreLabel = m.kind === "meta-synthesis" ? firstStr(m.scoreLabel, defaultScoreLabel) : defaultScoreLabel;
+    const scoreLabel = m.selfRun && !m.scorePublished ? 'No combined score' : m.kind === "meta-synthesis" ? firstStr(m.scoreLabel, defaultScoreLabel) : defaultScoreLabel;
     const evidenceLabel = m.selfRun ? 'One account, not independent participants' : m.comparisonOnly ? 'Included responses only' : m.campaignEvidence?.depth ? 'Campaign checks recorded' : m.kind === "meta-synthesis" ? firstStr(m.evidenceLabel) : "";
-    const scoreBandDisplay = m.selfRun ? m.headlineBand : m.kind === "meta-synthesis" ? firstStr(m.conditionBand, m.headlineBand) : firstStr(m.headlineBand);
+    const scoreBandDisplay = m.selfRun ? (m.scorePublished ? m.headlineBand : '') : m.kind === "meta-synthesis" ? firstStr(m.conditionBand, m.headlineBand) : firstStr(m.headlineBand);
     const scoreClass = "mr-cover-score" + (strictFinite(m.headlineScore) ? "" : " mr-cover-score-status");
     const metaHtml = meta.map((x) => '<span><strong>' + esc(x.label) + '</strong>' + esc(x.value) + '</span>').join("");
     const statusPills = [
@@ -1637,9 +1637,47 @@
       '<p class="mr-method-copy">The Monderman diagnostic engine produced this report’s scores, classifications and evidence limits. '+(reviewedSelection?'This saved edition uses reviewed explanations selected by Claude and inserted by Monderman. ':'Claude assisted with the interpretation within the saved report’s evidence limits. ')+'It did not determine the score. Interpretation version: '+esc(report.version)+'. Prepared: '+esc(report.generated_at)+'. Evidence reference: '+esc(report.snapshot_id)+'.</p></section>';
   }
 
+  // Display attribution only when the saved evidence row and the closed source
+  // channel agree. Never infer a source from its position or print private IDs,
+  // hashes, prompt instructions, or arbitrary metadata supplied as a label.
+  function sourceEvidenceAttributions(report) {
+    const channel=obj(report.source_evidence),sources=arr(channel.sources),mapped=new Map(),used=new Set();
+    if(channel.version!=='personal-source-evidence-20260912.1'||!sources.length||sources.length>5000)return mapped;
+    const lenses={structural_clarity:'Structural Clarity',decision_velocity:'Decision Velocity',operational_systems:'Operational Systems',institutional_performance:'Institutional Performance'};
+    const perspectives={operational:'People doing the work',managerial:'Managers',executive:'Senior leaders',senior_leader:'Senior leaders'};
+    const kinds=new Set(['participant_numeric_answer','participant_structured_answer','derived_burden_indicator','derived_condition_indicator','derived_dimension','deterministic_coverage']);
+    const facts=new Map();
+    for(const fact of arr(report.evidence)){
+      if(facts.has(fact.id))return new Map();
+      facts.set(fact.id,fact);
+    }
+    for(let index=0;index<sources.length;index++){
+      const source=obj(sources[index]);let letters='';
+      for(let n=index+1;n;n=Math.floor((n-1)/26))letters=String.fromCharCode(65+(n-1)%26)+letters;
+      const label='Selected run '+letters;
+      if(source.source_ref!=='R'+(index+1)||source.label!==label)return new Map();
+      if(source.status==='unavailable'){
+        if(source.reason!=='not_recorded'||source.fact_ids!==undefined)return new Map();
+        continue;
+      }
+      if(source.status!=='available'||!Object.hasOwn(lenses,source.tool)||!Object.hasOwn(perspectives,source.role)
+        ||![10,30,60].includes(source.depth)||!Array.isArray(source.fact_ids)||!source.fact_ids.length||source.fact_ids.length>512)return new Map();
+      for(const id of source.fact_ids){
+        if(typeof id!=='string'||!/^F[1-9]\d{0,3}$/.test(id)||used.has(id))return new Map();
+        used.add(id);
+        const fact=facts.get(id);
+        if(!fact||!kinds.has(fact.provenance)||fact.source_ref!==source.source_ref||fact.source_label!==label)return new Map();
+        mapped.set(id,label+' · '+lenses[source.tool]+' · Perspective: '+perspectives[source.role]+' · '+source.depth+'-minute depth');
+      }
+    }
+    return mapped;
+  }
+
   function buildAuthoredInterpretation(report) {
     const interpretation=obj(report.interpretation), sources=arr(report.sources).filter(source=>/^https:\/\//i.test(firstStr(source.url)));
     const evidence=arr(report.evidence).concat(arr(report.experiential_evidence));
+    const attributions=sourceEvidenceAttributions(report);
+    const attribution=fact=>attributions.has(fact.id)?'<span class="mr-evidence-attribution">'+esc(attributions.get(fact.id))+'</span>':'';
     const printEvidence=new Map();
     const evidenceText=fact=>typeof fact.value==='number'?(fact.unit==='USD'?'US$':'')+fact.value.toLocaleString('en-US')+(fact.unit==='hours'?' hours':''):firstStr(fact.text,typeof fact.value==='string'?fact.value:'',Array.isArray(fact.value)?fact.value.join('; '):'');
     const support=item=>{
@@ -1647,7 +1685,7 @@
       if(!facts.length&&!refs.length)return '';
       const numbers=facts.map(f=>{if(!printEvidence.has(f.id))printEvidence.set(f.id,{number:printEvidence.size+1,fact:f});return printEvidence.get(f.id).number;});
       const printed='<p class="mr-print-support">'+(numbers.length?'Supporting evidence: '+numbers.join(', ')+'. See the evidence register.':'')+(refs.length?' Practice sources: '+refs.map(s=>sources.indexOf(s)+1).join(', ')+'. See Research and sector context.':'')+'</p>';
-      return '<details class="mr-evidence-detail"><summary>See the supporting evidence</summary><div>'+facts.map(f=>'<div class="mr-evidence-entry"><strong>'+esc(firstStr(f.label,f.role?'Participant observation · '+f.role:'Recorded response'))+'</strong><p>'+esc(evidenceText(f))+'</p></div>').join('')+(refs.length?'<p class="mr-source-links">Relevant practice: '+refs.map(s=>'<a href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">'+esc(firstStr(s.title,s.publisher))+'</a>').join('; ')+'</p>':'')+'</div></details>'+printed;
+      return '<details class="mr-evidence-detail"><summary>See the supporting evidence</summary><div>'+facts.map(f=>'<div class="mr-evidence-entry">'+attribution(f)+'<strong>'+esc(firstStr(f.label,f.role?'Participant observation · '+f.role:'Recorded response'))+'</strong><p>'+esc(evidenceText(f))+'</p></div>').join('')+(refs.length?'<p class="mr-source-links">Relevant practice: '+refs.map(s=>'<a href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">'+esc(firstStr(s.title,s.publisher))+'</a>').join('; ')+'</p>':'')+'</div></details>'+printed;
     };
     const findings=(items,title,explanation)=>arr(items).length?'<div class="mr-evidence-reading"><h3>'+title+'</h3>'+(explanation?'<p class="mr-reading-context">'+explanation+'</p>':'')+arr(items).map(item=>'<article class="mr-finding"><p>'+esc(firstStr(obj(item).text,typeof item==='string'?item:''))+'</p>'+support(obj(item))+'</article>').join('')+'</div>':'';
     const actionCard=(item,index,option=false)=>{
@@ -1676,7 +1714,7 @@
       findings([...new Set(arr(report.limitations).concat(arr(interpretation.limitations)))],'What this report cannot establish','')+
       '<div class="mr-research-context"><h3>Research and sector context</h3><p>'+esc(researchText)+'</p>'+(obj(report.benchmark).explanation?'<p>'+esc(report.benchmark.explanation)+'</p>':'')+(sources.length?'<ol>'+sources.map(s=>'<li><a href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">'+esc(s.title)+'</a>'+(s.publisher?' · '+esc(s.publisher):'')+(s.published?' · Published '+esc(s.published):'')+(s.reviewed?' · Checked '+esc(s.reviewed):'')+'</li>').join('')+'</ol>':'')+'</div>'+
       '<details class="mr-report-method"><summary>How Monderman produced this interpretation</summary><div><p>The Monderman diagnostic engine determines the scores, classifications, evidence limits and available action options. Claude supports research and writes the explanation from the authorized evidence within those rules. Code checks and a separate AI review screen the completed interpretation before it is released. Neither review establishes scientific validity or guarantees a result.</p><p>Prepared '+esc(report.generated_at)+'. Model '+esc(report.model)+'. Report version '+esc(report.version)+'. This issued report retains its research and evidence snapshot; later research does not silently rewrite it.</p></div></details></section>';
-    const register=printEvidence.size?'<div class="mr-print-evidence"><h3>Supporting evidence register</h3><p>Each item is listed once. Numbers beside findings and actions refer to these saved values or attributed observations.</p><dl>'+Array.from(printEvidence.values()).map(({number,fact:f})=>'<div class="mr-evidence-entry"><dt><strong>'+number+'. '+esc(firstStr(f.label,f.role?'Participant observation · '+f.role:'Recorded response'))+'</strong></dt><dd>'+esc(evidenceText(f))+'</dd></div>').join('')+'</dl></div>':'';
+    const register=printEvidence.size?'<div class="mr-print-evidence"><h3>Supporting evidence register</h3><p>Each item is listed once. Numbers beside findings and actions refer to these saved values or attributed observations.</p><dl>'+Array.from(printEvidence.values()).map(({number,fact:f})=>'<div class="mr-evidence-entry"><dt>'+attribution(f)+'<strong>'+number+'. '+esc(firstStr(f.label,f.role?'Participant observation · '+f.role:'Recorded response'))+'</strong></dt><dd>'+esc(evidenceText(f))+'</dd></div>').join('')+'</dl></div>':'';
     return content.replace('<div class="mr-research-context">',register+'<div class="mr-research-context">');
   }
 
@@ -1750,7 +1788,7 @@
     const sampleBlock = buildSampleProvenance(m);
 
     if (m.kind === "meta-synthesis") {
-      return coverBlock + compatibilityBlock + aiBlock + (m.selfRun?renderSelfRunReport(m):renderMetaSynthesis(m)) + sampleBlock + buildReportBoundary(m);
+      return coverBlock + compatibilityBlock + aiBlock + (m.selfRun?renderSelfRunReport(m):renderMetaSynthesis(m)) + sampleBlock + (m.selfRun?'':buildReportBoundary(m));
     }
 
     if (m.kind === "run") {
@@ -2226,6 +2264,7 @@
     .mr-evidence-detail>div{padding:14px 18px;border-left:3px solid #BFD7DB;background:#F3F7F7}
     .mr-evidence-entry+.mr-evidence-entry{border-top:1px solid #DCE5E8;margin-top:12px;padding-top:12px}
     .mr-evidence-entry p{margin:5px 0!important;line-height:1.55!important}
+    .mr-evidence-attribution{display:block;margin:0 0 6px;color:#53676E;font-size:.88rem;line-height:1.5;overflow-wrap:anywhere}
     .mr-authored-report .mr-action-level{font-size:.78rem;line-height:1.4;text-transform:uppercase;letter-spacing:.08em;color:#53676E;font-weight:600;margin-bottom:12px}
     .mr-authored-report .mr-ai-action{padding:24px;margin:18px 0;border:1px solid #DCE5E8;border-radius:8px;background:#fff}
     .mr-action-conditions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin:20px 0 0;padding-top:20px;border-top:1px solid #DCE5E8}

@@ -15,6 +15,7 @@ assert.equal(fixtures.length,6);
 const freeze=value=>{if(value&&typeof value==='object'){Object.freeze(value);Object.values(value).forEach(freeze);}return value;};
 const state=(recommendations,status='complete')=>({status,message:'Synthetic '+status,report:{model:'synthetic-display-only',composition:{reviewed_version:'report-reviewed-capabilities-20260909.1'},interpretation:{summary:'SAVED_FACTS_ONLY',observations:[{text:'Two submitted runs do not establish two distinct people.'}],recommendations},limitations:['No population conclusion.']}});
 const action={action:'Review the recorded approval steps.',reason:'Check the saved responses first.',prerequisite:'Use only the recorded process.',risk:'Do not remove necessary controls.',success_check:'Check the same bounded work.'};
+const historicalAttribution='This saved edition uses reviewed explanations selected by Claude and inserted by Monderman.';
 const emptyCases=[undefined,null,[],[null],['not an action'],[{}],[{action:null}],[{action:25}],[{action:''}],[{action:' \t\n '}],[{method:'Method without an action'}]];
 const make=(fixture,ai)=>({...R[fixture.kind==='run'?'fromRun':'fromSynthesis'](fixture.raw),aiReport:ai});
 const render=(fixture,ai)=>{const model=freeze(make(fixture,ai)),before=JSON.stringify(model),html=R.buildReportHtml(model);assert.equal(JSON.stringify(model),before,'render mutated saved input');return {model,html};};
@@ -27,18 +28,18 @@ for(const fixture of fixtures){
     assert.match(nav(html),/>Interpretation<\/a>/,fixture.name+' facts-only shortcut must not promise actions');
     assert.doesNotMatch(nav(html),/>Actions<\/a>/);assert.match(cover(html),/Review interpretation/);
     assert.match(cover(html),/Review the interpretation and its limits\./);assert.doesNotMatch(cover(html),/suggested changes|Explore actions/);
-    assert.doesNotMatch(html,/<article class="mr-card mr-ai-action/);assert.match(html,/Claude selected reviewed explanations\./);assert.doesNotMatch(html,/Claude selected and prioritized reviewed explanations and next steps/);
+    assert.doesNotMatch(html,/<article class="mr-card mr-ai-action/);assert.ok(html.includes(historicalAttribution));assert.doesNotMatch(html,/Claude selected and prioritized reviewed explanations and next steps/);
     assert.equal((nav(html).match(/<a\b/g)||[]).length,5);cases++;
   }
   for(const recommendations of [[action],[{action:' '},null,action]]){
     const {html}=render(fixture,state(recommendations));
     assert.match(nav(html),/>Actions<\/a>/);assert.match(cover(html),/Explore actions/);assert.match(cover(html),/Review the recorded approval steps\./);
     assert.equal((html.match(/<article class="mr-card mr-ai-action/g)||[]).length,1);assert.match(html,/<h3>1\. Review the recorded approval steps\.<\/h3>/);
-    assert.match(html,/Claude selected and prioritized reviewed explanations and next steps/);cases++;
+    assert.ok(html.includes(historicalAttribution));assert.doesNotMatch(html,/Claude selected and prioritized reviewed explanations and next steps/);cases++;
   }
   for(const status of ['pending','processing','attention_required','rejected']){
     const {html}=render(fixture,state([{action:'STALE_UNAPPROVED_ADVICE'}],status));
-    assert.doesNotMatch(html,/STALE_UNAPPROVED_ADVICE|Claude selected reviewed/);assert.doesNotMatch(nav(html),/>Interpretation<\/a>/);cases++;
+    assert.doesNotMatch(html,/STALE_UNAPPROVED_ADVICE|Claude selected reviewed|This saved edition uses reviewed explanations/);assert.doesNotMatch(nav(html),/>Interpretation<\/a>/);cases++;
   }
 }
 const hostile='<img src=x onerror="window.__unsafe=true"> & <script>window.__unsafe=true</script>';
@@ -60,7 +61,7 @@ try{
     assert.ok(await page.evaluate(()=>document.activeElement.getBoundingClientRect().top>=document.querySelector('.mr-screen-nav').getBoundingClientRect().bottom-1));
     await page.locator('.mr-cover').screenshot({path:path.join(out,`factual-cover-${width}.png`)});checks.widths.push(width);
   }
-  for(const [id,item,expected,hasAction] of [['factual',factual,'Claude selected reviewed explanations.',false],['action',withAction,action.action,true],['escaped',escaped,hostile,true]]){
+  for(const [id,item,expected,hasAction] of [['factual',factual,historicalAttribution,false],['action',withAction,action.action,true],['escaped',escaped,hostile,true]]){
     await page.setContent(item.html);await page.evaluate(async()=>{await document.fonts.ready;});
     assert.equal(await page.locator('.mr-ai-action img,.mr-ai-action script,.mr-screen-next img,.mr-screen-next script').count(),0);assert.equal(await page.evaluate(()=>window.__unsafe),undefined);
     assert.equal(await page.locator('.mr-ai-action').count(),hasAction?1:0);
