@@ -152,7 +152,7 @@ for(const [engineName,engine]of [['chromium',chromium],['webkit',webkit]]){
         eq(await page.locator('.mr-evidence-detail .mr-evidence-attribution').count()>0,true,item.name+' screen group attribution present');
         const expectedLabels=cited.filter(id=>report.evidence.some(f=>f.id===id)).map((id,index)=>{
           const group=report.campaign_answer_evidence.groups.find(g=>Object.values(g.measures).includes(id)),row=report.evidence.find(f=>f.id===id);
-          return (index+1)+'. '+(group?group.question+' — ':'')+row.label;
+          return (index+1)+'. '+(group?group.question+' · ':'')+row.label;
         });
         eq(await page.locator('.mr-print-evidence .mr-evidence-entry strong').allTextContents(),expectedLabels,'Print labels restore exact questions with compact measure names only');
         eq(await page.locator('.mr-evidence-detail .mr-evidence-entry').evaluateAll(entries=>entries.every(entry=>{

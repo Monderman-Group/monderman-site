@@ -1749,7 +1749,7 @@
         +' · '+n.toLocaleString('en-US')+' recorded answers · '+matching.toLocaleString('en-US')+' matching saved reports';
       // Restore the exact question once in each evidence entry's display label.
       // The saved compact fact and authored prose stay unchanged.
-      for(const id of Object.values(measures))mapped.set(id,{context:attribution,label:group.question+' — '+facts.get(id).label});
+      for(const id of Object.values(measures))mapped.set(id,{context:attribution,label:group.question+' · '+facts.get(id).label});
     }
     if(arr(report.evidence).some(fact=>fact.provenance==='deterministic_campaign_answer_summary'&&!used.has(fact.id)))return new Map();
     return mapped;
