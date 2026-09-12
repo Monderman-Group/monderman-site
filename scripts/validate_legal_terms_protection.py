@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TERMS_VERSION = "2026-09-09-beta"
 PRIVACY_VERSION = "2026-09-11-ai-evidence-v1"
 PUBLISHED_PRIVACY_VERSION = "2026-09-11-ai-evidence-v1"
-PUBLISHED_PRIVACY_SHA256 = "c2756a97a1eade4eac6fa306fb5d98cc6a226c68f79288b8a31af19611489539"
+PUBLISHED_PRIVACY_SHA256 = "9286991d6f104c50a401fb4f987bdd751523e74d3fda713ceab17b5fdf49f460"
 # Accepted historical editions are immutable, even if someone edits the manifest.
 HISTORICAL_DOCUMENTS = {
     "2026-08-20-beta": {
@@ -167,6 +167,18 @@ def validate():
         "Monderman does not use customer content for model training or fine-tuning",
         "Social Security or other government identification numbers"
     ], "aligned Privacy Notice")
+    for label, notice in [("current Privacy Notice", privacy), ("new Privacy edition", acknowledged_privacy)]:
+        require(notice, [
+            "Publishing this notice does not change an earlier acknowledgement",
+            "Where a new acknowledgement is required, Monderman asks for it",
+            "Permission to use optional written observations is a separate choice",
+            "publication of this notice does not activate a feature or regenerate an earlier report",
+            "Reports using this research process identify its date and limitations"
+        ], label + " activation boundary")
+        if "does not change the Terms or require a new account acknowledgement" in notice:
+            raise AssertionError(label + " retains the superseded optional-measurement transition")
+        if "The account acknowledgement currently refers to" in notice:
+            raise AssertionError(label + " hard-codes an obsolete active acknowledgement")
 
     if manifest["terms_version"] != TERMS_VERSION or manifest["privacy_notice_version"] != PRIVACY_VERSION:
         raise AssertionError("required legal versions must match the explicit AI-evidence activation")
