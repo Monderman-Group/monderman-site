@@ -152,7 +152,7 @@ const rendererSandbox = { window: {} };
 vm.runInNewContext(rendererSource, rendererSandbox, { filename: "monderman-report.js" });
 const Report = rendererSandbox.window.MondermanReport;
 assert.ok(Report, "shared report renderer did not initialize");
-assert.equal(Report.rendererVersion, "diagnostic-renderer-ai-screen-20260911.25", "display version was not advanced");
+assert.equal(Report.rendererVersion, "diagnostic-renderer-evidence-reading-20260912.31", "display version was not advanced");
 
 const CONFIDENCE_CASES = Object.freeze([
   {
@@ -307,8 +307,8 @@ if (fs.existsSync(controlledFixturePath)) {
   assert.equal(model.score, 71, "controlled saved result score changed");
   assert.equal(model.band, "Compounding", "controlled saved result band changed");
   assert.match(html, /Decision Velocity: Executive Report/, "canonical instrument name missing from controlled saved report");
-  assert.match(html, /AI-assisted interpretation/, "accepted AI sidecar did not render");
-  assert.match(html, /Prepared with Claude Opus 5/, "AI model display label is not readable");
+  assert.match(html, /<section[^>]* class="mr-section mr-ai-interpretation"[^>]*><h2>Interpretation and next steps<\/h2>/, "accepted AI sidecar did not render under the current heading");
+  assert.match(html, /The Monderman diagnostic engine produced this report’s scores, classifications and evidence limits\. Claude assisted with the interpretation within the saved report’s evidence limits\. It did not determine the score\./, "current AI attribution and engine-score boundary are not readable");
   assert.match(html, /Decision timing/, "controlled saved dimension label is not readable");
   assert.match(html, /Modeled recovery scenario[\s\S]*\$720/, "controlled saved report recovery value changed");
   assert.match(html, /works but drags/, "actual accepted AI summary was silently rewritten");
