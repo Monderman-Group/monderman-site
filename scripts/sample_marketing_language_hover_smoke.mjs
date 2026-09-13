@@ -118,6 +118,18 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     const libraryStates=await buttonStates(page,'.sample-library-primary',key+'-sample-cta',{normal:'rgb(12, 110, 120)',hover:'rgb(10, 91, 99)',text:'rgb(255, 255, 255)'});
     const libraryLinkStates=await linkStates(page,'.sample-library-actions>a:not(.sample-library-primary)',key+' report anchor');
     await contained(page,'.sample-library-intro',key+' library intro');await shot(page.locator('.sample-library-intro'),key+'-library.png');
+    const readingGuide=page.locator('.sample-library-method');
+    await readingGuide.locator('summary').focus();await page.keyboard.press('Enter');
+    check(await readingGuide.getAttribute('open')!==null,key+' reading guide opens from keyboard');
+    const guideText=await readingGuide.innerText();
+    check(guideText.includes('An individual report explains one participant’s result'),key+' guide explains the individual report');
+    check(guideText.includes('compares included responses to the same diagnostic within a defined campaign'),key+' guide explains Depth Synthesis');
+    check(guideText.includes('keeping each result visible')&&guideText.includes('comparison requirements'),key+' guide preserves Cross-Lens score conditions');
+    check(!/preserve the current|bounded burden|declared coherence controls|fictional/i.test(guideText),key+' guide avoids internal template descriptions');
+    await contained(page,'.sample-library-method',key+' expanded reading guide');
+    await shot(readingGuide,key+'-reading-guide.png');
+    await readingGuide.locator('summary').focus();await page.keyboard.press('Enter');
+    equal(await readingGuide.getAttribute('open'),null,key+' reading guide closes from keyboard');
     // The current repository's historical v2 sample remains correctly rejected.
     // Exercise toolbar mechanics with its exact saved source in a separate,
     // explicitly local mount; never fabricate a completed v3 publication.
