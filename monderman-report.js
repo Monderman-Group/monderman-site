@@ -1826,10 +1826,22 @@
       ||!Object.hasOwn(roles,block.role)||!Object.hasOwn(lenses,block.lens)
       ||!text(block.scope_label,200)||!text(block.text,2400)
       ||typeof item.interpretation_text!=='string'||item.interpretation_text.length>900
-      ||!Array.isArray(refs)||!refs.length||refs.length>12||new Set(refs).size!==refs.length)return null;
+      ||!Array.isArray(refs)||!refs.length||refs.length>48||new Set(refs).size!==refs.length)return null;
     const evidence=arr(report.evidence).concat(arr(report.experiential_evidence)),ids=new Set();
     for(const row of evidence){if(!row||typeof row.id!=='string'||!/^[FX][1-9]\d{0,3}$/.test(row.id)||ids.has(row.id))return null;ids.add(row.id);}
     if(refs.some(id=>!ids.has(id)))return null;
+    // Extended references are only the closed campaign display graph. A result
+    // kind or an unverified metadata flag cannot raise the ordinary limit.
+    // Server authorization/compiler review remain separate from this check.
+    if(refs.length>12){
+      if(report.source_evidence||!report.campaign_answer_evidence)return null;
+      const campaign=campaignEvidenceAttributions(report);
+      if(!campaign.size)return null;
+      for(const group of report.campaign_answer_evidence.groups){
+        if(Object.values(group.measures).some(id=>refs.includes(id))
+          &&!refs.includes(group.measures.answered_responses))return null;
+      }
+    }
     const selected=arr(report.experiential_evidence).filter(row=>refs.includes(row.id));
     if(selected.length!==1||!exact(selected[0],['id','role','lens','scope_label','text'])
       ||!/^X[1-9]\d{0,3}$/.test(selected[0].id)
