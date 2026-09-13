@@ -94,7 +94,7 @@ for(const phrase of ['A single run does not estimate organizational savings.','p
   check(read('platform-services.html').includes(phrase),'Platform scope: '+phrase);
 const method=read('diagnostics.html').match(/<section\b[^>]*id="methodology-and-sources"[\s\S]*?<\/section>/)?.[0];
 check(method,'Substantive methods section exists');
-for(const phrase of ['informed by selected published guidance','provisional product rules','not externally validated standards',
+for(const phrase of ['follows selected published guidance','campaign-readiness rules are Monderman\'s own methods',
   'data-method-review-status="not_reviewed"','Independent statistical review:','not reviewed',
   'excluding a response does not shrink that population','Repeated runs do not increase participation',
   'not claimed as AAPOR response rates','participation alone does not establish representativeness',
@@ -102,7 +102,7 @@ for(const phrase of ['informed by selected published guidance','provisional prod
   check(method.includes(phrase),'Method boundary: '+phrase);
 check(method.includes('https://aapor.org/standards-and-ethics/standard-definitions/'),'Primary AAPOR source');
 check(method.includes('https://www.gao.gov/products/gao-20-195g'),'Primary GAO source');
-for(const phrase of ['declared activity measurements and source references','implementation and subscription costs','low, central and high sensitivity ranges','not full compliance with the guide','Potential staff capacity is shown separately from cash effects','does not independently audit the source records','not forecasts or measured savings'])check(method.includes(phrase),'Financial method boundary: '+phrase);
+for(const phrase of ['cost scenarios follow selected practices','declared activity measurements and source references','implementation and subscription costs','low, central and high sensitivity ranges','not full compliance with the guide','Potential staff capacity is shown separately from cash effects','does not independently audit the source records','not forecasts or measured savings'])check(method.includes(phrase),'Financial method boundary: '+phrase);
 check(!/AAPOR[- ](?:approved|compliant|certified)|GAO[- ](?:approved|compliant|certified)|scientifically validated/i.test(method),'No external approval claims');
 check(read('index.html').includes('Use measured activity records and documented assumptions to compare potential staff capacity and separate cash effects.'),'Plain homepage description uses separate operational records');
 const scenarioSlide=read('Monderman_Platform_Brief.html').match(/<section[^>]*id="slide-8"[\s\S]*?<\/section>/)?.[0];
@@ -203,6 +203,7 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
       }
       if(file==='diagnostics.html'){
         await page.goto(origin+'/diagnostics.html#methodology-and-sources',{waitUntil:'load'});
+        await page.waitForFunction(()=>scrollY<=24||document.querySelector('#siteHeader')?.classList.contains('scrolled'));
         const section=page.locator('#methodology-and-sources');
         const geometry=await section.evaluate(el=>({top:el.getBoundingClientRect().top,header:document.querySelector('#siteHeader')?.getBoundingClientRect().bottom||0,
           outside:[...el.querySelectorAll('h2,h3,p,a')].filter(node=>{const r=node.getBoundingClientRect();return r.left<-1||r.right>innerWidth+1;}).length,
@@ -210,6 +211,8 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
         check(geometry.top>=geometry.header-1,'Anchor clears fixed header');eq(geometry.outside,0,'Method text stays within viewport');
         check(geometry.sizes.every(size=>size>=16),'Method body remains readable');
         check(await section.locator('[data-method-financial]').isVisible(),'Implemented financial practice mapping is visible');
+        const viewportBefore=`${name}-${width}-methodology-viewport-before-focus.png`;
+        await page.screenshot({path:path.join(out,viewportBefore)});screenshots.push(viewportBefore);
         const source=section.locator('a[href="https://aapor.org/standards-and-ethics/standard-definitions/"]');
         eq(await source.evaluate(el=>getComputedStyle(el).color),'rgb(12, 110, 120)','Source link visibly teal');
         await source.hover();
@@ -218,6 +221,15 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
         await page.mouse.move(0,0);await page.keyboard.press('Tab');await source.focus();await page.keyboard.press('ArrowRight');
         await page.waitForFunction(()=>{const el=document.querySelector('#methodology-and-sources .dx-step a');return el.matches(':focus-visible')&&parseFloat(getComputedStyle(el).outlineWidth)>=3;});
         check(await source.evaluate(el=>el.matches(':focus-visible')&&parseFloat(getComputedStyle(el).outlineWidth)>=3),'Source link has visible keyboard focus');
+        const focusedGeometry=await source.evaluate(el=>{
+          const link=el.getBoundingClientRect(),header=document.querySelector('#siteHeader')?.getBoundingClientRect();
+          return {linkTop:link.top,linkBottom:link.bottom,headerTop:header?.top||0,headerBottom:header?.bottom||0,height:innerHeight};
+        });
+        check(focusedGeometry.linkTop>=focusedGeometry.headerBottom-1&&focusedGeometry.linkBottom<=focusedGeometry.height+1,
+          'Focused methodology link stays in the actual viewport without header overlap');
+        check(focusedGeometry.headerTop>=-1&&focusedGeometry.headerTop<=1,'Fixed header remains at actual viewport top');
+        const viewportAfter=`${name}-${width}-methodology-viewport-after-focus.png`;
+        await page.screenshot({path:path.join(out,viewportAfter)});screenshots.push(viewportAfter);
         const fileName=`${name}-${width}-methodology.png`;await section.screenshot({path:path.join(out,fileName)});screenshots.push(fileName);
       }
     }
