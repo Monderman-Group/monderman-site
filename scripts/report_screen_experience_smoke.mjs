@@ -129,7 +129,7 @@ await page.goto(base+'/sample-report.html',{waitUntil:'networkidle'});
 await page.locator('body.production-samples-ready').waitFor();
 assert.equal(await page.locator('.sample-library-method').getAttribute('open'),null);
 await page.locator('.sample-library-method summary').click();
-assert.ok((await page.locator('.sample-library-method').innerText()).includes('declared coherence controls pass'));
+assert.ok((await page.locator('.sample-library-method').innerText()).includes('A combined score appears only when the inputs meet Monderman’s comparison requirements'));
 await page.locator('.sample-library-method summary').click();
 for(const key of ['os','dv','sc','ip','synthesis','depth']) {
   await page.locator(`[data-target="${key}"]`).click();
