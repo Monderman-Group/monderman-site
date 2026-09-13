@@ -11,6 +11,7 @@ const base=process.env.SAMPLE_BASE||'http://127.0.0.1:8784';
 assert.ok(['127.0.0.1','localhost'].includes(new URL(base).hostname),'Only an explicit local candidate is allowed');
 const out=fs.mkdtempSync('/tmp/campaign-review-keyboard-');
 const source=fs.readFileSync(new URL('../campaign-analysis.js',import.meta.url),'utf8');
+const styles=fs.readFileSync(new URL('../campaign-analysis.css',import.meta.url),'utf8');
 const sha=value=>createHash('sha256').update(value).digest('hex');
 const scope={id:'scope-mock',label:'MOCK scope',campaignIds:['campaign-mock'],lenses:{decision_velocity:{}}};
 let checks=0;const states=[],errors=[],screenshots=[];
@@ -42,6 +43,7 @@ for(const [engineName,engine]of Object.entries({chromium,webkit})){
       return route.fulfill({status,contentType:'application/json',body:JSON.stringify(payload)});
     });
     equal(await (await page.request.get(base+'/campaign-analysis.js')).text(),source,'Serve the exact candidate module');
+    equal(await (await page.request.get(base+'/campaign-analysis.css')).text(),styles,'Serve the exact candidate styles');
     async function mount(){
       await page.goto(base+'/campaign-analysis.css');
       await page.evaluate(async({base,role})=>{
@@ -73,6 +75,12 @@ for(const [engineName,engine]of Object.entries({chromium,webkit})){
       equal(applyRequests,before,'Enter on the reading heading does not consent or apply');
       equal(await page.locator('[data-ca-preview-title]').getAttribute('tabindex'),'-1','Reading heading does not add a permanent tab stop');
       equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'Preview fits viewport');
+      const separation=await page.evaluate(()=>{
+        const form=document.querySelector('[data-ca-quality-form]').getBoundingClientRect();
+        const preview=document.querySelector('[data-ca-preview]'),heading=preview.querySelector('h3').getBoundingClientRect(),style=getComputedStyle(preview);
+        return {gap:heading.top-form.bottom,margin:parseFloat(style.marginTop),padding:parseFloat(style.paddingTop),border:parseFloat(style.borderTopWidth)};
+      });
+      equal(separation.margin>=24&&separation.padding>=24&&separation.border>=1&&separation.gap>=48,true,'Preview heading and its focus ring have a distinct separated section');
     }
     await mount();await choose();
     failPreview=true;await activate('[data-ca-quality-form] button[type=submit]');
@@ -113,7 +121,8 @@ for(const [engineName,engine]of Object.entries({chromium,webkit})){
   }}finally{await browser.close();}
 }
 equal(errors,[],'No browser errors');equal(sha(fs.readFileSync(new URL('../campaign-analysis.js',import.meta.url))),sha(source),'Candidate unchanged during browser checks');
-const receipt={status:'PASS',checks,states,screenshots,sourceSha256:sha(source),harnessSha256:sha(fs.readFileSync(import.meta.filename)),
+equal(sha(fs.readFileSync(new URL('../campaign-analysis.css',import.meta.url))),sha(styles),'Candidate styles unchanged during browser checks');
+const receipt={status:'PASS',checks,states,screenshots,sourceSha256:sha(source),styleSha256:sha(styles),harnessSha256:sha(fs.readFileSync(import.meta.filename)),
   fixture:'Public data-only transport mocks; no actual readiness calculation, login, provider or database call.',productionCalls:0,providerCalls:0,pdfsCreated:0};
 fs.writeFileSync(path.join(out,'checks.json'),JSON.stringify(receipt,null,2),{flag:'wx',mode:0o600});
 console.log(JSON.stringify({...receipt,states:states.length,output:out}));
