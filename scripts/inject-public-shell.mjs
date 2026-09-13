@@ -19,6 +19,11 @@ const canonicalCssPattern = /canonical-site-shell\.css\?v=[^"']+/g;
 const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
 // Refresh both the reviewed report renderer and the newer shared brand release.
 const shellRelease = "20260910-report22-brand3";
+// Refresh only the two independently released cosmetic stylesheets.
+const assetReleases = Object.freeze({
+  "homepage-workspace-demo.css": "20260913-cosmetic1",
+  "sample-report-production.css": "20260913-cosmetic1",
+});
 const assistantRelease = "20260910-bounded-chat1";
 const acquisitionRelease = "20260910-measurement-choice1";
 const productPages = new Set([
@@ -43,7 +48,7 @@ const refreshedAssets = [
 ];
 const versionScript = (html, fileName) => html.replace(
   new RegExp(`(["'])${fileName.replace(".", "\\.")}(?:\\?v=[^"']*)?\\1`, "g"),
-  (_match, quote) => `${quote}${fileName}?v=${["first-run-telemetry.js", "pilot-waitlist.js"].includes(fileName) ? acquisitionRelease : ["assistant.js", "workspace-assistant.js"].includes(fileName) ? assistantRelease : shellRelease}${quote}`,
+  (_match, quote) => `${quote}${fileName}?v=${assetReleases[fileName] || (["first-run-telemetry.js", "pilot-waitlist.js"].includes(fileName) ? acquisitionRelease : ["assistant.js", "workspace-assistant.js"].includes(fileName) ? assistantRelease : shellRelease)}${quote}`,
 );
 const motif = footer.match(motifPattern)?.[0];
 

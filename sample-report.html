@@ -163,6 +163,9 @@
     }
 
     /* Report meta bar */
+    @media screen {
+      html.canonical-shell-js body.page-report #main-content { padding-top: 72px; }
+    }
     .meta-bar {
       background: var(--bg-soft);
       border-bottom: 1px solid var(--line);
@@ -181,12 +184,13 @@
     .meta-bar-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
     .meta-bar-actions a {
       font-size: 0.84rem; font-weight: 500;
-      color: var(--accent);
+      color: var(--mdm-link);
       border-bottom: 1px solid rgba(12,110,120,0.3);
       padding-bottom: 1px;
       transition: border-color 180ms ease;
     }
-    .meta-bar-actions a:hover { border-color: var(--accent); }
+    .meta-bar-actions a:hover { color: var(--mdm-link-hover); border-color: var(--mdm-link-hover); }
+    .meta-bar-actions a:focus-visible { outline: 3px solid var(--mdm-focus-ring); outline-offset: 4px; }
     .meta-bar-actions .meta-divider { color: var(--muted); }
 
     /* Mobile TOC select */
@@ -1571,7 +1575,7 @@
   .sample-quadrant-dot{position:absolute;width:22px;height:22px;border-radius:999px;background:#0C6E78;border:3px solid rgba(255,255,255,.98);box-shadow:0 4px 14px rgba(12,110,120,.40),0 0 0 7px rgba(12,110,120,.10);transform:translate(-50%,-50%);z-index:0}
 </style>
 <link rel="stylesheet" href="canonical-site-shell.css?v=20260906-accent1">
-<link rel="stylesheet" href="sample-report-production.css?v=20260911-recorded-example1">
+<link rel="stylesheet" href="sample-report-production.css?v=20260913-cosmetic1">
 
   <meta property="og:image" content="https://www.monderman.com/assets/brand/monderman-social-card.png?v=20260907-wordmark2">
   <meta property="og:image:width" content="1200">
@@ -1619,18 +1623,18 @@
 <div class="sample-library-intro">
         <div class="sample-library-copy">
           <p class="syn-gauge-band">Monderman &middot; Product outputs</p>
-          <h1 class="sample-library-heading">Explore a result.<br>See what to do next.</h1>
-          <p class="sample-library-lede">A clear result, the evidence behind it, and practical next steps. Explore all four Diagnostics and both Synthesis products below.</p>
-          <div class="sample-library-actions"><a class="sample-library-primary" href="decision-velocity.html">Try the free Diagnostic <span aria-hidden="true">&rarr;</span></a><a href="#sample-results">Explore sample results <span aria-hidden="true">&darr;</span></a></div>
+          <h1 class="sample-library-heading">Clear findings.<br>Practical next steps.</h1>
+          <p class="sample-library-lede">Explore reports from Monderman’s four diagnostics, Depth Synthesis, and Cross-Lens Synthesis. See how the results help leaders identify where to focus, understand the potential value of improvement, and decide what to do next.</p>
+          <div class="sample-library-actions"><a class="sample-library-primary" href="decision-velocity.html">Run Decision Velocity free <span aria-hidden="true">&rarr;</span></a><a href="#sample-results">Explore sample reports <span aria-hidden="true">&darr;</span></a></div>
         </div>
         <div class="sample-library-flow" aria-label="Explore each result in three steps"><div><span>01</span><strong>Understand the finding</strong><p>See the score, scope, and measured condition.</p></div><div><span>02</span><strong>Inspect the evidence</strong><p>Explore dimensions, distributions, and limits.</p></div><div><span>03</span><strong>Choose a test</strong><p>Review the suggested actions before deciding.</p></div></div>
-        <details class="sample-library-method"><summary>How to read Diagnostic and Synthesis results</summary><div><p>Monderman has four Diagnostics: Operational Systems, Decision Velocity, Structural Clarity, and Institutional Performance, plus two Synthesis products: Depth Synthesis and Cross-Lens Synthesis. Each Diagnostic remains a distinct measurement. Eligible Included runs can later support Synthesis in Analysis.</p><p>The four Diagnostic tabs preserve the current executive-report hierarchy for one Diagnostic lens: condition, dimensions, bounded burden, governance implications, participant evidence, remedies, evidence basis, and interpretation limits. The Synthesis tabs preserve the current evidence rules: Depth Synthesis publishes the <strong>Median Diagnostic Score</strong> and distribution from eligible same-Diagnostic runs; Cross-Lens Synthesis keeps every lens separate and publishes a <strong>Cross-Lens Composite Score</strong> only when the declared coherence controls pass. Otherwise the Composite Score is withheld with the exact reason and the evidence that could unlock it.</p></div></details>
+        <details class="sample-library-method"><summary>How to read Diagnostic and Synthesis results</summary><div><p>Monderman has four diagnostics: Structural Clarity, Decision Velocity, Operational Systems, and Institutional Performance. An individual report explains one participant’s result, the conditions their responses describe, and practical next steps. Supporting evidence and applicable estimates of time and cost remain visible alongside the findings.</p><p><strong>Depth Synthesis</strong> compares included responses to the same diagnostic within a defined campaign. <strong>Cross-Lens Synthesis</strong> brings multiple diagnostics together while keeping each result visible. A combined score appears only when the inputs meet Monderman’s comparison requirements; otherwise, the report explains why the scores remain separate. The workspace shows when a campaign has enough evidence to generate each type of Synthesis.</p></div></details>
       </div>
 <div class="notice">
   <div class="notice-inner">
     <span class="notice-dot" aria-hidden="true"></span>
     <p>
-      <strong>Representative product outputs, not customer data.</strong> The organizations, populations, scenarios, and values are illustrative. They show the kinds of outputs, evidence limits, visuals, and recommendations the current products can present; actual customer results depend on the answers, context, eligible run set, and evidence available at the time.
+      These reports use realistic example responses to demonstrate Monderman’s analysis and reporting.
     </p>
   </div>
 </div>
@@ -1638,7 +1642,7 @@
 
 <div class="report-sheet" id="sample-results">
 <div class="dx-tabs-wrap">
-  <div style="max-width:1100px;margin:0 auto;padding:14px 20px 0;font-size:13px;color:#6E6F73;">Six illustrative report formats. How these numbers are produced: <a href="roi.html" style="color:#0C6E78;text-decoration:none;border-bottom:1px solid rgba(12,110,120,.35);padding-bottom:1px;">ROI &amp; Method &rarr;</a></div>
+  <div style="max-width:1100px;margin:0 auto;padding:14px 20px 0;font-size:13px;color:#6E6F73;">Explore all six report types. See how time and cost estimates are calculated: <a href="roi.html" style="color:#0C6E78;text-decoration:none;border-bottom:1px solid rgba(12,110,120,.35);padding-bottom:1px;">ROI &amp; Method &rarr;</a></div>
 <div class="dx-tabs" role="tablist" aria-label="Choose a diagnostic">
     <button class="dx-tab is-active" type="button" data-target="os" role="tab" aria-selected="true" id="tab-os" aria-controls="report-os">
       <span class="dx-tab-name">Operational Systems</span>
@@ -1668,32 +1672,32 @@
 </div>
 
 <section class="report-shell" data-report="os" id="report-os" role="tabpanel" aria-labelledby="tab-os">
-  <p class="psr-loading" role="status">Loading the generated example...</p>
+  <p class="psr-loading" role="status">Loading the report...</p>
   <noscript><p>Enable JavaScript to explore and download this sample report.</p></noscript>
 </section>
 
 <section class="report-shell" data-report="dv" hidden id="report-dv" role="tabpanel" aria-labelledby="tab-dv">
-  <p class="psr-loading" role="status">Loading the generated example...</p>
+  <p class="psr-loading" role="status">Loading the report...</p>
   <noscript><p>Enable JavaScript to explore and download this sample report.</p></noscript>
 </section>
 
 <section class="report-shell" data-report="sc" hidden id="report-sc" role="tabpanel" aria-labelledby="tab-sc">
-  <p class="psr-loading" role="status">Loading the generated example...</p>
+  <p class="psr-loading" role="status">Loading the report...</p>
   <noscript><p>Enable JavaScript to explore and download this sample report.</p></noscript>
 </section>
 
 <section class="report-shell" data-report="ip" hidden id="report-ip" role="tabpanel" aria-labelledby="tab-ip">
-  <p class="psr-loading" role="status">Loading the generated example...</p>
+  <p class="psr-loading" role="status">Loading the report...</p>
   <noscript><p>Enable JavaScript to explore and download this sample report.</p></noscript>
 </section>
 
 <section class="report-shell" data-report="synthesis" hidden id="report-synthesis" role="tabpanel" aria-labelledby="tab-synthesis">
-  <p class="psr-loading" role="status">Loading the generated example...</p>
+  <p class="psr-loading" role="status">Loading the report...</p>
   <noscript><p>Enable JavaScript to explore and download this sample report.</p></noscript>
 </section>
 
 <section class="report-shell" data-report="depth" hidden id="report-depth" role="tabpanel" aria-labelledby="tab-depth">
-  <p class="psr-loading" role="status">Loading the generated example...</p>
+  <p class="psr-loading" role="status">Loading the report...</p>
   <noscript><p>Enable JavaScript to explore and download this sample report.</p></noscript>
 </section>
 
