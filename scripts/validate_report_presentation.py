@@ -83,7 +83,7 @@ for token, msg in [
 production_renderer = (ROOT / "sample-report-production.js").read_text(encoding="utf-8")
 production_styles = (ROOT / "sample-report-production.css").read_text(encoding="utf-8")
 public_model = (ROOT / "public-sample-model.js").read_text(encoding="utf-8")
-req('Representative product outputs, not customer data.' in sample, 'top representative-output disclosure missing')
+req('These reports use realistic example responses to demonstrate Monderman’s analysis and reporting.' in sample, 'top representative-output disclosure missing')
 req('synthesis-report-stage' in production_renderer, 'Synthesis report stage wrapper missing')
 req(re.search(r'sample-report-production\.js\?v=[^"\s]+', sample), 'versioned production sample renderer missing')
 req(re.search(r'sample-report-production\.css\?v=[^"\s]+', sample), 'versioned production sample presentation missing')

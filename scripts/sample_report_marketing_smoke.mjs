@@ -36,7 +36,7 @@ await page.route(/^https:\/\/www\.monderman\.com\/(55|65|75)font\.woff2$/, async
 await page.goto(`${base}/sample-report.html`,{waitUntil:'networkidle',timeout:90000});
 // textContent intentionally includes hidden tab panels; each panel is separately made visible and rendered below.
 const pageText=await page.locator('body').textContent();
-assert(pageText.includes('Representative product outputs, not customer data.'),'representative-sample disclosure missing');
+assert(pageText.includes('These reports use realistic example responses to demonstrate Monderman’s analysis and reporting.'),'representative-sample disclosure missing');
 assert(!/\bseat(?:s|-year)?\b/i.test(pageText),'seat vocabulary remains');
 assert(!/Insight depth/i.test(pageText),'Insight depth remains');
 assert(!/executive-seat/i.test(pageText),'executive-seat remains');

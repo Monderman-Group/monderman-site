@@ -305,14 +305,13 @@ tile_required=[
  'class="md-score-summary"',
  'href="sample-report.html#depth"',
  'Depth Synthesis',
- 'Modeled annual recovery opportunity',
- 'Before subscription and implementation costs; not guaranteed savings.',
- 'Repeated estimates are summarized, not added.',
- 'Fictional inputs, not customer results.',
  'Full assumptions in the report.',
  'data-promo-recovery','data-promo-cost','data-promo-hours','data-promo-score',
 ]
 for name,text in [('index.html',idx),('Monderman_Platform_Brief.html',brief)]:
+ copy_tokens=(['Estimated annual recovery opportunity','Based on the assumptions shown in the report, before subscription and implementation costs.','Recovery opportunity is the median of submitted estimates, not their sum.','Depth Synthesis<br>Sample data'] if name=='index.html' else ['Modeled annual recovery opportunity','Before subscription and implementation costs; not guaranteed savings.','Repeated estimates are summarized, not added.','Fictional inputs, not customer results.'])
+ for token in copy_tokens:
+  if token not in text:e.append(name+': disclosed sample method '+token)
  for asset in ['sample-report-tile.css','monderman-depth-lure-tile.css']:
   if not re.search(re.escape(asset)+r'\?v=[^"\s]+',text):e.append(name+': versioned sample stylesheet '+asset)
  for token in tile_required:

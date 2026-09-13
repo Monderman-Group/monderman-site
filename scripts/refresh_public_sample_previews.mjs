@@ -57,23 +57,25 @@ function depthCard(place) {
   const spread=depth.ai_report.report.interpretation.recommendations[0].reason.match(/variation in submitted scores: ([^.]+)\./)?.[1];
   assert.ok(spread,'Featured action must retain its recorded variation label');
   const full='sample-report.html#depth';
-  return '<aside class="hero-report-proof has-sample-depth-tile" aria-label="Generated Depth Synthesis example from fictional inputs" data-sample-id="depth_synthesis" data-artifact-sha256="'+artifact.artifact_sha256+'">\n'+
+  // Keep the existing Platform Brief unchanged; only homepage marketing copy advances.
+  const home=place==='home';
+  return '<aside class="hero-report-proof has-sample-depth-tile" aria-label="'+(home?'Depth Synthesis sample report':'Generated Depth Synthesis example from fictional inputs')+'" data-sample-id="depth_synthesis" data-artifact-sha256="'+artifact.artifact_sha256+'">\n'+
 '  <a class="hero-report-link" href="'+full+'" aria-label="Read the complete Depth Synthesis example">\n'+
 '    <div id="monderman-depth-lure-composite">\n'+
 '      <section class="md-tile" aria-labelledby="md-composite-title-'+place+'">\n'+
-'        <header class="md-header"><span class="md-wordmark">Monderman.</span><span class="md-kind">Depth Synthesis<br>Generated example</span></header>\n'+
+'        <header class="md-header"><span class="md-wordmark">Monderman.</span><span class="md-kind">Depth Synthesis<br>'+(home?'Sample data':'Generated example')+'</span></header>\n'+
 '        <div class="md-body">\n'+
 '          <p class="md-kicker">Structural Clarity · '+whole(depth.submitted_run_count)+' submitted runs</p>\n'+
 '          <'+heading+' id="md-composite-title-'+place+'">Make the business case for change.</'+heading+'>\n'+
-'          <div class="md-opportunity"><span>Modeled annual recovery opportunity</span><strong data-promo-recovery>'+money(e.recoverable_cost)+'</strong><p>Median of submitted recovery scenarios. Before subscription and implementation costs; not guaranteed savings.</p></div>\n'+
+'          <div class="md-opportunity"><span>'+(home?'Estimated annual recovery opportunity':'Modeled annual recovery opportunity')+'</span><strong data-promo-recovery>'+money(e.recoverable_cost)+'</strong><p>'+(home?'Based on the assumptions shown in the report, before subscription and implementation costs.':'Median of submitted recovery scenarios. Before subscription and implementation costs; not guaranteed savings.')+'</p></div>\n'+
 '          <div class="md-economics"><div><strong data-promo-cost>'+money(e.annual_cost)+'</strong><span>Median annual labor-cost exposure</span></div><div><strong data-promo-hours>'+whole(e.annual_hours)+' hours</strong><span>Median annual time exposure</span></div></div>\n'+
 '          <div class="md-score-summary"><strong data-promo-score>'+whole(med)+'</strong><span>Median Diagnostic Score<br>Middle half: '+whole(range[0])+'–'+whole(range[1])+' / 100</span><span>'+escape(spread)+'<br>Range: '+whole(group.score_range[0])+'–'+whole(group.score_range[1])+' / 100</span></div>\n'+
 '          <div class="md-action"><strong>One recommended next step</strong><p>'+escape(firstAction(depth))+'</p></div>\n'+
-'          <p class="md-basis">'+whole(e.priceable_runs)+' of '+whole(e.total_runs)+' runs include cost estimates. Repeated estimates are summarized, not added. Fictional inputs, not customer results. Full assumptions in the report.</p>\n'+
+'          <p class="md-basis">'+whole(e.priceable_runs)+' of '+whole(e.total_runs)+' runs include cost estimates. '+(home?'Recovery opportunity is the median of submitted estimates, not their sum.':'Repeated estimates are summarized, not added. Fictional inputs, not customer results.')+' Full assumptions in the report.</p>\n'+
 '        </div>\n'+
 '      </section>\n'+
 '    </div>\n'+
-'    <div class="hero-report-caption"><span>Explore the complete example</span><span aria-hidden="true">&rarr;</span></div>\n'+
+'    <div class="hero-report-caption"><span>'+(home?'Read the report':'Explore the complete example')+'</span><span aria-hidden="true">&rarr;</span></div>\n'+
 '  </a>\n'+
 '</aside>';
 }
