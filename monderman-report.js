@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260913.35";
+  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260913.36";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -2044,7 +2044,7 @@
     '.mr-report .mr-report-boundary{margin-top:42px;padding:18px 20px;border:1px solid var(--line);border-radius:12px;background:#FAFAF8;color:var(--soft)}' +
     '.mr-compatibility-notice{display:grid;grid-template-columns:5px 1fr;gap:14px;align-items:start;margin:0 0 34px;padding:18px 20px;border:1px solid #D8C6A8;border-radius:12px;background:#FFF9EF;color:#5C4A2D}.mr-compatibility-mark{width:5px;min-height:100%;border-radius:4px;background:#C9821F}.mr-compatibility-label{font-size:.68rem!important;line-height:1.2!important;letter-spacing:.16em;text-transform:uppercase;color:#9B6117!important;font-weight:700;margin:1px 0 7px!important}.mr-compatibility-notice p:last-child{margin:0!important;font-size:.88rem!important;line-height:1.55!important;color:#5C4A2D!important}' +
     '.mr-report .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px;font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif}' +
-    '.mr-report .btn{display:inline-flex;align-items:center;justify-content:center;min-height:50px;min-width:168px;padding:0 24px;border-radius:7px;font-size:15px;font-weight:500;white-space:nowrap;background:#FFF;color:#18191C;border:1px solid rgba(24,25,28,.12);box-shadow:none;cursor:pointer}' +
+    '.mr-report .btn{display:inline-flex;align-items:center;justify-content:center;min-height:50px;min-width:168px;padding:0 24px;border-radius:7px;font-family:inherit;font-size:15px;font-weight:500;white-space:nowrap;background:#FFF;color:#18191C;border:1px solid rgba(24,25,28,.12);box-shadow:none;cursor:pointer}' +
     '.mr-report .btn-accent{background:#0C6E78;color:#FFF;border-color:rgba(12,110,120,.18)}' +
     '@media print{.mr-report{background:#fff}.mr-report .mr-page{border:0;border-radius:0;box-shadow:none;max-width:none;padding:28px 32px}.mr-report .actions{display:none!important}}' +
 
