@@ -270,7 +270,7 @@ elif hashlib.sha256(built_pdf.read_bytes()).hexdigest()!='89a2e5fb553cb22b63bf6a
  e.append('Built to Please canonical PDF bytes changed')
 for stale in ['exactly as the engine renders it','Every read returns the result in your numbers','Monderman is the instrument that surfaces where these losses originate']:
  if stale in idx:e.append('homepage unsupported claim '+stale)
-for required in ['directional cost scenarios','directional estimates','a separate recovery assumption']:
+for required in ['Use measured activity records and documented assumptions to compare potential staff capacity and separate cash effects.','diagnostics.html#methodology-and-sources']:
  if required not in idx:e.append('homepage bounded claim '+required)
 signal=(r/'plan-signal.html').read_text(errors='ignore')
 enterprise=(r/'plan-enterprise.html').read_text(errors='ignore')
@@ -305,10 +305,6 @@ tile_required=[
  'class="md-score-summary"',
  'href="sample-report.html#depth"',
  'Depth Synthesis',
- 'Estimated annual recovery opportunity',
- 'Based on the assumptions shown in the report, before subscription and implementation costs.',
- 'Recovery opportunity is the median of submitted estimates, not their sum.',
- 'Sample data',
  'Full assumptions in the report.',
  'data-promo-recovery','data-promo-cost','data-promo-hours','data-promo-score',
 ]
@@ -322,8 +318,20 @@ for name,text in [('index.html',idx),('Monderman_Platform_Brief.html',brief)]:
   e.append(name+': generated-output sample tile boundary must occur exactly once')
  else:
   tile=tile_matches[0].group(0)
+  # Fresh, approved v3 samples must replace these still-pending promotional
+  # estimates. Do not certify an old financial surface by changing its label.
+  if re.search(r'(?:Estimated|Modeled) annual recovery opportunity|Median annual (?:labor-cost|time) exposure|median of submitted (?:estimates|recovery scenarios)|Fictional inputs',tile,re.I):
+   e.append(name+': pending generated sample tile still contains retired financial claims')
   for stale in ['5,280 hrs','$411,840','$123,552','hrp-recovery-ring','hrp-composition-bars','sample-depth-tile-approved-image','sample-depth-synthesis-composite-approved.png','Observed exposure ranges','Actual generated output']:
    if stale in tile:e.append(name+': stale promotional sample tile value '+stale)
+scenario_slide=re.search(r'<section[^>]*id="slide-8".*?</section>',brief,re.S)
+if not scenario_slide:
+ e.append('Brief: operational scenario explanation missing')
+else:
+ for required in ['Separate operational scenarios from diagnostic scores.','No diagnostic score or participant percentage supplies a financial factor.','Cash avoided minus cash costs','not forecasts, confidence intervals, or guarantees.']:
+  if required not in scenario_slide.group(0):e.append('Brief: operational scenario boundary '+required)
+ for stale in ['$411,840','5,280 hrs','Diagnostic result + disclosed sizing inputs']:
+  if stale in scenario_slide.group(0):e.append('Brief: retired score-derived illustration '+stale)
 if not sample_tile_css:
  e.append('generated-output sample tile stylesheet missing')
 else:

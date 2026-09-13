@@ -796,13 +796,6 @@ body{transition:background-color .25s ease, color .25s ease}
       if(TREND_EXCLUDED>0){ body.innerHTML += `<p class="footnote">${TREND_EXCLUDED} read${TREND_EXCLUDED===1?"":"s"} hidden from trends: instrument version could not be verified.</p>`; }
     }
 
-    function expLine(s){
-      const j=s.exposure_json||{};
-      const e=j.exposed ?? j.exposure ?? j.annual ?? j.at_risk ?? null;
-      if(e==null) return "";
-      const txt = (typeof e==="number") ? ("$"+e.toLocaleString()) : e;
-      return ` \u00b7 <b class="num">${esc(txt)}</b> exposed/yr`;
-    }
     function renderIntervention(){
       const sel=$("ivSel"), body=$("ivBody"), panel=$("ivPanel"); const P=pairs();
       if(!P.length){ sel.style.display="none"; panel.innerHTML=""; body.innerHTML=emptyHTML("No linked before/after pairs yet","On the Action Plan, link an action to its source Diagnostic or Synthesis and a later like-for-like remeasurement."); return; }
@@ -818,9 +811,9 @@ body{transition:background-color .25s ease, color .25s ease}
       const d=as_-bs, tb=tone(bs), ta=tone(as_), up=d>=0;
       const beforeLabel=pr.kind==="synthesis"?pr.label:toolLabel(b.tool_type);
       body.innerHTML=`<p class="headline">Linked action: <b>${esc(pr.title)}</b></p><section class="impact"><div class="impact-grid">
-        <div class="state before"><div class="when">Before · ${esc(b.period_label||"")}</div><div class="score num" style="color:${tb.c}">${bs}</div>${b.band?`<span class="band" style="background:${tb.bg};color:${tb.fg}">${esc(b.band)}</span>`:""}<p class="exp">${esc(beforeLabel)}${pr.kind==="diagnostic"?expLine(b):""}</p></div>
+        <div class="state before"><div class="when">Before · ${esc(b.period_label||"")}</div><div class="score num" style="color:${tb.c}">${bs}</div>${b.band?`<span class="band" style="background:${tb.bg};color:${tb.fg}">${esc(b.band)}</span>`:""}<p class="exp">${esc(beforeLabel)}</p></div>
         <div class="arrow-col"><svg viewBox="0 0 120 90" fill="none"><line x1="6" y1="78" x2="104" y2="24" stroke="${up?'#3C8A60':'#B0392F'}" stroke-width="2.5" stroke-linecap="round"/><circle cx="6" cy="78" r="5" fill="${tb.c}"/><circle cx="104" cy="24" r="5" fill="${ta.c}"/><path d="M96 18l9 6-6 9" stroke="${up?'#3C8A60':'#B0392F'}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="delta-chip"><span class="d1 num"${up?"":' style="background:var(--rose-bg);color:var(--rose-fg)"'}>${d>0?"+":""}${d} pts</span></div></div>
-        <div class="state after"><div class="when">After · ${esc(a.period_label||"")}</div><div class="score num" style="color:${ta.c}">${as_}</div>${a.band?`<span class="band" style="background:${ta.bg};color:${ta.fg}">${esc(a.band)}</span>`:""}<p class="exp">${esc(beforeLabel)}${pr.kind==="diagnostic"?expLine(a):""}</p></div>
+        <div class="state after"><div class="when">After · ${esc(a.period_label||"")}</div><div class="score num" style="color:${ta.c}">${as_}</div>${a.band?`<span class="band" style="background:${ta.bg};color:${ta.fg}">${esc(a.band)}</span>`:""}<p class="exp">${esc(beforeLabel)}</p></div>
       </div><div class="verify"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12.5l2.5 2.5L16 9"/><circle cx="12" cy="12" r="9.5"/></svg><p><b>${Math.abs(d)} points ${up?"higher":"lower"}</b> in the later like-for-like measurement. The change is observed; this view does not claim the intervention caused it.</p></div></section>`;
       const others=P.filter(p=>p.key!==key);
       panel.innerHTML = others.length ? `<section class="panel"><div class="panel-head"><h3>Other tracked before-and-after pairs</h3></div>`+others.map(p=>{ const dd=(asNum(p.after.score)??0)-(asNum(p.before.score)??0); return `<div class="ix"><div class="ixn">${esc(p.title)}<span>${esc(p.label)}</span></div><div class="ixm"><span class="move"><b class="num">${asNum(p.before.score)??"Unavailable"}</b> → <b class="num">${asNum(p.after.score)??"Unavailable"}</b></span><span class="${dd>=0?'pill-up':'pill-watch'} num">${dd>0?"+":""}${dd} pts</span></div></div>`; }).join("")+`</section>` : "";
@@ -1099,10 +1092,11 @@ body{transition:background-color .25s ease, color .25s ease}
       mountCampaignAnalysis({element:$("campaignEvidence"),organizationId:ws5OrgId,role:ws5Role,apiBase:API_BASE,
         getToken:async()=>{const {data}=await supabase.auth.getSession();return data?.session?.access_token;},
         onEvidenceChanged:()=>{SYNTH_RUNS=null;loadAndRenderTrust();},
-        onReport:async(evidence)=>{
+        onReport:async(evidence,financialScenarioInput)=>{
           const {data}=await supabase.auth.getSession();const token=data?.session?.access_token;
           const cross=Object.keys(evidence.scope.lenses).length>1;
           const requestBody={campaign_scope_id:evidence.scope.id,evidence_digest:evidence.readiness.evidenceDigest,analysis_mode:(cross?evidence.readiness.crossLens:evidence.readiness.depth).status==='satisfied'?'synthesis':'descriptive',options:{mode:cross?'cross_lens':'depth',includeNarrative:true,includeExport:true}};
+          if(financialScenarioInput!==undefined)requestBody.financial_scenario_input=financialScenarioInput;
           const ticket=await synthesisRequestStore.prepare(ws5OrgId,data.session.user.id,requestBody);
           const response=await fetch(`${API_BASE}/api/synthesis`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token,'X-Monderman-Organization-Id':ws5OrgId},body:JSON.stringify({...requestBody,request_id:ticket.requestId})});
           const payload=await response.json().catch(()=>({}));if(!response.ok||!payload.result)throw new Error(payload.message||'The report could not be prepared.');

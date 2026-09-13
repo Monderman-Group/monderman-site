@@ -173,7 +173,7 @@ for token in (
     "These result files exceed the safe direct-upload size",
     "t.evidence_label",
     't.score_status === "published"',
-    "t.pathway_exposure",
+    "Not derived from diagnostic scores. A separate operational scenario requires documented inputs and assumptions.",
     'outcome.reason === "workspace_inclusion_required"',
     'workspace-analysis.html#synthesis',
     '"Open Analysis"',
@@ -182,9 +182,17 @@ for token in (
 for token in (
     "population statistics",
     "Compounded exposure / yr",
+    "t.pathway_exposure",
+    "Observed median annual cost",
+    "Observed recoverable estimate",
     "Cross-diagnostic synthesis failed.",
 ):
     forbid(DIAGNOSTICS, token, "diagnostics.html")
+
+# Financial inputs are optional, separate data supplied only to the report request.
+require(WORKSPACE, "if(financialScenarioInput!==undefined)requestBody.financial_scenario_input=financialScenarioInput;", "workspace-analysis.html")
+require(CAMPAIGN, "if(!form.elements.includeScenario.checked)return undefined;", "campaign-analysis.js")
+require(CAMPAIGN, "Use measured activity records, not per-person questionnaire opinions or diagnostic scores.", "campaign-analysis.js")
 
 # Full-page report is a pure shared renderer, not a second synthesis engine.
 for token in (

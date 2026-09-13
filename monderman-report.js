@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260913.32";
+  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260913.34";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -291,6 +291,7 @@
       signals: signals,
       differences: differences,
       exposure: exposure,
+      financialScenario: obj(r.financial_scenario),
       actions: actions,
       remedyPaths: remedyPaths,
       outputPolicy: obj(r.output_policy),
@@ -489,9 +490,6 @@
     const remedyPaths = arr(prose.remedy_paths).length ? arr(prose.remedy_paths) : arr(r.remedy_paths);
     const participantEvidence = recordedParticipantEvidence(r);
 
-    const annualHours = firstStr(exposure.annual_hours, r.annual_hours, r.annualHours, r.directionalHours);
-    const annualCost = firstStr(exposure.annual_cost, r.annual_cost, r.annualCost);
-    const drag = firstStr(exposure.capacity_drag_percent, r.capacity_drag_percent, r.capacityDragPercent);
     const depth = firstStr(r.diagnostic_depth, r.diagnosticDepth);
 
     const summary = firstStr(
@@ -520,9 +518,6 @@
       { k: "Benchmark position", v: benchmark },
       { k: "Participant-reported change", v: trajectory }
     ];
-    if (annualHours) kvs.push({ k: "Annual hours*", v: num(annualHours) });
-    if (annualCost) kvs.push({ k: "Annual cost*", v: cur(annualCost) });
-    if (drag) kvs.push({ k: toolType === "structural_clarity" ? "Modeled capacity share*" : "Capacity drag*", v: pct(drag) });
     if (depth) kvs.push({ k: "Depth", v: depth + "-minute diagnostic" });
 
     const metaScope = firstStr(
@@ -616,9 +611,10 @@
       scorerVersion: firstStr(r.scorer_version, provenance.scorer_version),
       reportLanguage: obj(r.report_language || provenance.report_language),
       presentationCompatibility: obj(r._presentation_compatibility),
+      financialLegacyView: obj(r.financial_legacy_view),
       kvs: kvs,
       sections: sections,
-      footnote: "This report is based on one participant's answers for the stated scope. " + (toolType === "structural_clarity" ? "It identifies dimensions to compare and checks to consider; a comparison alone does not establish a need for change. " : "It suggests issues to investigate and changes to test. ") + "It does not show how common these conditions are, prove their causes, predict performance, or confirm time or money saved. Time, cost, and capacity figures are estimates based on stated assumptions.",
+      footnote: "This report is based on one participant's answers for the stated scope. " + (toolType === "structural_clarity" ? "It identifies dimensions to compare and checks to consider; a comparison alone does not establish a need for change. " : "It suggests issues to investigate and changes to test. ") + "It does not show how common these conditions are, prove their causes or predict performance. Organizational time and money estimates require separate operational measurements beyond a single run.",
       filenameBase: slug(toolType || "diagnostic"),
       source: obj(envelope.result).tool_type ? envelope : r
     };
@@ -994,7 +990,7 @@
         runMetric("Observed spread", strictFinite(spread) ? fmt1(spread) + " pts" : "Unavailable", m.evidenceLabel, "ink") +
       '</div><div class="mr-system-decision">' +
         (firstAction.text ? '<div><div class="mr-lens-label">First evidence-proportionate move</div><h3>' + esc(firstStr(firstAction.label, "First thing to test")) + '</h3><p>' + esc(firstAction.text) + '</p></div>' : '') +
-        '<div><div class="mr-lens-label">Source-backed exposure</div><strong>' + esc(strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) : "Cost not calculated") + '</strong><p>' + esc(strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " median annual burden hours" : "Exposure is withheld or unavailable for the submitted runs.") + '</p></div>' +
+        '<div><div class="mr-lens-label">From findings to action</div><strong>Check the work behind the result</strong><p>Use the reported patterns to choose a bounded test. Any financial scenario requires separate operational records and explicit assumptions.</p></div>' +
       '</div></section>';
   }
 
@@ -1082,23 +1078,38 @@
   }
 
   function renderMetaExposure(m, n) {
-    const exp = obj(m.exposure);
-    if (!exp.status) return "";
-    if (exp.status === "withheld" || exp.status === "unavailable") {
-      return '<section class="mr-section"><h2>' + n + '. Modeled time and labor-cost estimates</h2><div class="callout"><p><strong>' + esc(firstStr(exp.label, "Exposure withheld")) + '.</strong> ' + esc(firstStr(exp.withheld_reason, "The submitted runs do not contain enough data for modeled time and labor-cost estimates.")) + '</p></div></section>';
-    }
-    const kvs = [
-      ["Status", humanize(exp.status)],
-      ["Runs with enough data for a cost estimate", fmtWhole(exp.priceable_runs) + " of " + fmtWhole(exp.total_runs)],
-      ["Median modeled annual hours", fmtWhole(exp.annual_hours)],
-      ["Modeled annual-hours IQR", strictFinite(exp.annual_hours_low) && strictFinite(exp.annual_hours_high) ? fmtWhole(exp.annual_hours_low) + " – " + fmtWhole(exp.annual_hours_high) : "Unavailable"],
-      ["Median modeled annual labor cost", fmtMoney(exp.annual_cost)],
-      ["Modeled annual-cost IQR", strictFinite(exp.annual_cost_low) && strictFinite(exp.annual_cost_high) ? fmtMoney(exp.annual_cost_low) + " – " + fmtMoney(exp.annual_cost_high) : "Unavailable"],
-      ["Median capacity drag", fmtPercent(exp.capacity_drag_percent)],
-      ["Recoverable range across Diagnostic medians", strictFinite(exp.recoverable_cost_low) && strictFinite(exp.recoverable_cost_high) ? fmtMoney(exp.recoverable_cost_low) + " – " + fmtMoney(exp.recoverable_cost_high) : "Unavailable"]
-    ].map(([k, v]) => '<div class="k">' + esc(k) + '</div><div>' + esc(v) + '</div>').join("");
-    return '<section class="mr-section"><h2>' + n + '. Modeled time and labor-cost estimates</h2>' + renderExposureRangeGraphic(exp) + '<div class="kvs">' + kvs + '</div>' +
-      '<div class="callout"><p><strong>Aggregation rule.</strong> ' + esc(firstStr(exp.basis, "Repeated estimates are summarized, not added together.")) + '</p></div></section>';
+    // Diagnostic score distributions never become recovery estimates. Only a
+    // separately calculated, same-scope operational scenario is displayable.
+    const s=obj(m.financialScenario),input=obj(s.inputs);
+    // Keep fractional declared inputs visible. The calculator rounds outcome
+    // totals to cents/hundredths; display must not turn .01% or $0.25 into zero.
+    const scenarioNumber=v=>Number(v).toLocaleString('en-US',{maximumSignificantDigits:15});
+    const scenarioMoney=v=>(Number(v)<0?'-$':'$')+scenarioNumber(Math.abs(Number(v)));
+    const scenarioPercent=v=>scenarioNumber(v)+'%';
+    if(m.selfRun||s.version!=='operational-planning-scenario-20260913.1'||!['early_planning_scenario','synthesis_planning_scenario'].includes(s.kind)
+      ||s.currency!=='USD'||!m.campaignEvidence?.scopeId||obj(s.scope).scopeId!==m.campaignEvidence.scopeId
+      ||!/^[a-f0-9]{64}$/.test(s.digest||(s.publication_projection==='operational-scenario-public-20260913.1'?s.source_identity_digest:'')||''))return '';
+    const metrics=[['potentialHoursFreed','Potential time freed',scenarioNumber,'hours'],['capacityValue','Value of potential staff capacity',scenarioMoney,'Not cash savings'],
+      ['avoidableNonLaborCash','Potential non-labor cash avoided',scenarioMoney,'Separate expenditure'],['cashInvestment','Implementation cash and subscription cost',scenarioMoney,'Cash cost'],
+      ['totalImplementationAndSubscriptionCost','Total implementation and subscription cost',scenarioMoney,'Includes internal staff time'],
+      ['netCashEffect','Net cash effect',scenarioMoney,'Cash avoided minus cash cost'],['netCapacityAndCashValue','Net capacity and cash scenario value',scenarioMoney,'Includes staff capacity, not a cash return']];
+    const validRange=value=>value&&['low','central','high'].every(k=>strictFinite(value[k]))&&value.low<=value.central&&value.central<=value.high;
+    if(!metrics.every(([key])=>validRange(obj(s.totals)[key]))||!arr(s.activities).length||!arr(input.activities).length||arr(input.activities).length>12
+      ||!validRange(input.implementationCashCost)||!validRange(input.implementationCapacityCost)||!strictFinite(input.subscriptionCost)
+      ||!arr(input.activities).every(a=>a&&strictFinite(a.measuredHours)&&strictFinite(a.loadedHourlyCost)&&validRange(a.reductionPercent)&&validRange(a.adoptionPercent)&&validRange(a.avoidableNonLaborCash)))return '';
+    const values=(value,format)=>'<dl class="mr-scenario-values">'+['low','central','high'].map(k=>'<div><dt>'+({low:'Low scenario',central:'Central scenario',high:'High scenario'}[k])+'</dt><dd>'+esc(format(value[k]))+'</dd></div>').join('')+'</dl>';
+    const cards=metrics.map(([key,label,format,detail])=>'<div class="mr-scenario-metric"><h3>'+esc(label)+'</h3><p class="mr-copy">'+esc(detail)+'</p>'+values(s.totals[key],format)+'</div>').join('');
+    const activities=arr(input.activities).map(a=>'<article class="mr-scenario-assumption"><h3>'+esc(a.label)+'</h3><dl class="mr-scenario-facts">'+
+      [['Recorded activity hours',scenarioNumber(a.measuredHours)],['Source basis',humanize(a.sourceBasis)],['Source reference',a.sourceReference],['Loaded hourly labor cost',scenarioMoney(a.loadedHourlyCost)],
+        ['Basis for proposed change',a.changeBasis],['Cash avoidance basis',a.cashBasis]].map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</dl>'+
+      '<h4>Assumed time reduction</h4>'+values(a.reductionPercent,scenarioPercent)+'<h4>Assumed adoption</h4>'+values(a.adoptionPercent,scenarioPercent)+
+      '<h4>Non-labor expenditure avoided over the planning period</h4>'+values(a.avoidableNonLaborCash,scenarioMoney)+'</article>').join('');
+    return '<section class="mr-section mr-financial-scenario"><h2>'+n+'. Operational planning scenario</h2><p class="mr-lede">'+esc(s.title)+'</p><p>'+esc(s.notice)+'</p>'+
+      '<dl class="mr-scenario-facts">'+[['Scope',obj(s.scope).label],['People covered by operational records',fmtWhole(input.measuredPeople)],['Measured period',recordedDate(input.measurementStart)+' to '+recordedDate(input.measurementEnd)],['Planning period',fmtWhole(input.horizonMonths)+' months']].map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</dl>'+cards+
+      '<h3>Inputs and assumptions</h3><p>'+esc(obj(s.method).calculation)+'</p><p>'+esc(obj(s.method).extrapolation)+'</p>'+activities+
+      '<article class="mr-scenario-assumption"><h3>Implementation and subscription costs</h3><h4>Incremental implementation cash</h4>'+values(input.implementationCashCost,scenarioMoney)+
+      '<h4>Internal staff-time implementation value</h4>'+values(input.implementationCapacityCost,scenarioMoney)+'<p><strong>Subscription allocation:</strong> '+esc(scenarioMoney(input.subscriptionCost))+'</p><p>'+esc(input.costBasis)+'</p></article>'+
+      '<p>'+esc(obj(s.participation).statement)+'</p><ul>'+arr(obj(s.participation).remaining).map(r=>'<li>'+esc(r.text)+'</li>').join('')+'</ul>'+arr(s.limitations).map(t=>'<p class="mr-copy">'+esc(t)+'</p>').join('')+'</section>';
   }
 
   function renderRequirements(m, n) {
@@ -1176,6 +1187,8 @@
       ? "The published condition is the median of the submitted scores from one Diagnostic. The observed distribution, differences between participant perspectives, scope, source identity, versions, measurement window, and sampling frame are reported separately. Sample size alone does not establish population representativeness."
       : "When the Coherent or Strong evidence threshold is met, the published composite is the arithmetic mean of the contributing Diagnostic means, so each Diagnostic receives one vote regardless of submitted run count. Run counts contribute to evidence coverage and balance; they do not establish how many distinct people responded. A Comparison Only or Directional read withholds the composite. Diagnostic disagreement remains visible and is not subtracted from the condition score.";
     return '<section class="mr-section mr-meta-method"><h2>' + n + '. Method and limits</h2><p>' + esc(method) + '</p>' +
+      (m.campaignEvidence?.depth?'<p>Participation and missing-response reporting are informed by selected published <a href="https://aapor.org/standards-and-ethics/standard-definitions/">AAPOR guidance</a>. Monderman defines its own eligibility rules; AAPOR has not validated them.</p>':'')+
+      (obj(m.financialScenario).version==='operational-planning-scenario-20260913.1'?'<p>The separate operational scenario documents scope, inputs, assumptions, costs and sensitivity ranges, informed by selected practices in <a href="https://www.gao.gov/products/gao-20-195g">GAO’s Cost Estimating and Assessment Guide</a>. This is not GAO approval, full compliance or a validated savings method.</p>':'')+
       (m.organizationalImplication ? '<div class="callout"><p><strong>Organizational implication.</strong> ' + esc(m.organizationalImplication) + '</p></div>' : '') + '</section>';
   }
 
@@ -1231,16 +1244,13 @@
   function renderRunDecisionBrief(m, n) {
     const exp = obj(m.exposure);
     const score = strictFinite(m.score) ? fmt1(m.score) : "Unavailable";
-    const hours = strictFinite(exp.annual_hours) ? fmtWhole(exp.annual_hours) + " hrs" : "Time not calculated";
-    const costDetail = strictFinite(exp.annual_cost) ? fmtMoney(exp.annual_cost) + " modeled annual labor cost" : "Labor cost not calculated";
-    const drag = strictFinite(exp.capacity_drag_percent) ? fmtPercent(exp.capacity_drag_percent) : "Not estimated";
     return '<section class="mr-section mr-run-decision"><div class="mr-section-index">0' + n + ' · Decision summary</div>' +
       '<div class="mr-run-headline"><div><h2>' + esc(m.headline || "Measured operating condition") + '</h2><p class="mr-exec-lede">' + esc(m.execSummary) + '</p></div>' +
       '<div class="mr-run-score-stamp"><span>Diagnostic score</span><strong>' + esc(score) + '</strong><em>' + esc(m.band) + '</em></div></div>' +
       '<div class="mr-run-metrics">' +
         runMetric("Primary measured focus", m.primarySignal, m.primarySignalNote, "teal") +
-        runMetric("Modeled annual time", hours, costDetail, "ink") +
-        runMetric("Modeled share of capacity", drag, strictFinite(exp.total_capacity_hours) ? fmtWhole(exp.total_capacity_hours) + " annual capacity hours used in the model" : "Scenario estimate", "amber") +
+        runMetric("Participant perspective", m.participantMode, "One person's recorded view", "ink") +
+        runMetric("Reported change", m.trajectoryLabel, m.trajectoryNote, "amber") +
         runMetric("Evidence depth", m.evidenceBand, m.participantMode + " perspective", "green") +
       '</div>' +
       '<div class="mr-run-decision-story' + (m.firstMove && obj(m.aiReport).status !== 'complete' ? '' : ' is-single') + '">' +
@@ -1331,7 +1341,7 @@
       const row = obj(item);
       const label = firstStr(row.label, humanize(firstStr(row.participant_mode, row.perspective, "Participant observation")));
       return '<div class="mr-evidence-quote"><div class="mr-lens-label">' + esc(label) + '</div><p>' + esc(firstStr(row.text, row.message, row.summary)) + '</p></div>';
-    }).join("") : '<div class="mr-evidence-empty"><div class="mr-lens-label">Written participant notes</div><h3>No written participant notes are included.</h3><p>The measured results reflect the structured answers supplied for this run. Written notes are a separate source of context.</p></div>';
+    }).join("") : '<div class="mr-evidence-empty"><div class="mr-lens-label">Written participant notes</div><h3>No additional written participant notes are displayed in this section.</h3><p>The measured results reflect the structured answers supplied for this run. Written notes are a separate source of context.</p></div>';
     return '<section class="mr-section mr-run-evidence"><div class="mr-section-index">0' + n + ' · Evidence in this run</div><h2>What this result is based on</h2>' +
       '<div class="mr-evidence-summary">' +
         runMetric("Evidence depth", m.evidenceBand, "Scope of this single run", "teal") +
@@ -1380,7 +1390,7 @@
         (path.summary ? '<p>' + esc(path.summary) + '</p>' : '') +
         (arr(path.actions).length ? '<div class="mr-remedy-actions"><div class="mr-remedy-field-label">Suggested steps</div><ol>' + arr(path.actions).map((action) => '<li>' + esc(textItem(action)) + '</li>').join("") + '</ol></div>' : '') +
         '<div class="mr-remedy-tradeoffs">' + (benefit ? '<div><div class="mr-remedy-field-label">Potential benefit</div><p>' + esc(benefit) + '</p></div>' : '') + (path.risk ? '<div><div class="mr-remedy-field-label">Tradeoff</div><p>' + esc(path.risk) + '</p></div>' : '') + '</div></article>';
-    }).join("") + '</div>' + (adjustedRemedyRecovery ? '<p class="mr-copy">The report-wide modeled recovery scenario is not divided among these options. Each option must be tested before any recovery is claimed.</p>' : '') : '';
+    }).join("") + '</div>' + (adjustedRemedyRecovery ? '<p class="mr-copy">Earlier financial estimates are omitted. These options do not establish savings.</p>' : '') : '';
     const aiHeading = monitoring ? "Monitoring priorities" : "Measured priorities";
     if (obj(m.aiReport).status === "complete") return ladder.length ? '<section class="mr-section mr-run-action-board"><div class="mr-priority-intro"><div class="mr-section-index">0' + n + ' · ' + aiHeading + '</div><h2>' + aiHeading + '</h2>' + renderPriorityMatrix(m) + '</div>' + ladderHtml + '</section>' : '';
     const actionHeading = nextStepsOnly ? 'Priorities and next steps' : monitoring ? "Monitoring priorities and options" : "Priorities and options";
@@ -1421,7 +1431,7 @@
     return '<section class="mr-section mr-run-method' + boundedMethodClass + '"><div class="mr-section-index">0' + n + ' · Method and limits</div><h2>How this report was produced</h2><dl>' +
       rows.map((row) => '<div><dt>' + esc(row[0]) + '</dt><dd>' + esc(row[1]) + '</dd></div>').join("") + '</dl>' +
       (migration.from_version ? '<p class="mr-method-copy">Report wording was generated with a newer template when this run completed. The recorded answers, scoring method, and numeric result were preserved. Original wording version: ' + esc(migration.from_version) + '.</p>' : '') +
-      '<p class="mr-method-copy">The score and dimension values come from the submitted answers. Participant notes, when present, are shown separately and do not change the score. Time and cost calculations are modeled planning scenarios, not measured benchmarks. The design reference was set when the instrument was designed; it is not a comparison with customer or industry data.</p></section>';
+      '<p class="mr-method-copy">The score and dimension values come from the submitted answers. Participant notes, when present, are shown separately and do not change the score. One run does not establish organizational savings or recoverable time. The design reference was set when the instrument was designed; it is not a comparison with customer or industry data.</p></section>';
   }
 
   function renderRunLeadershipClose(m, n) {
@@ -1446,13 +1456,13 @@
         '<li><strong>' + (monitoring ? 'Confirm the review owner.' : 'Assign ownership.') + '</strong><span>' + (monitoring ? 'Ask the person responsible for this structure to coordinate the review.' : 'Name one accountable owner for ' + esc(firstStr(m.primarySignal, "the primary measured constraint")) + '.') + '</span></li>' +
         '<li><strong>Run the first test.</strong><span>' + esc(firstAction || "Select the smallest returned action that can test the diagnosis without adding new operating burden.") + '</span></li>' +
         '<li><strong>Watch the measured indicators.</strong><span>' + esc(indicators.length ? indicators.join(" · ") : "The score, primary dimension, burden estimate, and any returned watch items") + '</span></li>' +
-        '<li><strong>Repeat under comparable conditions.</strong><span>Repeat the same Diagnostic with the same scope and comparable inputs; compare the score, dimensions, and exposure before attributing improvement.</span></li>' +
+        '<li><strong>Repeat under comparable conditions.</strong><span>Repeat the same Diagnostic with the same scope and comparable inputs; compare the score, dimensions and recorded answers before attributing improvement.</span></li>' +
       '</ol></div><div class="mr-ownership-questions"><div class="mr-lens-label">Questions to answer before acting</div>' + questions.map((question, index) => '<div><span>0' + (index + 1) + '</span><p>' + esc(question) + '</p></div>').join("") + '</div></div>' +
       '<div class="mr-remeasurement-note"><div class="mr-lens-label">How to compare later</div><p>Compare runs only when the scope, participant perspective, instrument version, and key workload assumptions are comparable. Record any important difference instead of treating unlike runs as a trend.</p></div></section>';
   }
 
   function renderRunReport(m) {
-    const renderers = [renderRunDecisionBrief, renderRunDimensions, renderRunExposure, renderRunGovernance, renderRunEvidence, renderRunActions, renderRunMethod, renderRunLeadershipClose];
+    const renderers = [renderRunDecisionBrief, renderRunDimensions, renderRunGovernance, renderRunEvidence, renderRunActions, renderRunMethod, renderRunLeadershipClose];
     let html = "", n = 1, closingBoundary = false;
     renderers.forEach((renderer) => {
       const block = renderer(m, n);
@@ -1565,7 +1575,7 @@
     }
     const scenarioLabels = ['Modeled annual hours of exposure','Modeled annual labor-cost exposure','Scenario recovery hours','Scenario recovery cost'];
     const unavailable = facts.filter(f=>f.provenance==='modeled_scenario' && scenarioLabels.includes(f.label) && f.value===null);
-    if (unavailable.length) {
+    if (unavailable.length && obj(report.financial_output_policy).version!=='single-run-financial-policy-20260913.1') {
       const allUnavailable = scenarioLabels.every(label=>unavailable.some(f=>f.label===label));
       const reason = facts.find(f=>f.provenance==='deterministic_sizing_status' && f.label==='Reason an exposure estimate was withheld' && typeof f.value==='string' && f.value.trim());
       notes.push((allUnavailable?'Time and cost estimates are unavailable.':'Some modeled time or cost estimates are unavailable.')+(reason?' Recorded reason: '+reason.value+'.':''));
@@ -1969,7 +1979,11 @@
     }
 
     if (m.kind === "run") {
-      return coverBlock + compatibilityBlock + aiBlock + renderRunReport(m) + sampleBlock;
+      const legacy = obj(m.financialLegacyView);
+      const financialNotice = legacy.status === 'updated_interpretation_required'
+        ? '<aside class="mr-compatibility-notice mr-financial-legacy-notice"><div class="mr-compatibility-mark"></div><div><p class="mr-compatibility-label">Earlier interpretation withheld</p><p>' + esc(firstStr(legacy.explanation,'The earlier interpretation requires an update under the current financial policy. Original stored data, scores and recorded answers are unchanged.')) + '</p></div></aside>'
+        : '';
+      return coverBlock + compatibilityBlock + financialNotice + aiBlock + renderRunReport(m) + sampleBlock;
     }
 
     const kvs = arr(m.kvs).map((x) => '<div class="k">' + esc(x.k) + "</div><div>" + esc(x.v) + "</div>").join("");
@@ -2287,6 +2301,23 @@
     .mr-run-actions{margin:0 0 28px;padding:22px 24px 20px;border-left:3px solid #0C6E78;background:#F7F5F0}.mr-run-actions ol{margin-top:13px!important;padding-left:22px!important}.mr-run-actions li{padding-left:5px}
     .mr-run-method dl{margin:20px 0;border-top:1px solid #DCD8CF}.mr-run-method dl>div{display:grid;grid-template-columns:190px minmax(0,1fr);gap:22px;padding:13px 0;border-bottom:1px solid #EAE6DD}.mr-run-method dt{font-size:.68rem;letter-spacing:.11em;text-transform:uppercase;color:#6E6F73}.mr-run-method dd{margin:0;font-size:.83rem;line-height:1.5;overflow-wrap:anywhere}.mr-method-copy{margin-top:22px!important;font-size:.9rem!important;color:#6E6F73!important;max-width:72ch}
     .mr-leadership-close{padding:32px!important;border:1px solid #0C6E78!important;border-radius:14px;background:linear-gradient(145deg,#F7FAF9,#FFF)!important}.mr-leadership-close>h2{font-size:clamp(1.8rem,3.4vw,2.8rem)!important;line-height:1.03!important;letter-spacing:-.04em!important;max-width:19ch!important}.mr-leadership-close-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:28px;margin-top:24px}.mr-leadership-sequence ol{list-style:none;margin:14px 0 0!important;padding:0!important;counter-reset:handoff}.mr-leadership-sequence li{position:relative;padding:0 0 18px 39px;margin:0!important;counter-increment:handoff}.mr-leadership-sequence li:not(:last-child)::before{content:"";position:absolute;left:13px;top:25px;bottom:0;width:1px;background:#B8D1D3}.mr-leadership-sequence li::after{content:counter(handoff);position:absolute;left:0;top:0;display:grid;place-items:center;width:27px;height:27px;border-radius:50%;background:#08383E;color:#FFF;font-size:.72rem;font-weight:700}.mr-leadership-sequence li strong{display:block;font-size:.9rem}.mr-leadership-sequence li span{display:block;margin-top:4px;color:#6E6F73;font-size:.8rem;line-height:1.5}.mr-ownership-questions>div:not(.mr-lens-label){display:grid;grid-template-columns:31px 1fr;gap:10px;padding:13px 0;border-bottom:1px solid #EAE6DD}.mr-ownership-questions>div>span{color:rgba(12,110,120,.3);font-size:1.25rem;font-weight:700}.mr-ownership-questions p{font-size:.85rem!important;line-height:1.5!important;margin:0!important}.mr-remeasurement-note{margin-top:22px;padding:17px 19px;border-left:3px solid #0C6E78;background:#F7F5F0}.mr-remeasurement-note p{font-size:.84rem!important;line-height:1.55!important;margin:6px 0 0!important}
+
+    .mr-financial-scenario{min-width:0;overflow-wrap:anywhere}
+    .mr-meta-method a,.mr-financial-scenario a{color:#0C6E78;text-decoration:underline;text-underline-offset:.16em}
+    .mr-meta-method a:hover,.mr-financial-scenario a:hover{color:#08383E}
+    .mr-meta-method a:focus-visible,.mr-financial-scenario a:focus-visible{outline:2px solid #0C6E78;outline-offset:3px}
+    .mr-scenario-metric,.mr-scenario-assumption{margin:24px 0;padding:24px;border:1px solid #E0DCD3;border-radius:10px;background:#FAFAF8;min-width:0}
+    .mr-scenario-metric h3,.mr-scenario-assumption h3{margin-top:0!important}
+    .mr-scenario-assumption h4{margin:22px 0 10px;font-size:.94rem;line-height:1.4}
+    .mr-scenario-values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 0;padding:16px 0 0;border-top:1px solid #E0DCD3}
+    .mr-scenario-values>div,.mr-scenario-facts>div{min-width:0}
+    .mr-scenario-values dt{font-size:.73rem;line-height:1.4;color:#6E6F73}
+    .mr-scenario-values dd{margin:6px 0 0;font-size:1.32rem;line-height:1.25;letter-spacing:-.02em;font-weight:600;color:#08383E;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+    .mr-scenario-facts{margin:20px 0;border-top:1px solid #E0DCD3}
+    .mr-scenario-facts>div{display:grid;grid-template-columns:minmax(140px,.8fr) minmax(0,1.2fr);gap:20px;padding:12px 0;border-bottom:1px solid #E0DCD3}
+    .mr-scenario-facts dt{font-size:.8rem;line-height:1.5;color:#6E6F73}.mr-scenario-facts dd{margin:0;font-size:.9rem;line-height:1.5}
+    @media(max-width:640px){.mr-scenario-metric,.mr-scenario-assumption{padding:18px;margin:20px 0}.mr-scenario-values{grid-template-columns:1fr;gap:0}.mr-scenario-values>div{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:14px;align-items:baseline;padding:10px 0}.mr-scenario-values>div+div{border-top:1px solid #E0DCD3}.mr-scenario-values dd{margin:0;text-align:right;font-size:1.16rem}.mr-scenario-facts>div{grid-template-columns:1fr;gap:5px}}
+    @media print{.mr-scenario-metric{break-inside:avoid;page-break-inside:avoid;padding:16px;margin:16px 0}.mr-scenario-assumption{break-inside:auto;page-break-inside:auto;padding:16px;margin:16px 0}.mr-scenario-assumption h3,.mr-scenario-assumption h4{break-after:avoid;page-break-after:avoid}.mr-scenario-values{break-inside:avoid;page-break-inside:avoid}.mr-scenario-values dd{font-size:13pt}.mr-scenario-facts>div{break-inside:avoid;page-break-inside:avoid}}
 
     @media(max-width:800px){
       .mr-run-metrics,.mr-exposure-flow,.mr-depth-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.mr-run-metric:nth-child(3),.mr-run-metric:nth-child(4){border-top:1px solid #EAE6DD}.mr-run-metric:nth-child(3){border-left:0}.mr-exposure-step:nth-child(3){border-left:0;border-top:1px solid #EAE6DD}.mr-exposure-step:nth-child(4){border-top:1px solid #EAE6DD}.mr-exposure-step::after{display:none}.mr-dimension-axis{margin-left:196px}.mr-dimension-row{grid-template-columns:176px minmax(0,1fr)}.mr-leadership-close-grid{grid-template-columns:1fr}.mr-interaction-grid{grid-template-columns:minmax(150px,1.3fr) repeat(var(--lens-count),minmax(56px,.5fr))}

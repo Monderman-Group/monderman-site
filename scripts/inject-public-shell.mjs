@@ -17,10 +17,13 @@ const shellScriptPattern = /<script\b[^>]*\bsrc=["']canonical-site-shell\.js[^"'
 const motifPattern = /<div\b(?=[^>]*\bclass=["'][^"']*\bmf-motif\b[^"']*["'])[^>]*>[\s\S]*?<\/svg>\s*<\/div>/i;
 const canonicalCssPattern = /canonical-site-shell\.css\?v=[^"']+/g;
 const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
-// Refresh both the reviewed report renderer and the newer shared brand release.
+// Keep the unchanged shared shell on its existing release.
 const shellRelease = "20260913.32";
-// Retain the deployed homepage bytes and refresh the feature report styles.
+// Refresh changed runtime assets without invalidating unchanged brand assets.
 const assetReleases = Object.freeze({
+  "monderman-report.js": "20260913.34",
+  "campaign-analysis.js": "20260913.34",
+  "campaign-analysis.css": "20260913.34",
   "homepage-workspace-demo.css": "20260913-cosmetic1",
   "sample-report-production.css": "20260913.32",
 });
@@ -49,8 +52,8 @@ const refreshedAssets = [
   "brand-surfaces.css",
 ];
 const versionScript = (html, fileName) => html.replace(
-  new RegExp(`(["'])${fileName.replace(".", "\\.")}(?:\\?v=[^"']*)?\\1`, "g"),
-  (_match, quote) => `${quote}${fileName}?v=${assetReleases[fileName] || (["first-run-telemetry.js", "pilot-waitlist.js"].includes(fileName) ? acquisitionRelease : ["assistant.js", "workspace-assistant.js"].includes(fileName) ? assistantRelease : shellRelease)}${quote}`,
+  new RegExp(`(["'])(\\./)?${fileName.replace(".", "\\.")}(?:\\?v=[^"']*)?\\1`, "g"),
+  (_match, quote, relative = "") => `${quote}${relative}${fileName}?v=${assetReleases[fileName] || (["first-run-telemetry.js", "pilot-waitlist.js"].includes(fileName) ? acquisitionRelease : ["assistant.js", "workspace-assistant.js"].includes(fileName) ? assistantRelease : shellRelease)}${quote}`,
 );
 const motif = footer.match(motifPattern)?.[0];
 
