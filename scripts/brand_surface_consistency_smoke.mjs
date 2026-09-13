@@ -243,10 +243,10 @@ for (const [engineName, engine] of [['chromium', chromium], ['webkit', webkit]])
           await page.emulateMedia({ media: 'screen' });
         }
       }
-      check(heroCount === 58 && footerCount === 63, `${engineName}/${width}: incomplete58hero/63footer coverage`);
+      check(heroCount === 59 && footerCount === 64, `${engineName}/${width}: incomplete59hero/64footer coverage`);
       await page.close();
     }
   } finally { await browser.close(); }
 }
 assert.deepEqual(failures, [], `${failures.length} brand surface failures:\n${failures.join('\n')}`);
-console.log(`Brand surface consistency smoke passed: ${checks} checks,58heroes+63footers,64pages at1440/390 in Chromium+WebKit; exact backgrounds, overlays, footer copy/contrast and print isolation.`);
+console.log(`Brand surface consistency smoke passed: ${checks} checks,59heroes+64footers,65pages at1440/390 in Chromium+WebKit; exact backgrounds, overlays, footer copy/contrast and print isolation.`);
