@@ -6,7 +6,7 @@ import vm from 'node:vm';
 const source=fs.readFileSync(new URL('../public-sample-model.js',import.meta.url),'utf8');
 const scope={window:{}};vm.runInNewContext(source,scope);
 const adapter=scope.window.MondermanPublicSamples;
-const version='monderman-public-sample-projection-20260912.6';
+const version='monderman-public-sample-projection-20260913.7';
 const hash='a'.repeat(64),commit='b'.repeat(40),date='2026-09-12T18:00:00.000Z';
 const artifact={contract:'monderman-public-product-samples/v3',synthetic:true,artifact_sha256:hash,
   publication_projection:{version,source_sha256:hash,projection_commit:commit},outputs:{}};
@@ -17,7 +17,7 @@ for(const key of Object.values(adapter.products)){
     provenance:{synthetic:true,generated_at:date,input_sha256:hash,result_sha256:hash,approved_output_sha256:hash}};
 }
 assert.equal(adapter.validate(artifact),artifact);let checks=1;
-for(const bad of [undefined,null,'','monderman-public-sample-projection-20260911.4',version+'-modified']){
+for(const bad of [undefined,null,'','monderman-public-sample-projection-20260911.4','monderman-public-sample-projection-20260912.6',version+'-modified']){
   const copy=structuredClone(artifact);copy.publication_projection.version=bad;
   assert.throws(()=>adapter.validate(copy),/Sample publication version/);checks++;
 }

@@ -18,7 +18,7 @@ const motifPattern = /<div\b(?=[^>]*\bclass=["'][^"']*\bmf-motif\b[^"']*["'])[^>
 const canonicalCssPattern = /canonical-site-shell\.css\?v=[^"']+/g;
 const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
 // Refresh both the reviewed report renderer and the newer shared brand release.
-const shellRelease = "20260911-evidence-report1";
+const shellRelease = "20260913.32";
 const assistantRelease = "20260910-bounded-chat1";
 const acquisitionRelease = "20260910-measurement-choice1";
 const productPages = new Set([

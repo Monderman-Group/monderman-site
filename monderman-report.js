@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260912.31";
+  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260913.32";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -1797,6 +1797,37 @@
       +(item.interpretation_text?'<p class="mr-question-interpretation">'+esc(item.interpretation_text)+'</p>':'');
   }
 
+  // A styled account is an exact saved source unit, not a model paraphrase.
+  // Its citation, closed metadata and compiled text must agree. Old or invalid
+  // units keep their saved text; the renderer never repairs source evidence.
+  function buildExperientialBlock(item,report) {
+    const exact=(value,keys)=>value&&typeof value==='object'&&!Array.isArray(value)
+      &&Object.keys(value).sort().join('|')===[...keys].sort().join('|');
+    const text=(value,max)=>typeof value==='string'&&value.length>0&&value.length<=max&&value.trim()===value;
+    const roles={operational:'People doing the work',managerial:'Managers',executive:'Senior leaders',senior_leader:'Senior leaders',not_specified:'Role not specified',authorized_workspace_staff:'Authorized workspace staff'};
+    const lenses={structural_clarity:'Structural Clarity',decision_velocity:'Decision Velocity',operational_systems:'Operational Systems',institutional_performance:'Institutional Performance'};
+    const block=item.experiential_block,refs=item.evidence_ids;
+    if(!exact(block,['version','role','lens','scope_label','text'])
+      ||block.version!=='experiential-prose-block-20260913.1'
+      ||!Object.hasOwn(roles,block.role)||!Object.hasOwn(lenses,block.lens)
+      ||!text(block.scope_label,200)||!text(block.text,2400)
+      ||typeof item.interpretation_text!=='string'||item.interpretation_text.length>900
+      ||!Array.isArray(refs)||!refs.length||refs.length>12||new Set(refs).size!==refs.length)return null;
+    const evidence=arr(report.evidence).concat(arr(report.experiential_evidence)),ids=new Set();
+    for(const row of evidence){if(!row||typeof row.id!=='string'||!/^[FX][1-9]\d{0,3}$/.test(row.id)||ids.has(row.id))return null;ids.add(row.id);}
+    if(refs.some(id=>!ids.has(id)))return null;
+    const selected=arr(report.experiential_evidence).filter(row=>refs.includes(row.id));
+    if(selected.length!==1||!exact(selected[0],['id','role','lens','scope_label','text'])
+      ||!/^X[1-9]\d{0,3}$/.test(selected[0].id)
+      ||['role','lens','scope_label','text'].some(key=>block[key]!==selected[0][key]))return null;
+    const context=roles[block.role]+' · '+lenses[block.lens];
+    const saved='Participant account · '+context+'\nScope: '+block.scope_label+'\n“'+block.text+'”'
+      +(item.interpretation_text?'\n\n'+item.interpretation_text:'');
+    if(item.text!==saved)return null;
+    return '<div class="mr-experience-evidence"><p class="mr-experience-label">Reported experience</p><p class="mr-reading-context">'+esc(context)+'</p><p class="mr-experience-scope">Scope: '+esc(block.scope_label)+'</p><blockquote>“'+esc(block.text)+'”</blockquote></div>'
+      +(item.interpretation_text?'<p class="mr-experience-interpretation">'+esc(item.interpretation_text)+'</p>':'');
+  }
+
   function buildAuthoredInterpretation(report) {
     const interpretation=obj(report.interpretation), sources=arr(report.sources).filter(source=>/^https:\/\//i.test(firstStr(source.url)));
     const evidence=arr(report.evidence).concat(arr(report.experiential_evidence));
@@ -1812,7 +1843,10 @@
       const printed='<p class="mr-print-support">'+(numbers.length?'Supporting evidence: '+numbers.join(', ')+'. See the evidence register.':'')+(refs.length?' Practice sources: '+refs.map(s=>sources.indexOf(s)+1).join(', ')+'. See Research and sector context.':'')+'</p>';
       return '<details class="mr-evidence-detail"><summary>See the supporting evidence</summary><div>'+facts.map(f=>'<div class="mr-evidence-entry">'+attribution(f)+'<strong>'+esc(evidenceLabel(f))+'</strong><p>'+esc(evidenceText(f))+'</p></div>').join('')+(refs.length?'<p class="mr-source-links">Relevant practice: '+refs.map(s=>'<a href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">'+esc(firstStr(s.title,s.publisher))+'</a>').join('; ')+'</p>':'')+'</div></details>'+printed;
     };
-    const findings=(items,title,explanation,questionBlocks=false)=>arr(items).length?'<div class="mr-evidence-reading"><h3>'+title+'</h3>'+(explanation?'<p class="mr-reading-context">'+explanation+'</p>':'')+arr(items).map(item=>'<article class="mr-finding">'+((questionBlocks&&buildPersonalQuestionBlock(obj(item),report,attributions))||'<p>'+esc(firstStr(obj(item).text,typeof item==='string'?item:''))+'</p>')+support(obj(item))+'</article>').join('')+'</div>':'';
+    const sourceBlock=item=>Object.hasOwn(item,'experiential_block')
+      ?(Object.hasOwn(item,'evidence_block')?null:buildExperientialBlock(item,report))
+      :buildPersonalQuestionBlock(item,report,attributions);
+    const findings=(items,title,explanation,questionBlocks=false)=>arr(items).length?'<div class="mr-evidence-reading"><h3>'+title+'</h3>'+(explanation?'<p class="mr-reading-context">'+explanation+'</p>':'')+arr(items).map(item=>'<article class="mr-finding">'+((questionBlocks&&sourceBlock(obj(item)))||'<p>'+esc(firstStr(obj(item).text,typeof item==='string'?item:''))+'</p>')+support(obj(item))+'</article>').join('')+'</div>':'';
     const conditionRows=[['Before trying it','prerequisite'],['Risk to consider','risk'],['How to judge the test','success_check']];
     const conditionList=rows=>'<dl class="mr-action-conditions'+(rows.length===1?' mr-action-conditions-single':rows.length===2?' mr-action-conditions-two':'')+'">'+rows.map(([label,value])=>'<div class="mr-ai-definition"><dt>'+label+'</dt><dd>'+esc(value)+'</dd></div>').join('')+'</dl>';
     const actionCard=(item,index,option=false,shared={})=>{
@@ -2408,6 +2442,12 @@
     .mr-question-answer dd{margin:4px 0 0;line-height:1.55}
     .mr-authored-report .mr-finding>.mr-question-interpretation{margin-top:18px}
     .mr-question-subset{margin:0 0 12px;font-size:.88rem;font-weight:600}
+    .mr-experience-evidence{padding:16px 20px;border-left:3px solid #BFD7DB;background:#F3F7F7;overflow-wrap:anywhere}
+    .mr-authored-report .mr-experience-label{margin:0 0 8px;font-size:.82rem;font-weight:600;color:#53676E;line-height:1.4}
+    .mr-experience-evidence .mr-reading-context{margin:0 0 4px}
+    .mr-experience-scope{margin:0 0 14px;font-size:.9rem;line-height:1.55;color:#53676E}
+    .mr-experience-evidence blockquote{margin:0;padding:0;border:0;font-style:normal;line-height:1.65;white-space:pre-wrap}
+    .mr-authored-report .mr-finding>.mr-experience-interpretation{margin-top:18px}
     .mr-evidence-detail{margin-top:14px;font-size:.88rem;line-height:1.55}
     .mr-authored-report .mr-action-heading{margin-top:0;font-size:1rem;color:#176f79}
     .mr-authored-report .mr-action-proposal{font-weight:600;line-height:1.5}
@@ -2455,6 +2495,9 @@
       .mr-question-evidence{padding:12px 16px;break-inside:auto;page-break-inside:auto}
       .mr-question-evidence .mr-question-label,.mr-question-evidence .mr-question-text,.mr-question-evidence .mr-reading-context,.mr-question-answer dt{break-after:avoid;page-break-after:avoid}
       .mr-question-answer-bounded{break-inside:avoid;page-break-inside:avoid}
+      .mr-experience-evidence{padding:12px 16px;break-inside:auto;page-break-inside:auto}
+      .mr-experience-label,.mr-experience-evidence .mr-reading-context,.mr-experience-scope{break-after:avoid;page-break-after:avoid}
+      .mr-experience-evidence blockquote{orphans:3;widows:3}
       .mr-authored-report .mr-ai-action-bounded{break-inside:avoid;page-break-inside:avoid}
       .mr-authored-report .mr-action-intro{break-inside:avoid;page-break-inside:avoid;break-after:avoid;page-break-after:avoid}
       .mr-authored-report .mr-finding>p,.mr-authored-report .mr-ai-action>p{orphans:3;widows:3}

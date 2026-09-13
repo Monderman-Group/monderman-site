@@ -176,7 +176,7 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
   assert.equal(artifact.engine_commit,manifest.engine_commit);
   assert.ok(validTime(artifact.generated_at));
   assert.equal(artifact.generated_at,manifest.generated_at);
-  assert.equal(artifact.publication_projection?.version,'monderman-public-sample-projection-20260912.6');
+  assert.equal(artifact.publication_projection?.version,'monderman-public-sample-projection-20260913.7');
   assert.ok(validHash(artifact.publication_projection.source_sha256));
   assert.match(artifact.publication_projection.projection_commit,/^[a-f0-9]{40}$/);
   assert.deepEqual(artifact.publication_projection,manifest.publication_projection,'publication projection differs from reviewed export');
@@ -252,7 +252,7 @@ export function createPublicSampleModels(options={}) {
   vm.runInContext(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8'),context,{filename:'monderman-report.js'});
   vm.runInContext(fs.readFileSync(path.join(root,'public-sample-model.js'),'utf8'),context,{filename:'public-sample-model.js'});
   const Report=context.window.MondermanReport,Public=context.window.MondermanPublicSamples;
-  assert.equal(Report.rendererVersion,'diagnostic-renderer-evidence-reading-20260912.31');
+  assert.equal(Report.rendererVersion,'diagnostic-renderer-evidence-reading-20260913.32');
   assert.equal(Report.rendererVersion,fixture.manifest.renderer_version);
   Public.validate(fixture.artifact);
   const models={};

@@ -35,7 +35,7 @@ add('html-escaping',a=>a.forEach(x=>{x.prerequisite='<img id="condition-injectio
 add('long',a=>a.forEach(x=>{x.prerequisite='MOCK long condition. '.repeat(150);x.risk='MOCK long risk. '.repeat(120);}),['prerequisite','risk']);
 add('legacy',()=>{},[],{legacy:true});
 let assertions=0;const equal=(a,b,message)=>{assert.deepEqual(a,b,message);assertions++;};
-equal(Report.rendererVersion,'diagnostic-renderer-evidence-reading-20260912.31');
+equal(Report.rendererVersion,'diagnostic-renderer-evidence-reading-20260913.32');
 for(const row of cases){const before=JSON.stringify(row.value);row.html=Report.buildReportHtml(Report.fromRun(row.value));equal(JSON.stringify(row.value),before,'Saved input unchanged');}
 // Exact rendered .30 baselines independently captured from committed SITE
 // a91f72d97691779281615b0630f6454b0cdd2c7e. No historical Git checkout is needed in CI.
