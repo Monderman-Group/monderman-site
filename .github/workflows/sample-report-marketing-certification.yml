@@ -5,6 +5,7 @@ on:
     paths:
       - 'scripts/authored_report_experience_smoke.mjs'
       - 'scripts/report_authored_print_smoke.mjs'
+      - 'scripts/report_shared_action_conditions_smoke.mjs'
       - 'scripts/report_source_attribution_smoke.mjs'
       - 'scripts/campaign_report_experience_smoke.mjs'
       - 'scripts/campaign_review_keyboard_smoke.mjs'
@@ -156,6 +157,7 @@ on:
     paths:
       - 'scripts/authored_report_experience_smoke.mjs'
       - 'scripts/report_authored_print_smoke.mjs'
+      - 'scripts/report_shared_action_conditions_smoke.mjs'
       - 'scripts/report_source_attribution_smoke.mjs'
       - 'scripts/campaign_report_experience_smoke.mjs'
       - 'scripts/campaign_review_keyboard_smoke.mjs'
@@ -345,6 +347,7 @@ jobs:
           node --check scripts/report_presentation_smoke.mjs
           node --check scripts/report_pdf_smoke.mjs
           node --check scripts/report_authored_print_smoke.mjs
+          node --check scripts/report_shared_action_conditions_smoke.mjs
           node --check scripts/report_source_attribution_smoke.mjs
           node --check scripts/campaign_review_keyboard_smoke.mjs
           node --check scripts/report_campaign_attribution_smoke.mjs
@@ -400,6 +403,8 @@ jobs:
         env:
           REPORT_PRINT_OUT: /tmp/report-presentation-smoke/authored-print
         run: node scripts/report_authored_print_smoke.mjs
+      - name: Preserve exact shared next-step conditions on screen and in print media without PDFs
+        run: node scripts/report_shared_action_conditions_smoke.mjs
       - name: Preserve unavailable scores and Synthesis chart labels on all display sizes
         run: node scripts/report_synthesis_display_smoke.mjs
       - name: Preserve presentation correction provenance in HTML and PDF

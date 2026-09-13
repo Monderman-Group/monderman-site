@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260912.30";
+  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260912.31";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -1813,12 +1813,27 @@
       return '<details class="mr-evidence-detail"><summary>See the supporting evidence</summary><div>'+facts.map(f=>'<div class="mr-evidence-entry">'+attribution(f)+'<strong>'+esc(evidenceLabel(f))+'</strong><p>'+esc(evidenceText(f))+'</p></div>').join('')+(refs.length?'<p class="mr-source-links">Relevant practice: '+refs.map(s=>'<a href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">'+esc(firstStr(s.title,s.publisher))+'</a>').join('; ')+'</p>':'')+'</div></details>'+printed;
     };
     const findings=(items,title,explanation,questionBlocks=false)=>arr(items).length?'<div class="mr-evidence-reading"><h3>'+title+'</h3>'+(explanation?'<p class="mr-reading-context">'+explanation+'</p>':'')+arr(items).map(item=>'<article class="mr-finding">'+((questionBlocks&&buildPersonalQuestionBlock(obj(item),report,attributions))||'<p>'+esc(firstStr(obj(item).text,typeof item==='string'?item:''))+'</p>')+support(obj(item))+'</article>').join('')+'</div>':'';
-    const actionCard=(item,index,option=false)=>{
+    const conditionRows=[['Before trying it','prerequisite'],['Risk to consider','risk'],['How to judge the test','success_check']];
+    const conditionList=rows=>'<dl class="mr-action-conditions'+(rows.length===1?' mr-action-conditions-single':rows.length===2?' mr-action-conditions-two':'')+'">'+rows.map(([label,value])=>'<div class="mr-ai-definition"><dt>'+label+'</dt><dd>'+esc(value)+'</dd></div>').join('')+'</dl>';
+    const actionCard=(item,index,option=false,shared={})=>{
       const action=obj(item),labels={limited:'Limited change',moderate:'Moderate change',structural:'Structural change'};
       const bounded=[action.action,action.reason,action.prerequisite,action.risk,action.success_check].reduce((n,text)=>n+String(text||'').length,0)<=1400;
-      return '<article class="mr-card mr-ai-action'+(bounded?' mr-ai-action-bounded':'')+'"><h3 class="mr-action-heading">'+(option?esc(labels[action.intensity]||'Action option'):'Next step '+(index+1))+'</h3><p class="mr-action-proposal">'+esc(action.action)+'</p><p>'+esc(action.reason)+'</p>'+support(action)+'<dl class="mr-action-conditions">'+[['Before trying it',action.prerequisite],['Risk to consider',action.risk],['How to judge the test',action.success_check]].filter(([,value])=>value).map(([label,value])=>'<div class="mr-ai-definition"><dt>'+label+'</dt><dd>'+esc(value)+'</dd></div>').join('')+'</dl></article>';
+      const rows=conditionRows.filter(([,key])=>action[key]&&!Object.prototype.hasOwnProperty.call(shared,key)).map(([label,key])=>[label,action[key]]);
+      // Options retain their original layout and independent conditions.
+      const conditions=option?'<dl class="mr-action-conditions">'+rows.map(([label,value])=>'<div class="mr-ai-definition"><dt>'+label+'</dt><dd>'+esc(value)+'</dd></div>').join('')+'</dl>':conditionList(rows);
+      return '<article class="mr-card mr-ai-action'+(bounded?' mr-ai-action-bounded':'')+'"><h3 class="mr-action-heading">'+(option?esc(labels[action.intensity]||'Action option'):'Next step '+(index+1))+'</h3><p class="mr-action-proposal">'+esc(action.action)+'</p><p>'+esc(action.reason)+'</p>'+support(action)+conditions+'</article>';
     };
     const actions=arr(interpretation.recommendations),options=arr(interpretation.action_options),preferred=obj(interpretation.recommended_option),preferredOption=options.find(o=>o.option_id===preferred.option_id);
+    // Present a condition once only when it applies verbatim to every next
+    // step. Do not normalize text, merge subsets, alter saved data, or share
+    // success checks. Distinct or missing conditions stay with their action.
+    const sharedConditions={};
+    if(actions.length>=2)for(const key of ['prerequisite','risk']){
+      const value=obj(actions[0])[key];
+      if(typeof value==='string'&&value.trim()&&actions.every(action=>obj(action)[key]===value))sharedConditions[key]=value;
+    }
+    const sharedRows=conditionRows.filter(([,key])=>Object.prototype.hasOwnProperty.call(sharedConditions,key)).map(([label,key])=>[label,sharedConditions[key]]);
+    const sharedBlock=sharedRows.length?'<aside class="mr-shared-action-conditions"><h4>For all next steps</h4>'+conditionList(sharedRows)+'</aside>':'';
     const preferredPath=()=>{
       // Evaluate support at its original reading position so the evidence
       // register keeps its existing numbering. Only printed text determines
@@ -1833,7 +1848,7 @@
     const content='<section class="mr-section mr-ai-interpretation mr-authored-report"><h2>Interpretation and next steps</h2><p class="mr-executive-read">'+esc(interpretation.summary)+'</p>'+support({evidence_ids:obj(report.evidence_references).summary,source_ids:obj(report.evidence_references).summary_sources})+buildAIRecordedContext(report)+
       findings(interpretation.observations,'What the evidence shows','These findings distinguish scored results from what participants reported.',true)+
       findings(interpretation.hypotheses,'What may explain it','Possible explanations to investigate, not established causes.')+
-      (actions.length?'<div class="mr-report-nextsteps"><div class="mr-action-intro"><h3>Practical next steps</h3><p class="mr-reading-context">Start with these practical checks or focused changes.</p></div>'+actions.map((item,index)=>actionCard(item,index)).join('')+'</div>':'')+
+      (actions.length?'<div class="mr-report-nextsteps"><div class="mr-action-intro"><h3>Practical next steps</h3><p class="mr-reading-context">Start with these practical checks or focused changes.</p></div>'+sharedBlock+actions.map((item,index)=>actionCard(item,index,false,sharedConditions)).join('')+'</div>':'')+
       (options.length?'<div class="mr-report-options"><div class="mr-action-intro"><h3>Three levels of change</h3><p class="mr-reading-context">These are alternatives, not a sequence or a presumption that a larger change is better. Check each option’s prerequisites and risks.</p></div>'+options.map((item,index)=>actionCard(item,index,true)).join('')+'</div>':'')+
       (preferredOption?preferredPath():options.length?'<p class="mr-not-yet"><strong>No preferred option is selected.</strong> Review operating evidence and the campaign’s remaining readiness checks before choosing a recommended path.</p>':'')+
       findings([...new Set(arr(report.limitations).concat(arr(interpretation.limitations)))],'What this report cannot establish','')+
@@ -2405,8 +2420,13 @@
     .mr-authored-report .mr-action-level{font-size:.78rem;line-height:1.4;text-transform:uppercase;letter-spacing:.08em;color:#53676E;font-weight:600;margin-bottom:12px}
     .mr-authored-report .mr-ai-action{padding:24px;margin:18px 0;border:1px solid #DCE5E8;border-radius:8px;background:#fff}
     .mr-action-conditions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin:20px 0 0;padding-top:20px;border-top:1px solid #DCE5E8}
+    .mr-action-conditions-two{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .mr-action-conditions-single{grid-template-columns:1fr}
     .mr-action-conditions dt{font-size:.86rem;font-weight:600;line-height:1.4;color:#183F47}
     .mr-action-conditions dd{margin:8px 0 0!important;font-size:.88rem;line-height:1.6;color:#405D65}
+    .mr-shared-action-conditions{margin:18px 0;padding:18px 20px;background:#F3F7F7;border-left:3px solid #BFD7DB;overflow-wrap:anywhere}
+    .mr-shared-action-conditions h4{margin:0;font-size:.95rem;line-height:1.5;font-weight:600;color:#183F47}
+    .mr-shared-action-conditions>.mr-action-conditions{margin-top:12px;padding-top:0;border-top:0}
     .mr-recommended-path{background:#EDF5F4;border-left:4px solid #287260;padding:24px;margin-top:24px}
     .mr-not-yet{padding:18px 20px;background:#F7F5EF;border-left:3px solid #AD7B29;line-height:1.6}
     .mr-report-method{margin:28px 0 0;padding:18px 0;border-top:1px solid #DCE5E8;font-size:.85rem;line-height:1.6}
@@ -2439,6 +2459,9 @@
       .mr-authored-report .mr-action-intro{break-inside:avoid;page-break-inside:avoid;break-after:avoid;page-break-after:avoid}
       .mr-authored-report .mr-finding>p,.mr-authored-report .mr-ai-action>p{orphans:3;widows:3}
       .mr-authored-report .mr-action-conditions{grid-template-columns:1fr;gap:10px;margin-top:14px;padding-top:14px}
+      .mr-shared-action-conditions{display:block!important;break-inside:auto;page-break-inside:auto}
+      .mr-shared-action-conditions h4,.mr-shared-action-conditions dt{break-after:avoid;page-break-after:avoid}
+      .mr-shared-action-conditions .mr-ai-definition{break-inside:avoid;page-break-inside:avoid}
       .mr-evidence-detail::details-content,.mr-report-method::details-content{display:block;content-visibility:visible}
       .mr-evidence-detail>div,.mr-report-method>div{display:block!important;content-visibility:visible!important}
       .mr-evidence-detail summary,.mr-report-method summary{list-style:none;break-after:avoid}
