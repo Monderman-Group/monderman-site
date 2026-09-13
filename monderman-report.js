@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260913.36";
+  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260913.37";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -1356,6 +1356,12 @@
       '</div></section>';
   }
 
+  function priorityReviewLabel(value) {
+    // Display wording only: keep the saved priority, order and values intact.
+    const label = firstStr(value, "Priority");
+    return label.toLowerCase() === "fix now" ? "First review" : label.toLowerCase() === "fix next" ? "Next review" : label;
+  }
+
   function renderPriorityMatrix(m) {
     const isClarity = m.toolType === "structural_clarity";
     const ladder = arr(m.priorityLadder).slice(0, 5);
@@ -1366,7 +1372,7 @@
       const severity = strictFinite(row.severity) ? Number(row.severity) : (strictFinite(row.weakness) ? Number(row.weakness) : 50);
       const x = 28 + (Math.max(0, Math.min(100, severity)) / 100) * 64;
       const y = yPositions[index] || 94;
-      return '<div class="mr-priority-point' + (x > 50 ? ' mr-priority-label-left' : '') + '" style="left:' + x.toFixed(2) + '%;top:' + y + '%" data-rank="' + (index + 1) + '"><span>' + (index + 1) + '</span><div><strong>' + esc(firstStr(row.focus, row.label, "Measured focus")) + '</strong><small>' + esc(firstStr(row.priority, "Priority")) + ' · ' + esc(fmt1(severity)) + '</small></div></div>';
+      return '<div class="mr-priority-point' + (x > 50 ? ' mr-priority-label-left' : '') + '" style="left:' + x.toFixed(2) + '%;top:' + y + '%" data-rank="' + (index + 1) + '"><span>' + (index + 1) + '</span><div><strong>' + esc(firstStr(row.focus, row.label, "Measured focus")) + '</strong><small>' + esc(priorityReviewLabel(row.priority)) + ' · ' + esc(fmt1(severity)) + '</small></div></div>';
     }).join("");
     const heading = isClarity ? "Review order and clarity indicators" : "Priority order and measured severity";
     const vertical = isClarity ? "Review earlier" : "Test earlier";
@@ -1378,13 +1384,13 @@
   function renderRunActions(m, n) {
     const nextStepsOnly = m.outputPolicy?.version === 'individual-report-action-policy-20260911.1' && m.outputPolicy.individual_next_steps_only === true;
     const ladder = arr(m.priorityLadder), actions = arr(m.actions).map(textItem).filter(Boolean), remedies = nextStepsOnly ? [] : arr(m.remedyPaths);
-    // Follow the saved priority labels. Do not rewrite a historical ladder.
+    // Follow saved categories/order; only the displayed fix labels say review.
     const monitoring = m.toolType === "structural_clarity" && ladder.length > 0 && ladder.every(item => obj(item).priority === "Monitor");
     if (!ladder.length && !actions.length && !remedies.length) return "";
     const ladderHtml = ladder.length ? '<div class="mr-priority-ladder">' + ladder.map((item, index) => {
       const row = obj(item);
       const severity = strictFinite(row.severity) ? row.severity : (strictFinite(row.weakness) ? row.weakness : null);
-      return '<div class="mr-priority-row"><span>0' + (index + 1) + '</span><div><div class="mr-lens-label">' + esc(firstStr(row.priority, "Priority")) + '</div><strong>' + esc(firstStr(row.focus, row.label, "Measured focus")) + '</strong></div><em>' + esc(severity === null ? "Unavailable" : fmt1(severity)) + '</em></div>';
+      return '<div class="mr-priority-row"><span>0' + (index + 1) + '</span><div><div class="mr-lens-label">' + esc(priorityReviewLabel(row.priority)) + '</div><strong>' + esc(firstStr(row.focus, row.label, "Measured focus")) + '</strong></div><em>' + esc(severity === null ? "Unavailable" : fmt1(severity)) + '</em></div>';
     }).join("") + '</div>' : '';
     const adjustedRemedyRecovery = remedies.some((item) => hasGeneratedRemedyRecoveryRange(obj(item).benefit));
     const remediesHtml = remedies.length ? '<div class="mr-remedy-grid">' + remedies.slice(0, 3).map((item, index) => {
@@ -2292,14 +2298,14 @@
     .mr-run-decision-story{display:grid;grid-template-columns:1fr 1fr;margin-top:16px;border-radius:12px;overflow:hidden;border:1px solid #EAE6DD}
     .mr-run-decision-story>div{padding:22px 24px;background:#F7F5F0}.mr-run-decision-story>div+div{border-left:1px solid #E0DCD3;background:#FFF}
     .mr-run-decision-story p{font-size:.95rem!important;line-height:1.58!important;margin:7px 0 0!important}
-    .mr-dimension-axis{display:grid;grid-template-columns:repeat(5,1fr);margin:25px 6px 4px 246px;color:#9A9892;font-size:.65rem;font-variant-numeric:tabular-nums;text-align:center}.mr-dimension-axis span:first-child{text-align:left}.mr-dimension-axis span:last-child{text-align:right}
+    .mr-dimension-axis{display:grid;grid-template-columns:repeat(5,1fr);margin:25px 6px 4px 246px;color:#53676E;font-size:.75rem;font-variant-numeric:tabular-nums;text-align:center}.mr-dimension-axis span:first-child{text-align:left}.mr-dimension-axis span:last-child{text-align:right}
     .mr-dimension-profile{border-top:1px solid #EAE6DD}
     .mr-dimension-row{display:grid;grid-template-columns:226px minmax(0,1fr);gap:10px 20px;padding:17px 4px;border-bottom:1px solid #EAE6DD;align-items:center}
     .mr-dimension-copy{display:flex;align-items:baseline;justify-content:space-between;column-gap:12px;row-gap:2px;flex-wrap:wrap;min-width:0}.mr-dimension-copy strong{min-width:0;font-size:.9rem;line-height:1.35;overflow-wrap:anywhere}.mr-dimension-copy span{flex:0 0 auto;color:#0C6E78;font-weight:700;font-variant-numeric:tabular-nums}
     .mr-dimension-row:not(.is-unmeasured):not(.is-unavailable) .mr-dimension-copy{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start}
     .mr-dimension-track{position:relative;height:10px;border-radius:999px;background:linear-gradient(90deg,#EEEAE2 0,#EEEAE2 25%,#E8E4DB 25%,#E8E4DB 50%,#E1DDD4 50%,#E1DDD4 75%,#DAD6CD 75%);overflow:visible}
     .mr-dimension-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#08383E,#0C6E78)}.mr-dimension-track i{position:absolute;top:-4px;width:2px;height:18px;background:#08383E;transform:translateX(-1px)}
-    .mr-dimension-detail{grid-column:2;font-size:.7rem;color:#9A9892;margin-top:-4px}.mr-dimension-detail b{float:right;color:#0C6E78;text-transform:uppercase;letter-spacing:.1em;font-size:.61rem}
+    .mr-dimension-detail{grid-column:2;font-size:.8rem;color:#53676E;margin-top:-4px}.mr-dimension-detail b{float:right;color:#0C6E78;text-transform:uppercase;letter-spacing:.1em;font-size:.7rem}
     .mr-dimension-row.is-primary{background:linear-gradient(90deg,transparent 0,rgba(12,110,120,.045) 24%,rgba(12,110,120,.045) 100%)}
     .mr-constraint-view{margin-top:28px;padding:24px;border:1px solid #E0DCD3;border-radius:12px;background:#FAFAF8}.mr-constraint-bar{display:flex;height:30px;border-radius:7px;overflow:hidden;background:#EAE6DD}.mr-constraint-bar span{display:block;height:100%;border-right:1px solid rgba(255,255,255,.65)}.mr-constraint-legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 28px;margin:18px 0}.mr-constraint-legend>div{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:9px;align-items:center;font-size:.76rem}.mr-constraint-legend i{width:10px;height:10px;border-radius:2px}.mr-constraint-legend strong{font-variant-numeric:tabular-nums;color:#0C6E78}.mr-constraint-read{display:grid;grid-template-columns:180px minmax(0,1fr);gap:20px;padding-top:17px;border-top:1px solid #E0DCD3}.mr-constraint-read strong{font-size:1.08rem}.mr-constraint-read p{font-size:.86rem!important;line-height:1.55!important;color:#6E6F73!important;margin:0!important}
     .mr-run-findings{display:grid;grid-template-columns:190px minmax(0,1fr);gap:24px;margin-top:25px;padding:22px 24px;background:#F7F5F0;border-left:3px solid #0C6E78}.mr-run-findings ul{margin:0!important}
