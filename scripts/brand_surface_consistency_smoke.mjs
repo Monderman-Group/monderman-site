@@ -18,7 +18,7 @@ const pages = [
   'operational-systems.html', 'pilot.html', 'plan-enterprise.html', 'plan-pattern.html',
   'plan-signal.html', 'platform-services.html', 'privacy-2026-08-20-beta.html',
   'privacy-2026-08-24-beta.html', 'privacy-2026-08-26-beta.html', 'privacy-2026-09-08-beta.html',
-  'privacy-2026-09-09-beta.html', 'privacy-2026-09-10-beta.html', 'privacy-2026-09-10-optional-measurement-v1.html', 'privacy-2026-09-11-ai-evidence-v1.html','privacy-2026-09-12-ai-source-evidence-v2.html', 'privacy.html', 'quarter-trillion-friction-us-healthcare.html', 'research.html', 'roi.html',
+  'privacy-2026-09-09-beta.html', 'privacy-2026-09-10-beta.html', 'privacy-2026-09-10-optional-measurement-v1.html', 'privacy-2026-09-11-ai-evidence-v1.html', 'privacy-2026-09-12-ai-source-evidence-v2.html', 'privacy.html', 'quarter-trillion-friction-us-healthcare.html', 'research.html', 'roi.html',
   'sample-report.html', 'security.html', 'structural-clarity-article.html', 'structural-clarity.html',
   'subprocessors.html', 'terminal-fidelity.html', 'terms-2026-08-20-beta.html',
   'terms-2026-08-24-beta.html', 'terms-2026-08-26-beta.html', 'terms-2026-09-08-beta.html',

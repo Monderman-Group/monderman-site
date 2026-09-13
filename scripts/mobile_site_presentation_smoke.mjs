@@ -35,7 +35,7 @@ assert.equal(shellFreePages.length, 14, 'functional shell-free page inventory ch
 assert.equal(immutableLegalPages.size, 14, 'immutable legal-page inventory changed unexpectedly');
 assert.ok(immutableLegalPages.has('privacy-2026-09-10-optional-measurement-v1.html'), 'optional measurement edition remains in legal coverage');
 assert.ok(immutableLegalPages.has('privacy-2026-09-11-ai-evidence-v1.html'), 'AI evidence edition remains in legal coverage');
-assert.ok(immutableLegalPages.has('privacy-2026-09-12-ai-source-evidence-v2.html'), 'source-answer edition remains in legal coverage');
+assert.ok(immutableLegalPages.has('privacy-2026-09-12-ai-source-evidence-v2.html'), 'AI source evidence v2 edition remains in legal coverage');
 
 // The deployed artifact must contain one exact copy of each source page and one
 // exact shared shell. This rejects accidental Finder-style duplicate files and

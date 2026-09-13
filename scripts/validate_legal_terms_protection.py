@@ -280,6 +280,20 @@ def validate():
         "subject to its stated safety, legal and contractual exceptions",
         "No-training and no-retention are different commitments."
     ], "current AI processing and retention boundaries")
+    require(privacy, [
+        "selected original structured answers and their questions",
+        "each selected run's Diagnostic, chosen perspective, run length and questionnaire version",
+        "not evidence from independent participants",
+        "descriptive distributions of recorded answers to the same question",
+        "units, answer conditions and response counts",
+        "Small or insufficiently supported groups are withheld",
+        "does not establish anonymity, representativeness or a peer benchmark",
+        "recorded permission under this edition for those saved observations",
+        "A permission recorded for an earlier notice does not authorize this expanded use",
+        "Leaving the optional choice unchecked does not change the structured score",
+        "The same permitted report evidence and proposed report text",
+        "This check can occur even when no interpretation is generated"
+    ], "v2 source evidence, separate permission and request-size disclosure")
     require(terms, [
         "AI-assisted Diagnostic and Synthesis interpretation uses third-party language models when enabled.",
         "Automated validation is not expert review.",
