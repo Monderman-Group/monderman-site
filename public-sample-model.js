@@ -7,6 +7,15 @@
   };
   const object = value => value && typeof value === "object" && !Array.isArray(value) ? value : {};
   const sha256 = value => typeof value === "string" && /^[a-f0-9]{64}$/.test(value);
+  function generationProvenance(entry) {
+    const p = object(entry.provenance), source = object(entry.source);
+    const result = entry.kind === "diagnostic" && object(source.result).tool_type ? source.result : source;
+    const report = object(object(result.ai_report).report);
+    if (typeof p.engine_commit !== "string" || !/^[a-f0-9]{40}$/.test(p.engine_commit)) throw new Error("Sample generation commit is missing or malformed");
+    if (typeof report.version !== "string" || !report.version || p.report_ai_release !== report.version) throw new Error("Sample AI release provenance differs from the report");
+    if (typeof report.prompt_version !== "string" || !report.prompt_version || p.report_ai_prompt_version !== report.prompt_version) throw new Error("Sample AI prompt provenance differs from the report");
+    return p;
+  }
 
   function validate(artifact) {
     if (object(artifact).contract !== CONTRACT || artifact.synthetic !== true) throw new Error("Unexpected public sample contract");
@@ -24,6 +33,7 @@
       if (!sha256(p.input_sha256) || !sha256(p.result_sha256) || !sha256(p.approved_output_sha256)) throw new Error("Sample evidence references are missing: " + key);
       const ai = object(result.ai_report), report = object(ai.report);
       if (ai.status !== "complete" || !object(report.interpretation).summary || !report.model || !report.generated_at) throw new Error("Reviewed sample interpretation is unavailable: " + key);
+      generationProvenance(entry);
     }
     return artifact;
   }
@@ -31,16 +41,18 @@
   function model(entry, artifact) {
     const Report = window.MondermanReport;
     if (!Report) throw new Error("Shared report display is unavailable");
-    const p = entry.provenance;
+    const p = generationProvenance(entry);
     const result = entry.kind === "synthesis" ? Report.fromSynthesis(entry.source) : Report.fromRun(entry.source);
     const created = new Date(p.generated_at).toLocaleDateString("en-US", {year:"numeric", month:"long", day:"numeric", timeZone:"UTC"});
-    result.meta = [{label:"Sample created", value:created}, ...result.meta.filter(row => !['Generated','Recorded'].includes(row.label))];
+    result.meta = [{label:"Sample created", value:created},
+      ...result.meta.filter(row => !['Generated','Recorded','Engine revision'].includes(row.label))];
+    result.provenance = {...object(result.provenance), engine_commit:p.engine_commit};
     result.sampleProvenance = {
-      synthetic:true, generated_at:p.generated_at, rendered_at:new Date().toISOString(), engine_commit:artifact.engine_commit,
+      synthetic:true, generated_at:p.generated_at, rendered_at:new Date().toISOString(), engine_commit:p.engine_commit,
       artifact_sha256:artifact.artifact_sha256, input_digest:p.input_sha256, result_digest:p.result_sha256,
       questionnaire_version:p.questionnaire_version || Object.entries(p.questionnaire_versions || {}).map(([key,value])=>key.replace(/_/g,' ')+': '+value).join('; '),
       scorer_version:p.scorer_version || Object.entries(p.scorer_versions || {}).map(([key,value])=>key.replace(/_/g,' ')+': '+value).join('; ') || (entry.source.source_groups || []).filter(group=>group.scorer_versions?.length).map(group=>group.tool_label+': '+group.scorer_versions.join(', ')).join('; '),
-      report_language_version:p.report_language_version, report_ai_release:p.report_ai_release,
+      report_language_version:p.report_language_version, report_ai_release:p.report_ai_release, report_ai_prompt_version:p.report_ai_prompt_version,
       approved_output_sha256:p.approved_output_sha256
     };
     return result;

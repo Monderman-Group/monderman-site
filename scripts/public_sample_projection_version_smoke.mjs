@@ -13,8 +13,8 @@ const artifact={contract:'monderman-public-product-samples/v3',synthetic:true,ar
 for(const key of Object.values(adapter.products)){
   const synthesis=key.endsWith('_synthesis');
   artifact.outputs[key]={kind:synthesis?'synthesis':'diagnostic',source:{[synthesis?'synthesis_product':'tool_type']:key,
-    ai_report:{status:'complete',report:{model:'MOCK-not-provider-evidence',generated_at:date,interpretation:{summary:'MOCK contract shape only.'}}}},
-    provenance:{synthetic:true,generated_at:date,input_sha256:hash,result_sha256:hash,approved_output_sha256:hash}};
+    ai_report:{status:'complete',report:{model:'MOCK-not-provider-evidence',version:'MOCK-release',prompt_version:'MOCK-prompt',generated_at:date,interpretation:{summary:'MOCK contract shape only.'}}}},
+    provenance:{synthetic:true,generated_at:date,engine_commit:commit,report_ai_release:'MOCK-release',report_ai_prompt_version:'MOCK-prompt',input_sha256:hash,result_sha256:hash,approved_output_sha256:hash}};
 }
 assert.equal(adapter.validate(artifact),artifact);let checks=1;
 for(const bad of [undefined,null,'','monderman-public-sample-projection-20260911.4','monderman-public-sample-projection-20260912.6',version+'-modified']){

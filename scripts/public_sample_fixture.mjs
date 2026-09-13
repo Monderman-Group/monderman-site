@@ -19,6 +19,18 @@ const validHash = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(va
 const validTime = value => typeof value === 'string' && Number.isFinite(Date.parse(value));
 const plain = value => value && typeof value === 'object' && !Array.isArray(value);
 export const publicResult = entry => entry.kind === 'diagnostic' && entry.source?.result?.tool_type ? entry.source.result : entry.source;
+// Pure generation-provenance check, also usable with explicitly unapproved
+// in-memory display fixtures. It does not issue or replace release approval.
+export function assertPublicSampleGenerationProvenance(entry,key) {
+  const p=entry?.provenance,report=publicResult(entry)?.ai_report?.report;
+  assert.ok(plain(p)&&typeof p.engine_commit==='string'&&/^[a-f0-9]{40}$/.test(p.engine_commit),key+' original generation commit missing or malformed');
+  assert.ok(validTime(p.generated_at)&&validTime(report?.generated_at),key+' original generation timestamps missing');
+  assert.ok(typeof report.version==='string'&&report.version,key+' AI release missing');
+  assert.equal(p.report_ai_release,report.version,key+' AI release provenance mismatch');
+  assert.ok(typeof report.prompt_version==='string'&&report.prompt_version,key+' AI prompt missing');
+  assert.equal(p.report_ai_prompt_version,report.prompt_version,key+' AI prompt provenance mismatch');
+  return entry;
+}
 const DEFAULT_ROOT = fileURLToPath(new URL('../',import.meta.url));
 const REQUIRED_SOURCE_FILES = [
   'monderman-report.js','participant-evidence-safety.js','public-sample-model.js','sample-report-production.js',
@@ -214,6 +226,7 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
       version:report.version,snapshot_id:report.snapshot_id,
     },pin.ai,key+' AI source differs from approved output');
     assert.equal(report.prompt_version,p.report_ai_prompt_version,key+' AI prompt provenance mismatch');
+    assertPublicSampleGenerationProvenance(entry,key);
     if(synthesis) {
       assert.equal(r.evidence_assessment?.time_window?.maximum_days,undefined,key+' private qualification limit must not be published');
       assert.equal(r.narrative?.sequenced_action_logic,undefined,key+' internal sequencing duplicate must not be published');
@@ -252,7 +265,7 @@ export function createPublicSampleModels(options={}) {
   vm.runInContext(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8'),context,{filename:'monderman-report.js'});
   vm.runInContext(fs.readFileSync(path.join(root,'public-sample-model.js'),'utf8'),context,{filename:'public-sample-model.js'});
   const Report=context.window.MondermanReport,Public=context.window.MondermanPublicSamples;
-  assert.equal(Report.rendererVersion,'diagnostic-renderer-evidence-reading-20260913.32');
+  assert.equal(Report.rendererVersion,'diagnostic-renderer-evidence-reading-20260913.35');
   assert.equal(Report.rendererVersion,fixture.manifest.renderer_version);
   Public.validate(fixture.artifact);
   const models={};
@@ -263,6 +276,9 @@ export function createPublicSampleModels(options={}) {
     assert.equal(model.aiReport.status,'complete');
     assert.equal(JSON.stringify(model.aiReport),JSON.stringify(entry.result.ai_report),entry.key+' accepted AI state changed in model adapter');
     assert.equal(model.sampleProvenance.generated_at,entry.provenance.generated_at);
+    assert.equal(model.sampleProvenance.engine_commit,entry.provenance.engine_commit);
+    assert.equal(model.sampleProvenance.report_ai_release,entry.result.ai_report.report.version);
+    assert.equal(model.sampleProvenance.report_ai_prompt_version,entry.result.ai_report.report.prompt_version);
     assert.equal(model.sampleProvenance.approved_output_sha256,entry.provenance.approved_output_sha256);
     assert.ok(model.meta.some(row=>row.label==='Sample created'));
     assert.ok(!model.meta.some(row=>row.label==='Generated'),'view time must not replace sample generation time');
