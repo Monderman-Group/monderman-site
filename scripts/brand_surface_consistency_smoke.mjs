@@ -18,7 +18,7 @@ const pages = [
   'operational-systems.html', 'pilot.html', 'plan-enterprise.html', 'plan-pattern.html',
   'plan-signal.html', 'platform-services.html', 'privacy-2026-08-20-beta.html',
   'privacy-2026-08-24-beta.html', 'privacy-2026-08-26-beta.html', 'privacy-2026-09-08-beta.html',
-  'privacy-2026-09-09-beta.html', 'privacy-2026-09-10-beta.html', 'privacy-2026-09-10-optional-measurement-v1.html', 'privacy-2026-09-11-ai-evidence-v1.html', 'privacy.html', 'quarter-trillion-friction-us-healthcare.html', 'research.html', 'roi.html',
+  'privacy-2026-09-09-beta.html', 'privacy-2026-09-10-beta.html', 'privacy-2026-09-10-optional-measurement-v1.html', 'privacy-2026-09-11-ai-evidence-v1.html', 'privacy-2026-09-12-ai-source-evidence-v2.html', 'privacy.html', 'quarter-trillion-friction-us-healthcare.html', 'research.html', 'roi.html',
   'sample-report.html', 'security.html', 'structural-clarity-article.html', 'structural-clarity.html',
   'subprocessors.html', 'terminal-fidelity.html', 'terms-2026-08-20-beta.html',
   'terms-2026-08-24-beta.html', 'terms-2026-08-26-beta.html', 'terms-2026-09-08-beta.html',
@@ -32,8 +32,8 @@ const heroSelector = 'body.canonical-green-shell :is(.hero,.article-hero,.ps-her
 const surfaceSelector = `${heroSelector},footer.mond-footer`;
 const tagline = 'See the work clearly. Make the next move count.';
 const printPages = new Set(['index.html', 'Monderman_Platform_Brief.html', 'privacy.html', 'the-culture-trap-brief.html', 'cross-tool-synthesis.html', 'operational-systems.html', 'sample-report.html']);
-assert.equal(pages.length, 64);
-assert.equal(pages.length - footerOnly.size, 58);
+assert.equal(pages.length, 65);
+assert.equal(pages.length - footerOnly.size, 59);
 for (const file of pages) assert(fs.existsSync(path.join(root, file)), `Missing inventoried page ${file}`);
 
 const publishedSurfaces = fs.readdirSync(root).filter(file => file.endsWith('.html')).filter(file => {
