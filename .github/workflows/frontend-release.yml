@@ -35,6 +35,7 @@ jobs:
       - name: Reject scanner-consumed email authentication regressions
         run: node scripts/signin_email_otp_smoke.mjs
       - run: node scripts/workspace_legal_gate_smoke.mjs
+      - run: node scripts/signin_legal_documents_smoke.mjs
       - name: Reject purchase-confirmation and onboarding regressions
         run: node scripts/signup_package_smoke.mjs
       - name: Verify free entry and pilot funnel contracts
