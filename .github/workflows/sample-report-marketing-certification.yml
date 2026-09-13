@@ -64,6 +64,7 @@ on:
       - 'scripts/homepage_workspace_demo_smoke.mjs'
       - 'scripts/workspace_product_design_smoke.mjs'
       - 'scripts/report_screen_experience_smoke.mjs'
+      - 'scripts/header_entry_visibility_smoke.mjs'
       - 'scripts/public_surface_consistency_smoke.mjs'
       - 'scripts/brand_surface_consistency_smoke.mjs'
       - 'scripts/workspace_layout_audit_smoke.mjs'
@@ -218,6 +219,7 @@ on:
       - 'scripts/homepage_workspace_demo_smoke.mjs'
       - 'scripts/workspace_product_design_smoke.mjs'
       - 'scripts/report_screen_experience_smoke.mjs'
+      - 'scripts/header_entry_visibility_smoke.mjs'
       - 'scripts/public_surface_consistency_smoke.mjs'
       - 'scripts/brand_surface_consistency_smoke.mjs'
       - 'scripts/workspace_layout_audit_smoke.mjs'
@@ -359,6 +361,7 @@ jobs:
           node --check scripts/report_campaign_attribution_smoke.mjs
           node --check scripts/report_sample_copy_smoke.mjs
           node --check scripts/sample_marketing_language_hover_smoke.mjs
+          node --check scripts/header_entry_visibility_smoke.mjs
           node --check scripts/ip_missing_recovery_browser_smoke.mjs
           node --check scripts/sample_product_fidelity_smoke.mjs
           node --check scripts/sample_product_fidelity_smoke_v2.mjs
@@ -441,6 +444,9 @@ jobs:
           for i in {1..20}; do curl -fsS http://127.0.0.1:8080/sample-report.html >/dev/null && exit 0; sleep 1; done
           cat /tmp/report-cert-http.log
           exit 1
+
+      - name: Verify visible header entry text after scroll and interaction
+        run: node scripts/header_entry_visibility_smoke.mjs
 
       - name: Verify separate note permission on every instrument
         env:

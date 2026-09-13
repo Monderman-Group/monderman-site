@@ -35,6 +35,8 @@
     border-color: #C4E1E3 !important;
     color: #04181B !important;
   }
+  /* Its fill changes with scroll state; switch text paint in the same frame. */
+  body.homepage-enterprise .header .site-entry-link { transition: none; }
   @media (min-width: 1181px) {
     body:is(.product-surface, .homepage-enterprise):has(:is(.hero, .ps-hero) :is(.btn-accent, .btn-primary, .pilot-primary))
       .header:not(.scrolled):not(.mobile-nav-open) .nav .site-entry-link {

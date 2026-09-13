@@ -133,7 +133,9 @@ try {
       assert.equal(geometry.cost,'$'+exposure.annual_cost.toLocaleString('en-US'));
       assert.equal(geometry.hours,exposure.annual_hours.toLocaleString('en-US')+' hours');
       assert.equal(geometry.actionText,source.ai_report.report.interpretation.recommendations.find(a=>a.action?.trim()).action);
-      assert.match(geometry.qualification,/Median of submitted recovery scenarios.*Before subscription and implementation costs; not guaranteed savings/);
+      assert.equal(geometry.qualification,placement.name==='homepage'
+        ? 'Based on the assumptions shown in the report, before subscription and implementation costs.'
+        : 'Median of submitted recovery scenarios. Before subscription and implementation costs; not guaranteed savings.');
       assert.notEqual(geometry.footDisplay, 'none', `${placement.name}/${viewport.name}: sample and aggregation qualification hidden`);
       assert(geometry.documentWidth <= geometry.viewportWidth + 1, `${placement.name}/${viewport.name}: page overflows horizontally`);
       assert(geometry.rootLeft >= geometry.cardLeft - 1 && geometry.rootRight <= geometry.cardRight + 1, `${placement.name}/${viewport.name}: source component escapes the card horizontally`);

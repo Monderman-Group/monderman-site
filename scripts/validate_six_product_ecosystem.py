@@ -162,7 +162,7 @@ artifact=json.loads(text('sample-data/production-diagnostic-samples.json'))
 for token in [
     'Cross-Lens Synthesis','Depth Synthesis',
     'Structural Clarity','Decision Velocity','Operational Systems','Institutional Performance',
-    'Representative product outputs, not customer data.',
+    'These reports use realistic example responses to demonstrate Monderman’s analysis and reporting.',
 ]:
     require(sample,token,'Sample report')
 for tab in ['os','dv','sc','ip','synthesis','depth']:
