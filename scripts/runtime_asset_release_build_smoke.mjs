@@ -38,9 +38,10 @@ const versionStart=injector.indexOf('const shellRelease ='),versionEnd=injector.
 ok(versionStart>=0&&versionEnd>versionStart);
 const versionScript=vm.runInNewContext(injector.slice(versionStart,versionEnd)+'\nversionScript');
 const changed=['monderman-report.js','campaign-analysis.js','campaign-analysis.css'];
+const runtimeRelease=asset=>asset==='monderman-report.js'?'20260913.35':'20260913.34';
 for(const asset of changed){
   for(const quote of ['"',"'"])for(const prefix of ['', './'])for(const query of ['', '?v=20260913.32'])
-    eq(versionScript(`${quote}${prefix}${asset}${query}${quote}`,asset),`${quote}${prefix}${asset}?v=20260913.34${quote}`);
+    eq(versionScript(`${quote}${prefix}${asset}${query}${quote}`,asset),`${quote}${prefix}${asset}?v=${runtimeRelease(asset)}${quote}`);
   for(const prefix of ['../','/','https://example.test/']){
     const unrelated=`"${prefix}${asset}?v=external"`;
     eq(versionScript(unrelated,asset),unrelated,'Only the exact local asset path is normalized');
@@ -73,7 +74,7 @@ for(const file of pages){
     const pattern=new RegExp(`(["'])((?:\\./)?${asset.replace('.', '\\.')})([^"']*)\\1`,'g');
     const before=[...original.matchAll(pattern)],after=[...html.matchAll(pattern)];
     eq(after.length,before.length,file+': asset reference count unchanged');
-    for(const match of after){eq(match[3],'?v=20260913.34',file+': current asset URL');references[asset]++;}
+    for(const match of after){eq(match[3],`?v=${runtimeRelease(asset)}`,file+': current asset URL');references[asset]++;}
   }
 }
 eq(canonicalPages,60);eq(footerPages,64);

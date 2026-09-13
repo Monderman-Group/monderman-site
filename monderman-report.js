@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260913.34";
+  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260913.35";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -314,23 +314,27 @@
   // ---- adapter: single diagnostic run --> model -----------------------------
   // Reads the run's exported result shape (full_result_json) with broad fallbacks,
   // mirroring the synthesis lib's extractor so field names line up.
-  // All four scorers emit `trajectory` as an object ({direction, label, ...}).
-  // This is a participant's current report of change, not a measured trend.
-  // Internal direction values remain untouched. Structural Clarity describes
-  // change pressure, so keep its distinct scorer label.
-  function labelFromTrajectory(toolType, t) {
-    if (!t || typeof t !== "object") return "";
-    const raw = typeof t.label === "string" ? t.label.trim() : "";
-    const toolKey = String(toolType || "").toLowerCase().replace(/[-\s]+/g, "_");
-    if (toolKey === "structural_clarity") return raw;
-    if (t.self_reported === false || t.measurement_basis === "not_measured" || t.delta === null || /not established/i.test(raw)) return "Not established";
-    if (t.stated === "unsure" || /unclear/i.test(raw)) return "Direction unclear";
-    const dir = String(t.direction || "").toLowerCase();
-    const subject = toolKey === "decision_velocity" ? "delay" : toolKey === "operational_systems" ? "administrative work" : "strain";
-    if (dir === "up") return "Participant reports more " + subject;
-    if (dir === "down") return "Participant reports less " + subject;
-    if (dir === "flat") return "Participant reports little change";
-    return raw;
+  // Legacy trajectory combines static scored conditions; its direction, label
+  // and self-reported flag do not bind a compatible time comparison. Keep that
+  // source intact, but do not turn it into a participant's claim of change.
+  // Exact temporal answers remain available in the evidence and reviewed prose.
+  const RUN_FOCUS_LABELS = Object.freeze({
+    "Off-formal-path execution": "Work outside the standard process",
+    "Escalation dependence": "Decisions referred to a higher level",
+    "Accountability clarity": "Clarity about who is accountable"
+  });
+
+  function displayRunFocusLabel(value) {
+    return Object.prototype.hasOwnProperty.call(RUN_FOCUS_LABELS, value) ? RUN_FOCUS_LABELS[value] : value;
+  }
+
+  function displayRunFinancialBoilerplate(value) {
+    // Only these known generated clauses are adapted. Do not rewrite recorded
+    // answers, reviewed prose, or arbitrary financial language in a saved report.
+    return value
+      .replace("It does not change the score or the modeled recovery scenario.", "It does not change the score.")
+      .replace("Use the workload assumptions, measured dimensions, and repeated measurements when deciding what to do.", "Use the recorded answers, measured dimensions, and repeated measurements when deciding what to do.")
+      .replace("; any time, cost, or capacity figures elsewhere in the report are modeled from submitted inputs, not observed consumption or realized loss.", ".");
   }
 
   const RUN_DIMENSION_LABELS = Object.freeze({
@@ -475,7 +479,7 @@
     const score = r.score != null ? r.score : (r.cross_diagnostic_score != null ? r.cross_diagnostic_score : "Unavailable");
     const band = firstStr(r.band, r.score_band, r.condition_band, "Unavailable");
     const benchmark = firstStr(r.benchmark_position, r.benchmarkPosition, r.peer_position, "Unavailable");
-    const trajectory = firstStr(labelFromTrajectory(toolType, r.trajectory), r.trajectory_label, r.trajectory_signal, r.trajectory, "Unavailable");
+    const trajectory = "Not established by this run";
     const driver = firstStr(
       r.primary_driver, r.primary_constraint, r.primary_exposure_source,
       r.primary_burden_source, r.primary_structural_weakness, "Unavailable"
@@ -516,7 +520,7 @@
     const kvs = [
       { k: "Primary signal", v: driver },
       { k: "Benchmark position", v: benchmark },
-      { k: "Participant-reported change", v: trajectory }
+      { k: "Change over time", v: trajectory }
     ];
     if (depth) kvs.push({ k: "Depth", v: depth + "-minute diagnostic" });
 
@@ -535,15 +539,15 @@
       score: strictFinite(dimensions[key]) ? Number(dimensions[key]) : null,
       coverage: obj(obj(coverage.dimensions)[key])
     }));
-    const primarySignal = firstStr(
+    const primarySignal = displayRunFocusLabel(firstStr(
       descriptor.primary_constraint_label, descriptor.dominant_burden_label,
       r.primary_driver, r.primary_constraint, driver
-    );
+    ));
     const trajectoryObject = obj(r.trajectory);
     const evidenceBand = firstStr(insightDepth.band, r.input_confidence_label, context.confidenceLevel, "Directional single-run evidence")
       .replace(/\s+-\s+/g, ", ");
     const opportunity = firstStr(summaryBlock.opportunity, narrative.opportunity);
-    const benchmarkDetail = firstStr(prose.benchmark_interpretation, narrative.benchmark, benchmark);
+    const benchmarkDetail = displayRunFinancialBoilerplate(firstStr(prose.benchmark_interpretation, narrative.benchmark, benchmark));
     const tradeoff = firstStr(narrative.tradeoff, r.score_band_note);
     const firstMove = firstStr(textItem(actions[0]));
     const findingScope = firstStr(processName, metaScope, "the work described");
@@ -592,10 +596,10 @@
       insightDepth: insightDepth,
       trajectoryObject: trajectoryObject,
       trajectoryLabel: trajectory,
-      trajectoryNote: firstStr(descriptor.trajectory_note, trajectoryObject.note),
+      trajectoryNote: "",
       benchmarkDetail: benchmarkDetail,
       tradeoff: tradeoff,
-      quadrant: firstStr(r.quadrant_interpretation_text),
+      quadrant: displayRunFinancialBoilerplate(firstStr(r.quadrant_interpretation_text)),
       primarySignal: primarySignal,
       primarySignalNote: firstStr(descriptor.primary_constraint_note, descriptor.dominant_burden_note),
       dimensionEntries: dimensionEntries,
@@ -1250,7 +1254,7 @@
       '<div class="mr-run-metrics">' +
         runMetric("Primary measured focus", m.primarySignal, m.primarySignalNote, "teal") +
         runMetric("Participant perspective", m.participantMode, "One person's recorded view", "ink") +
-        runMetric("Reported change", m.trajectoryLabel, m.trajectoryNote, "amber") +
+        runMetric("Change over time", m.trajectoryLabel, m.trajectoryNote, "amber") +
         runMetric("Evidence depth", m.evidenceBand, m.participantMode + " perspective", "green") +
       '</div>' +
       '<div class="mr-run-decision-story' + (m.firstMove && obj(m.aiReport).status !== 'complete' ? '' : ' is-single') + '">' +
@@ -1327,7 +1331,7 @@
         (m.benchmarkDetail ? '<div><div class="mr-lens-label">Design reference (not a peer benchmark)</div><p>' + esc(m.benchmarkDetail) + '</p></div>' : '') +
         (m.tradeoff ? '<div><div class="mr-lens-label">Tradeoff to consider</div><p>' + esc(m.tradeoff) + '</p></div>' : '') +
         (m.quadrant ? '<div><div class="mr-lens-label">Relationship between the measured dimensions</div><p>' + esc(m.quadrant) + '</p></div>' : '') +
-        (m.trajectoryLabel ? '<div><div class="mr-lens-label">Participant-reported change</div><strong>' + esc(m.trajectoryLabel) + '</strong>' + (m.trajectoryNote ? '<p>' + esc(m.trajectoryNote) + '</p>' : '') + '</div>' : '') +
+        (m.trajectoryLabel ? '<div><div class="mr-lens-label">Change over time</div><strong>' + esc(m.trajectoryLabel) + '</strong>' + (m.trajectoryNote ? '<p>' + esc(m.trajectoryNote) + '</p>' : '') + '</div>' : '') +
       '</div></section>';
   }
 
@@ -1416,7 +1420,7 @@
     const rows = [
       ["Instrument", m.toolLabel], ["Operating scope", firstStr(m.processName, m.scopeLabel)],
       ["Participant perspective", m.participantMode], ["Reported answer confidence", displayReportedAnswerConfidence(m.insightDepth, c)],
-      ["Reported change", m.trajectoryLabel], ["Calculation method", displayCalculationMethod(model.model_type)],
+      ["Change over time", m.trajectoryLabel], ["Calculation method", displayCalculationMethod(model.model_type)],
       ["Calculation version", firstStr(model.version)],
       ["Questionnaire version", m.questionnaireVersion || "Not recorded"],
       ["Scoring version", displayScoringVersion(m.scorerVersion)],
