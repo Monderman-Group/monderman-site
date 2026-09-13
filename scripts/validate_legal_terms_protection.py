@@ -6,9 +6,9 @@ import re
 
 ROOT = Path(__file__).resolve().parents[1]
 TERMS_VERSION = "2026-09-09-beta"
-PRIVACY_VERSION = "2026-09-11-ai-evidence-v1"
-PUBLISHED_PRIVACY_VERSION = "2026-09-11-ai-evidence-v1"
-PUBLISHED_PRIVACY_SHA256 = "9286991d6f104c50a401fb4f987bdd751523e74d3fda713ceab17b5fdf49f460"
+PRIVACY_VERSION = "2026-09-12-ai-source-evidence-v2"
+PUBLISHED_PRIVACY_VERSION = "2026-09-12-ai-source-evidence-v2"
+PUBLISHED_PRIVACY_SHA256 = "41e4ef0367e55a4bff255934c42ea14b4b4e49a69dca78e4f14357f08bc2e3cc"
 # Accepted historical editions are immutable, even if someone edits the manifest.
 HISTORICAL_DOCUMENTS = {
     "2026-08-20-beta": {
@@ -42,6 +42,10 @@ HISTORICAL_DOCUMENTS = {
         "privacy_notice_file_sha256": "3eff91338e588a4cc74d5ec801d50c810fb06b9f272becee40f6731d20dca639"
     },
     "2026-09-10-optional-measurement-v1": { "privacy_notice_file": "privacy-2026-09-10-optional-measurement-v1.html", "privacy_notice_file_sha256": "3f080b978419e5ed4d6e20776322db7962b512254febcfcc6db34d97933b45d0" },
+    "2026-09-11-ai-evidence-v1": {
+        "privacy_notice_file": "privacy-2026-09-11-ai-evidence-v1.html",
+        "privacy_notice_file_sha256": "9286991d6f104c50a401fb4f987bdd751523e74d3fda713ceab17b5fdf49f460"
+    },
     "2026-09-10-beta": {
         "privacy_notice_file": "privacy-2026-09-10-beta.html",
         "privacy_notice_file_sha256": "b8d0279861a5ab30f9e1c2875d8237c9fb6df92abf02982e309092c3fc138185"
@@ -267,6 +271,20 @@ def validate():
         "subject to its stated safety, legal and contractual exceptions",
         "No-training and no-retention are different commitments."
     ], "current AI processing and retention boundaries")
+    require(privacy, [
+        "selected original structured answers and their questions",
+        "each selected run's Diagnostic, chosen perspective, run length and questionnaire version",
+        "not evidence from independent participants",
+        "descriptive distributions of recorded answers to the same question",
+        "units, answer conditions and response counts",
+        "Small or insufficiently supported groups are withheld",
+        "does not establish anonymity, representativeness or a peer benchmark",
+        "recorded permission under this edition for those saved observations",
+        "A permission recorded for an earlier notice does not authorize this expanded use",
+        "Leaving the optional choice unchecked does not change the structured score",
+        "The same permitted report evidence and proposed report text",
+        "This check can occur even when no interpretation is generated"
+    ], "v2 source evidence, separate permission and request-size disclosure")
     require(terms, [
         "AI-assisted Diagnostic and Synthesis interpretation uses third-party language models when enabled.",
         "Automated validation is not expert review.",
