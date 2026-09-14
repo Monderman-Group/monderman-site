@@ -15,6 +15,8 @@ const pages = [
 ];
 
 const workspace = read("workspace-diagnostics.html");
+assert.match(workspace, /Choose a 10-, 30-, or 60-minute version/);
+assert.doesNotMatch(workspace, /About 25 minutes each at recommended depth/);
 const theme = read("workspace-theme.js");
 assert.match(workspace, /campaignAccessState\(\)/);
 assert.match(workspace, /MondermanCampaignAccess/);

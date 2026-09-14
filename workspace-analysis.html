@@ -562,6 +562,7 @@ body{transition:background-color .25s ease, color .25s ease}
     const supabase = await window.mondermanGetSupabaseClient();
     const API_BASE = "https://monderman-api.onrender.com";
     let ws5OrgId = null, ws5Role = "viewer";
+    let ws5ScopeReady = false;
     const synthesisRequestStore=createSynthesisRequestStore();
     let synthesisInFlight=false,lastSynthesisRequest=null;
 
@@ -865,6 +866,13 @@ body{transition:background-color .25s ease, color .25s ease}
       if(SYNTH_RUNS!==null) return;
       const body=$("synthBody");
       if(body) body.innerHTML=`<p class="muted">Loading Included runs…</p>`;
+      // Hash navigation and tab clicks may precede the membership lookup.
+      // Leave the cache unset until boot resolves the active Workspace.
+      if(!ws5ScopeReady) return;
+      if(!ws5OrgId){
+        if(body) body.innerHTML=emptyHTML("Workspace unavailable","Choose a workspace you belong to before comparing saved runs.");
+        return;
+      }
       try{
         const rows=await fetchWorkspaceRuns(ws5OrgId);
         SYNTH_RUNS=rows.filter(isAnalysisEligible).slice(0,SYNTH_MAX_LOAD);
@@ -1088,6 +1096,8 @@ body{transition:background-color .25s ease, color .25s ease}
         renderRailPlan(m?.organizations||null);
       }catch(e){ setText("ws5UserRole","Viewer"); setText("ws5Org","Workspace"); setText("ws5Plan","Unavailable"); }
 
+      ws5ScopeReady = true;
+      if(document.querySelector('.subtabs a.active')?.dataset.lens==="synthesis") loadSynthesisRuns();
       loadAndRenderTrust();
       mountCampaignAnalysis({element:$("campaignEvidence"),organizationId:ws5OrgId,role:ws5Role,apiBase:API_BASE,
         getToken:async()=>{const {data}=await supabase.auth.getSession();return data?.session?.access_token;},
