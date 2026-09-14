@@ -83,7 +83,7 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     equal(await page.locator('.home-preview-label span').allTextContents(),['Explore Monderman Workspace','Sample data']);
     equal(await page.locator('.home-preview-caption').textContent(),'See how diagnostic results become clear findings, practical next steps, and a baseline for tracking change.');
     equal((await page.locator('#home-output-title').innerText()).replace(/\s+/g,' '),'See the findings. Understand the opportunity.');
-    equal(await page.locator('.home-output-copy>p:not(.home-output-eyebrow)').textContent(),'Explore how Monderman connects diagnostic results with participant experience, priorities for improvement, and estimates of time and cost.');
+    equal(await page.locator('.home-output-copy>p:not(.home-output-eyebrow)').textContent(),'Explore diagnostic findings, participant experience, and practical next steps. Team-level examples also show time and cost scenarios built from stated operating assumptions.');
     equal((await page.locator('.home-output-copy>a').textContent()).trim(),'Explore sample reports →');
     equal(await page.locator('.home-output-copy>a').getAttribute('href'),'sample-report.html');
     equal(await page.locator('#sample-output .hero-report-link').getAttribute('href'),'sample-report.html#depth');
