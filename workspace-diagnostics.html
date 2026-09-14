@@ -943,7 +943,11 @@ body{transition:background-color .25s ease, color .25s ease}
         if(!response.ok||!payload?.result) throw new Error(payload?.message||payload?.error||(`HTTP ${response.status}`));
         const m={...payload.result};
         if(mode==="json"){ window.MondermanReport.downloadJson(m, m.tool_type||"diagnostic"); }
-        else { window.MondermanReport.openReport(window.MondermanReport.fromRun(m), reportWindow); }
+        else {
+          // Keep saved JSON untouched; existing issuance dates outrank the server's saved time.
+          const created_at=[m.created_at,(m.provenance||m.provenance_json)?.generated_at,m.report_provenance?.generated_at,payload.savedAt].find(value=>typeof value==="string"&&/^\d{4}-\d{2}-\d{2}(?:T|$)/.test(value)&&Number.isFinite(Date.parse(value)));
+          window.MondermanReport.openReport(window.MondermanReport.fromRun({...m,created_at}), reportWindow);
+        }
       }catch(e){
         window.MondermanReport?.closeReservedReportWindow?.(reportWindow);
         flash("bad","Couldn’t open that report: "+(e.message||"please try again."));
@@ -1483,7 +1487,11 @@ body{transition:background-color .25s ease, color .25s ease}
         if(!response.ok||!payload?.result) throw new Error(payload?.message||payload?.error||(`HTTP ${response.status}`));
         const m={...payload.result};
         if(mode==="json"){ window.MondermanReport.downloadJson(m, m.tool_type||"diagnostic"); }
-        else { window.MondermanReport.openReport(window.MondermanReport.fromRun(m), reportWindow); }
+        else {
+          // Keep saved JSON untouched; existing issuance dates outrank the server's saved time.
+          const created_at=[m.created_at,(m.provenance||m.provenance_json)?.generated_at,m.report_provenance?.generated_at,payload.savedAt].find(value=>typeof value==="string"&&/^\d{4}-\d{2}-\d{2}(?:T|$)/.test(value)&&Number.isFinite(Date.parse(value)));
+          window.MondermanReport.openReport(window.MondermanReport.fromRun({...m,created_at}), reportWindow);
+        }
         if(btn){ btn.disabled=false; btn.textContent=orig; }
       }catch(e){ window.MondermanReport?.closeReservedReportWindow?.(reportWindow); fail("Couldn’t open that report: "+(e.message||"please try again.")); }
     }
