@@ -28,6 +28,7 @@ const globals=['window','document','fetch'];
 const originals=Object.fromEntries(globals.map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
 const runId='11111111-1111-4111-8111-111111111111',org='22222222-2222-4222-8222-222222222222';
 const result={tool_type:'structural_clarity',marker:'MOCK saved report, no generation'};
+const savedAt='2026-09-14T12:05:00Z';
 const scenarios=['success','blocked','missing_renderer','reserve_throws','http_failure','network_failure','malformed_response','render_failure','json'];
 try{for(const scenario of scenarios){
   const events=[],requests=[],opened=[],downloads=[],feedback={hidden:true,textContent:''};
@@ -51,7 +52,7 @@ try{for(const scenario of scenarios){
   if(scenario!=='missing_renderer')window.MondermanReport={
     reserveReportWindow:reserve,
     closeReservedReportWindow(value){eq(value,popup);popup.closed=true;closeCalls++;},
-    fromRun(value){eq(value,result,'exact authorized saved response reaches the adapter');if(scenario==='render_failure')throw new Error('MOCK rendering failed');return {saved:value};},
+    fromRun(value){eq(value,{...result,created_at:savedAt},'exact saved result plus server date presentation copy reaches the adapter');if(scenario==='render_failure')throw new Error('MOCK rendering failed');return {saved:result};},
     openReport(model,value){opened.push({model,popup:value});},
     downloadJson(value,tool){downloads.push({value,tool});}};
   globalThis.fetch=async(url,options)=>{
@@ -62,7 +63,7 @@ try{for(const scenario of scenarios){
     eq(options.headers['X-Monderman-Organization-Id'],org,'organization binding unchanged');
     if(scenario==='network_failure')throw new Error('MOCK network failure');
     return {ok:scenario!=='http_failure',status:scenario==='http_failure'?403:200,
-      json:async()=>scenario==='http_failure'?{error:'MOCK access denied'}:scenario==='malformed_response'?{}:{result}};
+      json:async()=>scenario==='http_failure'?{error:'MOCK access denied'}:scenario==='malformed_response'?{}:{result,savedAt}};
   };
   eq(typeof globalThis.reserveWorkspaceReportWindow,'undefined','saved-run helper unavailable in the campaign module');
   const imported=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64')+'#'+scenario);

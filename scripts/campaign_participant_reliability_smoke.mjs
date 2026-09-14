@@ -4,6 +4,7 @@ import vm from "node:vm";
 
 await import("./campaign_button_state_smoke.mjs");
 await import("./campaign_report_open_smoke.mjs");
+await import("./saved_report_date_smoke.mjs");
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const pages = [

@@ -6806,7 +6806,13 @@ const journeyReady = (async () => {
       if (!response.ok || !data.ok || !data.result || data.runId !== savedReport || (data.result.tool_type && data.result.tool_type !== 'decision_velocity')) throw new Error('saved_report_unavailable');
       // Use exactly the same saved-result renderer as Workspace, not a new score
       // or another finalization. The report endpoint owns access and claims checks.
-      let model = window.MondermanReport.fromRun(data.result);
+      // Date metadata is presentation-only; never rewrite the saved result.
+      const savedReportModel = (payload) => {
+        const r=payload.result;
+        const created_at=[r.created_at,(r.provenance||r.provenance_json)?.generated_at,r.report_provenance?.generated_at,payload.savedAt].find(value=>typeof value==="string"&&/^\d{4}-\d{2}-\d{2}(?:T|$)/.test(value)&&Number.isFinite(Date.parse(value)));
+        return window.MondermanReport.fromRun({...r,created_at});
+      };
+      let model = savedReportModel(data);
       const report = document.createElement('div');
       window.MondermanReport.render(report, model);
       panel.appendChild(report);
@@ -6817,7 +6823,7 @@ const journeyReady = (async () => {
           const saved=await response.json();
           if (state.journeyInvalidated || !response.ok || !saved.ok || saved.runId!==savedReport) throw new Error('saved_report_unavailable');
           if (saved.result.ai_report?.status==='complete') {
-            model=window.MondermanReport.fromRun(saved.result);
+            model=savedReportModel(saved);
             window.MondermanReport.render(report,model);
           }
           return saved.result;
