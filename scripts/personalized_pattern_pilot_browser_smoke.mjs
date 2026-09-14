@@ -30,7 +30,14 @@ function json(route, status, body) {
   return route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
 }
 
-const version="2026-09-09-beta", nextVersion="2026-09-10-beta";
+const legalManifest=JSON.parse(readFileSync(new URL("../legal-document-manifest.json", import.meta.url), "utf8"));
+const termsVersion=legalManifest.terms_version;
+const privacyVersion=legalManifest.privacy_notice_version;
+const previousPrivacyVersion="2026-09-11-ai-evidence-v1";
+assert.ok(legalManifest.documents[termsVersion]?.terms_file);
+assert.ok(legalManifest.documents[privacyVersion]?.privacy_notice_file);
+assert.ok(legalManifest.documents[previousPrivacyVersion]?.privacy_notice_file);
+assert.notEqual(previousPrivacyVersion,privacyVersion,"legal-drift fixture must change the Privacy Notice");
 async function observed(promise, label) {
   let timer;
   try { await Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error(`${label} was not observed`)),5000)})]); }
@@ -112,13 +119,12 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
           assert.equal(source,"signup","initial query only discovers the current documents");
           assert.equal(org,null);
         }
-        const current=source==="trial"&&scenario==="legal-drift"?nextVersion:version;
-        return json(route,200,{ok:true,enforcementActive:true,accepted:source==="signup"||trialAccepted,requiresAcceptance:source==="trial"&&!trialAccepted,organizationId:org,termsVersion:current,privacyNoticeVersion:current});
+        const currentPrivacy=source!=="trial"&&scenario==="legal-drift"?previousPrivacyVersion:privacyVersion;
+        return json(route,200,{ok:true,enforcementActive:true,accepted:source==="signup"||trialAccepted,requiresAcceptance:source==="trial"&&!trialAccepted,organizationId:org,termsVersion,privacyNoticeVersion:currentPrivacy});
       }
       if (url.pathname === "/api/legal/acceptance") {
         assert.equal(entry.method,"POST");
-        const current=scenario==="legal-drift"?nextVersion:version;
-        assert.deepEqual(entry.body,{agreed:true,source:"trial",organization_id:selectedOrg,terms_version:current,privacy_notice_version:current},"acceptance must be affirmative and trial-, organization-, and version-specific");
+        assert.deepEqual(entry.body,{agreed:true,source:"trial",organization_id:selectedOrg,terms_version:termsVersion,privacy_notice_version:privacyVersion},"acceptance must be affirmative and trial-, organization-, and version-specific");
         assert.ok(trialStatusCount>0,"agreement must follow tenant-bound trial status");
         if(scenario==="acceptance-failed") return json(route,503,{ok:false,error:"legal_acceptance_failed"});
         trialAccepted=true;
@@ -195,8 +201,8 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
         await page.getByText("This Pattern trial will start for Existing Workspace.").waitFor();
         assert.equal(await page.locator("#workspaceBootstrap").isHidden(), true, `${browserName}: existing account was asked to create another Workspace`);
       }
-      assert.equal(await page.locator("#trialTermsLink").getAttribute("href"),`terms-${version}.html`);
-      assert.equal(await page.locator("#trialPrivacyLink").getAttribute("href"),`privacy-${version}.html`);
+      assert.equal(await page.locator("#trialTermsLink").getAttribute("href"),legalManifest.documents[termsVersion].terms_file);
+      assert.equal(await page.locator("#trialPrivacyLink").getAttribute("href"),legalManifest.documents[scenario==="legal-drift"?previousPrivacyVersion:privacyVersion].privacy_notice_file);
       await noMutation();
       assert.equal(await page.locator("#ackStart").isChecked(),false);
       assert.equal(await page.locator("#startBtn").isDisabled(),true);
@@ -230,8 +236,8 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
         await noMutation();
         assert.equal(await page.locator("#ackStart").isChecked(),false);
         assert.equal(await page.locator("#startBtn").isDisabled(),true);
-        assert.equal(await page.locator("#trialTermsLink").getAttribute("href"),`terms-${nextVersion}.html`);
-        assert.equal(await page.locator("#trialPrivacyLink").getAttribute("href"),`privacy-${nextVersion}.html`);
+        assert.equal(await page.locator("#trialTermsLink").getAttribute("href"),legalManifest.documents[termsVersion].terms_file);
+        assert.equal(await page.locator("#trialPrivacyLink").getAttribute("href"),legalManifest.documents[privacyVersion].privacy_notice_file);
         await page.locator("#ackStart").check();
         await page.locator("#startBtn").click();
       }

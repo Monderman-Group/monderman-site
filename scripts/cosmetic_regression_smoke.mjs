@@ -54,6 +54,7 @@ const articleReadingViewports = [
   { width: 1024, height: 900 },
   { width: 1100, height: 900 },
   { width: 1280, height: 900 },
+  { width: 1440, height: 900 },
 ];
 
 function noPageOverflow(result, label) {
@@ -216,21 +217,33 @@ for (const [browserName, browserType] of browserMatrix) {
     const articleBrowser = browserName === 'webkit' ? await browserType.launch({ headless: true }) : browser;
     for (const viewport of articleReadingViewports) {
       for (const pageName of articlePages) {
+        // Each reading size starts in its own page, like the other viewport
+        // cases; do not reuse native scroll state across synthetic font edits.
+        for (const fontSize of ['1.425rem', '1.9rem']) {
         const page = await newLocalPage(articleBrowser, { viewport, javaScriptEnabled: false });
-        await page.goto(`${base}/${pageName}`, { waitUntil: 'commit', timeout: 30000 });
+        await page.goto(`${base}/${pageName}`, { waitUntil: 'load', timeout: 30000 });
         await page.locator('.lens-matrix').waitFor({ state: 'attached', timeout: 10000 });
-        await page.waitForTimeout(150);
-        const result = await page.evaluate(() => {
+        await page.evaluate(async () => { await document.fonts.ready; });
+        const result = await page.evaluate(fontSize => {
           const matrix = document.querySelector('.lens-matrix');
-          matrix.style.fontSize = '1.425rem';
+          matrix.style.fontSize = fontSize;
           const cells = [...matrix.querySelectorAll('td')];
           const diagnosticLabels = [...matrix.querySelectorAll('td:first-child strong')];
           const content = document.querySelector('.article-layout > .content');
+          const region = matrix.closest('.lens-matrix-region');
+          const regionBox = region.getBoundingClientRect();
+          const contentBox = content.getBoundingClientRect();
           return {
             clientWidth: document.documentElement.clientWidth,
             scrollWidth: document.documentElement.scrollWidth,
             contentWidth: Math.round(content.getBoundingClientRect().width),
             matrixWidth: Math.round(matrix.getBoundingClientRect().width),
+            regionContained: regionBox.left >= contentBox.left && regionBox.right <= contentBox.right,
+            regionOverflow: getComputedStyle(region).overflowX,
+            regionRole: region.getAttribute('role'),
+            regionLabel: region.getAttribute('aria-label'),
+            regionTabIndex: region.tabIndex,
+            needsScroll: region.scrollWidth > region.clientWidth + 1,
             cellWidths: cells.map(cell => Math.round(cell.getBoundingClientRect().width)),
             cellScrollWidths: cells.map(cell => cell.scrollWidth),
             overflowWrap: cells.map(cell => getComputedStyle(cell).overflowWrap),
@@ -247,8 +260,14 @@ for (const [browserName, browserType] of browserMatrix) {
               };
             }),
           };
-        });
-        noPageOverflow(result, `${browserName}/${viewport.width}/${pageName}/enlarged-text`);
+        }, fontSize);
+        noPageOverflow(result, `${browserName}/${viewport.width}/${pageName}/enlarged-text/${fontSize}`);
+        assert.ok(result.regionContained, 'The comparison scroll region escapes the article card');
+        assert.equal(result.regionOverflow, 'auto');
+        assert.equal(result.regionRole, 'region');
+        assert.equal(result.regionLabel, 'Compare the four diagnostics');
+        assert.equal(result.regionTabIndex, 0);
+        assert.equal(result.needsScroll, false, 'Article comparisons must reflow without horizontal scrolling');
         assert.ok(result.matrixWidth >= 500,
           `${browserName}/${viewport.width}/${pageName}: lens matrix remains too narrow (${result.matrixWidth}px)`);
         assert.ok(Math.min(...result.cellWidths) >= 135,
@@ -265,10 +284,11 @@ for (const [browserName, browserType] of browserMatrix) {
           + JSON.stringify(result.diagnosticLabelBounds));
         if (viewport.width === 1024 && pageName === 'structural-clarity-article.html') {
           await page.locator('.lens-matrix').screenshot({
-            path: path.join(out, `lens-matrix-enlarged-${browserName}-1024.png`),
+            path: path.join(out, `lens-matrix-enlarged-${browserName}-1024-${fontSize}.png`),
           });
         }
         await page.close();
+        }
       }
     }
     if (articleBrowser !== browser) await articleBrowser.close();

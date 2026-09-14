@@ -17,6 +17,16 @@ const dv=fs.readFileSync(path.join(root,'decision-velocity.html'),'utf8');
 const viz=fs.readFileSync(path.join(root,'monderman-viz.js'),'utf8');
 const renderer=fs.readFileSync(path.join(root,'monderman-report.js'),'utf8');
 const fixture=JSON.parse(fs.readFileSync(path.join(root,'test-fixtures/sc-favorable-presentation.json')));
+// PDF extraction inserts whitespace within NHG glyph runs. Tolerate whitespace
+// only; preserve every other character and require the whole final paragraph on
+// the final page. Joining pages would conceal a genuine pagination regression.
+const compact=text=>String(text).replace(/\s+/g,'');
+const boundaryOnFinalPage=(pages,boundary)=>Boolean(compact(boundary))&&compact(pages.at(-1)||'').includes(compact(boundary));
+assert.equal(boundaryOnFinalPage(['The answ ers show how conditions apply.'],'The answers show how conditions apply.'),true);
+assert.equal(boundaryOnFinalPage(['The answers show how','conditions apply.'],'The answers show how conditions apply.'),false);
+assert.equal(boundaryOnFinalPage(['The answers show how conditions apply.','Other text.'],'The answers show how conditions apply.'),false);
+assert.equal(boundaryOnFinalPage(['The answers show conditions apply.'],'The answers show how conditions apply.'),false);
+assert.equal(boundaryOnFinalPage(['Anything.'],''),false);
 assert.equal(fixture.syntheticOnly,true);assert.equal(fixture.paidCalls,0);
 const run=fixture.rendererInput.value,unchanged=JSON.stringify(run);
 assert.equal(run.score,92);assert.equal(run.canonical_composition,undefined);
@@ -105,7 +115,7 @@ try{
  assert.ok(pages.some(t=>/Monitoring priorities and options/i.test(t)&&/Review order and clarity indicators/i.test(t)),'Priority introduction separated from its chart');
  assert.doesNotMatch(pages.join('\n'),/Who has the authority to change|Name one accountable owner for Role|suggests issues to investigate/);
  assert.match(pages.at(-1),/Next decision/i,'Interpretation boundary orphaned on a separate page');
- assert.ok(pages.at(-1).includes(expectedBoundary),'Final interpretation boundary is missing or split');
+ assert.ok(boundaryOnFinalPage(pages,expectedBoundary),'Final interpretation boundary is missing or split');
  fs.writeFileSync(path.join(out,'pages.json'),JSON.stringify(pages,null,2));evidence.pdfPages=pages.length;
  }
  assert.equal(JSON.stringify(run),unchanged);assert.deepEqual(evidence.errors,[]);evidence.passed=true;console.log(JSON.stringify(evidence));

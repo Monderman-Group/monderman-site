@@ -558,7 +558,9 @@
     }
 
 
-    .lens-matrix { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 1.75rem 0; font-size: 0.95rem; }
+    .lens-matrix { width: 100%; border-collapse: collapse; table-layout: auto; margin: 1.75rem 0; font-size: 0.95rem; }
+    .lens-matrix-region { max-width: 100%; overflow-x: auto; margin: 1.75rem 0; }
+    .lens-matrix-region .lens-matrix { margin: 0; }
     .lens-matrix th, .lens-matrix td { text-align: left; padding: 0.85rem 0.5rem; border-bottom: 1px solid rgba(8,56,62,0.10); vertical-align: top; overflow-wrap: normal; word-break: normal; hyphens: none; }
     .lens-matrix th:nth-child(1), .lens-matrix td:nth-child(1) { width: 30%; }
     .lens-matrix th:nth-child(2), .lens-matrix td:nth-child(2) { width: 29%; }
@@ -567,7 +569,7 @@
     .lens-matrix td strong { color: #0f1720; }
     .lens-matrix tbody tr:last-child td { border-bottom: none; }
     .lens-matrix-self { background: rgba(12,110,120,0.07); }
-    .lens-matrix-self td:first-child strong { color: #3f6ea1; }
+    .lens-matrix-self td:first-child strong { color: var(--accent); }
     .figure-note {
       margin-top: 14px;
       font-size: 0.88rem;
@@ -768,11 +770,13 @@
       .sidebar-card { min-height: 0; }
     }
 
-    @media (max-width: 720px) {
+    /* The article column is narrow even on desktop. Keep the comparison in
+       labelled reading rows so enlarged text does not require side-scrolling. */
       .lens-matrix,
       .lens-matrix tbody,
       .lens-matrix tr,
       .lens-matrix td { display: block; width: 100%; }
+      .lens-matrix td:nth-child(n) { width: 100%; }
       .lens-matrix { table-layout: auto; }
       .lens-matrix thead {
         position: absolute;
@@ -813,6 +817,7 @@
       .lens-matrix tbody tr:last-child td:not(:last-child) { border-bottom: 1px solid rgba(8,56,62,0.08); }
       .lens-matrix td:last-child { border-bottom: 0; }
 
+    @media (max-width: 720px) {
       .header-inner,
       .hero-inner,
       .article-inner,
@@ -1196,6 +1201,7 @@
           <p>
             Monderman’s four diagnostics cover different aspects of work. Each result reflects the submitted answers and selected role, not a complete assessment of the organization.
           </p>
+          <div class="lens-matrix-region" role="region" aria-label="Compare the four diagnostics" tabindex="0">
           <table class="lens-matrix">
             <thead>
               <tr><th>Diagnostic</th><th>Business focus</th><th>What it examines</th></tr>
@@ -1223,6 +1229,7 @@
               </tr>
             </tbody>
           </table>
+          </div>
           <p>
             Operational Systems focuses on unnecessary process work. The other diagnostics examine responsibilities and authority, decision delays, and consistent delivery and adaptation. A finding in one lens does not establish the cause of a finding in another.
           </p>
