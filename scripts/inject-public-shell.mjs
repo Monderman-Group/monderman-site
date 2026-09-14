@@ -25,7 +25,7 @@ const assetReleases = Object.freeze({
   "sample-report-production.js": "20260914-mixed-origin1",
   "campaign-analysis.js": "20260913.34",
   "campaign-analysis.css": "20260913.34",
-  "homepage-workspace-demo.css": "20260913-cosmetic1",
+  "homepage-workspace-demo.css": "20260914-preview-static1",
   "sample-report-production.css": "20260913.32",
 });
 const assistantRelease = "20260910-bounded-chat1";

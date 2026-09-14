@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import vm from 'node:vm';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {chromium,webkit} from 'playwright';
@@ -24,10 +25,70 @@ const sourceFiles=['index.html','diagnostics.html','workspace-diagnostics.html',
   'site-shell/footer.html','scripts/templates/home-workspace-preview.html',...descriptions.map(row=>row[2]),
   'roi.html','platform-services.html','plan-signal.html','plan-pattern.html'];
 const protectedFiles=['structural-clarity.html','decision-velocity.html','operational-systems.html','institutional-performance.html',
-  'monderman-report.js','public-sample-model.js','sample-report-production.js','sample-data/production-diagnostic-samples.json'];
+  'monderman-report.js','public-sample-model.js','sample-report-production.js','sample-data/production-diagnostic-samples.json',
+  'homepage-workspace-demo.js','homepage-workspace-demo.css','canonical-site-shell.js','canonical-site-shell.css','scripts/inject-public-shell.mjs'];
 const hashes=Object.fromEntries([...sourceFiles,...protectedFiles].map(file=>[file,sha(fs.readFileSync(path.join(root,file)))]));
 let checks=0,blockedRequests=0;const check=(value,message)=>{assert.ok(value,message);checks++;};
 const eq=(value,expected,message)=>{assert.deepEqual(value,expected,message);checks++;};
+const settledHeaderState=()=>{
+  const header=document.getElementById('siteHeader');
+  return Boolean(header&&scrollY>24&&header.classList.contains('scrolled')&&
+    Math.abs(header.getBoundingClientRect().top)<=1&&
+    getComputedStyle(header).backgroundColor==='rgba(4, 24, 27, 0.96)'&&
+    header.getAnimations().every(a=>!a.pending&&['finished','idle'].includes(a.playState)));
+};
+const settledPreviewState=id=>{
+  const app=document.querySelector('[data-workspace-demo]');if(!app)return false;
+  const tabs=[...app.querySelectorAll('[role="tab"]')],panels=[...app.querySelectorAll('[role="tabpanel"]')];
+  const selected=tabs.filter(t=>t.getAttribute('aria-selected')==='true');
+  const visible=panels.filter(p=>!p.hidden&&getComputedStyle(p).display!=='none'&&p.getClientRects().length>0);
+  if(tabs.length!==4||panels.length!==4||selected.length!==1||selected[0].id!=='hwd-tab-'+id||
+    selected[0].tabIndex!==0||selected[0].getAttribute('aria-controls')!=='hwd-panel-'+id||
+    visible.length!==1||visible[0].id!=='hwd-panel-'+id||
+    tabs.some(t=>t!==selected[0]&&(t.getAttribute('aria-selected')!=='false'||t.tabIndex!==-1))||
+    panels.some(p=>p!==visible[0]&&!p.hidden))return false;
+  const paragraphs=[...visible[0].querySelectorAll('p')].filter(p=>p.getClientRects().length>0);
+  return paragraphs.length>0&&paragraphs.every(p=>{
+    const style=getComputedStyle(p);
+    return style.opacity==='1'&&style.transform==='none'&&style.visibility==='visible'&&
+      p.getAnimations().every(a=>!a.pending&&['finished','idle'].includes(a.playState));
+  });
+};
+async function settledPaint(page,predicate,arg){
+  await page.waitForFunction(predicate,arg,{timeout:10000});
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+  check(await page.evaluate(predicate,arg),'Exact settled state survives two animation frames');
+}
+const staticPreviewRule='body.homepage-enterprise .hwd-app p { animation:none !important; opacity:1 !important; transform:none !important; will-change:auto; }';
+eq(read('homepage-workspace-demo.css').split(staticPreviewRule).length-1,1,'Only interactive preview paragraphs suppress inherited hero-entry animation');
+check(read('index.html').includes('animation: heroFadeUp 900ms cubic-bezier(0.22,1,0.36,1) forwards;'),'Other hero entrance motion remains');
+eq(read('homepage-workspace-demo.js'),execFileSync('git',['show','HEAD:homepage-workspace-demo.js'],{cwd:root,encoding:'utf8'}),'Actual tab behavior is unchanged');
+eq(read('canonical-site-shell.js'),execFileSync('git',['show','HEAD:canonical-site-shell.js'],{cwd:root,encoding:'utf8'}),'Header state logic is unchanged');
+check(read('index.html').includes('homepage-workspace-demo.css?v=20260914-preview-static1'),'Source preview stylesheet cache advances');
+check(read('scripts/inject-public-shell.mjs').includes('"homepage-workspace-demo.css": "20260914-preview-static1"'),'Built preview stylesheet cache advances');
+// Exercise the actual browser predicates offline; geometry alone cannot admit
+// an unselected panel, unfinished animation, transparent header or missing text.
+function predicateFixture(){
+  const header={classList:{contains:()=>true},getBoundingClientRect:()=>({top:0}),getAnimations:()=>[],style:{backgroundColor:'rgba(4, 24, 27, 0.96)'}};
+  const paragraphs=[{getClientRects:()=>[{}],getAnimations:()=>[],style:{opacity:'1',transform:'none',visibility:'visible'}}];
+  const ids=['measure','analysis','actions','return'];
+  const tabs=ids.map(id=>({id:'hwd-tab-'+id,tabIndex:id==='measure'?0:-1,attrs:{'aria-selected':String(id==='measure'),'aria-controls':'hwd-panel-'+id},getAttribute(k){return this.attrs[k];}}));
+  const panels=ids.map(id=>({id:'hwd-panel-'+id,hidden:id!=='measure',style:{display:'block'},getClientRects:()=>[{}],querySelectorAll:()=>paragraphs}));
+  const app={querySelectorAll:s=>s==='[role="tab"]'?tabs:panels};
+  return {header,paragraphs,tabs,panels,context:{scrollY:100,getComputedStyle:n=>n.style,document:{getElementById:()=>header,querySelector:()=>app}}};
+}
+const runPredicate=(fn,f,arg)=>vm.runInNewContext('('+fn.toString()+')('+JSON.stringify(arg)+')',f.context);
+eq(runPredicate(settledHeaderState,predicateFixture()),true);eq(runPredicate(settledPreviewState,predicateFixture(),'measure'),true);
+for(const mutate of [f=>f.context.scrollY=24,f=>f.header.style.backgroundColor='rgba(4, 24, 27, 0)',f=>f.header.classList.contains=()=>false,
+  f=>f.header.getAnimations=()=>[{playState:'running'}],f=>f.header.getAnimations=()=>[{playState:'finished',pending:true}]]){
+  const f=predicateFixture();mutate(f);eq(runPredicate(settledHeaderState,f),false,'Premature header state rejected');
+}
+for(const mutate of [f=>f.tabs[3].attrs['aria-selected']='true',f=>f.tabs[0].attrs['aria-controls']='hwd-panel-return',
+  f=>f.panels[1].hidden=false,f=>f.tabs[3].tabIndex=0,f=>f.paragraphs[0].style.opacity='0',
+  f=>f.paragraphs[0].style.visibility='hidden',f=>f.paragraphs[0].getAnimations=()=>[{playState:'running'}],
+  f=>f.paragraphs[0].getClientRects=()=>[]]){
+  const f=predicateFixture();mutate(f);eq(runPredicate(settledPreviewState,f,'measure'),false,'Premature preview state rejected');
+}
 // Scan every visible section and metadata description, not just the hero.
 // These old affirmative product promises are not part of a single-run report.
 const obsoleteArticleClaims=/\b(?:recoverable|reclaim(?:ed|able)?|reclaim potential|benchmarks?|trajectory|clock speed|pathway problem|condition beneath|compensatory|coherence diagnosis|organizational readout)\b/i;
@@ -210,14 +271,17 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
       }
       if(file==='index.html'){
         eq(await page.locator('.hwd-diagnostic p').allTextContents(),descriptions.map(row=>row[1]),'Preview labels rendered');
-        for(const id of ['measure','analysis','actions','return']){await page.locator('#hwd-tab-'+id).click();check(await page.locator('#hwd-panel-'+id).isVisible(),'Preview still navigates: '+id);}
-        await page.locator('#hwd-tab-measure').click();
+        for(const id of ['measure','analysis','actions','return','measure']){
+          await page.locator('#hwd-tab-'+id).click();await settledPaint(page,settledPreviewState,id);
+          check(await page.locator('#hwd-panel-'+id).isVisible(),'Preview still navigates: '+id);
+        }
         check(await page.locator('.hwd-diagnostic p').evaluateAll(nodes=>nodes.every(node=>node.scrollWidth<=node.clientWidth+1)),'Longer canonical labels do not overflow');
         if(width===390||width===1440){const fileName=`${name}-${width}-homepage.png`;await page.screenshot({path:path.join(out,fileName)});screenshots.push(fileName);}
       }
       if(file==='diagnostics.html'){
         await page.goto(origin+'/diagnostics.html#methodology-and-sources',{waitUntil:'load'});
-        await page.waitForFunction(()=>scrollY<=24||document.querySelector('#siteHeader')?.classList.contains('scrolled'));
+        await page.evaluate(()=>document.fonts.ready);
+        await settledPaint(page,settledHeaderState);
         const section=page.locator('#methodology-and-sources');
         const geometry=await section.evaluate(el=>({top:el.getBoundingClientRect().top,header:document.querySelector('#siteHeader')?.getBoundingClientRect().bottom||0,
           outside:[...el.querySelectorAll('h2,h3,p,a')].filter(node=>{const r=node.getBoundingClientRect();return r.left<-1||r.right>innerWidth+1;}).length,
@@ -242,6 +306,7 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
         check(focusedGeometry.linkTop>=focusedGeometry.headerBottom-1&&focusedGeometry.linkBottom<=focusedGeometry.height+1,
           'Focused methodology link stays in the actual viewport without header overlap');
         check(focusedGeometry.headerTop>=-1&&focusedGeometry.headerTop<=1,'Fixed header remains at actual viewport top');
+        await settledPaint(page,settledHeaderState);
         const viewportAfter=`${name}-${width}-methodology-viewport-after-focus.png`;
         await page.screenshot({path:path.join(out,viewportAfter)});screenshots.push(viewportAfter);
         const fileName=`${name}-${width}-methodology.png`;await section.screenshot({path:path.join(out,fileName)});screenshots.push(fileName);
