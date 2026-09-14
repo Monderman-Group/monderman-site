@@ -107,7 +107,24 @@ try{
  }
  if(engine==='chromium'){
  const expectedBoundary=(await page.locator('.mr-report-boundary p:last-child').innerText()).replace(/\s+/g,' ').trim();
- await page.emulateMedia({media:'print'});await page.pdf({path:path.join(out,'report.pdf'),format:'Letter',preferCSSPageSize:true,printBackground:true});
+ await page.emulateMedia({media:'print'});
+ // Letter at the renderer's 60pt margins provides 656 x 896 CSS pixels.
+ // Measure the complete atomic closing unit at that width before printing:
+ // Linux previously printed its bottom border on an otherwise empty page.
+ assert.match(renderer,/@page\{size:Letter;margin:60pt\}/);
+ await page.setViewportSize({width:656,height:896});
+ await page.evaluate(async()=>{await document.fonts.ready});
+ evidence.printClosing=await page.locator('.mr-run-close-group').evaluate(e=>({
+  width:e.getBoundingClientRect().width,height:e.getBoundingClientRect().height,
+  paragraphFont:parseFloat(getComputedStyle(e.querySelector('.mr-report-boundary p:last-child')).fontSize),
+  printableHeight:896,reservedClearance:16
+ }));
+ assert.ok(evidence.printClosing.height<=880,'Closing unit needs at least 16px of printable-page clearance: '+JSON.stringify(evidence.printClosing));
+ assert.ok(evidence.printClosing.paragraphFont>=13.3,'Closing wording must remain at least 10pt');
+ // Preserve the original failing PDF invocation after the extra measurement.
+ await page.setViewportSize({width:1440,height:1000});
+ await page.evaluate(async()=>{await document.fonts.ready});
+ await page.pdf({path:path.join(out,'report.pdf'),format:'Letter',preferCSSPageSize:true,printBackground:true});
  const pdf=spawnSync(process.env.PDF_PYTHON||'python3',['-c','import sys,json;from pypdf import PdfReader;print(json.dumps([p.extract_text() or "" for p in PdfReader(sys.argv[1]).pages]))',path.join(out,'report.pdf')],{encoding:'utf8',maxBuffer:8*1024*1024});assert.equal(pdf.status,0,pdf.stderr);
  const pages=JSON.parse(pdf.stdout).map(t=>t.replace(/\s+/g,' ').trim());assert.ok(pages.length>1&&pages.length<40);assert.ok(pages.every(t=>t.length>20));
  assert.match(pages.join('\n'),/Clarity indicator distribution/i);assert.match(pages.join('\n'),/Monitoring priorities/i);

@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260914.42";
+  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260914.43";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -2452,13 +2452,14 @@
       /* One atomic print unit: Linux Chromium otherwise fragments the final
          grid paragraph even when sibling keep-together rules are present. */
       .mr-run-close-group{display:inline-block;width:100%;vertical-align:top;break-inside:avoid;page-break-inside:avoid}
-      .mr-run-close-group>.mr-leadership-close{margin-top:0!important}
+      .mr-run-close-group>.mr-leadership-close{margin-top:0!important;padding:14px 24px!important}
       .mr-leadership-close>h2{font-size:22pt!important;line-height:1.12!important;max-width:none!important}
       .mr-leadership-close p,.mr-leadership-close li,.mr-leadership-close li span{font-size:10pt!important;line-height:1.45!important}
       .mr-leadership-close{break-after:avoid;page-break-after:avoid}
       .mr-leadership-close+.mr-report-boundary{break-before:avoid;page-break-before:avoid}
       .mr-leadership-close-grid{grid-template-columns:1.05fr .95fr;gap:22px}
       .mr-leadership-sequence li{padding-bottom:12px}
+      .mr-run-close-group .mr-leadership-sequence li{padding-bottom:8px}
       .mr-remeasurement-note{margin-top:16px;padding:12px 14px}
       .mr-report .mr-report-boundary{margin-top:16px;padding:12px 16px}
       .mr-report-boundary p:last-child{font-size:10pt!important;line-height:1.45!important}
