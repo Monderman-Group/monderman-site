@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {chromium,webkit} from 'playwright';
+import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 const origin='http://127.0.0.1:49876';
@@ -13,12 +14,19 @@ const out=arg?arg.slice(9):fs.mkdtempSync('/tmp/sample-marketing-hover-');
 if(arg){assert.ok(path.isAbsolute(out),'Output must be a fresh absolute directory');fs.mkdirSync(out,{mode:0o700});}
 const sha=value=>createHash('sha256').update(value).digest('hex');
 const artifactPath=path.join(root,'sample-data/production-diagnostic-samples.json');
-const artifactBytes=fs.readFileSync(artifactPath),artifact=JSON.parse(artifactBytes);
+const artifactBytes=fs.readFileSync(artifactPath),{artifact}=readPublicSampleFixture({root});
 const tracked=['index.html','sample-report.html','homepage-workspace-demo.css','homepage-workspace-demo.js',
   'sample-report-production.css','sample-report-production.js','scripts/refresh_public_sample_previews.mjs','scripts/templates/home-workspace-preview.html'];
 const sourceHashes=Object.fromEntries(tracked.map(file=>[file,sha(fs.readFileSync(path.join(root,file)))]));
 const disclosure='These reports use realistic example responses to demonstrate Monderman’s analysis and reporting.';
-const caption='Based on the assumptions shown in the report, before subscription and implementation costs.';
+const money=value=>value.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+const scenario=artifact.outputs.depth_synthesis.source.financial_scenario;
+assert.equal(scenario.method.usesDiagnosticScores,false);
+assert.equal(scenario.method.isConfidenceInterval,false);
+const range=key=>money(scenario.totals[key].low)+' to '+money(scenario.totals[key].high);
+const dv=artifact.outputs.decision_velocity.source;
+const recordedBurdens=Object.entries(dv.burden_breakdown).filter(([,value])=>typeof value==='number').sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,3);
+assert.ok(recordedBurdens.length>0);
 const rows=[],screenshots=[];let checks=0,blockedRemoteRequests=0;
 const check=(value,message)=>{assert.ok(value,message);checks++;};
 const equal=(a,b,message)=>{assert.deepEqual(a,b,message);checks++;};
@@ -88,11 +96,17 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     equal(await page.locator('.home-output-copy>a').getAttribute('href'),'sample-report.html');
     equal(await page.locator('#sample-output .hero-report-link').getAttribute('href'),'sample-report.html#depth');
     equal(await page.locator('[data-demo-score]').textContent(),String(artifact.outputs.decision_velocity.source.score));
-    equal(await page.locator('[data-demo-recovery]').textContent(),'$'+artifact.outputs.decision_velocity.source.exposure.recoverable_cost.toLocaleString('en-US'));
-    equal(await page.locator('.hwd-reading>p').textContent(),caption);
-    equal(await page.locator('.md-opportunity>p').textContent(),caption);
-    check((await page.locator('.md-basis').textContent()).includes('median of submitted estimates, not their sum'),'Median scenario method retained');
-    check((await page.locator('.home-preview-method').textContent()).includes('not a measured saving'),'Financial assumption method retained');
+    equal(await page.locator('[data-demo-recovery]').count(),0,'Single-run recovery figure must remain absent');
+    equal(await page.locator('[data-demo-focus]').getAttribute('data-demo-focus'),recordedBurdens[0][0]);
+    equal(await page.locator('[data-demo-focus]').textContent(),recordedBurdens[0][1]+' / 100');
+    equal(await page.locator('[data-demo-burden]').allTextContents(),recordedBurdens.map(([,value])=>String(value)));
+    equal(await page.locator('.hwd-reading>p').textContent(),'Highest recorded burden indicator in this participant’s result. Not time, cost or savings.');
+    equal(await page.locator('[data-promo-capacity]').textContent(),range('capacityValue'));
+    equal(await page.locator('[data-promo-net-cash]').textContent(),range('netCashEffect'));
+    equal(await page.locator('[data-promo-total-cost]').textContent(),range('totalImplementationAndSubscriptionCost'));
+    equal(await page.locator('.md-opportunity>p').textContent(),'Potential staff capacity value, not cash savings. User-specified low to high scenarios, not a forecast.');
+    check((await page.locator('.md-basis').textContent()).includes(scenario.inputs.measuredPeople+' people over '+scenario.method.measurementDays+' measured days'),'Separate operational measurement basis retained');
+    check((await page.locator('.home-preview-method').textContent()).includes('do not measure hours, organizational cost or savings'),'Single-run financial boundary retained');
     check(!/fictional|generated sample|illustrative interface/i.test(await page.locator('.home-workspace-preview').textContent()),'Repeated preview caveats removed');
     const heroStates=await buttonStates(page,'.hero-actions .btn-accent',key+'-home-cta',{normal:'rgb(169, 208, 212)',hover:'rgb(196, 225, 227)',text:'rgb(4, 24, 27)'});
     const panels=[];
@@ -130,10 +144,10 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     await shot(readingGuide,key+'-reading-guide.png');
     await readingGuide.locator('summary').focus();await page.keyboard.press('Enter');
     equal(await readingGuide.getAttribute('open'),null,key+' reading guide closes from keyboard');
-    // The current repository's historical v2 sample remains correctly rejected.
-    // Exercise toolbar mechanics with its exact saved source in a separate,
-    // explicitly local mount; never fabricate a completed v3 publication.
-    if(artifact.contract!=='monderman-public-product-samples/v3')equal(await page.locator('.psr-load-error').count(),6,'Historical artifact stays fail-closed');
+    await page.waitForFunction(()=>document.querySelectorAll('.psr-wrap').length===6);
+    equal(await page.locator('.psr-load-error').count(),0,'All six reviewed public reports load');
+    // Intercept downloads only to check toolbar wiring against the exact
+    // reviewed source/model. This does not claim a downloaded PDF was inspected.
     const mounted=await page.evaluate(artifact=>{
       const entry=artifact.outputs.operational_systems,model=MondermanReport.fromRun(entry.source);
       model.sampleProvenance={synthetic:true,...entry.provenance};
@@ -142,7 +156,7 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
       MondermanReport.downloadHtml=value=>calls.push({kind:'html',same:value===model});
       MondermanReport.downloadJson=value=>calls.push({kind:'json',same:value===entry.source});
       MondermanSampleReportShell.mount({shell:document.getElementById('report-os'),model,source:entry.source,
-        sourceKey:'operational_systems',toolbarLabel:'Local display check',provenance:'Exact saved legacy source; no current-sample publication or AI-quality claim.'});
+        sourceKey:'operational_systems',toolbarLabel:'Local display check',provenance:'Exact reviewed source; local toolbar-wiring check only.'});
       return {sourceScore:entry.source.score,modelScore:model.score};
     },artifact);
     equal(mounted.sourceScore,mounted.modelScore,'Read-only fixture score preserved');
@@ -156,7 +170,7 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     equal(await page.evaluate(()=>__marketingUI.calls),[{kind:'pdf',same:true},{kind:'html',same:true},{kind:'json',same:true}],'All original download callbacks remain attached to unchanged source/model');
     await contained(page,'#report-os .psr-toolbar',key+' toolbar');await shot(page.locator('#report-os .psr-toolbar'),key+'-toolbar.png');
     equal(errors,[],key+' sample page script errors');
-    rows.push({engine,width,heroStates,libraryStates,pdfStates,nextStates,outputLinkStates,libraryLinkStates,panels,localLegacyDisplayOnly:true});await page.close();
+    rows.push({engine,width,heroStates,libraryStates,pdfStates,nextStates,outputLinkStates,libraryLinkStates,panels,localDisplayOnly:true});await page.close();
   }}finally{await browser.close();}
 }
 equal(sha(fs.readFileSync(artifactPath)),sha(artifactBytes),'Actual artifact bytes unchanged');

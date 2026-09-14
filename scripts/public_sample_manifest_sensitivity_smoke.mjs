@@ -118,8 +118,16 @@ for(const key of ['depth_synthesis','cross_lens_synthesis']) {
   }));
   cases.push(artifactMutation(key+'-compounded-economics',a=>{
     const r=result(a.outputs[key]),e=r.pathway_exposure||r.compounded_exposure;
-    assert.ok(['available','partial'].includes(e.status));assert.equal(e.not_compounded,true);e.not_compounded=false;
+    assert.equal(e.status,'withheld');assert.equal(e.not_compounded,true);e.not_compounded=false;
     // Do not invent a favorable estimate: change only the non-compounding guard.
+  }));
+  cases.push(artifactMutation(key+'-score-derived-financials',a=>{
+    const r=result(a.outputs[key]);assert.equal(r.financial_scenario.method.usesDiagnosticScores,false);
+    r.financial_scenario.method.usesDiagnosticScores=true;
+  }));
+  cases.push(artifactMutation(key+'-scenario-value-drift',a=>{
+    const totals=result(a.outputs[key]).financial_scenario.totals;
+    assert.equal(typeof totals.capacityValue.central,'number');totals.capacityValue.central+=1;
   }));
 }
 cases.push(
@@ -147,10 +155,10 @@ for(const name of sourceNames) {
     },
   });
 }
-// Four score cases, five bindings per product, three per Synthesis, nine
+// Four score cases, five bindings per product, five per Synthesis, nine
 // release-level cases, plus manifest/content drift for all six display files.
-assert.equal(cases.length,4+5*6+3*2+9+2*sourceNames.length,'bounded sensitivity inventory changed; review before expanding');
-assert.equal(cases.length,61,'review the six-source sensitivity inventory before expanding');
+assert.equal(cases.length,4+5*6+5*2+9+2*sourceNames.length,'bounded sensitivity inventory changed; review before expanding');
+assert.equal(cases.length,65,'review the six-source sensitivity inventory before expanding');
 assert.equal(new Set(cases.map(item=>item.label)).size,cases.length);
 try {
   const baseline=run(prepare('baseline'));

@@ -1,11 +1,20 @@
 import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
+import {createHash} from 'node:crypto';
 import {readPublicSampleFixture,publicResult} from './public_sample_fixture.mjs';
 
 const base = process.env.SAMPLE_BASE || 'http://127.0.0.1:8080';
 const out = process.env.SAMPLE_OUT || '/tmp/sample-product-fidelity-smoke';
 fs.mkdirSync(out, { recursive: true });
+// Verify the public SDK against the page's SRI before replaying it locally.
+// No live authentication or application-service request belongs in this test.
+const sdkUrl='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0';
+const sdkResponse=await fetch(sdkUrl);
+if(!sdkResponse.ok)throw Error('Public SDK download failed');
+const sdk=Buffer.from(await sdkResponse.arrayBuffer());
+const sdkIntegrity='sha384-'+createHash('sha384').update(sdk).digest('base64');
+if(!fs.readFileSync('sample-report.html','utf8').includes('src="'+sdkUrl+'" integrity="'+sdkIntegrity+'"'))throw Error('Public SDK integrity differs from sample-report.html');
 
 // A stale or unapproved artifact must fail before browser layout is mistaken
 // for current-output fidelity. Never repin or replace it with mocked prose.
@@ -49,6 +58,8 @@ async function emulateMediaAndSettle(page, media) {
 
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 1100 } });
+await page.context().route('**/*',route=>new URL(route.request().url()).origin===new URL(base).origin?route.continue():route.abort());
+await page.context().route(sdkUrl,route=>route.fulfill({contentType:'text/javascript',body:sdk,headers:{'Access-Control-Allow-Origin':'*'}}));
 const errors = [];
 page.on('pageerror', error => errors.push(`pageerror: ${error.message}`));
 page.on('console', message => {
@@ -57,7 +68,7 @@ page.on('console', message => {
 // Downloadable report HTML points to the production font URLs. The localhost
 // certification server should exercise the same files without relying on the
 // live site's cross-origin font policy.
-await page.route(/^https:\/\/www\.monderman\.com\/(55|65|75)font\.woff2$/, async route => {
+await page.context().route(/^https:\/\/www\.monderman\.com\/(55|65|75)font\.woff2$/, async route => {
   const filename = new URL(route.request().url()).pathname.slice(1);
   await route.fulfill({
     status: 200,

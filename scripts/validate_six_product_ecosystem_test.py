@@ -30,7 +30,9 @@ functions=[node for node in tree.body if isinstance(node,ast.FunctionDef) and no
 assert len(functions)==2
 namespace={}
 exec(compile(ast.Module(body=functions,type_ignores=[]),str(validator),'exec'),namespace)
-validate=namespace['validate_campaign_sample_contract']
+generation_commits={key:entry['provenance']['engine_commit'] for key,entry in artifact['outputs'].items()}
+def validate(value):
+    return namespace['validate_campaign_sample_contract'](value,generation_commits=generation_commits)
 validate(artifact)
 checked=1
 controls=namespace['validate_synthesis_controls']
@@ -42,7 +44,8 @@ for surface,token in [
     ('analysis','id="campaignEvidence"'),
     ('analysis',"import {mountCampaignAnalysis} from './campaign-analysis.js"),
     ('analysis','mountCampaignAnalysis({element:$("campaignEvidence")'),
-    ('analysis','onReport:async(evidence)=>'),
+    ('analysis','onReport:async(evidence,financialScenarioInput)=>'),
+    ('analysis','if(financialScenarioInput!==undefined)requestBody.financial_scenario_input=financialScenarioInput;'),
     ('analysis','campaign_scope_id:evidence.scope.id'),
     ('analysis','Go to campaign evidence'),
     ('analysis','Build self-run Synthesis'),
@@ -53,7 +56,8 @@ for surface,token in [
     ('campaign','data-ca-build'),
     ('campaign',"ready=(cross?r.crossLens:r.depth).status==='satisfied'"),
     ('campaign',"$('[data-ca-build]').onclick="),
-    ('campaign','await onReport(current)'),
+    ('campaign','const financialScenario=mountFinancialScenario(content);'),
+    ('campaign','await onReport(current,financialScenario())'),
 ]:
     changed=(analysis if surface=='analysis' else campaign).replace(token,'removed-control')
     try:

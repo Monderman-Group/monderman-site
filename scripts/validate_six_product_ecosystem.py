@@ -18,7 +18,8 @@ def validate_synthesis_controls(analysis, campaign):
         'id="campaignEvidence"',
         "import {mountCampaignAnalysis} from './campaign-analysis.js",
         'mountCampaignAnalysis({element:$("campaignEvidence")',
-        'onReport:async(evidence)=>', 'campaign_scope_id:evidence.scope.id',
+        'onReport:async(evidence,financialScenarioInput)=>', 'campaign_scope_id:evidence.scope.id',
+        'if(financialScenarioInput!==undefined)requestBody.financial_scenario_input=financialScenarioInput;',
         'Go to campaign evidence', 'Build self-run Synthesis',
         '$("synthRun")?.addEventListener(\'click\',runSynthesis)',
     ]:
@@ -27,11 +28,11 @@ def validate_synthesis_controls(analysis, campaign):
         'Build Depth Synthesis', 'Build Cross-Lens Synthesis',
         'View response comparison', 'data-ca-build',
         "ready=(cross?r.crossLens:r.depth).status==='satisfied'",
-        "$('[data-ca-build]').onclick=", 'await onReport(current)',
+        "$('[data-ca-build]').onclick=", 'const financialScenario=mountFinancialScenario(content);', 'await onReport(current,financialScenario())',
     ]:
         assert token in campaign, f'Campaign control missing: {token!r}'
 
-def validate_campaign_sample_contract(artifact):
+def validate_campaign_sample_contract(artifact, *, generation_commits):
     """Check current deterministic showcase data, not AI or release approval.
 
     The mandatory public_sample_fixture --check below independently requires
@@ -51,7 +52,11 @@ def validate_campaign_sample_contract(artifact):
         result,provenance=entry['source'],entry['provenance']
         assert entry['kind']=='synthesis' and result['report_kind']==key, f'{key}: product identity changed'
         assert provenance['synthetic'] is True, f'{key}: synthetic provenance missing'
-        assert provenance['engine_commit']==artifact['engine_commit'], f'{key}: engine provenance differs'
+        # The top-level commit identifies assembly, not when each retained
+        # example was generated. Compare original provenance to its separately
+        # pinned release entry; do not relabel retained samples as new runs.
+        assert re.fullmatch(r'[a-f0-9]{40}', provenance['engine_commit']), f'{key}: original engine provenance missing'
+        assert provenance['engine_commit']==generation_commits[key], f'{key}: engine provenance differs'
         for field in ['input_sha256','result_sha256','source_manifest_sha256','campaign_handoff_sha256']:
             assert re.fullmatch(r'[a-f0-9]{64}', provenance[field]), f'{key}: {field} missing'
         assert provenance['experience_source']=='fabricated_participant_accounts'
@@ -168,7 +173,8 @@ for token in [
 for tab in ['os','dv','sc','ip','synthesis','depth']:
     require(sample,f'id="report-{tab}"','Sample report')
     require(sample,f'aria-controls="report-{tab}"','Sample report accessible tab')
-validate_campaign_sample_contract(artifact)
+release=json.loads(text('sample-data/production-sample-release.json'))
+validate_campaign_sample_contract(artifact,generation_commits={key:entry['provenance']['engine_commit'] for key,entry in release['outputs'].items()})
 for token in [
     'MONDERMAN_REPRESENTATIVE_SYNTHESIS_FIXTURES',
     'Composite Score withheld','Comparison Only','insight-depth','Insight depth',
@@ -220,9 +226,9 @@ for sentence in re.split(r'(?<=[.!?])\s+', visible_value_surfaces):
         raise AssertionError(f'organizational-value contract: recovered value assigned to a role: {sentence.strip()[:180]!r}')
 
 for token in [
-    'return time, money, and productive capacity to the organization',
+    'Use separately declared operational measurements and assumptions for financial planning.',
     'Organizational implication',
-    'Hours returned to mission across the measured unit, per week.',
+    'Value staff time as potential capacity, not as an automatic cash reduction.',
 ]:
     require(value_surfaces, token, 'organizational-value contract')
 
