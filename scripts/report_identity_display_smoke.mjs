@@ -5,6 +5,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
+import {sourceBeforeRenderer42} from './report_focus_label_smoke.mjs';
 const sha=v=>createHash('sha256').update(v).digest('hex');
 const canonical=x=>Array.isArray(x)?x.map(canonical):x&&typeof x==='object'?Object.fromEntries(Object.keys(x).sort().map(k=>[k,canonical(x[k])])):x;
 const DELTA=[
@@ -34,6 +35,7 @@ const DELTA=[
   ]
 ];
 export function sourceBeforeRenderer41(source){
+ source=sourceBeforeRenderer42(source);
  if(!source.includes('diagnostic-renderer-evidence-reading-20260914.41'))return source;
  for(const[now,before]of DELTA){assert.equal(source.split(now).length,2,'Exact renderer41 display-only delta');source=source.replace(now,before);}
  assert.equal(sha(source),'24d109f68941e62a40bfcfd1c33e17f2c7481d713b9e464a471dd1073cefa2cf');return source;
@@ -43,7 +45,7 @@ if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.ur
  let checks=0;const eq=(a,b,m)=>{assert.deepEqual(a,b,m);checks++;};
  const load=s=>{const c={window:{}};vm.runInNewContext(fs.readFileSync(root+'/participant-evidence-safety.js','utf8'),c);vm.runInNewContext(s,c);return c.window.MondermanReport;};
  const R=load(source),old=load(prior),freeze=x=>{if(x&&typeof x==='object'){Object.freeze(x);Object.values(x).forEach(freeze);}return x;};
- eq(R.rendererVersion,'diagnostic-renderer-evidence-reading-20260914.41');
+ eq(R.rendererVersion,'diagnostic-renderer-evidence-reading-20260914.42');
  assert.throws(()=>sourceBeforeRenderer41(source+'\nUNREVIEWED'));checks++;
  const caveat='This is not independent proof of unique physical people, a representative sample or an accurate population declaration.';
  const stats='These are recorded account or invitation identities, not independently verified physical people.';

@@ -24,7 +24,8 @@ const frozen = value => {
 const labels = [
   ['operational_systems', 'workaround_dependence', 'Off-formal-path execution', 'Work outside the standard process'],
   ['decision_velocity', 'escalation', 'Escalation dependence', 'Decisions referred to a higher level'],
-  ['structural_clarity', 'accountability_clarity', 'Accountability clarity', 'Clarity about who is accountable']
+  ['structural_clarity', 'accountability_clarity', 'Accountability clarity', 'Clarity about who is accountable'],
+  ['institutional_performance', 'compensation', 'Compensatory dependence', 'Extra effort and management support']
 ];
 const benchmark = "This reference comes from the instrument's design, not customer or industry data. It does not change the score or the modeled recovery scenario. Use the workload assumptions, measured dimensions, and repeated measurements when deciding what to do.";
 const relationship = 'Those measured conditions co-occur; any time, cost, or capacity figures elsewhere in the report are modeled from submitted inputs, not observed consumption or realized loss.';

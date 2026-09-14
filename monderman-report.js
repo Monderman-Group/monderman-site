@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260914.41";
+  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260914.42";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -337,7 +337,8 @@
   const RUN_FOCUS_LABELS = Object.freeze({
     "Off-formal-path execution": "Work outside the standard process",
     "Escalation dependence": "Decisions referred to a higher level",
-    "Accountability clarity": "Clarity about who is accountable"
+    "Accountability clarity": "Clarity about who is accountable",
+    "Compensatory dependence": "Extra effort and management support"
   });
 
   function displayRunFocusLabel(value) {

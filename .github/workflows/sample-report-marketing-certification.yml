@@ -130,6 +130,7 @@ on:
       - 'scripts/report_synthesis_display_smoke.mjs'
       - 'scripts/report_reader_copy_smoke.mjs'
       - 'scripts/report_identity_display_smoke.mjs'
+      - 'scripts/report_focus_label_smoke.mjs'
       - 'scripts/report_presentation_provenance_smoke.mjs'
       - 'scripts/report_empty_ai_actions_smoke.mjs'
       - 'scripts/report_synthesis_chart_smoke.mjs'
@@ -287,6 +288,7 @@ on:
       - 'scripts/report_synthesis_display_smoke.mjs'
       - 'scripts/report_reader_copy_smoke.mjs'
       - 'scripts/report_identity_display_smoke.mjs'
+      - 'scripts/report_focus_label_smoke.mjs'
       - 'scripts/report_presentation_provenance_smoke.mjs'
       - 'scripts/report_empty_ai_actions_smoke.mjs'
       - 'scripts/report_synthesis_chart_smoke.mjs'
@@ -427,6 +429,7 @@ jobs:
           node scripts/report_synthesis_display_smoke.mjs
           node scripts/report_reader_copy_smoke.mjs
           node scripts/report_identity_display_smoke.mjs
+          node scripts/report_focus_label_smoke.mjs
       - name: Preserve presentation correction provenance in HTML and PDF
         env:
           REPORT_OUT: /tmp/report-presentation-smoke/presentation-provenance
