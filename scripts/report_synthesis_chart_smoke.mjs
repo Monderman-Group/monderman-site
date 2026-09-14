@@ -80,7 +80,7 @@ for(const [engine,type] of Object.entries({chromium,webkit})){
    }
    else{
     assert.equal(measured.pairs.length,4);assert.ok(measured.compactText.includes(item.id==='cross-withheld'?'Composite withheldUnavailable':'Equal-lens Composite63.3'));
-    measured.pairs.forEach((pair,i)=>{assert.equal(Number(pair.value),groups[i].mean_score);assert.equal(pair.meta,`mean · n=${groups[i].submitted_runs}`);
+    measured.pairs.forEach((pair,i)=>{assert.equal(Number(pair.value),groups[i].mean_score);assert.equal(pair.meta,`mean · ${groups[i].submitted_runs} runs`);
      if(!compactExpected)assert.ok(pair.valueBox.bottom<=pair.metaBox.top,`${name}: value/metadata collision`);});
     if(media==='print'){assert.equal(measured.hubFill,'rgb(8, 56, 62)',`${name}: print hub must be opaque`);assert.equal(measured.signalPrintBreak,'avoid',`${name}: evidence heading can orphan`);assert.ok(measured.interactionBreaks.length>0);for(const value of measured.interactionBreaks)assert.equal(value,'avoid',`${name}: interaction cell can split`);}
    }

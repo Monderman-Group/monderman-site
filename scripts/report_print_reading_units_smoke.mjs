@@ -35,7 +35,7 @@ const DELTA=[
   ]
 ];
 export function sourceBeforeRenderer38(source){
-  if(/diagnostic-renderer-evidence-reading-(?:20260913\.39|20260914\.4[01])/.test(source))source=sourceBeforeRenderer39(source);
+  if(/diagnostic-renderer-evidence-reading-(?:20260913\.39|20260914\.4[012])/.test(source))source=sourceBeforeRenderer39(source);
   for(const [now,before]of DELTA){assert.equal(source.split(now).length,2,'Exact approved renderer38 delta occurrence');source=source.replace(now,before);}
   assert.equal(sha(source),'39cd55e6b542940a3979d67f9aa652adcd7fa58d6fa2e907438d1cb42bec0b82');
   return source;

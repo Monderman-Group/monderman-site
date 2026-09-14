@@ -38,7 +38,7 @@ const versionStart=injector.indexOf('const shellRelease ='),versionEnd=injector.
 ok(versionStart>=0&&versionEnd>versionStart);
 const versionScript=vm.runInNewContext(injector.slice(versionStart,versionEnd)+'\nversionScript');
 const changed=['monderman-report.js','sample-report-production.js','homepage-workspace-demo.css','campaign-analysis.js','campaign-analysis.css'];
-const runtimeRelease=asset=>asset==='monderman-report.js'?'20260913.39':asset==='sample-report-production.js'?'20260914-mixed-origin1':asset==='homepage-workspace-demo.css'?'20260914-preview-static1':'20260913.34';
+const runtimeRelease=asset=>asset==='monderman-report.js'?'20260914.42':asset==='sample-report-production.js'?'20260914-mixed-origin1':asset==='homepage-workspace-demo.css'?'20260914-preview-static1':'20260913.34';
 eq(read('monderman-report.js').toString().match(/const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-([^"]+)"/)?.[1],runtimeRelease('monderman-report.js'),'Cache identity matches the actual renderer export');
 for(const asset of changed){
   for(const quote of ['"',"'"])for(const prefix of ['', './'])for(const query of ['', '?v=20260913.32','?v=20260913.35','?v=20260913.39'])

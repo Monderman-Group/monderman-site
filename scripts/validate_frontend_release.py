@@ -305,8 +305,11 @@ tile_required=[
  'class="md-score-summary"',
  'href="sample-report.html#depth"',
  'Depth Synthesis',
- 'Full assumptions in the report.',
- 'data-promo-recovery','data-promo-cost','data-promo-hours','data-promo-score',
+ 'Full assumptions and sensitivity cases in the report.',
+ 'data-promo-capacity','data-promo-net-cash','data-promo-total-cost','data-promo-score',
+ 'Potential staff capacity value, not cash savings.',
+ 'User-specified low to high scenarios, not a forecast.',
+ 'Net cash effect, after cash costs',
 ]
 for name,text in [('index.html',idx),('Monderman_Platform_Brief.html',brief)]:
  for asset in ['sample-report-tile.css','monderman-depth-lure-tile.css']:
@@ -318,11 +321,11 @@ for name,text in [('index.html',idx),('Monderman_Platform_Brief.html',brief)]:
   e.append(name+': generated-output sample tile boundary must occur exactly once')
  else:
   tile=tile_matches[0].group(0)
-  # Fresh, approved v3 samples must replace these still-pending promotional
-  # estimates. Do not certify an old financial surface by changing its label.
+  # The approved sample separates capacity, cash and total costs. Never restore
+  # the retired score-derived financial values or their old display hooks.
   if re.search(r'(?:Estimated|Modeled) annual recovery opportunity|Median annual (?:labor-cost|time) exposure|median of submitted (?:estimates|recovery scenarios)|Fictional inputs',tile,re.I):
-   e.append(name+': pending generated sample tile still contains retired financial claims')
-  for stale in ['5,280 hrs','$411,840','$123,552','hrp-recovery-ring','hrp-composition-bars','sample-depth-tile-approved-image','sample-depth-synthesis-composite-approved.png','Observed exposure ranges','Actual generated output']:
+   e.append(name+': generated sample tile contains retired financial claims')
+  for stale in ['data-promo-recovery','data-promo-cost','data-promo-hours','5,280 hrs','$411,840','$123,552','hrp-recovery-ring','hrp-composition-bars','sample-depth-tile-approved-image','sample-depth-synthesis-composite-approved.png','Observed exposure ranges','Actual generated output']:
    if stale in tile:e.append(name+': stale promotional sample tile value '+stale)
 scenario_slide=re.search(r'<section[^>]*id="slide-8".*?</section>',brief,re.S)
 if not scenario_slide:

@@ -21,7 +21,7 @@ const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
 const shellRelease = "20260913.32";
 // Refresh changed runtime assets without invalidating unchanged brand assets.
 const assetReleases = Object.freeze({
-  "monderman-report.js": "20260913.39",
+  "monderman-report.js": "20260914.42",
   "sample-report-production.js": "20260914-mixed-origin1",
   "campaign-analysis.js": "20260913.34",
   "campaign-analysis.css": "20260913.34",
