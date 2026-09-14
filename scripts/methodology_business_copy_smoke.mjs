@@ -99,6 +99,46 @@ const assertArticleScope=html=>assert.doesNotMatch(articleText(html),obsoleteArt
 const articleBase='19bf82646048ba75799300b73caaca9366d4c387';
 const articleMain=html=>html.match(/<main class="article">[\s\S]*?<\/main>/)?.[0];
 const textless=html=>html.replace(/>[^<]*</g,'><');
+// Invert only the table-accessibility changes approved in 6092c75. Keep the
+// original copy-review baseline below; neither table contents nor other markup
+// or CSS may disappear into this exception.
+const matrixRegion='<div class="lens-matrix-region" role="region" aria-label="Compare the four diagnostics" tabindex="0">';
+function beforeApprovedMatrixRegion(main){
+  assert.equal(main.split(matrixRegion).length-1,1,'Exactly one approved comparison region');
+  const wrapped=/<div class="lens-matrix-region" role="region" aria-label="Compare the four diagnostics" tabindex="0">\s*(<table class="lens-matrix">[\s\S]*?<\/table>)\s*<\/div>/g;
+  assert.equal([...main.matchAll(wrapped)].length,1,'Approved region directly contains the complete comparison table');
+  return main.replace(wrapped,'$1');
+}
+const matrixStyleInverses=[
+  ['    .lens-matrix { width: 100%; border-collapse: collapse; table-layout: auto; margin: 1.75rem 0; font-size: 0.95rem; }\n'+
+   '    .lens-matrix-region { max-width: 100%; overflow-x: auto; margin: 1.75rem 0; }\n'+
+   '    .lens-matrix-region .lens-matrix { margin: 0; }',
+   '    .lens-matrix { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 1.75rem 0; font-size: 0.95rem; }'],
+  ['    .lens-matrix-self td:first-child strong { color: var(--accent); }',
+   '    .lens-matrix-self td:first-child strong { color: #3f6ea1; }'],
+  ['    /* The article column is narrow even on desktop. Keep the comparison in\n'+
+   '       labelled reading rows so enlarged text does not require side-scrolling. */\n      .lens-matrix,',
+   '    @media (max-width: 720px) {\n      .lens-matrix,'],
+  ['      .lens-matrix td:nth-child(n) { width: 100%; }\n',''],
+  ['      .lens-matrix td:last-child { border-bottom: 0; }\n\n    @media (max-width: 720px) {\n      .header-inner,',
+   '      .lens-matrix td:last-child { border-bottom: 0; }\n\n      .header-inner,'],
+];
+function beforeApprovedMatrixStyles(html){
+  for(const [current,prior]of matrixStyleInverses){
+    assert.equal(html.split(current).length-1,1,'Exactly one approved table CSS hunk');
+    html=html.replace(current,prior);
+  }
+  return html;
+}
+const scoreColorRule='    .score-block .score-num {\n      color: #fff;\n';
+function assertArticleLayout(html,prior){
+  assert.deepEqual(textless(beforeApprovedMatrixRegion(articleMain(html))),textless(articleMain(prior)),
+    'Body tags, classes and links unchanged except exact approved comparison region');
+  const restored=beforeApprovedMatrixStyles(html).replace(scoreColorRule,'    .score-block .score-num {\n');
+  for(const tag of ['script','style'])assert.deepEqual(restored.match(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`,'g')),
+    prior.replace('content: "The question it answers"','content: "Business focus"').match(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`,'g')),
+    tag+' unchanged except exact approved table and contrast changes');
+}
 for(const [name,description,article]of descriptions){
   for(const file of sourceFiles.slice(0,6).filter(file=>file!=='site-shell/footer.html'))check(read(file).includes(description),`${file}: ${name} business description`);
   check(read(article).includes(`<p class="hero-taxonomy"><em>${description}</em></p>`),article+' canonical hero');
@@ -113,14 +153,33 @@ for(const [name,description,article]of descriptions){
     check(main.includes(phrase),article+': truthful report scope '+phrase);
   check(html.includes('records one participant’s perspective on'),article+': matching social/search description');
   const prior=execFileSync('git',['show',`${articleBase}:${article}`],{cwd:root,encoding:'utf8'});
-  eq(textless(main),textless(articleMain(prior)),article+': body tags, classes and links unchanged');
+  assertArticleLayout(html,prior);checks++;
   // The earlier approved canonical-copy edit also renamed the mobile table's
   // generated label. Restore only that exact text when proving layout parity.
   eq(html.split('content: "Business focus"').length-1,1,article+': mobile table label');
-  const scoreColorRule='    .score-block .score-num {\n      color: #fff;\n';
   eq(html.split(scoreColorRule).length-1,1,article+': exact score-only contrast fix');
-  for(const tag of ['script','style'])eq(html.replace(scoreColorRule,'    .score-block .score-num {\n').match(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`,'g')),
-    prior.replace('content: "The question it answers"','content: "Business focus"').match(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`,'g')),article+': '+tag+' unchanged except approved table label');
+  const badLayouts=[
+    html.replace(matrixRegion,matrixRegion.replace('role="region"','role="group"')),
+    html.replace(matrixRegion,matrixRegion.replace('Compare the four diagnostics','A different label')),
+    html.replace(matrixRegion,matrixRegion.replace('tabindex="0"','tabindex="-1"')),
+    html.replace(matrixRegion,matrixRegion.replace('>',' hidden>')),
+    html.replace(matrixRegion,''),
+    html.replace(matrixRegion,matrixRegion+'\n'+matrixRegion),
+    html.replace(matrixRegion,matrixRegion+'<p>Extra content</p>'),
+    html.replace('<table class="lens-matrix">','<table class="lens-matrix" aria-hidden="true">'),
+    html.replace('<th>Business focus</th>','<th class="changed">Business focus</th>'),
+    html.replace(main,main.replace('href="signin.html?next=','href="changed.html?next=')),
+    html.replace('overflow-x: auto; margin: 1.75rem 0;','overflow-x: hidden; margin: 1.75rem 0;'),
+    html.replace('font-size: 0.95rem; }','font-size: 0.85rem; }'),
+    html.replace('width: 29%;','width: 20%;'),
+    html.replace(matrixStyleInverses[1][0],''),
+    html.replace(matrixStyleInverses[1][0],matrixStyleInverses[1][0]+'\n'+matrixStyleInverses[1][0]),
+    html.replace('</style>','.unrelated { display: none; }</style>'),
+  ];
+  for(const [index,bad]of badLayouts.entries()){
+    assert.notEqual(bad,html,'Each article-layout negative must mutate the source');
+    assert.throws(()=>assertArticleLayout(bad,prior),article+': unrelated markup/CSS or altered approved wrapper must fail: '+index);checks++;
+  }
   for(const bad of ['Approximate recoverable value','Benchmark position','Trajectory signal','Reclaimed capacity','clock speed of reality']){
     assert.throws(()=>assertArticleScope(html.replace('</main>',`<p>${bad}</p></main>`)),/No superseded whole-article/);checks++;
   }
