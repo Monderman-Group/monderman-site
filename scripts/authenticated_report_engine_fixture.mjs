@@ -19,7 +19,7 @@ const expected = {
   operational_systems: { score:44, dimensions:6, signal:"Reporting burden" },
   decision_velocity: { score:51, dimensions:4, signal:"Coordination burden" },
   structural_clarity: { score:51, dimensions:5, signal:"Handoff integrity" },
-  institutional_performance: { score:48, dimensions:6, signal:"Compensatory dependence" },
+  institutional_performance: { score:48, dimensions:6, signal:"Extra effort and management support" },
 };
 
 for (const [key, contract] of Object.entries(expected)) {

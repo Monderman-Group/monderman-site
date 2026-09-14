@@ -70,7 +70,7 @@ for token in (
     "function renderMetaExposure",
     "each Diagnostic receives one vote regardless of submitted run count",
     "they do not establish how many distinct people responded",
-    "Population generalization requires a documented sampling frame",
+    "Applying them to a wider population requires a documented sampling plan and response coverage.",
 ):
     require(REPORT, token, "monderman-report.js")
 

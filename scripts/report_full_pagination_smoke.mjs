@@ -39,7 +39,7 @@ try{
   const html=await page.evaluate(run=>MondermanReport.buildReportHtml(MondermanReport.fromRun(run)),item.run);
   assert.equal(JSON.stringify(item.run),unchanged,'Fixture mutated');
   assert.doesNotMatch(html,/\[object Object\]|\bundefined\b|\bNaN\b/);
-  assert.match(html,/No written participant notes are included\./);
+  assert.match(html,/No additional written participant notes are displayed in this section\./);
   assert.match(html,/measured results reflect the structured answers/);
   assert.doesNotMatch(html,/therefore makes no participant-statement|representative run/);
   const check={id:item.id,widths:[],pdfPages:0};evidence.checks.push(check);
@@ -62,12 +62,13 @@ try{
   assert.ok(boundaryOnFinalPage(pages,expectedBoundary),'Final boundary missing or split: '+item.id);
   assert.ok(pages.length>1&&pages.length<40);assert.ok(pages.every(t=>t.length>20),'Empty or text-orphan page');
   const scenario=pages.filter(t=>t.includes('How the time and cost estimate is built'));
-  assert.equal(scenario.length,1);assert.ok(scenario[0].includes('None is an audited or realized saving.'),'Scenario paragraph split');
-  assert.ok(scenario[0].replace(/\s/g,'').includes('WORKLOADENTERED'),'Scenario chart separated from introduction');
+  assert.equal(scenario.length,0,'Individual reports must not retain the retired recovery section');
+  assert.equal(await page.locator('.mr-financial-scenario,.mr-exposure-flow,.mr-exposure-range').count(),0,'Individual reports must not display financial projections');
+  assert.match(pages.join('\n'),/One run does not establish organizational savings or recoverable time/,'Single-run financial boundary is missing');
   const governance=pages.filter(t=>t.includes('What the result supports and what it does not'));
   assert.equal(governance.length,1);assert.ok(governance[0].replace(/\s/g,'').includes('DESIGNREFERENCE(NOTAPEERBENCHMARK)'),'Governance heading orphaned');
   assert.doesNotMatch(pages.join('\n'),/Save \/ Print PDF|Close report|\{\{F\d/);
-  if(item.run.ai_report){assert.match(pages.join('\n'),/AI-assisted interpretation/);assert.equal(await page.locator('.mr-ai-interpretation').count(),1);}
+  if(item.run.ai_report){assert.match(pages.join('\n'),/Interpretation and next steps/);assert.equal(await page.locator('.mr-ai-interpretation').count(),1);}
   fs.writeFileSync(path.join(dir,'pages.json'),JSON.stringify(pages,null,2));
   await page.emulateMedia({media:'screen'});
  }

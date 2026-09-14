@@ -117,7 +117,7 @@ assert.match(depthHtml, /Agreement, divergence, and coverage/);
 assert.match(depthHtml, /Median Diagnostic Score/);
 assert.match(depthHtml, /2,500/);
 assert.match(depthHtml, /Observed respondent set/);
-assert.match(depthHtml, /Population generalization requires a documented sampling frame/);
+assert.match(depthHtml, /Applying them to a wider population requires a documented sampling plan and response coverage\./);
 assert.match(depthHtml, /aria-label="Depth Synthesis score distribution"/);
 assert.match(depthHtml, /Interquartile range/);
 assert.match(depthHtml, /Perspective difference/);
