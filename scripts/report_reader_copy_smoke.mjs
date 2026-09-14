@@ -5,6 +5,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
+import {sourceBeforeRenderer41} from './report_identity_display_smoke.mjs';
 const sha=b=>createHash('sha256').update(b).digest('hex');
 const DELTA=[
   [
@@ -45,12 +46,13 @@ const DELTA=[
   ]
 ];
 export function sourceBeforeRenderer40(source){
+ source=sourceBeforeRenderer41(source);
  if(!source.includes('diagnostic-renderer-evidence-reading-20260914.40'))return source;
  for(const[now,prior]of DELTA){assert.equal(source.split(now).length,2,'Exact approved renderer40 copy line');source=source.replace(now,prior);}
  assert.equal(sha(source),'6723d405f42e4b5555cf68833ce0d533fefb141c887d5bc49c0fa828cb08f9e8');return source;
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
- const root=path.resolve(import.meta.dirname,'..'),source=fs.readFileSync(root+'/monderman-report.js','utf8'),prior=sourceBeforeRenderer40(source);
+ const root=path.resolve(import.meta.dirname,'..'),source=sourceBeforeRenderer41(fs.readFileSync(root+'/monderman-report.js','utf8')),prior=sourceBeforeRenderer40(source);
  assert.equal(sha(prior),'6723d405f42e4b5555cf68833ce0d533fefb141c887d5bc49c0fa828cb08f9e8');
  assert.throws(()=>sourceBeforeRenderer40(source+'\nUNREVIEWED'));
  const load=s=>{const c={window:{}};vm.runInNewContext(fs.readFileSync(root+'/participant-evidence-safety.js','utf8'),c);vm.runInNewContext(s,c);return c.window.MondermanReport;};

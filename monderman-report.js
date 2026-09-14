@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260914.40";
+  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260914.41";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -98,6 +98,16 @@
   // }
 
   // ---- adapter: depth / cross-lens synthesis result --> model ---------------
+  // Display compatibility for three exact deterministic identity caveats only.
+  // Never traverse saved source, participant accounts, or AI-authored prose.
+  function displayDepthIdentityCopy(value) {
+    if (typeof value !== "string") return value;
+    return value
+      .replaceAll("This is not independent proof of unique physical people, a representative sample or an accurate population declaration.", "This is not independent proof of distinct people, a representative sample or an accurate population declaration.")
+      .replaceAll("These are recorded account or invitation identities, not independently verified physical people.", "These are recorded account or invitation identities, not independently verified distinct people.")
+      .replaceAll("Account and invitation records are not independent proof of unique physical people or of the declared population.", "Account and invitation records are not independent proof of distinct people or of the declared population.");
+  }
+
   function fromSynthesis(result) {
     const r = obj(result);
     const compatibility = obj(r._claims_compatibility);
@@ -109,7 +119,9 @@
     const timeWindow = obj(evidence.time_window);
     const identity = obj(evidence.source_identity);
     const balance = obj(evidence.lens_balance);
-    const representative = obj(evidence.representativeness);
+    const identityCopy = r.synthesis_product === "depth_synthesis" && obj(r.report_language).generation_version === "synthesis-report-language-20260910.3"
+      ? displayDepthIdentityCopy : value => value;
+    const representative = { ...obj(evidence.representativeness), statement: identityCopy(obj(evidence.representativeness).statement) };
     const exposure = obj(r.pathway_exposure || r.compounded_exposure);
     const narrative = obj(r.narrative);
     const diagnosis = obj(r.diagnosis);
@@ -225,8 +237,12 @@
         status: firstStr(indicator.current_status)
       };
     }).filter((item) => item.name || item.watchFor);
-    const experiential = obj(r.experiential);
-    const briefParagraphs = arr(briefing.paragraphs).map(firstStr).filter(Boolean);
+    const experiential = { ...obj(r.experiential) };
+    for (const role of ["operational", "managerial", "senior_leader"]) {
+      const detail = obj(obj(experiential.detail)[role]);
+      if (experiential.participant_reports_available === false && detail.basis === "segment_statistics_only" && detail.text === experiential[role]) experiential[role] = identityCopy(experiential[role]);
+    }
+    const briefParagraphs = arr(briefing.paragraphs).map(firstStr).filter(Boolean).map(identityCopy);
     const selfRun = r.source_mode==='own_saved_runs' && ['self_run_synthesis','self_run_response_comparison'].includes(r.report_kind);
     const comparisonOnly = ['response_comparison','self_run_response_comparison'].includes(r.report_kind);
     const modeLabel = selfRun ? (comparisonOnly ? 'Self-run comparison' : 'Self-run Synthesis') : comparisonOnly ? 'Response comparison' : product === "depth" ? "Depth Synthesis" : "Cross-Lens Synthesis";
@@ -234,7 +250,7 @@
     const lensCount = strictNum(r.lens_count) ?? sourceGroups.length;
     const evidenceLabel = firstStr(evidence.evidence_label, r.readiness_label, "Evidence band unavailable");
     const conditionBand = firstStr(r.condition_band, scorePublished ? "Observed condition" : "Composite withheld");
-    const coverBody = firstStr(narrative.executive_summary, briefing.lede, diagnosis.body, r.primary_pattern);
+    const coverBody = firstStr(identityCopy(narrative.executive_summary), briefing.lede, diagnosis.body, r.primary_pattern);
     const filenameStem = product === "depth"
       ? "depth-synthesis-" + slug(sourceGroups[0]?.toolType || "diagnostic") + "-n" + (reads || "x")
       : "cross-lens-synthesis-n" + (reads || "x");
@@ -270,7 +286,7 @@
       conditionSpread: obj(r.condition_spread),
       evidence: evidence,
       reads: reads,
-      runCountNote: firstStr(r.participant_count_note, "Counts refer to submitted runs, not verified distinct people. One person may contribute more than one run."),
+      runCountNote: firstStr(identityCopy(r.participant_count_note), "Counts refer to submitted runs, not verified distinct people. One person may contribute more than one run."),
       lensCount: lensCount,
       evidenceLabel: evidenceLabel,
       evidenceDescription: firstStr(evidence.evidence_description),

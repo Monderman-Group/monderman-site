@@ -265,7 +265,7 @@ export function createPublicSampleModels(options={}) {
   vm.runInContext(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8'),context,{filename:'monderman-report.js'});
   vm.runInContext(fs.readFileSync(path.join(root,'public-sample-model.js'),'utf8'),context,{filename:'public-sample-model.js'});
   const Report=context.window.MondermanReport,Public=context.window.MondermanPublicSamples;
-  assert.equal(Report.rendererVersion,'diagnostic-renderer-evidence-reading-20260914.40');
+  assert.equal(Report.rendererVersion,'diagnostic-renderer-evidence-reading-20260914.41');
   assert.equal(Report.rendererVersion,fixture.manifest.renderer_version);
   Public.validate(fixture.artifact);
   const models={};
