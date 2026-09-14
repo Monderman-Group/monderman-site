@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260913.37";
+  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260913.39";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -1192,7 +1192,7 @@
       : "When the Coherent or Strong evidence threshold is met, the published composite is the arithmetic mean of the contributing Diagnostic means, so each Diagnostic receives one vote regardless of submitted run count. Run counts contribute to evidence coverage and balance; they do not establish how many distinct people responded. A Comparison Only or Directional read withholds the composite. Diagnostic disagreement remains visible and is not subtracted from the condition score.";
     return '<section class="mr-section mr-meta-method"><h2>' + n + '. Method and limits</h2><p>' + esc(method) + '</p>' +
       (m.campaignEvidence?.depth?'<p>Participation and missing-response reporting are informed by selected published <a href="https://aapor.org/standards-and-ethics/standard-definitions/">AAPOR guidance</a>. Monderman defines its own eligibility rules; AAPOR has not validated them.</p>':'')+
-      (obj(m.financialScenario).version==='operational-planning-scenario-20260913.1'?'<p>The separate operational scenario documents scope, inputs, assumptions, costs and sensitivity ranges, informed by selected practices in <a href="https://www.gao.gov/products/gao-20-195g">GAO’s Cost Estimating and Assessment Guide</a>. This is not GAO approval, full compliance or a validated savings method.</p>':'')+
+      (obj(m.financialScenario).version==='operational-planning-scenario-20260913.1'?'<p>The separate operational scenario documents scope, inputs, assumptions and costs, informed by selected practices in <a href="https://www.gao.gov/products/gao-20-195g">GAO’s Cost Estimating and Assessment Guide</a>. Customer-defined low, central and high cases compare combined assumptions. This is not GAO approval, full compliance or a validated savings method.</p>':'')+
       (m.organizationalImplication ? '<div class="callout"><p><strong>Organizational implication.</strong> ' + esc(m.organizationalImplication) + '</p></div>' : '') + '</section>';
   }
 
@@ -1865,7 +1865,7 @@
     const evidence=arr(report.evidence).concat(arr(report.experiential_evidence));
     const attributions=sourceEvidenceAttributions(report);
     const attribution=fact=>attributions.has(fact.id)?'<span class="mr-evidence-attribution">'+esc(typeof attributions.get(fact.id)==='string'?attributions.get(fact.id):attributions.get(fact.id).context)+'</span>':'';
-    const evidenceLabel=fact=>firstStr(obj(attributions.get(fact.id)).label,fact.label,fact.role?'Participant observation · '+fact.role:'Recorded response');
+    const evidenceLabel=fact=>firstStr(obj(attributions.get(fact.id)).label,fact.label,fact.role?'Participant observation · '+humanize(fact.role):'Recorded response');
     const printEvidence=new Map();
     const evidenceText=fact=>typeof fact.value==='number'?(fact.unit==='USD'?'US$':'')+fact.value.toLocaleString('en-US')+(fact.unit==='hours'?' hours':''):firstStr(fact.text,typeof fact.value==='string'?fact.value:'',Array.isArray(fact.value)?fact.value.join('; '):'');
     const support=item=>{
@@ -1878,7 +1878,14 @@
     const sourceBlock=item=>Object.hasOwn(item,'experiential_block')
       ?(Object.hasOwn(item,'evidence_block')?null:buildExperientialBlock(item,report))
       :buildPersonalQuestionBlock(item,report,attributions);
-    const findings=(items,title,explanation,questionBlocks=false)=>arr(items).length?'<div class="mr-evidence-reading"><h3>'+title+'</h3>'+(explanation?'<p class="mr-reading-context">'+explanation+'</p>':'')+arr(items).map(item=>'<article class="mr-finding">'+((questionBlocks&&sourceBlock(obj(item)))||'<p>'+esc(firstStr(obj(item).text,typeof item==='string'?item:''))+'</p>')+support(obj(item))+'</article>').join('')+'</div>':'';
+    // Only short visible print units stay together. Long accounts remain able
+    // to span pages; hidden evidence detail never changes this length bound.
+    const boundedPrint=text=>text.length<=1000&&text.split(/\r\n|\r|\n/).length<=8;
+    const findings=(items,title,explanation,questionBlocks=false,compact=false)=>arr(items).length?'<div class="mr-evidence-reading'+(compact?' mr-reading-limitations':'')+'"><h3>'+title+'</h3>'+(explanation?'<p class="mr-reading-context">'+explanation+'</p>':'')+arr(items).map(item=>{
+      const text=firstStr(obj(item).text,typeof item==='string'?item:''),supporting=support(obj(item));
+      const printedSupport=(supporting.match(/<p class="mr-print-support">([\s\S]*?)<\/p>/)||[])[1]||'';
+      return '<article class="mr-finding'+(boundedPrint(text+printedSupport)?' mr-finding-bounded':'')+'">'+((questionBlocks&&sourceBlock(obj(item)))||'<p>'+esc(text)+'</p>')+supporting+'</article>';
+    }).join('')+'</div>':'';
     const conditionRows=[['Before trying it','prerequisite'],['Risk to consider','risk'],['How to judge the test','success_check']];
     const conditionList=rows=>'<dl class="mr-action-conditions'+(rows.length===1?' mr-action-conditions-single':rows.length===2?' mr-action-conditions-two':'')+'">'+rows.map(([label,value])=>'<div class="mr-ai-definition"><dt>'+label+'</dt><dd>'+esc(value)+'</dd></div>').join('')+'</dl>';
     const actionCard=(item,index,option=false,shared={})=>{
@@ -1899,7 +1906,7 @@
       if(typeof value==='string'&&value.trim()&&actions.every(action=>obj(action)[key]===value))sharedConditions[key]=value;
     }
     const sharedRows=conditionRows.filter(([,key])=>Object.prototype.hasOwnProperty.call(sharedConditions,key)).map(([label,key])=>[label,sharedConditions[key]]);
-    const sharedBlock=sharedRows.length?'<aside class="mr-shared-action-conditions"><h4>For all next steps</h4>'+conditionList(sharedRows)+'</aside>':'';
+    const sharedBlock=sharedRows.length?'<aside class="mr-shared-action-conditions'+(boundedPrint(['For all next steps',...sharedRows.flat()].join('\n'))?' mr-shared-conditions-bounded':'')+'"><h4>For all next steps</h4>'+conditionList(sharedRows)+'</aside>':'';
     const preferredPath=()=>{
       // Evaluate support at its original reading position so the evidence
       // register keeps its existing numbering. Only printed text determines
@@ -1911,15 +1918,19 @@
     };
     const research=obj(report.research_context),checked=firstStr(research.checked_at,research.checkedAt),date=checked&&Number.isFinite(Date.parse(checked))?new Date(checked).toISOString().slice(0,10):'';
     const researchText=['fresh','reviewed'].includes(research.status)?'Public-source research checked '+date+'. Sources inform the options; they do not establish how this organization performs.':research.status==='no_current_sources'?'A public-source search was completed on '+date+', but it did not produce suitable current evidence for this report.':research.status==='stale'?'The available research snapshot is dated '+date+'. It is outside the current research window and was not added as fresh guidance.':'No newly checked public-source research is included. Any listed practice sources are dated references, not a current sector benchmark.';
+    const methodExplanation='Monderman’s diagnostic engine produces the scores and determines which findings and recommendations the evidence supports. AI contributes research and explanation within those rules. Automated checks and a separate AI review check the interpretation against its supporting evidence before publication.';
+    const methodProvenance='Prepared '+String(report.generated_at??'')+'. Model '+String(report.model??'')+'. Report version '+String(report.version??'')+'. This report preserves the evidence and research used when it was prepared.';
+    const boundedMethod=boundedPrint('How Monderman produced this interpretation\n'+methodExplanation+'\n'+methodProvenance);
+    const sourcePrintText=s=>String(s.title??'')+(s.publisher?' · '+s.publisher:'')+(s.published?' · Published '+s.published:'')+(s.reviewed?' · Checked '+s.reviewed:'');
     const content='<section class="mr-section mr-ai-interpretation mr-authored-report"><h2>Interpretation and next steps</h2><p class="mr-executive-read">'+esc(interpretation.summary)+'</p>'+support({evidence_ids:obj(report.evidence_references).summary,source_ids:obj(report.evidence_references).summary_sources})+buildAIRecordedContext(report)+
       findings(interpretation.observations,'What the evidence shows','These findings distinguish scored results from what participants reported.',true)+
       findings(interpretation.hypotheses,'What may explain it','Possible explanations to investigate, not established causes.')+
       (actions.length?'<div class="mr-report-nextsteps"><div class="mr-action-intro"><h3>Practical next steps</h3><p class="mr-reading-context">Start with these practical checks or focused changes.</p></div>'+sharedBlock+actions.map((item,index)=>actionCard(item,index,false,sharedConditions)).join('')+'</div>':'')+
       (options.length?'<div class="mr-report-options"><div class="mr-action-intro"><h3>Three levels of change</h3><p class="mr-reading-context">These are alternatives, not a sequence or a presumption that a larger change is better. Check each option’s prerequisites and risks.</p></div>'+options.map((item,index)=>actionCard(item,index,true)).join('')+'</div>':'')+
       (preferredOption?preferredPath():options.length?'<p class="mr-not-yet"><strong>No preferred option is selected.</strong> Review operating evidence and the campaign’s remaining readiness checks before choosing a recommended path.</p>':'')+
-      findings([...new Set(arr(report.limitations).concat(arr(interpretation.limitations)))],'What this report cannot establish','')+
-      '<div class="mr-research-context"><h3>Research and sector context</h3><p>'+esc(researchText)+'</p>'+(obj(report.benchmark).explanation?'<p>'+esc(report.benchmark.explanation)+'</p>':'')+(sources.length?'<ol>'+sources.map(s=>'<li><a href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">'+esc(s.title)+'</a>'+(s.publisher?' · '+esc(s.publisher):'')+(s.published?' · Published '+esc(s.published):'')+(s.reviewed?' · Checked '+esc(s.reviewed):'')+'</li>').join('')+'</ol>':'')+'</div>'+
-      '<details class="mr-report-method"><summary>How Monderman produced this interpretation</summary><div><p>Monderman’s diagnostic engine produces the scores and determines which findings and recommendations the evidence supports. AI contributes research and explanation within those rules. Automated checks and a separate AI review check the interpretation against its supporting evidence before publication.</p><p>Prepared '+esc(report.generated_at)+'. Model '+esc(report.model)+'. Report version '+esc(report.version)+'. This report preserves the evidence and research used when it was prepared.</p></div></details></section>';
+      findings([...new Set(arr(report.limitations).concat(arr(interpretation.limitations)))],'What this report cannot establish','',false,true)+
+      '<div class="mr-research-context"><h3>Research and sector context</h3><p>'+esc(researchText)+'</p>'+(obj(report.benchmark).explanation?'<p>'+esc(report.benchmark.explanation)+'</p>':'')+(sources.length?'<ol>'+sources.map(s=>'<li'+(boundedPrint(sourcePrintText(s))?' class="mr-research-source-bounded"':'')+'><a href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">'+esc(s.title)+'</a>'+(s.publisher?' · '+esc(s.publisher):'')+(s.published?' · Published '+esc(s.published):'')+(s.reviewed?' · Checked '+esc(s.reviewed):'')+'</li>').join('')+'</ol>':'')+'</div>'+
+      '<details class="mr-report-method'+(boundedMethod?' mr-report-method-bounded':'')+'"><summary>How Monderman produced this interpretation</summary><div><p>'+esc(methodExplanation)+'</p><p>'+esc(methodProvenance)+'</p></div></details></section>';
     const longEvidence=fact=>evidenceText(fact).length+evidenceLabel(fact).length>1200;
     const longRegister=Array.from(printEvidence.values()).some(({fact})=>longEvidence(fact));
     const boundedRegister=Array.from(printEvidence.values()).reduce((total,{fact})=>total+evidenceText(fact).length+evidenceLabel(fact).length+attribution(fact).length,0)<=1600;
@@ -2545,6 +2556,10 @@
       .mr-authored-report .mr-executive-read{font-size:11pt;line-height:1.55}
       .mr-authored-report .mr-evidence-reading,.mr-authored-report .mr-report-nextsteps,.mr-authored-report .mr-report-options,.mr-authored-report .mr-research-context{margin-top:22px;padding-top:18px}
       .mr-authored-report .mr-finding,.mr-authored-report .mr-ai-action{break-inside:auto;page-break-inside:auto}
+      .mr-authored-report .mr-finding-bounded,.mr-authored-report .mr-report-method-bounded{break-inside:avoid;page-break-inside:avoid}
+      .mr-authored-report .mr-evidence-reading>h3,.mr-authored-report .mr-evidence-reading>.mr-reading-context{break-after:avoid;page-break-after:avoid}
+      .mr-authored-report p:has(+.mr-evidence-detail+.mr-print-support){break-after:avoid;page-break-after:avoid}
+      .mr-authored-report .mr-print-support{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}
       .mr-question-evidence{padding:12px 16px;break-inside:auto;page-break-inside:auto}
       .mr-question-evidence .mr-question-label,.mr-question-evidence .mr-question-text,.mr-question-evidence .mr-reading-context,.mr-question-answer dt{break-after:avoid;page-break-after:avoid}
       .mr-question-answer-bounded{break-inside:avoid;page-break-inside:avoid}
@@ -2556,6 +2571,9 @@
       .mr-authored-report .mr-finding>p,.mr-authored-report .mr-ai-action>p{orphans:3;widows:3}
       .mr-authored-report .mr-action-conditions{grid-template-columns:1fr;gap:10px;margin-top:14px;padding-top:14px}
       .mr-shared-action-conditions{display:block!important;break-inside:auto;page-break-inside:auto}
+      .mr-authored-report .mr-shared-conditions-bounded,.mr-authored-report .mr-research-source-bounded{break-inside:avoid;page-break-inside:avoid}
+      .mr-authored-report .mr-reading-limitations{break-inside:auto;page-break-inside:auto}
+      .mr-authored-report .mr-reading-limitations>.mr-finding{padding:6px 0}
       .mr-shared-action-conditions h4,.mr-shared-action-conditions dt{break-after:avoid;page-break-after:avoid}
       .mr-shared-action-conditions .mr-ai-definition{break-inside:avoid;page-break-inside:avoid}
       .mr-evidence-detail::details-content,.mr-report-method::details-content{display:block;content-visibility:visible}

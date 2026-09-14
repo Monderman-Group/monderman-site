@@ -10,6 +10,7 @@ const root=path.resolve(import.meta.dirname,'..');
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const output=process.argv.find(arg=>arg.startsWith('--output='))?.slice(9);
+const copyOnly=process.argv.includes('--copy-only');
 const out=output?path.resolve(output):fs.mkdtempSync('/tmp/monderman-methodology-copy-');
 if(output){assert.ok(path.isAbsolute(output));fs.mkdirSync(out,{mode:0o700});}
 const build=path.join(out,'public');fs.mkdirSync(build,{mode:0o700});
@@ -94,7 +95,7 @@ for(const phrase of ['A single run does not estimate organizational savings.','p
   check(read('platform-services.html').includes(phrase),'Platform scope: '+phrase);
 const method=read('diagnostics.html').match(/<section\b[^>]*id="methodology-and-sources"[\s\S]*?<\/section>/)?.[0];
 check(method,'Substantive methods section exists');
-for(const phrase of ['follows selected published guidance','campaign-readiness rules are Monderman\'s own methods',
+for(const phrase of ['draws on selected published guidance','campaign-readiness rules are Monderman\'s own methods',
   'data-method-review-status="not_reviewed"','Independent statistical review:','not reviewed',
   'excluding a response does not shrink that population','Repeated runs do not increase participation',
   'not claimed as AAPOR response rates','participation alone does not establish representativeness',
@@ -102,7 +103,12 @@ for(const phrase of ['follows selected published guidance','campaign-readiness r
   check(method.includes(phrase),'Method boundary: '+phrase);
 check(method.includes('https://aapor.org/standards-and-ethics/standard-definitions/'),'Primary AAPOR source');
 check(method.includes('https://www.gao.gov/products/gao-20-195g'),'Primary GAO source');
-for(const phrase of ['cost scenarios follow selected practices','declared activity measurements and source references','implementation and subscription costs','low, central and high sensitivity ranges','not full compliance with the guide','Potential staff capacity is shown separately from cash effects','does not independently audit the source records','not forecasts or measured savings'])check(method.includes(phrase),'Financial method boundary: '+phrase);
+for(const phrase of ['Our participation checks draw on','transparent accounting of participation and missing responses'])check(method.includes(phrase),'Selected AAPOR guidance only: '+phrase);
+for(const phrase of ['cost scenarios draw on selected practices','defining scope and documenting activity measurements, source references, assumptions','implementation costs and subscription costs','Customer-defined low, central and high cases compare combined assumptions.','not full compliance with the guide','Potential staff capacity is shown separately from cash effects','does not independently audit the source records','not forecasts or measured savings'])check(method.includes(phrase),'Financial method boundary: '+phrase);
+check(!/We follow the guidance in|low, central and high sensitivity ranges/.test(method),'No full AAPOR-method or GAO sensitivity-procedure implication');
+const reportMethod=read('monderman-report.js').match(/function renderMetaMethod\(m, n\) \{[\s\S]*?(?=\n  function renderMetaSynthesis)/)?.[0];
+for(const phrase of ['informed by selected published','AAPOR has not validated them.','documents scope, inputs, assumptions and costs, informed by selected practices','Customer-defined low, central and high cases compare combined assumptions.','not GAO approval, full compliance or a validated savings method.'])check(reportMethod?.includes(phrase),'Report methods share the same attribution boundary: '+phrase);
+check(!/costs and sensitivity ranges/.test(reportMethod),'Report does not attribute joint scenarios to GAO sensitivity procedure');
 check(!/AAPOR[- ](?:approved|compliant|certified)|GAO[- ](?:approved|compliant|certified)|scientifically validated/i.test(method),'No external approval claims');
 check(read('index.html').includes('Use measured activity records and documented assumptions to compare potential staff capacity and separate cash effects.'),'Plain homepage description uses separate operational records');
 const scenarioSlide=read('Monderman_Platform_Brief.html').match(/<section[^>]*id="slide-8"[\s\S]*?<\/section>/)?.[0];
@@ -119,6 +125,14 @@ execFileSync(process.execPath,['scripts/inject-public-shell.mjs',build],{cwd:roo
 for(const file of ['index.html','diagnostics.html','sample-report.html',...protectedFiles.filter(file=>file.endsWith('.html'))]){
   const html=fs.readFileSync(path.join(build,file),'utf8');
   check(/<footer\b[\s\S]*href="diagnostics.html#methodology-and-sources"[\s\S]*<\/footer>/.test(html),file+' built shared-footer link');
+}
+if(copyOnly){
+  for(const [file,hash]of Object.entries(hashes))eq(sha(fs.readFileSync(path.join(root,file))),hash,'Source unchanged during copy checks: '+file);
+  const receipt={status:'COPY_ONLY_PASS',checks,browsers:[],viewports:[],layoutTested:false,sourceHashes:hashes,
+    proofScope:'Static copy and real shared-footer injection only. Browser layout, authenticated workflows, sample approval and deployment were not tested.'};
+  fs.writeFileSync(path.join(out,'RECEIPT.json'),JSON.stringify(receipt,null,2)+'\n',{mode:0o600});
+  console.log(JSON.stringify({status:receipt.status,checks,output:out,layoutTested:false}));
+  process.exit(0);
 }
 
 const origin='http://monderman-copy.test';

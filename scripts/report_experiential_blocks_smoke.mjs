@@ -33,7 +33,7 @@ function fixture({kind='ordinary',empty=false,long=false,escaped=false}={}){
 }
 let checks=0;const equal=(a,b,message)=>{assert.deepEqual(a,b,message);checks++;};
 const render=value=>{const before=JSON.stringify(value),model=value.synthesis_product?Report.fromSynthesis(value):Report.fromRun(value),html=Report.buildReportHtml(model);equal(JSON.stringify(value),before,'Source input unchanged');return html;};
-equal(Report.rendererVersion,'diagnostic-renderer-evidence-reading-20260913.37');
+equal(Report.rendererVersion,'diagnostic-renderer-evidence-reading-20260913.39');
 const cases=[['ordinary',{}],['no-interpretation',{empty:true}],['long',{long:true}],['escaped',{escaped:true}],['campaign',{kind:'campaign'}],['personal',{kind:'personal'}]]
   .map(([name,options])=>{const value=fixture(options);return {name,options,value,html:render(value)};});
 const invalid=[

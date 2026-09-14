@@ -6,6 +6,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
+import {sourceBeforeRenderer38,renderer37Output} from './report_print_reading_units_smoke.mjs';
 const root=path.resolve(import.meta.dirname,'..'),sha=s=>createHash('sha256').update(s).digest('hex');
 export const CURRENT='diagnostic-renderer-evidence-reading-20260913.37',PREVIOUS='diagnostic-renderer-evidence-reading-20260913.36';
 const mapper='  function priorityReviewLabel(value) {\n    // Display wording only: keep the saved priority, order and values intact.\n    const label = firstStr(value, "Priority");\n    return label.toLowerCase() === "fix now" ? "First review" : label.toLowerCase() === "fix next" ? "Next review" : label;\n  }\n\n';
@@ -14,8 +15,9 @@ const styles=[
  ['.mr-dimension-detail{grid-column:2;font-size:.8rem;color:#53676E;margin-top:-4px}','.mr-dimension-detail{grid-column:2;font-size:.7rem;color:#9A9892;margin-top:-4px}'],
  ['.mr-dimension-detail b{float:right;color:#0C6E78;text-transform:uppercase;letter-spacing:.1em;font-size:.7rem}','.mr-dimension-detail b{float:right;color:#0C6E78;text-transform:uppercase;letter-spacing:.1em;font-size:.61rem}'],
 ];
-export function renderer36StyleOutput(value){for(const [now,before]of styles)value=value.replaceAll(now,before);return value.replaceAll(CURRENT,PREVIOUS);}
+export function renderer36StyleOutput(value){value=renderer37Output(value);for(const [now,before]of styles)value=value.replaceAll(now,before);return value.replaceAll(CURRENT,PREVIOUS);}
 export function sourceBeforeRenderer37(source){
+ if(/diagnostic-renderer-evidence-reading-20260913\.3[89]/.test(source))source=sourceBeforeRenderer38(source);
  assert.equal(source.split(mapper).length,2);
  assert.equal(source.split('esc(priorityReviewLabel(row.priority))').length,3);
  for(const [now]of styles)assert.equal(source.split(now).length,2);
@@ -27,7 +29,7 @@ export function sourceBeforeRenderer37(source){
 }
 function run(){
  let checks=0;const eq=(a,b)=>{assert.deepEqual(a,b);checks++;},ok=condition=>{assert.ok(condition);checks++;};
- const source=fs.readFileSync(path.join(root,'monderman-report.js'),'utf8'),prior=sourceBeforeRenderer37(source);
+ const source=sourceBeforeRenderer38(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8')),prior=sourceBeforeRenderer37(source);
  const load=text=>{const context={window:{}};vm.runInNewContext(fs.readFileSync(path.join(root,'participant-evidence-safety.js'),'utf8'),context);vm.runInNewContext(text,context);return context.window.MondermanReport;};
  const report=load(source),old=load(prior);eq(report.rendererVersion,CURRENT);eq(old.rendererVersion,PREVIOUS);
  const luminance=hex=>{const values=hex.match(/[a-f\d]{2}/gi).map(v=>parseInt(v,16)/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4);return .2126*values[0]+.7152*values[1]+.0722*values[2];};
@@ -69,8 +71,7 @@ function run(){
  const html=report.buildReportHtml(report.fromRun(raw));
  ok(html.includes('Not measured')||html.includes('Score unavailable'));
  ok(html.includes('No score is available'));ok(html.includes('font-size:.8rem;color:#53676E'));
- eq(sha(fs.readFileSync(path.join(root,'monderman-report.js'))),sha(source));
+ eq(sha(sourceBeforeRenderer38(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8'))),sha(source));
  console.log(JSON.stringify({status:'PASS',checks,rendererVersion:CURRENT,detailContrastOnWhite:contrast(detail[2],'#FFFFFF'),originalInputsUnchanged:true,browser:'not_run',providerCalls:0,pdfs:0}));
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url))run();
-

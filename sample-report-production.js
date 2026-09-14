@@ -138,16 +138,30 @@
     buildContents(shell, stage, sourceKey, options.tocId);
   }
 
+  function reportGenerationCommit(entry, artifact) {
+    const provenance = obj(entry.provenance);
+    const present = Object.prototype.hasOwnProperty.call(provenance, "engine_commit");
+    // The current mixed library requires each original generation identity.
+    // Only the historical v2 shape may fall back when that field is absent.
+    const revision = present ? provenance.engine_commit :
+      artifact.contract === "monderman-public-product-samples/v2" ? artifact.engine_commit : null;
+    if (typeof revision !== "string" || !/^[a-f0-9]{40}$/.test(revision)) {
+      throw new Error("Missing or invalid report generation revision provenance");
+    }
+    return revision;
+  }
+
   function wireReport(shell, entry, artifact, sourceKey) {
     const source = entry.source;
+    const generationCommit = reportGenerationCommit(entry, artifact);
     const provenance = "Report created " + entry.provenance.generated_at.slice(0, 10) +
-      " · API " + artifact.engine_commit.slice(0, 8) + " · artifact " + artifact.artifact_sha256.slice(0, 12);
+      " · API " + generationCommit.slice(0, 8) + " · artifact " + artifact.artifact_sha256.slice(0, 12);
     mountReport({
       shell,
       model: window.MondermanPublicSamples.model(entry, artifact),
-      source: {export_payload: {...source, sample_provenance: {...entry.provenance, engine_commit:artifact.engine_commit, artifact_sha256:artifact.artifact_sha256}}},
+      source: {export_payload: {...source, sample_provenance: {...entry.provenance, engine_commit:generationCommit, artifact_sha256:artifact.artifact_sha256}}},
       sourceKey,
-      engineCommit: artifact.engine_commit,
+      engineCommit: generationCommit,
       artifactSha256: artifact.artifact_sha256,
       toolbarLabel: "Monderman report",
       provenance,

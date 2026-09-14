@@ -27,7 +27,23 @@ for(const tool of ['structural_clarity','decision_velocity','operational_systems
   const renderContext=vm.createContext({$:id=>id==='remedyTreeWrap'?wrap:grid,result:{output_policy:policy},payload:{},buildRemedyPaths:()=>[],individualNextStepsOnly:r=>r?.output_policy?.individual_next_steps_only===true});
   vm.runInContext(scripts.slice(renderStart,renderEnd),renderContext);assert(wrap.hidden);assert.equal(grid.innerHTML,'');
   renderContext.result={};vm.runInContext(scripts.slice(renderStart,renderEnd).replaceAll('const ','var '),vm.createContext({...renderContext}));assert.equal(wrap.hidden,false);checks+=4;
-  assert.equal((html.match(/result\?\.ai_report\?\.status \|\| individualNextStepsOnly\(result\)/g)||[]).length,2,'PDF and HTML must use shared bounded renderer');checks+=3;
+  // Current exports unconditionally use the shared policy projection, including
+  // legacy results without an AI sidecar. Exercise the actual three handlers.
+  const handlers=['exportExecutiveReport','exportFullReportHTML','downloadExecutiveReportPdf'].map(name=>{
+    const match=scripts.match(new RegExp('(?:async )?function '+name+'\\([^\\n]*\\) \\{[\\s\\S]*?\\n\\}'));
+    assert(match,'Actual export handler missing: '+name);return match[0];
+  });
+  for(const aiStatus of [undefined,'complete','failed']){
+    const raw={...source,...(aiStatus?{ai_report:{status:aiStatus}}:{})},before=JSON.stringify(raw),calls=[],toasts=[];
+    const shared={fromRun:value=>{assert.equal(value,raw);calls.push('project');return {exact:value};},downloadHtml:model=>{assert.equal(model.exact,raw);calls.push('html');},downloadPdf:model=>{assert.equal(model.exact,raw);calls.push('pdf');}};
+    const c=vm.createContext({window:{MondermanReport:shared},state:{result:raw},showToast:message=>toasts.push(message)});
+    vm.runInContext(handlers.join('\n'),c);
+    c.exportExecutiveReport(raw,{});c.exportFullReportHTML(raw,{});await c.downloadExecutiveReportPdf();
+    assert.deepEqual(calls,['project','html','project','html','project','pdf']);assert.equal(JSON.stringify(raw),before);assert.equal(toasts.length,0);checks+=3;
+    calls.length=0;assert.equal((await c.downloadExecutiveReportPdf({returnBlob:true})).error,'legacy_pdf_export_unavailable');assert.equal(calls.length,0);checks+=2;
+    c.window.MondermanReport=null;c.exportExecutiveReport(raw,{});c.exportFullReportHTML(raw,{});await c.downloadExecutiveReportPdf();
+    assert.equal(toasts.length,3);assert.equal(calls.length,0);checks+=2;
+  }
 }
 for(const report_kind of ['self_run_synthesis','self_run_response_comparison']){
   const source={report_kind,source_mode:'own_saved_runs',synthesis_product:'cross_lens_synthesis',score_status:'withheld',submitted_run_count:3,lens_count:3,source_groups:[{tool_type:'decision_velocity',tool_label:'Decision Velocity',submitted_runs:1,median_score:72}],priority_actions:[],participant_count_note:'All selected runs are from one account.'};

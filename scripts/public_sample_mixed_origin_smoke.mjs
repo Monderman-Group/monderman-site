@@ -24,7 +24,7 @@ for(const [i,key]of keys.entries()){
 }
 const freeze=x=>{if(x&&typeof x==='object'){Object.values(x).forEach(freeze);Object.freeze(x);}return x;};
 freeze(artifact);const before=JSON.stringify(artifact);let checks=0;const ok=fn=>{fn();checks++;};
-ok(()=>assert.equal(Report.rendererVersion,'diagnostic-renderer-evidence-reading-20260913.37'));
+ok(()=>assert.equal(Report.rendererVersion,'diagnostic-renderer-evidence-reading-20260913.39'));
 ok(()=>assert.equal(Public.validate(artifact),artifact)); // shape only, not a release/approval validator
 for(const [i,key]of keys.entries()){
   const entry=artifact.outputs[key],p=entry.provenance,report=publicResult(entry).ai_report.report;
@@ -70,4 +70,60 @@ ok(()=>assert.equal(artifact.status,'MOCK-unapproved-not-for-publication'));
 const fixtureSource=fs.readFileSync(new URL('./public_sample_fixture.mjs',import.meta.url),'utf8');
 ok(()=>assert.ok(fixtureSource.includes("assert.equal(manifest.fidelity_review,'passed'")));
 ok(()=>assert.ok(fixtureSource.includes("sha(artifactBytes),manifest.artifact_file_sha256")));
+// Execute the real sample-page wire/mount and JSON click handlers against small
+// DOM stubs. This is not a browser/layout pass or a publication-approved fixture.
+const pageSource=fs.readFileSync(new URL('../sample-report-production.js',import.meta.url),'utf8');
+const seam='window.MondermanSampleReportShell = { mount: mountReport };';
+ok(()=>assert.equal(pageSource.split(seam).length-1,1));
+scope.document={readyState:'loading',addEventListener(){}};
+const nativeMethods={render:Report.render,downloadJson:Report.downloadJson,downloadHtml:Report.downloadHtml,downloadPdf:Report.downloadPdf};
+const dispatched=[];
+Report.render=()=>{};
+for(const name of ['downloadJson','downloadHtml','downloadPdf'])Report[name]=(...args)=>dispatched.push({name,args});
+vm.runInContext(pageSource.replace(seam,seam+'\nwindow.__mixedOriginTest={wireReport,reportGenerationCommit};'),scope,{filename:'sample-report-production.js'});
+const wire=scope.window.__mixedOriginTest.wireReport,resolveCommit=scope.window.__mixedOriginTest.reportGenerationCommit;
+function shellStub(){
+ const nodes=new Map();
+ const node=()=>({events:{},addEventListener(name,fn){this.events[name]=fn;},querySelectorAll(){return [];}});
+ for(const selector of ['.psr-engine-stage','.psr-toc ol','.psr-toc-mobile select','.psr-toc','[data-action="read"]','[data-action="html"]','[data-action="json"]','[data-action="print"]'])nodes.set(selector,node());
+ return {innerHTML:'',nodes,querySelector(selector){assert.ok(nodes.has(selector),'Unexpected DOM dependency: '+selector);return nodes.get(selector);}};
+}
+for(const key of keys){
+ const entry=artifact.outputs[key],p=entry.provenance,shell=shellStub(),previous=JSON.stringify(entry);
+ wire(shell,entry,artifact,key);
+ ok(()=>assert.ok(shell.innerHTML.includes('data-engine-commit="'+p.engine_commit+'"')));
+ ok(()=>assert.ok(shell.innerHTML.includes(' · API '+p.engine_commit.slice(0,8))));
+ ok(()=>assert.ok(!shell.innerHTML.includes(assemblyCommit)));
+ ok(()=>assert.ok(!shell.innerHTML.includes(' · API '+assemblyCommit.slice(0,8))));
+ ok(()=>assert.ok(shell.innerHTML.includes('data-artifact-sha256="'+artifact.artifact_sha256+'"')));
+ shell.nodes.get('[data-action="json"]').events.click();
+ const exported=dispatched.at(-1);ok(()=>assert.equal(exported.name,'downloadJson'));
+ ok(()=>assert.equal(exported.args[0].export_payload.sample_provenance.engine_commit,p.engine_commit));
+ ok(()=>assert.equal(exported.args[0].export_payload.sample_provenance.report_ai_release,p.report_ai_release));
+ ok(()=>assert.equal(exported.args[0].export_payload.sample_provenance.report_ai_prompt_version,p.report_ai_prompt_version));
+ ok(()=>assert.equal(exported.args[0].export_payload.sample_provenance.generated_at,p.generated_at));
+ const exportedSource={...exported.args[0].export_payload};delete exportedSource.sample_provenance;
+ ok(()=>assert.equal(JSON.stringify(exportedSource),JSON.stringify(entry.source),'Authored source is exported unchanged'));
+ shell.nodes.get('[data-action="html"]').events.click();
+ ok(()=>assert.equal(dispatched.at(-1).args[0].sampleProvenance.engine_commit,p.engine_commit));
+ shell.nodes.get('[data-action="print"]').events.click();
+ ok(()=>assert.equal(dispatched.at(-1).args[0].sampleProvenance.engine_commit,p.engine_commit));
+ ok(()=>assert.equal(JSON.stringify(entry),previous));
+ for(const value of [undefined,null,'','x'.repeat(40),'1'.repeat(39),'1'.repeat(41)]){
+  const invalid=structuredClone(entry);if(value===undefined)delete invalid.provenance.engine_commit;else invalid.provenance.engine_commit=value;
+  const rejected=shellStub();
+  ok(()=>assert.throws(()=>wire(rejected,invalid,artifact,key),/generation revision/));
+  ok(()=>assert.equal(rejected.innerHTML,'','Invalid explicit revision cannot mount or export'));
+ }
+}
+const legacyEntry=structuredClone(artifact.outputs.operational_systems);delete legacyEntry.provenance.engine_commit;
+const legacy={...artifact,contract:'monderman-public-product-samples/v2'};
+ok(()=>assert.equal(resolveCommit(legacyEntry,legacy),assemblyCommit,'Only absent legacy v2 provenance may use the old global identity'));
+for(const value of [null,'','bad'])ok(()=>assert.throws(()=>resolveCommit({...legacyEntry,provenance:{...legacyEntry.provenance,engine_commit:value}},legacy),/generation revision/));
+ok(()=>assert.throws(()=>resolveCommit(legacyEntry,{...legacy,engine_commit:'bad'}),/generation revision/));
+ok(()=>assert.throws(()=>resolveCommit(legacyEntry,{...legacy,contract:'unknown'}),/generation revision/));
+ok(()=>assert.throws(()=>Public.validate(legacy),/contract/,'Legacy helper fallback never widens current public-library admission'));
+Object.assign(Report,nativeMethods);
+ok(()=>assert.equal(JSON.stringify(artifact),before));
+ok(()=>assert.equal(fs.readFileSync(new URL('../sample-report-production.js',import.meta.url),'utf8'),pageSource));
 console.log(JSON.stringify({status:'PASS',checks,products:6,mixedGenerationCommits:2,renderer:Report.rendererVersion,publicationApprovalClaimed:false,providerCalls:0,artifactsWritten:0}));

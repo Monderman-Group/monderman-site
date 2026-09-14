@@ -37,10 +37,11 @@ eq(injector.match(/const shellRelease = "([^"]+)";/)?.[1],'20260913.32');
 const versionStart=injector.indexOf('const shellRelease ='),versionEnd=injector.indexOf('const motif =',versionStart);
 ok(versionStart>=0&&versionEnd>versionStart);
 const versionScript=vm.runInNewContext(injector.slice(versionStart,versionEnd)+'\nversionScript');
-const changed=['monderman-report.js','campaign-analysis.js','campaign-analysis.css'];
-const runtimeRelease=asset=>asset==='monderman-report.js'?'20260913.35':'20260913.34';
+const changed=['monderman-report.js','sample-report-production.js','campaign-analysis.js','campaign-analysis.css'];
+const runtimeRelease=asset=>asset==='monderman-report.js'?'20260913.39':asset==='sample-report-production.js'?'20260914-mixed-origin1':'20260913.34';
+eq(read('monderman-report.js').toString().match(/const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-([^"]+)"/)?.[1],runtimeRelease('monderman-report.js'),'Cache identity matches the actual renderer export');
 for(const asset of changed){
-  for(const quote of ['"',"'"])for(const prefix of ['', './'])for(const query of ['', '?v=20260913.32'])
+  for(const quote of ['"',"'"])for(const prefix of ['', './'])for(const query of ['', '?v=20260913.32','?v=20260913.35','?v=20260913.39'])
     eq(versionScript(`${quote}${prefix}${asset}${query}${quote}`,asset),`${quote}${prefix}${asset}?v=${runtimeRelease(asset)}${quote}`);
   for(const prefix of ['../','/','https://example.test/']){
     const unrelated=`"${prefix}${asset}?v=external"`;
@@ -74,11 +75,14 @@ for(const file of pages){
     const pattern=new RegExp(`(["'])((?:\\./)?${asset.replace('.', '\\.')})([^"']*)\\1`,'g');
     const before=[...original.matchAll(pattern)],after=[...html.matchAll(pattern)];
     eq(after.length,before.length,file+': asset reference count unchanged');
+    if(['monderman-report.js','sample-report-production.js'].includes(asset))for(const match of before)eq(match[3],`?v=${runtimeRelease(asset)}`,file+': unbuilt source also uses current report cache identity');
     for(const match of after){eq(match[3],`?v=${runtimeRelease(asset)}`,file+': current asset URL');references[asset]++;}
   }
 }
 eq(canonicalPages,60);eq(footerPages,64);
 for(const asset of changed)ok(references[asset]>0,'Actual built pages exercise '+asset);
+eq(references['monderman-report.js'],9,'All nine renderer consumers are covered');
+eq(references['sample-report-production.js'],1,'The real sample page uses the mixed-origin export handler');
 ok(fs.readFileSync(path.join(built,'workspace-analysis.html'),'utf8').includes("from './campaign-analysis.js?v=20260913.34'"));
 ok(fs.readFileSync(path.join(built,'diagnostics.html'),'utf8').includes('id="methodology-and-sources"'));
 eq(sha(fs.readFileSync(path.join(built,'single-run-financial-display.css'))),hashes['single-run-financial-display.css']);
