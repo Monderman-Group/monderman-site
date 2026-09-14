@@ -10,17 +10,19 @@ fs.mkdirSync(out, { recursive: true });
 // A stale or unapproved artifact must fail before browser layout is mistaken
 // for current-output fidelity. Never repin or replace it with mocked prose.
 const {artifact}=readPublicSampleFixture();
-const expectedEngine = artifact.engine_commit;
 const expectedArtifact = artifact.artifact_sha256;
+const generationEngineCommits=Object.fromEntries(Object.entries(artifact.outputs).map(([key,entry])=>[key,entry.provenance.engine_commit]));
 const expected = Object.fromEntries(Object.entries({os:'operational_systems',dv:'decision_velocity',sc:'structural_clarity',ip:'institutional_performance'}).map(([tab,key])=>{
   const result=publicResult(artifact.outputs[key]);
-  return [tab,{source:key,score:String(result.score),dimensions:Object.keys(result.dimensions).length,result}];
+  return [tab,{source:key,score:String(result.score),dimensions:Object.keys(result.dimensions).length,result,engineCommit:artifact.outputs[key].provenance.engine_commit}];
 }));
 
 function assert(value, message) {
   if (!value) throw new Error(message);
 }
 async function assertPromotionalBoundary(shell,key) {
+  assert(await shell.locator('.psr-wrap').getAttribute('data-engine-commit')===artifact.outputs[key].provenance.engine_commit,
+    `${key} original generation revision differs from the entry provenance`);
   const text=await shell.textContent();
   assert(!text.includes('About this example'),`${key} retains the redundant promotional provenance section`);
   const disclosure=shell.locator('.mr-sample-disclosure');
@@ -89,7 +91,7 @@ for (const [key, contract] of Object.entries(expected)) {
   assert(await report.count() === 1, `${key} production-contract report is missing or duplicated`);
   assert(await shell.locator('.psr-doc-shell').count() === 1, `${key} shared promotional report frame is missing or duplicated`);
   assert(await shell.locator('.psr-toc a').count() >= 8, `${key} desktop contents rail is incomplete`);
-  assert(await report.getAttribute('data-engine-commit') === expectedEngine, `${key} engine revision mismatch`);
+  assert(await report.getAttribute('data-engine-commit') === contract.engineCommit, `${key} original generation revision mismatch`);
   assert(await report.getAttribute('data-artifact-sha256') === expectedArtifact, `${key} artifact digest mismatch`);
   assert(await report.getAttribute('data-source-key') === contract.source, `${key} source identity mismatch`);
   assert((await shell.locator('.mr-run-score-stamp strong').innerText()).trim() === contract.score, `${key} generated score mismatch`);
@@ -103,22 +105,25 @@ for (const [key, contract] of Object.entries(expected)) {
   const text = await shell.textContent();
   for (const token of [
     'Decision summary', 'Dimension profile', key==='sc'?'Clarity indicator distribution':'Where the measured issue appears',
-    'How the time and cost estimate is built', key==='sc'?'Review order and clarity indicators':'Priority order and measured severity',
+    'Measured priorities', key==='sc'?'Review order and clarity indicators':'Priority order and measured severity',
     'What this may mean', 'What this result is based on',
     'Interpretation and next steps', 'How this report was produced', 'Interpretation boundary',
   ]) assert(text.includes(token), `${key} missing production-equivalent content: ${token}`);
+  assert(await shell.locator('.mr-exposure-flow,.mr-exposure-range,.mr-financial-scenario').count()===0,`${key} individual report displays a recovery or financial scenario`);
+  assert(!text.includes('How the time and cost estimate is built'),`${key} individual report retains the retired recovery section`);
   await assertPromotionalBoundary(shell,contract.source);
   const notes=contract.result.participant_evidence||[];
-  assert(notes.length>0,`${key} approved fictional participant observations are missing`);
+  assert(notes.length>0,`${key} approved example participant observations are missing`);
   const evidence=await shell.locator('.mr-run-evidence').textContent();
   for(const note of notes)assert(typeof note.text==='string'&&note.text.trim()&&evidence.includes(note.text),`${key} saved participant observation is missing or rewritten`);
   assert(!text.includes('No written participant notes are included.'),`${key} falsely says the saved observations are absent`);
   for (const stale of ['Competing readings', 'What would update this read', 'Sample Depth Synthesis Report']) {
     assert(!text.includes(stale), `${key} still renders outdated content: ${stale}`);
   }
+  await shell.locator('.psr-downloads summary').click();
   assert(await shell.getByRole('button', { name: 'Download HTML' }).isVisible(), `${key} HTML control missing`);
   assert(await shell.getByRole('button', { name: 'Download JSON' }).isVisible(), `${key} JSON control missing`);
-  assert(await shell.getByRole('button', { name: 'Print or save PDF' }).isVisible(), `${key} print/PDF control missing`);
+  assert(await shell.getByRole('button', { name: 'Download PDF', exact:true }).isVisible(), `${key} print/PDF control missing`);
   await page.screenshot({ path: path.join(out, `${key}-desktop.png`), fullPage: true });
 }
 
@@ -135,7 +140,7 @@ const [jsonDownload] = await Promise.all([
 assert(jsonDownload.suggestedFilename().endsWith('.json'), 'public JSON export filename changed');
 const [printReport] = await Promise.all([
   page.waitForEvent('popup'),
-  page.locator('#report-os').getByRole('button', { name: 'Print or save PDF' }).click(),
+  page.locator('#report-os').getByRole('button', { name: 'Download PDF', exact:true }).click(),
 ]);
 await printReport.waitForLoadState('domcontentloaded');
 assert(await printReport.locator('.mr-report').isVisible(), 'public print/PDF report did not open');
@@ -222,7 +227,8 @@ await emulateMediaAndSettle(page, 'screen');
 assert(errors.length === 0, errors.join('\n'));
 fs.writeFileSync(path.join(out, 'result.json'), JSON.stringify({
   ok: true,
-  engine_commit: expectedEngine,
+  assembly_engine_commit: artifact.engine_commit,
+  generation_engine_commits: generationEngineCommits,
   artifact_sha256: expectedArtifact,
   diagnostic_products: 4,
   synthesis_products: 2,

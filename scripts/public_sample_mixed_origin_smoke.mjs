@@ -126,4 +126,15 @@ ok(()=>assert.throws(()=>Public.validate(legacy),/contract/,'Legacy helper fallb
 Object.assign(Report,nativeMethods);
 ok(()=>assert.equal(JSON.stringify(artifact),before));
 ok(()=>assert.equal(fs.readFileSync(new URL('../sample-report-production.js',import.meta.url),'utf8'),pageSource));
+// Current publication tests must validate the actual reviewed release before
+// rendering, and compare entry generation rather than assembly provenance.
+// This is source wiring coverage only, not a six-report publication pass.
+for(const file of ['report_presentation_smoke.mjs','sample_product_fidelity_smoke_v2.mjs']){
+  const source=fs.readFileSync(new URL(file,import.meta.url),'utf8');
+  ok(()=>assert.match(source,/import \{readPublicSampleFixture,publicResult\} from '\.\/public_sample_fixture\.mjs'/));
+  ok(()=>assert.match(source,/const \{artifact\}=readPublicSampleFixture\(\)/));
+  ok(()=>assert.match(source,/provenance\.engine_commit/));
+  ok(()=>assert.doesNotMatch(source,/getAttribute\('data-engine-commit'\)\s*===\s*artifact\.engine_commit/));
+  ok(()=>assert.doesNotMatch(source,/JSON\.parse\(fs\.readFileSync[^\n]*production-diagnostic-samples\.json/));
+}
 console.log(JSON.stringify({status:'PASS',checks,products:6,mixedGenerationCommits:2,renderer:Report.rendererVersion,publicationApprovalClaimed:false,providerCalls:0,artifactsWritten:0}));
