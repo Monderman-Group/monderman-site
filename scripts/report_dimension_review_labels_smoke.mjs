@@ -17,7 +17,7 @@ const styles=[
 ];
 export function renderer36StyleOutput(value){value=renderer37Output(value);for(const [now,before]of styles)value=value.replaceAll(now,before);return value.replaceAll(CURRENT,PREVIOUS);}
 export function sourceBeforeRenderer37(source){
- if(/diagnostic-renderer-evidence-reading-(?:20260913\.3[89]|20260914\.4[01])/.test(source))source=sourceBeforeRenderer38(source);
+ if(/diagnostic-renderer-evidence-reading-(?:20260913\.3[89]|20260914\.4[0123])/.test(source))source=sourceBeforeRenderer38(source);
  assert.equal(source.split(mapper).length,2);
  assert.equal(source.split('esc(priorityReviewLabel(row.priority))').length,3);
  for(const [now]of styles)assert.equal(source.split(now).length,2);
@@ -30,6 +30,8 @@ export function sourceBeforeRenderer37(source){
 function run(){
  let checks=0;const eq=(a,b)=>{assert.deepEqual(a,b);checks++;},ok=condition=>{assert.ok(condition);checks++;};
  const source=sourceBeforeRenderer38(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8')),prior=sourceBeforeRenderer37(source);
+ eq(sourceBeforeRenderer37(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8')),prior);
+ assert.throws(()=>sourceBeforeRenderer37(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8')+'\nUNREVIEWED'));checks++;
  const load=text=>{const context={window:{}};vm.runInNewContext(fs.readFileSync(path.join(root,'participant-evidence-safety.js'),'utf8'),context);vm.runInNewContext(text,context);return context.window.MondermanReport;};
  const report=load(source),old=load(prior);eq(report.rendererVersion,CURRENT);eq(old.rendererVersion,PREVIOUS);
  const luminance=hex=>{const values=hex.match(/[a-f\d]{2}/gi).map(v=>parseInt(v,16)/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4);return .2126*values[0]+.7152*values[1]+.0722*values[2];};

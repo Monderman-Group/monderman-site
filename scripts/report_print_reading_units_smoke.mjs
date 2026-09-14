@@ -35,7 +35,7 @@ const DELTA=[
   ]
 ];
 export function sourceBeforeRenderer38(source){
-  if(/diagnostic-renderer-evidence-reading-(?:20260913\.39|20260914\.4[012])/.test(source))source=sourceBeforeRenderer39(source);
+  if(/diagnostic-renderer-evidence-reading-(?:20260913\.39|20260914\.4[0123])/.test(source))source=sourceBeforeRenderer39(source);
   for(const [now,before]of DELTA){assert.equal(source.split(now).length,2,'Exact approved renderer38 delta occurrence');source=source.replace(now,before);}
   assert.equal(sha(source),'39cd55e6b542940a3979d67f9aa652adcd7fa58d6fa2e907438d1cb42bec0b82');
   return source;
@@ -52,6 +52,8 @@ export function renderer37Output(html){
 function run(){
  let checks=0;const eq=(a,b,m)=>{assert.deepEqual(a,b,m);checks++;},ok=(v,m)=>{assert.ok(v,m);checks++;};
  const source=sourceBeforeRenderer39(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8')),prior=sourceBeforeRenderer38(source);
+ eq(sourceBeforeRenderer38(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8')),prior,'Current renderer routes through the complete exact historical inverse');
+ assert.throws(()=>sourceBeforeRenderer38(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8')+'\nUNREVIEWED'));checks++;
  const load=code=>{const c={window:{}};vm.runInNewContext(fs.readFileSync(path.join(root,'participant-evidence-safety.js'),'utf8'),c);vm.runInNewContext(code,c);return c.window.MondermanReport;};
  const R=load(source),old=load(prior);eq(R.rendererVersion,CURRENT);eq(old.rendererVersion,PREVIOUS);
  const make=(text='MOCK short finding.',role='senior_leader')=>({status:'complete',report:{

@@ -7,13 +7,16 @@ import vm from 'node:vm';
 import {createHash} from 'node:crypto';
 import {sourceBeforeRenderer37,renderer36StyleOutput} from './report_dimension_review_labels_smoke.mjs';
 import {CURRENT} from './report_print_conditions_sources_smoke.mjs';
+import {sourceBeforeRenderer40} from './report_reader_copy_smoke.mjs';
 const root=path.resolve(import.meta.dirname,'..');
 const sha=b=>createHash('sha256').update(b).digest('hex');
-const source=fs.readFileSync(path.join(root,'monderman-report.js'),'utf8');
+const rawSource=fs.readFileSync(path.join(root,'monderman-report.js'),'utf8');
+const source=sourceBeforeRenderer40(rawSource);
 const current=CURRENT,previous='diagnostic-renderer-evidence-reading-20260913.35';
 const fontRule='border-radius:7px;font-family:inherit;font-size:15px;font-weight:500';
 let checks=0;const eq=(a,b,label)=>{assert.deepEqual(a,b,label);checks++;};
 const ok=(condition,label)=>{assert.ok(condition,label);checks++;};
+assert.throws(()=>sourceBeforeRenderer40(rawSource+'\nUNREVIEWED'));checks++;
 eq(source.split(fontRule).length-1,1,'Exactly one targeted control font declaration');
 const prior=sourceBeforeRenderer37(source).replace('diagnostic-renderer-evidence-reading-20260913.36',previous).replace(fontRule,'border-radius:7px;font-size:15px;font-weight:500');
 eq(sha(prior),'caf4474e16d679f1122dd39f05e9c930804d4caa99a64222b880b050173cb87c','Only approved font/version changes from exact prior renderer');
@@ -56,5 +59,5 @@ if(browserName){
     await page.emulateMedia({media:'print'});eq(await page.locator('.mr-report .actions').isVisible(),false,'Controls hidden without creating a PDF');await page.close();
   }}finally{await browser.close();}
 }
-eq(sha(fs.readFileSync(path.join(root,'monderman-report.js'))),sha(source),'Source unchanged during regression');
+eq(sha(fs.readFileSync(path.join(root,'monderman-report.js'))),sha(rawSource),'Source unchanged during regression');
 console.log(JSON.stringify({status:'PASS',checks,browser:browserName||'not_run',rendererVersion:current,scope:'Synthetic control font only, not actual report approval',blockedRequests,externalNetworkCalls:0,pdfs:0}));
