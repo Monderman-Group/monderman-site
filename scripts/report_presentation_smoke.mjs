@@ -189,13 +189,19 @@ const crossChart = cross.locator('svg[aria-label="Cross-Lens Diagnostic score co
 assert(await crossChart.isVisible(), 'Cross-Lens comparison chart not visible');
 const crossChartFont = await crossChart.evaluate(el => getComputedStyle(el).fontFamily);
 assert(isMondermanFont(crossChartFont), `Cross-Lens chart bypasses Neue Haas Grotesk: ${crossChartFont}`);
-const crossTop = await crossSystem.evaluate(el => el.getBoundingClientRect().top + window.scrollY);
-// Promotional navigation and export controls sit outside the generated report.
-// Measure the report hierarchy from the production renderer's document root so
-// shell chrome cannot create a false regression in the executive-layout gate.
-const crossStart = await cross.locator('.mr-report').evaluate(el => el.getBoundingClientRect().top + window.scrollY);
-const crossAIHeight=await cross.locator('.mr-ai-interpretation').evaluate(el=>el.getBoundingClientRect().height);
-assert(crossTop - crossStart - crossAIHeight < 1150, `Cross-Lens chart is buried after the accepted interpretation`);
+// Cover and authored interpretation are source-length-dependent. The measured
+// section must immediately follow the interpretation, with its chart near the
+// section's beginning; don't charge the cover's content to chart placement.
+async function assertEarlyMeasuredChart(shell, sectionSelector, chart, label) {
+  const section=await shell.locator(sectionSelector).boundingBox();
+  const interpretation=await shell.locator('.mr-ai-interpretation').boundingBox();
+  const visual=await chart.boundingBox();
+  assert(section&&interpretation&&visual,label+' measured geometry missing');
+  const geometry={gap:section.y-interpretation.y-interpretation.height,chartOffset:visual.y-section.y};
+  assert(geometry.gap>=-1&&geometry.gap<=64,label+' measured section separated from interpretation: '+JSON.stringify(geometry));
+  assert(geometry.chartOffset>=0&&geometry.chartOffset<1150,label+' chart is buried within measured section: '+JSON.stringify(geometry));
+}
+await assertEarlyMeasuredChart(cross,'.mr-system-read',crossSystem,'Cross-Lens');
 
 const crossText = await cross.textContent();
 assert(crossText.includes('Executive synthesis'), 'Cross-Lens executive synthesis missing');
@@ -209,7 +215,12 @@ assert(crossText.includes('Results by participant perspective'), 'Cross-Lens van
 assert(await cross.locator('.mr-remedy-card').count() === 0, 'Cross-Lens rendered remedy cards without eligible source remedy prose');
 assert(crossText.includes('Diagnostic lenses at a glance'), 'Cross-Lens comparison picture label missing');
 assert(await cross.locator('.mr-action-path .mr-action-step').count() === 0, 'Cross-Lens duplicates fallback actions beside accepted AI');
-assert(await cross.locator('.mr-evidence-ladder .mr-evidence-step').count() === 4, 'Cross-Lens evidence ladder incomplete');
+async function assertCampaignReadinessExplanation(shell,source,label) {
+  assert(source.campaign_evidence?.depth,label+' fixture lacks campaign readiness');
+  assert(await shell.locator('.mr-evidence-ladder').count()===0,label+' campaign readiness replaced by legacy evidence-size ladder');
+  assert((await shell.textContent()).includes('Campaign readiness checks the declared population, compatible measurements and the possible effect of missing responses. Passing these checks is not scientific validation or a probability of accuracy.'),label+' campaign readiness explanation missing');
+}
+await assertCampaignReadinessExplanation(cross,crossSource,'Cross-Lens');
 assert(await cross.locator('.psr-toc a').count() >= 10, 'Cross-Lens Contents rail is incomplete');
 
 const evidenceMap = cross.locator('.mr-cross-lens-map');
@@ -246,10 +257,8 @@ const depthChart = depth.locator('svg[aria-label="Depth Synthesis score distribu
 assert(await depthChart.isVisible(), 'Depth distribution chart not visible');
 const depthChartFont = await depthChart.evaluate(el => getComputedStyle(el).fontFamily);
 assert(isMondermanFont(depthChartFont), `Depth chart bypasses Neue Haas Grotesk: ${depthChartFont}`);
-const depthTop = await depthChart.evaluate(el => el.getBoundingClientRect().top + window.scrollY);
-const depthStart = await depth.locator('.mr-report').evaluate(el => el.getBoundingClientRect().top + window.scrollY);
-const depthAIHeight=await depth.locator('.mr-ai-interpretation').evaluate(el=>el.getBoundingClientRect().height);
-assert(depthTop - depthStart - depthAIHeight < 1150, 'Depth chart is buried after the accepted interpretation');
+assert(await depth.locator('.mr-depth-system-read').evaluate(el=>el===[...el.parentElement.querySelectorAll(':scope > .mr-section')].find(node=>!node.classList.contains('mr-ai-interpretation'))),'Depth distribution read is not first measured section');
+await assertEarlyMeasuredChart(depth,'.mr-depth-system-read',depthChart,'Depth');
 assert((await depth.textContent()).includes(depthSource.sample_reads[0].vantage_gap.statement), 'Depth recorded perspective gap not visible');
 await assertAuthoredSections(depth,depthSource,'Depth');
 await assertOperationalScenario(depth,depthSource,'Depth');
@@ -262,7 +271,7 @@ assert(await depth.locator('.mr-remedy-card').count() === 0, 'Depth rendered rem
 assert((await depth.textContent()).includes('Agreement, divergence, and coverage'), 'Depth agreement/divergence section missing');
 assert(await depth.locator('.mr-depth-metrics .mr-run-metric').count() === 4, 'Depth opening read does not show four executive metrics');
 assert(await depth.locator('.mr-action-path .mr-action-step').count() === 0, 'Depth duplicates fallback actions beside accepted AI');
-assert(await depth.locator('.mr-evidence-ladder .mr-evidence-step').count() === 4, 'Depth evidence ladder incomplete');
+await assertCampaignReadinessExplanation(depth,depthSource,'Depth');
 assert(await depth.locator('.psr-toc a').count() >= 10, 'Depth Contents rail is incomplete');
 assert(await depth.locator('.mr-report-boundary').isVisible(), 'Depth end interpretation boundary missing');
 await page.screenshot({ path: path.join(out, 'depth-full.png'), fullPage: true });
@@ -475,7 +484,7 @@ fs.writeFileSync(path.join(out, 'result.json'), JSON.stringify({
     synthesisContentsNavigation:true,
     executiveDecisionFrame:true,
     crossLensSystemPicture:true,
-    evidenceStrengthLadder:true,
+    campaignReadinessWithoutLegacySizeLadder:true,
     acceptedAIActionsWithoutFallbackDuplicates:true,
     synthesisChartsUseNeueHaas:true,
     standaloneParity:true,
