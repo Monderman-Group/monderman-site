@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { chromium, webkit } from 'playwright';
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
 const out = process.env.MOBILE_OUT || '/tmp/mobile-site-presentation';
@@ -72,6 +71,10 @@ if (process.argv.includes('--inventory-only')) {
   console.log(JSON.stringify({scope:'source-and-built-inventory-only',pages:pages.length,canonicalPages:canonicalPages.length,footerPages:footerPages.length,immutableLegalPages:immutableLegalPages.size,browserLaunched:false}));
   process.exit(0);
 }
+
+// The static release inventory has no browser dependency. Load the browser
+// engines only for the actual rendered sweep below.
+const { chromium, webkit } = await import('playwright');
 
 const viewports = [
   { name: 'compact-phone', width: 320, height: 700 },

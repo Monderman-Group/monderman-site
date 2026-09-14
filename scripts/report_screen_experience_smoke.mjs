@@ -177,6 +177,12 @@ const invariants=await page.evaluate(async()=>{
     const printed=wrapper.querySelector('.mr-page').cloneNode(true);
     printed.querySelectorAll('.mr-screen-only').forEach(node=>node.remove());
     printed.querySelectorAll('section[id]').forEach(node=>node.removeAttribute('id'));
+    // Current action navigation also targets the existing guidance divs.
+    // Strip only its generated navigation ID, never its report contents.
+    printed.querySelectorAll('.mr-report-nextsteps[id],.mr-report-options[id]').forEach(node=>{
+      if (!/^mr-.+-guidance-\d+$/.test(node.id)) throw new Error('Unexpected guidance navigation ID');
+      node.removeAttribute('id');
+    });
     const baseline=document.createElement('div');baseline.innerHTML=MondermanReport.buildReportBody(model);
     const normalizeSvg = html => html.replace(/id="mr-[^"]+-system-gradient"/g,'id="mr-system-gradient"').replace(/url\(#mr-[^)]+-system-gradient\)/g,'url(#mr-system-gradient)');
     const intact=normalizeSvg(printed.innerHTML)===baseline.innerHTML;
