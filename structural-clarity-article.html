@@ -9,9 +9,9 @@
 <meta property="og:title" content="Structural Clarity | Monderman"/>
 <meta property="og:type" content="article"/>
 <meta property="og:url" content="https://www.monderman.com/structural-clarity-article.html"/>
-<meta property="og:description" content="How the Structural Clarity diagnostic examines ownership, authority, and role boundaries, with guidance for reading the result."/>
+<meta property="og:description" content="How the Structural Clarity diagnostic records one participant’s perspective on responsibilities and decision authority, with guidance for interpreting the result."/>
 
-  <meta name="description" content="How the Structural Clarity diagnostic examines ownership, authority, and role boundaries, with guidance for reading the result." />
+  <meta name="description" content="How the Structural Clarity diagnostic records one participant’s perspective on responsibilities and decision authority, with guidance for interpreting the result." />
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260906-enterprise1">
   <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260906-enterprise1">
   <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260906-enterprise1">
@@ -486,6 +486,7 @@
     }
 
     .score-block .score-num {
+      color: #fff;
       font-size: 3rem;
       line-height: 0.92;
       font-weight: 700;
@@ -550,7 +551,9 @@
     }
 
 
-    .lens-matrix { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 1.75rem 0; font-size: 0.95rem; }
+    .lens-matrix { width: 100%; border-collapse: collapse; table-layout: auto; margin: 1.75rem 0; font-size: 0.95rem; }
+    .lens-matrix-region { max-width: 100%; overflow-x: auto; margin: 1.75rem 0; }
+    .lens-matrix-region .lens-matrix { margin: 0; }
     .lens-matrix th, .lens-matrix td { text-align: left; padding: 0.85rem 0.5rem; border-bottom: 1px solid rgba(8,56,62,0.10); vertical-align: top; overflow-wrap: normal; word-break: normal; hyphens: none; }
     .lens-matrix th:nth-child(1), .lens-matrix td:nth-child(1) { width: 30%; }
     .lens-matrix th:nth-child(2), .lens-matrix td:nth-child(2) { width: 29%; }
@@ -559,7 +562,7 @@
     .lens-matrix td strong { color: #0f1720; }
     .lens-matrix tbody tr:last-child td { border-bottom: none; }
     .lens-matrix-self { background: rgba(12,110,120,0.07); }
-    .lens-matrix-self td:first-child strong { color: #3f6ea1; }
+    .lens-matrix-self td:first-child strong { color: var(--accent); }
     .figure-note {
       margin-top: 14px;
       font-size: 0.88rem;
@@ -760,11 +763,13 @@
       .sidebar-card { min-height: 0; }
     }
 
-    @media (max-width: 720px) {
+    /* The article column is narrow even on desktop. Keep the comparison in
+       labelled reading rows so enlarged text does not require side-scrolling. */
       .lens-matrix,
       .lens-matrix tbody,
       .lens-matrix tr,
       .lens-matrix td { display: block; width: 100%; }
+      .lens-matrix td:nth-child(n) { width: 100%; }
       .lens-matrix { table-layout: auto; }
       .lens-matrix thead {
         position: absolute;
@@ -800,11 +805,12 @@
         text-transform: uppercase;
       }
       .lens-matrix td:nth-child(1)::before { content: "Diagnostic"; }
-      .lens-matrix td:nth-child(2)::before { content: "The question it answers"; }
+      .lens-matrix td:nth-child(2)::before { content: "Business focus"; }
       .lens-matrix td:nth-child(3)::before { content: "What it examines"; }
       .lens-matrix tbody tr:last-child td:not(:last-child) { border-bottom: 1px solid rgba(8,56,62,0.08); }
       .lens-matrix td:last-child { border-bottom: 0; }
 
+    @media (max-width: 720px) {
       .header-inner,
       .hero-inner,
       .article-inner,
@@ -1112,7 +1118,7 @@
             <h1>Structural Clarity</h1>
           </div>
         </div>
-        <p class="hero-taxonomy"><em>Ownership, authority, and role boundaries.</em></p>
+        <p class="hero-taxonomy"><em>Clear responsibilities and decision authority</em></p>
 <p class="mond-byline" style="margin:14px 0 0;font-size:13px;color:#6E6F73;">Jason Adamson &middot; Monderman Research</p>
         <p>
           This guide explains what the Structural Clarity diagnostic examines, how to interpret its result, and what the result does not establish.
@@ -1130,194 +1136,196 @@
       <div class="article-layout">
         <article class="content">
           <p>
-            Structural clarity is not about org charts alone. It is about whether people can actually tell how work is supposed to move, who owns what, where authority sits, how handoffs are meant to work, and when escalation is truly necessary. Many organizations look well designed on paper while remaining ambiguous in practice.
+            Structural Clarity examines whether people understand their responsibilities, who can make decisions, and how work passes between roles. An organization chart can describe formal reporting relationships without showing how those responsibilities work in practice.
           </p>
 
           <p>
-            That ambiguity rarely arrives as one dramatic failure. More often, it shows up as overlap, repeated clarification, unnecessary escalation, management interpretation, and the quiet feeling that the structure only works because capable people keep compensating around it.
+            A participant may report repeated requests for clarification, overlapping responsibilities, or uncertainty about when to refer a decision to someone else. These accounts can identify questions for review; they do not establish how every team operates.
           </p>
 
           <div class="pullquote reveal">
             <p>
-              Structural clarity exists when ownership, authority, boundaries, and accountability are aligned closely enough that work can move without constant interpretation, rescue, or informal translation.
+              Clear responsibilities help people know what they own, which decisions they can make, and when another person’s involvement is required.
             </p>
           </div>
 
-          <h2>What the diagnostic is actually reading</h2>
+          <h2>What the diagnostic asks about</h2>
 
           <p>
-            The tool is not trying to decide whether the organization is neatly designed in theory. It is reading whether the structure is legible enough to support execution in practice. That means looking for blurred authority, fuzzy ownership, weak handoffs, accountability diffusion, role overlap, and structures that remain usable only because people keep stepping in to make sense of them.
+            The diagnostic asks about ownership, decision authority, handoffs, and accountability from the participant’s selected perspective. It records both clear arrangements and areas of uncertainty without assuming that every process needs redesign.
           </p>
 
           <div class="signal-figure reveal">
-            <p class="figure-kicker">Diagnostic reading model</p>
+            <p class="figure-kicker">Topics covered</p>
             <div class="inline-glyph-row">
               <span class="inline-glyph" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M4 7h8"></path><path d="M4 12h16"></path><path d="M4 17h11"></path>
                 </svg>
               </span>
-              <h3 class="figure-title">Four recurring structural failure patterns</h3>
+              <h3 class="figure-title">Four aspects of responsibility and authority</h3>
             </div>
             <div class="signal-grid">
               <div class="signal-card">
-                <strong>Ownership ambiguity</strong>
-                <span>No one is clearly carrying the next move, so work advances only after repeated clarification or informal prompting.</span>
+                <strong>Responsibility</strong>
+                <span>Whether the participant knows who is responsible for the next step and for completing the work.</span>
               </div>
               <div class="signal-card">
-                <strong>Authority blur</strong>
-                <span>Decision rights exist on paper, but people still wait for cover because the real limits of authority are unclear.</span>
+                <strong>Decision authority</strong>
+                <span>Whether the participant understands which decisions they can make and when approval is required.</span>
               </div>
               <div class="signal-card">
-                <strong>Handoff diffusion</strong>
-                <span>Work moves across too many roles, teams, or layers, spreading accountability so widely that clean execution becomes harder to sustain.</span>
+                <strong>Handoffs</strong>
+                <span>How responsibilities pass between people or teams, including any reported gaps or repeated clarification.</span>
               </div>
               <div class="signal-card">
-                <strong>Compensatory structure</strong>
-                <span>The system still functions, but mainly because managers, informal fixers, or cross-team workarounds keep translating and stabilizing it.</span>
+                <strong>Informal coordination</strong>
+                <span>Whether people rely on informal arrangements to resolve questions that formal responsibilities leave unclear.</span>
               </div>
             </div>
             <p class="figure-note">
-              The live diagnostic adapts its question path around these signals and reads them differently across operational, managerial, and Senior Leader perspectives.
+              The question path adapts to the submitted answers and selected perspective: people doing the work, managers, or senior leaders.
             </p>
           </div>
 
-          <h2>Four lenses, four different questions</h2>
+          <h2>Four distinct diagnostic lenses</h2>
           <p>
-            Monderman runs four diagnostics. They are deliberately distinct instruments, not four versions of the same diagnostic. Each asks a different question about how an organization actually works.
+            Monderman’s four diagnostics cover different aspects of work. Each result reflects the submitted answers and selected role, not a complete assessment of the organization.
           </p>
+          <div class="lens-matrix-region" role="region" aria-label="Compare the four diagnostics" tabindex="0">
           <table class="lens-matrix">
             <thead>
-              <tr><th>Diagnostic</th><th>The question it answers</th><th>What it examines</th></tr>
+              <tr><th>Diagnostic</th><th>Business focus</th><th>What it examines</th></tr>
             </thead>
             <tbody>
               <tr class="lens-matrix-self">
                 <td><strong>Structural Clarity</strong></td>
-                <td>Is it clear who owns what?</td>
-                <td>Whether roles, decision rights, and handoffs are defined plainly enough to act on without constant clarification.</td>
+                <td>Clear responsibilities and decision authority</td>
+                <td>Whether people know who is responsible for work, who can make decisions, and how responsibilities pass between roles.</td>
               </tr>
               <tr>
                 <td><strong>Decision Velocity</strong></td>
-                <td>Do decisions move or stall?</td>
-                <td>The speed and friction of the decision pathway: approvals, coordination, and where momentum is lost.</td>
+                <td>Delays in making decisions</td>
+                <td>Reported delays associated with approvals, escalation, review steps, and routing.</td>
               </tr>
               <tr>
                 <td><strong>Operational Systems</strong></td>
-                <td>How heavy is the operating load?</td>
-                <td>The weight of process, controls, reporting, and manual workarounds the work has to carry.</td>
+                <td>Unnecessary process work</td>
+                <td>Recurring processes, reporting, coordination, and repeated data entry that may create unnecessary work.</td>
               </tr>
               <tr>
                 <td><strong>Institutional Performance</strong></td>
-                <td>Is performance sustainable?</td>
-                <td>Whether the institution sustains execution, confidence, and adaptability on its own, or props up output through compensation.</td>
+                <td>Consistent delivery and adaptation</td>
+                <td>Participants' reports of reliable delivery, responses to changing demands, and the effort needed to maintain results.</td>
               </tr>
             </tbody>
           </table>
+          </div>
           <p>
-            The other three lenses read decisions, operating load, and institutional condition. Structural Clarity reads the foundation beneath them: whether the structure itself is legible enough that people can act without first decoding who owns what. Fast decisions and a light operating load mean little if ownership and authority are unclear: the ambiguity simply resurfaces as rework, escalation, and quiet manager translation. That is the cost this diagnostic is built to see.
+            Structural Clarity focuses on responsibilities and decision authority. The other diagnostics examine decision delays, unnecessary process work, and consistent delivery and adaptation. Related answers may justify further investigation, but one lens does not establish the cause of a finding in another.
           </p>
 
-          <h2>Why structural ambiguity is so expensive</h2>
+          <h2>Why unclear responsibilities deserve attention</h2>
 
           <p>
-            Organizations often treat ambiguity as a communication problem when it is actually a design problem. People do not need more reminders about who should do what if the underlying structure remains blurred. In those conditions, even capable teams begin to hesitate, duplicate effort, or wait for reassurance before acting.
+            When responsibility is unclear, reminders alone may not resolve the issue. A useful review asks whether the problem concerns the stated role, the information available, or how the work is assigned in practice.
           </p>
 
           <p>
-            The cost is cumulative. One unclear handoff may seem minor. One fuzzy authority threshold may feel manageable. One role boundary that is still “evolving” may not appear dangerous. But once these stack together, execution begins to lose coherence. Activity remains high, yet clean forward movement becomes harder to sustain.
+            Repeated clarification can take time and make handoffs harder to manage. The diagnostic records the participant’s account of these conditions; checking their extent requires other relevant evidence.
           </p>
 
-          <h2>What the output is meant to show</h2>
+          <h2>What one completed run can show</h2>
 
           <p>
-            The Structural Clarity Diagnostic is not a generic culture score. It is built to return a decision-ready organizational readout: a directional score, a benchmark position, a trajectory signal, a likely structural weakness, and a practical first-action sequence. In other words, it is designed to help decision-makers determine whether the structure is clear and coherent, functional but fuzzy, structurally strained, or unclear enough that compensation has become part of the operating model.
+            The Structural Clarity report presents a score and band from the structured answers, the participant’s selected perspective, recorded strengths and concerns, and evidence-linked next steps where supported. A single run does not establish organization-wide conditions or change over time.
           </p>
 
           <div class="output-figure reveal">
-            <p class="figure-kicker">What the tool returns</p>
-            <h3 class="figure-title">An organizational readout of structural coherence</h3>
+            <p class="figure-kicker">Illustrative report layout</p>
+            <h3 class="figure-title">A participant’s view of responsibilities and authority</h3>
             <div class="output-shell">
               <div class="output-top">
                 <div class="score-block">
-                  <div class="score-label">Clarity score</div>
+                  <div class="score-label">Example score</div>
                   <p class="score-num">59</p>
-                  <div class="score-band">Structurally strained</div>
+                  <div class="score-band">Example band</div>
                 </div>
                 <div class="output-copy">
-                  <p><strong>Current structural condition.</strong> A concise read of whether the operating structure is supporting execution cleanly or leaning on compensation.</p>
-                  <p><strong>Primary structural weakness.</strong> The heaviest likely source of incoherence, such as ownership ambiguity, authority blur, or handoff diffusion.</p>
-                  <p><strong>Coherence diagnosis.</strong> Whether the current structural weight is justified or whether the organization is paying too much to preserve basic movement.</p>
+                  <p><strong>Recorded findings.</strong> A reading of the participant’s answers about responsibilities and decision authority.</p>
+                  <p><strong>Reported strengths and concerns.</strong> Clear arrangements and areas the participant describes as uncertain, kept within the question’s scope.</p>
+                  <p><strong>Practical next steps.</strong> A focused question or review to consider before proposing a change.</p>
                 </div>
               </div>
               <div class="output-metrics">
                 <div class="metric">
-                  <strong>Benchmark</strong>
-                  <span>Within range</span>
-                  <small>How the structure compares with similar sector pathways.</small>
+                  <strong>Perspective</strong>
+                  <span>Selected role</span>
+                  <small>The role and work context selected by this participant.</small>
                 </div>
                 <div class="metric">
-                  <strong>Trajectory</strong>
-                  <span>Rising ambiguity</span>
-                  <small>Whether the structure appears stabilizing, worsening, or easing.</small>
+                  <strong>Reported strengths</strong>
+                  <span>What is working</span>
+                  <small>Favorable recorded answers remain visible without inventing a problem.</small>
                 </div>
                 <div class="metric">
-                  <strong>Reclaim potential</strong>
-                  <span>Directional upside</span>
-                  <small>Approximate recoverable value if the heaviest structural burden is corrected first.</small>
+                  <strong>Next step</strong>
+                  <span>Bounded review</span>
+                  <small>Clarify one reported responsibility or handoff with the appropriate owner.</small>
                 </div>
               </div>
             </div>
             <p class="figure-note">
-              The actual tool also includes priority actions, a gated opportunity view, supporting evidence panels, and a downloadable executive report.
+              Illustrative layout only: the score and band above are not an assessed result. Completed reports explain recorded answers, preserve participant attribution, and include evidence-linked next steps where supported.
             </p>
           </div>
 
           <h2>What structural ambiguity looks like in practice</h2>
 
-          <h3>Ownership diffuses</h3>
+          <h3>Responsibility is unclear</h3>
           <p>
-            Work crosses multiple teams, but no one is clearly accountable for carrying it through the full path. Tasks get touched by many hands without ever being fully owned.
+            Work may involve several teams without a shared understanding of who owns the next step. A specific example can help distinguish a missing responsibility from a communication issue.
           </p>
 
-          <h3>Authority becomes situational</h3>
+          <h3>Approval requirements are uncertain</h3>
           <p>
-            People are nominally empowered, but only under certain unwritten conditions. In practice, they wait for cover because the real limits of authority are unclear.
+            A person may have formal authority but be unsure how it applies to a particular case. Reviewing the stated rule and a relevant example is more useful than assuming authority is absent.
           </p>
 
-          <h3>Handoffs multiply</h3>
+          <h3>Handoffs need clarification</h3>
           <p>
-            Instead of one clean transfer, work bounces across functions, reviewers, or leaders. Each handoff increases the risk of confusion, delay, or diluted accountability.
+            A task may pass between several roles. The number of transfers alone does not show that any is unnecessary; the review should consider what each transfer contributes.
           </p>
 
-          <h3>Coordination replaces design</h3>
+          <h3>Informal coordination fills gaps</h3>
           <p>
-            Meetings, side conversations, repeated check-ins, and manager interpretation become the mechanism that keeps the system working. The organization appears collaborative, but often it is compensating for a structure that is not sufficiently legible on its own.
+            Meetings and informal conversations can help resolve uncertainty. A participant’s reliance on them is a reason to ask what needs clarification, not proof that the formal structure has failed.
           </p>
 
-          <h2>Why clarity matters under pressure</h2>
+          <h2>Responsibilities when priorities change</h2>
 
           <p>
-            Structural ambiguity is most damaging when tempo increases. In stable conditions, strong individuals can often compensate for a muddled system. Under pressure, that compensation becomes harder to sustain. Deadlines tighten, competing priorities intensify, and confusion that once felt tolerable begins to fracture execution.
+            Changing priorities can expose uncertainty about who should decide, act, or be consulted. Relevant work examples can help the responsible people review those boundaries.
           </p>
 
           <p>
-            This is why structural clarity is not administrative neatness. It is a form of execution infrastructure. When authority and ownership are clear, organizations can move faster without becoming chaotic. When they are not, even routine work begins to require excess management energy.
+            Clear responsibilities are useful when they reflect the work people actually do. Any proposed change should preserve necessary approvals and be agreed by the responsible owner.
           </p>
 
           <h2>How Monderman approaches structural clarity</h2>
 
           <p>
-            Monderman looks beneath surface complaints about communication or collaboration and asks more structural questions. Where is ownership actually settling? Which handoffs are real, and which exist only because the system has become layered? Where is authority clear in theory but uncertain in practice? Which coordination rituals are carrying more weight than the formal design itself?
+            Monderman organizes the submitted evidence around practical questions: Who owns this work? Which decisions belong to that role? What information is needed at a handoff? What should happen when an exception occurs?
           </p>
 
           <p>
-            The aim is not perfect neatness. It is clearer institutional movement. A structurally clear environment gives leaders a better view of how work is actually operating and gives teams a more reliable path from responsibility to action without depending on constant interpretation or rescue.
+            Use the report to identify a bounded discussion or review. The participant’s answers are a starting point, not authorization to reassign work or evidence that a proposed change will succeed.
           </p>
 
           <div class="cta reveal">
-            <h3>Common signs structural clarity is weakening</h3>
+            <h3>When this diagnostic may be useful</h3>
             <p>
-              Teams revisit basic ownership questions, the same work is touched by multiple groups, managers spend too much time translating roles, routine cases escalate because boundaries are fuzzy, and the system still works mainly because capable people keep compensating around it.
+              Consider a run when people repeatedly revisit responsibility, approval, or handoff questions. The result can also record arrangements the participant says are working well.
             </p>
             <a class="btn btn-primary" href="signin.html?next=structural-clarity.html">Run the Structural Clarity diagnostic</a>
           </div>
@@ -1326,33 +1334,33 @@
         <aside class="sidebar">
           <div class="sidebar-card reveal reveal-delay-1">
             <p class="sidebar-kicker">What this affects</p>
-            <h3>What this diagnostic measures</h3>
+            <h3>What this diagnostic covers</h3>
             <p>
-              Structural ambiguity does not just slow work. It weakens accountability, increases interpretation burden, and makes reliable execution harder to sustain over time.
+              The diagnostic covers the participant’s understanding of responsibilities, decision authority, and handoffs in the work they describe.
             </p>
           </div>
 
           <div class="sidebar-card reveal reveal-delay-2">
-            <p class="sidebar-kicker">The tool is looking for</p>
+            <p class="sidebar-kicker">Questions to consider</p>
             <ul class="mini-list">
-              <li>Repeated confusion over who owns what</li>
-              <li>Authority that exists formally but not confidently in practice</li>
-              <li>Work bouncing across multiple roles or teams</li>
-              <li>Structures that depend on compensation to remain usable</li>
+              <li>Who is responsible for the next step?</li>
+              <li>Which decisions require another person’s approval?</li>
+              <li>How do people transfer responsibility?</li>
+              <li>Which questions are resolved through informal coordination?</li>
             </ul>
           </div>
 
           <div class="sidebar-card reveal reveal-delay-3">
             <p class="sidebar-kicker">Monderman view</p>
             <p>
-              Structural Clarity is about the integrity of the structure beneath the work: whether ownership, authority, boundaries, and accountability are coherent enough to support execution without constant rescue or reinterpretation.
+              Structural Clarity connects recorded answers to concrete responsibility and authority questions. It does not establish organization-wide performance from one account.
             </p>
           </div>
 
           <div class="sidebar-card sidebar-outcome reveal reveal-delay-3">
-            <p class="sidebar-kicker">What changes after this diagnostic</p>
-            <p class="sidebar-outcome-phrase">Confident action.</p>
-            <p>Teams stop arguing over who owns what. Decisions move because the path is visible. The diagnostic shows where authority, ownership, and decision rights are clear, and where they aren't.</p>
+            <p class="sidebar-kicker">How to use the result</p>
+            <p class="sidebar-outcome-phrase">Clarify responsibilities.</p>
+            <p>Use the findings to discuss one responsibility or handoff with the appropriate person. Confirm the facts before deciding whether anything should change.</p>
           </div>
         </aside>
       </div>

@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { chromium, webkit } from 'playwright';
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
 const out = process.env.MOBILE_OUT || '/tmp/mobile-site-presentation';
@@ -50,12 +49,14 @@ const headerPattern = /<header\b(?=[^>]*\bid=["']siteHeader["'])[^>]*>[\s\S]*?<\
 const footerPattern = /<footer\b(?=[^>]*\bclass=["'][^"']*\bmond-footer\b[^"']*["'])[^>]*>[\s\S]*?<\/footer>/i;
 const expectedHeader = fs.readFileSync('site-shell/header.html', 'utf8').trim();
 const expectedFooter = fs.readFileSync('site-shell/footer.html', 'utf8').trim();
-const shellRelease = fs.readFileSync('scripts/inject-public-shell.mjs', 'utf8').match(/const shellRelease = "([^"]+)";/)?.[1];
+const injector = fs.readFileSync('scripts/inject-public-shell.mjs', 'utf8');
+const shellRelease = injector.match(/const shellRelease = "([^"]+)";/)?.[1];
 assert.ok(shellRelease, 'shared asset release key must be explicit');
+const reportRelease = injector.match(/"monderman-report\.js": "([^"]+)"/)?.[1] || shellRelease;
 for (const pageName of sourceHtmlNames) {
   const built = fs.readFileSync(path.join(publishDirectory, pageName), 'utf8');
   const refs = [...built.matchAll(/src=["'](monderman-report\.js(?:\?[^"']*)?)["']/g)];
-  for (const ref of refs) assert.equal(ref[1], `monderman-report.js?v=${shellRelease}`, `${pageName}: report renderer cache identity is stale`);
+  for (const ref of refs) assert.equal(ref[1], `monderman-report.js?v=${reportRelease}`, `${pageName}: report renderer cache identity is stale`);
 }
 for (const pageName of canonicalPages) {
   const built = fs.readFileSync(path.join(publishDirectory, pageName), 'utf8');
@@ -65,6 +66,15 @@ for (const pageName of footerPages) {
   const built = fs.readFileSync(path.join(publishDirectory, pageName), 'utf8');
   assert.equal(built.match(footerPattern)?.[0], expectedFooter, `${pageName}: built footer is not the canonical partial`);
 }
+
+if (process.argv.includes('--inventory-only')) {
+  console.log(JSON.stringify({scope:'source-and-built-inventory-only',pages:pages.length,canonicalPages:canonicalPages.length,footerPages:footerPages.length,immutableLegalPages:immutableLegalPages.size,browserLaunched:false}));
+  process.exit(0);
+}
+
+// The static release inventory has no browser dependency. Load the browser
+// engines only for the actual rendered sweep below.
+const { chromium, webkit } = await import('playwright');
 
 const viewports = [
   { name: 'compact-phone', width: 320, height: 700 },

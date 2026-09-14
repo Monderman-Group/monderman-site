@@ -17,6 +17,16 @@ const dv=fs.readFileSync(path.join(root,'decision-velocity.html'),'utf8');
 const viz=fs.readFileSync(path.join(root,'monderman-viz.js'),'utf8');
 const renderer=fs.readFileSync(path.join(root,'monderman-report.js'),'utf8');
 const fixture=JSON.parse(fs.readFileSync(path.join(root,'test-fixtures/sc-favorable-presentation.json')));
+// PDF extraction inserts whitespace within NHG glyph runs. Tolerate whitespace
+// only; preserve every other character and require the whole final paragraph on
+// the final page. Joining pages would conceal a genuine pagination regression.
+const compact=text=>String(text).replace(/\s+/g,'');
+const boundaryOnFinalPage=(pages,boundary)=>Boolean(compact(boundary))&&compact(pages.at(-1)||'').includes(compact(boundary));
+assert.equal(boundaryOnFinalPage(['The answ ers show how conditions apply.'],'The answers show how conditions apply.'),true);
+assert.equal(boundaryOnFinalPage(['The answers show how','conditions apply.'],'The answers show how conditions apply.'),false);
+assert.equal(boundaryOnFinalPage(['The answers show how conditions apply.','Other text.'],'The answers show how conditions apply.'),false);
+assert.equal(boundaryOnFinalPage(['The answers show conditions apply.'],'The answers show how conditions apply.'),false);
+assert.equal(boundaryOnFinalPage(['Anything.'],''),false);
 assert.equal(fixture.syntheticOnly,true);assert.equal(fixture.paidCalls,0);
 const run=fixture.rendererInput.value,unchanged=JSON.stringify(run);
 assert.equal(run.score,92);assert.equal(run.canonical_composition,undefined);
@@ -97,7 +107,24 @@ try{
  }
  if(engine==='chromium'){
  const expectedBoundary=(await page.locator('.mr-report-boundary p:last-child').innerText()).replace(/\s+/g,' ').trim();
- await page.emulateMedia({media:'print'});await page.pdf({path:path.join(out,'report.pdf'),format:'Letter',preferCSSPageSize:true,printBackground:true});
+ await page.emulateMedia({media:'print'});
+ // Letter at the renderer's 60pt margins provides 656 x 896 CSS pixels.
+ // Measure the complete atomic closing unit at that width before printing:
+ // Linux previously printed its bottom border on an otherwise empty page.
+ assert.match(renderer,/@page\{size:Letter;margin:60pt\}/);
+ await page.setViewportSize({width:656,height:896});
+ await page.evaluate(async()=>{await document.fonts.ready});
+ evidence.printClosing=await page.locator('.mr-run-close-group').evaluate(e=>({
+  width:e.getBoundingClientRect().width,height:e.getBoundingClientRect().height,
+  paragraphFont:parseFloat(getComputedStyle(e.querySelector('.mr-report-boundary p:last-child')).fontSize),
+  printableHeight:896,reservedClearance:16
+ }));
+ assert.ok(evidence.printClosing.height<=880,'Closing unit needs at least 16px of printable-page clearance: '+JSON.stringify(evidence.printClosing));
+ assert.ok(evidence.printClosing.paragraphFont>=13.3,'Closing wording must remain at least 10pt');
+ // Preserve the original failing PDF invocation after the extra measurement.
+ await page.setViewportSize({width:1440,height:1000});
+ await page.evaluate(async()=>{await document.fonts.ready});
+ await page.pdf({path:path.join(out,'report.pdf'),format:'Letter',preferCSSPageSize:true,printBackground:true});
  const pdf=spawnSync(process.env.PDF_PYTHON||'python3',['-c','import sys,json;from pypdf import PdfReader;print(json.dumps([p.extract_text() or "" for p in PdfReader(sys.argv[1]).pages]))',path.join(out,'report.pdf')],{encoding:'utf8',maxBuffer:8*1024*1024});assert.equal(pdf.status,0,pdf.stderr);
  const pages=JSON.parse(pdf.stdout).map(t=>t.replace(/\s+/g,' ').trim());assert.ok(pages.length>1&&pages.length<40);assert.ok(pages.every(t=>t.length>20));
  assert.match(pages.join('\n'),/Clarity indicator distribution/i);assert.match(pages.join('\n'),/Monitoring priorities/i);
@@ -105,7 +132,7 @@ try{
  assert.ok(pages.some(t=>/Monitoring priorities and options/i.test(t)&&/Review order and clarity indicators/i.test(t)),'Priority introduction separated from its chart');
  assert.doesNotMatch(pages.join('\n'),/Who has the authority to change|Name one accountable owner for Role|suggests issues to investigate/);
  assert.match(pages.at(-1),/Next decision/i,'Interpretation boundary orphaned on a separate page');
- assert.ok(pages.at(-1).includes(expectedBoundary),'Final interpretation boundary is missing or split');
+ assert.ok(boundaryOnFinalPage(pages,expectedBoundary),'Final interpretation boundary is missing or split');
  fs.writeFileSync(path.join(out,'pages.json'),JSON.stringify(pages,null,2));evidence.pdfPages=pages.length;
  }
  assert.equal(JSON.stringify(run),unchanged);assert.deepEqual(evidence.errors,[]);evidence.passed=true;console.log(JSON.stringify(evidence));

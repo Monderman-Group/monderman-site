@@ -27,12 +27,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Keep private engine source out of this public repository
+        run: node scripts/private_source_absence_smoke.mjs
       - run: python scripts/validate_stabilization.py
       - name: Keep public search copy and disclosures current
         run: python scripts/build_public_search_index.py --check
       - name: Reject scanner-consumed email authentication regressions
         run: node scripts/signin_email_otp_smoke.mjs
       - run: node scripts/workspace_legal_gate_smoke.mjs
+      - run: node scripts/signin_legal_documents_smoke.mjs
       - name: Reject purchase-confirmation and onboarding regressions
         run: node scripts/signup_package_smoke.mjs
       - name: Verify free entry and pilot funnel contracts
@@ -56,6 +59,14 @@ jobs:
           node scripts/report_recorded_context_smoke.mjs
           node scripts/report_missing_estimate_smoke.mjs
           node scripts/report_synthesis_display_smoke.mjs --deterministic-only
+          node scripts/report_dimension_review_labels_smoke.mjs
+          node scripts/report_print_reading_units_smoke.mjs
+          node scripts/report_print_conditions_sources_smoke.mjs
+          node scripts/report_reader_copy_smoke.mjs
+          node scripts/report_identity_display_smoke.mjs
+          node scripts/report_focus_label_smoke.mjs
+          node scripts/public_sample_mixed_origin_smoke.mjs
+          node scripts/runtime_asset_release_build_smoke.mjs
       - name: Verify diagnostic labels and immutable saved-report presentation
         run: |
           node scripts/diagnostic_display_language_smoke.mjs
@@ -86,6 +97,8 @@ jobs:
           node scripts/synthesis_request_state_smoke.mjs
           node scripts/workspace_analysis_eligibility_smoke.mjs
           node scripts/report_ai_deferred_poll_smoke.mjs
+      - name: Preserve ordinary next steps and historical report policy
+        run: node scripts/individual_output_policy_smoke.mjs
       - name: Reject Diagnostic completion-protection regressions
         run: node scripts/diagnostic_completion_reliability_smoke.mjs
       - run: python scripts/validate_frontend_release.py
@@ -95,3 +108,70 @@ jobs:
           python scripts/certification_guard_sensitivity_smoke.py
       - name: Verify candidate diff integrity
         run: git diff --check
+  saved-synthesis-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned browser test dependencies
+        run: |
+          npm install --no-save --package-lock=false --ignore-scripts playwright@1.55.0
+          bash scripts/install_ci_browsers.sh
+      - name: Verify saved personal and campaign reports with synthetic API responses
+        env:
+          SAVED_SYNTHESIS_OUT: ${{ runner.temp }}/saved-synthesis-page
+        run: node scripts/saved_synthesis_page_smoke.mjs
+      - name: Verify the sample PDF button exports only the selected report
+        run: node scripts/sample_selected_pdf_route_smoke.mjs --output=${{ runner.temp }}/sample-selected-pdf
+      - name: Preserve synthetic saved-page screenshots and exact source bindings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: saved-synthesis-page-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/saved-synthesis-page
+            ${{ runner.temp }}/sample-selected-pdf
+          if-no-files-found: error
+  financial-methodology-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The methodology test preserves exact historical article copy.
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned browser test dependencies
+        run: |
+          npm install --no-save --package-lock=false --ignore-scripts playwright@1.55.0
+          bash scripts/install_ci_browsers.sh
+      - name: Preserve the notice on historical single-run financial prose
+        run: node scripts/report_financial_legacy_notice_smoke.mjs
+      - name: Keep individual results nonfinancial in screen and print layouts
+        run: node scripts/single_run_financial_display_smoke.mjs
+      - name: Verify optional operational scenario entry with synthetic transport
+        run: node scripts/campaign_financial_scenario_smoke.mjs
+      - name: Check synthetic preview financial policy without changing public samples
+        run: node scripts/public_sample_preview_financial_policy_smoke.mjs --browser --out ${{ runner.temp }}/financial-preview-mock
+      - name: Verify published methodology copy and settled browser presentation
+        run: node scripts/methodology_business_copy_smoke.mjs --output=${{ runner.temp }}/methodology-copy
+      - name: Preserve bounded financial and methodology browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: financial-methodology-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            /tmp/monderman-single-run-financial-display-*
+            /tmp/monderman-financial-scenario-ui-*
+            ${{ runner.temp }}/financial-preview-mock
+            ${{ runner.temp }}/methodology-copy
+          if-no-files-found: error

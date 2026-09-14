@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const ARTIFACT_URL = "sample-data/production-diagnostic-samples.json?v=76c4fdf7bebde113";
+  const ARTIFACT_URL = "sample-data/production-diagnostic-samples.json?v=source55-display42-20260914";
   const REPORT_KEYS = {
     os: "operational_systems",
     dv: "decision_velocity",
@@ -10,6 +10,34 @@
     depth: "depth_synthesis",
     synthesis: "cross_lens_synthesis"
   };
+  let reportsReady = false;
+  const mountedPrintControls = new Map();
+
+  function selectedPrintControl() {
+    if (!reportsReady || mountedPrintControls.size !== Object.keys(REPORT_KEYS).length) return null;
+    const shells = Array.from(document.querySelectorAll('.report-shell:not([hidden])'));
+    if (shells.length !== 1 || getComputedStyle(shells[0]).display === 'none' || getComputedStyle(shells[0]).visibility === 'hidden') return null;
+    const control = mountedPrintControls.get(shells[0]);
+    return control && control.isConnected && !control.disabled && shells[0].contains(control) ? control : null;
+  }
+
+  function syncSelectedPdf() {
+    const button = document.getElementById('sample-selected-pdf');
+    if (button) button.disabled = !selectedPrintControl();
+  }
+
+  function wireSelectedPdf() {
+    const button = document.getElementById('sample-selected-pdf');
+    if (!button) return;
+    button.addEventListener('click', () => {
+      const control = selectedPrintControl();
+      if (control) control.click();
+      else syncSelectedPdf();
+    });
+    const sheet = document.querySelector('.report-sheet');
+    if (sheet) new MutationObserver(syncSelectedPdf).observe(sheet, {attributes:true,attributeFilter:['hidden','style','class','disabled'],childList:true,subtree:true});
+    syncSelectedPdf();
+  }
 
   const obj = (value) => value && typeof value === "object" && !Array.isArray(value) ? value : {};
   const esc = (value) => String(value == null ? "" : value)
@@ -79,9 +107,9 @@
     shell.innerHTML = '<div class="toc-mobile psr-toc-mobile"><select aria-label="Jump to report section"><option value="">Jump to section…</option></select></div>' +
       '<div class="synthesis-doc-shell psr-doc-shell"><div class="synthesis-report-stage psr-main"><div class="psr-wrap" data-engine-commit="' + esc(engineCommit) +
       '" data-artifact-sha256="' + esc(artifactSha256) + '" data-source-key="' + esc(options.sourceKey) + '">' +
-      '<div class="psr-toolbar" aria-label="Sample report controls"><div><strong>' + esc(options.toolbarLabel || "Representative product output") + '</strong><span>Explore the result, then inspect its evidence and recommended actions.</span><details class="psr-provenance"><summary>Source details</summary><p>' + esc(options.provenance || "Shared production report renderer") + '</p></details></div>' +
-      '<div class="psr-toolbar-actions"><button type="button" data-action="html">Download HTML</button>' +
-      '<button type="button" data-action="json">Download JSON</button><button class="psr-primary" type="button" data-action="print">Print or save PDF</button></div></div>' +
+      '<div class="psr-toolbar" aria-label="Sample report controls"><div><strong>' + esc(options.toolbarLabel || "Monderman report") + '</strong><details class="psr-provenance"><summary>Source details</summary><p>' + esc(options.provenance || "Shared production report renderer") + '</p></details></div>' +
+      '<div class="psr-toolbar-actions"><button type="button" data-action="read">Read the report</button>' +
+      '<button class="psr-primary" type="button" data-action="print">Download PDF</button><details class="psr-downloads"><summary>Other formats</summary><div><button type="button" data-action="html">Download HTML</button><button type="button" data-action="json">Download JSON</button></div></details></div></div>' +
       '<div class="psr-engine-stage"></div></div></div>' +
       '<aside class="toc-rail psr-toc" aria-label="' + esc(options.tocLabel || "Report contents") + '"><p class="toc-rail-label">Contents</p><ol></ol></aside></div>';
     return shell.querySelector(".psr-engine-stage");
@@ -98,31 +126,55 @@
     const sourceKey = options.sourceKey;
     const stage = renderFrame(shell, options);
     Report.render(stage, model);
+    shell.querySelector('[data-action="read"]').addEventListener("click", () => {
+      const overview = stage.querySelector(".mr-cover") || stage;
+      if (!overview.hasAttribute("tabindex")) overview.setAttribute("tabindex", "-1");
+      overview.focus({preventScroll:true});
+      overview.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",block:"start"});
+    });
     shell.querySelector('[data-action="html"]').addEventListener("click", () => Report.downloadHtml(model));
     shell.querySelector('[data-action="json"]').addEventListener("click", () => Report.downloadJson(source, sourceKey.replace(/_/g, "-") + "-representative-result"));
     shell.querySelector('[data-action="print"]').addEventListener("click", () => Report.downloadPdf(model));
     buildContents(shell, stage, sourceKey, options.tocId);
   }
 
+  function reportGenerationCommit(entry, artifact) {
+    const provenance = obj(entry.provenance);
+    const present = Object.prototype.hasOwnProperty.call(provenance, "engine_commit");
+    // The current mixed library requires each original generation identity.
+    // Only the historical v2 shape may fall back when that field is absent.
+    const revision = present ? provenance.engine_commit :
+      artifact.contract === "monderman-public-product-samples/v2" ? artifact.engine_commit : null;
+    if (typeof revision !== "string" || !/^[a-f0-9]{40}$/.test(revision)) {
+      throw new Error("Missing or invalid report generation revision provenance");
+    }
+    return revision;
+  }
+
   function wireReport(shell, entry, artifact, sourceKey) {
     const source = entry.source;
-    const provenance = "Fictional inputs · generated " + entry.provenance.generated_at.slice(0, 10) +
-      " · API " + artifact.engine_commit.slice(0, 8) + " · artifact " + artifact.artifact_sha256.slice(0, 12);
+    const generationCommit = reportGenerationCommit(entry, artifact);
+    const provenance = "Report created " + entry.provenance.generated_at.slice(0, 10) +
+      " · API " + generationCommit.slice(0, 8) + " · artifact " + artifact.artifact_sha256.slice(0, 12);
     mountReport({
       shell,
       model: window.MondermanPublicSamples.model(entry, artifact),
-      source: {export_payload: {...source, sample_provenance: {...entry.provenance, engine_commit:artifact.engine_commit, artifact_sha256:artifact.artifact_sha256}}},
+      source: {export_payload: {...source, sample_provenance: {...entry.provenance, engine_commit:generationCommit, artifact_sha256:artifact.artifact_sha256}}},
       sourceKey,
-      engineCommit: artifact.engine_commit,
+      engineCommit: generationCommit,
       artifactSha256: artifact.artifact_sha256,
-      toolbarLabel: "Example generated by Monderman",
+      toolbarLabel: "Monderman report",
       provenance,
       tocLabel: sourceKey.replace(/_/g, " ") + " contents",
       tocId: sourceKey.replace(/_/g, "-") + "Toc"
     });
+    mountedPrintControls.set(shell, shell.querySelector('[data-action="print"]'));
   }
 
   function showFailure(error) {
+    reportsReady = false;
+    mountedPrintControls.clear();
+    syncSelectedPdf();
     Object.keys(REPORT_KEYS).forEach((tabKey) => {
       const shell = document.getElementById("report-" + tabKey);
       if (!shell) return;
@@ -148,6 +200,8 @@
         wireReport(shell, entry, artifact, sourceKey);
       });
 
+      reportsReady = true;
+      syncSelectedPdf();
       document.body.classList.add("production-samples-ready");
       document.dispatchEvent(new CustomEvent("monderman:production-samples-ready", { detail: {
         engineCommit: artifact.engine_commit,
@@ -162,6 +216,7 @@
 
   window.MondermanSampleReportShell = { mount: mountReport };
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", render, { once: true });
-  else render();
+  function start() { wireSelectedPdf(); render(); }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true });
+  else start();
 })();

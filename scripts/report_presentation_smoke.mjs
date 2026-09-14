@@ -1,13 +1,16 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import {readPublicSampleFixture,publicResult} from './public_sample_fixture.mjs';
 
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 
 const base = process.env.REPORT_BASE || 'http://127.0.0.1:8080';
 const out = process.env.REPORT_OUT || '/tmp/report-presentation-smoke';
+// Current publication coverage requires the reviewed six-output artifact.
+// Assembly identity must not replace an entry's original generation identity.
+const {artifact}=readPublicSampleFixture();
 fs.mkdirSync(out, { recursive: true });
-const artifact=JSON.parse(fs.readFileSync(new URL('../sample-data/production-diagnostic-samples.json',import.meta.url),'utf8'));
-const crossSource=artifact.outputs.cross_lens_synthesis.source, depthSource=artifact.outputs.depth_synthesis.source;
+const crossSource=publicResult(artifact.outputs.cross_lens_synthesis), depthSource=publicResult(artifact.outputs.depth_synthesis);
 const crossScore=String(crossSource.cross_diagnostic_score??crossSource.aggregate_score), depthScore=String(depthSource.aggregate_score);
 
 const browser = await chromium.launch({ headless: true });
@@ -78,26 +81,80 @@ async function assertNoHorizontalOverflow(target, label) {
   assert(geometry.documentWidth <= geometry.viewport + 1, `${label} overflows horizontally: ${geometry.documentWidth}px document in ${geometry.viewport}px viewport`);
 }
 
+async function assertAuthoredSections(shell,source,label) {
+  const interpretation=source.ai_report.report.interpretation;
+  assert((await shell.locator('.mr-ai-interpretation > h2').textContent()).trim()==='Interpretation and next steps',label+' interpretation heading differs');
+  for(const [field,selector]of [['recommendations','.mr-report-nextsteps'],['action_options','.mr-report-options']]){
+    const expected=(interpretation[field]||[]).filter(item=>item.action?.trim()),cards=shell.locator(selector+' .mr-ai-action');
+    assert(await cards.count()===expected.length,label+' '+field+' count differs');
+    for(const [index,item]of expected.entries()){
+      const card=cards.nth(index);
+      assert((await card.locator('.mr-action-proposal').textContent()).trim()===item.action,label+' '+field+' action differs');
+      assert((await card.textContent()).includes(item.reason),label+' '+field+' reason differs');
+    }
+  }
+  assert(await shell.locator('.mr-ai-action').count()===(interpretation.recommendations||[]).length+(interpretation.action_options||[]).length,label+' extra action cards outside their source sections');
+  const preferred=interpretation.recommended_option;
+  assert(await shell.locator('.mr-recommended-path').count()===(preferred?1:0),label+' preferred option presence differs');
+  if(preferred)assert((await shell.locator('.mr-recommended-path').textContent()).includes(preferred.reason),label+' preferred option reason differs');
+  const records=(interpretation.observations||[]).filter(item=>item.experiential_block).map(item=>item.experiential_block);
+  const blocks=shell.locator('.mr-experience-evidence');assert(await blocks.count()===records.length,label+' attributed account count differs');
+  for(const [index,record]of records.entries()){
+    assert((await blocks.nth(index).locator('blockquote').textContent())==='“'+record.text+'”',label+' attributed account differs');
+    assert((await blocks.nth(index).locator('.mr-experience-scope').textContent())==='Scope: '+record.scope_label,label+' attributed scope differs');
+  }
+}
+
+async function assertOperationalScenario(shell,source,label) {
+  const scenario=source.financial_scenario,section=shell.locator('.mr-financial-scenario');
+  assert(scenario?.version==='operational-planning-scenario-20260913.1',label+' saved operational scenario missing');
+  assert(scenario.scope.scopeId===source.campaign_evidence.scopeId,label+' scenario is not bound to the saved campaign scope');
+  assert(await section.isVisible(),label+' operational scenario not visible');
+  assert(await shell.locator('.mr-exposure-range,.mr-exposure-flow').count()===0,label+' retired score-derived exposure displayed');
+  const number=value=>Number(value).toLocaleString('en-US',{maximumSignificantDigits:15});
+  const money=value=>(Number(value)<0?'-$':'$')+number(Math.abs(Number(value)));
+  const metrics=[['potentialHoursFreed','Potential time freed',number,'hours'],['capacityValue','Value of potential staff capacity',money,'Not cash savings'],
+    ['avoidableNonLaborCash','Potential non-labor cash avoided',money,'Separate expenditure'],['cashInvestment','Implementation cash and subscription cost',money,'Cash cost'],
+    ['totalImplementationAndSubscriptionCost','Total implementation and subscription cost',money,'Includes internal staff time'],
+    ['netCashEffect','Net cash effect',money,'Cash avoided minus cash cost'],['netCapacityAndCashValue','Net capacity and cash scenario value',money,'Includes staff capacity, not a cash return']];
+  const cards=section.locator(':scope > .mr-scenario-metric');assert(await cards.count()===7,label+' requires all seven scenario metrics');
+  for(const [index,[key,title,format,detail]]of metrics.entries()){
+    const card=cards.nth(index),values=scenario.totals[key];
+    assert((await card.locator('h3').textContent()).trim()===title,label+' '+key+' label differs');
+    assert((await card.locator('.mr-copy').textContent()).trim()===detail,label+' '+key+' capacity/cash/cost qualification differs');
+    assert(JSON.stringify(await card.locator('dt').allTextContents())===JSON.stringify(['Low scenario','Central scenario','High scenario']),label+' '+key+' scenario order differs');
+    assert(JSON.stringify(await card.locator('dd').allTextContents())===JSON.stringify(['low','central','high'].map(k=>format(values[k]))),label+' '+key+' saved values differ');
+  }
+  const scopeValues=await section.locator(':scope > .mr-scenario-facts > div').evaluateAll(rows=>rows.filter(row=>row.querySelector('dt')?.textContent==='Scope').map(row=>row.querySelector('dd').textContent));
+  assert(JSON.stringify(scopeValues)===JSON.stringify([scenario.scope.label]),label+' displayed scope differs');
+  const text=await section.textContent();for(const value of [scenario.title,scenario.notice,...scenario.inputs.activities.flatMap(a=>[a.label,a.sourceReference,a.changeBasis,a.cashBasis])])assert(text.includes(value),label+' saved scenario source/assumption missing');
+  return section;
+}
+
 // The four Diagnostic samples must be the live projection of the locked
 // production-engine artifact, not the legacy hand-authored report markup.
 const diagnostics = Object.fromEntries(Object.entries({os:'operational_systems',dv:'decision_velocity',sc:'structural_clarity',ip:'institutional_performance'}).map(([tab,key])=>{
-  const source=artifact.outputs[key].source;
-  return [tab,{score:String(source.score),dimensions:Object.keys(source.dimensions).length,source}];
+  const entry=artifact.outputs[key],source=publicResult(entry);
+  return [tab,{score:String(source.score),dimensions:Object.keys(source.dimensions).length,source,engineCommit:entry.provenance.engine_commit}];
 }));
 for (const [key, expected] of Object.entries(diagnostics)) {
   const shell = await openTab(key);
   const report = shell.locator('.psr-wrap');
-  assert(await report.getAttribute('data-engine-commit') === artifact.engine_commit, `${key} engine revision mismatch`);
+  assert(await report.getAttribute('data-engine-commit') === expected.engineCommit, `${key} original generation revision mismatch`);
   assert(await report.getAttribute('data-artifact-sha256') === artifact.artifact_sha256, `${key} artifact digest mismatch`);
   assert((await shell.locator('.mr-run-score-stamp strong').textContent()).trim() === expected.score, `${key} score mismatch`);
   assert(await shell.locator('.mr-dimension-row').count() === expected.dimensions, `${key} dimension profile mismatch`);
   assert(await shell.locator('.mr-run-remedy').count() === 0, `${key} completed AI duplicates fallback remedy paths`);
-  assert(await shell.locator('.mr-ai-action').count() === expected.source.ai_report.report.interpretation.recommendations.filter(a=>a.action?.trim()).length, `${key} accepted AI action count mismatch`);
+  await assertAuthoredSections(shell,expected.source,key);
+  assert(await shell.locator('.mr-exposure-flow').count()===0,`${key} single-run modeled exposure returned`);
   assert(await shell.locator('.cover').count() === 0, `${key} legacy sample remains in the live DOM`);
   const text = await shell.textContent();
-  for (const token of ['Decision summary','Dimension profile',key==='sc'?'Clarity indicator distribution':'Where the measured issue appears','Evidence in this run',key==='sc'?'Review order and clarity indicators':'Priority order and measured severity','Method and limits','Interpretation boundary','No written participant notes are included.','AI-assisted interpretation']) {
+  for (const token of ['Decision summary','Dimension profile',key==='sc'?'Clarity indicator distribution':'Where the measured issue appears','Evidence in this run',key==='sc'?'Review order and clarity indicators':'Priority order and measured severity','Method and limits','Interpretation boundary','Interpretation and next steps']) {
     assert(text.includes(token), `${key} production-contract section missing: ${token}`);
   }
+  const sectionNotes=await page.evaluate(source=>window.MondermanReport.fromRun(source).participantEvidence,expected.source);
+  assert(await shell.locator('.mr-run-evidence .mr-evidence-quote').count()===sectionNotes.length,`${key} saved note-section count differs`);
+  assert(await shell.locator('.mr-run-evidence .mr-evidence-empty').count()===(sectionNotes.length?0:1),`${key} note-section empty state differs from displayed source`);
   for (const action of expected.source.ai_report.report.interpretation.recommendations.filter(row=>row.action?.trim())) {
     assert(text.includes(action.action), `${key} accepted next step differs from source`);
   }
@@ -132,27 +189,38 @@ const crossChart = cross.locator('svg[aria-label="Cross-Lens Diagnostic score co
 assert(await crossChart.isVisible(), 'Cross-Lens comparison chart not visible');
 const crossChartFont = await crossChart.evaluate(el => getComputedStyle(el).fontFamily);
 assert(isMondermanFont(crossChartFont), `Cross-Lens chart bypasses Neue Haas Grotesk: ${crossChartFont}`);
-const crossTop = await crossSystem.evaluate(el => el.getBoundingClientRect().top + window.scrollY);
-// Promotional navigation and export controls sit outside the generated report.
-// Measure the report hierarchy from the production renderer's document root so
-// shell chrome cannot create a false regression in the executive-layout gate.
-const crossStart = await cross.locator('.mr-report').evaluate(el => el.getBoundingClientRect().top + window.scrollY);
-const crossAIHeight=await cross.locator('.mr-ai-interpretation').evaluate(el=>el.getBoundingClientRect().height);
-assert(crossTop - crossStart - crossAIHeight < 1150, `Cross-Lens chart is buried after the accepted interpretation`);
+// Cover and authored interpretation are source-length-dependent. The measured
+// section must immediately follow the interpretation, with its chart near the
+// section's beginning; don't charge the cover's content to chart placement.
+async function assertEarlyMeasuredChart(shell, sectionSelector, chart, label) {
+  const section=await shell.locator(sectionSelector).boundingBox();
+  const interpretation=await shell.locator('.mr-ai-interpretation').boundingBox();
+  const visual=await chart.boundingBox();
+  assert(section&&interpretation&&visual,label+' measured geometry missing');
+  const geometry={gap:section.y-interpretation.y-interpretation.height,chartOffset:visual.y-section.y};
+  assert(geometry.gap>=-1&&geometry.gap<=64,label+' measured section separated from interpretation: '+JSON.stringify(geometry));
+  assert(geometry.chartOffset>=0&&geometry.chartOffset<1150,label+' chart is buried within measured section: '+JSON.stringify(geometry));
+}
+await assertEarlyMeasuredChart(cross,'.mr-system-read',crossSystem,'Cross-Lens');
 
 const crossText = await cross.textContent();
 assert(crossText.includes('Executive synthesis'), 'Cross-Lens executive synthesis missing');
 assert(crossText.includes('Agreements and differences'), 'Cross-Lens agreements/differences missing');
-assert(crossText.includes('AI-assisted interpretation'), 'Cross-Lens accepted interpretation missing');
+await assertAuthoredSections(cross,crossSource,'Cross-Lens');
 const crossActions=crossSource.ai_report.report.interpretation.recommendations.filter(row=>row.action?.trim()).map(row=>row.action);
-assert(await cross.locator('.mr-ai-action').count()===crossActions.length, 'Cross-Lens accepted action count differs');
+assert(await cross.locator('.mr-report-nextsteps .mr-ai-action').count()===crossActions.length, 'Cross-Lens accepted next-step count differs');
 for(const action of crossActions)assert(crossText.includes(action),'Cross-Lens accepted action text differs');
 assert(!crossText.includes('Source-backed remedy paths'), 'Cross-Lens rendered source remedy prose even though the source-prose contract withholds it');
 assert(crossText.includes('Results by participant perspective'), 'Cross-Lens vantage-evidence layer missing');
 assert(await cross.locator('.mr-remedy-card').count() === 0, 'Cross-Lens rendered remedy cards without eligible source remedy prose');
 assert(crossText.includes('Diagnostic lenses at a glance'), 'Cross-Lens comparison picture label missing');
 assert(await cross.locator('.mr-action-path .mr-action-step').count() === 0, 'Cross-Lens duplicates fallback actions beside accepted AI');
-assert(await cross.locator('.mr-evidence-ladder .mr-evidence-step').count() === 4, 'Cross-Lens evidence ladder incomplete');
+async function assertCampaignReadinessExplanation(shell,source,label) {
+  assert(source.campaign_evidence?.depth,label+' fixture lacks campaign readiness');
+  assert(await shell.locator('.mr-evidence-ladder').count()===0,label+' campaign readiness replaced by legacy evidence-size ladder');
+  assert((await shell.textContent()).includes('Campaign readiness checks the declared population, compatible measurements and the possible effect of missing responses. Passing these checks is not scientific validation or a probability of accuracy.'),label+' campaign readiness explanation missing');
+}
+await assertCampaignReadinessExplanation(cross,crossSource,'Cross-Lens');
 assert(await cross.locator('.psr-toc a').count() >= 10, 'Cross-Lens Contents rail is incomplete');
 
 const evidenceMap = cross.locator('.mr-cross-lens-map');
@@ -162,10 +230,7 @@ assert(await evidenceMap.locator('.mr-map-signal').count() >= 2, 'Cross-Lens evi
 assert((await evidenceMap.textContent()).includes('does not assert a causal pathway'), 'Cross-Lens evidence map lost the non-causal interpretation boundary');
 assert(await cross.getByText('Recurring signals', { exact: true }).count() === 0, 'Cross-Lens signal narrative is duplicated below the evidence map');
 
-const exposureGraphic = cross.locator('.mr-exposure-range');
-assert(await exposureGraphic.isVisible(), 'Cross-Lens source-backed exposure visual not visible');
-assert(await exposureGraphic.locator('.mr-range-row').count() === 2, 'Cross-Lens exposure visual does not show both source-backed ranges');
-assert((await exposureGraphic.textContent()).includes('bar lengths should not be compared across the two metrics'), 'Cross-Lens exposure visual lost the separate-scale warning');
+const scenarioGraphic=await assertOperationalScenario(cross,crossSource,'Cross-Lens');
 
 const crossBoundary = cross.locator('.mr-report-boundary');
 assert(await crossBoundary.isVisible(), 'Cross-Lens end interpretation boundary missing');
@@ -176,7 +241,7 @@ await cross.locator('.mr-cover').screenshot({ path: path.join(out, 'cross-lens-c
 await crossSystem.screenshot({ path: path.join(out, 'cross-lens-system.png') });
 await crossChart.screenshot({ path: path.join(out, 'cross-lens-chart.png') });
 await evidenceMap.screenshot({ path: path.join(out, 'cross-lens-evidence-map.png') });
-await exposureGraphic.screenshot({ path: path.join(out, 'cross-lens-exposure.png') });
+await scenarioGraphic.screenshot({ path: path.join(out, 'cross-lens-operational-scenario.png') });
 
 // Depth: preserve the same typography, opening-boundary integration, and
 // substantive distribution visualization.
@@ -192,14 +257,13 @@ const depthChart = depth.locator('svg[aria-label="Depth Synthesis score distribu
 assert(await depthChart.isVisible(), 'Depth distribution chart not visible');
 const depthChartFont = await depthChart.evaluate(el => getComputedStyle(el).fontFamily);
 assert(isMondermanFont(depthChartFont), `Depth chart bypasses Neue Haas Grotesk: ${depthChartFont}`);
-const depthTop = await depthChart.evaluate(el => el.getBoundingClientRect().top + window.scrollY);
-const depthStart = await depth.locator('.mr-report').evaluate(el => el.getBoundingClientRect().top + window.scrollY);
-const depthAIHeight=await depth.locator('.mr-ai-interpretation').evaluate(el=>el.getBoundingClientRect().height);
-assert(depthTop - depthStart - depthAIHeight < 1150, 'Depth chart is buried after the accepted interpretation');
+assert(await depth.locator('.mr-depth-system-read').evaluate(el=>el===[...el.parentElement.querySelectorAll(':scope > .mr-section')].find(node=>!node.classList.contains('mr-ai-interpretation'))),'Depth distribution read is not first measured section');
+await assertEarlyMeasuredChart(depth,'.mr-depth-system-read',depthChart,'Depth');
 assert((await depth.textContent()).includes(depthSource.sample_reads[0].vantage_gap.statement), 'Depth recorded perspective gap not visible');
-assert((await depth.textContent()).includes('AI-assisted interpretation'), 'Depth accepted interpretation missing');
+await assertAuthoredSections(depth,depthSource,'Depth');
+await assertOperationalScenario(depth,depthSource,'Depth');
 const depthActions=depthSource.ai_report.report.interpretation.recommendations.filter(row=>row.action?.trim()).map(row=>row.action);
-assert(await depth.locator('.mr-ai-action').count()===depthActions.length, 'Depth accepted action count differs');
+assert(await depth.locator('.mr-report-nextsteps .mr-ai-action').count()===depthActions.length, 'Depth accepted next-step count differs');
 for(const action of depthActions)assert((await depth.textContent()).includes(action),'Depth accepted action text differs');
 assert(!(await depth.textContent()).includes('Source-backed remedy paths'), 'Depth rendered source remedy prose even though the source-prose contract withholds it');
 assert((await depth.textContent()).includes('Results by participant perspective'), 'Depth vantage-evidence layer missing');
@@ -207,7 +271,7 @@ assert(await depth.locator('.mr-remedy-card').count() === 0, 'Depth rendered rem
 assert((await depth.textContent()).includes('Agreement, divergence, and coverage'), 'Depth agreement/divergence section missing');
 assert(await depth.locator('.mr-depth-metrics .mr-run-metric').count() === 4, 'Depth opening read does not show four executive metrics');
 assert(await depth.locator('.mr-action-path .mr-action-step').count() === 0, 'Depth duplicates fallback actions beside accepted AI');
-assert(await depth.locator('.mr-evidence-ladder .mr-evidence-step').count() === 4, 'Depth evidence ladder incomplete');
+await assertCampaignReadinessExplanation(depth,depthSource,'Depth');
 assert(await depth.locator('.psr-toc a').count() >= 10, 'Depth Contents rail is incomplete');
 assert(await depth.locator('.mr-report-boundary').isVisible(), 'Depth end interpretation boundary missing');
 await page.screenshot({ path: path.join(out, 'depth-full.png'), fullPage: true });
@@ -236,7 +300,7 @@ assert(await standalone.locator('svg[aria-label="Four Diagnostic lenses connecte
 const standaloneChartFont = await standaloneChart.evaluate(el => getComputedStyle(el).fontFamily);
 assert(isMondermanFont(standaloneChartFont), `standalone chart bypasses Neue Haas Grotesk: ${standaloneChartFont}`);
 assert(await standalone.locator('.mr-cross-lens-map').isVisible(), 'standalone Cross-Lens evidence map missing');
-assert(await standalone.locator('.mr-exposure-range').isVisible(), 'standalone Cross-Lens exposure visual missing');
+await assertOperationalScenario(standalone, crossSource, 'Standalone Cross-Lens');
 assert(await standalone.locator('.mr-report-boundary').isVisible(), 'standalone end interpretation boundary missing');
 const standaloneFont = await standalone.locator('.mr-report').evaluate(el => getComputedStyle(el).fontFamily);
 assert(!isActualSerif(standaloneFont), `standalone report still uses serif typography: ${standaloneFont}`);
@@ -271,7 +335,7 @@ for (const [key, html] of Object.entries(authenticatedRunHtml)) {
   assert(await runPage.locator('.mr-run-decision').evaluate(el => el === document.querySelector('.mr-section')), `${key} executive brief is not first`);
   assert(await runPage.locator('.mr-dimension-row').count() === runDimensions[key], `${key} authenticated dimension profile mismatch`);
   assert(await runPage.locator('.mr-constraint-view').isVisible(), `${key} constraint concentration visual missing`);
-  assert(await runPage.locator('.mr-exposure-flow').isVisible(), `${key} capacity/burden visual missing`);
+  assert(await runPage.locator('.mr-exposure-flow').count()===0, `${key} historical single-run modeled exposure must remain undisplayed`);
   assert(await runPage.locator('.mr-priority-matrix').isVisible(), `${key} priority matrix missing`);
   assert(await runPage.locator('.mr-run-remedy').count() === 3, `${key} differentiated intervention paths missing`);
   assert(await runPage.locator('.mr-leadership-close').isVisible(), `${key} leadership handoff missing`);
@@ -415,12 +479,12 @@ fs.writeFileSync(path.join(out, 'result.json'), JSON.stringify({
     coverBoundaryIntegrated:true,
     crossLensEvidenceMap:true,
     crossLensSignalsDeduplicated:true,
-    sourceBackedExposureVisual:true,
+    separateOperationalScenarioWithSevenSavedRanges:true,
     singleRunInsightDepth:true,
     synthesisContentsNavigation:true,
     executiveDecisionFrame:true,
     crossLensSystemPicture:true,
-    evidenceStrengthLadder:true,
+    campaignReadinessWithoutLegacySizeLadder:true,
     acceptedAIActionsWithoutFallbackDuplicates:true,
     synthesisChartsUseNeueHaas:true,
     standaloneParity:true,

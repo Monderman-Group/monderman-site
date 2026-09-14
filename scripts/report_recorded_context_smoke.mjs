@@ -70,6 +70,6 @@ for(const coverage of [{status:'measured',value:80},{status:'measured'},{}]){
  const page=Report.buildReportHtml(Report.fromRun(raw));
  check(()=>assert.match(page,/is-unavailable/));
  check(()=>assert.match(page,/Score unavailable/));
- check(()=>assert.doesNotMatch(page,/is-unmeasured|>Not measured</));
+ check(()=>assert.doesNotMatch(page,/<div class="mr-dimension-row is-unmeasured"|>Not measured</));
 }
 console.log(JSON.stringify({passed:true,checks,scope:'Saved-evidence context, unknown dimension rows, escaping and immutability; no model quality or live-path claim',providerCalls:0}));

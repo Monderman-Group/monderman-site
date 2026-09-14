@@ -17,12 +17,16 @@ const shellScriptPattern = /<script\b[^>]*\bsrc=["']canonical-site-shell\.js[^"'
 const motifPattern = /<div\b(?=[^>]*\bclass=["'][^"']*\bmf-motif\b[^"']*["'])[^>]*>[\s\S]*?<\/svg>\s*<\/div>/i;
 const canonicalCssPattern = /canonical-site-shell\.css\?v=[^"']+/g;
 const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
-// Refresh both the reviewed report renderer and the newer shared brand release.
-const shellRelease = "20260910-report22-brand3";
-// Refresh only the two independently released cosmetic stylesheets.
+// Keep the unchanged shared shell on its existing release.
+const shellRelease = "20260913.32";
+// Refresh changed runtime assets without invalidating unchanged brand assets.
 const assetReleases = Object.freeze({
-  "homepage-workspace-demo.css": "20260913-cosmetic1",
-  "sample-report-production.css": "20260913-cosmetic1",
+  "monderman-report.js": "20260914.43",
+  "sample-report-production.js": "20260914-mixed-origin1",
+  "campaign-analysis.js": "20260913.34",
+  "campaign-analysis.css": "20260913.34",
+  "homepage-workspace-demo.css": "20260914-preview-static1",
+  "sample-report-production.css": "20260913.32",
 });
 const assistantRelease = "20260910-bounded-chat1";
 const acquisitionRelease = "20260910-measurement-choice1";
@@ -42,13 +46,15 @@ const refreshedAssets = [
   "homepage-hero-system.css", "homepage-workspace-demo.css", "homepage-workspace-demo.js",
   "workspace-product-design.css", "report-screen-experience.css", "report-screen-experience.js",
   "dv-result-dialog.css", "dv-result-dialog.js",
+  "diagnostic-intake.css", "diagnostic-note-permission.js", "participant-evidence-safety.js",
+  "campaign-analysis.css", "campaign-analysis.js", "run-inclusion-review.js",
   "visual-polish.css", "monderman-shell.css", "publication-hero.css", "first-run-moments.css",
   "pilot-waitlist.css", "monderman-depth-lure-tile.css",
   "brand-surfaces.css",
 ];
 const versionScript = (html, fileName) => html.replace(
-  new RegExp(`(["'])${fileName.replace(".", "\\.")}(?:\\?v=[^"']*)?\\1`, "g"),
-  (_match, quote) => `${quote}${fileName}?v=${assetReleases[fileName] || (["first-run-telemetry.js", "pilot-waitlist.js"].includes(fileName) ? acquisitionRelease : ["assistant.js", "workspace-assistant.js"].includes(fileName) ? assistantRelease : shellRelease)}${quote}`,
+  new RegExp(`(["'])(\\./)?${fileName.replace(".", "\\.")}(?:\\?v=[^"']*)?\\1`, "g"),
+  (_match, quote, relative = "") => `${quote}${relative}${fileName}?v=${assetReleases[fileName] || (["first-run-telemetry.js", "pilot-waitlist.js"].includes(fileName) ? acquisitionRelease : ["assistant.js", "workspace-assistant.js"].includes(fileName) ? assistantRelease : shellRelease)}${quote}`,
 );
 const motif = footer.match(motifPattern)?.[0];
 

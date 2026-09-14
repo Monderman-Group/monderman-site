@@ -1,21 +1,53 @@
 import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
+import {createHash} from 'node:crypto';
+import {readPublicSampleFixture,publicResult} from './public_sample_fixture.mjs';
 
 const base = process.env.SAMPLE_BASE || 'http://127.0.0.1:8080';
 const out = process.env.SAMPLE_OUT || '/tmp/sample-product-fidelity-smoke';
 fs.mkdirSync(out, { recursive: true });
+// Verify the public SDK against the page's SRI before replaying it locally.
+// No live authentication or application-service request belongs in this test.
+const sdkUrl='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0';
+const sdkResponse=await fetch(sdkUrl);
+if(!sdkResponse.ok)throw Error('Public SDK download failed');
+const sdk=Buffer.from(await sdkResponse.arrayBuffer());
+const sdkIntegrity='sha384-'+createHash('sha384').update(sdk).digest('base64');
+if(!fs.readFileSync('sample-report.html','utf8').includes('src="'+sdkUrl+'" integrity="'+sdkIntegrity+'"'))throw Error('Public SDK integrity differs from sample-report.html');
 
-const artifact=JSON.parse(fs.readFileSync(new URL('../sample-data/production-diagnostic-samples.json',import.meta.url),'utf8'));
-const expectedEngine = artifact.engine_commit;
+// A stale or unapproved artifact must fail before browser layout is mistaken
+// for current-output fidelity. Never repin or replace it with mocked prose.
+const {artifact}=readPublicSampleFixture();
 const expectedArtifact = artifact.artifact_sha256;
+const generationEngineCommits=Object.fromEntries(Object.entries(artifact.outputs).map(([key,entry])=>[key,entry.provenance.engine_commit]));
 const expected = Object.fromEntries(Object.entries({os:'operational_systems',dv:'decision_velocity',sc:'structural_clarity',ip:'institutional_performance'}).map(([tab,key])=>{
-  const result=artifact.outputs[key].source;
-  return [tab,{source:key,score:String(result.score),dimensions:Object.keys(result.dimensions).length,result}];
+  const result=publicResult(artifact.outputs[key]);
+  return [tab,{source:key,score:String(result.score),dimensions:Object.keys(result.dimensions).length,result,engineCommit:artifact.outputs[key].provenance.engine_commit}];
 }));
 
 function assert(value, message) {
   if (!value) throw new Error(message);
+}
+async function assertPromotionalBoundary(shell,key) {
+  assert(await shell.locator('.psr-wrap').getAttribute('data-engine-commit')===artifact.outputs[key].provenance.engine_commit,
+    `${key} original generation revision differs from the entry provenance`);
+  const text=await shell.textContent();
+  assert(!text.includes('About this example'),`${key} retains the redundant promotional provenance section`);
+  const disclosure=shell.locator('.mr-sample-disclosure');
+  assert(await disclosure.count()===1&&await disclosure.isVisible(),`${key} must identify example data once on the cover`);
+  assert((await disclosure.innerText()).trim()==='Sample report · Example data',`${key} approved example-data label differs`);
+  assert(await shell.locator('.mr-run-method,.mr-meta-method').count()===1,`${key} promotional simplification removed the real report method`);
+  // Paired rendering uses the same actual source without the promotional
+  // marker. It proves genuine-report method retention, not a customer run.
+  const entry=artifact.outputs[key];
+  const paired=await shell.evaluate((_node,entry)=>{
+    const report=window.MondermanReport;
+    const model=entry.kind==='synthesis'?report.fromSynthesis(entry.source):report.fromRun(entry.source);
+    const doc=new DOMParser().parseFromString(report.buildReportHtml(model),'text/html');
+    return {method:doc.querySelectorAll('.mr-run-method,.mr-meta-method').length,fictionalDisclosure:doc.querySelectorAll('.mr-sample-disclosure').length};
+  },entry);
+  assert(paired.method===1&&paired.fictionalDisclosure===0,`${key} genuine-report method or promotional-marker boundary regressed`);
 }
 async function emulateMediaAndSettle(page, media) {
   await page.emulateMedia({ media });
@@ -26,6 +58,8 @@ async function emulateMediaAndSettle(page, media) {
 
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 1100 } });
+await page.context().route('**/*',route=>new URL(route.request().url()).origin===new URL(base).origin?route.continue():route.abort());
+await page.context().route(sdkUrl,route=>route.fulfill({contentType:'text/javascript',body:sdk,headers:{'Access-Control-Allow-Origin':'*'}}));
 const errors = [];
 page.on('pageerror', error => errors.push(`pageerror: ${error.message}`));
 page.on('console', message => {
@@ -34,7 +68,7 @@ page.on('console', message => {
 // Downloadable report HTML points to the production font URLs. The localhost
 // certification server should exercise the same files without relying on the
 // live site's cross-origin font policy.
-await page.route(/^https:\/\/www\.monderman\.com\/(55|65|75)font\.woff2$/, async route => {
+await page.context().route(/^https:\/\/www\.monderman\.com\/(55|65|75)font\.woff2$/, async route => {
   const filename = new URL(route.request().url()).pathname.slice(1);
   await route.fulfill({
     status: 200,
@@ -68,7 +102,7 @@ for (const [key, contract] of Object.entries(expected)) {
   assert(await report.count() === 1, `${key} production-contract report is missing or duplicated`);
   assert(await shell.locator('.psr-doc-shell').count() === 1, `${key} shared promotional report frame is missing or duplicated`);
   assert(await shell.locator('.psr-toc a').count() >= 8, `${key} desktop contents rail is incomplete`);
-  assert(await report.getAttribute('data-engine-commit') === expectedEngine, `${key} engine revision mismatch`);
+  assert(await report.getAttribute('data-engine-commit') === contract.engineCommit, `${key} original generation revision mismatch`);
   assert(await report.getAttribute('data-artifact-sha256') === expectedArtifact, `${key} artifact digest mismatch`);
   assert(await report.getAttribute('data-source-key') === contract.source, `${key} source identity mismatch`);
   assert((await shell.locator('.mr-run-score-stamp strong').innerText()).trim() === contract.score, `${key} generated score mismatch`);
@@ -82,17 +116,25 @@ for (const [key, contract] of Object.entries(expected)) {
   const text = await shell.textContent();
   for (const token of [
     'Decision summary', 'Dimension profile', key==='sc'?'Clarity indicator distribution':'Where the measured issue appears',
-    'How the time and cost estimate is built', key==='sc'?'Review order and clarity indicators':'Priority order and measured severity',
+    'Measured priorities', key==='sc'?'Review order and clarity indicators':'Priority order and measured severity',
     'What this may mean', 'What this result is based on',
-    'AI-assisted interpretation', 'How this report was produced', 'Interpretation boundary', 'About this example',
-    'No written participant notes are included.',
+    'Interpretation and next steps', 'How this report was produced', 'Interpretation boundary',
   ]) assert(text.includes(token), `${key} missing production-equivalent content: ${token}`);
+  assert(await shell.locator('.mr-exposure-flow,.mr-exposure-range,.mr-financial-scenario').count()===0,`${key} individual report displays a recovery or financial scenario`);
+  assert(!text.includes('How the time and cost estimate is built'),`${key} individual report retains the retired recovery section`);
+  await assertPromotionalBoundary(shell,contract.source);
+  const notes=contract.result.participant_evidence||[];
+  assert(notes.length>0,`${key} approved example participant observations are missing`);
+  const evidence=await shell.locator('.mr-run-evidence').textContent();
+  for(const note of notes)assert(typeof note.text==='string'&&note.text.trim()&&evidence.includes(note.text),`${key} saved participant observation is missing or rewritten`);
+  assert(!text.includes('No written participant notes are included.'),`${key} falsely says the saved observations are absent`);
   for (const stale of ['Competing readings', 'What would update this read', 'Sample Depth Synthesis Report']) {
     assert(!text.includes(stale), `${key} still renders outdated content: ${stale}`);
   }
+  await shell.locator('.psr-downloads summary').click();
   assert(await shell.getByRole('button', { name: 'Download HTML' }).isVisible(), `${key} HTML control missing`);
   assert(await shell.getByRole('button', { name: 'Download JSON' }).isVisible(), `${key} JSON control missing`);
-  assert(await shell.getByRole('button', { name: 'Print or save PDF' }).isVisible(), `${key} print/PDF control missing`);
+  assert(await shell.getByRole('button', { name: 'Download PDF', exact:true }).isVisible(), `${key} print/PDF control missing`);
   await page.screenshot({ path: path.join(out, `${key}-desktop.png`), fullPage: true });
 }
 
@@ -109,7 +151,7 @@ const [jsonDownload] = await Promise.all([
 assert(jsonDownload.suggestedFilename().endsWith('.json'), 'public JSON export filename changed');
 const [printReport] = await Promise.all([
   page.waitForEvent('popup'),
-  page.locator('#report-os').getByRole('button', { name: 'Print or save PDF' }).click(),
+  page.locator('#report-os').getByRole('button', { name: 'Download PDF', exact:true }).click(),
 ]);
 await printReport.waitForLoadState('domcontentloaded');
 assert(await printReport.locator('.mr-report').isVisible(), 'public print/PDF report did not open');
@@ -122,15 +164,17 @@ assert(await cross.locator('.psr-toolbar').isVisible(), 'Cross-Lens shared repor
 const crossText = await cross.textContent();
 assert(artifact.outputs.cross_lens_synthesis.source.score_type === 'equal_lens_mean', 'Cross-Lens must preserve its equal-lens mean basis');
 assert(crossText.includes(artifact.outputs.cross_lens_synthesis.source.score_basis), 'Cross-Lens saved score basis is missing');
-for (const token of ['Cross-Lens Composite Score', String(artifact.outputs.cross_lens_synthesis.source.cross_diagnostic_score), artifact.outputs.cross_lens_synthesis.source.evidence_assessment.evidence_label, 'equal-lens mean', 'AI-assisted interpretation', 'Interpretation boundary']) {
+for (const token of ['Cross-Lens Composite Score', String(artifact.outputs.cross_lens_synthesis.source.cross_diagnostic_score), artifact.outputs.cross_lens_synthesis.source.evidence_assessment.evidence_label, 'equal-lens mean', 'Interpretation and next steps', 'Interpretation boundary']) {
   assert(crossText.includes(token), `Cross-Lens sample missing ${token}`);
 }
 assert(!crossText.includes('Source-backed remedy paths'), 'Cross-Lens sample rendered remedy prose that its source-prose contract withholds');
 const crossActions=artifact.outputs.cross_lens_synthesis.source.ai_report.report.interpretation.recommendations.filter(row=>row.action?.trim()).map(row=>row.action);
-assert(await cross.locator('.mr-ai-action').count()===crossActions.length, 'Cross-Lens accepted action count differs');
+assert(await cross.locator('.mr-report-nextsteps .mr-ai-action').count()===crossActions.length, 'Cross-Lens accepted next-step count differs');
+assert(await cross.locator('.mr-report-options .mr-ai-action').count()===(artifact.outputs.cross_lens_synthesis.source.ai_report.report.interpretation.action_options||[]).length, 'Cross-Lens accepted alternatives count differs');
 for(const action of crossActions)assert(crossText.includes(action), 'Cross-Lens accepted action text differs');
 assert(await cross.locator('.mr-action-path .mr-action-step').count()===0, 'Cross-Lens duplicates fallback actions beside accepted AI');
 assert(await cross.locator('.mr-remedy-card').count() === 0, 'Cross-Lens sample rendered remedy cards without eligible source prose');
+await assertPromotionalBoundary(cross,'cross_lens_synthesis');
 assert(await cross.locator('svg[aria-label="Cross-Lens Diagnostic score comparison"]').isVisible(), 'Cross-Lens comparison visual is not visible');
 const crossCompositeLabel = await cross.locator('.mr-system-composite-label').evaluate((el) => {
   const box = el.getBBox();
@@ -148,6 +192,7 @@ const depth = page.locator('#report-depth');
 assert(await depth.locator('.psr-doc-shell').count() === 1, 'Depth shared promotional report frame is missing');
 assert(await depth.locator('.psr-toolbar').isVisible(), 'Depth shared report controls are missing');
 const depthText = await depth.textContent();
+await assertPromotionalBoundary(depth,'depth_synthesis');
 for (const token of ['Median Diagnostic Score', String(artifact.outputs.depth_synthesis.source.aggregate_score), artifact.outputs.depth_synthesis.source.evidence_assessment.evidence_label, String(artifact.outputs.depth_synthesis.source.submitted_run_count), 'Agreement, divergence, and coverage', 'Interpretation boundary']) {
   assert(depthText.includes(token), `Depth sample missing ${token}`);
 }
@@ -193,7 +238,8 @@ await emulateMediaAndSettle(page, 'screen');
 assert(errors.length === 0, errors.join('\n'));
 fs.writeFileSync(path.join(out, 'result.json'), JSON.stringify({
   ok: true,
-  engine_commit: expectedEngine,
+  assembly_engine_commit: artifact.engine_commit,
+  generation_engine_commits: generationEngineCommits,
   artifact_sha256: expectedArtifact,
   diagnostic_products: 4,
   synthesis_products: 2,

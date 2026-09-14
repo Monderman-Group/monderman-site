@@ -1,8 +1,20 @@
 import { chromium, webkit } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
+import {createHash} from 'node:crypto';
 
 const base = process.env.SAMPLE_BASE || 'http://127.0.0.1:8080';
+// Fetch only the exact public dependency, then replay its verified bytes in
+// both browsers. No authentication or application-service call is permitted.
+const sdkUrl='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0';
+const sdkResponse=await fetch(sdkUrl);
+if(!sdkResponse.ok)throw Error('Public SDK download failed');
+const sdk=Buffer.from(await sdkResponse.arrayBuffer());
+const sdkIntegrity='sha384-'+createHash('sha384').update(sdk).digest('base64');
+for(const file of ['index.html','sample-report.html']){
+  const source=fs.readFileSync(file,'utf8');
+  if(!source.includes('src="'+sdkUrl+'" integrity="'+sdkIntegrity+'"'))throw Error('Public SDK integrity differs from '+file);
+}
 
 function assert(value, message) {
   if (!value) throw new Error(message);
@@ -13,6 +25,9 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
   const context = await browser.newContext({ acceptDownloads: true, viewport: { width: 1440, height: 1000 } });
   const page = await context.newPage();
   const errors = [];
+  // Live application services are out of scope for this local presentation check.
+  await page.route('**/*',route=>new URL(route.request().url()).origin===new URL(base).origin?route.continue():route.abort());
+  await page.route(sdkUrl,route=>route.fulfill({contentType:'text/javascript',body:sdk,headers:{'Access-Control-Allow-Origin':'*'}}));
   page.on('pageerror', error => errors.push(`pageerror: ${error.message}`));
   page.on('console', message => {
     if (message.type() === 'error' && !/supabase|connect|assistant|favicon/i.test(message.text())) {
@@ -45,6 +60,9 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
   assert(await page.locator('#tab-os').getAttribute('aria-selected') === 'true', `${browserName}: report tabs do not support Home`);
 
   const report = page.locator('#report-os');
+  await report.locator('.psr-downloads > summary').click();
+  assert(await report.locator('.psr-downloads').getAttribute('open') !== null,
+    `${browserName}: Other formats disclosure did not open`);
   const [htmlDownload] = await Promise.all([
     page.waitForEvent('download'),
     report.getByRole('button', { name: 'Download HTML' }).click(),
@@ -57,7 +75,7 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
   assert(jsonDownload.suggestedFilename().endsWith('.json'), `${browserName}: JSON report download failed`);
   const [printReport] = await Promise.all([
     page.waitForEvent('popup'),
-    report.getByRole('button', { name: 'Print or save PDF' }).click(),
+    report.getByRole('button', { name: 'Download PDF', exact: true }).click(),
   ]);
   await printReport.waitForLoadState('domcontentloaded');
   assert(await printReport.locator('.mr-report').isVisible(), `${browserName}: print/PDF report did not open`);

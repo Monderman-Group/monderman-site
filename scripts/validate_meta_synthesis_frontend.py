@@ -8,6 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 REPORT = (ROOT / "monderman-report.js").read_text(encoding="utf-8")
 WORKSPACE = (ROOT / "workspace-analysis.html").read_text(encoding="utf-8")
+CAMPAIGN = (ROOT / "campaign-analysis.js").read_text(encoding="utf-8")
 MEASURE = (ROOT / "workspace-diagnostics.html").read_text(encoding="utf-8")
 OVERVIEW = (ROOT / "workspace.html").read_text(encoding="utf-8")
 ACTIONS = (ROOT / "workspace-actions.html").read_text(encoding="utf-8")
@@ -60,14 +61,16 @@ for token in (
     'kind: "meta-synthesis"',
     'product: product',
     'scorePublished: scorePublished',
-    'headlineBand: scorePublished ? (firstStr(r.score_label, conditionBand) + " · " + conditionBand) : "Composite withheld"',
+    'headlineBand: selfRun ? (scorePublished?',
+    "'Your selected scores only':'No combined score'",
+    'scorePublished ? (firstStr(r.score_label, conditionBand) + " · " + conditionBand) : "Composite withheld"',
     "function renderMetaSynthesis",
     "function renderDepthDistribution",
     "function renderRequirements",
     "function renderMetaExposure",
     "each Diagnostic receives one vote regardless of submitted run count",
     "they do not establish how many distinct people responded",
-    "Population generalization requires a documented sampling frame",
+    "Applying them to a wider population requires a documented sampling plan and response coverage.",
 ):
     require(REPORT, token, "monderman-report.js")
 
@@ -100,21 +103,29 @@ for token in (
     '/api/normalization/workspace-runs/',
     'run_ids:ids',
     'scopePolicy:',
-    'samplingFrame',
-    'mode:"depth"',
-    'mode:"cross_lens"',
+    "analysis_mode:'self_run_synthesis'",
+    'campaign_scope_id:evidence.scope.id',
+    'evidence_digest:evidence.readiness.evidenceDigest',
+    "mode:cross?'cross_lens':'depth'",
+    'self_run_owned_by_caller===true',
+    'It does not publish a Cross-Lens Composite Score or an organization-wide recommended path.',
     'mondermanCrossDiagnosticSynthesis',
-    'If a Cross-Lens Composite Score is withheld, the report states why and what actions could unlock one.',
+    'Personal Cross-Lens Synthesis never publishes a Composite Score.',
+    'Personal Depth Synthesis may show the median of your selected scores when the runs cover compatible work, dates, versions and perspectives.',
+    'Personal runs do not establish campaign readiness or unlock a Cross-Lens Composite Score, organizational change alternatives or a recommended path.',
     '/api/synthesis',
     '/api/synthesis-runs',
-    'Build Depth Synthesis',
-    'Build Cross-Lens Synthesis',
+    'Build self-run Synthesis',
     'run.included_in_aggregates===true',
     '["included","included_with_caution"].includes(run.normalization_status)',
 ):
     require(WORKSPACE, token, "workspace-analysis.html")
 
+for token in ('Build Depth Synthesis', 'Build Cross-Lens Synthesis', 'View response comparison'):
+    require(CAMPAIGN, token, 'campaign-analysis.js')
+
 for token in (
+    'what actions could unlock one',
     ".limit(200)",
     "population statistics",
     "body: JSON.stringify({ results",
@@ -130,9 +141,11 @@ for token in (
 for token in (
     'Review & include',
     '/api/normalization/normalize-run/',
-    'REVIEW_ELIGIBLE = new Set(["included", "included_with_caution"])',
-    'aggregateEligible === true',
-    'this run is not eligible for Analysis or Synthesis. It remains Staged.',
+    'return confirmRunInclusion({run,preview:payload})',
+    'if(!review)return;',
+    'inclusionInFlight.has(id)',
+    "body:JSON.stringify({ status, ...(review||{}) })",
+    "if(state.orgId!==organizationId)",
 ):
     require(MEASURE, token, "workspace-diagnostics.html")
 
@@ -160,7 +173,7 @@ for token in (
     "These result files exceed the safe direct-upload size",
     "t.evidence_label",
     't.score_status === "published"',
-    "t.pathway_exposure",
+    "Not derived from diagnostic scores. A separate operational scenario requires documented inputs and assumptions.",
     'outcome.reason === "workspace_inclusion_required"',
     'workspace-analysis.html#synthesis',
     '"Open Analysis"',
@@ -169,9 +182,17 @@ for token in (
 for token in (
     "population statistics",
     "Compounded exposure / yr",
+    "t.pathway_exposure",
+    "Observed median annual cost",
+    "Observed recoverable estimate",
     "Cross-diagnostic synthesis failed.",
 ):
     forbid(DIAGNOSTICS, token, "diagnostics.html")
+
+# Financial inputs are optional, separate data supplied only to the report request.
+require(WORKSPACE, "if(financialScenarioInput!==undefined)requestBody.financial_scenario_input=financialScenarioInput;", "workspace-analysis.html")
+require(CAMPAIGN, "if(!form.elements.includeScenario.checked)return undefined;", "campaign-analysis.js")
+require(CAMPAIGN, "Use measured activity records, not per-person questionnaire opinions or diagnostic scores.", "campaign-analysis.js")
 
 # Full-page report is a pure shared renderer, not a second synthesis engine.
 for token in (

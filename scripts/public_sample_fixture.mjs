@@ -19,11 +19,146 @@ const validHash = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(va
 const validTime = value => typeof value === 'string' && Number.isFinite(Date.parse(value));
 const plain = value => value && typeof value === 'object' && !Array.isArray(value);
 export const publicResult = entry => entry.kind === 'diagnostic' && entry.source?.result?.tool_type ? entry.source.result : entry.source;
+// Pure generation-provenance check, also usable with explicitly unapproved
+// in-memory display fixtures. It does not issue or replace release approval.
+export function assertPublicSampleGenerationProvenance(entry,key) {
+  const p=entry?.provenance,report=publicResult(entry)?.ai_report?.report;
+  assert.ok(plain(p)&&typeof p.engine_commit==='string'&&/^[a-f0-9]{40}$/.test(p.engine_commit),key+' original generation commit missing or malformed');
+  assert.ok(validTime(p.generated_at)&&validTime(report?.generated_at),key+' original generation timestamps missing');
+  assert.ok(typeof report.version==='string'&&report.version,key+' AI release missing');
+  assert.equal(p.report_ai_release,report.version,key+' AI release provenance mismatch');
+  assert.ok(typeof report.prompt_version==='string'&&report.prompt_version,key+' AI prompt missing');
+  assert.equal(p.report_ai_prompt_version,report.prompt_version,key+' AI prompt provenance mismatch');
+  return entry;
+}
 const DEFAULT_ROOT = fileURLToPath(new URL('../',import.meta.url));
 const REQUIRED_SOURCE_FILES = [
-  'monderman-report.js','public-sample-model.js','sample-report-production.js',
+  'monderman-report.js','participant-evidence-safety.js','public-sample-model.js','sample-report-production.js',
   'scripts/refresh_public_sample_previews.mjs','scripts/templates/home-workspace-preview.html',
 ];
+
+// Public counts are a projection of the reviewed synthetic campaign, not a
+// reconstruction of private identities. The enclosing release checks still
+// require exact approved source/provenance hashes. Consistency is not proof of
+// independent people, population accuracy or scientific validity.
+export function assertPublicCampaignEvidence(r,p,key) {
+  const message=detail=>`${key}: ${detail}`;
+  const people=p.distinct_included_participants,population=p.declared_eligible_population;
+  assert.ok(Number.isSafeInteger(people)&&people>0,message('reviewed distinct-participant count missing'));
+  assert.ok(Number.isSafeInteger(population)&&population>=people,message('reviewed population smaller than participation'));
+  assert.ok(validHash(p.campaign_handoff_sha256),message('actual campaign handoff binding missing'));
+  assert.equal(p.experience_source,'fabricated_participant_accounts');
+  assert.equal(p.operating_review_source,'fabricated_operational_corroboration');
+  assert.equal(r.report_kind,key,message('campaign report kind differs'));
+  assert.ok(typeof r.campaign_scope_label==='string'&&r.campaign_scope_label.trim(),message('bounded campaign scope missing'));
+  assert.equal(r.count_basis,'server_bound_account_or_invitation_identities');
+  assert.match(r.participant_count_note||'',/not independent proof/);
+  assert.equal(r.participant_count,people,message('participant count differs from reviewed provenance'));
+  assert.equal(r.respondent_count,people,message('respondent count differs from reviewed provenance'));
+  assert.equal(r.submitted_run_count,p.submitted_run_count);
+  assert.equal(r.source_result_count,p.submitted_run_count);
+  const c=r.campaign_evidence,e=r.evidence_assessment;
+  assert.equal(c?.version,'campaign-evidence-readiness-20260911.1');
+  assert.equal(c.method?.scientificallyValidated,false);
+  assert.equal(c.method?.independentReviewStatus,'not_reviewed');
+  assert.equal(c.method?.policyStatus,'provisional_product_policy');
+  assert.equal(c.counts?.distinctParticipantsAcrossLenses,people);
+  assert.equal(c.counts?.recordedEligibleParticipants,people);
+  assert.equal(c.counts?.declaredPopulation,population);
+  assert.equal(c.counts?.selectedRuns,p.submitted_run_count);
+  assert.equal(e?.scope?.status,'anchored');assert.equal(e.scope.anchored,true);
+  assert.deepEqual(e.scope.conflicts,[]);
+  assert.equal(e.versions?.status,'verified');
+  assert.equal(e.time_window?.status,'aligned');
+  assert.ok(validTime(e.time_window.declared_start)&&validTime(e.time_window.declared_end));
+  assert.ok(Date.parse(e.time_window.declared_end)>=Date.parse(e.time_window.declared_start));
+  assert.equal(e.source_identity?.status,'verified');
+  assert.equal(e.source_identity.explicit_source_ids,p.submitted_run_count);
+  assert.equal(e.source_identity.total_runs,p.submitted_run_count);
+  assert.equal(e.representativeness?.status,'recorded_campaign_participation');
+  assert.equal(e.representativeness.participant_count,people);
+  assert.equal(e.representativeness.population_size,population);
+  const lensKeys=Object.keys(p.questionnaire_versions||{}).sort();
+  const expectedKeys=key==='depth_synthesis'?['structural_clarity']:Object.values(PUBLIC_PRODUCTS).filter(lens=>!lens.endsWith('_synthesis')).sort();
+  assert.deepEqual(lensKeys,expectedKeys,message('approved showcase lens scope changed'));
+  assert.equal(r.lens_count,lensKeys.length);
+  const sameLenses=(rows,field,label)=>assert.deepEqual((rows||[]).map(row=>row[field]).sort(),lensKeys,message(label));
+  sameLenses(r.source_groups,'tool_type','source groups missing or duplicated');
+  sameLenses(c.depth?.lenses,'lens','readiness lenses missing or duplicated');
+  sameLenses(e.versions.per_lens,'tool_type','versioned lenses missing or duplicated');
+  sameLenses(e.representativeness.per_lens,'tool_type','participation lenses missing or duplicated');
+  assert.equal(c.depth.status,'satisfied');
+  if(key==='cross_lens_synthesis')assert.equal(c.crossLens?.status,'satisfied');
+  const coverage=(value,label)=>{
+    assert.equal(value?.numerator,people,message(label+' numerator'));
+    assert.equal(value.denominator,population,message(label+' denominator'));
+    assert.equal(value.percentage,100*people/population,message(label+' percentage'));
+    assert.equal(value.denominatorSource,'sponsor_declared');
+    assert.equal(value.independentlyVerified,false);
+  };
+  for(const lens of lensKeys) {
+    const group=r.source_groups.find(row=>row.tool_type===lens),ready=c.depth.lenses.find(row=>row.lens===lens);
+    // This approved example uses the same participant set once per lens.
+    // Four lens runs must never be presented as four independent people.
+    for(const field of ['submitted_runs','participants','respondents','source_id_count'])assert.equal(group[field],people,message(lens+' '+field));
+    assert.deepEqual(group.config_versions,[p.questionnaire_versions[lens]]);
+    const version=e.versions.per_lens.find(row=>row.tool_type===lens);
+    assert.equal(version.compatible,true);assert.deepEqual(version.config_versions,group.config_versions);
+    assert.deepEqual(version.scorer_versions,group.scorer_versions);
+    assert.equal(ready.status,'satisfied');
+    for(const field of ['includedRuns','distinctParticipants','usableDistinctParticipants'])assert.equal(ready.counts?.[field],people,message(lens+' '+field));
+    for(const field of ['repeatedParticipants','duplicateRunIds','excludedRuns','pendingRuns'])assert.equal(ready.counts?.[field],0,message(lens+' '+field));
+    assert.equal(ready.counts.eligiblePopulation,population);
+    coverage(ready.coverage,lens);coverage(e.representativeness.per_lens.find(row=>row.tool_type===lens),lens+' representation');
+    assert.equal(ready.bounds?.observed,people);assert.equal(ready.bounds.population,population);
+    assert.equal(ready.bounds.missing,population-people);assert.equal(ready.bounds.isConfidenceInterval,false);
+    assert.equal(ready.bounds.statisticalConfidenceLevel,null);
+    const groups=ready.requiredGroups||[];
+    assert.ok(groups.length>0&&new Set(groups.map(row=>row.id)).size===groups.length);
+    for(const row of groups)assert.ok(Number.isSafeInteger(row.participants)&&row.participants>0&&Number.isSafeInteger(row.population)&&row.population>=row.participants);
+    assert.equal(groups.reduce((sum,row)=>sum+row.participants,0),people,message(lens+' disjoint group participants'));
+    assert.equal(groups.reduce((sum,row)=>sum+row.population,0),population,message(lens+' disjoint group population'));
+  }
+  assert.equal(r.source_groups.reduce((sum,row)=>sum+row.submitted_runs,0),p.submitted_run_count);
+  assert.equal(p.submitted_run_count,people*lensKeys.length,message('runs versus shared participants'));
+}
+
+// Run against the real approved projection during --check. Also exported for
+// offline tests using the actual deterministic generator before paid samples
+// exist. These mutations never change the artifact or manufacture approval.
+export function assertPublicCampaignEvidenceGuards(source,provenance,key) {
+  assertPublicCampaignEvidence(source,provenance,key);
+  const cases=[
+    ['missing participant count',s=>{s.participant_count=null;}],
+    ['inflated respondent count',s=>{s.respondent_count++;}],
+    ['runs treated as people',s=>{s.participant_count=s.respondent_count=s.submitted_run_count+1;}],
+    ['wrong identity basis',s=>{s.count_basis='submitted_runs';}],
+    ['missing scope',s=>{delete s.campaign_scope_label;}],
+    ['conflicting scope',s=>{s.evidence_assessment.scope.conflicts=['different team'];}],
+    ['unanchored scope',s=>{s.evidence_assessment.scope.anchored=false;}],
+    ['unaligned period',s=>{s.evidence_assessment.time_window.status='unaligned';}],
+    ['invalid period',s=>{s.evidence_assessment.time_window.declared_end='invalid';}],
+    ['wrong version',s=>{s.source_groups[0].config_versions=['wrong'];}],
+    ['duplicate lens',s=>{s.source_groups.push(structuredClone(s.source_groups[0]));}],
+    ['inflated source count',s=>{s.source_result_count++;}],
+    ['reused source identity',s=>{s.evidence_assessment.source_identity.explicit_source_ids--;}],
+    ['inflated union',s=>{s.campaign_evidence.counts.distinctParticipantsAcrossLenses++;}],
+    ['missing population',s=>{s.campaign_evidence.counts.declaredPopulation=null;}],
+    ['inflated per-lens people',s=>{s.source_groups[0].participants++;}],
+    ['repeated participant',s=>{s.campaign_evidence.depth.lenses[0].counts.repeatedParticipants=1;}],
+    ['duplicate run',s=>{s.campaign_evidence.depth.lenses[0].counts.duplicateRunIds=1;}],
+    ['inflated coverage',s=>{s.campaign_evidence.depth.lenses[0].coverage.percentage=100;}],
+    ['false verified population',s=>{s.evidence_assessment.representativeness.per_lens[0].independentlyVerified=true;}],
+    ['group double count',s=>{s.campaign_evidence.depth.lenses[0].requiredGroups[0].participants++;}],
+    ['group population mismatch',s=>{s.campaign_evidence.depth.lenses[0].requiredGroups[0].population++;}],
+    ['false confidence interval',s=>{s.campaign_evidence.depth.lenses[0].bounds.isConfidenceInterval=true;}],
+    ['false scientific validation',s=>{s.campaign_evidence.method.scientificallyValidated=true;}],
+    ['missing handoff',(_s,p)=>{delete p.campaign_handoff_sha256;}],
+    ['changed reviewed participants',(_s,p)=>{p.distinct_included_participants++;}],
+  ];
+  for(const [label,mutate] of cases){const s=structuredClone(source),p=structuredClone(provenance);mutate(s,p);assert.throws(()=>assertPublicCampaignEvidence(s,p,key),{name:'AssertionError'},`${key}: guard did not reject ${label}`);}
+  return {accepted:1,mutationsRejected:cases.length};
+}
 
 // The independent review manifest is a release input, never regenerated by a
 // validator. approved_output_sha256 refers to the unstripped private approved
@@ -41,7 +176,7 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
   assert.ok(validTime(manifest.reviewed_at),'actual fidelity-review time is missing');
   assert.ok(validHash(manifest.artifact_file_sha256));
   assert.equal(sha(artifactBytes),manifest.artifact_file_sha256,'public artifact bytes differ from the reviewed release');
-  assert.equal(artifact.contract,'monderman-public-product-samples/v2');
+  assert.equal(artifact.contract,'monderman-public-product-samples/v3');
   assert.equal(artifact.synthetic,true,'the entire artifact must be explicitly synthetic');
   assert.ok(!/dry|pending|not_for_publication|candidate/i.test(artifact.status||''),'unapproved intermediate artifact');
   assert.ok(validHash(artifact.artifact_sha256));
@@ -53,7 +188,7 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
   assert.equal(artifact.engine_commit,manifest.engine_commit);
   assert.ok(validTime(artifact.generated_at));
   assert.equal(artifact.generated_at,manifest.generated_at);
-  assert.equal(artifact.publication_projection?.version,'monderman-public-sample-projection-20260911.2');
+  assert.equal(artifact.publication_projection?.version,'monderman-public-sample-projection-20260913.7');
   assert.ok(validHash(artifact.publication_projection.source_sha256));
   assert.match(artifact.publication_projection.projection_commit,/^[a-f0-9]{40}$/);
   assert.deepEqual(artifact.publication_projection,manifest.publication_projection,'publication projection differs from reviewed export');
@@ -91,6 +226,7 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
       version:report.version,snapshot_id:report.snapshot_id,
     },pin.ai,key+' AI source differs from approved output');
     assert.equal(report.prompt_version,p.report_ai_prompt_version,key+' AI prompt provenance mismatch');
+    assertPublicSampleGenerationProvenance(entry,key);
     if(synthesis) {
       assert.equal(r.evidence_assessment?.time_window?.maximum_days,undefined,key+' private qualification limit must not be published');
       assert.equal(r.narrative?.sequenced_action_logic,undefined,key+' internal sequencing duplicate must not be published');
@@ -98,8 +234,7 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
       assert.ok(!(r.priority_actions||[]).some(row=>row.source==='evidence_requirement'),key+' private qualification targets must not be published');
       assert.ok(Number.isInteger(r.submitted_run_count)&&r.submitted_run_count>0,key+' submitted-run count');
       assert.equal(r.submitted_run_count,p.submitted_run_count,key+' count differs from source ledger');
-      assert.equal(r.respondent_count,null,key+' must not invent distinct people');
-      assert.equal(r.participant_count,null,key+' must not invent distinct participants');
+      assertPublicCampaignEvidenceGuards(r,p,key);
       const exposure=r.pathway_exposure||r.compounded_exposure;
       if(['available','partial'].includes(exposure?.status)) {
         assert.equal(exposure.not_compounded,true,key+' overlapping exposure must not be summed');
@@ -126,10 +261,11 @@ export function createPublicSampleModels(options={}) {
   const root=path.resolve(options.root||DEFAULT_ROOT);
   const context={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};
   vm.createContext(context);
+  vm.runInContext(fs.readFileSync(path.join(root,'participant-evidence-safety.js'),'utf8'),context,{filename:'participant-evidence-safety.js'});
   vm.runInContext(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8'),context,{filename:'monderman-report.js'});
   vm.runInContext(fs.readFileSync(path.join(root,'public-sample-model.js'),'utf8'),context,{filename:'public-sample-model.js'});
   const Report=context.window.MondermanReport,Public=context.window.MondermanPublicSamples;
-  assert.equal(Report.rendererVersion,'diagnostic-renderer-ai-screen-20260911.25');
+  assert.equal(Report.rendererVersion,'diagnostic-renderer-evidence-reading-20260914.43');
   assert.equal(Report.rendererVersion,fixture.manifest.renderer_version);
   Public.validate(fixture.artifact);
   const models={};
@@ -140,6 +276,9 @@ export function createPublicSampleModels(options={}) {
     assert.equal(model.aiReport.status,'complete');
     assert.equal(JSON.stringify(model.aiReport),JSON.stringify(entry.result.ai_report),entry.key+' accepted AI state changed in model adapter');
     assert.equal(model.sampleProvenance.generated_at,entry.provenance.generated_at);
+    assert.equal(model.sampleProvenance.engine_commit,entry.provenance.engine_commit);
+    assert.equal(model.sampleProvenance.report_ai_release,entry.result.ai_report.report.version);
+    assert.equal(model.sampleProvenance.report_ai_prompt_version,entry.result.ai_report.report.prompt_version);
     assert.equal(model.sampleProvenance.approved_output_sha256,entry.provenance.approved_output_sha256);
     assert.ok(model.meta.some(row=>row.label==='Sample created'));
     assert.ok(!model.meta.some(row=>row.label==='Generated'),'view time must not replace sample generation time');

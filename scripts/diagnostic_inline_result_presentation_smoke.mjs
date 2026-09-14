@@ -94,9 +94,16 @@ try{
        const bounds=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,offenders:[...document.querySelectorAll('body *')].filter(e=>{const b=e.getBoundingClientRect();return b.width>0&&b.height>0&&(b.right>innerWidth+1||b.x< -1)&&getComputedStyle(e).position!=='fixed';}).slice(0,12).map(e=>({tag:e.tagName,id:e.id,cls:typeof e.className==='string'?e.className:'SVG',x:e.getBoundingClientRect().x,right:e.getBoundingClientRect().right}))}));
        check(id+'/'+width+'/no-overflow',()=>assert.ok(bounds.scrollWidth<=width+1,JSON.stringify(bounds)));
        const target=page.locator('#effortFlowSankey,#capacityFlow').first();
-       const scenarioVisible=await target.isVisible();check(id+'/'+width+'/scenario-visible',()=>assert.equal(scenarioVisible,true));
-       const screenshot=path.join(out,`${engine}-${tool}-${width}-scenario.png`);
-       if(scenarioVisible){await target.screenshot({path:screenshot});evidence.screenshots.push(screenshot);}
+       // Historical fixtures retain their original calculation data. The current
+       // single-run policy must withhold its card, not make it visible to satisfy
+       // this older scenario-rendering regression.
+       const scenarioVisible=await target.isVisible();
+       check(id+'/'+width+'/single-run-scenario-withheld',()=>assert.equal(scenarioVisible,false));
+       const notice=page.locator('.single-run-financial-notice');
+       const policyVisible=await notice.isVisible();
+       check(id+'/'+width+'/single-run-policy-visible',()=>assert.equal(policyVisible,true));
+       const screenshot=path.join(out,`${engine}-${tool}-${width}-financial-policy.png`);
+       if(policyVisible){await notice.screenshot({path:screenshot});evidence.screenshots.push(screenshot);}
        const visible=await page.locator('#priorityPathMount').isVisible();
        check(id+'/'+width+'/priority-visible',()=>assert.equal(visible,true));
        if(visible)await page.locator('#priorityPathMount').screenshot({path:path.join(out,`${engine}-${tool}-${width}-priority.png`)});
@@ -108,6 +115,8 @@ try{
       await staticPage.setContent(rendered.cloneHtml);
       const cloneFlow=await staticPage.locator('#effortFlowSankey,#capacityFlow').first().textContent();
       check(id+'/export-clone-values',()=>assert.equal(cloneFlow,rendered.flow));
+      const cloneScenarioVisible=await staticPage.locator('#effortFlowSankey,#capacityFlow').first().isVisible();
+      check(id+'/no-script-export-withholds-single-run-scenario',()=>assert.equal(cloneScenarioVisible,false));
       check(id+'/no-legacy-capacity-bars',()=>assert.doesNotMatch(rendered.cloneHtml,/id=["']capacityWaterfall["']/));
       await noScriptContext.close();
      }

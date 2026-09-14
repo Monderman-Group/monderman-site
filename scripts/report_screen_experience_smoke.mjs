@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
+import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const base = process.env.SITE_BASE || process.env.REPORT_BASE || 'http://127.0.0.1:8080';
 const out = process.env.REPORT_OUT || '/tmp/report-screen-experience';
@@ -18,8 +19,7 @@ async function emulateMediaAndSettle(page, media) {
 }
 
 async function verifyAIScreenRefresh(browser) {
-  const artifact = JSON.parse(fs.readFileSync('sample-data/production-diagnostic-samples.json','utf8'));
-  assert.equal(artifact.contract,'monderman-public-product-samples/v2');
+  const {artifact}=readPublicSampleFixture();
   const fixtures = Object.entries(artifact.outputs).map(([name,entry])=>({name,source:entry.source,kind:entry.kind==='diagnostic'?'run':'synthesis'}));
   assert.equal(fixtures.length,6);
   const lifecycle = await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
@@ -177,6 +177,12 @@ const invariants=await page.evaluate(async()=>{
     const printed=wrapper.querySelector('.mr-page').cloneNode(true);
     printed.querySelectorAll('.mr-screen-only').forEach(node=>node.remove());
     printed.querySelectorAll('section[id]').forEach(node=>node.removeAttribute('id'));
+    // Current action navigation also targets the existing guidance divs.
+    // Strip only its generated navigation ID, never its report contents.
+    printed.querySelectorAll('.mr-report-nextsteps[id],.mr-report-options[id]').forEach(node=>{
+      if (!/^mr-.+-guidance-\d+$/.test(node.id)) throw new Error('Unexpected guidance navigation ID');
+      node.removeAttribute('id');
+    });
     const baseline=document.createElement('div');baseline.innerHTML=MondermanReport.buildReportBody(model);
     const normalizeSvg = html => html.replace(/id="mr-[^"]+-system-gradient"/g,'id="mr-system-gradient"').replace(/url\(#mr-[^)]+-system-gradient\)/g,'url(#mr-system-gradient)');
     const intact=normalizeSvg(printed.innerHTML)===baseline.innerHTML;

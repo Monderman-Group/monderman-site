@@ -1,0 +1,15 @@
+/* Result-display policy only: leave scoring, submitted answers and stored results intact. */
+#resultsStage [data-accordion="economic"],
+#resultsStage .primary-waterfall:not(:has(#clarityDimensionBars)),
+#resultsStage .grid-2:has(#laborCompositionBody):has(#costCompositionBody),
+#resultsStage .viz-card:has(#effortFlowSankey),
+#resultsStage .viz-card:has(#capacityFlow),
+#resultsStage .result-card:has(#roiNarrativeText),
+#resultsStage .result-card:has(#tmrText),
+#resultsStage .result-card:has(#laborCompositionBody),
+#resultsStage .result-card:has(#costCompositionBody),
+#resultsStage .result-card:has(#roleClusterBody) { display: none !important; }
+#resultsStage .single-run-financial-notice {
+  margin: 18px 0; padding: 16px 18px; border-left: 3px solid #0C6E78;
+  background: #F3F7F6; color: #344346; font-size: 14px; line-height: 1.6;
+}

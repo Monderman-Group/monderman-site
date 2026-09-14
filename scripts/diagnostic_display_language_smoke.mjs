@@ -152,7 +152,7 @@ const rendererSandbox = { window: {} };
 vm.runInNewContext(rendererSource, rendererSandbox, { filename: "monderman-report.js" });
 const Report = rendererSandbox.window.MondermanReport;
 assert.ok(Report, "shared report renderer did not initialize");
-assert.equal(Report.rendererVersion, "diagnostic-renderer-ai-screen-20260911.25", "display version was not advanced");
+assert.equal(Report.rendererVersion, "diagnostic-renderer-evidence-reading-20260914.43", "display version was not advanced");
 
 const CONFIDENCE_CASES = Object.freeze([
   {
@@ -274,11 +274,13 @@ const remedySource = {
 };
 const remedyBefore = JSON.stringify(remedySource);
 const remedyHtml = Report.buildReportHtml(Report.fromRun(remedySource));
-assert.match(remedyHtml, /Modeled recovery scenario[\s\S]*\$720/, "report-wide recovery scenario missing");
+assert.doesNotMatch(remedyHtml, /Modeled recovery scenario|class="mr-exposure-flow"|\$720/, "single-run modeled financial surface remains visible");
+assert.match(remedyHtml, /One run does not establish organizational savings or recoverable time\./, "single-run financial boundary missing");
 assert.match(remedyHtml, /Creates evidence before a wider change\./, "substantive benefit was removed with generated range");
 assert.match(remedyHtml, /Defines a repeated measure\./, "substantive benefit was removed with scenario value range");
 assert.match(remedyHtml, /May avoid a separate \$321 expense if the test succeeds\./, "unrelated customer-supplied currency was removed");
-assert.match(remedyHtml, /The report-wide modeled recovery scenario is not divided among these options\./, "remedy range correction was not disclosed");
+assert.match(remedyHtml, /Earlier financial estimates are omitted\. These options do not establish savings\./, "remedy range correction was not disclosed");
+assert.doesNotMatch(remedyHtml, /The report-wide modeled recovery scenario is not divided among these options/, "correction implies a now-absent financial section");
 assert.doesNotMatch(remedyHtml, /\$5,000|\$10,000|Directional reclaim band|Scenario value band|\*\*/, "generated remedy-level range remained visible");
 assert.equal(JSON.stringify(remedySource), remedyBefore, "remedy display correction mutated stored result");
 
@@ -289,7 +291,7 @@ unpricedRemedySource.interpretive_prose.remedy_paths = [
 const unpricedBefore = JSON.stringify(unpricedRemedySource);
 const unpricedHtml = Report.buildReportHtml(Report.fromRun(unpricedRemedySource));
 assert.doesNotMatch(unpricedHtml, /Directional reclaim band|Not estimated\*/, "unpriced generated option range remained visible");
-assert.match(unpricedHtml, /The report-wide modeled recovery scenario is not divided among these options\./, "unpriced option correction was not disclosed");
+assert.match(unpricedHtml, /Earlier financial estimates are omitted\. These options do not establish savings\./, "unpriced option correction was not disclosed");
 assert.equal(JSON.stringify(unpricedRemedySource), unpricedBefore, "unpriced remedy display correction mutated stored result");
 
 const controlledFixturePath = path.resolve(SITE_ROOT, "../../output/diagnostic-language-20260908/controlled-saved-report-actual.json");
@@ -307,10 +309,10 @@ if (fs.existsSync(controlledFixturePath)) {
   assert.equal(model.score, 71, "controlled saved result score changed");
   assert.equal(model.band, "Compounding", "controlled saved result band changed");
   assert.match(html, /Decision Velocity: Executive Report/, "canonical instrument name missing from controlled saved report");
-  assert.match(html, /AI-assisted interpretation/, "accepted AI sidecar did not render");
-  assert.match(html, /Prepared with Claude Opus 5/, "AI model display label is not readable");
+  assert.match(html, /<section[^>]* class="mr-section mr-ai-interpretation"[^>]*><h2>Interpretation and next steps<\/h2>/, "accepted AI sidecar did not render under the current heading");
+  assert.match(html, /The Monderman diagnostic engine produced this report’s scores, classifications and evidence limits\. Claude assisted with the interpretation within the saved report’s evidence limits\. It did not determine the score\./, "current AI attribution and engine-score boundary are not readable");
   assert.match(html, /Decision timing/, "controlled saved dimension label is not readable");
-  assert.match(html, /Modeled recovery scenario[\s\S]*\$720/, "controlled saved report recovery value changed");
+  assert.doesNotMatch(html, /Modeled recovery scenario|class="mr-exposure-flow"|\$720/, "controlled saved report still exposes the retired financial section");
   assert.match(html, /works but drags/, "actual accepted AI summary was silently rewritten");
   assert.match(html, /Approvals add a sequential wait/, "actual accepted AI observation was silently rewritten");
   assert.doesNotMatch(html, /decision_velocity|directional_scenario_not_empirical_benchmark|high_score_good|\$5,000|\$10,000/, "controlled saved report exposes an internal identifier or invented option amount");

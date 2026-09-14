@@ -26,15 +26,17 @@
     .topbar{height:68px;background:#04181B;color:#FFF;border-bottom:1px solid rgba(255,255,255,.08)}
     .topbar-inner{height:100%;max-width:var(--max);margin:0 auto;padding:0 26px;display:flex;align-items:center;justify-content:space-between;gap:18px}
     .brand{font-size:1.22rem;font-weight:700;display:inline-flex;align-items:center;gap:9px}
+    .topbar .brand{flex-shrink:0}
     .brand-dot{width:7px;height:7px;border-radius:2px;background:var(--accent)}
     .top-links{display:flex;align-items:center;gap:18px;flex-wrap:wrap;font-size:.975rem;line-height:1.2;font-weight:500;color:rgba(255,255,255,.74)}
     .top-links a:hover,.top-links a:focus-visible{color:#FFF;outline:none}
     .shell{max-width:var(--max);margin:0 auto;padding:34px 26px 72px}
-    .hero{background:linear-gradient(145deg,#04181B,#073338);color:#FFF;border-radius:20px;padding:36px 38px;margin-bottom:20px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:28px;align-items:end;box-shadow:0 18px 44px rgba(8,56,62,.08)}
+    .hero{background:linear-gradient(145deg,#04181B,#073338);color:#FFF;border-radius:20px;padding:36px 38px;margin-bottom:20px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(220px,.75fr);gap:28px;align-items:end;box-shadow:0 18px 44px rgba(8,56,62,.08)}
+    .hero>div{min-width:0}
     .eyebrow{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:rgba(255,255,255,.55);margin:0 0 12px}
     h1{font-size:clamp(2rem,4vw,3.45rem);line-height:.98;letter-spacing:-.05em;margin:0 0 13px;max-width:13ch}
     .hero p{margin:0;max-width:62ch;line-height:1.62;color:rgba(255,255,255,.78)}
-    .hero-badge{min-width:220px;padding:16px 18px;border:1px solid rgba(255,255,255,.12);border-radius:13px;background:rgba(255,255,255,.05)}
+    .hero-badge{min-width:0;overflow-wrap:anywhere;padding:16px 18px;border:1px solid rgba(255,255,255,.12);border-radius:13px;background:rgba(255,255,255,.05)}
     .hero-badge span{display:block;font-size:.69rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.52);font-weight:700}
     .hero-badge b{display:block;margin-top:7px;font-size:1.05rem}
     .actions{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 18px}
@@ -71,7 +73,7 @@
       <div>
         <p class="eyebrow">Synthesis Executive Report</p>
         <h1 id="pageTitle">Depth Synthesis &amp; Cross-Lens Synthesis</h1>
-        <p id="pageDek">Depth Synthesis combines eligible runs from one Diagnostic. Cross-Lens Synthesis compares eligible runs from two or more Diagnostics and publishes a Cross-Lens Composite Score only when the evidence is sufficiently coherent.</p>
+        <p id="pageDek">Open a saved personal or campaign Synthesis from Analysis. The saved result determines which scores and evidence can be shown.</p>
       </div>
       <div class="hero-badge">
         <span>Current result</span>
@@ -99,7 +101,7 @@
     <p class="note" id="methodNote" hidden>The report preserves the API’s distinction between condition and evidence strength. A withheld composite remains withheld in every export.</p>
   </main>
 
-  <script src="monderman-report.js?v=20260904-wordmark1"></script>
+  <script src="monderman-report.js?v=20260914.43"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
   <script src="workspace-access-gate.js"></script>
   <script>
@@ -117,21 +119,37 @@
       }
       function readLegacyResult(){ try{ const raw=sessionStorage.getItem(STORAGE_KEY); return raw?unwrap(JSON.parse(raw)):null; }catch(error){return null;} }
       function safeFilename(result,model){ const hint=result?.export_payload?.filename_hint||model?.filenameBase||"monderman-synthesis"; return String(hint).replace(/\.json$/i,""); }
-      function productLabel(result){ return result?.synthesis_product==="depth_synthesis"||result?.synthesis_mode==="depth"?"Depth Synthesis":"Cross-Lens Synthesis"; }
+      function productLabel(result){
+        const label=result?.synthesis_product==="depth_synthesis"||result?.synthesis_mode==="depth"?"Depth Synthesis":"Cross-Lens Synthesis";
+        return result?.source_mode==="own_saved_runs"?"Personal "+label:label;
+      }
       function renderResult(result){
         if(!result||!window.MondermanReport) return false;
         const model=window.MondermanReport.fromSynthesis(result);
         const isDepth=result.synthesis_product==="depth_synthesis"||result.synthesis_mode==="depth";
+        const selfRun=result.source_mode==="own_saved_runs";
+        const personalMedian=selfRun&&isDepth&&result.score_status==="published"&&result.cross_diagnostic_score!=null;
         const label=productLabel(result);
         const evidence=result.evidence_assessment?.evidence_label||result.readiness_label||"Evidence band unavailable";
-        const scoreState=isDepth
+        const scoreState=selfRun
+          ? personalMedian?`Median of your selected scores ${result.cross_diagnostic_score}`:"No combined score"
+          : isDepth
           ? `Median Diagnostic Score ${result.cross_diagnostic_score??"Unavailable"}`
           : result.score_status==="published"?`Cross-Lens Composite Score ${result.cross_diagnostic_score??"Unavailable"}`:"Cross-Lens Composite Score withheld";
         byId("pageTitle").textContent=label;
-        byId("pageDek").textContent=isDepth
+        byId("pageDek").textContent=selfRun
+          ? isDepth
+            ? personalMedian
+              ? "Compare your selected runs from one Diagnostic and review the median of their scores."
+              : "Compare your saved runs from one Diagnostic, with each result kept separate."
+            : "Compare your own saved runs across Diagnostics, with each lens kept separate."
+          : isDepth
           ? "A same-Diagnostic Synthesis reporting the Median Diagnostic Score, distribution, participant-perspective evidence, and limits of the observed set."
           : "A multi-Diagnostic Synthesis that keeps each lens visible and publishes a Cross-Lens Composite Score only when the evidence meets the coherence requirements.";
         byId("resultBadge").textContent=`${label} · ${evidence} · ${scoreState}`;
+        byId("methodNote").textContent=selfRun
+          ? "Scores and supporting answers are preserved from your selected runs. The report explains what can be compared and which conclusions the evidence supports."
+          : "The report preserves the API’s distinction between condition and evidence strength. A withheld composite remains withheld in every export.";
         byId("missingState").hidden=true; byId("reportActions").hidden=false; byId("methodNote").hidden=false;
         window.MondermanReport.render("reportHost",model);
         const filename=safeFilename(result,model);

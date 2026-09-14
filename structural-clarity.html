@@ -3,6 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <link rel="stylesheet" href="single-run-financial-display.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Structural Clarity Diagnostic | Monderman</title>
 <link rel="canonical" href="https://www.monderman.com/structural-clarity.html"/>
@@ -508,6 +509,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
 <link rel="stylesheet" href="mobile-site-polish.css?v=20260825-2">
 <link rel="stylesheet" href="diagnostic-intake.css?v=20260908-intake1">
 <script src="diagnostic-intake.js?v=20260908-intake1" defer></script>
+<script src="diagnostic-note-permission.js?v=20260912-v2" defer></script>
 </head>
 <body class="diagnostic-instrument">
   <div class="loading-screen" id="pageLoader" aria-live="polite"><div class="loading-box"><div class="ws-loader" aria-hidden="true"><i></i><i></i></div><p class="loading-title">Loading diagnostic environment</p><p class="loading-copy">Preparing Monderman's structural clarity environment.</p></div></div>
@@ -655,7 +657,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   </div>
   <h3>Generating diagnostic output</h3>
   <p id="processingStatus">The diagnostic engine is interpreting your structural picture and preparing the final diagnostic readout.</p>
-  <p class="tiny" id="processingHelp">The output sequence is assembling quantitative scoring, structured checks, interpretive context, exposure ranges, and the final narrative.</p>
+  <p class="tiny" id="processingHelp">The output sequence is assembling quantitative scoring, structured checks, interpretive context, and the final narrative.</p>
   <div class="processing-list">
     <div class="processing-item"><span class="pulse"></span><span>Scoring where ownership and handoffs blur</span></div>
     <div class="processing-item"><span class="pulse"></span><span>Checking structured contradictions and interpretive bypass signals</span></div>
@@ -712,6 +714,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   </div>
 </div></div>
 <div class="stage" id="resultsStage"><div class="results-layout">
+    <p class="single-run-financial-notice">Organizational exposure, projected recovery and return on investment are not shown for a single run. Recorded time answers remain participant-reported answers, not savings.</p>
         <section class="report-only report-header"><p class="report-kicker">M O N D E R M A N</p><p class="tiny">Structural Clarity Diagnostic • Institutional Performance Research</p><h1 class="report-title" id="reportTitle">Structural Clarity Diagnostic</h1><p class="report-sub" id="reportSubtitle">Leadership-ready structural clarity summary.</p><div class="report-meta"><span class="meta-pill" id="metaProcess">Scope: --</span><span class="meta-pill" id="metaBench">Design reference: --</span><span class="meta-pill" id="metaDate">Generated: --</span></div></section>
 
     <section class="score-panel"><div class="score-inner">
@@ -747,7 +750,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
       <div class="score-meta-strip"><div class="score-meta-note"><span class="score-meta-pill" id="scoreMetaIndustry">Industry: --</span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaShapeText">Clarity profile: --</span> <span class="insight-help" id="profileShapeInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="profileShapeTooltip"><strong>Clarity profile</strong><br>Concentrated means one dimension contributes the largest share of the combined distance from the top of the clarity scale. Distributed means those differences are spread across dimensions. These comparisons alone do not establish a defect. Self-contradictory means the submitted answers contain incompatible structural signals.</span></span></span><span class="score-meta-pill"><span class="score-meta-pill-label"><span id="scoreMetaTrajectoryText">Reported change pressure: --</span> <span class="insight-help" id="trajectoryInfo" tabindex="0">ⓘ</span><span class="tooltip-panel" id="trajectoryTooltip"><strong>Reported change pressure</strong><br>This is a participant response from the current run. It does not predict drift or measure improvement or decline over time.</span></span></span></div></div>
     </div></section>
 
-    <section class="primary-waterfall"><div class="viz-card"><h4>Structural clarity by dimension</h4><div class="bar-stack" id="clarityDimensionBars"><p class="viz-note" id="clarityDimensionNote">Clarity dimension breakdown will appear here after scoring.</p></div></div><div class="viz-card"><h4>Time and cost scenario</h4><div id="effortFlowSankey"></div></div></section>
+    <section class="primary-waterfall"><div class="viz-card"><h4>Structural clarity by dimension</h4><div class="bar-stack" id="clarityDimensionBars"><p class="viz-note" id="clarityDimensionNote">Clarity dimension breakdown will appear here after scoring.</p></div></div><div class="viz-card" hidden style="display:none!important"><h4>Time and cost scenario</h4><div id="effortFlowSankey"></div></div></section>
 
     <section class="diagnosis-grid">
       <article class="diagnosis-card"><p class="summary-label">Legibility condition</p><p class="summary-value" id="cycleConditionValue">--</p><p class="summary-sub tight" id="cycleConditionSub">Overall structural clarity read</p></article>
@@ -759,7 +762,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
       <div class="accordion-toolbar"><button type="button" id="expandAllBtn">Expand all</button><button type="button" id="collapseAllBtn">Collapse all</button></div>
       <div class="accordion-stack" id="accordionStack">
 
-        <article class="accordion-section accordion-priority" data-accordion="economic">
+        <article class="accordion-section accordion-priority" data-accordion="economic" hidden style="display:none!important">
           <button class="accordion-header" type="button">
             <div class="accordion-header-main"><span class="accordion-title">Modeled time and cost</span><span class="accordion-sub">Directional scenario from the submitted time, frequency, labor-cost, and clarity-score inputs.</span></div>
             <span class="accordion-chevron">⌄</span>
@@ -788,7 +791,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
             <div style="display:none;" aria-hidden="true"><canvas id="burdenDonutChart"></canvas><div class="donut-center"><strong id="donutCenterValue">--</strong></div><div class="treemap" id="burdenTreemap"></div></div>
             <section class="economic-strip">
               <article class="result-card"><h3>Structural clarity result</h3><div class="section-divider"></div><div id="trajectorySignalWrap" class="result-copy" style="margin-bottom:12px;">Change-pressure risk signal will appear here after scoring.</div><p class="result-copy" id="executiveText"></p><div class="premium-note" id="conditionSupportText" style="display:none"></div></article>
-              <article class="result-card"><h3>Modeled time and cost scenario</h3><div class="section-divider"></div><p class="result-copy" id="roiNarrativeText">The modeled scenario and its assumptions will appear here after scoring.</p></article>
+              <article class="result-card" hidden style="display:none!important"><h3>Modeled time and cost scenario</h3><div class="section-divider"></div><p class="result-copy" id="roiNarrativeText">The modeled scenario and its assumptions will appear here after scoring.</p></article>
               <article class="result-card"><h3>Priority actions</h3><div class="section-divider"></div><ul class="result-list" id="actionsList"></ul><div class="compact-card" style="margin-top:14px;"><h3>Organizational implication</h3><ul class="result-list" id="leadershipList"></ul></div></article>
               <article class="result-card"><h3>Design reference and operating read</h3><div class="section-divider"></div><p class="result-copy" id="benchmarkInterpretationText">Design-reference interpretation will appear here after scoring.</p><div class="premium-note" id="tradeoffReadingText" style="display:none"></div></article>
             </section>
@@ -847,12 +850,12 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
             <div class="detail-content" id="detailContent">
               <section class="grid-2">
                 <article class="chart-card"><h3>Governance Weight × Structural Legibility</h3><div class="quadrant-wrap"><div class="quad-with-yaxis"><div class="axis-y">Structural legibility</div><div class="quadrant-box"><div class="q-label q-tl">High legibility<br>Low governance</div><div class="q-label q-tr">High legibility<br>High governance</div><div class="q-label q-bl">Low legibility<br>Low governance</div><div class="q-label q-br">Low legibility<br>High governance</div><div class="quad-dot" id="quadDot"></div></div></div><div class="axis-x">Governance weight</div><div class="quad-guide-grid"><div class="quad-guide"><strong>Quadrant interpretation</strong><p class="tiny" id="quadrantInterpretationText">Quadrant interpretation will appear here after scoring.</p></div></div></div></article>
-                <article class="result-card"><h3>Time, money, and resources</h3><p class="result-copy" id="tmrText"></p><div class="compact-card" style="margin-top:14px;"><h3>Trade-off note</h3><p class="result-copy" id="tradeoffText"></p></div></article>
+                <article class="result-card" hidden style="display:none!important"><h3>Time, money, and resources</h3><p class="result-copy" id="tmrText"></p><div class="compact-card" style="margin-top:14px;"><h3>Trade-off note</h3><p class="result-copy" id="tradeoffText"></p></div></article>
               </section>
               <section class="grid-2"><article class="chart-card"><h3>Structural gaps</h3><div class="chart-wrap"><canvas id="gapChart"></canvas></div></article><article class="chart-card"><h3>Dimension profile</h3><div class="chart-wrap"><canvas id="dimensionChart"></canvas></div></article></section>
               <section class="grid-2"><article class="result-card"><h3>Intervention priority ladder</h3><div class="table-wrap"><table class="matrix"><thead><tr><th>Priority</th><th>Focus</th><th>Share</th></tr></thead><tbody id="priorityBody"></tbody></table></div></article><article class="result-card"><h3>Contradiction signals</h3><div class="tiles-grid" id="contradictionTiles"></div></article></section>
-              <section class="grid-2"><article class="result-card"><h3>Labor exposure composition</h3><div class="table-wrap"><table class="matrix"><thead><tr><th>Category</th><th>Hours*</th><th>Meaning</th></tr></thead><tbody id="laborCompositionBody"></tbody></table></div></article><article class="result-card"><h3>Estimated labor-cost composition*</h3><div class="table-wrap"><table class="matrix"><thead><tr><th>Component</th><th>Value</th><th>Note</th></tr></thead><tbody id="costCompositionBody"></tbody></table></div></article></section>
-              <section class="grid-2"><article class="result-card"><h3>Role cluster exposure</h3><div class="table-wrap"><table class="matrix"><thead><tr><th>Role cluster</th><th>People</th><th>Exposure significance</th></tr></thead><tbody id="roleClusterBody"></tbody></table></div></article><article class="result-card"><h3>Impact severity matrix</h3><div class="table-wrap"><table class="matrix"><thead><tr><th>Consequence</th><th>Severity</th><th>Meaning</th></tr></thead><tbody id="impactBody"></tbody></table></div></article></section>
+              <section class="grid-2"><article class="result-card" hidden style="display:none!important"><h3>Labor exposure composition</h3><div class="table-wrap"><table class="matrix"><thead><tr><th>Category</th><th>Hours*</th><th>Meaning</th></tr></thead><tbody id="laborCompositionBody"></tbody></table></div></article><article class="result-card" hidden style="display:none!important"><h3>Estimated labor-cost composition*</h3><div class="table-wrap"><table class="matrix"><thead><tr><th>Component</th><th>Value</th><th>Note</th></tr></thead><tbody id="costCompositionBody"></tbody></table></div></article></section>
+              <section class="grid-2"><article class="result-card" hidden style="display:none!important"><h3>Role cluster exposure</h3><div class="table-wrap"><table class="matrix"><thead><tr><th>Role cluster</th><th>People</th><th>Exposure significance</th></tr></thead><tbody id="roleClusterBody"></tbody></table></div></article><article class="result-card"><h3>Impact severity matrix</h3><div class="table-wrap"><table class="matrix"><thead><tr><th>Consequence</th><th>Severity</th><th>Meaning</th></tr></thead><tbody id="impactBody"></tbody></table></div></article></section>
               <section class="grid-2"><article class="result-card"><h3>Key friction flags</h3><ul class="result-list" id="flagsList"></ul></article><article class="result-card"><h3>Detailed contradiction notes</h3><ul class="result-list" id="contradictionsList"></ul></article></section>
               <section class="grid-2"><article class="result-card"><h3>Detected patterns</h3><ul class="result-list" id="patternsList"></ul></article><article class="result-card"><h3>Supplemental actions</h3><ul class="result-list" id="actionsListDetail"></ul></article></section>
             </div>
@@ -947,7 +950,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   </footer>
   <script src="participant-evidence-safety.js?v=20260905-report-quarantine"></script>
   <script src="monderman-viz.js?v=20260910-inline-scenario1"></script>
-  <script src="monderman-report.js"></script>
+  <script src="monderman-report.js?v=20260914.43"></script>
   <script src="assignment-mode.js"></script>
   <script src="assignment-draft.js"></script>
   <script src="self-diagnostic-draft.js"></script>
@@ -2594,6 +2597,7 @@ return wrap;
 }
 
 wrap.innerHTML = `<div class="field"><label for="field_${item.id}">Your answer</label><textarea id="field_${item.id}" placeholder="Enter your answer">${escapeHtml(String(cached ?? ""))}</textarea></div>`;
+if(item.isExperienceLayer)window.MondermanNotePermission?.mount(wrap,state.runId);
 return wrap;
 }
 
@@ -3364,6 +3368,7 @@ assignment_token: (window.MondermanAssignment && window.MondermanAssignment.acti
 session_capability: state.sessionCapability || undefined,
 confidenceLevel: state.preflight.confidenceLevel,
 confidence_level: state.preflight.confidenceLevel,
+notes_processing_permission: window.MondermanNotePermission?.value(state.runId),
 rawExperience: {
   self: state.experiential.self || "",
   observedOperational: state.experiential.observedOperational || "",
@@ -3785,7 +3790,12 @@ return asArray(result?.priority_actions).length
 }
 
 
+function individualNextStepsOnly(result) {
+return result?.output_policy?.version === "individual-report-action-policy-20260911.1" && result.output_policy.individual_next_steps_only === true;
+}
+
 function buildRemedyPaths(result, payload) {
+if (individualNextStepsOnly(result)) return [];
 // Passthrough: backend narrativeBuilders.js produces remedy paths and
 // attaches them as result.interpretive_prose.remedy_paths. The branching
 // logic keyed off qualitative override type, sector workflow knowledge,
@@ -5517,15 +5527,9 @@ return `${base}-full-report.html`;
 }
 
 function exportExecutiveReport(result, payload) {
-if (result?.ai_report?.status && window.MondermanReport) return window.MondermanReport.downloadPdf(window.MondermanReport.fromRun(result));
-const html = buildExecutiveReportHtml(result, payload);
-const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-const url = URL.createObjectURL(blob);
-reportDownloadLink.href = url;
-reportDownloadLink.download = buildExecutiveReportFilename(payload);
-reportDownloadLink.click();
-setTimeout(() => URL.revokeObjectURL(url), 1000);
-showToast("Executive Summary HTML downloaded.", "success");
+if (!result) return;
+if (!window.MondermanReport) return showToast("Report download is unavailable. Reload this page or open the saved report in Workspace.");
+return window.MondermanReport.downloadHtml(window.MondermanReport.fromRun(result));
 }
 
 function loadScriptOnce(globalTest, url, cacheKey) {
@@ -5595,123 +5599,11 @@ showToast("Executive Summary HTML downloaded.", "success");
 }
 
 async function downloadExecutiveReportPdf(options = {}) {
-const returnBlob = options && options.returnBlob === true;
-if (!state.result || !state.renderPayload) {
-if (returnBlob) return { ok:false, error:"report_not_ready" };
-showToast("The report is not ready yet. Finish the diagnostic output first.");
-return;
-}
-
-const html = buildExecutiveReportHtml(state.result, state.renderPayload);
-const filename = buildExecutiveReportFilename(state.renderPayload).replace(/.html$/, ".pdf");
-if (!returnBlob) showToast("Generating Executive Summary PDF...", "working");
-
-let libs;
-try {
-libs = await loadExecutivePdfLibraries();
-} catch (error) {
-console.error("PDF library load failed", error);
-if (returnBlob) return { ok:false, error:error?.message || "pdf_library_load_failed" };
-downloadHtmlReportFallback(html, filename);
-showToast("PDF libraries could not load. Downloaded the HTML executive summary instead.", "error");
-return;
-}
-
-const parsed = new DOMParser().parseFromString(html, "text/html");
-const container = document.createElement("div");
-container.setAttribute("data-monderman-pdf-render", "true");
-container.style.cssText = [
-"position:absolute",
-"top:0",
-"left:-10000px",
-"width:816px",
-"background:#fff",
-"color:#18191C",
-"z-index:0",
-"pointer-events:none",
-"overflow:visible"
-].join(";") + ";";
-
-parsed.querySelectorAll("style").forEach((style) => {
-  const styleEl = document.createElement("style");
-  styleEl.textContent = style.textContent;
-  container.appendChild(styleEl);
-});
-const bodyWrap = document.createElement("div");
-bodyWrap.style.cssText = "width:816px;background:#fff;overflow:visible;";
-bodyWrap.innerHTML = parsed.body.innerHTML;
-container.appendChild(bodyWrap);
-document.body.appendChild(container);
-
-const cleanup = () => {
-if (container && container.parentNode) container.parentNode.removeChild(container);
-};
-
-try {
-await (document.fonts?.ready || Promise.resolve());
-if (document.fonts?.load) {
-  await Promise.allSettled([
-    document.fonts.load('400 16px "Neue Haas Grotesk"'),
-    document.fonts.load('500 16px "Neue Haas Grotesk"'),
-    document.fonts.load('700 16px "Neue Haas Grotesk"')
-  ]);
-}
-await waitForImages(bodyWrap);
-await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-
-const pages = Array.from(bodyWrap.querySelectorAll(".page"));
-if (!pages.length) throw new Error("No report pages were found.");
-pages.forEach((page) => {
-  page.style.width = "816px";
-  page.style.height = "1056px";
-  page.style.margin = "0";
-  page.style.overflow = "hidden";
-});
-
-const pdf = new libs.jsPDF({ unit: "pt", format: "letter", orientation: "portrait", compress: true });
-pdf.setProperties({
-  title: "Monderman Structural Clarity Diagnostic",
-  subject: "Directional structural clarity diagnostic report",
-  author: "Monderman",
-  creator: "Monderman diagnostic engine"
-});
-for (let i = 0; i < pages.length; i += 1) {
-  const page = pages[i];
-  const canvas = await libs.html2canvas(page, {
-    scale: Math.min(3, window.devicePixelRatio ? Math.max(2, window.devicePixelRatio) : 3),
-    useCORS: true,
-    allowTaint: false,
-    logging: false,
-    backgroundColor: "#ffffff",
-    width: 816,
-    height: 1056,
-    windowWidth: 816,
-    windowHeight: 1056,
-    scrollX: 0,
-    scrollY: 0
-  });
-  const imgData = canvas.toDataURL("image/png");
-  if (i > 0) pdf.addPage("letter", "portrait");
-  // The visible page is rendered from the branded HTML with Neue Haas
-  // Grotesk. Do not add jsPDF's built-in Helvetica as a hidden text layer;
-  // that would make the file claim to use a font the report does not use.
-  pdf.addImage(imgData, "PNG", 0, 0, 612, 792, undefined, "FAST");
-}
-if (returnBlob) {
-  const blob = pdf.output("blob");
-  return { ok:true, blob, size:blob.size, type:blob.type, pageCount:pages.length };
-}
-pdf.save(filename);
-showToast("Executive Summary PDF downloaded.", "success");
-
-} catch (error) {
-console.error("Executive Summary PDF generation failed", error);
-if (returnBlob) return { ok:false, error:error?.message || "pdf_generation_failed" };
-downloadHtmlReportFallback(html, filename);
-showToast("PDF generation failed. Downloaded the HTML executive summary instead.", "error");
-} finally {
-cleanup();
-}
+// The obsolete canvas/blob exporter must not reconstruct historical financial pages.
+if (options && options.returnBlob === true) return { ok:false, error:"legacy_pdf_export_unavailable" };
+if (!state.result) return showToast("The report is not ready yet. Finish the diagnostic output first.");
+if (!window.MondermanReport) return showToast("Report download is unavailable. Reload this page or open the saved report in Workspace.");
+return window.MondermanReport.downloadPdf(window.MondermanReport.fromRun(state.result));
 }
 
 function buildCrossDiagnosticArtifact(result, payload) {
@@ -6159,6 +6051,7 @@ if (impactCard) impactCard.classList.add("hidden");
 const remedies = buildRemedyPaths(result, payload);
 const remedyWrap = $("remedyTreeWrap");
 const remedyGrid = $("remedyGrid");
+if (remedyWrap) remedyWrap.hidden = individualNextStepsOnly(result);
 if (remedyWrap && remedyGrid) {
 remedyGrid.innerHTML = remedies.map((path) => `<div class="remedy-card"><span class="remedy-kicker">${escapeHtml(path.kicker)}</span><h4>${escapeHtml(path.label)}</h4><p>${escapeHtml(path.summary)}</p><ul>${path.actions.map((action) => `<li>${escapeHtml(action)}</li>`).join("")}</ul><div class="remedy-path-risk"><p><strong>Benefit</strong> ${escapeHtml(path.benefit)}</p><p><strong>Risk</strong> ${escapeHtml(path.risk)}</p></div></div>`).join("");
 }
@@ -6262,26 +6155,9 @@ document.querySelector("#laneStage .step-chip")?.scrollIntoView({ behavior: "smo
 });
 
 function exportFullReportHTML(result, payload, title = "Structural Clarity Report") {
-if (result?.ai_report?.status && window.MondermanReport) return window.MondermanReport.downloadHtml(window.MondermanReport.fromRun(result));
-if (!result || !payload) return;
-
-try {
-showToast("Preparing full structural clarity report...", "working");
-const reportHTML = buildFullReportHTML(result, payload, title);
-const blob = new Blob([reportHTML], { type: "text/html;charset=utf-8" });
-const url = URL.createObjectURL(blob);
-
-reportDownloadLink.href = url;
-reportDownloadLink.download = buildFullReportFilename(payload);
-reportDownloadLink.click();
-setTimeout(() => URL.revokeObjectURL(url), 1500);
-
-showToast("Full structural clarity report downloaded.", "success");
-
-} catch (error) {
-console.error("Full report export error:", error);
-showToast("Report download failed: " + (error.message || "Unknown error"));
-}
+if (!result) return;
+if (!window.MondermanReport) return showToast("Report download is unavailable. Reload this page or open the saved report in Workspace.");
+return window.MondermanReport.downloadHtml(window.MondermanReport.fromRun(result));
 }
 
 function buildStandaloneResultsHTML(result = state?.result || {}) {

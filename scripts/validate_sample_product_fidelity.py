@@ -83,7 +83,7 @@ for key in ["operational_systems", "decision_velocity", "structural_clarity", "i
 for token in [
     "MondermanReport", "MondermanPublicSamples.model(entry, artifact)", "Report.render(stage, model)",
     "Report.downloadHtml(model)", "Report.downloadJson(source", "Report.downloadPdf(model)",
-    "Download HTML", "Download JSON", "Print or save PDF",
+    "Download HTML", "Download JSON", "Download PDF", "Other formats",
     "data-engine-commit", "data-artifact-sha256", "psr-doc-shell", "psr-toc-mobile", "psr-toc",
 ]:
     require(token in renderer, f"shared production renderer bridge missing: {token}")

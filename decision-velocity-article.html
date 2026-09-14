@@ -9,9 +9,9 @@
 <meta property="og:title" content="Decision Velocity | Monderman"/>
 <meta property="og:type" content="article"/>
 <meta property="og:url" content="https://www.monderman.com/decision-velocity-article.html"/>
-<meta property="og:description" content="How the Decision Velocity diagnostic examines authority, approvals, handoffs, and escalation, with guidance for reading the result."/>
+<meta property="og:description" content="How the Decision Velocity diagnostic records one participant’s perspective on delays in making decisions, with guidance for interpreting the result."/>
 
-<meta name="description" content="How the Decision Velocity diagnostic examines authority, approvals, handoffs, and escalation, with guidance for reading the result." />
+<meta name="description" content="How the Decision Velocity diagnostic records one participant’s perspective on delays in making decisions, with guidance for interpreting the result." />
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260906-enterprise1">
   <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260906-enterprise1">
   <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260906-enterprise1">
@@ -515,6 +515,7 @@
     }
 
     .score-block .score-num {
+      color: #fff;
       font-size: 3rem;
       line-height: 0.92;
       font-weight: 700;
@@ -579,7 +580,9 @@
     }
 
 
-    .lens-matrix { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 1.75rem 0; font-size: 0.95rem; }
+    .lens-matrix { width: 100%; border-collapse: collapse; table-layout: auto; margin: 1.75rem 0; font-size: 0.95rem; }
+    .lens-matrix-region { max-width: 100%; overflow-x: auto; margin: 1.75rem 0; }
+    .lens-matrix-region .lens-matrix { margin: 0; }
     .lens-matrix th, .lens-matrix td { text-align: left; padding: 0.85rem 0.5rem; border-bottom: 1px solid rgba(8,56,62,0.10); vertical-align: top; overflow-wrap: normal; word-break: normal; hyphens: none; }
     .lens-matrix th:nth-child(1), .lens-matrix td:nth-child(1) { width: 30%; }
     .lens-matrix th:nth-child(2), .lens-matrix td:nth-child(2) { width: 29%; }
@@ -588,7 +591,7 @@
     .lens-matrix td strong { color: #0f1720; }
     .lens-matrix tbody tr:last-child td { border-bottom: none; }
     .lens-matrix-self { background: rgba(12,110,120,0.07); }
-    .lens-matrix-self td:first-child strong { color: #3f6ea1; }
+    .lens-matrix-self td:first-child strong { color: var(--accent); }
     .figure-note {
       margin-top: 14px;
       font-size: 0.88rem;
@@ -796,11 +799,13 @@
       .nav { gap: 14px; }
       .nav a { font-size: 0.82rem; }
     }
-    @media (max-width: 720px) {
+    /* The article column is narrow even on desktop. Keep the comparison in
+       labelled reading rows so enlarged text does not require side-scrolling. */
       .lens-matrix,
       .lens-matrix tbody,
       .lens-matrix tr,
       .lens-matrix td { display: block; width: 100%; }
+      .lens-matrix td:nth-child(n) { width: 100%; }
       .lens-matrix { table-layout: auto; }
       .lens-matrix thead {
         position: absolute;
@@ -836,11 +841,12 @@
         text-transform: uppercase;
       }
       .lens-matrix td:nth-child(1)::before { content: "Diagnostic"; }
-      .lens-matrix td:nth-child(2)::before { content: "The question it answers"; }
+      .lens-matrix td:nth-child(2)::before { content: "Business focus"; }
       .lens-matrix td:nth-child(3)::before { content: "What it examines"; }
       .lens-matrix tbody tr:last-child td:not(:last-child) { border-bottom: 1px solid rgba(8,56,62,0.08); }
       .lens-matrix td:last-child { border-bottom: 0; }
 
+    @media (max-width: 720px) {
       .header-inner,
       .hero-inner,
       .article-inner,
@@ -1123,7 +1129,7 @@
             <h1>Decision Velocity</h1>
           </div>
         </div>
-        <p class="hero-taxonomy"><em>Authority, approvals, handoffs, and escalation.</em></p>
+        <p class="hero-taxonomy"><em>Delays in making decisions</em></p>
 <p class="mond-byline" style="margin:14px 0 0;font-size:13px;color:#6E6F73;">Jason Adamson &middot; Monderman Research</p>
         <p>
           This guide explains what the Decision Velocity diagnostic examines, how to interpret its result, and what the result does not establish.
@@ -1141,184 +1147,186 @@
       <div class="article-layout">
         <article class="content">
           <p>
-            Most organizations do not have a decision problem in the abstract. They have a pathway problem in practice. Leaders can usually see what needs attention. Teams often know what should happen next. The breakdown occurs in the middle, where approvals, reviews, handoffs, escalations, and quiet compensatory effort begin to slow movement.
+            Decision Velocity examines reported delays in making decisions. It asks about approvals, reviews, handoffs, escalation, and the coordination needed to reach a decision.
           </p>
 
           <p>
-            That is what Decision Velocity is designed to surface. Not speed for its own sake, but the performance of the path itself: how quickly it moves, how much structural burden it is carrying, and whether the organization is paying too much in time and effort to preserve the current decision cycle.
+            The diagnostic records the participant’s account of this work, including time estimates where asked. It does not assume that a faster decision is always better or that each review step is unnecessary.
           </p>
 
           <div class="pullquote reveal">
             <p>
-              Decision velocity is not recklessness. It is the disciplined ability to move a routine decision at the clock speed of reality without relying on unnecessary review, hidden coordination, or repeated escalation.
+              A useful decision process balances timely action with the information, review, and authority the decision requires.
             </p>
           </div>
 
-          <h2>What the diagnostic is actually reading</h2>
+          <h2>What the diagnostic asks about</h2>
 
           <p>
-            The tool does not look only at whether a decision feels slow. It reads the pathway beneath the decision: how approvals are arranged, how many handoffs the work passes through, whether escalation has become normal, and whether the process depends on specific people to keep moving. It also distinguishes between visible governance and hidden compensatory effort: the manual chasing, side-channel coordination, and informal rescue work that often keeps a burdened path alive.
+            The questions cover how decisions are referred, reviewed, and completed from the participant’s selected perspective. They can reveal uncertainty or repeated follow-up in that account, but they do not independently verify elapsed time or identify a cause.
           </p>
 
           <div class="signal-figure reveal">
-            <p class="figure-kicker">Diagnostic reading model</p>
+            <p class="figure-kicker">Topics covered</p>
             <div class="inline-glyph-row">
               <span class="inline-glyph" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M5 19L19 5"></path><path d="M9 5h10v10"></path>
                 </svg>
               </span>
-              <h3 class="figure-title">Four recurring drag patterns</h3>
+              <h3 class="figure-title">Four aspects of decision-making</h3>
             </div>
             <div class="signal-grid">
               <div class="signal-card">
-                <strong>Approval density</strong>
-                <span>Too many approvals, serial gates, or late-stage review expansion make the path heavier than the decision likely requires.</span>
+                <strong>Approvals and reviews</strong>
+                <span>Which approval or review steps the participant reports and how those steps are arranged.</span>
               </div>
               <div class="signal-card">
-                <strong>Coordination burden</strong>
-                <span>Meetings, handoffs, system switching, and repeated alignment work absorb time just to keep the pathway moving.</span>
+                <strong>Coordination</strong>
+                <span>The meetings, handoffs, and follow-up the participant says are needed to reach a decision.</span>
               </div>
               <div class="signal-card">
-                <strong>Escalation dependence</strong>
-                <span>Cases that should resolve in the normal path repeatedly move upward because decision rights or routing logic are not holding.</span>
+                <strong>Escalation</strong>
+                <span>When the participant reports referring decisions to another level and how clear that requirement is.</span>
               </div>
               <div class="signal-card">
-                <strong>Key-person brittleness</strong>
-                <span>The process still works, but only because specific people quietly interpret, translate, or push it through.</span>
+                <strong>Reliance on particular people</strong>
+                <span>Whether the participant describes relying on specific people for information, coordination, or approval.</span>
               </div>
             </div>
             <p class="figure-note">
-              The live diagnostic adapts its question path around these signals and reads them differently across operational, managerial, and Senior Leader perspectives.
+              The question path adapts to the submitted answers and selected perspective: people doing the work, managers, or senior leaders.
             </p>
           </div>
 
-          <h2>Four lenses, four different questions</h2>
+          <h2>Four distinct diagnostic lenses</h2>
           <p>
-            Monderman runs four diagnostics. They are deliberately distinct instruments, not four versions of the same diagnostic. Each asks a different question about how an organization actually works.
+            Monderman’s four diagnostics cover different aspects of work. Each result reflects the submitted answers and selected role, not a complete assessment of the organization.
           </p>
+          <div class="lens-matrix-region" role="region" aria-label="Compare the four diagnostics" tabindex="0">
           <table class="lens-matrix">
             <thead>
-              <tr><th>Diagnostic</th><th>The question it answers</th><th>What it examines</th></tr>
+              <tr><th>Diagnostic</th><th>Business focus</th><th>What it examines</th></tr>
             </thead>
             <tbody>
               <tr>
                 <td><strong>Structural Clarity</strong></td>
-                <td>Is it clear who owns what?</td>
-                <td>Whether roles, decision rights, and handoffs are defined plainly enough to act on without constant clarification.</td>
+                <td>Clear responsibilities and decision authority</td>
+                <td>Whether people know who is responsible for work, who can make decisions, and how responsibilities pass between roles.</td>
               </tr>
               <tr class="lens-matrix-self">
                 <td><strong>Decision Velocity</strong></td>
-                <td>Do decisions move or stall?</td>
-                <td>The speed and friction of the decision pathway: approvals, coordination, and where momentum is lost.</td>
+                <td>Delays in making decisions</td>
+                <td>Reported delays associated with approvals, escalation, review steps, and routing.</td>
               </tr>
               <tr>
                 <td><strong>Operational Systems</strong></td>
-                <td>How heavy is the operating load?</td>
-                <td>The weight of process, controls, reporting, and manual workarounds the work has to carry.</td>
+                <td>Unnecessary process work</td>
+                <td>Recurring processes, reporting, coordination, and repeated data entry that may create unnecessary work.</td>
               </tr>
               <tr>
                 <td><strong>Institutional Performance</strong></td>
-                <td>Is performance sustainable?</td>
-                <td>Whether the institution sustains execution, confidence, and adaptability on its own, or props up output through compensation.</td>
+                <td>Consistent delivery and adaptation</td>
+                <td>Participants' reports of reliable delivery, responses to changing demands, and the effort needed to maintain results.</td>
               </tr>
             </tbody>
           </table>
+          </div>
           <p>
-            The other three lenses read structure, operating load, and institutional condition. Decision Velocity reads one specific thing: how cleanly a decision actually moves from raised to resolved. An organization can have clear roles and a light operating load and still lose days to serial approvals and escalation, or move fast on paper while leaning on a few key people to push every decision through. That gap is what this diagnostic is built to see.
+            Decision Velocity focuses on reported decision delays. Structural Clarity examines responsibilities and authority; Operational Systems examines unnecessary process work; Institutional Performance examines consistent delivery and adaptation.
           </p>
 
-          <h2>Why good organizations still move too slowly</h2>
+          <h2>Why decision delays deserve attention</h2>
 
           <p>
-            Delay is rarely caused by one dramatic bottleneck. More often, it is the combined effect of many small frictions: one more review, one more stakeholder, one more handoff, one more escalation, one more request for polish that does not materially change the decision. Over time, these accumulate into a path that feels careful but behaves slowly.
+            A decision may wait for information, review, or an authorized person. These possibilities should be checked against a concrete example instead of treating every delay as a process defect.
           </p>
 
           <p>
-            This matters because delay changes the value of judgment. A good decision made too late is often operationally indistinguishable from a bad one. By the time approval is granted, the customer has moved, the opportunity has narrowed, the internal window has closed, or the organization has already paid the cost of waiting.
+            Timing matters differently for different decisions. The next step may be to clarify what was needed, where the decision waited, and which requirements still apply.
           </p>
 
-          <h2>What the output is meant to show</h2>
+          <h2>What one completed run can show</h2>
 
           <p>
-            The Decision Velocity Diagnostic measures how decisions move through the organization. It is built to return a decision-ready organizational readout: a directional score, a benchmark position, a trajectory signal, a view of likely reclaim potential, and a practical first-action sequence. In other words, it is designed to help decision-makers determine whether the pathway is fast and proportionate, functional but burdened, slow and over-governed, or unstable enough that escalation has become part of the operating model.
+            The Decision Velocity report presents a score and band from the structured answers, the participant’s selected perspective, recorded strengths and concerns, and evidence-linked next steps where supported. A single run does not establish organization-wide conditions or change over time.
           </p>
 
           <div class="output-figure reveal">
-            <p class="figure-kicker">What the tool returns</p>
-            <h3 class="figure-title">An organizational readout, not just a questionnaire result</h3>
+            <p class="figure-kicker">Illustrative report layout</p>
+            <h3 class="figure-title">A participant’s view of decision-making</h3>
             <div class="output-shell">
               <div class="output-top">
                 <div class="score-block">
-                  <div class="score-label">Velocity score</div>
+                  <div class="score-label">Example score</div>
                   <p class="score-num">62</p>
-                  <div class="score-band">Functional but burdened</div>
+                  <div class="score-band">Example band</div>
                 </div>
                 <div class="output-copy">
-                  <p><strong>Current condition.</strong> A concise read of how the path is functioning right now.</p>
-                  <p><strong>Primary speed constraint.</strong> The heaviest likely source of drag, such as approval density or coordination burden.</p>
-                  <p><strong>Trade-off diagnosis.</strong> Whether the current pace appears justified by real risk or is simply consuming too much control cost.</p>
+                  <p><strong>Recorded findings.</strong> A reading of the participant’s answers about decision-making in the stated work context.</p>
+                  <p><strong>Reported strengths and concerns.</strong> Conditions the participant describes as helpful or difficult, without assuming which one causes delay.</p>
+                  <p><strong>Practical next steps.</strong> A focused question or review that respects the decision’s existing approval requirements.</p>
                 </div>
               </div>
               <div class="output-metrics">
                 <div class="metric">
-                  <strong>Benchmark</strong>
-                  <span>Within range</span>
-                  <small>How the path compares with similar sector pathways.</small>
+                  <strong>Perspective</strong>
+                  <span>Selected role</span>
+                  <small>The role and work context selected by this participant.</small>
                 </div>
                 <div class="metric">
-                  <strong>Trajectory</strong>
-                  <span>Rising drag</span>
-                  <small>Whether the pathway appears stable, worsening, or easing.</small>
+                  <strong>Reported strengths</strong>
+                  <span>What is working</span>
+                  <small>Favorable recorded answers remain visible without inventing a problem.</small>
                 </div>
                 <div class="metric">
-                  <strong>Reclaim potential</strong>
-                  <span>Directional upside</span>
-                  <small>Approximate recoverable value if the heaviest burden is reduced first.</small>
+                  <strong>Next step</strong>
+                  <span>Bounded review</span>
+                  <small>Review a reported decision example before proposing changes.</small>
                 </div>
               </div>
             </div>
             <p class="figure-note">
-              The actual tool also includes priority actions, a gated opportunity view, supporting evidence panels, and a downloadable executive report.
+              Illustrative layout only: the score and band above are not an assessed result. Completed reports explain recorded answers, preserve participant attribution, and include evidence-linked next steps where supported.
             </p>
           </div>
 
-          <h2>The hidden cost of low decision velocity</h2>
+          <h2>Decision-making issues to investigate</h2>
 
-          <h3>Routine work becomes management-intensive</h3>
+          <h3>Repeated follow-up</h3>
           <p>
-            When ordinary cases require repeated clarification, follow-up, or escalation, managers and senior leaders become part of the pathway itself. That is not just a timing problem. It is a cost and capacity problem.
+            If a participant reports repeated follow-up, a review can ask what information or approval was needed. It should not presume that another person’s involvement was unnecessary.
           </p>
 
-          <h3>Teams learn to route around the formal system</h3>
+          <h3>Informal coordination</h3>
           <p>
-            Workarounds are often treated as proof that the organization is still resilient. In reality, they may be the signal that the official path is no longer carrying movement on its own.
+            Informal arrangements may help people complete a decision. The account should be checked before concluding that the formal process is ineffective.
           </p>
 
-          <h3>Control gets more expensive, not necessarily better</h3>
+          <h3>The purpose of review</h3>
           <p>
-            Slow organizations often believe they are being safer. But the real question is whether added approvals and heavier review are producing proportionate control, or simply increasing the labor cost of getting to the same answer.
+            A review step may address a real risk. Proposed changes need the responsible owner’s approval and should preserve required controls.
           </p>
 
-          <h3>Execution loses tempo</h3>
+          <h3>Unresolved decisions</h3>
           <p>
-            Even strong teams struggle when decisions arrive late, land half-settled, or keep reopening after apparent sign-off. The result is not only frustration. It is lost ground: opportunities that close, competitors that move first, and momentum that has to be rebuilt.
+            A participant may describe decisions arriving late or being reopened. Follow-up should establish what happened in the relevant case and whether circumstances changed.
           </p>
 
           <h2>How Monderman approaches decision velocity</h2>
 
           <p>
-            Monderman looks at the full path beneath the decision, not just the moment of choice. Where is work waiting? Which approvals are performing real governance, and which are inherited habits? Where has escalation become normal? Where is the path stable by design, and where is it only surviving through compensatory effort?
+            Monderman organizes submitted answers around practical questions: What decision was needed? Where did it wait? Which information and approvals were required? What could a responsible person check next?
           </p>
 
           <p>
-            The goal is not permanent acceleration. Some decisions should be slower. Many should be faster. The real task is to make the path proportionate to the decision it is carrying, and to make that proportion visible enough that leaders can govern it deliberately rather than inherit it passively.
+            Use the report to choose a bounded inquiry, not to remove approvals automatically. A proposed improvement needs testing; the report does not promise a shorter decision time.
           </p>
 
           <div class="cta reveal">
-            <h3>Common signs decision velocity is degrading</h3>
+            <h3>When this diagnostic may be useful</h3>
             <p>
-              Approval paths keep expanding. Routine work starts needing repeated follow-up. More cases are escalated upward. Specific people become informal fixers. The process still moves, but only because someone keeps rescuing it.
+              Consider a run when decisions involve repeated follow-up, unclear referral requirements, or difficulty obtaining needed information. The result can also record what the participant says works well.
             </p>
             <a class="btn btn-primary" href="signin.html?next=decision-velocity.html">Run the Decision Velocity diagnostic</a>
           </div>
@@ -1327,33 +1335,33 @@
         <aside class="sidebar">
           <div class="sidebar-card reveal reveal-delay-1">
             <p class="sidebar-kicker">What this affects</p>
-            <h3>What this diagnostic measures</h3>
+            <h3>What this diagnostic covers</h3>
             <p>
-              Low decision velocity does not just slow execution. It trains people to rely on escalation, side channels, and informal rescue work over time.
+              The diagnostic covers the participant’s account of decision timing, approvals, escalation, and coordination.
             </p>
           </div>
 
           <div class="sidebar-card reveal reveal-delay-2">
-            <p class="sidebar-kicker">The tool is looking for</p>
+            <p class="sidebar-kicker">Questions to consider</p>
             <ul class="mini-list">
-              <li>Approval cycles heavier than the decision warrants</li>
-              <li>Coordination work that exists mainly to keep motion alive</li>
-              <li>Escalation becoming routine rather than exceptional</li>
-              <li>Pathways that depend on a few people to function</li>
+              <li>Which approvals or reviews are reported?</li>
+              <li>Where does the participant report waiting or following up?</li>
+              <li>When are decisions referred to another level?</li>
+              <li>Which decisions rely on particular people?</li>
             </ul>
           </div>
 
           <div class="sidebar-card reveal reveal-delay-3">
             <p class="sidebar-kicker">Monderman view</p>
             <p>
-              Decision Velocity is about the performance of the path: how quickly work moves, how much burden the path is carrying, and how much value may be recoverable if the route becomes clearer and lighter.
+              Decision Velocity helps a participant examine reported decision delays. One run does not verify the whole organization’s decision performance.
             </p>
           </div>
 
           <div class="sidebar-card sidebar-outcome reveal reveal-delay-3">
-            <p class="sidebar-kicker">What changes after this diagnostic</p>
-            <p class="sidebar-outcome-phrase">Sustained advantage.</p>
-            <p>Cycle time tightens at the named stall point, not across the board. Speed becomes a function of structure, not effort. The diagnostic shows where time is actually being absorbed.</p>
+            <p class="sidebar-kicker">How to use the result</p>
+            <p class="sidebar-outcome-phrase">Review decision delays.</p>
+            <p>Use a relevant decision example to check the reported delay and its context. Any change should be authorized and evaluated separately.</p>
           </div>
         </aside>
       </div>

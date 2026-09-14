@@ -19,7 +19,7 @@ const expected = {
   operational_systems: { score:44, dimensions:6, signal:"Reporting burden" },
   decision_velocity: { score:51, dimensions:4, signal:"Coordination burden" },
   structural_clarity: { score:51, dimensions:5, signal:"Handoff integrity" },
-  institutional_performance: { score:48, dimensions:6, signal:"Compensatory dependence" },
+  institutional_performance: { score:48, dimensions:6, signal:"Extra effort and management support" },
 };
 
 for (const [key, contract] of Object.entries(expected)) {
@@ -38,10 +38,17 @@ for (const [key, contract] of Object.entries(expected)) {
   const html = Report.buildReportHtml(model);
   const required = [
     "Dimension profile", "What the result supports and what it does not",
-    "How the time and cost estimate is built", "Priorities and options", "How this report was produced",
+    "What this result is based on", "Priorities and options", "How this report was produced",
     "Turn the result into a small, measurable test", "How to compare later",
   ];
   for (const token of required) assert.match(html, new RegExp(token), `${key} missing ${token}`);
+  assert.match(html, /One run does not establish organizational savings or recoverable time/, `${key} single-run financial boundary missing`);
+  assert.doesNotMatch(html, /How the time and cost estimate is built|Modeled annual time|Annual exposure|Modeled annual labor|Modeled annual hours|Observed recoverable estimate/, `${key} retired financial disclosure returned`);
+  for (const field of ['annual_cost','recoverable_cost']) {
+    const value=run.result.exposure[field];
+    assert.ok(Number.isFinite(value)&&value>0, `${key} historical financial control missing`);
+    for(const printed of [String(value),value.toLocaleString('en-US')])assert.ok(!html.includes(printed), `${key} exposed historical ${field}`);
+  }
   assert.equal((html.match(/class="mr-card mr-remedy-card mr-run-remedy"/g) || []).length, 3, `${key} intervention paths changed`);
   assert.equal((html.match(/class="mr-remedy-evidence"/g) || []).length, 0, `${key} invented option-to-priority pairing`);
   assert.doesNotMatch(html, /Why this option appears here/, `${key} independent lists must not be paired by array position`);

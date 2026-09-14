@@ -11,6 +11,90 @@ def require(src, token, label):
 def forbid(src, token, label):
     if token.lower() in src.lower(): raise AssertionError(f'{label}: forbidden customer term {token!r}')
 
+def validate_synthesis_controls(analysis, campaign):
+    # The campaign buttons moved into the mounted module. Require both their
+    # current labels and the page/module event wiring, not obsolete page copy.
+    for token in [
+        'id="campaignEvidence"',
+        "import {mountCampaignAnalysis} from './campaign-analysis.js",
+        'mountCampaignAnalysis({element:$("campaignEvidence")',
+        'onReport:async(evidence,financialScenarioInput)=>', 'campaign_scope_id:evidence.scope.id',
+        'if(financialScenarioInput!==undefined)requestBody.financial_scenario_input=financialScenarioInput;',
+        'Go to campaign evidence', 'Build self-run Synthesis',
+        '$("synthRun")?.addEventListener(\'click\',runSynthesis)',
+    ]:
+        assert token in analysis, f'Analysis control missing: {token!r}'
+    for token in [
+        'Build Depth Synthesis', 'Build Cross-Lens Synthesis',
+        'View response comparison', 'data-ca-build',
+        "ready=(cross?r.crossLens:r.depth).status==='satisfied'",
+        "$('[data-ca-build]').onclick=", 'const financialScenario=mountFinancialScenario(content);', 'await onReport(current,financialScenario())',
+    ]:
+        assert token in campaign, f'Campaign control missing: {token!r}'
+
+def validate_campaign_sample_contract(artifact, *, generation_commits):
+    """Check current deterministic showcase data, not AI or release approval.
+
+    The mandatory public_sample_fixture --check below independently requires
+    the reviewed release and its exact source hashes. Recorded identities and
+    sponsor-declared coverage must not become claims of scientific validity.
+    """
+    import math
+    import re
+    assert artifact['contract']=='monderman-public-product-samples/v3', 'current v3 samples required'
+    assert re.fullmatch(r'[a-f0-9]{40}', artifact['engine_commit']), 'committed engine provenance required'
+    expected={
+        'depth_synthesis': ('within_lens_median', 1, 'aggregate_score'),
+        'cross_lens_synthesis': ('equal_lens_mean', 4, 'cross_diagnostic_score'),
+    }
+    for key,(score_type,lens_count,score_field) in expected.items():
+        entry=artifact['outputs'][key]
+        result,provenance=entry['source'],entry['provenance']
+        assert entry['kind']=='synthesis' and result['report_kind']==key, f'{key}: product identity changed'
+        assert provenance['synthetic'] is True, f'{key}: synthetic provenance missing'
+        # The top-level commit identifies assembly, not when each retained
+        # example was generated. Compare original provenance to its separately
+        # pinned release entry; do not relabel retained samples as new runs.
+        assert re.fullmatch(r'[a-f0-9]{40}', provenance['engine_commit']), f'{key}: original engine provenance missing'
+        assert provenance['engine_commit']==generation_commits[key], f'{key}: engine provenance differs'
+        for field in ['input_sha256','result_sha256','source_manifest_sha256','campaign_handoff_sha256']:
+            assert re.fullmatch(r'[a-f0-9]{64}', provenance[field]), f'{key}: {field} missing'
+        assert provenance['experience_source']=='fabricated_participant_accounts'
+        assert provenance['operating_review_source']=='fabricated_operational_corroboration'
+        assert result['score_status']=='published', f'{key}: showcase score is withheld'
+        assert result['score_type']==score_type, f'{key}: score basis changed'
+        score=result[score_field]
+        assert type(score) in (int,float) and math.isfinite(score) and 0<=score<=100, f'{key}: score missing or invalid'
+        assert result['lens_count']==lens_count and len(provenance['questionnaire_versions'])==lens_count
+        evidence=result['evidence_assessment']
+        assert evidence['evidence_band']=='campaign_readiness_satisfied', f'{key}: campaign readiness not satisfied'
+        assert evidence['evidence_label']=='Campaign readiness checks satisfied', f'{key}: misleading evidence-strength label'
+        people=provenance['distinct_included_participants']
+        population=provenance['declared_eligible_population']
+        runs=provenance['submitted_run_count']
+        assert type(people) is int and people>0, f'{key}: recorded distinct participants missing'
+        assert type(population) is int and population>=people, f'{key}: declared population invalid'
+        assert type(runs) is int and runs==people*lens_count, f'{key}: shared participants confused with runs'
+        for field in ['participant_count','respondent_count']:
+            assert type(result[field]) is int and result[field]==people, f'{key}: {field} differs from provenance'
+        for field in ['submitted_run_count','source_result_count']:
+            assert type(result[field]) is int and result[field]==runs, f'{key}: {field} differs from provenance'
+        assert result['count_basis']=='server_bound_account_or_invitation_identities'
+        assert 'not independent proof' in result['participant_count_note']
+        campaign=result['campaign_evidence']
+        assert campaign['version']=='campaign-evidence-readiness-20260911.1'
+        method=campaign['method']
+        assert method['policyStatus']=='provisional_product_policy', f'{key}: provisional policy disclosure missing'
+        assert method['scientificallyValidated'] is False, f'{key}: false scientific-validation claim'
+        assert method['independentReviewStatus']=='not_reviewed', f'{key}: false independent-review claim'
+        assert campaign['counts']=={
+            'selectedRuns':runs, 'declaredPopulation':population,
+            'recordedEligibleParticipants':people, 'distinctParticipantsAcrossLenses':people,
+        }, f'{key}: readiness counts differ from provenance'
+        assert campaign['depth']['status']=='satisfied', f'{key}: Depth readiness not satisfied'
+        if key=='cross_lens_synthesis':
+            assert campaign['crossLens']['status']=='satisfied', 'Cross-Lens readiness not satisfied'
+
 public_files=[
  'index.html','diagnostics.html','why-monderman.html','platform-services.html',
  'plan-signal.html','plan-pattern.html','plan-enterprise.html','checkout.html',
@@ -44,8 +128,9 @@ for token in ['participant-response capacity is defined in the order form','work
     forbid(enterprise,token,'Enterprise')
 
 analysis=text('workspace-analysis.html')
-for token in ['/api/synthesis','/api/synthesis-runs','Build Depth Synthesis','Build Cross-Lens Synthesis','Why the Composite was withheld','What could unlock a Composite','Latest Diagnostic snapshot','Calibration position','Before-and-after change']:
+for token in ['/api/synthesis','/api/synthesis-runs','Why the Composite was withheld','What could unlock a Composite','Latest Diagnostic snapshot','Calibration position','Before-and-after change']:
     require(analysis,token,'Analysis')
+validate_synthesis_controls(analysis,text('campaign-analysis.js'))
 for token in ['Analysis richness','Vs sector','Intervention impact']:
     forbid(analysis,token,'Analysis')
 
@@ -88,18 +173,8 @@ for token in [
 for tab in ['os','dv','sc','ip','synthesis','depth']:
     require(sample,f'id="report-{tab}"','Sample report')
     require(sample,f'aria-controls="report-{tab}"','Sample report accessible tab')
-cross=artifact['outputs']['cross_lens_synthesis']['source']
-depth=artifact['outputs']['depth_synthesis']['source']
-assert cross['score_status']=='published', 'flagship Cross-Lens must be eligible for publication'
-assert cross['score_type']=='equal_lens_mean', 'flagship Cross-Lens score basis changed'
-assert cross['evidence_assessment']['evidence_label']=='Strong', 'flagship Cross-Lens requires strong submitted evidence'
-assert isinstance(cross['cross_diagnostic_score'],(int,float)), 'published Cross-Lens score missing'
-assert depth['score_type']=='within_lens_median', 'Depth score basis changed'
-assert depth['evidence_assessment']['evidence_label']=='Substantial', 'Depth submitted-evidence label changed'
-assert isinstance(depth['aggregate_score'],(int,float)), 'Depth median missing'
-for result in [cross,depth]:
-    assert result['participant_count'] is None and result['respondent_count'] is None, 'submitted runs must not be relabeled as distinct people'
-    assert isinstance(result['submitted_run_count'],int) and result['submitted_run_count']>0
+release=json.loads(text('sample-data/production-sample-release.json'))
+validate_campaign_sample_contract(artifact,generation_commits={key:entry['provenance']['engine_commit'] for key,entry in release['outputs'].items()})
 for token in [
     'MONDERMAN_REPRESENTATIVE_SYNTHESIS_FIXTURES',
     'Composite Score withheld','Comparison Only','insight-depth','Insight depth',
@@ -151,11 +226,11 @@ for sentence in re.split(r'(?<=[.!?])\s+', visible_value_surfaces):
         raise AssertionError(f'organizational-value contract: recovered value assigned to a role: {sentence.strip()[:180]!r}')
 
 for token in [
-    'return time, money, and productive capacity to the organization',
+    'Use separately declared operational measurements and assumptions for financial planning.',
     'Organizational implication',
-    'Hours returned to mission across the measured unit, per week.',
+    'Value staff time as potential capacity, not as an automatic cash reduction.',
 ]:
     require(value_surfaces, token, 'organizational-value contract')
 
-print({'ok':True,'public_files':len(public_files),'workspace_contract':'pass','plan_contract':'pass','flagship_cross_lens':'published_strong'})
+print({'ok':True,'public_files':len(public_files),'workspace_contract':'pass','plan_contract':'pass','flagship_cross_lens':'published_provisional_campaign_readiness'})
 print('Six-product ecosystem vocabulary, entitlement, workflow, evidence-discipline, and flagship-sample validation passed.')

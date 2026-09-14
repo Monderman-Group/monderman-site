@@ -117,7 +117,7 @@ assert.match(depthHtml, /Agreement, divergence, and coverage/);
 assert.match(depthHtml, /Median Diagnostic Score/);
 assert.match(depthHtml, /2,500/);
 assert.match(depthHtml, /Observed respondent set/);
-assert.match(depthHtml, /Population generalization requires a documented sampling frame/);
+assert.match(depthHtml, /Applying them to a wider population requires a documented sampling plan and response coverage\./);
 assert.match(depthHtml, /aria-label="Depth Synthesis score distribution"/);
 assert.match(depthHtml, /Interquartile range/);
 assert.match(depthHtml, /Perspective difference/);
@@ -126,9 +126,9 @@ assert.match(depthHtml, /Outlier status/);
 assert.match(depthHtml, /Not classified from aggregate source data/);
 assert.match(depthHtml, /Difference between perspectives/);
 assert.match(depthHtml, /Results by participant perspective/);
-assert.match(depthHtml, /Range of modeled estimates/);
-assert.match(depthHtml, /Modeled annual-hours IQR/);
-assert.match(depthHtml, /Modeled annual-cost IQR/);
+assert.doesNotMatch(depthHtml, /Range of modeled estimates|Modeled annual-hours IQR|Modeled annual-cost IQR|\$125,000/);
+assert.deepEqual(JSON.parse(JSON.stringify(depthModel.financialScenario)), {}, 'Legacy per-run estimates do not become an operational scenario');
+assert.equal(depth.pathway_exposure.annual_cost,125000,'Stored legacy estimate is unchanged');
 
 const endpointRanges = structuredClone(depth);
 endpointRanges.pathway_exposure = commonExposure({
@@ -140,11 +140,10 @@ endpointRanges.pathway_exposure = commonExposure({
   annual_cost_high: 100,
 });
 const endpointRangeHtml = Report.buildReportHtml(Report.fromSynthesis(endpointRanges));
-assert.match(endpointRangeHtml, /Modeled annual hours<\/strong><span>1 – 32<\/span>/);
-assert.match(endpointRangeHtml, /style="left:3\.13%;width:96\.87%"/);
-assert.doesNotMatch(endpointRangeHtml, /style="left:3\.13%;width:96\.88%"/);
-assert.match(endpointRangeHtml, /mr-range-iqr is-point is-right-edge" style="left:100\.00%;width:0\.00%"/);
-assert.match(endpointRangeHtml, /Modeled annual labor cost<\/strong><span>\$100 – \$100<\/span>/);
+assert.doesNotMatch(endpointRangeHtml, /Modeled annual hours<\/strong>|Modeled annual labor cost<\/strong>|class="mr-range-iqr|\$100 – \$100/, 'Legacy numeric financial charts stay absent even when endpoints are available');
+assert.equal(endpointRanges.pathway_exposure.annual_hours_low,1);
+assert.equal(endpointRanges.pathway_exposure.annual_hours_high,32);
+assert.equal(endpointRanges.pathway_exposure.annual_cost,100);
 
 const divided = structuredClone(depth);
 divided.sample_reads[0].consensus = { read: "divided", detail: "The observed runs form two materially separated score groups.", split: { lower_share_pct: 45, upper_share_pct: 55 } };
@@ -209,7 +208,8 @@ const comparisonHtml = Report.buildReportHtml(comparisonModel);
 assert.match(comparisonHtml, /Lens comparison—not a composite diagnosis/);
 assert.match(comparisonHtml, /Composite withheld/);
 assert.match(comparisonHtml, /Operational Systems needs 32 additional runs/);
-assert.match(comparisonHtml, /Pathway exposure withheld/);
+assert.doesNotMatch(comparisonHtml, /Pathway exposure withheld|Modeled time and labor-cost estimates/);
+assert.match(comparisonHtml, /Any financial scenario requires separate operational records and explicit assumptions\./);
 assert.match(comparisonHtml, /aria-label="Four Diagnostic lenses connected to the equal-lens Cross-Lens Composite Score"/);
 assert.match(comparisonHtml, /COMPOSITE WITHHELD/);
 assert.match(comparisonHtml, /Signals appearing across Diagnostics/);
@@ -253,13 +253,14 @@ assert.match(coherentHtml, /EQUAL-LENS COMPOSITE/);
 assert.match(coherentHtml, /Highest mean/);
 assert.match(coherentHtml, /Lowest mean/);
 assert.match(coherentHtml, /Largest-to-smallest submitted-run count ratio: 1:1/);
-assert.match(coherentHtml, /Modeled time and labor-cost estimates/);
+assert.doesNotMatch(coherentHtml, /Modeled time and labor-cost estimates|\$125,000/);
+assert.match(coherentHtml, /Any financial scenario requires separate operational records and explicit assumptions\./);
 
 const missingEconomics = structuredClone(coherent);
 missingEconomics.pathway_exposure = { status: "unavailable", label: "Pathway exposure unavailable", withheld_reason: "The submitted results do not contain source-backed exposure estimates." };
 const missingHtml = Report.buildReportHtml(Report.fromSynthesis(missingEconomics));
-assert.match(missingHtml, /Pathway exposure unavailable/);
-assert.match(missingHtml, /do not contain source-backed exposure estimates/);
+assert.doesNotMatch(missingHtml, /Pathway exposure unavailable|do not contain source-backed exposure estimates/);
+assert.match(missingHtml, /Any financial scenario requires separate operational records and explicit assumptions\./);
 assert.doesNotMatch(missingHtml, /\$0/);
 
 const allHtml = [depthHtml, dividedHtml, comparisonHtml, coherentHtml, missingHtml].join("\n");

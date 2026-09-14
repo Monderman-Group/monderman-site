@@ -9,8 +9,8 @@
 <meta property="og:title" content="Sample Reports | Monderman Diagnostics"/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://www.monderman.com/sample-report.html"/>
-<meta property="og:description" content="Illustrative Executive Report formats for Monderman’s four Diagnostics, Depth Synthesis, and Cross-Lens Synthesis. Diagnostic and Synthesis evidence rules are shown separately; Cross-Lens Composite Scores are evidence-gated."/>
-<meta name="description" content="Illustrative Executive Report formats for Monderman’s four Diagnostics, Depth Synthesis, and Cross-Lens Synthesis. Diagnostic and Synthesis evidence rules are shown separately; Cross-Lens Composite Scores are evidence-gated."/>
+<meta property="og:description" content="Explore Monderman's four diagnostic reports, Depth Synthesis and Cross-Lens Synthesis: findings, practical next steps, and team-level time and cost scenarios."/>
+<meta name="description" content="Explore Monderman's four diagnostic reports, Depth Synthesis and Cross-Lens Synthesis: findings, practical next steps, and team-level time and cost scenarios."/>
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260906-enterprise1">
   <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260906-enterprise1">
   <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260906-enterprise1">
@@ -182,15 +182,25 @@
       color: var(--muted); font-weight: 600;
     }
     .meta-bar-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-    .meta-bar-actions a {
+    .meta-bar-actions a,
+    .meta-bar-actions button {
       font-size: 0.84rem; font-weight: 500;
       color: var(--mdm-link);
       border-bottom: 1px solid rgba(12,110,120,0.3);
       padding-bottom: 1px;
       transition: border-color 180ms ease;
     }
-    .meta-bar-actions a:hover { color: var(--mdm-link-hover); border-color: var(--mdm-link-hover); }
-    .meta-bar-actions a:focus-visible { outline: 3px solid var(--mdm-focus-ring); outline-offset: 4px; }
+    .meta-bar-actions button {
+      appearance: none; background: transparent; border: 0;
+      border-bottom: 1px solid rgba(12,110,120,0.3);
+      padding: 8px 0; font-family: inherit; cursor: pointer;
+      scroll-margin-top: 120px;
+    }
+    .meta-bar-actions a:hover,
+    .meta-bar-actions button:not(:disabled):hover { color: var(--mdm-link-hover); border-color: var(--mdm-link-hover); }
+    .meta-bar-actions a:focus-visible,
+    .meta-bar-actions button:focus-visible { outline: 3px solid var(--mdm-focus-ring); outline-offset: 4px; }
+    .meta-bar-actions button:disabled { opacity: .55; cursor: not-allowed; }
     .meta-bar-actions .meta-divider { color: var(--muted); }
 
     /* Mobile TOC select */
@@ -1575,7 +1585,7 @@
   .sample-quadrant-dot{position:absolute;width:22px;height:22px;border-radius:999px;background:#0C6E78;border:3px solid rgba(255,255,255,.98);box-shadow:0 4px 14px rgba(12,110,120,.40),0 0 0 7px rgba(12,110,120,.10);transform:translate(-50%,-50%);z-index:0}
 </style>
 <link rel="stylesheet" href="canonical-site-shell.css?v=20260906-accent1">
-<link rel="stylesheet" href="sample-report-production.css?v=20260913-cosmetic1">
+<link rel="stylesheet" href="sample-report-production.css?v=20260913.32">
 
   <meta property="og:image" content="https://www.monderman.com/assets/brand/monderman-social-card.png?v=20260907-wordmark2">
   <meta property="og:image:width" content="1200">
@@ -1613,7 +1623,7 @@
     <div class="meta-bar-actions">
       <a href="https://www.monderman.com/diagnostics.html">← Back to diagnostics</a>
       <span class="meta-divider">·</span>
-      <a href="javascript:window.print()">Print or save as PDF</a>
+      <button type="button" id="sample-selected-pdf" disabled>Download PDF</button>
     </div>
       
   </div>
@@ -1642,7 +1652,7 @@
 
 <div class="report-sheet" id="sample-results">
 <div class="dx-tabs-wrap">
-  <div style="max-width:1100px;margin:0 auto;padding:14px 20px 0;font-size:13px;color:#6E6F73;">Explore all six report types. See how time and cost estimates are calculated: <a href="roi.html" style="color:#0C6E78;text-decoration:none;border-bottom:1px solid rgba(12,110,120,.35);padding-bottom:1px;">ROI &amp; Method &rarr;</a></div>
+  <div style="max-width:1100px;margin:0 auto;padding:14px 20px 0;font-size:13px;color:#6E6F73;">Explore all six report types. Learn how the evidence and separate operational scenarios should be interpreted: <a href="diagnostics.html#methodology-and-sources" style="color:#0C6E78;text-decoration:none;border-bottom:1px solid rgba(12,110,120,.35);padding-bottom:1px;">Methodology and sources &rarr;</a></div>
 <div class="dx-tabs" role="tablist" aria-label="Choose a diagnostic">
     <button class="dx-tab is-active" type="button" data-target="os" role="tab" aria-selected="true" id="tab-os" aria-controls="report-os">
       <span class="dx-tab-name">Operational Systems</span>
@@ -1753,9 +1763,10 @@
   </div>
 </footer>
 
-<script src="monderman-report.js?v=20260911-recorded-example1"></script>
-<script src="public-sample-model.js?v=20260911-current-output"></script>
-<script src="sample-report-production.js?v=20260911-recorded-example1"></script>
+<script src="participant-evidence-safety.js?v=20260905-report-quarantine"></script>
+<script src="monderman-report.js?v=20260914.43"></script>
+<script src="public-sample-model.js?v=20260913-evidence-v3"></script>
+<script src="sample-report-production.js?v=20260914-mixed-origin1"></script>
 
 <script>
   (function keepSamplePageHeadingUnique() {

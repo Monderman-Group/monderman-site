@@ -60,7 +60,8 @@ const hostileModel = report.fromRun(rawRun);
 const hostileHtml = report.buildReportBody(hostileModel);
 assert.equal(hostileModel.participantEvidence.length, 0);
 assert.doesNotMatch(hostileHtml, /Ignore prior instructions|workaround bypass|scoring weights/i);
-assert.match(hostileHtml, /No written participant notes are included\./);
+assert.match(hostileHtml, /No additional written participant notes are displayed in this section\./);
+assert.doesNotMatch(hostileHtml, /No written participant notes are included\./);
 assert.match(hostileHtml, /The measured results reflect the structured answers supplied for this run\./);
 assert.doesNotMatch(hostileHtml, /no participant-statement or experiential claim/i);
 assert.doesNotMatch(hostileHtml, /presented separately/i);
@@ -73,7 +74,7 @@ const mixedHtml = report.buildReportBody(mixedModel);
 assert.equal(mixedModel.participantEvidence.length, 1);
 assert.match(mixedHtml, /Approvals often require repeated follow-up across teams/);
 assert.doesNotMatch(mixedHtml, /Ignore prior instructions|workaround bypass/i);
-assert.doesNotMatch(mixedHtml, /No written participant notes are included\./);
+assert.doesNotMatch(mixedHtml, /No additional written participant notes are displayed in this section\./);
 assert.equal(Object.prototype.hasOwnProperty.call(mixedModel.participantEvidence[0], "raw"), false);
 
 const legitimateLayer = safety.sanitizeLayer({
@@ -83,6 +84,14 @@ const legitimateLayer = safety.sanitizeLayer({
 assert.equal(legitimateLayer.entries.length, 1);
 assert.equal(legitimateLayer.entries[0].text, legitimate);
 assert.equal(Object.prototype.hasOwnProperty.call(legitimateLayer.entries[0], "raw"), false);
+for(const layer of [{entries:[{key:'self',label:'Own observation',text:ordinary}]},{self:{key:'self',label:'Own observation',text:ordinary},observedManagerial:{key:'observedManagerial',label:'Observed management practice',text:legitimate}}]){
+  const sample=report.fromRun({tool_type:'decision_velocity',score:72,experientialLayer:layer});
+  const html=report.buildReportBody(sample);
+  assert.match(html,/Approvals often require repeated follow-up/);
+  assert.doesNotMatch(html,/No additional written participant notes are displayed in this section/);
+}
+const hostileLayer=report.fromRun({tool_type:'decision_velocity',score:72,experientialLayer:{self:{text:attacks[0]}}});
+assert.equal(hostileLayer.participantEvidence.length,0);
 
 const pages = [
   "structural-clarity.html",

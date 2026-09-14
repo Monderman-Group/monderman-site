@@ -14,7 +14,11 @@
 .psr-toolbar-actions { display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end; }
 .psr-toolbar button { appearance:none; border:1px solid rgba(12,110,120,.35); border-radius:7px; padding:9px 12px; background:#fff; color:var(--mdm-link); font:600 .76rem/1.2 "Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif; cursor:pointer; }
 .psr-toolbar button:hover { border-color:var(--mdm-link-hover); color:var(--mdm-link-hover); }
-.psr-toolbar button:focus-visible,.psr-provenance summary:focus-visible { outline:3px solid var(--mdm-focus-ring); outline-offset:3px; }
+.psr-toolbar button:focus-visible,.psr-downloads summary:focus-visible,.psr-provenance summary:focus-visible { outline:3px solid var(--mdm-focus-ring); outline-offset:3px; }
+.psr-downloads { flex-basis:100%; text-align:right; }
+.psr-downloads summary { display:list-item; width:fit-content; margin-left:auto; cursor:pointer; color:var(--mdm-link); padding:6px 0; }
+.psr-downloads summary:hover { color:var(--mdm-link-hover); }
+.psr-downloads>div { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; margin-top:6px; }
 .psr-engine-stage { min-width:0; }
 .psr-load-error { margin:24px auto 80px; max-width:800px; padding:28px; border:1px solid #C8A6A6; background:#FFF8F8; color:#6F2525; }
 
@@ -100,6 +104,7 @@
     .sample-library-flow strong{font-size:.8rem}.sample-library-flow p{font-size:.72rem}
     .notice-inner{padding:14px 20px}
     .psr-toolbar-actions{justify-content:flex-start}
+    .psr-downloads{text-align:left}.psr-downloads summary{margin-left:0}.psr-downloads>div{justify-content:flex-start}
   }
   @media(max-width:480px){
     .sample-library-actions{gap:12px;margin-top:18px}

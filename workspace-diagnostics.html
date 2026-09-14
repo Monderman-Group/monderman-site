@@ -550,22 +550,22 @@ body{transition:background-color .25s ease, color .25s ease}
           <div class="launch-grid">
             <a class="launch-card" href="structural-clarity.html">
               <span class="launch-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h8"/><path d="M4 12h16"/><path d="M4 17h11"/></svg></span>
-              <span class="launch-tx"><b>Structural Clarity</b><span>Is the structure clear?</span></span>
+              <span class="launch-tx"><b>Structural Clarity</b><span>Clear responsibilities and decision authority</span></span>
               <span class="launch-go"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
             </a>
             <a class="launch-card" href="decision-velocity.html">
               <span class="launch-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19L19 5"/><path d="M9 5h10v10"/></svg></span>
-              <span class="launch-tx"><b>Decision Velocity</b><span>Do decisions move or stall?</span></span>
+              <span class="launch-tx"><b>Decision Velocity</b><span>Delays in making decisions</span></span>
               <span class="launch-go"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
             </a>
             <a class="launch-card" href="operational-systems.html">
               <span class="launch-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 9h8"/><path d="M8 13h8"/></svg></span>
-              <span class="launch-tx"><b>Operational Systems</b><span>How much weight is it carrying?</span></span>
+              <span class="launch-tx"><b>Operational Systems</b><span>Unnecessary process work</span></span>
               <span class="launch-go"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
             </a>
             <a class="launch-card" href="institutional-performance.html">
               <span class="launch-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg></span>
-              <span class="launch-tx"><b>Institutional Performance</b><span>Is performance sustainable?</span></span>
+              <span class="launch-tx"><b>Institutional Performance</b><span>Consistent delivery and adaptation</span></span>
               <span class="launch-go"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
             </a>
           </div>
@@ -719,11 +719,12 @@ body{transition:background-color .25s ease, color .25s ease}
   </div>
 
   <script src="participant-evidence-safety.js?v=20260905-report-quarantine"></script>
-  <script src="monderman-report.js?v=20260905-report-quarantine"></script>
+  <script src="monderman-report.js?v=20260914.43"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
   <script src="workspace-access-gate.js"></script>
   <script src="campaign-access.js"></script>
 <script type="module">
+    import {confirmRunInclusion} from './run-inclusion-review.js?v=20260911-1';
     const workspaceAccess = await window.mondermanWorkspaceAccessReady;
     if (!workspaceAccess?.allowed) await new Promise(function () {});
     const supabase = await window.mondermanGetSupabaseClient();
@@ -831,8 +832,10 @@ body{transition:background-color .25s ease, color .25s ease}
       return `<span class="spill">Not yet reviewed</span>`;
     }
     function actionsFor(r){
-      if(!["admin","owner"].includes(String(state.role||"").toLowerCase())) return "";
+      const role=String(state.role||'').toLowerCase();
+      if(!['admin','analyst'].includes(role)) return '';
       const id = r.id;
+      if(role==='analyst')return r.status==='staged'&&!r.narrative_pending&&!r.claims_quarantined?`<button class="ract primary" data-act="promoted" data-id="${id}">Review & include</button>`:'';
       if(r.narrative_pending||r.claims_quarantined) return r.status==="archived"?`<button class="ract" data-act="staged" data-id="${id}">Restore</button>`:`<button class="ract danger" data-act="archived" data-id="${id}">Archive</button>`;
       if(r.status==="promoted"){
         return `<button class="ract" data-act="staged" data-id="${id}">Remove from analysis</button><button class="ract danger" data-act="archived" data-id="${id}">Archive</button>`;
@@ -860,9 +863,6 @@ body{transition:background-color .25s ease, color .25s ease}
       if(r.primary_driver) facts.push(`<span class="rd-fact">Primary driver: <b>${esc(r.primary_driver)}</b></span>`);
       if(r.benchmark_position) facts.push(`<span class="rd-fact">Sector: <b>${esc(r.benchmark_position)}</b></span>`);
       if(r.trajectory_label) facts.push(`<span class="rd-fact">Trajectory: <b>${esc(r.trajectory_label)}</b></span>`);
-      const exp = parseMaybe(r.exposure_json);
-      const expVal = exp && (exp.exposed ?? exp.exposure ?? exp.annual ?? exp.at_risk);
-      if(expVal!=null) facts.push(`<span class="rd-fact">Exposed/yr: <b>${typeof expVal==="number"?("$"+expVal.toLocaleString()):esc(expVal)}</b></span>`);
 
       const findings = listItems(parseMaybe(r.key_findings_json));
       const actions = listItems(parseMaybe(r.priority_actions_json));
@@ -875,58 +875,53 @@ body{transition:background-color .25s ease, color .25s ease}
 
     function flash(kind,msg){ $("runMsg").innerHTML = `<div class="msg ${kind}">${esc(msg)}</div>`; if(kind==="ok") setTimeout(()=>{ if($("runMsg")) $("runMsg").innerHTML=""; }, 4000); }
 
-    const REVIEW_ELIGIBLE = new Set(["included", "included_with_caution"]);
+    const inclusionInFlight = new Set();
     async function reviewRunForInclusion(run){
       const { data } = await supabase.auth.getSession();
       const token = data?.session?.access_token;
       if(!token) throw new Error("Your Workspace session has expired. Sign in again before reviewing this run.");
       const response = await fetch(`${API_BASE}/api/normalization/normalize-run/${encodeURIComponent(run.id)}`, {
         method:"POST",
-        headers:{ "Content-Type":"application/json", Authorization:"Bearer "+token },
+        headers:{ "Content-Type":"application/json", Authorization:"Bearer "+token, "X-Monderman-Organization-Id":state.orgId },
         body:"{}"
       });
       const payload = await response.json().catch(()=>({}));
       if(!response.ok || payload.ok===false) throw new Error(payload.error || `Review failed (HTTP ${response.status})`);
-      const reviewed = payload.run || {};
-      const quality = reviewed.normalization_status || payload.normalization?.normalization_status || null;
-      const aggregateEligible = reviewed.included_in_aggregates ?? payload.normalization?.included_in_aggregates;
-      run.normalization_status = quality;
-      run.included_in_aggregates = aggregateEligible === true;
-      if(reviewed.normalization_score!==undefined) run.normalization_score=reviewed.normalization_score;
-      return REVIEW_ELIGIBLE.has(quality) && aggregateEligible === true;
+      return confirmRunInclusion({run,preview:payload});
     }
 
     async function setStatus(id, status){
       const run = state.runs.find(r=>r.id===id); if(!run) return;
+      if(inclusionInFlight.has(id))return;inclusionInFlight.add(id);
       const prev = run.status;
+      const organizationId=state.orgId;
       try{
+        let review=null;
         if(status==="promoted"){
-          const eligible = await reviewRunForInclusion(run);
-          if(!eligible){
-            render();
-            flash("bad", "Review complete: this run is not eligible for Analysis or Synthesis. It remains Staged.");
-            return;
-          }
+          review = await reviewRunForInclusion(run);
+          if(!review)return;
         }
+        if(state.orgId!==organizationId)throw new Error('The selected organization changed. Review the response again.');
         const { data } = await supabase.auth.getSession();
         const token = data?.session?.access_token;
         if(!token) throw new Error("Your Workspace session has expired. Sign in again before updating this run.");
         const response = await fetch(`${API_BASE}/api/runs/${encodeURIComponent(id)}/status`, {
           method:"PATCH",
           headers:{ "Content-Type":"application/json", Authorization:"Bearer "+token, "X-Monderman-Organization-Id":state.orgId },
-          body:JSON.stringify({ status })
+          body:JSON.stringify({ status, ...(review||{}) })
         });
         const payload = await response.json().catch(()=>({}));
         if(!response.ok || payload.ok===false) throw new Error(payload.error || `Update failed (HTTP ${response.status})`);
         run.status = status;
+        if(status==='promoted'&&payload.run){run.normalization_status=payload.run.normalization_status;run.included_in_aggregates=payload.run.included_in_aggregates===true;}
         render();
-        const note = status==="promoted" ? "Reviewed and Included: this run is now eligible for Analysis and Synthesis."
+        const note = status==="promoted" ? "Review recorded and response included. Campaign readiness is evaluated separately in Analysis."
           : (prev==="promoted" && status==="staged") ? "Removed from analysis and returned to Staged."
           : status==="archived" ? "Archived." : "Restored to staged.";
         flash("ok", note);
       }catch(e){
         flash("bad", "Couldn’t update that run: " + (e.message||"please try again.") );
-      }
+      }finally{inclusionInFlight.delete(id);}
     }
 
     function reserveWorkspaceReportWindow(){

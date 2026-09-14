@@ -28,6 +28,8 @@ const pages = [
   'when-bureaucracy-became-the-obstacle.html', 'why-monderman.html',
 ];
 const footerOnly = new Set(['404.html', 'decision-velocity.html', 'institutional-performance.html', 'operational-systems.html', 'sample-report.html', 'structural-clarity.html']);
+const expectedHeroCount = pages.filter(file => !footerOnly.has(file)).length;
+const expectedFooterCount = pages.filter(file => file !== 'cross-tool-synthesis.html').length;
 const heroSelector = 'body.canonical-green-shell :is(.hero,.article-hero,.ps-hero,.pl-top),body.canonical-green-shell>main.deck>.slide.cover,body.page-report>main.shell>.hero';
 const surfaceSelector = `${heroSelector},footer.mond-footer`;
 const tagline = 'See the work clearly. Make the next move count.';
@@ -44,6 +46,10 @@ const publishedSurfaces = fs.readdirSync(root).filter(file => file.endsWith('.ht
   return siteFooter || canonicalPage || file === 'cross-tool-synthesis.html';
 });
 assert.deepEqual([...pages].sort(), publishedSurfaces.sort(), 'Brand manifest must cover every public hero/footer page, including generated canonical footers');
+if (process.argv.includes('--inventory-only')) {
+  console.log(JSON.stringify({scope:'source-inventory-only',pages:pages.length,headerPages:pages.length-footerOnly.size,browserLaunched:false}));
+  process.exit(0);
+}
 
 
 const failures = [];
@@ -243,10 +249,10 @@ for (const [engineName, engine] of [['chromium', chromium], ['webkit', webkit]])
           await page.emulateMedia({ media: 'screen' });
         }
       }
-      check(heroCount === 59 && footerCount === 64, `${engineName}/${width}: incomplete59hero/64footer coverage`);
+      check(heroCount === expectedHeroCount && footerCount === expectedFooterCount, `${engineName}/${width}: incomplete ${expectedHeroCount} hero/${expectedFooterCount} footer coverage`);
       await page.close();
     }
   } finally { await browser.close(); }
 }
 assert.deepEqual(failures, [], `${failures.length} brand surface failures:\n${failures.join('\n')}`);
-console.log(`Brand surface consistency smoke passed: ${checks} checks,59heroes+64footers,65pages at1440/390 in Chromium+WebKit; exact backgrounds, overlays, footer copy/contrast and print isolation.`);
+console.log(`Brand surface consistency smoke passed: ${checks} checks, ${expectedHeroCount} heroes + ${expectedFooterCount} footers, ${pages.length} pages at 1440/390 in Chromium+WebKit; exact backgrounds, overlays, footer copy/contrast and print isolation.`);
