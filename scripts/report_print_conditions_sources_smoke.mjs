@@ -5,6 +5,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
+import {sourceBeforeRenderer40} from './report_reader_copy_smoke.mjs';
 const root=path.resolve(import.meta.dirname,'..'),sha=v=>createHash('sha256').update(v).digest('hex');
 export const CURRENT='diagnostic-renderer-evidence-reading-20260913.39',PREVIOUS='diagnostic-renderer-evidence-reading-20260913.38';
 const METHOD_COPY_BEFORE='The separate operational scenario documents scope, inputs, assumptions, costs and sensitivity ranges, informed by selected practices in <a href="https://www.gao.gov/products/gao-20-195g">GAO’s Cost Estimating and Assessment Guide</a>. This is not GAO approval, full compliance or a validated savings method.';
@@ -25,6 +26,7 @@ const DELTA=[
  [PRINT_CSS,'']
 ];
 export function sourceBeforeRenderer39(source){
+ source=sourceBeforeRenderer40(source);
  source=sourceBeforeMethodCopy(source);
  for(const[now,before]of DELTA){assert.equal(source.split(now).length,2,'Exact renderer39 delta occurs once');source=source.replace(now,before);}
  assert.equal(sha(source),'97696bc3e2f2367a7c376b4845a1282f38cdd9b785709869e1f617fb405a404a');return source;
@@ -32,7 +34,7 @@ export function sourceBeforeRenderer39(source){
 export function renderer38Output(html){return html.replace(METHOD_COPY_NOW,METHOD_COPY_BEFORE).replaceAll(PRINT_CSS,'').replaceAll(' mr-shared-conditions-bounded','').replaceAll(' class="mr-research-source-bounded"','').replaceAll(' mr-reading-limitations','').replaceAll(CURRENT,PREVIOUS);}
 function run(){
  let checks=0;const eq=(a,b,m)=>{assert.deepEqual(a,b,m);checks++;},ok=(v,m)=>{assert.ok(v,m);checks++;};
- const source=fs.readFileSync(path.join(root,'monderman-report.js'),'utf8'),prior=sourceBeforeRenderer39(source);
+ const source=sourceBeforeRenderer40(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8')),prior=sourceBeforeRenderer39(source);
  eq(sha(sourceBeforeMethodCopy(source)),'dd880bf45b4d8c368dfca2bb786c0b01af297278b7b8a1fca43cd4d0a38032ce','Exact original renderer39 bytes survive copy inversion');
  eq(renderer38Output('<p>'+METHOD_COPY_NOW+'</p>'),'<p>'+METHOD_COPY_BEFORE+'</p>');
  for(const altered of [source+'\n'+METHOD_COPY_NOW,source.replace(METHOD_COPY_NOW,METHOD_COPY_NOW.replace('combined assumptions','validated savings')),source.replace(METHOD_COPY_NOW,'')]){assert.throws(()=>sourceBeforeRenderer39(altered));checks++;}
@@ -90,7 +92,7 @@ function run(){
  ok(source.includes('.mr-authored-report .mr-action-intro{break-inside:avoid;page-break-inside:avoid;break-after:avoid;page-break-after:avoid}'),'Intro keeps with following short shared block');
  ok(source.includes('.mr-shared-action-conditions{display:block!important;break-inside:auto;page-break-inside:auto}'),'Unbounded shared blocks remain splittable');
  ok(source.includes('.mr-authored-report .mr-finding,.mr-authored-report .mr-ai-action{break-inside:auto;page-break-inside:auto}'));
- eq(sha(fs.readFileSync(path.join(root,'monderman-report.js'))),sha(source));
+ eq(sha(sourceBeforeRenderer40(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8'))),sha(source));
  console.log(JSON.stringify({status:'PASS',checks,rendererVersion:CURRENT,originalRenderer38Sha256:sha(prior),browser:'not_run',pdfs:0,providerCalls:0}));
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url))run();

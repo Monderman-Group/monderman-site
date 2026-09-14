@@ -128,6 +128,7 @@ on:
       - 'scripts/report_ai_action_pagination_smoke.mjs'
       - 'test-fixtures/report-full-pagination-p19-historical.json'
       - 'scripts/report_synthesis_display_smoke.mjs'
+      - 'scripts/report_reader_copy_smoke.mjs'
       - 'scripts/report_presentation_provenance_smoke.mjs'
       - 'scripts/report_empty_ai_actions_smoke.mjs'
       - 'scripts/report_synthesis_chart_smoke.mjs'
@@ -283,6 +284,7 @@ on:
       - 'scripts/report_ai_action_pagination_smoke.mjs'
       - 'test-fixtures/report-full-pagination-p19-historical.json'
       - 'scripts/report_synthesis_display_smoke.mjs'
+      - 'scripts/report_reader_copy_smoke.mjs'
       - 'scripts/report_presentation_provenance_smoke.mjs'
       - 'scripts/report_empty_ai_actions_smoke.mjs'
       - 'scripts/report_synthesis_chart_smoke.mjs'
@@ -419,7 +421,9 @@ jobs:
           node scripts/report_question_blocks_smoke.mjs
           node scripts/report_experiential_blocks_smoke.mjs
       - name: Preserve unavailable scores and Synthesis chart labels on all display sizes
-        run: node scripts/report_synthesis_display_smoke.mjs
+        run: |
+          node scripts/report_synthesis_display_smoke.mjs
+          node scripts/report_reader_copy_smoke.mjs
       - name: Preserve presentation correction provenance in HTML and PDF
         env:
           REPORT_OUT: /tmp/report-presentation-smoke/presentation-provenance

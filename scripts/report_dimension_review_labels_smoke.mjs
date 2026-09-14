@@ -17,7 +17,7 @@ const styles=[
 ];
 export function renderer36StyleOutput(value){value=renderer37Output(value);for(const [now,before]of styles)value=value.replaceAll(now,before);return value.replaceAll(CURRENT,PREVIOUS);}
 export function sourceBeforeRenderer37(source){
- if(/diagnostic-renderer-evidence-reading-20260913\.3[89]/.test(source))source=sourceBeforeRenderer38(source);
+ if(/diagnostic-renderer-evidence-reading-(?:20260913\.3[89]|20260914\.40)/.test(source))source=sourceBeforeRenderer38(source);
  assert.equal(source.split(mapper).length,2);
  assert.equal(source.split('esc(priorityReviewLabel(row.priority))').length,3);
  for(const [now]of styles)assert.equal(source.split(now).length,2);

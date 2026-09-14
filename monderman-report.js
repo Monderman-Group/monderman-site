@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260913.39";
+  const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260914.40";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -250,8 +250,8 @@
       mastline: "Monderman. " + modeLabel,
       title: selfRun ? 'Your saved runs, considered together' : comparisonOnly ? 'Campaign response comparison' : product === "depth" ? "Depth Synthesis Executive Report" : "Cross-Lens Synthesis Executive Report",
       subtitle: selfRun ? 'A comparison of your own recorded views.' : comparisonOnly ? 'What the included participants reported, where their views differ and what to investigate next. This is not a population conclusion or an unlocked Synthesis.' : product === "depth"
-        ? "A same-Diagnostic read across multiple eligible runs: reporting the observed median, distribution, differences between participant perspectives, and evidence limits."
-        : "A multi-lens read that separates lens comparison from a coherent composite and states exactly what evidence supports each conclusion.",
+        ? "Results from eligible runs of one Diagnostic, showing the median, score distribution, differences between participant perspectives and limits of the evidence."
+        : "Results across Diagnostics, showing where findings agree, where they differ and whether the evidence supports a combined score.",
       meta: [
         { label: "Recorded", value: recordedDate(r.generated_at,r.saved_at,r.created_at) },
         { label: "Product", value: modeLabel },
@@ -304,7 +304,7 @@
       reads: reads,
       lensCount: lensCount,
       footnote: selfRun ? 'All selected runs belong to one account. This report supports reflection and further checks, not population conclusions, a Cross-Lens Composite Score, combined savings or an organization-wide preferred action.' : product === "depth"
-        ? "This report describes the submitted same-Diagnostic runs. Population generalization requires a documented sampling frame and response coverage."
+        ? "These results describe the submitted runs of one Diagnostic. Applying them to a wider population requires a documented sampling plan and response coverage."
         : "This report is a directional cross-lens synthesis. A published composite is not a proven causal model; source evidence and alternative explanations remain necessary.",
       filenameBase: filenameStem,
       source: r
@@ -720,7 +720,7 @@
     const scope = obj(m.scope), versions = obj(m.versions), identity = obj(m.sourceIdentity);
     const timeWindow = obj(m.timeWindow), balance = obj(m.lensBalance), representative = obj(m.representativeness);
     const cards = [
-      evidenceCard("Evidence strength", m.evidenceLabel, m.evidenceDescription),
+      evidenceCard("Evidence strength", m.evidenceLabel, ""),
       evidenceCard(
         m.product === "depth" ? "Median Diagnostic Score" : (m.scorePublished ? "Cross-Lens Composite Score" : "Cross-Lens Composite Score Withheld"),
         m.scorePublished ? "Published" : "Withheld",
@@ -728,8 +728,8 @@
       ),
       evidenceCard("Scope", firstStr(scope.label, humanize(scope.status)), firstStr(scope.statement)),
       evidenceCard("Run-count balance across Diagnostics", firstStr(humanize(balance.status), "Not applicable"), strictFinite(balance.ratio) ? "Largest-to-smallest submitted-run count ratio: " + fmt1(balance.ratio) + ":1" : "Not applicable to one-Diagnostic Depth Synthesis."),
-      evidenceCard("Diagnostic/scorer versions", firstStr(versions.label, humanize(versions.status)), versions.conflicting_lenses?.length ? "Conflicting Diagnostics: " + versions.conflicting_lenses.map(humanize).join(", ") : ""),
-      evidenceCard("Source-run identity", humanize(identity.status), firstStr(identity.statement)),
+      evidenceCard("Questionnaire and scoring versions", firstStr(versions.label, humanize(versions.status)), versions.conflicting_lenses?.length ? "Conflicting Diagnostics: " + versions.conflicting_lenses.map(humanize).join(", ") : ""),
+      evidenceCard("Identifiers for submitted runs", humanize(identity.status), firstStr(identity.statement)),
       evidenceCard("Measurement window", humanize(timeWindow.status), firstStr(timeWindow.statement)),
       evidenceCard("Representativeness", firstStr(representative.label, humanize(representative.status)), firstStr(representative.statement))
     ].filter(Boolean);
@@ -818,7 +818,7 @@
           esc(fmtWhole(s.n)) + (Number(s.n) === 1 ? ' submitted run' : ' submitted runs') + '</span><dl class="mr-synth-stat-list"><div><dt>Mean</dt><dd>' +
           esc(mean) + '</dd></div><div><dt>Median</dt><dd>' + esc(median) + '</dd></div></dl></div>';
       }).join('') + '</div>' : '') + '</div>';
-    return '<div class="mr-viz-panel mr-depth-distribution-panel"><div class="mr-viz-title">Distribution at a glance</div>' + svg + summary + '<p class="mr-copy"><span class="mr-synth-wide-caption">Box = interquartile range; dark line = median; amber dot = mean. </span>Vantage results describe observed segments and do not reweight the Median Diagnostic Score.</p></div>';
+    return '<div class="mr-viz-panel mr-depth-distribution-panel"><div class="mr-viz-title">Distribution at a glance</div>' + svg + summary + '<p class="mr-copy"><span class="mr-synth-wide-caption">Box = interquartile range; dark line = median; amber dot = mean. </span>Results by participant perspective describe the submitted groups; they do not change how the Median Diagnostic Score is calculated.</p></div>';
   }
 
   function renderDepthDistribution(m, n) {
@@ -863,7 +863,7 @@
         runMetric("Perspective difference", strictFinite(gap.gap) ? fmt1(gap.gap) + " pts" : "Not established", strictFinite(gap.gap) ? humanize(gap.low_segment) + " to " + humanize(gap.high_segment) : "No published difference between participant perspectives", "amber") +
         runMetric("Coverage", strictFinite(read.n) ? fmtWhole(read.n) + " runs" : fmtWhole(m.reads) + " runs", m.evidenceLabel, "green") +
       '</div><div class="mr-depth-reading-grid"><div><div class="mr-lens-label">Agreement versus divergence</div><p>' + esc(firstStr(obj(read.consensus).detail, "The distribution should be read with its spread and perspective segments, not as a uniform participant experience.")) + '</p></div>' +
-      '<div><div class="mr-lens-label">Center stability</div><strong>' + esc(strictFinite(meanMedianGap) ? fmt1(meanMedianGap) + " pt mean–median gap" : "Not calculable") + '</strong><p>' + esc(strictFinite(meanMedianGap) && meanMedianGap <= 2 ? "The mean and median are closely aligned in the submitted set." : "The difference between mean and median should remain visible when interpreting the center.") + '</p></div></div></section>';
+      '<div><div class="mr-lens-label">Mean and median</div><strong>' + esc(strictFinite(meanMedianGap) ? fmt1(meanMedianGap) + " pt mean–median gap" : "Not calculable") + '</strong><p>' + esc(strictFinite(meanMedianGap) && meanMedianGap <= 2 ? "The mean and median are closely aligned in the submitted set." : "Consider the difference between the mean and median when reading the overall result.") + '</p></div></div></section>';
   }
 
   function renderCrossLensGraphic(m) {

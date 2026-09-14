@@ -7,7 +7,7 @@ const source=fs.readFileSync('monderman-report.js','utf8');
 const sandbox={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};
 vm.runInNewContext(source,sandbox);
 const report=sandbox.window.MondermanReport;
-assert.equal(report.rendererVersion,'diagnostic-renderer-evidence-reading-20260913.39');
+assert.equal(report.rendererVersion,'diagnostic-renderer-evidence-reading-20260914.40');
 const base=()=>({synthesis_product:'cross_lens_synthesis',score_status:'withheld',cross_diagnostic_score:null,
   condition_band:'Composite withheld',respondent_count:2,lens_count:2,
   source_groups:[{tool_type:'structural_clarity',tool_label:'Structural Clarity',respondents:1,mean_score:60,median_score:60,score_iqr:[60,60]},
@@ -27,7 +27,7 @@ for(const tool of ['depth_synthesis','cross_lens_synthesis']){
   const {model,html}=render(raw);
   assert.equal(model.reads,2);assert.deepEqual(Array.from(model.sourceGroups,g=>g.n),[1,1]);
   assert.match(html,/Counts refer to submitted runs, not verified distinct people/);
-  assert.match(html,/Source-run identity/);
+  assert.match(html,/Identifiers for submitted runs/);
   assert.doesNotMatch(html,/participant volume|regardless of participant count|Participant depth governs/);
   if(tool==='cross_lens_synthesis'){
     assert.match(html,/regardless of submitted run count/);
