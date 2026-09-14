@@ -444,6 +444,7 @@ body{transition:background-color .25s ease, color .25s ease}
     .rcp-badge.pend{background:rgba(128,128,128,.13);color:var(--muted)}
     .camp-tools{padding:9px 16px 2px;display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
     .rcp-act{display:flex;gap:6px;align-items:center}
+    .rcp-report-error{grid-column:1/-1;margin:0;overflow-wrap:anywhere}
     .camp-cstate{font-size:11px;font-weight:600;border-radius:5px;padding:2px 9px;white-space:nowrap}
     .camp-cstate.closed{background:var(--rose-bg);color:var(--rose-fg)}
     .camp-cstate.sched{background:var(--warn-bg);color:var(--warn-fg)}
@@ -1416,6 +1417,7 @@ body{transition:background-color .25s ease, color .25s ease}
         <div class="rcp-when">${whenLbl}<span>${a.is_anonymous_response ? fmtDate(whenIso) : timeAgo(whenIso)}</span></div>
         ${badge}
         <div class="rcp-act"><button class="ar-copy" data-link="${esc(link)}" type="button">Copy link</button>${reportBtns}${remindBtn}</div>
+        <p class="note bad rcp-report-error" role="alert" hidden></p>
       </div>`;
     }
     let _camps = [];
@@ -1455,11 +1457,25 @@ body{transition:background-color .25s ease, color .25s ease}
         if(btn){ btn.textContent="Couldn\u2019t save"; setTimeout(()=>{ if(btn){ btn.textContent=orig; btn.disabled=false; } }, 2400); }
       }
     }
+    function campaignReportFeedback(btn, message){
+      const feedback=btn?.closest(".rcp-row")?.querySelector(".rcp-report-error");
+      if(feedback){ feedback.textContent=message; feedback.hidden=!message; }
+    }
+    function reserveCampaignReportWindow(btn){
+      campaignReportFeedback(btn, "");
+      try{
+        if(typeof window.MondermanReport?.reserveReportWindow!=="function") throw new Error("Report module didn’t load. Refresh and try again.");
+        const reportWindow=window.MondermanReport.reserveReportWindow();
+        if(!reportWindow) campaignReportFeedback(btn, "Your browser could not open the report window. Allow pop-ups for Monderman and try again.");
+        return reportWindow;
+      }catch(e){ campaignReportFeedback(btn, "Couldn’t open that report: "+(e.message||"please try again.")); return null; }
+    }
     async function exportAssignmentRun(runId, toolType, mode, btn, reportWindow){
       if(!runId) return;
       const orig = btn ? btn.textContent : "";
-      const fail = (label)=>{ if(btn){ btn.textContent=label; setTimeout(()=>{ if(btn){ btn.textContent=orig; btn.disabled=false; } }, 2400); } };
-      if(!window.MondermanReport){ fail("Unavailable"); return; }
+      const fail = (message)=>{ if(btn){ btn.textContent=orig; btn.disabled=false; } campaignReportFeedback(btn,message); };
+      campaignReportFeedback(btn, "");
+      if(!window.MondermanReport){ fail("Report module didn’t load. Refresh and try again."); return; }
       if(btn){ btn.disabled=true; btn.textContent="\u2026"; }
       try{
         const response=await fetch(`${API_BASE}/api/runs/${encodeURIComponent(runId)}/report`,{headers:await apiAuthHeaders()});
@@ -1469,7 +1485,7 @@ body{transition:background-color .25s ease, color .25s ease}
         if(mode==="json"){ window.MondermanReport.downloadJson(m, m.tool_type||"diagnostic"); }
         else { window.MondermanReport.openReport(window.MondermanReport.fromRun(m), reportWindow); }
         if(btn){ btn.disabled=false; btn.textContent=orig; }
-      }catch(e){ window.MondermanReport?.closeReservedReportWindow?.(reportWindow); fail("Couldn\u2019t open"); }
+      }catch(e){ window.MondermanReport?.closeReservedReportWindow?.(reportWindow); fail("Couldn’t open that report: "+(e.message||"please try again.")); }
     }
     function renderTracking(rows){
       const board=$("trackBody"); if(!board) return;
@@ -1530,7 +1546,7 @@ body{transition:background-color .25s ease, color .25s ease}
         const o=b.textContent; b.textContent="Copied"; setTimeout(()=>b.textContent=o,1200);
       }));
       board.querySelectorAll("[data-remind]").forEach(b=> b.addEventListener("click", (e)=>{ e.stopPropagation(); remind([b.dataset.remind], b); }));
-      board.querySelectorAll("[data-report]").forEach(b=> b.addEventListener("click", (e)=>{ e.stopPropagation(); const reportWindow=reserveWorkspaceReportWindow(); if(reportWindow) exportAssignmentRun(b.dataset.report, b.dataset.tt, "report", b, reportWindow); }));
+      board.querySelectorAll("[data-report]").forEach(b=> b.addEventListener("click", (e)=>{ e.stopPropagation(); const reportWindow=reserveCampaignReportWindow(b); if(reportWindow) exportAssignmentRun(b.dataset.report, b.dataset.tt, "report", b, reportWindow); }));
       board.querySelectorAll("[data-json]").forEach(b=> b.addEventListener("click", (e)=>{ e.stopPropagation(); exportAssignmentRun(b.dataset.json, b.dataset.tt, "json", b); }));
       board.querySelectorAll("[data-remindcamp]").forEach(b=> b.addEventListener("click", (e)=>{
         e.stopPropagation();

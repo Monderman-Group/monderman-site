@@ -54,6 +54,26 @@ function validateCompletionContract(source, page = "fixture") {
   }
   assert.match(source, /href="workspace-diagnostics\.html"/, `${page}: Workspace target missing`);
   assert.match(source, /Start over\? This clears all your answers/, `${page}: restart confirmation missing`);
+
+  // Progress describes work on supplied answers, not verified outcomes or
+  // financial recovery that a single-run report deliberately withholds.
+  const progress = source.match(/<div class="stage" id="processingStage">([\s\S]*?)<!--/);
+  assert(progress, `${page}: processing display missing`);
+  assert.match(progress[1], /<h3>Preparing your results<\/h3>/, `${page}: plain progress heading missing`);
+  assert.match(progress[1], /Your answers are being scored and checked for your report\./, `${page}: progress status overstates its work`);
+  assert.match(progress[1], /We are calculating your score, checking how your answers fit together, and preparing your report\./, `${page}: plain progress explanation missing`);
+  assert.deepEqual([...progress[1].matchAll(/class="processing-item"><span class="pulse"><\/span><span>([^<]+)<\/span>/g)].map(m => m[1]), [
+    "Calculating your diagnostic score",
+    "Checking how your answers fit together",
+    "Preparing the written summary",
+    "Preparing your report",
+  ], `${page}: progress stages imply unavailable outputs`);
+  const progressStart = source.indexOf("function setProcessingStep(");
+  const progressEnd = source.indexOf("\nfunction readHubContext(", progressStart);
+  assert(progressStart >= 0 && progressEnd > progressStart, `${page}: dynamic progress display missing`);
+  const displayedProgress = progress[1] + source.slice(progressStart, progressEnd)
+    + [...finalize.matchAll(/setProcessingStep\([^;]+;/g)].map(m => m[0]).join("\n");
+  assert.doesNotMatch(displayedProgress, /estimating|financial|recovery|capacity impact|bypass|interpretive|quantitative|output sequence|structured output|diagnostic narrative|experiential|report-safe|report modules/i, `${page}: unavailable estimate or internal jargon in progress`);
 }
 
 for (const page of pages) validateCompletionContract(readFileSync(join(root, page), "utf8"), page);
@@ -71,6 +91,11 @@ const mutations = [
   ["saved-run-recovery", (s) => s.replaceAll("Open saved results in Workspace", "Saved result unavailable")],
   ["response-contract", (s) => s.replaceAll("if (!response.ok || !data?.ok)", "if (!data?.ok)")],
   ["guard-cleanup", (s) => s.replace("state.finalizeInFlight = false;", "")],
+  ["progress-financial-promise", (s) => s.replace("Preparing the written summary", "Estimating rough time, cost, and capacity impact")],
+  ["progress-jargon", (s) => s.replace("Checking how your answers fit together", "Checking structured contradictions and interpretive bypass signals")],
+  ["dynamic-progress-promise", (s) => s.replace("Preparing your charts and report...", "Estimating financial recovery...")],
+  ["dynamic-progress-jargon", (s) => s.replace("Checking added notes for inclusion in your report...", "Screening experiential notes for report-safe presentation...")],
+  ["missing-progress-stage", (s) => s.replace('<div class="processing-item"><span class="pulse"></span><span>Preparing the written summary</span></div>', "")],
 ];
 
 for (const [name, mutate] of mutations) {

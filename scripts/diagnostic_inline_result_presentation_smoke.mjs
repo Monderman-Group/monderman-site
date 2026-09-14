@@ -76,7 +76,7 @@ try{
      },{...entry,payload});
      check(id+'/immutable',()=>assert.equal(rendered.after,before));
      const ladder=actualLadder(entry.result).slice(0,3);
-     const priorityNames={'Fix now':'FIX NOW','Fix next':'FIX NEXT','Monitor':'MONITOR'};
+     const priorityNames={'Fix now':'REVIEW FIRST','Fix next':'REVIEW NEXT','Monitor':'MONITOR'};
      check(id+'/canonical-priorities',()=>assert.deepEqual(rendered.titles,ladder.map((s,i)=>Object.hasOwn(priorityNames,s.priority)?priorityNames[s.priority]:'PRIORITY '+(i+1))));
      check(id+'/no-invented-dimension-cost',()=>assert.doesNotMatch(rendered.flow,/Systems friction|Process density|Administrative upkeep|Approval bottleneck|Dimension dollars|Modeled share:/i));
      check(id+'/not-observed-productivity',()=>assert.doesNotMatch(rendered.flowCard,/Productive (effort|work)|Necessary administrative load|Structural overhead|Where the capacity goes/i));
@@ -133,7 +133,7 @@ try{
     hostile.intervention_priority_ladder=[{focus:label,priority:'constructor',severity:27}];hostile.canonical_descriptor.priority_ladder=hostile.intervention_priority_ladder;
     const hostileResult=await page.evaluate(r=>{window.__inlineResultTest.priority(r);const p=document.getElementById('priorityPathMount');return {text:p.textContent,accessible:p.querySelector('svg')?.getAttribute('aria-label')||'',unsafe:window.__unsafe,htmlTags:p.querySelectorAll('img,script').length,clipped:[...p.querySelectorAll('svg text')].filter(e=>{const b=e.getBBox(),v=e.ownerSVGElement.viewBox.baseVal;return b.width>0&&(b.x<-.5||b.x+b.width>v.width+.5)}).map(e=>e.textContent)};},hostile);
     check(engine+'/'+tool+'/hostile-label',()=>{assert.equal(hostileResult.unsafe,undefined);assert.equal(hostileResult.htmlTags,0);assert.match(hostileResult.text,/PRIORITY 1/);assert.doesNotMatch(hostileResult.text,/FIX NOW/);assert.ok(hostileResult.accessible.includes(label));assert.deepEqual(hostileResult.clipped,[]);});
-    check(engine+'/'+tool+'/versioned-viz',()=>assert.match(source[file],/monderman-viz\.js\?v=20260910-inline-scenario1/));
+    check(engine+'/'+tool+'/versioned-viz',()=>assert.match(source[file],/monderman-viz\.js\?v=20260914-native-review2/));
     const fallback=await page.evaluate(({result,payload})=>{const helper=window.MViz.timeCostScenario;delete window.MViz.timeCostScenario;window.__inlineResultTest.render(result,payload);const text=(document.getElementById('effortFlowSankey')||document.getElementById('capacityFlow')).textContent;window.MViz.timeCostScenario=helper;return text;},{result:seed,payload});
     check(engine+'/'+tool+'/mixed-cache-fallback',()=>assert.match(fallback,/details are unavailable.*saved report in Workspace/));
     if(tool==='operational_systems'){

@@ -20,13 +20,42 @@ for(const tool of ['structural_clarity','decision_velocity','operational_systems
   assert.equal(c.buildRemedyPaths({...source,output_policy:policy},{}).length,0);assert.equal(c.buildRemedyPaths(source,{}).length,1);
   assert.equal(html.slice(html.lastIndexOf('</html>')+7).trim(),'','No executable text may follow the document');
   const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(match=>match[1]).join('\n');
-  assert(scripts.includes('const remedyGrid = $("remedyGrid");\nif (remedyWrap) remedyWrap.hidden = individualNextStepsOnly(result);'),'Policy hiding must execute inside the actual result renderer');
   const renderStart=scripts.indexOf('const remedies = buildRemedyPaths(result, payload);'),renderEnd=scripts.indexOf('\n}\n',renderStart)+2;
   assert(renderStart>=0&&renderEnd>renderStart);
-  const wrap={hidden:false},grid={innerHTML:''};
-  const renderContext=vm.createContext({$:id=>id==='remedyTreeWrap'?wrap:grid,result:{output_policy:policy},payload:{},buildRemedyPaths:()=>[],individualNextStepsOnly:r=>r?.output_policy?.individual_next_steps_only===true});
-  vm.runInContext(scripts.slice(renderStart,renderEnd),renderContext);assert(wrap.hidden);assert.equal(grid.innerHTML,'');
-  renderContext.result={};vm.runInContext(scripts.slice(renderStart,renderEnd).replaceAll('const ','var '),vm.createContext({...renderContext}));assert.equal(wrap.hidden,false);checks+=4;
+  const renderFragment=scripts.slice(renderStart,renderEnd);
+  const checkRemedyDisplay=fragment=>{
+    const section={hidden:false},wrap={hidden:false,closest:selector=>{assert.equal(selector,'[data-accordion="remedy"]');return section;}},grid={innerHTML:''};
+    const path={label:'Saved option',kicker:'Saved category',summary:'Saved summary',actions:['Saved action'],benefit:'Saved benefit',risk:'Saved risk'};
+    // Reuse the same display nodes: current policy, empty legacy list, genuine
+    // legacy content and a later empty render must not leave a stale heading.
+    for(const [result,expectedHidden] of [
+      [{...source,output_policy:policy},true],
+      [{...source,interpretive_prose:{remedy_paths:[]}},true],
+      [{...source,interpretive_prose:{remedy_paths:[path]}},false],
+      [{...source,output_policy:{...policy,version:'unknown-policy'},interpretive_prose:{remedy_paths:[path]}},false],
+      [{...source,output_policy:policy},true],
+    ]){
+      const before=JSON.stringify(result);
+      vm.runInNewContext(fragment,{$:id=>id==='remedyTreeWrap'?wrap:grid,result,payload:{},buildRemedyPaths:c.buildRemedyPaths,individualNextStepsOnly:c.individualNextStepsOnly,escapeHtml:s=>s});
+      assert.equal(wrap.hidden,expectedHidden);assert.equal(section.hidden,expectedHidden,'The whole empty/remedy accordion, including its button, must be hidden');
+      assert.equal(grid.innerHTML.length>0,!expectedHidden);assert.equal(JSON.stringify(result),before);checks+=4;
+    }
+  };
+  checkRemedyDisplay(renderFragment);
+  for(const [before,after] of [
+    ['if (remedySection) remedySection.hidden = individualNextStepsOnly(result) || remedies.length === 0;',''],
+    ['if (remedySection) remedySection.hidden = individualNextStepsOnly(result) || remedies.length === 0;','if (remedySection) remedySection.hidden = individualNextStepsOnly(result);'],
+  ]){const bad=renderFragment.replace(before,after);assert.notEqual(bad,renderFragment);assert.throws(()=>checkRemedyDisplay(bad));checks++;}
+  const footer=html.match(/const bottomDisclaimer = "([^"]+)";/)?.[1];
+  assert.equal(footer,'This report describes the answers supplied for one run. It does not estimate organizational savings, recoverable time, or financial returns.');checks++;
+  assert.doesNotMatch(html,/class="accordion-sub">[^<]*(?:modeled exposure|cost of drag)/);checks++;
+  const priorityCell=html.match(/`<td>\$\{escapeHtml\(row\.priority[^\n]+/g);
+  assert.equal(priorityCell?.length,1);
+  for(const [priority,label]of [['Fix now','Review first'],['Fix next','Review next'],['Monitor','Monitor'],['Fix now pending','Fix now pending'],['constructor','constructor'],[null,'Priority']]){
+    const row={priority,focus:'UNCHANGED',severity:31,pct:40},before=JSON.stringify(row);
+    const output=vm.runInNewContext(priorityCell[0].replace(/,$/,''),{row,escapeHtml:String});
+    assert.equal(output,'<td>'+label+'</td>');assert.equal(JSON.stringify(row),before);checks+=2;
+  }
   // Current exports unconditionally use the shared policy projection, including
   // legacy results without an AI sidecar. Exercise the actual three handlers.
   const handlers=['exportExecutiveReport','exportFullReportHTML','downloadExecutiveReportPdf'].map(name=>{
@@ -45,6 +74,33 @@ for(const tool of ['structural_clarity','decision_velocity','operational_systems
     assert.equal(toasts.length,3);assert.equal(calls.length,0);checks+=2;
   }
 }
+// Execute the native visualization's actual function with a tiny SVG recorder.
+// This verifies both visual and accessible labels without a browser or network.
+const viz=fs.readFileSync('monderman-viz.js','utf8');
+const priorityStart=viz.indexOf('  function priorityPath(el, data) {'),priorityEnd=viz.indexOf('\n  /*',priorityStart);
+assert(priorityStart>=0&&priorityEnd>priorityStart);
+const priorityFunction=viz.slice(priorityStart,priorityEnd);
+const checkPriorityDisplay=fn=>{
+  for(const suppliedPriorities of [true,false]){
+    const texts=[],attributes={},rows=[];
+    const steps=[{label:'Saved focus A',priority:'Fix now',severity:31},{label:'Saved focus B',priority:'Fix next',severity:21},{label:'Saved focus C',priority:'Monitor',severity:0}],before=JSON.stringify(steps);
+    const ctx=vm.createContext({T:{},mount:()=>({setAttribute:(k,v)=>attributes[k]=v}),S:()=>({}),txt:(_p,x,y,text,options)=>texts.push({x,y,text,options}),num:Number,compactRows:(_svg,value)=>rows.push(...value)});
+    vm.runInContext(fn,ctx);ctx.priorityPath({}, {steps,suppliedPriorities});
+    assert.deepEqual(texts.filter(t=>t.options.spacing==='.11em').map(t=>t.text),suppliedPriorities?['REVIEW FIRST','REVIEW NEXT','MONITOR']:['FIX NOW','FIX NEXT','MONITOR']);
+    assert.equal(JSON.stringify(steps),before);checks+=2;
+    if(suppliedPriorities){
+      assert.equal(attributes['aria-label'],'Suggested review order. 1. Review first: Saved focus A. 2. Review next: Saved focus B. 3. Monitor: Saved focus C');
+      assert.deepEqual(rows.map(r=>r.label),['1. Review first: Saved focus A','2. Review next: Saved focus B','3. Monitor: Saved focus C']);
+      assert.deepEqual(rows.map(r=>r.value),['Difficulty 31','Difficulty 21','Difficulty 0']);checks+=3;
+    }
+  }
+};
+checkPriorityDisplay(priorityFunction);
+for(const [from,to]of [
+  ['"Fix now": "Review first"','"Fix now": "FIX NOW"'],
+  ['? allowedPriorities[s.priority] : "Priority"','? s.priority : "Priority"'],
+  ['? allowedPriorities[s.priority] : "Priority"','? "Review first" : "Priority"'],
+]){const bad=priorityFunction.replace(from,to);assert.notEqual(bad,priorityFunction);assert.throws(()=>checkPriorityDisplay(bad));checks++;}
 for(const report_kind of ['self_run_synthesis','self_run_response_comparison']){
   const source={report_kind,source_mode:'own_saved_runs',synthesis_product:'cross_lens_synthesis',score_status:'withheld',submitted_run_count:3,lens_count:3,source_groups:[{tool_type:'decision_velocity',tool_label:'Decision Velocity',submitted_runs:1,median_score:72}],priority_actions:[],participant_count_note:'All selected runs are from one account.'};
   const model=R.fromSynthesis(source),html=R.buildReportHtml(model);

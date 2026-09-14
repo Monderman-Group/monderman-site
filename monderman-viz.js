@@ -216,13 +216,13 @@
     if (!steps.length) return;
     const titles = ["FIX NOW", "FIX NEXT", "MONITOR"];
     const suppliedPriorities = data && data.suppliedPriorities === true;
-    const allowedPriorities = { "Fix now": "FIX NOW", "Fix next": "FIX NEXT", "Monitor": "MONITOR" };
+    const allowedPriorities = { "Fix now": "Review first", "Fix next": "Review next", "Monitor": "Monitor" };
 
     const W = 640, colW = W / steps.length, H = 118;
     const svg = mount(el, W, H, suppliedPriorities ? "Suggested review order" : "Intervention order");
     if (!svg) return;
     if (suppliedPriorities) svg.setAttribute("aria-label", "Suggested review order. " + steps.map((s, i) =>
-      (i + 1) + ". " + (Object.prototype.hasOwnProperty.call(allowedPriorities, s.priority) ? s.priority : "Priority") + ": " + String(s.label)
+      (i + 1) + ". " + (Object.prototype.hasOwnProperty.call(allowedPriorities, s.priority) ? allowedPriorities[s.priority] : "Priority") + ": " + String(s.label)
     ).join(". "));
 
     steps.forEach((s, i) => {
@@ -236,7 +236,7 @@
       S("circle", { cx: cx + 14, cy: 18, r: 12, fill: i === 0 ? T.accentDark : "rgba(12,110,120,.14)" }, svg);
       txt(svg, cx + 14, 22.5, String(i + 1), { anchor: "middle", fill: i === 0 ? "#fff" : T.accentDark, size: "12px", weight: 700 });
       const title = suppliedPriorities
-        ? (Object.prototype.hasOwnProperty.call(allowedPriorities, s.priority) ? allowedPriorities[s.priority] : "PRIORITY " + (i + 1))
+        ? (Object.prototype.hasOwnProperty.call(allowedPriorities, s.priority) ? allowedPriorities[s.priority].toUpperCase() : "PRIORITY " + (i + 1))
         : titles[i];
       txt(svg, cx + 34, 14, title || "", { fill: T.muted, size: "10px", spacing: ".11em" });
       /* label: wrap to two lines max */
@@ -262,7 +262,7 @@
       }
     });
     if (suppliedPriorities) compactRows(svg, steps.map((s,i) => ({
-      label: (i+1) + ". " + (Object.prototype.hasOwnProperty.call(allowedPriorities,s.priority) ? s.priority : "Priority") + ": " + s.label,
+      label: (i+1) + ". " + (Object.prototype.hasOwnProperty.call(allowedPriorities,s.priority) ? allowedPriorities[s.priority] : "Priority") + ": " + s.label,
       value: s.severity == null || num(s.severity) === null ? "Unavailable" : "Difficulty " + Math.round(num(s.severity))
     })), "Suggested review order");
   }
