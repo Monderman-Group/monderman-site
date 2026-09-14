@@ -654,14 +654,14 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
     <div class="processing-flow-step" style="--flow-step:2"><span class="processing-flow-dot"></span></div>
     <div class="processing-flow-step" style="--flow-step:3"><span class="processing-flow-dot"></span></div>
   </div>
-  <h3>Generating diagnostic output</h3>
-  <p id="processingStatus">The diagnostic engine is interpreting your institutional inputs and preparing the final diagnostic readout.</p>
-  <p class="tiny" id="processingHelp">The output sequence is assembling quantitative scoring, structured checks, interpretive context, and the final narrative.</p>
+  <h3>Preparing your results</h3>
+  <p id="processingStatus">Your answers are being scored and checked for your report.</p>
+  <p class="tiny" id="processingHelp">We are calculating your score, checking how your answers fit together, and preparing your report.</p>
   <div class="processing-list">
-    <div class="processing-item"><span class="pulse"></span><span>Scoring how the institution holds under load</span></div>
-    <div class="processing-item"><span class="pulse"></span><span>Checking structured contradictions and interpretive bypass signals</span></div>
-    <div class="processing-item"><span class="pulse"></span><span>Estimating rough time, cost, and capacity impact</span></div>
-    <div class="processing-item"><span class="pulse"></span><span>Preparing the final readout</span></div>
+    <div class="processing-item"><span class="pulse"></span><span>Calculating your diagnostic score</span></div>
+    <div class="processing-item"><span class="pulse"></span><span>Checking how your answers fit together</span></div>
+    <div class="processing-item"><span class="pulse"></span><span>Preparing the written summary</span></div>
+    <div class="processing-item"><span class="pulse"></span><span>Preparing your report</span></div>
   </div>
 </div></div></div>
 
@@ -780,7 +780,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
 
         <article class="accordion-section accordion-priority" data-accordion="narrative">
           <button class="accordion-header" type="button">
-            <div class="accordion-header-main"><span class="accordion-title">Drag narrative</span><span class="accordion-sub">Pathway drag, cost of drag, priority actions, and leadership read.</span></div>
+            <div class="accordion-header-main"><span class="accordion-title">Drag narrative</span><span class="accordion-sub">Reported conditions and suggested review priorities.</span></div>
             <span class="accordion-chevron">⌄</span>
           </button>
           <div class="accordion-body">
@@ -989,7 +989,7 @@ const EXPERIENCE_REFINE_TIMEOUT_MS = 45000;
 
 const openingNotice = "This diagnostic generates directional insights based on the information you provide. Results are only as accurate as your inputs and should be used as an interpretive aid, not as a substitute for independent review, professional judgment, or organization-specific analysis.";
 const finalAcknowledgment = "I acknowledge that this diagnostic provides directional insights only, that Monderman has not independently verified my inputs, and that I am solely responsible for how these results are interpreted or used.";
-const bottomDisclaimer = "* Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so the organization can decide whether the pattern is worth investigating further.";
+const bottomDisclaimer = "This report describes the answers supplied for one run. It does not estimate organizational savings, recoverable time, or financial returns.";
 
 // ═══════════════════════════════════════════════════════════
 // DOM HELPER
@@ -1753,7 +1753,7 @@ processingItems.forEach(function (it, i) { it.style.display = i === 0 ? "" : "no
 var _lbl = processingItems[0] && processingItems[0].querySelector("span:last-child");
 if (_lbl) _lbl.textContent = "Recording your responses securely";
 }
-if (processingStatus) processingStatus.textContent = message || "Generating output...";
+if (processingStatus) processingStatus.textContent = message || "Preparing your results...";
 processingItems.forEach((item, idx) => {
 item.classList.toggle("is-active", idx === index);
 item.classList.toggle("is-complete", idx < index);
@@ -1762,9 +1762,9 @@ item.classList.toggle("is-complete", idx < index);
 
 function resetProcessingUI() {
 if (processingHelp) {
-processingHelp.textContent = "This usually takes about one to two minutes. We are calculating your score, checking conflicting answers, and preparing your report.";
+processingHelp.textContent = "This usually takes about one to two minutes. We are calculating your score, checking how your answers fit together, and preparing your report.";
 }
-setProcessingStep(-1, "Initializing output sequence...");
+setProcessingStep(-1, "Preparing your results...");
 }
 
 function readHubContext() {
@@ -3350,7 +3350,7 @@ const slowFinalizeTimer = setTimeout(() => {
 }, 12000);
 
 try {
-setProcessingStep(1, "Translating run state into structured output...");
+setProcessingStep(1, "Calculating your score and checking your answers...");
 const response = await fetchWithTimeout(`${API_BASE}/api/institutional-performance/run/${state.runId}/finalize`, {
 method: "POST",
 headers: { "Content-Type": "application/json" },
@@ -3423,12 +3423,12 @@ if (!response.ok || !data?.ok) {
   throw err;
 }
 
-setProcessingStep(2, "Preparing the diagnostic narrative...");
+setProcessingStep(2, "Preparing your written summary...");
 const result = asObject(data.result);
 const inferredCoverage = inferParticipantCoverage();
 const legacyPayload = asObject(data.legacyPayload);
 const rawExperienceLayer = buildExperienceLayer();
-if (rawExperienceLayer?.hasInput) setProcessingStep(2, "Screening experiential notes for report-safe presentation...");
+if (rawExperienceLayer?.hasInput) setProcessingStep(2, "Checking added notes for inclusion in your report...");
 // Cross the deterministic report boundary synchronously before rendering.
 const refinedExperienceLayer = safeExperienceLayerForReport(rawExperienceLayer);
 const payload = {
@@ -3489,7 +3489,7 @@ if (window.MondermanAssignment && window.MondermanAssignment.active()) {
   }
   if (!completionOk) window.MondermanAssignment.noteCompletionFailure(retryCompletion);
 }
-setProcessingStep(3, "Rendering charts and final report modules...");
+setProcessingStep(3, "Preparing your charts and report...");
 renderResults(result, payload, "Institutional Performance Diagnostic");
 if (data.savedRunId && !window.MondermanAssignment?.active?.()) {
   window.MondermanReport?.mountAIInterpretation(resultsStage, result, async () => {
@@ -5850,7 +5850,7 @@ if (mount) mount.innerHTML = '<div class="viz-empty">N/A, not enough signal is a
 if (priorityRows.length) {
 const totalSeverity = priorityRows.reduce((sum, r) => sum + Number(r.severity || 0), 0) || 1;
 renderTableBody("priorityBody", priorityRows, (row) => [
-`<td>${escapeHtml(row.priority || "Priority")}</td>`,
+`<td>${escapeHtml(row.priority === "Fix now" ? "Review first" : row.priority === "Fix next" ? "Review next" : row.priority || "Priority")}</td>`,
 `<td>${escapeHtml(row.focus || "Focus area")}</td>`,
 `<td>${row.pct != null ? row.pct + "%" : hasMeaningfulValue(row.severity) ? Math.round(Number(row.severity || 0) / totalSeverity * 100) + "%" : "N/A"}</td>`
 ]);
@@ -5906,7 +5906,9 @@ renderUnavailableTable("impactBody", 3, "N/A, not enough signal is available to 
 const remedies = buildRemedyPaths(result, payload);
 const remedyWrap = $("remedyTreeWrap");
 const remedyGrid = $("remedyGrid");
-if (remedyWrap) remedyWrap.hidden = individualNextStepsOnly(result);
+if (remedyWrap) remedyWrap.hidden = individualNextStepsOnly(result) || remedies.length === 0;
+const remedySection = remedyWrap?.closest('[data-accordion="remedy"]');
+if (remedySection) remedySection.hidden = individualNextStepsOnly(result) || remedies.length === 0;
 if (remedyWrap && remedyGrid) {
 remedyGrid.innerHTML = remedies.map((path) => `<div class="remedy-card"><span class="remedy-kicker">${escapeHtml(path.kicker)}</span><h4>${escapeHtml(path.label)}</h4><p>${escapeHtml(path.summary)}</p><ul>${path.actions.map((action) => `<li>${escapeHtml(action)}</li>`).join("")}</ul><div class="remedy-path-risk"><p><strong>Benefit</strong> ${escapeHtml(path.benefit)}</p><p><strong>Risk</strong> ${escapeHtml(path.risk)}</p></div></div>`).join("");
 }
@@ -6534,7 +6536,7 @@ return {};
 })();
 
   </script>
-<script src="monderman-viz.js?v=20260910-inline-scenario1" defer></script>
+<script src="monderman-viz.js?v=20260914-native-review2" defer></script>
   <script src="assistant.js?v=20260828-footer-dock4" defer></script>
   <script src="feedback-widget.js" defer></script>
 </body>
