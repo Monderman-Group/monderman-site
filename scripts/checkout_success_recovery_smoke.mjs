@@ -161,6 +161,25 @@ try {
         await f.close({ before, after: await f.shot('after-refresh') });
       }
       if (baseline) continue;
+      // The API's historical renewalAt field is an annual term end (even when
+      // renewal is off), or the current period end for legacy subscriptions.
+      for (const [label, renewalAt, commercial, dateText] of [
+        ['annual-renewal-on', '2027-09-15T12:00:00Z', { termEndsAt: '2027-09-15T12:00:00Z', cancellationScheduled: false }, 'September 15, 2027'],
+        ['annual-renewal-off', '2027-09-15T12:00:00Z', { termEndsAt: '2027-09-15T12:00:00Z', cancellationScheduled: true, cancellationAt: '2027-09-15T12:00:00Z' }, 'September 15, 2027'],
+        ['legacy-monthly', '2026-10-15T12:00:00Z', null, 'October 15, 2026']
+      ]) {
+        const f = await fixture(browser, name + '-' + label);
+        f.control.response = purchase({ purchase: { ...purchase().purchase, renewalAt, commercial } });
+        await f.start();
+        for (const phase of ['initial', 'refreshed']) {
+          if (phase === 'refreshed') { await f.page.reload({ waitUntil: 'domcontentloaded' }); await f.settled(); }
+          equal(await f.page.locator('#summaryRenewal').locator('..').locator('span').textContent(), 'Current term ends', name + ': ' + label + ' ' + phase + ' does not promise renewal');
+          equal(await f.page.locator('#summaryRenewal').textContent(), dateText, name + ': ' + label + ' ' + phase + ' retains the server term/period end');
+          check(!(await f.page.locator('#purchaseSummary').textContent()).includes('Next renewal'), name + ': ' + label + ' ' + phase + ' has no false renewal label');
+        }
+        equal(f.calls.length, 2, name + ': ' + label + ' still revalidates on refresh');
+        await f.close({ screenshot: await f.shot('term-label') });
+      }
       for (const scenario of ['missing-reference', 'different-user', 'different-workspace', 'server-rejected', 'network-retry', 'transport-retry', 'pending-entitlement', 'pending-exhausted', 'unpaid', 'incomplete', 'nonboolean-payment', 'wrong-response-workspace', 'tampered-reference', 'invalid-session-reference', 'signed-out']) {
         const f = await fixture(browser, name + '-' + scenario);
         if (scenario === 'missing-reference') {
