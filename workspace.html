@@ -484,7 +484,7 @@ body{transition:background-color .25s ease,color .25s ease}
             <div class="recfoot"><a class="ws-btn sm" id="wsRecBoardLink" href="workspace-actions.html">Review in Action Plans →</a></div>
           </div>
         </article>
-        <div class="ws-product-empty" id="wsNextEmpty"><strong>Start with a measured baseline</strong><p>Run a Diagnostic for one operating pathway. Use its findings to choose a first change to test.</p><a class="ws-link" href="workspace-diagnostics.html#launch">Choose a Diagnostic →</a></div>
+        <div class="ws-product-empty" id="wsNextEmpty"><strong>Start with a measured baseline</strong><p>Run a Diagnostic for one process or area of work. Use its findings to choose a first change to test.</p><a class="ws-link" href="workspace-diagnostics.html#launch">Choose a Diagnostic →</a></div>
         <div class="ws-action-shortcuts">
           <a href="workspace-diagnostics.html#campaigns"><b>Campaigns →</b><span>Invite participants and review responses</span></a>
           <a href="workspace-actions.html"><b>Action Plans →</b><span>Assign owners and link remeasurement</span></a>
@@ -735,7 +735,7 @@ body{transition:background-color .25s ease,color .25s ease}
     function renderRecentResults(){
       const host=$("wsRecentRuns"),runs=[...state.runs].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,4);
       if(!runs.length){
-        host.innerHTML=state.runsError?'<div class="ws-product-empty"><strong>Results are temporarily unavailable</strong><p>Your saved results have not been changed. Retry the page or open Measure.</p><button class="ws-retry" id="wsRetryResults" type="button">Retry loading</button></div>':'<div class="ws-product-empty"><strong>Your results will appear here</strong><p>Complete your first Diagnostic to establish a baseline for a specific operating pathway.</p><a class="ws-link" href="workspace-diagnostics.html#launch">Run your first Diagnostic →</a></div>';
+        host.innerHTML=state.runsError?'<div class="ws-product-empty"><strong>Results are temporarily unavailable</strong><p>Your saved results have not been changed. Retry the page or open Measure.</p><button class="ws-retry" id="wsRetryResults" type="button">Retry loading</button></div>':'<div class="ws-product-empty"><strong>Your results will appear here</strong><p>Complete your first Diagnostic to establish a baseline for one process or area of work.</p><a class="ws-link" href="workspace-diagnostics.html#launch">Run your first Diagnostic →</a></div>';
         $("wsRetryResults")?.addEventListener("click",()=>window.location.reload());
         return;
       }

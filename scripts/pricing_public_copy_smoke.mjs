@@ -86,6 +86,9 @@ for(const [f,prices,pool,synth] of [
   check(!s.includes('interval=quarterly')&&!s.includes('effective end of the paid period')&&!s.includes('each billing period'),f+' no stale quarterly/month-to-month offer');
 }
 const matrix=read('platform-services.html');
+check(matrix.includes('The free account includes')&&!matrix.includes('implemented entitlement'),'free-account description uses customer language');
+const overview=read('workspace.html');
+check(overview.split('for one process or area of work').length-1===2&&!/for (?:a specific|one) operating pathway/.test(overview),'both empty-state prompts use plain business language without changing links or run scope');
 for(const phrase of ['2,400','6,000','60 new Syntheses','300 new Syntheses','$21,600','$48,600','No automatic overage','Diagnostic scores do not supply a recovery percentage'])check(matrix.includes(phrase),'matrix '+phrase);
 check(!/5(?:–|-|&ndash;| to )42/.test(matrix),'no assigned score-based recovery percentage');
 for(const f of ['pilot.html','pattern-trial.html']){

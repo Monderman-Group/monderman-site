@@ -113,11 +113,28 @@ for token in ['Depth Synthesis','Cross-Lens Synthesis','No per-participant prici
     require(public,token,'public truth sweep')
 
 signal=text('plan-signal.html')
-for token in ['50 completed participant responses','12 Syntheses','two analyst workspace users','one admin workspace user','Anonymous participant responses and unlimited Syntheses are part of Pattern']:
+for token in [
+    '2,400 completed participant responses a year','60 new Syntheses a year',
+    'two analyst workspace users','one admin workspace user',
+    'Pattern includes anonymous participant responses and a larger Synthesis allowance',
+    '$24,000 for a 12-month term', '$2,000 monthly installments', '$21,600 prepaid for the year',
+    'Self-runs by authorized Workspace users are unlimited',
+    'available at the start of each annual term under either payment option',
+]:
     require(signal,token,'Signal')
+for token in ['50 completed participant responses','12 Syntheses','Unlimited Syntheses','interval=quarterly']:
+    forbid(signal,token,'Signal retired offer')
 pattern=text('plan-pattern.html')
-for token in ['500 completed participant responses','Unlimited Syntheses','anonymous participant responses','five analyst workspace users','two admin workspace users']:
+for token in [
+    '6,000 completed participant responses a year','300 new Syntheses a year',
+    'anonymous participant responses','five analyst workspace users','two admin workspace users',
+    '$54,000 for a 12-month term', '$4,500 monthly installments', '$48,600 prepaid for the year',
+    'Self-runs by authorized Workspace users are unlimited',
+    'available at the start of each annual term under either payment option',
+]:
     require(pattern,token,'Pattern')
+for token in ['500 completed participant responses','Unlimited Syntheses','interval=quarterly']:
+    forbid(pattern,token,'Pattern retired paid offer')
 enterprise=text('plan-enterprise.html')
 for token in [
     'unlimited participant responses','unlimited Syntheses','Self-runs, participant responses, Syntheses, and Workspace users are unlimited.',
@@ -144,7 +161,11 @@ for token in ['source_synthesis_id','remeasure_synthesis_id','ITEM_COLS','/api/s
     require(actions,token,'Action Plans')
 
 overview=text('workspace.html')
-for token in ['No per-participant pricing','Depth Synthesis','Cross-Lens Synthesis','workspace-analysis.html#synthesis','workspace-diagnostics.html#campaigns']:
+for token in [
+    'Unlimited self-runs','org.run_limit','org.respondent_pool','org.aggregation_limit',
+    'Full annual response and Synthesis capacity is available upfront, with no monthly reset',
+    'Depth Synthesis','Cross-Lens Synthesis','workspace-analysis.html#synthesis','workspace-diagnostics.html#campaigns',
+]:
     require(overview,token,'Overview')
 for token in ['Most of your organization is under strain','Your organization is holding steady','critical level']:
     forbid(overview,token,'Overview')
