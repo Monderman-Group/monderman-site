@@ -81,7 +81,13 @@ workspace = (ROOT / "workspace.html").read_text()
 assert "activeMembership" in workspace
 assert "memberships?.length===1" in workspace
 assert "workspace_selection_required" in workspace
-assert "organization_id:org.id||null" in workspace
+for token in [
+    'const organizationQuery=org.id?`?organization_id=${encodeURIComponent(org.id)}`:"";',
+    'manage.href="plan-pattern.html"+organizationQuery',
+    'manage.href=isTrial?"platform-services.html"+organizationQuery:"workspace-settings.html#billing"',
+    'if(state.membership?.organization_id) sessionStorage.setItem("monderman_active_organization_id", state.membership.organization_id);',
+]:
+    assert token in workspace, f"Workspace billing navigation must preserve its selected organization: {token}"
 assert ".eq(\"user_id\", user.id).limit(1)" not in workspace
 
 for name in ["plan-pattern.html", "plan-signal.html", "platform-services.html"]:

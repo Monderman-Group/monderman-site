@@ -95,8 +95,12 @@ const obsoleteArticleClaims=/\b(?:recoverable|reclaim(?:ed|able)?|reclaim potent
 const articleText=html=>html.replace(/<(?:script|style|svg)\b[^>]*>[\s\S]*?<\/(?:script|style|svg)>/gi,' ')
   .replace(/<[^>]*>/g,' ').replace(/\s+/g,' ')
   +[...html.matchAll(/<meta\b[^>]*\bcontent="([^"]*)"/g)].map(row=>row[1]).join(' ');
-const assertArticleScope=html=>assert.doesNotMatch(articleText(html),obsoleteArticleClaims,'No superseded whole-article financial, comparison or predictive claim');
+const singleRunFinancialBoundary='A single-run score does not establish organizational exposure, recoverable savings or ROI.';
+// Permit only this exact negative statement. Deleting "not", adding an
+// affirmative claim afterward, or changing a metadata promise still fails.
+const assertArticleScope=html=>assert.doesNotMatch(articleText(html).replaceAll(singleRunFinancialBoundary,''),obsoleteArticleClaims,'No superseded whole-article financial, comparison or predictive claim');
 const articleBase='19bf82646048ba75799300b73caaca9366d4c387';
+const approvedPresentationBase='373a14499ad29a84014c5c7ad7cfcb389953f295';
 const articleMain=html=>html.match(/<main class="article">[\s\S]*?<\/main>/)?.[0];
 const textless=html=>html.replace(/>[^<]*</g,'><');
 // Invert only the table-accessibility changes approved in 6092c75. Keep the
@@ -131,13 +135,28 @@ function beforeApprovedMatrixStyles(html){
   return html;
 }
 const scoreColorRule='    .score-block .score-num {\n      color: #fff;\n';
+const sampleLinkStyle='    .content .score-block p,\n'+
+  '    .content .score-block a,\n'+
+  '    .content .score-block a:hover,\n'+
+  '    .content .score-block a:focus-visible {\n'+
+  '      color: #fff;\n'+
+  '    }\n\n'+
+  '    .content .score-block a {\n'+
+  '      text-decoration: underline;\n'+
+  '      text-underline-offset: 0.18em;\n'+
+  '    }\n\n';
 function assertArticleLayout(html,prior){
-  assert.deepEqual(textless(beforeApprovedMatrixRegion(articleMain(html))),textless(articleMain(prior)),
-    'Body tags, classes and links unchanged except exact approved comparison region');
-  const restored=beforeApprovedMatrixStyles(html).replace(scoreColorRule,'    .score-block .score-num {\n');
+  // The reviewed annual-release pages intentionally replaced invented example
+  // scores with links to real saved samples. Pin that approved structure while
+  // retaining the exact accessibility-region and table-style checks above.
+  beforeApprovedMatrixRegion(articleMain(html));beforeApprovedMatrixStyles(html);
+  assert.deepEqual(textless(articleMain(html)),textless(articleMain(prior)),
+    'Body tags, classes and links match the approved saved-sample article layout');
+  assert.equal(html.split(sampleLinkStyle).length-1,1,'Exactly one scoped saved-sample link contrast fix');
+  const restored=html.replace(sampleLinkStyle,'');
   for(const tag of ['script','style'])assert.deepEqual(restored.match(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`,'g')),
-    prior.replace('content: "The question it answers"','content: "Business focus"').match(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`,'g')),
-    tag+' unchanged except exact approved table and contrast changes');
+    prior.match(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`,'g')),
+    tag+' matches the approved presentation; no unrelated behavior or CSS changes');
 }
 for(const [name,description,article]of descriptions){
   for(const file of sourceFiles.slice(0,6).filter(file=>file!=='site-shell/footer.html'))check(read(file).includes(description),`${file}: ${name} business description`);
@@ -148,11 +167,15 @@ for(const [name,description,article]of descriptions){
   const html=read(article),main=articleMain(html);
   assertArticleScope(html);checks++;
   for(const phrase of ['the participant’s selected perspective, recorded strengths and concerns','A single run does not establish organization-wide conditions or change over time.',
-    'Illustrative report layout','Example score','Example band','the score and band above are not an assessed result.',
+    singleRunFinancialBoundary,'Saved example report','Actual output from realistic example responses',
+    'shows its actual score, recorded answers and report text.','they are not customer results.',
     'Recorded findings','Reported strengths','Next step'])
     check(main.includes(phrase),article+': truthful report scope '+phrase);
+  const sampleKey={Structural:'sc',Decision:'dv',Operational:'os',Institutional:'ip'}[name.split(' ')[0]];
+  check(main.includes('href="sample-report.html#'+sampleKey+'"'),article+': actual same-Diagnostic sample destination');
+  check(!/Example score|Example band|class="score-num"/.test(main),article+': no invented score in the article illustration');
   check(html.includes('records one participant’s perspective on'),article+': matching social/search description');
-  const prior=execFileSync('git',['show',`${articleBase}:${article}`],{cwd:root,encoding:'utf8'});
+  const prior=execFileSync('git',['show',`${approvedPresentationBase}:${article}`],{cwd:root,encoding:'utf8'});
   assertArticleLayout(html,prior);checks++;
   // The earlier approved canonical-copy edit also renamed the mobile table's
   // generated label. Restore only that exact text when proving layout parity.
@@ -174,6 +197,11 @@ for(const [name,description,article]of descriptions){
     html.replace('width: 29%;','width: 20%;'),
     html.replace(matrixStyleInverses[1][0],''),
     html.replace(matrixStyleInverses[1][0],matrixStyleInverses[1][0]+'\n'+matrixStyleInverses[1][0]),
+    html.replace(sampleLinkStyle,''),
+    html.replace(sampleLinkStyle,sampleLinkStyle+sampleLinkStyle),
+    html.replace(sampleLinkStyle,sampleLinkStyle.replace('color: #fff;','color: #6E6F73;')),
+    html.replace(sampleLinkStyle,sampleLinkStyle.replace('a:focus-visible','a:focus')),
+    html.replace(sampleLinkStyle,sampleLinkStyle.replace('text-decoration: underline;','text-decoration: none;')),
     html.replace('</style>','.unrelated { display: none; }</style>'),
   ];
   for(const [index,bad]of badLayouts.entries()){
@@ -183,10 +211,18 @@ for(const [name,description,article]of descriptions){
   for(const bad of ['Approximate recoverable value','Benchmark position','Trajectory signal','Reclaimed capacity','clock speed of reality']){
     assert.throws(()=>assertArticleScope(html.replace('</main>',`<p>${bad}</p></main>`)),/No superseded whole-article/);checks++;
   }
+  for(const bad of [
+    html.replace(singleRunFinancialBoundary,singleRunFinancialBoundary.replace('does not establish','establishes')),
+    html.replace(singleRunFinancialBoundary,singleRunFinancialBoundary+' Recoverable savings are calculated for your organization.'),
+    html.replace('records one participant’s perspective on','calculates recoverable savings from'),
+  ]){
+    assert.notEqual(bad,html,'Each financial-language mutation changes the source');
+    assert.throws(()=>assertArticleScope(bad),/No superseded whole-article/);checks++;
+  }
 }
 for(const file of sourceFiles)check(!/What sits beneath performance\?|How much weight is it carrying\?/i.test(read(file)),file+' no superseded metaphor label');
 for(const file of ['roi.html','platform-services.html','plan-signal.html','plan-pattern.html']){
-  const html=read(file),prior=execFileSync('git',['show',`${articleBase}:${file}`],{cwd:root,encoding:'utf8'});
+  const html=read(file),prior=execFileSync('git',['show',`${approvedPresentationBase}:${file}`],{cwd:root,encoding:'utf8'});
   for(const tag of ['script','style',...(file==='roi.html'?[]:['svg'])])eq(html.match(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`,'g')),
     prior.match(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`,'g')),file+': existing behavior and graphics unchanged');
   eq(html.match(/<(?:input|select|option|button)\b[^>]*>/g),prior.match(/<(?:input|select|option|button)\b[^>]*>/g),file+': calculator and plan controls unchanged');
@@ -303,16 +339,27 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
         check(await page.locator('.lens-matrix').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'Comparison table fits');
         const figure=page.locator('.output-figure');await figure.scrollIntoViewIfNeeded();
         eq(await figure.locator('.output-metrics .metric strong').allTextContents(),['Perspective','Reported strengths','Next step'],'No outdated financial/comparison cards');
-        check(await figure.locator('.figure-note').textContent().then(text=>text.includes('not an assessed result')),'Illustrative card disclosure remains visible');
+        check(await figure.locator('.figure-note').textContent().then(text=>text.includes('shows its actual score, recorded answers and report text.')&&text.includes('they are not customer results.')),'Actual sample provenance remains visible');
         check(await figure.evaluate(el=>el.scrollWidth<=el.clientWidth+1),'Report card fits');
-        const scoreContrast=await figure.locator('.score-num').evaluate(el=>{
+        eq(await figure.locator('.score-num').count(),0,'No invented score in the article figure');
+        const sampleKey={Structural:'sc',Decision:'dv',Operational:'os',Institutional:'ip'}[descriptions.find(row=>row[2]===file)[0].split(' ')[0]];
+        eq(await figure.locator('.score-block a').getAttribute('href'),'sample-report.html#'+sampleKey,'Figure opens the actual corresponding saved sample');
+        const sampleLink=figure.locator('.score-block a');
+        const sampleContrast=()=>sampleLink.evaluate(el=>{
           const rgb=color=>color.match(/[\d.]+/g).slice(0,3).map(Number);
           const luminance=values=>values.map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;}).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);
           const foreground=getComputedStyle(el).color,background=getComputedStyle(el.closest('.score-block')).backgroundColor,a=luminance(rgb(foreground)),b=luminance(rgb(background));
-          return {foreground,background,ratio:(Math.max(a,b)+.05)/(Math.min(a,b)+.05),size:parseFloat(getComputedStyle(el).fontSize)};
+          return {foreground,background,ratio:(Math.max(a,b)+.05)/(Math.min(a,b)+.05),size:parseFloat(getComputedStyle(el).fontSize),underline:getComputedStyle(el).textDecorationLine,focusVisible:el.matches(':focus-visible')};
         });
-        eq(scoreContrast.foreground,'rgb(255, 255, 255)','Example score uses explicit light brand color');
-        check(scoreContrast.size>=24&&scoreContrast.ratio>=3,'Large example score meets 3:1 contrast in all four articles');
+        await page.mouse.move(0,0);await sampleLink.evaluate(el=>el.blur());
+        for(const state of ['normal','hover','focus']){
+          if(state==='hover')await sampleLink.hover();
+          if(state==='focus'){await page.mouse.move(0,0);await page.keyboard.press('Tab');await sampleLink.focus();await page.keyboard.press('ArrowRight');}
+          const contrast=await sampleContrast();
+          eq(contrast.foreground,'rgb(255, 255, 255)','Saved-sample link remains white: '+state);
+          check(contrast.ratio>=4.5&&contrast.underline.includes('underline'),'Actual saved-sample link meets normal-text contrast and remains visibly identifiable: '+state+' '+JSON.stringify(contrast));
+          if(state==='focus')check(contrast.focusVisible,'Saved-sample link receives keyboard-visible focus');
+        }
         check(await figure.locator('h3,p,strong,span,small').evaluateAll(nodes=>nodes.every(el=>{const r=el.getBoundingClientRect();return r.left>=-1&&r.right<=innerWidth+1;})),'All article output text stays within viewport');
         const target=file.replace('-article','');
         eq(await page.locator('.cta a').getAttribute('href'),'signin.html?next='+target,'Existing diagnostic sign-in route preserved');
