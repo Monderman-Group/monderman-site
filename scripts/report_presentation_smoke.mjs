@@ -114,7 +114,7 @@ async function assertOperationalScenario(shell,source,label) {
   const number=value=>Number(value).toLocaleString('en-US',{maximumSignificantDigits:15});
   const money=value=>(Number(value)<0?'-$':'$')+number(Math.abs(Number(value)));
   const metrics=[['potentialHoursFreed','Potential time freed',number,'hours'],['capacityValue','Value of potential staff capacity',money,'Not cash savings'],
-    ['avoidableNonLaborCash','Potential non-labor cash avoided',money,'Separate expenditure'],['cashInvestment','Implementation cash and subscription cost',money,'Cash cost'],
+    ['avoidableNonLaborCash','Potential non-labor cash avoided',money,['low','central','high'].every(key=>scenario.totals.avoidableNonLaborCash[key]===0)?'No direct cash saving assumed.':'Separate expenditure'],['cashInvestment','Implementation cash and subscription cost',money,'Cash cost'],
     ['totalImplementationAndSubscriptionCost','Total implementation and subscription cost',money,'Includes internal staff time'],
     ['netCashEffect','Net cash effect',money,'Cash avoided minus cash cost'],['netCapacityAndCashValue','Net capacity and cash scenario value',money,'Includes staff capacity, not a cash return']];
   const cards=section.locator(':scope > .mr-scenario-metric');assert(await cards.count()===7,label+' requires all seven scenario metrics');
@@ -129,6 +129,21 @@ async function assertOperationalScenario(shell,source,label) {
   assert(JSON.stringify(scopeValues)===JSON.stringify([scenario.scope.label]),label+' displayed scope differs');
   const text=await section.textContent();for(const value of [scenario.title,scenario.notice,...scenario.inputs.activities.flatMap(a=>[a.label,a.sourceReference,a.changeBasis,a.cashBasis])])assert(text.includes(value),label+' saved scenario source/assumption missing');
   return section;
+}
+
+async function assertFinancialReadingOrder(shell,source,measuredSelector,label) {
+  assert(source.financial_scenario?.version==='operational-planning-scenario-20260913.1',label+' requires its saved valid financial scenario');
+  assert(source.financial_scenario.scope.scopeId===source.campaign_evidence.scopeId,label+' financial scope differs from campaign');
+  const brief=shell.locator('.mr-financial-brief');
+  assert(await brief.count()===1,label+' requires exactly one financial brief');
+  assert(await brief.isVisible(),label+' financial brief is not visible');
+  assert(await brief.getAttribute('data-financial-presentation')==='financial-presentation-20260915.1',label+' financial component version differs');
+  assert(await brief.evaluate(()=>window.MondermanReport?window.MondermanReport.financialPresentationVersion:document.querySelector('meta[name="monderman-financial-presentation-version"]')?.content)==='financial-presentation-20260915.1',label+' runtime or standalone financial component version differs');
+  assert((await brief.locator('h2').textContent()).trim()==='Decision brief',label+' first section heading differs');
+  assert(await brief.evaluate((el,measuredSelector)=>{
+    const sections=[...el.parentElement.querySelectorAll(':scope > .mr-section')];
+    return sections[0]===el&&sections[1]?.matches('.mr-ai-interpretation')&&sections[2]?.matches(measuredSelector);
+  },measuredSelector),label+' must begin financial brief, AI interpretation, then measured section in that exact order');
 }
 
 // The four Diagnostic samples must be the live projection of the locked
@@ -173,9 +188,7 @@ assert(await cross.locator('.mr-cover .mr-cover-boundary').isVisible(), 'Cross-L
 const coverBoundaryText = await cross.locator('.mr-cover .mr-cover-boundary').textContent();
 assert(/not a proven causal model/i.test(coverBoundaryText), 'Cross-Lens cover boundary lost its causal-interpretation limit');
 
-const crossFirstHeading = (await cross.locator('.mr-section h2').first().textContent()).trim();
-assert(await cross.locator('.mr-ai-interpretation').evaluate(el => el === el.parentElement.querySelector('.mr-section')), 'Accepted AI interpretation must lead the current report');
-assert(await cross.locator('.mr-system-read').evaluate(el => el === [...el.parentElement.querySelectorAll(':scope > .mr-section')].find(node=>!node.classList.contains('mr-ai-interpretation'))), `Cross-Lens system read is not first measured section: ${crossFirstHeading}`);
+await assertFinancialReadingOrder(cross,crossSource,'.mr-system-read','Cross-Lens');
 const crossSystem = cross.locator('svg[aria-label="Four Diagnostic lenses connected to the equal-lens Cross-Lens Composite Score"]');
 assert(await crossSystem.isVisible(), 'Cross-Lens system picture not visible');
 assert(await crossSystem.locator('circle').count() >= 2, 'Cross-Lens system picture lacks a substantive composite graphic');
@@ -251,13 +264,12 @@ assert((await depth.locator('.mr-cover-score').textContent()).trim() === depthSc
 assert(depthSource.score_type === 'within_lens_median', 'Depth must preserve its within-diagnostic median basis');
 assert((await depth.locator('.mr-cover-score-label').textContent()).trim() === depthSource.score_label, 'Depth cover differs from the saved diagnostic-specific median score label');
 assert(await depth.locator('.mr-cover .mr-cover-boundary').isVisible(), 'Depth interpretation boundary is not integrated into the opening cover');
-const depthFirstHeading = (await depth.locator('.mr-section h2').first().textContent()).trim();
-assert(await depth.locator('.mr-depth-system-read').isVisible(), `Depth executive distribution read is not first substantive section: ${depthFirstHeading}`);
+await assertFinancialReadingOrder(depth,depthSource,'.mr-depth-system-read','Depth');
+assert(await depth.locator('.mr-depth-system-read').isVisible(), 'Depth executive distribution read is not visible');
 const depthChart = depth.locator('svg[aria-label="Depth Synthesis score distribution"]');
 assert(await depthChart.isVisible(), 'Depth distribution chart not visible');
 const depthChartFont = await depthChart.evaluate(el => getComputedStyle(el).fontFamily);
 assert(isMondermanFont(depthChartFont), `Depth chart bypasses Neue Haas Grotesk: ${depthChartFont}`);
-assert(await depth.locator('.mr-depth-system-read').evaluate(el=>el===[...el.parentElement.querySelectorAll(':scope > .mr-section')].find(node=>!node.classList.contains('mr-ai-interpretation'))),'Depth distribution read is not first measured section');
 await assertEarlyMeasuredChart(depth,'.mr-depth-system-read',depthChart,'Depth');
 assert((await depth.textContent()).includes(depthSource.sample_reads[0].vantage_gap.statement), 'Depth recorded perspective gap not visible');
 await assertAuthoredSections(depth,depthSource,'Depth');
@@ -291,6 +303,7 @@ for (const [where, font] of Object.entries(afterTypography)) {
 const standaloneHtml = await page.evaluate(artifact => window.MondermanReport.buildReportHtml(window.MondermanPublicSamples.model(artifact.outputs.cross_lens_synthesis,artifact)),artifact);
 const standalone = await browser.newPage({ viewport: { width: 1100, height: 1000 } });
 await loadStandalone(standalone, standaloneHtml);
+await assertFinancialReadingOrder(standalone,crossSource,'.mr-system-read','Standalone Cross-Lens');
 assert(await standalone.locator('.mr-cover').isVisible(), 'standalone report cover missing');
 assert((await standalone.locator('.mr-cover-score').textContent()).trim() === crossScore, 'standalone Cross-Lens score differs from recorded value');
 assert(await standalone.locator('.mr-cover .mr-cover-boundary').isVisible(), 'standalone cover interpretation boundary missing');
@@ -411,6 +424,7 @@ const compactSynthesisExpected = {
 for (const [key, html] of Object.entries(synthesisHtml)) {
   const synthesisPage = await browser.newPage({ viewport:{ width:1440, height:1100 } });
   await loadStandalone(synthesisPage, html);
+  await assertFinancialReadingOrder(synthesisPage,key==='cross_lens'?crossSource:depthSource,key==='cross_lens'?'.mr-system-read':'.mr-depth-system-read',key+' standalone');
   const primaryVisual = key === 'cross_lens'
     ? synthesisPage.locator('svg[aria-label="Four Diagnostic lenses connected to the equal-lens Cross-Lens Composite Score"]')
     : synthesisPage.locator('svg[aria-label="Depth Synthesis score distribution"]');
