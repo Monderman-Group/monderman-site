@@ -61,6 +61,14 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]].filter(([en
     else if(url.pathname==='/api/campaign-analysis/fixture-org')payload={ok:true,campaigns:[],scopes:[]};
     else if(url.pathname==='/api/synthesis-runs')payload={ok:true,syntheses:[]};
     else if(url.pathname==='/api/workspace/members')payload={ok:true,members:[{user_id:'fixture-other',name:'Alexandertheverylongunbrokenfirstname Morgan',email:'fixture@example.invalid'}]};
+    else if(url.pathname==='/api/billing/commercial-status'){
+     assert.equal(url.searchParams.get('organization_id'),'fixture-org');
+     assert.equal(request.headers().authorization,'Bearer fixture-token');
+     assert.equal(request.headers()['x-monderman-organization-id'],'fixture-org');
+     // This existing 50-response / 10-Synthesis fixture predates the annual
+     // offer. A null commercial record preserves its actual legacy terms.
+     payload={ok:true,commercial:null,nextInstallmentAt:null,testMode:true};
+    }
     else if(url.pathname==='/api/account/workspace-deletion'){assert.equal(url.searchParams.get('organization_id'),'fixture-org');payload={ok:true,request:null};}
     else if(/^\/api\/runs\/fixture-[0-3]\/report$/.test(url.pathname))payload={ok:true,result:{priority_actions_json:['Clarify the handoff between teams before expanding this process.']}};
     else {unexpected.push('GET '+url.pathname);return route.abort();}
@@ -73,7 +81,11 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]].filter(([en
   const response=await page.goto(`${base}/workspace-${name}.html`,{waitUntil:'networkidle'});
   assert.equal(response.status(),200,`Missing ${name} artifact`);
   await page.addStyleTag({content:'*,*::before,*::after{transition:none!important;animation:none!important}'});
-  if(name==='settings')await page.locator('#membersBody .lrow').first().waitFor();
+  if(name==='settings'){
+   await page.locator('#membersBody .lrow').first().waitFor();
+   await page.waitForFunction(()=>document.querySelector('#billingSummary')?.textContent==='This Workspace uses its existing plan terms. No new annual offer has been applied.');
+   assert.equal(await page.locator('#cancelAnnualRenewal').isVisible(),false,'Legacy fixture cannot expose annual-offer cancellation');
+  }
   if(name==='actions'){
    await page.locator('.ai-card').first().waitFor();
    await page.locator('#btnImportFindings').click();
