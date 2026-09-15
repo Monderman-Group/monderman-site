@@ -117,13 +117,13 @@ def validate():
     assert_no_drafting_markers(privacy, "Privacy Notice")
     terms = (ROOT / "terms.html").read_text(errors="ignore")
     require(terms, [
-        "Version 2026-09-09-beta", "affirmative agreement", "Terms version",
+        "Version 2026-09-15-annual-plans", "affirmative agreement", "Terms version",
         "Privacy Notice version", "database-server timestamp", "source/context",
         "normalized account email verified at acceptance", "organization name verified at acceptance",
         "seven-year legal-acceptance retention period",
         "Monderman, LLC", "a South Dakota limited liability company", "41 W Highway 14, Unit #1225", "Spearfish, SD 57783", "requires no payment card, ends automatically",
         "does not convert to a paid subscription", "non-refundable except where applicable law requires",
-        "Cancellation prevents a future renewal", "“as is” and “as available”",
+        "Cancellation stops future renewal, not installments owed for the current annual commitment", "“as is” and “as available”",
         "12 months immediately preceding", "US $100 if the claim relates only to free beta use",
         "courts serving Madison County, Alabama", "do not require mandatory arbitration",
         "payment-card data into Diagnostic fields", "biometric identifiers", "children's data",

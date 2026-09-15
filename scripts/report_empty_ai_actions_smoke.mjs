@@ -22,7 +22,7 @@ assert.equal(fixtures.length,6);
 const freeze=value=>{if(value&&typeof value==='object'){Object.freeze(value);Object.values(value).forEach(freeze);}return value;};
 const state=(recommendations,status='complete')=>({status,message:'Synthetic '+status,report:{model:'synthetic-display-only',composition:{reviewed_version:'report-reviewed-capabilities-20260909.1'},interpretation:{summary:'SAVED_FACTS_ONLY',observations:[{text:'Two submitted runs do not establish two distinct people.'}],recommendations},limitations:['No population conclusion.']}});
 const action={action:'Review the recorded approval steps.',reason:'Check the saved responses first.',prerequisite:'Use only the recorded process.',risk:'Do not remove necessary controls.',success_check:'Check the same bounded work.'};
-const historicalAttribution='This saved edition uses reviewed explanations selected by Claude and inserted by Monderman.';
+const historicalAttribution='This saved edition uses reviewed explanations selected with AI assistance and inserted by Monderman.';
 const emptyCases=[undefined,null,[],[null],['not an action'],[{}],[{action:null}],[{action:25}],[{action:''}],[{action:' \t\n '}],[{method:'Method without an action'}]];
 const make=(fixture,ai)=>({...R[fixture.kind==='run'?'fromRun':'fromSynthesis'](fixture.raw),aiReport:ai});
 const render=(fixture,ai)=>{const model=freeze(make(fixture,ai)),before=JSON.stringify(model),html=R.buildReportHtml(model);assert.equal(JSON.stringify(model),before,'render mutated saved input');return {model,html};};

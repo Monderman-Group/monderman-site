@@ -5,7 +5,7 @@ import re
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TERMS_VERSION = "2026-09-09-beta"
+TERMS_VERSION = "2026-09-15-annual-plans"
 PRIVACY_VERSION = "2026-09-12-ai-source-evidence-v2"
 PUBLISHED_PRIVACY_VERSION = "2026-09-12-ai-source-evidence-v2"
 PUBLISHED_PRIVACY_SHA256 = "41e4ef0367e55a4bff255934c42ea14b4b4e49a69dca78e4f14357f08bc2e3cc"
@@ -103,7 +103,7 @@ def validate():
         "The Customer is responsible for activity by its Admins, Analysts, Members",
         "Circumvention is a material breach",
         "The Pattern beta trial does not convert automatically.",
-        "Monderman will not impose an undisclosed usage charge.",
+        "These safeguards do not create an undisclosed usage charge.",
         "For 30 days after termination of a paid subscription",
         "The Customer will defend, indemnify and hold harmless Monderman",
         "This obligation does not apply to the extent a claim is caused by Monderman's breach",
@@ -218,6 +218,10 @@ def validate():
             ("terms_file", "terms_file_sha256"),
             ("privacy_notice_file", "privacy_notice_file_sha256")
         ]:
+            if version == TERMS_VERSION and file_key == "privacy_notice_file":
+                if file_key in files or hash_key in files:
+                    raise AssertionError("Terms-only update must not reissue unchanged Privacy")
+                continue
             if version in {PRIVACY_VERSION, PUBLISHED_PRIVACY_VERSION} and file_key == "terms_file":
                 if file_key in files or hash_key in files:
                     raise AssertionError("Privacy-only update must not reissue unchanged Terms")
@@ -295,7 +299,7 @@ def validate():
         "This check can occur even when no interpretation is generated"
     ], "v2 source evidence, separate permission and request-size disclosure")
     require(terms, [
-        "AI-assisted Diagnostic and Synthesis interpretation uses third-party language models when enabled.",
+        "AI-assisted Diagnostic and Synthesis interpretation uses Anthropic as a third-party model provider when enabled.",
         "Automated validation is not expert review.",
         "The Customer must review it before relying on or sharing it",
         "no-training does not mean zero retention."
@@ -309,7 +313,7 @@ def validate():
         "When AI-assisted reporting is enabled",
         "The interpretation does not change the saved score.",
         "Monderman's diagnostic engine produces the scores, classifications, evidence limits and available action options.",
-        "Claude supports research and writes the explanation from authorized evidence within those rules.",
+        "Anthropic’s AI supports research and writes the explanation from authorized evidence within those rules.",
         "they do not establish scientific validity or guarantee an outcome.",
         "A bounded selection of permitted participant observations",
         "Synthesis of your own saved runs can include selected original structured answers",

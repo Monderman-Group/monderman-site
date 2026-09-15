@@ -33,7 +33,7 @@ for(const [key,entry] of Object.entries(artifact.outputs)){
     check(html.includes('mr-report-method'),key+': methods remain available');
   }
   const historical=R.buildReportHtml({...model,sampleProvenance:undefined,aiReport:{...structuredClone(mock),report:{...structuredClone(mock.report),composition:{reviewed_version:'report-reviewed-capabilities-20260909.1'}}}});
-  check(historical.includes('This saved edition uses reviewed explanations selected by Claude and inserted by Monderman.'),key+': historical authorship is not rewritten');
+  check(historical.includes('This saved edition uses reviewed explanations selected with AI assistance and inserted by Monderman.'),key+': historical selection-only authorship remains truthful without model branding');
   check(!historical.includes(attribution),key+': old selection-only edition does not claim new authored output');
 }
 console.log(JSON.stringify({status:'PASS',assertions,products:Object.keys(artifact.outputs).length,providerCalls:0,fixture:'legacy public inputs, mock prose; display only'}));

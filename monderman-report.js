@@ -1596,7 +1596,7 @@
   }
 
   // Saved evidence, not model-selected emphasis. These qualifications must
-  // remain visible even when Claude selects different observations/actions.
+  // remain visible even when AI selects different observations/actions.
   function buildAIRecordedContext(report) {
     const facts = arr(report.evidence).map(obj);
     const missing = facts.filter(f=>f.provenance==='deterministic_coverage' && f.value==='Not measured' && typeof f.label==='string' && f.label.endsWith(' evidence coverage'));
@@ -1676,7 +1676,7 @@
       paragraphs(arr(report.limitations).concat(arr(interpretation.limitations)),'Limits of this interpretation') +
       (firstStr(obj(report.benchmark).explanation) ? '<h3>Sector comparison</h3><p>'+esc(report.benchmark.explanation)+'</p>' : '') +
       (sources.length ? '<div class="mr-ai-sources' + (sources.reduce((total, source) => total + [source.title, source.publisher, source.reviewed].reduce((n, value) => n + String(value || '').length, 0), 0) <= 1200 ? ' mr-ai-sources-bounded' : '') + '"><h3>External practice sources</h3><ul>'+sources.map(source=>'<li><a href="'+esc(source.url)+'" target="_blank" rel="noopener noreferrer">'+esc(source.title)+'</a>. '+esc(source.publisher)+'. Reviewed '+esc(source.reviewed)+'. Practice guidance, not a Monderman peer benchmark.</li>').join('')+'</ul></div>' : '') +
-      '<p class="mr-method-copy">The Monderman diagnostic engine produced this report’s scores, classifications and evidence limits. '+(reviewedSelection?'This saved edition uses reviewed explanations selected by Claude and inserted by Monderman. ':'Claude assisted with the interpretation within the saved report’s evidence limits. ')+'It did not determine the score.'+[["Interpretation version",report.version],["Prepared",report.generated_at],["Evidence reference",report.snapshot_id]].filter(row=>firstStr(row[1])).map(row=>' '+row[0]+': '+esc(row[1])+'.').join('')+'</p></section>';
+      '<p class="mr-method-copy">The Monderman diagnostic engine produced this report’s scores, classifications and evidence limits. '+(reviewedSelection?'This saved edition uses reviewed explanations selected with AI assistance and inserted by Monderman. ':'AI assisted with the interpretation within the saved report’s evidence limits. ')+'It did not determine the score.'+[["Interpretation version",customerReportVersion(report.version)],["Prepared",report.generated_at],["Evidence reference",report.snapshot_id]].filter(row=>firstStr(row[1])).map(row=>' '+row[0]+': '+esc(row[1])+'.').join('')+'</p></section>';
   }
 
   // Display attribution only when the saved evidence row and the closed source
@@ -1941,7 +1941,7 @@
     const research=obj(report.research_context),checked=firstStr(research.checked_at,research.checkedAt),date=checked&&Number.isFinite(Date.parse(checked))?new Date(checked).toISOString().slice(0,10):'';
     const researchText=['fresh','reviewed'].includes(research.status)?'Public-source research checked '+date+'. Sources inform the options; they do not establish how this organization performs.':research.status==='no_current_sources'?'A public-source search was completed on '+date+', but it did not produce suitable current evidence for this report.':research.status==='stale'?'The available research snapshot is dated '+date+'. It is outside the current research window and was not added as fresh guidance.':'No newly checked public-source research is included. Any listed practice sources are dated references, not a current sector benchmark.';
     const methodExplanation='Monderman’s diagnostic engine produces the scores and determines which findings and recommendations the evidence supports. AI contributes research and explanation within those rules. Automated checks and a separate AI review check the interpretation against its supporting evidence before publication.';
-    const methodProvenance='Prepared '+String(report.generated_at??'')+'. Model '+String(report.model??'')+'. Report version '+String(report.version??'')+'. This report preserves the evidence and research used when it was prepared.';
+    const methodProvenance='Prepared '+String(report.generated_at??'')+'. Report version '+String(customerReportVersion(report.version)??'')+'. This report preserves the evidence and research used when it was prepared.';
     const boundedMethod=boundedPrint('How Monderman produced this interpretation\n'+methodExplanation+'\n'+methodProvenance);
     const sourcePrintText=s=>String(s.title??'')+(s.publisher?' · '+s.publisher:'')+(s.published?' · Published '+s.published:'')+(s.reviewed?' · Checked '+s.reviewed:'');
     const content='<section class="mr-section mr-ai-interpretation mr-authored-report"><h2>Interpretation and next steps</h2><p class="mr-executive-read">'+esc(interpretation.summary)+'</p>'+support({evidence_ids:obj(report.evidence_references).summary,source_ids:obj(report.evidence_references).summary_sources})+buildAIRecordedContext(report)+
@@ -2895,6 +2895,33 @@
 
   function downloadPdf(model) { openReport(model); } // print-to-PDF from the opened report
 
+  // Public metadata aliases retain the original edition number. Provider/model
+  // and usage identifiers stay in the private audit, not customer downloads.
+  function customerReportVersion(value) {
+    return typeof value === 'string' ? value.replace(/^[a-z]+\d+-(?:engine-bounded-)?report-/, 'monderman-interpretation-')
+      .replace(/^report-interpretation-[a-z]+\d+-/, 'monderman-interpretation-prompt-') : value;
+  }
+  function customerReportJson(value) {
+    const copy = JSON.parse(safeStringify(value));
+    const state = ai => {
+      if (!ai || typeof ai !== 'object') return;
+      if (Object.prototype.hasOwnProperty.call(ai, 'version')) ai.version = customerReportVersion(ai.version);
+      const report = ai.report;
+      if (!report || typeof report !== 'object') return;
+      delete report.model; delete report.provider; delete report.usage;
+      for (const key of ['version', 'prompt_version']) if (Object.prototype.hasOwnProperty.call(report, key)) report[key] = customerReportVersion(report[key]);
+      if (report.automated_review) report.automated_review = {verdict: report.automated_review.verdict};
+      report.customer_metadata_version = 'customer-report-metadata-20260915.1';
+    };
+    const visit = node => {
+      if (!node || typeof node !== 'object') return;
+      if (Array.isArray(node)) { node.forEach(visit); return; }
+      for (const key of ['ai_report', 'aiReport']) if (Object.prototype.hasOwnProperty.call(node, key)) state(node[key]);
+      for (const key of ['result', 'run', 'result_json', 'full_result_json', 'render_payload', 'renderPayload', 'report_payload', 'export_payload', 'runs', 'syntheses']) if (Object.prototype.hasOwnProperty.call(node, key)) visit(node[key]);
+    };
+    visit(copy); return copy;
+  }
+
   function safeStringify(o) {
     const seen = new WeakSet();
     return JSON.stringify(o, function (k, v) {
@@ -2905,7 +2932,7 @@
 
   function downloadJson(rawResult, filenameBase) {
     const data = (rawResult && rawResult.export_payload) ? rawResult.export_payload : rawResult;
-    const blob = new Blob([safeStringify(data)], { type: "application/json;charset=utf-8" });
+    const blob = new Blob([safeStringify(customerReportJson(data))], { type: "application/json;charset=utf-8" });
     triggerDownload(blob, "monderman-" + slug(filenameBase || "result") + ".json");
   }
 
@@ -2933,6 +2960,7 @@
     createArtifact: createArtifact,
     render: render,
     buildAIInterpretation: buildAIInterpretation,
+    customerReportJson: customerReportJson,
     mountAIInterpretation: mountAIInterpretation,
     reserveReportWindow: reserveReportWindow,
     closeReservedReportWindow: closeReservedReportWindow,

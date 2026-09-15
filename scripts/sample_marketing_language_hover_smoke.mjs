@@ -30,6 +30,36 @@ assert.ok(recordedBurdens.length>0);
 const rows=[],screenshots=[];let checks=0,blockedRemoteRequests=0;
 const check=(value,message)=>{assert.ok(value,message);checks++;};
 const equal=(a,b,message)=>{assert.deepEqual(a,b,message);checks++;};
+const guideRequirements=[
+  'An individual report explains one participant’s result',
+  'A single run does not estimate organizational exposure, recovery or ROI',
+  'those responses do not become several independent participants',
+  'compares eligible included responses to the same diagnostic within a defined scope',
+  'keeping each result visible',
+  'A combined score appears only when the inputs meet Monderman’s comparison requirements',
+  'Separate cost scenarios require operational measurements, change and adoption assumptions, and explicit costs',
+  'capacity value is not cash savings',
+];
+function assertReadingGuide(value){
+  const text=value.replace(/\s+/g,' ');
+  for(const phrase of guideRequirements)assert.ok(text.includes(phrase),'Reading guide preserves scope: '+phrase);
+  assert.doesNotMatch(text,/preserve the current|bounded burden|declared coherence controls|fictional/i,'Reading guide avoids internal template descriptions');
+}
+const guideHtml=fs.readFileSync(path.join(root,'sample-report.html'),'utf8').match(/<details class="sample-library-method">[\s\S]*?<\/details>/)?.[0];
+check(Boolean(guideHtml),'Actual reading guide exists');
+const sourceGuide=guideHtml.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ');
+assertReadingGuide(sourceGuide);checks++;
+for(const phrase of guideRequirements){
+  assert.throws(()=>assertReadingGuide(sourceGuide.replace(phrase,'removed boundary')),/Reading guide preserves scope/);checks++;
+}
+for(const bad of ['preserve the current','bounded burden','declared coherence controls','fictional']){
+  assert.throws(()=>assertReadingGuide(sourceGuide+' '+bad),/Reading guide avoids/);checks++;
+}
+if(process.argv.includes('--copy-only')){
+  for(const [file,hash]of Object.entries(sourceHashes))equal(sha(fs.readFileSync(path.join(root,file))),hash,'Static guide test leaves source unchanged');
+  console.log(JSON.stringify({status:'COPY_ONLY_PASS',checks,readingGuideRequirements:guideRequirements.length,negativeGuideCases:12,browserStates:0,networkRequests:0}));
+  process.exit(0);
+}
 const types={'.html':'text/html','.css':'text/css','.js':'text/javascript','.json':'application/json','.svg':'image/svg+xml',
   '.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.ico':'image/x-icon','.woff':'font/woff','.woff2':'font/woff2'};
 globalThis.fetch=()=>{throw Error('This local-only test does not use network fetch');};
@@ -136,10 +166,7 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     await readingGuide.locator('summary').focus();await page.keyboard.press('Enter');
     check(await readingGuide.getAttribute('open')!==null,key+' reading guide opens from keyboard');
     const guideText=await readingGuide.innerText();
-    check(guideText.includes('An individual report explains one participant’s result'),key+' guide explains the individual report');
-    check(guideText.includes('compares included responses to the same diagnostic within a defined campaign'),key+' guide explains Depth Synthesis');
-    check(guideText.includes('keeping each result visible')&&guideText.includes('comparison requirements'),key+' guide preserves Cross-Lens score conditions');
-    check(!/preserve the current|bounded burden|declared coherence controls|fictional/i.test(guideText),key+' guide avoids internal template descriptions');
+    assertReadingGuide(guideText);checks++;
     await contained(page,'.sample-library-method',key+' expanded reading guide');
     await shot(readingGuide,key+'-reading-guide.png');
     await readingGuide.locator('summary').focus();await page.keyboard.press('Enter');

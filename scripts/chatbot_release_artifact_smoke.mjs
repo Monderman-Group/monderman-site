@@ -31,7 +31,7 @@ assert.deepEqual(manifest, JSON.parse(await readSource("legal-document-manifest.
 assert.equal(manifest.file_hash_scope, "repository_source_html"); checks++;
 const recordedArchives = Object.values(manifest.documents).flatMap(files =>
   [files.terms_file, files.privacy_notice_file].filter(Boolean)).sort();
-const archiveNames = entries => entries.filter(name => /^(?:terms|privacy)-\d{4}-\d{2}-\d{2}-(?:beta|optional-measurement-v1|ai-evidence-v1|ai-source-evidence-v2)\.html$/.test(name)).sort();
+const archiveNames = entries => entries.filter(name => /^(?:terms|privacy)-\d{4}-\d{2}-\d{2}-(?:beta|optional-measurement-v1|ai-evidence-v1|ai-source-evidence-v2|annual-plans)\.html$/.test(name)).sort();
 assert.deepEqual(recordedArchives, archiveNames(await readdir(sourceRoot)), "every source legal edition is pinned"); checks++;
 assert.deepEqual(recordedArchives, archiveNames(await readdir(root)), "every pinned legal edition is built"); checks++;
 for (const files of Object.values(manifest.documents)) {
@@ -46,9 +46,9 @@ for (const files of Object.values(manifest.documents)) {
     assert.equal(archivedContent(html, name),archivedContent(source, name), `${name}: built legal content is byte-for-byte unchanged`); checks++;
   }
 }
-assert.equal(manifest.terms_version,"2026-09-09-beta"); checks++;
+assert.equal(manifest.terms_version,"2026-09-15-annual-plans"); checks++;
 assert.equal(manifest.privacy_notice_version,"2026-09-12-ai-source-evidence-v2"); checks++;
-assert.deepEqual(manifest.required_acknowledgement,{terms_version:"2026-09-09-beta",privacy_notice_version:"2026-09-12-ai-source-evidence-v2"}); checks++;
+assert.deepEqual(manifest.required_acknowledgement,{terms_version:"2026-09-15-annual-plans",privacy_notice_version:"2026-09-12-ai-source-evidence-v2"}); checks++;
 assert.equal(manifest.published_privacy_notice_version,"2026-09-12-ai-source-evidence-v2"); checks++;
 assert.equal(manifest.published_privacy_notice_file,"privacy-2026-09-12-ai-source-evidence-v2.html"); checks++;
 for (const page of ["index.html","privacy.html","security.html","pilot.html"]) {

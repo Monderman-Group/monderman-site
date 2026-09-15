@@ -135,23 +135,23 @@ with tempfile.TemporaryDirectory(prefix="monderman-cert-sensitivity-") as temp:
         ),
         ["about.html"],
     )
-    published_privacy_archive = "privacy-2026-09-10-optional-measurement-v1.html"
-    for icon in ["favicon.svg", "favicon.ico", "favicon-192.png", "apple-touch-icon.png"]:
-        expect_rejection(
-            fixture,
-            f"published Privacy archive missing {icon}",
-            f"{published_privacy_archive}: real favicon link is missing or duplicated: {icon}?v=20260830-cert1",
-            lambda icon=icon: rewrite(
-                fixture / published_privacy_archive,
-                lambda value: re.sub(
-                    r'<link\b[^>]*href="' + re.escape(icon) + r'\?v=20260830-cert1"[^>]*>',
-                    "",
-                    value,
-                    count=1,
+    for published_archive in ["privacy-2026-09-10-optional-measurement-v1.html", "terms-2026-09-15-annual-plans.html"]:
+        for icon in ["favicon.svg", "favicon.ico", "favicon-192.png", "apple-touch-icon.png"]:
+            expect_rejection(
+                fixture,
+                f"published legal archive {published_archive} missing {icon}",
+                f"{published_archive}: real favicon link is missing or duplicated: {icon}?v=20260830-cert1",
+                lambda icon=icon: rewrite(
+                    fixture / published_archive,
+                    lambda value: re.sub(
+                        r'<link\b[^>]*href="' + re.escape(icon) + r'\?v=20260830-cert1"[^>]*>',
+                        "",
+                        value,
+                        count=1,
+                    ),
                 ),
-            ),
-            [published_privacy_archive],
-        )
+                [published_archive],
+            )
     expect_rejection(
         fixture,
         "commented print contract",

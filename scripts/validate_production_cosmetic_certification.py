@@ -177,9 +177,9 @@ for path in html_files:
     links = [attrs for tag, attrs in document.head_tags if tag == "link"]
     if path.name == "after-the-first-lap.html":
         continue
-    # The published Privacy archive retains its source edition's legal favicon
-    # cache family. Keep all four real-link checks active for this archive.
-    if path.name in {"privacy.html", "terms.html", "privacy-2026-09-10-optional-measurement-v1.html", "privacy-2026-09-11-ai-evidence-v1.html", "privacy-2026-09-12-ai-source-evidence-v2.html"}:
+    # Published legal editions retain their source edition's favicon cache
+    # family. Keep all four real-link checks active for every listed edition.
+    if path.name in {"privacy.html", "terms.html", "terms-2026-09-15-annual-plans.html", "privacy-2026-09-10-optional-measurement-v1.html", "privacy-2026-09-11-ai-evidence-v1.html", "privacy-2026-09-12-ai-source-evidence-v2.html"}:
         favicon_cache_key = "20260830-cert1"
     elif path.name in protected_favicon_pages:
         favicon_cache_key = "20260903-map1"

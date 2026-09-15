@@ -310,7 +310,7 @@ if (fs.existsSync(controlledFixturePath)) {
   assert.equal(model.band, "Compounding", "controlled saved result band changed");
   assert.match(html, /Decision Velocity: Executive Report/, "canonical instrument name missing from controlled saved report");
   assert.match(html, /<section[^>]* class="mr-section mr-ai-interpretation"[^>]*><h2>Interpretation and next steps<\/h2>/, "accepted AI sidecar did not render under the current heading");
-  assert.match(html, /The Monderman diagnostic engine produced this report’s scores, classifications and evidence limits\. Claude assisted with the interpretation within the saved report’s evidence limits\. It did not determine the score\./, "current AI attribution and engine-score boundary are not readable");
+  assert.match(html, /The Monderman diagnostic engine produced this report’s scores, classifications and evidence limits\. AI assisted with the interpretation within the saved report’s evidence limits\. It did not determine the score\./, "current AI attribution and engine-score boundary are not readable");
   assert.match(html, /Decision timing/, "controlled saved dimension label is not readable");
   assert.doesNotMatch(html, /Modeled recovery scenario|class="mr-exposure-flow"|\$720/, "controlled saved report still exposes the retired financial section");
   assert.match(html, /works but drags/, "actual accepted AI summary was silently rewritten");

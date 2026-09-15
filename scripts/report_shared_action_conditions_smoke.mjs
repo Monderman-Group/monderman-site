@@ -40,7 +40,26 @@ for(const row of cases){const before=JSON.stringify(row.value);row.html=Report.b
 // Exact rendered .30 baselines independently captured from committed SITE
 // a91f72d97691779281615b0630f6454b0cdd2c7e. No historical Git checkout is needed in CI.
 const legacy=cases.find(c=>c.legacy).value.ai_report;
-equal(sha(Report.buildAIInterpretation(legacy)),'d8c5268946d1ad73add35d9d15a54cc5f369b3061ac04bb4dbbf1ac40c287166','Historical path byte-identical');
+const legacyAttribution='This saved edition uses reviewed explanations selected with AI assistance and inserted by Monderman. ';
+const historicalAttribution='This saved edition uses reviewed explanations selected by Claude and inserted by Monderman. ';
+function assertLegacyOutput(html){
+  // The separately approved customer-metadata change removes the provider name
+  // from this exact method sentence only. Keep the original .30 golden hash:
+  // no action, prerequisite, risk, success check or saved prose may be rebased.
+  equal(html.split(legacyAttribution).length,2,'One approved model-neutral legacy attribution');
+  equal(html.includes(historicalAttribution),false,'No legacy provider attribution leaks');
+  equal(sha(html.replace(legacyAttribution,historicalAttribution)),'d8c5268946d1ad73add35d9d15a54cc5f369b3061ac04bb4dbbf1ac40c287166','Historical path byte-identical except approved attribution');
+}
+const legacyHtml=Report.buildAIInterpretation(legacy);
+assertLegacyOutput(legacyHtml);
+for(const mutant of [
+  legacyHtml.replace(legacyAttribution,''),
+  legacyHtml.replace(legacyAttribution,historicalAttribution),
+  legacyHtml.replace(legacyAttribution,legacyAttribution+legacyAttribution),
+  legacyHtml.replace(prerequisite,'Unreviewed prerequisite.'),
+  legacyHtml.replace(risk,'Unreviewed risk.'),
+  legacyHtml.replace('MOCK distinct success check 1.','Unreviewed success check.')
+]){assert.throws(()=>assertLegacyOutput(mutant));assertions++;}
 const withOptions=cases[0].value.ai_report,optionMarkup=html=>html.match(/<div class="mr-report-options">([\s\S]*?)<\/div><p class="mr-not-yet">/)[1];
 equal(sha(optionMarkup(Report.buildAIInterpretation(withOptions))),'3aaa1e8e0ed0ab6bb167c1c09df84788c4c1d75e221c421c65de0a8bdea2ed91','Action options byte-identical');
 const receipt={mockOnly:true,rendererSha256:sourceHash,layouts:[],screens:[],errors:[],providerCalls:0,pdfs:0,passed:false};
