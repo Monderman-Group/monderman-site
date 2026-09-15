@@ -32,7 +32,7 @@
       if (p.synthetic !== true || !Number.isFinite(Date.parse(p.generated_at))) throw new Error("Sample origin is not recorded: " + key);
       if (!sha256(p.input_sha256) || !sha256(p.result_sha256) || !sha256(p.approved_output_sha256)) throw new Error("Sample evidence references are missing: " + key);
       const ai = object(result.ai_report), report = object(ai.report);
-      if (ai.status !== "complete" || !object(report.interpretation).summary || !report.model || !report.generated_at) throw new Error("Reviewed sample interpretation is unavailable: " + key);
+      if (ai.status !== "complete" || !object(report.interpretation).summary || !(report.model || report.customer_metadata_version === 'customer-report-metadata-20260915.1') || !report.generated_at) throw new Error("Reviewed sample interpretation is unavailable: " + key);
       generationProvenance(entry);
     }
     return artifact;

@@ -33,7 +33,7 @@ check(True, "full protective legal validation")
 check(published == read_text(archive_path), "published edition has an exact archive")
 check(hashlib.sha256(ack.encode()).hexdigest() == "b8d0279861a5ab30f9e1c2875d8237c9fb6df92abf02982e309092c3fc138185", "mandatory acknowledged edition remains byte-identical")
 check(manifest["privacy_notice_content_sha256"] == manifest["published_privacy_notice_content_sha256"], "approved AI-evidence edition is both the publication and next required notice")
-check(manifest["required_acknowledgement"] == {"terms_version": "2026-09-09-beta", "privacy_notice_version": "2026-09-12-ai-source-evidence-v2"}, "Terms unchanged; next Privacy version explicitly pinned, not a fabricated acceptance")
+check(manifest["required_acknowledgement"] == {"terms_version": "2026-09-15-annual-plans", "privacy_notice_version": "2026-09-12-ai-source-evidence-v2"}, "New annual Terms are explicit; Privacy remains the reviewed source-evidence edition, not a fabricated acceptance")
 check(hashlib.sha256(read_text(v1_path).encode()).hexdigest() == "9286991d6f104c50a401fb4f987bdd751523e74d3fda713ceab17b5fdf49f460", "prior AI evidence v1 edition remains byte-identical")
 
 
@@ -73,7 +73,7 @@ def changed_manifest(**changes):
 
 
 rejects("new processing cannot retain the older required acknowledgement", {
-    manifest_path: changed_manifest(required_acknowledgement={"terms_version": "2026-09-09-beta", "privacy_notice_version": "2026-09-10-beta"})
+    manifest_path: changed_manifest(required_acknowledgement={"terms_version": "2026-09-15-annual-plans", "privacy_notice_version": "2026-09-10-beta"})
 })
 rejects("legacy required-version field must agree with the reviewed edition", {
     manifest_path: changed_manifest(privacy_notice_version="2026-09-10-beta")
@@ -92,7 +92,7 @@ v1_documents = json.loads(json.dumps(manifest["documents"]))
 v1_documents["2026-09-11-ai-evidence-v1"]["privacy_notice_file_sha256"] = hashlib.sha256(changed_v1.encode()).hexdigest()
 rejects("editing the v1 archive and its manifest pin cannot pass", {v1_path: changed_v1, manifest_path: changed_manifest(documents=v1_documents)})
 rejects("v2 publication cannot silently retain the v1 required edition", {
-    manifest_path: changed_manifest(required_acknowledgement={"terms_version": "2026-09-09-beta", "privacy_notice_version": "2026-09-11-ai-evidence-v1"})
+    manifest_path: changed_manifest(required_acknowledgement={"terms_version": "2026-09-15-annual-plans", "privacy_notice_version": "2026-09-11-ai-evidence-v1"})
 })
 changed_ack = ack.replace("This is not a zero-retention arrangement.", "This is a zero-retention arrangement.")
 documents = json.loads(json.dumps(manifest["documents"]))

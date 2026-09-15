@@ -49,13 +49,13 @@
     .panel.err{background:#FBEBE9;border:1px solid rgba(170,50,40,.3);color:#7A2A22;}
     .panel a{color:inherit;font-weight:600;}
     .workspace-choice{margin:16px 0 0;padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:#FCFBF8}.workspace-choice label{display:block;margin-bottom:7px;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--deep)}.workspace-choice select{width:100%;padding:10px 11px;border:1px solid #D8D4CA;border-radius:8px;background:#fff;color:var(--ink);font:500 14px 'Neue Haas Grotesk',sans-serif}.workspace-choice p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink)}
-    .billing-contact{margin:16px 0 0;padding:14px;border:1px solid var(--line);border-radius:10px;background:#FCFBF8}.billing-contact h2{margin:0 0 4px;color:var(--deep);font-size:14px}.billing-contact>p{margin:0 0 12px;color:#6E6F73;font-size:12.5px;line-height:1.5}.billing-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.billing-field{display:grid;gap:5px}.billing-field.email{grid-column:1/-1}.billing-field label{color:var(--deep);font-size:11.5px;font-weight:700}.billing-field input,.billing-field select{width:100%;min-width:0;padding:10px 11px;border:1px solid #D8D4CA;border-radius:8px;background:#fff;color:var(--ink);font:500 14px 'Neue Haas Grotesk',sans-serif}.billing-field input:focus,.billing-field select:focus{outline:2px solid rgba(12,110,120,.22);border-color:var(--accent)}.billing-field input:invalid:not(:placeholder-shown){border-color:#A33A32}.billing-field small{color:#62686C;font-size:12px;line-height:1.4}
-    @media(max-width:520px){.billing-grid{grid-template-columns:1fr}.billing-field.email{grid-column:auto}}
+    .billing-contact{margin:16px 0 0;padding:14px;border:1px solid var(--line);border-radius:10px;background:#FCFBF8}.billing-contact h2{margin:0 0 4px;color:var(--deep);font-size:14px}.billing-contact>p{margin:0 0 12px;color:#6E6F73;font-size:12.5px;line-height:1.5}.billing-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px 10px}.billing-field{display:flex;flex-direction:column;min-width:0;gap:5px}.billing-field.email{grid-column:1/-1}.billing-field label{min-height:2.8em;color:var(--deep);font-size:11.5px;line-height:1.4;font-weight:700}.billing-field input,.billing-field select{flex:none;width:100%;min-width:0;height:46px;min-height:44px;padding:10px 11px;border:1px solid #D8D4CA;border-radius:8px;background:#fff;color:var(--ink);font:500 16px/1.4 'Neue Haas Grotesk',sans-serif}.billing-field input:focus,.billing-field select:focus{outline:2px solid rgba(12,110,120,.22);border-color:var(--accent)}.billing-field input:invalid:not(:placeholder-shown){border-color:#A33A32}.billing-field small{color:#62686C;font-size:12px;line-height:1.4}
+    @media(max-width:520px){.billing-grid{grid-template-columns:1fr}.billing-field.email{grid-column:auto}.billing-field label{min-height:1.4em}}
     .muted-note{margin-top:26px;text-align:center;font-size:12.8px;color:#6E6F73;}
     .muted-note a{color:var(--accent);text-decoration:none;font-weight:500;}
   </style>
   <link rel="stylesheet" href="visual-polish.css?v=20260823-4">
-<link rel="stylesheet" href="assets/brand/brand-lockup.css?v=20260909-gradient1">
+<link rel="stylesheet" href="assets/brand/brand-lockup.css?v=20260915.annual1">
 </head>
 <body class="transaction-surface">
   <header>
@@ -69,7 +69,7 @@
       <div class="price" id="priceLine"></div>
       <p class="billing-line" id="billingLine"></p>
       <ul class="inc" id="incList"></ul>
-      <div class="seatline"><strong>No per-participant pricing.</strong> Signal includes 50 completed participant responses and 12 Syntheses a year. Pattern includes 500 completed participant responses and unlimited Syntheses. Self-runs are unlimited on both tiers and do not draw on the participant-response allowance.</div>
+      <div class="seatline"><strong>No per-participant pricing.</strong> Signal includes 2,400 completed participant responses and 60 new Syntheses a year. Pattern includes 6,000 completed participant responses and 300 new Syntheses. The full annual capacity is available upfront under either payment option. Self-runs by authorized Workspace users are unlimited; viewing and exporting saved reports does not use another Synthesis.</div>
       <div class="workspace-choice" id="workspaceChoice" hidden>
         <label for="organizationSelect">Workspace for this subscription</label>
         <select id="organizationSelect" hidden></select>
@@ -86,12 +86,13 @@
           <div class="billing-field email"><label for="billingEmail">Billing email</label><input id="billingEmail" name="billing_email" type="email" autocomplete="email" maxlength="320" placeholder="billing@organization.com" /><small>The welcome package and PDF invoice also go here.</small></div>
         </div>
       </section>
+      <p class="fine"><label for="annualCommitmentAccepted"><input type="checkbox" id="annualCommitmentAccepted" required /> I am authorized to purchase this 12-month subscription. I understand that monthly payments are installments of the full annual commitment, not a month-to-month plan. Cancellation stops the next annual renewal, not the installments owed for this term.</label></p>
       <button class="btn" id="payBtn" disabled>Continue to secure checkout</button>
       <div class="panel warn" id="unavailablePanel">
         Self-serve checkout is being enabled. In the meantime, request an order form and we will set your tier up by invoice: <a id="connectLink" href="connect.html">open the Connect form</a>.
       </div>
       <div class="panel err" id="errorPanel"></div>
-      <p class="fine">Full payment-card details are handled in Stripe-hosted checkout and are not received or stored by Monderman. Stripe collects the required billing address and any applicable business tax ID. Subscriptions renew automatically and can be cancelled any time from your Workspace, effective at the end of the paid period. Review the Monderman <a href="terms.html">Terms of Use</a> and <a href="privacy.html">Privacy Notice</a>; Stripe presents the checkout-specific price, billing interval, and purchase details before payment.</p>
+      <p class="fine">Full payment-card details are handled in Stripe-hosted checkout and are not received or stored by Monderman. Stripe collects the required billing address and any applicable business tax ID. New Signal and Pattern subscriptions renew annually. Turn off renewal from your Workspace before the next term; the current annual commitment remains payable. Existing subscriptions keep their agreed terms unless a new offer is accepted. Review the Monderman <a href="terms.html">Terms of Use</a> and <a href="privacy.html">Privacy Notice</a>; Stripe presents the checkout-specific price, billing interval, and purchase details before payment.</p>
     </div>
     <p class="muted-note">Prefer invoicing on a purchase order, or buying Advisory or Enterprise? <a href="connect.html">Talk to us</a>.</p>
   </main>
@@ -113,33 +114,31 @@
         name: "Signal",
         includes: [
           "All four Diagnostics: every standard depth and vantage",
-          "Unlimited self-runs: never metered",
-          "50 completed participant responses a year through Diagnostic campaigns",
-          "12 Syntheses a year across Depth Synthesis and Cross-Lens Synthesis",
+          "Unlimited self-runs for authorized Workspace users",
+          "2,400 completed participant responses a year through Diagnostic campaigns",
+          "60 new Syntheses a year across Depth Synthesis and Cross-Lens Synthesis",
           "Saved history, results library, and the over-time lens",
           "3 workspace users: 2 analysts and 1 admin",
           "Email platform support"
         ],
         prices: {
-          monthly:   { headline: "$1,000", line: "per month, billed monthly" },
-          quarterly: { headline: "$950",   line: "per month, billed quarterly: save 5%" },
-          annual:    { headline: "$850",   line: "per month, billed annually: save 15%" }
+          monthly:   { headline: "$2,000", line: "per month for 12 months: $24,000 annual commitment" },
+          annual:    { headline: "$21,600", line: "prepaid for 12 months: save 10%" }
         }
       },
       pattern: {
         name: "Pattern",
         includes: [
           "Everything in Signal",
-          "500 completed participant responses a year",
-          "Unlimited Depth Synthesis and Cross-Lens Synthesis",
+          "6,000 completed participant responses a year",
+          "300 new Syntheses a year across Depth Synthesis and Cross-Lens Synthesis",
           "Anonymous participant responses with pseudonyms and day-level timestamps",
           "7 workspace users: 5 analysts and 2 admins",
           "Priority platform support plus a one-time onboarding session"
         ],
         prices: {
-          monthly:   { headline: "$3,000", line: "per month, billed monthly" },
-          quarterly: { headline: "$2,850", line: "per month, billed quarterly: save 5%" },
-          annual:    { headline: "$2,550", line: "per month, billed annually: save 15%" }
+          monthly:   { headline: "$4,500", line: "per month for 12 months: $54,000 annual commitment" },
+          annual:    { headline: "$48,600", line: "prepaid for 12 months: save 10%" }
         }
       }
     };
@@ -149,7 +148,7 @@
     let tier = (params.get("tier") || sessionStorage.getItem("mdm_checkout_tier") || "").toLowerCase();
     let interval = (params.get("interval") || sessionStorage.getItem("mdm_checkout_interval") || "").toLowerCase();
     if (TIERS[tier]) sessionStorage.setItem("mdm_checkout_tier", tier);
-    if (["monthly","quarterly","annual"].includes(interval)) sessionStorage.setItem("mdm_checkout_interval", interval);
+    if (["monthly","annual"].includes(interval)) sessionStorage.setItem("mdm_checkout_interval", interval);
 
     let sessionReady = false;
     let organizationId = null;
@@ -157,11 +156,12 @@
       const b = document.getElementById("payBtn");
       const billingEmail = document.getElementById("billingEmail");
       const billingEmailValid = !billingEmail?.value.trim() || billingEmail.checkValidity();
-      if (b) b.disabled = !sessionReady || !billingEmailValid;
+      if (b) b.disabled = !sessionReady || !billingEmailValid || !document.getElementById("annualCommitmentAccepted")?.checked;
     }
 
     const el = (id) => document.getElementById(id);
     el("billingEmail")?.addEventListener("input", updatePayState);
+    el("annualCommitmentAccepted").addEventListener("change", updatePayState);
 
     if (!TIERS[tier] || !TIERS[tier].prices[interval]) {
       el("tierName").textContent = "Pick a tier first";
@@ -227,6 +227,11 @@
         return;
       }
       btn.addEventListener("click", async () => {
+        if (!el("annualCommitmentAccepted").checked) {
+          showError("Confirm the 12-month subscription commitment before continuing.");
+          el("annualCommitmentAccepted").focus();
+          return;
+        }
         if (!el("billingCountry").value || !el("billingRegion").value.trim()) {
           showError("Enter the billing country and state, province, or region code before continuing.");
           el("billingRegion").focus();
@@ -246,6 +251,7 @@
               tier,
               interval,
               organization_id: organizationId,
+              annual_commitment_accepted: el("annualCommitmentAccepted").checked,
               billing_country: el("billingCountry").value,
               billing_region: el("billingRegion").value.trim().toUpperCase(),
               billing_contact_name: el("billingContactName").value.trim(),
@@ -258,6 +264,7 @@
           if (res.status === 503) { el("unavailablePanel").style.display = "block"; }
           else if (res.status === 403) { showError("Only a workspace admin can purchase for the selected organization. Ask your admin to complete checkout, or contact us via the Connect form."); }
           else if (out.error === "organization_selection_required") { showError("Choose the Workspace that should receive this subscription."); }
+          else if (out.error === "annual_commitment_acceptance_required") { showError("Confirm the 12-month subscription commitment before continuing."); }
           else if (out.error === "invalid_billing_email") { showError("Enter a valid billing email address or leave the optional field blank."); }
           else if (["billing_country_required","billing_region_required","operator_assisted_purchase_required"].includes(out.error)) { showError("Self-service purchasing is not yet enabled for that billing location. Nothing was charged; use the Connect form and we’ll help with an order form."); el("unavailablePanel").style.display = "block"; }
           else if (res.status === 401) { location.replace("signin.html?next=" + encodeURIComponent("checkout.html")); return; }

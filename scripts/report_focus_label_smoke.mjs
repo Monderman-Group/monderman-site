@@ -1,5 +1,6 @@
 // One display label only. Saved answers, scores, priority evidence and AI text remain exact.
 import assert from 'node:assert/strict';import fs from 'node:fs';import path from 'node:path';import vm from 'node:vm';import {createHash} from 'node:crypto';import {fileURLToPath} from 'node:url';
+import {sourceBeforeCustomerMetadata} from './report_customer_metadata_inverse.mjs';
 const sha=s=>createHash('sha256').update(s).digest('hex');
 const COMPOSITE_CLEARANCE_DELTA=[
  `      // Leave each score row clear of the reference line, regardless of its x-position.
@@ -12,6 +13,7 @@ const COMPOSITE_CLEARANCE_DELTA=[
 ];
 // Keep historical renderer43/42/41 proofs exact after the display-only line clearance.
 export function sourceBeforeCompositeClearance(source){
+ source=sourceBeforeCustomerMetadata(source);
  if(source.includes(COMPOSITE_CLEARANCE_DELTA[0])){
   assert.equal(source.split(COMPOSITE_CLEARANCE_DELTA[0]).length,2,'Exact Composite clearance delta');
   source=source.replace(...COMPOSITE_CLEARANCE_DELTA);

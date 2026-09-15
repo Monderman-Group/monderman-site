@@ -950,7 +950,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   </footer>
   <script src="participant-evidence-safety.js?v=20260905-report-quarantine"></script>
   <script src="assignment-mode.js"></script>
-  <script src="monderman-report.js?v=20260914.43"></script>
+  <script src="monderman-report.js?v=20260915.annual1"></script>
   <script src="assignment-draft.js"></script>
   <script src="self-diagnostic-draft.js"></script>
   <script src="interview-mode.js"></script>
@@ -1171,12 +1171,6 @@ observedSeniorLeader: ""
 };
 
 // ─── Sector display names (pre-scoring UI fallback only) ────────────────────
-// The proprietary sector narrative: benchmark prose, opportunity patterns,
-// calibration values, workflow knowledge: was migrated to the backend
-// sectorIntelligence.js in the 2026-05-13 IP migration. After scoring, the
-// frontend reads result.sector_context for all rich sector content. This
-// minimal map exists only so pre-scoring UI elements (the questioning flow)
-// can display a human-readable sector name without a backend round-trip.
 const SectorDisplayNames = {
   government_defense:        "government / defense",
   financial_services:        "financial services",
@@ -1208,12 +1202,6 @@ const IndustryNarrativeLayer = EmptyNarrativeShape; // legacy alias retained for
 // 3. UTILITY & HELPER FUNCTIONS
 // ═══════════════════════════════════════════════════════════
 
-// getIndustryNarrative is now a backend-aware passthrough. Pre-2026-05-13
-// it held the proprietary sector narrative table inline. After the IP
-// migration, the rich sector content arrives on result.sector_context and
-// this function just surfaces it. Accepts either the legacy (payload) form
-// or the new (result, payload) form; the legacy form returns a stub with
-// only the sector display name (used during pre-scoring UI).
 function getIndustryNarrative(resultOrPayload, payloadOpt) {
 const result = (payloadOpt !== undefined) ? resultOrPayload : null;
 const payload = (payloadOpt !== undefined) ? payloadOpt : (resultOrPayload || {});
@@ -1222,21 +1210,10 @@ const key = toIndustryKey(payload?.industry || payload?.industrySelection || "ot
 return { ...EmptyNarrativeShape, sectorName: SectorDisplayNames[key] || "this sector" };
 }
 
-// DiagnosticInterpretationLayer used to carry sectorBenchmarks calibration
-// (industryMin, industryMax, opportunityMin, opportunityMax, typicalDrag per
-// sector) and the estimateReclaimPotential formula. Both moved to backend
-// sectorIntelligence.js in the 2026-05-13 IP migration. This stub remains
-// only so legacy callers that read DiagnosticInterpretationLayer.* do not
-// throw; live values come from result.sector_context.calibration and
-// result.reclaim_potential.
 const DiagnosticInterpretationLayer = {
   sectorBenchmarks: {},
   getSectorCalibration(resultOrPayload, payloadOpt) {
     const result  = (payloadOpt !== undefined) ? resultOrPayload : null;
-    // No fallback constants exposed in source: calibration is proprietary
-    // and lives in backend sectorIntelligence.js. When result.sector_context
-    // is unavailable, return a neutral object so downstream prose code does
-    // not crash; it simply skips calibration-dependent claims.
     return result?.sector_context?.calibration || {
       industryMin: 0, industryMax: 0, opportunityMin: 0, opportunityMax: 0, typicalDrag: 0
     };
@@ -1432,14 +1409,6 @@ const suffix = options.suffix || "";
 return `${prefix}${rounded.toLocaleString()}${suffix}`.trim();
 }
 
-// SectorWorkflowKnowledge: the sector × workflow knowledge tuples
-// (bottlenecks/remedies/failure modes): was migrated to backend
-// sectorIntelligence.js on 2026-05-13. The frontend now reads
-// result.sector_context.sector_hypotheses (post-scoring) or returns a default
-// stub (pre-scoring). detectWorkflowKey is preserved as a small frontend
-// helper because it's used for the regex-based workflow keyword match,
-// which is sector-table-independent; it's not IP and is also computed
-// backend-side, where its result lands in result.sector_context.workflowKey.
 
 const _DEFAULT_KNOWLEDGE_STUB = {
   knownBottlenecks: [],
@@ -1578,11 +1547,6 @@ const withPct = segments.map((s, i) => {
 });
 const dominant = withPct[0] || { label: "No dominant source", value: 0, pct: 0 };
 const dominantPct = dominant.pct || 0;
-// Shape thresholds (formerly inline 42/28 cutoffs) are now canonical in
-// backend buildCanonicalDescriptor.js. This legacy fallback path fires
-// only when canonical_composition is absent on the result: in which case
-// no descriptor is available, so shape is reported as undefined rather
-// than recomputed against a duplicate threshold table.
 const shape = !total ? "insufficient" : (result?.canonical_descriptor?.clarity_shape || "");
 return { segments: withPct, total, dominant, dominantPct, shape };
 }

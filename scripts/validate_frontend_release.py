@@ -384,9 +384,9 @@ for page in r.glob('*.html'):
   css_version=re.search(r'canonical-site-shell\.css\?v=([^"\']+)',t)
   js_version=re.search(r'canonical-site-shell\.js\?v=([^"\']+)',t)
   if not css_version:e.append(page.name+': versioned canonical header styles missing')
-  elif page.name not in {'privacy-2026-09-10-optional-measurement-v1.html','privacy-2026-09-11-ai-evidence-v1.html','privacy-2026-09-12-ai-source-evidence-v2.html'} and not re.match(r'^(?:privacy|terms)(?:-\d{4}-\d{2}-\d{2}-beta)?\.html$',page.name):public_header_css_versions.add(css_version.group(1))
+  elif page.name not in {'privacy-2026-09-10-optional-measurement-v1.html','privacy-2026-09-11-ai-evidence-v1.html','privacy-2026-09-12-ai-source-evidence-v2.html','terms-2026-09-15-annual-plans.html'} and not re.match(r'^(?:privacy|terms)(?:-\d{4}-\d{2}-\d{2}-beta)?\.html$',page.name):public_header_css_versions.add(css_version.group(1))
   if not js_version:e.append(page.name+': versioned canonical header behavior missing')
-  elif page.name not in {'privacy-2026-09-10-optional-measurement-v1.html','privacy-2026-09-11-ai-evidence-v1.html','privacy-2026-09-12-ai-source-evidence-v2.html'} and not re.match(r'^(?:privacy|terms)(?:-\d{4}-\d{2}-\d{2}-beta)?\.html$',page.name):public_header_js_versions.add(js_version.group(1))
+  elif page.name not in {'privacy-2026-09-10-optional-measurement-v1.html','privacy-2026-09-11-ai-evidence-v1.html','privacy-2026-09-12-ai-source-evidence-v2.html','terms-2026-09-15-annual-plans.html'} and not re.match(r'^(?:privacy|terms)(?:-\d{4}-\d{2}-\d{2}-beta)?\.html$',page.name):public_header_js_versions.add(js_version.group(1))
 if not public_header_pages:e.append('canonical public headers missing')
 if len(public_header_css_versions)!=1:e.append('canonical public header style versions diverge: '+str(sorted(public_header_css_versions)))
 if len(public_header_js_versions)!=1:e.append('canonical public header behavior versions diverge: '+str(sorted(public_header_js_versions)))
@@ -458,12 +458,12 @@ for name in ['index.html','roi.html','why-monderman.html','connect.html','diagno
 
 # Pattern beta trial contract: no card, identity-scoped one-use, non-renewing.
 trial=(r/'pattern-trial.html').read_text(errors='ignore')
-for token in ['Use the full Pattern Workspace for 30 days.','No card is required','does not renew automatically','/api/billing/start-pattern-trial','/api/billing/pattern-pilot-invitation','pattern_trial_already_used','trial_requires_admin','Nothing was charged','One Pattern pilot per eligible account identity','Deleting or replacing a Workspace does not reset eligibility','ackStart','starts immediately when I continue','Your saved work is retained. Standard Trial access limits apply after day 30','Pattern &middot; Limited 30-day Pilot','id="pilotInvitation"','id="workspaceName"','sb.rpc("bootstrap_my_workspace"','const activationOrganizationId=organizationId;','JSON.stringify({organization_id:activationOrganizationId})','pattern_pilot_invitation_required','email-bound invitation']:
+for token in ['Evaluate Pattern features for 30 days.','No card is required','does not renew automatically','/api/billing/start-pattern-trial','/api/billing/pattern-pilot-invitation','pattern_trial_already_used','trial_requires_admin','Nothing was charged','One Pattern pilot per eligible account identity','Deleting or replacing a Workspace does not reset eligibility','ackStart','starts immediately when I continue','Your saved work is retained. Standard Trial access limits apply after day 30','Pattern &middot; Limited 30-day Pilot','id="pilotInvitation"','id="workspaceName"','sb.rpc("bootstrap_my_workspace"','const activationOrganizationId=organizationId;','JSON.stringify({organization_id:activationOrganizationId})','pattern_pilot_invitation_required','email-bound invitation']:
  if token not in trial:e.append('pattern trial contract '+token)
 for stale in ['One Pattern trial per Workspace','starts immediately for this Workspace','This Workspace has already used its one-time Pattern trial','id="pilotInvitationCode"','invitation_code:invitationCode','reusable invitation code']:
  if stale in trial:e.append('pattern trial stale scope '+stale)
 pattern=(r/'plan-pattern.html').read_text(errors='ignore')
-for token in ['href="pattern-trial.html"','Accept pilot invitation','personalized Monderman invitation at their work email','no organization is assigned in advance','No card required','does not renew automatically','One pilot per eligible account identity','Deleting or replacing a Workspace does not reset eligibility','Pattern &middot; Active beta &middot; for a division']:
+for token in ['href="pattern-trial.html"','Accept pilot invitation','personalized invitation to your work email','no organization is assigned in advance','No card required or automatic renewal','500 campaign responses and unlimited eligible Syntheses','One pilot per eligible account identity','replacing a Workspace does not reset eligibility','Pattern &middot; Active beta &middot; for a division']:
  if token not in pattern:e.append('pattern trial entry '+token)
 shell=(r/'workspace-shell.js').read_text(errors='ignore')
 for token in ['subscription_status','pattern_trial_ends_at','org.subscription_status === "trialing"','Pattern trial · ${days} day']:
@@ -591,7 +591,7 @@ for name in ['index.html','why-monderman.html']:
 
 # Public beta Terms must exist and remain wired at acceptance points.
 terms=(r/'terms.html').read_text(errors='ignore')
-for token in ['Public Beta Terms of Use','Version 2026-09-09-beta','does not auto-renew','once per eligible account identity','not legal, medical, accounting, investment, safety, employment','not designed, validated or offered as employee-selection procedures','must not attempt to identify an anonymous Participant','The Customer will defend, indemnify and hold harmless Monderman','a South Dakota limited liability company','41 W Highway 14, Unit #1225','Spearfish, SD 57783','connect@monderman.com','privacy.html','security.html']:
+for token in ['Public Beta Terms of Use','Version 2026-09-15-annual-plans','does not auto-renew','once per eligible account identity','not legal, medical, accounting, investment, safety, employment','not designed, validated or offered as employee-selection procedures','must not attempt to identify an anonymous Participant','The Customer will defend, indemnify and hold harmless Monderman','a South Dakota limited liability company','41 W Highway 14, Unit #1225','Spearfish, SD 57783','connect@monderman.com','privacy.html','security.html']:
  if token not in terms:e.append('public beta terms '+token)
 trial=(r/'pattern-trial.html').read_text(errors='ignore')
 for token in ['href="terms.html"','href="privacy.html"','I agree to the']:

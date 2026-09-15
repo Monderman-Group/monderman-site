@@ -220,9 +220,9 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
     assert.ok(typeof report.interpretation.summary==='string'&&report.interpretation.summary.trim(),key+' empty interpretation');
     assert.ok(report.interpretation.recommendations?.some(row=>typeof row?.action==='string'&&row.action.trim()),key+' accepted next step missing');
     assert.ok(validTime(report.generated_at),key+' AI preparation time missing');
-    assert.ok(report.model&&report.prompt_version&&report.version&&report.snapshot_id,key+' AI provenance missing');
+    assert.ok((report.model||report.customer_metadata_version==='customer-report-metadata-20260915.1')&&report.prompt_version&&report.version&&report.snapshot_id,key+' AI provenance missing');
     assert.deepEqual({
-      model:report.model,generated_at:report.generated_at,prompt_version:report.prompt_version,
+      ...(report.model?{model:report.model}:{}),generated_at:report.generated_at,prompt_version:report.prompt_version,
       version:report.version,snapshot_id:report.snapshot_id,
     },pin.ai,key+' AI source differs from approved output');
     assert.equal(report.prompt_version,p.report_ai_prompt_version,key+' AI prompt provenance mismatch');

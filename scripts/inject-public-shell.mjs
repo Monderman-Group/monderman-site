@@ -21,8 +21,11 @@ const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
 const shellRelease = "20260913.32";
 // Refresh changed runtime assets without invalidating unchanged brand assets.
 const assetReleases = Object.freeze({
-  "monderman-report.js": "20260914.43",
-  "sample-report-production.js": "20260914-mixed-origin1",
+  "monderman-report.js": "20260915.annual1",
+  "sample-report-production.js": "20260915.annual1",
+  "public-sample-model.js": "20260915.annual1",
+  "canonical-site-shell.js": "20260915.annual1",
+  "workspace-theme.js": "20260915.annual1",
   "campaign-analysis.js": "20260913.34",
   "campaign-analysis.css": "20260913.34",
   "homepage-workspace-demo.css": "20260914-preview-static1",
@@ -42,7 +45,7 @@ const diagnosticPages = new Set([
   "operational-systems.html", "institutional-performance.html",
 ]);
 const refreshedAssets = [
-  "monderman-report.js", "sample-report-production.js", "sample-report-production.css",
+  "monderman-report.js", "sample-report-production.js", "public-sample-model.js", "workspace-theme.js", "sample-report-production.css",
   "homepage-hero-system.css", "homepage-workspace-demo.css", "homepage-workspace-demo.js",
   "workspace-product-design.css", "report-screen-experience.css", "report-screen-experience.js",
   "dv-result-dialog.css", "dv-result-dialog.js",

@@ -9,6 +9,17 @@ on:
       - 'scripts/report_question_blocks_smoke.mjs'
       - 'scripts/report_experiential_blocks_smoke.mjs'
       - 'scripts/report_source_attribution_smoke.mjs'
+      - 'scripts/report_customer_metadata_smoke.mjs'
+      - 'scripts/report_customer_metadata_inverse.mjs'
+      - 'scripts/pricing_public_copy_smoke.mjs'
+      - 'scripts/workspace_annual_billing_smoke.mjs'
+      - 'scripts/annual_pricing_billing_browser_smoke.mjs'
+      - 'sample-data/reports/operational_systems.pdf'
+      - 'sample-data/reports/decision_velocity.pdf'
+      - 'sample-data/reports/structural_clarity.pdf'
+      - 'sample-data/reports/institutional_performance.pdf'
+      - 'sample-data/reports/depth_synthesis.pdf'
+      - 'sample-data/reports/cross_lens_synthesis.pdf'
       - 'scripts/campaign_report_experience_smoke.mjs'
       - 'scripts/campaign_review_keyboard_smoke.mjs'
       - 'scripts/build_private_evidence_api_fixture.mjs'
@@ -167,6 +178,17 @@ on:
       - 'scripts/report_question_blocks_smoke.mjs'
       - 'scripts/report_experiential_blocks_smoke.mjs'
       - 'scripts/report_source_attribution_smoke.mjs'
+      - 'scripts/report_customer_metadata_smoke.mjs'
+      - 'scripts/report_customer_metadata_inverse.mjs'
+      - 'scripts/pricing_public_copy_smoke.mjs'
+      - 'scripts/workspace_annual_billing_smoke.mjs'
+      - 'scripts/annual_pricing_billing_browser_smoke.mjs'
+      - 'sample-data/reports/operational_systems.pdf'
+      - 'sample-data/reports/decision_velocity.pdf'
+      - 'sample-data/reports/structural_clarity.pdf'
+      - 'sample-data/reports/institutional_performance.pdf'
+      - 'sample-data/reports/depth_synthesis.pdf'
+      - 'sample-data/reports/cross_lens_synthesis.pdf'
       - 'scripts/campaign_report_experience_smoke.mjs'
       - 'scripts/campaign_review_keyboard_smoke.mjs'
       - 'scripts/build_private_evidence_api_fixture.mjs'
@@ -413,6 +435,7 @@ jobs:
           node scripts/report_source_attribution_smoke.mjs
           node scripts/report_campaign_attribution_smoke.mjs
           node scripts/report_sample_copy_smoke.mjs
+          node scripts/report_customer_metadata_smoke.mjs
           node scripts/sample_marketing_language_hover_smoke.mjs
       - name: Verify authored evidence alignment and callout pagination with MOCK text
         env:
@@ -454,6 +477,12 @@ jobs:
           for i in {1..20}; do curl -fsS http://127.0.0.1:8080/sample-report.html >/dev/null && exit 0; sleep 1; done
           cat /tmp/report-cert-http.log
           exit 1
+
+      - name: Verify built annual pricing and Workspace billing presentation with local service mocks
+        env:
+          ANNUAL_UI_SITE_ROOT: .render-public
+          ANNUAL_UI_OUT: /tmp/report-presentation-smoke/annual-pricing-billing
+        run: node scripts/annual_pricing_billing_browser_smoke.mjs
 
       - name: Verify visible header entry text after scroll and interaction
         run: node scripts/header_entry_visibility_smoke.mjs

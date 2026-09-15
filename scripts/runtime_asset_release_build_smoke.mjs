@@ -18,7 +18,8 @@ const explicit=['CNAME','robots.txt','sitemap.txt','sitemap.xml','legal-document
   'favicon.ico','favicon.svg','favicon-192.png','apple-touch-icon.png','Hero-Image.jpg','founder-jason-adamson.jpg','founder-elizabeth-neiford.jpg'];
 const rootFiles=fs.readdirSync(root,{withFileTypes:true}).filter(row=>row.isFile()
   &&(/\.(?:html|css|js|woff2?|pdf)$/.test(row.name)||explicit.includes(row.name))).map(row=>row.name).sort();
-const protectedFiles=[...rootFiles,'sample-data/production-diagnostic-samples.json','sample-data/production-sample-release.json'];
+const samplePdfs=['operational_systems','decision_velocity','structural_clarity','institutional_performance','depth_synthesis','cross_lens_synthesis'].map(name=>'sample-data/reports/'+name+'.pdf');
+const protectedFiles=[...rootFiles,'sample-data/production-diagnostic-samples.json','sample-data/production-sample-release.json',...samplePdfs];
 const hashes=Object.fromEntries(protectedFiles.map(file=>[file,sha(read(file))]));
 for(const file of rootFiles)fs.copyFileSync(path.join(root,file),path.join(stage,file));
 for(const directory of ['assets','site-shell','sample-data'])fs.cpSync(path.join(root,directory),path.join(stage,directory),{recursive:true});
@@ -37,9 +38,10 @@ eq(injector.match(/const shellRelease = "([^"]+)";/)?.[1],'20260913.32');
 const versionStart=injector.indexOf('const shellRelease ='),versionEnd=injector.indexOf('const motif =',versionStart);
 ok(versionStart>=0&&versionEnd>versionStart);
 const versionScript=vm.runInNewContext(injector.slice(versionStart,versionEnd)+'\nversionScript');
-const changed=['monderman-report.js','sample-report-production.js','homepage-workspace-demo.css','campaign-analysis.js','campaign-analysis.css'];
-const runtimeRelease=asset=>asset==='monderman-report.js'?'20260914.43':asset==='sample-report-production.js'?'20260914-mixed-origin1':asset==='homepage-workspace-demo.css'?'20260914-preview-static1':'20260913.34';
-eq(read('monderman-report.js').toString().match(/const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-([^"]+)"/)?.[1],runtimeRelease('monderman-report.js'),'Cache identity matches the actual renderer export');
+const annualAssets=['monderman-report.js','sample-report-production.js','public-sample-model.js','canonical-site-shell.js','workspace-theme.js'];
+const changed=[...annualAssets,'homepage-workspace-demo.css','campaign-analysis.js','campaign-analysis.css'];
+const runtimeRelease=asset=>annualAssets.includes(asset)?'20260915.annual1':asset==='homepage-workspace-demo.css'?'20260914-preview-static1':'20260913.34';
+eq(read('monderman-report.js').toString().match(/const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-([^"]+)"/)?.[1],'20260914.43','Renderer version remains 43; annual metadata changes receive a separate cache identity');
 for(const asset of changed){
   for(const quote of ['"',"'"])for(const prefix of ['', './'])for(const query of ['', '?v=20260913.32','?v=20260913.35','?v=20260913.39'])
     eq(versionScript(`${quote}${prefix}${asset}${query}${quote}`,asset),`${quote}${prefix}${asset}?v=${runtimeRelease(asset)}${quote}`);
@@ -49,7 +51,7 @@ for(const asset of changed){
   }
   eq(sha(fs.readFileSync(path.join(built,asset))),hashes[asset],'Build copies the actual frozen runtime bytes');
 }
-for(const [asset,release]of [['canonical-site-shell.js','20260913.32'],['brand-surfaces.css','20260913.32'],
+for(const [asset,release]of [['brand-surfaces.css','20260913.32'],
   ['sample-report-production.css','20260913.32']])
   eq(versionScript(`"${asset}"`,asset),`"${asset}?v=${release}"`,'Unchanged asset release remains unchanged');
 
@@ -75,14 +77,19 @@ for(const file of pages){
     const pattern=new RegExp(`(["'])((?:\\./)?${asset.replace('.', '\\.')})([^"']*)\\1`,'g');
     const before=[...original.matchAll(pattern)],after=[...html.matchAll(pattern)];
     eq(after.length,before.length,file+': asset reference count unchanged');
-    if(['monderman-report.js','sample-report-production.js','homepage-workspace-demo.css'].includes(asset))for(const match of before)eq(match[3],`?v=${runtimeRelease(asset)}`,file+': unbuilt source also uses current report cache identity');
+    if([...annualAssets,'homepage-workspace-demo.css'].includes(asset)&&! /^(?:terms|privacy)(?:-|\.)/.test(file))for(const match of before)eq(match[3],`?v=${runtimeRelease(asset)}`,file+': unbuilt active source also uses current report cache identity');
     for(const match of after){eq(match[3],`?v=${runtimeRelease(asset)}`,file+': current asset URL');references[asset]++;}
   }
 }
-eq(canonicalPages,60);eq(footerPages,64);
+eq(canonicalPages,61);eq(footerPages,65); // One new immutable annual Terms edition.
 for(const asset of changed)ok(references[asset]>0,'Actual built pages exercise '+asset);
+for(const file of ['canonical-site-shell.js','workspace-theme.js']){
+  const loader=fs.readFileSync(path.join(built,file),'utf8');
+  ok(loader.includes('assets/brand/brand-lockup.css?v=20260915.annual1'),'Actual loader uses the current brand CSS: '+file);
+}
 eq(references['monderman-report.js'],9,'All nine renderer consumers are covered');
 eq(references['sample-report-production.js'],1,'The real sample page uses the mixed-origin export handler');
+eq(references['public-sample-model.js'],1,'The sample page loads the current public sample model');
 eq(references['homepage-workspace-demo.css'],1,'Interactive preview text receives its current stylesheet');
 ok(fs.readFileSync(path.join(built,'workspace-analysis.html'),'utf8').includes("from './campaign-analysis.js?v=20260913.34'"));
 ok(fs.readFileSync(path.join(built,'diagnostics.html'),'utf8').includes('id="methodology-and-sources"'));
@@ -93,6 +100,14 @@ for(const tool of ['structural-clarity','decision-velocity','operational-systems
 }
 eq(sha(fs.readFileSync(path.join(built,'sample-data/production-diagnostic-samples.json'))),hashes['sample-data/production-diagnostic-samples.json']);
 ok(!fs.existsSync(path.join(built,'sample-data/production-sample-release.json')),'Private release approval manifest is not newly published');
+eq(fs.readdirSync(path.join(built,'sample-data')).sort(),['production-diagnostic-samples.json','reports'],'No extra sample/provenance files are published');
+eq(fs.readdirSync(path.join(built,'sample-data/reports')).sort(),samplePdfs.map(file=>path.basename(file)).sort(),'Only the six approved public PDF paths are copied');
+for(const file of samplePdfs)eq(sha(fs.readFileSync(path.join(built,file))),hashes[file],'Exact reviewed PDF copy: '+file);
+for(const privatePath of ['scripts','site-shell','.github','docs','pdf-src','test-fixtures','node_modules','output'])ok(!fs.existsSync(path.join(built,privatePath)),'Private path stays excluded: '+privatePath);
+const legalContent=html=>html.split('<!-- CONTENT_START -->')[1].split('<!-- CONTENT_END -->')[0].replace(/^\n+|\n+$/g,'')+'\n';
+for(const file of ['terms.html','terms-2026-09-15-annual-plans.html','privacy.html','privacy-2026-09-12-ai-source-evidence-v2.html']){
+  eq(legalContent(fs.readFileSync(path.join(built,file),'utf8')),legalContent(read(file).toString()),'Shell injection preserves exact legal content: '+file);
+}
 const inventory=JSON.parse(execFileSync(process.execPath,[path.join(root,'scripts/mobile_site_presentation_smoke.mjs'),'--inventory-only'],{cwd:stage,encoding:'utf8'}));
 eq(inventory.canonicalPages,canonicalPages);eq(inventory.footerPages,footerPages);eq(inventory.browserLaunched,false);
 for(const file of protectedFiles)eq(sha(read(file)),hashes[file],'Original source, runtime and sample bytes unchanged: '+file);

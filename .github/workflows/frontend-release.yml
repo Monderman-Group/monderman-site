@@ -38,6 +38,11 @@ jobs:
       - run: node scripts/signin_legal_documents_smoke.mjs
       - name: Reject purchase-confirmation and onboarding regressions
         run: node scripts/signup_package_smoke.mjs
+      - name: Keep published annual offers and Workspace renewal controls aligned
+        run: |
+          node scripts/pricing_public_copy_smoke.mjs
+          node scripts/workspace_annual_billing_smoke.mjs
+          node --check scripts/annual_pricing_billing_browser_smoke.mjs
       - name: Verify free entry and pilot funnel contracts
         run: |
           node scripts/first_run_entry_smoke.mjs
@@ -65,6 +70,7 @@ jobs:
           node scripts/report_reader_copy_smoke.mjs
           node scripts/report_identity_display_smoke.mjs
           node scripts/report_focus_label_smoke.mjs
+          node scripts/report_customer_metadata_smoke.mjs
           node scripts/public_sample_mixed_origin_smoke.mjs
           node scripts/runtime_asset_release_build_smoke.mjs
       - name: Verify diagnostic labels and immutable saved-report presentation

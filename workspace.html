@@ -5,7 +5,7 @@
   <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260903-map1">
   <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260903-map1">
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260903-map1">
-<link rel="stylesheet" href="assets/brand/brand-lockup.css?v=20260909-gradient1"/>
+<link rel="stylesheet" href="assets/brand/brand-lockup.css?v=20260915.annual1"/>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Overview · Monderman</title>
@@ -423,7 +423,7 @@ body{transition:background-color .25s ease,color .25s ease}
   <!-- left rail + main (shared shell) -->
   <div class="ws-app">
     <aside class="ws-rail">
-      <a class="ws-brand monderman-lockup" href="index.html" title="Back to monderman.com"><svg class="monderman-lockup__mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M9.5 15L20.75 8L32 14L43.25 8L54.5 15V56L43.25 49L32 55L20.75 49L9.5 56Z" stroke-width="2.8" stroke-linejoin="round"/><path d="M20.75 8V49M32 14V55M43.25 8V49" stroke-width="2.4" stroke-linecap="round"/></svg><span class="monderman-lockup__name">Monderman.</span><span class="ws-beta-release" aria-label="Public beta">Beta</span></a>
+      <a class="ws-brand monderman-lockup" href="index.html" title="Back to monderman.com"><svg class="monderman-lockup__mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M6 9.2 11 5.75 16 8.3 21 5.75 26 9.2V26L21 23.2 16 26 11 23.2 6 26Z" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 5.75V23.2M16 8.3V26M21 5.75V23.2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="monderman-lockup__name">Monderman.</span><span class="ws-beta-release" aria-label="Public beta">Beta</span></a>
       <nav class="ws-nav">
       <a href="workspace.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.4"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.4"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.4"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.4"/></svg>Overview</a>
       <a href="workspace-diagnostics.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16a8 8 0 0 1 16 0"/><path d="M12 16l3.5-4.5"/><circle cx="12" cy="16" r="1.3"/></svg>Measure</a>
@@ -767,14 +767,38 @@ body{transition:background-color .25s ease,color .25s ease}
       const trialDays=trialing?Math.max(0,Math.ceil((Date.parse(org.pattern_trial_ends_at)-Date.now())/86400000)):null;
       const responseAllowance=org.respondent_pool==null?"Unlimited participant responses":`${Number(org.respondents_used)||0} of ${Number(org.respondent_pool)||0} participant responses used`;
       const synthAllowance=org.aggregation_limit==null?"Unlimited Syntheses":`${Number(org.aggregations_used)||0} of ${Number(org.aggregation_limit)||0} Syntheses used`;
+      const selfAllowance=org.run_limit==null?"Unlimited self-runs":`${Number(org.runs_used)||0} of ${Number(org.run_limit)||0} self-runs used`;
       const users=[]; if(org.analyst_limit!=null)users.push(`${org.analyst_limit} analyst${Number(org.analyst_limit)===1?"":"s"}`); if(org.admin_limit!=null)users.push(`${org.admin_limit} admin${Number(org.admin_limit)===1?"":"s"}`);
       const planCopy=trialing?`Pattern trial · ${trialDays} day${trialDays===1?"":"s"} left`:`${PLAN_LABEL[plan]||plan} plan`;
-      $("wsPlanStrip").innerHTML=`<span><b>${escapeHtml(planCopy)}</b></span><span class="sep">·</span><span>No per-participant pricing</span><span class="sep">·</span><span>${escapeHtml(responseAllowance)}</span><span class="sep">·</span><span>${escapeHtml(synthAllowance)}</span>${users.length?`<span class="sep">·</span><span>${escapeHtml(users.join(" + "))}</span>`:""}`;
+      $("wsPlanStrip").innerHTML=`<span><b>${escapeHtml(planCopy)}</b></span><span class="sep">·</span><span>${escapeHtml(selfAllowance)}</span><span class="sep">·</span><span>${escapeHtml(responseAllowance)}</span><span class="sep">·</span><span>${escapeHtml(synthAllowance)}</span><span id="wsAnnualSummary"></span>${users.length?`<span class="sep">·</span><span>${escapeHtml(users.join(" + "))}</span>`:""}`;
       const manage=$("wsManageLink"),isTrial=plan==="trial"||plan==="free";
       const organizationQuery=org.id?`?organization_id=${encodeURIComponent(org.id)}`:"";
       if(trialing){ manage.textContent="Choose paid plan →"; manage.href="plan-pattern.html"+organizationQuery; return; }
-      manage.textContent=isTrial?"Upgrade →":"Manage plan →"; manage.href=isTrial?"platform-services.html"+organizationQuery:"#billing";
-      if(!isTrial&&!manage.dataset.billingWired){ manage.dataset.billingWired="1"; manage.addEventListener("click",async(e)=>{e.preventDefault();const prior=manage.textContent;manage.textContent="Opening billing…";try{const{data}=await supabase.auth.getSession();const res=await fetch("https://monderman-api.onrender.com/api/billing/portal-session",{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+(data?.session?.access_token||"")},body:JSON.stringify({organization_id:org.id||null})});const out=await res.json().catch(()=>({}));if(res.ok&&out.url){location.href=out.url;return;}manage.textContent=prior;wsNotice(res.status===403?"Only a workspace admin can manage billing.":res.status===404?"No self-serve billing account yet. Invoiced plans are managed via Connect.":out.error==="organization_selection_required"?"Choose a Workspace before opening billing.":"Billing portal is unavailable right now. Try again shortly.");}catch(_e){manage.textContent=prior;wsNotice("Billing portal could not be reached. Try again shortly.");}}); }
+      manage.textContent=isTrial?"Upgrade →":"Subscription & renewal →";
+      manage.href=isTrial?"platform-services.html"+organizationQuery:"workspace-settings.html#billing";
+
+    }
+
+    async function loadCommercialSummary(){
+      const orgId=state.organization?.id,plan=state.organization?.plan;
+      if(!orgId||!ADMIN_ROLES.includes(state.role)||["trial","free"].includes(plan)||state.organization?.subscription_status==="trialing")return;
+      const target=$("wsAnnualSummary");
+      if(!target)return;
+      try{
+        const {data}=await supabase.auth.getSession();
+        if(!data?.session?.access_token)throw new Error("Sign in again to review billing.");
+        const response=await fetch(API_BASE+"/api/billing/commercial-status?organization_id="+encodeURIComponent(orgId),{
+          headers:{Authorization:"Bearer "+data.session.access_token,"X-Monderman-Organization-Id":orgId}
+        });
+        const payload=await response.json().catch(()=>({}));
+        if(state.organization?.id!==orgId)return;
+        if(!response.ok||payload.ok!==true)throw new Error(response.status===403?"Only a Workspace admin can review billing.":"Billing details are unavailable; open Settings to retry.");
+        const c=payload.commercial;
+        if(c===null)return;
+        const end=new Date(c?.termEndsAt);
+        if(c?.offerVersion!=="2026-09-15-annual-v1"||!Number.isFinite(end.getTime())||!["monthly","annual"].includes(c.paymentInterval))throw new Error("Billing details could not be confirmed.");
+        target.textContent=" · Full annual response and Synthesis capacity is available upfront, with no monthly reset. Term ends "+end.toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"})+". "+(c.cancellationScheduled?"Renewal is off.":"Renews annually.")+(c.paymentInterval==="monthly"?" Monthly installments remain due for the current term.":"");
+      }catch(error){if(state.organization?.id===orgId)target.textContent=" · "+error.message;}
     }
 
     async function renderOnboardingProgress(){
@@ -863,6 +887,7 @@ body{transition:background-color .25s ease,color .25s ease}
         }
         $("wsAllReadsN").textContent = state.runsError?"":`(${state.runs.length})`;
         renderEntitlements();
+        void loadCommercialSummary();
         await renderOnboardingProgress();
 
         window.__wsBooted = "rendered";
@@ -889,7 +914,7 @@ body{transition:background-color .25s ease,color .25s ease}
 
   <script src="workspace-assistant.js" defer></script>
   <script src="feedback-widget.js" defer></script>
-  <script src="workspace-theme.js?v=20260904-wordmark1" defer></script>
+  <script src="workspace-theme.js?v=20260915.annual1" defer></script>
   <script type="module" src="workspace-notes.js"></script>
 </body>
 </html>

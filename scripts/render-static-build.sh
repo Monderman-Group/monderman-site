@@ -28,6 +28,15 @@ cp -- CNAME robots.txt sitemap.txt sitemap.xml legal-document-manifest.json publ
 cp -- favicon.ico favicon.svg favicon-192.png apple-touch-icon.png "$publish_dir/"
 cp -- Hero-Image.jpg founder-jason-adamson.jpg founder-elizabeth-neiford.jpg "$publish_dir/"
 cp -- sample-data/production-diagnostic-samples.json "$publish_dir/sample-data/"
+mkdir -p "$publish_dir/sample-data/reports"
+cp -- \
+  sample-data/reports/operational_systems.pdf \
+  sample-data/reports/decision_velocity.pdf \
+  sample-data/reports/structural_clarity.pdf \
+  sample-data/reports/institutional_performance.pdf \
+  sample-data/reports/depth_synthesis.pdf \
+  sample-data/reports/cross_lens_synthesis.pdf \
+  "$publish_dir/sample-data/reports/"
 
 cp -- assets/books/governance-bureaucracy-organization-cover.jpg "$publish_dir/assets/books/"
 cp -- \
