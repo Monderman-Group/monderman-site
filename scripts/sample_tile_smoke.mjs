@@ -13,6 +13,7 @@ assert.equal(scenario.method.usesDiagnosticScores,false);
 assert.equal(scenario.method.isConfidenceInterval,false);
 const money=value=>value.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
 const range=key=>money(scenario.totals[key].low)+' to '+money(scenario.totals[key].high);
+const roundedMoney=value=>money(Math.abs(value)>=10000?Math.round(value/1000)*1000:value);
 
 const browser = await chromium.launch({ headless: true });
 const placements = [
@@ -135,12 +136,18 @@ try {
       assert.equal(geometry.linkDisplay, 'block', `${placement.name}/${viewport.name}: sample tile link is hidden`);
       assert(geometry.width > 260 && geometry.width <= 580.5, `${placement.name}/${viewport.name}: tile width is outside the approved seat: ${geometry.width}`);
       assert.equal(geometry.hasWrongRaster, false, `${placement.name}/${viewport.name}: superseded screenshot artifact returned`);
-      assert.equal(geometry.capacity,range('capacityValue'));
+      assert.equal(geometry.capacity,'About '+roundedMoney(scenario.totals.capacityValue.central));
+      assert.deepEqual(await tile.locator('.md-scenario-cases dt').allTextContents(),['Low','Central','High']);
+      assert.deepEqual(await tile.locator('.md-scenario-cases dd').allTextContents(),['low','central','high'].map(k=>roundedMoney(scenario.totals.capacityValue[k])));
       assert.equal(geometry.netCash,range('netCashEffect'));
       assert.equal(geometry.totalCost,range('totalImplementationAndSubscriptionCost'));
       assert.equal(geometry.obsoleteFinancialFields,0,'Score-derived recovery must remain absent');
       assert.equal(geometry.actionText,source.ai_report.report.interpretation.recommendations.find(a=>a.action?.trim()).action);
-      assert.equal(geometry.qualification,'Potential staff capacity value, not cash savings. User-specified low to high scenarios, not a forecast.');
+      assert.equal(geometry.qualification,'Potential staff capacity value, not cash savings.');
+      assert.deepEqual(await tile.locator('.md-opportunity>p').allTextContents(),[
+        'Potential staff capacity value, not cash savings.',
+        'Rounded planning scenarios. See the assumptions and exact values in the report.'
+      ],`${placement.name}/${viewport.name}: both capacity and rounded-scenario qualifications must remain visible`);
       assert.notEqual(geometry.footDisplay, 'none', `${placement.name}/${viewport.name}: sample and aggregation qualification hidden`);
       assert(geometry.documentWidth <= geometry.viewportWidth + 1, `${placement.name}/${viewport.name}: page overflows horizontally`);
       assert(geometry.rootLeft >= geometry.cardLeft - 1 && geometry.rootRight <= geometry.cardRight + 1, `${placement.name}/${viewport.name}: source component escapes the card horizontally`);

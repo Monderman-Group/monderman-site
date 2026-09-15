@@ -20,6 +20,9 @@
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
   const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260914.43";
+  // The measured-report adapter stays at r43; financial reading order and
+  // summary presentation have their own explicit, independently tested edition.
+  const FINANCIAL_PRESENTATION_VERSION = "financial-presentation-20260915.1";
 
   // ---- small helpers --------------------------------------------------------
   function esc(v) {
@@ -1103,26 +1106,67 @@
     return '<div class="mr-viz-panel mr-exposure-range"><div class="mr-viz-title">Range of modeled estimates</div>' + rows.join("") + '<p class="mr-copy">Range bars summarize modeled estimates from runs with enough data for a cost estimate. Hours and cost use separate local scales; bar lengths should not be compared across the two metrics.</p></div>';
   }
 
-  function renderMetaExposure(m, n) {
+  function financialScenarioPresentation(m) {
     // Diagnostic score distributions never become recovery estimates. Only a
     // separately calculated, same-scope operational scenario is displayable.
+    // The decision brief, cover and detailed tables share this exact boundary.
     const s=obj(m.financialScenario),input=obj(s.inputs);
+    if(m.kind!=='meta-synthesis'||m.selfRun||s.version!=='operational-planning-scenario-20260913.1'||!['early_planning_scenario','synthesis_planning_scenario'].includes(s.kind)
+      ||s.currency!=='USD'||!m.campaignEvidence?.scopeId||obj(s.scope).scopeId!==m.campaignEvidence.scopeId
+      ||!/^[a-f0-9]{64}$/.test(s.digest||(s.publication_projection==='operational-scenario-public-20260913.1'?s.source_identity_digest:'')||''))return null;
+    const finite=value=>typeof value==='number'&&Number.isFinite(value);
+    const validRange=value=>value&&['low','central','high'].every(k=>finite(value[k]))&&value.low<=value.central&&value.central<=value.high;
+    const keys=['potentialHoursFreed','capacityValue','avoidableNonLaborCash','cashInvestment','totalImplementationAndSubscriptionCost','netCashEffect','netCapacityAndCashValue'];
+    if(!keys.every(key=>validRange(obj(s.totals)[key]))||!arr(s.activities).length||!arr(input.activities).length||arr(input.activities).length>12
+      ||!validRange(input.implementationCashCost)||!validRange(input.implementationCapacityCost)||!finite(input.subscriptionCost)
+      ||!arr(input.activities).every(a=>a&&finite(a.measuredHours)&&finite(a.loadedHourlyCost)&&validRange(a.reductionPercent)&&validRange(a.adoptionPercent)&&validRange(a.avoidableNonLaborCash))
+      ||!Number.isSafeInteger(input.measuredPeople)||input.measuredPeople<=0||!Number.isSafeInteger(input.horizonMonths)||input.horizonMonths<=0
+      ||input.scopeConfirmed!==true||input.overlapReviewed!==true||obj(s.method).usesDiagnosticScores!==false||obj(s.method).isConfidenceInterval!==false)return null;
+    return {s,input};
+  }
+
+  function renderFinancialDecisionBrief(m) {
+    const validated=financialScenarioPresentation(m);
+    if(!validated)return '';
+    const {s,input}=validated,t=s.totals;
+    // Rounded display only. Preserve small nonzero amounts and the exact saved
+    // calculation in the detailed tables, export payload and source record.
+    const number=value=>Number(value).toLocaleString('en-US',Math.abs(value)>0&&Math.abs(value)<1?{maximumSignificantDigits:3}:{maximumFractionDigits:0});
+    const money=value=>(value<0?'-$':'$')+number(Math.abs(value));
+    const noCash=['low','central','high'].every(k=>t.avoidableNonLaborCash[k]===0);
+    const centralNet=t.netCapacityAndCashValue.central;
+    const interpretation=centralNet>0?'In the central case, potential capacity and cash value exceeds total cost by '+money(centralNet)+'.':centralNet<0?'In the central case, potential capacity and cash value falls short of total cost by '+money(Math.abs(centralNet))+'.':'In the central case, potential capacity and cash value equals total cost.';
+    const labels={low:'Low',central:'Central',high:'High'},costLevel={low:'high',central:'central',high:'low'};
+    const metrics=[['potentialHoursFreed','Potential staff hours freed',number,false],['capacityValue','Staff capacity value',money,false],
+      ['avoidableNonLaborCash','Direct cash saving assumed',money,false],['cashInvestment','Cash investment, including subscription',money,true],
+      ['totalImplementationAndSubscriptionCost','Total cost, including internal staff time',money,true],['netCashEffect','Net cash effect',money,false],
+      ['netCapacityAndCashValue','Net capacity and cash value',money,false]];
+    const rows=metrics.map(([key,label,format,cost])=>'<tr><th scope="row">'+label+'</th>'+['low','central','high'].map(level=>'<td data-case="'+labels[level]+'" data-financial-metric="'+key+'" data-financial-case="'+level+'">'+esc(format(t[key][cost?costLevel[level]:level]))+'</td>').join('')+'</tr>').join('');
+    return '<section class="mr-section mr-financial-brief" data-financial-presentation="'+FINANCIAL_PRESENTATION_VERSION+'"><p class="mr-financial-eyebrow">Operational value</p><h2>Decision brief</h2>'+
+      '<p class="mr-financial-scope">'+esc(firstStr(obj(s.scope).label,s.title))+' · '+fmtWhole(input.measuredPeople)+' people · '+fmtWhole(input.horizonMonths)+' months</p>'+
+      '<div class="mr-financial-headlines"><div><span>Potential staff time · central case</span><strong data-financial-central="hours">'+esc(number(t.potentialHoursFreed.central))+' hours</strong></div><div><span>Staff capacity value · central case</span><strong data-financial-central="capacity">'+esc(money(t.capacityValue.central))+'</strong><small>Value of staff time, not cash savings.</small></div></div>'+
+      '<p class="mr-financial-conclusion">'+esc(interpretation)+' This includes staff-time value, not a cash return.'+'</p>'+
+      (noCash?'<p class="mr-financial-cash-note">No direct cash saving assumed. The opportunity in this scenario is staff capacity that can be used for other work.</p>':'<p class="mr-financial-cash-note">Direct cash savings are shown separately from staff capacity. They require the stated expenditure reductions to occur.</p>')+
+      '<table class="mr-financial-comparison"><caption>Three planning cases</caption><thead><tr><th scope="col">Over the planning period</th><th scope="col">Low</th><th scope="col">Central</th><th scope="col">High</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+      '<p class="mr-financial-pairing">Low pairs lower benefits with higher costs; high pairs higher benefits with lower costs. Central uses the central inputs. These are assumption-based cases, not probabilities or a forecast.</p>'+
+      '<p class="mr-financial-detail-note">Summary figures are rounded. Exact values, activity records and assumptions remain in the operational planning scenario below. Diagnostic scores do not calculate these financial values.</p>'+
+      (s.kind==='early_planning_scenario'?'<p class="mr-financial-early">Early planning scenario: campaign participation checks are not yet satisfied. This scenario does not unlock Synthesis.</p>':'')+'</section>';
+  }
+
+  function renderMetaExposure(m, n) {
+    const validated=financialScenarioPresentation(m);
+    if(!validated)return '';
+    const {s,input}=validated;
     // Keep fractional declared inputs visible. The calculator rounds outcome
     // totals to cents/hundredths; display must not turn .01% or $0.25 into zero.
     const scenarioNumber=v=>Number(v).toLocaleString('en-US',{maximumSignificantDigits:15});
     const scenarioMoney=v=>(Number(v)<0?'-$':'$')+scenarioNumber(Math.abs(Number(v)));
     const scenarioPercent=v=>scenarioNumber(v)+'%';
-    if(m.selfRun||s.version!=='operational-planning-scenario-20260913.1'||!['early_planning_scenario','synthesis_planning_scenario'].includes(s.kind)
-      ||s.currency!=='USD'||!m.campaignEvidence?.scopeId||obj(s.scope).scopeId!==m.campaignEvidence.scopeId
-      ||!/^[a-f0-9]{64}$/.test(s.digest||(s.publication_projection==='operational-scenario-public-20260913.1'?s.source_identity_digest:'')||''))return '';
+    const noCash=['low','central','high'].every(k=>s.totals.avoidableNonLaborCash[k]===0);
     const metrics=[['potentialHoursFreed','Potential time freed',scenarioNumber,'hours'],['capacityValue','Value of potential staff capacity',scenarioMoney,'Not cash savings'],
-      ['avoidableNonLaborCash','Potential non-labor cash avoided',scenarioMoney,'Separate expenditure'],['cashInvestment','Implementation cash and subscription cost',scenarioMoney,'Cash cost'],
+      ['avoidableNonLaborCash','Potential non-labor cash avoided',scenarioMoney,noCash?'No direct cash saving assumed.':'Separate expenditure'],['cashInvestment','Implementation cash and subscription cost',scenarioMoney,'Cash cost'],
       ['totalImplementationAndSubscriptionCost','Total implementation and subscription cost',scenarioMoney,'Includes internal staff time'],
       ['netCashEffect','Net cash effect',scenarioMoney,'Cash avoided minus cash cost'],['netCapacityAndCashValue','Net capacity and cash scenario value',scenarioMoney,'Includes staff capacity, not a cash return']];
-    const validRange=value=>value&&['low','central','high'].every(k=>strictFinite(value[k]))&&value.low<=value.central&&value.central<=value.high;
-    if(!metrics.every(([key])=>validRange(obj(s.totals)[key]))||!arr(s.activities).length||!arr(input.activities).length||arr(input.activities).length>12
-      ||!validRange(input.implementationCashCost)||!validRange(input.implementationCapacityCost)||!strictFinite(input.subscriptionCost)
-      ||!arr(input.activities).every(a=>a&&strictFinite(a.measuredHours)&&strictFinite(a.loadedHourlyCost)&&validRange(a.reductionPercent)&&validRange(a.adoptionPercent)&&validRange(a.avoidableNonLaborCash)))return '';
     const values=(value,format)=>'<dl class="mr-scenario-values">'+['low','central','high'].map(k=>'<div><dt>'+({low:'Low scenario',central:'Central scenario',high:'High scenario'}[k])+'</dt><dd>'+esc(format(value[k]))+'</dd></div>').join('')+'</dl>';
     const cards=metrics.map(([key,label,format,detail])=>'<div class="mr-scenario-metric"><h3>'+esc(label)+'</h3><p class="mr-copy">'+esc(detail)+'</p>'+values(s.totals[key],format)+'</div>').join('');
     const activities=arr(input.activities).map(a=>'<article class="mr-scenario-assumption"><h3>'+esc(a.label)+'</h3><dl class="mr-scenario-facts">'+
@@ -1131,6 +1175,7 @@
       '<h4>Assumed time reduction</h4>'+values(a.reductionPercent,scenarioPercent)+'<h4>Assumed adoption</h4>'+values(a.adoptionPercent,scenarioPercent)+
       '<h4>Non-labor expenditure avoided over the planning period</h4>'+values(a.avoidableNonLaborCash,scenarioMoney)+'</article>').join('');
     return '<section class="mr-section mr-financial-scenario"><h2>'+n+'. Operational planning scenario</h2><p class="mr-lede">'+esc(s.title)+'</p><p>'+esc(s.notice)+'</p>'+
+      '<p class="mr-copy">Cost ranges below run from lower to higher cost. Net results pair lower benefits with higher costs for the low outcome, central inputs for the central outcome, and higher benefits with lower costs for the high outcome.</p>'+
       '<dl class="mr-scenario-facts">'+[['Scope',obj(s.scope).label],['People covered by operational records',fmtWhole(input.measuredPeople)],['Measured period',recordedDate(input.measurementStart)+' to '+recordedDate(input.measurementEnd)],['Planning period',fmtWhole(input.horizonMonths)+' months']].map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</dl>'+cards+
       '<h3>Inputs and assumptions</h3><p>'+esc(obj(s.method).calculation)+'</p><p>'+esc(obj(s.method).extrapolation)+'</p>'+activities+
       '<article class="mr-scenario-assumption"><h3>Implementation and subscription costs</h3><h4>Incremental implementation cash</h4>'+values(input.implementationCashCost,scenarioMoney)+
@@ -1553,6 +1598,14 @@
 
   function buildReportCover(model) {
     const m = obj(model);
+    const financial=financialScenarioPresentation(m);
+    // Adapt only this known deterministic no-scenario boilerplate when a
+    // valid separate scenario is actually attached. Never rewrite saved prose
+    // or imply that a score supplies an estimate; source records stay intact.
+    const coverBody=financial?firstStr(m.coverBody).replace(
+      'A combined modeled time and labor-cost estimate is not published: Diagnostic scores, participant counts and medians do not establish organizational exposure, recoverable savings or return on investment. These estimates are withheld. A separate planning scenario requires explicit operational measurements and assumptions.',
+      'The decision brief that follows includes a separate operational planning scenario, based on recorded activity and stated change assumptions. Diagnostic scores do not calculate its time or financial values.'
+    ):m.coverBody;
     const meta = arr(m.meta);
     const productLabel = m.selfRun ? (m.comparisonOnly?'Self-run comparison':'Self-run Synthesis') : m.comparisonOnly ? 'Response comparison' : m.product === "depth" ? "Depth Synthesis" : m.product === "cross_lens" ? "Cross-Lens Synthesis" : firstStr(m.mastline).replace(/^Monderman\.?\s*(?:[•·]\s*)?/i, "") || "Diagnostic";
     const defaultScoreLabel = m.product === "depth" ? "Median Diagnostic Score" : m.product === "cross_lens" ? "Cross-Lens Composite Score" : "Diagnostic Score";
@@ -1574,7 +1627,7 @@
       '<div class="mr-cover-score-copy"><div class="mr-cover-score-label">' + esc(scoreLabel) + '</div><div class="mr-cover-score-band">' + esc(scoreBandDisplay) + '</div></div></div>' +
       (statusPills ? '<div class="mr-cover-pills">' + statusPills + '</div>' : '') +
       (metaHtml ? '<div class="mr-cover-meta">' + metaHtml + '</div>' : '') +
-      (m.coverBody ? '<p class="mr-cover-body">' + esc(m.coverBody) + '</p>' : '') +
+      (coverBody ? '<p class="mr-cover-body">' + esc(coverBody) + '</p>' : '') +
       (m.kind === "meta-synthesis" && m.footnote ? '<div class="mr-cover-boundary"><div class="mr-cover-boundary-label">Interpretation boundary</div><p>' + esc(m.footnote) + '</p></div>' : '') +
       '</div></section>';
   }
@@ -2030,7 +2083,7 @@
     const sampleBlock = buildSampleProvenance(m);
 
     if (m.kind === "meta-synthesis") {
-      return coverBlock + compatibilityBlock + aiBlock + (m.selfRun?renderSelfRunReport(m):renderMetaSynthesis(m)) + sampleBlock + (m.selfRun?'':buildReportBoundary(m));
+      return coverBlock + compatibilityBlock + renderFinancialDecisionBrief(m) + aiBlock + (m.selfRun?renderSelfRunReport(m):renderMetaSynthesis(m)) + sampleBlock + (m.selfRun?'':buildReportBoundary(m));
     }
 
     if (m.kind === "run") {
@@ -2357,7 +2410,44 @@
     .mr-run-method dl{margin:20px 0;border-top:1px solid #DCD8CF}.mr-run-method dl>div{display:grid;grid-template-columns:190px minmax(0,1fr);gap:22px;padding:13px 0;border-bottom:1px solid #EAE6DD}.mr-run-method dt{font-size:.68rem;letter-spacing:.11em;text-transform:uppercase;color:#6E6F73}.mr-run-method dd{margin:0;font-size:.83rem;line-height:1.5;overflow-wrap:anywhere}.mr-method-copy{margin-top:22px!important;font-size:.9rem!important;color:#6E6F73!important;max-width:72ch}
     .mr-leadership-close{padding:32px!important;border:1px solid #0C6E78!important;border-radius:14px;background:linear-gradient(145deg,#F7FAF9,#FFF)!important}.mr-leadership-close>h2{font-size:clamp(1.8rem,3.4vw,2.8rem)!important;line-height:1.03!important;letter-spacing:-.04em!important;max-width:19ch!important}.mr-leadership-close-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:28px;margin-top:24px}.mr-leadership-sequence ol{list-style:none;margin:14px 0 0!important;padding:0!important;counter-reset:handoff}.mr-leadership-sequence li{position:relative;padding:0 0 18px 39px;margin:0!important;counter-increment:handoff}.mr-leadership-sequence li:not(:last-child)::before{content:"";position:absolute;left:13px;top:25px;bottom:0;width:1px;background:#B8D1D3}.mr-leadership-sequence li::after{content:counter(handoff);position:absolute;left:0;top:0;display:grid;place-items:center;width:27px;height:27px;border-radius:50%;background:#08383E;color:#FFF;font-size:.72rem;font-weight:700}.mr-leadership-sequence li strong{display:block;font-size:.9rem}.mr-leadership-sequence li span{display:block;margin-top:4px;color:#6E6F73;font-size:.8rem;line-height:1.5}.mr-ownership-questions>div:not(.mr-lens-label){display:grid;grid-template-columns:31px 1fr;gap:10px;padding:13px 0;border-bottom:1px solid #EAE6DD}.mr-ownership-questions>div>span{color:rgba(12,110,120,.3);font-size:1.25rem;font-weight:700}.mr-ownership-questions p{font-size:.85rem!important;line-height:1.5!important;margin:0!important}.mr-remeasurement-note{margin-top:22px;padding:17px 19px;border-left:3px solid #0C6E78;background:#F7F5F0}.mr-remeasurement-note p{font-size:.84rem!important;line-height:1.55!important;margin:6px 0 0!important}
 
-    .mr-financial-scenario{min-width:0;overflow-wrap:anywhere}
+    .mr-financial-scenario,.mr-financial-brief{min-width:0;overflow-wrap:anywhere}
+    .mr-financial-brief .mr-financial-eyebrow{margin:0 0 8px;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:#0C6E78;font-weight:700}
+    .mr-financial-brief .mr-financial-scope{margin:10px 0 20px;font-size:.9rem;line-height:1.5;color:#53676E}
+    .mr-financial-headlines{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;padding:22px 24px;border:1px solid #DCE5E8;border-top:3px solid #0C6E78;border-radius:8px;background:#F4F7F8}
+    .mr-financial-headlines>div{min-width:0}.mr-financial-headlines span,.mr-financial-headlines small{display:block;font-size:.76rem;line-height:1.5;color:#53676E}
+    .mr-financial-headlines strong{display:block;margin:8px 0 4px;font-size:clamp(1.5rem,2.8vw,2rem);line-height:1.15;letter-spacing:-.03em;color:#08383E;font-variant-numeric:tabular-nums}
+    .mr-financial-brief .mr-financial-conclusion{font-size:.98rem;line-height:1.55;margin:18px 0 8px;font-weight:600}
+    .mr-financial-brief .mr-financial-cash-note{margin:8px 0 20px;font-size:.86rem;line-height:1.5;color:#53676E}
+    .mr-financial-comparison{width:100%;border-collapse:collapse;table-layout:fixed;font-size:.8rem;line-height:1.4;font-variant-numeric:tabular-nums}
+    .mr-financial-comparison caption{text-align:left;font-size:.94rem;font-weight:600;padding:0 0 12px;color:#08383E}
+    .mr-financial-comparison th,.mr-financial-comparison td{padding:12px 10px;border-bottom:1px solid #DCE5E8;text-align:right;vertical-align:top;overflow-wrap:anywhere}
+    .mr-financial-comparison tr>:first-child{width:38%;text-align:left;padding-left:0}
+    .mr-financial-comparison thead th{color:#53676E;font-size:.74rem;font-weight:500;border-top:1px solid #DCE5E8}
+    .mr-financial-comparison tbody th{font-weight:500}.mr-financial-comparison tbody td{font-weight:600;color:#08383E}
+    .mr-financial-comparison tr>:nth-child(3){background:#F4F7F8}.mr-financial-comparison tbody tr:last-child{border-top:2px solid #0C6E78}
+    .mr-financial-brief .mr-financial-pairing,.mr-financial-brief .mr-financial-detail-note,.mr-financial-brief .mr-financial-early{font-size:.76rem;line-height:1.5;color:#53676E;margin:14px 0 0}
+    @media screen and (max-width:640px){
+      .mr-financial-headlines{grid-template-columns:1fr;padding:18px;gap:18px}.mr-financial-headlines>div+div{border-top:1px solid #DCE5E8;padding-top:16px}
+      .mr-financial-comparison{display:block;font-size:.82rem}.mr-financial-comparison caption{display:block}
+      .mr-financial-comparison thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+      .mr-financial-comparison tbody{display:block}.mr-financial-comparison tbody tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-bottom:1px solid #DCE5E8;padding:12px 0}
+      .mr-financial-comparison tbody tr>th:first-child{grid-column:1/-1;width:auto;padding:0 0 8px!important;border:0;text-align:left}
+      .mr-financial-comparison tbody td{display:block;border:0;padding:8px 6px;text-align:left}
+      .mr-financial-comparison tbody td::before{content:attr(data-case);display:block;font-size:.67rem;font-weight:400;color:#53676E;margin-bottom:4px}
+    }
+    @media print{
+      .mr-report .mr-financial-brief{break-before:page;page-break-before:always;break-after:page;page-break-after:always;margin:0!important;padding:0!important;border:0!important}
+      .mr-financial-brief h2{font-size:19pt!important;margin:0!important}.mr-financial-brief .mr-financial-eyebrow{font-size:8pt;margin-bottom:6px}
+      .mr-financial-brief .mr-financial-scope{font-size:9pt;margin:8px 0 12px}
+      .mr-financial-headlines{padding:14px 16px;gap:18px;break-inside:avoid;page-break-inside:avoid}
+      .mr-financial-headlines strong{font-size:23pt}.mr-financial-headlines span,.mr-financial-headlines small{font-size:8pt}
+      .mr-financial-brief .mr-financial-conclusion{font-size:10pt;line-height:1.4;margin:12px 0 6px}
+      .mr-financial-brief .mr-financial-cash-note{font-size:9pt;line-height:1.4;margin:6px 0 12px}
+      .mr-financial-comparison{font-size:8.5pt;line-height:1.35}.mr-financial-comparison caption{font-size:10pt;padding-bottom:8px}
+      .mr-financial-comparison th,.mr-financial-comparison td{padding:8px 7px}.mr-financial-comparison thead th{font-size:8pt}
+      .mr-financial-comparison tr{break-inside:avoid;page-break-inside:avoid}
+      .mr-financial-brief .mr-financial-pairing,.mr-financial-brief .mr-financial-detail-note,.mr-financial-brief .mr-financial-early{font-size:8pt;line-height:1.4;margin:10px 0 0}
+    }
     .mr-meta-method a,.mr-financial-scenario a{color:#0C6E78;text-decoration:underline;text-underline-offset:.16em}
     .mr-meta-method a:hover,.mr-financial-scenario a:hover{color:#08383E}
     .mr-meta-method a:focus-visible,.mr-financial-scenario a:focus-visible{outline:2px solid #0C6E78;outline-offset:3px}
@@ -2631,10 +2721,12 @@
     const interpretationOnly = ai.status === "complete" && !recommendations.length && !arr(obj(obj(ai.report).interpretation).action_options).length;
     const find = (pattern) => sections.find(section => pattern.test(section.classes + " " + section.label));
     const profile = find(/mr-run-dimensions|mr-system-read|mr-depth-system-read/);
+    const decisionBrief = find(/mr-financial-brief/);
     const evidence = find(/mr-run-evidence|mr-evidence-status/);
     const actions = obj(m.aiReport).status === "complete" ? (find(/mr-report-options/) || find(/mr-report-nextsteps/) || find(/mr-ai-interpretation/)) : find(/mr-run-action-board|Evidence-proportionate actions|Conclusion and next step/);
     const method = find(/mr-run-method|mr-meta-method|Method and limits/);
     const shortcuts = [{ section: sections[0], label: "Overview" },
+      { section: decisionBrief, label: "Decision brief", role: "financial-summary" },
       { section: profile, label: m.product === "depth" ? "Distribution" : m.product === "cross_lens" ? "Compare lenses" : "Dimensions" },
       { section: evidence, label: "Evidence" }, { section: actions, label: interpretationOnly ? "Interpretation" : "Actions", role: "guidance" }, { section: method, label: "Method & limits" }].filter(item => item.section);
     const link = (section, label, css, role) => '<a' + (css ? ' class="' + css + '"' : '') + (role ? ' data-report-link-role="' + role + '"' : '') + ' href="#' + section.id + '">' + label + '</a>';
@@ -2839,6 +2931,7 @@
   function buildReportHtml(model) {
     return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" />' +
       '<meta name="monderman-renderer-version" content="' + RENDERER_VERSION + '" />' +
+      (financialScenarioPresentation(obj(model))?'<meta name="monderman-financial-presentation-version" content="'+FINANCIAL_PRESENTATION_VERSION+'" />':'') +
       '<meta name="viewport" content="width=device-width, initial-scale=1.0" />' +
       "<title>Monderman | Executive Report</title><style>" + REPORT_CSS + AI_CSS + REPORT_READING_CSS + SCREEN_CSS + "</style></head><body>" +
       '<div class="mr-report"><div class="mr-page">' + buildScreenReportBody(model) +
@@ -2953,6 +3046,7 @@
 
   window.MondermanReport = {
     rendererVersion: RENDERER_VERSION,
+    financialPresentationVersion: FINANCIAL_PRESENTATION_VERSION,
     fromRun: fromRun,
     fromSynthesis: fromSynthesis,
     buildReportBody: buildReportBody,

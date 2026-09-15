@@ -1,6 +1,7 @@
 // Exact customer-metadata display delta; historical renderer proofs stay unchanged.
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
+import {sourceBeforeFinancialPresentation} from './report_financial_presentation_inverse.mjs';
 const sha=s=>createHash('sha256').update(s).digest('hex');
 const DELTAS=[
   ['  // remain visible even when AI selects different observations/actions.\n','  // remain visible even when Claude selects different observations/actions.\n'],
@@ -26,6 +27,7 @@ const DELTAS=[
   ]
 ];
 export function sourceBeforeCustomerMetadata(source){
+  source=sourceBeforeFinancialPresentation(source);
   if(!source.includes('  function customerReportJson(value) {'))return source;
   assert.equal(sha(source),'6bb158554f0eaf66515f2447328e30b59a885fd4a70e3739739a0431740f1f4c','Only the reviewed customer-metadata renderer can be inverted');
   for(const [current,prior]of DELTAS){assert.equal(source.split(current).length,2);source=source.replace(current,prior);}

@@ -24,6 +24,7 @@ const scenario=artifact.outputs.depth_synthesis.source.financial_scenario;
 assert.equal(scenario.method.usesDiagnosticScores,false);
 assert.equal(scenario.method.isConfidenceInterval,false);
 const range=key=>money(scenario.totals[key].low)+' to '+money(scenario.totals[key].high);
+const roundedMoney=value=>money(Math.abs(value)>=10000?Math.round(value/1000)*1000:value);
 const dv=artifact.outputs.decision_velocity.source;
 const recordedBurdens=Object.entries(dv.burden_breakdown).filter(([,value])=>typeof value==='number').sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,3);
 assert.ok(recordedBurdens.length>0);
@@ -131,10 +132,15 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     equal(await page.locator('[data-demo-focus]').textContent(),recordedBurdens[0][1]+' / 100');
     equal(await page.locator('[data-demo-burden]').allTextContents(),recordedBurdens.map(([,value])=>String(value)));
     equal(await page.locator('.hwd-reading>p').textContent(),'Highest recorded burden indicator in this participant’s result. Not time, cost or savings.');
-    equal(await page.locator('[data-promo-capacity]').textContent(),range('capacityValue'));
+    equal(await page.locator('[data-promo-capacity]').textContent(),'About '+roundedMoney(scenario.totals.capacityValue.central));
+    equal(await page.locator('.md-scenario-cases dt').allTextContents(),['Low','Central','High']);
+    equal(await page.locator('.md-scenario-cases dd').allTextContents(),['low','central','high'].map(k=>roundedMoney(scenario.totals.capacityValue[k])));
     equal(await page.locator('[data-promo-net-cash]').textContent(),range('netCashEffect'));
     equal(await page.locator('[data-promo-total-cost]').textContent(),range('totalImplementationAndSubscriptionCost'));
-    equal(await page.locator('.md-opportunity>p').textContent(),'Potential staff capacity value, not cash savings. User-specified low to high scenarios, not a forecast.');
+    equal(await page.locator('.md-opportunity>p').allTextContents(),[
+      'Potential staff capacity value, not cash savings.',
+      'Rounded planning scenarios. See the assumptions and exact values in the report.'
+    ],'Capacity is not cash and rounded cases retain their assumption reference');
     check((await page.locator('.md-basis').textContent()).includes(scenario.inputs.measuredPeople+' people over '+scenario.method.measurementDays+' measured days'),'Separate operational measurement basis retained');
     check((await page.locator('.home-preview-method').textContent()).includes('do not measure hours, organizational cost or savings'),'Single-run financial boundary retained');
     check(!/fictional|generated sample|illustrative interface/i.test(await page.locator('.home-workspace-preview').textContent()),'Repeated preview caveats removed');

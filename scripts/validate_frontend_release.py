@@ -308,7 +308,7 @@ tile_required=[
  'Full assumptions and sensitivity cases in the report.',
  'data-promo-capacity','data-promo-net-cash','data-promo-total-cost','data-promo-score',
  'Potential staff capacity value, not cash savings.',
- 'User-specified low to high scenarios, not a forecast.',
+ 'Rounded planning scenarios. See the assumptions and exact values in the report.',
  'Net cash effect, after cash costs',
 ]
 for name,text in [('index.html',idx),('Monderman_Platform_Brief.html',brief)]:
@@ -321,6 +321,8 @@ for name,text in [('index.html',idx),('Monderman_Platform_Brief.html',brief)]:
   e.append(name+': generated-output sample tile boundary must occur exactly once')
  else:
   tile=tile_matches[0].group(0)
+  for label in ['Low','Central','High']:
+   if '<dt>'+label+'</dt>' not in tile:e.append(name+': generated sample tile missing scenario label '+label)
   # The approved sample separates capacity, cash and total costs. Never restore
   # the retired score-derived financial values or their old display hooks.
   if re.search(r'(?:Estimated|Modeled) annual recovery opportunity|Median annual (?:labor-cost|time) exposure|median of submitted (?:estimates|recovery scenarios)|Fictional inputs',tile,re.I):
