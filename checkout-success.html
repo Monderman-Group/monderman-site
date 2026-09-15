@@ -121,8 +121,8 @@
   <script type="module">
     const API_BASE = "https://monderman-api.onrender.com";
     const params = new URLSearchParams(location.search);
-    const sessionId = params.get("session_id") || "";
-    const checkoutOrganizationId = params.get("organization_id") || "";
+    let sessionId = params.get("session_id") || "";
+    let checkoutOrganizationId = params.get("organization_id") || "";
     const mark = document.getElementById("confirmationMark");
     const title = document.getElementById("confirmationTitle");
     const intro = document.getElementById("confirmationIntro");
@@ -151,9 +151,35 @@
       const access = await window.mondermanWorkspaceAccessReady;
       if (!access?.allowed) throw new Error("Sign in to verify this purchase.");
       const supabase = await window.mondermanGetSupabaseClient();
+      const verified = await supabase.auth.getUser();
       const { data } = await supabase.auth.getSession();
-      if (!data?.session?.access_token) throw new Error("Sign in to verify this purchase.");
-      return { token: data.session.access_token };
+      const userId = verified?.data?.user?.id;
+      const organizationId = access.activeWorkspace?.id;
+      if (verified.error || !userId || data?.session?.user?.id !== userId || !data?.session?.access_token || !organizationId) {
+        throw new Error("Sign in to verify this purchase.");
+      }
+      return { token: data.session.access_token, userId, organizationId };
+    }
+
+    function restoreCheckoutReference(identity) {
+      // History survives a full refresh of this entry without putting the
+      // checkout reference back in links, referrers, or persistent storage.
+      // This is only a lookup reference: every load still verifies with the API.
+      if (!params.has("session_id") && !params.has("organization_id")) {
+        const saved = history.state?.mondermanCheckout;
+        if (saved?.version !== 1 || saved.userId !== identity.userId || saved.organizationId !== identity.organizationId) {
+          throw new Error("This page has no purchase reference for the signed-in Workspace. Open your Workspace or use the receipt Stripe sent you.");
+        }
+        sessionId = saved.sessionId;
+        checkoutOrganizationId = saved.organizationId;
+      }
+      checkoutOrganizationId = checkoutOrganizationId || identity.organizationId;
+      if (typeof sessionId !== "string" || !/^cs_(test_|live_)?[A-Za-z0-9_]+$/.test(sessionId) || sessionId.length > 255) {
+        throw new Error("This page does not contain a valid Stripe Checkout reference. Open your Workspace or use the receipt Stripe sent you.");
+      }
+      if (checkoutOrganizationId !== identity.organizationId) {
+        throw new Error("This purchase reference is for a different Workspace. Open the Workspace used for the purchase to continue.");
+      }
     }
 
     async function confirmPurchase(token) {
@@ -167,6 +193,8 @@
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok || result.ok !== true) throw new Error(result.error || "The purchase could not be verified.");
+      if (result.organization?.id !== checkoutOrganizationId) throw new Error("The purchase could not be verified for this Workspace.");
+      if (result.checkoutComplete !== true || result.paymentConfirmed !== true) throw new Error("This checkout has not completed with a confirmed payment. Open your Workspace to check its billing status.");
       return result;
     }
 
@@ -193,9 +221,10 @@
     }
 
     async function initialize() {
-      if (!sessionId) return fail("This page does not contain a Stripe Checkout reference. Open your Workspace or use the receipt Stripe sent you.");
       try {
-        const { token } = await authenticatedSession();
+        const identity = await authenticatedSession();
+        const { token } = identity;
+        restoreCheckoutReference(identity);
         let result;
         for (let attempt = 0; attempt < 6; attempt += 1) {
           result = await confirmPurchase(token);
@@ -203,7 +232,12 @@
           status.textContent = "Payment is confirmed; applying Workspace access…";
           await sleep(1500);
         }
-        history.replaceState({}, "", "checkout-success.html");
+        history.replaceState({ mondermanCheckout: {
+          version: 1,
+          sessionId,
+          organizationId: checkoutOrganizationId,
+          userId: identity.userId
+        } }, "", "checkout-success.html");
         const purchase = result.purchase || {};
         const organization = result.organization || {};
         mark.classList.remove("loading");
