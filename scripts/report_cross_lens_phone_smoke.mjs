@@ -55,7 +55,20 @@ for(const [name,type] of Object.entries({chromium,webkit})){
       await page.emulateMedia({media:'print'});
       assert.ok(await chart.isVisible(),'the original SVG must remain available in print at every originating width');
       assert.equal(await list.textContent(),textBeforePrint,'print must keep identical card facts');
-      assert.equal(await chart.locator('line[stroke-dasharray="5 4"]').count(),item.status==='published'?1:0);
+      const reference=await chart.locator('line[stroke-dasharray="5 4"]').evaluateAll(lines=>lines.map(line=>Object.fromEntries(['x1','x2','y1','y2'].map(key=>[key,Number(line.getAttribute(key))]))));
+      const finiteRows=groups.filter(group=>Number.isFinite(group.mean_score)).length;
+      assert.equal(reference.length,item.status==='published'?finiteRows+1:0,'one Composite reference segment above, between and below finite score rows');
+      if(item.status==='published'){
+        const rows=await chart.locator('circle').evaluateAll(nodes=>nodes.map(node=>Number(node.getAttribute('cy'))));
+        assert.equal(rows.length,finiteRows,'missing mean must not become a score row');
+        assert.equal(reference[0].y1,36);assert.equal(reference.at(-1).y2,64+finiteRows*46+42-28);
+        for(const [index,line]of reference.entries()){
+          assert.ok(Math.abs(line.x1-(182+45.2/100*(680-182-42)))<1e-9,'Composite reference retains the recorded score position');
+          assert.equal(line.x2,line.x1);assert.ok(line.y2>line.y1,'reference segment has positive height');
+          if(index>0)assert.ok(reference[index-1].y2<line.y1,'segments remain vertically ordered');
+          for(const y of rows)assert.ok(line.y2<=y-12||line.y1>=y+12,'reference stays clear of each score row');
+        }
+      }
       assert.equal((await chart.innerText()).includes('dashed Composite'),item.status==='published');
       records.push({engine:name,width,status:item.status,geometry,screenChartVisible:width>600,printChartVisible:true});await page.close();
     }
