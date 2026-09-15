@@ -134,6 +134,10 @@ jobs:
         run: node scripts/saved_synthesis_page_smoke.mjs
       - name: Verify the sample PDF button exports only the selected report
         run: node scripts/sample_selected_pdf_route_smoke.mjs --output=${{ runner.temp }}/sample-selected-pdf
+      - name: Verify purchase-confirmation refresh and user/Workspace binding with synthetic responses
+        env:
+          CHECKOUT_RECOVERY_OUT: ${{ runner.temp }}/checkout-success-recovery
+        run: node scripts/checkout_success_recovery_smoke.mjs
       - name: Preserve synthetic saved-page screenshots and exact source bindings
         if: always()
         uses: actions/upload-artifact@v4
@@ -142,6 +146,7 @@ jobs:
           path: |
             ${{ runner.temp }}/saved-synthesis-page
             ${{ runner.temp }}/sample-selected-pdf
+            ${{ runner.temp }}/checkout-success-recovery
           if-no-files-found: error
   financial-methodology-browser:
     runs-on: ubuntu-24.04
