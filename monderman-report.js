@@ -897,7 +897,12 @@
     });
     const showComposite = m.scorePublished && strictFinite(m.score);
     if (showComposite) {
-      svg += '<line x1="' + X(m.score) + '" y1="36" x2="' + X(m.score) + '" y2="' + (H-28) + '" stroke="#08383E" stroke-width="2.5" stroke-dasharray="5 4"/>';
+      // Leave each score row clear of the reference line, regardless of its x-position.
+      for (let index = 0; index <= groups.length; index++) {
+        const y1 = index === 0 ? 36 : top + (index-1) * rowH + 12;
+        const y2 = index === groups.length ? H-28 : top + index * rowH - 12;
+        svg += '<line x1="' + X(m.score) + '" y1="' + y1 + '" x2="' + X(m.score) + '" y2="' + y2 + '" stroke="#08383E" stroke-width="2.5" stroke-dasharray="5 4"/>';
+      }
       svg += '<text x="' + X(m.score) + '" y="14" text-anchor="middle" font-size="11" font-weight="700" fill="#08383E">Composite ' + esc(fmt1(m.score)) + '</text>';
     }
     groups.forEach((lens, index) => {
