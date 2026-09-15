@@ -164,6 +164,10 @@ jobs:
         run: node scripts/report_financial_legacy_notice_smoke.mjs
       - name: Keep individual results nonfinancial in screen and print layouts
         run: node scripts/single_run_financial_display_smoke.mjs
+      - name: Verify frontloaded financial summaries and honest downside in both synthesis reports
+        env:
+          REPORT_FINANCIAL_BLUF_OUT: ${{ runner.temp }}/report-financial-bluf
+        run: node scripts/report_financial_bluf_smoke.mjs
       - name: Verify optional operational scenario entry with synthetic transport
         run: node scripts/campaign_financial_scenario_smoke.mjs
       - name: Check synthetic preview financial policy without changing public samples
@@ -179,5 +183,6 @@ jobs:
             /tmp/monderman-single-run-financial-display-*
             /tmp/monderman-financial-scenario-ui-*
             ${{ runner.temp }}/financial-preview-mock
+            ${{ runner.temp }}/report-financial-bluf
             ${{ runner.temp }}/methodology-copy
           if-no-files-found: error

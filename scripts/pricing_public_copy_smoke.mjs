@@ -17,6 +17,10 @@ check(checkout.includes('annual_commitment_acceptance_required'),'server missing
 check(/\.billing-field\{display:flex;flex-direction:column;min-width:0;gap:5px\}/.test(checkout),'helper text does not stretch independent label and control tracks');
 check(/\.billing-field input,\.billing-field select\{[^}]*height:46px;min-height:44px/.test(checkout),'all billing controls share a fixed accessible touch height');
 check(/\.billing-field label\{min-height:2\.8em/.test(checkout)&&checkout.includes('.billing-field label{min-height:1.4em}'),'paired desktop labels align and single-column phone labels use natural spacing');
+const countryOptions=checkout.match(/<select id="billingCountry"[^>]*>([\s\S]*?)<\/select>/)?.[1]||'';
+check([...countryOptions.matchAll(/<option\s+value="([^"]*)"/g)].map(match=>match[1]).join(',')==='US','only US is offered for the initial online launch');
+check(checkout.includes('Stripe calculates any applicable sales tax from the full billing address and shows the total before payment.'),'automatic tax calculation is described accurately');
+check(checkout.includes('id="billingRegion"')&&checkout.includes('maxlength="2" pattern="[A-Za-z]{2}"'),'US state or territory code is two letters');
 
 async function mount({tier='signal',interval='monthly',session=true,organizations=[{id:'org-A',name:'Workspace A'}],response={ok:true,status:200,body:{url:'https://checkout.example.test/mock'}}}={}){
   const elements=new Map(), requests=[], storage=new Map();
@@ -67,6 +71,16 @@ for(const opts of [{interval:'quarterly'},{tier:'unrecognized'},{session:false},
   const m=await mount(opts);m.el('annualCommitmentAccepted').checked=true;await m.change('annualCommitmentAccepted');await m.click();
   check(!m.requests.some(r=>r.url.endsWith('/create-checkout-session')),'invalid selection/session/admin eligibility does not create checkout');
 }
+for(const [country,region,focus] of [['CA','ON','billingCountry'],['','AL','billingCountry'],['US','','billingRegion'],['US','ABC','billingRegion'],['US','12','billingRegion']]){
+  const m=await mount();m.el('annualCommitmentAccepted').checked=true;await m.change('annualCommitmentAccepted');
+  m.el('billingCountry').value=country;m.el('billingRegion').value=region;await m.click();
+  check(!m.requests.some(r=>r.url.endsWith('/create-checkout-session')),'unsupported or incomplete billing location does not create checkout: '+country+'/'+region);
+  check(m.el(focus).focused&&!m.location.href,'billing location error focuses the field without redirecting');
+}
+const unsupported=await mount({response:{ok:false,status:409,body:{error:'operator_assisted_purchase_required'}}});
+unsupported.el('annualCommitmentAccepted').checked=true;await unsupported.change('annualCommitmentAccepted');await unsupported.click();
+check(unsupported.el('errorPanel').textContent.includes('Nothing was charged')&&unsupported.el('unavailablePanel').style.display==='block','server jurisdiction rejection retains the no-charge purchasing assistance path');
+check(!unsupported.location.href,'server jurisdiction policy is authoritative');
 const rejected=await mount({response:{ok:false,status:400,body:{error:'annual_commitment_acceptance_required'}}});
 rejected.el('annualCommitmentAccepted').checked=true;await rejected.change('annualCommitmentAccepted');await rejected.click();
 check(rejected.el('errorPanel').textContent.includes('12-month subscription commitment'),'server rechecks acceptance');
@@ -122,4 +136,4 @@ for(const file of ['signin.html','workspace.html','workspace-actions.html','work
   const marks=[...read(file).matchAll(markPattern)];
   check(marks.length===1&&marks[0][0]===approvedMark,file+' uses the exact approved even-bottom mark');
 }
-console.log(JSON.stringify({status:'PASS',assertions,checkoutModuleScenarios:9,networkCalls:0,providerCalls:0,paymentSessionsCreated:0}));
+console.log(JSON.stringify({status:'PASS',assertions,checkoutModuleScenarios:15,networkCalls:0,providerCalls:0,paymentSessionsCreated:0}));

@@ -90,6 +90,9 @@ for(const [scenario,routePath] of scenarios)for(const width of [390,768,1440]){
     await page.locator('#billing').scrollIntoViewIfNeeded();
   }else if(routePath.startsWith('checkout')){
     await page.waitForFunction(()=>document.querySelector('#organizationName').textContent.includes('Example Workspace'));
+    assert.deepEqual(await page.locator('#billingCountry option').evaluateAll(options=>options.map(option=>option.value)),['US']);
+    assert.match(await page.locator('.billing-contact').textContent(),/Stripe calculates any applicable sales tax from the full billing address and shows the total before payment/);
+    assert.equal(await page.locator('#billingRegion').getAttribute('maxlength'),'2');
     assert.equal(await page.locator('#payBtn').isDisabled(),true);
     await page.locator('#annualCommitmentAccepted').check();
     assert.equal(await page.locator('#payBtn').isDisabled(),false);

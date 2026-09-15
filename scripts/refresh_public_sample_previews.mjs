@@ -41,6 +41,7 @@ const escape = value => String(value ?? '').replace(/&/g,'&amp;').replace(/</g,'
 const number = value => {assert.equal(typeof value,'number');assert.ok(Number.isFinite(value)&&value>=0);return value;};
 const whole = value => number(value).toLocaleString('en-US',{maximumFractionDigits:0});
 const money = value => {assert.equal(typeof value,'number');assert.ok(Number.isFinite(value));return value.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});};
+const roundedMoney = value => money(Math.abs(value)>=10000?Math.round(value/1000)*1000:value);
 const result = entry => entry.source.result?.tool_type ? entry.source.result : entry.source;
 const firstAction = source => {
   assert.equal(source.ai_report.status,'complete');
@@ -96,7 +97,8 @@ function depthCard(place) {
       assert.ok(r.low<=r.central&&r.central<=r.high);
       return money(r.low)+' to '+money(r.high);
     };
-    opportunity='<div class="md-opportunity"><span>Operational scenario · '+whole(s.inputs.horizonMonths)+' months</span><strong data-promo-capacity>'+valueRange('capacityValue')+'</strong><p>Potential staff capacity value, not cash savings. User-specified low to high scenarios, not a forecast.</p></div>';
+    valueRange('capacityValue');
+    opportunity='<div class="md-opportunity"><span>'+whole(s.inputs.measuredPeople)+' people · '+whole(s.inputs.horizonMonths)+' months · Central scenario</span><strong data-promo-capacity>About '+roundedMoney(s.totals.capacityValue.central)+'</strong><p>Potential staff capacity value, not cash savings.</p><dl class="md-scenario-cases">'+['low','central','high'].map(k=>'<div><dt>'+({low:'Low',central:'Central',high:'High'}[k])+'</dt><dd>'+roundedMoney(s.totals.capacityValue[k])+'</dd></div>').join('')+'</dl><p>Rounded planning scenarios. See the assumptions and exact values in the report.</p></div>';
     economics='<div class="md-economics"><div><strong data-promo-net-cash>'+valueRange('netCashEffect',{signed:true})+'</strong><span>Net cash effect, after cash costs</span></div><div><strong data-promo-total-cost>'+valueRange('totalImplementationAndSubscriptionCost')+'</strong><span>Implementation and subscription cost, including internal staff time</span></div></div>';
     basis='Separate operational inputs cover '+whole(s.inputs.measuredPeople)+' people over '+whole(s.method.measurementDays)+' measured days. Capacity is not cash; campaign participation does not establish financial accuracy. Full assumptions and sensitivity cases in the report.';
   }

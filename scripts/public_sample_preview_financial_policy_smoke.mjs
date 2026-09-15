@@ -38,7 +38,10 @@ ok(!sections.hero.includes('data-demo-burden="coordination"'));
 ok(/One participant/.test(sections.hero)&&/not measure hours, organizational cost or savings/.test(sections.hero));
 ok(!/data-demo-recovery|financial assumptions|recovery opportunity/.test(sections.hero));
 for(const place of ['home','brief']){
- ok(sections[place].includes('$64,962 to $556,778'));
+ ok(sections[place].includes('data-promo-capacity>About $365,000'));
+ ok(sections[place].includes('30 people · 12 months · Central scenario'));
+ for(const [label,value]of [['Low','$65,000'],['Central','$365,000'],['High','$557,000']])ok(sections[place].includes('<dt>'+label+'</dt><dd>'+value+'</dd>'));
+ ok(sections[place].includes('Rounded planning scenarios. See the assumptions and exact values in the report.'));
  ok(sections[place].includes('-$56,000 to -$46,000'));
  ok(sections[place].includes('$58,000 to $80,000'));
  ok(/Potential staff capacity value, not cash savings/.test(sections[place]));

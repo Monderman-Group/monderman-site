@@ -39,8 +39,8 @@ const versionStart=injector.indexOf('const shellRelease ='),versionEnd=injector.
 ok(versionStart>=0&&versionEnd>versionStart);
 const versionScript=vm.runInNewContext(injector.slice(versionStart,versionEnd)+'\nversionScript');
 const annualAssets=['monderman-report.js','sample-report-production.js','public-sample-model.js','canonical-site-shell.js','workspace-theme.js'];
-const changed=[...annualAssets,'homepage-workspace-demo.css','campaign-analysis.js','campaign-analysis.css'];
-const runtimeRelease=asset=>annualAssets.includes(asset)?'20260915.annual1':asset==='homepage-workspace-demo.css'?'20260914-preview-static1':'20260913.34';
+const changed=[...annualAssets,'monderman-depth-lure-tile.css','homepage-workspace-demo.css','campaign-analysis.js','campaign-analysis.css'];
+const runtimeRelease=asset=>['monderman-report.js','monderman-depth-lure-tile.css'].includes(asset)?'20260915.financial1':annualAssets.includes(asset)?'20260915.annual1':asset==='homepage-workspace-demo.css'?'20260914-preview-static1':'20260913.34';
 eq(read('monderman-report.js').toString().match(/const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-([^"]+)"/)?.[1],'20260914.43','Renderer version remains 43; annual metadata changes receive a separate cache identity');
 for(const asset of changed){
   for(const quote of ['"',"'"])for(const prefix of ['', './'])for(const query of ['', '?v=20260913.32','?v=20260913.35','?v=20260913.39'])

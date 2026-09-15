@@ -3,10 +3,14 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import {createHash} from 'node:crypto';
 import {sourceBeforeCustomerMetadata} from './report_customer_metadata_inverse.mjs';
+import {sourceBeforeFinancialPresentation} from './report_financial_presentation_inverse.mjs';
 const source=fs.readFileSync(new URL('../monderman-report.js',import.meta.url),'utf8');
 const load=body=>{const c={window:{},Blob,URL,console};vm.runInNewContext(fs.readFileSync(new URL('../participant-evidence-safety.js',import.meta.url),'utf8'),c);vm.runInNewContext(body,c);return c.window.MondermanReport;};
-const R=load(source),prior=load(sourceBeforeCustomerMetadata(source));
-const priorPublishedSource=source.replace('/^[a-z]+\\d+-(?:engine-bounded-)?report-/','/^opus5-engine-bounded-report-/')
+// The exact hash-checked inverse preserves this historical metadata review.
+// The actual financial presentation is independently exercised by the BLUF suite.
+const historicalSource=sourceBeforeFinancialPresentation(source);
+const R=load(source),historical=load(historicalSource),prior=load(sourceBeforeCustomerMetadata(source));
+const priorPublishedSource=historicalSource.replace('/^[a-z]+\\d+-(?:engine-bounded-)?report-/','/^opus5-engine-bounded-report-/')
   .replace('/^report-interpretation-[a-z]+\\d+-/','/^report-interpretation-opus5-/')
   .replace('// remain visible even when AI selects','// remain visible even when Claude selects');
 assert.equal(createHash('sha256').update(priorPublishedSource).digest('hex'),'00c7282e6d91a301f77dd5b691caf49eec4b834da28bb8015f29af13125d1080');
@@ -15,13 +19,13 @@ const artifact=JSON.parse(fs.readFileSync(new URL('../sample-data/production-dia
 let checks=0;const eq=(a,b,msg)=>{assert.equal(JSON.stringify(a),JSON.stringify(b),msg);checks++;};
 for(const [key,entry]of Object.entries(artifact.outputs)){
   const value=structuredClone(entry.source),json=JSON.stringify(value),method=entry.kind==='synthesis'?'fromSynthesis':'fromRun';
-  const model=R[method](value),before=prior.buildReportHtml(prior[method](value)),after=R.buildReportHtml(model);
+  const model=R[method](value),before=prior.buildReportHtml(prior[method](value)),after=historical.buildReportHtml(historical[method](value));
   // Only the method's private model/edition display changes; every report
   // section, authored clause, evidence link, table and chart stays exact.
   const withoutMethod=s=>s.replace(/<details class="mr-report-method[^\"]*">[\s\S]*?<\/details>/g,'METHOD');
   eq(withoutMethod(after),withoutMethod(before),key+' content/layout outside method is exact');
   eq(after,priorPublished.buildReportHtml(priorPublished[method](value)),key+' complete reviewed PDF/HTML input unchanged by generic metadata matcher');
-  assert.doesNotMatch(after,/claude-opus|opus5-/i);checks++;
+  assert.doesNotMatch(R.buildReportHtml(model),/claude-opus|opus5-/i);checks++;
   eq(JSON.stringify(value),json,key+' source immutable');
   const exported=R.customerReportJson(value),oldReport=(value.result||value).ai_report.report,report=(exported.result||exported).ai_report.report;
   eq(report.interpretation,oldReport.interpretation);eq(report.evidence,oldReport.evidence);eq(report.sources,oldReport.sources);

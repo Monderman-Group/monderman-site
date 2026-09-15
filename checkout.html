@@ -77,10 +77,10 @@
       </div>
       <section class="billing-contact" aria-labelledby="billingContactTitle">
         <h2 id="billingContactTitle">Billing and purchasing record</h2>
-        <p>Workspace Admins receive purchase confirmation. Billing location is required to confirm self-service tax eligibility; Stripe verifies the full billing address.</p>
+        <p>Online purchasing is currently available to US customers. Stripe calculates any applicable sales tax from the full billing address and shows the total before payment. Workspace Admins receive purchase confirmation.</p>
         <div class="billing-grid">
-          <div class="billing-field"><label for="billingCountry">Billing country</label><select id="billingCountry" name="billing_country" required><option value="" disabled hidden>Choose a country</option><option value="US" selected>United States</option><option value="CA">Canada</option><option value="GB">United Kingdom</option><option value="AU">Australia</option><option value="NZ">New Zealand</option><option value="IE">Ireland</option><option value="DE">Germany</option><option value="FR">France</option><option value="NL">Netherlands</option></select></div>
-          <div class="billing-field"><label for="billingRegion">State, province, or region code</label><input id="billingRegion" name="billing_region" autocomplete="address-level1" maxlength="3" placeholder="e.g. KS" required /><small>Use the standard two- or three-letter code.</small></div>
+          <div class="billing-field"><label for="billingCountry">Billing country</label><select id="billingCountry" name="billing_country" autocomplete="country" required><option value="US" selected>United States</option></select></div>
+          <div class="billing-field"><label for="billingRegion">State or territory code</label><input id="billingRegion" name="billing_region" autocomplete="address-level1" maxlength="2" pattern="[A-Za-z]{2}" placeholder="e.g. AL" required /><small>Use the standard two-letter code.</small></div>
           <div class="billing-field"><label for="billingContactName">Billing contact name</label><input id="billingContactName" name="billing_contact_name" autocomplete="name" maxlength="160" placeholder="Accounts payable" /></div>
           <div class="billing-field"><label for="purchaseOrderReference">PO or internal reference</label><input id="purchaseOrderReference" name="purchase_order_reference" maxlength="120" placeholder="Optional" /><small>Shown on Stripe invoices when supplied.</small></div>
           <div class="billing-field email"><label for="billingEmail">Billing email</label><input id="billingEmail" name="billing_email" type="email" autocomplete="email" maxlength="320" placeholder="billing@organization.com" /><small>The welcome package and PDF invoice also go here.</small></div>
@@ -89,7 +89,7 @@
       <p class="fine"><label for="annualCommitmentAccepted"><input type="checkbox" id="annualCommitmentAccepted" required /> I am authorized to purchase this 12-month subscription. I understand that monthly payments are installments of the full annual commitment, not a month-to-month plan. Cancellation stops the next annual renewal, not the installments owed for this term.</label></p>
       <button class="btn" id="payBtn" disabled>Continue to secure checkout</button>
       <div class="panel warn" id="unavailablePanel">
-        Self-serve checkout is being enabled. In the meantime, request an order form and we will set your tier up by invoice: <a id="connectLink" href="connect.html">open the Connect form</a>.
+        Online checkout is not available for this purchase yet. For purchasing help, <a id="connectLink" href="connect.html">contact Monderman</a>.
       </div>
       <div class="panel err" id="errorPanel"></div>
       <p class="fine">Full payment-card details are handled in Stripe-hosted checkout and are not received or stored by Monderman. Stripe collects the required billing address and any applicable business tax ID. New Signal and Pattern subscriptions renew annually. Turn off renewal from your Workspace before the next term; the current annual commitment remains payable. Existing subscriptions keep their agreed terms unless a new offer is accepted. Review the Monderman <a href="terms.html">Terms of Use</a> and <a href="privacy.html">Privacy Notice</a>; Stripe presents the checkout-specific price, billing interval, and purchase details before payment.</p>
@@ -232,8 +232,14 @@
           el("annualCommitmentAccepted").focus();
           return;
         }
-        if (!el("billingCountry").value || !el("billingRegion").value.trim()) {
-          showError("Enter the billing country and state, province, or region code before continuing.");
+        if (el("billingCountry").value !== "US") {
+          showError("Online purchasing is currently available to US customers only. Contact Monderman about other locations.");
+          el("unavailablePanel").style.display = "block";
+          el("billingCountry").focus();
+          return;
+        }
+        if (!/^[A-Za-z]{2}$/.test(el("billingRegion").value.trim())) {
+          showError("Enter the two-letter billing state or territory code before continuing.");
           el("billingRegion").focus();
           return;
         }
