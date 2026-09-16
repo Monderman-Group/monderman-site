@@ -8,6 +8,14 @@ const prior=f=>execFileSync('git',['show',`${baseline}:${f}`],{cwd:root,encoding
 const inline=html=>[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
 assert.ok(read('index.html').includes('<h1 class="hero-title" id="hero-title">Less bureaucracy. Better performance.</h1>'));
 assert.ok(read('index.html').includes('"slogan": "Less bureaucracy. Better performance."'));
+const brandStatement='Monderman reveals where decisions stall, unnecessary work accumulates and performance falls short. See what needs attention, decide what to change and measure the results.';
+assert.equal(read('index.html').split(brandStatement).length-1,4,'Hero, search/share metadata and structured description use the approved statement');
+assert.ok(read('site-shell/footer.html').includes(`<p class="mf-copy">${brandStatement}</p>`),'Shared footer uses the exact approved statement');
+for(const f of [...fs.readdirSync(root).filter(f=>f.endsWith('.html')),'site-shell/footer.html','public-search-index.json']) {
+  assert.ok(!read(f).replace(/\s+/g,' ').includes('Monderman helps you examine responsibilities, decisions, processes and performance.'),f+': retired sub-hero must not return');
+}
+const homepageSearch=JSON.parse(read('public-search-index.json')).find(row=>row.url==='index.html');
+assert.ok(homepageSearch.text.includes(brandStatement),'Homepage search entry uses the approved statement');
 assert.ok(read('Monderman_Platform_Brief.html').includes('Examine operating conditions. Save the results. Compare them later.'));
 for(const f of ['decision-velocity.html','structural-clarity.html','operational-systems.html','institutional-performance.html','accept-invite.html','workspace.html','workspace-diagnostics.html']) assert.deepEqual(inline(read(f)),inline(prior(f)),f+': embedded behavior remains byte-identical');
 for(const f of ['privacy.html','terms.html','monderman-report.js','public-sample-model.js','sample-report-production.js','campaign-analysis.js','run-inclusion-review.js','participant-evidence-safety.js','sample-data/production-diagnostic-samples.json'])assert.equal(read(f),prior(f),f+': policy, engine, report or evidence data unchanged');

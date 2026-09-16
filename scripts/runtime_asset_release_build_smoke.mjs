@@ -60,6 +60,8 @@ eq(fs.readdirSync(built).filter(file=>file.endsWith('.html')).sort(),pages);
 const footerPattern=/<footer\b(?=[^>]*\bclass=["'][^"']*\bmond-footer\b[^"']*["'])[^>]*>[\s\S]*?<\/footer>/i;
 const headerPattern=/<header\b(?=[^>]*\bid=["']siteHeader["'])[^>]*>[\s\S]*?<\/header>/i;
 const footer=read('site-shell/footer.html').toString().trim(),header=read('site-shell/header.html').toString().trim();
+const brandStatement='Monderman reveals where decisions stall, unnecessary work accumulates and performance falls short. See what needs attention, decide what to change and measure the results.';
+ok(footer.includes(`<p class="mf-copy">${brandStatement}</p>`),'The shared footer contains the approved brand statement');
 const methodology='href="diagnostics.html#methodology-and-sources"';
 eq(footer.split(methodology).length-1,1);
 const references=Object.fromEntries(changed.map(asset=>[asset,0]));
@@ -69,6 +71,7 @@ const instrumentPages=new Set(['decision-velocity.html','structural-clarity.html
 let canonicalPages=0,footerPages=0;
 for(const file of pages){
   const original=read(file).toString(),html=fs.readFileSync(path.join(built,file),'utf8');
+  ok(!html.replace(/\s+/g,' ').includes('Monderman helps you examine responsibilities, decisions, processes and performance.'),file+': retired sub-hero is absent from the published page');
   const canonical=/<body\b[^>]*\bclass=["'][^"']*\bcanonical-green-shell\b/i.test(original)&&/canonical-site-shell\.js/.test(original);
   if(canonical){canonicalPages++;eq(html.match(headerPattern)?.[0],header,file+': canonical header');}
   if(canonical||footerPattern.test(original)){
