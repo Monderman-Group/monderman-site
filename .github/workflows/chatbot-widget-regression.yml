@@ -38,3 +38,13 @@ jobs:
             sleep 0.2
           done
           node scripts/floating_widget_motion_smoke.mjs
+      - name: Preserve floating-control test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: floating-widget-evidence-${{ github.sha }}
+          path: |
+            output/floating-support/results.json
+            output/full-script-support/results.json
+            /tmp/floating-widget-motion
+          if-no-files-found: warn

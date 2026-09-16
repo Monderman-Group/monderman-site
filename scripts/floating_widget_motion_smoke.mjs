@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {chromium,webkit} from 'playwright';
+const {chromium,webkit} = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 
 export async function runFloatingWidgetMotionSmoke({ base = process.env.SITE_BASE || 'http://127.0.0.1:8080', out = process.env.FLOATING_MOTION_OUT || '/tmp/floating-widget-motion' } = {}) {
   const localOrigin = new URL(base).origin;
@@ -18,8 +18,13 @@ export async function runFloatingWidgetMotionSmoke({ base = process.env.SITE_BAS
         { name: 'research.html', width: 390, height: 844, reveal: '.cta-inner', footerEntry: true },
         { name: 'index.html', width: 390, height: 844, reveal: '.connect-choice-card:last-child', footerEntry: true },
       ]) for (const order of ['assistant-first', 'connect-first']) {
+        const label = `${engineName}/${surface.width}/${surface.name}/${order}/reveal`;
+        let phase = 'navigation';
+        console.log('START', label);
         const page = await engine.newPage({ viewport: { width: surface.width, height: surface.height }, reducedMotion: 'no-preference', serviceWorkers: 'block' });
         const errors = [];
+        const frames = [];
+        try {
         page.on('pageerror', error => errors.push(error.message));
         // Anonymous auth fixture only: no network sign-in or form submission.
         await page.addInitScript(() => { window.supabase = { createClient: () => ({ auth: { getSession: async () => ({ data: { session: null } }), onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }) } }) }; });
@@ -41,11 +46,32 @@ export async function runFloatingWidgetMotionSmoke({ base = process.env.SITE_BAS
         await page.goto(`${base}/${surface.name}`, { waitUntil: 'load', timeout: 30000 });
         await page.locator('#mnd-launcher').waitFor({ state: 'attached' });
         await page.locator('.mdn-cn-launch').waitFor({ state: 'attached' });
-        if (surface.footerEntry) await page.evaluate(() => window.scrollTo({ top: scrollY + document.querySelector('.mond-footer').getBoundingClientRect().top - (innerHeight - 40), behavior: 'instant' }));
-        // Network startup can finish a page's reveal before the test attaches.
-        // After the homepage's existing 2600ms fallback, replay only the real
-        // element's visibility state; all transition CSS/durations stay intact.
-        await page.waitForFunction(() => performance.now() > 3200);
+        await page.evaluate(selector => {
+          const node = document.querySelector(selector);
+          window.__floatingMotionTrace = [];
+          const record = event => {
+            window.__floatingMotionTrace.push({ time: performance.now(), event, className: node.className, reveal: node.getAttribute('data-research-reveal'), transform: getComputedStyle(node).transform });
+            if (window.__floatingMotionTrace.length > 80) window.__floatingMotionTrace.shift();
+          };
+          new MutationObserver(() => record('attributes')).observe(node, { attributes: true, attributeFilter: ['class', 'data-research-reveal'] });
+          for (const name of ['transitionrun', 'transitionend', 'transitioncancel']) node.addEventListener(name, event => { if (event.target === node && event.propertyName === 'transform') record(name); });
+          record('attached');
+        }, surface.reveal);
+        // Let the real observer reveal and unobserve this target before replay.
+        // Navigation uptime does not establish when a deferred script started.
+        phase = 'initial visible lifecycle';
+        await page.locator(surface.reveal).scrollIntoViewIfNeeded();
+        await page.waitForFunction(selector => {
+          const node = document.querySelector(selector), transform = getComputedStyle(node).transform;
+          return (node.getAttribute('data-research-reveal') === 'visible' || node.classList.contains('is-visible'))
+            && (transform === 'none' || Math.abs(new DOMMatrixReadOnly(transform).m42) < 0.01)
+            && node.getAnimations().every(animation => animation.playState === 'finished');
+        }, surface.reveal);
+        // The existing fallback starts when homepage-motion.js executes, not at
+        // navigation start. All deferred scripts have executed at load above.
+        if (surface.name === 'index.html') await page.waitForTimeout(2800);
+        await page.evaluate(footerEntry => window.scrollTo({ top: footerEntry ? scrollY + document.querySelector('.mond-footer').getBoundingClientRect().top - (innerHeight - 40) : 0, behavior: 'instant' }), surface.footerEntry);
+        phase = 'replay hidden endpoint';
         await page.evaluate(selector => {
           const node = document.querySelector(selector);
           if (node.hasAttribute('data-research-reveal')) node.setAttribute('data-research-reveal', 'pending');
@@ -55,12 +81,12 @@ export async function runFloatingWidgetMotionSmoke({ base = process.env.SITE_BAS
           const transform = getComputedStyle(document.querySelector(selector)).transform;
           return transform !== 'none' && new DOMMatrixReadOnly(transform).m42 > 15.9;
         }, surface.reveal);
+        phase = 'sample real reveal';
         await page.evaluate(selector => {
           const node = document.querySelector(selector);
           if (node.hasAttribute('data-research-reveal')) node.setAttribute('data-research-reveal', 'visible');
           else node.classList.add('is-visible');
         }, surface.reveal);
-        const frames = [];
         for (let sample = 0; sample < 36; sample++) {
           // Sample after that frame's layout/controller callbacks, not before
           // requestAnimationFrame has had a chance to place the controls.
@@ -81,6 +107,7 @@ export async function runFloatingWidgetMotionSmoke({ base = process.env.SITE_BAS
         await page.screenshot({ path: path.join(out, `${engineName}-${surface.name}-${order}-reveal-settled.png`) });
         let lateLayout = null;
         if (surface.name === 'connect.html') {
+          phase = 'late content insertion';
           // Deliberately insert normal-flow content at the old control position.
           // No scroll, viewport resize or controller call may repair placement.
           const before = await page.locator('#mnd-launcher').boundingBox();
@@ -102,6 +129,7 @@ export async function runFloatingWidgetMotionSmoke({ base = process.env.SITE_BAS
           }, null, { timeout: 5000 });
           const inserted = await page.locator('#mnd-launcher').boundingBox();
           assert.ok(inserted.y < before.y, 'late content must move the widget without scroll or resize');
+          phase = 'late content removal';
           await page.locator('#late-layout-fixture').evaluate(node => node.remove());
           await page.waitForFunction(before => {
             const box = document.querySelector('#mnd-launcher').getBoundingClientRect();
@@ -109,6 +137,7 @@ export async function runFloatingWidgetMotionSmoke({ base = process.env.SITE_BAS
           }, before, { timeout: 5000 });
           lateLayout = { before, inserted, removed: await page.locator('#mnd-launcher').boundingBox(), returnedWithoutScroll: true };
         }
+        phase = 'settled idle check';
         await page.waitForTimeout(300);
         const idleStyleMutations = await page.evaluate(() => new Promise(resolve => {
           let count = 0;
@@ -116,8 +145,7 @@ export async function runFloatingWidgetMotionSmoke({ base = process.env.SITE_BAS
           for (const node of document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')) observer.observe(node, { attributes: true, attributeFilter: ['style'] });
           setTimeout(() => { observer.disconnect(); resolve(count); }, 150);
         }));
-        const label = `${engineName}/${surface.width}/${surface.name}/${order}/reveal`;
-        evidence.push({ engineName, surface, order, motionTrigger: 'Replay existing reveal state after startup; original CSS, durations and DOM controls unchanged', frames, lateLayout, idleStyleMutations, errors });
+        evidence.push({ engineName, surface, order, motionTrigger: 'Replay after real visible lifecycle and deferred-script fallback; original observers, CSS, durations and DOM controls unchanged', frames, lateLayout, idleStyleMutations, errors });
         fs.writeFileSync(path.join(out, 'floating-reveal-motion.json'), JSON.stringify({ evidence }, null, 2));
         if (!frames.some(frame => frame.revealOffset > 0.1)) failures.push(`${label}: test missed the actual reveal motion`);
         if (frames.some(frame => frame.overlap)) failures.push(`${label}: floating control covered actionable content during reveal`);
@@ -125,7 +153,22 @@ export async function runFloatingWidgetMotionSmoke({ base = process.env.SITE_BAS
         if (errors.length) failures.push(`${label}: browser errors ${JSON.stringify(errors)}`);
         const settled = frames.at(-1);
         if (settled.actions.length !== 2 || settled.actions.some(action => !action.visible || action.box.height < 48 || action.box.left < surface.width / 2 || action.box.right > surface.width || action.box.bottom > surface.height || action.box.bottom > settled.footerTop - 15.5)) failures.push(label + ': settled controls are missing, hidden or clipped');
-        await page.close();
+        phase = 'assert sampled and settled states';
+        assert.deepEqual(failures.filter(failure => failure.startsWith(label)), [], label + ': motion checks');
+        console.log('PASS', label);
+        } catch (error) {
+          const state = await page.evaluate(selector => {
+            const node = document.querySelector(selector), style = node && getComputedStyle(node);
+            return { time: performance.now(), scrollY, viewport: { width: innerWidth, height: innerHeight }, bodyClass: document.body?.className, target: node && { className: node.className, reveal: node.getAttribute('data-research-reveal'), box: node.getBoundingClientRect().toJSON(), transform: style.transform, opacity: style.opacity, transition: style.transition, animations: node.getAnimations().map(animation => ({ playState: animation.playState, currentTime: animation.currentTime, timing: animation.effect?.getComputedTiming() })) }, trace: window.__floatingMotionTrace || [] };
+          }, surface.reveal).catch(() => null);
+          const prefix = `${engineName}-${surface.name}-${order}`;
+          const diagnostic = { status: 'FAIL', label, phase, error: String(error), stack: error.stack, state, frames, errors, completedStates: evidence.length };
+          fs.writeFileSync(path.join(out, prefix + '-failure.json'), JSON.stringify(diagnostic, null, 2));
+          fs.writeFileSync(path.join(out, 'floating-reveal-motion.json'), JSON.stringify({ status: 'FAIL', failure: diagnostic, evidence }, null, 2));
+          await page.screenshot({ path: path.join(out, prefix + '-failure.png') }).catch(() => {});
+          console.error('FAIL', label, 'phase:', phase, String(error));
+          throw error;
+        } finally { await page.close(); }
       }
     } finally { await engine.close(); }
   }
