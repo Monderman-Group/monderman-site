@@ -52,7 +52,7 @@ assert.deepEqual(manifest.required_acknowledgement,{terms_version:"2026-09-15-an
 assert.equal(manifest.published_privacy_notice_version,"2026-09-12-ai-source-evidence-v2"); checks++;
 assert.equal(manifest.published_privacy_notice_file,"privacy-2026-09-12-ai-source-evidence-v2.html"); checks++;
 for (const page of ["index.html","privacy.html","security.html","pilot.html"]) {
-  assert.match(await read(page),/src="assistant\.js\?v=20260910-bounded-chat1"/); checks++;
+  assert.match(await read(page),/src="assistant\.js\?v=20260916\.floating-support1"/); checks++;
 }
 for (const page of ["workspace.html","workspace-diagnostics.html","workspace-analysis.html","workspace-actions.html","workspace-settings.html"]) {
   assert.match(await read(page),/src="workspace-assistant\.js\?v=20260915.consistency1"/); checks++;

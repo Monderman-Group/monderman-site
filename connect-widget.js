@@ -37,6 +37,7 @@
   function ensureFooterDock() {
     if (window.__mondermanFooterDockController) return window.__mondermanFooterDockController;
     var frame = 0;
+    var movingReveals = new Set();
     var root = document.documentElement;
     function render() {
       frame = 0;
@@ -49,6 +50,78 @@
       var connectLauncher = document.querySelector(".mdn-cn-launch");
       var assistantPanel = document.getElementById("mnd-panel");
       var connectPanel = document.getElementById("mdn-cn-panel");
+      if (document.body.classList.contains("canonical-green-shell")) {
+        var visual = window.visualViewport;
+        var viewTop = visual ? visual.offsetTop : 0;
+        var viewHeight = visual ? visual.height : viewportHeight;
+        var viewBottom = viewTop + viewHeight;
+        var edge = width <= 480 ? 16 : 20;
+        var header = document.getElementById("siteHeader");
+        var headerBottom = header ? header.getBoundingClientRect().bottom : 0;
+        var topLimit = Math.max(viewTop + 16, headerBottom + 16);
+        var panelOpen = (assistantPanel && assistantPanel.classList.contains("mnd-open"))
+          || (connectPanel && connectPanel.classList.contains("mdn-cn-open"));
+        var active = document.activeElement;
+        var editingPage = active && active.matches('input,textarea,select,[contenteditable="true"]')
+          && !active.closest("#mnd-panel,#mdn-cn-panel");
+        var navigationOpen = (header && header.classList.contains("mobile-nav-open"))
+          || document.querySelector(".site-search-overlay.is-open");
+        var launchers = [assistantLauncher, connectLauncher].filter(Boolean);
+        var stackWidth = 116;
+        var stackHeight = launchers.length * 48 + Math.max(0, launchers.length - 1) * 12;
+        var bottom = Math.min(viewBottom - edge, footer ? footer.getBoundingClientRect().top - 16 : viewBottom);
+        var rightEdge = width - edge;
+        // Lift the stack clear of actionable page content instead of covering
+        // a button, form field or link while someone scrolls.
+        var obstacles = Array.from(document.querySelectorAll('a[href],button,input,select,textarea,[role="button"],[contenteditable="true"]'))
+          .filter(function (node) {
+            return node !== assistantLauncher && node !== connectLauncher
+              && !node.closest("#siteHeader,.mond-footer,#mnd-panel,#mdn-cn-root")
+              && node.getClientRects().length && getComputedStyle(node).visibility !== "hidden";
+          }).map(function (node) {
+            var box = node.getBoundingClientRect();
+            var top = box.top;
+            // Reserve the reveal's remaining upward travel as well as its
+            // current bounds, including fractional motion between frames.
+            for (var parent = node; parent && parent !== document.body; parent = parent.parentElement) {
+              if (!parent.matches(".reveal.canonical-reveal")) continue;
+              var transform = getComputedStyle(parent).transform;
+              if (transform !== "none") top -= Math.max(0, new DOMMatrixReadOnly(transform).m42);
+            }
+            return { left: box.left, right: box.right, top: top, bottom: box.bottom };
+          });
+        var blocked = false;
+        for (var pass = 0; pass < 12; pass += 1) {
+          var collisions = obstacles.filter(function (box) {
+            return box.right > rightEdge - stackWidth - 8 && box.left < rightEdge + 8
+              && box.bottom > bottom - stackHeight - 8 && box.top < bottom + 8;
+          });
+          if (!collisions.length) { blocked = false; break; }
+          blocked = true;
+          bottom = Math.floor(Math.min.apply(null, collisions.map(function (box) { return box.top - 8; })));
+        }
+        var hide = Boolean(panelOpen || editingPage || navigationOpen || blocked || bottom - stackHeight < topLimit);
+        launchers.forEach(function (launcher) {
+          launcher.style.setProperty("visibility", hide ? "hidden" : "visible", "important");
+          launcher.style.setProperty("pointer-events", hide ? "none" : "auto", "important");
+          launcher.style.setProperty("right", "max(" + edge + "px,env(safe-area-inset-right))", "important");
+          launcher.style.setProperty("left", "auto", "important");
+        });
+        if (assistantLauncher) assistantLauncher.style.setProperty("bottom", "max(" + (viewportHeight - bottom) + "px,env(safe-area-inset-bottom))", "important");
+        if (connectLauncher) connectLauncher.style.setProperty("bottom", "calc(max(" + (viewportHeight - bottom) + "px,env(safe-area-inset-bottom)) + " + (assistantLauncher ? 60 : 0) + "px)", "important");
+        // Keep open dialogs in the visual viewport when a phone keyboard opens.
+        var panelGap = width <= 480 ? 0 : 20;
+        var panelBottom = Math.max(0, viewportHeight - viewBottom) + panelGap;
+        var panelHeight = Math.max(120, viewHeight - panelGap - (width <= 480 ? 16 : Math.max(16, headerBottom - viewTop + 16)));
+        [assistantPanel, connectPanel].forEach(function (panel) {
+          if (!panel) return;
+          panel.style.setProperty("bottom", panelBottom + "px", "important");
+          panel.style.setProperty("max-height", panelHeight + "px", "important");
+        });
+        movingReveals.forEach(function (node) { if (!node.isConnected) movingReveals.delete(node); });
+        if (movingReveals.size) frame = window.requestAnimationFrame(render);
+        return;
+      }
       [assistantLauncher, connectLauncher].forEach(function (launcher) {
         if (!launcher) return;
         if (footerInView) {
@@ -70,14 +143,34 @@
       }
       if (connectPanel) connectPanel.style.setProperty("bottom", (width <= 1180 ? 140 : 148) + lift + "px", "important");
     }
-    function update() {
-      if (!frame) frame = window.requestAnimationFrame(render);
+    function update(immediate) {
+      if (immediate === true) {
+        if (frame) window.cancelAnimationFrame(frame);
+        render();
+      } else if (!frame) frame = window.requestAnimationFrame(render);
     }
     var controller = { update: update };
     window.__mondermanFooterDockController = controller;
     window.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", update, { passive: true });
     window.addEventListener("orientationchange", update, { passive: true });
+    document.addEventListener("focusin", update);
+    document.addEventListener("focusout", update);
+    document.addEventListener("click", update);
+    // Shared reveal transitions move actionable content without a scroll or
+    // resize event. Keep its measured clearance current throughout the motion.
+    function trackRevealMotion(event) {
+      var node = event.target;
+      if (event.propertyName !== "transform" || !document.body.classList.contains("canonical-green-shell")
+          || !node.matches || !node.matches(".reveal.canonical-reveal")) return;
+      if (event.type === "transitionrun") movingReveals.add(node);
+      else movingReveals.delete(node);
+      update();
+    }
+    ["transitionrun", "transitionend", "transitioncancel"].forEach(function (name) {
+      document.addEventListener(name, trackRevealMotion, true);
+    });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { update(); });
     if (window.visualViewport) {
       window.visualViewport.addEventListener("resize", update, { passive: true });
       window.visualViewport.addEventListener("scroll", update, { passive: true });
@@ -214,9 +307,9 @@
   function boot() {
     document.head.appendChild(el('style', null, CSS));
     var root = el('div', { id: 'mdn-cn-root' });
-    var launch = el('button', { class: 'mdn-cn-launch', type: 'button', 'aria-haspopup': 'dialog', 'aria-expanded': 'false', 'aria-label': 'Contact Monderman' },
+    var launch = el('button', { class: 'mdn-cn-launch', type: 'button', 'aria-haspopup': 'dialog', 'aria-expanded': 'false', 'aria-label': 'Connect with Monderman' },
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
-      '<path d="M22 2 11 13"></path><path d="M22 2 15 22l-4-9-9-4 20-7z"></path></svg><span>Contact</span>');
+      '<path d="M22 2 11 13"></path><path d="M22 2 15 22l-4-9-9-4 20-7z"></path></svg><span>Connect</span>');
 
     var panel = el('div', { id: 'mdn-cn-panel', role: 'dialog', 'aria-label': 'Contact Monderman', 'aria-hidden': 'true', inert: '' },
       '<div class="mdn-cn-head"><p class="mdn-cn-title">Talk to Monderman</p>' +
@@ -240,7 +333,9 @@
       dots.forEach(function (d) { d.classList.toggle('is-on', Number(d.dataset.dot) <= step); });
       lbl.textContent = step === 1 ? 'Step 1 of 2 \u00b7 Start the thread' : 'Step 2 of 2 \u00b7 Optional context';
     }
-    function setOpen(open) {
+    function setOpen(open, restoreFocus) {
+      var wasOpen = panel.classList.contains('mdn-cn-open');
+      var shouldRestoreFocus = restoreFocus || panel.contains(document.activeElement);
       if (open) {
         var openAssistantClose = document.querySelector('#mnd-panel.mnd-open #mnd-close');
         if (openAssistantClose) openAssistantClose.click();
@@ -249,16 +344,14 @@
       launch.setAttribute('aria-expanded', String(open));
       panel.toggleAttribute('inert', !open);
       panel.setAttribute('aria-hidden', String(!open));
-      footerDock.update();
+      footerDock.update(true);
       if (open) {
         var f = panel.querySelector('input, textarea');
         f && f.focus();
-      } else if (panel.contains(document.activeElement)) {
-        var menuAction = document.querySelector('[data-site-widget-action="contact"]');
-        var menuButton = document.querySelector('.site-menu-button');
-        var returnTarget = menuAction && menuAction.getClientRects().length
-          ? menuAction
-          : menuButton && menuButton.getClientRects().length ? menuButton : launch;
+      } else if (wasOpen && shouldRestoreFocus) {
+        // WebKit can clear focus as soon as the dialog becomes inert. Restore
+        // it from the dialog state, not from the now-hidden active element.
+        var returnTarget = launch;
         returnTarget.focus();
       }
     }
@@ -326,8 +419,8 @@
     });
 
     launch.addEventListener('click', function () { setOpen(!panel.classList.contains('mdn-cn-open')); });
-    panel.querySelector('.mdn-cn-close').addEventListener('click', function () { setOpen(false); });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+    panel.querySelector('.mdn-cn-close').addEventListener('click', function () { setOpen(false, true); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false, true); });
     document.addEventListener('click', function (e) {
       if (!panel.classList.contains('mdn-cn-open')) return;
       if (!root.contains(e.target)) setOpen(false);

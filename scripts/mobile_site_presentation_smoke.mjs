@@ -123,7 +123,141 @@ async function navigateToStableDocument(page, url) {
   throw lastError;
 }
 
+async function checkFloatingSupport(page, label) {
+  await page.locator('#mnd-launcher').waitFor({ state: 'attached' });
+  await page.locator('.mdn-cn-launch').waitFor({ state: 'attached' });
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  const state = await page.evaluate(() => {
+    const footer = document.querySelector('.mond-footer');
+    const actions = [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].map(node => {
+      const rect = node.getBoundingClientRect();
+      const text = node.querySelector('span')?.getBoundingClientRect();
+      const style = getComputedStyle(node);
+      return { name: node.textContent.trim(), accessibleName: node.getAttribute('aria-label') || node.textContent.trim(), left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height, position: style.position, display: style.display, visibility: style.visibility, pointerEvents: style.pointerEvents, labelWidth: text?.width || 0, labelHeight: text?.height || 0 };
+    });
+    const obstacleOverlap = actions.length === 2 && [...document.querySelectorAll('a[href],button,input,select,textarea,[role="button"],[contenteditable="true"]')].some(node => {
+      if (node.matches('#mnd-launcher,.mdn-cn-launch') || node.closest('#siteHeader,.mond-footer,#mnd-panel,#mdn-cn-root') || !node.getClientRects().length || getComputedStyle(node).visibility === 'hidden') return false;
+      const rect = node.getBoundingClientRect();
+      return rect.right > Math.min(...actions.map(action => action.left)) - 8
+        && rect.left < Math.max(...actions.map(action => action.right)) + 8
+        && rect.bottom > Math.min(...actions.map(action => action.top)) - 8
+        && rect.top < Math.max(...actions.map(action => action.bottom)) + 8;
+    });
+    return {
+      actions,
+      obstacleOverlap,
+      editingPage: Boolean(document.activeElement?.matches('input,textarea,select,[contenteditable="true"]') && !document.activeElement.closest('#mnd-panel,#mdn-cn-panel')),
+      proxyCount: document.querySelectorAll('.site-support,.site-widget-actions,.site-widget-action').length,
+      footerTop: footer ? footer.getBoundingClientRect().top : Infinity,
+      headerBottom: document.querySelector('#siteHeader')?.getBoundingClientRect().bottom || 0,
+      viewportWidth: document.documentElement.clientWidth,
+      viewportHeight: innerHeight,
+    };
+  });
+  if (state.proxyCount !== 0 || state.actions.length !== 2
+      || state.actions.map(action => action.name).sort().join('|') !== 'Chat|Connect'
+      || state.actions.some(action => action.position !== 'fixed' || action.display === 'none' || action.height < 48 || action.labelWidth <= 1 || action.labelHeight <= 1 || !action.accessibleName.toLowerCase().includes(action.name.toLowerCase()))) {
+    failures.push(`${label}: floating support is missing, mislabeled, or undersized (${JSON.stringify(state)})`);
+  }
+  if (state.actions.length === 2) {
+    const hidden = state.actions.filter(action => action.visibility !== 'visible');
+    const requiredSpace = state.actions.reduce((sum, action) => sum + action.height, 0) + 12 + 32;
+    if (hidden.length) {
+      if (hidden.length !== 2 || hidden.some(action => action.pointerEvents !== 'none')
+          || (Math.min(state.footerTop, state.viewportHeight) - state.headerBottom >= requiredSpace
+            && Math.min(...state.actions.map(action => action.top)) >= state.headerBottom + 16
+            && !state.obstacleOverlap && !state.editingPage)) {
+        failures.push(`${label}: floating support hides without a space constraint or remains interactive while hidden (${JSON.stringify(state)})`);
+      }
+      return;
+    }
+    const [top, bottom] = [...state.actions].sort((a, b) => a.top - b.top);
+    if (state.obstacleOverlap || state.actions.some(action => action.left < state.viewportWidth / 2 || action.right > state.viewportWidth || action.top < state.headerBottom + 15.5 || action.bottom > state.viewportHeight || action.bottom > state.footerTop - 15.5)
+        || Math.abs(top.width - bottom.width) > 1 || Math.abs(top.right - bottom.right) > 1 || bottom.top - top.bottom < 11.5) {
+      failures.push(`${label}: floating controls overlap, leave their right-hand stack, or cross the header/footer (${JSON.stringify(state)})`);
+    }
+  }
+}
+
+async function checkRevealMotionDocking() {
+  const evidence = [];
+  for (const [engineName, engineType] of [['chromium', chromium], ['webkit', webkit]]) {
+    const engine = await engineType.launch({ headless: true });
+    try {
+      for (const order of ['assistant-first', 'connect-first']) {
+        const page = await engine.newPage({ viewport: { width: 768, height: 1024 }, reducedMotion: 'no-preference', serviceWorkers: 'block' });
+        const errors = [];
+        page.on('pageerror', error => errors.push(error.message));
+        // Anonymous auth fixture only: no network sign-in or form submission.
+        await page.addInitScript(() => { window.supabase = { createClient: () => ({ auth: { getSession: async () => ({ data: { session: null } }) } }) }; });
+        await page.route('**/*', route => {
+          const url = new URL(route.request().url());
+          return url.origin === localOrigin && route.request().method() === 'GET' ? route.continue() : route.abort();
+        });
+        if (order === 'connect-first') {
+          await page.route('**/connect.html', async route => {
+            const response = await route.fetch();
+            let html = await response.text();
+            const assistant = html.match(/<script\b[^>]*src="assistant\.js[^\"]*"[^>]*><\/script>/)?.[0];
+            const connect = html.match(/<script\b[^>]*src="connect-widget\.js[^\"]*"[^>]*><\/script>/)?.[0];
+            assert.ok(assistant && connect, 'both real widget scripts must exist before testing reversed order');
+            html = html.replace(assistant, '<!-- widget-order-placeholder -->').replace(connect, assistant).replace('<!-- widget-order-placeholder -->', connect);
+            await route.fulfill({ response, body: html });
+          });
+        }
+        await page.goto(`${base}/connect.html`, { waitUntil: 'load', timeout: 30000 });
+        await page.locator('#mnd-launcher').waitFor({ state: 'attached' });
+        await page.locator('.mdn-cn-launch').waitFor({ state: 'attached' });
+        const frames = [];
+        for (let sample = 0; sample < 36; sample++) {
+          // Sample after that frame's layout/controller callbacks, not before
+          // requestAnimationFrame has had a chance to place the controls.
+          await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0))));
+          frames.push(await page.evaluate(() => {
+            const actions = [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].map(node => ({ visible: getComputedStyle(node).visibility === 'visible', box: node.getBoundingClientRect().toJSON() }));
+            const boxes = actions.map(action => action.box);
+            const obstacles = [...document.querySelectorAll('a[href],button,input,select,textarea,[role="button"],[contenteditable="true"]')]
+              .filter(node => !node.matches('#mnd-launcher,.mdn-cn-launch') && !node.closest('#siteHeader,.mond-footer,#mnd-panel,#mdn-cn-root') && node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden')
+              .map(node => ({ id: node.id, box: node.getBoundingClientRect().toJSON() }))
+              .filter(({ box }) => box.right > Math.min(...boxes.map(item => item.left)) - 8 && box.left < Math.max(...boxes.map(item => item.right)) + 8
+                && box.bottom > Math.min(...boxes.map(item => item.top)) - 8 && box.top < Math.max(...boxes.map(item => item.bottom)) + 8);
+            return { actions, obstacles, transform: getComputedStyle(document.querySelector('#contactFormShell')).transform, overlap: actions.every(action => action.visible) && obstacles.length > 0 };
+          }));
+          await page.waitForTimeout(20);
+        }
+        await page.screenshot({ path: path.join(out, `${engineName}-${order}-reveal-settled.png`) });
+        await page.waitForTimeout(300);
+        const idleStyleMutations = await page.evaluate(() => new Promise(resolve => {
+          let count = 0;
+          const observer = new MutationObserver(records => { count += records.length; });
+          for (const node of document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')) observer.observe(node, { attributes: true, attributeFilter: ['style'] });
+          setTimeout(() => { observer.disconnect(); resolve(count); }, 150);
+        }));
+        const label = `${engineName}/768/connect.html/${order}/reveal`;
+        evidence.push({ engineName, order, frames, idleStyleMutations, errors });
+        fs.writeFileSync(path.join(out, 'floating-reveal-motion.json'), JSON.stringify({ evidence }, null, 2));
+        if (!frames.some(frame => frame.transform !== 'none' && new RegExp('matrix').test(frame.transform))) failures.push(`${label}: test missed the actual reveal motion`);
+        if (frames.some(frame => frame.overlap)) failures.push(`${label}: floating control covered actionable content during reveal`);
+        if (idleStyleMutations !== 0) failures.push(`${label}: docking animation callbacks did not stop after reveal`);
+        if (errors.length) failures.push(`${label}: browser errors ${JSON.stringify(errors)}`);
+        await checkFloatingSupport(page, label + '/settled');
+        await page.close();
+      }
+    } finally { await engine.close(); }
+  }
+}
+
+if (process.argv.includes('--floating-motion-only')) {
+  try {
+    await checkRevealMotionDocking();
+    assert.deepEqual(failures, [], `floating reveal failures:\n${failures.join('\n')}`);
+    console.log('floating reveal smoke: passed 144 sampled frames across both widget load orders in Chromium and WebKit');
+  } finally { await browser.close(); }
+  process.exit(0);
+}
+
 try {
+  await checkRevealMotionDocking();
   // Desktop safety contract: the shared stylesheet may contain exactly one
   // top-level rule, and that rule must be the phone-only media query. This
   // makes a future accidental desktop selector a hard release failure.
@@ -380,28 +514,9 @@ try {
   await runtimePage.locator('#mnd-launcher').waitFor({ state: 'attached' });
   await runtimePage.locator('.mdn-cn-launch').waitFor({ state: 'attached' });
 
-  if (await runtimePage.locator('#mnd-launcher').isVisible()
-      || await runtimePage.locator('.mdn-cn-launch').isVisible()) {
-    failures.push('runtime utilities: fixed launchers remain visible over compact page content');
-  }
-  await runtimePage.locator('.site-menu-button').click();
-  const compactActions = await runtimePage.locator('.site-widget-actions').evaluate((element) => {
-    const buttons = [...element.querySelectorAll('.site-widget-action')].map((button) => {
-      const box = button.getBoundingClientRect();
-      return { name: button.textContent.trim(), left: box.left, right: box.right, width: box.width, height: box.height };
-    });
-    return {
-      buttons,
-      viewportWidth: document.documentElement.clientWidth,
-    };
-  });
-  if (compactActions.buttons.length !== 2
-      || compactActions.buttons.some((button) => button.height < 44 || button.left < 0 || button.right > compactActions.viewportWidth)
-      || compactActions.buttons.map((button) => button.name).sort().join('|') !== 'Assistant|Contact') {
-    failures.push(`runtime utilities: compact menu actions are incomplete, clipped, or undersized (${JSON.stringify(compactActions)})`);
-  }
+  await checkFloatingSupport(runtimePage, 'runtime utilities/390');
 
-  await runtimePage.locator('[data-site-widget-action="assistant"]').click();
+  await runtimePage.locator('#mnd-launcher').click();
   await runtimePage.locator('#mnd-panel.mnd-open').waitFor({ state: 'visible' });
   const assistantState = await runtimePage.evaluate(() => {
     const panel = document.querySelector('#mnd-panel');
@@ -412,7 +527,7 @@ try {
       right: box.right,
       width: box.width,
       viewportWidth: document.documentElement.clientWidth,
-      connectVisible: getComputedStyle(connect).display !== 'none',
+      connectVisible: getComputedStyle(connect).display !== 'none' && getComputedStyle(connect).visibility === 'visible',
     };
   });
   if (assistantState.left < -1 || assistantState.right > assistantState.viewportWidth + 1 || assistantState.width < assistantState.viewportWidth - 2) {
@@ -421,11 +536,10 @@ try {
   if (assistantState.connectVisible) failures.push('runtime utilities: Connect launcher remains visible over the open assistant');
 
   await runtimePage.locator('#mnd-close').click();
-  if (!await runtimePage.locator('.site-menu-button').evaluate((node) => document.activeElement === node)) {
-    failures.push('runtime utilities: assistant close does not return focus to the compact menu');
+  if (!await runtimePage.locator('#mnd-launcher').evaluate((node) => document.activeElement === node && getComputedStyle(node).visibility === 'visible')) {
+    failures.push('runtime utilities: assistant close does not return visible focus to its native launcher');
   }
-  await runtimePage.locator('.site-menu-button').click();
-  await runtimePage.locator('[data-site-widget-action="contact"]').click();
+  await runtimePage.locator('.mdn-cn-launch').click();
   await runtimePage.locator('#mdn-cn-panel.mdn-cn-open').waitFor({ state: 'visible' });
   const connectState = await runtimePage.evaluate(() => {
     const panel = document.querySelector('#mdn-cn-panel');
@@ -435,7 +549,7 @@ try {
       left: box.left,
       right: box.right,
       viewportWidth: document.documentElement.clientWidth,
-      assistantVisible: getComputedStyle(assistant).display !== 'none',
+      assistantVisible: getComputedStyle(assistant).display !== 'none' && getComputedStyle(assistant).visibility === 'visible',
     };
   });
   if (connectState.left < -1 || connectState.right > connectState.viewportWidth + 1) {
@@ -448,10 +562,16 @@ try {
   }
   if (connectState.assistantVisible) failures.push('runtime utilities: assistant launcher remains visible over the open Connect panel');
   await runtimePage.locator('.mdn-cn-close').click();
-  if (!await runtimePage.locator('.site-menu-button').evaluate((node) => document.activeElement === node)) {
-    failures.push('runtime utilities: Contact close does not return focus to the compact menu');
+  if (!await runtimePage.locator('.mdn-cn-launch').evaluate((node) => document.activeElement === node && getComputedStyle(node).visibility === 'visible')) {
+    failures.push('runtime utilities: Connect close does not return visible focus to its native launcher');
   }
-  await runtimePage.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await runtimePage.evaluate(() => window.scrollTo({ top: scrollY + document.querySelector('.mond-footer').getBoundingClientRect().top - (innerHeight - 40), behavior: 'instant' }));
+  await runtimePage.waitForFunction(() => {
+    const footerTop = document.querySelector('.mond-footer').getBoundingClientRect().top;
+    return footerTop < innerHeight && [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].every(node => getComputedStyle(node).visibility === 'visible' && node.getBoundingClientRect().bottom <= footerTop - 15.5);
+  });
+  await checkFloatingSupport(runtimePage, 'runtime utilities/390/footer-entry');
+  await runtimePage.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
   await runtimePage.waitForFunction(() => [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')]
     .every((node) => getComputedStyle(node).visibility === 'hidden'));
   const footerUtilityState = await runtimePage.evaluate(() => {
@@ -465,7 +585,7 @@ try {
   if (footerUtilityState.some((item) => item.visibility !== 'hidden' || item.pointerEvents !== 'none')) {
     failures.push(`runtime utilities: launchers remain interactive over the phone footer (${JSON.stringify(footerUtilityState)})`);
   }
-  await runtimePage.evaluate(() => window.scrollTo(0, 0));
+  await runtimePage.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
   await runtimePage.waitForFunction(() => [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')]
     .every((node) => getComputedStyle(node).visibility === 'visible'));
   await runtimePage.close();
@@ -480,26 +600,19 @@ try {
     await navigateToStableDocument(utilityPage, `${base}/index.html`);
     await utilityPage.locator('.mdn-cn-launch').waitFor({ state: 'attached' });
     await utilityPage.locator('#mnd-launcher').waitFor({ state: 'attached' });
-    const utilityGeometry = await utilityPage.evaluate((compact) => {
+    await checkFloatingSupport(utilityPage, `runtime utilities/${width}`);
+    const utilityGeometry = await utilityPage.evaluate(() => {
       const box = (selector) => {
         const node = document.querySelector(selector);
         const rect = node.getBoundingClientRect();
         const label = node.querySelector('span')?.getBoundingClientRect();
         return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height, labelWidth: label?.width || 0, display: getComputedStyle(node).display };
       };
-      if (compact) document.querySelector('.site-menu-button').click();
-      const actions = [...document.querySelectorAll('.site-widget-action')].map((node) => {
-        const rect = node.getBoundingClientRect();
-        return { left: rect.left, right: rect.right, width: rect.width, height: rect.height, display: getComputedStyle(node).display };
-      });
-      return { contact: box('.mdn-cn-launch'), assistant: box('#mnd-launcher'), actions };
-    }, width <= 1180);
-    const expectedHeight = width <= 1180 ? 44 : 39;
-    if (utilityGeometry.contact.display !== 'none'
-        || utilityGeometry.assistant.display !== 'none'
-        || utilityGeometry.actions.length !== 2
-        || utilityGeometry.actions.some((action) => action.display === 'none' || action.height < expectedHeight || action.left < 0 || action.right > width)) {
-      failures.push(`runtime utilities/${width}: fixed controls remain in the content plane or header actions are invalid (${JSON.stringify(utilityGeometry)})`);
+      return { contact: box('.mdn-cn-launch'), assistant: box('#mnd-launcher') };
+    });
+    if (utilityGeometry.contact.display === 'none'
+        || utilityGeometry.assistant.display === 'none') {
+      failures.push(`runtime utilities/${width}: native floating controls are missing (${JSON.stringify(utilityGeometry)})`);
     }
     await utilityPage.close();
   }
@@ -551,8 +664,8 @@ try {
           if (closed.menu.width < 44 || closed.menu.height < 44 || closed.navDisplay !== 'none' || closed.documentWidth > closed.viewportWidth + 1) {
             failures.push(`${label}: closed navigation is clipped, exposed, or undersized (${JSON.stringify(closed)})`);
           }
-          if (closed.assistantDisplay !== 'none' || closed.contactDisplay !== 'none') {
-            failures.push(`${label}: fixed support controls remain in the compact content plane (${JSON.stringify(closed)})`);
+          if (closed.assistantDisplay === 'none' || closed.contactDisplay === 'none') {
+            failures.push(`${label}: native floating support controls are missing (${JSON.stringify(closed)})`);
           }
 
           await page.locator('.site-menu-button').click();
@@ -594,10 +707,8 @@ try {
           if (Math.abs(opened.search.width - opened.nav.width) > 1 || Math.abs(opened.entry.width - opened.nav.width) > 1 || opened.search.height < 44 || opened.entry.height < 44 || opened.searchLabel !== 'Search') {
             failures.push(`${label}: Search and primary action are not balanced full-width touch rows (${JSON.stringify(opened)})`);
           }
-          if (opened.support.length !== 2
-              || opened.support.some((item) => item.height < 44 || item.left < opened.nav.left - 1 || item.right > opened.nav.right + 1)
-              || Math.abs(opened.support[0].width - opened.support[1].width) > 1) {
-            failures.push(`${label}: Contact and Assistant are not balanced compact-menu actions (${JSON.stringify(opened)})`);
+          if (opened.support.length !== 0) {
+            failures.push(`${label}: support controls remain in the compact menu (${JSON.stringify(opened.support)})`);
           }
           if (opened.documentWidth > opened.viewportWidth + 1) failures.push(`${label}: opening the navigation creates horizontal overflow`);
 
@@ -635,6 +746,7 @@ try {
           await page.keyboard.press('Escape');
           const closedByKeyboard = await page.locator('.site-menu-button').getAttribute('aria-expanded');
           if (closedByKeyboard !== 'false') failures.push(`${label}: Escape did not close the mobile navigation`);
+          await checkFloatingSupport(page, label);
           await page.close();
         }
       }

@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import http from 'node:http';
+import crypto from 'node:crypto';
 import { chromium, webkit } from 'playwright';
 
 const root = path.resolve('.render-public');
@@ -11,6 +12,23 @@ const output = path.resolve(process.env.DV_JOURNEY_OUT || 'output/dv-journey-bro
 const releaseChannel=JSON.parse(fs.readFileSync(path.join(root,'.well-known/monderman-questionnaire-release.json'))).channel;
 assert.ok(['legacy','current'].includes(releaseChannel));
 fs.mkdirSync(output, {recursive:true});
+// Fetch only the three public, version-pinned rendering dependencies once.
+// Browser contexts receive these verified bytes locally, never live API data.
+const dependencyUrls=new Set([
+  'https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
+]);
+const dependencies=new Map();
+for(const match of fs.readFileSync(path.join(root,'decision-velocity.html'),'utf8').matchAll(/<script[^>]*src="([^"]+)"[^>]*integrity="sha384-([^"]+)"/g)){
+  if(!dependencyUrls.has(match[1]))continue;
+  const response=await fetch(match[1],{redirect:'error',signal:AbortSignal.timeout(30000)});
+  assert.equal(response.status,200,`pinned public dependency: ${match[1]}`);
+  const body=Buffer.from(await response.arrayBuffer());
+  assert.equal(crypto.createHash('sha384').update(body).digest('base64'),match[2],`dependency integrity: ${match[1]}`);
+  dependencies.set(match[1],{body,sha384:match[2]});
+}
+assert.equal(dependencies.size,3,'all three exact rendering dependencies must be SRI verified');
 const mime = {'.html':'text/html','.js':'application/javascript','.css':'text/css','.svg':'image/svg+xml','.woff2':'font/woff2','.png':'image/png','.ico':'image/x-icon','.pdf':'application/pdf'};
 const server = http.createServer((req,res) => {
   const file = path.resolve(root, '.' + new URL(req.url, 'http://localhost').pathname.replace(/\/$/, '/index.html'));
@@ -42,7 +60,17 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
   const browser = await type.launch({headless:true});
   browsers.push(browser);
   console.log(`${browserName}: beginning local journey`);
-  const context = await browser.newContext({viewport:{width:390,height:844}});
+  const context = await browser.newContext({viewport:{width:390,height:844},serviceWorkers:'block'});
+  let blockedExternalRequests=0;
+  const blockedExternalUrls=new Set();
+  // Later, specific API/auth routes take precedence over this deny-by-default
+  // guard. No otherwise-unmatched host may receive a browser request.
+  await context.route('**/*',route=>{
+    const url=new URL(route.request().url());
+    if(url.origin===base||['data:','blob:'].includes(url.protocol))return route.continue();
+    if(dependencies.has(url.href))return route.fulfill({contentType:'application/javascript',headers:{'access-control-allow-origin':'*'},body:dependencies.get(url.href).body});
+    blockedExternalRequests++;blockedExternalUrls.add(url.origin+url.pathname);return route.abort('blockedbyclient');
+  });
   await context.addInitScript({content:fixtureAuth});
   const page = await context.newPage();
   const errors=[];
@@ -259,7 +287,11 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
   await page.locator('#otpInput').fill('12345678');await page.locator('#otpSubmit').click();
   await page.locator('#legalAgree').check();await page.locator('#legalSubmit').click();
   await page.waitForURL(/decision-velocity\.html\?(resume=1|saved_report=)/);
-  await page.locator('#resultsStage.active').waitFor({timeout:15000});
+  try {await page.locator('#resultsStage.active').waitFor({timeout:15000});}
+  catch(error){
+    fs.writeFileSync(path.join(output,`${browserName}-handoff-failure.json`),JSON.stringify({url:page.url(),blockedExternalUrls:[...blockedExternalUrls],errors,requests:requests.map(({path,method})=>({path,method})),state:await page.evaluate(()=>({body:document.body.innerText,stages:[...document.querySelectorAll('#resultsStage,#savedReportRecovery')].map(el=>({id:el.id,className:el.className,display:getComputedStyle(el).display}))}))},null,2));
+    throw error;
+  }
   assert.equal(starts,1,'sign-in must not consume another admission');
   assert.equal(requests.filter(e=>/\/(answer|revise)$/.test(e.path)).length,finalAnswerRequests);
   assert.equal(await page.evaluate(()=>sessionStorage.getItem('monderman.dvJourney.v1')),null,'saved report clears anonymous capability');
@@ -313,9 +345,9 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
   assert.equal(await page.locator('#savedReportRecovery .mr-report').count(),0,'late response after sign-out must not restore report');
   assert.equal(finalizations,completedFinalizations);assert.equal(starts,1);
   assert.deepEqual(errors,[]);
-  results.push({browserName,starts,commits,finalizations,answerRequests:finalAnswerRequests,footerEvidence,passed:true});
+  results.push({browserName,starts,commits,finalizations,answerRequests:finalAnswerRequests,footerEvidence,blockedExternalRequests,networkPolicy:'Loopback and locally fulfilled SRI-verified rendering dependencies; explicit API/auth mocks; all other browser requests aborted',passed:true});
   await context.close();await browser.close();
 }
-fs.writeFileSync(path.join(output,'results.json'),JSON.stringify({mode:'local mocked API/auth/email; not production',results},null,2));
+fs.writeFileSync(path.join(output,'results.json'),JSON.stringify({mode:'local mocked API/auth/email; not production',publicDependencyDownloads:[...dependencies].map(([url,{body,sha384}])=>({url,sha384,bytes:body.length})),liveApiCalls:0,results},null,2));
 console.log(JSON.stringify({passed:true,results,output},null,2));
 } finally {await Promise.all(browsers.map(browser=>browser.close()));server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}

@@ -110,37 +110,6 @@
         menuButton.setAttribute("aria-label", "Open navigation");
         if (restoreFocus) menuButton.focus();
       };
-      const widgetActions = document.createElement("div");
-      widgetActions.className = "site-widget-actions";
-      widgetActions.setAttribute("aria-label", "Contact and support");
-      widgetActions.innerHTML = `
-        <button class="site-widget-action" type="button" data-site-widget-action="contact" aria-label="Contact Monderman" title="Contact Monderman" aria-controls="mdn-cn-panel">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2 11 13"></path><path d="M22 2 15 22l-4-9-9-4 20-7z"></path></svg>
-          <span>Contact</span>
-        </button>
-        <button class="site-widget-action" type="button" data-site-widget-action="assistant" aria-label="Open Monderman assistant" title="Open Monderman assistant" aria-controls="mnd-panel">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 3v-3H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"></path></svg>
-          <span>Assistant</span>
-        </button>`;
-      const widgetMount = nav.querySelector(".workspace-link");
-      if (widgetMount) widgetMount.before(widgetActions);
-      else nav.appendChild(widgetActions);
-      const activateWidget = (selector, fallback) => {
-        closeMobileNav();
-        window.requestAnimationFrame(() => {
-          const launcher = document.querySelector(selector);
-          if (launcher) launcher.click();
-          else fallback();
-        });
-      };
-      widgetActions.querySelector('[data-site-widget-action="contact"]').addEventListener("click", () => activateWidget(
-        ".mdn-cn-launch",
-        () => location.assign(new URL("connect.html", location.href)),
-      ));
-      widgetActions.querySelector('[data-site-widget-action="assistant"]').addEventListener("click", () => activateWidget(
-        "#mnd-launcher",
-        () => header.querySelector(".site-search-button")?.click(),
-      ));
       menuButton.addEventListener("click", () => {
         const opening = !header.classList.contains("mobile-nav-open");
         header.classList.toggle("mobile-nav-open", opening);

@@ -66,7 +66,22 @@ eq(read('homepage-workspace-demo.js'),execFileSync('git',['show','HEAD:homepage-
 const priorShell=execFileSync('git',['show','f91fb07fde754dea57360ddbddc9bf742d6e6702:canonical-site-shell.js'],{cwd:root,encoding:'utf8'});
 const approvedShell=priorShell.replace('tagline.textContent = "See the work clearly. Make the next move count.";','if (!tagline.textContent.trim()) tagline.textContent = "Less bureaucracy. Better performance.";')
   .replace('    document.querySelectorAll(".mond-footer .mf-copy").forEach((copy) => {\n      copy.textContent = "Monderman provides repeatable organizational diagnostics for ownership, decisions, handoffs, and administrative work.";\n    });\n','');
-eq(read('canonical-site-shell.js'),approvedShell,'Only approved footer ownership and fallback copy change; header state logic is unchanged');
+// The approved floating-widget release removes only the original header
+// proxies. Pin the exact historical block before subtracting it; retain the
+// complete-file comparison for every remaining header and shell behavior.
+const retiredHeaderWidgets=[...approvedShell.matchAll(/      const widgetActions = document\.createElement\("div"\);\n[\s\S]*?(?=      menuButton\.addEventListener\("click",)/g)];
+eq(retiredHeaderWidgets.length,1,'Exactly one historical header-widget block is identified');
+eq(sha(retiredHeaderWidgets[0][0]),'347c1f4c7067bca1cd54c550498e3d0683e424e162b3fa68219b4ba7c17b1524','Only the reviewed 31-line legacy proxy block may be removed');
+const approvedFloatingShell=approvedShell.replace(retiredHeaderWidgets[0][0],'');
+const assertApprovedShell=candidate=>assert.equal(candidate,approvedFloatingShell,'Only approved footer copy and header-proxy removal differ; all remaining header state logic is unchanged');
+assertApprovedShell(read('canonical-site-shell.js'));checks++;
+for(const candidate of [
+  approvedFloatingShell+retiredHeaderWidgets[0][0],
+  approvedFloatingShell.replace('const opening = !header.classList.contains("mobile-nav-open");','const opening = true;'),
+]){
+  assert.notEqual(candidate,approvedFloatingShell,'Header-state negative actually mutates the approved source');
+  assert.throws(()=>assertApprovedShell(candidate),'Restored proxies or unrelated navigation changes must fail');checks++;
+}
 check(read('index.html').includes('homepage-workspace-demo.css?v=20260914-preview-static1'),'Source preview stylesheet cache advances');
 check(read('scripts/inject-public-shell.mjs').includes('"homepage-workspace-demo.css": "20260914-preview-static1"'),'Built preview stylesheet cache advances');
 // Exercise the actual browser predicates offline; geometry alone cannot admit

@@ -23,3 +23,17 @@ jobs:
         run: |
           node scripts/chatbot_widget_browser_smoke.mjs
           node scripts/chatbot_site_layout_smoke.mjs
+      - name: Verify restored floating controls and shared footer on every public page
+        run: |
+          MONDERMAN_QUESTIONNAIRE_RELEASE=current RENDER_GIT_COMMIT="${{ github.sha }}" bash scripts/render-static-build.sh
+          node scripts/footer_support_smoke.mjs
+      - name: Keep floating controls clear of moving contact fields
+        run: |
+          python3 -m http.server 8080 --directory .render-public > /tmp/floating-widget-http.log 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid"' EXIT
+          for attempt in {1..20}; do
+            if curl -fsS http://127.0.0.1:8080/connect.html -o /dev/null; then break; fi
+            sleep 0.2
+          done
+          node scripts/floating_widget_motion_smoke.mjs
