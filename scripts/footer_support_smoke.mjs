@@ -80,6 +80,10 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
           assert.deepEqual(errors, [], label + ': support script errors');
           assert.equal(await page.locator('.mf-device-protection').innerText(), 'Administrative device protection: CrowdStrike Falcon');
           assert.equal(await page.locator('.mf-device-protection a').getAttribute('href'), 'security.html#administrative-device-protection');
+          assert.ok(await page.locator('.mf-device-protection a').evaluate(n => {
+            const link = getComputedStyle(n), paragraph = getComputedStyle(n.parentElement);
+            return link.fontSize === paragraph.fontSize && link.lineHeight === paragraph.lineHeight && link.fontFamily === paragraph.fontFamily && link.letterSpacing === 'normal';
+          }), label + ': device disclosure typography is isolated from legacy page link styles');
           assert.equal(await page.locator('.site-support,.site-widget-actions,.site-widget-action').count(), 0);
           if (shell) {
             const initial = await geometry();

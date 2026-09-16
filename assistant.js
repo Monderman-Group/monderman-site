@@ -60,6 +60,7 @@
   function ensureFooterDock() {
     if (window.__mondermanFooterDockController) return window.__mondermanFooterDockController;
     var frame = 0;
+    var movingReveals = new Set();
     var root = document.documentElement;
     function render() {
       frame = 0;
@@ -100,7 +101,18 @@
             return node !== assistantLauncher && node !== connectLauncher
               && !node.closest("#siteHeader,.mond-footer,#mnd-panel,#mdn-cn-root")
               && node.getClientRects().length && getComputedStyle(node).visibility !== "hidden";
-          }).map(function (node) { return node.getBoundingClientRect(); });
+          }).map(function (node) {
+            var box = node.getBoundingClientRect();
+            var top = box.top;
+            // Reserve the reveal's remaining upward travel as well as its
+            // current bounds, including fractional motion between frames.
+            for (var parent = node; parent && parent !== document.body; parent = parent.parentElement) {
+              if (!parent.matches(".reveal.canonical-reveal")) continue;
+              var transform = getComputedStyle(parent).transform;
+              if (transform !== "none") top -= Math.max(0, new DOMMatrixReadOnly(transform).m42);
+            }
+            return { left: box.left, right: box.right, top: top, bottom: box.bottom };
+          });
         var blocked = false;
         for (var pass = 0; pass < 12; pass += 1) {
           var collisions = obstacles.filter(function (box) {
@@ -109,7 +121,7 @@
           });
           if (!collisions.length) { blocked = false; break; }
           blocked = true;
-          bottom = Math.min.apply(null, collisions.map(function (box) { return box.top - 8; }));
+          bottom = Math.floor(Math.min.apply(null, collisions.map(function (box) { return box.top - 8; })));
         }
         var hide = Boolean(panelOpen || editingPage || navigationOpen || blocked || bottom - stackHeight < topLimit);
         launchers.forEach(function (launcher) {
@@ -129,6 +141,8 @@
           panel.style.setProperty("bottom", panelBottom + "px", "important");
           panel.style.setProperty("max-height", panelHeight + "px", "important");
         });
+        movingReveals.forEach(function (node) { if (!node.isConnected) movingReveals.delete(node); });
+        if (movingReveals.size) frame = window.requestAnimationFrame(render);
         return;
       }
       [assistantLauncher, connectLauncher].forEach(function (launcher) {
@@ -166,6 +180,20 @@
     document.addEventListener("focusin", update);
     document.addEventListener("focusout", update);
     document.addEventListener("click", update);
+    // Shared reveal transitions move actionable content without a scroll or
+    // resize event. Keep its measured clearance current throughout the motion.
+    function trackRevealMotion(event) {
+      var node = event.target;
+      if (event.propertyName !== "transform" || !document.body.classList.contains("canonical-green-shell")
+          || !node.matches || !node.matches(".reveal.canonical-reveal")) return;
+      if (event.type === "transitionrun") movingReveals.add(node);
+      else movingReveals.delete(node);
+      update();
+    }
+    ["transitionrun", "transitionend", "transitioncancel"].forEach(function (name) {
+      document.addEventListener(name, trackRevealMotion, true);
+    });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { update(); });
     if (window.visualViewport) {
       window.visualViewport.addEventListener("resize", update, { passive: true });
       window.visualViewport.addEventListener("scroll", update, { passive: true });
