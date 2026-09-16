@@ -389,6 +389,16 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
         if(width===390||width===1440){const fileName=`${name}-${width}-homepage.png`;await page.screenshot({path:path.join(out,fileName)});screenshots.push(fileName);}
       }
       if(file==='diagnostics.html'){
+        const team=page.locator('.dx-team-view-grid');
+        const cards=await team.locator('.dx-step').evaluateAll(nodes=>nodes.map(el=>{
+          const heading=el.querySelector('h3').getBoundingClientRect(),box=el.getBoundingClientRect(),style=getComputedStyle(el);
+          return {left:heading.left,right:box.right,inset:heading.left-box.left,border:style.borderTopWidth,font:parseFloat(getComputedStyle(el.querySelector('p')).fontSize),fits:el.scrollWidth<=el.clientWidth+1};
+        }));
+        eq(cards.length,4,'Individual/team overview retains all four report modes');
+        check(cards.every(card=>card.inset===0&&card.border==='1px'&&card.font>=16&&card.fits),'Every reading card has matching rule, inset and readable body text');
+        if(width>900){eq(cards[0].left,cards[2].left,'Left-column headings align');eq(cards[1].left,cards[3].left,'Right-column headings align');}
+        else check(cards.every(card=>card.left===cards[0].left),'All stacked headings align at phone/tablet widths');
+        const teamFile=`${name}-${width}-team-overview.png`;await team.screenshot({path:path.join(out,teamFile)});screenshots.push(teamFile);
         await page.goto(origin+'/diagnostics.html#methodology-and-sources',{waitUntil:'load'});
         await page.evaluate(()=>document.fonts.ready);
         await settledPaint(page,settledHeaderState);

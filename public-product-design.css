@@ -147,6 +147,11 @@
   .page-diagnostic-catalog .dx-method-detail[open] summary { margin-bottom:var(--mdm-space-5,1.5rem); }
   .page-diagnostic-catalog .dx-method-detail .dx-step span { display:none; }
   .page-diagnostic-catalog .dx-card-grid + .dx-intro { margin-top:var(--mdm-space-6,2rem); }
+  /* A two-column reading grid must not inherit first/last padding from a three-step row. */
+  .page-diagnostic-catalog .dx-team-view-grid { margin-top:var(--mdm-space-6,2rem); gap:var(--mdm-space-6,2rem) 3rem; }
+  .page-diagnostic-catalog .dx-team-view-grid .dx-step { padding:var(--mdm-space-5,1.5rem) 0 0; border:0; border-top:1px solid var(--mdm-rule); }
+  .page-diagnostic-catalog .dx-team-view-grid .dx-step h3 { margin:0 0 .75rem; }
+  .page-diagnostic-catalog .dx-team-view-grid .dx-step p { font-size:1rem; }
   @media (min-width:961px) {
     body.product-surface :is(.hero,.ps-hero) h1 { font-size:3rem; line-height:1.08; }
   }
