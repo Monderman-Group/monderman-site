@@ -2,8 +2,8 @@
    Research keeps its editorial palette; printed documents keep their own rules. */
 @media screen {
   body.product-surface {
-    --mdm-teal: #087F8C;
-    --mdm-teal-dark: #066570;
+    --mdm-teal: var(--mdm-color-teal, #0C6E78);
+    --mdm-teal-dark: var(--mdm-color-teal-hover, #0A5B63);
     --mdm-paper: #F4F7F8;
     --mdm-rule: #DCE5E8;
     --mdm-rule-strong: #C8D7DB;
@@ -53,7 +53,7 @@
     transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
   }
   body.product-surface :is(.btn, .ps-btn, .dx-btn):focus-visible {
-    outline: 3px solid #087F8C;
+    outline: 3px solid var(--mdm-teal);
     outline-offset: 3px;
   }
   body.product-surface :is(.hero, .ps-hero, .ps-enterprise, .ctaband)
@@ -67,8 +67,8 @@
     box-shadow: 0 2px 8px rgba(4, 24, 27, .035);
   }
   body.product-surface :is(.ps-tier.featured, .pl-card.featured) {
-    border-color: #087F8C;
-    box-shadow: 0 0 0 1px #087F8C, 0 6px 20px rgba(8, 127, 140, .08);
+    border-color: var(--mdm-teal);
+    box-shadow: 0 0 0 1px var(--mdm-teal), 0 6px 20px rgba(12, 110, 120, .08);
   }
   body.product-surface :is(.ps-tier-name, .ps-price .amt, .ps-tier-for b) {
     color: #102C33;
@@ -99,7 +99,7 @@
     letter-spacing: .11em;
   }
   body.product-surface :is(input, select, textarea):focus-visible {
-    outline: 3px solid #087F8C;
+    outline: 3px solid var(--mdm-teal);
     outline-offset: 2px;
   }
 
@@ -140,5 +140,14 @@
   }
   @media (prefers-reduced-motion: reduce) {
     body.product-surface :is(.btn, .ps-btn, .dx-btn) { transition: none; }
+  }
+  /* Methodology shares the catalog's spacing, with optional technical detail. */
+  .page-diagnostic-catalog .dx-method-detail { margin-top:var(--mdm-space-6,2rem); border-top:1px solid var(--mdm-rule); padding-top:var(--mdm-space-5,1.5rem); }
+  .page-diagnostic-catalog .dx-method-detail summary { cursor:pointer; min-height:48px; display:list-item; color:var(--mdm-teal-dark); font-weight:600; }
+  .page-diagnostic-catalog .dx-method-detail[open] summary { margin-bottom:var(--mdm-space-5,1.5rem); }
+  .page-diagnostic-catalog .dx-method-detail .dx-step span { display:none; }
+  .page-diagnostic-catalog .dx-card-grid + .dx-intro { margin-top:var(--mdm-space-6,2rem); }
+  @media (min-width:961px) {
+    body.product-surface :is(.hero,.ps-hero) h1 { font-size:3rem; line-height:1.08; }
   }
 }

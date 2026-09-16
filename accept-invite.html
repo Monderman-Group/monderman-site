@@ -16,40 +16,39 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260906-enterprise1">
 <style>
     :root{
-      --ink:#0F1720; --accent:#3F6EA1; --paper:#F4F6F8; --text:#15202B; --muted:#6B7785;
+      --ink:#18191C; --accent:#0C6E78; --accent-dark:#0A5B63; --paper:#FAFAF8; --text:#18191C; --muted:#6E6F73;
     }
     *{box-sizing:border-box}
     body{
       margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
       padding:24px; background:var(--paper); color:var(--text);
-      font-family:'Neue Haas Grotesk Display Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
+      font-family:'Neue Haas Grotesk','Helvetica Neue',Helvetica,Arial,sans-serif;
     }
     .card{
       max-width:460px; width:100%; text-align:center; background:#fff;
       border:1px solid rgba(21,32,43,.09); border-radius:16px; padding:42px 38px;
       box-shadow:0 1px 2px rgba(15,23,32,.04), 0 18px 40px rgba(15,23,32,.07);
     }
-    .mark{
-      width:44px; height:44px; border-radius:10px; background:var(--ink); color:#fff;
-      display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:22px;
-    }
+    .invitation-brand{display:inline-flex;align-items:center;gap:10px;margin:0 auto 24px;color:#073338;text-decoration:none;font-size:24px;font-weight:700;line-height:1}
+    .invitation-brand svg{width:40px;height:40px;display:block;fill:none;stroke:currentColor}
     h1{margin:0 0 10px; font-size:22px; letter-spacing:-.02em}
-    p{margin:0 0 14px; font-size:14.5px; line-height:1.6; color:var(--muted); overflow-wrap:anywhere}
+    p{margin:0 0 14px; font-size:16px; line-height:1.6; color:var(--muted); overflow-wrap:anywhere}
     p:last-of-type{margin-bottom:0}
     .cta{
-      display:inline-block; margin-top:24px; font:inherit; font-size:15px; font-weight:600;
-      color:#fff; background:var(--ink); border:0; border-radius:10px; padding:12px 26px;
+      display:inline-flex; align-items:center; justify-content:center; min-height:48px; margin-top:24px; font:inherit; font-size:16px; font-weight:600;
+      color:#fff; background:var(--accent); border:0; border-radius:10px; padding:12px 26px;
       cursor:pointer; text-decoration:none;
     }
-    .cta:hover{background:#1b2836}
-    .cta:focus-visible{outline:3px solid rgba(63,110,161,.45);outline-offset:3px;background:#1b2836}
-    .fine{margin-top:18px; font-size:12.5px; color:var(--muted)}
+    .cta:hover{background:var(--accent-dark)}
+    .cta:focus-visible{outline:3px solid var(--accent);outline-offset:3px;background:var(--accent-dark)}
+    .fine{margin-top:18px; font-size:14px; color:var(--muted)}
+    @media(max-width:480px){body{padding:20px}.card{padding:32px 24px}}
   </style>
-  <link rel="stylesheet" href="visual-polish.css?v=20260823-4">
+  <link rel="stylesheet" href="visual-polish.css?v=20260915.consistency1">
 </head>
 <body class="transaction-surface">
   <main class="card" role="main">
-    <div class="mark" aria-hidden="true">&#9679;</div>
+    <a class="invitation-brand" href="index.html" aria-label="Monderman home"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M6 9.2 11 5.75 16 8.3 21 5.75 26 9.2V26L21 23.2 16 26 11 23.2 6 26Z" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 5.75V23.2M16 8.3V26M21 5.75V23.2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Monderman.</span></a>
     <div id="valid">
       <h1>You&rsquo;ve been invited to a Monderman workspace</h1>
       <p>Authenticate using <b>the email address that received this invitation</b>. No purchase or separate signup is required. Access is granted only after you review and accept the current Terms of Use and Privacy Notice.</p>

@@ -409,9 +409,9 @@ body{transition:background-color .25s ease, color .25s ease}
     .ws5-content{padding:0}
   }
   </style>
-  <link rel="stylesheet" href="visual-polish.css?v=20260823-4">
+  <link rel="stylesheet" href="visual-polish.css?v=20260915.consistency1">
   <link rel="stylesheet" href="workspace-cosmetic-audit.css?v=20260829-1">
-  <link rel="stylesheet" href="workspace-product-design.css?v=20260909-product1">
+  <link rel="stylesheet" href="workspace-product-design.css?v=20260915.consistency1">
 </head>
 <body class="workspace-surface">
   <div class="ws5-shell">
@@ -452,7 +452,7 @@ body{transition:background-color .25s ease, color .25s ease}
         <a data-lens="over-time">Over time</a>
         <a data-lens="across-units">Across units</a>
         <a data-lens="across-lenses" class="active">Latest Diagnostic snapshot</a>
-        <a data-lens="across-vantages">Across vantages</a>
+        <a data-lens="across-vantages">By participant perspective</a>
         <a data-lens="vs-sector">Calibration position</a>
         <a data-lens="intervention">Before-and-after change</a>
         <a data-lens="synthesis">Depth Synthesis &amp; Cross-Lens Synthesis</a>
@@ -514,7 +514,7 @@ body{transition:background-color .25s ease, color .25s ease}
         <!-- ACROSS VANTAGES -->
         <section class="lens" data-lens="across-vantages" hidden>
           <div class="view-head">
-            <div><div class="eyebrow">Across vantages</div><h2>Compare participant perspectives</h2><p>Operational, Managerial, and Senior Leader results appear together only when Diagnostic version and operating-pathway scope are compatible.</p></div>
+            <div><div class="eyebrow">By participant perspective</div><h2>Compare participant perspectives</h2><p>Operational, Managerial and Senior Leader results appear together when they use compatible diagnostic versions and examine the same work or process.</p></div>
             <select class="selector" id="avSel" aria-label="Choose an instrument"></select>
           </div>
           <div id="avBody"></div>
@@ -531,7 +531,7 @@ body{transition:background-color .25s ease, color .25s ease}
         <!-- BEFORE-AND-AFTER CHANGE -->
         <section class="lens" data-lens="intervention" hidden>
           <div class="view-head">
-            <div><div class="eyebrow">Before-and-after change</div><h2>Compare before and after</h2><p>Uses an explicitly linked before result and later like-for-like remeasurement. The displayed delta is observed; it is not attributed causally to the intervention.</p></div>
+            <div><div class="eyebrow">Before-and-after change</div><h2>Compare before and after</h2><p>Compare the linked results before and after a change. The difference shows what changed in the responses; other records are needed to establish the cause.</p></div>
             <select class="selector" id="ivSel" aria-label="Choose a before/after pair"></select>
           </div>
           <div id="ivBody"></div>
@@ -746,7 +746,7 @@ body{transition:background-color .25s ease, color .25s ease}
       });
       const cohort=[...groups.values()].sort((a,b)=>b.rows.size-a.rows.size||b.latest-a.latest)[0];
       const rows=cohort?VANTAGE_ORDER.filter(v=>cohort.rows.has(v)).map(v=>cohort.rows.get(v)):[];
-      if(!rows.length){ body.innerHTML=emptyHTML("No comparable vantage reads","Vantage comparison requires compatible operating-pathway scope and Diagnostic version."); return; }
+      if(!rows.length){ body.innerHTML=emptyHTML("No comparable participant perspectives","Compare responses about the same work or process, using compatible diagnostic versions."); return; }
       const scores=rows.map(s=>asNum(s.score)).filter(x=>x!=null);
       const [unit,pathway,cv,sv]=cohort.key.split("|");
       let head;
@@ -1159,7 +1159,7 @@ body{transition:background-color .25s ease, color .25s ease}
     }
     boot();
   </script>
-  <script src="workspace-assistant.js" defer></script>
+  <script src="workspace-assistant.js?v=20260915.consistency1" defer></script>
   <script src="feedback-widget.js" defer></script>
   <script src="workspace-theme.js?v=20260915.annual1" defer></script>
   <script type="module" src="workspace-notes.js"></script>

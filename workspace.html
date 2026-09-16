@@ -14,9 +14,6 @@
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://www.monderman.com/workspace.html"/>
 <meta name="robots" content="noindex, nofollow" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
   /* monderman-shell.css inlined: served with the page so it can never 404 */
 /* =====================================================================
@@ -49,7 +46,7 @@
   /* type */
   --serif:"Neue Haas Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --sans:"Neue Haas Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  --data:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --data:var(--sans);
 
   /* shape & depth */
   --r-btn:7px; --r-chip:5px; --r-card:11px; --r-lg:13px;
@@ -394,9 +391,9 @@ body{transition:background-color .25s ease,color .25s ease}
     window.addEventListener("error", function(e){ try{ window.__bootErrors.push((e && e.message ? e.message : "error") + (e && e.filename ? " @ " + e.filename.split("/").pop() + ":" + e.lineno : "")); }catch(_){} });
     window.addEventListener("unhandledrejection", function(e){ try{ window.__bootErrors.push("promise: " + ((e && e.reason && e.reason.message) ? e.reason.message : (e && e.reason ? String(e.reason) : "rejection"))); }catch(_){} });
   </script>
-  <link rel="stylesheet" href="visual-polish.css?v=20260823-4">
+  <link rel="stylesheet" href="visual-polish.css?v=20260915.consistency1">
   <link rel="stylesheet" href="workspace-cosmetic-audit.css?v=20260829-1">
-  <link rel="stylesheet" href="workspace-product-design.css?v=20260909-product1">
+  <link rel="stylesheet" href="workspace-product-design.css?v=20260915.consistency1">
 </head>
 <body class="workspace-surface">
 
@@ -912,7 +909,7 @@ body{transition:background-color .25s ease,color .25s ease}
     initialize();
   </script>
 
-  <script src="workspace-assistant.js" defer></script>
+  <script src="workspace-assistant.js?v=20260915.consistency1" defer></script>
   <script src="feedback-widget.js" defer></script>
   <script src="workspace-theme.js?v=20260915.annual1" defer></script>
   <script type="module" src="workspace-notes.js"></script>

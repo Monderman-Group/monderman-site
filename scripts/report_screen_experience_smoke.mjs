@@ -227,7 +227,7 @@ for (const product of ['operational-systems','decision-velocity','structural-cla
     await direct.evaluate(({code,result})=>new Function('$','result',code+'\nrenderClarityDimensionBars(result);')(id=>document.getElementById(id),result),{code:chartCode,result});
     const bars=direct.locator('#clarityDimensionBars .bar-fill');
     assert.equal(await bars.count(),5,product+' fixture did not render the actual dimension chart');
-    assert.ok((await bars.evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).backgroundColor))).every(color=>color==='rgb(8, 127, 140)'),product+' dimension categories retain decorative warning colors');
+    assert.ok((await bars.evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).backgroundColor))).every(color=>color==='rgb(12, 110, 120)'),product+' dimension categories must use canonical teal, not decorative warning colors');
     await emulateMediaAndSettle(direct,'print');
     assert.ok((await bars.evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).backgroundColor))).includes('rgb(201, 130, 31)'),product+' category restyle changed the original print chart');
     await emulateMediaAndSettle(direct,'screen');
@@ -249,7 +249,7 @@ for (const product of ['operational-systems','decision-velocity','structural-cla
   assert.equal(spacing.reference,'rgba(94, 127, 152, 0.18)',product+' reference range looks like a warning');
   if(product==='decision-velocity') {
     const pilot=await direct.locator('.pilot-result-invitation').evaluate(node=>({margin:getComputedStyle(node).marginTop,background:getComputedStyle(node).backgroundColor,buttonBackground:getComputedStyle(node.querySelector('.btn')).backgroundColor,buttonColor:getComputedStyle(node.querySelector('.btn')).color}));
-    assert.deepEqual(pilot,{margin:'0px',background:'rgb(244, 247, 248)',buttonBackground:'rgb(8, 127, 140)',buttonColor:'rgb(255, 255, 255)'},'pilot invitation spacing or primary contrast regressed');
+    assert.deepEqual(pilot,{margin:'0px',background:'rgb(244, 247, 248)',buttonBackground:'rgb(12, 110, 120)',buttonColor:'rgb(255, 255, 255)'},'pilot invitation spacing or canonical teal primary contrast regressed');
   }
   const evidence=direct.locator('.rsx-nav button').filter({hasText:/^Evidence$/});
   assert.equal(await evidence.isVisible(),false,product+' unavailable evidence has a dead shortcut');

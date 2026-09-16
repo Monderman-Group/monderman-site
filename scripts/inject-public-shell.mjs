@@ -25,12 +25,18 @@ const assetReleases = Object.freeze({
   "monderman-depth-lure-tile.css": "20260915.financial1",
   "sample-report-production.js": "20260915.annual1",
   "public-sample-model.js": "20260915.annual1",
-  "canonical-site-shell.js": "20260915.annual1",
+  "canonical-site-shell.js": "20260915.consistency1",
+  "workspace-assistant.js": "20260915.consistency1",
+  "public-product-design.css": "20260915.consistency1",
+  "workspace-product-design.css": "20260915.consistency1",
+  "report-screen-experience.css": "20260915.consistency1",
+  "diagnostic-intake.css": "20260915.consistency1",
+  "visual-polish.css": "20260915.consistency1",
   "workspace-theme.js": "20260915.annual1",
   "campaign-analysis.js": "20260913.34",
   "campaign-analysis.css": "20260913.34",
   "homepage-workspace-demo.css": "20260914-preview-static1",
-  "sample-report-production.css": "20260913.32",
+  "sample-report-production.css": "20260915.consistency1",
 });
 const assistantRelease = "20260910-bounded-chat1";
 const acquisitionRelease = "20260910-measurement-choice1";
@@ -54,7 +60,7 @@ const refreshedAssets = [
   "campaign-analysis.css", "campaign-analysis.js", "run-inclusion-review.js",
   "visual-polish.css", "monderman-shell.css", "publication-hero.css", "first-run-moments.css",
   "pilot-waitlist.css", "monderman-depth-lure-tile.css",
-  "brand-surfaces.css",
+  "brand-surfaces.css", "public-product-design.css",
 ];
 const versionScript = (html, fileName) => html.replace(
   new RegExp(`(["'])(\\./)?${fileName.replace(".", "\\.")}(?:\\?v=[^"']*)?\\1`, "g"),
@@ -121,7 +127,7 @@ for (const entry of await readdir(publishDirectory, { withFileTypes: true })) {
   // receives the same shell release without modifying protected source pages.
   let versionedHtml = html
     .replace(canonicalCssPattern, `canonical-site-shell.css?v=${shellRelease}`)
-    .replace(enterpriseCssPattern, `enterprise-site.css?v=${shellRelease}`);
+    .replace(enterpriseCssPattern, "enterprise-site.css?v=20260915.consistency1");
   versionedHtml = versionScript(versionedHtml, "canonical-site-shell.js");
   versionedHtml = versionScript(versionedHtml, "assistant.js");
   versionedHtml = versionScript(versionedHtml, "workspace-assistant.js");

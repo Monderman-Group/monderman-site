@@ -51,7 +51,7 @@
     .signin-card .sub{font-size:1rem;line-height:1.6;color:var(--ink-soft);margin:0 0 28px}
 
     /* ---- provider buttons ---- */
-    .provider-btn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:52px;padding:0 18px;border-radius:14px;border:1px solid var(--line-strong);background:#fff;color:var(--ink);font-size:.98rem;font-weight:600;cursor:pointer;transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+    .provider-btn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:48px;padding:0 18px;border-radius:14px;border:1px solid var(--line-strong);background:#fff;color:var(--ink);font-size:.98rem;font-weight:600;cursor:pointer;transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease}
     .provider-btn:hover,.provider-btn:focus-visible{border-color:rgba(12,110,120,.32);box-shadow:0 0 0 4px rgba(12,110,120,.06);outline:none;transform:translateY(-1px)}
     .provider-btn:disabled{opacity:.55;cursor:wait;transform:none;box-shadow:none}
     .provider-btn + .provider-btn{margin-top:12px}
@@ -65,12 +65,12 @@
     /* ---- email verification ---- */
     .email-form,.otp-form{display:grid;gap:12px}
     .email-label{font-size:.82rem;font-weight:600;color:var(--ink-soft)}
-    .email-input{width:100%;min-height:52px;padding:0 16px;border-radius:14px;border:1px solid var(--line-strong);background:#fff;color:var(--ink);font-size:.98rem;transition:border-color .18s ease,box-shadow .18s ease}
+    .email-input{width:100%;min-height:48px;padding:0 16px;border-radius:14px;border:1px solid var(--line-strong);background:#fff;color:var(--ink);font-size:.98rem;transition:border-color .18s ease,box-shadow .18s ease}
     .email-input:focus{outline:none;border-color:rgba(12,110,120,.4);box-shadow:0 0 0 4px rgba(12,110,120,.08)}
     .otp-input{text-align:center;font-size:1.2rem;font-weight:700;letter-spacing:.24em;font-variant-numeric:tabular-nums}
     .otp-help{font-size:.84rem;line-height:1.5;color:var(--ink-soft)}
-    .email-submit{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:52px;border-radius:14px;border:1px solid rgba(12,110,120,.28);background:var(--accent-dark);color:#fff;font-size:.98rem;font-weight:600;cursor:pointer;transition:background .18s ease,transform .18s ease}
-    .email-submit:hover,.email-submit:focus-visible{background:#26496f;transform:translateY(-1px);outline:none}
+    .email-submit{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:48px;border-radius:14px;border:1px solid rgba(12,110,120,.28);background:var(--accent);color:#fff;font-size:.98rem;font-weight:600;cursor:pointer;transition:background .18s ease,transform .18s ease}
+    .email-submit:hover,.email-submit:focus-visible{background:var(--accent-dark);transform:translateY(-1px)}.email-submit:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
     .email-submit:disabled{opacity:.55;cursor:wait;transform:none}
     .otp-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .otp-secondary{min-height:44px;border:1px solid var(--line-strong);border-radius:12px;background:#fff;color:var(--ink-soft);font-size:.86rem;font-weight:600;cursor:pointer}
@@ -131,7 +131,7 @@
       .signin-topbar{padding:20px}
     }
   </style>
-  <link rel="stylesheet" href="visual-polish.css?v=20260823-4">
+  <link rel="stylesheet" href="visual-polish.css?v=20260915.consistency1">
 </head>
 <body class="transaction-surface">
 
@@ -187,7 +187,7 @@
         <p id="legalAcceptanceCopy">Your account is signed in. Complete this required acknowledgement before continuing.</p>
         <label class="legal-check">
           <input id="legalAgree" type="checkbox" />
-          <span>I agree to the <a href="terms.html" id="legalTermsLink" target="_blank" rel="noopener">Terms of Service</a> and acknowledge the <a href="privacy.html" id="legalPrivacyLink" target="_blank" rel="noopener">Privacy Notice</a>. I understand that financial, time, capacity, productivity and recovery figures are directional estimates, not guaranteed outcomes, and that my organization is responsible for its data, decisions, implementation and results.</span>
+          <span>I agree to the <a href="terms.html" id="legalTermsLink" target="_blank" rel="noopener">Terms of Use</a> and acknowledge the <a href="privacy.html" id="legalPrivacyLink" target="_blank" rel="noopener">Privacy Notice</a>. I understand that financial, time, capacity, productivity and recovery figures are directional estimates, not guaranteed outcomes, and that my organization is responsible for its data, decisions, implementation and results.</span>
         </label>
         <button class="legal-submit" id="legalSubmit" type="button" disabled>Agree and continue</button>
         <button class="legal-decline" id="legalDecline" type="button">Decline and exit</button>
@@ -196,7 +196,7 @@
 
       <p class="sample-line">Not ready to sign up? <a href="sample-report.html">View a sample report first →</a></p>
 
-      <p class="signin-footnote">We use your sign-in to identify and secure your workspace. New accounts and designated activation flows require affirmative agreement to the <a href="terms.html">Terms of Service</a> and acknowledgement of the <a href="privacy.html">Privacy Notice</a>.</p>
+      <p class="signin-footnote">We use your sign-in to identify and secure your workspace. New accounts and designated activation flows require affirmative agreement to the <a href="terms.html">Terms of Use</a> and acknowledgement of the <a href="privacy.html">Privacy Notice</a>.</p>
     </div>
   </main>
 
@@ -348,7 +348,7 @@
       ui.legalAcceptanceHeading.textContent = "Review the terms to join this workspace";
       ui.legalAcceptanceCopy.textContent = "Your identity matches this invitation. Review the current terms before joining the workspace.";
       ui.sampleLine.hidden = true;
-      ui.footnote.innerHTML = 'Monderman uses your sign-in only to verify that you are the intended recipient. The invitation grants access only after affirmative agreement to the <a href="terms.html">Terms of Service</a> and acknowledgement of the <a href="privacy.html">Privacy Notice</a>.';
+      ui.footnote.innerHTML = 'Monderman uses your sign-in only to verify that you are the intended recipient. The invitation grants access only after affirmative agreement to the <a href="terms.html">Terms of Use</a> and acknowledgement of the <a href="privacy.html">Privacy Notice</a>.';
     }
     function setStatus(message, tone="info"){
       if(!message){ ui.status.className="signin-status"; ui.status.textContent=""; return; }

@@ -19,7 +19,7 @@ const descriptions=[
   ['Structural Clarity','Clear responsibilities and decision authority','structural-clarity-article.html'],
   ['Decision Velocity','Delays in making decisions','decision-velocity-article.html'],
   ['Operational Systems','Unnecessary process work','operational-systems-article.html'],
-  ['Institutional Performance','Consistent delivery and adaptation','institutional-performance-article.html'],
+  ['Institutional Performance','Reliable delivery and response to change','institutional-performance-article.html'],
 ];
 const sourceFiles=['index.html','diagnostics.html','workspace-diagnostics.html','Monderman_Platform_Brief.html',
   'site-shell/footer.html','scripts/templates/home-workspace-preview.html',...descriptions.map(row=>row[2]),
@@ -63,7 +63,10 @@ const staticPreviewRule='body.homepage-enterprise .hwd-app p { animation:none !i
 eq(read('homepage-workspace-demo.css').split(staticPreviewRule).length-1,1,'Only interactive preview paragraphs suppress inherited hero-entry animation');
 check(read('index.html').includes('animation: heroFadeUp 900ms cubic-bezier(0.22,1,0.36,1) forwards;'),'Other hero entrance motion remains');
 eq(read('homepage-workspace-demo.js'),execFileSync('git',['show','HEAD:homepage-workspace-demo.js'],{cwd:root,encoding:'utf8'}),'Actual tab behavior is unchanged');
-eq(read('canonical-site-shell.js'),execFileSync('git',['show','HEAD:canonical-site-shell.js'],{cwd:root,encoding:'utf8'}),'Header state logic is unchanged');
+const priorShell=execFileSync('git',['show','f91fb07fde754dea57360ddbddc9bf742d6e6702:canonical-site-shell.js'],{cwd:root,encoding:'utf8'});
+const approvedShell=priorShell.replace('tagline.textContent = "See the work clearly. Make the next move count.";','if (!tagline.textContent.trim()) tagline.textContent = "Less bureaucracy. Better performance.";')
+  .replace('    document.querySelectorAll(".mond-footer .mf-copy").forEach((copy) => {\n      copy.textContent = "Monderman provides repeatable organizational diagnostics for ownership, decisions, handoffs, and administrative work.";\n    });\n','');
+eq(read('canonical-site-shell.js'),approvedShell,'Only approved footer ownership and fallback copy change; header state logic is unchanged');
 check(read('index.html').includes('homepage-workspace-demo.css?v=20260914-preview-static1'),'Source preview stylesheet cache advances');
 check(read('scripts/inject-public-shell.mjs').includes('"homepage-workspace-demo.css": "20260914-preview-static1"'),'Built preview stylesheet cache advances');
 // Exercise the actual browser predicates offline; geometry alone cannot admit
@@ -153,7 +156,8 @@ function assertArticleLayout(html,prior){
   assert.deepEqual(textless(articleMain(html)),textless(articleMain(prior)),
     'Body tags, classes and links match the approved saved-sample article layout');
   assert.equal(html.split(sampleLinkStyle).length-1,1,'Exactly one scoped saved-sample link contrast fix');
-  const restored=html.replace(sampleLinkStyle,'');
+  assert.equal(html.split('canonical-site-shell.js?v=20260915.consistency1').length-1,1,'Exactly one current shared shell reference');
+  const restored=html.replace(sampleLinkStyle,'').replace('canonical-site-shell.js?v=20260915.consistency1','canonical-site-shell.js?v=20260915.annual1');
   for(const tag of ['script','style'])assert.deepEqual(restored.match(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`,'g')),
     prior.match(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`,'g')),
     tag+' matches the approved presentation; no unrelated behavior or CSS changes');
@@ -222,7 +226,7 @@ for(const [name,description,article]of descriptions){
 }
 for(const file of sourceFiles)check(!/What sits beneath performance\?|How much weight is it carrying\?/i.test(read(file)),file+' no superseded metaphor label');
 for(const file of ['roi.html','platform-services.html','plan-signal.html','plan-pattern.html']){
-  const html=read(file),prior=execFileSync('git',['show',`${approvedPresentationBase}:${file}`],{cwd:root,encoding:'utf8'});
+  const html=read(file).replace('canonical-site-shell.js?v=20260915.consistency1','canonical-site-shell.js?v=20260915.annual1'),prior=execFileSync('git',['show',`${approvedPresentationBase}:${file}`],{cwd:root,encoding:'utf8'});
   for(const tag of ['script','style',...(file==='roi.html'?[]:['svg'])])eq(html.match(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`,'g')),
     prior.match(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`,'g')),file+': existing behavior and graphics unchanged');
   eq(html.match(/<(?:input|select|option|button)\b[^>]*>/g),prior.match(/<(?:input|select|option|button)\b[^>]*>/g),file+': calculator and plan controls unchanged');
@@ -251,7 +255,7 @@ for(const phrase of ['A single run does not estimate organizational savings.','p
   check(read('platform-services.html').includes(phrase),'Platform scope: '+phrase);
 const method=read('diagnostics.html').match(/<section\b[^>]*id="methodology-and-sources"[\s\S]*?<\/section>/)?.[0];
 check(method,'Substantive methods section exists');
-for(const phrase of ['draws on selected published guidance','campaign-readiness rules are Monderman\'s own methods',
+for(const phrase of ['draws on selected guidance','Monderman\'s scoring and readiness rules are its own',
   'data-method-review-status="not_reviewed"','Independent statistical review:','not reviewed',
   'excluding a response does not shrink that population','Repeated runs do not increase participation',
   'not claimed as AAPOR response rates','participation alone does not establish representativeness',
@@ -394,10 +398,14 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
           sizes:[...el.querySelectorAll('.dx-step p')].map(node=>parseFloat(getComputedStyle(node).fontSize))}));
         check(geometry.top>=geometry.header-1,'Anchor clears fixed header');eq(geometry.outside,0,'Method text stays within viewport');
         check(geometry.sizes.every(size=>size>=16),'Method body remains readable');
-        check(await section.locator('[data-method-financial]').isVisible(),'Implemented financial practice mapping is visible');
+        const detail=section.locator('.dx-method-detail');
+        eq(await detail.getAttribute('open'),null,'Technical detail starts collapsed beneath the plain-language introduction');
+        check(!(await section.locator('[data-method-financial]').isVisible()),'Technical mapping is not duplicated in the initial reading path');
         const viewportBefore=`${name}-${width}-methodology-viewport-before-focus.png`;
         await page.screenshot({path:path.join(out,viewportBefore)});screenshots.push(viewportBefore);
-        const source=section.locator('a[href="https://aapor.org/standards-and-ethics/standard-definitions/"]');
+        await detail.locator('summary').click();
+        check(await section.locator('[data-method-financial]').isVisible(),'Implemented financial practice mapping is visible after opening the technical detail');
+        const source=detail.locator('a[href="https://aapor.org/standards-and-ethics/standard-definitions/"]');
         eq(await source.evaluate(el=>getComputedStyle(el).color),'rgb(12, 110, 120)','Source link visibly teal');
         await source.hover();
         await page.waitForFunction(()=>getComputedStyle(document.querySelector('#methodology-and-sources .dx-step a')).color==='rgb(10, 91, 99)');
@@ -424,6 +432,6 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
 for(const [file,hash]of Object.entries(hashes))eq(sha(fs.readFileSync(path.join(root,file))),hash,'Source unchanged during checks: '+file);
 const receipt={status:'PASS',checks,viewports:[390,834,1440],browsers:['chromium','webkit'],blockedRequests,sourceHashes:hashes,screenshots,
   proofScope:'Copy, local layout and shared-footer injection only. No authenticated workflow, new sample approval, external validation or deployment.',
-  sampleManifestStatus:'Changed preview template awaits the genuine next six-sample release manifest; historical approval was not rewritten.'};
+  sampleManifestStatus:'Preview descriptor source hash has a separate copy-only review record; saved sample data and historical generation approval are unchanged.'};
 fs.writeFileSync(path.join(out,'RECEIPT.json'),JSON.stringify(receipt,null,2)+'\n',{mode:0o600});
 console.log(JSON.stringify({status:'PASS',checks,output:out,screenshots:screenshots.length}));
