@@ -35,7 +35,9 @@ jobs:
       - name: Keep public search copy and disclosures current
         run: python scripts/build_public_search_index.py --check
       - name: Preserve approved copy, allowances and functional boundaries
-        run: node scripts/site_consistency_copy_smoke.mjs
+        run: |
+          node scripts/site_consistency_copy_smoke.mjs
+          node scripts/organization_scope_copy_smoke.mjs
       - name: Reject scanner-consumed email authentication regressions
         run: node scripts/signin_email_otp_smoke.mjs
       - run: node scripts/workspace_legal_gate_smoke.mjs

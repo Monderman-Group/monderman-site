@@ -465,7 +465,7 @@ for token in ['Evaluate Pattern features for 30 days.','No card is required','do
 for stale in ['One Pattern trial per Workspace','starts immediately for this Workspace','This Workspace has already used its one-time Pattern trial','id="pilotInvitationCode"','invitation_code:invitationCode','reusable invitation code']:
  if stale in trial:e.append('pattern trial stale scope '+stale)
 pattern=(r/'plan-pattern.html').read_text(errors='ignore')
-for token in ['href="pattern-trial.html"','Accept pilot invitation','personalized invitation to your work email','no organization is assigned in advance','No card required or automatic renewal','500 campaign responses and unlimited eligible Syntheses','One pilot per eligible account identity','replacing a Workspace does not reset eligibility','Pattern &middot; Active beta &middot; for a division']:
+for token in ['href="pattern-trial.html"','Accept pilot invitation','personalized invitation to your work email','no organization is assigned in advance','No card required or automatic renewal','500 campaign responses and unlimited eligible Syntheses','One pilot per eligible account identity','replacing a Workspace does not reset eligibility','Pattern &middot; Active beta &middot; expanded campaigns']:
  if token not in pattern:e.append('pattern trial entry '+token)
 shell=(r/'workspace-shell.js').read_text(errors='ignore')
 for token in ['subscription_status','pattern_trial_ends_at','org.subscription_status === "trialing"','Pattern trial · ${days} day']:
