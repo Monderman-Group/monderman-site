@@ -28,5 +28,12 @@ assert.ok(!read('decision-velocity.html').match(/<meta[^>]*what delay costs/));
 assert.ok(!read('canonical-site-shell.js').includes('copy.textContent ='));
 assert.ok(!read('signin.html').includes('#26496f'));
 assert.ok(!read('workspace.html').includes('fonts.googleapis.com'));
+const faces=[...read('brand-fonts.css').matchAll(/@font-face\{([^}]+)\}/g)].map(m=>m[1]);
+for(const style of ['normal','italic']) for(const weight of [400,500,600,700]) {
+  const matches=faces.filter(face=>face.includes(`font-style:${style};`)&&face.includes(`font-weight:${weight};`));
+  assert.equal(matches.length,1,`${style} ${weight}: shared font mapping must be a single discrete face`);
+  const file=(style==='italic'?{400:'56',500:'66',600:'66',700:'76'}:{400:'55',500:'65',600:'65',700:'75'})[weight];
+  assert.ok(matches[0].includes(`url("${file}font.woff2")`));
+}
 assert.ok(read('accept-invite.html').includes('class="invitation-brand"')&&!read('accept-invite.html').includes('&#9679;'));
 console.log('PASS approved site consistency: exact copy, shared allowances, technical details, immutable policies and unchanged diagnostic/report logic.');

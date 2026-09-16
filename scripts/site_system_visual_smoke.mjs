@@ -36,7 +36,7 @@ const heroPages = [
   ['plan-signal.html', '.pl-top', '.pl-top h1', 'standard'],
   ['platform-services.html', '.ps-hero', '.ps-hero h1', 'standard'],
   ['quarter-trillion-friction-us-healthcare.html', '.article-hero', '.article-hero h1', 'publication-long'],
-  ['research.html', '.hero', '.hero h1', 'standard'],
+  ['research.html', '.hero', '.hero h1', 'editorial-index'],
   ['roi.html', '.hero', '.hero h1', 'standard'],
   ['security.html', '.hero', '.hero h1', 'standard'],
   ['structural-clarity-article.html', '.hero', '.hero h1', 'publication'],
@@ -250,8 +250,14 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
         assert.equal(geometry.missing, false, `${label}: hero or title is missing`);
         assert.ok(Math.abs(geometry.titleX - expectedRailX(geometry.clientWidth)) <= 2.5,
           `${label}: title is off the common rail (${geometry.titleX}px)`);
-        assert.ok(Math.abs(geometry.titleFont - expectedTitleSize(viewport.width, kind)) <= .35,
-          `${label}: title scale diverged (${geometry.titleFont}px; expected ${expectedTitleSize(viewport.width, kind)}px)`);
+        // Shared public heroes cap at 3rem; pricing uses that fixed desktop
+        // role. Publication, Brief and plan-cover titles retain their hierarchy.
+        const sharedDesktop = viewport.width > 960 && kind === 'standard' && ['.hero', '.ps-hero'].includes(heroSelector);
+        const expectedFont = sharedDesktop
+          ? (pageName === 'platform-services.html' ? 48 : clamp(40, viewport.width * .04, 48))
+          : expectedTitleSize(viewport.width, kind);
+        assert.ok(Math.abs(geometry.titleFont - expectedFont) <= .35,
+          `${label}: title scale diverged (${geometry.titleFont}px; expected ${expectedFont}px)`);
         assert.ok(['start', 'left'].includes(geometry.titleAlign),
           `${label}: title alignment is ${geometry.titleAlign}`);
         assert.ok(geometry.scrollWidth <= geometry.clientWidth + 1,
