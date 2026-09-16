@@ -28,6 +28,9 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
   try {
     const queue = pages.filter(p => !process.env.FOOTER_PAGE || p.file === process.env.FOOTER_PAGE).flatMap(p => [390, 768, 1440].map(width => ({ ...p, width })));
     queue.push({ ...pages.find(p => p.file === 'index.html'), width: 320 });
+    for (const file of ['index.html','decision-velocity.html'])
+      if (!process.env.FOOTER_PAGE || process.env.FOOTER_PAGE === file)
+        queue.push({ ...pages.find(p => p.file === file), width:375 });
     await Promise.all(Array.from({ length: 4 }, async () => {
       while (queue.length) {
         const { file, shell, html, width } = queue.shift();
@@ -108,6 +111,14 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
             return {left:r.left,right:r.right,bottom:r.bottom,claimLeft:c.left,claimRight:c.right,claimBottom:c.bottom};
           });
           assert.ok(footer.left>=-1 && footer.right<=width+1 && footer.claimLeft>=0 && footer.claimRight<=width && footer.claimBottom<=footer.bottom, label+': footer containment');
+          // Check the entire wrapped link as a real tap target, not just text bounds.
+          if (!shell) await page.addStyleTag({content:'#pageLoader{display:none!important}'});
+          const deviceLink=page.locator('.mf-device-protection a');
+          await deviceLink.scrollIntoViewIfNeeded();
+          assert.ok(await deviceLink.evaluate(n=>{
+            const r=n.getBoundingClientRect(),hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+            return hit===n||n.contains(hit);
+          }),label+': wrapped device link remains clickable');
           if (shots.has(file)) {
             await page.addStyleTag({content:'#siteHeader,.skip-link,#pageLoader{display:none!important}'});
             await page.locator('.mond-footer').screenshot({path:path.join(output,`${engineName}-${file}-${width}-footer.png`)});
