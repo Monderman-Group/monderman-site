@@ -1,23 +1,44 @@
-// Real published HTML/CSS with only navigation/support scripts enabled.
-// Remote requests are blocked: this does not submit forms or start diagnostics.
+// Published HTML/CSS: isolated support fixture by default, or every real page
+// script with FOOTER_FULL_SCRIPTS=1. Only hash-verified public SDKs may load;
+// service requests are blocked. No forms or diagnostics are submitted.
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import { chromium, webkit } from 'playwright';
 const root = path.resolve(process.env.SITE_SOURCE_DIR || '.render-public');
 const output = path.resolve(process.env.FOOTER_TEST_OUTPUT || 'output/floating-support');
+const fullScripts = process.env.FOOTER_FULL_SCRIPTS === '1';
+const dependencies = new Map();
 await fs.mkdir(output, { recursive: true });
 const pages = [];
 for (const file of (await fs.readdir(root)).filter(f => f.endsWith('.html'))) {
   const source = await fs.readFile(path.join(root, file), 'utf8');
   if (!/<footer\b[^>]*\bmond-footer\b/.test(source)) continue;
   const shell = /<body\b[^>]*\bcanonical-green-shell\b/.test(source);
-  const html = source.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '').replace('</body>',
+  const html = fullScripts ? source : source.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '').replace('</body>',
     (shell ? '<script src="/assistant.js"></script><script src="/connect-widget.js"></script><script src="/canonical-site-shell.js"></script><script src="/first-run-telemetry.js"></script>' : '') + '</body>');
   pages.push({ file, shell, html });
+  if (fullScripts && shell) for (const [tag] of source.matchAll(/<script\b[^>]*>/gi)) {
+    const url = tag.match(/\bsrc=["'](https:\/\/cdn\.jsdelivr\.net\/[^"']+)["']/)?.[1];
+    const integrity = tag.match(/\bintegrity=["'](sha(?:256|384|512)-[^"']+)["']/)?.[1];
+    if (url && integrity) {
+      if (dependencies.has(url)) assert.equal(dependencies.get(url).integrity, integrity);
+      else dependencies.set(url, { integrity });
+    }
+  }
 }
 assert.equal(pages.length, 65);
 assert.equal(pages.filter(p => p.shell).length, 61);
+// Only pinned public rendering/auth SDK bytes are supplied. Customer-service
+// requests remain blocked, and no forms or diagnostics are submitted.
+for (const [url, dependency] of dependencies) {
+  const response = await fetch(url, { redirect: 'error', signal: AbortSignal.timeout(30000) });
+  assert.equal(response.status, 200, url);
+  dependency.body = Buffer.from(await response.arrayBuffer());
+  const [algorithm, digest] = dependency.integrity.split('-');
+  assert.equal(createHash(algorithm).update(dependency.body).digest('base64'), digest, url + ': public dependency SRI');
+}
 const security = await fs.readFile(path.join(root, 'security.html'), 'utf8');
 assert.ok(security.includes('id="administrative-device-protection"'));
 assert.ok(security.includes('are not covered by this device subscription'));
@@ -26,21 +47,23 @@ const shots = new Set(['index.html', 'research.html', 'platform-services.html', 
 for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
   const browser = await engine.launch({ headless: true });
   try {
-    const queue = pages.filter(p => !process.env.FOOTER_PAGE || p.file === process.env.FOOTER_PAGE).flatMap(p => [390, 768, 1440].map(width => ({ ...p, width })));
+    const queue = pages.filter(p => (!fullScripts || p.shell) && (!process.env.FOOTER_PAGE || p.file === process.env.FOOTER_PAGE)).flatMap(p => [390, 768, 1440].map(width => ({ ...p, width })));
     queue.push({ ...pages.find(p => p.file === 'index.html'), width: 320 });
     for (const file of ['index.html','decision-velocity.html'])
-      if (!process.env.FOOTER_PAGE || process.env.FOOTER_PAGE === file)
+      if ((!fullScripts || file === 'index.html') && (!process.env.FOOTER_PAGE || process.env.FOOTER_PAGE === file))
         queue.push({ ...pages.find(p => p.file === file), width:375 });
     await Promise.all(Array.from({ length: 4 }, async () => {
       while (queue.length) {
         const { file, shell, html, width } = queue.shift();
         const label = `${engineName}/${file}/${width}`;
-        const page = await browser.newPage({ viewport: { width, height: 1024 }, reducedMotion: 'reduce' });
+        const page = await browser.newPage({ viewport: { width, height: 1024 }, reducedMotion: fullScripts ? 'no-preference' : 'reduce' });
         const errors = [];
         page.on('pageerror', e => errors.push(e.message));
         let blockedExternal = 0;
         await page.route('**/*', async route => {
           const url = new URL(route.request().url());
+          if (route.request().method() !== 'GET') { blockedExternal++; return route.abort(); }
+          if (dependencies.has(url.href)) return route.fulfill({ contentType:'application/javascript', body:dependencies.get(url.href).body, headers:{'Access-Control-Allow-Origin':'*'} });
           if (url.hostname !== '127.0.0.1') { blockedExternal++; return route.abort(); }
           if (url.pathname === '/' + file) return route.fulfill({ contentType: 'text/html', body: html });
           const target = path.resolve(root, '.' + decodeURIComponent(url.pathname));
@@ -55,16 +78,21 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
           await settle();
           return page.evaluate(() => {
             const rect = node => { const r = node.getBoundingClientRect(); return { left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height }; };
+            const controls = [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].map(node => ({
+              ...rect(node), text:node.textContent.trim(), position:getComputedStyle(node).position,
+              visible:getComputedStyle(node).visibility !== 'hidden' && getComputedStyle(node).display !== 'none'
+            }));
+            const obstacles = [...document.querySelectorAll('a[href],button,input,select,textarea,[role="button"],[contenteditable="true"]')]
+              .filter(node => !node.matches('#mnd-launcher,.mdn-cn-launch') && !node.closest('#siteHeader,.mond-footer,#mnd-panel,#mdn-cn-root') && node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden')
+              .map(rect).filter(box => controls.some(c => c.visible && box.right > c.left - 8 && box.left < c.right + 8 && box.bottom > c.top - 8 && box.top < c.bottom + 8));
             return { footerTop: document.querySelector('.mond-footer').getBoundingClientRect().top,
               headerBottom: document.querySelector('#siteHeader')?.getBoundingClientRect().bottom || 0,
-              controls: [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].map(node => ({
-                ...rect(node), text:node.textContent.trim(), position:getComputedStyle(node).position,
-                visible:getComputedStyle(node).visibility !== 'hidden' && getComputedStyle(node).display !== 'none'
-              })) };
+              controls, obstacles };
           });
         }
         function checkStack(g) {
           assert.equal(g.controls.length, 2, label + ': both native controls exist');
+          assert.equal(g.obstacles.length, 0, label + ': controls clear actionable page content ' + JSON.stringify(g));
           for (const c of g.controls) {
             assert.equal(c.position, 'fixed', label + ': native floating control');
             assert.ok(c.height >= 48 && c.width >= 100, label + ': touch target');
@@ -102,6 +130,11 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
             }
             await page.evaluate(() => scrollTo({top:document.querySelector('.mond-footer').getBoundingClientRect().top + scrollY - (innerHeight - 40),behavior:'instant'}));
             checkStack(await geometry());
+            if (fullScripts) {
+              await page.waitForTimeout(1000);
+              checkStack(await geometry());
+              assert.deepEqual(errors, [], label + ': full-script errors after footer motion');
+            }
             if (shots.has(file)) await page.screenshot({ path:path.join(output, `${engineName}-${file}-${width}-floating.png`) });
             await page.evaluate(() => scrollTo({top:document.querySelector('.mond-footer').getBoundingClientRect().top + scrollY - 100,behavior:'instant'}));
             const nearTop = await geometry();
@@ -139,6 +172,6 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
     }));
   } finally { await browser.close(); }
 }
-await fs.writeFile(path.join(output,'results.json'),JSON.stringify({passed:failures.length===0,pages:pages.length,cases:results.length,failures,results},null,2));
+await fs.writeFile(path.join(output,'results.json'),JSON.stringify({passed:failures.length===0,fullScripts,publicDependencies:dependencies.size,pages:pages.length,cases:results.length,failures,results},null,2));
 console.log(JSON.stringify({passed:failures.length===0,cases:results.length,failures}));
 assert.equal(failures.length,0,'Floating widget / footer regression checks');

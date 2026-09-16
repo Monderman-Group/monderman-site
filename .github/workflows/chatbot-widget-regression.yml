@@ -7,7 +7,7 @@ on:
 jobs:
   widgets:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     permissions:
       contents: read
     steps:
@@ -27,7 +27,8 @@ jobs:
         run: |
           MONDERMAN_QUESTIONNAIRE_RELEASE=current RENDER_GIT_COMMIT="${{ github.sha }}" bash scripts/render-static-build.sh
           node scripts/footer_support_smoke.mjs
-      - name: Keep floating controls clear of moving contact fields
+          FOOTER_FULL_SCRIPTS=1 FOOTER_TEST_OUTPUT=output/full-script-support node scripts/footer_support_smoke.mjs
+      - name: Keep floating controls clear of animations and late content
         run: |
           python3 -m http.server 8080 --directory .render-public > /tmp/floating-widget-http.log 2>&1 &
           preview_pid=$!
