@@ -18,7 +18,7 @@ for (const file of momentPages) {
   for (const required of [
     "The problem",
     "Begin with one decision",
-    "What one team campaign adds",
+    "What a campaign adds",
     "What comes after",
     "Run Decision Velocity free",
     "Apply to the Pattern Pilot",
@@ -81,7 +81,7 @@ assert.ok(guide, "pilot.html: linked evaluation plan missing");
 const guideHeadings = [...guide.matchAll(/<h3>(.*?)<\/h3>/g)].map(match => match[1]);
 assert.deepEqual(guideHeadings, [
   "Choose a real organizational question.",
-  "Run the first relevant diagnostic with your team.",
+  "Invite participants to the first relevant diagnostic.",
   "Add other diagnostics when they answer another question.",
   "Use Synthesis to examine the submitted evidence.",
   "Choose a practical action and a later measurement."
