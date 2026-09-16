@@ -123,46 +123,58 @@ async function navigateToStableDocument(page, url) {
   throw lastError;
 }
 
-async function checkFooterSupport(page, label) {
-  const support = page.locator('.site-support');
-  if (await support.count() !== 1) {
-    failures.push(`${label}: exactly one footer support region is required`);
-    return;
-  }
-  await support.scrollIntoViewIfNeeded();
-  const state = await support.evaluate(element => {
+async function checkFloatingSupport(page, label) {
+  await page.locator('#mnd-launcher').waitFor({ state: 'attached' });
+  await page.locator('.mdn-cn-launch').waitFor({ state: 'attached' });
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  const state = await page.evaluate(() => {
     const footer = document.querySelector('.mond-footer');
-    const box = element.getBoundingClientRect();
-    const actions = [...element.querySelectorAll('.site-widget-action')].map(node => {
+    const actions = [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].map(node => {
       const rect = node.getBoundingClientRect();
       const text = node.querySelector('span')?.getBoundingClientRect();
-      return { name: node.textContent.trim(), left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height, display: getComputedStyle(node).display, labelWidth: text?.width || 0, labelHeight: text?.height || 0 };
+      const style = getComputedStyle(node);
+      return { name: node.textContent.trim(), accessibleName: node.getAttribute('aria-label') || node.textContent.trim(), left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height, position: style.position, display: style.display, visibility: style.visibility, pointerEvents: style.pointerEvents, labelWidth: text?.width || 0, labelHeight: text?.height || 0 };
+    });
+    const obstacleOverlap = actions.length === 2 && [...document.querySelectorAll('a[href],button,input,select,textarea,[role="button"],[contenteditable="true"]')].some(node => {
+      if (node.matches('#mnd-launcher,.mdn-cn-launch') || node.closest('#siteHeader,.mond-footer,#mnd-panel,#mdn-cn-root') || !node.getClientRects().length || getComputedStyle(node).visibility === 'hidden') return false;
+      const rect = node.getBoundingClientRect();
+      return rect.right > Math.min(...actions.map(action => action.left)) - 8
+        && rect.left < Math.max(...actions.map(action => action.right)) + 8
+        && rect.bottom > Math.min(...actions.map(action => action.top)) - 8
+        && rect.top < Math.max(...actions.map(action => action.bottom)) + 8;
     });
     return {
       actions,
-      totalActions: document.querySelectorAll('.site-widget-action').length,
-      headerActions: document.querySelectorAll('#siteHeader .site-widget-action').length,
-      beforeFooter: element.nextElementSibling === footer,
-      footerGap: footer ? footer.getBoundingClientRect().top - box.bottom : null,
-      position: getComputedStyle(element).position,
+      obstacleOverlap,
+      editingPage: Boolean(document.activeElement?.matches('input,textarea,select,[contenteditable="true"]') && !document.activeElement.closest('#mnd-panel,#mdn-cn-panel')),
+      proxyCount: document.querySelectorAll('.site-support,.site-widget-actions,.site-widget-action').length,
+      footerTop: footer ? footer.getBoundingClientRect().top : Infinity,
+      headerBottom: document.querySelector('#siteHeader')?.getBoundingClientRect().bottom || 0,
       viewportWidth: document.documentElement.clientWidth,
       viewportHeight: innerHeight,
     };
   });
-  if (state.headerActions !== 0 || state.totalActions !== 2 || state.actions.length !== 2
-      || !state.beforeFooter || Math.abs(state.footerGap) > 1
-      || !['static', 'relative'].includes(state.position)
-      || state.actions.map(action => action.name).sort().join('|') !== 'Chat with Monderman|Connect'
-      || state.actions.some(action => action.display === 'none' || action.height < 48 || action.labelWidth <= 1 || action.labelHeight <= 1 || action.left < 0 || action.right > state.viewportWidth || action.top < 0 || action.bottom > state.viewportHeight)) {
-    failures.push(`${label}: footer support is misplaced, incomplete, clipped, or undersized (${JSON.stringify(state)})`);
+  if (state.proxyCount !== 0 || state.actions.length !== 2
+      || state.actions.map(action => action.name).sort().join('|') !== 'Chat|Connect'
+      || state.actions.some(action => action.position !== 'fixed' || action.display === 'none' || action.height < 48 || action.labelWidth <= 1 || action.labelHeight <= 1 || !action.accessibleName.toLowerCase().includes(action.name.toLowerCase()))) {
+    failures.push(`${label}: floating support is missing, mislabeled, or undersized (${JSON.stringify(state)})`);
   }
   if (state.actions.length === 2) {
-    const [first, second] = state.actions;
-    if (first.left < second.right && first.right > second.left && first.top < second.bottom && first.bottom > second.top) {
-      failures.push(`${label}: footer support controls overlap (${JSON.stringify(state.actions)})`);
+    const hidden = state.actions.filter(action => action.visibility !== 'visible');
+    const requiredSpace = state.actions.reduce((sum, action) => sum + action.height, 0) + 12 + 32;
+    if (hidden.length) {
+      if (hidden.length !== 2 || hidden.some(action => action.pointerEvents !== 'none')
+          || (Math.min(state.footerTop, state.viewportHeight) - state.headerBottom >= requiredSpace
+            && Math.min(...state.actions.map(action => action.top)) >= state.headerBottom + 16
+            && !state.obstacleOverlap && !state.editingPage)) {
+        failures.push(`${label}: floating support hides without a space constraint or remains interactive while hidden (${JSON.stringify(state)})`);
+      }
+      return;
     }
-    if (state.viewportWidth <= 600 && Math.abs(first.width - second.width) > 1) {
-      failures.push(`${label}: phone footer controls are not balanced equal-width rows (${JSON.stringify(state.actions)})`);
+    const [top, bottom] = [...state.actions].sort((a, b) => a.top - b.top);
+    if (state.obstacleOverlap || state.actions.some(action => action.left < state.viewportWidth / 2 || action.right > state.viewportWidth || action.top < state.headerBottom + 15.5 || action.bottom > state.viewportHeight || action.bottom > state.footerTop - 15.5)
+        || Math.abs(top.width - bottom.width) > 1 || Math.abs(top.right - bottom.right) > 1 || bottom.top - top.bottom < 11.5) {
+      failures.push(`${label}: floating controls overlap, leave their right-hand stack, or cross the header/footer (${JSON.stringify(state)})`);
     }
   }
 }
@@ -424,13 +436,9 @@ try {
   await runtimePage.locator('#mnd-launcher').waitFor({ state: 'attached' });
   await runtimePage.locator('.mdn-cn-launch').waitFor({ state: 'attached' });
 
-  if (await runtimePage.locator('#mnd-launcher').isVisible()
-      || await runtimePage.locator('.mdn-cn-launch').isVisible()) {
-    failures.push('runtime utilities: fixed launchers remain visible over compact page content');
-  }
-  await checkFooterSupport(runtimePage, 'runtime utilities/390');
+  await checkFloatingSupport(runtimePage, 'runtime utilities/390');
 
-  await runtimePage.locator('[data-site-widget-action="assistant"]').click();
+  await runtimePage.locator('#mnd-launcher').click();
   await runtimePage.locator('#mnd-panel.mnd-open').waitFor({ state: 'visible' });
   const assistantState = await runtimePage.evaluate(() => {
     const panel = document.querySelector('#mnd-panel');
@@ -441,7 +449,7 @@ try {
       right: box.right,
       width: box.width,
       viewportWidth: document.documentElement.clientWidth,
-      connectVisible: getComputedStyle(connect).display !== 'none',
+      connectVisible: getComputedStyle(connect).display !== 'none' && getComputedStyle(connect).visibility === 'visible',
     };
   });
   if (assistantState.left < -1 || assistantState.right > assistantState.viewportWidth + 1 || assistantState.width < assistantState.viewportWidth - 2) {
@@ -450,10 +458,10 @@ try {
   if (assistantState.connectVisible) failures.push('runtime utilities: Connect launcher remains visible over the open assistant');
 
   await runtimePage.locator('#mnd-close').click();
-  if (!await runtimePage.locator('.site-support [data-site-widget-action="assistant"]').evaluate((node) => document.activeElement === node && node.getClientRects().length > 0)) {
-    failures.push('runtime utilities: assistant close does not return visible focus to its footer action');
+  if (!await runtimePage.locator('#mnd-launcher').evaluate((node) => document.activeElement === node && getComputedStyle(node).visibility === 'visible')) {
+    failures.push('runtime utilities: assistant close does not return visible focus to its native launcher');
   }
-  await runtimePage.locator('[data-site-widget-action="contact"]').click();
+  await runtimePage.locator('.mdn-cn-launch').click();
   await runtimePage.locator('#mdn-cn-panel.mdn-cn-open').waitFor({ state: 'visible' });
   const connectState = await runtimePage.evaluate(() => {
     const panel = document.querySelector('#mdn-cn-panel');
@@ -463,7 +471,7 @@ try {
       left: box.left,
       right: box.right,
       viewportWidth: document.documentElement.clientWidth,
-      assistantVisible: getComputedStyle(assistant).display !== 'none',
+      assistantVisible: getComputedStyle(assistant).display !== 'none' && getComputedStyle(assistant).visibility === 'visible',
     };
   });
   if (connectState.left < -1 || connectState.right > connectState.viewportWidth + 1) {
@@ -476,10 +484,16 @@ try {
   }
   if (connectState.assistantVisible) failures.push('runtime utilities: assistant launcher remains visible over the open Connect panel');
   await runtimePage.locator('.mdn-cn-close').click();
-  if (!await runtimePage.locator('.site-support [data-site-widget-action="contact"]').evaluate((node) => document.activeElement === node && node.getClientRects().length > 0)) {
-    failures.push('runtime utilities: Connect close does not return visible focus to its footer action');
+  if (!await runtimePage.locator('.mdn-cn-launch').evaluate((node) => document.activeElement === node && getComputedStyle(node).visibility === 'visible')) {
+    failures.push('runtime utilities: Connect close does not return visible focus to its native launcher');
   }
-  await runtimePage.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await runtimePage.evaluate(() => window.scrollTo({ top: scrollY + document.querySelector('.mond-footer').getBoundingClientRect().top - (innerHeight - 40), behavior: 'instant' }));
+  await runtimePage.waitForFunction(() => {
+    const footerTop = document.querySelector('.mond-footer').getBoundingClientRect().top;
+    return footerTop < innerHeight && [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].every(node => getComputedStyle(node).visibility === 'visible' && node.getBoundingClientRect().bottom <= footerTop - 15.5);
+  });
+  await checkFloatingSupport(runtimePage, 'runtime utilities/390/footer-entry');
+  await runtimePage.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
   await runtimePage.waitForFunction(() => [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')]
     .every((node) => getComputedStyle(node).visibility === 'hidden'));
   const footerUtilityState = await runtimePage.evaluate(() => {
@@ -493,7 +507,7 @@ try {
   if (footerUtilityState.some((item) => item.visibility !== 'hidden' || item.pointerEvents !== 'none')) {
     failures.push(`runtime utilities: launchers remain interactive over the phone footer (${JSON.stringify(footerUtilityState)})`);
   }
-  await runtimePage.evaluate(() => window.scrollTo(0, 0));
+  await runtimePage.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
   await runtimePage.waitForFunction(() => [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')]
     .every((node) => getComputedStyle(node).visibility === 'visible'));
   await runtimePage.close();
@@ -508,7 +522,7 @@ try {
     await navigateToStableDocument(utilityPage, `${base}/index.html`);
     await utilityPage.locator('.mdn-cn-launch').waitFor({ state: 'attached' });
     await utilityPage.locator('#mnd-launcher').waitFor({ state: 'attached' });
-    await checkFooterSupport(utilityPage, `runtime utilities/${width}`);
+    await checkFloatingSupport(utilityPage, `runtime utilities/${width}`);
     const utilityGeometry = await utilityPage.evaluate(() => {
       const box = (selector) => {
         const node = document.querySelector(selector);
@@ -518,9 +532,9 @@ try {
       };
       return { contact: box('.mdn-cn-launch'), assistant: box('#mnd-launcher') };
     });
-    if (utilityGeometry.contact.display !== 'none'
-        || utilityGeometry.assistant.display !== 'none') {
-      failures.push(`runtime utilities/${width}: fixed controls remain in the content plane (${JSON.stringify(utilityGeometry)})`);
+    if (utilityGeometry.contact.display === 'none'
+        || utilityGeometry.assistant.display === 'none') {
+      failures.push(`runtime utilities/${width}: native floating controls are missing (${JSON.stringify(utilityGeometry)})`);
     }
     await utilityPage.close();
   }
@@ -572,8 +586,8 @@ try {
           if (closed.menu.width < 44 || closed.menu.height < 44 || closed.navDisplay !== 'none' || closed.documentWidth > closed.viewportWidth + 1) {
             failures.push(`${label}: closed navigation is clipped, exposed, or undersized (${JSON.stringify(closed)})`);
           }
-          if (closed.assistantDisplay !== 'none' || closed.contactDisplay !== 'none') {
-            failures.push(`${label}: fixed support controls remain in the compact content plane (${JSON.stringify(closed)})`);
+          if (closed.assistantDisplay === 'none' || closed.contactDisplay === 'none') {
+            failures.push(`${label}: native floating support controls are missing (${JSON.stringify(closed)})`);
           }
 
           await page.locator('.site-menu-button').click();
@@ -654,7 +668,7 @@ try {
           await page.keyboard.press('Escape');
           const closedByKeyboard = await page.locator('.site-menu-button').getAttribute('aria-expanded');
           if (closedByKeyboard !== 'false') failures.push(`${label}: Escape did not close the mobile navigation`);
-          await checkFooterSupport(page, label);
+          await checkFloatingSupport(page, label);
           await page.close();
         }
       }

@@ -23,3 +23,7 @@ jobs:
         run: |
           node scripts/chatbot_widget_browser_smoke.mjs
           node scripts/chatbot_site_layout_smoke.mjs
+      - name: Verify restored floating controls and shared footer on every public page
+        run: |
+          MONDERMAN_QUESTIONNAIRE_RELEASE=current RENDER_GIT_COMMIT="${{ github.sha }}" bash scripts/render-static-build.sh
+          node scripts/footer_support_smoke.mjs

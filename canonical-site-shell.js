@@ -110,43 +110,6 @@
         menuButton.setAttribute("aria-label", "Open navigation");
         if (restoreFocus) menuButton.focus();
       };
-      const widgetActions = document.createElement("div");
-      widgetActions.className = "site-widget-actions";
-      widgetActions.setAttribute("aria-label", "Contact and support");
-      widgetActions.innerHTML = `
-        <button class="site-widget-action" type="button" data-site-widget-action="contact" aria-label="Connect with Monderman" title="Connect with Monderman" aria-controls="mdn-cn-panel">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2 11 13"></path><path d="M22 2 15 22l-4-9-9-4 20-7z"></path></svg>
-          <span>Connect</span>
-        </button>
-        <button class="site-widget-action" type="button" data-site-widget-action="assistant" aria-label="Chat with Monderman" title="Chat with Monderman" aria-controls="mnd-panel">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 3v-3H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"></path></svg>
-          <span>Chat with Monderman</span>
-        </button>`;
-      const footer = document.querySelector(".mond-footer");
-      if (footer) {
-        const support = document.createElement("aside");
-        support.className = "site-support";
-        support.setAttribute("aria-label", "Contact and support");
-        support.innerHTML = '<div class="site-support-inner"><p>Questions about Monderman?</p></div>';
-        support.querySelector(".site-support-inner").appendChild(widgetActions);
-        footer.before(support);
-      }
-      const activateWidget = (selector, fallback) => {
-        closeMobileNav();
-        window.requestAnimationFrame(() => {
-          const launcher = document.querySelector(selector);
-          if (launcher) launcher.click();
-          else fallback();
-        });
-      };
-      widgetActions.querySelector('[data-site-widget-action="contact"]').addEventListener("click", () => activateWidget(
-        ".mdn-cn-launch",
-        () => location.assign(new URL("connect.html", location.href)),
-      ));
-      widgetActions.querySelector('[data-site-widget-action="assistant"]').addEventListener("click", () => activateWidget(
-        "#mnd-launcher",
-        () => header.querySelector(".site-search-button")?.click(),
-      ));
       menuButton.addEventListener("click", () => {
         const opening = !header.classList.contains("mobile-nav-open");
         header.classList.toggle("mobile-nav-open", opening);

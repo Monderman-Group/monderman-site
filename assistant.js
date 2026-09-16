@@ -56,8 +56,7 @@
   var STORAGE_KEY = "mndAssistantHistory";              // survives page-to-page within a tab
   var GREETING   = "Hi. I’m Monderman’s AI site guide. Ask what the diagnostics cover, how to start the free Decision Velocity run, or how the pilot works. I explain the product, not its private implementation. I can make mistakes; check important details with the team.";
 
-  // Keep the floating controls out of the footer. The footer already carries
-  // contact routes, so the closed launchers retire when it enters the viewport.
+  // Public controls dock above the footer; diagnostic help stays in its existing flow.
   function ensureFooterDock() {
     if (window.__mondermanFooterDockController) return window.__mondermanFooterDockController;
     var frame = 0;
@@ -73,6 +72,65 @@
       var connectLauncher = document.querySelector(".mdn-cn-launch");
       var assistantPanel = document.getElementById("mnd-panel");
       var connectPanel = document.getElementById("mdn-cn-panel");
+      if (document.body.classList.contains("canonical-green-shell")) {
+        var visual = window.visualViewport;
+        var viewTop = visual ? visual.offsetTop : 0;
+        var viewHeight = visual ? visual.height : viewportHeight;
+        var viewBottom = viewTop + viewHeight;
+        var edge = width <= 480 ? 16 : 20;
+        var header = document.getElementById("siteHeader");
+        var headerBottom = header ? header.getBoundingClientRect().bottom : 0;
+        var topLimit = Math.max(viewTop + 16, headerBottom + 16);
+        var panelOpen = (assistantPanel && assistantPanel.classList.contains("mnd-open"))
+          || (connectPanel && connectPanel.classList.contains("mdn-cn-open"));
+        var active = document.activeElement;
+        var editingPage = active && active.matches('input,textarea,select,[contenteditable="true"]')
+          && !active.closest("#mnd-panel,#mdn-cn-panel");
+        var navigationOpen = (header && header.classList.contains("mobile-nav-open"))
+          || document.querySelector(".site-search-overlay.is-open");
+        var launchers = [assistantLauncher, connectLauncher].filter(Boolean);
+        var stackWidth = 116;
+        var stackHeight = launchers.length * 48 + Math.max(0, launchers.length - 1) * 12;
+        var bottom = Math.min(viewBottom - edge, footer ? footer.getBoundingClientRect().top - 16 : viewBottom);
+        var rightEdge = width - edge;
+        // Lift the stack clear of actionable page content instead of covering
+        // a button, form field or link while someone scrolls.
+        var obstacles = Array.from(document.querySelectorAll('a[href],button,input,select,textarea,[role="button"],[contenteditable="true"]'))
+          .filter(function (node) {
+            return node !== assistantLauncher && node !== connectLauncher
+              && !node.closest("#siteHeader,.mond-footer,#mnd-panel,#mdn-cn-root")
+              && node.getClientRects().length && getComputedStyle(node).visibility !== "hidden";
+          }).map(function (node) { return node.getBoundingClientRect(); });
+        var blocked = false;
+        for (var pass = 0; pass < 12; pass += 1) {
+          var collisions = obstacles.filter(function (box) {
+            return box.right > rightEdge - stackWidth - 8 && box.left < rightEdge + 8
+              && box.bottom > bottom - stackHeight - 8 && box.top < bottom + 8;
+          });
+          if (!collisions.length) { blocked = false; break; }
+          blocked = true;
+          bottom = Math.min.apply(null, collisions.map(function (box) { return box.top - 8; }));
+        }
+        var hide = Boolean(panelOpen || editingPage || navigationOpen || blocked || bottom - stackHeight < topLimit);
+        launchers.forEach(function (launcher) {
+          launcher.style.setProperty("visibility", hide ? "hidden" : "visible", "important");
+          launcher.style.setProperty("pointer-events", hide ? "none" : "auto", "important");
+          launcher.style.setProperty("right", "max(" + edge + "px,env(safe-area-inset-right))", "important");
+          launcher.style.setProperty("left", "auto", "important");
+        });
+        if (assistantLauncher) assistantLauncher.style.setProperty("bottom", "max(" + (viewportHeight - bottom) + "px,env(safe-area-inset-bottom))", "important");
+        if (connectLauncher) connectLauncher.style.setProperty("bottom", "calc(max(" + (viewportHeight - bottom) + "px,env(safe-area-inset-bottom)) + " + (assistantLauncher ? 60 : 0) + "px)", "important");
+        // Keep open dialogs in the visual viewport when a phone keyboard opens.
+        var panelGap = width <= 480 ? 0 : 20;
+        var panelBottom = Math.max(0, viewportHeight - viewBottom) + panelGap;
+        var panelHeight = Math.max(120, viewHeight - panelGap - (width <= 480 ? 16 : Math.max(16, headerBottom - viewTop + 16)));
+        [assistantPanel, connectPanel].forEach(function (panel) {
+          if (!panel) return;
+          panel.style.setProperty("bottom", panelBottom + "px", "important");
+          panel.style.setProperty("max-height", panelHeight + "px", "important");
+        });
+        return;
+      }
       [assistantLauncher, connectLauncher].forEach(function (launcher) {
         if (!launcher) return;
         if (footerInView) {
@@ -94,14 +152,20 @@
       }
       if (connectPanel) connectPanel.style.setProperty("bottom", (width <= 1180 ? 140 : 148) + lift + "px", "important");
     }
-    function update() {
-      if (!frame) frame = window.requestAnimationFrame(render);
+    function update(immediate) {
+      if (immediate === true) {
+        if (frame) window.cancelAnimationFrame(frame);
+        render();
+      } else if (!frame) frame = window.requestAnimationFrame(render);
     }
     var controller = { update: update };
     window.__mondermanFooterDockController = controller;
     window.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", update, { passive: true });
     window.addEventListener("orientationchange", update, { passive: true });
+    document.addEventListener("focusin", update);
+    document.addEventListener("focusout", update);
+    document.addEventListener("click", update);
     if (window.visualViewport) {
       window.visualViewport.addEventListener("resize", update, { passive: true });
       window.visualViewport.addEventListener("scroll", update, { passive: true });
@@ -156,10 +220,12 @@
   /* ---- DOM ----------------------------------------------------------------- */
   var launcher = document.createElement("button");
   launcher.id = "mnd-launcher";
-  launcher.setAttribute("aria-label", "Open the Monderman assistant");
+  launcher.type = "button";
+  launcher.setAttribute("aria-label", "Chat with Monderman");
   launcher.setAttribute("aria-controls", "mnd-panel");
   launcher.setAttribute("aria-expanded", "false");
-  launcher.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 3v-3H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>';
+  launcher.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 3v-3H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>';
+  if (document.body.classList.contains("canonical-green-shell")) launcher.insertAdjacentHTML("beforeend", '<span>Chat</span>');
   var panel = document.createElement("div");
   panel.id = "mnd-panel";
   panel.setAttribute("role", "dialog");
@@ -266,12 +332,8 @@
     panel.classList.remove("mnd-open");
     launcher.setAttribute("aria-expanded", "false");
     launcher.style.display = "";
-    footerDock.update();
-    var menuAction = document.querySelector('[data-site-widget-action="assistant"]');
-    var menuButton = document.querySelector(".site-menu-button");
-    var returnTarget = menuAction && menuAction.getClientRects().length
-      ? menuAction
-      : menuButton && menuButton.getClientRects().length ? menuButton : launcher;
+    footerDock.update(true);
+    var returnTarget = document.querySelector('[data-intake-support="assistant"]') || launcher;
     returnTarget.focus();
   }
   async function send() {

@@ -274,7 +274,7 @@
     settings.id = "mnd-measurement-settings";
     settings.setAttribute("aria-label", "Optional measurement settings");
     settings.innerHTML = '<button type="button" id="mnd-measurement-settings-button">Measurement choices · off</button><p id="mnd-measurement-status" role="status" aria-live="polite"></p>';
-    var footer = document.querySelector(".site-support, footer.mond-footer");
+    var footer = document.querySelector("footer.mond-footer");
     if (footer) footer.insertAdjacentElement("beforebegin", settings);
     else document.body.append(settings);
     settingsButton = settings.querySelector("button");

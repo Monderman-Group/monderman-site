@@ -33,7 +33,9 @@ try {
         ? route.continue() : route.abort();
     });
     await page.goto(`${base}/${pageName}`, { waitUntil: 'networkidle', timeout: 30000 });
-    assert.equal(await page.locator('.site-support').count(), 1, `${pageName}: footer support missing from screen fixture`);
+    assert.equal(await page.locator('.site-support,.site-widget-actions,.site-widget-action').count(), 0, `${pageName}: retired support strip or proxy controls remain`);
+    await page.locator('#mnd-launcher').waitFor({ state: 'attached' });
+    await page.locator('.mdn-cn-launch').waitFor({ state: 'attached' });
     await emulateMediaAndSettle(page, 'print');
     const state = await page.evaluate(() => {
       const display = (selector) => {
@@ -59,7 +61,7 @@ try {
       `${pageName}: print media overflows horizontally (${state.scrollWidth} > ${state.clientWidth})`);
     assert.equal(state.header, 'none', `${pageName}: header is visible in print`);
     assert.equal(state.footer, 'none', `${pageName}: footer is visible in print`);
-    assert.equal(state.support, 'none', `${pageName}: footer support controls are visible in print`);
+    assert.equal(state.support, 'absent', `${pageName}: retired footer support strip is present in print`);
     assert.equal(state.menu, 'none', `${pageName}: menu button is visible in print`);
     assert.ok(['none', 'absent'].includes(state.assistant), `${pageName}: assistant launcher is visible in print`);
     assert.ok(['none', 'absent'].includes(state.connect), `${pageName}: Connect launcher is visible in print`);
