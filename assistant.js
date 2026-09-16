@@ -107,7 +107,7 @@
             // Reserve the reveal's remaining upward travel as well as its
             // current bounds, including fractional motion between frames.
             for (var parent = node; parent && parent !== document.body; parent = parent.parentElement) {
-              if (!parent.matches(".reveal.canonical-reveal")) continue;
+              if (!parent.matches(".reveal,.home-motion,[data-research-reveal]")) continue;
               var transform = getComputedStyle(parent).transform;
               if (transform !== "none") top -= Math.max(0, new DOMMatrixReadOnly(transform).m42);
             }
@@ -185,7 +185,7 @@
     function trackRevealMotion(event) {
       var node = event.target;
       if (event.propertyName !== "transform" || !document.body.classList.contains("canonical-green-shell")
-          || !node.matches || !node.matches(".reveal.canonical-reveal")) return;
+          || !node.matches || !node.matches(".reveal,.home-motion,[data-research-reveal]")) return;
       if (event.type === "transitionrun") movingReveals.add(node);
       else movingReveals.delete(node);
       update();
@@ -194,6 +194,12 @@
       document.addEventListener(name, trackRevealMotion, true);
     });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { update(); });
+    // Late in-flow notices or content can move links without scroll/resize.
+    // The fixed controls do not affect the observed body's own dimensions.
+    if (window.ResizeObserver) {
+      var layoutObserver = new window.ResizeObserver(function () { update(); });
+      layoutObserver.observe(document.body);
+    }
     if (window.visualViewport) {
       window.visualViewport.addEventListener("resize", update, { passive: true });
       window.visualViewport.addEventListener("scroll", update, { passive: true });
