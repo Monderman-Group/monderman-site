@@ -240,7 +240,9 @@
       dots.forEach(function (d) { d.classList.toggle('is-on', Number(d.dataset.dot) <= step); });
       lbl.textContent = step === 1 ? 'Step 1 of 2 \u00b7 Start the thread' : 'Step 2 of 2 \u00b7 Optional context';
     }
-    function setOpen(open) {
+    function setOpen(open, restoreFocus) {
+      var wasOpen = panel.classList.contains('mdn-cn-open');
+      var shouldRestoreFocus = restoreFocus || panel.contains(document.activeElement);
       if (open) {
         var openAssistantClose = document.querySelector('#mnd-panel.mnd-open #mnd-close');
         if (openAssistantClose) openAssistantClose.click();
@@ -253,7 +255,9 @@
       if (open) {
         var f = panel.querySelector('input, textarea');
         f && f.focus();
-      } else if (panel.contains(document.activeElement)) {
+      } else if (wasOpen && shouldRestoreFocus) {
+        // WebKit can clear focus as soon as the dialog becomes inert. Restore
+        // it from the dialog state, not from the now-hidden active element.
         var menuAction = document.querySelector('[data-site-widget-action="contact"]');
         var menuButton = document.querySelector('.site-menu-button');
         var returnTarget = menuAction && menuAction.getClientRects().length
@@ -326,8 +330,8 @@
     });
 
     launch.addEventListener('click', function () { setOpen(!panel.classList.contains('mdn-cn-open')); });
-    panel.querySelector('.mdn-cn-close').addEventListener('click', function () { setOpen(false); });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+    panel.querySelector('.mdn-cn-close').addEventListener('click', function () { setOpen(false, true); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false, true); });
     document.addEventListener('click', function (e) {
       if (!panel.classList.contains('mdn-cn-open')) return;
       if (!root.contains(e.target)) setOpen(false);

@@ -580,8 +580,9 @@ for (const [browserName, browserType] of browserMatrix) {
         });
       });
       await page.goto(`${base}/index.html`, { waitUntil: 'load', timeout: 30000 });
-      await page.locator('.site-menu-button').click();
-      await page.locator('[data-site-widget-action="contact"]').click();
+      assert.equal(await page.locator('#siteHeader .site-widget-action').count(), 0, `${browserName}/Connect widget: support controls remain in the header`);
+      await page.locator('.site-support').scrollIntoViewIfNeeded();
+      await page.locator('.site-support [data-site-widget-action="contact"]').click();
       await page.locator('#mdn-cn-panel.mdn-cn-open').waitFor({ state: 'visible' });
       await page.locator('#mdncn-fullName').fill('Launch readiness test');
       await page.locator('#mdncn-workEmail').fill('launch-readiness@example.com');
@@ -594,6 +595,9 @@ for (const [browserName, browserType] of browserMatrix) {
       const widgetErrorText = await page.locator('#mdncn-status').textContent();
       assert.equal(widgetErrorText, 'Too many requests. Please try again shortly, or email connect@monderman.com directly.',
         `${browserName}/Connect widget: server response is hidden behind generic error copy`);
+      await page.locator('.mdn-cn-close').click();
+      assert.equal(await page.locator('.site-support [data-site-widget-action="contact"]').evaluate(node => document.activeElement === node && node.getClientRects().length > 0), true,
+        `${browserName}/Connect widget: closing does not restore visible footer-trigger focus`);
       await page.close();
     }
 

@@ -3,6 +3,15 @@ import { chromium } from 'playwright';
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
 const browser = await chromium.launch({ headless: true });
+async function newLocalPage(viewport) {
+  const page = await browser.newPage({ viewport });
+  await page.route('**/*', route => {
+    const url = new URL(route.request().url());
+    return url.origin === new URL(base).origin || ['data:', 'blob:'].includes(url.protocol)
+      ? route.continue() : route.abort();
+  });
+  return page;
+}
 
 try {
   for (const viewport of [
@@ -10,7 +19,7 @@ try {
     { name: 'tablet', width: 768, height: 1024 },
     { name: 'desktop', width: 1440, height: 900 },
   ]) {
-    const page = await browser.newPage({ viewport });
+    const page = await newLocalPage(viewport);
     let assistantRequest = null;
     await page.route('https://monderman-api.onrender.com/api/site-assistant', async route => {
       assistantRequest = route.request();
@@ -67,20 +76,24 @@ try {
     await launcher.waitFor({ state: 'attached' });
     await connect.waitFor({ state: 'attached' });
     const compact = viewport.width <= 1180;
-    const menuButton = page.locator('.site-menu-button');
-    const assistantAction = page.locator('[data-site-widget-action="assistant"]');
-    const contactAction = page.locator('[data-site-widget-action="contact"]');
+    const support = page.locator('.site-support');
+    const assistantAction = support.locator('[data-site-widget-action="assistant"]');
+    const contactAction = support.locator('[data-site-widget-action="contact"]');
     assert.equal(await launcher.isVisible(), false, `${viewport.name}: assistant still floats over page content`);
     assert.equal(await connect.isVisible(), false, `${viewport.name}: Contact still floats over page content`);
-    if (compact) {
-      await menuButton.click();
-    }
+    assert.equal(await page.locator('#siteHeader .site-widget-action').count(), 0, `${viewport.name}: support controls remain in the header`);
+    assert.equal(await support.count(), 1, `${viewport.name}: one footer support region is required`);
+    assert.equal(await support.evaluate(node => node.nextElementSibling?.matches('.mond-footer')), true, `${viewport.name}: support region is not immediately before the footer`);
+    assert.equal(await support.locator('.site-widget-action').count(), 2, `${viewport.name}: footer support controls are duplicated or missing`);
+    assert.equal(await assistantAction.textContent().then(text => text.trim()), 'Chat with Monderman');
+    assert.equal(await contactAction.textContent().then(text => text.trim()), 'Connect');
+    await support.scrollIntoViewIfNeeded();
     await assistantAction.waitFor({ state: 'visible' });
     await contactAction.waitFor({ state: 'visible' });
     const actionBoxes = await Promise.all([assistantAction.boundingBox(), contactAction.boundingBox()]);
-    const expectedHeight = compact ? 44 : 39;
-    assert(actionBoxes.every((box) => box && box.height >= expectedHeight && box.x >= 0 && box.x + box.width <= viewport.width),
-      `${viewport.name}: header support actions are clipped or undersized`);
+    assert(actionBoxes.every((box) => box && box.height >= 48 && box.x >= 0 && box.x + box.width <= viewport.width && box.y >= 0 && box.y + box.height <= viewport.height),
+      `${viewport.name}: footer support actions are clipped or undersized`);
+    assert.equal(await support.evaluate(node => ['static', 'relative'].includes(getComputedStyle(node).position)), true, `${viewport.name}: footer support must remain in normal page flow`);
 
     await assistantAction.focus();
     assert.equal(await assistantAction.evaluate(node => document.activeElement === node), true, `${viewport.name}: assistant trigger cannot receive focus`);
@@ -106,26 +119,16 @@ try {
     }
 
     await page.locator('#mnd-close').click();
-    if (compact) {
-      assert.equal(await menuButton.evaluate(node => document.activeElement === node), true, `${viewport.name}: assistant close does not return focus to the menu`);
-      await menuButton.click();
-      await contactAction.waitFor({ state: 'visible' });
-    } else {
-      assert.equal(await assistantAction.evaluate(node => document.activeElement === node), true, `${viewport.name}: assistant close does not return focus to its header action`);
-    }
+    assert.equal(await assistantAction.evaluate(node => document.activeElement === node && node.getClientRects().length > 0), true, `${viewport.name}: assistant close does not return visible focus to its footer action`);
     await contactAction.click();
     await page.locator('#mdn-cn-panel.mdn-cn-open').waitFor({ state: 'visible' });
     assert.equal(await launcher.isVisible(), false, `${viewport.name}: assistant launcher collides with open Connect panel`);
     await page.locator('.mdn-cn-close').click();
-    if (compact) {
-      assert.equal(await menuButton.evaluate(node => document.activeElement === node), true, `${viewport.name}: Contact close does not return focus to the menu`);
-    } else {
-      assert.equal(await contactAction.evaluate(node => document.activeElement === node), true, `${viewport.name}: Contact close does not return focus to its header action`);
-    }
+    assert.equal(await contactAction.evaluate(node => document.activeElement === node && node.getClientRects().length > 0), true, `${viewport.name}: Connect close does not return visible focus to its footer action`);
     await page.close();
   }
 
-  const assistantFallbackPage = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  const assistantFallbackPage = await newLocalPage({ width: 1440, height: 900 });
   await assistantFallbackPage.route('**/assistant.js*', route => route.abort());
   await assistantFallbackPage.goto(`${base}/index.html`, { waitUntil: 'networkidle', timeout: 90000 });
   assert.equal(await assistantFallbackPage.locator('#mnd-launcher').count(), 0, 'assistant failure fixture did not block the widget');
@@ -133,7 +136,7 @@ try {
   await assistantFallbackPage.locator('.site-search-overlay.is-open').waitFor({ state: 'visible' });
   await assistantFallbackPage.close();
 
-  const contactFallbackPage = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  const contactFallbackPage = await newLocalPage({ width: 1440, height: 900 });
   await contactFallbackPage.route('**/connect-widget.js*', route => route.abort());
   await contactFallbackPage.goto(`${base}/index.html`, { waitUntil: 'networkidle', timeout: 90000 });
   assert.equal(await contactFallbackPage.locator('.mdn-cn-launch').count(), 0, 'Contact failure fixture did not block the widget');

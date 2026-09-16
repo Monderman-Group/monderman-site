@@ -46,46 +46,61 @@
 .canonical-green-shell .brand::after{display:none}
 .canonical-green-shell .nav{display:flex;align-items:center;gap:20px;flex-wrap:nowrap;justify-content:flex-end}
 .site-menu-button{display:none}
-.site-widget-actions{display:flex;align-items:center;gap:6px}
-.site-widget-action{
-  position:relative;
-  width:39px;
-  height:39px;
-  display:grid;
-  place-items:center;
-  padding:0;
-  border:1px solid rgba(255,255,255,.14);
-  border-radius:7px;
-  background:rgba(255,255,255,.04);
-  color:rgba(245,241,232,.84);
+.site-support{
+  width:100vw;
+  max-width:none;
+  margin:0 0 0 calc(50% - 50vw);
+  padding:28px clamp(24px,4vw,56px);
+  border-top:1px solid #EAE6DD;
+  background:#FAFAF8;
+  color:#073338;
+  font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+.site-support,.site-support *{box-sizing:border-box}
+.site-support .site-support-inner{
+  max-width:1280px;
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+}
+.site-support .site-support-inner>p{margin:0;font-size:1rem;font-weight:500;line-height:1.5;color:#073338}
+.site-support .site-widget-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.site-support .site-widget-action{
+  min-width:0;
+  min-height:48px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:12px 18px;
+  border:1px solid #0C6E78;
+  border-radius:4px;
+  background:transparent;
+  color:#0A5B63;
+  font:600 .94rem/1.35 "Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
+  text-align:center;
   cursor:pointer;
-  transition:color 170ms ease,border-color 170ms ease,background-color 170ms ease,transform 170ms ease;
+  transition:color 170ms ease,border-color 170ms ease,background-color 170ms ease;
 }
-.site-widget-action:hover,.site-widget-action:focus-visible{
-  color:#fff;
-  border-color:rgba(255,255,255,.34);
-  background:rgba(255,255,255,.08);
-  transform:translateY(-1px);
-  outline:none;
+.site-support .site-widget-action:hover{
+  color:#073338;
+  border-color:#073338;
+  background:#E4F0F1;
 }
-.site-widget-action svg{
-  width:17px;
-  height:17px;
+.site-support .site-widget-action:focus-visible{outline:3px solid #0C6E78;outline-offset:4px}
+.site-support .site-widget-action svg{
+  width:20px;
+  height:20px;
+  flex:0 0 20px;
   fill:none;
   stroke:currentColor;
   stroke-width:1.8;
   stroke-linecap:round;
   stroke-linejoin:round;
 }
-.site-widget-action span{
-  position:absolute;
-  width:1px;
-  height:1px;
-  overflow:hidden;
-  clip:rect(0 0 0 0);
-  clip-path:inset(50%);
-  white-space:nowrap;
-}
+.site-support .site-widget-action span{display:block}
 body.canonical-green-shell #mnd-launcher,
 body.canonical-green-shell .mdn-cn-launch{display:none!important}
 html:not(.canonical-shell-js) body.canonical-green-shell .header .site-search-button{display:none}
@@ -361,6 +376,12 @@ footer.mond-footer{
   letter-spacing:normal;
 }
 .mond-footer .mf-social{margin-top:24px}
+.mond-footer .mf-device-protection{margin:20px 0 0;font-size:.84rem;line-height:1.6}
+.mond-footer .mf-device-protection a{color:rgba(255,255,255,.8);text-decoration:underline;text-underline-offset:3px}
+.mond-footer .mf-device-protection a:hover{color:#fff}
+.mond-footer .mf-device-protection a:focus-visible{outline:2px solid #A9D0D4;outline-offset:4px}
+.mond-footer .mf-device-protection span{white-space:nowrap}
+#administrative-device-protection{scroll-margin-top:100px}
 .mond-footer .mf-social a{border-radius:4px}
 .mond-footer .mf-nav{
   display:grid;
@@ -482,56 +503,10 @@ footer.mond-footer{
   }
   body.canonical-green-shell .site-entry-link{min-height:44px}
 }
-@media(max-width:1180px){
-  body.canonical-green-shell .site-widget-actions{
-    display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:8px;
-    width:100%;
-  }
-  body.canonical-green-shell .site-widget-action{
-    width:auto;
-    height:auto;
-    min-width:0;
-    min-height:44px;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-    padding:10px 12px;
-    border:1px solid rgba(255,255,255,.15);
-    border-radius:5px;
-    background:rgba(255,255,255,.075);
-    color:rgba(255,255,255,.9);
-    font:600 .9rem/1.2 "Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
-    cursor:pointer;
-  }
-  body.canonical-green-shell .site-widget-action:hover,
-  body.canonical-green-shell .site-widget-action:focus-visible{
-    color:#fff;
-    border-color:rgba(255,255,255,.34);
-    background:rgba(255,255,255,.12);
-    outline:none;
-  }
-  body.canonical-green-shell .site-widget-action svg{
-    width:17px;
-    height:17px;
-    flex:0 0 17px;
-    fill:none;
-    stroke:currentColor;
-    stroke-width:1.8;
-    stroke-linecap:round;
-    stroke-linejoin:round;
-  }
-  body.canonical-green-shell .site-widget-action span{
-    position:static;
-    width:auto;
-    height:auto;
-    overflow:visible;
-    clip:auto;
-    clip-path:none;
-    white-space:normal;
-  }
+@media(max-width:600px){
+  .site-support{padding:24px 20px}
+  .site-support .site-support-inner{align-items:stretch;flex-direction:column;gap:16px}
+  .site-support .site-widget-actions{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
 }
 @media(max-width:1180px){
   /* Progressive enhancement: the compact navigation is hidden only after its
@@ -662,7 +637,7 @@ footer.mond-footer{
 @media print{
   @page{margin:.55in}
   html,body,.canonical-green-shell{background:#fff!important;color:#18191C!important;overflow:visible!important}
-  .header,.mond-footer,.skip-link,.site-search-overlay,.site-menu-button,
+  .header,.mond-footer,.site-support,.skip-link,.site-search-overlay,.site-menu-button,
   #mnd-launcher,#mnd-panel,.mnd-assistant,.mdn-cn-launch,#mdn-cn-panel,
   .latest-controls,.rail-arrow{display:none!important}
   .canonical-green-shell main,.canonical-green-shell .section{border-color:#DDE3E4!important}

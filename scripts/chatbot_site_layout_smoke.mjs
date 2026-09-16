@@ -50,8 +50,11 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
         await page.goto(`http://127.0.0.1/${file}`, { waitUntil: 'networkidle' });
         if (workspace) await page.locator('#hans-launcher').click();
         else {
-          if (width <= 1180) await page.locator('.site-menu-button').click();
-          await page.locator('[data-site-widget-action="assistant"]').click();
+          assert.equal(await page.locator('#siteHeader .site-widget-action').count(), 0, `${engineName}/${file}/${width}: support controls remain in the header`);
+          const support = page.locator('.site-support');
+          assert.equal(await support.evaluate(node => node.nextElementSibling?.matches('.mond-footer')), true, `${engineName}/${file}/${width}: support is not immediately before the footer`);
+          await support.scrollIntoViewIfNeeded();
+          await support.locator('[data-site-widget-action="assistant"]').click();
         }
         await page.locator(`#${prefix}-input`).fill('Where is the saved report?');
         await page.locator(`#${prefix}-send`).click();
@@ -74,6 +77,9 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
         assert.equal(sends, 1);
         assert.equal(await page.locator(`#${prefix}-notice a`).getAttribute('href'), 'privacy.html');
         if (output) await page.screenshot({ path: path.join(output, `${engineName}-${prefix}-realpage-${width}.png`) });
+        await page.locator(`#${prefix}-close`).click();
+        const returnTarget = workspace ? '#hans-launcher' : '.site-support [data-site-widget-action="assistant"]';
+        assert.equal(await page.locator(returnTarget).evaluate(node => document.activeElement === node && node.getClientRects().length > 0), true, `${engineName}/${file}/${width}: closing does not return visible focus to the original launcher`);
         results.push({ engine: engineName, file, width, passed: true, mockedSends: sends, interceptedExternal: external.length, metric });
         await page.close();
       }

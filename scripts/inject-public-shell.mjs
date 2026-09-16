@@ -25,7 +25,10 @@ const assetReleases = Object.freeze({
   "monderman-depth-lure-tile.css": "20260915.financial1",
   "sample-report-production.js": "20260915.annual1",
   "public-sample-model.js": "20260915.annual1",
-  "canonical-site-shell.js": "20260915.consistency1",
+  "canonical-site-shell.js": "20260916.footer-support1",
+  "canonical-site-shell.css": "20260916.footer-support1",
+  "connect-widget.js": "20260916.footer-support1",
+  "first-run-telemetry.js": "20260916.footer-support1",
   "workspace-assistant.js": "20260915.consistency1",
   "public-product-design.css": "20260915.consistency1",
   "workspace-product-design.css": "20260915.consistency1",
@@ -126,7 +129,7 @@ for (const entry of await readdir(publishDirectory, { withFileTypes: true })) {
   // Cache keys are normalized in the immutable public artifact so every page
   // receives the same shell release without modifying protected source pages.
   let versionedHtml = html
-    .replace(canonicalCssPattern, `canonical-site-shell.css?v=${shellRelease}`)
+    .replace(canonicalCssPattern, `canonical-site-shell.css?v=${assetReleases["canonical-site-shell.css"]}`)
     .replace(enterpriseCssPattern, "enterprise-site.css?v=20260915.consistency1");
   versionedHtml = versionScript(versionedHtml, "canonical-site-shell.js");
   versionedHtml = versionScript(versionedHtml, "assistant.js");

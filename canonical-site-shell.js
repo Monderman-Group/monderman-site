@@ -114,17 +114,23 @@
       widgetActions.className = "site-widget-actions";
       widgetActions.setAttribute("aria-label", "Contact and support");
       widgetActions.innerHTML = `
-        <button class="site-widget-action" type="button" data-site-widget-action="contact" aria-label="Contact Monderman" title="Contact Monderman" aria-controls="mdn-cn-panel">
+        <button class="site-widget-action" type="button" data-site-widget-action="contact" aria-label="Connect with Monderman" title="Connect with Monderman" aria-controls="mdn-cn-panel">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2 11 13"></path><path d="M22 2 15 22l-4-9-9-4 20-7z"></path></svg>
-          <span>Contact</span>
+          <span>Connect</span>
         </button>
-        <button class="site-widget-action" type="button" data-site-widget-action="assistant" aria-label="Open Monderman assistant" title="Open Monderman assistant" aria-controls="mnd-panel">
+        <button class="site-widget-action" type="button" data-site-widget-action="assistant" aria-label="Chat with Monderman" title="Chat with Monderman" aria-controls="mnd-panel">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 3v-3H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"></path></svg>
-          <span>Assistant</span>
+          <span>Chat with Monderman</span>
         </button>`;
-      const widgetMount = nav.querySelector(".workspace-link");
-      if (widgetMount) widgetMount.before(widgetActions);
-      else nav.appendChild(widgetActions);
+      const footer = document.querySelector(".mond-footer");
+      if (footer) {
+        const support = document.createElement("aside");
+        support.className = "site-support";
+        support.setAttribute("aria-label", "Contact and support");
+        support.innerHTML = '<div class="site-support-inner"><p>Questions about Monderman?</p></div>';
+        support.querySelector(".site-support-inner").appendChild(widgetActions);
+        footer.before(support);
+      }
       const activateWidget = (selector, fallback) => {
         closeMobileNav();
         window.requestAnimationFrame(() => {

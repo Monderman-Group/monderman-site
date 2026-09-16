@@ -27,7 +27,13 @@ async function emulateMediaAndSettle(page, media) {
 try {
   for (const pageName of surfaces) {
     const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    await page.route('**/*', route => {
+      const url = new URL(route.request().url());
+      return url.origin === new URL(base).origin || ['data:', 'blob:'].includes(url.protocol)
+        ? route.continue() : route.abort();
+    });
     await page.goto(`${base}/${pageName}`, { waitUntil: 'networkidle', timeout: 30000 });
+    assert.equal(await page.locator('.site-support').count(), 1, `${pageName}: footer support missing from screen fixture`);
     await emulateMediaAndSettle(page, 'print');
     const state = await page.evaluate(() => {
       const display = (selector) => {
@@ -39,6 +45,7 @@ try {
         scrollWidth: document.documentElement.scrollWidth,
         header: display('.header'),
         footer: display('.mond-footer'),
+        support: display('.site-support'),
         menu: display('.site-menu-button'),
         assistant: display('#mnd-launcher'),
         connect: display('.mdn-cn-launch'),
@@ -52,6 +59,7 @@ try {
       `${pageName}: print media overflows horizontally (${state.scrollWidth} > ${state.clientWidth})`);
     assert.equal(state.header, 'none', `${pageName}: header is visible in print`);
     assert.equal(state.footer, 'none', `${pageName}: footer is visible in print`);
+    assert.equal(state.support, 'none', `${pageName}: footer support controls are visible in print`);
     assert.equal(state.menu, 'none', `${pageName}: menu button is visible in print`);
     assert.ok(['none', 'absent'].includes(state.assistant), `${pageName}: assistant launcher is visible in print`);
     assert.ok(['none', 'absent'].includes(state.connect), `${pageName}: Connect launcher is visible in print`);
