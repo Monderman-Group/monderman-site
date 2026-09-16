@@ -32,7 +32,7 @@ const expectedHeroCount = pages.filter(file => !footerOnly.has(file)).length;
 const expectedFooterCount = pages.filter(file => file !== 'cross-tool-synthesis.html').length;
 const heroSelector = 'body.canonical-green-shell :is(.hero,.article-hero,.ps-hero,.pl-top),body.canonical-green-shell>main.deck>.slide.cover,body.page-report>main.shell>.hero';
 const surfaceSelector = `${heroSelector},footer.mond-footer`;
-const tagline = 'See the work clearly. Make the next move count.';
+const tagline = 'Less bureaucracy. Better performance.';
 const printPages = new Set(['index.html', 'Monderman_Platform_Brief.html', 'privacy.html', 'the-culture-trap-brief.html', 'cross-tool-synthesis.html', 'operational-systems.html', 'sample-report.html']);
 assert.equal(pages.length, 66);
 assert.equal(pages.length - footerOnly.size, 60);

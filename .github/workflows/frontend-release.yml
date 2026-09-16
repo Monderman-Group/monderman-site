@@ -21,6 +21,8 @@ jobs:
       MONDERMAN_RELEASE_CHANNEL: ${{ github.event_name == 'workflow_dispatch' && inputs.release_channel || 'beta' }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -32,6 +34,8 @@ jobs:
       - run: python scripts/validate_stabilization.py
       - name: Keep public search copy and disclosures current
         run: python scripts/build_public_search_index.py --check
+      - name: Preserve approved copy, allowances and functional boundaries
+        run: node scripts/site_consistency_copy_smoke.mjs
       - name: Reject scanner-consumed email authentication regressions
         run: node scripts/signin_email_otp_smoke.mjs
       - run: node scripts/workspace_legal_gate_smoke.mjs

@@ -33,7 +33,7 @@ assert.ok(signin.includes('ui.sampleLine.hidden = true'), "generic acquisition p
 assert.ok(!signin.includes('<script src="assistant.js"'), "transactional sign-in and legal states must not load the floating assistant");
 assert.ok(!signin.includes('<script src="connect-widget.js"'), "transactional sign-in and legal states must not load the Connect acquisition widget");
 assert.ok(!invite.includes('<script src="assistant.js"'), "invitation landing must not load the floating assistant");
-assert.ok(workspace.includes('<script src="workspace-assistant.js" defer></script>'), "ordinary Workspace assistance must remain available");
+assert.match(workspace, /<script src="workspace-assistant\.js(?:\?v=[^"\s]+)?" defer><\/script>/, "ordinary Workspace assistance must remain available");
 assert.ok(!signin.includes("Your account was not activated"), "pre-auth/legal lookup failures must not claim account activation failed");
 assert.ok(invite.includes('/^[A-Za-z0-9_-]{16,240}$/.test(token)'), "missing and malformed invitation tokens must be rejected before sign-in");
 
@@ -58,7 +58,7 @@ assert.match(context.mapInvitationError("ignored", true), /reach the invitation 
 
 for (const token of [
   '@media (max-width:520px)',
-  'min-height:52px',
+  'min-height:48px',
   'role="status" aria-live="polite"',
   'overflow-wrap:anywhere',
   'a:focus-visible',

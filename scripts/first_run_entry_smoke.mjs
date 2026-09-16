@@ -100,7 +100,7 @@ for (const required of [
   'href="pilot.html#evaluation-plan"', 'id="pilotEvaluationPlan"',
   "suggested starting group, not a hard cap", "none is universally required",
   "500 completed campaign responses", "uses four of the 500 campaign responses",
-  "Pending invitations also reserve capacity", "Individual runs are unlimited",
+  "Pending invitations also reserve capacity", "Self-runs are unlimited for authorized Workspace users",
   "10, 30, and 60 minutes", "Operational, Managerial, and Senior Leader",
   "does not guarantee a Composite Score", "does not renew automatically"
 ]) assert.ok(activation.includes(required), `pilot activation guide missing ${required}`);

@@ -57,11 +57,8 @@
           tagline.className = "mf-tagline";
           footerBrand.insertAdjacentElement("afterend", tagline);
         }
-        tagline.textContent = "See the work clearly. Make the next move count.";
+        if (!tagline.textContent.trim()) tagline.textContent = "Less bureaucracy. Better performance.";
       }
-    });
-    document.querySelectorAll(".mond-footer .mf-copy").forEach((copy) => {
-      copy.textContent = "Monderman provides repeatable organizational diagnostics for ownership, decisions, handoffs, and administrative work.";
     });
     document.querySelectorAll(".mond-footer .mf-inner").forEach((footerInner) => {
       let motif = footerInner.querySelector(".mf-motif");

@@ -55,7 +55,7 @@ for (const page of ["index.html","privacy.html","security.html","pilot.html"]) {
   assert.match(await read(page),/src="assistant\.js\?v=20260910-bounded-chat1"/); checks++;
 }
 for (const page of ["workspace.html","workspace-diagnostics.html","workspace-analysis.html","workspace-actions.html","workspace-settings.html"]) {
-  assert.match(await read(page),/src="workspace-assistant\.js\?v=20260910-bounded-chat1"/); checks++;
+  assert.match(await read(page),/src="workspace-assistant\.js\?v=20260915.consistency1"/); checks++;
 }
 for (const [page, hashKey] of [
   ["terms.html","terms_content_sha256"],

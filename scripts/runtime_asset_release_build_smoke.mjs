@@ -39,8 +39,9 @@ const versionStart=injector.indexOf('const shellRelease ='),versionEnd=injector.
 ok(versionStart>=0&&versionEnd>versionStart);
 const versionScript=vm.runInNewContext(injector.slice(versionStart,versionEnd)+'\nversionScript');
 const annualAssets=['monderman-report.js','sample-report-production.js','public-sample-model.js','canonical-site-shell.js','workspace-theme.js'];
-const changed=[...annualAssets,'monderman-depth-lure-tile.css','homepage-workspace-demo.css','campaign-analysis.js','campaign-analysis.css'];
-const runtimeRelease=asset=>['monderman-report.js','monderman-depth-lure-tile.css'].includes(asset)?'20260915.financial1':annualAssets.includes(asset)?'20260915.annual1':asset==='homepage-workspace-demo.css'?'20260914-preview-static1':'20260913.34';
+const consistencyAssets=['canonical-site-shell.js','workspace-assistant.js','public-product-design.css','workspace-product-design.css','report-screen-experience.css','diagnostic-intake.css','visual-polish.css','sample-report-production.css'];
+const changed=[...new Set([...annualAssets,...consistencyAssets,'monderman-depth-lure-tile.css','homepage-workspace-demo.css','campaign-analysis.js','campaign-analysis.css'])];
+const runtimeRelease=asset=>consistencyAssets.includes(asset)?'20260915.consistency1':['monderman-report.js','monderman-depth-lure-tile.css'].includes(asset)?'20260915.financial1':annualAssets.includes(asset)?'20260915.annual1':asset==='homepage-workspace-demo.css'?'20260914-preview-static1':'20260913.34';
 eq(read('monderman-report.js').toString().match(/const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-([^"]+)"/)?.[1],'20260914.43','Renderer version remains 43; annual metadata changes receive a separate cache identity');
 for(const asset of changed){
   for(const quote of ['"',"'"])for(const prefix of ['', './'])for(const query of ['', '?v=20260913.32','?v=20260913.35','?v=20260913.39'])
@@ -51,8 +52,7 @@ for(const asset of changed){
   }
   eq(sha(fs.readFileSync(path.join(built,asset))),hashes[asset],'Build copies the actual frozen runtime bytes');
 }
-for(const [asset,release]of [['brand-surfaces.css','20260913.32'],
-  ['sample-report-production.css','20260913.32']])
+for(const [asset,release]of [['brand-surfaces.css','20260913.32']])
   eq(versionScript(`"${asset}"`,asset),`"${asset}?v=${release}"`,'Unchanged asset release remains unchanged');
 
 const pages=rootFiles.filter(file=>file.endsWith('.html'));
@@ -63,6 +63,9 @@ const footer=read('site-shell/footer.html').toString().trim(),header=read('site-
 const methodology='href="diagnostics.html#methodology-and-sources"';
 eq(footer.split(methodology).length-1,1);
 const references=Object.fromEntries(changed.map(asset=>[asset,0]));
+// These presentation layers are deliberately injected by the public build.
+const injectedProductPages=new Set(['index.html','diagnostics.html','platform-services.html','plan-signal.html','plan-pattern.html','plan-enterprise.html','new-in-the-role.html','after-an-acquisition.html','after-a-reorganization.html','transformation-behind-schedule.html','pilot.html','roi.html','connect.html','why-monderman.html','security.html','subprocessors.html','Monderman_Platform_Brief.html']);
+const instrumentPages=new Set(['decision-velocity.html','structural-clarity.html','operational-systems.html','institutional-performance.html']);
 let canonicalPages=0,footerPages=0;
 for(const file of pages){
   const original=read(file).toString(),html=fs.readFileSync(path.join(built,file),'utf8');
@@ -76,7 +79,8 @@ for(const file of pages){
   for(const asset of changed){
     const pattern=new RegExp(`(["'])((?:\\./)?${asset.replace('.', '\\.')})([^"']*)\\1`,'g');
     const before=[...original.matchAll(pattern)],after=[...html.matchAll(pattern)];
-    eq(after.length,before.length,file+': asset reference count unchanged');
+    const injected=before.length===0&&((asset==='public-product-design.css'&&injectedProductPages.has(file))||(asset==='report-screen-experience.css'&&instrumentPages.has(file)));
+    eq(after.length,before.length+(injected?1:0),file+': exact existing or explicitly injected asset reference count');
     if([...annualAssets,'homepage-workspace-demo.css'].includes(asset)&&! /^(?:terms|privacy)(?:-|\.)/.test(file))for(const match of before)eq(match[3],`?v=${runtimeRelease(asset)}`,file+': unbuilt active source also uses current report cache identity');
     for(const match of after){eq(match[3],`?v=${runtimeRelease(asset)}`,file+': current asset URL');references[asset]++;}
   }

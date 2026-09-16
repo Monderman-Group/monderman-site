@@ -3,8 +3,8 @@
   --paper:#F4F7F8; --canvas:#F4F7F8; --surface:#FFFFFF; --card:#FFFFFF; --panel:#EDF3F4;
   --ink:#17282D; --ink-2:#17282D; --text:#17282D; --muted:#596C73; --muted-2:#647980; --faint:#647980;
   --line:#DCE5E7; --line-soft:#E9EFF0;
-  --teal:#087F8C; --teal-hover:#066B76; --teal-ink:#066B76; --teal-bg:#E4F2F3;
-  --accent:#087F8C; --accent-d:#066B76; --accent-bg:#E4F2F3; --accent-fg:#066B76;
+  --teal:#0C6E78; --teal-hover:#0A5B63; --teal-ink:#0A5B63; --teal-bg:#E4F2F3;
+  --accent:#0C6E78; --accent-d:#0A5B63; --accent-bg:#E4F2F3; --accent-fg:#0A5B63;
   --shadow-card:0 1px 3px rgba(15,43,49,.04);
   --product-rail:#10272C; --product-rail-active:#1B4148; --product-button-text:#FFFFFF;
   --product-select-chevron:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23596C73' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 4.5 3 3 3-3'/%3E%3C/svg%3E");
@@ -13,8 +13,8 @@ html[data-theme="dark"] {
   --paper:#102126; --canvas:#102126; --surface:#172D33; --card:#172D33; --panel:#1D363D;
   --ink:#EDF5F6; --ink-2:#EDF5F6; --text:#EDF5F6; --muted:#B0C2C7; --muted-2:#9BB3BA; --faint:#9BB3BA;
   --line:#314950; --line-soft:#284149;
-  --teal:#A9D0D4; --teal-hover:#C0E3E6; --teal-ink:#A9D0D4; --teal-bg:#24434A;
-  --accent:#A9D0D4; --accent-d:#C0E3E6; --accent-bg:#24434A; --accent-fg:#A9D0D4;
+  --teal:#A9D0D4; --teal-hover:#C4E1E3; --teal-ink:#A9D0D4; --teal-bg:#24434A;
+  --accent:#A9D0D4; --accent-d:#C4E1E3; --accent-bg:#24434A; --accent-fg:#A9D0D4;
   --product-rail:#0B1D22; --product-rail-active:#20434B; --product-button-text:#10272C;
   --product-select-chevron:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23B0C2C7' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 4.5 3 3 3-3'/%3E%3C/svg%3E");
 }
@@ -25,7 +25,7 @@ html[data-theme="dark"] {
 .workspace-surface :is(.ws-nav,.ws5-nav) a.active { background:var(--product-rail-active); color:#FFFFFF; }
 .workspace-surface :is(.ws-nav,.ws5-nav) a.active::before { background:#A9D0D4; }
 .workspace-surface :is(.ws-topbar,.ws5-topbar),html[data-theme="dark"] :is(.ws-topbar,.ws5-topbar) { background:var(--card); border-color:var(--line); }
-.workspace-surface :is(.ws-crumb,.ws5-crumb) h1 { color:var(--text); font-size:17px; }
+.workspace-surface :is(.ws-crumb,.ws5-crumb) h1 { color:var(--text); font-size:17px; line-height:1.25; }
 .workspace-surface :is(.ws-who,.ws5-who) b { color:var(--text); }
 .workspace-surface :is(.ws-who,.ws5-who) span { color:var(--muted); }
 .workspace-surface :is(.ws-main .ws-wrap,.content) { width:100%; max-width:1220px; box-sizing:border-box; margin-inline:auto; padding:28px 30px 56px; }
@@ -39,7 +39,10 @@ html[data-theme="dark"] {
 .workspace-surface :is(.btn:not(.btn-secondary):not(.ghost):not(.danger):not(.destructive)) { background:var(--accent); border-color:var(--accent); color:var(--product-button-text); }
 .workspace-surface :is(.ws-btn:not(.ghost):not(.danger),.ws5-btn,.synth-btn:not(.ghost),.trust-run,.ract.primary,.btn-mini:not(.ghost):not(.danger)):hover { background:var(--accent-d); }
 .workspace-surface .btn-mini.ghost:hover { background:var(--panel); }
-.workspace-surface :is(.ws-btn,.ws5-btn,.synth-btn,.ract,.btn,.btn-refresh,.selector,.mini-select) { min-height:40px; }
+.workspace-surface .btn:not(.btn-secondary):not(.ghost):not(.danger):not(.destructive):is(:hover,:focus-visible) { background:var(--accent-d); border-color:var(--accent-d); }
+/* Full actions use 48px; dense table selectors retain their compact geometry. */
+.workspace-surface :is(.ws-btn,.ws5-btn,.synth-btn,.ract,.btn,.btn-refresh,.selector) { min-height:48px; }
+.workspace-surface .mini-select { min-height:40px; }
 .workspace-surface :is(a,button,input,select,textarea,summary):focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
 .workspace-surface .subtabs { gap:22px; border-color:var(--line); }
 .workspace-surface .subtabs a { min-height:42px; box-sizing:border-box; font-size:13px; }
