@@ -37,18 +37,13 @@
   function ensureFooterDock() {
     if (window.__mondermanFooterDockController) return window.__mondermanFooterDockController;
     var frame = 0;
-    var resumeTimer = 0;
-    var contentSuppressed = false;
-    var lastObstructionAt = 0;
-    var lastMotionAt = 0;
-    var movingReveals = new Set();
     function setStyle(node, property, value) {
       if (node.style.getPropertyValue(property) !== value || node.style.getPropertyPriority(property) !== "important") {
         node.style.setProperty(property, value, "important");
       }
     }
     var root = document.documentElement;
-    function render(restoreClearAnchor) {
+    function render() {
       frame = 0;
       var footer = document.querySelector(".mond-footer");
       var viewportHeight = window.innerHeight || root.clientHeight;
@@ -86,48 +81,11 @@
         });
         var anchorBoxes = launchers.filter(function (launcher) { return launcher.getClientRects().length; })
           .map(function (launcher) { return launcher.getBoundingClientRect(); });
-        var clearance = contentSuppressed ? 16 : 8;
         var footerTop = footer ? footer.getBoundingClientRect().top : Infinity;
-        var footerBlocked = anchorBoxes.some(function (box) { return box.bottom + (contentSuppressed ? 24 : 16) >= footerTop; });
-        // Hide at the fixed anchor if it would cover an action. Restore only
-        // after scrolling/content has settled, so nearby links do not flicker
-        // the controls on and off. They never relocate to another page area.
-        var obstacles = Array.from(document.querySelectorAll('a[href],button,input,select,textarea,[role="button"],[contenteditable="true"]'))
-          .filter(function (node) {
-            return node !== assistantLauncher && node !== connectLauncher
-              && !node.closest("#siteHeader,.mond-footer,#mnd-panel,#mdn-cn-root")
-              && node.getClientRects().length && getComputedStyle(node).visibility !== "hidden";
-          }).map(function (node) {
-            var box = node.getBoundingClientRect();
-            var top = box.top;
-            // Reserve the reveal's remaining upward travel as well as its
-            // current bounds, including fractional motion between frames.
-            for (var parent = node; parent && parent !== document.body; parent = parent.parentElement) {
-              if (!parent.matches(".reveal,.home-motion,[data-research-reveal]")) continue;
-              var transform = getComputedStyle(parent).transform;
-              if (transform !== "none") top -= Math.max(0, new DOMMatrixReadOnly(transform).m42);
-            }
-            return { left: box.left, right: box.right, top: top, bottom: box.bottom };
-          });
-        var blocked = footerBlocked || obstacles.some(function (box) {
-          return anchorBoxes.some(function (anchorBox) {
-            return box.right > anchorBox.left - clearance && box.left < anchorBox.right + clearance
-              && box.bottom > anchorBox.top - clearance && box.top < anchorBox.bottom + clearance;
-          });
-        });
-        var now = performance.now();
-        if (resumeTimer) { window.clearTimeout(resumeTimer); resumeTimer = 0; }
-        if (blocked) {
-          contentSuppressed = true;
-          lastObstructionAt = now;
-        } else if (contentSuppressed) {
-          // Explicit dialog close restores focus immediately when the corner
-          // is clear. Scroll/resize callbacks still observe the quiet interval.
-          var remaining = restoreClearAnchor === true ? 0 : 180 - (now - Math.max(lastObstructionAt, lastMotionAt));
-          if (remaining > 0) resumeTimer = window.setTimeout(function () { resumeTimer = 0; update(); }, remaining + 1);
-          else contentSuppressed = false;
-        }
-        var hide = Boolean(panelOpen || editingPage || navigationOpen || contentSuppressed
+        var footerBlocked = anchorBoxes.some(function (box) { return box.bottom + 16 >= footerTop; });
+        // Ordinary scrolling, links and reveal animations never hide controls.
+        // Only the footer and explicit UI states suppress them, with no timer.
+        var hide = Boolean(panelOpen || editingPage || navigationOpen || footerBlocked
           || anchorBoxes.some(function (box) { return box.top < topLimit; }));
         launchers.forEach(function (launcher) {
           setStyle(launcher, "visibility", hide ? "hidden" : "visible");
@@ -142,8 +100,6 @@
           setStyle(panel, "bottom", panelBottom + "px");
           setStyle(panel, "max-height", panelHeight + "px");
         });
-        movingReveals.forEach(function (node) { if (!node.isConnected) movingReveals.delete(node); });
-        if (movingReveals.size) frame = window.requestAnimationFrame(render);
         return;
       }
       [assistantLauncher, connectLauncher].forEach(function (launcher) {
@@ -168,12 +124,9 @@
       if (connectPanel) connectPanel.style.setProperty("bottom", (width <= 1180 ? 140 : 148) + lift + "px", "important");
     }
     function update(immediate) {
-      if (immediate && (immediate.type === "scroll" || immediate.type === "resize" || immediate.type === "orientationchange")) {
-        lastMotionAt = performance.now();
-      }
       if (immediate === true) {
         if (frame) window.cancelAnimationFrame(frame);
-        render(true);
+        render();
       } else if (!frame) frame = window.requestAnimationFrame(render);
     }
     function restoreFocus(preferred) {
@@ -199,21 +152,8 @@
     document.addEventListener("focusin", update);
     document.addEventListener("focusout", update);
     document.addEventListener("click", update);
-    // Shared reveal transitions move actionable content without a scroll or
-    // resize event. Keep its measured clearance current throughout the motion.
-    function trackRevealMotion(event) {
-      var node = event.target;
-      if (event.propertyName !== "transform" || !document.body.classList.contains("canonical-green-shell")
-          || !node.matches || !node.matches(".reveal,.home-motion,[data-research-reveal]")) return;
-      if (event.type === "transitionrun") movingReveals.add(node);
-      else movingReveals.delete(node);
-      update();
-    }
-    ["transitionrun", "transitionend", "transitioncancel"].forEach(function (name) {
-      document.addEventListener(name, trackRevealMotion, true);
-    });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { update(); });
-    // Late in-flow notices or content can move links without scroll/resize.
+    // Late in-flow content can move the footer without a scroll/resize event.
     // The fixed controls do not affect the observed body's own dimensions.
     if (window.ResizeObserver) {
       var layoutObserver = new window.ResizeObserver(function () { update(); });

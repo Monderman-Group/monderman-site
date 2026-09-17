@@ -28,7 +28,7 @@ jobs:
           MONDERMAN_QUESTIONNAIRE_RELEASE=current RENDER_GIT_COMMIT="${{ github.sha }}" bash scripts/render-static-build.sh
           node scripts/footer_support_smoke.mjs
           FOOTER_FULL_SCRIPTS=1 FOOTER_TEST_OUTPUT=output/full-script-support node scripts/footer_support_smoke.mjs
-      - name: Keep floating controls clear of animations and late content
+      - name: Keep floating controls visible and fixed through animations and late content
         run: |
           python3 -m http.server 8080 --directory .render-public > /tmp/floating-widget-http.log 2>&1 &
           preview_pid=$!
@@ -64,7 +64,7 @@ jobs:
         run: |
           npm install --no-save --package-lock=false playwright@1.55.0
           npx playwright install --with-deps chromium webkit
-      - name: Verify stable anchors during scrolling in both browser engines
+      - name: Verify stable visibility and anchors during scrolling in both browser engines
         run: |
           node scripts/mobile_widget_stability_browser_smoke.mjs
           node scripts/mobile_widget_mixed_version_browser_smoke.mjs

@@ -14,9 +14,9 @@ export async function runFloatingWidgetMotionSmoke({ base = process.env.SITE_BAS
     const engine = await engineType.launch({ headless: true });
     try {
       for (const surface of [
-        { name: 'connect.html', width: 768, height: 1024, reveal: '#contactFormShell', footerEntry: false },
-        { name: 'research.html', width: 390, height: 844, reveal: '.cta-inner', footerEntry: true },
-        { name: 'index.html', width: 390, height: 844, reveal: '.connect-choice-card:last-child', footerEntry: true },
+        { name: 'connect.html', width: 768, height: 1024, reveal: '#contactFormShell' },
+        { name: 'research.html', width: 390, height: 844, reveal: '.cta-inner' },
+        { name: 'index.html', width: 390, height: 844, reveal: '.connect-choice-card:last-child' },
       ]) for (const order of ['assistant-first', 'connect-first']) {
         const label = `${engineName}/${surface.width}/${surface.name}/${order}/reveal`;
         let phase = 'navigation';
@@ -70,7 +70,13 @@ export async function runFloatingWidgetMotionSmoke({ base = process.env.SITE_BAS
         // The existing fallback starts when homepage-motion.js executes, not at
         // navigation start. All deferred scripts have executed at load above.
         if (surface.name === 'index.html') await page.waitForTimeout(2800);
-        await page.evaluate(footerEntry => window.scrollTo({ top: footerEntry ? scrollY + document.querySelector('.mond-footer').getBoundingClientRect().top - (innerHeight - 40) : 0, behavior: 'instant' }), surface.footerEntry);
+        // Replay ordinary content near the fixed corner, with the footer still
+        // below the viewport. Reveals must not suppress the support controls.
+        await page.evaluate(selector => {
+          const targetTop = document.querySelector(selector).getBoundingClientRect().top + scrollY;
+          const footerTop = document.querySelector('.mond-footer').getBoundingClientRect().top + scrollY;
+          scrollTo({ top: Math.max(0, Math.min(targetTop - innerHeight + 120, footerTop - innerHeight - 32)), behavior: 'instant' });
+        }, surface.reveal);
         phase = 'replay hidden endpoint';
         await page.evaluate(selector => {
           const node = document.querySelector(selector);
@@ -109,8 +115,11 @@ export async function runFloatingWidgetMotionSmoke({ base = process.env.SITE_BAS
         if (surface.name === 'connect.html') {
           phase = 'late content insertion';
           // Deliberately insert normal-flow content into the fixed control slot.
-          // It must suppress controls without scroll, viewport resize or relocation.
+          // It must not hide or move controls, even without a scroll event.
+          await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
+          await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
           const before = await page.locator('#mnd-launcher').evaluate(node => ({ ...node.getBoundingClientRect().toJSON(), visible: getComputedStyle(node).visibility === 'visible' }));
+          assert.equal(before.visible, true, 'late content fixture begins with a visible launcher');
           await page.evaluate(top => {
             const banner = document.createElement('section');
             banner.id = 'late-layout-fixture';
@@ -118,19 +127,18 @@ export async function runFloatingWidgetMotionSmoke({ base = process.env.SITE_BAS
             const button = document.createElement('button');
             button.type = 'button'; button.textContent = 'Local late-layout check';
             button.style.cssText = 'display:block;box-sizing:border-box;width:100%;height:48px;margin:0;';
-            button.addEventListener('click', () => { button.dataset.clicked = 'true'; });
             banner.append(button); document.body.prepend(banner);
           }, before.y);
-          await page.waitForFunction(() => {
+          await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+          const insertedVisible = await page.evaluate(() => {
             return [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].every(node => {
               const style = getComputedStyle(node);
-              return style.visibility === 'hidden' && style.pointerEvents === 'none';
+              return style.visibility === 'visible' && style.pointerEvents !== 'none';
             });
-          }, null, { timeout: 5000 });
+          });
+          assert.equal(insertedVisible, true, 'late ordinary content must keep both launchers visible and interactive');
           const inserted = await page.locator('#mnd-launcher').evaluate(node => node.getBoundingClientRect().toJSON());
           assert.ok(Math.abs(inserted.y - before.y) <= 1, 'late content must not move the fixed widget');
-          await page.locator('#late-layout-fixture button').click();
-          assert.equal(await page.locator('#late-layout-fixture button').getAttribute('data-clicked'), 'true', 'suppressed widgets must leave the underlying action clickable');
           phase = 'late content removal';
           await page.locator('#late-layout-fixture').evaluate(node => node.remove());
           await page.waitForFunction(before => {
@@ -138,7 +146,7 @@ export async function runFloatingWidgetMotionSmoke({ base = process.env.SITE_BAS
             return Math.abs(box.top - before.y) <= 1 && Math.abs(box.bottom - before.y - before.height) <= 1
               && (getComputedStyle(node).visibility === 'visible') === before.visible;
           }, before, { timeout: 5000 });
-          lateLayout = { before, inserted, removed: await page.locator('#mnd-launcher').evaluate(node => node.getBoundingClientRect().toJSON()), returnedWithoutScroll: true, underlyingActionClicked: true };
+          lateLayout = { before, inserted, insertedVisible, removed: await page.locator('#mnd-launcher').evaluate(node => node.getBoundingClientRect().toJSON()), remainedVisibleWithoutScroll: true };
         }
         phase = 'settled idle check';
         await page.waitForTimeout(300);
@@ -151,7 +159,7 @@ export async function runFloatingWidgetMotionSmoke({ base = process.env.SITE_BAS
         evidence.push({ engineName, surface, order, motionTrigger: 'Replay after real visible lifecycle and deferred-script fallback; original observers, CSS, durations and DOM controls unchanged', frames, lateLayout, idleStyleMutations, errors });
         fs.writeFileSync(path.join(out, 'floating-reveal-motion.json'), JSON.stringify({ evidence }, null, 2));
         if (!frames.some(frame => frame.revealOffset > 0.1)) failures.push(`${label}: test missed the actual reveal motion`);
-        if (frames.some(frame => frame.overlap)) failures.push(`${label}: floating control covered actionable content during reveal`);
+        if (frames.some(frame => frame.actions.length !== 2 || frame.actions.some(action => !action.visible))) failures.push(`${label}: ordinary reveal hid the fixed support controls`);
         const edge = surface.width <= 480 ? 16 : 20;
         if (frames.some(frame => frame.actions.some(action => action.visible && (
           Math.abs(action.box.right - (surface.width - edge)) > 1.5

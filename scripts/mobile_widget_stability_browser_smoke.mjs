@@ -1,6 +1,6 @@
 // Self-contained browser regression for the public Chat/Connect anchor.
 // All requests are fulfilled from local source or blocked; no API is contacted.
-// Set MOBILE_WIDGET_BASELINE_REF to a git revision to reproduce the old jump.
+// Set MOBILE_WIDGET_BASELINE_REF to a git revision to reproduce an old anchor or visibility defect.
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -113,9 +113,8 @@ export async function runMobileWidgetStabilitySmoke({
         };
         const clear = async () => {
           await page.evaluate(() => { document.activeElement?.blur(); window.scrollTo({ top: 0, behavior: 'instant' }); });
-          await page.waitForTimeout(260);
           const value = await record('clear-top');
-          check(allVisible(value), `${label}: launchers restore when the page is clear`);
+          check(allVisible(value), `${label}: launchers restore immediately when the page is clear`);
         };
         try {
           await page.goto('http://127.0.0.1/index.html', { waitUntil: 'load' });
@@ -137,10 +136,8 @@ export async function runMobileWidgetStabilitySmoke({
                   scrollTo({ top: direction === 'down' ? low + offset : high - offset, behavior: 'instant' });
                   await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
                   const edge = innerWidth <= 480 ? 16 : 20, control = document.querySelector(selector).getBoundingClientRect();
-                  const point = { x: innerWidth - edge - 20, y: Math.max(1, Math.min(innerHeight - 1, control.top + control.height / 2)) };
                   frames.push({ scrollY, width: innerWidth, height: innerHeight,
                     overlap: control.right > innerWidth - edge - 116 - 8 && control.left < innerWidth - edge + 8 && control.bottom > innerHeight - edge - 108 - 8 && control.top < innerHeight - edge + 8,
-                    controlHit: Boolean(document.elementFromPoint(point.x, point.y)?.closest(selector)),
                     actions: [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].map(node => {
                       const box = node.getBoundingClientRect(), style = getComputedStyle(node);
                       return { name: node.id === 'mnd-launcher' ? 'Chat' : 'Connect', visible: style.display !== 'none' && style.visibility === 'visible', display: style.display,
@@ -153,22 +150,18 @@ export async function runMobileWidgetStabilitySmoke({
               state.frames.push({ selector, direction, trace });
               trace.forEach((frame, i) => {
                 assertAnchor(frame, `${label}/${selector}/${direction}/${i}`);
-                if (frame.overlap) check(allHidden(frame), `${label}/${selector}/${direction}/${i}: collision must hide the anchored stack`);
+                check(allVisible(frame), `${label}/${selector}/${direction}/${i}: ordinary scrolling must keep both launchers visible`);
               });
-              check(trace.some(frame => frame.overlap), `${label}/${selector}/${direction}: collision fixture was sampled`);
-              const firstCollision = trace.findIndex(frame => frame.overlap);
-              check(firstCollision >= 0 && trace.slice(firstCollision).every(allHidden), `${label}/${selector}/${direction}: launchers flicker back during ongoing scroll`);
+              check(trace.some(frame => frame.overlap), `${label}/${selector}/${direction}: ordinary controls passed through the fixed corner`);
             }
-            // Click the portion of a real page control that the fixed stack
-            // would cover; a hidden stack must let the event reach the page.
+            // Pausing with normal page content beneath the fixed corner must
+            // not introduce a hide/reappear timer either. Do not click through
+            // a deliberately overlaid control; scroll it clear before using it.
             await page.evaluate(y => scrollTo({ top: y, behavior: 'instant' }), positions.top - height + 80);
-            await settle(page);
+            check(allVisible(await record(`${selector}-stationary-control`)), `${label}/${selector}: stopped scrolling keeps launchers visible`);
             if (selector === '#test-link') await page.screenshot({ path: path.join(out, `${engineName}-${width}-${order}-page-control.png`) });
-            const clicksBefore = await page.evaluate(() => window.__localClicks);
-            const box = await page.locator(selector).boundingBox();
-            await page.mouse.click(width - (width <= 480 ? 16 : 20) - 20, box.y + box.height / 2);
-            check(await page.evaluate(() => window.__localClicks) === clicksBefore + 1, `${label}/${selector}: obstructed portion of page control stays clickable`);
-            await page.evaluate(() => document.activeElement?.blur());
+            await page.waitForTimeout(260);
+            check(allVisible(await record(`${selector}-stationary-delayed`)), `${label}/${selector}: stopped controls do not disappear or reappear after a delay`);
           }
           await clear();
           await page.screenshot({ path: path.join(out, `${engineName}-${width}-${order}-anchor.png`) });
@@ -182,6 +175,16 @@ export async function runMobileWidgetStabilitySmoke({
             if (footerOffset <= -8) check(allHidden(value), `${label}: footer suppresses support without relocation`);
           }
           await page.screenshot({ path: path.join(out, `${engineName}-${width}-${order}-footer.png`) });
+          // Move away from the footer without ever stopping for a quiet period.
+          // The first clear frames must already show the same fixed controls.
+          const footerReturn = [];
+          for (let offset = -180; offset <= 72; offset += 8) {
+            await page.evaluate(y => scrollTo({ top: y, behavior: 'instant' }), footerDocumentTop - height - offset);
+            const value = await record(`footer-return-${offset}`);
+            footerReturn.push(value);
+            if (value.footerTop >= height + 32) check(allVisible(value), `${label}/footer-return-${offset}: leaving the footer restores launchers during continued scrolling`);
+          }
+          check(footerReturn.some(value => value.footerTop >= height + 32), `${label}: uninterrupted footer-return trace reached clear content`);
           await clear();
 
           // Use the real navigation/search controls. Escape is particularly
@@ -190,18 +193,15 @@ export async function runMobileWidgetStabilitySmoke({
             await page.locator('.site-menu-button').click();
             check(allHidden(await record('menu-open')), `${label}: menu suppresses launchers`);
             await page.keyboard.press('Escape');
-            await page.waitForTimeout(260);
             check(allVisible(await record('menu-escape')), `${label}: menu Escape restores launchers`);
             await page.locator('.site-menu-button').click();
           }
           await page.locator('.site-search-button').click();
           check(allHidden(await record('search-open')), `${label}: search suppresses launchers`);
           await page.keyboard.press('Escape');
-          await page.waitForTimeout(260);
           if (width <= 1180) {
             check(allHidden(await record('search-escape-to-menu')), `${label}: search Escape keeps launchers suppressed while navigation remains open`);
             await page.keyboard.press('Escape');
-            await page.waitForTimeout(260);
           }
           check(allVisible(await record('search-and-menu-closed')), `${label}: closing search and navigation restores launchers`);
 
@@ -242,7 +242,7 @@ export async function runMobileWidgetStabilitySmoke({
             check(allVisible(await record(`${widget.kind}-closed`)), `${label}/${widget.kind}: close restores both launchers`);
             // A real short layout viewport can put ordinary page controls in
             // the anchored corner. On restore, closing immediately must not
-            // lose focus to the 180ms scrolling suppression timer.
+            // lose focus or wait for a scrolling suppression timer.
             await page.evaluate(() => {
               const intro = document.querySelector('.test-intro');
               intro.style.height = intro.getBoundingClientRect().height + 'px';
