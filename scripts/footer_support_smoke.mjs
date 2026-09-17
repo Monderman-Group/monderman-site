@@ -58,6 +58,7 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
         const label = `${engineName}/${file}/${width}`;
         const page = await browser.newPage({ viewport: { width, height: 1024 }, reducedMotion: fullScripts ? 'no-preference' : 'reduce' });
         const errors = [];
+        const supportStates = {};
         page.on('pageerror', e => errors.push(e.message));
         let blockedExternal = 0;
         await page.route('**/*', async route => {
@@ -83,12 +84,22 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
               visible:getComputedStyle(node).visibility !== 'hidden' && getComputedStyle(node).display !== 'none',
               pointerEvents:getComputedStyle(node).pointerEvents
             }));
-            const obstacles = [...document.querySelectorAll('a[href],button,input,select,textarea,[role="button"],[contenteditable="true"]')]
+            const actions = [...document.querySelectorAll('a[href],button,input,select,textarea,[role="button"],[contenteditable="true"]')]
               .filter(node => !node.matches('#mnd-launcher,.mdn-cn-launch') && !node.closest('#siteHeader,.mond-footer,#mnd-panel,#mdn-cn-root') && node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden')
-              .map(rect).filter(box => controls.some(c => c.visible && box.right > c.left - 8 && box.left < c.right + 8 && box.bottom > c.top - 8 && box.top < c.bottom + 8));
-            return { footerTop: document.querySelector('.mond-footer').getBoundingClientRect().top,
+              .map(node => ({ ...rect(node), id:node.id, text:node.textContent.trim().slice(0,100) }));
+            const overlaps = (box,c,gap) => box.right > c.left - gap && box.left < c.right + gap && box.bottom > c.top - gap && box.top < c.bottom + gap;
+            const obstacles = actions.filter(box => controls.some(c => c.visible && overlaps(box,c,8)));
+            // A visible control has an 8px exclusion zone; restoring a hidden
+            // one requires 16px. Record the action and gap independently of
+            // visibility so legitimate hysteresis is explicit in the receipt.
+            const restorationObstacles = actions.flatMap(box => controls.filter(c => overlaps(box,c,16)).map(c => ({
+              id:box.id, text:box.text, control:c.text, box,
+              clearancePx:Math.max(0,c.left-box.right,box.left-c.right,c.top-box.bottom,box.top-c.bottom),
+              overlapsVisibleClearance:overlaps(box,c,8)
+            })));
+            return { scrollY, measuredAt:performance.now(), footerTop: document.querySelector('.mond-footer').getBoundingClientRect().top,
               headerBottom: document.querySelector('#siteHeader')?.getBoundingClientRect().bottom || 0,
-              controls, obstacles };
+              controls, obstacles, restorationObstacles };
           });
         }
         function checkStack(g) {
@@ -122,6 +133,7 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
           if (shell) {
             await page.waitForTimeout(220);
             const initial = await geometry();
+            supportStates.initial = initial;
             checkStack(initial);
             let restoreScrollY = 0;
             if (file === 'index.html') {
@@ -143,6 +155,7 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
             }
             await page.evaluate(() => scrollTo({top:document.querySelector('.mond-footer').getBoundingClientRect().top + scrollY - (innerHeight - 40),behavior:'instant'}));
             const footerEntry = await geometry();
+            supportStates.footerEntry = footerEntry;
             checkStack(footerEntry);
             assert.ok(footerEntry.controls.every(c => !c.visible), label + ': controls yield their fixed corner when the footer enters');
             if (fullScripts) {
@@ -159,9 +172,38 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
             await page.evaluate(top => scrollTo({top,behavior:'instant'}), restoreScrollY);
             await page.waitForTimeout(220);
             const restored = await geometry();
+            supportStates.returned = restored;
             checkStack(restored);
-            if (file === 'index.html' || initial.controls.every(c => c.visible))
-              assert.ok(restored.controls.every(c => c.visible), label + ': controls return at their original corner after clearing the footer');
+            if (file === 'index.html' || initial.controls.every(c => c.visible)) {
+              const clearToRestore = state => state.restorationObstacles.length === 0
+                && state.controls.every(c => c.top >= state.headerBottom + 16 && c.bottom + 24 < state.footerTop);
+              let clearPosition = restored;
+              if (!clearToRestore(restored)) {
+                assert.ok(restored.controls.every(c => !c.visible), label + ': restoration clearance must keep both controls suppressed');
+                supportStates.retainedSuppression = {
+                  reason:'The returned page position is inside the 16px action or 24px footer restoration clearance.',
+                  obstacles:restored.restorationObstacles,
+                  footerClearancePx:restored.footerTop-Math.max(...restored.controls.map(c=>c.bottom)),
+                };
+                // The same initial scroll position may sit in the 8–16px
+                // hysteresis band. Find a geometrically clear position, then
+                // require restoration there; hidden controls alone never pass.
+                for (const offset of [24,48,96,192,384,768,1200,1800]) {
+                  await page.evaluate(top => scrollTo({top,behavior:'instant'}), restoreScrollY + offset);
+                  clearPosition = await geometry();
+                  checkStack(clearPosition);
+                  if (clearToRestore(clearPosition)) break;
+                }
+              }
+              assert.ok(clearToRestore(clearPosition), label + ': a clear page position exists for mandatory restoration ' + JSON.stringify(clearPosition));
+              supportStates.clearRestorationPosition = clearPosition;
+              await page.waitForFunction(() => [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')]
+                .every(node => getComputedStyle(node).visibility === 'visible' && getComputedStyle(node).pointerEvents === 'auto'), null, {timeout:3000});
+              const confirmed = await geometry();
+              checkStack(confirmed);
+              assert.ok(confirmed.controls.every(c => c.visible), label + ': controls return at their original fixed corner once restoration clearance is met');
+              supportStates.restorationConfirmed = confirmed;
+            }
           }
           await page.locator('.mond-footer').scrollIntoViewIfNeeded();
           const footer = await page.locator('.mond-footer').evaluate(n => {
@@ -183,10 +225,10 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
           }
           await page.emulateMedia({media:'print'});
           if (shell) for (const selector of ['#mnd-launcher','#mdn-cn-root']) assert.equal(await page.locator(selector).evaluate(n=>getComputedStyle(n).display),'none',label+': no printed widget');
-          results.push({label,passed:true,blockedExternal,footer});
+          results.push({label,passed:true,blockedExternal,footer,supportStates});
         } catch(error) {
           console.error(label + ': ' + error.message);
-          failures.push({label,error:error.message});
+          failures.push({label,error:error.message,supportStates});
           await page.screenshot({path:path.join(output,`${engineName}-${file}-${width}-FAIL.png`)}).catch(()=>{});
         } finally { await page.close(); }
       }
