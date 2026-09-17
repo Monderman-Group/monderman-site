@@ -127,10 +127,6 @@ async function checkFloatingSupport(page, label) {
   await page.locator('#mnd-launcher').waitFor({ state: 'attached' });
   await page.locator('.mdn-cn-launch').waitFor({ state: 'attached' });
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-  // Content suppression restores only after a quiet clear interval. Inspect the
-  // settled policy without mistaking that deliberate delay for a missing control.
-  if (await page.locator('#mnd-launcher,.mdn-cn-launch').evaluateAll(nodes => nodes.some(node => getComputedStyle(node).visibility !== 'visible')))
-    await page.waitForTimeout(220);
   const state = await page.evaluate(() => {
     const footer = document.querySelector('.mond-footer');
     const actions = [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].map(node => {
@@ -142,19 +138,20 @@ async function checkFloatingSupport(page, label) {
     const obstacleRects = [...document.querySelectorAll('a[href],button,input,select,textarea,[role="button"],[contenteditable="true"]')]
       .filter(node => !node.matches('#mnd-launcher,.mdn-cn-launch') && !node.closest('#siteHeader,.mond-footer,#mnd-panel,#mdn-cn-root') && node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden')
       .map(node => node.getBoundingClientRect());
-    const overlaps = gap => actions.length === 2 && obstacleRects.some(rect => actions.some(action =>
-      rect.right > action.left - gap && rect.left < action.right + gap
-        && rect.bottom > action.top - gap && rect.top < action.bottom + gap));
+    const overlaps = actions.length === 2 && obstacleRects.some(rect => actions.some(action =>
+      rect.right > action.left && rect.left < action.right
+        && rect.bottom > action.top && rect.top < action.bottom));
     return {
       actions,
-      obstacleOverlap: overlaps(8),
-      obstacleNearby: overlaps(16),
+      pageActionOverlap: overlaps,
       editingPage: Boolean(document.activeElement?.matches('input,textarea,select,[contenteditable="true"]') && !document.activeElement.closest('#mnd-panel,#mdn-cn-panel')),
+      navigationOrPanelOpen: Boolean(document.querySelector('#siteHeader.mobile-nav-open,.site-search-overlay.is-open,#mnd-panel.mnd-open,#mdn-cn-panel.mdn-cn-open')),
       proxyCount: document.querySelectorAll('.site-support,.site-widget-actions,.site-widget-action').length,
       footerTop: footer ? footer.getBoundingClientRect().top : Infinity,
       headerBottom: document.querySelector('#siteHeader')?.getBoundingClientRect().bottom || 0,
       viewportWidth: document.documentElement.clientWidth,
       viewportHeight: innerHeight,
+      viewTop: window.visualViewport?.offsetTop || 0,
     };
   });
   if (state.proxyCount !== 0 || state.actions.length !== 2
@@ -164,24 +161,23 @@ async function checkFloatingSupport(page, label) {
   }
   if (state.actions.length === 2) {
     const hidden = state.actions.filter(action => action.visibility !== 'visible');
-    const requiredSpace = state.actions.reduce((sum, action) => sum + action.height, 0) + 12 + 32;
+    const cornerBlocked = state.editingPage || state.navigationOrPanelOpen
+      || state.actions.some(action => action.bottom + 16 >= state.footerTop
+        || action.top < Math.max(state.viewTop + 16, state.headerBottom + 16));
     if (hidden.length) {
       if (hidden.length !== 2 || hidden.some(action => action.pointerEvents !== 'none')
-          || (Math.min(state.footerTop, state.viewportHeight) - state.headerBottom >= requiredSpace
-            && Math.min(...state.actions.map(action => action.top)) >= state.headerBottom + 16
-            && state.footerTop > Math.max(...state.actions.map(action => action.bottom)) + 24
-            && !state.obstacleNearby && !state.editingPage)) {
-        failures.push(`${label}: floating support hides without a space constraint or remains interactive while hidden (${JSON.stringify(state)})`);
+          || !cornerBlocked) {
+        failures.push(`${label}: floating support hides without a footer/header, navigation, panel, or editing constraint, or remains interactive while hidden (${JSON.stringify(state)})`);
       }
       return;
     }
     const [top, bottom] = [...state.actions].sort((a, b) => a.top - b.top);
     const edge = state.viewportWidth <= 480 ? 16 : 20;
-    if (state.obstacleOverlap || state.actions.some(action => action.left < state.viewportWidth / 2 || action.right > state.viewportWidth || action.top < state.headerBottom + 15.5 || action.bottom > state.viewportHeight || action.bottom > state.footerTop - 15.5)
+    if (cornerBlocked || state.actions.some(action => action.pointerEvents !== 'auto' || action.left < state.viewportWidth / 2 || action.right > state.viewportWidth || action.top < state.headerBottom + 15.5 || action.bottom > state.viewportHeight || action.bottom > state.footerTop - 15.5)
         || state.actions.some(action => Math.abs(action.right - (state.viewportWidth - edge)) > 1.5
           || Math.abs(action.bottom - (state.viewportHeight - edge - (action.name === 'Connect' ? 60 : 0))) > 1.5)
         || Math.abs(top.width - bottom.width) > 1 || Math.abs(top.right - bottom.right) > 1 || bottom.top - top.bottom < 11.5) {
-      failures.push(`${label}: floating controls overlap, leave their right-hand stack, or cross the header/footer (${JSON.stringify(state)})`);
+      failures.push(`${label}: floating controls leave their right-hand stack, are not interactive, or cross the header/footer (${JSON.stringify(state)})`);
     }
   }
 }
@@ -228,7 +224,9 @@ async function checkRevealMotionDocking() {
               .map(node => ({ id: node.id, box: node.getBoundingClientRect().toJSON() }))
               .filter(({ box }) => box.right > Math.min(...boxes.map(item => item.left)) - 8 && box.left < Math.max(...boxes.map(item => item.right)) + 8
                 && box.bottom > Math.min(...boxes.map(item => item.top)) - 8 && box.top < Math.max(...boxes.map(item => item.bottom)) + 8);
-            return { actions, obstacles, transform: getComputedStyle(document.querySelector('#contactFormShell')).transform, overlap: actions.every(action => action.visible) && obstacles.length > 0 };
+            return { actions, obstacles, footerTop: document.querySelector('.mond-footer').getBoundingClientRect().top,
+              headerBottom: document.querySelector('#siteHeader')?.getBoundingClientRect().bottom || 0,
+              transform: getComputedStyle(document.querySelector('#contactFormShell')).transform, overlap: actions.every(action => action.visible) && obstacles.length > 0 };
           }));
           await page.waitForTimeout(20);
         }
@@ -244,7 +242,9 @@ async function checkRevealMotionDocking() {
         evidence.push({ engineName, order, frames, idleStyleMutations, errors });
         fs.writeFileSync(path.join(out, 'floating-reveal-motion.json'), JSON.stringify({ evidence }, null, 2));
         if (!frames.some(frame => frame.transform !== 'none' && new RegExp('matrix').test(frame.transform))) failures.push(`${label}: test missed the actual reveal motion`);
-        if (frames.some(frame => frame.overlap)) failures.push(`${label}: floating control covered actionable content during reveal`);
+        if (frames.some(frame => frame.actions.some(action => !action.visible)
+          && frame.actions.every(action => action.box.bottom + 16 < frame.footerTop && action.box.top >= frame.headerBottom + 16)))
+          failures.push(`${label}: floating control disappeared during reveal even though its fixed footer/header corner remained available`);
         if (frames.some(frame => frame.actions.some(action => action.visible && (
           Math.abs(action.box.right - 748) > 1.5 || Math.abs(action.box.bottom - (1004 - (action.connect ? 60 : 0))) > 1.5
         )))) failures.push(`${label}: visible control moved away from its fixed anchor during reveal`);
@@ -530,13 +530,13 @@ try {
   let runtimeClearScrollY = 0;
   for (let top = 0; top <= 1800; top += 120) {
     await runtimePage.evaluate(top => window.scrollTo({top,behavior:'instant'}), top);
-    await runtimePage.waitForTimeout(240);
+    await runtimePage.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     if (await runtimePage.locator('#mnd-launcher,.mdn-cn-launch').evaluateAll(nodes => nodes.every(node => getComputedStyle(node).visibility === 'visible'))) {
       runtimeClearScrollY = await runtimePage.evaluate(() => scrollY);
       break;
     }
   }
-  assert.ok(await runtimePage.locator('#mnd-launcher,.mdn-cn-launch').evaluateAll(nodes => nodes.every(node => getComputedStyle(node).visibility === 'visible')), 'runtime utilities: controls appear in an unobstructed fixed corner');
+  assert.ok(await runtimePage.locator('#mnd-launcher,.mdn-cn-launch').evaluateAll(nodes => nodes.every(node => getComputedStyle(node).visibility === 'visible')), 'runtime utilities: controls remain available above the footer');
 
   await runtimePage.locator('#mnd-launcher').click();
   await runtimePage.locator('#mnd-panel.mnd-open').waitFor({ state: 'visible' });
@@ -609,8 +609,8 @@ try {
   }
   await runtimePage.locator('.mond-footer a[href="connect.html"]').click({ trial: true });
   await runtimePage.evaluate(top => window.scrollTo({ top, behavior: 'instant' }), runtimeClearScrollY);
-  await runtimePage.waitForFunction(() => [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')]
-    .every((node) => getComputedStyle(node).visibility === 'visible'));
+  await runtimePage.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  assert.ok(await runtimePage.locator('#mnd-launcher,.mdn-cn-launch').evaluateAll(nodes => nodes.every(node => getComputedStyle(node).visibility === 'visible')), 'runtime utilities: controls return within two frames after leaving the footer');
   await checkFloatingSupport(runtimePage, 'runtime utilities/390/footer-restored');
   await runtimePage.close();
 

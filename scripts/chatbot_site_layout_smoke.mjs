@@ -61,16 +61,10 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
               });
             return { visible: style.visibility === 'visible', pointerEvents: style.pointerEvents, obstacles, right: box.right, bottom: box.bottom, viewportWidth: innerWidth, viewportHeight: innerHeight };
           });
-          assert.ok(!initialLauncher.visible || !initialLauncher.obstacles, `${engineName}/${file}/${width}: initial launcher covers a page action`);
-          assert.ok(initialLauncher.visible || initialLauncher.pointerEvents === 'none', `${engineName}/${file}/${width}: hidden launcher intercepts page actions`);
+          assert.equal(initialLauncher.visible, true, `${engineName}/${file}/${width}: initial launcher must remain visible regardless of ordinary page actions`);
+          assert.equal(initialLauncher.pointerEvents, 'auto', `${engineName}/${file}/${width}: initial launcher must remain interactive`);
           const edge = width <= 480 ? 16 : 20;
           assert.ok(Math.abs(initialLauncher.right - (width - edge)) <= 1.5 && Math.abs(initialLauncher.bottom - (initialLauncher.viewportHeight - edge)) <= 1.5, `${engineName}/${file}/${width}: initial launcher left its fixed corner`);
-          for (let top = 0; top <= 1800; top += 120) {
-            await page.evaluate(top => scrollTo({ top, behavior: 'instant' }), top);
-            await page.waitForTimeout(240);
-            if (await page.locator('#mnd-launcher').isVisible()) break;
-          }
-          assert.equal(await page.locator('#mnd-launcher').isVisible(), true, `${engineName}/${file}/${width}: no unobstructed launcher position found`);
           await page.locator('#mnd-launcher').click();
         }
         await page.locator(`#${prefix}-input`).fill('Where is the saved report?');
