@@ -400,7 +400,8 @@
         // WebKit can clear focus as soon as the dialog becomes inert. Restore
         // it from the dialog state, not from the now-hidden active element.
         var returnTarget = launch;
-        footerDock.restoreFocus(returnTarget);
+        if (typeof footerDock.restoreFocus === "function") footerDock.restoreFocus(returnTarget);
+        else returnTarget.focus(); // An older cached widget may own the shared controller.
       }
     }
     function v(id) { var n = $('mdncn-' + id); return n ? String(n.value || '').trim() : ''; }

@@ -410,7 +410,8 @@
     launcher.style.display = "";
     footerDock.update(true);
     var returnTarget = document.querySelector('[data-intake-support="assistant"]') || launcher;
-    footerDock.restoreFocus(returnTarget);
+    if (typeof footerDock.restoreFocus === "function") footerDock.restoreFocus(returnTarget);
+    else returnTarget.focus(); // An older cached widget may own the shared controller.
   }
   async function send() {
     var text = inputEl.value.trim();
