@@ -154,9 +154,17 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
               assert.ok(await connect.evaluate(n => n === document.activeElement), label + ': Connect focus restored');
             }
             await page.evaluate(() => scrollTo({top:document.querySelector('.mond-footer').getBoundingClientRect().top + scrollY - (innerHeight - 40),behavior:'instant'}));
-            const footerEntry = await geometry();
+            let footerEntry = await geometry();
+            if (footerEntry.footerTop > Math.max(...footerEntry.controls.map(c=>c.bottom)) + 16) {
+              // A presentation page can snap the requested scroll back to its
+              // last slide. Reach the real footer without changing snap rules.
+              supportStates.requestedFooterEntry = footerEntry;
+              await page.evaluate(() => scrollTo({top:document.documentElement.scrollHeight,behavior:'instant'}));
+              footerEntry = await geometry();
+            }
             supportStates.footerEntry = footerEntry;
             checkStack(footerEntry);
+            assert.ok(footerEntry.footerTop <= Math.max(...footerEntry.controls.map(c=>c.bottom)) + 16, label + ': the real footer reaches the fixed control corner ' + JSON.stringify(footerEntry));
             assert.ok(footerEntry.controls.every(c => !c.visible), label + ': controls yield their fixed corner when the footer enters');
             if (fullScripts) {
               await page.waitForTimeout(1000);
@@ -178,6 +186,7 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
               const clearToRestore = state => state.restorationObstacles.length === 0
                 && state.controls.every(c => c.top >= state.headerBottom + 16 && c.bottom + 24 < state.footerTop);
               let clearPosition = restored;
+              let usesClearSpaceFixture = false;
               if (!clearToRestore(restored)) {
                 assert.ok(restored.controls.every(c => !c.visible), label + ': restoration clearance must keep both controls suppressed');
                 supportStates.retainedSuppression = {
@@ -195,6 +204,24 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
                   if (clearToRestore(clearPosition)) break;
                 }
               }
+              if (!clearToRestore(clearPosition) && restored.restorationObstacles.length === 0
+                  && restored.footerTop-Math.max(...restored.controls.map(c=>c.bottom)) <= 24) {
+                // A one-viewport page can have a safe initial 20px footer gap
+                // but no naturally reachable 24px restoration gap. Prove the
+                // retained footer suppression, then create explicitly labelled
+                // in-flow clear space to test restoration and removal again.
+                supportStates.clearSpaceFixture = {reason:'No natural restoration position exists beyond the short-page footer hysteresis boundary.',before:clearPosition};
+                await page.evaluate(() => {
+                  const footer = document.querySelector('.mond-footer');
+                  const spacer = document.createElement('div');
+                  spacer.id = 'footer-restoration-clear-space-fixture';
+                  spacer.setAttribute('aria-hidden','true');
+                  spacer.style.height = Math.max(32,innerHeight-footer.getBoundingClientRect().top+32) + 'px';
+                  footer.before(spacer);
+                });
+                usesClearSpaceFixture = true;
+                clearPosition = await geometry();
+              }
               assert.ok(clearToRestore(clearPosition), label + ': a clear page position exists for mandatory restoration ' + JSON.stringify(clearPosition));
               supportStates.clearRestorationPosition = clearPosition;
               await page.waitForFunction(() => [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')]
@@ -203,6 +230,15 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
               checkStack(confirmed);
               assert.ok(confirmed.controls.every(c => c.visible), label + ': controls return at their original fixed corner once restoration clearance is met');
               supportStates.restorationConfirmed = confirmed;
+              if (usesClearSpaceFixture) {
+                await page.locator('#footer-restoration-clear-space-fixture').evaluate(node=>node.remove());
+                await page.waitForFunction(() => [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')]
+                  .every(node => getComputedStyle(node).visibility === 'hidden' && getComputedStyle(node).pointerEvents === 'none'), null, {timeout:3000});
+                const afterRemoval = await geometry();
+                checkStack(afterRemoval);
+                assert.ok(afterRemoval.controls.every(c=>!c.visible), label + ': controls hide again when the clear-space fixture is removed');
+                supportStates.clearSpaceFixture.afterRemoval = afterRemoval;
+              }
             }
           }
           await page.locator('.mond-footer').scrollIntoViewIfNeeded();
