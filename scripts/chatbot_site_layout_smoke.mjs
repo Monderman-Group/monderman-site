@@ -51,6 +51,26 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
         if (workspace) await page.locator('#hans-launcher').click();
         else {
           assert.equal(await page.locator('.site-support,.site-widget-actions,.site-widget-action').count(), 0, `${engineName}/${file}/${width}: retired support strip or proxy controls remain`);
+          const initialLauncher = await page.locator('#mnd-launcher').evaluate(node => {
+            const box = node.getBoundingClientRect(), style = getComputedStyle(node);
+            const obstacles = [...document.querySelectorAll('a[href],button,input,select,textarea,[role="button"],[contenteditable="true"]')]
+              .filter(other => other !== node && !other.closest('#siteHeader,.mond-footer,#mnd-panel,#mdn-cn-root') && other.getClientRects().length && getComputedStyle(other).visibility !== 'hidden')
+              .some(other => {
+                const rect = other.getBoundingClientRect();
+                return rect.right > box.left - 8 && rect.left < box.right + 8 && rect.bottom > box.top - 8 && rect.top < box.bottom + 8;
+              });
+            return { visible: style.visibility === 'visible', pointerEvents: style.pointerEvents, obstacles, right: box.right, bottom: box.bottom, viewportWidth: innerWidth, viewportHeight: innerHeight };
+          });
+          assert.ok(!initialLauncher.visible || !initialLauncher.obstacles, `${engineName}/${file}/${width}: initial launcher covers a page action`);
+          assert.ok(initialLauncher.visible || initialLauncher.pointerEvents === 'none', `${engineName}/${file}/${width}: hidden launcher intercepts page actions`);
+          const edge = width <= 480 ? 16 : 20;
+          assert.ok(Math.abs(initialLauncher.right - (width - edge)) <= 1.5 && Math.abs(initialLauncher.bottom - (initialLauncher.viewportHeight - edge)) <= 1.5, `${engineName}/${file}/${width}: initial launcher left its fixed corner`);
+          for (let top = 0; top <= 1800; top += 120) {
+            await page.evaluate(top => scrollTo({ top, behavior: 'instant' }), top);
+            await page.waitForTimeout(240);
+            if (await page.locator('#mnd-launcher').isVisible()) break;
+          }
+          assert.equal(await page.locator('#mnd-launcher').isVisible(), true, `${engineName}/${file}/${width}: no unobstructed launcher position found`);
           await page.locator('#mnd-launcher').click();
         }
         await page.locator(`#${prefix}-input`).fill('Where is the saved report?');

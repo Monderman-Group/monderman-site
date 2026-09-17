@@ -37,9 +37,18 @@
   function ensureFooterDock() {
     if (window.__mondermanFooterDockController) return window.__mondermanFooterDockController;
     var frame = 0;
+    var resumeTimer = 0;
+    var contentSuppressed = false;
+    var lastObstructionAt = 0;
+    var lastMotionAt = 0;
     var movingReveals = new Set();
+    function setStyle(node, property, value) {
+      if (node.style.getPropertyValue(property) !== value || node.style.getPropertyPriority(property) !== "important") {
+        node.style.setProperty(property, value, "important");
+      }
+    }
     var root = document.documentElement;
-    function render() {
+    function render(restoreClearAnchor) {
       frame = 0;
       var footer = document.querySelector(".mond-footer");
       var viewportHeight = window.innerHeight || root.clientHeight;
@@ -67,12 +76,22 @@
         var navigationOpen = (header && header.classList.contains("mobile-nav-open"))
           || document.querySelector(".site-search-overlay.is-open");
         var launchers = [assistantLauncher, connectLauncher].filter(Boolean);
-        var stackWidth = 116;
-        var stackHeight = launchers.length * 48 + Math.max(0, launchers.length - 1) * 12;
-        var bottom = Math.min(viewBottom - edge, footer ? footer.getBoundingClientRect().top - 16 : viewBottom);
-        var rightEdge = width - edge;
-        // Lift the stack clear of actionable page content instead of covering
-        // a button, form field or link while someone scrolls.
+        // Closed controls have one CSS anchor. Do not chase page links, reveal
+        // animations, the footer, or Safari's moving browser chrome.
+        var anchor = "max(" + edge + "px,env(safe-area-inset-bottom))";
+        launchers.forEach(function (launcher) {
+          setStyle(launcher, "right", "max(" + edge + "px,env(safe-area-inset-right))");
+          setStyle(launcher, "left", "auto");
+          setStyle(launcher, "bottom", launcher === connectLauncher && assistantLauncher ? "calc(" + anchor + " + 60px)" : anchor);
+        });
+        var anchorBoxes = launchers.filter(function (launcher) { return launcher.getClientRects().length; })
+          .map(function (launcher) { return launcher.getBoundingClientRect(); });
+        var clearance = contentSuppressed ? 16 : 8;
+        var footerTop = footer ? footer.getBoundingClientRect().top : Infinity;
+        var footerBlocked = anchorBoxes.some(function (box) { return box.bottom + (contentSuppressed ? 24 : 16) >= footerTop; });
+        // Hide at the fixed anchor if it would cover an action. Restore only
+        // after scrolling/content has settled, so nearby links do not flicker
+        // the controls on and off. They never relocate to another page area.
         var obstacles = Array.from(document.querySelectorAll('a[href],button,input,select,textarea,[role="button"],[contenteditable="true"]'))
           .filter(function (node) {
             return node !== assistantLauncher && node !== connectLauncher
@@ -90,33 +109,38 @@
             }
             return { left: box.left, right: box.right, top: top, bottom: box.bottom };
           });
-        var blocked = false;
-        for (var pass = 0; pass < 12; pass += 1) {
-          var collisions = obstacles.filter(function (box) {
-            return box.right > rightEdge - stackWidth - 8 && box.left < rightEdge + 8
-              && box.bottom > bottom - stackHeight - 8 && box.top < bottom + 8;
+        var blocked = footerBlocked || obstacles.some(function (box) {
+          return anchorBoxes.some(function (anchorBox) {
+            return box.right > anchorBox.left - clearance && box.left < anchorBox.right + clearance
+              && box.bottom > anchorBox.top - clearance && box.top < anchorBox.bottom + clearance;
           });
-          if (!collisions.length) { blocked = false; break; }
-          blocked = true;
-          bottom = Math.floor(Math.min.apply(null, collisions.map(function (box) { return box.top - 8; })));
-        }
-        var hide = Boolean(panelOpen || editingPage || navigationOpen || blocked || bottom - stackHeight < topLimit);
-        launchers.forEach(function (launcher) {
-          launcher.style.setProperty("visibility", hide ? "hidden" : "visible", "important");
-          launcher.style.setProperty("pointer-events", hide ? "none" : "auto", "important");
-          launcher.style.setProperty("right", "max(" + edge + "px,env(safe-area-inset-right))", "important");
-          launcher.style.setProperty("left", "auto", "important");
         });
-        if (assistantLauncher) assistantLauncher.style.setProperty("bottom", "max(" + (viewportHeight - bottom) + "px,env(safe-area-inset-bottom))", "important");
-        if (connectLauncher) connectLauncher.style.setProperty("bottom", "calc(max(" + (viewportHeight - bottom) + "px,env(safe-area-inset-bottom)) + " + (assistantLauncher ? 60 : 0) + "px)", "important");
+        var now = performance.now();
+        if (resumeTimer) { window.clearTimeout(resumeTimer); resumeTimer = 0; }
+        if (blocked) {
+          contentSuppressed = true;
+          lastObstructionAt = now;
+        } else if (contentSuppressed) {
+          // Explicit dialog close restores focus immediately when the corner
+          // is clear. Scroll/resize callbacks still observe the quiet interval.
+          var remaining = restoreClearAnchor === true ? 0 : 180 - (now - Math.max(lastObstructionAt, lastMotionAt));
+          if (remaining > 0) resumeTimer = window.setTimeout(function () { resumeTimer = 0; update(); }, remaining + 1);
+          else contentSuppressed = false;
+        }
+        var hide = Boolean(panelOpen || editingPage || navigationOpen || contentSuppressed
+          || anchorBoxes.some(function (box) { return box.top < topLimit; }));
+        launchers.forEach(function (launcher) {
+          setStyle(launcher, "visibility", hide ? "hidden" : "visible");
+          setStyle(launcher, "pointer-events", hide ? "none" : "auto");
+        });
         // Keep open dialogs in the visual viewport when a phone keyboard opens.
         var panelGap = width <= 480 ? 0 : 20;
         var panelBottom = Math.max(0, viewportHeight - viewBottom) + panelGap;
         var panelHeight = Math.max(120, viewHeight - panelGap - (width <= 480 ? 16 : Math.max(16, headerBottom - viewTop + 16)));
         [assistantPanel, connectPanel].forEach(function (panel) {
           if (!panel) return;
-          panel.style.setProperty("bottom", panelBottom + "px", "important");
-          panel.style.setProperty("max-height", panelHeight + "px", "important");
+          setStyle(panel, "bottom", panelBottom + "px");
+          setStyle(panel, "max-height", panelHeight + "px");
         });
         movingReveals.forEach(function (node) { if (!node.isConnected) movingReveals.delete(node); });
         if (movingReveals.size) frame = window.requestAnimationFrame(render);
@@ -144,12 +168,30 @@
       if (connectPanel) connectPanel.style.setProperty("bottom", (width <= 1180 ? 140 : 148) + lift + "px", "important");
     }
     function update(immediate) {
+      if (immediate && (immediate.type === "scroll" || immediate.type === "resize" || immediate.type === "orientationchange")) {
+        lastMotionAt = performance.now();
+      }
       if (immediate === true) {
         if (frame) window.cancelAnimationFrame(frame);
-        render();
+        render(true);
       } else if (!frame) frame = window.requestAnimationFrame(render);
     }
-    var controller = { update: update };
+    function restoreFocus(preferred) {
+      if (!document.body.classList.contains("canonical-green-shell")) {
+        if (preferred) preferred.focus();
+        return;
+      }
+      // A user can scroll the page while a dialog is open. If its fixed
+      // launcher is suppressed on close, return to a visible page control.
+      var targets = [preferred].concat(Array.from(document.querySelectorAll('.mond-footer a[href],#siteHeader a[href],#siteHeader button')));
+      var target = targets.find(function (node) {
+        if (!node || !node.getClientRects().length || getComputedStyle(node).visibility === "hidden") return false;
+        var box = node.getBoundingClientRect();
+        return box.bottom > 0 && box.top < window.innerHeight && !node.closest('[inert]');
+      });
+      if (target) target.focus({ preventScroll: true });
+    }
+    var controller = { update: update, restoreFocus: restoreFocus };
     window.__mondermanFooterDockController = controller;
     window.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", update, { passive: true });
@@ -358,7 +400,7 @@
         // WebKit can clear focus as soon as the dialog becomes inert. Restore
         // it from the dialog state, not from the now-hidden active element.
         var returnTarget = launch;
-        returnTarget.focus();
+        footerDock.restoreFocus(returnTarget);
       }
     }
     function v(id) { var n = $('mdncn-' + id); return n ? String(n.value || '').trim() : ''; }

@@ -80,7 +80,8 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
             const rect = node => { const r = node.getBoundingClientRect(); return { left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height }; };
             const controls = [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].map(node => ({
               ...rect(node), text:node.textContent.trim(), position:getComputedStyle(node).position,
-              visible:getComputedStyle(node).visibility !== 'hidden' && getComputedStyle(node).display !== 'none'
+              visible:getComputedStyle(node).visibility !== 'hidden' && getComputedStyle(node).display !== 'none',
+              pointerEvents:getComputedStyle(node).pointerEvents
             }));
             const obstacles = [...document.querySelectorAll('a[href],button,input,select,textarea,[role="button"],[contenteditable="true"]')]
               .filter(node => !node.matches('#mnd-launcher,.mdn-cn-launch') && !node.closest('#siteHeader,.mond-footer,#mnd-panel,#mdn-cn-root') && node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden')
@@ -96,6 +97,11 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
           for (const c of g.controls) {
             assert.equal(c.position, 'fixed', label + ': native floating control');
             assert.ok(c.height >= 48 && c.width >= 100, label + ': touch target');
+            const edge = width <= 480 ? 16 : 20;
+            assert.ok(Math.abs(c.right - (width - edge)) <= 1.5
+              && Math.abs(c.bottom - (1024 - edge - (c.text === 'Connect' ? 60 : 0))) <= 1.5,
+            label + ': control stays at its fixed bottom-right anchor');
+            if (!c.visible) assert.equal(c.pointerEvents, 'none', label + ': hidden controls cannot intercept actions');
             if (c.visible) assert.ok(c.left >= 0 && c.right <= width + 1 && c.top >= 0 && c.bottom <= Math.min(1024, g.footerTop - 15), label + ': viewport/footer clearance');
           }
           assert.deepEqual(g.controls.map(c => c.text), ['Chat', 'Connect']);
@@ -114,10 +120,17 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
           }), label + ': device disclosure typography is isolated from legacy page link styles');
           assert.equal(await page.locator('.site-support,.site-widget-actions,.site-widget-action').count(), 0);
           if (shell) {
+            await page.waitForTimeout(220);
             const initial = await geometry();
             checkStack(initial);
+            let restoreScrollY = 0;
             if (file === 'index.html') {
-              assert.ok(initial.controls.every(c => c.visible), label + ': homepage controls visible');
+              for (let top = 0; top <= 1800; top += 120) {
+                await page.evaluate(top => scrollTo({top,behavior:'instant'}), top);
+                await page.waitForTimeout(240);
+                if ((await geometry()).controls.every(c => c.visible)) { restoreScrollY = await page.evaluate(() => scrollY); break; }
+              }
+              assert.ok((await geometry()).controls.every(c => c.visible), label + ': homepage controls visible where their fixed corner is clear');
               const chat = page.locator('#mnd-launcher'), connect = page.locator('.mdn-cn-launch');
               await chat.focus(); await page.keyboard.press('Enter');
               await page.locator('#mnd-panel.mnd-open').waitFor({state:'visible'});
@@ -129,7 +142,9 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
               assert.ok(await connect.evaluate(n => n === document.activeElement), label + ': Connect focus restored');
             }
             await page.evaluate(() => scrollTo({top:document.querySelector('.mond-footer').getBoundingClientRect().top + scrollY - (innerHeight - 40),behavior:'instant'}));
-            checkStack(await geometry());
+            const footerEntry = await geometry();
+            checkStack(footerEntry);
+            assert.ok(footerEntry.controls.every(c => !c.visible), label + ': controls yield their fixed corner when the footer enters');
             if (fullScripts) {
               await page.waitForTimeout(1000);
               checkStack(await geometry());
@@ -140,7 +155,13 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
             const nearTop = await geometry();
             checkStack(nearTop);
             if (nearTop.footerTop < nearTop.headerBottom + 140)
-              assert.ok(nearTop.controls.every(c => !c.visible), label + ': controls hide when no space remains above footer');
+              assert.ok(nearTop.controls.every(c => !c.visible), label + ': controls stay hidden while the footer occupies their corner');
+            await page.evaluate(top => scrollTo({top,behavior:'instant'}), restoreScrollY);
+            await page.waitForTimeout(220);
+            const restored = await geometry();
+            checkStack(restored);
+            if (file === 'index.html' || initial.controls.every(c => c.visible))
+              assert.ok(restored.controls.every(c => c.visible), label + ': controls return at their original corner after clearing the footer');
           }
           await page.locator('.mond-footer').scrollIntoViewIfNeeded();
           const footer = await page.locator('.mond-footer').evaluate(n => {

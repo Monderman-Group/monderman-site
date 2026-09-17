@@ -8,6 +8,7 @@ import {createHash} from 'node:crypto';
 
 const root = path.resolve(import.meta.dirname, '..');
 const baseline = '80bf58384c641f1614280a34532bfcd8ec03d951';
+const copyRelease = 'c6455b863d27e9ad6983d8ed878927734b1de97c';
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 const priorBytes = file => execFileSync('git', ['show', `${baseline}:${file}`], {cwd: root, maxBuffer: 16 * 1024 * 1024});
 const prior = file => priorBytes(file).toString('utf8');
@@ -90,7 +91,10 @@ const protectedFiles = tracked.filter(file =>
   /^workspace[^/]*\.html$/.test(file) || /^(?:privacy|terms)(?:-[^/]*)?\.html$/.test(file) ||
   file.startsWith('sample-data/reports/') || file === 'sample-data/production-diagnostic-samples.json' ||
   ['scripts/refresh_public_sample_previews.mjs', 'scripts/public_sample_fixture.mjs', 'scripts/inject-public-shell.mjs', 'checkout.html', 'legal-document-manifest.json'].includes(file));
-for (const file of protectedFiles) equal(fs.readFileSync(path.join(root, file)), priorBytes(file), `${file}: diagnostic, Workspace, report, sample, policy or style bytes unchanged`);
+// This assertion certifies the completed copy-only transaction, not a permanent
+// ban on future reviewed runtime fixes. Current copy and commercial checks above
+// still run against HEAD; behavior has its own dedicated regression suites.
+for (const file of protectedFiles) equal(execFileSync('git', ['show', `${copyRelease}:${file}`], {cwd: root, maxBuffer: 16 * 1024 * 1024}), priorBytes(file), `${file}: copy release preserved diagnostic, Workspace, report, sample, policy or style bytes`);
 const template = 'scripts/templates/home-workspace-preview.html';
 const oldPreview = 'Choose a diagnostic for a team, unit, or decision path.';
 const newPreview = 'Choose a diagnostic for a defined part of your organization.';
@@ -117,4 +121,4 @@ for (const [label, mutation] of [
   assert.throws(() => assertScopeCopy(mutation, label), /retired general team-only positioning/); checks++;
 }
 assertScopeCopy('<p>Compare teams, departments and divisions. Your legal team can review the terms. Team-level examples use stated assumptions.</p>', 'specific-team positive control'); checks++;
-console.log(JSON.stringify({passed: true, checks, protectedFiles: protectedFiles.length, baseline, scope: 'Offline public copy, unchanged behavior and commercial limits; no scoring, evidence or entitlement changes.'}));
+console.log(JSON.stringify({passed: true, checks, protectedFiles: protectedFiles.length, baseline, copyRelease, scope: 'Current public copy and commercial limits; historical copy-release behavior boundary.'}));

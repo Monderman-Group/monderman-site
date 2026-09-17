@@ -7,7 +7,7 @@ on:
 jobs:
   widgets:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     permissions:
       contents: read
     steps:
@@ -47,4 +47,27 @@ jobs:
             output/floating-support/results.json
             output/full-script-support/results.json
             /tmp/floating-widget-motion
+          if-no-files-found: warn
+  mobile-anchor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned browser test runtime
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium webkit
+      - name: Verify stable anchors during scrolling in both browser engines
+        run: node scripts/mobile_widget_stability_browser_smoke.mjs
+      - name: Preserve scrolling and focus evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-anchor-evidence-${{ github.sha }}
+          path: /tmp/monderman-mobile-widget-stability
           if-no-files-found: warn

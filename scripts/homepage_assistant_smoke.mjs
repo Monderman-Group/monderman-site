@@ -22,6 +22,28 @@ async function waitForNativeVisibility(page, visible) {
     });
   }, visible);
 }
+async function checkFixedAnchors(page, viewport) {
+  const edge = viewport.width <= 480 ? 16 : 20;
+  const actions = await page.locator('#mnd-launcher,.mdn-cn-launch').evaluateAll(nodes => nodes.map(node => ({
+    connect: node.matches('.mdn-cn-launch'), box: node.getBoundingClientRect().toJSON(),
+  })));
+  for (const { connect, box } of actions) {
+    assert(Math.abs(box.right - (viewport.width - edge)) <= 1.5
+      && Math.abs(box.bottom - (viewport.height - edge - (connect ? 60 : 0))) <= 1.5,
+    `${viewport.name}: support control left its fixed bottom-right anchor (${JSON.stringify({ connect, box })})`);
+  }
+}
+async function findClearLauncherPosition(page) {
+  // The first phone viewport can contain primary page actions at this corner.
+  // Exercise launchers only after reaching naturally unobstructed content.
+  for (let top = 0; top <= 1800; top += 120) {
+    await page.evaluate(top => window.scrollTo({ top, behavior: 'instant' }), top);
+    await page.waitForTimeout(240);
+    if (await page.locator('#mnd-launcher,.mdn-cn-launch').evaluateAll(nodes => nodes.length === 2 && nodes.every(node => getComputedStyle(node).visibility === 'visible')))
+      return await page.evaluate(() => scrollY);
+  }
+  assert.fail('No unobstructed launch position found for keyboard and dialog checks');
+}
 async function checkShortViewportPanel(page, selector, viewport) {
   // A real viewport resize exercises the responsive/visualViewport listener.
   // It is not a claim of native iOS software-keyboard testing.
@@ -101,8 +123,8 @@ try {
     await launcher.waitFor({ state: 'attached' });
     await connect.waitFor({ state: 'attached' });
     assert.equal(await page.locator('.site-support,.site-widget-actions,.site-widget-action').count(), 0, `${viewport.name}: retired support strip or proxy controls remain`);
-    await launcher.waitFor({ state: 'visible' });
-    await connect.waitFor({ state: 'visible' });
+    await checkFixedAnchors(page, viewport);
+    const clearScrollY = await findClearLauncherPosition(page);
     assert.equal((await launcher.textContent()).trim(), 'Chat');
     assert.equal((await connect.textContent()).trim(), 'Connect');
     assert.match(await launcher.getAttribute('aria-label'), /chat/i, `${viewport.name}: Chat visible label is absent from its accessible name`);
@@ -118,6 +140,7 @@ try {
     for (const action of [launcher, connect]) {
       assert.equal(await action.evaluate(node => getComputedStyle(node).position), 'fixed', `${viewport.name}: support control stopped floating`);
     }
+    await checkFixedAnchors(page, viewport);
 
     const compact = viewport.width <= 1180;
     if (compact) {
@@ -173,20 +196,36 @@ try {
       window.scrollTo({ top: scrollY + footer.getBoundingClientRect().top - (innerHeight - 40), behavior: 'instant' });
     });
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-    await page.waitForFunction(() => {
-      const footerTop = document.querySelector('.mond-footer').getBoundingClientRect().top;
-      return footerTop < innerHeight && [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].every(node => getComputedStyle(node).visibility === 'visible' && node.getBoundingClientRect().bottom <= footerTop - 15.5);
-    });
-    const dockedBoxes = await Promise.all([launcher.boundingBox(), connect.boundingBox()]);
-    const firstFooterTop = await page.locator('.mond-footer').evaluate(node => node.getBoundingClientRect().top);
+    await waitForNativeVisibility(page, false);
+    await checkFixedAnchors(page, viewport);
     await page.evaluate(() => window.scrollBy({ top: 120, behavior: 'instant' }));
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-    await page.waitForFunction(previousTop => {
-      const footerTop = document.querySelector('.mond-footer').getBoundingClientRect().top;
-      return footerTop < previousTop - 1 && [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].every(node => getComputedStyle(node).visibility === 'visible' && node.getBoundingClientRect().bottom <= footerTop - 15.5);
-    }, firstFooterTop);
-    const advancedBoxes = await Promise.all([launcher.boundingBox(), connect.boundingBox()]);
-    assert(advancedBoxes.every((box, index) => box.y < dockedBoxes[index].y), `${viewport.name}: controls did not move upward as the footer advanced (${JSON.stringify({ firstFooterTop, dockedBoxes, advancedBoxes })})`);
+    await waitForNativeVisibility(page, false);
+    await checkFixedAnchors(page, viewport);
+    await page.locator('.mond-footer a[href="connect.html"]').click({ trial: true });
+    await page.evaluate(top => window.scrollTo({ top, behavior: 'instant' }), clearScrollY);
+    await waitForNativeVisibility(page, true);
+    await checkFixedAnchors(page, viewport);
+    for (const [trigger, panelSelector, closeSelector] of [
+      [launcher, '#mnd-panel.mnd-open', '#mnd-close'],
+      [connect, '#mdn-cn-panel.mdn-cn-open', '.mdn-cn-close'],
+    ]) {
+      await trigger.click();
+      await page.locator(panelSelector).waitFor({ state: 'visible' });
+      await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
+      await page.locator(closeSelector).click();
+      await waitForNativeVisibility(page, false);
+      const returnedToVisiblePageControl = await page.evaluate(() => {
+        const active = document.activeElement;
+        if (!active || active === document.body || active.closest('#mnd-panel,#mdn-cn-panel,[inert]')) return false;
+        const box = active.getBoundingClientRect();
+        return getComputedStyle(active).visibility === 'visible' && box.height > 0 && box.bottom > 0 && box.top < innerHeight;
+      });
+      assert.equal(returnedToVisiblePageControl, true, `${viewport.name}: closing after a footer scroll loses keyboard focus`);
+      await page.evaluate(top => window.scrollTo({ top, behavior: 'instant' }), clearScrollY);
+      await waitForNativeVisibility(page, true);
+      await checkFixedAnchors(page, viewport);
+    }
     await page.close();
 
     const fieldPage = await newLocalPage(viewport);
@@ -196,8 +235,8 @@ try {
     await fieldPage.locator('#fullName').focus();
     await waitForNativeVisibility(fieldPage, false);
     await fieldPage.locator('#fullName').evaluate(node => node.blur());
-    await fieldPage.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
-    await waitForNativeVisibility(fieldPage, true);
+    await findClearLauncherPosition(fieldPage);
+    await checkFixedAnchors(fieldPage, viewport);
     await fieldPage.close();
   }
 

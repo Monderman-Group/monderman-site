@@ -92,7 +92,7 @@ export async function runFloatingWidgetMotionSmoke({ base = process.env.SITE_BAS
           // requestAnimationFrame has had a chance to place the controls.
           await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0))));
           frames.push(await page.evaluate(revealSelector => {
-            const actions = [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].map(node => ({ visible: getComputedStyle(node).visibility === 'visible', box: node.getBoundingClientRect().toJSON() }));
+            const actions = [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].map(node => ({ connect: node.matches('.mdn-cn-launch'), visible: getComputedStyle(node).visibility === 'visible', pointerEvents: getComputedStyle(node).pointerEvents, box: node.getBoundingClientRect().toJSON() }));
             const boxes = actions.map(action => action.box);
             const obstacles = [...document.querySelectorAll('a[href],button,input,select,textarea,[role="button"],[contenteditable="true"]')]
               .filter(node => !node.matches('#mnd-launcher,.mdn-cn-launch') && !node.closest('#siteHeader,.mond-footer,#mnd-panel,#mdn-cn-root') && node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden')
@@ -108,9 +108,9 @@ export async function runFloatingWidgetMotionSmoke({ base = process.env.SITE_BAS
         let lateLayout = null;
         if (surface.name === 'connect.html') {
           phase = 'late content insertion';
-          // Deliberately insert normal-flow content at the old control position.
-          // No scroll, viewport resize or controller call may repair placement.
-          const before = await page.locator('#mnd-launcher').boundingBox();
+          // Deliberately insert normal-flow content into the fixed control slot.
+          // It must suppress controls without scroll, viewport resize or relocation.
+          const before = await page.locator('#mnd-launcher').evaluate(node => ({ ...node.getBoundingClientRect().toJSON(), visible: getComputedStyle(node).visibility === 'visible' }));
           await page.evaluate(top => {
             const banner = document.createElement('section');
             banner.id = 'late-layout-fixture';
@@ -118,24 +118,27 @@ export async function runFloatingWidgetMotionSmoke({ base = process.env.SITE_BAS
             const button = document.createElement('button');
             button.type = 'button'; button.textContent = 'Local late-layout check';
             button.style.cssText = 'display:block;box-sizing:border-box;width:100%;height:48px;margin:0;';
+            button.addEventListener('click', () => { button.dataset.clicked = 'true'; });
             banner.append(button); document.body.prepend(banner);
           }, before.y);
           await page.waitForFunction(() => {
-            const obstacle = document.querySelector('#late-layout-fixture button').getBoundingClientRect();
             return [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].every(node => {
-              const rect = node.getBoundingClientRect();
-              return getComputedStyle(node).visibility === 'visible' && rect.bottom <= obstacle.top - 8;
+              const style = getComputedStyle(node);
+              return style.visibility === 'hidden' && style.pointerEvents === 'none';
             });
           }, null, { timeout: 5000 });
-          const inserted = await page.locator('#mnd-launcher').boundingBox();
-          assert.ok(inserted.y < before.y, 'late content must move the widget without scroll or resize');
+          const inserted = await page.locator('#mnd-launcher').evaluate(node => node.getBoundingClientRect().toJSON());
+          assert.ok(Math.abs(inserted.y - before.y) <= 1, 'late content must not move the fixed widget');
+          await page.locator('#late-layout-fixture button').click();
+          assert.equal(await page.locator('#late-layout-fixture button').getAttribute('data-clicked'), 'true', 'suppressed widgets must leave the underlying action clickable');
           phase = 'late content removal';
           await page.locator('#late-layout-fixture').evaluate(node => node.remove());
           await page.waitForFunction(before => {
-            const box = document.querySelector('#mnd-launcher').getBoundingClientRect();
-            return Math.abs(box.top - before.y) <= 1 && Math.abs(box.bottom - before.y - before.height) <= 1;
+            const node = document.querySelector('#mnd-launcher'), box = node.getBoundingClientRect();
+            return Math.abs(box.top - before.y) <= 1 && Math.abs(box.bottom - before.y - before.height) <= 1
+              && (getComputedStyle(node).visibility === 'visible') === before.visible;
           }, before, { timeout: 5000 });
-          lateLayout = { before, inserted, removed: await page.locator('#mnd-launcher').boundingBox(), returnedWithoutScroll: true };
+          lateLayout = { before, inserted, removed: await page.locator('#mnd-launcher').evaluate(node => node.getBoundingClientRect().toJSON()), returnedWithoutScroll: true, underlyingActionClicked: true };
         }
         phase = 'settled idle check';
         await page.waitForTimeout(300);
@@ -149,10 +152,17 @@ export async function runFloatingWidgetMotionSmoke({ base = process.env.SITE_BAS
         fs.writeFileSync(path.join(out, 'floating-reveal-motion.json'), JSON.stringify({ evidence }, null, 2));
         if (!frames.some(frame => frame.revealOffset > 0.1)) failures.push(`${label}: test missed the actual reveal motion`);
         if (frames.some(frame => frame.overlap)) failures.push(`${label}: floating control covered actionable content during reveal`);
+        const edge = surface.width <= 480 ? 16 : 20;
+        if (frames.some(frame => frame.actions.some(action => action.visible && (
+          Math.abs(action.box.right - (surface.width - edge)) > 1.5
+          || Math.abs(action.box.bottom - (surface.height - edge - (action.connect ? 60 : 0))) > 1.5
+        )))) failures.push(`${label}: visible control moved away from its fixed anchor during reveal`);
+        if (frames.some(frame => frame.actions.some(action => !action.visible && action.pointerEvents !== 'none')))
+          failures.push(`${label}: hidden control remains interactive during reveal`);
         if (idleStyleMutations !== 0) failures.push(`${label}: docking animation callbacks did not stop after reveal`);
         if (errors.length) failures.push(`${label}: browser errors ${JSON.stringify(errors)}`);
         const settled = frames.at(-1);
-        if (settled.actions.length !== 2 || settled.actions.some(action => !action.visible || action.box.height < 48 || action.box.left < surface.width / 2 || action.box.right > surface.width || action.box.bottom > surface.height || action.box.bottom > settled.footerTop - 15.5)) failures.push(label + ': settled controls are missing, hidden or clipped');
+        if (settled.actions.length !== 2 || settled.actions.some(action => action.box.height < 48 || action.box.left < surface.width / 2 || action.box.right > surface.width || action.box.bottom > surface.height || (action.visible && action.box.bottom > settled.footerTop - 15.5))) failures.push(label + ': settled controls are missing, clipped or cover the footer');
         phase = 'assert sampled and settled states';
         assert.deepEqual(failures.filter(failure => failure.startsWith(label)), [], label + ': motion checks');
         console.log('PASS', label);
