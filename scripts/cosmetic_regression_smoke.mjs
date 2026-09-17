@@ -581,6 +581,48 @@ for (const [browserName, browserType] of browserMatrix) {
       });
       await page.goto(`${base}/index.html`, { waitUntil: 'load', timeout: 30000 });
       assert.equal(await page.locator('.site-support,.site-widget-actions,.site-widget-action').count(), 0, `${browserName}/Connect widget: retired support strip or proxy controls remain`);
+      await page.locator('#mnd-launcher').waitFor({ state: 'attached' });
+      await page.locator('.mdn-cn-launch').waitFor({ state: 'attached' });
+      await page.evaluate(() => document.fonts.ready);
+      const measureCorner = () => page.evaluate(() => {
+        const controls = [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].map(node => ({
+          label:node.textContent.trim(), box:node.getBoundingClientRect().toJSON(),
+          visible:getComputedStyle(node).visibility === 'visible', pointerEvents:getComputedStyle(node).pointerEvents,
+        }));
+        const obstacles = [...document.querySelectorAll('a[href],button,input,select,textarea,[role="button"],[contenteditable="true"]')]
+          .filter(node => !node.matches('#mnd-launcher,.mdn-cn-launch') && !node.closest('#siteHeader,.mond-footer,#mnd-panel,#mdn-cn-root') && node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden')
+          .map(node => {
+            const box = node.getBoundingClientRect().toJSON();
+            // Include the remaining upward travel of an unfinished reveal.
+            for (let parent = node; parent && parent !== document.body; parent = parent.parentElement) {
+              if (!parent.matches('.reveal,.home-motion,[data-research-reveal]')) continue;
+              const transform = getComputedStyle(parent).transform;
+              if (transform !== 'none') box.top -= Math.max(0,new DOMMatrixReadOnly(transform).m42);
+            }
+            return { id:node.id, label:node.textContent.trim().slice(0,100), box };
+          })
+          .filter(({box}) => controls.some(({box:control}) => box.right > control.left-16 && box.left < control.right+16 && box.bottom > control.top-16 && box.top < control.bottom+16));
+        return { scrollY, controls, obstacles, headerBottom:document.querySelector('#siteHeader').getBoundingClientRect().bottom, footerTop:document.querySelector('.mond-footer').getBoundingClientRect().top };
+      });
+      const initialCorner = await measureCorner();
+      let clearCorner = null;
+      // The first phone viewport places the homepage Act/Return tabs at this
+      // corner. Find naturally clear content before exercising the native button.
+      for (let top = 0; top <= 1800; top += 120) {
+        await page.evaluate(top => scrollTo({top,behavior:'instant'}), top);
+        await page.waitForTimeout(240);
+        const candidate = await measureCorner();
+        if (candidate.obstacles.length || candidate.controls.some(({box}) => box.top < candidate.headerBottom+16 || box.bottom+24 >= candidate.footerTop)) continue;
+        await page.waitForFunction(() => [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')]
+          .every(node => getComputedStyle(node).visibility === 'visible' && getComputedStyle(node).pointerEvents === 'auto'), null, {timeout:3000});
+        clearCorner = await measureCorner();
+        break;
+      }
+      assert.ok(clearCorner && clearCorner.obstacles.length === 0 && clearCorner.controls.every(control => control.visible && control.pointerEvents === 'auto'),
+        `${browserName}/Connect widget: no measured clear corner for native activation (${JSON.stringify(clearCorner)})`);
+      assert.ok(clearCorner.controls.every((control,index) => Math.abs(control.box.right-initialCorner.controls[index].box.right) <= 1 && Math.abs(control.box.bottom-initialCorner.controls[index].box.bottom) <= 1),
+        `${browserName}/Connect widget: reaching clear content moved the fixed launcher anchors`);
+      fs.writeFileSync(path.join(out, `connect-widget-clearance-${browserName}.json`), JSON.stringify({ initialCorner, clearCorner }, null, 2));
       await page.locator('.mdn-cn-launch').click();
       await page.locator('#mdn-cn-panel.mdn-cn-open').waitFor({ state: 'visible' });
       await page.locator('#mdncn-fullName').fill('Launch readiness test');
