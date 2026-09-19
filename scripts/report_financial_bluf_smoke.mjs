@@ -103,7 +103,15 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
     ok((await section.innerText()).includes(money(totals.netCapacityAndCashValue.low)),'Downside remains in brief');
     ok((await section.innerText()).includes('No direct cash saving assumed.'),'Zero explained in browser');
     ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'No viewport overflow');
-    ok(await section.locator('h2,p,strong,th,td').evaluateAll(nodes=>nodes.every(el=>{const r=el.getBoundingClientRect();return !r.width||(r.left>=-1&&r.right<=innerWidth+1);} )),'All visible BLUF content stays in viewport');
+    ok(await section.locator('h2,p,strong,th,td').evaluateAll(nodes=>nodes.every(el=>{
+      // Closed native details can retain table geometry without painting it.
+      if(el.closest('details:not([open])')&&!el.closest('summary'))return true;
+      const r=el.getBoundingClientRect();if(!r.width)return true;
+      // Wide numeric comparisons are contained by their intentional scrollport.
+      const scroll=el.closest('.mr-planning-table-scroll');
+      if(scroll){const s=scroll.getBoundingClientRect();return getComputedStyle(scroll).overflowX==='auto'&&s.left>=-1&&s.right<=innerWidth+1&&r.left>=s.left-scroll.scrollLeft-1;}
+      return r.left>=-1&&r.right<=innerWidth+1;
+    })),'All painted BLUF content stays in the viewport or its bounded table scrollport');
     const nav=page.locator('.mr-screen-shortcuts a[data-report-link-role="financial-summary"]');eq(await nav.count(),1,'Decision brief is directly navigable');
     const target=await nav.getAttribute('href');await nav.click();ok(await page.evaluate(id=>document.activeElement.id===id,target.slice(1)),'Keyboard target focuses summary');
     await page.evaluate(()=>document.activeElement?.blur());

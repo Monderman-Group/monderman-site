@@ -18,12 +18,32 @@
   "site_commit": "6411b9c4c68b3a29dfedea7a527daace05d932bf",
   "renderer_version": "diagnostic-renderer-evidence-reading-20260914.43",
   "source_files": {
-    "monderman-report.js": "24bf58391c447b68b9b909402ba6c2e3c133f16b4aa4e2df488c1ef8d63f8bf7",
+    "monderman-report.js": "ca92f06864b1f836cb3b9c92aab67f1fceb1bd6a6815428b8dd921cfca710ec0",
     "participant-evidence-safety.js": "713c476203a41f0742396faadd9d38857fd4f11744626b5ec810a3d1dd8d2ff4",
     "public-sample-model.js": "3e59cb22900e72245cfc82d07569dac39eaa383dc5d7ac6dbab263774fb0f980",
     "sample-report-production.js": "f48edd3bf71f02ba048336b16a409ac77ead655861afb807fe328dca666b9349",
     "scripts/refresh_public_sample_previews.mjs": "23da5521b0a7fa730f84bf259a7a400c3c6b5488629a1572d6110119a0fbb4c0",
     "scripts/templates/home-workspace-preview.html": "55c0d11f267eb95b2e136f0ee1af0a7eb566687b3b4da4107fe1de6f156ef696"
+  },
+  "mobile_breakdown_presentation_review": {
+    "version": "planning-breakdown-screen-20260919.4",
+    "status": "accepted_presentation_only",
+    "reviewed_by": "Codex root with independent browser and source review",
+    "reviewed_at": "2026-09-19T23:44:50Z",
+    "scope": "Screen-only legibility: named keyboard-scrollable detail-table regions keep complete currency and hour amounts on one line. Chart flows, saved values, financial inputs, report prose, printed breakdown markup and existing public PDF files are unchanged.",
+    "prior_renderer_sha256": "24bf58391c447b68b9b909402ba6c2e3c133f16b4aa4e2df488c1ef8d63f8bf7",
+    "renderer_sha256": "ca92f06864b1f836cb3b9c92aab67f1fceb1bd6a6815428b8dd921cfca710ec0",
+    "unchanged_artifact_file_sha256": "316784189dcfc190176edbf49fb37d12dc368bc4782bac7b7bee7de05e166575",
+    "report_checks": {
+      "receipt_sha256": "75508329156d600b1cc7ba1ee024291ea775cdbeceab3ac59d76b176d6b6db18",
+      "assertions": 3772,
+      "states": 96,
+      "engines": ["Chromium", "WebKit"],
+      "widths": [320, 390, 834, 1440],
+      "method": "Actual text ranges prove every numeric table value remains on one line. Both named native scroll regions accept keyboard focus and ArrowRight after focus/outer-page scrolling settles. The exact prior renderer reproduces wrapped saved values at 320px in both engines. All case values, overflow bounds, edge cases and print-media geometry pass. Removing only the bounded screen-only delta restores the complete prior renderer and print markup/styles byte for byte. No PDF, service or model calls."
+    },
+    "visual_review": "Root and independent reviewer inspected phone initial/end scrolling states and desktop tables. Complete amounts remain readable by scrolling; the table does not widen the page. Both published synthesis PDF files retain their prior hashes exactly.",
+    "additional_checks": {"financial": 558, "financial_states": 12, "cosmetic": 823, "cosmetic_layouts": 6, "runtime_asset_checks": 3810, "built_pages": 84}
   },
   "detailed_sankey_presentation_review": {
     "version": "planning-case-sankey-20260919.3",

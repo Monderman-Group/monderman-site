@@ -1255,7 +1255,14 @@
     const costRows=[['implementationCashCost','Implementation cash'],['implementationCapacityCost','Internal staff-time implementation cost'],['subscriptionCost','Subscription allocation']].map(([key,label])=>'<tr><th scope="row">'+label+'</th>'+levels.map(level=>'<td data-case="'+labels[level]+'" data-planning-cost="'+key+'" data-planning-level="'+level+'" data-saved-value="'+(key==='subscriptionCost'?input[key]:input[key][costLevel[level]])+'">'+esc(money(key==='subscriptionCost'?input[key]:input[key][costLevel[level]]))+'</td>').join('')+'</tr>').join('');
     const head='<thead><tr><th scope="col">Component</th><th scope="col">Low</th><th scope="col">Central</th><th scope="col">High</th></tr></thead>';
     const breakdownBody='<div class="mr-planning-breakdown-body"><h4>Activity and cost breakdown</h4><p>Every activity is listed in full. Large charts name the three largest activities by central value in each benefit type and group the rest as Other activities. The grouping stays the same across cases. Staff hours are separate from dollar-valued ribbons.</p><table class="mr-sankey-table"><caption>Activity benefits over '+fmtWhole(input.horizonMonths)+' months</caption>'+head+'<tbody>'+activityRows+'</tbody></table><table class="mr-sankey-table"><caption>Cost components, using the same case pairing as the planning table</caption>'+head+'<tbody>'+costRows+'</tbody></table></div>';
-    const breakdown='<details class="mr-planning-breakdown"><summary>View every activity and cost</summary>'+breakdownBody+'</details><div class="mr-planning-breakdown mr-planning-print-breakdown">'+breakdownBody+'</div>';
+    // Keep the print copy unchanged. Screen tables scroll as named, keyboard-
+    // focusable regions rather than splitting a saved amount across lines.
+    let screenTableIndex=0;
+    const screenBreakdownBody=breakdownBody.replace(/<table class="mr-sankey-table">/g,()=>{
+      const first=screenTableIndex++===0;
+      return (first?'<p class="mr-planning-scroll-hint">Swipe or scroll across to compare all three cases.</p>':'')+'<div class="mr-planning-table-scroll" role="region" tabindex="0" aria-label="'+(first?'Activity benefits by planning case':'Cost components by planning case')+'"><table class="mr-sankey-table">';
+    }).replace(/<\/table>/g,'</table></div>');
+    const breakdown='<details class="mr-planning-breakdown"><summary>View every activity and cost</summary>'+screenBreakdownBody+'</details><div class="mr-planning-breakdown mr-planning-print-breakdown">'+breakdownBody+'</div>';
     return '<figure class="mr-operational-sankey" data-sankey-version="planning-case-sankey-20260919.3">'+
       '<div class="mr-sankey-figure-head"><h3>How each planning case adds up</h3><p>Follow the recorded activity benefits and individual costs over '+fmtWhole(input.horizonMonths)+' months. Ribbon widths represent dollar values on one shared scale, not hours. This is a planning-value comparison, not cash flow. The joined ribbons do not allocate a particular activity to a particular cost.</p></div>'+
       '<fieldset class="mr-planning-controls"><legend>Choose a planning case</legend>'+levels.map(level=>'<input class="mr-planning-choice mr-planning-choice-'+level+'" type="radio" name="mr-planning-case" id="mr-planning-choice-'+level+'" value="'+level+'"'+(level==='central'?' checked':'')+'/><label for="mr-planning-choice-'+level+'">'+labels[level]+'</label>').join('')+
@@ -2602,6 +2609,10 @@
     @media print{.mr-planning-breakdown{display:none!important}.mr-planning-print-breakdown{display:block!important}}
     @media print{.mr-planning-flow.is-dense .mr-planning-nodes{grid-template-rows:repeat(var(--planning-rows),minmax(0,1fr))}.mr-planning-flow.is-dense .mr-planning-node{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:4px;row-gap:2px;align-content:center}.mr-planning-flow.is-dense .mr-planning-node-name{grid-column:1/-1}.mr-planning-flow.is-dense .mr-planning-node small{margin:0;white-space:nowrap}.mr-planning-flow.is-dense .mr-planning-node strong{margin:0;padding-left:0;text-align:right;white-space:nowrap}}
     /* END ACTIVITY COST SANKEY STYLES 20260919.3 */
+    /* BEGIN SCREEN BREAKDOWN TABLE STYLES 20260919.4 */
+    @media screen{.mr-planning-table-scroll{min-width:0;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;margin-top:20px}.mr-planning-table-scroll:focus-visible{outline:2px solid #0C6E78;outline-offset:2px}.mr-planning-table-scroll .mr-sankey-table{min-width:560px;table-layout:auto;margin-top:0}.mr-planning-table-scroll .mr-sankey-table td{white-space:nowrap;overflow-wrap:normal;word-break:normal}.mr-planning-scroll-hint{display:none}}
+    @media screen and (max-width:640px){.mr-report .mr-planning-scroll-hint{display:block;font-size:.74rem;line-height:1.45;color:#53676E;margin:12px 0 0}}
+    /* END SCREEN BREAKDOWN TABLE STYLES 20260919.4 */
     .mr-scenario-metric,.mr-scenario-assumption{margin:24px 0;padding:24px;border:1px solid #E0DCD3;border-radius:10px;background:#FAFAF8;min-width:0}
     .mr-scenario-metric h3,.mr-scenario-assumption h3{margin-top:0!important}
     .mr-scenario-assumption h4{margin:22px 0 10px;font-size:.94rem;line-height:1.4}
