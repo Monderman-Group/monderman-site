@@ -122,7 +122,7 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
     const data=req.postData()?JSON.parse(req.postData()):{};
     requests.push({path:url.pathname,body:data,method:req.method()});
     if(url.pathname==='/api/first-run-events')throw new Error('Retired first-run telemetry must not be sent');
-    if(url.pathname==='/api/legal/acceptance/status')return json(route,200,{ok:true,requiresAcceptance:!legalAccepted,termsVersion:'2026-09-19-invited-evaluation',privacyNoticeVersion:'2026-09-19-invited-evaluation'});
+    if(url.pathname==='/api/legal/acceptance/status')return json(route,200,{ok:true,requiresAcceptance:!legalAccepted,termsVersion:'2026-09-19-invitation-access',privacyNoticeVersion:'2026-09-19-invitation-access'});
     if(url.pathname==='/api/legal/acceptance'){assert.equal(data.agreed,true);legalAccepted=true;return json(route,200,{ok:true});}
     if(url.pathname==='/api/health')return json(route,200,{ok:true});
     if(url.pathname===`/api/runs/${savedId}/report`){

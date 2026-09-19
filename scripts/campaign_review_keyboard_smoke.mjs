@@ -13,7 +13,7 @@ const out=fs.mkdtempSync('/tmp/campaign-review-keyboard-');
 const source=fs.readFileSync(new URL('../campaign-analysis.js',import.meta.url),'utf8');
 const styles=fs.readFileSync(new URL('../campaign-analysis.css',import.meta.url),'utf8');
 const sha=value=>createHash('sha256').update(value).digest('hex');
-const scope={id:'scope-mock',label:'MOCK scope',campaignIds:['campaign-mock'],lenses:{decision_velocity:{}}};
+const scope={id:'scope-mock',organizationId:'org-mock',label:'MOCK scope',campaignIds:['campaign-mock'],lenses:{decision_velocity:{}}};
 let checks=0;const states=[],errors=[],screenshots=[];
 const equal=(actual,expected,message)=>{assert.deepEqual(actual,expected,message);checks++;};
 for(const [engineName,engine]of Object.entries({chromium,webkit})){

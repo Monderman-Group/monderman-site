@@ -26,6 +26,7 @@ const pages = [
   'the-culture-trap.html', 'the-drift-problem.html', 'the-unmeasured-layer.html',
   'transformation-behind-schedule.html', 'we-gave-bureaucracy-the-fastest-tools.html',
   'when-bureaucracy-became-the-obstacle.html', 'why-monderman.html',
+  'terms-2026-09-19-invitation-access.html', 'privacy-2026-09-19-invitation-access.html',
 ];
 const footerOnly = new Set(['404.html', 'decision-velocity.html', 'institutional-performance.html', 'operational-systems.html', 'sample-report.html', 'structural-clarity.html']);
 const expectedHeroCount = pages.filter(file => !footerOnly.has(file)).length;
@@ -34,8 +35,8 @@ const heroSelector = 'body.canonical-green-shell :is(.hero,.article-hero,.ps-her
 const surfaceSelector = `${heroSelector},footer.mond-footer`;
 const tagline = 'Less bureaucracy. Better performance.';
 const printPages = new Set(['index.html', 'Monderman_Platform_Brief.html', 'privacy.html', 'the-culture-trap-brief.html', 'cross-tool-synthesis.html', 'operational-systems.html', 'sample-report.html']);
-assert.equal(pages.length, 68);
-assert.equal(pages.length - footerOnly.size, 62);
+assert.equal(pages.length, 70);
+assert.equal(pages.length - footerOnly.size, 64);
 for (const file of pages) assert(fs.existsSync(path.join(root, file)), `Missing inventoried page ${file}`);
 
 const publishedSurfaces = fs.readdirSync(root).filter(file => file.endsWith('.html')).filter(file => {

@@ -5,12 +5,18 @@ import re
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TERMS_VERSION = "2026-09-19-invited-evaluation"
-PRIVACY_VERSION = "2026-09-19-invited-evaluation"
-PUBLISHED_PRIVACY_VERSION = "2026-09-19-invited-evaluation"
-PUBLISHED_PRIVACY_SHA256 = "88a0ad179c9f8d24c478789946d7d5895a7721800022aff238f1a7fc81f26bce"
+TERMS_VERSION = "2026-09-19-invitation-access"
+PRIVACY_VERSION = "2026-09-19-invitation-access"
+PUBLISHED_PRIVACY_VERSION = "2026-09-19-invitation-access"
+PUBLISHED_PRIVACY_SHA256 = "c71c0cf3fb3d66b58f4aecd1f52c33dabe6a52e24332548bd7763af294fe149d"
 # Accepted historical editions are immutable, even if someone edits the manifest.
 HISTORICAL_DOCUMENTS = {
+    "2026-09-19-invited-evaluation": {
+        "terms_file": "terms-2026-09-19-invited-evaluation.html",
+        "terms_file_sha256": "116aecc53dba343d9f03dc0962c5d7f06cd9398220ed5e12cc238c7c12059ab9",
+        "privacy_notice_file": "privacy-2026-09-19-invited-evaluation.html",
+        "privacy_notice_file_sha256": "88a0ad179c9f8d24c478789946d7d5895a7721800022aff238f1a7fc81f26bce"
+    },
     "2026-09-12-ai-source-evidence-v2": {
         "privacy_notice_file": "privacy-2026-09-12-ai-source-evidence-v2.html",
         "privacy_notice_file_sha256": "41e4ef0367e55a4bff255934c42ea14b4b4e49a69dca78e4f14357f08bc2e3cc"

@@ -386,9 +386,9 @@ for page in r.glob('*.html'):
   css_version=re.search(r'canonical-site-shell\.css\?v=([^"\']+)',t)
   js_version=re.search(r'canonical-site-shell\.js\?v=([^"\']+)',t)
   if not css_version:e.append(page.name+': versioned canonical header styles missing')
-  elif page.name not in {'privacy-2026-09-10-optional-measurement-v1.html','privacy-2026-09-11-ai-evidence-v1.html','privacy-2026-09-12-ai-source-evidence-v2.html','terms-2026-09-15-annual-plans.html','terms-2026-09-19-invited-evaluation.html','privacy-2026-09-19-invited-evaluation.html'} and not re.match(r'^(?:privacy|terms)(?:-\d{4}-\d{2}-\d{2}-beta)?\.html$',page.name):public_header_css_versions.add(css_version.group(1))
+  elif page.name not in {'privacy-2026-09-10-optional-measurement-v1.html','privacy-2026-09-11-ai-evidence-v1.html','privacy-2026-09-12-ai-source-evidence-v2.html','terms-2026-09-15-annual-plans.html','terms-2026-09-19-invited-evaluation.html','privacy-2026-09-19-invited-evaluation.html','terms-2026-09-19-invitation-access.html','privacy-2026-09-19-invitation-access.html'} and not re.match(r'^(?:privacy|terms)(?:-\d{4}-\d{2}-\d{2}-beta)?\.html$',page.name):public_header_css_versions.add(css_version.group(1))
   if not js_version:e.append(page.name+': versioned canonical header behavior missing')
-  elif page.name not in {'privacy-2026-09-10-optional-measurement-v1.html','privacy-2026-09-11-ai-evidence-v1.html','privacy-2026-09-12-ai-source-evidence-v2.html','terms-2026-09-15-annual-plans.html','terms-2026-09-19-invited-evaluation.html','privacy-2026-09-19-invited-evaluation.html'} and not re.match(r'^(?:privacy|terms)(?:-\d{4}-\d{2}-\d{2}-beta)?\.html$',page.name):public_header_js_versions.add(js_version.group(1))
+  elif page.name not in {'privacy-2026-09-10-optional-measurement-v1.html','privacy-2026-09-11-ai-evidence-v1.html','privacy-2026-09-12-ai-source-evidence-v2.html','terms-2026-09-15-annual-plans.html','terms-2026-09-19-invited-evaluation.html','privacy-2026-09-19-invited-evaluation.html','terms-2026-09-19-invitation-access.html','privacy-2026-09-19-invitation-access.html'} and not re.match(r'^(?:privacy|terms)(?:-\d{4}-\d{2}-\d{2}-beta)?\.html$',page.name):public_header_js_versions.add(js_version.group(1))
 if not public_header_pages:e.append('canonical public headers missing')
 if len(public_header_css_versions)!=1:e.append('canonical public header style versions diverge: '+str(sorted(public_header_css_versions)))
 if len(public_header_js_versions)!=1:e.append('canonical public header behavior versions diverge: '+str(sorted(public_header_js_versions)))
@@ -465,7 +465,7 @@ for token in ['Evaluate Pattern features for 60 days.','No credit card, payment 
 for stale in ['One Pattern trial per Workspace','starts immediately for this Workspace','This Workspace has already used its one-time Pattern trial','id="pilotInvitationCode"','invitation_code:invitationCode','reusable invitation code']:
  if stale in trial:e.append('pattern trial stale scope '+stale)
 pattern=(r/'plan-pattern.html').read_text(errors='ignore')
-for token in ['href="pattern-trial.html"','Activate your invitation','href="pilot.html"','Request an invitation','Evaluate Monderman free for 60 days with full Pattern functionality','No credit card. No automatic renewal.','Your evaluation does not become a paid subscription','Pattern &middot; Active beta &middot; expanded campaigns']:
+for token in ['href="pattern-trial.html"','Activate your invitation','href="pilot.html"','Request an invitation','Evaluate Monderman free for 60 days with full Pattern functionality','No credit card. No automatic renewal.','Your evaluation does not become a paid subscription','Pattern &middot; expanded campaigns']:
  if token not in pattern:e.append('pattern trial entry '+token)
 shell=(r/'workspace-shell.js').read_text(errors='ignore')
 for token in ['subscription_status','pattern_trial_ends_at','org.subscription_status === "trialing"','Pattern · Free evaluation']:
@@ -507,10 +507,11 @@ for token in [
 ]:
  if token not in feedback_widget:e.append('pilot feedback Workspace entry '+token)
 
-# Restrained Beta labeling belongs to the app shell and plan/trial pages, not outputs.
+# Current product surfaces no longer carry beta labels. Internal CSS names and
+# historical legal identifiers are not public status labels.
 for name in ['workspace.html','workspace-diagnostics.html','workspace-analysis.html','workspace-actions.html','workspace-settings.html']:
- if 'ws-beta-release' not in (r/name).read_text(errors='ignore'):
-  e.append(name+': beta badge missing')
+ if re.search(r'<[^>]+\bclass=["\'][^"\']*\bws-beta-release\b',(r/name).read_text(errors='ignore')):
+  e.append(name+': retired beta badge remains')
 for name in ['sample-report.html','decision-velocity.html','operational-systems.html','structural-clarity.html','institutional-performance.html']:
  t=(r/name).read_text(errors='ignore')
  if re.search(r'>\s*Beta\s*<|Public Beta|beta release',t,re.I):e.append(name+': beta label on diagnostic/report output')
@@ -528,12 +529,12 @@ for name in ['connect.html','plan-enterprise.html']:
  if 'MondermanContactTransport.submit' not in t:e.append(name+': resilient contact transport missing')
  if 'fetch("https://monderman-api.onrender.com/api/connect/send"' in t:e.append(name+': direct third-party contact POST remains')
 
-# Public beta privacy/security disclosures must match current architecture and trial rules.
+# Privacy/security disclosures must match current architecture and evaluation rules.
 privacy=(r/'privacy.html').read_text(errors='ignore')
-for token in ['Last updated: September 19, 2026','currently in invitation-only beta','limited anti-abuse evaluation record','survive Workspace deletion','Anthropic\'s commercial API','does not use inputs and outputs for training by default','can remain with Anthropic for up to 30 days','subject to its stated safety, legal and contractual exceptions','This is not a zero-retention arrangement','Stripe handles payment details','does not receive or store your full card number','anonymous campaign responses','authorized Monderman personnel','first-party browser storage for Supabase authentication','not directed to children','a South Dakota limited liability company','41 W Highway 14, Unit #1225','Spearfish, SD 57783']:
+for token in ['Last updated: September 19, 2026','Product access is by invitation.','limited anti-abuse evaluation record','survive Workspace deletion','Anthropic\'s commercial API','does not use inputs and outputs for training by default','can remain with Anthropic for up to 30 days','subject to its stated safety, legal and contractual exceptions','This is not a zero-retention arrangement','Stripe handles payment details','does not receive or store your full card number','anonymous campaign responses','authorized Monderman personnel','first-party browser storage for Supabase authentication','not directed to children','a South Dakota limited liability company','41 W Highway 14, Unit #1225','Spearfish, SD 57783']:
  if token.lower() not in privacy.lower():e.append('privacy disclosure '+token)
 security=(r/'security.html').read_text(errors='ignore')
-for token in ['Monderman Workspace is available by invitation.','Direct Diagnostics require a signed-in member with active Workspace access.','New organizations need a valid invitation to activate their evaluation.','Directed campaign assignment links','Monderman uses database row-level security and server-side authorization to restrict Workspace data access','Policies and authorization helpers restrict signed-in users to the Workspace operations their role allows','Service-only tables can have RLS enabled with no customer policies','public publishable key','service-role database credentials','Anthropic\'s commercial API','durable redemption record','Deleting a Workspace does not create another evaluation','does not currently claim SOC 2','four-hour cutoff','durable Supabase snapshot','plan, usage, billing and stored Diagnostic result fields remain server-managed','request-size and rate limits','Controlled release checks currently cover current Chrome/Chromium and automated WebKit rendering','Native Safari and browser-managed print dialogs remain beta and best-effort']:
+for token in ['Monderman Workspace is available by invitation.','Direct Diagnostics require a signed-in member with active Workspace access.','New organizations need a valid invitation to activate their evaluation.','Directed campaign assignment links','Monderman uses database row-level security and server-side authorization to restrict Workspace data access','Policies and authorization helpers restrict signed-in users to the Workspace operations their role allows','Service-only tables can have RLS enabled with no customer policies','public publishable key','service-role database credentials','Anthropic\'s commercial API','durable redemption record','Deleting a Workspace does not create another evaluation','does not currently claim SOC 2','four-hour cutoff','durable Supabase snapshot','plan, usage, billing and stored Diagnostic result fields remain server-managed','request-size and rate limits','Controlled release checks currently cover current Chrome/Chromium and automated WebKit rendering','Native Safari and browser-managed print dialogs remain best-effort']:
  if token.lower() not in security.lower():e.append('security disclosure '+token)
 for stale in ['A person can run a scored Diagnostic without signing in','an unauthenticated request holds no read or write permission on any table']:
  if stale in security:e.append('security stale claim '+stale)
@@ -593,7 +594,7 @@ for name in ['index.html','why-monderman.html']:
 
 # Public beta Terms must exist and remain wired at acceptance points.
 terms=(r/'terms.html').read_text(errors='ignore')
-for token in ['Public Beta Terms of Use','Version 2026-09-19-invited-evaluation','does not auto-renew','once per eligible account identity','not legal, medical, accounting, investment, safety, employment','not designed, validated or offered as employee-selection procedures','must not attempt to identify an anonymous Participant','The Customer will defend, indemnify and hold harmless Monderman','a South Dakota limited liability company','41 W Highway 14, Unit #1225','Spearfish, SD 57783','connect@monderman.com','privacy.html','security.html']:
+for token in ['Terms of Use','Version 2026-09-19-invitation-access','does not auto-renew','once per eligible account identity','not legal, medical, accounting, investment, safety, employment','not designed, validated or offered as employee-selection procedures','must not attempt to identify an anonymous Participant','The Customer will defend, indemnify and hold harmless Monderman','a South Dakota limited liability company','41 W Highway 14, Unit #1225','Spearfish, SD 57783','connect@monderman.com','privacy.html','security.html']:
  if token not in terms:e.append('public beta terms '+token)
 trial=(r/'pattern-trial.html').read_text(errors='ignore')
 for token in ['href="terms.html"','href="privacy.html"','I agree to the']:

@@ -122,7 +122,7 @@ for(const [f,key] of [['structural-clarity','sc'],['decision-velocity','dv'],['o
 for(const f of ['security.html','pilot.html','pattern-trial.html']){
   check(read(f).includes('Anthropic')&&!read(f).includes('Claude '),f+' provider disclosure without model name');
 }
-check(read('privacy.html')===read('privacy-2026-09-19-invited-evaluation.html'),'current Privacy edition has an exact archive; historical source-evidence edition remains immutable under legal protection tests');
+check(read('privacy.html')===read('privacy-2026-09-19-invitation-access.html'),'current Privacy edition has an exact archive; historical source-evidence edition remains immutable under legal protection tests');
 for(const f of ['index.html','research.html','why-monderman.html']){
   const text=read(f).replace(/<style\b[\s\S]*?<\/style>/gi,'').replace(/<script\b[\s\S]*?<\/script>/gi,'').replace(/<[^>]*>/g,' ');
   check(!/peer-reviewed.{0,60}(?:book|Routledge)/i.test(text),f+' authorship not validation');

@@ -94,7 +94,7 @@ def validate():
 
     privacy = (ROOT / "privacy.html").read_text(errors="ignore")
     require(privacy, [
-        "Version 2026-09-19-invited-evaluation", "Subprocessors and infrastructure page",
+        "Version 2026-09-19-invitation-access", "Subprocessors and infrastructure page",
         'id="optional-measurement"',
         "Optional website measurement has been retired as described below.",
         "Tracking does not resume for browsers that previously opted in.",
@@ -107,7 +107,7 @@ def validate():
         "Legal-acceptance records are retained for seven years after the relationship ends",
         "evaluation anti-abuse record is retained for three years",
         "removed from active systems within 30 days", "provider's controlled deletion schedule",
-        "EU Standard Contractual Clauses", "must not submit that information through the self-service beta",
+        "EU Standard Contractual Clauses", "must not submit that information through the self-service product",
         "Anthropic does not calculate or set those scores", "Monderman does not use customer content for model training or fine-tuning",
         "Monderman does not pool this content across customers", "add it to a shared research or benchmark library",
         "De-identifying customer content does not create an exception to this restriction",
@@ -117,17 +117,17 @@ def validate():
     assert_no_drafting_markers(privacy, "Privacy Notice")
     terms = (ROOT / "terms.html").read_text(errors="ignore")
     require(terms, [
-        "Version 2026-09-19-invited-evaluation", "affirmative agreement", "Terms version",
+        "Version 2026-09-19-invitation-access", "affirmative agreement", "Terms version",
         "Privacy Notice version", "database-server timestamp", "source/context",
         "normalized account email verified at acceptance", "organization name verified at acceptance",
         "seven-year legal-acceptance retention period",
         "Monderman, LLC", "a South Dakota limited liability company", "41 W Highway 14, Unit #1225", "Spearfish, SD 57783", "requires no payment card, ends automatically",
         "does not convert to a paid subscription", "non-refundable except where applicable law requires",
         "Cancellation stops future renewal, not installments owed for the current annual commitment", "“as is” and “as available”",
-        "12 months immediately preceding", "US $100 if the claim relates only to free beta use",
+        "12 months immediately preceding", "US $100 if the claim relates only to free use",
         "courts serving Madison County, Alabama", "do not require mandatory arbitration",
         "payment-card data into Diagnostic fields", "biometric identifiers", "children's data",
-        "self-service controlled beta is offered only to U.S.-based organizations and adult Participants located in the United States",
+        "self-service product is offered only to U.S.-based organizations and adult Participants located in the United States",
         "must not invite a Participant located outside the United States",
         "knowingly submit personal information subject to a non-U.S. processing or transfer arrangement",
         "Public informational pages may remain accessible globally",
@@ -142,13 +142,13 @@ def validate():
 
     campaign = (ROOT / "workspace-diagnostics.html").read_text(errors="ignore")
     require(campaign, [
-        'id="usBetaCampaignRestriction"', "U.S.-only controlled beta",
+        'id="usBetaCampaignRestriction"', "U.S.-only product access",
         "self-service campaigns are for U.S.-based organizations and adult participants located in the United States",
         "confirm that every invited participant is located in the United States",
         "requires a non-U.S. processing or transfer arrangement Monderman has not separately established"
-    ], "campaign-admin U.S. beta warning")
+    ], "campaign-admin U.S. access warning")
     if campaign.index('id="usBetaCampaignRestriction"') > campaign.index('id="btnSend"'):
-        raise AssertionError("campaign-admin U.S. beta warning must appear before the send control")
+        raise AssertionError("campaign-admin U.S. access warning must appear before the send control")
 
     subprocessors = (ROOT / "subprocessors.html").read_text(errors="ignore")
     require(subprocessors, [
