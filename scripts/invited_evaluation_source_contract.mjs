@@ -33,7 +33,7 @@ export const APPROVED_INTERFACE_PINS=Object.freeze({
   // Public, local-only four Depth journeys and a separate Cross-Lens journey.
   // Numbers remain generated from reviewed evidence; authored actions are
   // labeled proposals. Dedicated browser tests cover all five journeys.
-  'homepage-workspace-demo.js':'1c58ef0b52e9603342d6bbcfd66dc9e86053f1ba250f1bd4d03fa1e60eb50c9e',
+  'homepage-workspace-demo.js':'0b210be823c34872ecc8b0bed3db0fdc550fe38302ad9a869f76e018dd2e366a',
 });
 export function assertInvitedEvaluationSourceContract(root=path.resolve(import.meta.dirname,'..')){
   const read=f=>fs.readFileSync(path.join(root,f),'utf8');

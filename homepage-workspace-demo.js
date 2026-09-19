@@ -13,7 +13,6 @@
   const journeys = {
     structural_clarity: {
       name: 'Structural Clarity', type: 'depth',
-      gatherTitle: 'Find out who owns supplier onboarding.',
       gatherDescription: 'Ask the people doing, managing and overseeing the work about responsibility, authority and handoffs.',
       evaluateTitle: 'Compare where responsibility is clear or disputed.',
       evaluateDescription: 'Bring Structural Clarity responses together. Keep differences between operational, managerial and senior-leader views visible.',
@@ -29,7 +28,6 @@
     },
     decision_velocity: {
       name: 'Decision Velocity', type: 'depth',
-      gatherTitle: 'Follow decisions from request to answer.',
       gatherDescription: 'Ask requesters, reviewers and decision makers about approval steps, waiting time and decisions that have to be reopened.',
       evaluateTitle: 'Compare where decisions wait.',
       evaluateDescription: 'Bring Decision Velocity responses together. Check whether different groups report the same approval delays or different ones.',
@@ -45,7 +43,6 @@
     },
     operational_systems: {
       name: 'Operational Systems', type: 'depth',
-      gatherTitle: 'Find the work that gets repeated.',
       gatherDescription: 'Ask the people who prepare, review and manage supplier files about duplicate checks, manual steps and recurring rework.',
       evaluateTitle: 'Compare where processes create extra work.',
       evaluateDescription: 'Bring Operational Systems responses together. Review where groups agree about repeated work and where their accounts differ.',
@@ -61,7 +58,6 @@
     },
     institutional_performance: {
       name: 'Institutional Performance', type: 'depth',
-      gatherTitle: 'Ask what it takes to deliver reliably.',
       gatherDescription: 'Ask staff and leaders about missed commitments, recurring problems and dependence on a few people to keep supplier onboarding moving.',
       evaluateTitle: 'Compare whether delivery is dependable.',
       evaluateDescription: 'Bring Institutional Performance responses together. Review differences in how groups describe reliability, recurring fixes and sustained results.',
@@ -77,7 +73,6 @@
     },
     cross_lens_synthesis: {
       name: 'Cross-Lens Synthesis', type: 'cross',
-      gatherTitle: 'Connect different views of the same work.',
       gatherDescription: 'Ask the people doing, managing and overseeing supplier onboarding about responsibilities, decisions, processes and performance.',
       gatherNext: 'Check participation and compatibility before combining evidence across diagnostics.',
       evaluateTitle: 'See which changes could release capacity.',
@@ -108,7 +103,6 @@
       el.textContent = journey.type === 'depth' ? `${journey.name} · Depth Synthesis` : journey.name;
     });
     app.querySelectorAll('[data-demo-evaluation]').forEach(el => { el.hidden = el !== evidence; });
-    app.querySelectorAll('[data-demo-group]').forEach(el => { el.hidden = journey.type === 'depth' && el !== group; });
     const financial = preview.querySelector(`[data-demo-assumptions-for="${key}"]`);
     preview.querySelectorAll('[data-demo-assumptions-for]').forEach(el => { el.hidden = el !== financial; });
     preview.querySelector('.home-preview-method').hidden = !financial;
@@ -136,6 +130,7 @@
   choices.forEach(input => input.addEventListener('change', () => { if (input.checked) selectJourney(input.value); }));
   selectJourney(choices.find(input => input.checked)?.value || 'cross_lens_synthesis');
   app.querySelector('.hwd-journey-choice').hidden = false;
+  app.querySelectorAll('.hwd-choose').forEach(button => { button.hidden = false; });
   function select(tab, focus = false, reveal = false) {
     if (!tabs.includes(tab)) return;
     tabs.forEach((candidate) => {

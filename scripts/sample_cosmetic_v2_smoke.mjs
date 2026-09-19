@@ -25,27 +25,32 @@ equal(artifact.contract,'monderman-public-product-samples/v3');equal(artifact.sy
 equal(artifact.publication_projection.version,'monderman-public-sample-projection-20260913.7');
 const releaseFile='sample-data/production-sample-release.json',oldRelease=JSON.parse(original(releaseFile));
 const deployedRelease=JSON.parse(execFileSync('git',['show','f1f5a35c55f1ff9e8243b184658b167848786e2f:'+releaseFile],{cwd:root,encoding:'utf8'}));
+const planningRelease=JSON.parse(execFileSync('git',['show','ebe0d110fb6fc8a52e2817de9bc24634c307bb6c:'+releaseFile],{cwd:root,encoding:'utf8'}));
 equal(release.sankey_presentation_review,deployedRelease.sankey_presentation_review,'Historical Sankey approval remains exact, not reissued');
-const restoredRelease=structuredClone(release);delete restoredRelease.sankey_presentation_review;delete restoredRelease.planning_case_presentation_review;
+equal(release.planning_case_presentation_review,planningRelease.planning_case_presentation_review,'Historical planning-case approval remains exact, not reissued');
+const restoredRelease=structuredClone(release);delete restoredRelease.sankey_presentation_review;delete restoredRelease.planning_case_presentation_review;delete restoredRelease.detailed_sankey_presentation_review;
 const updatedPins=['monderman-report.js','scripts/refresh_public_sample_previews.mjs','scripts/templates/home-workspace-preview.html'];
 for(const file of updatedPins){equal(release.source_files[file],sha(read(file)),file+' current reviewed source pin');restoredRelease.source_files[file]=oldRelease.source_files[file];}
 equal(restoredRelease,oldRelease,'Original AI approvals, output/provenance, financial and prior presentation reviews remain exact');
 equal(release.sankey_presentation_review.unchanged_artifact_file_sha256,sha(artifactBytes));
 equal(release.planning_case_presentation_review.unchanged_artifact_file_sha256,sha(artifactBytes));
 equal(release.planning_case_presentation_review.prior_renderer_sha256,deployedRelease.source_files['monderman-report.js']);
-equal(release.planning_case_presentation_review.renderer_sha256,sha(read('monderman-report.js')));
+equal(release.planning_case_presentation_review.renderer_sha256,planningRelease.source_files['monderman-report.js']);
+equal(release.detailed_sankey_presentation_review.unchanged_artifact_file_sha256,sha(artifactBytes));
+equal(release.detailed_sankey_presentation_review.prior_renderer_sha256,planningRelease.source_files['monderman-report.js']);
+equal(release.detailed_sankey_presentation_review.renderer_sha256,sha(read('monderman-report.js')));
 const sourceFiles=[...runtimeChanges,releaseFile,'scripts/inject-public-shell.mjs',...updatedPins];
 const frozen=Object.fromEntries(sourceFiles.map(f=>[f,sha(read(f))]));
 const oldSearch=JSON.parse(original('public-search-index.json')),newSearch=JSON.parse(read('public-search-index.json'));
 equal(newSearch.map(r=>r.url),oldSearch.map(r=>r.url),'Public search inventory stays public, with no workspace/private pages added');
 execFileSync('python3',['scripts/build_public_search_index.py','--check'],{cwd:root});
-for(const [page,css,version]of [['index.html','homepage-workspace-demo.css','20260919.journey2'],['sample-report.html','sample-report-production.css','20260915.consistency1']]){
+for(const [page,css,version]of [['index.html','homepage-workspace-demo.css','20260919.journey3'],['sample-report.html','sample-report-production.css','20260915.consistency1']]){
   const html=fs.readFileSync(path.join(built,page),'utf8');
   check(html.includes(css+'?v='+version),'Actual built CSS cache key: '+css);
   equal(sha(fs.readFileSync(path.join(built,css))),sha(read(css)));
 }
 const sampleHtml=fs.readFileSync(path.join(built,'sample-report.html'),'utf8');
-for(const [file,version]of [['monderman-report.js','20260919.sankey2'],['sample-report-production.js','20260915.annual1'],['public-sample-model.js','20260915.annual1']]){
+for(const [file,version]of [['monderman-report.js','20260919.sankey3'],['sample-report-production.js','20260915.annual1'],['public-sample-model.js','20260915.annual1']]){
   check(sampleHtml.includes(file+'?v='+version),'Reviewed runtime cache: '+file);
   equal(sha(fs.readFileSync(path.join(built,file))),sha(read(file)),'Built bytes equal reviewed current source: '+file);
 }

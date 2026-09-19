@@ -2,7 +2,6 @@
   <div class="home-preview-label"><span>From organizational evidence to a business case</span><span>Illustrative example</span></div>
   <div class="hwd-app" data-workspace-demo data-demo-selected-journey="cross_lens_synthesis" data-demo-journey-type="cross">
     <div class="hwd-topbar"><span class="hwd-brand">Monderman<span>.</span></span><span class="hwd-workspace-name">Supplier onboarding</span><span class="hwd-sample-chip">Workspace preview</span></div>
-    <fieldset class="hwd-journey-choice" hidden><legend>Explore a Synthesis journey</legend><div class="hwd-journey-options">{{journeyOptions}}</div></fieldset>
     <div class="hwd-tabs" role="tablist" aria-label="Explore the organizational evaluation">
       <button id="hwd-tab-measure" type="button" role="tab" aria-controls="hwd-panel-measure" aria-selected="false" tabindex="-1"><span>01</span>Gather</button>
       <button id="hwd-tab-analysis" type="button" role="tab" aria-controls="hwd-panel-analysis" aria-selected="true" tabindex="0"><span>02</span>Evaluate</button>
@@ -11,27 +10,27 @@
     </div>
     <div class="hwd-panels" id="hwd-panels">
       <section class="hwd-panel" id="hwd-panel-measure" role="tabpanel" aria-labelledby="hwd-tab-measure" tabindex="0" hidden>
-        <div class="hwd-page-heading"><div><p class="hwd-eyebrow" data-demo-product-label>Cross-Lens Synthesis</p><h2 data-demo-copy="gatherTitle">Connect different views of the same work.</h2></div></div>
+        <div class="hwd-page-heading"><div><p class="hwd-eyebrow">Gather organizational evidence</p><h2>Choose an analysis to explore.</h2></div></div>
+        <fieldset class="hwd-journey-choice" hidden><legend>Analysis examples</legend><div class="hwd-journey-options">{{journeyOptions}}</div></fieldset>
         <p class="hwd-description" data-demo-copy="gatherDescription">Ask the people doing, managing and overseeing supplier onboarding about responsibilities, decisions, processes and performance.</p>
-        <div class="hwd-diagnostic-grid">{{lensCards}}</div>
         <p class="hwd-participation-note" data-demo-participation>The same {{participants}} people completed all {{lensCount}} diagnostics: {{runCount}} runs, not {{runCount}} people.</p>
         <div class="hwd-next"><span data-demo-copy="gatherNext">Check participation and compatibility before combining evidence across diagnostics.</span><button type="button" data-demo-next="analysis">Evaluate the evidence <span aria-hidden="true">&rarr;</span></button></div>
       </section>
       <section class="hwd-panel" id="hwd-panel-analysis" role="tabpanel" aria-labelledby="hwd-tab-analysis" tabindex="0">
-        <div class="hwd-page-heading"><div><p class="hwd-eyebrow" data-demo-product-label>Cross-Lens Synthesis</p><h2 data-demo-copy="evaluateTitle">See which changes could release capacity.</h2></div></div>
+        <div class="hwd-page-heading"><div><p class="hwd-eyebrow" data-demo-product-label>Cross-Lens Synthesis</p><h2 data-demo-copy="evaluateTitle">See which changes could release capacity.</h2></div><button class="hwd-choose" type="button" data-demo-next="measure" hidden>Choose an analysis</button></div>
         <p class="hwd-description" data-demo-copy="evaluateDescription">Compare the four diagnostics together, then test a business case using separate operating records.</p>
         {{evaluationPanels}}
         <div class="hwd-next"><span data-demo-copy="evaluateNext">The planning case covers group evidence and operating inputs, not one person's run.</span><button type="button" data-demo-next="actions">Plan the change <span aria-hidden="true">&rarr;</span></button></div>
       </section>
       <section class="hwd-panel" id="hwd-panel-actions" role="tabpanel" aria-labelledby="hwd-tab-actions" tabindex="0" hidden>
-        <div class="hwd-page-heading"><div><p class="hwd-eyebrow" data-demo-product-label>Cross-Lens Synthesis</p><h2>Turn the finding into a clear change.</h2></div></div>
+        <div class="hwd-page-heading"><div><p class="hwd-eyebrow" data-demo-product-label>Cross-Lens Synthesis</p><h2>Turn the finding into a clear change.</h2></div><button class="hwd-choose" type="button" data-demo-next="measure" hidden>Choose an analysis</button></div>
         <p class="hwd-description">Choose an action, assign an owner and decide what will show whether it worked.</p>
         <div class="hwd-action-card"><div class="hwd-action-meta"><span>Illustrative action plan</span><span class="hwd-status">Proposed</span></div><h3 data-demo-copy="actionTitle">Fix ownership and review steps together.</h3><ol class="hwd-action-steps"><li data-demo-copy="actionOne">Name the person responsible for each supplier exception and the decision it needs.</li><li data-demo-copy="actionTwo">Use one completeness checklist before review, while keeping required checks.</li><li data-demo-copy="actionThree">Track exception handling and repeated reviews separately so benefits are not counted twice.</li></ol><div class="hwd-action-owner"><span>Proposed owner</span><strong data-demo-copy="actionOwner">Operations director</strong></div><div class="hwd-action-measure"><strong>Check after the next intake period</strong><p data-demo-copy="actionMeasure">Hours spent on each activity, decision waiting time and supplier files completed correctly.</p></div></div>
         <div class="hwd-plan-flow"><span>Agree the change</span><span aria-hidden="true">&rarr;</span><span>Assign an owner</span><span aria-hidden="true">&rarr;</span><span>Check actual results</span></div>
         <div class="hwd-next"><span>A proposed change to test, not a completed improvement.</span><button type="button" data-demo-next="return">Compare later results <span aria-hidden="true">&rarr;</span></button></div>
       </section>
       <section class="hwd-panel" id="hwd-panel-return" role="tabpanel" aria-labelledby="hwd-tab-return" tabindex="0" hidden>
-        <div class="hwd-page-heading"><div><p class="hwd-eyebrow" data-demo-product-label>Cross-Lens Synthesis</p><h2 data-demo-copy="compareTitle">Check the improvement across all four diagnostics.</h2></div></div>
+        <div class="hwd-page-heading"><div><p class="hwd-eyebrow" data-demo-product-label>Cross-Lens Synthesis</p><h2 data-demo-copy="compareTitle">Check the improvement across all four diagnostics.</h2></div><button class="hwd-choose" type="button" data-demo-next="measure" hidden>Choose an analysis</button></div>
         <p class="hwd-description" data-demo-copy="compareDescription">Repeat compatible campaigns for the same work. Compare the findings and actual operating records with the original plan.</p>
         <div class="hwd-baseline-grid"><div class="hwd-baseline"><span data-demo-baseline-label>Saved campaign</span><strong data-demo-baseline-value>{{runCount}}</strong><p data-demo-baseline-context>runs from {{participants}} participants across {{lensCount}} diagnostics</p><span class="hwd-baseline-state">Findings and assumptions retained</span></div><div class="hwd-baseline is-pending"><span>Later comparison</span><strong aria-label="No later result">&middot;&middot;&middot;</strong><p>Actual operating results</p><span class="hwd-baseline-state">No later result in this sample</span></div></div>
         <div class="hwd-return-note"><span class="hwd-check" aria-hidden="true">&#10003;</span><p>Keep the scope and measures comparable. Check what changed, including the time and cost of implementation.</p></div>
