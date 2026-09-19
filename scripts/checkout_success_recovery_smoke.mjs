@@ -84,6 +84,13 @@ async function fixture(browser, label, width = 390) {
     }
     if (url.origin === api) {
       if (url.pathname === '/api/legal/acceptance/status') return json({ ok: true, requiresAcceptance: false, enforcementActive: true });
+      if (url.pathname === '/api/evaluation/status' && request.method() === 'GET') {
+        const id = requestUser(request);
+        const allowed = id === otherUserId ? [otherOrganizationId] : control.multiWorkspace ? [organizationId, otherOrganizationId] : [organizationId];
+        check([userId, otherUserId].includes(id), label + ': evaluation status is authenticated');
+        check(allowed.includes(url.searchParams.get('organization_id')), label + ': evaluation status stays in the authenticated Workspace');
+        return json({ ok: true, organizationId: url.searchParams.get('organization_id'), serverNow: '2026-09-19T12:00:00Z', evaluation: { status: 'none' } });
+      }
       if (url.pathname === '/api/billing/confirm-checkout-session' && request.method() === 'POST') {
         const body = request.postDataJSON();
         calls.push({ body, userId: requestUser(request) });

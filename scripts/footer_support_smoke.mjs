@@ -28,8 +28,12 @@ for (const file of (await fs.readdir(root)).filter(f => f.endsWith('.html'))) {
     }
   }
 }
-assert.equal(pages.length, 65);
-assert.equal(pages.filter(p => p.shell).length, 61);
+const evaluationArchives = ['terms-2026-09-19-invited-evaluation.html', 'privacy-2026-09-19-invited-evaluation.html'];
+assert.deepEqual(pages.filter(p => evaluationArchives.includes(p.file)).map(p => p.file).sort(), [...evaluationArchives].sort());
+assert.equal(pages.filter(p => !evaluationArchives.includes(p.file)).length, 65, 'Pre-evaluation footer inventory remains intact');
+assert.equal(pages.filter(p => p.shell && !evaluationArchives.includes(p.file)).length, 61, 'Pre-evaluation canonical shell inventory remains intact');
+assert.equal(pages.length, 67);
+assert.equal(pages.filter(p => p.shell).length, 63);
 // Only pinned public rendering/auth SDK bytes are supplied. Customer-service
 // requests remain blocked, and no forms or diagnostics are submitted.
 for (const [url, dependency] of dependencies) {
