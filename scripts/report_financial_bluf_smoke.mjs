@@ -116,7 +116,21 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
       const summaryPages=pages.map((text,index)=>({text:text.replace(/\s+/g,' '),page:index+1})).filter(p=>p.text.includes('Decision brief'));
       eq(summaryPages.length,1,'Exactly one PDF decision-brief page');eq(summaryPages[0].page,2,'Financial BLUF is page two, directly after cover');
       for(const phrase of ['Three planning cases','No direct cash saving assumed.',money(totals.capacityValue.central),money(totals.netCapacityAndCashValue.low),'Exact values, activity records and assumptions'])ok(summaryPages[0].text.includes(phrase),'Full BLUF fits one page: '+phrase);
-      ok(pages[2].includes('Interpretation and next steps'),'AI interpretation follows, does not displace financial summary');
+      // The approved shared renderer now places all three planning cases after
+      // the unchanged page-two brief. Printing must not omit the unselected
+      // native-radio cases or move long AI prose ahead of the financial read.
+      for(const [index,level]of ['low','central','high'].entries()){
+        const title=level[0].toUpperCase()+level.slice(1)+' planning case';
+        const casePages=pages.map((text,page)=>({text:text.replace(/\s+/g,' '),page:page+1})).filter(row=>row.text.includes(title));
+        eq(casePages.length,1,'Exactly one printed '+level+' planning case');
+        eq(casePages[0].page,index+3,'Planning cases immediately follow the brief in Low/Central/High order');
+        for(const key of metricKeys){
+          const cost=['cashInvestment','totalImplementationAndSubscriptionCost'].includes(key);
+          const value=totals[key][cost?costLevel[level]:level];
+          ok(casePages[0].text.includes(key==='potentialHoursFreed'?number(value):money(value)),'Printed case retains exact table display: '+level+' '+key);
+        }
+      }
+      ok(pages[5].includes('Interpretation and next steps'),'AI interpretation follows the three planning cases, not the financial summary');
       const fullText=pages.join('\n');for(const value of [totals.capacityValue.low,totals.capacityValue.central,totals.capacityValue.high])ok(fullText.includes(value.toLocaleString('en-US')),'Exact detailed dollar values retained in PDF');
       execFileSync(process.env.PDFTOPPM||'pdftoppm',['-f','2','-l','2','-scale-to','1400','-png','-singlefile',target,path.join(out,item.key+'-page-2')]);
       pdfs.push({file:target,sha256:sha(fs.readFileSync(target)),pages:pages.length,summaryPage:2});

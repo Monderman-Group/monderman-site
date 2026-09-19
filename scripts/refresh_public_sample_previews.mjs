@@ -90,12 +90,66 @@ assert.ok(Array.isArray(activities)&&activities.length>0);
 const proposals=scenario.inputs.activities;
 assert.ok(Array.isArray(proposals)&&proposals.some(a=>typeof a.changeBasis==='string'&&a.changeBasis.trim()));
 const largest=Math.max(...activities.map(a=>number(a.potentialHoursFreed.central)),1);
+const lensOrder=['structural_clarity','decision_velocity','operational_systems','institutional_performance'];
+assert.deepEqual(cross.source_groups.map(g=>g.tool_type).sort(),[...lensOrder].sort(),'Journey requires all four reviewed lens groups');
+const groups=lensOrder.map(key=>cross.source_groups.find(g=>g.tool_type===key));
+for(const group of groups){
+ assert.ok(Number.isSafeInteger(group.participants)&&group.participants>0);
+ assert.equal(group.participants,cross.participant_count,'Shared journey must preserve distinct participants across lenses');
+ assert.equal(group.submitted_runs,group.participants,'Journey assumes one included run per participant and lens');
+ assert.ok(number(group.median_score)<=100);
+}
+// These are saved campaign summaries, not newly generated AI reports. Only the
+// approved Structural Clarity Depth output and Cross-Lens output carry a saved
+// operating case. Never attach that case to another lens's summary.
+const depthGroup=depthPreviewEvidence(artifact.outputs.depth_synthesis).group;
+const journeyGroups=groups.map(g=>g.tool_type==='structural_clarity'?depthGroup:g);
+function scenarioView(s,key,title){
+ assert.equal(s?.version,'operational-planning-scenario-20260913.1');
+ assert.equal(s.kind,'synthesis_planning_scenario');
+ assert.equal(s.publication_projection,'operational-scenario-public-20260913.1');
+ assert.equal(s.method?.usesDiagnosticScores,false);assert.equal(s.method?.isConfidenceInterval,false);
+ assert.equal(s.inputs?.scopeConfirmed,true);assert.equal(s.inputs?.overlapReviewed,true);
+ const range=k=>{const r=s.totals?.[k];assert.deepEqual(Object.keys(r||{}).sort(),['central','high','low']);for(const v of Object.values(r))assert.ok(typeof v==='number'&&Number.isFinite(v)&&(k.startsWith('net')||v>=0));assert.ok(r.low<=r.central&&r.central<=r.high);return r;};
+ const h=range('potentialHoursFreed'),v=range('capacityValue'),c=range('totalImplementationAndSubscriptionCost'),n=range('netCapacityAndCashValue'),cashRange=range('netCashEffect');
+ const max=Math.max(...s.activities.map(a=>number(a.potentialHoursFreed.central)),1);
+ const rows=s.activities.map(a=>'<div class="hwd-chart-row hwd-activity-row"><span>'+escape(a.label)+'</span><div class="hwd-track" aria-hidden="true"><i style="width:'+(number(a.potentialHoursFreed.central)/max*100)+'%"></i></div><strong>'+whole(a.potentialHoursFreed.central)+'</strong></div>').join('');
+ const chart=key==='cross_lens_synthesis'?'<div class="hwd-chart"><div class="hwd-chart-head"><h3>Where the time could come from</h3><span>Hours / year</span></div>'+rows+'</div>':'';
+ const body='<div class="hwd-financial-case" data-demo-financial-case="'+key+'"><h3>'+title+'</h3><p class="hwd-case-basis">Separate operating inputs: '+whole(s.inputs.measuredPeople)+' people over '+whole(s.method.measurementDays)+' days. Central scenario · '+whole(s.inputs.horizonMonths)+' months.</p><div class="hwd-value-grid"><div class="hwd-value-primary"><strong data-demo-hours>'+whole(h.central)+'</strong><span>potential hours released</span></div><div class="hwd-value-primary"><strong data-demo-capacity>'+money(v.central)+'</strong><span>potential staff capacity value</span></div></div><div class="hwd-cost-row"><span>Implementation + subscription</span><strong data-demo-cost>'+money(c.central)+'</strong></div>'+chart+'<p class="hwd-financial-note">Capacity value is not cash savings. These estimates use operational inputs and change assumptions, not diagnostic scores.</p></div>';
+ const assumptions='<div data-demo-assumptions-for="'+key+'"'+(key==='cross_lens_synthesis'?'':' hidden')+'><p>Illustrative example. '+whole(s.inputs.measuredPeople)+' people; '+whole(s.method.measurementDays)+' days of operational inputs projected over '+whole(s.inputs.horizonMonths)+' months. Activity reductions and adoption are assumptions. Activities are checked for overlap. The estimate is not scaled to unmeasured staff.</p><dl class="hwd-sensitivity">'+['low','central','high'].map(k=>'<div><dt>'+({low:'Low',central:'Central',high:'High'}[k])+' case</dt><dd>'+whole(h[k])+' hours / '+money(v[k])+' capacity value</dd></div>').join('')+'</dl><p>The low case shows '+money(n.low)+' after implementation and subscription costs. The central net cash effect is '+money(cashRange.central)+': no cash saving is assumed. Capacity value and cash are different; costs include internal staff time. <a href="sample-report.html#'+(key==='structural_clarity'?'depth':'synthesis')+'">Read the full report and assumptions.</a></p></div>';
+ return {body,assumptions};
+}
+const scCase=depth.financial_scenario==null?null:scenarioView(depth.financial_scenario,'structural_clarity','Structural Clarity planning case');
+const crossCase=scenarioView(scenario,'cross_lens_synthesis','Cross-Lens planning case');
+const depthPanels=journeyGroups.map(g=>{
+ for(const pair of [g.score_iqr,g.score_range]){assert.ok(Array.isArray(pair)&&pair.length===2);for(const v of pair)assert.ok(number(v)<=100);assert.ok(pair[0]<=pair[1]);}
+ const modes=g.participant_mode_counts;assert.equal(modes.operational+modes.managerial+modes.senior_leader,g.participants);
+ const reads=(g.tool_type==='structural_clarity'?depth:cross).sample_reads.filter(r=>r.tool_type===g.tool_type);
+ assert.equal(reads.length,1);const read=reads[0];assert.equal(read.n,g.participants);assert.equal(read.score.median,g.median_score);assert.deepEqual(read.score.iqr,g.score_iqr);
+ const modeLabels={operational:'People doing the work',managerial:'Managers',senior_leader:'Senior leaders'};
+ assert.deepEqual(read.segments.map(s=>s.participant_mode).sort(),Object.keys(modeLabels).sort());
+ const orderedSegments=Object.keys(modeLabels).map(mode=>read.segments.find(s=>s.participant_mode===mode));
+ for(const segment of orderedSegments){assert.equal(segment.n,modes[segment.participant_mode]);assert.ok(segment.n>=5);assert.ok(number(segment.median_score)<=100);}
+ const [doing,managing,leading]=orderedSegments.map(s=>s.median_score);
+ // The following short comparisons are bounded to the saved direction, not a
+ // causal inference or an AI quotation. Stop if future fixtures reverse it.
+ assert.ok(g.tool_type==='institutional_performance'?leading<doing&&leading<managing:leading>doing&&leading>managing);
+ const contrast={structural_clarity:'Senior leaders report clearer responsibilities than the people doing the work.',decision_velocity:'Senior leaders report fewer decision barriers than managers and people doing the work.',operational_systems:'Senior leaders report less process burden than the other two groups.',institutional_performance:'Senior leaders report less dependable performance than the other two groups.'}[g.tool_type];
+ const perspectiveRows=orderedSegments.map(s=>'<div class="hwd-perspective-row" data-demo-perspective="'+s.participant_mode+'"><span>'+modeLabels[s.participant_mode]+'<small>'+whole(s.n)+' participants</small></span><div class="hwd-track" aria-hidden="true"><i style="width:'+s.median_score+'%"></i></div><strong>'+whole(s.median_score)+'</strong></div>').join('');
+ const summary='<p class="hwd-campaign-label">Example campaign · '+whole(g.participants)+' participants</p><div class="hwd-group-metrics"><div><strong data-demo-depth-median>'+whole(g.median_score)+' / 100</strong><span>Group median</span></div><div><strong data-demo-depth-spread>'+whole(g.score_iqr[0])+'–'+whole(g.score_iqr[1])+'</strong><span>Middle half of scores</span></div></div><div class="hwd-perspective-chart"><h3>Perspective medians</h3>'+perspectiveRows+'<p class="hwd-score-direction">Higher scores describe better conditions.</p></div><p class="hwd-perspective-finding">'+contrast+'</p>';
+ const content=g.tool_type==='structural_clarity'&&scCase?scCase.body:'<p class="hwd-depth-next">Use these differences to choose what to examine together. Test the scale of a proposed change with operating records before estimating its financial value.</p>';
+ return '<div class="hwd-evidence" data-demo-evaluation="'+g.tool_type+'" data-demo-source-kind="'+(g.tool_type==='structural_clarity'?'saved_depth_synthesis':'same_lens_campaign_summary')+'" hidden>'+summary+content+'</div>';
+}).join('');
 const values={
  artifactSha:artifact.artifact_sha256,
  runCount:whole(cross.submitted_run_count),lensCount:whole(cross.source_groups.length),
+ participants:whole(cross.participant_count),
+ journeyOptions:journeyGroups.map(g=>'<label class="hwd-journey-tile"><input type="radio" name="hwd-journey" value="'+escape(g.tool_type)+'" aria-controls="hwd-panels"><span><strong>'+escape(g.tool_label)+'</strong><small>Depth Synthesis</small></span></label>').join('')+'<label class="hwd-journey-tile hwd-journey-cross"><input type="radio" name="hwd-journey" value="cross_lens_synthesis" aria-controls="hwd-panels" checked><span><strong>Cross-Lens Synthesis</strong><small>Combine all four diagnostics</small></span></label>',
+ evaluationPanels:depthPanels+'<div class="hwd-evidence" data-demo-evaluation="cross_lens_synthesis" data-demo-source-kind="saved_cross_lens_synthesis"><p class="hwd-campaign-label">Example campaign · '+whole(cross.participant_count)+' participants · '+whole(cross.submitted_run_count)+' runs across '+whole(groups.length)+' diagnostics</p>'+crossCase.body+'</div>',
+ financialAssumptions:(scCase?.assumptions||'')+crossCase.assumptions,
  people:whole(scenario.inputs.measuredPeople),measurementDays:whole(scenario.method.measurementDays),horizonMonths:whole(scenario.inputs.horizonMonths),
  hours:whole(hours.central),capacity:money(capacity.central),cost:money(cost.central),
- lensCards:cross.source_groups.map(g=>'<div class="hwd-diagnostic"><span class="hwd-instrument-number">'+whole(g.submitted_runs)+' submitted runs</span><h3>'+escape(g.tool_label)+'</h3><p>Median score: <strong data-demo-lens="'+escape(g.tool_type)+'">'+whole(g.median_score)+' / 100</strong></p></div>').join(''),
+ lensCards:journeyGroups.map(g=>'<div class="hwd-diagnostic" data-demo-group="'+escape(g.tool_type)+'" data-participants="'+whole(g.participants)+'"><span class="hwd-instrument-number">'+whole(g.submitted_runs)+' submitted runs</span><h3>'+escape(g.tool_label)+'</h3><p>Median score: <strong data-demo-lens="'+escape(g.tool_type)+'">'+whole(g.median_score)+' / 100</strong></p></div>').join(''),
  activityRows:activities.map(a=>'<div class="hwd-chart-row hwd-activity-row"><span>'+escape(a.label)+'</span><div class="hwd-track" aria-hidden="true"><i style="width:'+(number(a.potentialHoursFreed.central)/largest*100)+'%"></i></div><strong>'+whole(a.potentialHoursFreed.central)+'</strong></div>').join(''),
  changeProposal:escape(proposals.find(a=>a.changeBasis?.trim()).changeBasis),
  assumptions:escape('Illustrative example. '+whole(scenario.inputs.measuredPeople)+' people; '+whole(scenario.method.measurementDays)+' days of operational inputs projected over '+whole(scenario.inputs.horizonMonths)+' months. Activity reductions and adoption are assumptions. Activities are checked for overlap. The estimate is not scaled to unmeasured staff.'),

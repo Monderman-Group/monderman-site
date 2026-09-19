@@ -27,11 +27,20 @@ const scenario=()=>({version:'operational-planning-scenario-20260913.1',kind:'sy
  method:{usesDiagnosticScores:false,isConfidenceInterval:false,measurementDays:28},
  totals:{potentialHoursFreed:range(626,3496,5342),netCapacityAndCashValue:range(-15037.68,295989.11,498777.97),capacityValue:range(64962.32,364989.11,556777.97),netCashEffect:range(-56000,-51000,-46000),totalImplementationAndSubscriptionCost:range(58000,69000,80000)}});
 const ai=()=>({status:'complete',report:{interpretation:{recommendations:[{action:'SYNTHETIC TEST: inspect an authorized example.'}]}}});
-function fixture(){return {contract:'monderman-public-product-samples/v3',synthetic:true,artifact_sha256:'b'.repeat(64),outputs:{
- cross_lens_synthesis:seal({kind:'synthesis',provenance:{synthetic:true},source:{synthesis_product:'cross_lens_synthesis',submitted_run_count:108,source_groups:[{tool_type:'decision_velocity',tool_label:'Decision Velocity',submitted_runs:54,median_score:62},{tool_type:'structural_clarity',tool_label:'Structural Clarity',submitted_runs:54,median_score:52}],financial_scenario:scenario(),ai_report:ai()}}),
+const lensFixtures=[
+ ['structural_clarity','Structural Clarity',52,[49,74],[49,52,74]],
+ ['decision_velocity','Decision Velocity',62,[61,77],[61,62,77]],
+ ['operational_systems','Operational Systems',53,[53,67],[53,53,67]],
+ ['institutional_performance','Institutional Performance',54,[36,54],[54,54,36]],
+];
+function fixture(){
+ const groups=lensFixtures.map(([tool_type,tool_label,median_score,bounds])=>({tool_type,tool_label,submitted_runs:27,participants:27,median_score,score_iqr:[...bounds],score_range:[...bounds],participant_mode_counts:{operational:9,managerial:9,senior_leader:9}}));
+ const reads=lensFixtures.map(([tool_type,,median,iqr,segments])=>({tool_type,n:27,score:{median,iqr:[...iqr]},consensus:{read:'divided'},segments:['operational','managerial','senior_leader'].map((participant_mode,index)=>({participant_mode,n:9,median_score:segments[index]}))}));
+ return {contract:'monderman-public-product-samples/v3',synthetic:true,artifact_sha256:'b'.repeat(64),outputs:{
+ cross_lens_synthesis:seal({kind:'synthesis',provenance:{synthetic:true},source:{synthesis_product:'cross_lens_synthesis',submitted_run_count:108,participant_count:27,source_groups:structuredClone(groups),sample_reads:structuredClone(reads),financial_scenario:scenario(),ai_report:ai()}}),
  decision_velocity:seal({kind:'diagnostic',provenance:{synthetic:true},source:{tool_type:'decision_velocity',process_name:'Example process',business_unit:'Example team',score:72,score_band:'Compounding',burden_breakdown:{approval:26,coordination:null,escalation:42},ai_report:ai()}}),
  depth_synthesis:seal({kind:'synthesis',provenance:{synthetic:true,submitted_run_count:27},source:{synthesis_product:'depth_synthesis',submitted_run_count:27,
-  source_groups:[{tool_type:'structural_clarity',submitted_runs:27,median_score:52,score_iqr:[49,74],score_range:[49,74]}],sample_reads:[{tool_type:'structural_clarity',n:27,consensus:{read:'divided'}}],financial_scenario:scenario(),ai_report:ai()}})}};}
+  source_groups:[structuredClone(groups[0])],sample_reads:[structuredClone(reads[0])],financial_scenario:scenario(),ai_report:ai()}})}};}
 const build=a=>buildPublicSamplePreviewSections(a,template);
 const base=fixture(),before=JSON.stringify(base),sections=build(base);eq(JSON.stringify(base),before);
 ok(sections.hero.includes('data-demo-hours>3,496'));
@@ -60,7 +69,9 @@ oldMoney.outputs.depth_synthesis.source.pathway_exposure={status:'available',rec
 Object.values(oldMoney.outputs).forEach(seal);eq(build(oldMoney),sections);
 const absent=fixture();delete absent.outputs.depth_synthesis.source.financial_scenario;seal(absent.outputs.depth_synthesis);const fallback=build(absent);
 ok(fallback.home.includes('data-promo-median>52 / 100'));ok(!/data-promo-capacity|data-promo-net-cash|\$/.test(fallback.home));
-const hostile=fixture();hostile.outputs.cross_lens_synthesis.source.source_groups[0].tool_label='<img src=x onerror=alert(1)>';
+ok(!fallback.hero.includes('data-demo-financial-case="structural_clarity"'));
+eq([...fallback.hero.matchAll(/data-demo-financial-case="([^"]+)"/g)].map(match=>match[1]),['cross_lens_synthesis']);
+const hostile=fixture();hostile.outputs.cross_lens_synthesis.source.source_groups.find(group=>group.tool_type==='decision_velocity').tool_label='<img src=x onerror=alert(1)>';
 hostile.outputs.depth_synthesis.source.ai_report.report.interpretation.recommendations[0].action='<script>unsafe()</script>&';
 Object.values(hostile.outputs).forEach(seal);const escaped=build(hostile);ok(escaped.hero.includes('&lt;img'));ok(escaped.home.includes('&lt;script&gt;'));ok(!escaped.home.includes('<script>unsafe'));
 for(const mutate of [

@@ -15,7 +15,7 @@ const sha=b=>createHash('sha256').update(b).digest('hex'),read=f=>fs.readFileSyn
 const original=f=>execFileSync('git',['show',base+':'+f],{cwd:root,maxBuffer:8*1024*1024});
 let checks=0,blockedRemoteRequests=0;const check=(x,m)=>{assert.ok(x,m);checks++;},equal=(a,b,m)=>{assert.deepEqual(a,b,m);checks++;};
 const baselineProtection=assertInvitedEvaluationSourceContract(root);
-const runtimeChanges=new Set(['index.html','sample-report.html','homepage-workspace-demo.css','sample-report-production.css','public-search-index.json']);
+const runtimeChanges=new Set(['index.html','sample-report.html','homepage-workspace-demo.css','homepage-workspace-demo.js','sample-report-production.css','public-search-index.json']);
 const protectedFiles=['public-sample-model.js','sample-report-production.js','participant-evidence-safety.js','sample-data/production-diagnostic-samples.json','assets/brand/brand-foundations-v2.css'];
 for(const file of protectedFiles)equal(sha(read(file)),sha(original(file)),'Existing report data/adapter/style unchanged: '+file);
 const {artifact,manifest:release}=readPublicSampleFixture({root});
@@ -24,24 +24,28 @@ equal(sha(artifactBytes),sha(original('sample-data/production-diagnostic-samples
 equal(artifact.contract,'monderman-public-product-samples/v3');equal(artifact.synthetic,true);
 equal(artifact.publication_projection.version,'monderman-public-sample-projection-20260913.7');
 const releaseFile='sample-data/production-sample-release.json',oldRelease=JSON.parse(original(releaseFile));
-const restoredRelease=structuredClone(release);delete restoredRelease.sankey_presentation_review;
+const deployedRelease=JSON.parse(execFileSync('git',['show','f1f5a35c55f1ff9e8243b184658b167848786e2f:'+releaseFile],{cwd:root,encoding:'utf8'}));
+equal(release.sankey_presentation_review,deployedRelease.sankey_presentation_review,'Historical Sankey approval remains exact, not reissued');
+const restoredRelease=structuredClone(release);delete restoredRelease.sankey_presentation_review;delete restoredRelease.planning_case_presentation_review;
 const updatedPins=['monderman-report.js','scripts/refresh_public_sample_previews.mjs','scripts/templates/home-workspace-preview.html'];
 for(const file of updatedPins){equal(release.source_files[file],sha(read(file)),file+' current reviewed source pin');restoredRelease.source_files[file]=oldRelease.source_files[file];}
 equal(restoredRelease,oldRelease,'Original AI approvals, output/provenance, financial and prior presentation reviews remain exact');
 equal(release.sankey_presentation_review.unchanged_artifact_file_sha256,sha(artifactBytes));
-equal(release.sankey_presentation_review.renderer_sha256,sha(read('monderman-report.js')));
+equal(release.planning_case_presentation_review.unchanged_artifact_file_sha256,sha(artifactBytes));
+equal(release.planning_case_presentation_review.prior_renderer_sha256,deployedRelease.source_files['monderman-report.js']);
+equal(release.planning_case_presentation_review.renderer_sha256,sha(read('monderman-report.js')));
 const sourceFiles=[...runtimeChanges,releaseFile,'scripts/inject-public-shell.mjs',...updatedPins];
 const frozen=Object.fromEntries(sourceFiles.map(f=>[f,sha(read(f))]));
 const oldSearch=JSON.parse(original('public-search-index.json')),newSearch=JSON.parse(read('public-search-index.json'));
 equal(newSearch.map(r=>r.url),oldSearch.map(r=>r.url),'Public search inventory stays public, with no workspace/private pages added');
 execFileSync('python3',['scripts/build_public_search_index.py','--check'],{cwd:root});
-for(const [page,css,version]of [['index.html','homepage-workspace-demo.css','20260919.invitation1'],['sample-report.html','sample-report-production.css','20260915.consistency1']]){
+for(const [page,css,version]of [['index.html','homepage-workspace-demo.css','20260919.journey2'],['sample-report.html','sample-report-production.css','20260915.consistency1']]){
   const html=fs.readFileSync(path.join(built,page),'utf8');
   check(html.includes(css+'?v='+version),'Actual built CSS cache key: '+css);
   equal(sha(fs.readFileSync(path.join(built,css))),sha(read(css)));
 }
 const sampleHtml=fs.readFileSync(path.join(built,'sample-report.html'),'utf8');
-for(const [file,version]of [['monderman-report.js','20260919.sankey1'],['sample-report-production.js','20260915.annual1'],['public-sample-model.js','20260915.annual1']]){
+for(const [file,version]of [['monderman-report.js','20260919.sankey2'],['sample-report-production.js','20260915.annual1'],['public-sample-model.js','20260915.annual1']]){
   check(sampleHtml.includes(file+'?v='+version),'Reviewed runtime cache: '+file);
   equal(sha(fs.readFileSync(path.join(built,file))),sha(read(file)),'Built bytes equal reviewed current source: '+file);
 }
@@ -84,10 +88,15 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     equal(await page.locator('.home-output-copy>a').getAttribute('href'),'sample-report.html');
     equal(await page.locator('[data-demo-score]').count(),0,'No single-run score becomes organizational money');
     equal(await page.locator('[data-demo-recovery]').count(),0,'No score-derived money field');
-    equal(await page.locator('[data-demo-hours]').textContent(),whole(crossScenario.totals.potentialHoursFreed.central));
-    equal(await page.locator('[data-demo-capacity]').textContent(),money(crossScenario.totals.capacityValue.central));
-    equal(await page.locator('[data-demo-cost]').textContent(),money(crossScenario.totals.totalImplementationAndSubscriptionCost.central));
-    check((await page.locator('.hwd-financial-note').textContent()).includes('Capacity value is not cash savings'),'Financial distinction retained');
+    for(const [journey,source]of [['structural_clarity',artifact.outputs.depth_synthesis.source],['cross_lens_synthesis',cross]]){
+      const financial=page.locator('[data-demo-financial-case="'+journey+'"]'),totals=source.financial_scenario.totals;
+      equal(await financial.count(),1,'Only the matching accepted report supplies this planning case: '+journey);
+      equal(await financial.locator('[data-demo-hours]').textContent(),whole(totals.potentialHoursFreed.central));
+      equal(await financial.locator('[data-demo-capacity]').textContent(),money(totals.capacityValue.central));
+      equal(await financial.locator('[data-demo-cost]').textContent(),money(totals.totalImplementationAndSubscriptionCost.central));
+      check((await financial.locator('.hwd-financial-note').textContent()).includes('Capacity value is not cash savings'),'Financial distinction retained');
+    }
+    equal(await page.locator('[data-demo-financial-case]').count(),2,'Other three Depth journeys do not borrow another report’s financial scenario');
     check((await page.locator('.home-preview-method').textContent()).includes('The low case shows -$27,638'),'Downside remains disclosed');
     check(!/fictional|generated sample|illustrative interface/i.test(await page.locator('.home-workspace-preview').textContent()),'No fictional wording in marketing preview');
     const hero=await state(page,'.hero-actions .btn-accent',id+' hero',{normal:'rgb(169, 208, 212)',hover:'rgb(196, 225, 227)',background:true,text:'rgb(4, 24, 27)'});

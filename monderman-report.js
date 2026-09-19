@@ -1150,14 +1150,14 @@
       '<table class="mr-financial-comparison"><caption>Three planning cases</caption><thead><tr><th scope="col">Over the planning period</th><th scope="col">Low</th><th scope="col">Central</th><th scope="col">High</th></tr></thead><tbody>'+rows+'</tbody></table>'+
       '<p class="mr-financial-pairing">Low pairs lower benefits with higher costs; high pairs higher benefits with lower costs. Central uses the central inputs. These are assumption-based cases, not probabilities or a forecast.</p>'+
       '<p class="mr-financial-detail-note">Summary figures are rounded. Exact values, activity records and assumptions remain in the operational planning scenario below. Diagnostic scores do not calculate these financial values.</p>'+
-      (s.kind==='early_planning_scenario'?'<p class="mr-financial-early">Early planning scenario: campaign participation checks are not yet satisfied. This scenario does not unlock Synthesis.</p>':'')+'</section>';
+      (s.kind==='early_planning_scenario'?'<p class="mr-financial-early">Early planning scenario: campaign participation checks are not yet satisfied. This scenario does not unlock Synthesis.</p>':'')+renderOperationalSankey(m)+'</section>';
   }
 
-  // BEGIN OPERATIONAL SANKEY PRESENTATION 20260919.1
+  // BEGIN PLANNING CASE SANKEY PRESENTATION 20260919.2
   function renderOperationalSankey(m) {
     const validated=financialScenarioPresentation(m);
     if(!validated)return '';
-    const {s,input}=validated,levels=['low','central','high'];
+    const {s,input}=validated,levels=['low','central','high'],costLevel={low:'high',central:'central',high:'low'};
     const finite=value=>typeof value==='number'&&Number.isFinite(value)&&value>=0;
     const range=value=>value&&levels.every(k=>finite(value[k]))&&value.low<=value.central&&value.central<=value.high;
     const measured=new Map(input.activities.map(a=>[a.id,a]));
@@ -1166,40 +1166,70 @@
     // distinct saved activity results to the saved total before drawing them.
     // Never calculate a flow from diagnostic scores, lens medians or headcount.
     const valid=rows.every(a=>a&&typeof a==='object')&&rows.length===measured.size&&rows.length===input.activities.length&&new Set(rows.map(a=>a.id)).size===rows.length
-      &&rows.every(a=>a&&typeof a.id==='string'&&a.id&&measured.has(a.id)&&typeof a.label==='string'&&a.label.trim()&&range(a.potentialHoursFreed)&&range(a.capacityValue))
-      &&['potentialHoursFreed','capacityValue'].every(key=>levels.every(k=>finite(s.totals[key][k])&&Math.abs(rows.reduce((sum,a)=>sum+a[key][k],0)-s.totals[key][k])<=0.005*(rows.length+1)+1e-8));
-    if(!valid)return '<aside class="mr-sankey-unavailable"><h3>Time opportunity chart</h3><p>The saved activity breakdown is not complete enough to draw this chart. Review the operational inputs and save the scenario again.</p></aside>';
-    const total=s.totals.potentialHoursFreed.central;
-    if(total===0)return '<aside class="mr-sankey-unavailable"><h3>Time opportunity chart</h3><p>The central assumptions show no staff time released. The low, central and high cases remain in the tables below.</p></aside>';
-    const number=value=>Number(value).toLocaleString('en-US',{maximumFractionDigits:2});
-    const money=value=>'$'+number(value);
-    const positive=rows.filter(a=>a.potentialHoursFreed.central>0);
-    // Bound chart height without discarding detail: all activities remain in
-    // the accessible table. The last ribbon is explicitly an aggregate.
-    const shown=positive.length<=4?positive:positive.slice(0,3).concat({id:'other-distinct-activities',label:'Other distinct activities ('+(positive.length-3)+')',potentialHoursFreed:{central:positive.slice(3).reduce((sum,a)=>sum+a.potentialHoursFreed.central,0)}});
-    const height=Math.max(240,shown.length*136),ribbonHeight=Math.min(160,height-48),targetTop=(height-ribbonHeight)/2;
-    const flowTotal=shown.reduce((sum,a)=>sum+a.potentialHoursFreed.central,0);
-    const colors=['#0C6E78','#5E7F98','#377D72','#53676E'];
-    let used=0;
-    const paths=shown.map((a,index)=>{
-      const amount=a.potentialHoursFreed.central,thickness=amount/flowTotal*ribbonHeight;
-      const from=(index+.5)*height/shown.length-thickness/2,to=targetTop+used;used+=thickness;
-      const d='M 4 '+from+' C 44 '+from+' 58 '+to+' 96 '+to+' L 96 '+(to+thickness)+' C 58 '+(to+thickness)+' 44 '+(from+thickness)+' 4 '+(from+thickness)+' Z';
-      return '<path data-sankey-hours="'+amount+'" d="'+d+'" fill="'+colors[index]+'" fill-opacity=".75"/><rect x="0" y="'+from+'" width="4" height="'+thickness+'" fill="'+colors[index]+'"/>';
-    }).join('');
-    const sources=shown.map((a,i)=>'<div class="mr-sankey-source"><span class="mr-sankey-source-name" style="border-color:'+colors[i]+'">'+esc(a.label.length>54?a.label.slice(0,51)+'...':a.label)+'</span><strong>'+esc(number(a.potentialHoursFreed.central))+' <small>hours</small></strong></div>').join('');
-    const cells=rows.map(a=>'<tr><th scope="row">'+esc(a.label)+'</th>'+levels.map(k=>'<td data-case="'+({low:'Low',central:'Central',high:'High'}[k])+'">'+esc(number(a.potentialHoursFreed[k]))+'</td>').join('')+'</tr>').join('');
-    return '<figure class="mr-operational-sankey" data-sankey-version="operational-sankey-20260919.1">'+
-      '<div class="mr-sankey-figure-head"><h3>Where time could be released</h3><p>Central case over '+fmtWhole(input.horizonMonths)+' months. Ribbon widths show potential hours released by each distinct activity, not diagnostic scores.</p></div>'+
-      '<div class="mr-sankey-graphic" aria-hidden="true" style="--sankey-height:'+height+'px;--sankey-rows:'+shown.length+'"><div class="mr-sankey-sources">'+sources+'</div>'+
-      '<svg viewBox="0 0 100 '+height+'" preserveAspectRatio="none" focusable="false" xmlns="http://www.w3.org/2000/svg">'+paths+'<rect x="96" y="'+targetTop+'" width="4" height="'+ribbonHeight+'" fill="#08383E"/></svg>'+
-      '<div class="mr-sankey-total"><span>Potential time released</span><strong>'+esc(number(total))+'</strong><span>hours</span></div></div>'+
-      '<p class="mr-sankey-capacity"><strong>'+esc(money(s.totals.capacityValue.central))+'</strong> potential staff capacity value in the central case. Dollar values use the stated labor costs and are shown separately from hours; they are not cash savings.</p>'+
-      '<figcaption>'+(obj(m.sampleProvenance).synthetic===true?'<strong>Illustrative example.</strong> ':'')+'Directional estimates based on reported operating data and the assumptions shown. Figures indicate potential time and capacity gains, not measured savings.</figcaption>'+
-      '<table class="mr-sankey-table"><caption>Potential hours released by activity</caption><thead><tr><th scope="col">Distinct activity</th><th scope="col">Low</th><th scope="col">Central</th><th scope="col">High</th></tr></thead><tbody>'+cells+'</tbody><tfoot><tr><th scope="row">Total hours</th>'+levels.map(k=>'<td data-case="'+({low:'Low',central:'Central',high:'High'}[k])+'">'+esc(number(s.totals.potentialHoursFreed[k]))+'</td>').join('')+'</tr></tfoot></table>'+
-      '<p class="mr-sankey-scale-note">One scope, distinct activities. The same work is counted once, even when several diagnostic lenses identify it. Low, central and high are assumption-based cases, not confidence intervals. Small total differences can result from rounding.</p></figure>';
+      &&rows.every(a=>a&&typeof a.id==='string'&&a.id&&measured.has(a.id)&&typeof a.label==='string'&&a.label.trim()&&range(a.potentialHoursFreed)&&range(a.capacityValue)&&range(a.avoidableNonLaborCash))
+      &&['potentialHoursFreed','capacityValue','avoidableNonLaborCash'].every(key=>levels.every(k=>finite(s.totals[key][k])&&Math.abs(rows.reduce((sum,a)=>sum+a[key][k],0)-s.totals[key][k])<=0.005*(rows.length+1)+Number.EPSILON*Math.abs(s.totals[key][k])*8));
+    const unavailable=()=>'<aside class="mr-sankey-unavailable"><h3>Planning value chart</h3><p>The saved activity breakdown or planning totals are not complete enough to draw this chart. Review the operational inputs and save the scenario again.</p></aside>';
+    if(!valid)return unavailable();
+    const t=s.totals,labels={low:'Low',central:'Central',high:'High'};
+    // Use the table's exact saved values, outcome/cost pairing and formatter.
+    // Arithmetic below only reconciles the saved record and lays out ribbons;
+    // it does not calculate a new scenario, estimate, cost or recommendation.
+    const number=value=>Number(value).toLocaleString('en-US',Math.abs(value)>0&&Math.abs(value)<1?{maximumSignificantDigits:3}:{maximumFractionDigits:0});
+    const money=value=>(value<0?'-$':'$')+number(Math.abs(value));
+    const metrics=[['potentialHoursFreed','Potential staff hours freed',number,false],['capacityValue','Staff capacity value',money,false],
+      ['avoidableNonLaborCash','Direct cash saving assumed',money,false],['cashInvestment','Cash investment, including subscription',money,true],
+      ['totalImplementationAndSubscriptionCost','Total cost, including internal staff time',money,true],['netCashEffect','Net cash effect',money,false],
+      ['netCapacityAndCashValue','Net capacity and cash value',money,false]];
+    const cases=levels.map(level=>{
+      const capacity=t.capacityValue[level],cash=t.avoidableNonLaborCash[level],cost=t.totalImplementationAndSubscriptionCost[costLevel[level]],net=t.netCapacityAndCashValue[level];
+      const sources=[{key:'capacityValue',label:'Staff capacity value',amount:capacity,color:'#0C6E78'},
+        {key:'avoidableNonLaborCash',label:'Direct cash saving assumed',amount:cash,color:'#A9D0D4'}];
+      if(net<0)sources.push({key:'valueShortfall',label:'Value shortfall',amount:Math.abs(net),color:'#C9821F'});
+      const targets=[{key:'totalImplementationAndSubscriptionCost',label:'Total cost, including internal staff time',amount:cost,color:'#6E6F73'}];
+      if(net>=0)targets.push({key:'netCapacityAndCashValue',label:'Net capacity and cash value',amount:net,color:'#073338'});
+      return {level,capacity,cash,cost,net,sources,targets,sourceTotal:sources.reduce((sum,row)=>sum+row.amount,0),targetTotal:targets.reduce((sum,row)=>sum+row.amount,0)};
+    });
+    const close=(a,b)=>Number.isFinite(a)&&Number.isFinite(b)&&Math.abs(a-b)<=0.005*(rows.length+2)+Number.EPSILON*Math.max(Math.abs(a),Math.abs(b))*8;
+    if(!cases.every(c=>finite(c.cost)&&finite(t.cashInvestment[costLevel[c.level]])&&finite(c.sourceTotal)&&finite(c.targetTotal)
+      &&close(c.capacity+c.cash-c.cost,c.net)&&close(c.cash-t.cashInvestment[costLevel[c.level]],t.netCashEffect[c.level])
+      &&close(c.sourceTotal,c.targetTotal)))return unavailable();
+    const maxFlow=Math.max(...cases.map(c=>Math.max(c.sourceTotal,c.targetTotal))),height=240,ribbonHeight=132;
+    const caption=(obj(m.sampleProvenance).synthetic===true?'<strong>Illustrative example.</strong> ':'')+'Directional estimates based on reported operating data and the assumptions shown. Figures indicate potential time and capacity gains, not measured savings.';
+    const nodes=items=>items.map(item=>'<div class="mr-planning-node" style="--planning-color:'+item.color+'"><span>'+esc(item.label)+'</span><strong data-planning-node="'+item.key+'" data-saved-value="'+item.amount+'">'+esc(money(item.amount))+'</strong></div>').join('');
+    const panel=c=>{
+      const hubHeight=maxFlow?c.sourceTotal/maxFlow*ribbonHeight:0,hubTop=(height-hubHeight)/2;
+      const ribbons=(items,outgoing)=>{
+        let used=0;
+        const sum=outgoing?c.targetTotal:c.sourceTotal;
+        return items.map((item,index)=>{
+          if(item.amount===0||sum===0)return '';
+          // Totals are rounded independently by the saved calculator. Share
+          // one hub height so a sub-cent reconciliation gap is not a new flow.
+          const thickness=item.amount/sum*hubHeight,nodeTop=(index+.5)*height/items.length-thickness/2,joinedTop=hubTop+used;used+=thickness;
+          const x=outgoing?52:4,end=outgoing?96:48,from=outgoing?joinedTop:nodeTop,to=outgoing?nodeTop:joinedTop;
+          const d='M '+x+' '+from+' C '+(x+15)+' '+from+' '+(end-15)+' '+to+' '+end+' '+to+' L '+end+' '+(to+thickness)+' C '+(end-15)+' '+(to+thickness)+' '+(x+15)+' '+(from+thickness)+' '+x+' '+(from+thickness)+' Z';
+          return '<path data-sankey-dollars="'+item.amount+'" data-sankey-node="'+item.key+'" data-sankey-side="'+(outgoing?'out':'in')+'" d="'+d+'" fill="'+item.color+'" fill-opacity=".72"/><rect x="'+(outgoing?96:0)+'" y="'+nodeTop+'" width="4" height="'+thickness+'" fill="'+item.color+'"/>';
+        }).join('');
+      };
+      const outcome=c.net<0?'Potential capacity and cash value falls short of total cost by '+money(Math.abs(c.net))+'. The value shortfall is not a benefit or funding.':c.net>0?'Potential capacity and cash value exceeds total cost by '+money(c.net)+'. This includes staff-time value, not a cash return.':'Potential capacity and cash value equals total cost. There is no net value remaining.';
+      const metricRows=metrics.map(([key,label,format,cost])=>{
+        const value=t[key][cost?costLevel[c.level]:c.level];
+        return '<div><dt>'+label+'</dt><dd data-planning-metric="'+key+'" data-planning-case="'+c.level+'" data-saved-value="'+value+'">'+esc(format(value))+'</dd></div>';
+      }).join('');
+      return '<div class="mr-planning-panel mr-planning-panel-'+c.level+'" data-planning-panel="'+c.level+'" role="group" aria-labelledby="mr-planning-title-'+c.level+'">'+
+        '<h4 id="mr-planning-title-'+c.level+'">'+labels[c.level]+' planning case</h4><p class="mr-planning-pairing">'+({low:'Lower benefits with higher costs.',central:'Central benefits and central costs.',high:'Higher benefits with lower costs.'}[c.level])+'</p>'+
+        '<div class="mr-planning-flow" aria-hidden="true" data-sankey-scale="'+maxFlow+'"><div class="mr-planning-nodes" style="--planning-rows:'+c.sources.length+'">'+nodes(c.sources)+'</div>'+
+        '<svg viewBox="0 0 100 '+height+'" preserveAspectRatio="none" focusable="false" xmlns="http://www.w3.org/2000/svg">'+ribbons(c.sources,false)+ribbons(c.targets,true)+(hubHeight?'<rect x="48" y="'+hubTop+'" width="4" height="'+hubHeight+'" fill="#08383E"/>':'')+'</svg>'+
+        '<div class="mr-planning-nodes" style="--planning-rows:'+c.targets.length+'">'+nodes(c.targets)+'</div></div>'+
+        '<p class="mr-planning-outcome">'+esc(outcome)+'</p>'+(c.cash===0?'<p class="mr-planning-zero">No direct cash saving assumed. Staff capacity can be used for other work; it is not a payroll saving.</p>':'')+
+        '<dl class="mr-planning-metrics">'+metricRows+'</dl><p class="mr-planning-print-caption">'+caption+'</p></div>';
+    };
+    return '<figure class="mr-operational-sankey" data-sankey-version="planning-case-sankey-20260919.2">'+
+      '<div class="mr-sankey-figure-head"><h3>How each planning case adds up</h3><p>Compare the same figures as the table over '+fmtWhole(input.horizonMonths)+' months. Ribbon widths represent dollar values on one shared scale, not hours. This is a planning-value comparison, not cash flow.</p></div>'+
+      '<fieldset class="mr-planning-controls"><legend>Choose a planning case</legend>'+levels.map(level=>'<input class="mr-planning-choice mr-planning-choice-'+level+'" type="radio" name="mr-planning-case" id="mr-planning-choice-'+level+'" value="'+level+'"'+(level==='central'?' checked':'')+'/><label for="mr-planning-choice-'+level+'">'+labels[level]+'</label>').join('')+
+      '<div class="mr-planning-panels">'+cases.map(panel).join('')+'</div></fieldset><figcaption>'+caption+'</figcaption></figure>';
   }
-  // END OPERATIONAL SANKEY PRESENTATION 20260919.1
+  // END PLANNING CASE SANKEY PRESENTATION 20260919.2
 
   function renderMetaExposure(m, n) {
     const validated=financialScenarioPresentation(m);
@@ -1224,7 +1254,7 @@
       '<h4>Non-labor expenditure avoided over the planning period</h4>'+values(a.avoidableNonLaborCash,scenarioMoney)+'</article>').join('');
     return '<section class="mr-section mr-financial-scenario"><h2>'+n+'. Operational planning scenario</h2><p class="mr-lede">'+esc(s.title)+'</p><p>'+esc(s.notice)+'</p>'+
       '<p class="mr-copy">Cost ranges below run from lower to higher cost. Net results pair lower benefits with higher costs for the low outcome, central inputs for the central outcome, and higher benefits with lower costs for the high outcome.</p>'+
-      '<dl class="mr-scenario-facts">'+[['Scope',obj(s.scope).label],['People covered by operational records',fmtWhole(input.measuredPeople)],['Measured period',recordedDate(input.measurementStart)+' to '+recordedDate(input.measurementEnd)],['Planning period',fmtWhole(input.horizonMonths)+' months']].map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</dl>'+renderOperationalSankey(m)+cards+
+      '<dl class="mr-scenario-facts">'+[['Scope',obj(s.scope).label],['People covered by operational records',fmtWhole(input.measuredPeople)],['Measured period',recordedDate(input.measurementStart)+' to '+recordedDate(input.measurementEnd)],['Planning period',fmtWhole(input.horizonMonths)+' months']].map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</dl>'+cards+
       '<h3>Inputs and assumptions</h3><p>'+esc(obj(s.method).calculation)+'</p><p>'+esc(obj(s.method).extrapolation)+'</p>'+activities+
       '<article class="mr-scenario-assumption"><h3>Implementation and subscription costs</h3><h4>Incremental implementation cash</h4>'+values(input.implementationCashCost,scenarioMoney)+
       '<h4>Internal staff-time implementation value</h4>'+values(input.implementationCapacityCost,scenarioMoney)+'<p><strong>Subscription allocation:</strong> '+esc(scenarioMoney(input.subscriptionCost))+'</p><p>'+esc(input.costBasis)+'</p></article>'+
@@ -2515,6 +2545,20 @@
     @media screen and (max-width:640px){.mr-operational-sankey{padding:16px}.mr-sankey-graphic{grid-template-columns:minmax(0,1.1fr) minmax(42px,.6fr) minmax(0,.7fr);gap:8px}.mr-sankey-source{font-size:.76rem;line-height:1.4}.mr-sankey-source-name{padding-left:6px}.mr-sankey-source strong{padding-left:9px;font-size:.84rem}.mr-sankey-total{font-size:.74rem}.mr-sankey-total strong{font-size:1.05rem}.mr-sankey-table{font-size:.72rem}.mr-sankey-table th,.mr-sankey-table td{padding:9px 4px}.mr-sankey-table tr>:first-child{width:40%}}
     @media print{.mr-operational-sankey{break-before:auto;page-break-before:auto;break-inside:auto;page-break-inside:auto;margin:0 0 20px;padding:16px}.mr-sankey-figure-head{break-after:avoid;page-break-after:avoid}.mr-sankey-graphic{break-inside:avoid;page-break-inside:avoid;break-after:avoid;page-break-after:avoid;margin:12px 0}.mr-sankey-source{font-size:9pt}.mr-sankey-total{font-size:9pt}.mr-sankey-total strong{font-size:16pt}.mr-report .mr-sankey-capacity{font-size:9pt;line-height:1.4;margin:0 0 8px;break-after:avoid;page-break-after:avoid}.mr-operational-sankey figcaption{font-size:8pt;line-height:1.4;break-before:avoid;page-break-before:avoid}.mr-sankey-table{font-size:8pt}.mr-sankey-table thead{display:table-header-group}.mr-sankey-table tr{break-inside:avoid;page-break-inside:avoid}.mr-sankey-table th,.mr-sankey-table td{padding:7px 5px}.mr-report .mr-sankey-scale-note{font-size:8pt;line-height:1.4}}
     /* END OPERATIONAL SANKEY STYLES 20260919.1 */
+    /* BEGIN PLANNING CASE SANKEY STYLES 20260919.2 */
+    .mr-operational-sankey .mr-planning-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;min-width:0;margin:20px 0 0;padding:0;border:0}
+    .mr-planning-controls legend{font-size:.82rem;font-weight:600;color:#08383E;padding:0 0 10px}
+    .mr-planning-choice{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .mr-planning-controls>label{display:flex;align-items:center;justify-content:center;min-height:44px;padding:10px 12px;border:1px solid #9ACBD0;border-radius:6px;font-size:.88rem;line-height:1.35;font-weight:600;color:#08383E;background:#FFF;cursor:pointer;box-sizing:border-box}
+    .mr-planning-choice:checked+label{color:#FFF;background:#08383E;border-color:#08383E}.mr-planning-choice:focus-visible+label{outline:3px solid #0C6E78;outline-offset:3px}.mr-planning-controls>label:hover{border-color:#0C6E78}
+    .mr-planning-panels{grid-column:1/-1;min-width:0}.mr-planning-panel{display:none;min-width:0;padding-top:14px}.mr-planning-choice-low:checked~.mr-planning-panels>.mr-planning-panel-low,.mr-planning-choice-central:checked~.mr-planning-panels>.mr-planning-panel-central,.mr-planning-choice-high:checked~.mr-planning-panels>.mr-planning-panel-high{display:block}
+    .mr-planning-panel h4{font-size:1.02rem!important;margin:0 0 5px!important;color:#08383E}.mr-report .mr-planning-pairing{font-size:.8rem;line-height:1.45;margin:0;color:#53676E}
+    .mr-planning-flow{display:grid;grid-template-columns:minmax(0,1fr) minmax(60px,1.2fr) minmax(0,1fr);gap:12px;align-items:stretch;margin:12px 0;min-width:0}.mr-planning-flow svg{display:block;width:100%;height:240px;overflow:visible}.mr-planning-nodes{display:grid;grid-template-rows:repeat(var(--planning-rows),1fr);height:240px;min-width:0}.mr-planning-node{display:flex;flex-direction:column;justify-content:center;min-width:0;font-size:.77rem;line-height:1.4}.mr-planning-node>span{display:block;border-left:3px solid var(--planning-color);padding-left:8px}.mr-planning-node strong{display:block;margin:6px 0 0;padding-left:11px;font-size:clamp(.84rem,1.8vw,1.2rem);line-height:1.25;color:#08383E;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+    .mr-report .mr-planning-outcome{font-size:.86rem;line-height:1.5;font-weight:600;margin:12px 0 8px}.mr-report .mr-planning-zero{font-size:.78rem;line-height:1.5;color:#53676E;margin:8px 0 12px}
+    .mr-planning-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:20px;margin:18px 0 0;min-width:0;border-top:1px solid #DCE5E8;font-variant-numeric:tabular-nums}.mr-planning-metrics>div{display:flex;flex-direction:column;gap:5px;min-width:0;padding:10px 0;border-bottom:1px solid #DCE5E8}.mr-planning-metrics dt{font-size:.76rem;line-height:1.4;color:#53676E}.mr-planning-metrics dd{margin:0;font-size:1rem;line-height:1.3;font-weight:600;color:#08383E;overflow-wrap:anywhere}.mr-planning-metrics>div:last-child{grid-column:1/-1}.mr-planning-print-caption{display:none}
+    @media screen and (max-width:640px){.mr-planning-flow{grid-template-columns:minmax(0,1fr) minmax(44px,.7fr) minmax(0,1fr);gap:6px}.mr-planning-node{font-size:.7rem}.mr-planning-node>span{padding-left:5px}.mr-planning-node strong{padding-left:8px;font-size:.86rem}.mr-planning-metrics{column-gap:12px}.mr-planning-metrics dt{font-size:.72rem}.mr-planning-controls>label{padding:10px 6px}}
+    @media print{.mr-operational-sankey{break-before:page;page-break-before:always;margin:0;padding:0;border:0;border-radius:0}.mr-operational-sankey .mr-planning-controls{display:block;margin:12px 0 0}.mr-planning-controls>legend,.mr-planning-controls>.mr-planning-choice,.mr-planning-controls>label{display:none!important}.mr-operational-sankey .mr-planning-panel{display:block!important;padding-top:0;break-inside:avoid;page-break-inside:avoid}.mr-planning-panel+.mr-planning-panel{break-before:page;page-break-before:always}.mr-planning-panel h4{font-size:13pt!important}.mr-report .mr-planning-pairing{font-size:9pt}.mr-planning-flow{margin:12px 0}.mr-planning-flow svg,.mr-planning-nodes{height:200px}.mr-planning-node{font-size:9pt}.mr-planning-node strong{font-size:13pt}.mr-report .mr-planning-outcome{font-size:9pt;line-height:1.4;margin:10px 0 6px}.mr-report .mr-planning-zero{font-size:8pt;line-height:1.4;margin:6px 0}.mr-planning-metrics{margin-top:12px;column-gap:18px}.mr-planning-metrics>div{padding:7px 0}.mr-planning-metrics dt{font-size:8pt}.mr-planning-metrics dd{font-size:11pt}.mr-report .mr-planning-print-caption{display:block;font-size:8pt;line-height:1.4;color:#53676E;margin:12px 0 0}.mr-operational-sankey>figcaption{display:none}}
+    /* END PLANNING CASE SANKEY STYLES 20260919.2 */
     .mr-scenario-metric,.mr-scenario-assumption{margin:24px 0;padding:24px;border:1px solid #E0DCD3;border-radius:10px;background:#FAFAF8;min-width:0}
     .mr-scenario-metric h3,.mr-scenario-assumption h3{margin-top:0!important}
     .mr-scenario-assumption h4{margin:22px 0 10px;font-size:.94rem;line-height:1.4}
@@ -2896,6 +2940,9 @@
     if (cover.endsWith(coverClose)) body = cover.slice(0, -coverClose.length) + boundary + nextMove + coverClose + body.slice(cover.length);
     // SVG definition IDs share the same per-mount namespace as the sections.
     body = body.replace(/id="mr-system-gradient"/g, 'id="' + prefix + '-system-gradient"').replace(/url\(#mr-system-gradient\)/g, 'url(#' + prefix + '-system-gradient)');
+    // Native case radios and their labels must remain independent when the
+    // same saved report, or all six samples, are mounted in one document.
+    body = body.replace(/\b(id|for|name|aria-labelledby)="mr-planning-([^"]+)"/g, (_, attribute, suffix) => attribute + '="' + prefix + '-planning-' + suffix + '"');
     return nav + body;
   }
 
