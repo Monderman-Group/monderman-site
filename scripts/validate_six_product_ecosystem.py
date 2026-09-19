@@ -32,6 +32,71 @@ def validate_synthesis_controls(analysis, campaign):
     ]:
         assert token in campaign, f'Campaign control missing: {token!r}'
 
+def validate_readiness_invitations(overview, analysis, notifier):
+    # Labels now live in the shared, server-readiness-driven component. Validate
+    # the real import/mount/target on both pages, not words in unrelated markup.
+    for page, target, label in [
+        (overview, 'wsSynthesisReadiness', 'Overview'),
+        (analysis, 'wsReadyInvitations', 'Analysis'),
+    ]:
+        for token in [
+            f'id="{target}" hidden aria-label="Ready campaign analyses"',
+            "import {mountSynthesisReadiness} from './workspace-synthesis-readiness.js",
+            f'mountSynthesisReadiness({{element:$("{target}")',
+            'workspace-synthesis-readiness.css?v=',
+            'getContext:async()=>', 'canAnalyze:',
+        ]:
+            require(page, token, f'{label} readiness component')
+    require(overview, 'Compare your own saved runs', 'Overview personal comparison')
+    require(overview, 'href="workspace-analysis.html#synthesis"', 'Overview personal comparison')
+    for token in [
+        "initialScopeId:new URLSearchParams(location.search).get('campaign_scope')",
+        'onReview:scopeId=>campaignAnalysis?.review(scopeId)',
+    ]:
+        require(analysis, token, 'Analysis manual review')
+    for token in [
+        "const LABELS={depth:'Depth Synthesis',cross_lens:'Cross-Lens Synthesis'}",
+        "node('h3',LABELS[item.kind])", 'export function mountSynthesisReadiness(',
+        "['admin','analyst'].includes(context.role)", 'payload.canAnalyze!==true',
+        'payload.organizationId!==organizationId', "item.status!=='satisfied'",
+        'item.evaluated!==true', "'/readiness-summary'", "method:'GET'", "cache:'no-store'",
+        "node('a','Review ready analysis')", "node('button','Keep collecting')",
+        "review.href='workspace-analysis.html?campaign_scope='+encodeURIComponent(item.scopeId)+'#campaignEvidence'",
+        'await onReview(item.scopeId)', 'window.location.assign(review.href)',
+        'Nothing is generated automatically.',
+    ]:
+        require(notifier, token, 'Shared readiness invitation')
+    for token in ["method:'POST'", 'method:"POST"', '/api/synthesis', 'onReport(']:
+        assert token not in notifier, f'Readiness invitation must not generate reports: {token!r}'
+    for token in ['2+ candidates', 'Review Depth candidates', 'Review Cross-Lens candidates']:
+        assert token not in overview, f'Overview must not substitute counts for campaign readiness: {token!r}'
+
+def readiness_negative_controls(overview, analysis, notifier):
+    # In-memory mutations: deleting the real module, wiring, gates or labels
+    # must fail. No files are modified and no customer interaction is simulated.
+    cases=[
+        (overview, analysis, ''),
+        (overview.replace('import {mountSynthesisReadiness}', 'import {removedReadiness}'), analysis, notifier),
+        (overview.replace('mountSynthesisReadiness({element:', 'removedMount({element:'), analysis, notifier),
+        (overview.replace('id="wsSynthesisReadiness"', 'id="removedTarget"'), analysis, notifier),
+        (overview, analysis.replace('import {mountSynthesisReadiness}', 'import {removedReadiness}'), notifier),
+        (overview, analysis.replace('mountSynthesisReadiness({element:', 'removedMount({element:'), notifier),
+        (overview, analysis.replace('onReview:scopeId=>campaignAnalysis?.review(scopeId)', 'onReview:()=>{}'), notifier),
+        (overview, analysis, notifier.replace("depth:'Depth Synthesis'", "depth:'Wrong name'")),
+        (overview, analysis, notifier.replace("cross_lens:'Cross-Lens Synthesis'", "cross_lens:'Wrong name'")),
+        (overview, analysis, notifier.replace("item.status!=='satisfied'", 'false')),
+        (overview, analysis, notifier.replace('payload.canAnalyze!==true', 'false')),
+        (overview, analysis, notifier.replace("workspace-analysis.html?campaign_scope=", 'wrong-page.html?scope=')),
+        (overview, analysis, notifier+"\nfetch('/api/synthesis',{method:'POST'});"),
+    ]
+    for index, values in enumerate(cases):
+        try:
+            validate_readiness_invitations(*values)
+        except AssertionError:
+            continue
+        raise AssertionError(f'Readiness negative control {index+1} did not fail')
+    return len(cases)
+
 def validate_campaign_sample_contract(artifact, *, generation_commits):
     """Check current deterministic showcase data, not AI or release approval.
 
@@ -164,9 +229,12 @@ overview=text('workspace.html')
 for token in [
     'Unlimited self-runs','org.run_limit','org.respondent_pool','org.aggregation_limit',
     'Full annual response and Synthesis capacity is available upfront, with no monthly reset',
-    'Depth Synthesis','Cross-Lens Synthesis','workspace-analysis.html#synthesis','workspace-diagnostics.html#campaigns',
+    'workspace-analysis.html#synthesis','workspace-diagnostics.html#campaigns',
 ]:
     require(overview,token,'Overview')
+notifier=text('workspace-synthesis-readiness.js')
+validate_readiness_invitations(overview,analysis,notifier)
+readiness_negative_count=readiness_negative_controls(overview,analysis,notifier)
 for token in ['Most of your organization is under strain','Your organization is holding steady','critical level']:
     forbid(overview,token,'Overview')
 
@@ -253,5 +321,5 @@ for token in [
 ]:
     require(value_surfaces, token, 'organizational-value contract')
 
-print({'ok':True,'public_files':len(public_files),'workspace_contract':'pass','plan_contract':'pass','flagship_cross_lens':'published_provisional_campaign_readiness'})
+print({'ok':True,'public_files':len(public_files),'workspace_contract':'pass','plan_contract':'pass','flagship_cross_lens':'published_provisional_campaign_readiness','readiness_negative_controls':readiness_negative_count})
 print('Six-product ecosystem vocabulary, entitlement, workflow, evidence-discipline, and flagship-sample validation passed.')
