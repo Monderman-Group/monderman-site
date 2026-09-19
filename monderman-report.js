@@ -1153,7 +1153,7 @@
       (s.kind==='early_planning_scenario'?'<p class="mr-financial-early">Early planning scenario: campaign participation checks are not yet satisfied. This scenario does not unlock Synthesis.</p>':'')+renderOperationalSankey(m)+'</section>';
   }
 
-  // BEGIN PLANNING CASE SANKEY PRESENTATION 20260919.2
+  // BEGIN PLANNING CASE SANKEY PRESENTATION 20260919.3
   function renderOperationalSankey(m) {
     const validated=financialScenarioPresentation(m);
     if(!validated)return '';
@@ -1169,7 +1169,7 @@
       &&rows.every(a=>a&&typeof a.id==='string'&&a.id&&measured.has(a.id)&&typeof a.label==='string'&&a.label.trim()&&range(a.potentialHoursFreed)&&range(a.capacityValue)&&range(a.avoidableNonLaborCash))
       &&['potentialHoursFreed','capacityValue','avoidableNonLaborCash'].every(key=>levels.every(k=>finite(s.totals[key][k])&&Math.abs(rows.reduce((sum,a)=>sum+a[key][k],0)-s.totals[key][k])<=0.005*(rows.length+1)+Number.EPSILON*Math.abs(s.totals[key][k])*8));
     const unavailable=()=>'<aside class="mr-sankey-unavailable"><h3>Planning value chart</h3><p>The saved activity breakdown or planning totals are not complete enough to draw this chart. Review the operational inputs and save the scenario again.</p></aside>';
-    if(!valid)return unavailable();
+    if(!valid||!range(input.implementationCashCost)||!range(input.implementationCapacityCost)||!finite(input.subscriptionCost))return unavailable();
     const t=s.totals,labels={low:'Low',central:'Central',high:'High'};
     // Use the table's exact saved values, outcome/cost pairing and formatter.
     // Arithmetic below only reconciles the saved record and lays out ribbons;
@@ -1180,22 +1180,47 @@
       ['avoidableNonLaborCash','Direct cash saving assumed',money,false],['cashInvestment','Cash investment, including subscription',money,true],
       ['totalImplementationAndSubscriptionCost','Total cost, including internal staff time',money,true],['netCashEffect','Net cash effect',money,false],
       ['netCapacityAndCashValue','Net capacity and cash value',money,false]];
+    // Rank by the saved central case once, so switching cases never changes
+    // which activities are named. A bounded aggregate keeps large campaigns
+    // legible; the complete, unabridged breakdown follows the chart.
+    const activityGroups=key=>{
+      const ranked=rows.map((a,index)=>({a,index})).filter(({a})=>key==='capacityValue'||levels.some(k=>a[key][k]>0))
+        .sort((a,b)=>b.a[key].central-a.a[key].central||a.index-b.index);
+      return ranked.length<=4?ranked.map(item=>[item]):ranked.slice(0,3).map(item=>[item]).concat([ranked.slice(3)]);
+    };
+    const capacityGroups=activityGroups('capacityValue'),cashGroups=activityGroups('avoidableNonLaborCash');
+    const activityNodes=(groups,key,level)=>groups.map(group=>({
+      key:key+'-'+group.map(({index})=>index+1).join('-'),
+      label:group.length===1?'A'+(group[0].index+1)+'. '+group[0].a.label:'Other activities ('+group.length+')',
+      detail:key==='capacityValue'?'Staff capacity':'Cash avoided',
+      amount:group.reduce((sum,{a})=>sum+a[key][level],0),
+      color:key==='capacityValue'?'#0C6E78':'#A9D0D4',
+      activityIds:group.map(({a})=>a.id)
+    }));
     const cases=levels.map(level=>{
       const capacity=t.capacityValue[level],cash=t.avoidableNonLaborCash[level],cost=t.totalImplementationAndSubscriptionCost[costLevel[level]],net=t.netCapacityAndCashValue[level];
-      const sources=[{key:'capacityValue',label:'Staff capacity value',amount:capacity,color:'#0C6E78'},
-        {key:'avoidableNonLaborCash',label:'Direct cash saving assumed',amount:cash,color:'#A9D0D4'}];
-      if(net<0)sources.push({key:'valueShortfall',label:'Value shortfall',amount:Math.abs(net),color:'#C9821F'});
-      const targets=[{key:'totalImplementationAndSubscriptionCost',label:'Total cost, including internal staff time',amount:cost,color:'#6E6F73'}];
-      if(net>=0)targets.push({key:'netCapacityAndCashValue',label:'Net capacity and cash value',amount:net,color:'#073338'});
+      const sources=activityNodes(capacityGroups,'capacityValue',level).concat(activityNodes(cashGroups,'avoidableNonLaborCash',level));
+      if(net<0)sources.push({key:'valueShortfall',label:'Value shortfall',detail:'Not a benefit',amount:Math.abs(net),color:'#C9821F'});
+      const targets=[{key:'implementationCashCost',label:'Implementation cash',detail:'Additional spending',amount:input.implementationCashCost[costLevel[level]],color:'#6E6F73'},
+        {key:'implementationCapacityCost',label:'Internal staff time',detail:'Implementation cost',amount:input.implementationCapacityCost[costLevel[level]],color:'#6E6F73'},
+        {key:'subscriptionCost',label:'Subscription',detail:'Planning-period cost',amount:input.subscriptionCost,color:'#6E6F73'}];
+      if(net>=0)targets.push({key:'netCapacityAndCashValue',label:'Net value',detail:'Includes staff capacity',amount:net,color:'#073338'});
       return {level,capacity,cash,cost,net,sources,targets,sourceTotal:sources.reduce((sum,row)=>sum+row.amount,0),targetTotal:targets.reduce((sum,row)=>sum+row.amount,0)};
     });
     const close=(a,b)=>Number.isFinite(a)&&Number.isFinite(b)&&Math.abs(a-b)<=0.005*(rows.length+2)+Number.EPSILON*Math.max(Math.abs(a),Math.abs(b))*8;
     if(!cases.every(c=>finite(c.cost)&&finite(t.cashInvestment[costLevel[c.level]])&&finite(c.sourceTotal)&&finite(c.targetTotal)
+      &&close(input.implementationCashCost[costLevel[c.level]]+input.subscriptionCost,t.cashInvestment[costLevel[c.level]])
+      &&close(input.implementationCashCost[costLevel[c.level]]+input.implementationCapacityCost[costLevel[c.level]]+input.subscriptionCost,c.cost)
       &&close(c.capacity+c.cash-c.cost,c.net)&&close(c.cash-t.cashInvestment[costLevel[c.level]],t.netCashEffect[c.level])
       &&close(c.sourceTotal,c.targetTotal)))return unavailable();
-    const maxFlow=Math.max(...cases.map(c=>Math.max(c.sourceTotal,c.targetTotal))),height=240,ribbonHeight=132;
+    const maxFlow=Math.max(...cases.map(c=>Math.max(c.sourceTotal,c.targetTotal)));
+    const maxRows=Math.max(...cases.map(c=>Math.max(c.sources.length,c.targets.length))),height=Math.max(280,maxRows*64),printHeight=Math.max(210,maxRows*36);
+    // The largest possible ribbon must fit inside the smallest node slot.
+    // One shared scale across all cases preserves proportions without letting
+    // a dominant net-value ribbon cross neighboring nodes or the viewBox.
+    const ribbonHeight=Math.min(132,height/maxRows*.8);
     const caption=(obj(m.sampleProvenance).synthetic===true?'<strong>Illustrative example.</strong> ':'')+'Directional estimates based on reported operating data and the assumptions shown. Figures indicate potential time and capacity gains, not measured savings.';
-    const nodes=items=>items.map(item=>'<div class="mr-planning-node" style="--planning-color:'+item.color+'"><span>'+esc(item.label)+'</span><strong data-planning-node="'+item.key+'" data-saved-value="'+item.amount+'">'+esc(money(item.amount))+'</strong></div>').join('');
+    const nodes=items=>items.map(item=>'<div class="mr-planning-node" style="--planning-color:'+item.color+'"><span class="mr-planning-node-name" title="'+esc(item.label)+'">'+esc(item.label)+'</span><small>'+esc(item.detail)+'</small><strong data-planning-node="'+item.key+'" data-saved-value="'+item.amount+'"'+(item.activityIds?' data-planning-activity-ids="'+esc(JSON.stringify(item.activityIds))+'"':'')+'>'+esc(money(item.amount))+'</strong></div>').join('');
     const panel=c=>{
       const hubHeight=maxFlow?c.sourceTotal/maxFlow*ribbonHeight:0,hubTop=(height-hubHeight)/2;
       const ribbons=(items,outgoing)=>{
@@ -1208,7 +1233,7 @@
           const thickness=item.amount/sum*hubHeight,nodeTop=(index+.5)*height/items.length-thickness/2,joinedTop=hubTop+used;used+=thickness;
           const x=outgoing?52:4,end=outgoing?96:48,from=outgoing?joinedTop:nodeTop,to=outgoing?nodeTop:joinedTop;
           const d='M '+x+' '+from+' C '+(x+15)+' '+from+' '+(end-15)+' '+to+' '+end+' '+to+' L '+end+' '+(to+thickness)+' C '+(end-15)+' '+(to+thickness)+' '+(x+15)+' '+(from+thickness)+' '+x+' '+(from+thickness)+' Z';
-          return '<path data-sankey-dollars="'+item.amount+'" data-sankey-node="'+item.key+'" data-sankey-side="'+(outgoing?'out':'in')+'" d="'+d+'" fill="'+item.color+'" fill-opacity=".72"/><rect x="'+(outgoing?96:0)+'" y="'+nodeTop+'" width="4" height="'+thickness+'" fill="'+item.color+'"/>';
+          return '<path data-sankey-dollars="'+item.amount+'" data-sankey-node="'+item.key+'" data-sankey-side="'+(outgoing?'out':'in')+'" d="'+d+'" fill="'+item.color+'" fill-opacity=".72"/><rect data-sankey-end-node="'+item.key+'" data-sankey-side="'+(outgoing?'out':'in')+'" x="'+(outgoing?96:0)+'" y="'+nodeTop+'" width="4" height="'+thickness+'" fill="'+item.color+'"/>';
         }).join('');
       };
       const outcome=c.net<0?'Potential capacity and cash value falls short of total cost by '+money(Math.abs(c.net))+'. The value shortfall is not a benefit or funding.':c.net>0?'Potential capacity and cash value exceeds total cost by '+money(c.net)+'. This includes staff-time value, not a cash return.':'Potential capacity and cash value equals total cost. There is no net value remaining.';
@@ -1218,18 +1243,25 @@
       }).join('');
       return '<div class="mr-planning-panel mr-planning-panel-'+c.level+'" data-planning-panel="'+c.level+'" role="group" aria-labelledby="mr-planning-title-'+c.level+'">'+
         '<h4 id="mr-planning-title-'+c.level+'">'+labels[c.level]+' planning case</h4><p class="mr-planning-pairing">'+({low:'Lower benefits with higher costs.',central:'Central benefits and central costs.',high:'Higher benefits with lower costs.'}[c.level])+'</p>'+
-        '<div class="mr-planning-flow" aria-hidden="true" data-sankey-scale="'+maxFlow+'"><div class="mr-planning-nodes" style="--planning-rows:'+c.sources.length+'">'+nodes(c.sources)+'</div>'+
+        '<div class="mr-planning-flow-head" aria-hidden="true"><span>Activity benefits</span><span>Costs and remaining value</span></div>'+
+        '<div class="mr-planning-flow'+(maxRows>4?' is-dense':'')+'" aria-hidden="true" data-sankey-scale="'+maxFlow+'" style="--planning-height:'+height+'px;--planning-print-height:'+printHeight+'px"><div class="mr-planning-nodes" style="--planning-rows:'+c.sources.length+'">'+nodes(c.sources)+'</div>'+
         '<svg viewBox="0 0 100 '+height+'" preserveAspectRatio="none" focusable="false" xmlns="http://www.w3.org/2000/svg">'+ribbons(c.sources,false)+ribbons(c.targets,true)+(hubHeight?'<rect x="48" y="'+hubTop+'" width="4" height="'+hubHeight+'" fill="#08383E"/>':'')+'</svg>'+
         '<div class="mr-planning-nodes" style="--planning-rows:'+c.targets.length+'">'+nodes(c.targets)+'</div></div>'+
         '<p class="mr-planning-outcome">'+esc(outcome)+'</p>'+(c.cash===0?'<p class="mr-planning-zero">No direct cash saving assumed. Staff capacity can be used for other work; it is not a payroll saving.</p>':'')+
         '<dl class="mr-planning-metrics">'+metricRows+'</dl><p class="mr-planning-print-caption">'+caption+'</p></div>';
     };
-    return '<figure class="mr-operational-sankey" data-sankey-version="planning-case-sankey-20260919.2">'+
-      '<div class="mr-sankey-figure-head"><h3>How each planning case adds up</h3><p>Compare the same figures as the table over '+fmtWhole(input.horizonMonths)+' months. Ribbon widths represent dollar values on one shared scale, not hours. This is a planning-value comparison, not cash flow.</p></div>'+
+    const cells=(values,key,activityId)=>levels.map(level=>'<td data-case="'+labels[level]+'" data-planning-activity="'+esc(activityId)+'" data-planning-measure="'+key+'" data-planning-level="'+level+'" data-saved-value="'+values[level]+'">'+esc(key==='potentialHoursFreed'?number(values[level]):money(values[level]))+'</td>').join('');
+    const activityRows=rows.map((a,index)=>[['capacityValue','Staff capacity value'],['avoidableNonLaborCash','Direct cash saving assumed'],['potentialHoursFreed','Potential staff hours freed']].map(([key,label])=>'<tr><th scope="row"><span>A'+(index+1)+'. '+esc(a.label)+'</span><small>'+label+'</small></th>'+cells(a[key],key,a.id)+'</tr>').join('')).join('');
+    const costRows=[['implementationCashCost','Implementation cash'],['implementationCapacityCost','Internal staff-time implementation cost'],['subscriptionCost','Subscription allocation']].map(([key,label])=>'<tr><th scope="row">'+label+'</th>'+levels.map(level=>'<td data-case="'+labels[level]+'" data-planning-cost="'+key+'" data-planning-level="'+level+'" data-saved-value="'+(key==='subscriptionCost'?input[key]:input[key][costLevel[level]])+'">'+esc(money(key==='subscriptionCost'?input[key]:input[key][costLevel[level]]))+'</td>').join('')+'</tr>').join('');
+    const head='<thead><tr><th scope="col">Component</th><th scope="col">Low</th><th scope="col">Central</th><th scope="col">High</th></tr></thead>';
+    const breakdownBody='<div class="mr-planning-breakdown-body"><h4>Activity and cost breakdown</h4><p>Every activity is listed in full. Large charts name the three largest activities by central value in each benefit type and group the rest as Other activities. The grouping stays the same across cases. Staff hours are separate from dollar-valued ribbons.</p><table class="mr-sankey-table"><caption>Activity benefits over '+fmtWhole(input.horizonMonths)+' months</caption>'+head+'<tbody>'+activityRows+'</tbody></table><table class="mr-sankey-table"><caption>Cost components, using the same case pairing as the planning table</caption>'+head+'<tbody>'+costRows+'</tbody></table></div>';
+    const breakdown='<details class="mr-planning-breakdown"><summary>View every activity and cost</summary>'+breakdownBody+'</details><div class="mr-planning-breakdown mr-planning-print-breakdown">'+breakdownBody+'</div>';
+    return '<figure class="mr-operational-sankey" data-sankey-version="planning-case-sankey-20260919.3">'+
+      '<div class="mr-sankey-figure-head"><h3>How each planning case adds up</h3><p>Follow the recorded activity benefits and individual costs over '+fmtWhole(input.horizonMonths)+' months. Ribbon widths represent dollar values on one shared scale, not hours. This is a planning-value comparison, not cash flow. The joined ribbons do not allocate a particular activity to a particular cost.</p></div>'+
       '<fieldset class="mr-planning-controls"><legend>Choose a planning case</legend>'+levels.map(level=>'<input class="mr-planning-choice mr-planning-choice-'+level+'" type="radio" name="mr-planning-case" id="mr-planning-choice-'+level+'" value="'+level+'"'+(level==='central'?' checked':'')+'/><label for="mr-planning-choice-'+level+'">'+labels[level]+'</label>').join('')+
-      '<div class="mr-planning-panels">'+cases.map(panel).join('')+'</div></fieldset><figcaption>'+caption+'</figcaption></figure>';
+      '<div class="mr-planning-panels">'+cases.map(panel).join('')+'</div></fieldset>'+breakdown+'<figcaption>'+caption+'</figcaption></figure>';
   }
-  // END PLANNING CASE SANKEY PRESENTATION 20260919.2
+  // END PLANNING CASE SANKEY PRESENTATION 20260919.3
 
   function renderMetaExposure(m, n) {
     const validated=financialScenarioPresentation(m);
@@ -2559,6 +2591,17 @@
     @media screen and (max-width:640px){.mr-planning-flow{grid-template-columns:minmax(0,1fr) minmax(44px,.7fr) minmax(0,1fr);gap:6px}.mr-planning-node{font-size:.7rem}.mr-planning-node>span{padding-left:5px}.mr-planning-node strong{padding-left:8px;font-size:.86rem}.mr-planning-metrics{column-gap:12px}.mr-planning-metrics dt{font-size:.72rem}.mr-planning-controls>label{padding:10px 6px}}
     @media print{.mr-operational-sankey{break-before:page;page-break-before:always;margin:0;padding:0;border:0;border-radius:0}.mr-operational-sankey .mr-planning-controls{display:block;margin:12px 0 0}.mr-planning-controls>legend,.mr-planning-controls>.mr-planning-choice,.mr-planning-controls>label{display:none!important}.mr-operational-sankey .mr-planning-panel{display:block!important;padding-top:0;break-inside:avoid;page-break-inside:avoid}.mr-planning-panel+.mr-planning-panel{break-before:page;page-break-before:always}.mr-planning-panel h4{font-size:13pt!important}.mr-report .mr-planning-pairing{font-size:9pt}.mr-planning-flow{margin:12px 0}.mr-planning-flow svg,.mr-planning-nodes{height:200px}.mr-planning-node{font-size:9pt}.mr-planning-node strong{font-size:13pt}.mr-report .mr-planning-outcome{font-size:9pt;line-height:1.4;margin:10px 0 6px}.mr-report .mr-planning-zero{font-size:8pt;line-height:1.4;margin:6px 0}.mr-planning-metrics{margin-top:12px;column-gap:18px}.mr-planning-metrics>div{padding:7px 0}.mr-planning-metrics dt{font-size:8pt}.mr-planning-metrics dd{font-size:11pt}.mr-report .mr-planning-print-caption{display:block;font-size:8pt;line-height:1.4;color:#53676E;margin:12px 0 0}.mr-operational-sankey>figcaption{display:none}}
     /* END PLANNING CASE SANKEY STYLES 20260919.2 */
+    /* BEGIN ACTIVITY COST SANKEY STYLES 20260919.3 */
+    .mr-planning-flow-head{display:flex;justify-content:space-between;gap:16px;margin-top:18px;font-size:.72rem;font-weight:600;color:#53676E}.mr-planning-flow-head>span{max-width:44%}.mr-planning-flow-head>span:last-child{text-align:right}
+    .mr-planning-flow{grid-template-columns:minmax(0,1.2fr) minmax(50px,1fr) minmax(0,1fr);margin-top:4px}.mr-planning-flow svg,.mr-planning-flow .mr-planning-nodes{height:var(--planning-height,280px)}
+    .mr-planning-node{font-size:.74rem;line-height:1.2}.mr-planning-node>.mr-planning-node-name{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}.mr-planning-node small{font-size:.66rem;line-height:1.2;color:#53676E;padding-left:11px;margin-top:3px}.mr-planning-node strong{font-size:1rem;line-height:1.2;margin-top:4px}
+    .mr-planning-breakdown{margin-top:20px;border-top:1px solid #DCE5E8;padding-top:14px;min-width:0}.mr-planning-breakdown summary{cursor:pointer;font-size:.83rem;font-weight:600;color:#0C6E78;min-height:32px;line-height:1.4}.mr-planning-breakdown summary:focus-visible{outline:2px solid #0C6E78;outline-offset:4px}.mr-planning-breakdown-body>h4{font-size:1rem;margin:14px 0 8px}.mr-report .mr-planning-breakdown-body>p{font-size:.78rem;line-height:1.45;color:#53676E}.mr-planning-breakdown .mr-sankey-table th span,.mr-planning-breakdown .mr-sankey-table th small{display:block}.mr-planning-breakdown .mr-sankey-table th small{font-weight:400;font-size:.7rem;color:#53676E;margin-top:4px}.mr-planning-breakdown .mr-sankey-table td{overflow-wrap:anywhere}
+    @media screen and (max-width:640px){.mr-planning-flow{grid-template-columns:minmax(0,1.1fr) minmax(36px,.6fr) minmax(0,1fr);gap:6px}.mr-planning-node{font-size:.68rem}.mr-planning-node small{font-size:.6rem;padding-left:8px}.mr-planning-node strong{font-size:.83rem}.mr-planning-flow-head{font-size:.66rem}.mr-planning-breakdown .mr-sankey-table{font-size:.7rem}}
+    @media print{.mr-planning-flow-head{font-size:7pt;margin-top:10px}.mr-planning-flow{margin-top:2px}.mr-planning-flow svg,.mr-planning-flow .mr-planning-nodes{height:var(--planning-print-height,210px)}.mr-planning-node{font-size:8pt;line-height:1.15}.mr-planning-node>.mr-planning-node-name{-webkit-line-clamp:1}.mr-planning-node small{font-size:6.5pt;margin-top:2px}.mr-planning-node strong{font-size:10pt;margin-top:2px}.mr-planning-breakdown{display:block;break-before:page;page-break-before:always;break-inside:auto;page-break-inside:auto;border:0;margin:0;padding:0}.mr-planning-breakdown>summary{display:none!important}.mr-planning-breakdown::details-content{display:contents!important;content-visibility:visible!important}.mr-planning-breakdown:not([open])>.mr-planning-breakdown-body{display:block!important}.mr-planning-breakdown-body>h4{font-size:13pt;margin:0 0 8px}.mr-report .mr-planning-breakdown-body>p{font-size:8pt}.mr-planning-breakdown .mr-sankey-table{font-size:8pt}.mr-planning-breakdown .mr-sankey-table th small{font-size:7pt}.mr-planning-breakdown .mr-sankey-table tr{break-inside:avoid;page-break-inside:avoid}}
+    .mr-planning-print-breakdown{display:none}
+    @media print{.mr-planning-breakdown{display:none!important}.mr-planning-print-breakdown{display:block!important}}
+    @media print{.mr-planning-flow.is-dense .mr-planning-nodes{grid-template-rows:repeat(var(--planning-rows),minmax(0,1fr))}.mr-planning-flow.is-dense .mr-planning-node{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:4px;row-gap:2px;align-content:center}.mr-planning-flow.is-dense .mr-planning-node-name{grid-column:1/-1}.mr-planning-flow.is-dense .mr-planning-node small{margin:0;white-space:nowrap}.mr-planning-flow.is-dense .mr-planning-node strong{margin:0;padding-left:0;text-align:right;white-space:nowrap}}
+    /* END ACTIVITY COST SANKEY STYLES 20260919.3 */
     .mr-scenario-metric,.mr-scenario-assumption{margin:24px 0;padding:24px;border:1px solid #E0DCD3;border-radius:10px;background:#FAFAF8;min-width:0}
     .mr-scenario-metric h3,.mr-scenario-assumption h3{margin-top:0!important}
     .mr-scenario-assumption h4{margin:22px 0 10px;font-size:.94rem;line-height:1.4}

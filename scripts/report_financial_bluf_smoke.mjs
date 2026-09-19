@@ -130,7 +130,12 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
           ok(casePages[0].text.includes(key==='potentialHoursFreed'?number(value):money(value)),'Printed case retains exact table display: '+level+' '+key);
         }
       }
-      ok(pages[5].includes('Interpretation and next steps'),'AI interpretation follows the three planning cases, not the financial summary');
+      const breakdownPages=pages.map((text,index)=>({text:text.replace(/\s+/g,' '),page:index+1})).filter(row=>row.text.includes('Activity and cost breakdown'));
+      eq(breakdownPages.length,1,'Exactly one complete printed activity and cost breakdown');
+      eq(breakdownPages[0].page,6,'Activity and cost breakdown immediately follows the three planning cases');
+      for(const label of ['Implementation cash','Internal staff-time implementation cost','Subscription allocation',...item.raw.financial_scenario.activities.map(activity=>activity.label)])ok(breakdownPages[0].text.includes(label),'Printed breakdown retains each activity and cost component: '+label);
+      ok(!breakdownPages[0].text.includes('Interpretation and next steps'),'Interpretation does not crowd the activity and cost breakdown');
+      ok(pages[6].includes('Interpretation and next steps'),'AI interpretation follows the complete financial brief, three planning cases and activity/cost breakdown');
       const fullText=pages.join('\n');for(const value of [totals.capacityValue.low,totals.capacityValue.central,totals.capacityValue.high])ok(fullText.includes(value.toLocaleString('en-US')),'Exact detailed dollar values retained in PDF');
       execFileSync(process.env.PDFTOPPM||'pdftoppm',['-f','2','-l','2','-scale-to','1400','-png','-singlefile',target,path.join(out,item.key+'-page-2')]);
       pdfs.push({file:target,sha256:sha(fs.readFileSync(target)),pages:pages.length,summaryPage:2});

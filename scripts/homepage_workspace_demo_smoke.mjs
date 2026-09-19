@@ -15,6 +15,8 @@ const keys = ['structural_clarity','decision_velocity','operational_systems','in
 const stepIds = ['measure','analysis','actions','return'];
 const names = Object.fromEntries(cross.source_groups.map(g=>[g.tool_type,g.tool_label]));
 const out = process.env.HOME_DEMO_OUT;
+const baseline=process.env.HOME_DEMO_BASELINE?JSON.parse(fs.readFileSync(process.env.HOME_DEMO_BASELINE,'utf8')):null;
+const compactMeasurements=[];
 if (out) fs.mkdirSync(out,{recursive:true});
 assert.doesNotMatch(fs.readFileSync(path.join(root,'homepage-workspace-demo.js'),'utf8'), /\b(?:fetch|XMLHttpRequest|sendBeacon|localStorage|sessionStorage)\b/, 'The public journey must remain local-only');
 let states=0, screenshots=0, resizeStates=0;
@@ -31,6 +33,7 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
     await noScript.route('**/*',route=>new URL(route.request().url()).origin===new URL(base).origin?route.continue():route.abort());
     await noScript.goto(base+'/index.html',{waitUntil:'load'});
     assert.equal(await noScript.locator('.hwd-journey-choice').isVisible(),false,'Without scripts do not offer radios that cannot change the displayed journey');
+    assert.equal(await noScript.locator('.hwd-choose:visible').count(),0,'No-script view must not offer inactive Choose controls');
     assert.equal(await noScript.locator('[data-demo-evaluation="cross_lens_synthesis"]').isVisible(),true);
     assert.equal(await noScript.locator('[data-demo-evaluation]:visible').count(),1);
     assert.equal(await noScript.locator('[data-demo-evaluation="cross_lens_synthesis"] [data-demo-capacity]').textContent(),money(cross.financial_scenario.totals.capacityValue.central));
@@ -56,6 +59,32 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
       assert.deepEqual(await app.locator('input[name="hwd-journey"]').evaluateAll(items=>items.map(i=>i.value)),keys);
       assert.equal(await app.locator('.hwd-journey-tile small').filter({hasText:/^Depth Synthesis$/}).count(),4);
       assert.equal(await app.locator('.hwd-journey-cross strong').textContent(),'Cross-Lens Synthesis');
+      assert.equal(await app.locator('.hwd-diagnostic,.hwd-diagnostic-grid').count(),0,'Passive cards must be replaced, not duplicated');
+      assert.equal(await app.locator('#hwd-panel-measure .hwd-journey-choice').count(),1,'Choices belong only to Gather');
+      assert.equal(await app.locator('.hwd-journey-choice').isVisible(),false,'Evaluate stays compact by default');
+      assert.equal(await app.locator('#hwd-tab-analysis').getAttribute('aria-selected'),'true');
+      const initialHeight=await app.evaluate(el=>el.getBoundingClientRect().height);
+      const compact={engine:name,width,height:initialHeight};
+      if(baseline){
+        const old=baseline.find(row=>row.engine===name&&row.width===width);
+        assert.ok(old,'Missing measured original homepage height');
+        compact.previousHeight=old.height;compact.reduction=old.height-initialHeight;
+        assert.ok(compact.reduction>=180,name+'/'+width+': default preview must be materially smaller: '+compact.reduction);
+      }
+      compactMeasurements.push(compact);
+      const openChoices=async()=>{
+        if(await app.locator('#hwd-tab-measure').getAttribute('aria-selected')!=='true'){
+          const chooser=app.locator('.hwd-choose:visible');
+          assert.equal(await chooser.count(),1,'Each non-Gather view offers one clear path to choose');
+          assert.equal(await chooser.textContent(),'Choose an analysis');
+          assert.ok((await chooser.boundingBox()).height>=44,'Choose action must have a phone-sized target');
+          await chooser.click();
+          assert.equal(await page.evaluate(()=>document.activeElement.id),'hwd-tab-measure');
+        }
+        assert.equal(await app.locator('.hwd-journey-choice').isVisible(),true);
+        assert.equal(await app.locator('#hwd-panel-measure h2').textContent(),'Choose an analysis to explore.');
+      };
+      await openChoices();
       const tiles=await app.locator('.hwd-journey-tile').evaluateAll(items=>items.map(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height};}));
       assert.ok(tiles.every(r=>r.height>=44&&r.width>=44),name+'/'+width+': selectable tile target too small');
       assert.ok(Math.abs(tiles[0].y-tiles[1].y)<=1&&Math.abs(tiles[2].y-tiles[3].y)<=1&&tiles[2].y>tiles[0].y,name+'/'+width+': four Depth tiles must form two rows');
@@ -65,11 +94,12 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
       assert.equal(await page.locator('.home-preview-caption').textContent(),'Combine organizational evidence, evaluate a practical opportunity and track the result.');
       const distinctActions=new Set();
       const heroPositions=()=>page.evaluate(()=>Object.fromEntries(['.hero-copy','.hero h1','.hero-actions','.home-workspace-preview'].map(selector=>[selector,document.querySelector(selector).getBoundingClientRect().top+scrollY])));
-      const topAnchors=()=>app.evaluate(el=>Object.fromEntries(['.hwd-journey-choice','.hwd-tabs'].map(selector=>[selector,el.querySelector(selector).getBoundingClientRect().top+scrollY])));
+      const topAnchors=()=>app.evaluate(el=>Object.fromEntries(['.hwd-topbar','.hwd-tabs'].map(selector=>[selector,el.querySelector(selector).getBoundingClientRect().top+scrollY])));
       const fixedHero=await heroPositions();
       const fixedAnchors=await topAnchors();
       if(width>1120)assert.ok(Math.abs(fixedHero['.hero-copy']-fixedHero['.home-workspace-preview'])<=1,name+'/'+width+': hero copy must align with preview top');
       for(const key of keys){
+        await openChoices();
         const heldStep=await app.locator('[role="tab"][aria-selected="true"]').getAttribute('id');
         await app.locator('.hwd-journey-tile:has(input[value="'+key+'"])').click();
         assert.equal(await app.getAttribute('data-demo-selected-journey'),key);
@@ -87,11 +117,18 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
           assert.equal(await app.locator('[role="tabpanel"]:visible').count(),1);
           assert.equal(await app.locator('[role="tab"][aria-selected="true"]').count(),1);
           assert.equal(await app.locator('[role="tab"][tabindex="0"]').count(),1);
+          assert.equal(await app.locator('.hwd-journey-choice').isVisible(),step==='measure','Choices must only be visible in Gather');
+          assert.equal(await app.locator('.hwd-choose:visible').count(),step==='measure'?0:1);
           if(step==='measure'){
-            assert.equal(await app.locator('.hwd-diagnostic:visible').count(),group?1:4);
+            assert.equal(await app.locator('.hwd-journey-tile:visible').count(),5);
             if(group)assert.match(await panel.textContent(),new RegExp(group.participants+' people completed '+names[key]));
             else assert.match(await panel.textContent(),/108 runs, not 108 people/);
-            for(const g of group?[group]:cross.source_groups)assert.equal(await app.locator('[data-demo-lens="'+g.tool_type+'"]').textContent(),whole(g.median_score)+' / 100');
+            for(const g of cross.source_groups){
+              const choice=app.locator('[data-demo-group="'+g.tool_type+'"]');
+              assert.equal(await choice.getAttribute('data-participants'),String(g.participants));
+              assert.match(await choice.locator('.hwd-journey-facts').textContent(),new RegExp(g.participants+' participants'));
+              assert.equal(await choice.locator('[data-demo-lens]').textContent(),whole(g.median_score)+' / 100');
+            }
           }
           if(step==='analysis'){
             assert.equal(await app.locator('[data-demo-evaluation]:visible').count(),1);
@@ -178,6 +215,7 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
       // Native radios wrap in Chromium but stop at the boundary in WebKit.
       // Start from an actually selected radio and verify every option plus all
       // four arrow directions without imposing one browser's boundary policy.
+      await openChoices();
       await app.locator('.hwd-journey-tile:has(input[value="structural_clarity"])').click();
       await app.locator('input[value="structural_clarity"]').focus();
       const assertRadio=async(key,label)=>{
@@ -213,6 +251,7 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
         }
         await page.setViewportSize({width:1541,height:830});
         for(const key of keys){
+          await openChoices();
           await app.locator('.hwd-journey-tile:has(input[value="'+key+'"])').click();
           await page.evaluate(()=>window.scrollTo(0,0));
           const cta=await page.locator('.hero-actions .btn-accent').boundingBox();
@@ -226,6 +265,6 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
     }
   } finally {await browser.close();}
 }
-const receipt={status:'PASS',checkedAt:new Date().toISOString(),base,states,resizeStates,screenshots,journeys:5,steps:4,widths:6,browsers:2,artifactSha256:artifact.artifact_sha256,hashes,checks:'source medians/spreads/perspectives, distinct actions, no borrowed money, current-step persistence, native radio + tab keyboard, stable layout including live resize, no external calls'};
+const receipt={status:'PASS',checkedAt:new Date().toISOString(),base,states,resizeStates,screenshots,journeys:5,steps:4,widths:6,browsers:2,artifactSha256:artifact.artifact_sha256,hashes,compactMeasurements,checks:'Gather-only selection without duplicate cards, compact default Evaluate and discoverable change control, source medians/spreads/perspectives, distinct actions, no borrowed money, current-step persistence, native radio + tab keyboard, stable layout including live resize, no external calls'};
 if(process.env.HOME_DEMO_RECEIPT)fs.writeFileSync(process.env.HOME_DEMO_RECEIPT,JSON.stringify(receipt,null,2)+'\n');
 console.log('HOMEPAGE_WORKSPACE_DEMO_PASS '+JSON.stringify(receipt));

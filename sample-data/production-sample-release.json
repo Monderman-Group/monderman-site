@@ -18,12 +18,50 @@
   "site_commit": "6411b9c4c68b3a29dfedea7a527daace05d932bf",
   "renderer_version": "diagnostic-renderer-evidence-reading-20260914.43",
   "source_files": {
-    "monderman-report.js": "cbcdd6c5e24f9a3c0f851256b748696e622de524e5152e50f00c06d0beb646b9",
+    "monderman-report.js": "24bf58391c447b68b9b909402ba6c2e3c133f16b4aa4e2df488c1ef8d63f8bf7",
     "participant-evidence-safety.js": "713c476203a41f0742396faadd9d38857fd4f11744626b5ec810a3d1dd8d2ff4",
     "public-sample-model.js": "3e59cb22900e72245cfc82d07569dac39eaa383dc5d7ac6dbab263774fb0f980",
     "sample-report-production.js": "f48edd3bf71f02ba048336b16a409ac77ead655861afb807fe328dca666b9349",
-    "scripts/refresh_public_sample_previews.mjs": "827409fe2f3670cf55977839ab5cb9d0c0f2a0bfff86390bcf5112df3baf5db7",
-    "scripts/templates/home-workspace-preview.html": "f6a659db10fc1e42fbd550c7b79a076404fb2c9845f0660baf93c443c9f7d31f"
+    "scripts/refresh_public_sample_previews.mjs": "23da5521b0a7fa730f84bf259a7a400c3c6b5488629a1572d6110119a0fbb4c0",
+    "scripts/templates/home-workspace-preview.html": "55c0d11f267eb95b2e136f0ee1af0a7eb566687b3b4da4107fe1de6f156ef696"
+  },
+  "detailed_sankey_presentation_review": {
+    "version": "planning-case-sankey-20260919.3",
+    "status": "accepted_presentation_only",
+    "reviewed_by": "Codex root with independent code and PDF review",
+    "reviewed_at": "2026-09-19T22:42:02Z",
+    "scope": "Presentation only: compact Gather-only homepage choices, named activity benefits and individual recorded cost components in all three planning cases. Financial inputs, calculations, totals, source data and historical AI approvals are unchanged.",
+    "prior_renderer_sha256": "cbcdd6c5e24f9a3c0f851256b748696e622de524e5152e50f00c06d0beb646b9",
+    "renderer_sha256": "24bf58391c447b68b9b909402ba6c2e3c133f16b4aa4e2df488c1ef8d63f8bf7",
+    "unchanged_artifact_file_sha256": "316784189dcfc190176edbf49fb37d12dc368bc4782bac7b7bee7de05e166575",
+    "report_checks": {
+      "receipt_sha256": "eacd10d4fbf8b9565eb56538cb95c49fb925584863b81ed5e466fe059d8ec021",
+      "assertions": 3482,
+      "states": 96,
+      "engines": ["Chromium", "WebKit"],
+      "widths": [320, 390, 834, 1440],
+      "method": "Real and sample models through the shared renderer; all three native case controls; all seven saved metrics; activity/cost reconciliation; keyboard and no-script behavior; repeated mounts; zero, negative, nonzero-cash and 12-activity cases. Screen SVG bounds and print label descendants are checked. A negative control restores the prior overflowing print geometry and must fail. No service or model calls."
+    },
+    "homepage_review": {
+      "runtime_sha256": "0b210be823c34872ecc8b0bed3db0fdc550fe38302ad9a869f76e018dd2e366a",
+      "stylesheet_sha256": "73c88eea530ffde774bb5d4d7dad8625c2bcf6fb7c32292bbf4fae637a14f455",
+      "receipt_sha256": "3cc1add41d1024ed83175fa2e1cb93768dd114ef19e85dae212be3d30c4f90a5",
+      "geometry_receipt_sha256": "6a2f27a477a625b43f1aaa5d4e4c515d4843cbf0cd6104339a4c5c523bc0beab",
+      "states": 240,
+      "resize_states": 24,
+      "screenshots": 120,
+      "widths": [320, 390, 768, 1120, 1121, 1440],
+      "method": "Both engines, five journeys and four steps. Choices appear only in Gather; other stages return through Choose an analysis. Exact evidence values and all controls are retained. Default component height is 215–227 pixels shorter at checked phone/desktop widths. Homepage print text and main-section geometry are unchanged. Independent review repeated 120 states at phone, tablet and desktop widths."
+    },
+    "pdf_visual_review": {
+      "public_pages": 73,
+      "stress_test_pages": 53,
+      "method": "Rendered and visually reviewed all 33 Depth and 40 Cross-Lens pages through contact sheets and individual chart/breakdown pages. Final 75-dpi renders of every public page match those reviewed images byte for byte. An independent 53-page stress-PDF review found a dense-label print overlap; corrected pages 3–9 were re-inspected individually at 1400 pixels and final renders match those corrected images exactly. The brief remains page 2, cases 3/4/5, full breakdown 6, and interpretation 7. Stress-test breakdown spans 6–9; that QA document is not published."
+    },
+    "pdf_outputs": {
+      "depth_synthesis": {"path": "sample-data/reports/depth_synthesis.pdf", "sha256": "0b6f05a5f7b40aaa1eb1e17d7c4fc03be780bc36f98cb0fc316ccd6ff9ff1493", "pages": 33, "case_pages": [3, 4, 5]},
+      "cross_lens_synthesis": {"path": "sample-data/reports/cross_lens_synthesis.pdf", "sha256": "e4a098d10d9f298f58862d17892d84e3c026ef97caa871c5fd3e8ed67a450f98", "pages": 40, "case_pages": [3, 4, 5]}
+    }
   },
   "planning_case_presentation_review": {
     "version": "planning-case-sankey-20260919.2",

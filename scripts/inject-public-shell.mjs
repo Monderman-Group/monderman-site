@@ -21,7 +21,7 @@ const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
 const shellRelease = "20260913.32";
 // Refresh changed runtime assets without invalidating unchanged brand assets.
 const assetReleases = Object.freeze({
-  "monderman-report.js": "20260919.sankey2",
+  "monderman-report.js": "20260919.sankey3",
   "monderman-depth-lure-tile.css": "20260915.financial1",
   "sample-report-production.js": "20260915.annual1",
   "public-sample-model.js": "20260915.annual1",
@@ -40,8 +40,8 @@ const assetReleases = Object.freeze({
   "campaign-analysis.css": "20260919.ready1",
   "workspace-synthesis-readiness.js": "20260919.ready1",
   "workspace-synthesis-readiness.css": "20260919.ready1",
-  "homepage-workspace-demo.css": "20260919.journey2",
-  "homepage-workspace-demo.js": "20260919.journey2",
+  "homepage-workspace-demo.css": "20260919.journey3",
+  "homepage-workspace-demo.js": "20260919.journey3",
   "workspace-access-gate.js": "20260919.invited1",
   "workspace-evaluation.js": "20260919.invited1",
   "feedback-widget.js": "20260919.invited1",

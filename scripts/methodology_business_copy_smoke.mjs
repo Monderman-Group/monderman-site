@@ -88,10 +88,11 @@ for(const candidate of [
   assert.notEqual(candidate,approvedFloatingShell,'Header-state negative actually mutates the approved source');
   assert.throws(()=>assertApprovedShell(candidate),'Restored proxies or unrelated navigation changes must fail');checks++;
 }
-check(read('index.html').includes('homepage-workspace-demo.css?v=20260919.journey2'),'Source preview stylesheet has the reviewed lens-journey cache ID');
-check(read('scripts/inject-public-shell.mjs').includes('"homepage-workspace-demo.css": "20260919.journey2"'),'Built preview stylesheet has the same reviewed lens-journey cache ID');
+check(read('index.html').includes('homepage-workspace-demo.css?v=20260919.journey3'),'Source preview stylesheet has the reviewed lens-journey cache ID');
+check(read('scripts/inject-public-shell.mjs').includes('"homepage-workspace-demo.css": "20260919.journey3"'),'Built preview stylesheet has the same reviewed lens-journey cache ID');
 execFileSync(process.execPath,['scripts/refresh_public_sample_previews.mjs','--check'],{cwd:root,stdio:'pipe'});
-check(read('scripts/templates/home-workspace-preview.html').split('{{lensCards}}').length===2,'One generated evidence-card region replaces the old hard-coded product-label preview');
+check(read('scripts/templates/home-workspace-preview.html').split('{{journeyOptions}}').length===2,'One generated Gather-choice region contains the source-backed lens summaries');
+check(!read('scripts/templates/home-workspace-preview.html').includes('{{lensCards}}'),'Compacted Gather choices do not duplicate the old evidence cards');
 // Exercise the actual browser predicates offline; geometry alone cannot admit
 // an unselected panel, unfinished animation, transparent header or missing text.
 function predicateFixture(){
@@ -409,14 +410,18 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
       }
       if(file==='index.html'){
         const journeyGroups=['structural_clarity','decision_velocity','operational_systems','institutional_performance'].map(lens=>previewGroups.find(group=>group.tool_type===lens));
-        eq(await page.locator('.hwd-diagnostic h3').allTextContents(),journeyGroups.map(group=>group.tool_label),'Preview shows all four canonical diagnostics in journey order');
-        eq(await page.locator('.hwd-diagnostic p').allTextContents(),journeyGroups.map(group=>'Median score: '+group.median_score.toLocaleString('en-US',{maximumFractionDigits:0})+' / 100'),'Preview evidence cards show exact approved within-lens summaries, not a fabricated new report');
+        const depthChoices=page.locator('#hwd-panel-measure .hwd-journey-tile[data-demo-group]');
+        eq(await depthChoices.locator(':scope > span > strong').allTextContents(),journeyGroups.map(group=>group.tool_label),'Gather choices show all four canonical diagnostics in journey order');
+        eq(await depthChoices.locator('[data-demo-lens]').allTextContents(),journeyGroups.map(group=>group.median_score.toLocaleString('en-US',{maximumFractionDigits:0})+' / 100'),'Gather choices show exact approved within-lens summaries, not a fabricated new report');
+        eq(await depthChoices.evaluateAll(nodes=>nodes.map(node=>({lens:node.dataset.demoGroup,participants:node.dataset.participants}))),journeyGroups.map(group=>({lens:group.tool_type,participants:String(group.participants)})),'Gather choice metadata retains exact lens and distinct-participant totals');
+        eq(await page.locator('.hwd-diagnostic').count(),0,'Gather choices replace rather than duplicate the old passive cards');
         eq(await page.locator('input[name="hwd-journey"]').evaluateAll(nodes=>nodes.map(node=>node.value)),journeyGroups.map(group=>group.tool_type).concat('cross_lens_synthesis'),'Four Depth journeys and one separate Cross-Lens journey');
         for(const id of ['measure','analysis','actions','return','measure']){
           await page.locator('#hwd-tab-'+id).click();await settledPaint(page,settledPreviewState,id);
           check(await page.locator('#hwd-panel-'+id).isVisible(),'Preview still navigates: '+id);
         }
-        check(await page.locator('.hwd-diagnostic p').evaluateAll(nodes=>nodes.every(node=>node.scrollWidth<=node.clientWidth+1)),'Longer canonical labels do not overflow');
+        eq(await depthChoices.count(),4,'All four Depth choices remain present after navigating back to Gather');
+        check(await depthChoices.evaluateAll(nodes=>nodes.every(node=>{const rect=node.getBoundingClientRect();return rect.width>0&&rect.height>0&&node.scrollWidth<=node.clientWidth+1&&[...node.querySelectorAll('strong,small,.hwd-journey-facts,[data-demo-lens]')].every(text=>text.scrollWidth<=text.clientWidth+1);})), 'Canonical choice labels and exact evidence values are visible and do not overflow');
         if(width===390||width===1440){const fileName=`${name}-${width}-homepage.png`;await page.screenshot({path:path.join(out,fileName)});screenshots.push(fileName);}
       }
       if(file==='diagnostics.html'){
