@@ -1,4 +1,15 @@
 /* Product proof uses the same interaction colors and surfaces as Workspace. */
+body.homepage-enterprise .hero-access-note { max-width:46ch; margin:16px 0 0; font-size:14px; line-height:1.6; color:#C0D0D2; }
+.hwd-value-grid { display:grid; grid-template-columns:1fr 1.2fr; gap:16px; margin:18px 0; }
+.hwd-value-primary strong { display:block; font-size:clamp(28px,3vw,40px); line-height:1.1; letter-spacing:-.04em; color:var(--mdm-link); }
+.hwd-value-primary span { display:block; margin-top:7px; font-size:12px; line-height:1.45; color:#526B72; }
+.hwd-cost-row { display:flex; justify-content:space-between; align-items:baseline; gap:16px; padding:12px 0; margin-bottom:16px; border-block:1px solid #DCE6E8; font-size:12px; line-height:1.5; }
+.hwd-cost-row strong { font-size:18px; white-space:nowrap; }
+.hwd-app .hwd-financial-note { margin-top:14px; font-size:12px; line-height:1.5; color:#526B72; }
+.hwd-sensitivity { margin:14px 0; display:grid; gap:10px; }
+.hwd-sensitivity div { display:grid; grid-template-columns:84px 1fr; gap:12px; }
+.hwd-sensitivity dt { font-weight:600; }
+.hwd-sensitivity dd { margin:0; }
 body.homepage-enterprise .hero,
 body.homepage-enterprise .hero::after { background:#04181B !important; }
 body.homepage-enterprise .hero::after { content:none; }
@@ -67,6 +78,7 @@ body.homepage-enterprise .hwd-app p { animation:none !important; opacity:1 !impo
 .hwd-chart-head > span { color:#637A80; font-size:9px; white-space:nowrap; }
 .hwd-chart-row { display:grid; grid-template-columns:84px 1fr 22px; align-items:center; gap:13px; margin-top:10px; font-size:11px; }
 .hwd-chart-row > strong { text-align:right; font-size:11px; }
+.hwd-chart-row.hwd-activity-row { grid-template-columns:minmax(110px,1.4fr) minmax(35px,1fr) 44px; gap:12px; line-height:1.45; }
 .hwd-track { background:#EDF3F4; height:7px; border-radius:2px; overflow:hidden; }
 .hwd-track > i { display:block; height:100%; background:#77AAB2; border-radius:2px; }
 .hwd-chart-row:nth-of-type(2) .hwd-track > i { background:var(--mdm-link); }
@@ -226,7 +238,7 @@ body.homepage-enterprise .measurement-loop .loop-eyebrow { color:var(--mdm-link)
 }
 /* A working preview must remain readable at its displayed size. */
 body.homepage-enterprise #main-content > section { order:0 !important; }
-.hwd-panel { min-height:432px; }
+.hwd-panel { min-height:520px; }
 .hwd-app .hwd-description,.hwd-app .hwd-reading > p,
 .hwd-app .hwd-diagnostic p,.hwd-app .hwd-action-card p,
 .hwd-app .hwd-return-note p,.hwd-app .hwd-baseline > p,
@@ -241,7 +253,7 @@ body.homepage-enterprise #main-content > section { order:0 !important; }
 .hwd-plan-flow,.hwd-baseline > span { font-size:11px; }
 .home-preview-caption { font-size:11px; }
 @media (max-width:640px) {
-  .hwd-panel { min-height:506px; }
+  .hwd-panel { min-height:600px; }
   .hwd-tabs button { font-size:12px; }
   .hwd-tabs button span { font-size:9px; }
   .hwd-app .hwd-eyebrow { font-size:10px; }
@@ -261,7 +273,7 @@ body.homepage-enterprise #main-content > section { order:0 !important; }
   .home-preview-caption { font-size:10px; }
 }
 @media (max-width:359px) {
-  .hwd-panel { min-height:553px; }
+  .hwd-panel { min-height:660px; }
   .hwd-chart-row { grid-template-columns:81px 1fr 19px; gap:6px; }
   .hwd-tabs button { font-size:11px; }
   .hwd-app .hwd-chart-head h3 { font-size:12px; }

@@ -386,9 +386,9 @@ for page in r.glob('*.html'):
   css_version=re.search(r'canonical-site-shell\.css\?v=([^"\']+)',t)
   js_version=re.search(r'canonical-site-shell\.js\?v=([^"\']+)',t)
   if not css_version:e.append(page.name+': versioned canonical header styles missing')
-  elif page.name not in {'privacy-2026-09-10-optional-measurement-v1.html','privacy-2026-09-11-ai-evidence-v1.html','privacy-2026-09-12-ai-source-evidence-v2.html','terms-2026-09-15-annual-plans.html'} and not re.match(r'^(?:privacy|terms)(?:-\d{4}-\d{2}-\d{2}-beta)?\.html$',page.name):public_header_css_versions.add(css_version.group(1))
+  elif page.name not in {'privacy-2026-09-10-optional-measurement-v1.html','privacy-2026-09-11-ai-evidence-v1.html','privacy-2026-09-12-ai-source-evidence-v2.html','terms-2026-09-15-annual-plans.html','terms-2026-09-19-invited-evaluation.html','privacy-2026-09-19-invited-evaluation.html'} and not re.match(r'^(?:privacy|terms)(?:-\d{4}-\d{2}-\d{2}-beta)?\.html$',page.name):public_header_css_versions.add(css_version.group(1))
   if not js_version:e.append(page.name+': versioned canonical header behavior missing')
-  elif page.name not in {'privacy-2026-09-10-optional-measurement-v1.html','privacy-2026-09-11-ai-evidence-v1.html','privacy-2026-09-12-ai-source-evidence-v2.html','terms-2026-09-15-annual-plans.html'} and not re.match(r'^(?:privacy|terms)(?:-\d{4}-\d{2}-\d{2}-beta)?\.html$',page.name):public_header_js_versions.add(js_version.group(1))
+  elif page.name not in {'privacy-2026-09-10-optional-measurement-v1.html','privacy-2026-09-11-ai-evidence-v1.html','privacy-2026-09-12-ai-source-evidence-v2.html','terms-2026-09-15-annual-plans.html','terms-2026-09-19-invited-evaluation.html','privacy-2026-09-19-invited-evaluation.html'} and not re.match(r'^(?:privacy|terms)(?:-\d{4}-\d{2}-\d{2}-beta)?\.html$',page.name):public_header_js_versions.add(js_version.group(1))
 if not public_header_pages:e.append('canonical public headers missing')
 if len(public_header_css_versions)!=1:e.append('canonical public header style versions diverge: '+str(sorted(public_header_css_versions)))
 if len(public_header_js_versions)!=1:e.append('canonical public header behavior versions diverge: '+str(sorted(public_header_js_versions)))
@@ -458,17 +458,17 @@ for name in ['index.html','roi.html','why-monderman.html','connect.html','diagno
  if re.search(r'\.footer-motif\s*\{',(r/name).read_text(errors='ignore')):
   e.append(name+': retired footer motif styling remains')
 
-# Pattern beta trial contract: no card, identity-scoped one-use, non-renewing.
+# Invitation-only evaluation: sixty activation-based days, uncapped ordinary use, no card or renewal.
 trial=(r/'pattern-trial.html').read_text(errors='ignore')
-for token in ['Evaluate Pattern features for 30 days.','No card is required','does not renew automatically','/api/billing/start-pattern-trial','/api/billing/pattern-pilot-invitation','pattern_trial_already_used','trial_requires_admin','Nothing was charged','One Pattern pilot per eligible account identity','Deleting or replacing a Workspace does not reset eligibility','ackStart','starts immediately when I continue','Your saved work is retained. Standard Trial access limits apply after day 30','Pattern &middot; Limited 30-day Pilot','id="pilotInvitation"','id="workspaceName"','sb.rpc("bootstrap_my_workspace"','const activationOrganizationId=organizationId;','JSON.stringify({organization_id:activationOrganizationId})','pattern_pilot_invitation_required','email-bound invitation']:
+for token in ['Evaluate Pattern features for 60 days.','No credit card, payment or automatic renewal.','/api/billing/start-pattern-trial','/api/billing/pattern-pilot-invitation','pattern_trial_already_used','trial_requires_admin','Nothing was charged','One Monderman evaluation per eligible account identity','Deleting or replacing a Workspace does not reset eligibility','ackStart','starts immediately when I continue','Your saved reports remain available to authorized Workspace members','new runs, campaigns and Syntheses require separately agreed continued access','Unlimited ordinary diagnostic runs and completed campaign responses during the evaluation','Unlimited Depth Synthesis and Cross-Lens Synthesis for eligible inputs during the evaluation','Pattern Workspace capacity for five analysts and two admins','Pattern &middot; Invitation-only evaluation','id="pilotInvitation"','id="workspaceName"','sb.rpc("bootstrap_my_workspace"','const activationOrganizationId=organizationId;','JSON.stringify({organization_id:activationOrganizationId})','pattern_pilot_invitation_required','email-bound invitation']:
  if token not in trial:e.append('pattern trial contract '+token)
 for stale in ['One Pattern trial per Workspace','starts immediately for this Workspace','This Workspace has already used its one-time Pattern trial','id="pilotInvitationCode"','invitation_code:invitationCode','reusable invitation code']:
  if stale in trial:e.append('pattern trial stale scope '+stale)
 pattern=(r/'plan-pattern.html').read_text(errors='ignore')
-for token in ['href="pattern-trial.html"','Accept pilot invitation','personalized invitation to your work email','no organization is assigned in advance','No card required or automatic renewal','500 campaign responses and unlimited eligible Syntheses','One pilot per eligible account identity','replacing a Workspace does not reset eligibility','Pattern &middot; Active beta &middot; expanded campaigns']:
+for token in ['href="pattern-trial.html"','Activate your invitation','href="pilot.html"','Request an invitation','Evaluate Monderman free for 60 days with full Pattern functionality','No credit card. No automatic renewal.','Your evaluation does not become a paid subscription','Pattern &middot; Active beta &middot; expanded campaigns']:
  if token not in pattern:e.append('pattern trial entry '+token)
 shell=(r/'workspace-shell.js').read_text(errors='ignore')
-for token in ['subscription_status','pattern_trial_ends_at','org.subscription_status === "trialing"','Pattern trial · ${days} day']:
+for token in ['subscription_status','pattern_trial_ends_at','org.subscription_status === "trialing"','Pattern · Free evaluation']:
  if token not in shell:e.append('pattern trial shell '+token)
 
 # Private pilot feedback must remain identity-scoped, optional, context-light,
@@ -486,8 +486,8 @@ else:
   'sb.auth.getSession()',
   'location.replace("signin.html?next="',
   'id="feedbackForm" hidden',
-  'Pilot feedback is not available for this account.',
-  'is available only to verified Pattern pilot Workspace members',
+  'Evaluation feedback is not available for this account.',
+  'is available only to verified evaluation Workspace members',
   'Diagnostic answers, scores, reports, billing information, and authentication data are never attached.',
   'source_path:location.pathname',
   'idempotency_key:idempotencyKey',
@@ -501,7 +501,7 @@ for token in [
  'https://monderman-api.onrender.com/api/pilot-feedback/access',
  'function isWorkspaceSurface()',
  'function markPilotFeedbackEntry()',
- "label.textContent = 'Pilot feedback'",
+ "label.textContent = 'Evaluation feedback'",
  "location.href = 'pilot-feedback.html?surface='",
  'window.mondermanOpenFeedback = openFeedbackExperience',
 ]:
@@ -530,24 +530,24 @@ for name in ['connect.html','plan-enterprise.html']:
 
 # Public beta privacy/security disclosures must match current architecture and trial rules.
 privacy=(r/'privacy.html').read_text(errors='ignore')
-for token in ['Last updated: September 12, 2026','currently in public beta','one-time Pattern-trial anti-abuse record','survive Workspace deletion','Anthropic\'s commercial API','does not use inputs and outputs for training by default','can remain with Anthropic for up to 30 days','subject to its stated safety, legal and contractual exceptions','This is not a zero-retention arrangement','Stripe handles payment details','does not receive or store your full card number','anonymous campaign responses','authorized Monderman personnel','first-party browser storage for Supabase authentication','not directed to children','a South Dakota limited liability company','41 W Highway 14, Unit #1225','Spearfish, SD 57783']:
+for token in ['Last updated: September 19, 2026','currently in invitation-only beta','limited anti-abuse evaluation record','survive Workspace deletion','Anthropic\'s commercial API','does not use inputs and outputs for training by default','can remain with Anthropic for up to 30 days','subject to its stated safety, legal and contractual exceptions','This is not a zero-retention arrangement','Stripe handles payment details','does not receive or store your full card number','anonymous campaign responses','authorized Monderman personnel','first-party browser storage for Supabase authentication','not directed to children','a South Dakota limited liability company','41 W Highway 14, Unit #1225','Spearfish, SD 57783']:
  if token.lower() not in privacy.lower():e.append('privacy disclosure '+token)
 security=(r/'security.html').read_text(errors='ignore')
-for token in ['currently in public beta','A free first Decision Velocity run can show a score and band before sign-in','an account is required to save and open its full report','Other direct Diagnostics require a signed-in member session','Directed campaign assignment links','Monderman uses database row-level security and server-side authorization to restrict Workspace data access','Policies and authorization helpers restrict signed-in users to the Workspace operations their role allows','Service-only tables can have RLS enabled with no customer policies','public publishable key','service-role database credentials','Anthropic\'s commercial API','durable one-time redemption record','Deleting a Workspace therefore does not create another trial','does not currently claim SOC 2','four-hour cutoff','durable Supabase snapshot','plan, usage, billing and stored Diagnostic result fields remain server-managed','request-size and rate limits','Controlled release checks currently cover current Chrome/Chromium and automated WebKit rendering','Native Safari and browser-managed print dialogs remain beta and best-effort']:
+for token in ['Monderman Workspace is available by invitation.','Direct Diagnostics require a signed-in member with active Workspace access.','New organizations need a valid invitation to activate their evaluation.','Directed campaign assignment links','Monderman uses database row-level security and server-side authorization to restrict Workspace data access','Policies and authorization helpers restrict signed-in users to the Workspace operations their role allows','Service-only tables can have RLS enabled with no customer policies','public publishable key','service-role database credentials','Anthropic\'s commercial API','durable redemption record','Deleting a Workspace does not create another evaluation','does not currently claim SOC 2','four-hour cutoff','durable Supabase snapshot','plan, usage, billing and stored Diagnostic result fields remain server-managed','request-size and rate limits','Controlled release checks currently cover current Chrome/Chromium and automated WebKit rendering','Native Safari and browser-managed print dialogs remain beta and best-effort']:
  if token.lower() not in security.lower():e.append('security disclosure '+token)
 for stale in ['A person can run a scored Diagnostic without signing in','an unauthenticated request holds no read or write permission on any table']:
  if stale in security:e.append('security stale claim '+stale)
 
-# Pattern trial 30-day lifecycle UX: countdown, explicit paid conversion, and seat management.
+# Evaluation lifecycle: one server-based countdown, explicit continued access and seat management.
 overview=(r/'workspace.html').read_text(errors='ignore')
-for token in ['subscription_status, pattern_trial_used_at, pattern_trial_ends_at','Pattern trial · ${trialDays} day','Choose paid plan →','plan-pattern.html']:
+for token in ['subscription_status, pattern_trial_used_at, pattern_trial_ends_at','Pattern · Free evaluation','Discuss continued access →','connect.html']:
  if token not in overview:e.append('pattern lifecycle overview '+token)
 settings=(r/'workspace-settings.html').read_text(errors='ignore')
 for token in ['Workspace users','workspace_member_directory','billing_suspended_role','Paused by plan','pattern_trial_ends_at','renderRailPlan(org)','seat limit']:
  if token not in settings:e.append('pattern lifecycle settings '+token)
 for name in ['workspace-actions.html','workspace-analysis.html','workspace-diagnostics.html']:
  t=(r/name).read_text(errors='ignore')
- for token in ['pattern_trial_ends_at','subscription_status','ws5TrialTag','trial · ${days}d left']:
+ for token in ['pattern_trial_ends_at','subscription_status','ws5TrialTag',' · evaluation']:
   if token not in t:e.append(name+': pattern trial rail '+token)
 
 # Saved reports linked from Overview must reopen even when the run is older
@@ -593,7 +593,7 @@ for name in ['index.html','why-monderman.html']:
 
 # Public beta Terms must exist and remain wired at acceptance points.
 terms=(r/'terms.html').read_text(errors='ignore')
-for token in ['Public Beta Terms of Use','Version 2026-09-15-annual-plans','does not auto-renew','once per eligible account identity','not legal, medical, accounting, investment, safety, employment','not designed, validated or offered as employee-selection procedures','must not attempt to identify an anonymous Participant','The Customer will defend, indemnify and hold harmless Monderman','a South Dakota limited liability company','41 W Highway 14, Unit #1225','Spearfish, SD 57783','connect@monderman.com','privacy.html','security.html']:
+for token in ['Public Beta Terms of Use','Version 2026-09-19-invited-evaluation','does not auto-renew','once per eligible account identity','not legal, medical, accounting, investment, safety, employment','not designed, validated or offered as employee-selection procedures','must not attempt to identify an anonymous Participant','The Customer will defend, indemnify and hold harmless Monderman','a South Dakota limited liability company','41 W Highway 14, Unit #1225','Spearfish, SD 57783','connect@monderman.com','privacy.html','security.html']:
  if token not in terms:e.append('public beta terms '+token)
 trial=(r/'pattern-trial.html').read_text(errors='ignore')
 for token in ['href="terms.html"','href="privacy.html"','I agree to the']:

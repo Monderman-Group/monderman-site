@@ -6,9 +6,11 @@ const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || 'play
 const base = process.env.SITE_BASE || 'http://127.0.0.1:4175';
 const root = path.resolve(import.meta.dirname, '..');
 const {artifact} = readPublicSampleFixture({root});
-const source = artifact.outputs.decision_velocity.source;
-const expectedBurdens = Object.entries(source.burden_breakdown).filter(([,value])=>typeof value==='number').sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,3);
-assert.ok(expectedBurdens.length>0);
+const source = artifact.outputs.cross_lens_synthesis.source;
+const scenario = source.financial_scenario;
+const whole = n=>n.toLocaleString('en-US',{maximumFractionDigits:0});
+const money = n=>n.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+
 const out = process.env.HOME_DEMO_OUT;
 if (out) fs.mkdirSync(out, { recursive: true });
 for (const [name, type] of [['chromium', chromium], ['webkit', webkit]]) {
@@ -24,24 +26,17 @@ for (const [name, type] of [['chromium', chromium], ['webkit', webkit]]) {
       assert.equal(await app.count(), 1);
       const substantiveSizes = await app.locator('.hwd-description,.hwd-chart-row,.hwd-action-card p,.hwd-return-note p').evaluateAll(items => items.map(el => parseFloat(getComputedStyle(el).fontSize)));
       assert.ok(substantiveSizes.every(size => size >= 12), `${name}/${width}: substantive preview copy falls below 12px`);
-      assert.equal(await app.locator('[data-demo-score]').textContent(), String(source.score), `${name}/${width}: sample score differs from production fixture`);
-      for (const [key] of expectedBurdens) {
-        const value = app.locator(`[data-demo-burden="${key}"]`);
-        assert.equal(await value.textContent(), String(source.burden_breakdown[key]));
-        const plotted = await value.locator('..').locator('.hwd-track > i').evaluate(el => el.style.width);
-        assert.equal(plotted, `${source.burden_breakdown[key]}%`, `${name}/${width}: chart value and plot disagree`);
-      }
-      const actionText = await app.locator('.hwd-action-card p').textContent();
-      assert.equal(actionText, source.ai_report.report.interpretation.recommendations.find(a=>a.action?.trim()).action, 'Action detail must preserve its accepted AI source');
-      assert.equal(await app.locator('[data-demo-recovery]').count(),0,'A single-run preview must not display money recovery');
-      assert.equal(await app.locator('[data-demo-focus]').getAttribute('data-demo-focus'),expectedBurdens[0][0]);
-      assert.equal(await app.locator('[data-demo-focus]').textContent(),expectedBurdens[0][1]+' / 100');
-      assert.equal(await app.locator('[data-demo-burden]').count(),expectedBurdens.length,'Missing burden dimensions must stay absent, not become zero');
-      assert.match(await app.textContent(), /Not time, cost or savings\./);
+      assert.equal(await app.locator('[data-demo-hours]').textContent(),whole(scenario.totals.potentialHoursFreed.central));
+      assert.equal(await app.locator('[data-demo-capacity]').textContent(),money(scenario.totals.capacityValue.central));
+      assert.equal(await app.locator('[data-demo-cost]').textContent(),money(scenario.totals.totalImplementationAndSubscriptionCost.central));
+      for (const group of source.source_groups) assert.equal(await app.locator('[data-demo-lens="'+group.tool_type+'"]').textContent(),whole(group.median_score)+' / 100');
+      assert.equal(await app.locator('.hwd-action-card p').textContent(),scenario.inputs.activities.find(a=>a.changeBasis?.trim()).changeBasis);
+      assert.equal(await app.locator('[data-demo-score]').count(),0,'No single-run score is relabeled as organizational money');
+      assert.match(await app.textContent(), /Capacity value is not cash savings/);
       assert.equal(await page.locator('.home-workspace-preview').getAttribute('data-artifact-sha256'),artifact.artifact_sha256);
-      assert.equal(await page.locator('.home-preview-label span:last-child').textContent(), 'Sample data');
-      assert.equal(await page.locator('.home-preview-caption').textContent(), 'See how diagnostic results become clear findings, practical next steps, and a baseline for tracking change.');
-      assert.match(await page.locator('.home-preview-method').textContent(), /do not measure hours, organizational cost or savings\./);
+      assert.equal(await page.locator('.home-preview-label span:last-child').textContent(), 'Illustrative example');
+      assert.equal(await page.locator('.home-preview-caption').textContent(), 'Combine organizational evidence, evaluate a practical opportunity and track the result.');
+      assert.match(await page.locator('.home-preview-method').textContent(), /The low case shows -\$27,638/);
       const expected = ['measure', 'analysis', 'actions', 'return'];
       const heights = [];
       for (const id of expected) {
@@ -92,7 +87,7 @@ for (const [name, type] of [['chromium', chromium], ['webkit', webkit]]) {
       }
       const returnPanel = app.locator('#hwd-panel-return');
       assert.match(await returnPanel.textContent(), /No later result in this sample/);
-      assert.equal(await returnPanel.locator('a').getAttribute('href'), 'sample-report.html');
+      assert.equal(await returnPanel.locator('a').getAttribute('href'), 'sample-report.html#synthesis');
       const cta = await page.locator('.hero-actions .btn-accent').evaluate(el => ({ bg:getComputedStyle(el).backgroundColor, color:getComputedStyle(el).color }));
       assert.equal(cta.bg, 'rgb(169, 208, 212)');
       assert.equal(cta.color, 'rgb(4, 24, 27)');

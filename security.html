@@ -671,9 +671,9 @@
 </section>
 <section class="section">
   <div class="section-inner">
-    <p class="section-eyebrow">PUBLIC BETA</p>
+    <p class="section-eyebrow">INVITATION-ONLY ACCESS</p>
     <h2>Current security posture</h2>
-    <p>Monderman Workspace is currently in public beta. This page describes controls that are operating today and avoids claiming certifications or controls that Monderman has not completed.</p>
+    <p>Monderman Workspace is available by invitation. This page describes controls that are operating today and avoids claiming certifications or controls that Monderman has not completed.</p>
     <p><strong>Browser support.</strong> Controlled release checks currently cover current Chrome/Chromium and automated WebKit rendering for public pages, generated reports, HTML and JSON downloads, responsive layouts, and opening reports for printing or PDF export. Native Safari and browser-managed print dialogs remain beta and best-effort until dedicated native testing is complete.</p>
   </div>
 </section>
@@ -688,7 +688,7 @@
   <div class="section-inner">
     <p class="section-eyebrow">ARCHITECTURE</p>
     <h2>How a Diagnostic moves from browser to saved result</h2>
-    <p>The Monderman site is served as static pages over HTTPS. A free first Decision Velocity run can show a score and band before sign-in; an account is required to save and open its full report. Other direct Diagnostics require a signed-in member session. Directed campaign assignment links can be completed without the recipient becoming a Workspace member.</p>
+    <p>The Monderman site is served as static pages over HTTPS. Direct Diagnostics require a signed-in member with active Workspace access. New organizations need a valid invitation to activate their evaluation. Directed campaign assignment links can be completed without the recipient becoming a Workspace member.</p>
     <p>Diagnostics call a single API service on Render. Monderman calculates and saves scores using versioned application code and Supabase Postgres. When AI-assisted reporting is enabled, the server sends selected report evidence to Anthropic's commercial API for a separate written interpretation. The interpretation does not change the saved score. Service-role database credentials, Stripe secret keys, Anthropic credentials and email-provider credentials stay server-side and are not shipped to the browser.</p>
     <p>Core outside services currently include Supabase for database and authentication, Render for the API, Anthropic for AI-assisted report interpretation when enabled, Resend for email delivery, Stripe for billing, Cloudflare for bot verification, GitHub for the static site repository and hosting workflow, and public content-delivery networks for versioned browser libraries.</p>
   </div>
@@ -745,7 +745,7 @@
   <div class="section-inner">
     <p class="section-eyebrow">AI PROCESSING</p>
     <h2>How AI-assisted reports and chat are processed</h2>
-    <p>AI-assisted interpretation is currently enabled for eligible Diagnostic and Synthesis reports, including pilot reports. Optional written observations are used only when the participant has explicitly allowed the applicable processing. Earlier observations are not automatically made eligible. A saved report can show measured results before interpretation is ready; its status identifies whether interpretation is available. Restoring this service does not automatically regenerate or replace older saved reports.</p>
+    <p>AI-assisted interpretation is currently enabled for eligible Diagnostic and Synthesis reports, including evaluation reports. Optional written observations are used only when the participant has explicitly allowed the applicable processing. Earlier observations are not automatically made eligible. A saved report can show measured results before interpretation is ready; its status identifies whether interpretation is available. Restoring this service does not automatically regenerate or replace older saved reports.</p>
     <p>Monderman does not use Customer responses, observations, reports, chat messages or organization history for model training, fine-tuning, provider feedback, shared benchmarks or cross-customer research, including in aggregated or de-identified form. Saved results remain available to authorized users within their own organization. External practice guidance comes from reviewed public or properly licensed sources.</p>
     <p>The public assistant and Hans use Anthropic for conversational product guidance, separately from report interpretation. Their requests contain a limited recent conversation, approved public product information and, for Hans, the current page and server-checked plan and role. They do not have access to source code, scoring formulas, question banks, participant records or saved report contents. Hans requires verified sign-in and eligible membership in the selected organization. Do not paste report contents, personal information, credentials or confidential, classified or controlled information into either chat.</p>
     <p>Chat requests and replies are screened for prohibited requests, unsupported claims and unsafe links. These checks reduce risk but do not guarantee every reply is correct or every attack will be detected. The assistants cannot change a score, send a campaign, modify records or buy a subscription. Monderman's chat application does not store transcripts in its database or intentionally log message contents; limited usage metadata supports spending controls. Chat content is subject to the same no-training policy and standard provider-retention exceptions described below and in the Privacy Notice.</p>
@@ -757,7 +757,7 @@
   <div class="section-inner">
     <p class="section-eyebrow">TRIAL &amp; BILLING BOUNDARIES</p>
     <h2>Deleting a Workspace does not reset trial eligibility</h2>
-    <p>The 30-day Pattern beta trial is enforced by a durable one-time redemption record tied to the account identity and normalized email, not only to a Workspace. Deleting a Workspace therefore does not create another trial.</p>
+    <p>The 60-day free evaluation requires a valid invitation. A durable redemption record links activation to the account identity and normalized email, not only to a Workspace. Deleting a Workspace does not create another evaluation.</p>
     <p>The trial has an independent database expiry boundary and a Stripe trial end/cancellation boundary. Delayed Stripe trial events are not allowed to restore Pattern access after the database has already expired the evaluation.</p>
   </div>
 </section>

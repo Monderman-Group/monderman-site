@@ -55,7 +55,7 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
       return json(route, 500, { ok: false });
     });
     await page.goto(`${base}/pilot-feedback.html`, { waitUntil: "domcontentloaded" });
-    await page.getByText("Pilot feedback is not available for this account.").waitFor();
+    await page.getByText("Evaluation feedback is not available for this account.").waitFor();
     assert.equal(await page.locator("#feedbackForm").isHidden(), true, `${browserName}: non-pilot form was exposed`);
     assert.equal(submitCount, 0, `${browserName}: non-pilot page attempted a submission`);
     await page.close();
@@ -135,7 +135,7 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
     const launcher = page.locator(".mdn-fb-launch");
     await launcher.waitFor();
     if (pilot) {
-      await page.getByText("Pilot feedback", { exact: true }).waitFor();
+      await page.getByText("Evaluation feedback", { exact: true }).waitFor();
       await launcher.press("Enter");
       await page.waitForURL(/pilot-feedback\.html\?surface=workspace/);
     } else {

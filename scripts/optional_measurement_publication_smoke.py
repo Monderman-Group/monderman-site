@@ -33,7 +33,7 @@ check(True, "full protective legal validation")
 check(published == read_text(archive_path), "published edition has an exact archive")
 check(hashlib.sha256(ack.encode()).hexdigest() == "b8d0279861a5ab30f9e1c2875d8237c9fb6df92abf02982e309092c3fc138185", "mandatory acknowledged edition remains byte-identical")
 check(manifest["privacy_notice_content_sha256"] == manifest["published_privacy_notice_content_sha256"], "approved AI-evidence edition is both the publication and next required notice")
-check(manifest["required_acknowledgement"] == {"terms_version": "2026-09-15-annual-plans", "privacy_notice_version": "2026-09-12-ai-source-evidence-v2"}, "New annual Terms are explicit; Privacy remains the reviewed source-evidence edition, not a fabricated acceptance")
+check(manifest["required_acknowledgement"] == {"terms_version": "2026-09-19-invited-evaluation", "privacy_notice_version": "2026-09-19-invited-evaluation"}, "Invited evaluation editions are explicit; earlier acceptances and separate source-evidence permission remain unchanged")
 check(hashlib.sha256(read_text(v1_path).encode()).hexdigest() == "9286991d6f104c50a401fb4f987bdd751523e74d3fda713ceab17b5fdf49f460", "prior AI evidence v1 edition remains byte-identical")
 
 
@@ -98,7 +98,17 @@ changed_ack = ack.replace("This is not a zero-retention arrangement.", "This is 
 documents = json.loads(json.dumps(manifest["documents"]))
 documents["2026-09-10-beta"]["privacy_notice_file_sha256"] = hashlib.sha256(changed_ack.encode()).hexdigest()
 rejects("editing both an old archive and its manifest pin cannot pass", {ack_path: changed_ack, manifest_path: changed_manifest(documents=documents)})
-rejects("published wording cannot change without separate review", {published_path: published.replace("does not recall a request already sent", "recalls every request already sent")})
+rejects("published wording cannot restart tracking for prior opt-ins", {published_path: published.replace("Tracking does not resume for browsers that previously opted in.", "Tracking resumes for browsers that previously opted in.")})
+for label, original, altered in [
+    ("cleanup does not depend on visitor traffic", "without relying on new visitor events", "only after a new visitor event"),
+    ("historical application labels have their existing policy", "Historical outreach labels already stored with an application remain under that application's existing retention and verified-deletion policy", "All historical application labels are deleted after 90 days"),
+    ("source-evidence permission remains separately versioned", "This September 19 notice does not expand the permitted report evidence or replace the separate per-run permission.", "Account acknowledgement authorizes all written observations.")
+]:
+    check(original in published, label + " mutation source exists")
+    rejects(label, {published_path: published.replace(original, altered)})
+for filename in ["privacy-2026-09-12-ai-source-evidence-v2.html", "terms-2026-09-15-annual-plans.html"]:
+    path = root / filename
+    rejects("prior edition remains immutable: " + filename, {path: read_text(path) + "\n"})
 rejects("new published edition cannot be relabeled as the old acknowledged edition", {published_path: published.replace("Version " + legal.PUBLISHED_PRIVACY_VERSION, "Version 2026-09-10-beta")})
 rejects("archive must be byte-identical to its published alias", {archive_path: published + "\n"})
 rejects("new AI edition cannot claim no new acknowledgement is required", {

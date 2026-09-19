@@ -31,7 +31,7 @@ for (const [engineName, engine] of Object.entries(engines)) {
         page.on('pageerror', error => errors.push(error.message));
         const requests = [];
         const external = [];
-        let response = { status: 200, reply: 'Start with the free Decision Velocity diagnostic. https://www.monderman.com/decision-velocity.html' };
+        let response = { status: 200, reply: 'Request an invitation for the 60-day free evaluation. https://www.monderman.com/pilot.html' };
         let held = null;
         const api = `https://monderman-api.onrender.com/api/${kind === 'hans' ? 'workspace-assistant' : 'site-assistant'}`;
         await page.route('**/*', async route => {
@@ -72,6 +72,11 @@ for (const [engineName, engine] of Object.entries(engines)) {
         const status = page.locator(`#${prefix}-status`);
         await page.locator(`#${prefix}-launcher`).click();
         await input.waitFor({ state: 'visible' });
+        if (kind === 'public') {
+          check((await messages.innerText()).includes('how to request an invitation'), `${label}: invitation-only greeting`);
+          check((await messages.innerText()).includes('60-day free evaluation'), `${label}: current evaluation greeting`);
+          check(!/free Decision Velocity run|how the pilot works/.test(await messages.innerText()), `${label}: no retired entry promise`);
+        }
         check(await input.evaluate(el => el === document.activeElement), `${label}: input focused`);
         equal(await input.getAttribute('maxlength'), '2000', `${label}: input bounded`);
         equal(await messages.getAttribute('role'), 'log', `${label}: accessible log`);

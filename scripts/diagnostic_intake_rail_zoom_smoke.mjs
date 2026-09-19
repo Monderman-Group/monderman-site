@@ -24,15 +24,15 @@ const server=http.createServer((req,res)=>{
   const hash=sha(body);
   if(servedPins.has(file))assert.equal(hash,servedPins.get(file),`served source changed: ${file}`);
   servedPins.set(file,hash);
-  // The external Supabase library is replaced by the same local no-account fixture
+  // The external Supabase library is replaced by the same local invited-workspace fixture
   // as the existing intake suite. Remove only its now-inapplicable SRI attribute.
   if(file.endsWith('.html'))body=Buffer.from(body.toString().replace(/(<script[^>]*src="[^"]*@supabase[^>]*?) integrity="[^"]+"/g,'$1'));
   res.setHeader('content-type',mime[path.extname(file)]||'application/octet-stream');res.end(body);
 });
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const base=`http://127.0.0.1:${server.address().port}`;
-const authFixture=`window.__fixtureAuth={auth:{getSession:async()=>({data:{session:null}}),getUser:async()=>({data:{user:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}};window.supabase={createClient:()=>window.__fixtureAuth};`;
-const gateFixture=`window.__mondermanSB=window.__fixtureAuth;window.mondermanGetSupabaseClient=async()=>window.__fixtureAuth;window.__mondermanActiveOrganizationId=null;window.mondermanWorkspaceAccessReady=Promise.resolve({allowed:true,context:'public_first_run'});window.__mondermanReveal?.();`;
+const authFixture=`window.__fixtureAuth={auth:{getSession:async()=>({data:{session:{access_token:'invited-fixture',user:{id:'11111111-1111-4111-8111-111111111111'}}}}),getUser:async()=>({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}};window.supabase={createClient:()=>window.__fixtureAuth};`;
+const gateFixture=`window.__mondermanSB=window.__fixtureAuth;window.mondermanGetSupabaseClient=async()=>window.__fixtureAuth;window.__mondermanActiveOrganizationId='22222222-2222-4222-8222-222222222222';window.mondermanWorkspaceAccessReady=Promise.resolve({allowed:true,context:'workspace'});window.__mondermanReveal?.();`;
 const values={processName:'Approving a supplier',businessUnit:'Operations',employeeCount:'250',peopleInvolved:'8',hourlyCost:'90',annualVolume:'24',meetingHours:'4'};
 const choices={industry:'technology_software',regulatoryIntensity:'moderate',decisionType:'program'};
 const results=[],negativeControls=[],browsers=[],intercepted=[];
@@ -175,9 +175,9 @@ try{
         }
       }
       assert.deepEqual(errors,[],`${name}/${engine}: browser errors`);
-      // DV emits ordinary first-run telemetry during setup. It was fulfilled
-      // locally above, never sent; no other non-GET request is allowed.
-      assert.deepEqual(requests.filter(request=>request.method!=='GET'&&!(request.method==='POST'&&request.host==='monderman-api.onrender.com'&&request.path==='/api/first-run-events')),[],`${name}/${engine}: no non-fixture mutations, starts, answers, or admissions`);
+      // Invitation-only setup must not emit retired first-run telemetry or start
+      // a diagnostic before the participant clicks Begin.
+      assert.deepEqual(requests.filter(request=>request.method!=='GET'),[],`${name}/${engine}: no mutations, telemetry, starts, answers, or admissions`);
       assert.equal(requests.filter(request=>/\/run\/|\/answer$|\/finalize$|\/feedback$|\/chat$|\/otp/.test(request.path)).length,0,`${name}/${engine}: no run/provider requests`);
       intercepted.push({name,engine,requests});
       console.log(`${name}/${engine}: 320/390/768/1440 rail + final Back/Begin at 100% and 200% passed`);
@@ -188,7 +188,7 @@ try{
   assert.deepEqual(Object.fromEntries(pinnedNames.map(name=>[name,sha(fs.readFileSync(name))])),sourcePins,'source changed during test');
   assert.equal(results.length,64);assert.equal(negativeControls.length,2);pass=true;
 }finally{
-  fs.writeFileSync(path.join(out,'results.json'),JSON.stringify({pass,sourcePins,servedPins:Object.fromEntries(servedPins),results,negativeControls,intercepted,scope:'Local actual source HTML/CSS; synthetic no-account setup; no final Begin click or production/provider request'},null,2));
+  fs.writeFileSync(path.join(out,'results.json'),JSON.stringify({pass,sourcePins,servedPins:Object.fromEntries(servedPins),results,negativeControls,intercepted,scope:'Local actual source HTML/CSS; synthetic invited Workspace setup; no final Begin click or production/provider request'},null,2));
   for(const browser of browsers)await browser.close();
   await new Promise(resolve=>server.close(resolve));
 }

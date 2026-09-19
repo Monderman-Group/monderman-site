@@ -19,9 +19,7 @@ function set(id, val) { const el = document.getElementById(id); if (el && val !=
 function planDisplay(org) {
   if (!org) return "Free";
   if (org.plan === "pattern" && org.subscription_status === "trialing" && org.pattern_trial_ends_at) {
-    const ms = new Date(org.pattern_trial_ends_at).getTime() - Date.now();
-    const days = Math.max(0, Math.ceil(ms / 86400000));
-    return `Pattern trial · ${days} day${days === 1 ? "" : "s"} left`;
+    return "Pattern · Free evaluation";
   }
   return PLAN_LABEL[org.plan] || org.plan || "Trial";
 }

@@ -41,8 +41,9 @@ const versionScript=vm.runInNewContext(injector.slice(versionStart,versionEnd)+'
 const annualAssets=['monderman-report.js','sample-report-production.js','public-sample-model.js','canonical-site-shell.js','workspace-theme.js'];
 const consistencyAssets=['canonical-site-shell.js','workspace-assistant.js','public-product-design.css','workspace-product-design.css','report-screen-experience.css','diagnostic-intake.css','visual-polish.css','sample-report-production.css'];
 const footerSupportAssets=['canonical-site-shell.js','canonical-site-shell.css','connect-widget.js','assistant.js'];
-const changed=[...new Set([...annualAssets,...consistencyAssets,...footerSupportAssets,'monderman-depth-lure-tile.css','homepage-workspace-demo.css','campaign-analysis.js','campaign-analysis.css'])];
-const runtimeRelease=asset=>['assistant.js','connect-widget.js'].includes(asset)?'20260917.widget-visible1':asset==='canonical-site-shell.css'?'20260916.widget-anchor1':footerSupportAssets.includes(asset)?'20260916.floating-support1':consistencyAssets.includes(asset)?'20260915.consistency1':['monderman-report.js','monderman-depth-lure-tile.css'].includes(asset)?'20260915.financial1':annualAssets.includes(asset)?'20260915.annual1':asset==='homepage-workspace-demo.css'?'20260914-preview-static1':'20260913.34';
+const evaluationAssets=['homepage-workspace-demo.css','homepage-workspace-demo.js','workspace-access-gate.js','workspace-evaluation.js','feedback-widget.js','first-run-telemetry.js','pilot-waitlist.js'];
+const changed=[...new Set([...annualAssets,...consistencyAssets,...footerSupportAssets,...evaluationAssets,'monderman-depth-lure-tile.css','campaign-analysis.js','campaign-analysis.css'])];
+const runtimeRelease=asset=>asset==='monderman-report.js'?'20260919.sankey1':['workspace-access-gate.js','workspace-evaluation.js','feedback-widget.js','assistant.js'].includes(asset)?'20260919.invited1':evaluationAssets.includes(asset)?'20260919.invitation1':asset==='connect-widget.js'?'20260917.widget-visible1':asset==='canonical-site-shell.css'?'20260916.widget-anchor1':footerSupportAssets.includes(asset)?'20260916.floating-support1':consistencyAssets.includes(asset)?'20260915.consistency1':asset==='monderman-depth-lure-tile.css'?'20260915.financial1':annualAssets.includes(asset)?'20260915.annual1':'20260913.34';
 eq(read('monderman-report.js').toString().match(/const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-([^"]+)"/)?.[1],'20260914.43','Renderer version remains 43; annual metadata changes receive a separate cache identity');
 for(const asset of changed){
   for(const quote of ['"',"'"])for(const prefix of ['', './'])for(const query of ['', '?v=20260913.32','?v=20260913.35','?v=20260913.39'])
@@ -89,12 +90,14 @@ for(const file of pages){
     eq(after.length,expectedCount,file+': exact existing or explicitly injected asset reference count');
     // The build refreshes the shared support assets without touching dozens of
     // page sources. Report assets retain their established source-key checks.
-    if([...annualAssets,'homepage-workspace-demo.css'].includes(asset)&&! /^(?:terms|privacy)(?:-|\.)/.test(file))for(const match of before)eq(match[3],`?v=${asset==='canonical-site-shell.js'?'20260915.consistency1':runtimeRelease(asset)}`,file+': expected source cache identity');
+    if([...annualAssets,'homepage-workspace-demo.css'].includes(asset)&&! /^(?:terms|privacy)(?:-|\.)/.test(file))for(const match of before)eq(match[3],`?v=${asset==='canonical-site-shell.js'?'20260915.consistency1':asset==='monderman-report.js'?'20260915.financial1':runtimeRelease(asset)}`,file+': expected source cache identity; the build normalizes unchanged consumer markup');
     for(const match of after){eq(match[3],`?v=${runtimeRelease(asset)}`,file+': current asset URL');references[asset]++;}
   }
 }
-eq(canonicalPages,61);eq(footerPages,65); // One new immutable annual Terms edition.
-for(const asset of changed)ok(references[asset]>0,'Actual built pages exercise '+asset);
+eq(canonicalPages,63);eq(footerPages,67); // Two new immutable invited-evaluation legal editions.
+for(const asset of changed.filter(asset=>asset!=='workspace-evaluation.js'))ok(references[asset]>0,'Actual built pages exercise '+asset);
+eq(references['workspace-evaluation.js'],0,'Evaluation display is loaded only after an authenticated status check');
+ok(fs.readFileSync(path.join(built,'workspace-access-gate.js'),'utf8').includes('evaluationScript.src = "workspace-evaluation.js?v=20260919.invited1"'),'Authenticated loader uses the exact countdown cache identity');
 for(const file of ['canonical-site-shell.js','workspace-theme.js']){
   const loader=fs.readFileSync(path.join(built,file),'utf8');
   ok(loader.includes('assets/brand/brand-lockup.css?v=20260915.annual1'),'Actual loader uses the current brand CSS: '+file);
@@ -117,7 +120,7 @@ eq(fs.readdirSync(path.join(built,'sample-data/reports')).sort(),samplePdfs.map(
 for(const file of samplePdfs)eq(sha(fs.readFileSync(path.join(built,file))),hashes[file],'Exact reviewed PDF copy: '+file);
 for(const privatePath of ['scripts','site-shell','.github','docs','pdf-src','test-fixtures','node_modules','output'])ok(!fs.existsSync(path.join(built,privatePath)),'Private path stays excluded: '+privatePath);
 const legalContent=html=>html.split('<!-- CONTENT_START -->')[1].split('<!-- CONTENT_END -->')[0].replace(/^\n+|\n+$/g,'')+'\n';
-for(const file of ['terms.html','terms-2026-09-15-annual-plans.html','privacy.html','privacy-2026-09-12-ai-source-evidence-v2.html']){
+for(const file of ['terms.html','terms-2026-09-15-annual-plans.html','terms-2026-09-19-invited-evaluation.html','privacy.html','privacy-2026-09-12-ai-source-evidence-v2.html','privacy-2026-09-19-invited-evaluation.html']){
   eq(legalContent(fs.readFileSync(path.join(built,file),'utf8')),legalContent(read(file).toString()),'Shell injection preserves exact legal content: '+file);
 }
 const inventory=JSON.parse(execFileSync(process.execPath,[path.join(root,'scripts/mobile_site_presentation_smoke.mjs'),'--inventory-only'],{cwd:stage,encoding:'utf8'}));

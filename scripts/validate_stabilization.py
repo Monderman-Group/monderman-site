@@ -50,8 +50,8 @@ for token in [
     "/api/billing/organizations",
     'purpose:"trial"',
     "organization_selection_required",
-    "Workspace for this pilot",
-    "This Pattern trial will start for",
+    "Workspace for this evaluation",
+    "This free evaluation will start for",
     "/api/billing/pattern-pilot-invitation",
     'id="workspaceName"',
     'sb.rpc("bootstrap_my_workspace"',
@@ -83,7 +83,7 @@ assert "memberships?.length===1" in workspace
 assert "workspace_selection_required" in workspace
 for token in [
     'const organizationQuery=org.id?`?organization_id=${encodeURIComponent(org.id)}`:"";',
-    'manage.href="plan-pattern.html"+organizationQuery',
+    'manage.textContent="Discuss continued access →"; manage.href="connect.html"',
     'manage.href=isTrial?"platform-services.html"+organizationQuery:"workspace-settings.html#billing"',
     'if(state.membership?.organization_id) sessionStorage.setItem("monderman_active_organization_id", state.membership.organization_id);',
 ]:

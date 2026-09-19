@@ -525,7 +525,7 @@ body{transition:background-color .25s ease, color .25s ease}
     function daysLeft(iso){ if(!iso) return null; return Math.ceil((new Date(iso).getTime()-Date.now())/86400000); }
     function trialDaysLeft(org){
       if(!org || org.plan!=="pattern" || org.subscription_status!=="trialing" || !org.pattern_trial_ends_at) return null;
-      const ms=Date.parse(org.pattern_trial_ends_at)-Date.now();
+      const ms=Date.parse(org.pattern_trial_ends_at)-Date.parse(window.__mondermanEvaluationStatus?.serverNow || "");
       if(!Number.isFinite(ms)) return null;
       return Math.max(0,Math.ceil(ms/86400000));
     }
@@ -538,10 +538,10 @@ body{transition:background-color .25s ease, color .25s ease}
       if(days==null) return;
       const a=document.createElement("a");
       a.id="ws5TrialTag";
-      a.href="plan-pattern.html";
-      a.textContent=` · trial · ${days}d left`;
+      a.href="connect.html";
+      a.textContent=` · evaluation`;
       a.style.cssText="color:#A9CFD2;text-decoration:none;font-weight:600";
-      a.title="Pattern evaluation: choose a paid plan explicitly to continue after the trial";
+      a.title="Free evaluation. Continued access requires a separate agreement.";
       chip.appendChild(a);
     }
 
@@ -578,7 +578,7 @@ body{transition:background-color .25s ease, color .25s ease}
     function renderOrg(){
       $("orgName").value = state.org?.name || "";
       const d=trialDaysLeft(state.org);
-      setText("orgPlan", d==null ? (PLAN_LABEL[state.org?.plan] || state.org?.plan || "Free") : `Pattern trial · ${d} day${d===1?"":"s"} left`);
+      setText("orgPlan", d==null ? (PLAN_LABEL[state.org?.plan] || state.org?.plan || "Free") : `Free evaluation · ${d} day${d===1?"":"s"} left`);
       const can = isAdmin() && !!state.orgId;
       $("orgName").disabled = !can;
       $("saveOrg").disabled = !can;
@@ -785,10 +785,10 @@ body{transition:background-color .25s ease, color .25s ease}
       $("billingPortal").hidden=false;
       $("cancelAnnualRenewal").hidden=!c||c.cancellationScheduled;
       if(!c){
-        const pilot=trialDaysLeft(state.org)!==null;
-        setText("billingSummary",pilot?"Your 30-day Pattern pilot does not renew automatically. Choosing a paid plan is a separate purchase.":"This Workspace uses its existing plan terms. No new annual offer has been applied.");
+        const pilot=state.org?.plan==="pattern" && state.org?.subscription_status==="trialing" && Boolean(state.org?.pattern_trial_ends_at);
+        setText("billingSummary",pilot?"Your free evaluation does not renew automatically. Continued access requires a separate agreement.":"This Workspace uses its existing plan terms. No new annual offer has been applied.");
         setText("billingTerm","");setText("billingRenewal","");
-        setText("billingAllowance",pilot?"The pilot has a separate 500-response allowance and unlimited eligible Syntheses during its 30 days.":"Your current plan limits remain in effect. Check Plan & usage below or review your accepted agreement.");
+        setText("billingAllowance",pilot?"Your evaluation includes the Pattern tools. Its actual allowances are shown in Plan & usage below; new 60-day evaluations have no ordinary-use response or Synthesis cap.":"Your current plan limits remain in effect. Check Plan & usage below or review your accepted agreement.");
         if(pilot||["trial","free"].includes(state.org?.plan))$("billingPortal").hidden=true;
         return;
       }

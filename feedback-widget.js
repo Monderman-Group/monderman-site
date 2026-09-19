@@ -162,12 +162,12 @@
   }
 
   function markPilotFeedbackEntry() {
-    launch.setAttribute('aria-label', 'Share private pilot feedback');
+    launch.setAttribute('aria-label', 'Share private evaluation feedback');
     var label = launch.querySelector('span');
-    if (label) label.textContent = 'Pilot feedback';
+    if (label) label.textContent = 'Evaluation feedback';
     document.querySelectorAll('button[title="Send feedback"] span').forEach(function (railLabel) {
-      railLabel.textContent = 'Pilot feedback';
-      if (railLabel.parentElement) railLabel.parentElement.title = 'Share private pilot feedback';
+      railLabel.textContent = 'Evaluation feedback';
+      if (railLabel.parentElement) railLabel.parentElement.title = 'Share private evaluation feedback';
     });
   }
 

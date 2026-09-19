@@ -54,7 +54,7 @@
   window.__mondermanAssistantLoaded = true;
   var API_URL    = "https://monderman-api.onrender.com/api/site-assistant";
   var STORAGE_KEY = "mndAssistantHistory";              // survives page-to-page within a tab
-  var GREETING   = "Hi. I’m Monderman’s AI site guide. Ask what the diagnostics cover, how to start the free Decision Velocity run, or how the pilot works. I explain the product, not its private implementation. I can make mistakes; check important details with the team.";
+  var GREETING   = "Hi. I’m Monderman’s AI site guide. Ask what the diagnostics cover, how to request an invitation, or how the 60-day free evaluation works. I explain the product, not its private implementation. I can make mistakes; check important details with Monderman.";
 
   // Public controls stay bottom-right and retire at the footer; diagnostic help stays in its existing flow.
   function ensureFooterDock() {

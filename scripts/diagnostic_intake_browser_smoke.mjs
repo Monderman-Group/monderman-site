@@ -20,8 +20,8 @@ const server = http.createServer((req,res) => {
 });
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const base = `http://127.0.0.1:${server.address().port}`;
-const fixture = `window.__fixtureAuth={auth:{getSession:async()=>({data:{session:null}}),getUser:async()=>({data:{user:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}};window.supabase={createClient:()=>window.__fixtureAuth};`;
-const gate = `window.__mondermanSB=window.__fixtureAuth;window.mondermanGetSupabaseClient=async()=>window.__fixtureAuth;window.__mondermanActiveOrganizationId=null;window.mondermanWorkspaceAccessReady=Promise.resolve({allowed:true,context:'public_first_run'});window.__mondermanReveal?.();`;
+const fixture = `window.__fixtureAuth={auth:{getSession:async()=>({data:{session:{access_token:'invited-fixture',user:{id:'11111111-1111-4111-8111-111111111111'}}}}),getUser:async()=>({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}};window.supabase={createClient:()=>window.__fixtureAuth};`;
+const gate = `window.__mondermanSB=window.__fixtureAuth;window.mondermanGetSupabaseClient=async()=>window.__fixtureAuth;window.__mondermanActiveOrganizationId='22222222-2222-4222-8222-222222222222';window.mondermanWorkspaceAccessReady=Promise.resolve({allowed:true,context:'workspace'});window.__mondermanReveal?.();`;
 const values = {processName:'Approving a supplier',businessUnit:'Operations',employeeCount:'250',peopleInvolved:'8',hourlyCost:'90',annualVolume:'24',meetingHours:'4'};
 const choices = {industry:'technology_software',regulatoryIntensity:'moderate',decisionType:'program'};
 // Pre-change contracts from main 7d349ce: IDs, grouping, required flags, types,
@@ -33,7 +33,7 @@ const contractHashes = {
   'institutional-performance':'4f76c81b608b0e263c26a17cdb9bf6b616a7cab7c73d8e16a6aad4e51020ab1f',
 };
 const lengthGuidance = {
-  'decision-velocity':'For a first run, the 10-minute version is the recommended starting point. Choose 30 or 60 minutes when you want more pattern detail. Every version produces a score and band. A free account unlocks the full Executive Report and saves the run.',
+  'decision-velocity':'For a first run, the 10-minute version is the recommended starting point. Choose 30 or 60 minutes when you want more pattern detail. Every version produces a score, band and Executive Report saved in your organization’s Workspace.',
   'structural-clarity':'Pick the shortest run that fits the responsibilities, authority, and handoffs you want to examine. For most first passes, the 30-minute version is the best starting point. A shorter run gives an initial view; longer runs ask more questions and provide more detail.',
   'operational-systems':'Pick the shortest run that still fits the importance of the workflow. For most first passes, the 30-minute version is the best starting point. A shorter run gives an initial view; longer runs ask more questions and provide more detail.',
   'institutional-performance':'Pick the shortest run that still fits the importance of the unit you are assessing. For most first passes, the 30-minute version is the best starting point. A shorter run gives an initial view; longer runs ask more questions and provide more detail.',

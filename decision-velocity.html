@@ -18,13 +18,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk" crossorigin="anonymous" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous" defer></script>
 <script>
-    window.MONDERMAN_ALLOW_PUBLIC_FIRST_RUN = true;
+    window.MONDERMAN_ALLOW_PUBLIC_FIRST_RUN = false;
     window.MONDERMAN_SUPABASE_URL = "https://ptkxrzgmeldalrkfruth.supabase.co";
     window.MONDERMAN_SUPABASE_ANON_KEY = "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz";
   </script>
   <script src="workspace-access-gate.js" defer></script>
   <script src="first-run-telemetry.js" defer></script>
-  <!-- ===== Monderman access guard: public first run, authenticated report and Workspace ===== -->
+  <!-- ===== Monderman access guard: invited Workspace or directed campaign participant ===== -->
   <script>
     /* Hide the page immediately so the tool never flashes before we confirm the
        session. A timeout reveals it anyway if the auth library can't load, so no
@@ -584,7 +584,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
     <div class="intake-content">
       <p class="intake-step-kicker">Step 2 &middot; Length</p>
       <h3 class="intake-step-title">Choose the diagnostic length</h3>
-      <p class="intake-step-copy">For a first run, the 10-minute version is the recommended starting point. Choose 30 or 60 minutes when you want more pattern detail. Every version produces a score and band. A free account unlocks the full Executive Report and saves the run.</p>
+      <p class="intake-step-copy">For a first run, the 10-minute version is the recommended starting point. Choose 30 or 60 minutes when you want more pattern detail. Every version produces a score, band and Executive Report saved in your organization’s Workspace.</p>
 <p style="margin:10px 0 0;font-size:13.5px;"><a href="sample-report.html#dv" style="color:#0C6E78;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(12,110,120,.35);padding-bottom:1px;">See exactly what you&rsquo;ll receive: a completed sample report &rarr;</a></p>
       <div class="intake-options">
         <button class="intake-option has-recommended" type="button" data-depth="10" data-first-run-event="run_length_selected" data-first-run-depth="10"><span class="intake-option-recommended">Recommended first run</span><span class="intake-option-radio"><span class="intake-option-radio-check">&#10003;</span></span><div class="intake-option-body"><p class="intake-option-name">10-minute diagnostic <span class="intake-option-tag">Brief initial view</span></p><p class="intake-option-desc">A shorter diagnostic for an initial view or a repeat check after a change.</p></div></button>
@@ -712,8 +712,8 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
     @media(max-width:560px){.exhausted-stage .ex-actions{flex-direction:column;}.exhausted-stage .ex-actions .btn{width:100%;}}
   </style>
   <div class="ex-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
-  <h2>You&rsquo;ve used all your free diagnostic runs</h2>
-  <p id="exhaustedMessage">Your existing results remain available in Workspace. Choose a plan to run another diagnostic, or reach out and we&rsquo;ll help you get set up.</p>
+  <h2>Check your Workspace access</h2>
+  <p id="exhaustedMessage">Your existing results remain available in Workspace. An active evaluation or subscription is required to start new work. Contact Monderman for help.</p>
   <div class="ex-actions">
     <a class="btn btn-accent" href="https://www.monderman.com/platform-services.html">See plans &amp; pricing</a>
     <a class="btn" href="https://www.monderman.com/connect.html">Connect with us</a>
@@ -902,7 +902,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
         <section class="viz-card" id="basisOfRead" style="margin:6px 0 0;"><h4>How this result was produced</h4><dl id="basisRows" style="display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:10px 0 0;font-size:.92rem;line-height:1.55;"></dl><p class="viz-note" style="margin-top:10px;">The JSON export includes these inputs and versions. The same answers, questionnaire version, and scoring version produce the same score.</p></section>
     <section class="advisory-card"><div><p class="summary-label" style="margin-bottom:8px;color:var(--accent);">Next step</p><h3 style="margin:0 0 8px;">Bring this into a deeper platform services conversation.</h3><p class="result-copy" style="margin:0;">If the pattern appears broader, more persistent, or more costly than a directional tool can resolve, Monderman can go deeper on decision pathways, approval design, governance proportionality, and off-path workarounds.</p></div><div class="export-cta-stack"><div class="export-primary-row"><button class="btn btn-accent" id="downloadPdfBtn" type="button">Download Summary (PDF)</button><a class="btn" href="connect.html" target="_blank" rel="noopener noreferrer">Discuss with Monderman Platform Services</a></div><div class="export-inline-row"><button class="action-link" id="downloadReportBtn" type="button">Download Summary (HTML)</button><span aria-hidden="true" style="color:rgba(24,25,28,.18)">|</span><button class="action-link" id="downloadFullReportBtn" type="button">Download Full Report (HTML)</button><span aria-hidden="true" style="color:rgba(24,25,28,.18)">|</span><button class="action-link" id="saveCrossDiagnosticBtn" type="button">Export JSON for Synthesis</button></div><div class="export-utility-row"><button class="utility-btn" id="newRunBtn" type="button">Run another diagnostic</button><span aria-hidden="true" style="color:rgba(24,25,28,.18)">|</span><a class="utility-btn" href="diagnostics.html" target="_blank" rel="noopener noreferrer">Back to diagnostics</a></div><a id="reportDownloadLink" class="hidden-download" download="monderman-decision-velocity-report.html"></a><a id="crossDiagnosticDownloadLink" class="hidden-download" download="monderman-decision-velocity-result.json"></a></div></section>
     <p style="margin:18px 0 0;"><a class="btn" href="workspace-diagnostics.html">Open saved result in Workspace</a></p>
-    <section class="pilot-result-invitation" style="margin:22px 0 0;padding:22px 24px;border-left:4px solid #C9821F;background:#F7F1E6;display:flex;align-items:center;justify-content:space-between;gap:22px;flex-wrap:wrap;"><div style="max-width:670px;"><p style="margin:0 0 7px;color:#8A5512;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Limited Pattern Pilot</p><h3 style="margin:0 0 7px;font-size:1.15rem;">Take this from one leader to one team.</h3><p class="result-copy" style="margin:0;">Apply to examine the same bounded decision system across six to twelve people in the 30-day Pattern Pilot.</p></div><a class="btn" href="pilot.html?source=decision_velocity" target="_blank" rel="noopener noreferrer" data-first-run-event="pattern_pilot_requested" style="background:#C9821F;color:#18191C;border-color:#C9821F;font-weight:700;">Apply to the pilot waitlist</a></section>
+    <section class="pilot-result-invitation" style="margin:22px 0 0;padding:22px 24px;border-left:4px solid #C9821F;background:#F7F1E6;display:flex;align-items:center;justify-content:space-between;gap:22px;flex-wrap:wrap;"><div style="max-width:670px;"><p style="margin:0 0 7px;color:#8A5512;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;">60-day Monderman evaluation</p><h3 style="margin:0 0 7px;font-size:1.15rem;">Explore the full diagnostic suite.</h3><p class="result-copy" style="margin:0;">Request an invitation to examine operating conditions across your organization. No card required. No automatic renewal.</p></div><a class="btn" href="pilot.html?source=decision_velocity" target="_blank" rel="noopener noreferrer" data-first-run-event="pattern_pilot_requested" style="background:#C9821F;color:#18191C;border-color:#C9821F;font-weight:700;">Request an invitation</a></section>
     <section class="results-disclaimer" id="bottomDisclaimer"></section>
   </div></div>
   <footer class="env-foot" id="questionFooter"><div class="progress-wrap"><div class="progress-top"><p id="progressCopy"></p><p id="pathHint"></p></div><div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div></div><div class="actions"><div class="actions-left"><button class="btn" id="backBtn" type="button">Back</button><button class="btn" id="skipBtn" type="button">Skip</button></div><div class="actions-right"><button class="btn btn-soft" id="restartBtn" type="button">Start over</button><button class="btn btn-accent" id="continueBtn" type="button">Continue</button></div></div></footer>
@@ -1753,14 +1753,14 @@ function showRecoverableSignupTeaser(data) {
   content.innerHTML = `
     <p class="dv-result-dialog__eyebrow">Decision Velocity</p>
     <div class="dv-result-dialog__score"><span class="dv-result-dialog__score-number">${escapeHtml(String(teaser.score ?? 'Unavailable'))}</span><span class="dv-result-dialog__score-meta">/ 100${teaser.band ? ' · ' + escapeHtml(teaser.band) : ''}</span></div>
-    <p class="dv-result-dialog__message">${escapeHtml(data?.message || 'Create a free account to unlock the full report.')}</p>
+    <p class="dv-result-dialog__message">Sign in with your invited or existing account to open the full report.</p>
     <div class="dv-result-dialog__actions">
-      <a id="mdmTeaserSignIn" class="dv-result-dialog__button dv-result-dialog__button--primary" href="signin.html?next=decision-velocity.html%3Fresume%3D1" data-first-run-event="account_unlock_requested">Create account / sign in</a>
+      <a id="mdmTeaserSignIn" class="dv-result-dialog__button dv-result-dialog__button--primary" href="signin.html?next=decision-velocity.html%3Fresume%3D1" data-first-run-event="account_unlock_requested">Sign in to open report</a>
       <a class="dv-result-dialog__text-link" href="platform-services.html" target="_blank" rel="noopener noreferrer">See plans</a>
     </div>
     <p class="dv-result-dialog__note">Return to this same tab after signing in. Your answers are kept for up to four hours from the start of this run. You will not need to answer again.</p>
     <p id="mdmTeaserRecoveryMessage" role="status" class="dv-result-dialog__message"></p>
-    <div class="dv-result-dialog__pilot"><p class="dv-result-dialog__pilot-kicker">Limited Pattern Pilot</p><p class="dv-result-dialog__pilot-copy"><strong>Take this from one leader to one team.</strong> Apply for a pilot with six to twelve people examining the same type of decision.</p><a class="dv-result-dialog__button dv-result-dialog__button--pilot" href="pilot.html?source=decision_velocity" target="_blank" rel="noopener noreferrer" data-first-run-event="pattern_pilot_requested">Apply to the pilot waitlist</a></div>`;
+    <div class="dv-result-dialog__pilot"><p class="dv-result-dialog__pilot-kicker">60-day Monderman evaluation</p><p class="dv-result-dialog__pilot-copy"><strong>Explore the full diagnostic suite.</strong> Request an invitation to examine operating conditions across your organization. No card required. No automatic renewal.</p><a class="dv-result-dialog__button dv-result-dialog__button--pilot" href="pilot.html?source=decision_velocity" target="_blank" rel="noopener noreferrer" data-first-run-event="pattern_pilot_requested">Request an invitation</a></div>`;
   // Closing the dialog never clears the run or strands the visitor on a loader.
   showStage(processingStage);
   let summary = document.getElementById('completedRunSummary');
@@ -1770,7 +1770,7 @@ function showRecoverableSignupTeaser(data) {
     processingStage.appendChild(summary);
   }
   Array.from(processingStage.children).forEach(child => { if (child !== summary) child.hidden = true; });
-  summary.innerHTML = `<h3>Your Decision Velocity result</h3><p>${escapeHtml(String(teaser.score ?? 'Unavailable'))} / 100 · ${escapeHtml(teaser.band || '')}</p><button class="dv-result-dialog__button dv-result-dialog__button--primary" id="reopenRunResult" type="button">View result and unlock report</button>`;
+  summary.innerHTML = `<h3>Your Decision Velocity result</h3><p>${escapeHtml(String(teaser.score ?? 'Unavailable'))} / 100 · ${escapeHtml(teaser.band || '')}</p><button class="dv-result-dialog__button dv-result-dialog__button--primary" id="reopenRunResult" type="button">View result and open report</button>`;
   summary.hidden = false;
   const reopen = summary.querySelector('button');
   reopen.addEventListener('click', () => showSignupTeaser(data));

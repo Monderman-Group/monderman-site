@@ -170,19 +170,19 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
 
     await page.goto(`${base}/pattern-trial.html`, { waitUntil: "domcontentloaded" });
     if (scenario === "uninvited") {
-      await page.getByText("This email does not have an active pilot invitation.").waitFor();
+      await page.getByText("This email does not have an active evaluation invitation.").waitFor();
       assert.equal(await page.locator("#startBtn").isDisabled(), true, `${browserName}: uninvited account can start pilot`);
       await blocked();
     } else if(["invitation-unavailable","invitation-network-error"].includes(scenario)){
-      await page.getByText("We couldn’t check your pilot invitation.").waitFor();
-      assert.equal(await page.getByText("This email does not have an active pilot invitation.").count(),0,"service failure must not claim the invitation is absent");
+      await page.getByText("We couldn’t check your evaluation invitation.").waitFor();
+      assert.equal(await page.getByText("This email does not have an active evaluation invitation.").count(),0,"service failure must not claim the invitation is absent");
       await blocked();
     } else if(scenario==="legal-unavailable"){
-      await page.getByText("Your pilot invitation is verified.").waitFor();
+      await page.getByText("Your evaluation invitation is verified.").waitFor();
       await page.getByText("We couldn’t load the current terms. Please refresh and try again.").waitFor();
       await blocked();
     } else {
-      await page.getByText("Your pilot invitation is verified.").waitFor();
+      await page.getByText("Your evaluation invitation is verified.").waitFor();
       if (isNew) {
         await page.locator("#workspaceName").fill("Pilot Workspace");
         const fit = await page.locator("html").evaluate(node => ({ client: node.clientWidth, scroll: node.scrollWidth }));
@@ -194,11 +194,11 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
           assert.equal(await page.locator("#startBtn").isEnabled(),true);
         }
         await page.locator("#organizationSelect").selectOption(selectedOrg);
-        await page.getByText("This Pattern trial will start for Second Workspace.").waitFor();
+        await page.getByText("This free evaluation will start for Second Workspace.").waitFor();
         assert.equal(await page.locator("#ackStart").isChecked(),false,"changing Workspace must clear a previous acknowledgement");
         assert.equal(await page.locator("#startBtn").isDisabled(),true);
       } else {
-        await page.getByText("This Pattern trial will start for Existing Workspace.").waitFor();
+        await page.getByText("This free evaluation will start for Existing Workspace.").waitFor();
         assert.equal(await page.locator("#workspaceBootstrap").isHidden(), true, `${browserName}: existing account was asked to create another Workspace`);
       }
       assert.equal(await page.locator("#trialTermsLink").getAttribute("href"),legalManifest.documents[termsVersion].terms_file);
@@ -242,7 +242,7 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
         await page.locator("#startBtn").click();
       }
       if(scenario==="acceptance-failed"){
-        await page.getByText("The Pattern trial could not be reached. Nothing was charged. Please try again.").waitFor();
+        await page.getByText("The free evaluation could not be reached. Nothing was charged. Please try again.").waitFor();
         assert.equal(requests.filter(entry=>entry.path==="/api/billing/start-pattern-trial").length,0,"failed acceptance must prevent activation");
       }else{
       await page.getByText("Pattern is active. Opening your Workspace…").waitFor();

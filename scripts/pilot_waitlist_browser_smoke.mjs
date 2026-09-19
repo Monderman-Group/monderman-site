@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { chromium, webkit } from "playwright";
+const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || "playwright");
 
 const base = process.env.SITE_BASE || "http://127.0.0.1:4173";
 const viewports = [
@@ -24,7 +24,7 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
 
     await page.goto(`${base}/pilot.html?source=decision_velocity`, { waitUntil: "domcontentloaded", timeout: 60000 });
     assert.equal(await page.locator("h1").count(), 1, `${browserName}/${viewport.name}: pilot h1 missing`);
-    assert.equal(await page.locator('input[name="completedDecisionVelocity"]').isChecked(), true, `${browserName}/${viewport.name}: Decision Velocity completion was not carried into the application`);
+    assert.equal(await page.locator('input[name="completedDecisionVelocity"]').count(), 0, "Previous free DV is not a prerequisite");
     assert.equal(await page.locator('script[src^="assistant.js"]').count(), 1, `${browserName}/${viewport.name}: assistant missing`);
     assert.equal(await page.locator('footer a[aria-label="Monderman on LinkedIn"]').count(), 1, `${browserName}/${viewport.name}: social footer missing`);
     const pilotAction = page.locator(".pilot-primary").first();
@@ -45,7 +45,7 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
     await page.locator("#pilotSubmit").click();
     await page.locator("#pilotConfirmation").waitFor({ state: "visible", timeout: 15000 });
     assert.equal(submitted?.source, "decision_velocity");
-    assert.equal(submitted?.completedDecisionVelocity, true);
+    assert.equal(submitted?.completedDecisionVelocity, false);
     assert.equal(submitted?.privacyConsent, true);
     assert.match(submitted?.requestId || "", /^[0-9a-f-]{36}$/i);
     assert.equal(Object.hasOwn(submitted, "journeyId"), false, "Application must not link an anonymous journey to a person");

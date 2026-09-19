@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import {chromium,webkit} from 'playwright';
+const {chromium,webkit}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 const base=process.env.SITE_BASE||'http://127.0.0.1:8080',origin=new URL(base).origin;
 assert.ok(['127.0.0.1','localhost','::1'].includes(new URL(base).hostname),'Local candidate only');
 const out=fs.mkdtempSync('/tmp/monderman-header-entry-'),results=[];
@@ -16,8 +16,8 @@ for(const [name,engine]of [['chromium',chromium],['webkit',webkit]]){
       await page.goto(base+'/'+file,{waitUntil:'load'});await page.evaluate(()=>document.fonts.ready);
       if(width<1181)await page.locator('.site-menu-button').click();
       const link=page.locator('.site-entry-link');
-      assert.equal(await link.innerText(),'Run Decision Velocity free');
-      assert.equal(await link.getAttribute('href'),'decision-velocity.html?source=header');
+      assert.equal(await link.innerText(),'Request an invitation');
+      assert.equal(await link.getAttribute('href'),'pilot.html');
       for(const state of ['normal','hover','focus',...(width>1180?['scrolled','return-top']:[])]){
         let returnPaint;
         if(state==='normal')await page.mouse.move(0,0);

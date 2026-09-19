@@ -21,14 +21,14 @@ const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
 const shellRelease = "20260913.32";
 // Refresh changed runtime assets without invalidating unchanged brand assets.
 const assetReleases = Object.freeze({
-  "monderman-report.js": "20260915.financial1",
+  "monderman-report.js": "20260919.sankey1",
   "monderman-depth-lure-tile.css": "20260915.financial1",
   "sample-report-production.js": "20260915.annual1",
   "public-sample-model.js": "20260915.annual1",
   "canonical-site-shell.js": "20260916.floating-support1",
   "canonical-site-shell.css": "20260916.widget-anchor1",
   "connect-widget.js": "20260917.widget-visible1",
-  "assistant.js": "20260917.widget-visible1",
+  "assistant.js": "20260919.invited1",
   "workspace-assistant.js": "20260915.consistency1",
   "public-product-design.css": "20260915.consistency1",
   "workspace-product-design.css": "20260915.consistency1",
@@ -38,11 +38,15 @@ const assetReleases = Object.freeze({
   "workspace-theme.js": "20260915.annual1",
   "campaign-analysis.js": "20260913.34",
   "campaign-analysis.css": "20260913.34",
-  "homepage-workspace-demo.css": "20260914-preview-static1",
+  "homepage-workspace-demo.css": "20260919.invitation1",
+  "homepage-workspace-demo.js": "20260919.invitation1",
+  "workspace-access-gate.js": "20260919.invited1",
+  "workspace-evaluation.js": "20260919.invited1",
+  "feedback-widget.js": "20260919.invited1",
   "sample-report-production.css": "20260915.consistency1",
 });
 const assistantRelease = "20260910-bounded-chat1";
-const acquisitionRelease = "20260910-measurement-choice1";
+const acquisitionRelease = "20260919.invitation1";
 const productPages = new Set([
   "diagnostics.html", "platform-services.html", "plan-signal.html", "plan-pattern.html",
   "plan-enterprise.html", "new-in-the-role.html", "after-an-acquisition.html",
@@ -56,7 +60,7 @@ const diagnosticPages = new Set([
 ]);
 const refreshedAssets = [
   "monderman-report.js", "sample-report-production.js", "public-sample-model.js", "workspace-theme.js", "sample-report-production.css",
-  "homepage-hero-system.css", "homepage-workspace-demo.css", "homepage-workspace-demo.js",
+  "homepage-hero-system.css", "homepage-workspace-demo.css", "homepage-workspace-demo.js", "workspace-access-gate.js", "workspace-evaluation.js", "feedback-widget.js",
   "workspace-product-design.css", "report-screen-experience.css", "report-screen-experience.js",
   "dv-result-dialog.css", "dv-result-dialog.js",
   "diagnostic-intake.css", "diagnostic-note-permission.js", "participant-evidence-safety.js",

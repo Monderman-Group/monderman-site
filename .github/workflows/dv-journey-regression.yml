@@ -39,6 +39,7 @@ jobs:
           node scripts/diagnostic_intake_browser_smoke.mjs
           node scripts/dv_result_dialog_smoke.mjs
           node scripts/dv_journey_browser_smoke.mjs
+          DV_JOURNEY_OUT=output/dv-journey-legacy-recovery node scripts/dv_journey_browser_smoke.mjs --legacy-recovery
       - name: Test saved answer history against the authoritative questionnaire
         run: node scripts/diagnostic_authoritative_history_browser_smoke.mjs
       - name: Build revised-question activation candidate without deployment
@@ -49,7 +50,9 @@ jobs:
       - name: Test activated questions through the same saved-run journey
         env:
           DV_JOURNEY_OUT: output/dv-journey-browser-current
-        run: node scripts/dv_journey_browser_smoke.mjs
+        run: |
+          node scripts/dv_journey_browser_smoke.mjs
+          DV_JOURNEY_OUT=output/dv-journey-legacy-recovery-current node scripts/dv_journey_browser_smoke.mjs --legacy-recovery
       - name: Test OS recovery identity and draft ownership boundaries
         run: |
           node scripts/os_recovery_identity_smoke.mjs
@@ -67,6 +70,8 @@ jobs:
             output/dv-result-dialog-smoke
             output/dv-journey-browser
             output/dv-journey-browser-current
+            output/dv-journey-legacy-recovery
+            output/dv-journey-legacy-recovery-current
             output/authoritative-history-browser
             output/os-same-session-browser
   intake-text-resizing:

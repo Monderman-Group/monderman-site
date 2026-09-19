@@ -100,15 +100,18 @@ for(const [f,prices,pool,synth] of [
   check(!s.includes('interval=quarterly')&&!s.includes('effective end of the paid period')&&!s.includes('each billing period'),f+' no stale quarterly/month-to-month offer');
 }
 const matrix=read('platform-services.html');
-check(matrix.includes('The free account includes')&&!matrix.includes('implemented entitlement'),'free-account description uses customer language');
+check(matrix.includes('Evaluate the full Pattern experience for 60 days.')&&!matrix.includes('The free account includes')&&!matrix.includes('implemented entitlement'),'invitation evaluation uses customer language, not a retired free-account offer');
+check(!matrix.includes('checkout.html?')&&!matrix.includes('Create a free account'),'public pricing has no ungated purchase/signup CTA');
 const overview=read('workspace.html');
 check(overview.split('for one process or area of work').length-1===2&&!/for (?:a specific|one) operating pathway/.test(overview),'both empty-state prompts use plain business language without changing links or run scope');
 for(const phrase of ['2,400','6,000','60 new Syntheses','300 new Syntheses','$21,600','$48,600','No automatic overage','Diagnostic scores do not supply a recovery percentage'])check(matrix.includes(phrase),'matrix '+phrase);
 check(!/5(?:–|-|&ndash;| to )42/.test(matrix),'no assigned score-based recovery percentage');
 for(const f of ['pilot.html','pattern-trial.html']){
-  const s=read(f);
-  check(s.includes('500')&&s.includes('300 new Syntheses')&&s.includes('separate from'),f+' pilot capacity remains distinct');
-  check(/unlimited/i.test(s)&&s.includes('30-day'),f+' existing temporary unlimited Synthesis policy retained');
+  const s=read(f).replace(/<script\b[\s\S]*?<\/script>|<style\b[\s\S]*?<\/style>/gi,'').replace(/<[^>]*>/g,' ');
+  check(!s.includes('500')&&!s.includes('30-day')&&!s.includes('300 new Syntheses'),f+' retired evaluation response/time/Synthesis caps are absent');
+  check(/unlimited/i.test(s)&&/60.day|60 days/.test(s)&&/no (?:credit card|card)/i.test(s)&&/no(?:thing is charged| (?:payment or )?automatic renewal)/i.test(s),f+' invitation evaluation duration, use and payment boundaries');
+  check(/invitation/i.test(s)&&/paid plan|paid plans|separate purchase|separately agreed/i.test(s),f+' activation and continued access remain distinct');
+  check(/abuse protections|automated or bulk use/i.test(s),f+' ordinary-use protection is explicit');
 }
 for(const [f,key] of [['structural-clarity','sc'],['decision-velocity','dv'],['operational-systems','os'],['institutional-performance','ip']]){
   const s=read(f+'-article.html');
@@ -119,7 +122,7 @@ for(const [f,key] of [['structural-clarity','sc'],['decision-velocity','dv'],['o
 for(const f of ['security.html','pilot.html','pattern-trial.html']){
   check(read(f).includes('Anthropic')&&!read(f).includes('Claude '),f+' provider disclosure without model name');
 }
-check(read('privacy.html')===read('privacy-2026-09-12-ai-source-evidence-v2.html'),'accepted Privacy edition remains byte-identical; provider brand is not a model version');
+check(read('privacy.html')===read('privacy-2026-09-19-invited-evaluation.html'),'current Privacy edition has an exact archive; historical source-evidence edition remains immutable under legal protection tests');
 for(const f of ['index.html','research.html','why-monderman.html']){
   const text=read(f).replace(/<style\b[\s\S]*?<\/style>/gi,'').replace(/<script\b[\s\S]*?<\/script>/gi,'').replace(/<[^>]*>/g,' ');
   check(!/peer-reviewed.{0,60}(?:book|Routledge)/i.test(text),f+' authorship not validation');

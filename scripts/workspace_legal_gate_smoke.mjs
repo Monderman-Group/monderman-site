@@ -4,7 +4,7 @@ import vm from "node:vm";
 
 const source = readFileSync(new URL("../workspace-access-gate.js", import.meta.url), "utf8");
 
-async function runScenario({ status, pathname = "/workspace-diagnostics.html", search = "", user = true, memberships = null }) {
+async function runScenario({ status, pathname = "/workspace-diagnostics.html", search = "", user = true, memberships = null, evaluation = {ok:true,organizationId:'org-1',evaluation:{status:"none"}}, legacyPublicFlag = false }) {
   const redirects = [];
   let statusCalls = 0;
   let clientCreations = 0;
@@ -19,9 +19,12 @@ async function runScenario({ status, pathname = "/workspace-diagnostics.html", s
   };
   const root = { style: {} };
   const elements = [];
+  const evaluationCalls = [];
   const document = {
     documentElement: root,
     body: { appendChild(element) { elements.push(element); } },
+    head: { appendChild(element) { elements.push(element); } },
+    getElementById(id) { return elements.find(element=>element.id===id) || null; },
     createElement() {
       return { id: "", style: {}, innerHTML: "", setAttribute() {} };
     }
@@ -51,17 +54,23 @@ async function runScenario({ status, pathname = "/workspace-diagnostics.html", s
     supabase: { createClient: () => { clientCreations += 1; return client; } },
     __mondermanSB: null
   };
+  window.MONDERMAN_ALLOW_PUBLIC_FIRST_RUN = legacyPublicFlag;
   const context = vm.createContext({
     window,
     document,
     location,
     URLSearchParams,
+    AbortController,
     sessionStorage: { getItem() { return null; }, setItem() {} },
     Promise,
     setTimeout,
     clearTimeout,
     console,
-    fetch: async () => {
+    fetch: async (url, options) => {
+      if (url.includes('/api/evaluation/status')) {
+        evaluationCalls.push({url,options});
+        return {ok:evaluation?.ok===true,json:async()=>evaluation};
+      }
       statusCalls += 1;
       return {
         ok: status?.httpOk !== false,
@@ -71,7 +80,8 @@ async function runScenario({ status, pathname = "/workspace-diagnostics.html", s
   });
   vm.runInContext(source, context);
   const decision = await window.mondermanWorkspaceAccessReady;
-  return { decision, redirects, statusCalls, root, elements, clientCreations, bootstrapCalls, client: window.__mondermanSB };
+  await window.mondermanEvaluationReady;
+  return { decision, redirects, statusCalls, root, elements, evaluationCalls, refresh:window.mondermanRefreshEvaluationStatus, snapshot:window.__mondermanEvaluationStatus, clientCreations, bootstrapCalls, client: window.__mondermanSB };
 }
 
 const blocked = await runScenario({
@@ -116,5 +126,22 @@ assert.equal(assignment.clientCreations, 1, "direct assignments retain the same 
 const signedOut = await runScenario({ user: false });
 assert.equal(signedOut.decision.reason, "sign_in_required");
 assert.equal(signedOut.redirects.length, 1);
+
+const obsoletePublicBypass = await runScenario({user:false,pathname:'/decision-velocity.html',legacyPublicFlag:true});
+assert.equal(obsoletePublicBypass.decision.allowed,false,'stale public-first-run flag cannot bypass invitation entry');
+const evaluating = await runScenario({status:{ok:true,requiresAcceptance:false},evaluation:{ok:true,organizationId:'org-1',serverNow:'2026-09-19T12:00:00Z',evaluation:{status:'active',daysRemaining:60,endsAt:'2026-11-18T12:00:00Z'}}});
+assert.equal(evaluating.evaluationCalls.length,1);
+assert.match(evaluating.evaluationCalls[0].url,/organization_id=org-1$/);
+assert.equal(evaluating.evaluationCalls[0].options.headers.authorization,'Bearer verified-token');
+assert.equal(evaluating.evaluationCalls[0].options.cache,'no-store');
+assert.ok(evaluating.elements.some(element=>element.src==='workspace-evaluation.js?v=20260919.invited1'));
+await evaluating.refresh(true);
+assert.equal(evaluating.evaluationCalls.length,2,'returning to the tab can refresh its server clock');
+assert.equal(evaluating.elements.filter(element=>element.id==='workspaceEvaluationScript').length,1,'status refresh cannot duplicate the banner script');
+const wrongOrganization = await runScenario({status:{ok:true,requiresAcceptance:false},evaluation:{ok:true,organizationId:'other-org',evaluation:{status:'active'}}});
+assert.equal(wrongOrganization.snapshot,undefined,'another organization status is never shown');
+const unavailable = await runScenario({status:{ok:true,requiresAcceptance:false},evaluation:{ok:false}});
+assert.equal(unavailable.decision.allowed,true,'countdown outage does not block access to saved reports');
+assert.equal(unavailable.snapshot,undefined,'an unavailable response must not invent a countdown');
 
 console.log("Workspace legal gate smoke passed: direct-navigation block, accepted access, pre-cutover compatibility, assignment exemption, and sign-in redirect.");

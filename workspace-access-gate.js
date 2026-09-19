@@ -171,11 +171,6 @@
       var user = userResult && userResult.data && userResult.data.user;
       var token = sessionResult && sessionResult.data && sessionResult.data.session && sessionResult.data.session.access_token;
       if (!user || !token) {
-        if (window.MONDERMAN_ALLOW_PUBLIC_FIRST_RUN === true) {
-          reveal();
-          settleReady({ allowed: true, context: "public_first_run" });
-          return;
-        }
         redirectToSignIn("sign_in_required");
         return;
       }
@@ -191,6 +186,46 @@
       }
 
       var activeWorkspace = await resolveActiveWorkspace(client, user);
+
+      // Invitation-only entry is enforced again by the API and database.
+      // Expired evaluations retain their Workspace so saved reports stay readable.
+      // This status display must not make saved reports inaccessible when the
+      // status service is temporarily unavailable. Write authorization stays
+      // enforced independently at the API and database.
+      var evaluationRequest;
+      window.mondermanRefreshEvaluationStatus = function (refreshSession) {
+        if (evaluationRequest) return evaluationRequest;
+        evaluationRequest = (async function () {
+        try {
+          var evaluationToken = token;
+          if (refreshSession) {
+            var refreshed = await client.auth.getSession();
+            evaluationToken = refreshed.data && refreshed.data.session && refreshed.data.session.access_token;
+            if (!evaluationToken) return null;
+          }
+          var controller = new AbortController();
+          var timeout = setTimeout(function () { controller.abort(); }, 8000);
+          var evaluationResponse;
+          try {
+            evaluationResponse = await fetch(API_BASE + "/api/evaluation/status?organization_id=" + encodeURIComponent(activeWorkspace.id), {
+              headers: { authorization: "Bearer " + evaluationToken }, cache: "no-store", signal: controller.signal
+            });
+          } finally { clearTimeout(timeout); }
+          var evaluationStatus = await evaluationResponse.json().catch(function () { return {}; });
+          if (!evaluationResponse.ok || evaluationStatus.ok !== true || evaluationStatus.organizationId !== activeWorkspace.id) return null;
+          window.__mondermanEvaluationStatus = evaluationStatus;
+          if (!document.getElementById("workspaceEvaluationScript") && evaluationStatus.evaluation && ["active", "expired"].includes(evaluationStatus.evaluation.status)) {
+            var evaluationScript = document.createElement("script");
+            evaluationScript.id = "workspaceEvaluationScript";
+            evaluationScript.src = "workspace-evaluation.js?v=20260919.invited1";
+            document.head.appendChild(evaluationScript);
+          }
+          return evaluationStatus;
+        } catch (_error) { return null; }
+        })().finally(function () { evaluationRequest = null; });
+        return evaluationRequest;
+      };
+      window.mondermanEvaluationReady = window.mondermanRefreshEvaluationStatus(false);
 
       reveal();
       settleReady({ allowed: true, context: "workspace", enforcementActive: status.enforcementActive === true, activeWorkspace: activeWorkspace });
