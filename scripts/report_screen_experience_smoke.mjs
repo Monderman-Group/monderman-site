@@ -170,10 +170,40 @@ const invariants=await page.evaluate(async()=>{
   const artifact=await fetch('sample-data/production-diagnostic-samples.json').then(r=>r.json());
   MondermanPublicSamples.validate(artifact);
   const models=Object.values(artifact.outputs).map(entry=>MondermanPublicSamples.model(entry,artifact));
+  // Planning controls intentionally use the same unique per-mount prefix as
+  // section navigation. Validate every binding before removing only this
+  // presentation namespace; never discard control attributes or report text.
+  const normalizePlanningCaseNamespace=(root,prefix)=>{
+    const require=(condition,message)=>{if(!condition)throw new Error(message);};
+    const groups=[...root.querySelectorAll('.mr-planning-controls')];
+    require(groups.length<=1,'Unexpected planning control group');
+    for(const group of groups){
+      require(group.querySelectorAll('input').length===3&&group.querySelectorAll('label').length===3&&group.querySelectorAll('.mr-planning-panel').length===3,'Incomplete planning case controls');
+      for(const [attribute,count]of [['id',6],['name',3],['for',3],['aria-labelledby',3]])require(group.querySelectorAll('['+attribute+']').length===count,'Unexpected planning '+attribute+' attributes');
+      const ids=[...group.querySelectorAll('[id]')].map(node=>node.id);
+      require(ids.length===new Set(ids).size,'Duplicate planning control ID');
+      for(const level of ['low','central','high']){
+        const input=group.querySelector('.mr-planning-choice-'+level);
+        const panel=group.querySelector('.mr-planning-panel-'+level);
+        const title=panel?.querySelector('h4');
+        const label=input?.nextElementSibling;
+        const inputId=prefix+'-planning-choice-'+level,titleId=prefix+'-planning-title-'+level;
+        require(input?.type==='radio'&&input.value===level&&input.id===inputId&&input.name===prefix+'-planning-case','Invalid planning radio binding');
+        require(label?.tagName==='LABEL'&&label.getAttribute('for')===inputId,'Invalid planning label binding');
+        require(panel?.getAttribute('aria-labelledby')===titleId&&title?.id===titleId,'Invalid planning panel heading binding');
+        input.setAttribute('id','mr-planning-choice-'+level);input.setAttribute('name','mr-planning-case');
+        label.setAttribute('for','mr-planning-choice-'+level);
+        panel.setAttribute('aria-labelledby','mr-planning-title-'+level);title.setAttribute('id','mr-planning-title-'+level);
+      }
+    }
+    return groups.length;
+  };
+  const normalizeSvg = html => html.replace(/id="mr-[^"]+-system-gradient"/g,'id="mr-system-gradient"').replace(/url\(#mr-[^)]+-system-gradient\)/g,'url(#mr-system-gradient)');
   return models.map(model=>{
     const before=JSON.stringify(model);
     const wrapper=document.createElement('div');document.body.append(wrapper);
     MondermanReport.render(wrapper,model);
+    const prefix=wrapper.querySelector('section[id]').id.replace(/-section-\d+$/,'');
     const printed=wrapper.querySelector('.mr-page').cloneNode(true);
     printed.querySelectorAll('.mr-screen-only').forEach(node=>node.remove());
     printed.querySelectorAll('section[id]').forEach(node=>node.removeAttribute('id'));
@@ -184,17 +214,42 @@ const invariants=await page.evaluate(async()=>{
       node.removeAttribute('id');
     });
     const baseline=document.createElement('div');baseline.innerHTML=MondermanReport.buildReportBody(model);
-    const normalizeSvg = html => html.replace(/id="mr-[^"]+-system-gradient"/g,'id="mr-system-gradient"').replace(/url\(#mr-[^)]+-system-gradient\)/g,'url(#mr-system-gradient)');
+    const negativeControls=[];
+    if(printed.querySelector('.mr-planning-controls')){
+      for(const [name,mutate]of [
+        ['label target',root=>root.querySelector('.mr-planning-choice-low+label').setAttribute('for',prefix+'-planning-choice-high')],
+        ['radio group',root=>root.querySelector('.mr-planning-choice-low').setAttribute('name','mr-planning-case')],
+        ['panel heading target',root=>root.querySelector('.mr-planning-panel-low').setAttribute('aria-labelledby',prefix+'-planning-title-high')],
+        ['heading ID',root=>root.querySelector('.mr-planning-panel-low h4').id=prefix+'-planning-title-high'],
+      ]){
+        const changed=printed.cloneNode(true);mutate(changed);let rejected=false;
+        try{normalizePlanningCaseNamespace(changed,prefix);}catch{rejected=true;}
+        if(!rejected)throw new Error('Planning namespace guard accepted changed '+name);
+        negativeControls.push(name);
+      }
+      for(const [name,mutate]of [
+        ['financial metric',root=>root.querySelector('.mr-planning-metrics dd').textContent='UNAPPROVED FINANCIAL VALUE'],
+        ['selected case',root=>root.querySelector('.mr-planning-choice-central').removeAttribute('checked')],
+      ]){
+        const changed=printed.cloneNode(true);mutate(changed);normalizePlanningCaseNamespace(changed,prefix);
+        if(normalizeSvg(changed.innerHTML)===baseline.innerHTML)throw new Error('Report preservation accepted changed '+name);
+        negativeControls.push(name);
+      }
+    }
+    const planningGroups=normalizePlanningCaseNamespace(printed,prefix);
     const intact=normalizeSvg(printed.innerHTML)===baseline.innerHTML;
     const mutated=JSON.stringify(model)!==before;
     const another=document.createElement('div');document.body.append(another);MondermanReport.render(another,model);
     const ids=[...wrapper.querySelectorAll('[id]'),...another.querySelectorAll('[id]')].map(node=>node.id);
     const unique=ids.length===new Set(ids).size;
     wrapper.remove();another.remove();
-    return {product:model.filenameBase,intact,mutated,unique};
+    return {product:model.filenameBase,intact,mutated,unique,planningGroups,negativeControls};
   });
 });
 assert.ok(invariants.every(row=>row.intact&&!row.mutated&&row.unique),JSON.stringify(invariants));
+assert.equal(invariants.filter(row=>row.planningGroups===1).length,2,'Both synthesis products must exercise planning control preservation');
+assert.ok(invariants.filter(row=>row.planningGroups).every(row=>row.negativeControls.length===6),'Missing planning preservation negative control');
+fs.writeFileSync(path.join(out,'body-preservation-checks.json'),JSON.stringify({products:invariants.length,rows:invariants},null,2));
 await emulateMediaAndSettle(page,'print');
 assert.equal(await page.locator('#report-depth .mr-screen-nav').isVisible(),false,'screen nav appears in print');
 assert.equal(await page.locator('#report-depth .mr-screen-next').isVisible(),false,'screen action appears in print');
