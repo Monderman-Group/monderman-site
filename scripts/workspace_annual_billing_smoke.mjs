@@ -17,7 +17,15 @@ async function moduleHarness(file,{role='admin',org=baseOrg,commercial=c,session
   const entry=settings?'    boot();':'    initialize();';
   check(body.split(entry).length===2,'exactly one module entrypoint');
   const expose=settings?'state,loadBilling,cancelAnnualRenewal,openBillingPortal,renderBilling,validCommercial':'state,renderEntitlements,loadCommercialSummary';
-  const source=body.replace(entry,'globalThis.probe={'+expose+'};');
+  let source=body.replace(entry,'globalThis.probe={'+expose+'};');
+  if(!settings){
+    const readinessImport="import {mountSynthesisReadiness} from './workspace-synthesis-readiness.js?v=20260919.ready1';";
+    check(source.split(readinessImport).length===2,'exactly one known readiness module import');
+    // This harness invokes only billing helpers. The imported notification
+    // component is tested separately; fail if a billing path starts it here.
+    source=source.replace(readinessImport,"const mountSynthesisReadiness=()=>{throw new Error('Billing helpers must not mount readiness notifications');};");
+  }
+  check(!/^\s*import\b/m.test(source),'all module imports have explicit harness seams');
   const nodes=new Map(),requests=[],dialogs=[];
   const el=id=>{if(!nodes.has(id))nodes.set(id,{textContent:'',innerHTML:'',hidden:false,disabled:false,value:'',style:{},dataset:{},listeners:{},classList:{add(){},remove(){}},addEventListener(e,fn){this.listeners[e]=fn;},querySelector(){return null;},appendChild(){}});return nodes.get(id);};
   let activeCommercial=commercial,failCode=code;

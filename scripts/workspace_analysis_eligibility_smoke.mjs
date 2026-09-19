@@ -74,14 +74,14 @@ async function bootCase({hash='',earlyClick=false,membership='present',arrayResp
   const expectedOrg='272a9dad-96d0-4d55-a97c-59be2ef11437';
   const fixtureRows=[{...eligible,id:'own',self_run_owned_by_caller:true},{...eligible,id:'unowned',self_run_owned_by_caller:false},
     {...eligible,id:'excluded',included_in_aggregates:false}];
-  const sandbox={console,Date,Number,Set,Map,API_BASE:'https://fixture.invalid',
+  const sandbox={console,Date,Number,Set,Map,URLSearchParams,API_BASE:'https://fixture.invalid',
     window:{__mondermanActiveOrganizationId:expectedOrg,location:{href:''}},
     location:{hash,replace(value){sandbox.redirect=value;}},
     document:{getElementById:element,querySelectorAll(selector){return selector==='.subtabs a'?tabs:selector==='.lens'?sections:[];},
       querySelector(selector){return selector==='.subtabs a.active'?tabs.find(t=>t.active):null;}},
     $:element,setTimeout(fn){timers.push(fn);},wireTrust(){},setText(){},cap:x=>x,initials:()=>'',renderRailPlan(){},
     normalizeVantage:x=>x,emptyHTML:(title,message)=>title+' | '+message,loadAndRenderTrust(){},
-    mountCampaignAnalysis(args){mounts.push(args.organizationId);},renderAll(){},
+    mountCampaignAnalysis(args){mounts.push(args.organizationId);},mountSynthesisReadiness(){return {refresh:async()=>{}};},renderAll(){},
     supabase:{auth:{getUser:()=>auth.promise,getSession:async()=>({data:{session:{user,access_token:'offline-fixture'}}})},
       from(table){const q={select(){return q},eq(column,value){lookups.push({table,column,value});return q},not(){return q},order(){return q},
         maybeSingle:()=>member.promise,then(resolve,reject){return Promise.resolve({data:[],error:null}).then(resolve,reject)}};return q;}},

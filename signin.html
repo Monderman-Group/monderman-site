@@ -184,7 +184,7 @@
       <button class="invitation-recovery" id="invitationRecovery" type="button">Sign in with the invited email</button>
 
       <section class="legal-acceptance" id="legalAcceptance" aria-labelledby="legalAcceptanceHeading">
-        <h2 id="legalAcceptanceHeading">Review the beta terms</h2>
+        <h2 id="legalAcceptanceHeading">Review the terms</h2>
         <p id="legalAcceptanceCopy">Your account is signed in. Complete this required acknowledgement before continuing.</p>
         <label class="legal-check">
           <input id="legalAgree" type="checkbox" />
@@ -429,8 +429,8 @@
     function legalDocumentPath(kind, version){
       // Exact archived editions in legal-document-manifest.json, not a suffix rule.
       const versions = {
-        terms: ["2026-08-20-beta", "2026-08-24-beta", "2026-08-26-beta", "2026-09-08-beta", "2026-09-09-beta", "2026-09-15-annual-plans", "2026-09-19-invited-evaluation"],
-        privacy: ["2026-08-20-beta", "2026-08-24-beta", "2026-08-26-beta", "2026-09-08-beta", "2026-09-09-beta", "2026-09-10-beta", "2026-09-10-optional-measurement-v1", "2026-09-11-ai-evidence-v1", "2026-09-12-ai-source-evidence-v2", "2026-09-19-invited-evaluation"]
+        terms: ["2026-08-20-beta", "2026-08-24-beta", "2026-08-26-beta", "2026-09-08-beta", "2026-09-09-beta", "2026-09-15-annual-plans", "2026-09-19-invited-evaluation", "2026-09-19-invitation-access"],
+        privacy: ["2026-08-20-beta", "2026-08-24-beta", "2026-08-26-beta", "2026-09-08-beta", "2026-09-09-beta", "2026-09-10-beta", "2026-09-10-optional-measurement-v1", "2026-09-11-ai-evidence-v1", "2026-09-12-ai-source-evidence-v2", "2026-09-19-invited-evaluation", "2026-09-19-invitation-access"]
       };
       if (typeof kind !== "string" || !Object.hasOwn(versions, kind) || !versions[kind].includes(version)) throw new Error("invalid_legal_document_version");
       return `${kind}-${version}.html`;

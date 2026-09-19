@@ -5,7 +5,7 @@ import {createHash} from 'node:crypto';
 const root=new URL('../',import.meta.url),read=name=>fs.readFileSync(new URL(name,root),'utf8');
 const sha=value=>createHash('sha256').update(value).digest('hex');
 const version='2026-09-12-ai-source-evidence-v2',archive='privacy-'+version+'.html';
-const currentVersion='2026-09-19-invited-evaluation',currentArchive='privacy-'+currentVersion+'.html';
+const currentVersion='2026-09-19-invitation-access',currentArchive='privacy-'+currentVersion+'.html';
 const manifest=JSON.parse(read('legal-document-manifest.json')),notice=read(archive);
 let checks=0,negatives=0;
 const equal=(a,b,message)=>{assert.deepEqual(a,b,message);checks++;};

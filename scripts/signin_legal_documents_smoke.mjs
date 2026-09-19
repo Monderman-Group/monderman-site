@@ -6,7 +6,7 @@ import vm from 'node:vm';
 const read = name => fs.readFileSync(new URL('../'+name, import.meta.url), 'utf8');
 const manifest = JSON.parse(read('legal-document-manifest.json'));
 const v1 = '2026-09-11-ai-evidence-v1', v2 = '2026-09-12-ai-source-evidence-v2';
-const currentTerms = '2026-09-19-invited-evaluation', v3 = currentTerms;
+const currentTerms = '2026-09-19-invitation-access', v3 = currentTerms;
 const docs = (version,termsVersion=currentTerms) => ({ok:true, requiresAcceptance:true, termsVersion, privacyNoticeVersion:version});
 let checks = 0;
 const eq = (a,b,label) => {assert.deepEqual(a,b,label);checks++;};
@@ -27,7 +27,7 @@ for(const file of ['signin.html','pattern-trial.html']){
     if(record[key]){eq(ctx.legalDocumentPath(kind,version),record[key],file+' exact archive');ok(fs.existsSync(new URL('../'+record[key],import.meta.url)));actual.push(record[key]);}
     else{assert.throws(()=>ctx.legalDocumentPath(kind,version),/invalid_legal_document_version/);checks++;}
   }
-  eq(actual.length,17,'complete explicit archive inventory');
+  eq(actual.length,19,'complete explicit archive inventory');
   for(const [kind,version] of [['privacy','2099-01-01-beta'],['privacy','2026-09-12-ai-source-evidence-v3'],['terms',v2],['privacy','../privacy'],['privacy',v2+'.html'],['privacy',v2+'?x=1'],['privacy',v2+'#x'],['privacy',' '+v2],['privacy',null],['privacy',{}],['__proto__',v2],['constructor',v2],['unknown',v2],[null,v2],[new String('privacy'),v2]]){
     assert.throws(()=>ctx.legalDocumentPath(kind,version),/invalid_legal_document_version/);checks++;
   }

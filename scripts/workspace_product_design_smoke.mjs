@@ -66,7 +66,8 @@ for(const [browserName,browserType] of [['chromium',chromium],['webkit',webkit]]
         assert.match(await page.locator('#wsReadMeta').innerText(),/3 included runs across 2 of four/);
         assert.match(await page.locator('#wsRecText').innerText(),/named owner/);
         assert.equal(await page.locator('#wsRecBoardLink').getAttribute('href'),'workspace-actions.html?import_run=fixture-os');
-        assert.match(await page.locator('#wsSynthesisReadiness').innerText(),/Review candidates/);
+        assert.equal(await page.locator('#wsSynthesisReadiness').isHidden(),true,'Raw candidate counts and unverified fixture identities cannot create a ready invitation');
+        assert.equal(await page.getByRole('link',{name:'Compare your own saved runs →'}).getAttribute('href'),'workspace-analysis.html#synthesis','Personal comparison remains available');
         assert.match(await page.locator('#wsRecentRuns').innerText(),/Included with caution/);
         assert.equal(await page.locator('#wsRecentRuns img').count(),0);
         if(scenario==='unsafe')assert.match(await page.locator('#wsRecentRuns').innerText(),/<img src=x/);
@@ -80,7 +81,7 @@ for(const [browserName,browserType] of [['chromium',chromium],['webkit',webkit]]
         assert.match(await page.locator('#wsInstruments').innerText(),/No result yet/);
       }else{
         assert.match(await page.locator('#wsRecentRuns').innerText(),/temporarily unavailable/);
-        assert.match(await page.locator('#wsSynthesisReadiness').innerText(),/Could not check/);
+        assert.equal(await page.locator('#wsSynthesisReadiness').isHidden(),true,'Report-service failure does not invent campaign readiness');
         assert.doesNotMatch(await page.locator('#wsThesis').innerText(),/Start your first/);
         assert.equal(await page.locator('#wsRetryResults').count(),1);
         assert.equal(await page.locator('#wsAllReadsN').innerText(),'');

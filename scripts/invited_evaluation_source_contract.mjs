@@ -14,16 +14,21 @@ export const APPROVED_INTERFACE_PINS=Object.freeze({
   // DV: close the public-first-run flag and update legacy invitation/result copy.
   // Authenticated refresh uses the unchanged existing self-draft runtime.
   'decision-velocity.html':'aad59fa601a33fb7e5f8871624a1c54f1f68dd0763212af4d247a3298439e344',
-  // Invitation activation: current legal editions and one-time 60-day access.
-  'pattern-trial.html':'62ecad462549a4a5cd110c21d5a675b9a0b3461b008e0c26321de1c34a7d637b',
+  // Invitation activation: exact current/historical legal-edition mapping only.
+  'pattern-trial.html':'57503e661a3b67940d594f8bd32426981714e7a7178ec91f42cfed550d3b5cf2',
   // Sign-in: invitation copy/error and exact new legal-version allowlist.
-  'signin.html':'24bd661cd9189e14a814c491691edb073f640cd016c3ab2fda6214f891875792',
-  // Workspace pages: server-authoritative evaluation timing, labels and links.
-  'workspace.html':'ff0c2fb7a9a2c740a5372097b6fffa333f1212003f53cba0deb81f172394c6d3',
-  'workspace-diagnostics.html':'e45a0d8411abae1036cefff6ec411ee328183b0c831e35fb6b847f48fe82247a',
-  'workspace-actions.html':'d95794a2cfd17fab375b4f4ee9c6e3572294a244a52cca5eb4172573bcaed3b9',
-  'workspace-analysis.html':'7612e781c827986204addc51558e091a909f5d84cf54f6619c851c32b9eabb3c',
-  'workspace-settings.html':'7d4e58618dd985263455987ec56c2493efe94a522f5ae752b9e752c1d6a274f7',
+  'signin.html':'f0240d14bb0b707d64fa2d5f422fb6c82f7d82e91ed0a4774b2f30dd9832bd63',
+  // Reviewed follow-up: remove beta badges; add read-only, user-directed
+  // readiness invitations on Overview and Analyze. No automatic generation.
+  'workspace.html':'64628f301fa20d9e16d6ba6ef1bedd0efeafbe3470a1c8a64d6f71e62afae08c',
+  'workspace-diagnostics.html':'64ba5ddd08cad7426257c4e84451aae98e7fad4c6e79d61b67031b1bbcb22728',
+  'workspace-actions.html':'ff4e542a270d0949333de6f04dc340ab588dcc1c8b18516cd2ae822795b6a43c',
+  'workspace-analysis.html':'d0d2d7ccafdda0f11f6b132c3c99f20a2d858b50c0e972dcf60f3acacaf5b1e6',
+  'workspace-settings.html':'bb8e61a3cfd1fe7158baacc0f9133c961de5f1b1da86c7c942ed99c16edabe98',
+  // Scoped review deep links and same-organization guard; report submission
+  // remains the existing separate explicit button. Dedicated browser tests
+  // exercise review-only, stale access, dismissal and manual generation.
+  'campaign-analysis.js':'ef7854a2c38aa6005c8783356638101ac2b4d346994abf327e219bf2b4aed1ce',
 });
 export function assertInvitedEvaluationSourceContract(root=path.resolve(import.meta.dirname,'..')){
   const read=f=>fs.readFileSync(path.join(root,f),'utf8');
@@ -67,7 +72,7 @@ export function assertInvitedEvaluationSourceContract(root=path.resolve(import.m
   assert.equal(read('assistant.js'),prior('assistant.js').replace(greetingBefore,()=>greetingAfter),'Public assistant only changes the invitation greeting, not behavior or private-IP boundaries');
   const immutable=['accept-invite.html',
     'workspace-theme.js','workspace-assistant.js','public-sample-model.js','sample-report-production.js',
-    'campaign-analysis.js','run-inclusion-review.js','participant-evidence-safety.js','sample-data/production-diagnostic-samples.json'];
+    'run-inclusion-review.js','participant-evidence-safety.js','sample-data/production-diagnostic-samples.json'];
   for(const file of immutable)assert.equal(read(file),prior(file),file+': existing engine/evidence/interface bytes remain exact');
   for(const [file,digest]of Object.entries(APPROVED_INTERFACE_PINS))assert.equal(sha(read(file)),digest,file+': only the reviewed invitation/countdown delta is allowed');
   const executable=html=>[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)].filter(m=>!(/\bsrc\s*=/.test(m[1]))&&!(/type=["']application\/ld\+json/.test(m[1]))).map(m=>m[2]);
@@ -82,6 +87,7 @@ export function assertInvitedEvaluationSourceContract(root=path.resolve(import.m
     "after-a-reorganization.html",
     "after-an-acquisition.html",
     "assistant.js",
+    "campaign-analysis.js",
     "connect.html",
     "decision-velocity-article.html",
     "decision-velocity.html",
@@ -104,6 +110,7 @@ export function assertInvitedEvaluationSourceContract(root=path.resolve(import.m
     "pilot-waitlist.js",
     "pilot.html",
     "plan-pattern.html",
+    "plan-enterprise.html",
     "plan-signal.html",
     "platform-services.html",
     "privacy.html",

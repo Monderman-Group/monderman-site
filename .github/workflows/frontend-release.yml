@@ -38,6 +38,7 @@ jobs:
         run: |
           node scripts/site_consistency_copy_smoke.mjs
           node scripts/organization_scope_copy_smoke.mjs
+          node scripts/public_status_copy_smoke.mjs
       - name: Reject scanner-consumed email authentication regressions
         run: node scripts/signin_email_otp_smoke.mjs
       - run: node scripts/workspace_legal_gate_smoke.mjs
@@ -148,6 +149,10 @@ jobs:
         env:
           EVALUATION_UI_OUT: ${{ runner.temp }}/evaluation-countdown
         run: node scripts/workspace_evaluation_countdown_smoke.mjs
+      - name: Invite ready campaign analysis without automatic generation
+        run: |
+          node scripts/workspace_synthesis_readiness_smoke.mjs
+          node scripts/workspace_synthesis_readiness_layout_smoke.mjs
       - name: Preserve synthetic saved-page screenshots and exact source bindings
         if: always()
         uses: actions/upload-artifact@v4
@@ -158,6 +163,8 @@ jobs:
             ${{ runner.temp }}/sample-selected-pdf
             ${{ runner.temp }}/checkout-success-recovery
             ${{ runner.temp }}/evaluation-countdown
+            /tmp/monderman-readiness-ui-*
+            /tmp/monderman-readiness-layout-*
           if-no-files-found: error
   financial-methodology-browser:
     runs-on: ubuntu-24.04
