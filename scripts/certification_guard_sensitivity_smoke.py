@@ -135,7 +135,7 @@ with tempfile.TemporaryDirectory(prefix="monderman-cert-sensitivity-") as temp:
         ),
         ["about.html"],
     )
-    for published_archive in ["privacy-2026-09-10-optional-measurement-v1.html", "terms-2026-09-15-annual-plans.html"]:
+    for published_archive in ["privacy-2026-09-10-optional-measurement-v1.html", "terms-2026-09-15-annual-plans.html", "terms-2026-09-19-invited-evaluation.html", "privacy-2026-09-19-invited-evaluation.html"]:
         for icon in ["favicon.svg", "favicon.ico", "favicon-192.png", "apple-touch-icon.png"]:
             expect_rejection(
                 fixture,

@@ -651,7 +651,7 @@ body{transition:background-color .25s ease, color .25s ease}
               <select id="fResponseMode">
                 <option value="form" selected>Guided form: the instrument's own controls</option>
               </select>
-              <span class="hint">Interview mode is not available in this bounded pilot.</span>
+              <span class="hint">Interview mode is not currently available. Use the guided diagnostic questions below.</span>
             </div>
             <div class="field">
               <label for="fDue">Due date <span class="hint">(optional)</span></label>
@@ -742,7 +742,7 @@ body{transition:background-color .25s ease, color .25s ease}
     function cap(s){ return s ? s.charAt(0).toUpperCase()+s.slice(1) : (s||""); }
     function trialDaysLeft(org){
       if(!org || org.plan!=="pattern" || org.subscription_status!=="trialing" || !org.pattern_trial_ends_at) return null;
-      const ms=Date.parse(org.pattern_trial_ends_at)-Date.now();
+      const ms=Date.parse(org.pattern_trial_ends_at)-Date.parse(window.__mondermanEvaluationStatus?.serverNow || "");
       if(!Number.isFinite(ms)) return null;
       return Math.max(0,Math.ceil(ms/86400000));
     }
@@ -755,10 +755,10 @@ body{transition:background-color .25s ease, color .25s ease}
       if(days==null) return;
       const a=document.createElement("a");
       a.id="ws5TrialTag";
-      a.href="plan-pattern.html";
-      a.textContent=` · trial · ${days}d left`;
+      a.href="connect.html";
+      a.textContent=` · evaluation`;
       a.style.cssText="color:#A9CFD2;text-decoration:none;font-weight:600";
-      a.title="Pattern evaluation: choose a paid plan explicitly to continue after the trial";
+      a.title="Free evaluation. Continued access requires a separate agreement.";
       chip.appendChild(a);
     }
     function toolLabel(r){ return (r.tool_label && r.tool_label.trim()) || TOOL[r.tool_type] || r.tool_type || "Diagnostic"; }
@@ -1033,7 +1033,7 @@ body{transition:background-color .25s ease, color .25s ease}
     function cap(s){ return s ? s.charAt(0).toUpperCase()+s.slice(1) : (s||""); }
     function trialDaysLeft(org){
       if(!org || org.plan!=="pattern" || org.subscription_status!=="trialing" || !org.pattern_trial_ends_at) return null;
-      const ms=Date.parse(org.pattern_trial_ends_at)-Date.now();
+      const ms=Date.parse(org.pattern_trial_ends_at)-Date.parse(window.__mondermanEvaluationStatus?.serverNow || "");
       if(!Number.isFinite(ms)) return null;
       return Math.max(0,Math.ceil(ms/86400000));
     }
@@ -1046,10 +1046,10 @@ body{transition:background-color .25s ease, color .25s ease}
       if(days==null) return;
       const a=document.createElement("a");
       a.id="ws5TrialTag";
-      a.href="plan-pattern.html";
-      a.textContent=` · trial · ${days}d left`;
+      a.href="connect.html";
+      a.textContent=` · evaluation`;
       a.style.cssText="color:#A9CFD2;text-decoration:none;font-weight:600";
-      a.title="Pattern evaluation: choose a paid plan explicitly to continue after the trial";
+      a.title="Free evaluation. Continued access requires a separate agreement.";
       chip.appendChild(a);
     }
     function toolLabel(t){ return TOOL[t]||t||"Unavailable"; }

@@ -72,7 +72,11 @@ for(const org of [{...baseOrg,plan:'trial'},{...baseOrg,plan:'pattern',subscript
   const h=await moduleHarness('workspace-settings.html',{org,commercial:null});await h.p.loadBilling();await h.p.cancelAnnualRenewal();
   check(h.el('cancelAnnualRenewal').hidden&&!h.el('billingSummary').textContent.includes('24,000'),'legacy/trial not assigned new annual contract');
   check(!h.requests.some(r=>r.url.endsWith('/cancel-renewal')),'legacy/trial no new cancellation');
-  if(org.subscription_status==='trialing')check(h.el('billingAllowance').textContent.includes('500')&&h.el('billingAllowance').textContent.includes('unlimited eligible'),'pilot unchanged');
+  if(org.subscription_status==='trialing'){
+    check(h.el('billingAllowance').textContent.includes('actual allowances are shown in Plan & usage'),'evaluation points to actual organization allowances');
+    check(h.el('billingAllowance').textContent.includes('new 60-day evaluations have no ordinary-use response or Synthesis cap'),'new evaluation allowance is explicit, not assigned to legacy contracts');
+    check(h.el('billingSummary').textContent.includes('does not renew automatically'),'evaluation cannot imply an automatic paid renewal');
+  }
   if(org.plan==='pattern'&&!org.subscription_status){await h.p.openBillingPortal();check(h.context.window.location.href==='https://billing.example.test/mock','legacy portal retained');}
 }
 const declined=await moduleHarness('workspace-settings.html',{confirm:false});await declined.p.loadBilling();await declined.p.cancelAnnualRenewal();

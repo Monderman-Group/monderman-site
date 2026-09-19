@@ -22,21 +22,25 @@ const range=(low,central,high)=>({low,central,high});
 // the real server calculator's projected result without claiming AI approval.
 const scenario=()=>({version:'operational-planning-scenario-20260913.1',kind:'synthesis_planning_scenario',currency:'USD',
  publication_projection:'operational-scenario-public-20260913.1',source_identity_digest:'a'.repeat(64),
- inputs:{scopeConfirmed:true,overlapReviewed:true,horizonMonths:12,measuredPeople:30},
+ inputs:{scopeConfirmed:true,overlapReviewed:true,horizonMonths:12,measuredPeople:30,activities:[{changeBasis:'SYNTHETIC TEST: review an authorized process change.'}]},
+ activities:[{label:'Example work',potentialHoursFreed:range(626,3496,5342)}],
  method:{usesDiagnosticScores:false,isConfidenceInterval:false,measurementDays:28},
- totals:{capacityValue:range(64962.32,364989.11,556777.97),netCashEffect:range(-56000,-51000,-46000),totalImplementationAndSubscriptionCost:range(58000,69000,80000)}});
+ totals:{potentialHoursFreed:range(626,3496,5342),netCapacityAndCashValue:range(-15037.68,295989.11,498777.97),capacityValue:range(64962.32,364989.11,556777.97),netCashEffect:range(-56000,-51000,-46000),totalImplementationAndSubscriptionCost:range(58000,69000,80000)}});
 const ai=()=>({status:'complete',report:{interpretation:{recommendations:[{action:'SYNTHETIC TEST: inspect an authorized example.'}]}}});
 function fixture(){return {contract:'monderman-public-product-samples/v3',synthetic:true,artifact_sha256:'b'.repeat(64),outputs:{
+ cross_lens_synthesis:seal({kind:'synthesis',provenance:{synthetic:true},source:{synthesis_product:'cross_lens_synthesis',submitted_run_count:108,source_groups:[{tool_type:'decision_velocity',tool_label:'Decision Velocity',submitted_runs:54,median_score:62},{tool_type:'structural_clarity',tool_label:'Structural Clarity',submitted_runs:54,median_score:52}],financial_scenario:scenario(),ai_report:ai()}}),
  decision_velocity:seal({kind:'diagnostic',provenance:{synthetic:true},source:{tool_type:'decision_velocity',process_name:'Example process',business_unit:'Example team',score:72,score_band:'Compounding',burden_breakdown:{approval:26,coordination:null,escalation:42},ai_report:ai()}}),
  depth_synthesis:seal({kind:'synthesis',provenance:{synthetic:true,submitted_run_count:27},source:{synthesis_product:'depth_synthesis',submitted_run_count:27,
   source_groups:[{tool_type:'structural_clarity',submitted_runs:27,median_score:52,score_iqr:[49,74],score_range:[49,74]}],sample_reads:[{tool_type:'structural_clarity',n:27,consensus:{read:'divided'}}],financial_scenario:scenario(),ai_report:ai()}})}};}
 const build=a=>buildPublicSamplePreviewSections(a,template);
 const base=fixture(),before=JSON.stringify(base),sections=build(base);eq(JSON.stringify(base),before);
-ok(sections.hero.includes('data-demo-focus="escalation">42 / 100'));
-ok(sections.hero.includes('Two highest recorded burden measures'));
-ok(!sections.hero.includes('data-demo-burden="coordination"'));
-ok(/One participant/.test(sections.hero)&&/not measure hours, organizational cost or savings/.test(sections.hero));
-ok(!/data-demo-recovery|financial assumptions|recovery opportunity/.test(sections.hero));
+ok(sections.hero.includes('data-demo-hours>3,496'));
+ok(sections.hero.includes('data-demo-capacity>$364,989'));
+ok(sections.hero.includes('data-demo-cost>$69,000'));
+ok(sections.hero.includes('Illustrative example'));
+ok(sections.hero.includes('Low case')&&sections.hero.includes('-$15,038'));
+ok(sections.hero.includes('not diagnostic scores'));
+ok(!sections.hero.includes('data-demo-score'));
 for(const place of ['home','brief']){
  ok(sections[place].includes('data-promo-capacity>About $365,000'));
  ok(sections[place].includes('30 people · 12 months · Central scenario'));
@@ -56,7 +60,7 @@ oldMoney.outputs.depth_synthesis.source.pathway_exposure={status:'available',rec
 Object.values(oldMoney.outputs).forEach(seal);eq(build(oldMoney),sections);
 const absent=fixture();delete absent.outputs.depth_synthesis.source.financial_scenario;seal(absent.outputs.depth_synthesis);const fallback=build(absent);
 ok(fallback.home.includes('data-promo-median>52 / 100'));ok(!/data-promo-capacity|data-promo-net-cash|\$/.test(fallback.home));
-const hostile=fixture();hostile.outputs.decision_velocity.source.process_name='<img src=x onerror=alert(1)>';
+const hostile=fixture();hostile.outputs.cross_lens_synthesis.source.source_groups[0].tool_label='<img src=x onerror=alert(1)>';
 hostile.outputs.depth_synthesis.source.ai_report.report.interpretation.recommendations[0].action='<script>unsafe()</script>&';
 Object.values(hostile.outputs).forEach(seal);const escaped=build(hostile);ok(escaped.hero.includes('&lt;img'));ok(escaped.home.includes('&lt;script&gt;'));ok(!escaped.home.includes('<script>unsafe'));
 for(const mutate of [
@@ -73,7 +77,10 @@ for(const mutate of [
  a=>{a.outputs.depth_synthesis.source.financial_scenario.totals.capacityValue.low=-1;},
  a=>{a.outputs.depth_synthesis.source.financial_scenario.totals.netCashEffect.low=1;},
  a=>{delete a.outputs.depth_synthesis.source.financial_scenario.totals.totalImplementationAndSubscriptionCost;},
- a=>{a.outputs.decision_velocity.source.ai_report.status='pending';},
+ a=>{a.outputs.cross_lens_synthesis.source.financial_scenario.method.usesDiagnosticScores=true;},
+ a=>{a.outputs.cross_lens_synthesis.source.financial_scenario.totals.capacityValue.central=NaN;},
+ a=>{a.outputs.cross_lens_synthesis.source.financial_scenario.inputs.overlapReviewed=false;},
+ a=>{a.outputs.cross_lens_synthesis.source.financial_scenario.totals.potentialHoursFreed.central=-1;},
 ]){const a=fixture();mutate(a);Object.values(a.outputs).forEach(seal);assert.throws(()=>build(a));checks++;}
 const changed=fixture();changed.outputs.depth_synthesis.source.financial_scenario.totals.capacityValue.high++;
 assert.throws(()=>build(changed),/reviewed projection/);checks++;
@@ -89,7 +96,7 @@ if(option('--prepared')){
  assert.ok(path.isAbsolute(option('--prepared')));
  const prepared=JSON.parse(fs.readFileSync(option('--prepared'))),a={contract:'monderman-public-product-samples/v3',synthetic:true,artifact_sha256:'c'.repeat(64),outputs:{}};
  eq(prepared.publicDraft.status,'dry_not_for_publication');
- for(const key of ['decision_velocity','depth_synthesis']){const e=structuredClone(prepared.publicDraft.outputs[key]);e.source.ai_report=ai();a.outputs[key]=seal(e);}
+ for(const key of ['decision_velocity','depth_synthesis','cross_lens_synthesis']){const e=structuredClone(prepared.publicDraft.outputs[key]);e.source.ai_report=ai();a.outputs[key]=seal(e);}
  display=build(a);calculatorFixture=true;
  ok(display.home.includes('data-promo-capacity'));ok(display.home.includes('data-promo-net-cash'));ok(!display.hero.includes('data-demo-recovery'));
 }

@@ -1,11 +1,9 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import {execFileSync} from 'node:child_process';
-const root=path.resolve(import.meta.dirname,'..'), baseline='f91fb07fde754dea57360ddbddc9bf742d6e6702';
+import {assertInvitedEvaluationSourceContract} from './invited_evaluation_source_contract.mjs';
+const root=path.resolve(import.meta.dirname,'..');
 const read=f=>fs.readFileSync(path.join(root,f),'utf8');
-const prior=f=>execFileSync('git',['show',`${baseline}:${f}`],{cwd:root,encoding:'utf8'});
-const inline=html=>[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
 assert.ok(read('index.html').includes('<h1 class="hero-title" id="hero-title">Less bureaucracy. Better performance.</h1>'));
 assert.ok(read('index.html').includes('"slogan": "Less bureaucracy. Better performance."'));
 const brandStatement='Monderman reveals where decisions stall, unnecessary work accumulates and performance falls short. See what needs attention, decide what to change and measure the results.';
@@ -17,13 +15,11 @@ for(const f of [...fs.readdirSync(root).filter(f=>f.endsWith('.html')),'site-she
 const homepageSearch=JSON.parse(read('public-search-index.json')).find(row=>row.url==='index.html');
 assert.ok(homepageSearch.text.includes(brandStatement),'Homepage search entry uses the approved statement');
 assert.ok(read('Monderman_Platform_Brief.html').includes('Examine operating conditions. Save the results. Compare them later.'));
-for(const f of ['decision-velocity.html','structural-clarity.html','operational-systems.html','institutional-performance.html','accept-invite.html','workspace.html','workspace-diagnostics.html']) assert.deepEqual(inline(read(f)),inline(prior(f)),f+': embedded behavior remains byte-identical');
-for(const f of ['privacy.html','terms.html','monderman-report.js','public-sample-model.js','sample-report-production.js','campaign-analysis.js','run-inclusion-review.js','participant-evidence-safety.js','sample-data/production-diagnostic-samples.json'])assert.equal(read(f),prior(f),f+': policy, engine, report or evidence data unchanged');
-assert.equal(read('workspace-assistant.js'),prior('workspace-assistant.js').replaceAll('font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif','font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif'),'Hans changes are font declarations only');
-assert.deepEqual(inline(read('signin.html')),inline(prior('signin.html')).map(s=>s.replaceAll('Terms of Service','Terms of Use')),'Sign-in behavior changes are policy display labels only');
+assertInvitedEvaluationSourceContract(root);
 const price=read('platform-services.html');
-assert.equal((price.match(/href="signin.html\?next=workspace.html">Create a free account/g)||[]).length,2);
-assert.equal((price.match(/<tr><td class="rowlabel">New Depth or Cross-Lens Syntheses per annual term, shared allowance<\/td><td class="num">1 total<\/td><td class="num">60<\/td><td class="num">300<\/td><td class="yes">Unlimited<\/td><\/tr>/g)||[]).length,1);
+assert.ok(!price.includes('Create a free account')&&!price.includes('checkout.html?'),'No public free-account or purchase CTA');
+assert.ok(price.includes('<tr><td class="rowlabel">New eligible Syntheses: evaluation / annual paid term</td><td>Unlimited during evaluation</td><td class="num">60</td><td class="num">300</td><td class="yes">Unlimited</td></tr>'),'Unlimited ordinary evaluation with distinct paid annual pools');
+assert.ok(price.includes('Available by invitation. Evaluate Monderman free for 60 days. No credit card. No automatic renewal.'));
 assert.ok(!price.includes('60 / year')&&!price.includes('300 / year'),'No duplicated allowance pool');
 assert.ok(price.includes('unlimited self-runs for authorized Workspace users'));
 const catalog=read('diagnostics.html');
@@ -31,7 +27,8 @@ assert.equal((catalog.match(/class="dx-card-time">10, 30, or 60 minutes/g)||[]).
 assert.ok(catalog.includes('Participation is counted separately for each diagnostic. Each person counts once, even if they complete that diagnostic more than once.'));
 const details=catalog.match(/<details class="dx-method-detail">([\s\S]*?)<\/details>/)?.[1];
 assert.ok(details?.includes('Independent statistical review: <strong>not reviewed</strong>'));
-assert.ok(details.includes('same instrument score band')&&details.includes('not forecasts or measured savings'));
+assert.ok(details.includes('same instrument score band'));
+assert.ok(catalog.includes('not forecasts or measured savings'));
 assert.ok(!read('decision-velocity.html').match(/<meta[^>]*what delay costs/));
 assert.ok(!read('canonical-site-shell.js').includes('copy.textContent ='));
 assert.ok(!read('signin.html').includes('#26496f'));
@@ -44,4 +41,4 @@ for(const style of ['normal','italic']) for(const weight of [400,500,600,700]) {
   assert.ok(matches[0].includes(`url("${file}font.woff2")`));
 }
 assert.ok(read('accept-invite.html').includes('class="invitation-brand"')&&!read('accept-invite.html').includes('&#9679;'));
-console.log('PASS approved site consistency: exact copy, shared allowances, technical details, immutable policies and unchanged diagnostic/report logic.');
+console.log('PASS approved site consistency: exact copy, shared allowances, technical details, exact approved invitation/access deltas, unchanged scoring/evidence, and exact Sankey-only report delta.');

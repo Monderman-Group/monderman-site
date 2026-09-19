@@ -1,5 +1,7 @@
 // LOCAL CONTRACT TEST: real built pages, browser events, and rendering; synthetic
 // API/auth/email responses. This is not evidence of production signup/delivery.
+// The access gate is isolated here. --legacy-recovery exercises the historical
+// recovery component, not anonymous access through today's production gate.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -7,6 +9,10 @@ import http from 'node:http';
 import crypto from 'node:crypto';
 import { chromium, webkit } from 'playwright';
 
+// Default: an invited, authenticated Workspace user. Legacy mode recovers a
+// pre-cutover session fixture and MUST NOT admit a fresh anonymous diagnostic.
+const legacyRecovery = process.argv.includes('--legacy-recovery');
+const expectedStarts = legacyRecovery ? 0 : 1;
 const root = path.resolve('.render-public');
 const output = path.resolve(process.env.DV_JOURNEY_OUT || 'output/dv-journey-browser');
 const releaseChannel=JSON.parse(fs.readFileSync(path.join(root,'.well-known/monderman-questionnaire-release.json'))).channel;
@@ -46,6 +52,10 @@ const sample = JSON.parse(fs.readFileSync('test-fixtures/authenticated-report-en
 const answer = (id,type,options=[]) => ({id,questionType:type,dimension:'approval',isOptional:false,text:{managerial:id,operational:id,senior_leader:id},options:options.map(value=>({value,label:value}))});
 const questions = {route:answer('route','single_select',['slow','fast']),count:answer('count','numeric'),detail:answer('detail','single_select',['yes','no']),last:answer('last','numeric'),alternate:answer('alternate','numeric')};
 const fixtureAuth = `(() => {
+  if (!sessionStorage.getItem('fixture.initialized')) {
+    sessionStorage.setItem('fixture.initialized','1');
+    if (!${legacyRecovery}) sessionStorage.setItem('fixture.signedIn','1');
+  }
   const callbacks=[];
   const user={id:'11111111-1111-4111-8111-111111111111',email:'local-fixture@example.test'};
   const session=()=>sessionStorage.getItem('fixture.signedIn')?{access_token:'fixture-token',user}:null;
@@ -72,6 +82,20 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
     blockedExternalRequests++;blockedExternalUrls.add(url.origin+url.pathname);return route.abort('blockedbyclient');
   });
   await context.addInitScript({content:fixtureAuth});
+  if (legacyRecovery) await context.addInitScript(({runId,capability,version}) => {
+    if (sessionStorage.getItem('fixture.legacySeeded')) return;
+    sessionStorage.setItem('fixture.legacySeeded','1');
+    sessionStorage.setItem('monderman.dvJourney.v1',JSON.stringify({
+      version:1,tool:'decision_velocity',phase:'questions',created_at:Date.now(),saved_at:Date.now(),
+      owner_user_id:null,owner_organization_id:null,auth_return:false,
+      state:{runId,sessionCapability:capability,configVersion:version,mode:'managerial',depth:'10',
+        preflight:{processName:'Legacy saved decision',businessUnit:'Local test only',description:'No customer data.',
+          industry:'technology_software',regulatoryIntensity:'moderate',decisionType:'program',
+          employeeCount:250,peopleInvolved:8,hourlyCost:90,annualVolume:24,meetingHours:3},
+        experiential:{self:'',observedOperational:'',observedManagerial:'',observedSeniorLeader:''},
+        experienceIndex:0,experienceComplete:false}
+    }));
+  },{runId,capability,version:releaseChannel==='current'?'1.1.0':'1.0.0'});
   const page = await context.newPage();
   const errors=[];
   const footerEvidence=[];
@@ -97,8 +121,8 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
     const req=route.request(), url=new URL(req.url());
     const data=req.postData()?JSON.parse(req.postData()):{};
     requests.push({path:url.pathname,body:data,method:req.method()});
-    if(url.pathname==='/api/first-run-events')return json(route,202,{ok:true});
-    if(url.pathname==='/api/legal/acceptance/status')return json(route,200,{ok:true,requiresAcceptance:!legalAccepted,termsVersion:'2026-08-26-beta',privacyNoticeVersion:'2026-08-26-beta'});
+    if(url.pathname==='/api/first-run-events')throw new Error('Retired first-run telemetry must not be sent');
+    if(url.pathname==='/api/legal/acceptance/status')return json(route,200,{ok:true,requiresAcceptance:!legalAccepted,termsVersion:'2026-09-19-invited-evaluation',privacyNoticeVersion:'2026-09-19-invited-evaluation'});
     if(url.pathname==='/api/legal/acceptance'){assert.equal(data.agreed,true);legalAccepted=true;return json(route,200,{ok:true});}
     if(url.pathname==='/api/health')return json(route,200,{ok:true});
     if(url.pathname===`/api/runs/${savedId}/report`){
@@ -106,7 +130,12 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
       const allowed=!!req.headers().authorization&&!denySavedReport;
       return json(route,allowed?200:403,{ok:allowed,runId:savedId,...(allowed?{result:sample.result}:{})});
     }
-    if(url.pathname.endsWith('/run/start')){assert.equal(data.questionnaire_copy_version,releaseChannel==='current'?'diagnostic-language-20260908':undefined);starts++;return json(route,200,snapshot({sessionCapability:capability}));}
+    if(url.pathname.endsWith('/run/start')){
+      assert.equal(legacyRecovery,false,'legacy recovery must never request new admission');
+      assert.ok(req.headers().authorization,'new runs require invited authentication');
+      assert.equal(data.questionnaire_copy_version,releaseChannel==='current'?'diagnostic-language-20260908':undefined);
+      starts++;return json(route,200,snapshot());
+    }
     if(req.method()==='GET'&&url.pathname.endsWith('/run/'+runId))return versionUnavailableResponse ? json(route,409,{ok:false,error:'QUESTIONNAIRE_VERSION_UNAVAILABLE'}) : json(route,200,snapshot());
     if(url.pathname.endsWith('/answer')){
       if(data.itemId==='count'&&rejectCountOnce){rejectCountOnce=false;return json(route,400,{ok:false,error:'invalid_numeric_answer'});}
@@ -141,8 +170,8 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
     return json(route,200,{ok:true});
   });
   await context.route('https://ptkxrzgmeldalrkfruth.supabase.co/**',route=>{throw new Error('Unexpected real auth call: '+route.request().method());});
-  await page.goto(base+'/index.html',{waitUntil:'domcontentloaded'});
-  await page.locator('.hero-actions a[href="decision-velocity.html?source=homepage"]').click();
+  await page.goto(base+'/decision-velocity.html',{waitUntil:'domcontentloaded'});
+  if (!legacyRecovery) {
   await page.locator('[data-lane="managerial"]').click();await page.locator('#laneContinueBtn').click();
   await page.locator('[data-depth="10"]').click();await page.locator('#depthContinueBtn').click();
   await page.locator('#preStartConsent').check();await page.locator('.preflight-gate-next').click();
@@ -153,11 +182,20 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
     if(choices[id])await field.locator(`[data-val="${choices[id]}"]`).click();else await field.locator('input,textarea').first().fill(values[id]);
     await page.locator('.preflight-next').click();
   }
+  }
+  async function reloadAndRecover() {
+    await page.reload({waitUntil:'domcontentloaded'});
+    if (!legacyRecovery) await page.locator('#selfDiagnosticDraftResume').click();
+  }
+  const draftRecord = () => page.evaluate(legacy => {
+    const key=legacy?'monderman.dvJourney.v1':Object.keys(sessionStorage).find(key=>key.startsWith('monderman.selfDiagnosticDraft.v1.')&&!key.endsWith('.active'));
+    return key ? sessionStorage.getItem(key) : null;
+  },legacyRecovery);
   async function question(id){await page.waitForFunction(id=>document.querySelector('#questionTitle')?.textContent===id,id);await page.waitForTimeout(190);}
   async function pick(label,double=false){const b=page.locator('#questionBody .choice').filter({hasText:label});if(double)await b.evaluate(el=>{el.click();el.click();});else await b.click();}
   async function numeric(value,double=false){await page.locator('#questionBody input').fill(value);if(double)await page.locator('#continueBtn').evaluate(el=>{el.click();el.click();});else await page.locator('#continueBtn').click();}
   await question('route');console.log(`${browserName}: intake passed`);await pick('slow',true);await question('count');
-  assert.equal(history.length,1);assert.equal(starts,1);
+  assert.equal(history.length,1);assert.equal(starts,expectedStarts);
   await numeric('abc');assert.equal(history.length,1,'invalid numeric must not send');
   await numeric('5',true);await page.waitForFunction(()=>document.querySelector('#requiredNotice')?.textContent.includes('That answer was not accepted'));
   assert.equal(requests.filter(e=>e.path.endsWith('/answer')&&e.body.itemId==='count').length,1,'validation errors must not auto-retry');
@@ -171,10 +209,10 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
     assert.equal(requests.filter(e=>e.path.endsWith(suffix)).length,before+1,suffix+': copy conflict must not auto-retry an accepted mutation');
     assert.equal(await page.locator('#questionBody input,#questionBody textarea,#questionBody .choice').count(),0,suffix+': no incompatible question');
     assert.equal(await page.locator('#continueBtn').isDisabled(),true);
-    assert.equal(starts,1,suffix+': no replacement admission');
+    assert.equal(starts,expectedStarts,suffix+': no replacement admission');
     responseVersionOverride=null;
-    await page.reload({waitUntil:'domcontentloaded'});await question(restoredQuestion);
-    assert.equal(starts,1,suffix+': recover the same saved run');
+    await reloadAndRecover();await question(restoredQuestion);
+    assert.equal(starts,expectedStarts,suffix+': recover the same saved run');
   }
   await expectBlockedMutation(()=>pick('yes'),'/answer','last');
   await page.locator('#backBtn').click();await question('detail');await page.locator('#backBtn').click();await question('count');
@@ -187,8 +225,11 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
   assert.deepEqual(history.map(e=>e.itemId),['route']);
   console.log(`${browserName}: answer revisions passed`);
   // Simulate a lost finalize/edit race: local phase cannot override server nextItem.
-  await page.evaluate(()=>{const key='monderman.dvJourney.v1';const saved=JSON.parse(sessionStorage.getItem(key));saved.phase='finalizing';saved.state.preflight.confidenceLevel='high';sessionStorage.setItem(key,JSON.stringify(saved));});
-  await page.reload({waitUntil:'domcontentloaded'});await question('alternate');assert.equal(starts,1,'refresh must not start');assert.equal(finalizations,0,'server frontier must outrank stale finalizing phase');
+  await page.evaluate(legacy=>{
+    const key=legacy?'monderman.dvJourney.v1':Object.keys(sessionStorage).find(key=>key.startsWith('monderman.selfDiagnosticDraft.v1.')&&!key.endsWith('.active'));
+    const saved=JSON.parse(sessionStorage.getItem(key));saved.phase='finalizing';saved.state.preflight.confidenceLevel='high';sessionStorage.setItem(key,JSON.stringify(saved));
+  },legacyRecovery);
+  await reloadAndRecover();await question('alternate');assert.equal(starts,expectedStarts,'refresh must not start');assert.equal(finalizations,0,'server frontier must outrank stale finalizing phase');
   // A successful HTTP response with unknown/conflicting copy is still unsafe.
   // This path is stopped by the journey helper, before the generic page pin UI.
   const blockedVersionCases=[
@@ -202,20 +243,24 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
     ['backend409',null]
   ];
   for(const [label,metadata] of blockedVersionCases){
-    const preservedDraft=await page.evaluate(()=>sessionStorage.getItem('monderman.dvJourney.v1'));
+    const preservedDraft=await draftRecord();
     const writesBeforeUnknown=requests.filter(e=>e.method==='POST'&&/\/run\//.test(e.path)).length;
     responseVersionOverride=metadata;versionUnavailableResponse=label==='backend409';
-    await page.reload({waitUntil:'domcontentloaded'});
-    const notice=page.locator('#journeyRecoveryNotice[data-reason="questionnaire_version_unavailable"][role="status"]');
-    await notice.waitFor({state:'visible'});
-    assert.match(await notice.textContent(),/saved answers have not been removed/);
-    assert.match(await notice.textContent(),/Refresh to retry/);
+    await reloadAndRecover();
+    if (legacyRecovery) {
+      const notice=page.locator('#journeyRecoveryNotice[data-reason="questionnaire_version_unavailable"][role="status"]');
+      await notice.waitFor({state:'visible'});
+      assert.match(await notice.textContent(),/saved answers have not been removed/);
+      assert.match(await notice.textContent(),/Refresh to retry/);
+    } else {
+      await page.waitForFunction(()=>document.querySelector('#questionTitle')?.textContent==='Your saved questionnaire needs verification');
+    }
     assert.equal(await page.locator('#questionBody input,#questionBody textarea,#questionBody .choice').count(),0,label+': no cached questions');
-    assert.equal(await page.evaluate(()=>sessionStorage.getItem('monderman.dvJourney.v1')),preservedDraft,label+': preserve exact draft');
+    assert.equal(await draftRecord(),preservedDraft,label+': preserve exact draft');
     assert.equal(requests.filter(e=>e.method==='POST'&&/\/run\//.test(e.path)).length,writesBeforeUnknown,label+': no mutation or admission');
     assert.equal(await page.locator('#beginBtn').isDisabled(),true,label+': cannot start over implicitly');
     responseVersionOverride=null;versionUnavailableResponse=false;
-    await page.reload({waitUntil:'domcontentloaded'});await question('alternate');assert.equal(starts,1);
+    await reloadAndRecover();await question('alternate');assert.equal(starts,expectedStarts);
   }
   await numeric('7');await page.waitForFunction(()=>document.querySelector('#continueBtn')?.textContent==='Try again');
   assert.equal(history.length,1);
@@ -233,20 +278,36 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
   await page.locator('#questionBody .choice').first().click();
   await page.locator('#retryFinalizeBtn').waitFor({state:'visible'});
   assert.equal(await page.locator('#questionBody').count(),1,'failure must preserve question DOM');
-  await page.locator('#retryFinalizeBtn').click();await page.locator('.dv-result-dialog__panel').waitFor({state:'visible'});
+  await page.locator('#retryFinalizeBtn').click();
+  await page.locator(legacyRecovery?'.dv-result-dialog__panel':'#resultsStage.active').waitFor({state:'visible'});
+  if(legacyRecovery) {
+    assert.match(await page.locator('.dv-result-dialog__panel').innerText(),/Sign in with your invited or existing account/);
+    assert.doesNotMatch(await page.locator('.dv-result-dialog__panel').innerText(),/Create a free account|pilot waitlist|six to twelve people/);
+  }
   console.log(`${browserName}: completed result passed`);
-  assert.equal(starts,1);assert.equal(history.length,2);
+  assert.equal(starts,expectedStarts);assert.equal(history.length,2);
   const finalAnswerRequests=requests.filter(e=>/\/(answer|revise)$/.test(e.path)).length;
-  await page.reload({waitUntil:'domcontentloaded'});await page.locator('.dv-result-dialog__panel').waitFor({state:'visible'});
+  if (legacyRecovery) {
+    await page.reload({waitUntil:'domcontentloaded'});await page.locator('.dv-result-dialog__panel').waitFor({state:'visible'});
+  }
   assert.equal(requests.filter(e=>/\/(answer|revise)$/.test(e.path)).length,finalAnswerRequests,'completed reload must not answer');
+  // Retry notices are intentionally short-lived and dismissible. Dismiss the
+  // notices from this fault-injection test before testing persistent footer
+  // geometry, using the same visible control a participant can use.
+  for (const dismiss of await page.locator('#toastStack button[aria-label="Dismiss"]').all()) {
+    if (await dismiss.isVisible()) await dismiss.click();
+  }
+  await page.locator('#toastStack .toast').last().waitFor({state:'detached'});
   for(const [width,height] of [[375,667],[390,844],[768,1024],[1024,768],[1440,1000]]){
     await page.setViewportSize({width,height});
+    if (legacyRecovery) {
     const dialog=page.locator('.dv-result-dialog__panel');
     const box=await dialog.boundingBox();assert.ok(box.x>=0&&box.y>=0&&box.x+box.width<=width+1&&box.y+box.height<=height+1,JSON.stringify(box));
     await dialog.locator('a').last().scrollIntoViewIfNeeded();
     const accessible=await dialog.locator('a').last().evaluate(el=>{const r=el.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight&&el.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));});assert.ok(accessible,'pilot action reachable without widget cover');
     await page.screenshot({path:path.join(output,`${browserName}-${width}-result.png`)});
     await page.keyboard.press('Escape');
+    }
     await page.locator('.mond-footer').scrollIntoViewIfNeeded();
     const footer=await page.locator('.mond-footer').evaluate(el=>({nested:!!el.closest('.environment'),x:el.getBoundingClientRect().x,right:el.getBoundingClientRect().right,overflow:document.documentElement.scrollWidth-innerWidth}));
     assert.equal(footer.nested,false);assert.ok(footer.x>=-1&&footer.right<=width+1&&footer.overflow<=1,JSON.stringify(footer));
@@ -279,8 +340,9 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
       await page.evaluate(()=>window.scrollTo({top:document.documentElement.scrollHeight,behavior:'instant'}));
       await page.screenshot({path:path.join(output,`${browserName}-390-footer-viewport.png`)});
     }
-    await page.locator('#reopenRunResult').click();
+    if(legacyRecovery) await page.locator('#reopenRunResult').click();
   }
+  if(legacyRecovery) {
   await page.locator('#mdmTeaserSignIn').click();await page.waitForURL(/signin\.html/);
   assert.equal(context.pages().length,1,'handoff must stay in same tab');
   await page.locator('#emailInput').fill('local-fixture@example.test');await page.locator('#emailSubmit').click();
@@ -292,7 +354,8 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
     fs.writeFileSync(path.join(output,`${browserName}-handoff-failure.json`),JSON.stringify({url:page.url(),blockedExternalUrls:[...blockedExternalUrls],errors,requests:requests.map(({path,method})=>({path,method})),state:await page.evaluate(()=>({body:document.body.innerText,stages:[...document.querySelectorAll('#resultsStage,#savedReportRecovery')].map(el=>({id:el.id,className:el.className,display:getComputedStyle(el).display}))}))},null,2));
     throw error;
   }
-  assert.equal(starts,1,'sign-in must not consume another admission');
+  }
+  assert.equal(starts,expectedStarts,'sign-in must not consume another admission');
   assert.equal(requests.filter(e=>/\/(answer|revise)$/.test(e.path)).length,finalAnswerRequests);
   assert.equal(await page.evaluate(()=>sessionStorage.getItem('monderman.dvJourney.v1')),null,'saved report clears anonymous capability');
   await page.waitForFunction(score=>document.querySelector('#scoreNumber')?.textContent===String(score),sample.result.score);
@@ -300,7 +363,7 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
   const completedFinalizations=finalizations;
   await page.reload({waitUntil:'domcontentloaded'});
   await page.locator('#savedReportRecovery .mr-report').waitFor({state:'visible'});
-  assert.equal(starts,1);assert.equal(finalizations,completedFinalizations,'saved refresh must read, not re-finalize');
+  assert.equal(starts,expectedStarts);assert.equal(finalizations,completedFinalizations,'saved refresh must read, not re-finalize');
   assert.equal(requests.filter(e=>/\/(answer|revise)$/.test(e.path)).length,finalAnswerRequests);
   await page.setViewportSize({width:390,height:844});
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'saved full report overflows phone');
@@ -329,7 +392,7 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
   await page.locator('#retrySavedReport').waitFor({state:'visible'});
   assert.equal(await page.locator('#savedReportRecovery .mr-report').count(),0,'denied report cannot show cached content');
   assert.equal(requests.filter(e=>e.method==='GET'&&e.path.endsWith('/run/'+runId)).length,snapshotsBefore,'saved report must not restore an unrelated journey');
-  assert.equal(finalizations,completedFinalizations);assert.equal(starts,1);
+  assert.equal(finalizations,completedFinalizations);assert.equal(starts,expectedStarts);
   denySavedReport=false;
   await page.locator('#retrySavedReport').click();
   await page.locator('#savedReportRecovery .mr-report').waitFor({state:'visible'});
@@ -343,11 +406,11 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
   await page.evaluate(()=>window.__fixtureAuth.auth.signOut());
   await page.waitForTimeout(650);
   assert.equal(await page.locator('#savedReportRecovery .mr-report').count(),0,'late response after sign-out must not restore report');
-  assert.equal(finalizations,completedFinalizations);assert.equal(starts,1);
+  assert.equal(finalizations,completedFinalizations);assert.equal(starts,expectedStarts);
   assert.deepEqual(errors,[]);
-  results.push({browserName,starts,commits,finalizations,answerRequests:finalAnswerRequests,footerEvidence,blockedExternalRequests,networkPolicy:'Loopback and locally fulfilled SRI-verified rendering dependencies; explicit API/auth mocks; all other browser requests aborted',passed:true});
+  results.push({browserName,entry:legacyRecovery?'pre-cutover anonymous recovery; zero new admissions':'invited authenticated Workspace',starts,commits,finalizations,answerRequests:finalAnswerRequests,footerEvidence,blockedExternalRequests,networkPolicy:'Loopback and locally fulfilled SRI-verified rendering dependencies; explicit API/auth mocks; all other browser requests aborted',passed:true});
   await context.close();await browser.close();
 }
-fs.writeFileSync(path.join(output,'results.json'),JSON.stringify({mode:'local mocked API/auth/email; not production',publicDependencyDownloads:[...dependencies].map(([url,{body,sha384}])=>({url,sha384,bytes:body.length})),liveApiCalls:0,results},null,2));
+fs.writeFileSync(path.join(output,'results.json'),JSON.stringify({mode:legacyRecovery?'local legacy recovery only; no new anonymous entry':'local invited authenticated entry; mocked API/auth/email',publicDependencyDownloads:[...dependencies].map(([url,{body,sha384}])=>({url,sha384,bytes:body.length})),liveApiCalls:0,results},null,2));
 console.log(JSON.stringify({passed:true,results,output},null,2));
 } finally {await Promise.all(browsers.map(browser=>browser.close()));server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}

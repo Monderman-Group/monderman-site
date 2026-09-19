@@ -94,10 +94,10 @@ def validate():
 
     privacy = (ROOT / "privacy.html").read_text(errors="ignore")
     require(privacy, [
-        "Version 2026-09-12-ai-source-evidence-v2", "Subprocessors and infrastructure page",
+        "Version 2026-09-19-invited-evaluation", "Subprocessors and infrastructure page",
         'id="optional-measurement"',
-        "Optional website measurement uses separate first-party browser storage only after the choice described below.",
-        "Either choice leaves the diagnostic, results, reports, sign-in and pilot application available.",
+        "Optional website measurement has been retired as described below.",
+        "Tracking does not resume for browsers that previously opted in.",
         "Monderman, LLC", "a South Dakota limited liability company", "41 W Highway 14, Unit #1225", "Spearfish, SD 57783", "generally acts as the controller or business",
         "generally acts as the customer's processor or service provider",
         "performance of a contract", "legitimate interests", "does not treat a participant's acknowledgement",
@@ -105,7 +105,7 @@ def validate():
         "campaign plus 12 months", "24 months after the last substantive interaction",
         "Billing and tax records are retained for seven years",
         "Legal-acceptance records are retained for seven years after the relationship ends",
-        "Pattern-trial anti-abuse record is retained for three years",
+        "evaluation anti-abuse record is retained for three years",
         "removed from active systems within 30 days", "provider's controlled deletion schedule",
         "EU Standard Contractual Clauses", "must not submit that information through the self-service beta",
         "Anthropic does not calculate or set those scores", "Monderman does not use customer content for model training or fine-tuning",
@@ -117,7 +117,7 @@ def validate():
     assert_no_drafting_markers(privacy, "Privacy Notice")
     terms = (ROOT / "terms.html").read_text(errors="ignore")
     require(terms, [
-        "Version 2026-09-15-annual-plans", "affirmative agreement", "Terms version",
+        "Version 2026-09-19-invited-evaluation", "affirmative agreement", "Terms version",
         "Privacy Notice version", "database-server timestamp", "source/context",
         "normalized account email verified at acceptance", "organization name verified at acceptance",
         "seven-year legal-acceptance retention period",

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Private Pattern pilot feedback | Monderman</title>
-  <meta name="description" content="Submit feedback about an active Monderman Pattern Pilot." />
+  <title>Private evaluation feedback | Monderman</title>
+  <meta name="description" content="Submit feedback about your Monderman evaluation." />
   <link rel="canonical" href="https://www.monderman.com/pilot-feedback.html" />
   <meta name="robots" content="noindex,nofollow,noarchive" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260906-enterprise1">
@@ -42,10 +42,10 @@
   <header><a class="brand monderman-lockup" href="workspace.html"><svg class="monderman-lockup__mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M6 9.2 11 5.75 16 8.3 21 5.75 26 9.2V26L21 23.2 16 26 11 23.2 6 26Z" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 5.75V23.2M16 8.3V26M21 5.75V23.2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="monderman-lockup__name">Monderman.</span></a><a href="workspace.html">&larr; <span class="back-label">Back to </span>Workspace</a></header>
   <main id="main-content">
     <section class="card" aria-labelledby="pageTitle">
-      <p class="eyebrow">Pattern &middot; Private pilot</p>
+      <p class="eyebrow">Pattern &middot; Free evaluation</p>
       <h1 id="pageTitle">Help us make Monderman better.</h1>
-      <p class="lead">Share what created value and what got in the way. The form takes about a minute, is optional, and is available only to verified Pattern pilot Workspace members.</p>
-      <div class="access" id="accessState" data-state="checking" role="status" aria-live="polite"><span class="access-dot" aria-hidden="true"></span><div><strong id="accessTitle">Verifying pilot access…</strong><span id="accessDetail">Please wait while Monderman confirms your pilot Workspace.</span></div></div>
+      <p class="lead">Share what created value and what got in the way. The form takes about a minute, is optional, and is available only to verified evaluation Workspace members.</p>
+      <div class="access" id="accessState" data-state="checking" role="status" aria-live="polite"><span class="access-dot" aria-hidden="true"></span><div><strong id="accessTitle">Verifying evaluation access…</strong><span id="accessDetail">Please wait while Monderman confirms your Workspace.</span></div></div>
 
       <form id="feedbackForm" hidden novalidate>
         <div class="msg" id="formMessage" role="alert" tabindex="-1"></div>
@@ -59,7 +59,7 @@
             <option value="reports">Reports or exports</option>
             <option value="action_plans">Action Plans</option>
             <option value="workspace">Workspace navigation or administration</option>
-            <option value="onboarding">Pilot onboarding</option>
+            <option value="onboarding">Evaluation onboarding</option>
             <option value="other">Something else</option>
           </select>
         </div>
@@ -110,7 +110,7 @@
         </div>
 
         <label class="follow"><input type="checkbox" id="followUp"><span><strong>Monderman may contact me about this feedback.</strong><br>Your sign-in email is included only when you select this option.</span></label>
-        <p class="privacy"><strong>Private, not anonymous.</strong> Monderman records your account, Workspace, role, pilot day, and the product area selected so the feedback has context. Diagnostic answers, scores, reports, billing information, and authentication data are never attached.</p>
+        <p class="privacy"><strong>Private, not anonymous.</strong> Monderman records your account, Workspace, role, evaluation day, and the product area selected so the feedback has context. Diagnostic answers, scores, reports, billing information, and authentication data are never attached.</p>
         <div class="actions"><button class="submit" id="submitBtn" type="submit">Send private feedback</button><a class="cancel" href="workspace.html">Return to Workspace</a></div>
       </form>
 
@@ -142,17 +142,17 @@
         const response=await fetch(API_BASE+"/api/pilot-feedback/access",{headers:{authorization:"Bearer "+token}});
         const result=await response.json().catch(()=>({}));
         if(response.status===401){location.replace("signin.html?next="+encodeURIComponent("pilot-feedback.html"+(location.search||"")));}
-        else if(!response.ok||!result.ok){deny("Pilot feedback is not available for this account.","This private page is limited to verified Pattern pilot Workspace members during the pilot and seven-day follow-up window.");}
+        else if(!response.ok||!result.ok){deny("Evaluation feedback is not available for this account.","This private page is limited to verified evaluation Workspace members during the evaluation and seven-day follow-up window.");}
         else{
           const access=result.access||{};
           accessState.dataset.state="verified";
-          accessTitle.textContent=`Verified for ${access.organizationName||"your pilot Workspace"}`;
-          accessDetail.textContent=Number(access.trialDay)>30?"Post-pilot feedback window":`Pilot day ${access.trialDay||"Unavailable"} · ${access.role||"member"}`;
+          accessTitle.textContent=`Verified for ${access.organizationName||"your evaluation Workspace"}`;
+          accessDetail.textContent=access.isFollowup===true?"Evaluation follow-up window":`Evaluation day ${access.trialDay||"Unavailable"} · ${access.role||"member"}`;
           form.hidden=false;
           const surface=safeSurface();if(surface)document.getElementById("surface").value=surface;
         }
       }
-    }catch(_error){deny("Pilot access could not be verified.","Please reload the page. If the problem continues, email connect@monderman.com.");}
+    }catch(_error){deny("Evaluation access could not be verified.","Please reload the page. If the problem continues, email connect@monderman.com.");}
 
     form.addEventListener("submit",async(event)=>{
       event.preventDefault();message.className="msg";

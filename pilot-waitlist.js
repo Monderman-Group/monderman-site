@@ -54,10 +54,6 @@
 
   async function submit(form) {
     var source = sourceFromLocation();
-    var consentVersion = window.MondermanFirstRun?.measurementConsentVersion?.();
-    var hasConsent = consentVersion === "2026-09-10-v1";
-    var acquisition = hasConsent ? window.MondermanFirstRun?.attribution?.() || {} : {};
-    var acquisitionSource = typeof acquisition.acquisitionSource === "string" ? acquisition.acquisitionSource.trim().toLowerCase() : "unknown";
     var payload = {
       fullName: value(form, "fullName"),
       workEmail: value(form, "workEmail"),
@@ -69,10 +65,9 @@
       privacyConsent: Boolean(form.elements.namedItem("privacyConsent")?.checked),
       website: value(form, "website"),
       source: source,
-      acquisitionSource: ["linkedin", "facebook", "x", "email", "referral", "direct", "unknown"].indexOf(acquisitionSource) >= 0 ? acquisitionSource : "unknown",
-      acquisitionCampaign: acquisition.acquisitionCampaign === "first-dv-202609" ? "first-dv-202609" : null
+      acquisitionSource: "unknown",
+      acquisitionCampaign: null
     };
-    if (hasConsent) payload.measurementConsentVersion = consentVersion;
     // Only an unchanged explicit retry reuses the same server idempotency key.
     // Keep this transient form snapshot in memory, never analytics or storage.
     var fingerprint = JSON.stringify(payload);
@@ -84,18 +79,6 @@
     var response;
     try {
       var base = await chooseBase();
-      // A functional health probe may finish after the visitor withdraws.
-      // Recheck at the actual submission boundary; never send stale consent.
-      if (hasConsent && window.MondermanFirstRun?.measurementConsentVersion?.() !== "2026-09-10-v1") {
-        payload.acquisitionSource = "unknown";
-        payload.acquisitionCampaign = null;
-        delete payload.measurementConsentVersion;
-        delete payload.requestId;
-        fingerprint = JSON.stringify(payload);
-        if (!pendingSubmission || pendingSubmission.fingerprint !== fingerprint) pendingSubmission = { fingerprint: fingerprint, id: requestId() };
-        id = pendingSubmission.id;
-        payload.requestId = id;
-      }
       response = await fetchWithTimeout(base + "/api/pilot-waitlist", {
         method: "POST",
         headers: { "Accept": "application/json", "Content-Type": "application/json" },
@@ -108,7 +91,7 @@
     }
     var result = await response.json().catch(function () { return null; });
     if (!response.ok || !result || !result.ok) {
-      var error = new Error(result?.message || "The application could not be submitted just now.");
+      var error = new Error(result?.message || "Your invitation request could not be submitted just now.");
       error.requestId = result?.requestId || id;
       throw error;
     }
@@ -123,7 +106,6 @@
     var source = sourceFromLocation();
     var completed = form?.elements.namedItem("completedDecisionVelocity");
     if (completed && source === "decision_velocity") completed.checked = true;
-    window.MondermanFirstRun?.trackOnce("pilot_waitlist_viewed");
     if (!form) return;
 
     form.addEventListener("submit", async function (event) {
@@ -137,7 +119,6 @@
       try {
         await submit(form);
         pendingSubmission = null;
-        window.MondermanFirstRun?.track("pilot_waitlist_submitted");
         form.hidden = true;
         confirmation.hidden = false;
         confirmation.focus();
@@ -147,7 +128,7 @@
       } finally {
         submitting = false;
         submitButton.disabled = false;
-        submitButton.textContent = "Apply to the pilot waitlist";
+        submitButton.textContent = "Request an invitation";
       }
     });
   });

@@ -62,20 +62,47 @@ for(const [,value] of burdens) assert.ok(number(value)<=100);
 burdens.sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));burdens.splice(3);
 assert.ok(burdens.length,'DV preview needs a recorded burden indicator');
 const [focusKey,focusValue]=burdens[0];
-const assumptions = 'One participant’s recorded answers. The score and burden indicators do not measure hours, organizational cost or savings. Missing dimensions remain unknown.';
-const values = {
-  artifactSha:artifact.artifact_sha256, scope:escape(dv.process_name+' / '+dv.business_unit),
-  score:whole(dv.score), band:escape(dv.score_band), recovery:whole(focusValue)+' / 100',
-  action:escape(firstAction(dv)), assumptions:escape(assumptions),
-  burdenRows:burdens.map(([key,value])=>'          <div class="hwd-chart-row"><span>'+escape(names[key])+'</span><div class="hwd-track" aria-hidden="true"><i style="width:'+value+'%"></i></div><strong data-demo-burden="'+key+'">'+whole(value)+'</strong></div>').join('\n')
+const crossEntry=artifact.outputs.cross_lens_synthesis;
+assert.equal(crossEntry?.kind,'synthesis');
+assert.equal(crossEntry.provenance?.synthetic,true);
+assert.equal(evidenceDigest(crossEntry.source),crossEntry.provenance.public_source_sha256,'Cross-Lens preview source differs from its reviewed projection');
+const cross=result(crossEntry),scenario=cross.financial_scenario;
+assert.equal(cross.synthesis_product,'cross_lens_synthesis');
+assert.equal(scenario?.version,'operational-planning-scenario-20260913.1');
+assert.equal(scenario.kind,'synthesis_planning_scenario');
+assert.equal(scenario.publication_projection,'operational-scenario-public-20260913.1');
+assert.equal(scenario.currency,'USD');
+assert.equal(scenario.method?.usesDiagnosticScores,false);
+assert.equal(scenario.method?.isConfidenceInterval,false);
+assert.equal(scenario.inputs?.scopeConfirmed,true);
+assert.equal(scenario.inputs?.overlapReviewed,true);
+assert.ok(Array.isArray(cross.source_groups)&&cross.source_groups.length>=2);
+const financialRange=key=>{
+ const r=scenario.totals?.[key];
+ assert.deepEqual(Object.keys(r||{}).sort(),['central','high','low']);
+ for(const v of Object.values(r)){assert.equal(typeof v,'number');assert.ok(Number.isFinite(v));if(!key.startsWith('net'))assert.ok(v>=0);}
+ assert.ok(r.low<=r.central&&r.central<=r.high);
+ return r;
 };
-// Keep the stored template unchanged until the authorized artifact refresh.
-// Only this exact obsolete slot is converted; all other branding/layout stays.
+const hours=financialRange('potentialHoursFreed'),capacity=financialRange('capacityValue'),cost=financialRange('totalImplementationAndSubscriptionCost'),net=financialRange('netCapacityAndCashValue'),cash=financialRange('netCashEffect');
+const activities=scenario.activities;
+assert.ok(Array.isArray(activities)&&activities.length>0);
+const proposals=scenario.inputs.activities;
+assert.ok(Array.isArray(proposals)&&proposals.some(a=>typeof a.changeBasis==='string'&&a.changeBasis.trim()));
+const largest=Math.max(...activities.map(a=>number(a.potentialHoursFreed.central)),1);
+const values={
+ artifactSha:artifact.artifact_sha256,
+ runCount:whole(cross.submitted_run_count),lensCount:whole(cross.source_groups.length),
+ people:whole(scenario.inputs.measuredPeople),measurementDays:whole(scenario.method.measurementDays),horizonMonths:whole(scenario.inputs.horizonMonths),
+ hours:whole(hours.central),capacity:money(capacity.central),cost:money(cost.central),
+ lensCards:cross.source_groups.map(g=>'<div class="hwd-diagnostic"><span class="hwd-instrument-number">'+whole(g.submitted_runs)+' submitted runs</span><h3>'+escape(g.tool_label)+'</h3><p>Median score: <strong data-demo-lens="'+escape(g.tool_type)+'">'+whole(g.median_score)+' / 100</strong></p></div>').join(''),
+ activityRows:activities.map(a=>'<div class="hwd-chart-row hwd-activity-row"><span>'+escape(a.label)+'</span><div class="hwd-track" aria-hidden="true"><i style="width:'+(number(a.potentialHoursFreed.central)/largest*100)+'%"></i></div><strong>'+whole(a.potentialHoursFreed.central)+'</strong></div>').join(''),
+ changeProposal:escape(proposals.find(a=>a.changeBasis?.trim()).changeBasis),
+ assumptions:escape('Illustrative example. '+whole(scenario.inputs.measuredPeople)+' people; '+whole(scenario.method.measurementDays)+' days of operational inputs projected over '+whole(scenario.inputs.horizonMonths)+' months. Activity reductions and adoption are assumptions. Activities are checked for overlap. The estimate is not scaled to unmeasured staff.'),
+ sensitivityRows:['low','central','high'].map(k=>'<div><dt>'+({low:'Low',central:'Central',high:'High'}[k])+' case</dt><dd>'+whole(hours[k])+' hours / '+money(capacity[k])+' capacity value</dd></div>').join(''),
+ downside:escape('The low case shows '+money(net.low)+' after implementation and subscription costs. The central net cash effect is '+money(cash.central)+': no cash saving is assumed. Capacity value and cash are different; costs include internal staff time.')
+};
 let hero=template.trimEnd().replace(/\{\{(\w+)\}\}/g,(_,key)=>{assert.ok(key in values,'Unknown preview field '+key);return values[key];});
-hero=replaceOne(hero,/<div class="hwd-reading">[\s\S]*?<\/div>/,
-  '<div class="hwd-reading"><span class="hwd-eyebrow">'+escape(names[focusKey])+'</span><strong data-demo-focus="'+focusKey+'">'+whole(focusValue)+' / 100</strong><p>Highest recorded burden indicator in this participant’s result. Not time, cost or savings.</p></div>','Recorded DV focus');
-hero=replaceOne(hero,/<summary>View financial assumptions<\/summary>/,'<summary>Read the result scope</summary>','Respondent scope');
-hero=replaceOne(hero,/Three highest burden measures/,(burdens.length===3?'Three':burdens.length===2?'Two':'One')+' highest recorded burden '+(burdens.length===1?'measure':'measures'),'Available indicators');
 assert.ok(!/\{\{/.test(hero));
 
 function depthCard(place) {

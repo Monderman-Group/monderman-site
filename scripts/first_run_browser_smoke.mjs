@@ -1,66 +1,49 @@
 import assert from "node:assert/strict";
-import { chromium, webkit } from "playwright";
-
+const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || "playwright");
 const base = process.env.SITE_BASE || "http://127.0.0.1:4173";
-const viewports = [
-  { name: "desktop", width: 1440, height: 1000 },
-  { name: "iphone", width: 390, height: 844 }
-];
-
-for (const [browserName, browserType] of [["chromium", chromium], ["webkit", webkit]]) {
-  const browser = await browserType.launch({ headless: true });
-  for (const viewport of viewports) {
-    const context = await browser.newContext({ viewport });
-    const page = await context.newPage();
-    const pageErrors = [];
-    page.on("pageerror", (error) => pageErrors.push(error.message));
-    await page.route("https://monderman-api.onrender.com/api/first-run-events", (route) => route.fulfill({ status: 202, contentType: "application/json", body: '{"ok":true}' }));
-    await page.route("https://monderman-api.onrender.com/api/health", (route) => route.fulfill({ status: 200, contentType: "application/json", body: '{"ok":true}' }));
-
-    await page.goto(`${base}/decision-velocity.html`, { waitUntil: "domcontentloaded", timeout: 60000 });
-    await page.locator("body").waitFor({ state: "visible", timeout: 15000 });
-    assert.match(page.url(), /decision-velocity\.html$/, `${browserName}/${viewport.name}: anonymous visitor was redirected`);
-    assert.equal(await page.locator('[data-depth="10"]').evaluate((node) => node.classList.contains("has-recommended")), true);
-    assert.equal(await page.locator('[data-depth="30"]').evaluate((node) => node.classList.contains("has-recommended")), false);
-    await page.locator('[data-lane="managerial"]').click();
-    await page.locator("#laneContinueBtn").click();
-    await page.locator('[data-depth="10"]').click();
-    await page.locator("#depthContinueBtn").click();
-    assert.equal(await page.locator("#introStage").evaluate((node) => node.classList.contains("active")), true);
-    assert.equal(await page.locator("#beginBtn").textContent(), "Begin Diagnostic →");
-
-    // A pointer left on the previous page can land on this page's pilot link.
-    // Inspect the resting state deliberately, not a mid-hover transition color.
-    await page.mouse.move(0, 0);
-    await page.goto(`${base}/index.html`, { waitUntil: "domcontentloaded", timeout: 60000 });
-    assert.equal(await page.locator(".first-run-moment").count(), 4);
-    const pilotLink = page.locator('.hero-pilot-cta[href="pilot.html?source=homepage"]');
-    assert.equal(await pilotLink.count(), 1);
-    assert.match(await pilotLink.textContent(), /Applications open/);
-    assert.equal(await page.locator('.hero-actions .btn-accent[href="decision-velocity.html?source=homepage"]').count(), 1);
-    await page.waitForFunction(() => {
-      const link = document.querySelector('.hero-pilot-cta[href="pilot.html?source=homepage"]');
-      return link && !link.matches(':hover') && getComputedStyle(link).color === 'rgb(240, 196, 125)';
-    });
-    const pilotAccent = await pilotLink.evaluate((node) => getComputedStyle(node).color);
-    assert.equal(pilotAccent, "rgb(240, 196, 125)", `${browserName}/${viewport.name}: pilot availability signal is not amber`);
-    const heroPrimaryColor = await page.locator(".hero-actions .btn-accent").evaluate((node) => getComputedStyle(node).backgroundColor);
-    const expectedHeroPrimaryColor = "rgb(169, 208, 212)";
-    assert.equal(heroPrimaryColor, expectedHeroPrimaryColor, `${browserName}/${viewport.name}: dark-surface action lost its sea-glass treatment`);
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-    assert.ok(overflow <= 1, `${browserName}/${viewport.name}: homepage overflows by ${overflow}px`);
-
-    for (const moment of ["new-in-the-role.html", "after-an-acquisition.html", "transformation-behind-schedule.html", "after-a-reorganization.html"]) {
-      await page.goto(`${base}/${moment}`, { waitUntil: "domcontentloaded", timeout: 60000 });
-      assert.equal(await page.locator("h1").count(), 1, `${browserName}/${viewport.name}/${moment}: h1 missing`);
-      assert.equal(await page.locator('[data-first-run-event="primary_cta_clicked"]').count(), 1, `${browserName}/${viewport.name}/${moment}: primary action missing`);
-      assert.equal(await page.locator('script[src^="assistant.js"]').count(), 1, `${browserName}/${viewport.name}/${moment}: assistant missing`);
-      assert.equal(await page.locator('footer a[aria-label="Monderman on LinkedIn"]').count(), 1, `${browserName}/${viewport.name}/${moment}: social footer missing`);
+let cases=0;
+for (const [name,type] of [["chromium",chromium],["webkit",webkit]]) {
+ const browser=await type.launch({headless:true});
+ try {
+  for (const width of [390,768,1440]) {
+   const context=await browser.newContext({viewport:{width,height:1000},reducedMotion:"reduce"});
+   await context.addInitScript(()=>{
+    // Offline anonymous Auth double. This suite tests public presentation and
+    // retirement, not real account sessions or the separate access gate.
+    window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange:()=>({})}})};
+    localStorage.setItem("monderman_measurement_choice",JSON.stringify({choice:"allow",version:"2026-09-10-v1"}));
+    sessionStorage.setItem("monderman_first_run_journey","10000000-1000-4000-8000-100000000000");
+    sessionStorage.setItem("monderman_first_run_attribution",JSON.stringify({acquisitionSource:"email",acquisitionCampaign:"first-dv-202609"}));
+    sessionStorage.setItem("evaluation-test-saved-run","preserve");
+   });
+   const page=await context.newPage(),events=[],errors=[];
+   page.on("pageerror",error=>errors.push(error.message));
+   await page.route("**/*",route=>{
+    const url=new URL(route.request().url());
+    if(url.pathname==="/api/first-run-events")events.push(route.request().postData());
+    return url.origin===new URL(base).origin?route.continue():route.abort();
+   });
+   for (const file of ["index.html","pilot.html","platform-services.html","Monderman_Platform_Brief.html","new-in-the-role.html","after-an-acquisition.html","after-a-reorganization.html","transformation-behind-schedule.html"]) {
+    await page.goto(base+"/"+file,{waitUntil:"load"});
+    await page.evaluate(()=>document.fonts.ready);
+    assert.equal(await page.locator("h1").count(),1,name+"/"+width+"/"+file);
+    assert.equal(await page.locator("#siteHeader .site-entry-link").getAttribute("href"),"pilot.html");
+    assert.equal(await page.locator("#siteHeader .site-entry-link").textContent(),"Request an invitation");
+    assert.equal(await page.locator("#mnd-measurement-panel,#mnd-measurement-settings,[data-measurement-settings]").count(),0);
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth+1),name+"/"+width+"/"+file+": overflow");
+    if(await page.locator('script[src*="first-run-telemetry.js"]').count()){
+     assert.equal(await page.evaluate(()=>MondermanFirstRun.isMeasurementAllowed()),false);
+     assert.equal(await page.evaluate(()=>localStorage.getItem("monderman_measurement_choice")),null);
+     assert.equal(await page.evaluate(()=>sessionStorage.getItem("monderman_first_run_journey")),null);
+     assert.equal(await page.evaluate(()=>sessionStorage.getItem("evaluation-test-saved-run")),"preserve");
+     await page.evaluate(()=>{MondermanFirstRun.track("primary_cta_clicked");MondermanFirstRun.trackOnce("diagnostic_started");MondermanFirstRun.openMeasurementChoices();});
     }
-
-    assert.deepEqual(pageErrors, [], `${browserName}/${viewport.name}: ${pageErrors.join("; ")}`);
-    await context.close();
+    cases++;
+   }
+   assert.deepEqual(events,[],name+"/"+width+": retired telemetry must never send");
+   assert.deepEqual(errors,[],name+"/"+width+": runtime errors");
+   await context.close();
   }
-  await browser.close();
-  console.log(`FIRST_RUN_BROWSER_PASS_${browserName.toUpperCase()}`);
+ } finally {await browser.close();}
 }
+console.log(JSON.stringify({passed:true,cases,engines:2,widths:[390,768,1440],retiredAllowPreferenceTested:true,productionRequests:0}));

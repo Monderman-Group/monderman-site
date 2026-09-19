@@ -5,12 +5,20 @@ import re
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TERMS_VERSION = "2026-09-15-annual-plans"
-PRIVACY_VERSION = "2026-09-12-ai-source-evidence-v2"
-PUBLISHED_PRIVACY_VERSION = "2026-09-12-ai-source-evidence-v2"
-PUBLISHED_PRIVACY_SHA256 = "41e4ef0367e55a4bff255934c42ea14b4b4e49a69dca78e4f14357f08bc2e3cc"
+TERMS_VERSION = "2026-09-19-invited-evaluation"
+PRIVACY_VERSION = "2026-09-19-invited-evaluation"
+PUBLISHED_PRIVACY_VERSION = "2026-09-19-invited-evaluation"
+PUBLISHED_PRIVACY_SHA256 = "88a0ad179c9f8d24c478789946d7d5895a7721800022aff238f1a7fc81f26bce"
 # Accepted historical editions are immutable, even if someone edits the manifest.
 HISTORICAL_DOCUMENTS = {
+    "2026-09-12-ai-source-evidence-v2": {
+        "privacy_notice_file": "privacy-2026-09-12-ai-source-evidence-v2.html",
+        "privacy_notice_file_sha256": "41e4ef0367e55a4bff255934c42ea14b4b4e49a69dca78e4f14357f08bc2e3cc"
+    },
+    "2026-09-15-annual-plans": {
+        "terms_file": "terms-2026-09-15-annual-plans.html",
+        "terms_file_sha256": "ec9820dda61b53bfc90a145ad9c0a2e1887cde1d7f46fac4943d1c1587de90bf"
+    },
     "2026-09-11-ai-evidence-v1": {
         "privacy_notice_file": "privacy-2026-09-11-ai-evidence-v1.html",
         "privacy_notice_file_sha256": "9286991d6f104c50a401fb4f987bdd751523e74d3fda713ceab17b5fdf49f460"
@@ -102,7 +110,7 @@ def validate():
         "use access to the service or its materials to build, train, evaluate, improve or inform a competing product",
         "The Customer is responsible for activity by its Admins, Analysts, Members",
         "Circumvention is a material breach",
-        "The Pattern beta trial does not convert automatically.",
+        "The free evaluation does not convert automatically.",
         "These safeguards do not create an undisclosed usage charge.",
         "For 30 days after termination of a paid subscription",
         "The Customer will defend, indemnify and hold harmless Monderman",
@@ -115,6 +123,21 @@ def validate():
         "These Terms create no partnership, agency, fiduciary relationship or third-party beneficiary.",
         "requires fresh affirmative acceptance"
     ], "protective Terms")
+    require(terms, [
+        "Your invitation includes 60 days to evaluate Monderman.",
+        "An invitation does not start the clock.",
+        "requires no payment card, ends automatically and does not auto-renew",
+        "two Admins and five Analysts",
+        "Ordinary use is not capped by a campaign-response or Synthesis allowance",
+        "Existing evaluations retain their recorded end dates",
+        "new Diagnostic runs, campaign activity and Syntheses stop",
+        "continue to read and export saved reports",
+        "Expiry does not itself delete saved work"
+    ], "invited evaluation access and expiry")
+    old_paid = re.search(r'<section[^>]*><p class="kicker">Paid subscriptions</p>[\s\S]*?</section>', (ROOT / "terms-2026-09-15-annual-plans.html").read_text()).group()
+    new_paid = re.search(r'<section[^>]*><p class="kicker">Paid subscriptions</p>[\s\S]*?</section>', terms).group()
+    if new_paid != old_paid.replace("The Pattern beta trial does not convert automatically.", "The free evaluation does not convert automatically."):
+        raise AssertionError("evaluation update must not change paid prices, allowances or contract terms")
 
     require(terms, [
         "a South Dakota limited liability company",
@@ -185,7 +208,7 @@ def validate():
             raise AssertionError(label + " hard-codes an obsolete active acknowledgement")
 
     if manifest["terms_version"] != TERMS_VERSION or manifest["privacy_notice_version"] != PRIVACY_VERSION:
-        raise AssertionError("required legal versions must match the explicit AI-evidence activation")
+        raise AssertionError("required legal versions must match the invitation-only evaluation edition")
     if manifest.get("required_acknowledgement") != {
         "terms_version": TERMS_VERSION, "privacy_notice_version": PRIVACY_VERSION
     }:
@@ -218,15 +241,7 @@ def validate():
             ("terms_file", "terms_file_sha256"),
             ("privacy_notice_file", "privacy_notice_file_sha256")
         ]:
-            if version == TERMS_VERSION and file_key == "privacy_notice_file":
-                if file_key in files or hash_key in files:
-                    raise AssertionError("Terms-only update must not reissue unchanged Privacy")
-                continue
-            if version in {PRIVACY_VERSION, PUBLISHED_PRIVACY_VERSION} and file_key == "terms_file":
-                if file_key in files or hash_key in files:
-                    raise AssertionError("Privacy-only update must not reissue unchanged Terms")
-                continue
-            if file_key == "terms_file" and version in HISTORICAL_DOCUMENTS and file_key not in HISTORICAL_DOCUMENTS[version]:
+            if version in HISTORICAL_DOCUMENTS and file_key not in HISTORICAL_DOCUMENTS[version]:
                 continue
             path = ROOT / files[file_key]
             if not path.is_file() or path.name != files[file_key]:
@@ -243,18 +258,19 @@ def validate():
         raise AssertionError("published Privacy Notice must match its separately reviewed fingerprint")
     require(privacy, [
         'id="optional-measurement"',
-        "This choice is separate from account Terms acceptance and Privacy Notice acknowledgement.",
-        "Either choice leaves the diagnostic, results, reports, sign-in and pilot application available.",
-        "Before you allow measurement, we do not read or create a measurement visit identifier",
-        "We do not attach the random measurement visit identifier to the application",
-        "Those application details are separate from optional outreach labels.",
+        "Optional visitor tracking has been retired",
+        "Tracking does not resume for browsers that previously opted in.",
+        "the retired server endpoint no longer accepts new measurement events",
+        "Scheduled service maintenance performs this cleanup without relying on new visitor events",
+        "a failed maintenance run can delay removal",
+        "Historical outreach labels already stored with an application remain under that application's existing retention and verified-deletion policy",
+        "They are not subject to the event table's 90-day cleanup and are not used to restart visitor tracking.",
+        "records of requested service activity, not anonymous visitor tracking or a complete browsing history",
         "Normal hosting and security systems can still receive request and network metadata",
-        "Withdrawal does not recall a request already sent or automatically erase earlier server records.",
-        "Cleanup is triggered by accepted measurement events, at most once a day",
-        "They are not subject to the event table's 90-day cleanup.",
-        "Your choice applies to this browser",
+        "Retiring measurement does not remove account Terms acceptance, Privacy Notice acknowledgement or the separate permission",
+        "No advertising pixels, session replay or device fingerprinting have been added.",
         "without clearing your sign-in or saved work"
-    ], "optional measurement disclosure and unchanged access boundaries")
+    ], "retired measurement disclosure and unchanged evidence permissions")
     if "does not currently display a nonessential-cookie opt-in banner" in privacy:
         raise AssertionError("published Privacy Notice must not describe optional measurement as essential storage")
 
@@ -267,7 +283,7 @@ def validate():
         "descriptive distributions of recorded answers to the same question",
         "not named participants' individual answer records",
         "Small or insufficiently supported groups are withheld.",
-        "A permission recorded for an earlier notice does not authorize this expanded use.",
+        "Permission recorded before the September 12 source-evidence edition does not authorize that expanded use.",
         "Leaving the optional choice unchecked does not change the structured score",
         "check request size before drafting or review",
         "This check can occur even when no interpretation is generated.",
@@ -292,8 +308,8 @@ def validate():
         "units, answer conditions and response counts",
         "Small or insufficiently supported groups are withheld",
         "does not establish anonymity, representativeness or a peer benchmark",
-        "recorded permission under this edition for those saved observations",
-        "A permission recorded for an earlier notice does not authorize this expanded use",
+        "recorded permission under the September 12, 2026 source-evidence permission for those saved observations",
+        "This September 19 notice does not expand the permitted report evidence or replace the separate per-run permission.",
         "Leaving the optional choice unchecked does not change the structured score",
         "The same permitted report evidence and proposed report text",
         "This check can occur even when no interpretation is generated"

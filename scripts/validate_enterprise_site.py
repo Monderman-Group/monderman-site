@@ -13,8 +13,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_ROOT = ROOT / ".render-public"
-BASELINE = "7bab72de03e3e6f8595b85c1a17f30b49a7deec1"
-ENTERPRISE_STYLESHEET = "enterprise-site.css?v=20260906-accent1"
+ENTERPRISE_STYLESHEET = "enterprise-site.css?v=20260915.consistency1"
 OLD_MARK_FRAGMENTS = (
     "M9.5 15L20.75 8L32 14L43.25 8L54.5 15",
     "M20.75 8V49M32 14V55M43.25 8V49",
@@ -38,54 +37,6 @@ COMMERCIAL_PAGES = {
     "after-an-acquisition.html",
     "transformation-behind-schedule.html",
     "after-a-reorganization.html",
-}
-SCRIPT_SAFE_PAGES = {
-    "decision-velocity.html",
-    "operational-systems.html",
-    "structural-clarity.html",
-    "institutional-performance.html",
-    "diagnostics.html",
-    "connect.html",
-    "plan-enterprise.html",
-    "signin.html",
-    "workspace.html",
-    "workspace-actions.html",
-    "workspace-analysis.html",
-    "workspace-diagnostics.html",
-    "workspace-settings.html",
-}
-PROTECTED_EXACT_FILES = {
-    "decision-velocity.html",
-    "structural-clarity.html",
-    "operational-systems.html",
-    "institutional-performance.html",
-    "workspace.html",
-    "workspace-actions.html",
-    "workspace-analysis.html",
-    "workspace-diagnostics.html",
-    "workspace-settings.html",
-    "workspace-theme.js",
-    "signin.html",
-}
-AUTHORIZED_PROTECTED_COPY = {
-    "structural-clarity.html": (
-        (
-            "Reading where decision pathways slow, where time disappears, and where governance weight has outgrown the decision",
-            "Reading whether ownership, authority, handoffs, and role boundaries are clear enough for people to act.",
-        ),
-        (
-            "See where approval density, coordination burden, escalation dependence, and key-person brittleness are slowing decision pathways before they are mistaken for normal pace.",
-            "See where unclear ownership, overlapping authority, weak handoffs, and blurred roles force people to stop, seek clarification, or rebuild the structure around the work.",
-        ),
-        (
-            '<div class="micro-proof" id="heroProof">Real teams use this to spot where approval density, coordination burden, escalation dependence, and key-person brittleness are quietly consuming decision pace.</div>',
-            '<div class="micro-proof" id="heroProof">This diagnostic examines whether unclear ownership, overlapping authority, weak handoffs, and blurred roles are slowing execution.</div>',
-        ),
-        (
-            'heroProof.textContent = "Real teams use this to spot where approval density, coordination burden, escalation dependence, and key-person brittleness are quietly consuming decision pace.";',
-            'heroProof.textContent = "This diagnostic examines whether unclear ownership, overlapping authority, weak handoffs, and blurred roles are slowing execution.";',
-        ),
-    ),
 }
 IMMUTABLE_LEGAL_PAGES = {
     "privacy.html",
@@ -132,59 +83,6 @@ class PageParser(HTMLParser):
             self.title_text.append(data)
 
 
-def inline_scripts(source: str) -> list[str]:
-    scripts: list[str] = []
-    pattern = re.compile(r"<script\b([^>]*)>(.*?)</script>", re.I | re.S)
-    for attrs, body in pattern.findall(source):
-        if re.search(r"\bsrc\s*=", attrs, re.I):
-            continue
-        type_match = re.search(r"\btype\s*=\s*['\"]([^'\"]+)", attrs, re.I)
-        script_type = type_match.group(1).lower() if type_match else ""
-        if script_type and script_type not in {"text/javascript", "application/javascript", "module"}:
-            continue
-        scripts.append(body)
-    return scripts
-
-
-def normalize_approved_visual_script_changes(scripts: list[str]) -> list[str]:
-    normalized: list[str] = []
-    for script in scripts:
-        if script.strip() == 'document.getElementById("legacyDiagnosticsPage")?.remove();':
-            continue
-        script = script.replace(
-            "M9.5 15L20.75 8L32 14L43.25 8L54.5 15V56L43.25 49L32 55L20.75 49L9.5 56Z",
-            "[MONDERMAN-OUTER-MARK]",
-        ).replace(
-            "M12 18.4L22 11.5L32 16.6L42 11.5L52 18.4V52L42 46.4L32 52L22 46.4L12 52Z",
-            "[MONDERMAN-OUTER-MARK]",
-        ).replace(
-            "M20.75 8V49M32 14V55M43.25 8V49",
-            "[MONDERMAN-INNER-MARK]",
-        ).replace(
-            "M22 11.5V46.4M32 16.6V52M42 11.5V46.4",
-            "[MONDERMAN-INNER-MARK]",
-        ).replace(
-            "Real teams use this to spot where approval density, coordination burden, escalation dependence, and key-person brittleness are quietly consuming decision pace.",
-            "[AUTHORIZED-STRUCTURAL-CLARITY-MICRO-PROOF]",
-        ).replace(
-            "This diagnostic examines whether unclear ownership, overlapping authority, weak handoffs, and blurred roles are slowing execution.",
-            "[AUTHORIZED-STRUCTURAL-CLARITY-MICRO-PROOF]",
-        )
-        normalized.append(script)
-    return normalized
-
-
-def baseline_source(name: str) -> str | None:
-    result = subprocess.run(
-        ["git", "show", f"{BASELINE}:{name}"],
-        cwd=ROOT,
-        text=True,
-        capture_output=True,
-        check=False,
-    )
-    return result.stdout if result.returncode == 0 else None
-
-
 def local_target(page: Path, raw: str) -> Path | None:
     if not raw or raw.startswith(("#", "mailto:", "tel:", "data:", "javascript:")):
         return None
@@ -217,7 +115,7 @@ def main() -> int:
         if duplicates:
             errors.append(f"{page.name}: duplicate ids {', '.join(duplicates)}")
 
-        if 'id="siteHeader"' in source and page.name not in IMMUTABLE_LEGAL_PAGES:
+        if 'id="siteHeader"' in source and page.name not in IMMUTABLE_LEGAL_PAGES and not re.match(r"(?:privacy|terms)-\d{4}-", page.name):
             if source.count(f'href="{ENTERPRISE_STYLESHEET}"') != 1:
                 errors.append(f"{page.name}: enterprise stylesheet must be loaded exactly once")
             if not re.search(r"<body\b[^>]*\bcanonical-green-shell\b", source, re.I):
@@ -268,7 +166,7 @@ def main() -> int:
     if NEW_MARK_FRAGMENTS[0] not in canonical_shell:
         errors.append("canonical shell: new small mark missing")
     for token in (
-        "Run Decision Velocity free",
+        "Request an invitation",
         "Platform Brief",
         "Solutions",
         "Research Library",
@@ -282,40 +180,28 @@ def main() -> int:
     index = (ROOT / "index.html").read_text(encoding="utf-8")
     for token in (
         "View sample reports",
-        "Run Decision Velocity free",
-        "Join the pilot waitlist",
-        "Four diagnostics. One operating system.",
+        "Request an invitation",
+        "Activate your invitation",
+        "Four diagnostics for how your organization works.",
         "Measure once to see the condition. Return to learn whether it changed.",
     ):
         if token not in index:
             errors.append(f"index.html: enterprise narrative token {token!r} missing")
-    if index.find("Join the pilot waitlist") > index.find("Four diagnostics. One operating system."):
-        errors.append("index.html: pilot entry point is not in the hero ahead of the permanent platform story")
+    if not 0 <= index.find("Request an invitation") < index.find("Four diagnostics for how your organization works."):
+        errors.append("index.html: invitation entry point must precede the permanent platform story")
+    for retired in ("Run Decision Velocity free", "Join the pilot waitlist", "Measurement choices"):
+        if retired in canonical_shell or retired in index:
+            errors.append(f"Public entry: retired offer/control {retired!r} remains")
 
-    for name in sorted(PROTECTED_EXACT_FILES):
-        baseline = baseline_source(name)
-        current_path = ROOT / name
-        if baseline is None or not current_path.exists():
-            errors.append(f"{name}: protected baseline cannot be compared")
-            continue
-        current = current_path.read_text(encoding="utf-8", errors="ignore")
-        expected = baseline
-        for old, new in AUTHORIZED_PROTECTED_COPY.get(name, ()):
-            if expected.count(old) != 1:
-                errors.append(f"{name}: authorized-copy baseline is ambiguous")
-                continue
-            expected = expected.replace(old, new, 1)
-        if current != expected:
-            errors.append(f"{name}: protected source differs from its authorized baseline")
-
-    for name in sorted(SCRIPT_SAFE_PAGES):
-        current_path = ROOT / name
-        baseline = baseline_source(name)
-        if baseline is None or not current_path.exists():
-            continue
-        current = current_path.read_text(encoding="utf-8", errors="ignore")
-        if normalize_approved_visual_script_changes(inline_scripts(current)) != normalize_approved_visual_script_changes(inline_scripts(baseline)):
-            errors.append(f"{name}: executable inline script changed from rollback baseline")
+    # Reviewed invitation/countdown changes are explicit, not broad exclusions.
+    # The shared contract locks unchanged evidence/scoring interfaces and
+    # reconstructs the complete old renderer from the exact Sankey-only delta.
+    protection = subprocess.run(
+        ["node", "scripts/invited_evaluation_source_contract.mjs"],
+        cwd=ROOT, text=True, capture_output=True, check=False,
+    )
+    if protection.returncode:
+        errors.append("Protected source contract failed: " + protection.stderr.strip())
 
     if not PUBLIC_ROOT.is_dir():
         errors.append("public build missing; run scripts/render-static-build.sh first")
@@ -357,9 +243,7 @@ def main() -> int:
         return 1
     print(
         f"Enterprise-site validation passed: {len(html_pages)} HTML pages; "
-        f"{len(PROTECTED_EXACT_FILES) - len(AUTHORIZED_PROTECTED_COPY)} protected sources unchanged; "
-        f"{len(AUTHORIZED_PROTECTED_COPY)} protected source limited to authorized static copy; "
-        "canonical public shell and entry hierarchy verified."
+        "exact invitation source contract, local links, canonical public shell and entry hierarchy verified."
     )
     return 0
 

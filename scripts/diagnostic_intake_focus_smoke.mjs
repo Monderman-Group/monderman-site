@@ -20,8 +20,8 @@ const server = http.createServer((req,res) => {
 });
 await new Promise(resolve => server.listen(0,'127.0.0.1',resolve));
 const base = `http://127.0.0.1:${server.address().port}`;
-const fixture = `window.__fixtureAuth={auth:{getSession:async()=>({data:{session:null}}),getUser:async()=>({data:{user:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}};window.supabase={createClient:()=>window.__fixtureAuth};`;
-const gate = `window.__mondermanSB=window.__fixtureAuth;window.mondermanGetSupabaseClient=async()=>window.__fixtureAuth;window.__mondermanActiveOrganizationId=null;window.mondermanWorkspaceAccessReady=Promise.resolve({allowed:true,context:'public_first_run'});window.__mondermanReveal?.();`;
+const fixture = `window.__fixtureAuth={auth:{getSession:async()=>({data:{session:{access_token:'invited-fixture',user:{id:'11111111-1111-4111-8111-111111111111'}}}}),getUser:async()=>({data:{user:{id:'11111111-1111-4111-8111-111111111111'}}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}};window.supabase={createClient:()=>window.__fixtureAuth};`;
+const gate = `window.__mondermanSB=window.__fixtureAuth;window.mondermanGetSupabaseClient=async()=>window.__fixtureAuth;window.__mondermanActiveOrganizationId='22222222-2222-4222-8222-222222222222';window.mondermanWorkspaceAccessReady=Promise.resolve({allowed:true,context:'workspace'});window.__mondermanReveal?.();`;
 const values = {processName:'Supplier onboarding',businessUnit:'Operations',employeeCount:'250',peopleInvolved:'8',hourlyCost:'90',annualVolume:'24',meetingHours:'4',description:'Synthetic local fixture only.'};
 const evidence = [];
 const edgeEvidence = [];
@@ -133,9 +133,9 @@ try {
       await page.waitForTimeout(120);
       assert.equal(await page.locator('#preflightContextMount').isVisible(),false);
       assert.equal(await page.evaluate(()=>!!document.activeElement?.closest('#preflightContextMount')),false,'hidden setup must not retain delayed focus');
-      // DV emits first-run funnel telemetry while setting up; that request is also
-      // fulfilled locally. It is not a diagnostic admission or answered run.
-      assert.deepEqual(mutations.filter(req=>req.path!=='/api/first-run-events'),[],`${browserName}/${name}: no run, admission, answer, or other mutation request`);
+      // Intake is an invited Workspace fixture; retired funnel telemetry must
+      // not restart, and merely viewing setup must not create any admission.
+      assert.deepEqual(mutations,[],`${browserName}/${name}: no telemetry, run, admission, answer, or other mutation request`);
       assert.deepEqual(errors,[],`${browserName}/${name}: no page errors`);
       await context.close();
     }

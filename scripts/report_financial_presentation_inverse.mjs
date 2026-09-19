@@ -3,6 +3,7 @@
 // r43 customer-metadata baseline, while dedicated tests cover the new display.
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
+import {sourceBeforeSankeyPresentation,restoreSankeyPresentationStyles} from './report_sankey_presentation_inverse.mjs';
 const sha=s=>createHash('sha256').update(s).digest('hex');
 export const FINANCIAL_PRESENTATION_RENDERER_SHA256="cc288bfffe820c954bb53da4ef95e8e1ff5097265054f6328e0d79effa76eb60";
 export const PRIOR_FINANCIAL_RENDERER_SHA256="6bb158554f0eaf66515f2447328e30b59a885fd4a70e3739739a0431740f1f4c";
@@ -49,6 +50,7 @@ const DELTAS=[
   ]
 ];
 export function sourceBeforeFinancialPresentation(source){
+  source=sourceBeforeSankeyPresentation(source);
   if(!source.includes('  const FINANCIAL_PRESENTATION_VERSION ='))return source;
   assert.equal(sha(source),FINANCIAL_PRESENTATION_RENDERER_SHA256,'Only the exact reviewed financial-presentation renderer can be inverted');
   for(const [current,prior]of DELTAS){assert.equal(source.split(current).length,2,'Exact financial-presentation delta');source=source.replace(current,()=>prior);}
@@ -58,6 +60,7 @@ export function sourceBeforeFinancialPresentation(source){
 // HTML parity for nonfinancial reports: remove only the exact added CSS block.
 // Body, navigation, metadata, all older rules and all source values stay intact.
 export function restoreFinancialPresentationStyles(html){
+  html=restoreSankeyPresentationStyles(html);
   if(!html.includes('    .mr-financial-scenario,.mr-financial-brief{'))return html;
   const [current,prior]=DELTAS.find(([text])=>text.includes('    .mr-financial-scenario,.mr-financial-brief{'));
   assert.equal(html.split(current).length,2,'Exact financial presentation CSS only');

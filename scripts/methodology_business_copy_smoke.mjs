@@ -6,8 +6,11 @@ import vm from 'node:vm';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {chromium,webkit} from 'playwright';
+import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
+const {artifact}=readPublicSampleFixture({root});
+const previewGroups=artifact.outputs.cross_lens_synthesis.source.source_groups;
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const output=process.argv.find(arg=>arg.startsWith('--output='))?.slice(9);
@@ -82,8 +85,10 @@ for(const candidate of [
   assert.notEqual(candidate,approvedFloatingShell,'Header-state negative actually mutates the approved source');
   assert.throws(()=>assertApprovedShell(candidate),'Restored proxies or unrelated navigation changes must fail');checks++;
 }
-check(read('index.html').includes('homepage-workspace-demo.css?v=20260914-preview-static1'),'Source preview stylesheet cache advances');
-check(read('scripts/inject-public-shell.mjs').includes('"homepage-workspace-demo.css": "20260914-preview-static1"'),'Built preview stylesheet cache advances');
+check(read('index.html').includes('homepage-workspace-demo.css?v=20260919.invitation1'),'Source preview stylesheet has the invited-evaluation cache ID');
+check(read('scripts/inject-public-shell.mjs').includes('"homepage-workspace-demo.css": "20260919.invitation1"'),'Built preview stylesheet has the same invited-evaluation cache ID');
+execFileSync(process.execPath,['scripts/refresh_public_sample_previews.mjs','--check'],{cwd:root,stdio:'pipe'});
+check(read('scripts/templates/home-workspace-preview.html').split('{{lensCards}}').length===2,'One generated evidence-card region replaces the old hard-coded product-label preview');
 // Exercise the actual browser predicates offline; geometry alone cannot admit
 // an unselected panel, unfinished animation, transparent header or missing text.
 function predicateFixture(){
@@ -168,7 +173,12 @@ function assertArticleLayout(html,prior){
   // scores with links to real saved samples. Pin that approved structure while
   // retaining the exact accessibility-region and table-style checks above.
   beforeApprovedMatrixRegion(articleMain(html));beforeApprovedMatrixStyles(html);
-  assert.deepEqual(textless(articleMain(html)),textless(articleMain(prior)),
+  const priorEntry=articleMain(prior).match(/<div class="cta reveal">[\s\S]*?<a class="btn btn-primary" href="([^"]+)"/)?.[1];
+  assert.match(priorEntry,/^signin\.html\?next=[a-z-]+\.html$/,'Historical article entry is the exact diagnostic sign-in target');
+  const invitationEntry='<a class="btn btn-primary" href="pilot.html">';
+  assert.equal(articleMain(html).split(invitationEntry).length-1,1,'Exactly one article-body invitation entry replaces the retired public run CTA');
+  const restoredMain=articleMain(html).replace(invitationEntry,`<a class="btn btn-primary" href="${priorEntry}">`);
+  assert.deepEqual(textless(restoredMain),textless(articleMain(prior)),
     'Body tags, classes and links match the approved saved-sample article layout');
   assert.equal(html.split(sampleLinkStyle).length-1,1,'Exactly one scoped saved-sample link contrast fix');
   assert.equal(html.split('canonical-site-shell.js?v=20260915.consistency1').length-1,1,'Exactly one current shared shell reference');
@@ -178,7 +188,7 @@ function assertArticleLayout(html,prior){
     tag+' matches the approved presentation; no unrelated behavior or CSS changes');
 }
 for(const [name,description,article]of descriptions){
-  for(const file of sourceFiles.slice(0,6).filter(file=>file!=='site-shell/footer.html'))check(read(file).includes(description),`${file}: ${name} business description`);
+  for(const file of sourceFiles.slice(0,6).filter(file=>!['site-shell/footer.html','scripts/templates/home-workspace-preview.html'].includes(file)))check(read(file).includes(description),`${file}: ${name} business description`);
   check(read(article).includes(`<p class="hero-taxonomy"><em>${description}</em></p>`),article+' canonical hero');
   const table=read(article).match(/<table class="lens-matrix">[\s\S]*?<\/table>/)?.[0];
   check(table?.includes('<th>Business focus</th>'),article+' comparison header');
@@ -210,7 +220,7 @@ for(const [name,description,article]of descriptions){
     html.replace(matrixRegion,matrixRegion+'<p>Extra content</p>'),
     html.replace('<table class="lens-matrix">','<table class="lens-matrix" aria-hidden="true">'),
     html.replace('<th>Business focus</th>','<th class="changed">Business focus</th>'),
-    html.replace(main,main.replace('href="signin.html?next=','href="changed.html?next=')),
+    html.replace(main,main.replace('href="pilot.html"','href="changed.html"')),
     html.replace('overflow-x: auto; margin: 1.75rem 0;','overflow-x: hidden; margin: 1.75rem 0;'),
     html.replace('font-size: 0.95rem; }','font-size: 0.85rem; }'),
     html.replace('width: 29%;','width: 20%;'),
@@ -380,8 +390,8 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
           if(state==='focus')check(contrast.focusVisible,'Saved-sample link receives keyboard-visible focus');
         }
         check(await figure.locator('h3,p,strong,span,small').evaluateAll(nodes=>nodes.every(el=>{const r=el.getBoundingClientRect();return r.left>=-1&&r.right<=innerWidth+1;})),'All article output text stays within viewport');
-        const target=file.replace('-article','');
-        eq(await page.locator('.cta a').getAttribute('href'),'signin.html?next='+target,'Existing diagnostic sign-in route preserved');
+        eq(await page.locator('.cta a').getAttribute('href'),'pilot.html','Article entry requests an invitation instead of offering a public diagnostic');
+        eq(await page.locator('.cta a').textContent(),'Request an invitation','Article entry names the actual invitation action');
         if((name==='chromium'&&width===390)||(name==='webkit'&&width===1440)){
           const fileName=`${name}-${width}-${file.replace('.html','')}-output.png`;await figure.screenshot({path:path.join(out,fileName)});screenshots.push(fileName);
         }
@@ -395,7 +405,8 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
         const fileName=`${name}-${width}-operational-method.png`;await slide.screenshot({path:path.join(out,fileName)});screenshots.push(fileName);
       }
       if(file==='index.html'){
-        eq(await page.locator('.hwd-diagnostic p').allTextContents(),descriptions.map(row=>row[1]),'Preview labels rendered');
+        eq(await page.locator('.hwd-diagnostic h3').allTextContents(),previewGroups.map(group=>group.tool_label),'Preview shows the actual sample diagnostic names');
+        eq(await page.locator('.hwd-diagnostic p').allTextContents(),previewGroups.map(group=>'Median score: '+group.median_score.toLocaleString('en-US',{maximumFractionDigits:0})+' / 100'),'Preview evidence cards show the exact approved sample median, not a product-description placeholder');
         for(const id of ['measure','analysis','actions','return','measure']){
           await page.locator('#hwd-tab-'+id).click();await settledPaint(page,settledPreviewState,id);
           check(await page.locator('#hwd-panel-'+id).isVisible(),'Preview still navigates: '+id);

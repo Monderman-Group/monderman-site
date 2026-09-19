@@ -49,13 +49,13 @@ jobs:
           node scripts/pricing_public_copy_smoke.mjs
           node scripts/workspace_annual_billing_smoke.mjs
           node --check scripts/annual_pricing_billing_browser_smoke.mjs
-      - name: Verify free entry and pilot funnel contracts
+      - name: Verify invitation entry and retired measurement contracts
         run: |
           node scripts/first_run_entry_smoke.mjs
           node scripts/acquisition_attribution_smoke.mjs
       - name: Verify transparent email mark asset
         run: node scripts/email_mark_asset_smoke.mjs
-      - name: Reject private Pattern pilot feedback regressions
+      - name: Reject private evaluation feedback regressions
         run: node --check scripts/pilot_feedback_browser_smoke.mjs
       - run: node scripts/campaign_participant_reliability_smoke.mjs
       - name: Reject cross-member Workspace context regressions
@@ -144,6 +144,10 @@ jobs:
         env:
           CHECKOUT_RECOVERY_OUT: ${{ runner.temp }}/checkout-success-recovery
         run: node scripts/checkout_success_recovery_smoke.mjs
+      - name: Verify server-dated evaluation status across Workspace layouts
+        env:
+          EVALUATION_UI_OUT: ${{ runner.temp }}/evaluation-countdown
+        run: node scripts/workspace_evaluation_countdown_smoke.mjs
       - name: Preserve synthetic saved-page screenshots and exact source bindings
         if: always()
         uses: actions/upload-artifact@v4
@@ -153,6 +157,7 @@ jobs:
             ${{ runner.temp }}/saved-synthesis-page
             ${{ runner.temp }}/sample-selected-pdf
             ${{ runner.temp }}/checkout-success-recovery
+            ${{ runner.temp }}/evaluation-countdown
           if-no-files-found: error
   financial-methodology-browser:
     runs-on: ubuntu-24.04

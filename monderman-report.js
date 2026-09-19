@@ -1153,6 +1153,54 @@
       (s.kind==='early_planning_scenario'?'<p class="mr-financial-early">Early planning scenario: campaign participation checks are not yet satisfied. This scenario does not unlock Synthesis.</p>':'')+'</section>';
   }
 
+  // BEGIN OPERATIONAL SANKEY PRESENTATION 20260919.1
+  function renderOperationalSankey(m) {
+    const validated=financialScenarioPresentation(m);
+    if(!validated)return '';
+    const {s,input}=validated,levels=['low','central','high'];
+    const finite=value=>typeof value==='number'&&Number.isFinite(value)&&value>=0;
+    const range=value=>value&&levels.every(k=>finite(value[k]))&&value.low<=value.central&&value.central<=value.high;
+    const measured=new Map(input.activities.map(a=>[a.id,a]));
+    const rows=arr(s.activities);
+    // A digest identifies the saved scenario, not its integrity. Reconcile
+    // distinct saved activity results to the saved total before drawing them.
+    // Never calculate a flow from diagnostic scores, lens medians or headcount.
+    const valid=rows.every(a=>a&&typeof a==='object')&&rows.length===measured.size&&rows.length===input.activities.length&&new Set(rows.map(a=>a.id)).size===rows.length
+      &&rows.every(a=>a&&typeof a.id==='string'&&a.id&&measured.has(a.id)&&typeof a.label==='string'&&a.label.trim()&&range(a.potentialHoursFreed)&&range(a.capacityValue))
+      &&['potentialHoursFreed','capacityValue'].every(key=>levels.every(k=>finite(s.totals[key][k])&&Math.abs(rows.reduce((sum,a)=>sum+a[key][k],0)-s.totals[key][k])<=0.005*(rows.length+1)+1e-8));
+    if(!valid)return '<aside class="mr-sankey-unavailable"><h3>Time opportunity chart</h3><p>The saved activity breakdown is not complete enough to draw this chart. Review the operational inputs and save the scenario again.</p></aside>';
+    const total=s.totals.potentialHoursFreed.central;
+    if(total===0)return '<aside class="mr-sankey-unavailable"><h3>Time opportunity chart</h3><p>The central assumptions show no staff time released. The low, central and high cases remain in the tables below.</p></aside>';
+    const number=value=>Number(value).toLocaleString('en-US',{maximumFractionDigits:2});
+    const money=value=>'$'+number(value);
+    const positive=rows.filter(a=>a.potentialHoursFreed.central>0);
+    // Bound chart height without discarding detail: all activities remain in
+    // the accessible table. The last ribbon is explicitly an aggregate.
+    const shown=positive.length<=4?positive:positive.slice(0,3).concat({id:'other-distinct-activities',label:'Other distinct activities ('+(positive.length-3)+')',potentialHoursFreed:{central:positive.slice(3).reduce((sum,a)=>sum+a.potentialHoursFreed.central,0)}});
+    const height=Math.max(240,shown.length*136),ribbonHeight=Math.min(160,height-48),targetTop=(height-ribbonHeight)/2;
+    const flowTotal=shown.reduce((sum,a)=>sum+a.potentialHoursFreed.central,0);
+    const colors=['#0C6E78','#5E7F98','#377D72','#53676E'];
+    let used=0;
+    const paths=shown.map((a,index)=>{
+      const amount=a.potentialHoursFreed.central,thickness=amount/flowTotal*ribbonHeight;
+      const from=(index+.5)*height/shown.length-thickness/2,to=targetTop+used;used+=thickness;
+      const d='M 4 '+from+' C 44 '+from+' 58 '+to+' 96 '+to+' L 96 '+(to+thickness)+' C 58 '+(to+thickness)+' 44 '+(from+thickness)+' 4 '+(from+thickness)+' Z';
+      return '<path data-sankey-hours="'+amount+'" d="'+d+'" fill="'+colors[index]+'" fill-opacity=".75"/><rect x="0" y="'+from+'" width="4" height="'+thickness+'" fill="'+colors[index]+'"/>';
+    }).join('');
+    const sources=shown.map((a,i)=>'<div class="mr-sankey-source"><span class="mr-sankey-source-name" style="border-color:'+colors[i]+'">'+esc(a.label.length>54?a.label.slice(0,51)+'...':a.label)+'</span><strong>'+esc(number(a.potentialHoursFreed.central))+' <small>hours</small></strong></div>').join('');
+    const cells=rows.map(a=>'<tr><th scope="row">'+esc(a.label)+'</th>'+levels.map(k=>'<td data-case="'+({low:'Low',central:'Central',high:'High'}[k])+'">'+esc(number(a.potentialHoursFreed[k]))+'</td>').join('')+'</tr>').join('');
+    return '<figure class="mr-operational-sankey" data-sankey-version="operational-sankey-20260919.1">'+
+      '<div class="mr-sankey-figure-head"><h3>Where time could be released</h3><p>Central case over '+fmtWhole(input.horizonMonths)+' months. Ribbon widths show potential hours released by each distinct activity, not diagnostic scores.</p></div>'+
+      '<div class="mr-sankey-graphic" aria-hidden="true" style="--sankey-height:'+height+'px;--sankey-rows:'+shown.length+'"><div class="mr-sankey-sources">'+sources+'</div>'+
+      '<svg viewBox="0 0 100 '+height+'" preserveAspectRatio="none" focusable="false" xmlns="http://www.w3.org/2000/svg">'+paths+'<rect x="96" y="'+targetTop+'" width="4" height="'+ribbonHeight+'" fill="#08383E"/></svg>'+
+      '<div class="mr-sankey-total"><span>Potential time released</span><strong>'+esc(number(total))+'</strong><span>hours</span></div></div>'+
+      '<p class="mr-sankey-capacity"><strong>'+esc(money(s.totals.capacityValue.central))+'</strong> potential staff capacity value in the central case. Dollar values use the stated labor costs and are shown separately from hours; they are not cash savings.</p>'+
+      '<figcaption>'+(obj(m.sampleProvenance).synthetic===true?'<strong>Illustrative example.</strong> ':'')+'Directional estimates based on reported operating data and the assumptions shown. Figures indicate potential time and capacity gains, not measured savings.</figcaption>'+
+      '<table class="mr-sankey-table"><caption>Potential hours released by activity</caption><thead><tr><th scope="col">Distinct activity</th><th scope="col">Low</th><th scope="col">Central</th><th scope="col">High</th></tr></thead><tbody>'+cells+'</tbody><tfoot><tr><th scope="row">Total hours</th>'+levels.map(k=>'<td data-case="'+({low:'Low',central:'Central',high:'High'}[k])+'">'+esc(number(s.totals.potentialHoursFreed[k]))+'</td>').join('')+'</tr></tfoot></table>'+
+      '<p class="mr-sankey-scale-note">One scope, distinct activities. The same work is counted once, even when several diagnostic lenses identify it. Low, central and high are assumption-based cases, not confidence intervals. Small total differences can result from rounding.</p></figure>';
+  }
+  // END OPERATIONAL SANKEY PRESENTATION 20260919.1
+
   function renderMetaExposure(m, n) {
     const validated=financialScenarioPresentation(m);
     if(!validated)return '';
@@ -1176,7 +1224,7 @@
       '<h4>Non-labor expenditure avoided over the planning period</h4>'+values(a.avoidableNonLaborCash,scenarioMoney)+'</article>').join('');
     return '<section class="mr-section mr-financial-scenario"><h2>'+n+'. Operational planning scenario</h2><p class="mr-lede">'+esc(s.title)+'</p><p>'+esc(s.notice)+'</p>'+
       '<p class="mr-copy">Cost ranges below run from lower to higher cost. Net results pair lower benefits with higher costs for the low outcome, central inputs for the central outcome, and higher benefits with lower costs for the high outcome.</p>'+
-      '<dl class="mr-scenario-facts">'+[['Scope',obj(s.scope).label],['People covered by operational records',fmtWhole(input.measuredPeople)],['Measured period',recordedDate(input.measurementStart)+' to '+recordedDate(input.measurementEnd)],['Planning period',fmtWhole(input.horizonMonths)+' months']].map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</dl>'+cards+
+      '<dl class="mr-scenario-facts">'+[['Scope',obj(s.scope).label],['People covered by operational records',fmtWhole(input.measuredPeople)],['Measured period',recordedDate(input.measurementStart)+' to '+recordedDate(input.measurementEnd)],['Planning period',fmtWhole(input.horizonMonths)+' months']].map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</dl>'+renderOperationalSankey(m)+cards+
       '<h3>Inputs and assumptions</h3><p>'+esc(obj(s.method).calculation)+'</p><p>'+esc(obj(s.method).extrapolation)+'</p>'+activities+
       '<article class="mr-scenario-assumption"><h3>Implementation and subscription costs</h3><h4>Incremental implementation cash</h4>'+values(input.implementationCashCost,scenarioMoney)+
       '<h4>Internal staff-time implementation value</h4>'+values(input.implementationCapacityCost,scenarioMoney)+'<p><strong>Subscription allocation:</strong> '+esc(scenarioMoney(input.subscriptionCost))+'</p><p>'+esc(input.costBasis)+'</p></article>'+
@@ -2451,6 +2499,22 @@
     .mr-meta-method a,.mr-financial-scenario a{color:#0C6E78;text-decoration:underline;text-underline-offset:.16em}
     .mr-meta-method a:hover,.mr-financial-scenario a:hover{color:#08383E}
     .mr-meta-method a:focus-visible,.mr-financial-scenario a:focus-visible{outline:2px solid #0C6E78;outline-offset:3px}
+    /* BEGIN OPERATIONAL SANKEY STYLES 20260919.1 */
+    .mr-operational-sankey{margin:28px 0;padding:24px;border:1px solid #DCE5E8;border-radius:10px;background:#FFF;min-width:0;overflow-wrap:anywhere}
+    .mr-sankey-figure-head h3{margin:0!important;font-size:1.15rem}.mr-sankey-figure-head p{font-size:.85rem!important;line-height:1.5!important;margin:10px 0 0!important;color:#53676E}
+    .mr-sankey-graphic{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(70px,1fr) minmax(0,.65fr);align-items:stretch;column-gap:12px;min-width:0;margin:20px 0}
+    .mr-sankey-sources{display:grid;grid-template-rows:repeat(var(--sankey-rows),1fr);height:var(--sankey-height);min-width:0}
+    .mr-sankey-source{display:flex;flex-direction:column;justify-content:center;min-width:0;padding:8px 0;font-size:.86rem;line-height:1.4}
+    .mr-sankey-source-name{display:block;border-left:3px solid;padding-left:10px}.mr-sankey-source strong{padding-left:13px;margin-top:6px;font-size:1rem;color:#08383E;font-variant-numeric:tabular-nums}.mr-sankey-source small{font-size:.76rem;font-weight:400}
+    .mr-sankey-graphic svg{display:block;width:100%;height:var(--sankey-height);overflow:visible}
+    .mr-sankey-total{display:flex;flex-direction:column;justify-content:center;min-width:0;font-size:.82rem;line-height:1.4;color:#53676E}.mr-sankey-total strong{font-size:clamp(1.1rem,2.4vw,1.7rem);line-height:1.2;color:#08383E;margin:8px 0 4px;font-variant-numeric:tabular-nums}
+    .mr-report .mr-sankey-capacity{font-size:.84rem;line-height:1.5;padding-top:16px;border-top:1px solid #DCE5E8}.mr-sankey-capacity strong{color:#08383E}
+    .mr-operational-sankey figcaption,.mr-report .mr-sankey-scale-note{font-size:.76rem;line-height:1.5;color:#53676E;margin:12px 0 0}
+    .mr-sankey-table{width:100%;table-layout:fixed;border-collapse:collapse;margin-top:20px;font-size:.78rem;line-height:1.45;font-variant-numeric:tabular-nums}.mr-sankey-table caption{text-align:left;font-weight:600;padding:0 0 10px;color:#08383E}
+    .mr-sankey-table th,.mr-sankey-table td{padding:10px 6px;border-bottom:1px solid #DCE5E8;text-align:right;vertical-align:top}.mr-sankey-table tr>:first-child{width:46%;text-align:left;padding-left:0}.mr-sankey-table thead th{font-weight:500;color:#53676E}.mr-sankey-table tbody th{font-weight:500}.mr-sankey-table tfoot{font-weight:600;color:#08383E}.mr-sankey-unavailable{margin:20px 0;padding:18px;border-left:3px solid #0C6E78;background:#F4F7F8}.mr-sankey-unavailable h3{margin:0 0 10px!important}.mr-sankey-unavailable p{margin:0!important}
+    @media screen and (max-width:640px){.mr-operational-sankey{padding:16px}.mr-sankey-graphic{grid-template-columns:minmax(0,1.1fr) minmax(42px,.6fr) minmax(0,.7fr);gap:8px}.mr-sankey-source{font-size:.76rem;line-height:1.4}.mr-sankey-source-name{padding-left:6px}.mr-sankey-source strong{padding-left:9px;font-size:.84rem}.mr-sankey-total{font-size:.74rem}.mr-sankey-total strong{font-size:1.05rem}.mr-sankey-table{font-size:.72rem}.mr-sankey-table th,.mr-sankey-table td{padding:9px 4px}.mr-sankey-table tr>:first-child{width:40%}}
+    @media print{.mr-operational-sankey{break-before:auto;page-break-before:auto;break-inside:auto;page-break-inside:auto;margin:0 0 20px;padding:16px}.mr-sankey-figure-head{break-after:avoid;page-break-after:avoid}.mr-sankey-graphic{break-inside:avoid;page-break-inside:avoid;break-after:avoid;page-break-after:avoid;margin:12px 0}.mr-sankey-source{font-size:9pt}.mr-sankey-total{font-size:9pt}.mr-sankey-total strong{font-size:16pt}.mr-report .mr-sankey-capacity{font-size:9pt;line-height:1.4;margin:0 0 8px;break-after:avoid;page-break-after:avoid}.mr-operational-sankey figcaption{font-size:8pt;line-height:1.4;break-before:avoid;page-break-before:avoid}.mr-sankey-table{font-size:8pt}.mr-sankey-table thead{display:table-header-group}.mr-sankey-table tr{break-inside:avoid;page-break-inside:avoid}.mr-sankey-table th,.mr-sankey-table td{padding:7px 5px}.mr-report .mr-sankey-scale-note{font-size:8pt;line-height:1.4}}
+    /* END OPERATIONAL SANKEY STYLES 20260919.1 */
     .mr-scenario-metric,.mr-scenario-assumption{margin:24px 0;padding:24px;border:1px solid #E0DCD3;border-radius:10px;background:#FAFAF8;min-width:0}
     .mr-scenario-metric h3,.mr-scenario-assumption h3{margin-top:0!important}
     .mr-scenario-assumption h4{margin:22px 0 10px;font-size:.94rem;line-height:1.4}

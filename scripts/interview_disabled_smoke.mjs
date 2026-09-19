@@ -50,8 +50,9 @@ assert.equal(
 assert.doesNotMatch(workspaceSource, /<option value="interview"/i, "admin can still promise Interview mode");
 assert.doesNotMatch(workspaceSource, /<option value="choice"/i, "admin can still delegate an unavailable mode");
 assert.match(workspaceSource, /response_mode:\s*"form"/, "campaign payload is not fixed to guided form");
-assert.match(workspaceSource, /Interview mode is not available in this bounded pilot/i);
+assert.match(workspaceSource, /Interview mode is not currently available\. Use the guided diagnostic questions below\./);
+assert.doesNotMatch(workspaceSource, /Interview mode is not available in this bounded pilot/i);
 assert.match(assignmentSource, /var modeTxt = "guided form"/);
 assert.doesNotMatch(assignmentSource, /Content needed for the Diagnostic.*AI provider/i);
 
-console.log("PASS interview disabled and guided-form promise enforced for bounded pilot");
+console.log("PASS interview disabled and guided-form promise enforced for invited evaluation");

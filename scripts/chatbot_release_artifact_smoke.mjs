@@ -31,7 +31,7 @@ assert.deepEqual(manifest, JSON.parse(await readSource("legal-document-manifest.
 assert.equal(manifest.file_hash_scope, "repository_source_html"); checks++;
 const recordedArchives = Object.values(manifest.documents).flatMap(files =>
   [files.terms_file, files.privacy_notice_file].filter(Boolean)).sort();
-const archiveNames = entries => entries.filter(name => /^(?:terms|privacy)-\d{4}-\d{2}-\d{2}-(?:beta|optional-measurement-v1|ai-evidence-v1|ai-source-evidence-v2|annual-plans)\.html$/.test(name)).sort();
+const archiveNames = entries => entries.filter(name => /^(?:terms|privacy)-\d{4}-\d{2}-\d{2}-(?:beta|optional-measurement-v1|ai-evidence-v1|ai-source-evidence-v2|annual-plans|invited-evaluation)\.html$/.test(name)).sort();
 assert.deepEqual(recordedArchives, archiveNames(await readdir(sourceRoot)), "every source legal edition is pinned"); checks++;
 assert.deepEqual(recordedArchives, archiveNames(await readdir(root)), "every pinned legal edition is built"); checks++;
 for (const files of Object.values(manifest.documents)) {
@@ -46,20 +46,20 @@ for (const files of Object.values(manifest.documents)) {
     assert.equal(archivedContent(html, name),archivedContent(source, name), `${name}: built legal content is byte-for-byte unchanged`); checks++;
   }
 }
-assert.equal(manifest.terms_version,"2026-09-15-annual-plans"); checks++;
-assert.equal(manifest.privacy_notice_version,"2026-09-12-ai-source-evidence-v2"); checks++;
-assert.deepEqual(manifest.required_acknowledgement,{terms_version:"2026-09-15-annual-plans",privacy_notice_version:"2026-09-12-ai-source-evidence-v2"}); checks++;
-assert.equal(manifest.published_privacy_notice_version,"2026-09-12-ai-source-evidence-v2"); checks++;
-assert.equal(manifest.published_privacy_notice_file,"privacy-2026-09-12-ai-source-evidence-v2.html"); checks++;
+assert.equal(manifest.terms_version,"2026-09-19-invited-evaluation"); checks++;
+assert.equal(manifest.privacy_notice_version,"2026-09-19-invited-evaluation"); checks++;
+assert.deepEqual(manifest.required_acknowledgement,{terms_version:"2026-09-19-invited-evaluation",privacy_notice_version:"2026-09-19-invited-evaluation"}); checks++;
+assert.equal(manifest.published_privacy_notice_version,"2026-09-19-invited-evaluation"); checks++;
+assert.equal(manifest.published_privacy_notice_file,"privacy-2026-09-19-invited-evaluation.html"); checks++;
 for (const page of ["index.html","privacy.html","security.html","pilot.html"]) {
-  assert.match(await read(page),/src="assistant\.js\?v=20260917\.widget-visible1"/); checks++;
+  assert.match(await read(page),/src="assistant\.js\?v=20260919\.invited1"/); checks++;
 }
 for (const page of ["workspace.html","workspace-diagnostics.html","workspace-analysis.html","workspace-actions.html","workspace-settings.html"]) {
   assert.match(await read(page),/src="workspace-assistant\.js\?v=20260915.consistency1"/); checks++;
 }
 for (const [page, hashKey] of [
   ["terms.html","terms_content_sha256"],
-  ["privacy-2026-09-12-ai-source-evidence-v2.html","privacy_notice_content_sha256"],
+  ["privacy-2026-09-19-invited-evaluation.html","privacy_notice_content_sha256"],
   ["privacy.html","published_privacy_notice_content_sha256"]
 ]) {
   const content=markedContent(await read(page), page).replace(/^\n+|\n+$/g,"")+"\n";

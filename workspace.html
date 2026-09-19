@@ -761,16 +761,16 @@ body{transition:background-color .25s ease,color .25s ease}
     function renderEntitlements(){
       const org=state.organization||{},plan=org.plan||"trial";
       const trialing=plan==="pattern"&&org.subscription_status==="trialing"&&org.pattern_trial_ends_at;
-      const trialDays=trialing?Math.max(0,Math.ceil((Date.parse(org.pattern_trial_ends_at)-Date.now())/86400000)):null;
+      const trialDays=window.__mondermanEvaluationStatus?.evaluation?.daysRemaining ?? null;
       const responseAllowance=org.respondent_pool==null?"Unlimited participant responses":`${Number(org.respondents_used)||0} of ${Number(org.respondent_pool)||0} participant responses used`;
       const synthAllowance=org.aggregation_limit==null?"Unlimited Syntheses":`${Number(org.aggregations_used)||0} of ${Number(org.aggregation_limit)||0} Syntheses used`;
       const selfAllowance=org.run_limit==null?"Unlimited self-runs":`${Number(org.runs_used)||0} of ${Number(org.run_limit)||0} self-runs used`;
       const users=[]; if(org.analyst_limit!=null)users.push(`${org.analyst_limit} analyst${Number(org.analyst_limit)===1?"":"s"}`); if(org.admin_limit!=null)users.push(`${org.admin_limit} admin${Number(org.admin_limit)===1?"":"s"}`);
-      const planCopy=trialing?`Pattern trial · ${trialDays} day${trialDays===1?"":"s"} left`:`${PLAN_LABEL[plan]||plan} plan`;
+      const planCopy=trialing?"Pattern · Free evaluation":`${PLAN_LABEL[plan]||plan} plan`;
       $("wsPlanStrip").innerHTML=`<span><b>${escapeHtml(planCopy)}</b></span><span class="sep">·</span><span>${escapeHtml(selfAllowance)}</span><span class="sep">·</span><span>${escapeHtml(responseAllowance)}</span><span class="sep">·</span><span>${escapeHtml(synthAllowance)}</span><span id="wsAnnualSummary"></span>${users.length?`<span class="sep">·</span><span>${escapeHtml(users.join(" + "))}</span>`:""}`;
       const manage=$("wsManageLink"),isTrial=plan==="trial"||plan==="free";
       const organizationQuery=org.id?`?organization_id=${encodeURIComponent(org.id)}`:"";
-      if(trialing){ manage.textContent="Choose paid plan →"; manage.href="plan-pattern.html"+organizationQuery; return; }
+      if(trialing){ manage.textContent="Discuss continued access →"; manage.href="connect.html"; return; }
       manage.textContent=isTrial?"Upgrade →":"Subscription & renewal →";
       manage.href=isTrial?"platform-services.html"+organizationQuery:"workspace-settings.html#billing";
 

@@ -18,11 +18,11 @@ const pages = [
   'operational-systems.html', 'pilot.html', 'plan-enterprise.html', 'plan-pattern.html',
   'plan-signal.html', 'platform-services.html', 'privacy-2026-08-20-beta.html',
   'privacy-2026-08-24-beta.html', 'privacy-2026-08-26-beta.html', 'privacy-2026-09-08-beta.html',
-  'privacy-2026-09-09-beta.html', 'privacy-2026-09-10-beta.html', 'privacy-2026-09-10-optional-measurement-v1.html', 'privacy-2026-09-11-ai-evidence-v1.html', 'privacy-2026-09-12-ai-source-evidence-v2.html', 'privacy.html', 'quarter-trillion-friction-us-healthcare.html', 'research.html', 'roi.html',
+  'privacy-2026-09-09-beta.html', 'privacy-2026-09-10-beta.html', 'privacy-2026-09-10-optional-measurement-v1.html', 'privacy-2026-09-11-ai-evidence-v1.html', 'privacy-2026-09-12-ai-source-evidence-v2.html', 'privacy-2026-09-19-invited-evaluation.html', 'privacy.html', 'quarter-trillion-friction-us-healthcare.html', 'research.html', 'roi.html',
   'sample-report.html', 'security.html', 'structural-clarity-article.html', 'structural-clarity.html',
   'subprocessors.html', 'terminal-fidelity.html', 'terms-2026-08-20-beta.html',
   'terms-2026-08-24-beta.html', 'terms-2026-08-26-beta.html', 'terms-2026-09-08-beta.html',
-  'terms-2026-09-09-beta.html', 'terms-2026-09-15-annual-plans.html', 'terms.html', 'the-art-of-interior-reasoning.html', 'the-culture-trap-brief.html',
+  'terms-2026-09-09-beta.html', 'terms-2026-09-15-annual-plans.html', 'terms-2026-09-19-invited-evaluation.html', 'terms.html', 'the-art-of-interior-reasoning.html', 'the-culture-trap-brief.html',
   'the-culture-trap.html', 'the-drift-problem.html', 'the-unmeasured-layer.html',
   'transformation-behind-schedule.html', 'we-gave-bureaucracy-the-fastest-tools.html',
   'when-bureaucracy-became-the-obstacle.html', 'why-monderman.html',
@@ -34,8 +34,8 @@ const heroSelector = 'body.canonical-green-shell :is(.hero,.article-hero,.ps-her
 const surfaceSelector = `${heroSelector},footer.mond-footer`;
 const tagline = 'Less bureaucracy. Better performance.';
 const printPages = new Set(['index.html', 'Monderman_Platform_Brief.html', 'privacy.html', 'the-culture-trap-brief.html', 'cross-tool-synthesis.html', 'operational-systems.html', 'sample-report.html']);
-assert.equal(pages.length, 66);
-assert.equal(pages.length - footerOnly.size, 60);
+assert.equal(pages.length, 68);
+assert.equal(pages.length - footerOnly.size, 62);
 for (const file of pages) assert(fs.existsSync(path.join(root, file)), `Missing inventoried page ${file}`);
 
 const publishedSurfaces = fs.readdirSync(root).filter(file => file.endsWith('.html')).filter(file => {
