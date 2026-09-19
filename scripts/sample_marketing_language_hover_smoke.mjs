@@ -128,11 +128,16 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     equal(await page.locator('#sample-output .hero-report-link').getAttribute('href'),'sample-report.html#depth');
     equal(await page.locator('[data-demo-score]').count(),0,'No single-run score relabeled as organizational money');
     equal(await page.locator('[data-demo-recovery]').count(),0,'No score-derived recovery figure');
-    equal(await page.locator('[data-demo-hours]').textContent(),whole(crossScenario.totals.potentialHoursFreed.central));
-    equal(await page.locator('[data-demo-capacity]').textContent(),money(crossScenario.totals.capacityValue.central));
-    equal(await page.locator('[data-demo-cost]').textContent(),money(crossScenario.totals.totalImplementationAndSubscriptionCost.central));
+    for(const [journey,source]of [['structural_clarity',artifact.outputs.depth_synthesis.source],['cross_lens_synthesis',cross]]){
+      const financial=page.locator('[data-demo-financial-case="'+journey+'"]'),totals=source.financial_scenario.totals;
+      equal(await financial.count(),1,'One case from its own accepted report: '+journey);
+      equal(await financial.locator('[data-demo-hours]').textContent(),whole(totals.potentialHoursFreed.central));
+      equal(await financial.locator('[data-demo-capacity]').textContent(),money(totals.capacityValue.central));
+      equal(await financial.locator('[data-demo-cost]').textContent(),money(totals.totalImplementationAndSubscriptionCost.central));
+      equal(await financial.locator('.hwd-financial-note').textContent(),'Capacity value is not cash savings. These estimates use operational inputs and change assumptions, not diagnostic scores.');
+    }
+    equal(await page.locator('[data-demo-financial-case]').count(),2,'No financial case invented for the other three Depth previews');
     for(const group of cross.source_groups)equal(await page.locator('[data-demo-lens="'+group.tool_type+'"]').textContent(),whole(group.median_score)+' / 100','Exact per-lens median');
-    equal(await page.locator('.hwd-financial-note').textContent(),'Capacity value is not cash savings. These estimates use operational inputs and change assumptions, not diagnostic scores.');
     equal(await page.locator('[data-promo-capacity]').textContent(),'About '+roundedMoney(scenario.totals.capacityValue.central));
     equal(await page.locator('.md-scenario-cases dt').allTextContents(),['Low','Central','High']);
     equal(await page.locator('.md-scenario-cases dd').allTextContents(),['low','central','high'].map(k=>roundedMoney(scenario.totals.capacityValue[k])));

@@ -85,7 +85,7 @@ function descriptionsOnly(value) {
 }
 function scripts(html) {
   return [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].map(([, attrs, body]) => ({
-    attrs: attrs.replace('homepage-workspace-demo.js?v=20260919.invitation1','homepage-workspace-demo.js?v=20260909-workspace1'),
+    attrs: attrs.replace('homepage-workspace-demo.js?v=20260919.journey2','homepage-workspace-demo.js?v=20260909-workspace1'),
     body: /\btype=["']application\/ld\+json["']/i.test(attrs) ? descriptionsOnly(JSON.parse(body)) : body,
   }));
 }
@@ -112,7 +112,7 @@ const template = 'scripts/templates/home-workspace-preview.html';
 const oldPreview = 'Choose a diagnostic for a team, unit, or decision path.';
 const newPreview = 'Choose a diagnostic for a defined part of your organization.';
 equal(historicalCopy(template).split(newPreview).length - 1,1,'Historical copy release had one organization-scope preview sentence');
-check(read(template).includes('See the work from more than one position.')&&read(template).includes('organizational evaluation'),'Current preview retains organizational scope throughout its new business-case story');
+check(read(template).includes('Connect different views of the same work.')&&read(template).includes('organizational evaluation')&&read(template).includes('Repeat compatible campaigns for the same work.'),'Current five-journey preview retains organizational scope and comparable campaign follow-up');
 equal(historicalCopy(template).replace(newPreview, oldPreview), prior(template), 'Only approved preview-template copy differs from baseline');
 const digest = value => createHash('sha256').update(value).digest('hex');
 const manifest = JSON.parse(historicalCopy('sample-data/production-sample-release.json'));

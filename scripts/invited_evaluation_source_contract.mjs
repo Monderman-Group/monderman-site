@@ -1,5 +1,6 @@
 // September 19 release guard, not an assertion that all behavior was unchanged.
-// The explicitly approved invitation/access/countdown changes are pinned below.
+// The explicitly approved invitation/access/countdown and public journey
+// changes are pinned below.
 // Existing scoring, evidence, sample-source and unmodified interface bytes stay
 // anchored to the last deployed pre-evaluation commit. Behavioral tests cover
 // the new access gate and server-clock countdown separately.
@@ -29,6 +30,10 @@ export const APPROVED_INTERFACE_PINS=Object.freeze({
   // remains the existing separate explicit button. Dedicated browser tests
   // exercise review-only, stale access, dismissal and manual generation.
   'campaign-analysis.js':'ef7854a2c38aa6005c8783356638101ac2b4d346994abf327e219bf2b4aed1ce',
+  // Public, local-only four Depth journeys and a separate Cross-Lens journey.
+  // Numbers remain generated from reviewed evidence; authored actions are
+  // labeled proposals. Dedicated browser tests cover all five journeys.
+  'homepage-workspace-demo.js':'1c58ef0b52e9603342d6bbcfd66dc9e86053f1ba250f1bd4d03fa1e60eb50c9e',
 });
 export function assertInvitedEvaluationSourceContract(root=path.resolve(import.meta.dirname,'..')){
   const read=f=>fs.readFileSync(path.join(root,f),'utf8');
@@ -74,7 +79,13 @@ export function assertInvitedEvaluationSourceContract(root=path.resolve(import.m
     'workspace-theme.js','workspace-assistant.js','public-sample-model.js','sample-report-production.js',
     'run-inclusion-review.js','participant-evidence-safety.js','sample-data/production-diagnostic-samples.json'];
   for(const file of immutable)assert.equal(read(file),prior(file),file+': existing engine/evidence/interface bytes remain exact');
-  for(const [file,digest]of Object.entries(APPROVED_INTERFACE_PINS))assert.equal(sha(read(file)),digest,file+': only the reviewed invitation/countdown delta is allowed');
+  for(const [file,digest]of Object.entries(APPROVED_INTERFACE_PINS))assert.equal(sha(read(file)),digest,file+': only the explicitly reviewed interface delta is allowed');
+  // The five-journey selector is one reviewed addition. Removing that exact
+  // whole-file-pinned block must recover all prior four-step tab navigation.
+  const journeyRuntime=read('homepage-workspace-demo.js');
+  const journeyAddition=journeyRuntime.match(/^  const preview = app\.closest\('\.home-workspace-preview'\);\n[\s\S]*?(?=^  function select\(tab, focus = false, reveal = false\) \{)/m);
+  assert.ok(journeyAddition,'Reviewed public journey addition must be present');
+  assert.equal(journeyRuntime.replace(journeyAddition[0],''),prior('homepage-workspace-demo.js'),'All previous tab, keyboard and next-step behavior remains byte-identical');
   const executable=html=>[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)].filter(m=>!(/\bsrc\s*=/.test(m[1]))&&!(/type=["']application\/ld\+json/.test(m[1]))).map(m=>m[2]);
   for(const file of ['diagnostics.html','connect.html','plan-enterprise.html'])assert.deepEqual(executable(read(file)),executable(prior(file)),file+': marketing changes do not change embedded behavior');
   assert.equal(sourceBeforeSankeyPresentation(read('monderman-report.js')),prior('monderman-report.js'),'Exact Sankey inverse preserves the previous complete report renderer');
@@ -97,6 +108,7 @@ export function assertInvitedEvaluationSourceContract(root=path.resolve(import.m
     "feedback-widget.js",
     "first-run-telemetry.js",
     "homepage-workspace-demo.css",
+    "homepage-workspace-demo.js",
     "index.html",
     "institutional-performance-article.html",
     "institutional-performance.html",

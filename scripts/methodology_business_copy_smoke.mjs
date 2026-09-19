@@ -7,6 +7,7 @@ import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {chromium,webkit} from 'playwright';
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
+import {APPROVED_INTERFACE_PINS} from './invited_evaluation_source_contract.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 const {artifact}=readPublicSampleFixture({root});
@@ -63,9 +64,11 @@ async function settledPaint(page,predicate,arg){
   check(await page.evaluate(predicate,arg),'Exact settled state survives two animation frames');
 }
 const staticPreviewRule='body.homepage-enterprise .hwd-app p { animation:none !important; opacity:1 !important; transform:none !important; will-change:auto; }';
-eq(read('homepage-workspace-demo.css').split(staticPreviewRule).length-1,1,'Only interactive preview paragraphs suppress inherited hero-entry animation');
+eq(read('homepage-workspace-demo.css').split(staticPreviewRule).length-1,1,'Existing preview paragraph stability rule is retained');
+const stableGeometryRule='.hwd-app * { transition-property:color,background-color,border-color !important; animation:none !important; }';
+eq(read('homepage-workspace-demo.css').split(stableGeometryRule).length-1,1,'Only the local preview suppresses geometry transitions; button/link color transitions remain');
 check(read('index.html').includes('animation: heroFadeUp 900ms cubic-bezier(0.22,1,0.36,1) forwards;'),'Other hero entrance motion remains');
-eq(read('homepage-workspace-demo.js'),execFileSync('git',['show','HEAD:homepage-workspace-demo.js'],{cwd:root,encoding:'utf8'}),'Actual tab behavior is unchanged');
+eq(sha(read('homepage-workspace-demo.js')),APPROVED_INTERFACE_PINS['homepage-workspace-demo.js'],'Only the exact reviewed five-journey runtime is allowed; existing four-step navigation remains exercised below');
 const priorShell=execFileSync('git',['show','f91fb07fde754dea57360ddbddc9bf742d6e6702:canonical-site-shell.js'],{cwd:root,encoding:'utf8'});
 const approvedShell=priorShell.replace('tagline.textContent = "See the work clearly. Make the next move count.";','if (!tagline.textContent.trim()) tagline.textContent = "Less bureaucracy. Better performance.";')
   .replace('    document.querySelectorAll(".mond-footer .mf-copy").forEach((copy) => {\n      copy.textContent = "Monderman provides repeatable organizational diagnostics for ownership, decisions, handoffs, and administrative work.";\n    });\n','');
@@ -85,8 +88,8 @@ for(const candidate of [
   assert.notEqual(candidate,approvedFloatingShell,'Header-state negative actually mutates the approved source');
   assert.throws(()=>assertApprovedShell(candidate),'Restored proxies or unrelated navigation changes must fail');checks++;
 }
-check(read('index.html').includes('homepage-workspace-demo.css?v=20260919.invitation1'),'Source preview stylesheet has the invited-evaluation cache ID');
-check(read('scripts/inject-public-shell.mjs').includes('"homepage-workspace-demo.css": "20260919.invitation1"'),'Built preview stylesheet has the same invited-evaluation cache ID');
+check(read('index.html').includes('homepage-workspace-demo.css?v=20260919.journey2'),'Source preview stylesheet has the reviewed lens-journey cache ID');
+check(read('scripts/inject-public-shell.mjs').includes('"homepage-workspace-demo.css": "20260919.journey2"'),'Built preview stylesheet has the same reviewed lens-journey cache ID');
 execFileSync(process.execPath,['scripts/refresh_public_sample_previews.mjs','--check'],{cwd:root,stdio:'pipe'});
 check(read('scripts/templates/home-workspace-preview.html').split('{{lensCards}}').length===2,'One generated evidence-card region replaces the old hard-coded product-label preview');
 // Exercise the actual browser predicates offline; geometry alone cannot admit
@@ -405,8 +408,10 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
         const fileName=`${name}-${width}-operational-method.png`;await slide.screenshot({path:path.join(out,fileName)});screenshots.push(fileName);
       }
       if(file==='index.html'){
-        eq(await page.locator('.hwd-diagnostic h3').allTextContents(),previewGroups.map(group=>group.tool_label),'Preview shows the actual sample diagnostic names');
-        eq(await page.locator('.hwd-diagnostic p').allTextContents(),previewGroups.map(group=>'Median score: '+group.median_score.toLocaleString('en-US',{maximumFractionDigits:0})+' / 100'),'Preview evidence cards show the exact approved sample median, not a product-description placeholder');
+        const journeyGroups=['structural_clarity','decision_velocity','operational_systems','institutional_performance'].map(lens=>previewGroups.find(group=>group.tool_type===lens));
+        eq(await page.locator('.hwd-diagnostic h3').allTextContents(),journeyGroups.map(group=>group.tool_label),'Preview shows all four canonical diagnostics in journey order');
+        eq(await page.locator('.hwd-diagnostic p').allTextContents(),journeyGroups.map(group=>'Median score: '+group.median_score.toLocaleString('en-US',{maximumFractionDigits:0})+' / 100'),'Preview evidence cards show exact approved within-lens summaries, not a fabricated new report');
+        eq(await page.locator('input[name="hwd-journey"]').evaluateAll(nodes=>nodes.map(node=>node.value)),journeyGroups.map(group=>group.tool_type).concat('cross_lens_synthesis'),'Four Depth journeys and one separate Cross-Lens journey');
         for(const id of ['measure','analysis','actions','return','measure']){
           await page.locator('#hwd-tab-'+id).click();await settledPaint(page,settledPreviewState,id);
           check(await page.locator('#hwd-panel-'+id).isVisible(),'Preview still navigates: '+id);

@@ -21,6 +21,9 @@ body.canonical-green-shell.homepage-enterprise .hero > .hero-inner {
   padding-bottom:60px;
 }
 body.homepage-enterprise .hero-copy { max-width:560px; }
+@media (min-width:1121px) {
+  body.homepage-enterprise .hero-copy { align-self:start; }
+}
 body.homepage-enterprise .hero h1 { max-width:14ch; }
 body.homepage-enterprise .hero-eyebrow { max-width:42ch; font-size:12px !important; letter-spacing:.12em; color:#A9D0D4 !important; }
 body.homepage-enterprise .hero-dek { max-width:43ch; font-size:17px; line-height:1.55; color:#C0D0D2; }
@@ -277,4 +280,52 @@ body.homepage-enterprise #main-content > section { order:0 !important; }
   .hwd-chart-row { grid-template-columns:81px 1fr 19px; gap:6px; }
   .hwd-tabs button { font-size:11px; }
   .hwd-app .hwd-chart-head h3 { font-size:12px; }
+}
+/* Four one-lens Depth journeys, followed by the combined Cross-Lens journey. */
+.hwd-journey-choice { min-width:0; margin:0; padding:16px 20px 18px; border:0; background:#FFFFFF; }
+.hwd-journey-choice legend { float:left; width:100%; padding:0; margin:0 0 10px; color:#526B72; font-size:12px; font-weight:600; }
+.hwd-journey-options { clear:both; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.hwd-journey-tile { position:relative; display:block; min-width:0; cursor:pointer; }
+.hwd-journey-tile input { position:absolute; width:1px; height:1px; padding:0; margin:0; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+.hwd-journey-tile > span { display:flex; flex-direction:column; justify-content:center; gap:5px; height:100%; min-height:68px; padding:10px 12px; border:1px solid #D2E0E3; border-radius:5px; background:#F4F7F8; color:#173239; }
+.hwd-journey-tile strong { font-size:13px; line-height:1.3; font-weight:600; }
+.hwd-journey-tile small { font-size:11px; line-height:1.3; color:#526B72; }
+.hwd-journey-tile input:checked + span { border-color:var(--mdm-link); background:#EBF5F6; box-shadow:inset 3px 0 var(--mdm-link); }
+.hwd-journey-tile input:focus-visible + span { outline:3px solid var(--mdm-link); outline-offset:2px; }
+.hwd-journey-tile:hover > span { border-color:var(--mdm-link); }
+.hwd-journey-cross { grid-column:1 / -1; }
+.hwd-journey-cross > span { min-height:58px; }
+.hwd-app .hwd-panel { min-height:0; transition:none !important; animation:none !important; }
+.hwd-app * { transition-property:color,background-color,border-color !important; animation:none !important; }
+.hwd-journey-choice[hidden],.hwd-evidence[hidden],.hwd-diagnostic[hidden],.home-preview-method[hidden],[data-demo-assumptions-for][hidden] { display:none !important; }
+.hwd-app[data-demo-journey-type="depth"] .hwd-diagnostic-grid { grid-template-columns:1fr; }
+.hwd-app .hwd-participation-note { margin:16px 0 0; color:#526B72; font-size:12px; line-height:1.55; }
+.hwd-app .hwd-campaign-label { margin:0 0 12px; color:#526B72; font-size:12px; line-height:1.5; }
+.hwd-group-metrics { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px; }
+.hwd-group-metrics strong { display:block; font-size:26px; line-height:1.15; letter-spacing:-.03em; color:var(--mdm-link); }
+.hwd-group-metrics span { display:block; margin-top:5px; font-size:12px; line-height:1.4; color:#526B72; }
+.hwd-perspective-chart { padding:14px; border:1px solid #DCE6E8; border-radius:6px; background:#FFFFFF; }
+.hwd-app .hwd-perspective-chart h3,.hwd-app .hwd-financial-case > h3 { margin:0 0 10px; font-size:13px; line-height:1.4; font-weight:600; letter-spacing:0; }
+.hwd-perspective-row { display:grid; grid-template-columns:minmax(116px,1.3fr) minmax(38px,1fr) 24px; gap:10px; align-items:center; margin-top:10px; font-size:12px; line-height:1.4; }
+.hwd-perspective-row small { display:block; color:#637A80; font-size:11px; }
+.hwd-perspective-row strong { text-align:right; }
+.hwd-app .hwd-score-direction { margin-top:12px; color:#637A80; font-size:11px; line-height:1.5; }
+.hwd-app .hwd-perspective-finding,.hwd-app .hwd-depth-next { margin-top:14px; color:#526B72; font-size:12px; line-height:1.6; }
+.hwd-financial-case { margin-top:18px; padding-top:16px; border-top:1px solid #DCE6E8; }
+.hwd-evidence[data-demo-evaluation="cross_lens_synthesis"] .hwd-financial-case { margin-top:0; padding-top:0; border-top:0; }
+.hwd-app .hwd-case-basis { color:#526B72; font-size:12px; line-height:1.5; }
+.hwd-action-steps { margin:12px 0 0; padding-left:19px; color:#526B72; font-size:12px; line-height:1.6; }
+.hwd-action-steps li + li { margin-top:9px; }
+.hwd-action-measure { margin-top:13px; padding-top:12px; border-top:1px solid #E3EBED; }
+.hwd-action-measure > strong { display:block; margin-bottom:6px; color:#173239; font-size:12px; line-height:1.5; }
+.hwd-baseline [data-demo-baseline-value] { font-size:32px; line-height:1.15; }
+@media (max-width:640px) {
+  .hwd-journey-choice { padding:14px 14px 16px; }
+  .hwd-journey-tile > span { min-height:76px; padding:10px; }
+  .hwd-journey-tile strong { font-size:12px; }
+  .hwd-journey-cross > span { min-height:58px; }
+  .hwd-group-metrics strong { font-size:25px; }
+  .hwd-perspective-chart { padding:12px; }
+  .hwd-perspective-row { grid-template-columns:minmax(105px,1.3fr) minmax(30px,1fr) 21px; gap:8px; }
+  .hwd-action-owner { flex-wrap:wrap; gap:5px 12px; }
 }
