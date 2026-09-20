@@ -561,6 +561,7 @@ jobs:
           WORKSPACE_PRODUCT_OUT: /tmp/report-presentation-smoke/product-workspace
         run: |
           node scripts/homepage_workspace_demo_smoke.mjs
+          GOLD_ACCENT_OUT=/tmp/report-presentation-smoke/gold-accents node scripts/public_gold_accent_smoke.mjs
           node scripts/workspace_product_design_smoke.mjs
           REPORT_OUT=/tmp/report-presentation-smoke/report-screen-experience node scripts/report_screen_experience_smoke.mjs
 

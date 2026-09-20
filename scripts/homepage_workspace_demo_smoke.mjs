@@ -17,6 +17,14 @@ const names = Object.fromEntries(cross.source_groups.map(g=>[g.tool_type,g.tool_
 const out = process.env.HOME_DEMO_OUT;
 const baseline=process.env.HOME_DEMO_BASELINE?JSON.parse(fs.readFileSync(process.env.HOME_DEMO_BASELINE,'utf8')):null;
 const compactMeasurements=[];
+const assertGatherStart=async(page,label)=>{
+  const app=page.locator('[data-workspace-demo]');
+  assert.equal(await app.locator('[role="tab"][aria-selected="true"]').count(),1,label+': exactly one initial selected step');
+  assert.equal(await app.locator('[role="tab"][aria-selected="true"]').textContent(),'01Gather',label+': fresh loads start at 01 Gather');
+  assert.deepEqual(await app.locator('[role="tab"]').evaluateAll(tabs=>tabs.map(tab=>tab.tabIndex)),[0,-1,-1,-1],label+': Gather is the initial keyboard entry point');
+  assert.equal(await app.locator('[role="tabpanel"]:visible').count(),1,label+': exactly one initial visible panel');
+  assert.equal(await app.locator('#hwd-panel-measure').isVisible(),true,label+': Gather content is initially visible');
+};
 if (out) fs.mkdirSync(out,{recursive:true});
 assert.doesNotMatch(fs.readFileSync(path.join(root,'homepage-workspace-demo.js'),'utf8'), /\b(?:fetch|XMLHttpRequest|sendBeacon|localStorage|sessionStorage)\b/, 'The public journey must remain local-only');
 let states=0, screenshots=0, resizeStates=0;
@@ -29,15 +37,16 @@ for(const file of ['homepage-workspace-demo.js','homepage-workspace-demo.css']){
 for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
   const browser=await type.launch({headless:true});
   try {
-    const noScript=await browser.newPage({viewport:{width:390,height:1000},javaScriptEnabled:false});
-    await noScript.route('**/*',route=>new URL(route.request().url()).origin===new URL(base).origin?route.continue():route.abort());
-    await noScript.goto(base+'/index.html',{waitUntil:'load'});
-    assert.equal(await noScript.locator('.hwd-journey-choice').isVisible(),false,'Without scripts do not offer radios that cannot change the displayed journey');
-    assert.equal(await noScript.locator('.hwd-choose:visible').count(),0,'No-script view must not offer inactive Choose controls');
-    assert.equal(await noScript.locator('[data-demo-evaluation="cross_lens_synthesis"]').isVisible(),true);
-    assert.equal(await noScript.locator('[data-demo-evaluation]:visible').count(),1);
-    assert.equal(await noScript.locator('[data-demo-evaluation="cross_lens_synthesis"] [data-demo-capacity]').textContent(),money(cross.financial_scenario.totals.capacityValue.central));
-    await noScript.close();
+    for(const width of [390,768,1440]){
+      const noScript=await browser.newPage({viewport:{width,height:1000},javaScriptEnabled:false});
+      await noScript.route('**/*',route=>new URL(route.request().url()).origin===new URL(base).origin?route.continue():route.abort());
+      await noScript.goto(base+'/index.html',{waitUntil:'load'});
+      await assertGatherStart(noScript,name+'/'+width+'/no-script');
+      assert.equal(await noScript.locator('.hwd-journey-choice').isVisible(),false,'Without scripts do not offer radios that cannot change the displayed journey');
+      assert.equal(await noScript.locator('.hwd-choose:visible').count(),0,'No-script view must not offer inactive Choose controls');
+      assert.equal(await noScript.locator('[data-demo-evaluation]:visible').count(),0,'Later-step evidence must not appear before Gather');
+      await noScript.close();
+    }
     for (const width of [320,390,768,1120,1121,1440]) {
       const page=await browser.newPage({viewport:{width,height:1000},reducedMotion:'reduce'});
       const failures=[], remote=[];
@@ -54,6 +63,15 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
       await page.evaluate(()=>document.fonts.ready);
       const app=page.locator('[data-workspace-demo]');
       assert.equal(await app.count(),1);
+      await assertGatherStart(page,name+'/'+width+'/fresh-load');
+      await app.locator('#hwd-tab-measure').focus();
+      await page.keyboard.press('ArrowRight');
+      assert.equal(await app.locator('#hwd-tab-analysis').getAttribute('aria-selected'),'true','Keyboard navigation starts from Gather');
+      assert.equal(await app.locator('#hwd-panel-analysis').isVisible(),true);
+      assert.equal(await page.evaluate(()=>document.activeElement.id),'hwd-tab-analysis');
+      await page.reload({waitUntil:'load'});
+      await page.evaluate(()=>document.fonts.ready);
+      await assertGatherStart(page,name+'/'+width+'/reload-after-Evaluate');
       assert.equal(await app.getAttribute('data-demo-selected-journey'),'cross_lens_synthesis');
       assert.equal(await app.locator('input[name="hwd-journey"]').count(),5);
       assert.deepEqual(await app.locator('input[name="hwd-journey"]').evaluateAll(items=>items.map(i=>i.value)),keys);
@@ -61,8 +79,8 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
       assert.equal(await app.locator('.hwd-journey-cross strong').textContent(),'Cross-Lens Synthesis');
       assert.equal(await app.locator('.hwd-diagnostic,.hwd-diagnostic-grid').count(),0,'Passive cards must be replaced, not duplicated');
       assert.equal(await app.locator('#hwd-panel-measure .hwd-journey-choice').count(),1,'Choices belong only to Gather');
-      assert.equal(await app.locator('.hwd-journey-choice').isVisible(),false,'Evaluate stays compact by default');
-      assert.equal(await app.locator('#hwd-tab-analysis').getAttribute('aria-selected'),'true');
+      assert.equal(await app.locator('.hwd-journey-choice').isVisible(),true,'Gather immediately offers all five journeys');
+      assert.equal(await app.locator('.hwd-journey-tile:visible').count(),5);
       const initialHeight=await app.evaluate(el=>el.getBoundingClientRect().height);
       const compact={engine:name,width,height:initialHeight};
       if(baseline){
@@ -242,7 +260,7 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
       await page.keyboard.press('ArrowDown');await assertRadio('decision_velocity','down');
       await page.keyboard.press('ArrowUp');await assertRadio('structural_clarity','up');
       const cta=await page.locator('.hero-actions .btn-accent').evaluate(el=>({bg:getComputedStyle(el).backgroundColor,color:getComputedStyle(el).color}));
-      assert.equal(cta.bg,'rgb(169, 208, 212)');assert.equal(cta.color,'rgb(4, 24, 27)');
+      assert.equal(cta.bg,'rgb(201, 130, 31)');assert.equal(cta.color,'rgb(4, 24, 27)');
       assert.equal(await page.locator('.hero .hero-report-proof').count(),0);
       assert.equal(await page.locator('#sample-output .hero-report-link').getAttribute('href'),'sample-report.html#depth');
       if(width===1440){
@@ -279,6 +297,6 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
     }
   } finally {await browser.close();}
 }
-const receipt={status:'PASS',checkedAt:new Date().toISOString(),base,states,resizeStates,screenshots,journeys:5,steps:4,widths:6,browsers:2,artifactSha256:artifact.artifact_sha256,hashes,compactMeasurements,checks:'Gather-only selection without duplicate cards, compact default Evaluate and discoverable change control, source medians/spreads/perspectives, distinct actions, no borrowed money, current-step persistence, native radio + tab keyboard, stable layout including live resize, no external calls'};
+const receipt={status:'PASS',checkedAt:new Date().toISOString(),base,states,resizeStates,screenshots,journeys:5,steps:4,widths:6,browsers:2,artifactSha256:artifact.artifact_sha256,hashes,compactMeasurements,checks:'01 Gather on fresh load and reload, Gather without scripts on phone/tablet/desktop, Gather-only selection without duplicate cards, discoverable change control, source medians/spreads/perspectives, distinct actions, no borrowed money, current-step persistence, native radio + tab keyboard, stable layout including live resize, no external calls'};
 if(process.env.HOME_DEMO_RECEIPT)fs.writeFileSync(process.env.HOME_DEMO_RECEIPT,JSON.stringify(receipt,null,2)+'\n');
 console.log('HOMEPAGE_WORKSPACE_DEMO_PASS '+JSON.stringify(receipt));

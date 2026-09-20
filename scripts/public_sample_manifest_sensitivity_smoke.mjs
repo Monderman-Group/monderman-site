@@ -144,6 +144,15 @@ cases.push(
   manifestMutation('manifest-reviewer-misattributed','review must not be attributed to Jason',m=>{m.reviewed_by='Jason';}),
   manifestMutation('manifest-generation-pin-drift',null,m=>{m.generated_at=older(m.generated_at);}),
 );
+for(const [label,mutate] of [
+  ['missing',m=>{delete m.benefit_flow_presentation_review;}],
+  ['pending',m=>{m.benefit_flow_presentation_review.status='pending';}],
+  ['wrong-renderer',m=>{m.benefit_flow_presentation_review.renderer_sha256='0'.repeat(64);}],
+  ['wrong-data',m=>{m.benefit_flow_presentation_review.artifact_file_sha256='0'.repeat(64);}],
+  ['wrong-pdf',m=>{m.benefit_flow_presentation_review.pdf_outputs.depth_synthesis.sha256='0'.repeat(64);}],
+  ['wrong-pdf-path',m=>{m.benefit_flow_presentation_review.pdf_outputs.cross_lens_synthesis.path='old.pdf';}],
+  ['missing-visual-review',m=>{m.benefit_flow_presentation_review.visual_review='pending';}],
+])cases.push(manifestMutation('presentation-review-'+label,null,mutate));
 for(const name of sourceNames) {
   cases.push(manifestMutation('manifest-source-pin-'+path.basename(name),'reviewed source changed: '+name,m=>{
     m.source_files[name]=changedHash(m.source_files[name]);
@@ -160,8 +169,8 @@ for(const name of sourceNames) {
 }
 // Four score cases, five bindings per product, five per Synthesis, nine
 // release-level cases, plus manifest/content drift for all six display files.
-assert.equal(cases.length,4+5*6+5*2+9+2*sourceNames.length,'bounded sensitivity inventory changed; review before expanding');
-assert.equal(cases.length,65,'review the six-source sensitivity inventory before expanding');
+assert.equal(cases.length,4+5*6+5*2+9+7+2*sourceNames.length,'bounded sensitivity inventory changed; review before expanding');
+assert.equal(cases.length,72,'Includes seven presentation/PDF binding mutations');
 assert.equal(new Set(cases.map(item=>item.label)).size,cases.length);
 try {
   const baseline=run(prepare('baseline'));

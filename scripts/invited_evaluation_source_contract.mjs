@@ -34,7 +34,7 @@ export const APPROVED_INTERFACE_PINS=Object.freeze({
   // Public, local-only four Depth journeys and a separate Cross-Lens journey.
   // Numbers remain generated from reviewed evidence; authored actions are
   // labeled proposals. Dedicated browser tests cover all five journeys.
-  'homepage-workspace-demo.js':'0b210be823c34872ecc8b0bed3db0fdc550fe38302ad9a869f76e018dd2e366a',
+  'homepage-workspace-demo.js':'d68437e48bcee9e9e20bfd8f6daeb48c61e7b1c6b742aa3d2aef4faa21f920b8',
 });
 export function assertInvitedEvaluationSourceContract(root=path.resolve(import.meta.dirname,'..')){
   const read=f=>fs.readFileSync(path.join(root,f),'utf8');
@@ -87,7 +87,10 @@ export function assertInvitedEvaluationSourceContract(root=path.resolve(import.m
   const journeyRuntime=read('homepage-workspace-demo.js');
   const journeyAddition=journeyRuntime.match(/^  const preview = app\.closest\('\.home-workspace-preview'\);\n[\s\S]*?(?=^  function select\(tab, focus = false, reveal = false\) \{)/m);
   assert.ok(journeyAddition,'Reviewed public journey addition must be present');
-  assert.equal(journeyRuntime.replace(journeyAddition[0],''),prior('homepage-workspace-demo.js'),'All previous tab, keyboard and next-step behavior remains byte-identical');
+  const gatherDefault="  select(app.querySelector('#hwd-tab-measure'));\n";
+  assert.equal(journeyRuntime.split(gatherDefault).length,2,'Exactly one explicit Gather initialization');
+  assert.equal(journeyRuntime.replace(journeyAddition[0],'').replace(gatherDefault,''),prior('homepage-workspace-demo.js'),'All previous tab, keyboard and next-step behavior remains byte-identical outside Gather initialization');
+  assert.equal(sha(read('enterprise-site.css')),'9ac2256311ff8e0bba5e902c4b22bb2438e690ca980777317ffafed966d7e6d4','Only the reviewed dark-hero gold accent changes shared CSS');
   const executable=html=>[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)].filter(m=>!(/\bsrc\s*=/.test(m[1]))&&!(/type=["']application\/ld\+json/.test(m[1]))).map(m=>m[2]);
   for(const file of ['diagnostics.html','connect.html','plan-enterprise.html'])assert.deepEqual(executable(read(file)),executable(prior(file)),file+': marketing changes do not change embedded behavior');
   assert.equal(sourceBeforeSankeyPresentation(read('monderman-report.js')),prior('monderman-report.js'),'Exact Sankey inverse preserves the previous complete report renderer');
@@ -108,6 +111,7 @@ export function assertInvitedEvaluationSourceContract(root=path.resolve(import.m
     "designing-for-decision-velocity.html",
     "deterministic-ai-infrastructure.html",
     "diagnostics.html",
+    "enterprise-site.css",
     "feedback-widget.js",
     "first-run-telemetry.js",
     "homepage-workspace-demo.css",

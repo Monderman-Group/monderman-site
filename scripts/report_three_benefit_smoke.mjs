@@ -14,6 +14,20 @@ const load=text=>{const c={window:{},console,Intl,Date,Number,String,Array,Objec
 const report=load(source),old=load(execFileSync('git',['show',prior+':monderman-report.js'],{cwd:root,encoding:'utf8',maxBuffer:4e6}));
 let checks=0;const ok=(v,m)=>{assert.ok(v,m);checks++;},eq=(a,b,m)=>{assert.deepEqual(a,b,m);checks++;};
 const levels=['low','central','high'],keys=['spendingReduction','spendingAvoidance','staffCapacity'];
+// Isolate the display function for cent-rounding edges without modifying any
+// saved fixture or bypassing the full-report validation tests below.
+const flowContext={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};
+eq(source.split('  function renderThreeBenefitFlow(s,level) {').length,2,'One reviewed flow function');
+vm.runInNewContext(source.replace('  function renderThreeBenefitFlow(s,level) {','  window.__testFlow = renderThreeBenefitFlow;\n  function renderThreeBenefitFlow(s,level) {'),flowContext);
+const range=n=>({low:n,central:n,high:n});
+for(const rowAmount of [.01,0]){
+  const tiny={coverage:{complete:true},activities:[],spendingItems:[1,2].map(id=>({id,label:'Small expense '+id,category:'spendingReduction',amount:range(rowAmount)})),benefits:Object.fromEntries(keys.map(key=>[key,{amount:range(key==='spendingReduction'?.01:0)}]))};
+  const flow=flowContext.window.__testFlow(tiny,'central');
+  ok(!/NaN|Infinity/.test(flow),'Cent-rounding geometry is finite');
+  ok(!flow.includes('benefits are zero'),'Positive rounded total never called zero');
+  if(rowAmount){ok(flow.includes('data-saved-value="0.01"'),'Saved rounded total preserved');for(const match of flow.matchAll(/--benefit-node-center:([\d.]+)%/g))ok(Number(match[1])<80,'Rounded source totals do not move nodes beyond diagram');}
+  else ok(!flow.includes('<path'),'Sub-cent sources do not invent ribbons');
+}
 const build=(scenario,assessment)=>{const raw=structuredClone(historic.outputs.depth_synthesis.source);delete raw.financial_scenario;if(scenario){raw.financial_scenario=structuredClone(scenario);raw.campaign_evidence.scopeId=scenario.scope.scopeId;}if(assessment)raw.financial_benefit_assessment=structuredClone(assessment);const before=JSON.stringify(raw),model=report.fromSynthesis(raw),html=report.buildReportHtml(model);eq(JSON.stringify(raw),before,'Renderer does not mutate saved data');return {model,html,raw};};
 for(const [key,entry]of Object.entries(historic.outputs)){const a=entry.kind==='diagnostic'?report.fromRun(entry.source):report.fromSynthesis(entry.source),b=entry.kind==='diagnostic'?old.fromRun(entry.source):old.fromSynthesis(entry.source);eq(report.buildReportHtml(a),old.buildReportHtml(b),'Historical HTML exactly unchanged: '+key);}
 const cases=Object.fromEntries(Object.entries(fixtures.cases).map(([key,s])=>[key,{...build(s),s}]));
@@ -28,7 +42,11 @@ for(const [key,item]of Object.entries(cases)){
   ok(item.html.indexOf('Choose a planning case')<item.html.indexOf('data-benefit="'),'Controls precede benefit cards');
   ok(item.html.includes('value="central" checked'),'Central selected without JavaScript');
   for(const category of keys)for(const level of levels){const b=item.s.benefits[category];if(b.amount!==null)ok(item.html.includes('data-saved-value="'+b.amount[level]+'"'),'Exact saved benefit values');}
-  eq(item.html.includes('<figure class="mr-benefit-chart">'),item.s.coverage.complete&&key!=='zero','Incomplete estimates have no Sankey');
+  eq(item.html.includes('<figure class="mr-benefit-chart"'),item.s.coverage.complete&&key!=='zero','Incomplete estimates have no Sankey');
+  for(const chart of item.html.match(/<figure class="mr-benefit-chart"[\s\S]*?<\/figure>/g)||[]){
+    ok(!/Subscription allocation|Implementation cash|Net planning value<\/span>/.test(chart),'Chart only shows gross operational benefit flows');
+    ok(chart.includes('before costs')&&chart.includes('Costs and net value are shown separately'),'Gross diagram is not mislabeled as net ROI');
+  }
   for(const a of item.s.inputs.capacity.activities){ok(item.html.includes(a.sourceReference),'Activity source reference retained');ok(item.html.includes(a.changeBasis),'Activity proposed-change basis retained');}
   for(const category of ['spendingReduction','spendingAvoidance'])for(const a of item.s.inputs[category].items){ok(item.html.includes(a.sourceReference),'Expense source retained');ok(item.html.includes(a.resourceId),'Expense identity retained');}
   if(item.s.activities.length)ok(item.html.includes('Month-by-month capacity allocation'),'Full saved monthly allocation section');
@@ -39,7 +57,7 @@ ok(cases.zero.html.includes('Reviewed: none identified'),'Explicit reviewed zero
 ok(!cases.zero.html.includes('data-three-benefit-flow-value'),'Zero produces no fabricated ribbon');
 ok(fixtures.cases.nonmonotonic.totals.potentialHoursFreed.low>fixtures.cases.nonmonotonic.totals.potentialHoursFreed.high,'Nonmonotonic fixture');
 ok(cases.nonmonotonic.html.includes('data-saved-value="35325"')&&cases.nonmonotonic.html.includes('data-saved-value="32925"'),'Nonmonotonic case values stay attached');
-ok(cases.negative.html.includes('Value shortfall'),'Negative outcome shown honestly');
+ok(cases.negative.html.includes('data-saved-value="'+fixtures.cases.negative.totals.netCapacityAndCashValue.central+'"'),'Negative net outcome remains visible outside gross-benefit diagram');
 ok(cases.complete.html.includes('Months 7 to 12 - hours in each month'),'Identical contiguous months grouped, not recomputed');
 const noScenario=build(null,fixtures.assessmentWithoutScenario);ok(noScenario.html.includes('Financial benefit assessment'),'New no-scenario report has assessment');ok(!noScenario.html.includes('data-three-benefit-flow-value'),'No scenario no chart');
 const mutations=[['wrong scope',s=>s.scope.scopeId='other-scope'],['bad currency',s=>s.currency='EUR'],['missing digest',s=>delete s.digest],['unconfirmed',s=>s.inputs.scopeConfirmed=false],['unreviewed overlap',s=>s.inputs.overlapReviewed=false],['score-derived',s=>s.method.usesDiagnosticScores=true],['confidence claim',s=>s.method.isConfidenceInterval=true],['missing benefit',s=>delete s.benefits.spendingReduction],['unknown treated as zero',s=>s.benefits.spendingReduction.status='not_estimated'],['false complete coverage',s=>s.coverage.missingCategories=['staffCapacity']],['missing monthly allocation',s=>delete s.spendingItems[1].monthlyAllocations],['missing monthly reconciliation',s=>delete s.activities[0].monthlyReconciliation],['duplicate month',s=>s.activities[0].monthlyReconciliation[1].month=1],['wrong monthly value',s=>s.activities[0].monthlyReconciliation[0].potentialHoursFreed.central+=1],['wrong monthly expense',s=>s.spendingItems[1].monthlyAllocations[0].allocatedHours.high+=1],['incorrect gross',s=>s.activities[0].grossHoursFreed.high+=1],['double capacity',s=>s.activities[0].capacityValue.high+=100],['net mismatch',s=>s.totals.netCapacityAndCashValue.central+=1],['known subtotal mismatch',s=>s.totals.knownBenefitSubtotal.low+=1],['wrong cost pairing',s=>s.totals.netKnownBenefitSubtotal.low+=100],['negative retained hours',s=>s.activities[0].potentialHoursFreed.low=-1],['NaN amount',s=>s.spendingItems[0].amount.central=NaN],['duplicate resource',s=>s.inputs.spendingAvoidance.items[0].resourceId=s.inputs.spendingReduction.items[0].resourceId],['wrong labor link',s=>s.inputs.spendingReduction.items[1].capacityActivityId='missing'],['wrong active month',s=>s.inputs.spendingReduction.items[1].startMonth=13],['missing source',s=>s.inputs.spendingReduction.items[0].sourceReference='']];
@@ -70,6 +88,18 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
       await page.setContent(item.html);await page.evaluate(()=>document.fonts.ready);await stylesSettled(page);
       for(const level of levels){await page.locator('.mr-benefit-choice').filter({hasText:new RegExp('^'+level+'$','i')}).click();await stylesSettled(page);eq(await page.locator('.mr-benefit-panel:visible').getAttribute('data-three-benefit-case'),level,'Exactly selected native case visible');eq(await page.evaluate(geometry),[],engine+'/'+width+'/'+name+'/'+level+' geometry');ok(await page.locator('.mr-benefit-panel:visible svg').isVisible(),'Actual Sankey visible including phone');states.push({engine,width,name,level});if(level==='central'){const file=path.join(out,engine+'-'+width+'-'+name+'.png');await page.locator('.mr-benefit-panel:visible').screenshot({path:file});screenshots.push(file);}}
       const central=page.locator('.mr-benefit-radio-central');await central.focus();await page.keyboard.press('ArrowRight');eq(await page.locator('.mr-benefit-radio-high').isChecked(),true,'Native radio keyboard selection');
+      const chart=page.locator('.mr-benefit-panel:visible .mr-benefit-chart'),scroller=chart.locator(':scope > .mr-benefit-scroll');
+      eq(await chart.locator('svg path').evaluateAll(nodes=>new Set(nodes.map(n=>n.getAttribute('fill'))).size),3,'Three distinct benefit-category colors');
+      ok(!(await chart.textContent()).includes('Subscription allocation'),'No subscription allocation inside diagram');
+      const canScroll=await scroller.evaluate(n=>n.scrollWidth>n.clientWidth+1);
+      if(canScroll){
+        await scroller.focus();await page.keyboard.press('ArrowRight');
+        try{await page.waitForFunction(()=>document.activeElement?.scrollLeft>0,null,{timeout:2000});}catch(error){console.error(JSON.stringify({engine,width,name,scroll:await scroller.evaluate(n=>({focus:document.activeElement===n,left:n.scrollLeft,width:n.clientWidth,total:n.scrollWidth,active:document.activeElement.outerHTML.slice(0,300)}))}));throw error;}
+        ok(await scroller.evaluate(n=>n.scrollLeft>0),'Keyboard can pan the actual diagram');
+        await scroller.evaluate(n=>n.scrollTo({left:n.scrollWidth,behavior:'instant'}));
+        await page.waitForFunction(()=>{const n=document.activeElement;return Math.abs(n.scrollWidth-n.clientWidth-n.scrollLeft)<=1;});await stylesSettled(page);
+        ok(await scroller.evaluate(n=>{const r=n.getBoundingClientRect();return [...n.querySelectorAll('.is-right')].every(x=>{const b=x.getBoundingClientRect();return b.left>=r.left-1&&b.right<=r.right+1;});}),'Every benefit total is reachable by native horizontal scrolling');
+      }
       // Print uses a paper-sized layout, not a 320px screen. The PDF below
       // additionally verifies actual page composition and complete values.
       await page.setViewportSize({width:1440,height:1000});await page.emulateMedia({media:'print'});await stylesSettled(page);eq(await page.locator('.mr-benefit-panel:visible').count(),3,'Print shows all cases');eq(await page.evaluate(geometry),[],engine+'/'+width+'/'+name+' print geometry');

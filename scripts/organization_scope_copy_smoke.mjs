@@ -89,10 +89,41 @@ function scripts(html) {
     body: /\btype=["']application\/ld\+json["']/i.test(attrs) ? descriptionsOnly(JSON.parse(body)) : body,
   }));
 }
+// PR #233's reviewed header-layout correction is the only approved executable
+// delta on the sample page. Build that exact expectation from the immutable
+// baseline so every other script body and attribute remains protected.
+const headerHandlersBefore = `    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', function () { setTop(); onScroll(); });`;
+const headerHandlersAfter = `    function onHeaderLayout() { setTop(); onScroll(); }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onHeaderLayout);
+    window.addEventListener('load', onHeaderLayout);
+    // The shared shell can replace its tall fallback layout after this script
+    // runs. Keep the offset tied to the rendered header, including later wraps.
+    if (typeof ResizeObserver === 'function') {
+      new ResizeObserver(onHeaderLayout).observe(header);
+    }`;
+const priorSample = currentPrior('sample-report.html');
+equal(priorSample.split(headerHandlersBefore).length, 2, 'Sample baseline contains exactly one header-layout handler block');
+const approvedSampleScripts = scripts(priorSample.replace(headerHandlersBefore, () => headerHandlersAfter));
+function assertScripts(file, source) {
+  equal(scripts(source), file === 'sample-report.html' ? approvedSampleScripts : scripts(currentPrior(file)),
+    file + ': executable scripts match the exact approved baseline and header-layout correction; only JSON-LD descriptions may vary');
+}
 const styles = html => [...html.matchAll(/<style\b[^>]*>[\s\S]*?<\/style>/gi)].map(match => match[0]);
 for (const file of marketing) {
-  if(file!=='pattern-trial.html')equal(scripts(read(file)),scripts(currentPrior(file)),file+': executable scripts unchanged; only JSON-LD descriptions may vary');
+  if(file!=='pattern-trial.html')assertScripts(file,read(file));
   if(file!=='pattern-trial.html')equal(styles(read(file)),styles(currentPrior(file)),file+': embedded styles unchanged');
+}
+const acceptedSample = read('sample-report.html');
+for (const [label, mutation] of [
+  ['reverted header correction', acceptedSample.replace(headerHandlersAfter, headerHandlersBefore)],
+  ['missing load fallback', acceptedSample.replace("    window.addEventListener('load', onHeaderLayout);\n", '')],
+  ['missing header observer', acceptedSample.replace('      new ResizeObserver(onHeaderLayout).observe(header);\n', '')],
+  ['unrelated executable addition', acceptedSample.replace('</body>', '<script>window.unapprovedBehavior = true;</script></body>')],
+]) {
+  check(mutation !== acceptedSample, label + ': negative control changes the sample page');
+  assert.throws(() => assertScripts('sample-report.html', mutation), /executable scripts match the exact approved baseline/); checks++;
 }
 
 const currentProtection=assertInvitedEvaluationSourceContract(root);

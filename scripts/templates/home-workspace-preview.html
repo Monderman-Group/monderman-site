@@ -3,20 +3,20 @@
   <div class="hwd-app" data-workspace-demo data-demo-selected-journey="cross_lens_synthesis" data-demo-journey-type="cross">
     <div class="hwd-topbar"><span class="hwd-brand">Monderman<span>.</span></span><span class="hwd-workspace-name">Supplier onboarding</span><span class="hwd-sample-chip">Workspace preview</span></div>
     <div class="hwd-tabs" role="tablist" aria-label="Explore the organizational evaluation">
-      <button id="hwd-tab-measure" type="button" role="tab" aria-controls="hwd-panel-measure" aria-selected="false" tabindex="-1"><span>01</span>Gather</button>
-      <button id="hwd-tab-analysis" type="button" role="tab" aria-controls="hwd-panel-analysis" aria-selected="true" tabindex="0"><span>02</span>Evaluate</button>
+      <button id="hwd-tab-measure" type="button" role="tab" aria-controls="hwd-panel-measure" aria-selected="true" tabindex="0"><span>01</span>Gather</button>
+      <button id="hwd-tab-analysis" type="button" role="tab" aria-controls="hwd-panel-analysis" aria-selected="false" tabindex="-1"><span>02</span>Evaluate</button>
       <button id="hwd-tab-actions" type="button" role="tab" aria-controls="hwd-panel-actions" aria-selected="false" tabindex="-1"><span>03</span>Act</button>
       <button id="hwd-tab-return" type="button" role="tab" aria-controls="hwd-panel-return" aria-selected="false" tabindex="-1"><span>04</span>Compare</button>
     </div>
     <div class="hwd-panels" id="hwd-panels">
-      <section class="hwd-panel" id="hwd-panel-measure" role="tabpanel" aria-labelledby="hwd-tab-measure" tabindex="0" hidden>
+      <section class="hwd-panel" id="hwd-panel-measure" role="tabpanel" aria-labelledby="hwd-tab-measure" tabindex="0">
         <div class="hwd-page-heading"><div><p class="hwd-eyebrow">Gather organizational evidence</p><h2>Choose an analysis to explore.</h2></div></div>
         <fieldset class="hwd-journey-choice" hidden><legend>Analysis examples</legend><div class="hwd-journey-options">{{journeyOptions}}</div></fieldset>
         <p class="hwd-description" data-demo-copy="gatherDescription">Ask the people doing, managing and overseeing supplier onboarding about responsibilities, decisions, processes and performance.</p>
         <p class="hwd-participation-note" data-demo-participation>The same {{participants}} people completed all {{lensCount}} diagnostics: {{runCount}} runs, not {{runCount}} people.</p>
         <div class="hwd-next"><span data-demo-copy="gatherNext">Check participation and compatibility before combining evidence across diagnostics.</span><button type="button" data-demo-next="analysis">Evaluate the evidence <span aria-hidden="true">&rarr;</span></button></div>
       </section>
-      <section class="hwd-panel" id="hwd-panel-analysis" role="tabpanel" aria-labelledby="hwd-tab-analysis" tabindex="0">
+      <section class="hwd-panel" id="hwd-panel-analysis" role="tabpanel" aria-labelledby="hwd-tab-analysis" tabindex="0" hidden>
         <div class="hwd-page-heading"><div><p class="hwd-eyebrow" data-demo-product-label>Cross-Lens Synthesis</p><h2 data-demo-copy="evaluateTitle">See which changes could release capacity.</h2></div><button class="hwd-choose" type="button" data-demo-next="measure" hidden>Choose an analysis</button></div>
         <p class="hwd-description" data-demo-copy="evaluateDescription">Compare the four diagnostics together, then test a business case using separate operating records.</p>
         {{evaluationPanels}}

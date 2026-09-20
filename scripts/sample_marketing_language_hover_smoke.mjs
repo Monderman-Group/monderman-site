@@ -170,7 +170,7 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
       check((await page.locator('.home-preview-method').textContent()).includes('central net cash effect is '+money(crossScenario.totals.netCashEffect.central)),'Cash and capacity are not conflated');
     }
     check(!/fictional|generated sample|illustrative interface/i.test(await page.locator('.home-workspace-preview').textContent()),'Repeated preview caveats removed');
-    const heroStates=await buttonStates(page,'.hero-actions .btn-accent',key+'-home-cta',{normal:'rgb(169, 208, 212)',hover:'rgb(196, 225, 227)',text:'rgb(4, 24, 27)'});
+    const heroStates=await buttonStates(page,'.hero-actions .btn-accent',key+'-home-cta',{normal:'rgb(201, 130, 31)',hover:'rgb(240, 196, 125)',text:'rgb(4, 24, 27)'});
     const panels=[];
     for(const name of ['measure','analysis','actions','return']){
       await page.locator('#hwd-tab-'+name).click();equal(await page.locator('[data-workspace-demo] [role="tabpanel"]:visible').count(),1);
