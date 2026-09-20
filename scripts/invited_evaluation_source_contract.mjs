@@ -90,7 +90,7 @@ export function assertInvitedEvaluationSourceContract(root=path.resolve(import.m
   const gatherDefault="  select(app.querySelector('#hwd-tab-measure'));\n";
   assert.equal(journeyRuntime.split(gatherDefault).length,2,'Exactly one explicit Gather initialization');
   assert.equal(journeyRuntime.replace(journeyAddition[0],'').replace(gatherDefault,''),prior('homepage-workspace-demo.js'),'All previous tab, keyboard and next-step behavior remains byte-identical outside Gather initialization');
-  assert.equal(sha(read('enterprise-site.css')),'1f9015b0ba7d9383f93a8d975bdcf9f14ef7f66e48dadb4322dc9eac75d16636','Only the reviewed dark-hero gold accent changes shared CSS');
+  assert.equal(sha(read('enterprise-site.css')),'9ac2256311ff8e0bba5e902c4b22bb2438e690ca980777317ffafed966d7e6d4','Only the reviewed dark-hero gold accent changes shared CSS');
   const executable=html=>[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)].filter(m=>!(/\bsrc\s*=/.test(m[1]))&&!(/type=["']application\/ld\+json/.test(m[1]))).map(m=>m[2]);
   for(const file of ['diagnostics.html','connect.html','plan-enterprise.html'])assert.deepEqual(executable(read(file)),executable(prior(file)),file+': marketing changes do not change embedded behavior');
   assert.equal(sourceBeforeSankeyPresentation(read('monderman-report.js')),prior('monderman-report.js'),'Exact Sankey inverse preserves the previous complete report renderer');

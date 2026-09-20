@@ -476,6 +476,22 @@ body.canonical-green-shell :is(
     color: var(--mdm-color-deep) !important;
     outline-color: var(--mdm-color-amber-light) !important;
   }
+
+  /* Article pages retain the filled desktop header action. Their hero
+     invitation takes a gold outline so the two actions do not compete. */
+  @media (min-width: 1181px) {
+    body.canonical-green-shell:not(.product-surface):not(.homepage-enterprise) .hero .hero-actions > a.btn.btn-primary[href^="pilot.html"] {
+      background: transparent !important;
+      border-color: var(--mdm-color-amber) !important;
+      color: var(--mdm-color-amber-light) !important;
+    }
+
+    body.canonical-green-shell:not(.product-surface):not(.homepage-enterprise) .hero .hero-actions > a.btn.btn-primary[href^="pilot.html"]:is(:hover, :focus-visible) {
+      background: transparent !important;
+      border-color: var(--mdm-color-amber-light) !important;
+      color: var(--mdm-color-amber-light) !important;
+    }
+  }
 }
 
 /* Cards become quieter, more architectural, and less app-like. */

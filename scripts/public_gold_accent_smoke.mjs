@@ -33,9 +33,27 @@ const contrast = (foreground, background) => {
 const colors = locator => locator.evaluate(el => {
   const style = getComputedStyle(el);
   let background = el;
-  while (background && getComputedStyle(background).backgroundColor === 'rgba(0, 0, 0, 0)') background = background.parentElement;
-  return {color: style.color, background: background ? getComputedStyle(background).backgroundColor : 'rgb(255, 255, 255)', border: style.borderBottomColor, leftBorder: style.borderLeftColor, opacity: style.opacity};
+  while (background && getComputedStyle(background).backgroundColor === 'rgba(0, 0, 0, 0)' && getComputedStyle(background).backgroundImage === 'none') background = background.parentElement;
+  const backing = background ? getComputedStyle(background) : null;
+  let backgrounds = [backing ? backing.backgroundColor : 'rgb(255, 255, 255)'];
+  if (backing && backing.backgroundImage !== 'none') {
+    const stops = [...backing.backgroundImage.matchAll(/rgba?\(([^)]+)\)/g)].map(match => match[1].split(',').map(Number));
+    const opaque = stops.filter(stop => stop.length === 3 || stop[3] === 1);
+    if (!opaque.length) throw new Error('Gradient contrast requires an opaque backing stop');
+    let samples = opaque.map(stop => stop.slice(0, 3));
+    const overlays = stops.filter(stop => stop.length === 4 && stop[3] > 0 && stop[3] < 1);
+    for (const pseudo of ['::before', '::after']) {
+      const layer = getComputedStyle(background, pseudo);
+      if (layer.display !== 'none' && layer.content !== 'none') {
+        overlays.push(...[...layer.backgroundImage.matchAll(/rgba?\(([^)]+)\)/g)].map(match => match[1].split(',').map(Number)).filter(stop => stop.length === 4 && stop[3] > 0 && stop[3] < 1));
+      }
+    }
+    for (const overlay of overlays) samples = samples.concat(samples.map(base => base.map((value, i) => value * (1 - overlay[3]) + overlay[i] * overlay[3])));
+    backgrounds = samples.map(sample => 'rgb(' + sample.map(Math.round).join(', ') + ')');
+  }
+  return {color: style.color, background: backgrounds[0], backgrounds, border: style.borderBottomColor, leftBorder: style.borderLeftColor, opacity: style.opacity};
 });
+const minimumContrast = paint => Math.min(...paint.backgrounds.map(background => contrast(paint.color, background)));
 const chromeColors = page => page.locator('.header, .header *, footer.mond-footer, footer.mond-footer *').evaluateAll(elements => elements.map(el => {
   const style = getComputedStyle(el);
   return [el.tagName, el.className, style.color, style.backgroundColor, style.backgroundImage, style.borderColor];
@@ -76,23 +94,33 @@ for (const [engine, type] of [['chromium', chromium], ['webkit', webkit]]) {
         ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), label + ': no horizontal overflow');
         if (heroPages.includes(file)) {
           const cta = page.locator(heroSelector);
+          const outlined = width >= 1181 && file.endsWith('-article.html');
           equal(await cta.count(), 1, label + ': exactly one dark hero invitation request');
           equal((await cta.textContent()).trim(), 'Request an invitation', label + ': approved invitation copy');
           const initial = await colors(cta);
-          equal(initial.background, gold, label + ': invitation fill');
-          equal(initial.color, deep, label + ': dark invitation text');
-          ok(contrast(initial.color, initial.background) >= 4.5, label + ': invitation text contrast');
+          equal(await cta.evaluate(el => getComputedStyle(el).backgroundColor), outlined ? 'rgba(0, 0, 0, 0)' : gold, label + ': invitation fill preserves desktop hierarchy');
+          equal(initial.color, outlined ? lightGold : deep, label + ': invitation text');
+          equal(initial.border, gold, label + ': gold invitation border');
+          const filledHeaderActions = await page.locator('.header .site-entry-link').evaluateAll(nodes => nodes.filter(el => {
+            const box = el.getBoundingClientRect(), style = getComputedStyle(el);
+            return box.width > 0 && box.height > 0 && box.top < innerHeight && box.bottom > 0
+              && style.visibility !== 'hidden' && Number(style.opacity) > 0
+              && ['rgb(169, 208, 212)', 'rgb(196, 225, 227)', 'rgb(201, 130, 31)', 'rgb(12, 110, 120)'].includes(style.backgroundColor);
+          }).length);
+          equal(filledHeaderActions + (outlined ? 0 : 1), 1, label + ': header and hero retain exactly one filled invitation');
+          ok(minimumContrast(initial) >= 4.5, label + ': invitation text contrast across backing colors');
           for (const state of ['hover', 'focus']) {
             if (state === 'hover') await cta.hover();
             else { await page.mouse.move(0, 0); await page.keyboard.press('Tab'); await cta.focus(); }
-            await page.waitForFunction(({selector, target}) => getComputedStyle(document.querySelector(selector)).backgroundColor === target, {selector: heroSelector, target: lightGold});
+            await page.waitForFunction(({selector, target}) => getComputedStyle(document.querySelector(selector)).borderBottomColor === target, {selector: heroSelector, target: lightGold});
             const active = await colors(cta);
-            equal(active.color, deep, label + ': ' + state + ' text');
-            ok(contrast(active.color, active.background) >= 4.5, label + ': ' + state + ' contrast');
+            equal(active.color, outlined ? lightGold : deep, label + ': ' + state + ' text');
+            equal(await cta.evaluate(el => getComputedStyle(el).backgroundColor), outlined ? 'rgba(0, 0, 0, 0)' : lightGold, label + ': ' + state + ' fill');
+            ok(minimumContrast(active) >= 4.5, label + ': ' + state + ' contrast across backing colors');
           }
           await cta.evaluate(el => el.blur());
           await page.mouse.move(0, 0);
-          rows.push({engine, width, file, invitationContrast: contrast(deep, gold), invitationHoverContrast: contrast(deep, lightGold)});
+          rows.push({engine, width, file, outlined, invitationContrast: minimumContrast(initial)});
         }
         if (file === 'index.html') {
           const tabs = page.locator('.hwd-tabs button');
