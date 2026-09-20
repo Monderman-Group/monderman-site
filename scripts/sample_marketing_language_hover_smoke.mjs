@@ -152,8 +152,8 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
       equal(await page.locator('[data-promo-spending-avoidance]').textContent(),money(scenario.totals.futureSpendingAvoidance.central));
       equal(await page.locator('[data-promo-net-cash]').textContent(),money(scenario.totals.netCashEffect.central));
       equal(await page.locator('[data-promo-total-cost]').textContent(),money(scenario.totals.totalImplementationAndSubscriptionCost.central));
-      equal(await page.locator('.md-opportunity>p').allTextContents(),['Retained staff capacity value, not cash savings. Estimate entered.','Named input cases, not ordered bounds. Full assumptions and exact values in the report.']);
-      check((await page.locator('.md-basis').textContent()).includes('Capacity excludes hours assigned to spending benefits.'),'No double-counted capacity');
+      equal(await page.locator('.md-opportunity>p').allTextContents(),['Staff capacity value, not cash savings.','Each case uses different assumptions. Exact values are in the report.']);
+      check((await page.locator('.md-basis').textContent()).includes('Capacity excludes hours counted as spending benefits.'),'No double-counted capacity');
       const assumptions=await page.locator('[data-demo-assumptions-for="structural_clarity"]').textContent();
       for(const level of ['low','central','high'])check(assumptions.includes(money(scenario.totals.existingSpendingReduction[level])+' lower spending; '+money(scenario.totals.futureSpendingAvoidance[level])+' avoided future spending; '+money(scenario.totals.capacityValue[level])+' retained capacity.'),'Every named saved case remains discoverable');
       check(assumptions.includes('Combined value after all costs, central case: '+money(scenario.totals.netKnownBenefitSubtotal.central)),'Saved net planning value retained');
