@@ -1899,8 +1899,15 @@
       pin.style.transform = reduce.matches ? '' : 'translateY(' + (-covered * 20).toFixed(1) + 'px)';
     }
     function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(paint); } }
+    function onHeaderLayout() { setTop(); onScroll(); }
     window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', function () { setTop(); onScroll(); });
+    window.addEventListener('resize', onHeaderLayout);
+    window.addEventListener('load', onHeaderLayout);
+    // The shared shell can replace its tall fallback layout after this script
+    // runs. Keep the offset tied to the rendered header, including later wraps.
+    if (typeof ResizeObserver === 'function') {
+      new ResizeObserver(onHeaderLayout).observe(header);
+    }
     setTop(); paint();
   })();
 </script>
