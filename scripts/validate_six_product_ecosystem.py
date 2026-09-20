@@ -28,7 +28,9 @@ def validate_synthesis_controls(analysis, campaign):
         'Build Depth Synthesis', 'Build Cross-Lens Synthesis',
         'View response comparison', 'data-ca-build',
         "ready=(cross?r.crossLens:r.depth).status==='satisfied'",
-        "$('[data-ca-build]').onclick=", 'const financialScenario=mountFinancialScenario(content);', 'await onReport(current,financialScenario())',
+        "$('[data-ca-build]').onclick=", 'const financialScenario=mountFinancialScenario(content);',
+        'const scenario=financialScenario();', 'await onReport(current,scenario);',
+        'catch(error){message(error.message,true);', 'notice.focus({preventScroll:true});',
     ]:
         assert token in campaign, f'Campaign control missing: {token!r}'
 
