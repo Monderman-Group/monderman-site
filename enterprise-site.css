@@ -313,9 +313,8 @@ body.canonical-green-shell .dx-btn-primary:hover {
 }
 
 /*
- * On dark fields, the primary action uses pale sea-glass with dark ink. This
- * separates navigation and conversion from amber, which is reserved for
- * constrained availability, warnings, and data meaning.
+ * On dark fields, primary actions use pale sea-glass with dark ink. The main
+ * invitation request in a page hero has the bounded gold treatment below.
  */
 body.canonical-green-shell :is(
   .hero,
@@ -442,7 +441,7 @@ body.canonical-green-shell :is(
     outline-offset: 3px !important;
   }
 
-  /* The pilot action retains amber's limited-availability meaning. */
+  /* Legacy pilot treatment; the main hero invitation is filled below. */
   body.canonical-green-shell .hero .pilot-primary {
     background: transparent !important;
     border-color: var(--mdm-amber-light) !important;
@@ -456,6 +455,26 @@ body.canonical-green-shell :is(
     border-color: #FFD99B !important;
     color: #FFD99B !important;
     outline-color: #FFD99B !important;
+  }
+}
+
+/* Gold marks the main invitation request on a dark hero only. Navigation,
+   activation, form submission and calls to action on other surfaces stay teal. */
+@media screen {
+  body.canonical-green-shell :is(.hero .hero-actions, .ps-hero .ps-hero-actions) > a.btn:is(.btn-accent, .btn-primary)[href^="pilot.html"],
+  body.canonical-green-shell .hero .actions > a.pilot-primary[href="#apply"] {
+    background: var(--mdm-color-amber) !important;
+    border-color: var(--mdm-color-amber) !important;
+    color: var(--mdm-color-deep) !important;
+    box-shadow: none !important;
+  }
+
+  body.canonical-green-shell :is(.hero .hero-actions, .ps-hero .ps-hero-actions) > a.btn:is(.btn-accent, .btn-primary)[href^="pilot.html"]:is(:hover, :focus-visible),
+  body.canonical-green-shell .hero .actions > a.pilot-primary[href="#apply"]:is(:hover, :focus-visible) {
+    background: var(--mdm-color-amber-light) !important;
+    border-color: var(--mdm-color-amber-light) !important;
+    color: var(--mdm-color-deep) !important;
+    outline-color: var(--mdm-color-amber-light) !important;
   }
 }
 

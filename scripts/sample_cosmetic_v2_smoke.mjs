@@ -35,13 +35,13 @@ const frozen=Object.fromEntries(sourceFiles.map(f=>[f,sha(read(f))]));
 const oldSearch=JSON.parse(original('public-search-index.json')),newSearch=JSON.parse(read('public-search-index.json'));
 equal(newSearch.map(r=>r.url),oldSearch.map(r=>r.url),'Public search inventory stays public');
 execFileSync('python3',['scripts/build_public_search_index.py','--check'],{cwd:root});
-for(const [page,css,version]of [['index.html','homepage-workspace-demo.css','20260919.journey3'],['sample-report.html','sample-report-production.css','20260915.consistency1'],['workspace-analysis.html','campaign-analysis.css','20260919.benefits1']]){
+for(const [page,css,version]of [['index.html','homepage-workspace-demo.css','20260920.gold1'],['sample-report.html','sample-report-production.css','20260915.consistency1'],['workspace-analysis.html','campaign-analysis.css','20260919.benefits1']]){
   const html=fs.readFileSync(path.join(built,page),'utf8');
   check(html.includes(css+'?v='+version),'Actual built CSS cache key: '+css);
   equal(sha(fs.readFileSync(path.join(built,css))),sha(read(css)));
 }
 const sampleHtml=fs.readFileSync(path.join(built,'sample-report.html'),'utf8');
-for(const [file,version]of [['monderman-report.js','20260919.benefits1'],['sample-report-production.js','20260915.annual1'],['public-sample-model.js','20260915.annual1']]){
+for(const [file,version]of [['monderman-report.js','20260920.flow1'],['sample-report-production.js','20260915.annual1'],['public-sample-model.js','20260915.annual1']]){
   check(sampleHtml.includes(file+'?v='+version),'Reviewed runtime cache: '+file);
   equal(sha(fs.readFileSync(path.join(built,file))),sha(read(file)),'Built bytes equal reviewed source: '+file);
 }

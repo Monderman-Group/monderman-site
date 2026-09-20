@@ -11,7 +11,7 @@ const sha=v=>createHash('sha256').update(v).digest('hex');
 export function assertThreeBenefitSourceContract(root=path.resolve(import.meta.dirname,'..')){
   const read=f=>fs.readFileSync(path.join(root,f),'utf8');
   const before=f=>execFileSync('git',['show',THREE_BENEFIT_BASELINE+':'+f],{cwd:root,encoding:'utf8',maxBuffer:16e6});
-  assert.equal(sha(read('monderman-depth-lure-tile.css')),'bafc7b9ff3116b38f150b08ec348160d0606906e6366cb6add23fd767ec16ef7','Reviewed compact preview and mobile three-benefit amount containment');
+  assert.equal(sha(read('monderman-depth-lure-tile.css')),'00c45faf4d6bea0f4c6175f5d8d308240fcc9ff72d5221726145b0c5996ce558','Reviewed compact preview, mobile containment and approved single gold value');
   const currentForm=read('campaign-analysis.js'),originalForm=before('campaign-analysis.js');
   assert.equal(sha(currentForm),'e06b405673a530bf5a8b0c553a427180c854837e10d216d8818e45294c4dcb3e','Reviewed three-benefit form source');
   const block=/  function mountFinancialScenario\(content\)\{[\s\S]*?(?=  function render\(\))/;

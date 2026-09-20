@@ -71,7 +71,7 @@ export function assertFinancialSampleRevision(entry,update,key){
   }
 }
 
-// Only the current financial receipt can bind re-exported Synthesis PDFs.
+// The current financial or subsequent presentation receipt binds exported PDFs.
 // Historical review records remain untouched; page layout has a separate review.
 export function assertFinancialSamplePdfBinding(update,key,pdfBytes){
   assert.ok(['depth_synthesis','cross_lens_synthesis'].includes(key),'financial PDF product invalid');
@@ -81,6 +81,18 @@ export function assertFinancialSamplePdfBinding(update,key,pdfBytes){
   assert.ok(validHash(pin.sha256),key+' financial PDF digest missing or malformed');
   assert.ok(Number.isSafeInteger(pin.pages)&&pin.pages>0,key+' financial PDF page count invalid');
   assert.equal(sha(pdfBytes),pin.sha256,key+' financial PDF bytes differ from the reviewed revision');
+}
+
+export function currentSynthesisPdfReview(manifest){
+  const review=manifest.benefit_flow_presentation_review;
+  if(!review)return manifest.financial_publication_update;
+  assert.equal(review.version,'benefit-flow-presentation-20260920.1');
+  assert.equal(review.status,'reviewed');assert.equal(review.reviewed_by,'Codex');
+  assert.ok(validTime(review.reviewed_at));assert.equal(review.visual_review,'passed');
+  assert.equal(review.artifact_file_sha256,manifest.artifact_file_sha256,'Presentation must bind unchanged sample data');
+  assert.equal(review.renderer_sha256,manifest.source_files['monderman-report.js'],'Presentation must bind current renderer');
+  assert.equal(review.provider_calls,0);
+  return review;
 }
 
 // Public counts are a projection of the reviewed synthetic campaign, not a
@@ -276,7 +288,7 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
     if(synthesis) {
       if(r.financial_scenario?.version==='operational-planning-scenario-20260919.2'){
         assertFinancialSampleRevision(entry,manifest.financial_publication_update,key);
-        assertFinancialSamplePdfBinding(manifest.financial_publication_update,key,fs.readFileSync(path.join(root,'sample-data/reports/'+key+'.pdf')));
+        assertFinancialSamplePdfBinding(currentSynthesisPdfReview(manifest),key,fs.readFileSync(path.join(root,'sample-data/reports/'+key+'.pdf')));
       }
       assert.equal(r.evidence_assessment?.time_window?.maximum_days,undefined,key+' private qualification limit must not be published');
       assert.equal(r.narrative?.sequenced_action_logic,undefined,key+' internal sequencing duplicate must not be published');

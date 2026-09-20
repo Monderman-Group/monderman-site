@@ -167,4 +167,5 @@
       select(app.querySelector(`#hwd-tab-${button.dataset.demoNext}`), true, true);
     });
   });
+  select(app.querySelector('#hwd-tab-measure'));
 })();
