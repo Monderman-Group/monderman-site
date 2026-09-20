@@ -20,7 +20,10 @@ const sourceNames=[
   'monderman-report.js','participant-evidence-safety.js','public-sample-model.js','sample-report-production.js',
   'scripts/refresh_public_sample_previews.mjs','scripts/templates/home-workspace-preview.html',
 ];
-const names=[artifactName,manifestName,adapterName,...sourceNames];
+// The reviewed financial revision also binds its two published PDF files.
+// Isolated copies must include those exact bytes for the positive control.
+const pdfNames=['sample-data/reports/depth_synthesis.pdf','sample-data/reports/cross_lens_synthesis.pdf'];
+const names=[artifactName,manifestName,adapterName,...sourceNames,...pdfNames];
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const baselineBytes=new Map(names.map(name=>[name,fs.readFileSync(path.join(root,name))]));
 const baselineArtifact=JSON.parse(baselineBytes.get(artifactName));
