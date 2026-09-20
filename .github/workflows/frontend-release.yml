@@ -141,6 +141,12 @@ jobs:
         run: node scripts/saved_synthesis_page_smoke.mjs
       - name: Verify the sample PDF button exports only the selected report
         run: node scripts/sample_selected_pdf_route_smoke.mjs --output=${{ runner.temp }}/sample-selected-pdf
+      - name: Keep sample report navigation below the settled site header
+        env:
+          SAMPLE_HEADER_OUT: ${{ runner.temp }}/sample-header-offset
+        run: |
+          RENDER_GIT_COMMIT="${{ github.sha }}" bash scripts/render-static-build.sh
+          node scripts/sample_header_offset_smoke.mjs
       - name: Verify purchase-confirmation refresh and user/Workspace binding with synthetic responses
         env:
           CHECKOUT_RECOVERY_OUT: ${{ runner.temp }}/checkout-success-recovery
@@ -161,6 +167,7 @@ jobs:
           path: |
             ${{ runner.temp }}/saved-synthesis-page
             ${{ runner.temp }}/sample-selected-pdf
+            ${{ runner.temp }}/sample-header-offset
             ${{ runner.temp }}/checkout-success-recovery
             ${{ runner.temp }}/evaluation-countdown
             /tmp/monderman-readiness-ui-*
