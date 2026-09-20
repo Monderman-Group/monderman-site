@@ -305,11 +305,13 @@ tile_required=[
  'class="md-score-summary"',
  'href="sample-report.html#depth"',
  'Depth Synthesis',
- 'Full assumptions and sensitivity cases in the report.',
+ 'Full assumptions and exact values in the report.',
  'data-promo-capacity','data-promo-net-cash','data-promo-total-cost','data-promo-score',
- 'Potential staff capacity value, not cash savings.',
- 'Rounded planning scenarios. See the assumptions and exact values in the report.',
- 'Net cash effect, after cash costs',
+ 'Retained staff capacity value, not cash savings.',
+ 'Named input cases, not ordered bounds.',
+ 'Net spending effect versus current and planned baselines, after cash costs',
+ 'data-promo-spending-reduction','data-promo-spending-avoidance',
+ 'Capacity excludes hours assigned to spending benefits.',
 ]
 for name,text in [('index.html',idx),('Monderman_Platform_Brief.html',brief)]:
  for asset in ['sample-report-tile.css','monderman-depth-lure-tile.css']:
