@@ -45,8 +45,8 @@ const complete=fixture(),before=JSON.stringify(complete),sections=render(complet
 for(const [place,html]of Object.entries(sections)){
  ok(html.includes('spending-reduction')&&html.includes('spending-avoidance')&&html.includes('capacity'),place+' presents all three categories');
  ok(!html.includes('no cash saving is assumed'),place+' does not assert nonexistent zero cash');
- ok(html.includes('current and planned baselines')||html.includes('separate current and planned baselines'),place+' describes spending baselines');
- ok(html.includes('not measured cash savings')||html.includes('not a measured bank-balance change'),place+' distinguishes assumptions from results');
+ ok(html.includes('current and planned baselines')||(html.includes('Current spending reduced · central case')&&html.includes('Future spending avoided · central case')),place+' describes separate current and future spending');
+ ok(html.includes('not a measured bank-balance change')||(html.includes('Illustrative planning assumptions.')&&html.includes('Staff capacity value, not cash savings.')),place+' distinguishes assumptions and staff capacity from cash results');
 }
 for(const [key,journey]of [['depth_synthesis','structural_clarity'],['cross_lens_synthesis','cross_lens_synthesis']]){
  const s=complete.outputs[key].source.financial_scenario;
@@ -69,7 +69,7 @@ const nonmonotonic=fixture('nonmonotonic');
 const nonmonotonicSections=render(nonmonotonic),nonmonotonicTotals=nonmonotonic.outputs.depth_synthesis.source.financial_scenario.totals.capacityValue;
 ok(nonmonotonicTotals.low>nonmonotonicTotals.central&&nonmonotonicTotals.central>nonmonotonicTotals.high,'Fixture proves declining retained capacity');
 for(const [k,label]of [['low','Low'],['central','Central'],['high','High']]){const benefits=nonmonotonic.outputs.depth_synthesis.source.financial_scenario.benefits;ok(nonmonotonicSections.hero.includes('<dt>'+label+' case</dt><dd>'+money(benefits.spendingReduction.amount[k])+' lower spending; '+money(benefits.spendingAvoidance.amount[k])+' avoided future spending; '+money(nonmonotonicTotals[k])+' retained capacity.</dd>'),'Saved case value remains under its own label');}
-ok(nonmonotonicSections.home.includes('not ordered bounds'),'Preview never presents these as ordered bounds');
+ok(nonmonotonicSections.home.includes('Each case uses different assumptions. Exact values are in the report.'),'Preview identifies assumption cases without presenting ordered bounds');
 const negative=[
  ['unknown projection',s=>s.publication_projection='old'],['missing category',s=>delete s.benefits.spendingAvoidance],
  ['missing-as-zero',s=>s.benefits.spendingReduction.status='not_estimated'],['zero-as-positive',s=>{s.benefits.spendingReduction.status=s.inputs.spendingReduction.status='none_identified';}],

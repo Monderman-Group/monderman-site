@@ -9,11 +9,15 @@ const out = process.env.TILE_OUT || '/tmp/sample-tile-smoke';
 fs.mkdirSync(out, { recursive: true });
 const {artifact}=readPublicSampleFixture();
 const source=artifact.outputs.depth_synthesis.source,scenario=source.financial_scenario;
+assert.equal(scenario.version,'operational-planning-scenario-20260919.2');
 assert.equal(scenario.method.usesDiagnosticScores,false);
 assert.equal(scenario.method.isConfidenceInterval,false);
 const money=value=>value.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
-const range=key=>money(scenario.totals[key].low)+' to '+money(scenario.totals[key].high);
-const roundedMoney=value=>money(Math.abs(value)>=10000?Math.round(value/1000)*1000:value);
+const caseMoney=value=>Math.abs(value)>0&&Math.abs(value)<1?value.toLocaleString('en-US',{style:'currency',currency:'USD',maximumSignificantDigits:3}):money(value);
+const roundedMoney=value=>Math.abs(value)>=10000?money(Math.round(value/1000)*1000):caseMoney(value);
+const benefits=scenario.benefits;
+const statusLabel=benefit=>({estimated:'Estimate entered',none_identified:'Reviewed: none identified',not_estimated:'Not estimated'})[benefit.status];
+const exceptionalStatus=benefit=>benefit.status==='estimated'?'':' '+statusLabel(benefit)+'.';
 
 const browser = await chromium.launch({ headless: true });
 const placements = [
@@ -110,6 +114,8 @@ try {
           }),
           hasWrongRaster: !!el.querySelector('.sample-depth-tile-approved-image'),
           capacity: el.querySelector('[data-promo-capacity]')?.textContent,
+          spendingReduction: el.querySelector('[data-promo-spending-reduction]')?.textContent,
+          spendingAvoidance: el.querySelector('[data-promo-spending-avoidance]')?.textContent,
           netCash: el.querySelector('[data-promo-net-cash]')?.textContent,
           totalCost: el.querySelector('[data-promo-total-cost]')?.textContent,
           obsoleteFinancialFields: el.querySelectorAll('[data-promo-recovery],[data-promo-cost],[data-promo-hours]').length,
@@ -136,18 +142,28 @@ try {
       assert.equal(geometry.linkDisplay, 'block', `${placement.name}/${viewport.name}: sample tile link is hidden`);
       assert(geometry.width > 260 && geometry.width <= 580.5, `${placement.name}/${viewport.name}: tile width is outside the approved seat: ${geometry.width}`);
       assert.equal(geometry.hasWrongRaster, false, `${placement.name}/${viewport.name}: superseded screenshot artifact returned`);
-      assert.equal(geometry.capacity,'About '+roundedMoney(scenario.totals.capacityValue.central));
+      assert.equal(geometry.capacity,'About '+roundedMoney(benefits.staffCapacity.amount.central));
+      assert.equal(await tile.locator('.md-scenario-cases[data-three-benefit-cases]').count(),1,'Current tile must identify the three-benefit planning cases');
       assert.deepEqual(await tile.locator('.md-scenario-cases dt').allTextContents(),['Low','Central','High']);
-      assert.deepEqual(await tile.locator('.md-scenario-cases dd').allTextContents(),['low','central','high'].map(k=>roundedMoney(scenario.totals.capacityValue[k])));
-      assert.equal(geometry.netCash,range('netCashEffect'));
-      assert.equal(geometry.totalCost,range('totalImplementationAndSubscriptionCost'));
+      assert.deepEqual(await tile.locator('.md-scenario-cases dd').allTextContents(),['low','central','high'].map(k=>roundedMoney(benefits.staffCapacity.amount[k])));
+      assert.equal(geometry.spendingReduction,caseMoney(benefits.spendingReduction.amount.central));
+      assert.equal(geometry.spendingAvoidance,caseMoney(benefits.spendingAvoidance.amount.central));
+      assert.equal(geometry.netCash,caseMoney(scenario.totals.netCashEffect.central));
+      assert.equal(geometry.totalCost,money(scenario.totals.totalImplementationAndSubscriptionCost.central));
+      assert.deepEqual(await tile.locator('.md-economics span').allTextContents(),[
+        'Current spending reduced · central case'+exceptionalStatus(benefits.spendingReduction),
+        'Future spending avoided · central case'+exceptionalStatus(benefits.spendingAvoidance),
+        'Net spending benefit after cash costs · central case',
+        'Total cost, including staff time · central case'
+      ],'All three benefit categories and central-case financial meanings must remain explicit');
       assert.equal(geometry.obsoleteFinancialFields,0,'Score-derived recovery must remain absent');
       assert.equal(geometry.actionText,source.ai_report.report.interpretation.recommendations.find(a=>a.action?.trim()).action);
-      assert.equal(geometry.qualification,'Potential staff capacity value, not cash savings.');
+      assert.equal(geometry.qualification,'Staff capacity value, not cash savings.'+exceptionalStatus(benefits.staffCapacity));
       assert.deepEqual(await tile.locator('.md-opportunity>p').allTextContents(),[
-        'Potential staff capacity value, not cash savings.',
-        'Rounded planning scenarios. See the assumptions and exact values in the report.'
-      ],`${placement.name}/${viewport.name}: both capacity and rounded-scenario qualifications must remain visible`);
+        'Staff capacity value, not cash savings.'+exceptionalStatus(benefits.staffCapacity),
+        'Each case uses different assumptions. Exact values are in the report.'
+      ],`${placement.name}/${viewport.name}: capacity and named-case qualifications must remain visible`);
+      assert.equal(await tile.locator('.md-basis').textContent(),'Illustrative planning assumptions. Capacity excludes hours counted as spending benefits. Full inputs and costs in the report.','Financial boundaries and the capacity double-counting qualification must remain complete');
       assert.notEqual(geometry.footDisplay, 'none', `${placement.name}/${viewport.name}: sample and aggregation qualification hidden`);
       assert(geometry.documentWidth <= geometry.viewportWidth + 1, `${placement.name}/${viewport.name}: page overflows horizontally`);
       assert(geometry.rootLeft >= geometry.cardLeft - 1 && geometry.rootRight <= geometry.cardRight + 1, `${placement.name}/${viewport.name}: source component escapes the card horizontally`);
