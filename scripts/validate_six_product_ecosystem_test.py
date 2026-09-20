@@ -57,7 +57,10 @@ for surface,token in [
     ('campaign',"ready=(cross?r.crossLens:r.depth).status==='satisfied'"),
     ('campaign',"$('[data-ca-build]').onclick="),
     ('campaign','const financialScenario=mountFinancialScenario(content);'),
-    ('campaign','await onReport(current,financialScenario())'),
+    ('campaign','const scenario=financialScenario();'),
+    ('campaign','await onReport(current,scenario);'),
+    ('campaign','catch(error){message(error.message,true);'),
+    ('campaign','notice.focus({preventScroll:true});'),
 ]:
     changed=(analysis if surface=='analysis' else campaign).replace(token,'removed-control')
     try:

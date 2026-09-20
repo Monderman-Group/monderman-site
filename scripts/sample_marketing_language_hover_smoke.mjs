@@ -21,6 +21,7 @@ const sourceHashes=Object.fromEntries(tracked.map(file=>[file,sha(fs.readFileSyn
 const disclosure='These reports use realistic example responses to demonstrate Monderman’s analysis and reporting.';
 const money=value=>value.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
 const scenario=artifact.outputs.depth_synthesis.source.financial_scenario;
+const threeBenefit=scenario.version==='operational-planning-scenario-20260919.2';
 assert.equal(scenario.method.usesDiagnosticScores,false);
 assert.equal(scenario.method.isConfidenceInterval,false);
 const range=key=>money(scenario.totals[key].low)+' to '+money(scenario.totals[key].high);
@@ -134,22 +135,40 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
       equal(await financial.locator('[data-demo-hours]').textContent(),whole(totals.potentialHoursFreed.central));
       equal(await financial.locator('[data-demo-capacity]').textContent(),money(totals.capacityValue.central));
       equal(await financial.locator('[data-demo-cost]').textContent(),money(totals.totalImplementationAndSubscriptionCost.central));
-      equal(await financial.locator('.hwd-financial-note').textContent(),'Capacity value is not cash savings. These estimates use operational inputs and change assumptions, not diagnostic scores.');
+      if(source.financial_scenario.version==='operational-planning-scenario-20260919.2'){
+        equal(await financial.locator('[data-demo-spending-reduction]').textContent(),money(totals.existingSpendingReduction.central));
+        equal(await financial.locator('[data-demo-spending-avoidance]').textContent(),money(totals.futureSpendingAvoidance.central));
+        equal(await financial.locator('[data-demo-coverage]').textContent(),'All three benefit categories have been assessed.');
+        equal(await financial.locator('.hwd-financial-note').last().textContent(),'Capacity is not cash savings. Hours assigned to spending benefits are excluded from retained capacity. These estimates use operating records and assumptions, not diagnostic scores.');
+      }else equal(await financial.locator('.hwd-financial-note').textContent(),'Capacity value is not cash savings. These estimates use operational inputs and change assumptions, not diagnostic scores.');
     }
     equal(await page.locator('[data-demo-financial-case]').count(),2,'No financial case invented for the other three Depth previews');
     for(const group of cross.source_groups)equal(await page.locator('[data-demo-lens="'+group.tool_type+'"]').textContent(),whole(group.median_score)+' / 100','Exact per-lens median');
     equal(await page.locator('[data-promo-capacity]').textContent(),'About '+roundedMoney(scenario.totals.capacityValue.central));
     equal(await page.locator('.md-scenario-cases dt').allTextContents(),['Low','Central','High']);
     equal(await page.locator('.md-scenario-cases dd').allTextContents(),['low','central','high'].map(k=>roundedMoney(scenario.totals.capacityValue[k])));
-    equal(await page.locator('[data-promo-net-cash]').textContent(),range('netCashEffect'));
-    equal(await page.locator('[data-promo-total-cost]').textContent(),range('totalImplementationAndSubscriptionCost'));
-    equal(await page.locator('.md-opportunity>p').allTextContents(),[
-      'Potential staff capacity value, not cash savings.',
-      'Rounded planning scenarios. See the assumptions and exact values in the report.'
-    ],'Capacity is not cash and rounded cases retain their assumption reference');
-    check((await page.locator('.md-basis').textContent()).includes(scenario.inputs.measuredPeople+' people over '+scenario.method.measurementDays+' measured days'),'Separate operational measurement basis retained');
-    check((await page.locator('.home-preview-method').textContent()).includes('The low case shows -$27,638'),'Low-case net loss remains discoverable');
-    check((await page.locator('.home-preview-method').textContent()).includes('central net cash effect is -$63,600'),'Cash and capacity are not conflated');
+    if(threeBenefit){
+      equal(await page.locator('[data-promo-spending-reduction]').textContent(),money(scenario.totals.existingSpendingReduction.central));
+      equal(await page.locator('[data-promo-spending-avoidance]').textContent(),money(scenario.totals.futureSpendingAvoidance.central));
+      equal(await page.locator('[data-promo-net-cash]').textContent(),money(scenario.totals.netCashEffect.central));
+      equal(await page.locator('[data-promo-total-cost]').textContent(),money(scenario.totals.totalImplementationAndSubscriptionCost.central));
+      equal(await page.locator('.md-opportunity>p').allTextContents(),['Staff capacity value, not cash savings.','Each case uses different assumptions. Exact values are in the report.']);
+      check((await page.locator('.md-basis').textContent()).includes('Capacity excludes hours counted as spending benefits.'),'No double-counted capacity');
+      const assumptions=await page.locator('[data-demo-assumptions-for="structural_clarity"]').textContent();
+      for(const level of ['low','central','high'])check(assumptions.includes(money(scenario.totals.existingSpendingReduction[level])+' lower spending; '+money(scenario.totals.futureSpendingAvoidance[level])+' avoided future spending; '+money(scenario.totals.capacityValue[level])+' retained capacity.'),'Every named saved case remains discoverable');
+      check(assumptions.includes('Combined value after all costs, central case: '+money(scenario.totals.netKnownBenefitSubtotal.central)),'Saved net planning value retained');
+      check(assumptions.includes('not a measured bank-balance change'),'Cash baseline versus measured savings is explicit');
+    }else{
+      equal(await page.locator('[data-promo-net-cash]').textContent(),range('netCashEffect'));
+      equal(await page.locator('[data-promo-total-cost]').textContent(),range('totalImplementationAndSubscriptionCost'));
+      equal(await page.locator('.md-opportunity>p').allTextContents(),[
+        'Potential staff capacity value, not cash savings.',
+        'Rounded planning scenarios. See the assumptions and exact values in the report.'
+      ],'Capacity is not cash and rounded cases retain their assumption reference');
+      check((await page.locator('.md-basis').textContent()).includes(scenario.inputs.measuredPeople+' people over '+scenario.method.measurementDays+' measured days'),'Separate operational measurement basis retained');
+      check((await page.locator('.home-preview-method').textContent()).includes('The low case shows '+money(crossScenario.totals.netCapacityAndCashValue.low)),'Saved low-case outcome remains discoverable');
+      check((await page.locator('.home-preview-method').textContent()).includes('central net cash effect is '+money(crossScenario.totals.netCashEffect.central)),'Cash and capacity are not conflated');
+    }
     check(!/fictional|generated sample|illustrative interface/i.test(await page.locator('.home-workspace-preview').textContent()),'Repeated preview caveats removed');
     const heroStates=await buttonStates(page,'.hero-actions .btn-accent',key+'-home-cta',{normal:'rgb(169, 208, 212)',hover:'rgb(196, 225, 227)',text:'rgb(4, 24, 27)'});
     const panels=[];

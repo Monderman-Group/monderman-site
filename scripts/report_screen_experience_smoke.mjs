@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
+import {execFileSync} from 'node:child_process';
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const base = process.env.SITE_BASE || process.env.REPORT_BASE || 'http://127.0.0.1:8080';
@@ -166,10 +167,15 @@ for(const key of ['os','dv','sc','ip','synthesis','depth']) {
   await shell.locator('.mr-cover').screenshot({path:path.join(out,key+'-cover-mobile.png')});
   await page.setViewportSize({width:1440,height:1000});
 }
-const invariants=await page.evaluate(async()=>{
+// Preserve the existing v1 control contract with its immutable saved reports;
+// the reviewed current publication now exercises the v2 three-benefit UI.
+const legacyArtifact=JSON.parse(execFileSync('git',['show','b06b72083442f03f7a1e2cadeb5239e4f0449515:sample-data/production-diagnostic-samples.json'],{encoding:'utf8',maxBuffer:32e6}));
+const legacySources=['depth_synthesis','cross_lens_synthesis'].map(key=>legacyArtifact.outputs[key].source);
+const invariants=await page.evaluate(async legacySources=>{
   const artifact=await fetch('sample-data/production-diagnostic-samples.json').then(r=>r.json());
   MondermanPublicSamples.validate(artifact);
-  const models=Object.values(artifact.outputs).map(entry=>MondermanPublicSamples.model(entry,artifact));
+  const models=[...Object.values(artifact.outputs).map(entry=>({model:MondermanPublicSamples.model(entry,artifact),fixture:'current'})),
+    ...legacySources.map(source=>({model:MondermanReport.fromSynthesis(source),fixture:'historical-v1'}))];
   // Planning controls intentionally use the same unique per-mount prefix as
   // section navigation. Validate every binding before removing only this
   // presentation namespace; never discard control attributes or report text.
@@ -198,8 +204,40 @@ const invariants=await page.evaluate(async()=>{
     }
     return groups.length;
   };
+  const normalizeThreeBenefitNamespace=(root,prefix,scenario)=>{
+    const require=(condition,message)=>{if(!condition)throw new Error(message);};
+    const groups=[...root.querySelectorAll('.mr-financial-brief.mr-three-benefit>fieldset')];
+    require(groups.length<=1,'Unexpected three-benefit control group');
+    const levels=['low','central','high'],costCase={low:'high',central:'central',high:'low'};
+    const labels={spendingReduction:'Lower current spending',spendingAvoidance:'Avoided future spending',staffCapacity:'Retained staff capacity'};
+    const headline=value=>(value<0?'-$':'$')+Math.abs(value).toLocaleString('en-US',{maximumFractionDigits:0});
+    for(const group of groups){
+      require(scenario?.version==='operational-planning-scenario-20260919.2','Three-benefit controls require saved v2 source');
+      require(group.querySelectorAll('input').length===3&&group.querySelectorAll('label').length===3&&group.querySelectorAll('.mr-benefit-panel').length===3,'Incomplete three-benefit case controls');
+      for(const [attribute,count]of [['id',3],['name',3],['for',3],['aria-labelledby',0]])require(group.querySelectorAll('['+attribute+']').length===count,'Unexpected three-benefit '+attribute+' attributes');
+      require(group.querySelectorAll('input[checked]').length===1&&group.querySelector('.mr-benefit-radio-central')?.hasAttribute('checked'),'Central three-benefit case must remain selected');
+      for(const level of levels){
+        const input=group.querySelector('.mr-benefit-radio-'+level),label=input?.nextElementSibling;
+        const panel=group.querySelector('.mr-benefit-'+level),inputId=prefix+'-planning-benefit-'+level;
+        require(input?.type==='radio'&&input.value===level&&input.id===inputId&&input.name===prefix+'-planning-benefit','Invalid three-benefit radio binding');
+        require(label?.tagName==='LABEL'&&label.getAttribute('for')===inputId,'Invalid three-benefit label binding');
+        require(panel?.getAttribute('data-three-benefit-case')===level&&panel.querySelector('h3')?.textContent===level[0].toUpperCase()+level.slice(1)+' planning case','Invalid three-benefit case panel');
+        require(panel.querySelectorAll('.mr-benefit-card').length===3,'Missing benefit category');
+        for(const [key,title]of Object.entries(labels)){
+          const card=panel.querySelector('[data-benefit="'+key+'"]'),benefit=scenario.benefits[key],value=benefit.amount[level],amount=card?.querySelector('strong');
+          require(card?.getAttribute('data-status')===benefit.status&&card.querySelector('h4')?.textContent===title,'Invalid benefit category or status');
+          require(amount?.getAttribute('data-saved-value')===String(value)&&amount.textContent===headline(value),'Three-benefit amount differs from saved case');
+        }
+        const net=[...panel.querySelectorAll('.mr-benefit-net strong')],expected=[scenario.totals.totalImplementationAndSubscriptionCost[costCase[level]],scenario.totals.netKnownBenefitSubtotal[level]];
+        require(net.length===2&&net.every((node,index)=>node.getAttribute('data-saved-value')===String(expected[index])&&node.textContent===headline(expected[index])),'Three-benefit cost pairing or net value differs from saved case');
+        input.setAttribute('id','mr-planning-benefit-'+level);input.setAttribute('name','mr-planning-benefit');
+        label.setAttribute('for','mr-planning-benefit-'+level);
+      }
+    }
+    return groups.length;
+  };
   const normalizeSvg = html => html.replace(/id="mr-[^"]+-system-gradient"/g,'id="mr-system-gradient"').replace(/url\(#mr-[^)]+-system-gradient\)/g,'url(#mr-system-gradient)');
-  return models.map(model=>{
+  return models.map(({model,fixture})=>{
     const before=JSON.stringify(model);
     const wrapper=document.createElement('div');document.body.append(wrapper);
     MondermanReport.render(wrapper,model);
@@ -236,20 +274,42 @@ const invariants=await page.evaluate(async()=>{
         negativeControls.push(name);
       }
     }
+    const threeBenefitNegativeControls=[];
+    if(printed.querySelector('.mr-benefit-radio')){
+      for(const [name,mutate]of [
+        ['label target',root=>root.querySelector('.mr-benefit-radio-low+label').setAttribute('for',prefix+'-planning-benefit-high')],
+        ['radio group',root=>root.querySelector('.mr-benefit-radio-low').setAttribute('name','mr-planning-benefit')],
+        ['radio ID',root=>root.querySelector('.mr-benefit-radio-low').id=prefix+'-planning-benefit-high'],
+        ['case panel',root=>root.querySelector('.mr-benefit-low').setAttribute('data-three-benefit-case','high')],
+        ['saved benefit value',root=>root.querySelector('.mr-benefit-card strong').setAttribute('data-saved-value','-1')],
+        ['visible benefit value',root=>root.querySelector('.mr-benefit-card strong').textContent='UNAPPROVED FINANCIAL VALUE'],
+        ['selected case',root=>root.querySelector('.mr-benefit-radio-central').removeAttribute('checked')],
+        ['cost pairing',root=>root.querySelector('.mr-benefit-low .mr-benefit-net strong').setAttribute('data-saved-value',String(model.financialScenario.totals.totalImplementationAndSubscriptionCost.low))],
+      ]){
+        const changed=printed.cloneNode(true);mutate(changed);let rejected=false;
+        try{normalizeThreeBenefitNamespace(changed,prefix,model.financialScenario);}catch{rejected=true;}
+        if(!rejected)throw new Error('Three-benefit preservation guard accepted changed '+name);
+        threeBenefitNegativeControls.push(name);
+      }
+    }
     const planningGroups=normalizePlanningCaseNamespace(printed,prefix);
+    const threeBenefitGroups=normalizeThreeBenefitNamespace(printed,prefix,model.financialScenario);
     const intact=normalizeSvg(printed.innerHTML)===baseline.innerHTML;
     const mutated=JSON.stringify(model)!==before;
     const another=document.createElement('div');document.body.append(another);MondermanReport.render(another,model);
     const ids=[...wrapper.querySelectorAll('[id]'),...another.querySelectorAll('[id]')].map(node=>node.id);
     const unique=ids.length===new Set(ids).size;
     wrapper.remove();another.remove();
-    return {product:model.filenameBase,intact,mutated,unique,planningGroups,negativeControls};
+    return {product:model.filenameBase,fixture,intact,mutated,unique,planningGroups,negativeControls,threeBenefitGroups,threeBenefitNegativeControls};
   });
-});
+},legacySources);
 assert.ok(invariants.every(row=>row.intact&&!row.mutated&&row.unique),JSON.stringify(invariants));
-assert.equal(invariants.filter(row=>row.planningGroups===1).length,2,'Both synthesis products must exercise planning control preservation');
+assert.equal(invariants.filter(row=>row.fixture==='current').length,6,'All six current publications must retain their complete report bodies');
+assert.equal(invariants.filter(row=>row.fixture==='historical-v1'&&row.planningGroups===1).length,2,'Both historical synthesis products must exercise v1 planning control preservation');
 assert.ok(invariants.filter(row=>row.planningGroups).every(row=>row.negativeControls.length===6),'Missing planning preservation negative control');
-fs.writeFileSync(path.join(out,'body-preservation-checks.json'),JSON.stringify({products:invariants.length,rows:invariants},null,2));
+assert.equal(invariants.filter(row=>row.fixture==='current'&&row.threeBenefitGroups===1).length,2,'Both current synthesis products must exercise three-benefit control preservation');
+assert.ok(invariants.filter(row=>row.threeBenefitGroups).every(row=>row.threeBenefitNegativeControls.length===8),'Missing three-benefit preservation negative control');
+fs.writeFileSync(path.join(out,'body-preservation-checks.json'),JSON.stringify({products:6,historicalProducts:2,rows:invariants},null,2));
 await emulateMediaAndSettle(page,'print');
 assert.equal(await page.locator('#report-depth .mr-screen-nav').isVisible(),false,'screen nav appears in print');
 assert.equal(await page.locator('#report-depth .mr-screen-next').isVisible(),false,'screen action appears in print');

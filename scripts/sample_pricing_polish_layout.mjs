@@ -13,6 +13,7 @@ const roles={operational:'People doing the work',managerial:'Managers',executive
 const lenses={structural_clarity:'Structural Clarity',decision_velocity:'Decision Velocity',operational_systems:'Operational Systems',institutional_performance:'Institutional Performance'};
 const browser=await chromium.launch({headless:true});
 try{for(const [key,entry]of Object.entries(artifact.outputs)){
+  if(process.argv.includes('--synthesis-only')&&!key.endsWith('_synthesis'))continue;
   const html=fs.readFileSync(path.join(dir,key+'.html'),'utf8'),source=entry.source.result||entry.source;
   const page=await browser.newPage({viewport:{width:1440,height:1000}});
   await page.route('**/*',async route=>{

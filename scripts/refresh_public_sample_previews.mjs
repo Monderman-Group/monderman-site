@@ -31,6 +31,60 @@ export function depthPreviewEvidence(entry){
   return {group,median,iqr,range,spreadLabel:labels[reads[0].consensus.read]};
 }
 
+// Validate the saved case values without converting unknown categories to zero
+// or sorting retained capacity after its labor allocation. Publication approval
+// remains the separate manifest boundary in refreshPublicSamplePreviews.
+function threeBenefitPreview(s){
+ assert.equal(s?.version,'operational-planning-scenario-20260919.2');
+ assert.equal(s.kind,'synthesis_planning_scenario');assert.equal(s.currency,'USD');
+ assert.equal(s.publication_projection,'three-benefit-scenario-public-20260919.1');
+ assert.match(s.source_identity_digest||'',/^[a-f0-9]{64}$/);
+ assert.equal(s.inputs?.schemaVersion,'operational-planning-input-20260919.2');
+ assert.equal(s.inputs.scopeConfirmed,true);assert.equal(s.inputs.overlapReviewed,true);
+ assert.equal(s.method?.usesDiagnosticScores,false);assert.equal(s.method?.isConfidenceInterval,false);
+ assert.ok(Number.isSafeInteger(s.inputs.horizonMonths)&&s.inputs.horizonMonths>0&&s.inputs.horizonMonths<=36);
+ const levels=['low','central','high'],categories=['spendingReduction','spendingAvoidance','staffCapacity'];
+ const range=(value,{nullable=false,signed=false}={})=>{
+  if(nullable&&value===null)return null;
+  assert.deepEqual(Object.keys(value||{}).sort(),['central','high','low']);
+  for(const k of levels)assert.ok(typeof value[k]==='number'&&Number.isFinite(value[k])&&(signed||value[k]>=0));
+  return value;
+ };
+ for(const key of categories){
+  const b=s.benefits?.[key],input=s.inputs[key==='staffCapacity'?'capacity':key];
+  assert.ok(b&&['estimated','none_identified','not_estimated'].includes(b.status));assert.equal(input?.status,b.status);
+  assert.ok(typeof b.basis==='string'&&b.basis.trim());assert.ok(Array.isArray(b.missingInputs));
+  if(b.status==='not_estimated'){assert.equal(b.amount,null);assert.ok(b.missingInputs.length);}
+  else{range(b.amount);if(b.status==='none_identified')assert.ok(levels.every(k=>b.amount[k]===0));}
+  if(key==='staffCapacity'){
+   if(b.status==='not_estimated')assert.equal(b.hours,null);else{range(b.hours);if(b.status==='none_identified')assert.ok(levels.every(k=>b.hours[k]===0));}
+  }
+ }
+ const expected={estimatedCategories:categories.filter(k=>s.benefits[k].status==='estimated'),zeroCategories:categories.filter(k=>s.benefits[k].status==='none_identified'),missingCategories:categories.filter(k=>s.benefits[k].status==='not_estimated')};
+ for(const [key,value]of Object.entries(expected))assert.deepEqual(s.coverage?.[key],value,'Three-benefit coverage must match the category statuses');
+ assert.equal(s.coverage.complete,!expected.missingCategories.length);
+ const t=s.totals;assert.ok(t);
+ for(const [key,benefit]of [['existingSpendingReduction','spendingReduction'],['futureSpendingAvoidance','spendingAvoidance'],['capacityValue','staffCapacity']])assert.deepEqual(t[key],s.benefits[benefit].amount);
+ assert.deepEqual(t.potentialHoursFreed,s.benefits.staffCapacity.hours);
+ for(const key of ['cashInvestment','totalImplementationAndSubscriptionCost','knownBenefitSubtotal'])range(t[key]);
+ range(t.netKnownBenefitSubtotal,{signed:true});
+ for(const [key,known]of [['netExistingCashEffect',s.benefits.spendingReduction.amount!==null],['netCashEffect',s.benefits.spendingReduction.amount!==null&&s.benefits.spendingAvoidance.amount!==null],['netCapacityAndCashValue',s.coverage.complete]]){if(known)range(t[key],{signed:true});else assert.equal(t[key],null);}
+ const near=(a,b)=>Math.abs(a-b)<=.03+Number.EPSILON*Math.max(Math.abs(a),Math.abs(b))*8;
+ for(const k of levels){
+  const costCase={low:'high',central:'central',high:'low'}[k],subtotal=categories.reduce((sum,key)=>sum+(s.benefits[key].amount?.[k]??0),0);
+  assert.ok(near(subtotal,t.knownBenefitSubtotal[k]));assert.ok(near(t.knownBenefitSubtotal[k]-t.totalImplementationAndSubscriptionCost[costCase],t.netKnownBenefitSubtotal[k]));
+  if(t.netExistingCashEffect)assert.ok(near(t.existingSpendingReduction[k]-t.cashInvestment[costCase],t.netExistingCashEffect[k]));
+  if(t.netCashEffect)assert.ok(near(t.existingSpendingReduction[k]+t.futureSpendingAvoidance[k]-t.cashInvestment[costCase],t.netCashEffect[k]));
+  if(t.netCapacityAndCashValue)assert.ok(near(t.netKnownBenefitSubtotal[k],t.netCapacityAndCashValue[k]));
+ }
+ assert.ok(Array.isArray(s.activities)&&Array.isArray(s.inputs.capacity.activities));
+ if(s.inputs.capacity.status==='estimated'){
+  assert.ok(Number.isSafeInteger(s.inputs.capacity.measuredPeople)&&s.inputs.capacity.measuredPeople>0);assert.ok(typeof s.method.measurementDays==='number'&&s.method.measurementDays>0);
+  assert.ok(s.activities.length&&s.inputs.capacity.activities.length);
+ }else{assert.equal(s.inputs.capacity.measuredPeople,null);assert.equal(s.activities.length,0);assert.equal(s.inputs.capacity.activities.length,0);}
+ return s;
+}
+
 // Pure rendering seam for clearly synthetic offline tests. It does not grant
 // publication approval; the only file-writing entry point requires the manifest.
 export function buildPublicSamplePreviewSections(artifact,template){
@@ -68,9 +122,11 @@ assert.equal(crossEntry.provenance?.synthetic,true);
 assert.equal(evidenceDigest(crossEntry.source),crossEntry.provenance.public_source_sha256,'Cross-Lens preview source differs from its reviewed projection');
 const cross=result(crossEntry),scenario=cross.financial_scenario;
 assert.equal(cross.synthesis_product,'cross_lens_synthesis');
-assert.equal(scenario?.version,'operational-planning-scenario-20260913.1');
+const threeBenefit=scenario?.version==='operational-planning-scenario-20260919.2';
+if(threeBenefit)threeBenefitPreview(scenario);
+else assert.equal(scenario?.version,'operational-planning-scenario-20260913.1');
 assert.equal(scenario.kind,'synthesis_planning_scenario');
-assert.equal(scenario.publication_projection,'operational-scenario-public-20260913.1');
+assert.equal(scenario.publication_projection,threeBenefit?'three-benefit-scenario-public-20260919.1':'operational-scenario-public-20260913.1');
 assert.equal(scenario.currency,'USD');
 assert.equal(scenario.method?.usesDiagnosticScores,false);
 assert.equal(scenario.method?.isConfidenceInterval,false);
@@ -79,16 +135,17 @@ assert.equal(scenario.inputs?.overlapReviewed,true);
 assert.ok(Array.isArray(cross.source_groups)&&cross.source_groups.length>=2);
 const financialRange=key=>{
  const r=scenario.totals?.[key];
+ if(threeBenefit&&r===null)return null;
  assert.deepEqual(Object.keys(r||{}).sort(),['central','high','low']);
  for(const v of Object.values(r)){assert.equal(typeof v,'number');assert.ok(Number.isFinite(v));if(!key.startsWith('net'))assert.ok(v>=0);}
- assert.ok(r.low<=r.central&&r.central<=r.high);
+ if(!threeBenefit)assert.ok(r.low<=r.central&&r.central<=r.high);
  return r;
 };
 const hours=financialRange('potentialHoursFreed'),capacity=financialRange('capacityValue'),cost=financialRange('totalImplementationAndSubscriptionCost'),net=financialRange('netCapacityAndCashValue'),cash=financialRange('netCashEffect');
 const activities=scenario.activities;
-assert.ok(Array.isArray(activities)&&activities.length>0);
-const proposals=scenario.inputs.activities;
-assert.ok(Array.isArray(proposals)&&proposals.some(a=>typeof a.changeBasis==='string'&&a.changeBasis.trim()));
+assert.ok(Array.isArray(activities)&&(threeBenefit||activities.length>0));
+const proposals=threeBenefit?[...scenario.inputs.capacity.activities,...scenario.inputs.spendingReduction.items,...scenario.inputs.spendingAvoidance.items]:scenario.inputs.activities;
+assert.ok(Array.isArray(proposals)&&(threeBenefit||proposals.some(a=>typeof a.changeBasis==='string'&&a.changeBasis.trim())));
 const largest=Math.max(...activities.map(a=>number(a.potentialHoursFreed.central)),1);
 const lensOrder=['structural_clarity','decision_velocity','operational_systems','institutional_performance'];
 assert.deepEqual(cross.source_groups.map(g=>g.tool_type).sort(),[...lensOrder].sort(),'Journey requires all four reviewed lens groups');
@@ -105,6 +162,7 @@ for(const group of groups){
 const depthGroup=depthPreviewEvidence(artifact.outputs.depth_synthesis).group;
 const journeyGroups=groups.map(g=>g.tool_type==='structural_clarity'?depthGroup:g);
 function scenarioView(s,key,title){
+ if(s?.version==='operational-planning-scenario-20260919.2')return threeBenefitView(s,key,title);
  assert.equal(s?.version,'operational-planning-scenario-20260913.1');
  assert.equal(s.kind,'synthesis_planning_scenario');
  assert.equal(s.publication_projection,'operational-scenario-public-20260913.1');
@@ -117,6 +175,24 @@ function scenarioView(s,key,title){
  const chart=key==='cross_lens_synthesis'?'<div class="hwd-chart"><div class="hwd-chart-head"><h3>Where the time could come from</h3><span>Hours / year</span></div>'+rows+'</div>':'';
  const body='<div class="hwd-financial-case" data-demo-financial-case="'+key+'"><h3>'+title+'</h3><p class="hwd-case-basis">Separate operating inputs: '+whole(s.inputs.measuredPeople)+' people over '+whole(s.method.measurementDays)+' days. Central scenario · '+whole(s.inputs.horizonMonths)+' months.</p><div class="hwd-value-grid"><div class="hwd-value-primary"><strong data-demo-hours>'+whole(h.central)+'</strong><span>potential hours released</span></div><div class="hwd-value-primary"><strong data-demo-capacity>'+money(v.central)+'</strong><span>potential staff capacity value</span></div></div><div class="hwd-cost-row"><span>Implementation + subscription</span><strong data-demo-cost>'+money(c.central)+'</strong></div>'+chart+'<p class="hwd-financial-note">Capacity value is not cash savings. These estimates use operational inputs and change assumptions, not diagnostic scores.</p></div>';
  const assumptions='<div data-demo-assumptions-for="'+key+'"'+(key==='cross_lens_synthesis'?'':' hidden')+'><p>Illustrative example. '+whole(s.inputs.measuredPeople)+' people; '+whole(s.method.measurementDays)+' days of operational inputs projected over '+whole(s.inputs.horizonMonths)+' months. Activity reductions and adoption are assumptions. Activities are checked for overlap. The estimate is not scaled to unmeasured staff.</p><dl class="hwd-sensitivity">'+['low','central','high'].map(k=>'<div><dt>'+({low:'Low',central:'Central',high:'High'}[k])+' case</dt><dd>'+whole(h[k])+' hours / '+money(v[k])+' capacity value</dd></div>').join('')+'</dl><p>The low case shows '+money(n.low)+' after implementation and subscription costs. The central net cash effect is '+money(cashRange.central)+': no cash saving is assumed. Capacity value and cash are different; costs include internal staff time. <a href="sample-report.html#'+(key==='structural_clarity'?'depth':'synthesis')+'">Read the full report and assumptions.</a></p></div>';
+ return {body,assumptions};
+}
+const benefitLabels={spendingReduction:'Cash spending reduced',spendingAvoidance:'Future spending avoided',staffCapacity:'Retained staff capacity'};
+const statusLabel=b=>b.status==='not_estimated'?'Not estimated':b.status==='none_identified'?'Reviewed: none identified':'Estimate entered';
+const caseMoney=value=>Math.abs(value)>0&&Math.abs(value)<1?value.toLocaleString('en-US',{style:'currency',currency:'USD',maximumSignificantDigits:3}):money(value);
+const caseNumber=value=>value>0&&value<1?value.toLocaleString('en-US',{maximumSignificantDigits:3}):whole(value);
+const amount=(r,k='central',format=caseMoney)=>r===null?'Not estimated':format(r[k]);
+function benefitCoverage(s){return s.coverage.complete?'All three benefit categories have been assessed.':'Partial assessment: '+s.coverage.missingCategories.map(k=>benefitLabels[k].toLowerCase()).join(', ')+' not estimated. Subtotals include entered categories only.';}
+function threeBenefitView(s,key,title){
+ threeBenefitPreview(s);const t=s.totals,b=s.benefits,c=s.inputs.capacity;
+ const scope=c.status==='estimated'?whole(c.measuredPeople)+' measured people over '+whole(s.method.measurementDays)+' days. ':'Staff capacity: '+statusLabel(b.staffCapacity).toLowerCase()+'. ';
+ const primary=(attr,values,label,status)=>'<div class="hwd-value-primary">'+(values===null?'<span '+attr+'>Not estimated</span>':'<strong '+attr+'>'+amount(values)+'</strong>')+'<span>'+label+(status==='none_identified'?' · reviewed zero':'')+'</span></div>';
+ const hoursCard='<div class="hwd-value-primary">'+(t.potentialHoursFreed===null?'<span data-demo-hours>Not estimated</span>':'<strong data-demo-hours>'+amount(t.potentialHoursFreed,'central',caseNumber)+'</strong>')+'<span>staff hours available for other work</span></div>';
+ const cards=primary('data-demo-spending-reduction',b.spendingReduction.amount,'cash spending reduced',b.spendingReduction.status)+primary('data-demo-spending-avoidance',b.spendingAvoidance.amount,'future spending avoided',b.spendingAvoidance.status)+hoursCard+primary('data-demo-capacity',b.staffCapacity.amount,'retained staff capacity value',b.staffCapacity.status);
+ const body='<div class="hwd-financial-case" data-demo-financial-case="'+key+'" data-demo-financial-version="2"><h3>'+title+'</h3><p class="hwd-case-basis">Separate operating inputs: '+scope+'Central scenario · '+whole(s.inputs.horizonMonths)+' months.</p><div class="hwd-value-grid">'+cards+'</div><div class="hwd-cost-row"><span>Implementation + subscription</span><strong data-demo-cost>'+money(t.totalImplementationAndSubscriptionCost.central)+'</strong></div><p class="hwd-financial-note" data-demo-coverage>'+benefitCoverage(s)+'</p><p class="hwd-financial-note">Capacity is not cash savings. Hours assigned to spending benefits are excluded from retained capacity. These estimates use operating records and assumptions, not diagnostic scores.</p></div>';
+ const cases=['low','central','high'].map(k=>'<div><dt>'+({low:'Low',central:'Central',high:'High'}[k])+' case</dt><dd>'+amount(b.spendingReduction.amount,k)+' lower spending; '+amount(b.spendingAvoidance.amount,k)+' avoided future spending; '+amount(b.staffCapacity.amount,k)+' retained capacity.</dd></div>').join('');
+ const resultLabel=s.coverage.complete?'Combined value after all costs':'Entered-benefit subtotal after all costs';
+ const assumptions='<div data-demo-assumptions-for="'+key+'"'+(key==='cross_lens_synthesis'?'':' hidden')+'><p>Illustrative example. '+scope+whole(s.inputs.horizonMonths)+' planning months. Spending uses current or documented planned baselines. '+benefitCoverage(s)+'</p><dl class="hwd-sensitivity">'+cases+'</dl><p>Low case: net existing-spending effect after cash costs '+amount(t.netExistingCashEffect,'low')+'; net spending effect versus current and planned baselines '+amount(t.netCashEffect,'low')+'. '+resultLabel+', low case: '+caseMoney(t.netKnownBenefitSubtotal.low)+'.</p><p>'+resultLabel+', central case: '+money(t.netKnownBenefitSubtotal.central)+'. Net existing-spending effect after cash costs: '+amount(t.netExistingCashEffect)+'. Net spending effect versus current and planned baselines: '+amount(t.netCashEffect)+'. This is not a measured bank-balance change.</p><p>Low, central and high are input cases, not probability bounds. Retained capacity can fall as more hours fund spending benefits. Gross capacity is spread evenly across planning months; the full report reconciles its allocation. Costs include internal staff time. <a href="sample-report.html#'+(key==='structural_clarity'?'depth':'synthesis')+'">Read the full report and assumptions.</a></p></div>';
  return {body,assumptions};
 }
 const scCase=depth.financial_scenario==null?null:scenarioView(depth.financial_scenario,'structural_clarity','Structural Clarity planning case');
@@ -147,13 +223,13 @@ const values={
  journeyOptions:journeyGroups.map(g=>'<label class="hwd-journey-tile" data-demo-group="'+escape(g.tool_type)+'" data-participants="'+g.participants+'"><input type="radio" name="hwd-journey" value="'+escape(g.tool_type)+'" aria-controls="hwd-panels"><span><strong>'+escape(g.tool_label)+'</strong><small>Depth Synthesis</small><span class="hwd-journey-facts">'+whole(g.participants)+' participants · Median <b data-demo-lens="'+escape(g.tool_type)+'">'+whole(g.median_score)+' / 100</b></span></span></label>').join('')+'<label class="hwd-journey-tile hwd-journey-cross"><input type="radio" name="hwd-journey" value="cross_lens_synthesis" aria-controls="hwd-panels" checked><span><strong>Cross-Lens Synthesis</strong><small>Combine all four diagnostics</small><span class="hwd-journey-facts">'+whole(cross.participant_count)+' participants · '+whole(cross.submitted_run_count)+' runs</span></span></label>',
  evaluationPanels:depthPanels+'<div class="hwd-evidence" data-demo-evaluation="cross_lens_synthesis" data-demo-source-kind="saved_cross_lens_synthesis"><p class="hwd-campaign-label">Example campaign · '+whole(cross.participant_count)+' participants · '+whole(cross.submitted_run_count)+' runs across '+whole(groups.length)+' diagnostics</p>'+crossCase.body+'</div>',
  financialAssumptions:(scCase?.assumptions||'')+crossCase.assumptions,
- people:whole(scenario.inputs.measuredPeople),measurementDays:whole(scenario.method.measurementDays),horizonMonths:whole(scenario.inputs.horizonMonths),
- hours:whole(hours.central),capacity:money(capacity.central),cost:money(cost.central),
+ people:threeBenefit?(scenario.inputs.capacity.measuredPeople===null?'Not estimated':whole(scenario.inputs.capacity.measuredPeople)):whole(scenario.inputs.measuredPeople),measurementDays:scenario.method.measurementDays===null?'Not estimated':whole(scenario.method.measurementDays),horizonMonths:whole(scenario.inputs.horizonMonths),
+ hours:hours===null?'Not estimated':whole(hours.central),capacity:capacity===null?'Not estimated':money(capacity.central),cost:money(cost.central),
  activityRows:activities.map(a=>'<div class="hwd-chart-row hwd-activity-row"><span>'+escape(a.label)+'</span><div class="hwd-track" aria-hidden="true"><i style="width:'+(number(a.potentialHoursFreed.central)/largest*100)+'%"></i></div><strong>'+whole(a.potentialHoursFreed.central)+'</strong></div>').join(''),
- changeProposal:escape(proposals.find(a=>a.changeBasis?.trim()).changeBasis),
- assumptions:escape('Illustrative example. '+whole(scenario.inputs.measuredPeople)+' people; '+whole(scenario.method.measurementDays)+' days of operational inputs projected over '+whole(scenario.inputs.horizonMonths)+' months. Activity reductions and adoption are assumptions. Activities are checked for overlap. The estimate is not scaled to unmeasured staff.'),
- sensitivityRows:['low','central','high'].map(k=>'<div><dt>'+({low:'Low',central:'Central',high:'High'}[k])+' case</dt><dd>'+whole(hours[k])+' hours / '+money(capacity[k])+' capacity value</dd></div>').join(''),
- downside:escape('The low case shows '+money(net.low)+' after implementation and subscription costs. The central net cash effect is '+money(cash.central)+': no cash saving is assumed. Capacity value and cash are different; costs include internal staff time.')
+ changeProposal:escape(proposals.find(a=>a.changeBasis?.trim())?.changeBasis||'No operating benefit estimate has been entered.'),
+ assumptions:escape(threeBenefit?'Illustrative three-benefit scenario. '+benefitCoverage(scenario):'Illustrative example. '+whole(scenario.inputs.measuredPeople)+' people; '+whole(scenario.method.measurementDays)+' days of operational inputs projected over '+whole(scenario.inputs.horizonMonths)+' months. Activity reductions and adoption are assumptions. Activities are checked for overlap. The estimate is not scaled to unmeasured staff.'),
+ sensitivityRows:['low','central','high'].map(k=>'<div><dt>'+({low:'Low',central:'Central',high:'High'}[k])+' case</dt><dd>'+(hours===null?'Not estimated':whole(hours[k])+' hours')+' / '+(capacity===null?'Not estimated':money(capacity[k])+' capacity value')+'</dd></div>').join(''),
+ downside:escape(threeBenefit?'Entered-benefit subtotal after all costs, central case: '+money(scenario.totals.netKnownBenefitSubtotal.central)+'. '+benefitCoverage(scenario):'The low case shows '+money(net.low)+' after implementation and subscription costs. The central net cash effect is '+money(cash.central)+': no cash saving is assumed. Capacity value and cash are different; costs include internal staff time.')
 };
 let hero=template.trimEnd().replace(/\{\{(\w+)\}\}/g,(_,key)=>{assert.ok(key in values,'Unknown preview field '+key);return values[key];});
 assert.ok(!/\{\{/.test(hero));
@@ -164,6 +240,15 @@ function depthCard(place) {
   let opportunity='<div class="md-opportunity"><span>Recorded Structural Clarity score</span><strong data-promo-median>'+whole(med)+' / 100</strong><p>Median of these submitted scores, not an organizational financial estimate.</p></div>',economics='',basis='These submitted scores describe the recorded campaign scope. They do not establish organizational savings or cause. Full evidence in the report.';
   const s=depth.financial_scenario;
   if(s!==null&&s!==undefined){
+   if(s.version==='operational-planning-scenario-20260919.2'){
+    threeBenefitPreview(s);const b=s.benefits,t=s.totals,c=s.inputs.capacity;
+    const central=r=>amount(r),rounded=v=>Math.abs(v)>=10000?money(Math.round(v/1000)*1000):caseMoney(v);
+    const capacityHeadline=b.staffCapacity.amount===null?'<p data-promo-capacity>Not estimated</p>':'<strong data-promo-capacity>About '+rounded(b.staffCapacity.amount.central)+'</strong>';
+    const exceptionalStatus=benefit=>benefit.status==='estimated'?'':' '+statusLabel(benefit)+'.';
+    opportunity='<div class="md-opportunity"><span>'+(c.status==='estimated'?whole(c.measuredPeople)+' measured people · ':'')+whole(s.inputs.horizonMonths)+' months · Central case</span>'+capacityHeadline+'<p>Staff capacity value, not cash savings.'+exceptionalStatus(b.staffCapacity)+'</p><dl class="md-scenario-cases" data-three-benefit-cases>'+['low','central','high'].map(k=>'<div><dt>'+({low:'Low',central:'Central',high:'High'}[k])+'</dt><dd>'+amount(b.staffCapacity.amount,k,rounded)+'</dd></div>').join('')+'</dl><p>Each case uses different assumptions. Exact values are in the report.</p></div>';
+    economics='<div class="md-economics"><div><strong data-promo-spending-reduction>'+central(b.spendingReduction.amount)+'</strong><span>Current spending reduced · central case'+exceptionalStatus(b.spendingReduction)+'</span></div><div><strong data-promo-spending-avoidance>'+central(b.spendingAvoidance.amount)+'</strong><span>Future spending avoided · central case'+exceptionalStatus(b.spendingAvoidance)+'</span></div><div><strong data-promo-net-cash>'+central(t.netCashEffect)+'</strong><span>Net spending benefit after cash costs · central case</span></div><div><strong data-promo-total-cost>'+money(t.totalImplementationAndSubscriptionCost.central)+'</strong><span>Total cost, including staff time · central case</span></div></div>';
+    basis=(s.coverage.complete?'':benefitCoverage(s)+' ')+'Illustrative planning assumptions. Capacity excludes hours counted as spending benefits. Full inputs and costs in the report.';
+   }else{
     assert.equal(s.version,'operational-planning-scenario-20260913.1');assert.equal(s.kind,'synthesis_planning_scenario');
     assert.equal(s.publication_projection,'operational-scenario-public-20260913.1');assert.equal(s.currency,'USD');
     assert.match(s.source_identity_digest||'',/^[a-f0-9]{64}$/);
@@ -181,6 +266,7 @@ function depthCard(place) {
     opportunity='<div class="md-opportunity"><span>'+whole(s.inputs.measuredPeople)+' people · '+whole(s.inputs.horizonMonths)+' months · Central scenario</span><strong data-promo-capacity>About '+roundedMoney(s.totals.capacityValue.central)+'</strong><p>Potential staff capacity value, not cash savings.</p><dl class="md-scenario-cases">'+['low','central','high'].map(k=>'<div><dt>'+({low:'Low',central:'Central',high:'High'}[k])+'</dt><dd>'+roundedMoney(s.totals.capacityValue[k])+'</dd></div>').join('')+'</dl><p>Rounded planning scenarios. See the assumptions and exact values in the report.</p></div>';
     economics='<div class="md-economics"><div><strong data-promo-net-cash>'+valueRange('netCashEffect',{signed:true})+'</strong><span>Net cash effect, after cash costs</span></div><div><strong data-promo-total-cost>'+valueRange('totalImplementationAndSubscriptionCost')+'</strong><span>Implementation and subscription cost, including internal staff time</span></div></div>';
     basis='Separate operational inputs cover '+whole(s.inputs.measuredPeople)+' people over '+whole(s.method.measurementDays)+' measured days. Capacity is not cash; campaign participation does not establish financial accuracy. Full assumptions and sensitivity cases in the report.';
+   }
   }
   const full='sample-report.html#depth';
   return '<aside class="hero-report-proof has-sample-depth-tile" aria-label="Depth Synthesis sample report" data-sample-id="depth_synthesis" data-artifact-sha256="'+artifact.artifact_sha256+'">\n'+

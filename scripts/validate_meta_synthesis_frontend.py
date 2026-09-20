@@ -192,7 +192,13 @@ for token in (
 # Financial inputs are optional, separate data supplied only to the report request.
 require(WORKSPACE, "if(financialScenarioInput!==undefined)requestBody.financial_scenario_input=financialScenarioInput;", "workspace-analysis.html")
 require(CAMPAIGN, "if(!form.elements.includeScenario.checked)return undefined;", "campaign-analysis.js")
-require(CAMPAIGN, "Use measured activity records, not per-person questionnaire opinions or diagnostic scores.", "campaign-analysis.js")
+for token in (
+    "Use operating records and stated assumptions.",
+    "Unestimated benefits are not zero.",
+    "Labor hours assigned to spending benefits must not also be valued as remaining staff capacity.",
+    "schemaVersion:'operational-planning-input-20260919.2'",
+):
+    require(CAMPAIGN, token, "campaign-analysis.js")
 
 # Full-page report is a pure shared renderer, not a second synthesis engine.
 for token in (

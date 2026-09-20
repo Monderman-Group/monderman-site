@@ -291,13 +291,10 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
     await page.reload({waitUntil:'domcontentloaded'});await page.locator('.dv-result-dialog__panel').waitFor({state:'visible'});
   }
   assert.equal(requests.filter(e=>/\/(answer|revise)$/.test(e.path)).length,finalAnswerRequests,'completed reload must not answer');
-  // Retry notices are intentionally short-lived and dismissible. Dismiss the
-  // notices from this fault-injection test before testing persistent footer
-  // geometry, using the same visible control a participant can use.
-  for (const dismiss of await page.locator('#toastStack button[aria-label="Dismiss"]').all()) {
-    if (await dismiss.isVisible()) await dismiss.click();
-  }
-  await page.locator('#toastStack .toast').last().waitFor({state:'detached'});
+  // Let the real short-lived retry notices expire before checking persistent
+  // footer geometry. Clicking a captured dismiss locator races their removal.
+  // The longest production timer is 5.2 seconds plus its 180 ms exit animation.
+  await page.waitForFunction(()=>document.querySelectorAll('#toastStack .toast').length===0,{},{timeout:10000});
   for(const [width,height] of [[375,667],[390,844],[768,1024],[1024,768],[1440,1000]]){
     await page.setViewportSize({width,height});
     if (legacyRecovery) {

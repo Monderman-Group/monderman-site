@@ -16,6 +16,11 @@ on:
       - 'scripts/report_planning_case_presentation_inverse.mjs'
       - 'scripts/report_detailed_sankey_presentation_inverse.mjs'
       - 'scripts/report_mobile_breakdown_presentation_inverse.mjs'
+      - 'scripts/report_three_benefit_presentation_inverse.mjs'
+      - 'scripts/report_three_benefit_smoke.mjs'
+      - 'scripts/fixtures/three-benefit-scenarios.json'
+      - 'scripts/public_sample_three_benefit_preview_smoke.mjs'
+      - 'scripts/three_benefit_source_contract.mjs'
       - 'scripts/report_financial_presentation_inverse.mjs'
       - 'scripts/pricing_public_copy_smoke.mjs'
       - 'scripts/workspace_annual_billing_smoke.mjs'
@@ -192,6 +197,11 @@ on:
       - 'scripts/report_planning_case_presentation_inverse.mjs'
       - 'scripts/report_detailed_sankey_presentation_inverse.mjs'
       - 'scripts/report_mobile_breakdown_presentation_inverse.mjs'
+      - 'scripts/report_three_benefit_presentation_inverse.mjs'
+      - 'scripts/report_three_benefit_smoke.mjs'
+      - 'scripts/fixtures/three-benefit-scenarios.json'
+      - 'scripts/public_sample_three_benefit_preview_smoke.mjs'
+      - 'scripts/three_benefit_source_contract.mjs'
       - 'scripts/report_financial_presentation_inverse.mjs'
       - 'scripts/pricing_public_copy_smoke.mjs'
       - 'scripts/workspace_annual_billing_smoke.mjs'
@@ -365,6 +375,8 @@ jobs:
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
