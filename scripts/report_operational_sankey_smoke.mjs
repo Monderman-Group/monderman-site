@@ -9,6 +9,7 @@ import {execFileSync} from 'node:child_process';
 import {sourceBeforeSankeyPresentation,restoreSankeyPresentationStyles,PRIOR_SANKEY_RENDERER_SHA256} from './report_sankey_presentation_inverse.mjs';
 import {sourceBeforeMobileBreakdownPresentation,restoreMobileBreakdownPresentationStyles,PRIOR_MOBILE_BREAKDOWN_RENDERER_SHA256} from './report_mobile_breakdown_presentation_inverse.mjs';
 const root=path.resolve(import.meta.dirname,'..'),source=fs.readFileSync(path.join(root,'monderman-report.js'),'utf8');
+const publicationSource=fs.readFileSync(path.join(root,'sample-data/production-diagnostic-samples.json'),'utf8');
 // This suite certifies saved v1 reports, not the newer v2 public examples.
 // Keep the complete immutable deployed artifact as its explicit authority.
 const fixtureRevision='b06b72083442f03f7a1e2cadeb5239e4f0449515';
@@ -129,4 +130,4 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){const brows
     pdfs.push({file,qaOnly:true,pages:pages.length,casePages,sha256:sha(fs.readFileSync(file))});await page.close();
   }
 }finally{await browser.close();}}
-eq(errors,[],'No browser errors');eq(unexpected,[],'No service calls');eq(fs.readFileSync(path.join(root,'sample-data/production-diagnostic-samples.json'),'utf8'),fixtureSource,'Publication inputs unchanged');eq(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8'),source,'Renderer stable during test');fs.writeFileSync(path.join(out,'RECEIPT.json'),JSON.stringify({status:'PASS',checks,results,pdfs,rendererSha256:sha(source),sourceSha256:sha(fixtureSource),providerCalls:0,productionCalls:0},null,2)+'\n');console.log(JSON.stringify({status:'PASS',checks,states:results.length,pdfs:pdfs.length,out}));
+eq(errors,[],'No browser errors');eq(unexpected,[],'No service calls');eq(fs.readFileSync(path.join(root,'sample-data/production-diagnostic-samples.json'),'utf8'),publicationSource,'Publication inputs unchanged');eq(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8'),source,'Renderer stable during test');fs.writeFileSync(path.join(out,'RECEIPT.json'),JSON.stringify({status:'PASS',checks,results,pdfs,rendererSha256:sha(source),sourceSha256:sha(fixtureSource),publicationSha256:sha(publicationSource),providerCalls:0,productionCalls:0},null,2)+'\n');console.log(JSON.stringify({status:'PASS',checks,states:results.length,pdfs:pdfs.length,out}));
