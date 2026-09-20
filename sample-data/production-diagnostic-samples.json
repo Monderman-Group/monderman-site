@@ -4148,30 +4148,40 @@
           "scopeId": "sample-depth-synthesis-scope"
         },
         "financial_scenario": {
-          "version": "operational-planning-scenario-20260913.1",
+          "version": "operational-planning-scenario-20260919.2",
           "kind": "synthesis_planning_scenario",
           "currency": "USD",
-          "title": "Supplier onboarding work redesign scenario",
-          "createdAt": "2026-09-15T16:29:10.700Z",
-          "notice": "Planning scenario from the operational inputs and assumptions shown. Not measured savings or a forecast. Capacity value is not cash savings.",
+          "title": "Supplier onboarding improvement plan",
+          "createdAt": "2026-09-20T03:21:15.380Z",
+          "notice": "Planning cases from the operational inputs and assumptions shown. Not measured savings or a forecast. Retained capacity value is not cash savings.",
           "limitations": [
-            "Ranges are user-specified sensitivity scenarios, not probabilities or confidence intervals.",
-            "Time freed is potential capacity; it is not automatically a payroll or cash reduction.",
-            "The planning period assumes the measured activity volume continues. Review seasonality and expected changes.",
+            "The three benefit categories are assessed separately. Missing estimates are not zero; partial subtotals include only entered categories.",
+            "Low, central and high are sensitivity cases, not probabilities or confidence intervals; retained capacity values need not be in increasing order.",
+            "The planning period assumes measured activity volume continues, with capacity spread evenly across months. Review seasonality and planned changes.",
+            "Existing-spend reductions and future-spend avoidance require different baselines. A future spending plan is a customer-declared counterfactual.",
+            "Resource identities and overlap attestations require customer review; the source records have not been independently audited.",
             "Use actual implementation and operating results to update the scenario; a favorable calculation is not proof of effectiveness."
           ],
-          "publication_projection": "operational-scenario-public-20260913.1",
-          "source_identity_digest": "f934fb47a6ea1593368a5d35b3ac4dad6157d2c763a49948de69a12c3c4f6752",
-          "source_identity_notice": "Identifies the original private calculator result. Not a digest of this public projection, a signature or verification of the supplied measurements.",
+          "coverage": {
+            "complete": true,
+            "estimatedCategories": [
+              "spendingReduction",
+              "spendingAvoidance",
+              "staffCapacity"
+            ],
+            "zeroCategories": [],
+            "missingCategories": []
+          },
+          "publication_projection": "three-benefit-scenario-public-20260919.1",
+          "source_identity_digest": "98ad953c0cc17d85b3d28f1cb71e0b373909eecb01c8a98e993f2571ef7a7bf2",
+          "source_identity_notice": "Identifies the original private calculator result; not a signature or verification of the supplied operating records.",
           "scope": {
             "scopeId": "sample-depth-synthesis-scope",
             "label": "Supplier onboarding across the participating operating team"
           },
           "inputs": {
-            "title": "Supplier onboarding work redesign scenario",
-            "measurementStart": "2026-08-16T04:05:34.496Z",
-            "measurementEnd": "2026-09-13T04:05:34.496Z",
-            "measuredPeople": 30,
+            "schemaVersion": "operational-planning-input-20260919.2",
+            "title": "Supplier onboarding improvement plan",
             "horizonMonths": 12,
             "subscriptionCost": 21600,
             "costBasis": "Illustrative 12-month Signal allocation: $21,600 paid annually in advance ($24,000 if paid in installments). External support is incremental cash; internal staff time is separate capacity cost. No costs are counted twice. This is an example assumption, not a customer quotation.",
@@ -4187,130 +4197,1115 @@
               "central": 18000,
               "high": 24000
             },
-            "activities": [
-              {
-                "id": "exception-coordination",
-                "label": "Coordinating supplier exceptions",
-                "measuredHours": 700,
-                "sourceBasis": "time_study",
-                "sourceReference": "Illustrative 28-day activity log: exception coordination, distinct from repeated reviews",
-                "loadedHourlyCost": 110,
-                "reductionPercent": {
-                  "low": 10,
-                  "central": 30,
-                  "high": 40
+            "capacity": {
+              "status": "estimated",
+              "basis": "Illustrative 28-day operating records for 30 people. Distinct activity logs exclude external-service invoices.",
+              "measurementStart": "2026-08-16T04:05:34.496Z",
+              "measurementEnd": "2026-09-13T04:05:34.496Z",
+              "measuredPeople": 30,
+              "activities": [
+                {
+                  "id": "exception-coordination",
+                  "label": "Coordinating supplier exceptions",
+                  "measuredHours": 700,
+                  "sourceBasis": "time_study",
+                  "sourceReference": "Example time log EX-01: exception coordination, excluding repeated reviews",
+                  "loadedHourlyCost": 110,
+                  "changeBasis": "Give each supplier exception one decision owner and collect the required information before review. The example tests a 20–30% time reduction with 70–85% adoption; required checks remain.",
+                  "reductionPercent": {
+                    "low": 20,
+                    "central": 25,
+                    "high": 30
+                  },
+                  "adoptionPercent": {
+                    "low": 70,
+                    "central": 80,
+                    "high": 85
+                  }
                 },
-                "adoptionPercent": {
-                  "low": 40,
-                  "central": 80,
-                  "high": 90
+                {
+                  "id": "repeated-reviews",
+                  "label": "Repeating internal document reviews",
+                  "measuredHours": 500,
+                  "sourceBasis": "time_study",
+                  "sourceReference": "Example time log RV-02: repeated internal reviews, excluding exception coordination",
+                  "loadedHourlyCost": 95,
+                  "changeBasis": "Use one completeness check and a shared record of completed reviews. The example tests a 15–25% time reduction with 70–85% adoption by avoiding repeated checks on unchanged documents.",
+                  "reductionPercent": {
+                    "low": 15,
+                    "central": 20,
+                    "high": 25
+                  },
+                  "adoptionPercent": {
+                    "low": 70,
+                    "central": 80,
+                    "high": 85
+                  }
+                }
+              ]
+            },
+            "spendingReduction": {
+              "status": "estimated",
+              "basis": "Example current expenses that can be reduced: duplicate external checks and paid overtime. Ordinary salaries remain unchanged.",
+              "items": [
+                {
+                  "id": "duplicate-external-checks",
+                  "resourceId": "expense-current-checks",
+                  "label": "Duplicate external supplier checks",
+                  "kind": "non_labor",
+                  "unit": "checks",
+                  "baselineMonthlyUnits": 40,
+                  "unitCost": 350,
+                  "startMonth": 1,
+                  "endMonth": 12,
+                  "sourceReference": "Example invoice baseline CH-01: 40 duplicate checks each month at $350 each",
+                  "changeBasis": "Reuse a valid completed external check instead of commissioning it again. Confirm contractual cancellation rights and retain all mandatory checks.",
+                  "capacityActivityId": null,
+                  "reductionPercent": {
+                    "low": 35,
+                    "central": 45,
+                    "high": 55
+                  },
+                  "adoptionPercent": {
+                    "low": 80,
+                    "central": 85,
+                    "high": 90
+                  }
                 },
-                "changeBasis": "Illustrative proposal: one named decision owner and a complete exception request. The range tests weaker and stronger implementation; it is not an observed improvement.",
-                "avoidableNonLaborCash": {
-                  "low": 0,
-                  "central": 0,
-                  "high": 0
+                {
+                  "id": "paid-overtime",
+                  "resourceId": "expense-current-overtime",
+                  "label": "Paid overtime for supplier exceptions",
+                  "kind": "labor",
+                  "unit": "hours",
+                  "baselineMonthlyUnits": 100,
+                  "unitCost": 80,
+                  "startMonth": 1,
+                  "endMonth": 12,
+                  "sourceReference": "Example payroll baseline OT-02: 100 paid overtime hours each month at $80 per hour",
+                  "changeBasis": "Use released exception-coordination hours to reduce paid overtime. These hours are deducted from capacity available for other work.",
+                  "capacityActivityId": "exception-coordination",
+                  "reductionPercent": {
+                    "low": 10,
+                    "central": 15,
+                    "high": 20
+                  },
+                  "adoptionPercent": {
+                    "low": 80,
+                    "central": 90,
+                    "high": 95
+                  }
+                }
+              ]
+            },
+            "spendingAvoidance": {
+              "status": "estimated",
+              "basis": "Example approved growth plan: added review support from month four and new external verification volume from month seven, without reducing required service.",
+              "items": [
+                {
+                  "id": "planned-review-support",
+                  "resourceId": "expense-planned-review-support",
+                  "label": "Planned additional review support",
+                  "kind": "labor",
+                  "unit": "hours",
+                  "baselineMonthlyUnits": 100,
+                  "unitCost": 95,
+                  "startMonth": 4,
+                  "endMonth": 12,
+                  "sourceReference": "Example approved plan GR-03: 100 additional review-support hours per month from month four at $95 per hour",
+                  "changeBasis": "Use part of the time released from repeated reviews to absorb the planned work. Reduce only the planned hours replaced by that capacity, not an entire hire.",
+                  "capacityActivityId": "repeated-reviews",
+                  "reductionPercent": {
+                    "low": 15,
+                    "central": 30,
+                    "high": 40
+                  },
+                  "adoptionPercent": {
+                    "low": 80,
+                    "central": 85,
+                    "high": 90
+                  }
                 },
-                "cashBasis": "No supplier, contractor or payroll cash reduction is assumed."
-              },
-              {
-                "id": "repeated-reviews",
-                "label": "Repeating internal document reviews",
-                "measuredHours": 500,
-                "sourceBasis": "time_study",
-                "sourceReference": "Illustrative 28-day activity log: repeated review work, excluding exception coordination",
-                "loadedHourlyCost": 95,
-                "reductionPercent": {
-                  "low": 10,
-                  "central": 25,
-                  "high": 35
-                },
-                "adoptionPercent": {
-                  "low": 40,
-                  "central": 80,
-                  "high": 90
-                },
-                "changeBasis": "Illustrative proposal: retain required checks and use a common completeness checklist before review. Reduction and adoption are assumptions to test.",
-                "avoidableNonLaborCash": {
-                  "low": 0,
-                  "central": 0,
-                  "high": 0
-                },
-                "cashBasis": "No non-labor expenditure reduction is assumed."
-              }
-            ]
+                {
+                  "id": "planned-external-checks",
+                  "resourceId": "expense-planned-growth-checks",
+                  "label": "Planned external checks for new suppliers",
+                  "kind": "non_labor",
+                  "unit": "checks",
+                  "baselineMonthlyUnits": 20,
+                  "unitCost": 500,
+                  "startMonth": 7,
+                  "endMonth": 12,
+                  "sourceReference": "Example approved growth budget GR-04: 20 new supplier checks per month from month seven at $500 each, separate from existing duplicate checks",
+                  "changeBasis": "Use accepted shared verification for eligible new suppliers instead of purchasing another check. This planned volume is not included in the current-expense baseline.",
+                  "capacityActivityId": null,
+                  "reductionPercent": {
+                    "low": 55,
+                    "central": 65,
+                    "high": 75
+                  },
+                  "adoptionPercent": {
+                    "low": 80,
+                    "central": 85,
+                    "high": 90
+                  }
+                }
+              ]
+            }
           },
           "method": {
             "measurementDays": 28,
             "horizonDays": 365.25,
             "timeFactor": 13.044642857142858,
             "extrapolation": "The same measured activity and people over the stated period; no scaling to unmeasured staff.",
-            "calculation": "measured activity hours × planning days / measured days × time-reduction assumption × adoption assumption",
+            "calculation": "Gross hours = measured activity hours × planning days / measured days × time-reduction assumption × adoption assumption. Spending = baseline monthly units × unit cost × active months × reduction assumption × adoption assumption.",
             "basis": "Customer-declared operational inputs; Monderman has not independently audited the source records.",
-            "overlap": "Distinct activities only. Non-labor cash avoidance excludes payroll value already counted as capacity.",
+            "overlap": "Each expense resource is counted once across spending categories. Labor-linked hours are excluded from retained capacity value.",
             "isConfidenceInterval": false,
-            "usesDiagnosticScores": false
+            "usesDiagnosticScores": false,
+            "capacityAllocation": "Gross recovered activity hours are spread evenly across planning months. Each labor spending benefit uses linked hours in its active months; those hours are deducted before retained capacity is valued.",
+            "caseInterpretation": "Low, central and high are named input cases, not ordered output bounds. Retained capacity can decrease in a stronger spending case.",
+            "cashInterpretation": "Net cash effect compares spending with the stated current and planned baselines; it is not a measured change in bank balance."
           },
           "participation": {
             "ready": true,
             "statement": "Campaign participation checks are satisfied. They do not establish financial accuracy.",
             "remaining": []
           },
+          "benefits": {
+            "spendingReduction": {
+              "status": "estimated",
+              "basis": "Example current expenses that can be reduced: duplicate external checks and paid overtime. Ordinary salaries remain unchanged.",
+              "missingInputs": [],
+              "amount": {
+                "low": 54720,
+                "central": 77220,
+                "high": 101400
+              }
+            },
+            "spendingAvoidance": {
+              "status": "estimated",
+              "basis": "Example approved growth plan: added review support from month four and new external verification volume from month seven, without reducing required service.",
+              "missingInputs": [],
+              "amount": {
+                "low": 36660,
+                "central": 54952.5,
+                "high": 71280
+              }
+            },
+            "staffCapacity": {
+              "status": "estimated",
+              "basis": "Illustrative 28-day operating records for 30 people. Distinct activity logs exclude external-service invoices.",
+              "missingInputs": [],
+              "amount": {
+                "low": 184861.41,
+                "central": 260404.29,
+                "high": 331940.93
+              },
+              "hours": {
+                "low": 1759.22,
+                "central": 2478.32,
+                "high": 3162.46
+              }
+            }
+          },
           "activities": [
             {
               "id": "exception-coordination",
               "label": "Coordinating supplier exceptions",
-              "potentialHoursFreed": {
-                "low": 365.25,
-                "central": 2191.5,
-                "high": 3287.25
+              "grossHoursFreed": {
+                "low": 1278.38,
+                "central": 1826.25,
+                "high": 2328.47
               },
-              "capacityValue": {
-                "low": 40177.5,
-                "central": 241065,
-                "high": 361597.5
+              "hoursUsedForSpendingReduction": {
+                "low": 96,
+                "central": 162,
+                "high": 228
               },
-              "avoidableNonLaborCash": {
+              "hoursUsedForSpendingAvoidance": {
                 "low": 0,
                 "central": 0,
                 "high": 0
-              }
+              },
+              "potentialHoursFreed": {
+                "low": 1182.38,
+                "central": 1664.25,
+                "high": 2100.47
+              },
+              "capacityValue": {
+                "low": 130061.25,
+                "central": 183067.5,
+                "high": 231051.56
+              },
+              "monthlyReconciliation": [
+                {
+                  "month": 1,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                },
+                {
+                  "month": 2,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                },
+                {
+                  "month": 3,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                },
+                {
+                  "month": 4,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                },
+                {
+                  "month": 5,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                },
+                {
+                  "month": 6,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                },
+                {
+                  "month": 7,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                },
+                {
+                  "month": 8,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                },
+                {
+                  "month": 9,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                },
+                {
+                  "month": 10,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                },
+                {
+                  "month": 11,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                },
+                {
+                  "month": 12,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                }
+              ]
             },
             {
               "id": "repeated-reviews",
               "label": "Repeating internal document reviews",
-              "potentialHoursFreed": {
-                "low": 260.89,
-                "central": 1304.46,
-                "high": 2054.53
+              "grossHoursFreed": {
+                "low": 684.84,
+                "central": 1043.57,
+                "high": 1385.99
               },
-              "capacityValue": {
-                "low": 24784.82,
-                "central": 123924.11,
-                "high": 195180.47
-              },
-              "avoidableNonLaborCash": {
+              "hoursUsedForSpendingReduction": {
                 "low": 0,
                 "central": 0,
                 "high": 0
-              }
+              },
+              "hoursUsedForSpendingAvoidance": {
+                "low": 108,
+                "central": 229.5,
+                "high": 324
+              },
+              "potentialHoursFreed": {
+                "low": 576.84,
+                "central": 814.07,
+                "high": 1061.99
+              },
+              "capacityValue": {
+                "low": 54800.16,
+                "central": 77336.79,
+                "high": 100889.36
+              },
+              "monthlyReconciliation": [
+                {
+                  "month": 1,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  }
+                },
+                {
+                  "month": 2,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  }
+                },
+                {
+                  "month": 3,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  }
+                },
+                {
+                  "month": 4,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  },
+                  "potentialHoursFreed": {
+                    "low": 45.07,
+                    "central": 61.46,
+                    "high": 79.5
+                  }
+                },
+                {
+                  "month": 5,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  },
+                  "potentialHoursFreed": {
+                    "low": 45.07,
+                    "central": 61.46,
+                    "high": 79.5
+                  }
+                },
+                {
+                  "month": 6,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  },
+                  "potentialHoursFreed": {
+                    "low": 45.07,
+                    "central": 61.46,
+                    "high": 79.5
+                  }
+                },
+                {
+                  "month": 7,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  },
+                  "potentialHoursFreed": {
+                    "low": 45.07,
+                    "central": 61.46,
+                    "high": 79.5
+                  }
+                },
+                {
+                  "month": 8,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  },
+                  "potentialHoursFreed": {
+                    "low": 45.07,
+                    "central": 61.46,
+                    "high": 79.5
+                  }
+                },
+                {
+                  "month": 9,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  },
+                  "potentialHoursFreed": {
+                    "low": 45.07,
+                    "central": 61.46,
+                    "high": 79.5
+                  }
+                },
+                {
+                  "month": 10,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  },
+                  "potentialHoursFreed": {
+                    "low": 45.07,
+                    "central": 61.46,
+                    "high": 79.5
+                  }
+                },
+                {
+                  "month": 11,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  },
+                  "potentialHoursFreed": {
+                    "low": 45.07,
+                    "central": 61.46,
+                    "high": 79.5
+                  }
+                },
+                {
+                  "month": 12,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  },
+                  "potentialHoursFreed": {
+                    "low": 45.07,
+                    "central": 61.46,
+                    "high": 79.5
+                  }
+                }
+              ]
+            }
+          ],
+          "spendingItems": [
+            {
+              "id": "duplicate-external-checks",
+              "resourceId": "expense-current-checks",
+              "label": "Duplicate external supplier checks",
+              "category": "spendingReduction",
+              "kind": "non_labor",
+              "unit": "checks",
+              "activeMonths": 12,
+              "capacityActivityId": null,
+              "amount": {
+                "low": 47040,
+                "central": 64260,
+                "high": 83160
+              },
+              "allocatedHours": {
+                "low": 0,
+                "central": 0,
+                "high": 0
+              },
+              "monthlyAllocations": []
+            },
+            {
+              "id": "paid-overtime",
+              "resourceId": "expense-current-overtime",
+              "label": "Paid overtime for supplier exceptions",
+              "category": "spendingReduction",
+              "kind": "labor",
+              "unit": "hours",
+              "activeMonths": 12,
+              "capacityActivityId": "exception-coordination",
+              "amount": {
+                "low": 7680,
+                "central": 12960,
+                "high": 18240
+              },
+              "allocatedHours": {
+                "low": 96,
+                "central": 162,
+                "high": 228
+              },
+              "monthlyAllocations": [
+                {
+                  "month": 1,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                },
+                {
+                  "month": 2,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                },
+                {
+                  "month": 3,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                },
+                {
+                  "month": 4,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                },
+                {
+                  "month": 5,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                },
+                {
+                  "month": 6,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                },
+                {
+                  "month": 7,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                },
+                {
+                  "month": 8,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                },
+                {
+                  "month": 9,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                },
+                {
+                  "month": 10,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                },
+                {
+                  "month": 11,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                },
+                {
+                  "month": 12,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                }
+              ]
+            },
+            {
+              "id": "planned-review-support",
+              "resourceId": "expense-planned-review-support",
+              "label": "Planned additional review support",
+              "category": "spendingAvoidance",
+              "kind": "labor",
+              "unit": "hours",
+              "activeMonths": 9,
+              "capacityActivityId": "repeated-reviews",
+              "amount": {
+                "low": 10260,
+                "central": 21802.5,
+                "high": 30780
+              },
+              "allocatedHours": {
+                "low": 108,
+                "central": 229.5,
+                "high": 324
+              },
+              "monthlyAllocations": [
+                {
+                  "month": 4,
+                  "allocatedHours": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  }
+                },
+                {
+                  "month": 5,
+                  "allocatedHours": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  }
+                },
+                {
+                  "month": 6,
+                  "allocatedHours": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  }
+                },
+                {
+                  "month": 7,
+                  "allocatedHours": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  }
+                },
+                {
+                  "month": 8,
+                  "allocatedHours": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  }
+                },
+                {
+                  "month": 9,
+                  "allocatedHours": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  }
+                },
+                {
+                  "month": 10,
+                  "allocatedHours": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  }
+                },
+                {
+                  "month": 11,
+                  "allocatedHours": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  }
+                },
+                {
+                  "month": 12,
+                  "allocatedHours": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  }
+                }
+              ]
+            },
+            {
+              "id": "planned-external-checks",
+              "resourceId": "expense-planned-growth-checks",
+              "label": "Planned external checks for new suppliers",
+              "category": "spendingAvoidance",
+              "kind": "non_labor",
+              "unit": "checks",
+              "activeMonths": 6,
+              "capacityActivityId": null,
+              "amount": {
+                "low": 26400,
+                "central": 33150,
+                "high": 40500
+              },
+              "allocatedHours": {
+                "low": 0,
+                "central": 0,
+                "high": 0
+              },
+              "monthlyAllocations": []
             }
           ],
           "totals": {
+            "grossPotentialHoursFreed": {
+              "low": 1963.22,
+              "central": 2869.82,
+              "high": 3714.46
+            },
             "potentialHoursFreed": {
-              "low": 626.14,
-              "central": 3495.96,
-              "high": 5341.78
+              "low": 1759.22,
+              "central": 2478.32,
+              "high": 3162.46
             },
             "capacityValue": {
-              "low": 64962.32,
-              "central": 364989.11,
-              "high": 556777.97
+              "low": 184861.41,
+              "central": 260404.29,
+              "high": 331940.93
             },
-            "avoidableNonLaborCash": {
-              "low": 0,
-              "central": 0,
-              "high": 0
+            "existingSpendingReduction": {
+              "low": 54720,
+              "central": 77220,
+              "high": 101400
+            },
+            "futureSpendingAvoidance": {
+              "low": 36660,
+              "central": 54952.5,
+              "high": 71280
             },
             "cashInvestment": {
               "low": 31600,
@@ -4322,15 +5317,30 @@
               "central": 54600,
               "high": 65600
             },
+            "netExistingCashEffect": {
+              "low": 13120,
+              "central": 40620,
+              "high": 69800
+            },
             "netCashEffect": {
-              "low": -41600,
-              "central": -36600,
-              "high": -31600
+              "low": 49780,
+              "central": 95572.5,
+              "high": 141080
             },
             "netCapacityAndCashValue": {
-              "low": -637.68,
-              "central": 310389.11,
-              "high": 513177.97
+              "low": 210641.41,
+              "central": 337976.79,
+              "high": 461020.93
+            },
+            "knownBenefitSubtotal": {
+              "low": 276241.41,
+              "central": 392576.79,
+              "high": 504620.93
+            },
+            "netKnownBenefitSubtotal": {
+              "low": 210641.41,
+              "central": 337976.79,
+              "high": 461020.93
             }
           }
         },
@@ -4963,6 +5973,37 @@
             ],
             "customer_metadata_version": "customer-report-metadata-20260915.1"
           }
+        },
+        "financial_benefit_assessment": {
+          "version": "three-benefit-assessment-20260919.1",
+          "scopeId": "sample-depth-synthesis-scope",
+          "coverage": {
+            "complete": true,
+            "estimatedCategories": [
+              "spendingReduction",
+              "spendingAvoidance",
+              "staffCapacity"
+            ],
+            "zeroCategories": [],
+            "missingCategories": []
+          },
+          "categories": {
+            "spendingReduction": {
+              "status": "estimated",
+              "basis": "Example current expenses that can be reduced: duplicate external checks and paid overtime. Ordinary salaries remain unchanged.",
+              "requiredInputs": []
+            },
+            "spendingAvoidance": {
+              "status": "estimated",
+              "basis": "Example approved growth plan: added review support from month four and new external verification volume from month seven, without reducing required service.",
+              "requiredInputs": []
+            },
+            "staffCapacity": {
+              "status": "estimated",
+              "basis": "Illustrative 28-day operating records for 30 people. Distinct activity logs exclude external-service invoices.",
+              "requiredInputs": []
+            }
+          }
         }
       },
       "provenance": {
@@ -4990,7 +6031,25 @@
         "ai_generated_at": "2026-09-14T13:00:03.587Z",
         "approved_output_sha256": "c3f3083592827dcdd6badccad923bdb2dad232b16f78c9adebd5054b0c73d71a",
         "approved_review_sha256": "a3ed2f1d9ceed4ccb270cb4dfdd45d1ffc16dc9ce8f473877ec65f35a802f98f",
-        "public_source_sha256": "5c9db759f3d0ce64f74d13c26588bfbd91da38a65e3fb8138579f549e1d0f8ea"
+        "public_source_sha256": "946d4b8def9b7b3180b98f9b99ccb35b8710de13a1086870d96150f2d6e71399",
+        "financial_revision": {
+          "version": "three-benefit-sample-revision-20260919.1",
+          "created_at": "2026-09-20T03:21:15.380Z",
+          "original_public_source_sha256": "5c9db759f3d0ce64f74d13c26588bfbd91da38a65e3fb8138579f549e1d0f8ea",
+          "original_financial_scenario_sha256": "162d1b7593a30ac57a04aa3f56276053d93c0960effed76cae7cf27881f3a4f6",
+          "input_sha256": "9a9d72f8bbfa753b3470d4e003c4da19c30d310af6a1c770fc9f4c2c865cc057",
+          "calculator_result_sha256": "98ad953c0cc17d85b3d28f1cb71e0b373909eecb01c8a98e993f2571ef7a7bf2",
+          "public_financial_scenario_sha256": "14a393d8a3d18e88b51b7b5be771aac76975b8f3c737fff33f3ce78713a12226",
+          "public_financial_assessment_sha256": "533f8fa33de7a01992b3d7fa6cb6def2fa15c2399cde0d935110b559eda49705",
+          "unchanged_nonfinancial_source_sha256": "35f48a1cff78b8c75cafdb55b30327db39895e056f1f32d5c1b01e56b3a96e93",
+          "source_files": {
+            "financial-planning-scenario.js": "25676ca554c287b8c038f18f8303ef7d2d145c06615de597e52e865616d9e9f9",
+            "financial-planning-scenario-v2.js": "0756ebea08012173cc8d0321def366c1dc6210a347936a30ec8cc45b3eac17bc",
+            "certification/three-benefit-samples.mjs": "6475ae9a55dcc3d5f0fc555f5c181600eb621d3c75146f3b712130d92bba6c0d",
+            "certification/public-sample-projection.mjs": "c4cea630f3981d402edc26cbdd38d1872e28e02a39497c62fe9bb77ecb4d49bf"
+          },
+          "note": "New illustrative operating inputs calculated deterministically. Original diagnostic evidence, AI interpretation and generation approvals are unchanged; those original approvals do not cover this financial revision."
+        }
       }
     },
     "cross_lens_synthesis": {
@@ -7527,30 +8586,40 @@
           "scopeId": "sample-cross-lens-synthesis-scope"
         },
         "financial_scenario": {
-          "version": "operational-planning-scenario-20260913.1",
+          "version": "operational-planning-scenario-20260919.2",
           "kind": "synthesis_planning_scenario",
           "currency": "USD",
-          "title": "Supplier onboarding work redesign scenario",
-          "createdAt": "2026-09-15T16:29:10.700Z",
-          "notice": "Planning scenario from the operational inputs and assumptions shown. Not measured savings or a forecast. Capacity value is not cash savings.",
+          "title": "Supplier onboarding improvement plan",
+          "createdAt": "2026-09-20T03:21:15.380Z",
+          "notice": "Planning cases from the operational inputs and assumptions shown. Not measured savings or a forecast. Retained capacity value is not cash savings.",
           "limitations": [
-            "Ranges are user-specified sensitivity scenarios, not probabilities or confidence intervals.",
-            "Time freed is potential capacity; it is not automatically a payroll or cash reduction.",
-            "The planning period assumes the measured activity volume continues. Review seasonality and expected changes.",
+            "The three benefit categories are assessed separately. Missing estimates are not zero; partial subtotals include only entered categories.",
+            "Low, central and high are sensitivity cases, not probabilities or confidence intervals; retained capacity values need not be in increasing order.",
+            "The planning period assumes measured activity volume continues, with capacity spread evenly across months. Review seasonality and planned changes.",
+            "Existing-spend reductions and future-spend avoidance require different baselines. A future spending plan is a customer-declared counterfactual.",
+            "Resource identities and overlap attestations require customer review; the source records have not been independently audited.",
             "Use actual implementation and operating results to update the scenario; a favorable calculation is not proof of effectiveness."
           ],
-          "publication_projection": "operational-scenario-public-20260913.1",
-          "source_identity_digest": "e52e9b92191b60752b636701b6d25cb02df28bbf7e5baf4d198fbc8a26d83f01",
-          "source_identity_notice": "Identifies the original private calculator result. Not a digest of this public projection, a signature or verification of the supplied measurements.",
+          "coverage": {
+            "complete": true,
+            "estimatedCategories": [
+              "spendingReduction",
+              "spendingAvoidance",
+              "staffCapacity"
+            ],
+            "zeroCategories": [],
+            "missingCategories": []
+          },
+          "publication_projection": "three-benefit-scenario-public-20260919.1",
+          "source_identity_digest": "b9661b1ed0b0bade22c894b62a6c9882caa79db14c2e84f3300d7afde607e011",
+          "source_identity_notice": "Identifies the original private calculator result; not a signature or verification of the supplied operating records.",
           "scope": {
             "scopeId": "sample-cross-lens-synthesis-scope",
             "label": "Supplier onboarding across the participating operating team"
           },
           "inputs": {
-            "title": "Supplier onboarding work redesign scenario",
-            "measurementStart": "2026-08-16T04:05:34.496Z",
-            "measurementEnd": "2026-09-13T04:05:34.496Z",
-            "measuredPeople": 30,
+            "schemaVersion": "operational-planning-input-20260919.2",
+            "title": "Supplier onboarding improvement plan",
             "horizonMonths": 12,
             "subscriptionCost": 48600,
             "costBasis": "Illustrative 12-month Pattern allocation: $48,600 paid annually in advance ($54,000 if paid in installments). External support is incremental cash; internal staff time is separate capacity cost. No costs are counted twice. This is an example assumption, not a customer quotation.",
@@ -7566,130 +8635,1115 @@
               "central": 18000,
               "high": 24000
             },
-            "activities": [
-              {
-                "id": "exception-coordination",
-                "label": "Coordinating supplier exceptions",
-                "measuredHours": 700,
-                "sourceBasis": "time_study",
-                "sourceReference": "Illustrative 28-day activity log: exception coordination, distinct from repeated reviews",
-                "loadedHourlyCost": 110,
-                "reductionPercent": {
-                  "low": 10,
-                  "central": 30,
-                  "high": 40
+            "capacity": {
+              "status": "estimated",
+              "basis": "Illustrative 28-day operating records for 30 people. Distinct activity logs exclude external-service invoices.",
+              "measurementStart": "2026-08-16T04:05:34.496Z",
+              "measurementEnd": "2026-09-13T04:05:34.496Z",
+              "measuredPeople": 30,
+              "activities": [
+                {
+                  "id": "exception-coordination",
+                  "label": "Coordinating supplier exceptions",
+                  "measuredHours": 700,
+                  "sourceBasis": "time_study",
+                  "sourceReference": "Example time log EX-01: exception coordination, excluding repeated reviews",
+                  "loadedHourlyCost": 110,
+                  "changeBasis": "Give each supplier exception one decision owner and collect the required information before review. The example tests a 20–30% time reduction with 70–85% adoption; required checks remain.",
+                  "reductionPercent": {
+                    "low": 20,
+                    "central": 25,
+                    "high": 30
+                  },
+                  "adoptionPercent": {
+                    "low": 70,
+                    "central": 80,
+                    "high": 85
+                  }
                 },
-                "adoptionPercent": {
-                  "low": 40,
-                  "central": 80,
-                  "high": 90
+                {
+                  "id": "repeated-reviews",
+                  "label": "Repeating internal document reviews",
+                  "measuredHours": 500,
+                  "sourceBasis": "time_study",
+                  "sourceReference": "Example time log RV-02: repeated internal reviews, excluding exception coordination",
+                  "loadedHourlyCost": 95,
+                  "changeBasis": "Use one completeness check and a shared record of completed reviews. The example tests a 15–25% time reduction with 70–85% adoption by avoiding repeated checks on unchanged documents.",
+                  "reductionPercent": {
+                    "low": 15,
+                    "central": 20,
+                    "high": 25
+                  },
+                  "adoptionPercent": {
+                    "low": 70,
+                    "central": 80,
+                    "high": 85
+                  }
+                }
+              ]
+            },
+            "spendingReduction": {
+              "status": "estimated",
+              "basis": "Example current expenses that can be reduced: duplicate external checks and paid overtime. Ordinary salaries remain unchanged.",
+              "items": [
+                {
+                  "id": "duplicate-external-checks",
+                  "resourceId": "expense-current-checks",
+                  "label": "Duplicate external supplier checks",
+                  "kind": "non_labor",
+                  "unit": "checks",
+                  "baselineMonthlyUnits": 40,
+                  "unitCost": 350,
+                  "startMonth": 1,
+                  "endMonth": 12,
+                  "sourceReference": "Example invoice baseline CH-01: 40 duplicate checks each month at $350 each",
+                  "changeBasis": "Reuse a valid completed external check instead of commissioning it again. Confirm contractual cancellation rights and retain all mandatory checks.",
+                  "capacityActivityId": null,
+                  "reductionPercent": {
+                    "low": 35,
+                    "central": 45,
+                    "high": 55
+                  },
+                  "adoptionPercent": {
+                    "low": 80,
+                    "central": 85,
+                    "high": 90
+                  }
                 },
-                "changeBasis": "Illustrative proposal: one named decision owner and a complete exception request. The range tests weaker and stronger implementation; it is not an observed improvement.",
-                "avoidableNonLaborCash": {
-                  "low": 0,
-                  "central": 0,
-                  "high": 0
+                {
+                  "id": "paid-overtime",
+                  "resourceId": "expense-current-overtime",
+                  "label": "Paid overtime for supplier exceptions",
+                  "kind": "labor",
+                  "unit": "hours",
+                  "baselineMonthlyUnits": 100,
+                  "unitCost": 80,
+                  "startMonth": 1,
+                  "endMonth": 12,
+                  "sourceReference": "Example payroll baseline OT-02: 100 paid overtime hours each month at $80 per hour",
+                  "changeBasis": "Use released exception-coordination hours to reduce paid overtime. These hours are deducted from capacity available for other work.",
+                  "capacityActivityId": "exception-coordination",
+                  "reductionPercent": {
+                    "low": 10,
+                    "central": 15,
+                    "high": 20
+                  },
+                  "adoptionPercent": {
+                    "low": 80,
+                    "central": 90,
+                    "high": 95
+                  }
+                }
+              ]
+            },
+            "spendingAvoidance": {
+              "status": "estimated",
+              "basis": "Example approved growth plan: added review support from month four and new external verification volume from month seven, without reducing required service.",
+              "items": [
+                {
+                  "id": "planned-review-support",
+                  "resourceId": "expense-planned-review-support",
+                  "label": "Planned additional review support",
+                  "kind": "labor",
+                  "unit": "hours",
+                  "baselineMonthlyUnits": 100,
+                  "unitCost": 95,
+                  "startMonth": 4,
+                  "endMonth": 12,
+                  "sourceReference": "Example approved plan GR-03: 100 additional review-support hours per month from month four at $95 per hour",
+                  "changeBasis": "Use part of the time released from repeated reviews to absorb the planned work. Reduce only the planned hours replaced by that capacity, not an entire hire.",
+                  "capacityActivityId": "repeated-reviews",
+                  "reductionPercent": {
+                    "low": 15,
+                    "central": 30,
+                    "high": 40
+                  },
+                  "adoptionPercent": {
+                    "low": 80,
+                    "central": 85,
+                    "high": 90
+                  }
                 },
-                "cashBasis": "No supplier, contractor or payroll cash reduction is assumed."
-              },
-              {
-                "id": "repeated-reviews",
-                "label": "Repeating internal document reviews",
-                "measuredHours": 500,
-                "sourceBasis": "time_study",
-                "sourceReference": "Illustrative 28-day activity log: repeated review work, excluding exception coordination",
-                "loadedHourlyCost": 95,
-                "reductionPercent": {
-                  "low": 10,
-                  "central": 25,
-                  "high": 35
-                },
-                "adoptionPercent": {
-                  "low": 40,
-                  "central": 80,
-                  "high": 90
-                },
-                "changeBasis": "Illustrative proposal: retain required checks and use a common completeness checklist before review. Reduction and adoption are assumptions to test.",
-                "avoidableNonLaborCash": {
-                  "low": 0,
-                  "central": 0,
-                  "high": 0
-                },
-                "cashBasis": "No non-labor expenditure reduction is assumed."
-              }
-            ]
+                {
+                  "id": "planned-external-checks",
+                  "resourceId": "expense-planned-growth-checks",
+                  "label": "Planned external checks for new suppliers",
+                  "kind": "non_labor",
+                  "unit": "checks",
+                  "baselineMonthlyUnits": 20,
+                  "unitCost": 500,
+                  "startMonth": 7,
+                  "endMonth": 12,
+                  "sourceReference": "Example approved growth budget GR-04: 20 new supplier checks per month from month seven at $500 each, separate from existing duplicate checks",
+                  "changeBasis": "Use accepted shared verification for eligible new suppliers instead of purchasing another check. This planned volume is not included in the current-expense baseline.",
+                  "capacityActivityId": null,
+                  "reductionPercent": {
+                    "low": 55,
+                    "central": 65,
+                    "high": 75
+                  },
+                  "adoptionPercent": {
+                    "low": 80,
+                    "central": 85,
+                    "high": 90
+                  }
+                }
+              ]
+            }
           },
           "method": {
             "measurementDays": 28,
             "horizonDays": 365.25,
             "timeFactor": 13.044642857142858,
             "extrapolation": "The same measured activity and people over the stated period; no scaling to unmeasured staff.",
-            "calculation": "measured activity hours × planning days / measured days × time-reduction assumption × adoption assumption",
+            "calculation": "Gross hours = measured activity hours × planning days / measured days × time-reduction assumption × adoption assumption. Spending = baseline monthly units × unit cost × active months × reduction assumption × adoption assumption.",
             "basis": "Customer-declared operational inputs; Monderman has not independently audited the source records.",
-            "overlap": "Distinct activities only. Non-labor cash avoidance excludes payroll value already counted as capacity.",
+            "overlap": "Each expense resource is counted once across spending categories. Labor-linked hours are excluded from retained capacity value.",
             "isConfidenceInterval": false,
-            "usesDiagnosticScores": false
+            "usesDiagnosticScores": false,
+            "capacityAllocation": "Gross recovered activity hours are spread evenly across planning months. Each labor spending benefit uses linked hours in its active months; those hours are deducted before retained capacity is valued.",
+            "caseInterpretation": "Low, central and high are named input cases, not ordered output bounds. Retained capacity can decrease in a stronger spending case.",
+            "cashInterpretation": "Net cash effect compares spending with the stated current and planned baselines; it is not a measured change in bank balance."
           },
           "participation": {
             "ready": true,
             "statement": "Campaign participation checks are satisfied. They do not establish financial accuracy.",
             "remaining": []
           },
+          "benefits": {
+            "spendingReduction": {
+              "status": "estimated",
+              "basis": "Example current expenses that can be reduced: duplicate external checks and paid overtime. Ordinary salaries remain unchanged.",
+              "missingInputs": [],
+              "amount": {
+                "low": 54720,
+                "central": 77220,
+                "high": 101400
+              }
+            },
+            "spendingAvoidance": {
+              "status": "estimated",
+              "basis": "Example approved growth plan: added review support from month four and new external verification volume from month seven, without reducing required service.",
+              "missingInputs": [],
+              "amount": {
+                "low": 36660,
+                "central": 54952.5,
+                "high": 71280
+              }
+            },
+            "staffCapacity": {
+              "status": "estimated",
+              "basis": "Illustrative 28-day operating records for 30 people. Distinct activity logs exclude external-service invoices.",
+              "missingInputs": [],
+              "amount": {
+                "low": 184861.41,
+                "central": 260404.29,
+                "high": 331940.93
+              },
+              "hours": {
+                "low": 1759.22,
+                "central": 2478.32,
+                "high": 3162.46
+              }
+            }
+          },
           "activities": [
             {
               "id": "exception-coordination",
               "label": "Coordinating supplier exceptions",
-              "potentialHoursFreed": {
-                "low": 365.25,
-                "central": 2191.5,
-                "high": 3287.25
+              "grossHoursFreed": {
+                "low": 1278.38,
+                "central": 1826.25,
+                "high": 2328.47
               },
-              "capacityValue": {
-                "low": 40177.5,
-                "central": 241065,
-                "high": 361597.5
+              "hoursUsedForSpendingReduction": {
+                "low": 96,
+                "central": 162,
+                "high": 228
               },
-              "avoidableNonLaborCash": {
+              "hoursUsedForSpendingAvoidance": {
                 "low": 0,
                 "central": 0,
                 "high": 0
-              }
+              },
+              "potentialHoursFreed": {
+                "low": 1182.38,
+                "central": 1664.25,
+                "high": 2100.47
+              },
+              "capacityValue": {
+                "low": 130061.25,
+                "central": 183067.5,
+                "high": 231051.56
+              },
+              "monthlyReconciliation": [
+                {
+                  "month": 1,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                },
+                {
+                  "month": 2,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                },
+                {
+                  "month": 3,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                },
+                {
+                  "month": 4,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                },
+                {
+                  "month": 5,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                },
+                {
+                  "month": 6,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                },
+                {
+                  "month": 7,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                },
+                {
+                  "month": 8,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                },
+                {
+                  "month": 9,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                },
+                {
+                  "month": 10,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                },
+                {
+                  "month": 11,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                },
+                {
+                  "month": 12,
+                  "grossHoursFreed": {
+                    "low": 106.53,
+                    "central": 152.19,
+                    "high": 194.04
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 98.53,
+                    "central": 138.69,
+                    "high": 175.04
+                  }
+                }
+              ]
             },
             {
               "id": "repeated-reviews",
               "label": "Repeating internal document reviews",
-              "potentialHoursFreed": {
-                "low": 260.89,
-                "central": 1304.46,
-                "high": 2054.53
+              "grossHoursFreed": {
+                "low": 684.84,
+                "central": 1043.57,
+                "high": 1385.99
               },
-              "capacityValue": {
-                "low": 24784.82,
-                "central": 123924.11,
-                "high": 195180.47
-              },
-              "avoidableNonLaborCash": {
+              "hoursUsedForSpendingReduction": {
                 "low": 0,
                 "central": 0,
                 "high": 0
-              }
+              },
+              "hoursUsedForSpendingAvoidance": {
+                "low": 108,
+                "central": 229.5,
+                "high": 324
+              },
+              "potentialHoursFreed": {
+                "low": 576.84,
+                "central": 814.07,
+                "high": 1061.99
+              },
+              "capacityValue": {
+                "low": 54800.16,
+                "central": 77336.79,
+                "high": 100889.36
+              },
+              "monthlyReconciliation": [
+                {
+                  "month": 1,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  }
+                },
+                {
+                  "month": 2,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  }
+                },
+                {
+                  "month": 3,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "potentialHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  }
+                },
+                {
+                  "month": 4,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  },
+                  "potentialHoursFreed": {
+                    "low": 45.07,
+                    "central": 61.46,
+                    "high": 79.5
+                  }
+                },
+                {
+                  "month": 5,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  },
+                  "potentialHoursFreed": {
+                    "low": 45.07,
+                    "central": 61.46,
+                    "high": 79.5
+                  }
+                },
+                {
+                  "month": 6,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  },
+                  "potentialHoursFreed": {
+                    "low": 45.07,
+                    "central": 61.46,
+                    "high": 79.5
+                  }
+                },
+                {
+                  "month": 7,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  },
+                  "potentialHoursFreed": {
+                    "low": 45.07,
+                    "central": 61.46,
+                    "high": 79.5
+                  }
+                },
+                {
+                  "month": 8,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  },
+                  "potentialHoursFreed": {
+                    "low": 45.07,
+                    "central": 61.46,
+                    "high": 79.5
+                  }
+                },
+                {
+                  "month": 9,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  },
+                  "potentialHoursFreed": {
+                    "low": 45.07,
+                    "central": 61.46,
+                    "high": 79.5
+                  }
+                },
+                {
+                  "month": 10,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  },
+                  "potentialHoursFreed": {
+                    "low": 45.07,
+                    "central": 61.46,
+                    "high": 79.5
+                  }
+                },
+                {
+                  "month": 11,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  },
+                  "potentialHoursFreed": {
+                    "low": 45.07,
+                    "central": 61.46,
+                    "high": 79.5
+                  }
+                },
+                {
+                  "month": 12,
+                  "grossHoursFreed": {
+                    "low": 57.07,
+                    "central": 86.96,
+                    "high": 115.5
+                  },
+                  "hoursUsedForSpendingReduction": {
+                    "low": 0,
+                    "central": 0,
+                    "high": 0
+                  },
+                  "hoursUsedForSpendingAvoidance": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  },
+                  "potentialHoursFreed": {
+                    "low": 45.07,
+                    "central": 61.46,
+                    "high": 79.5
+                  }
+                }
+              ]
+            }
+          ],
+          "spendingItems": [
+            {
+              "id": "duplicate-external-checks",
+              "resourceId": "expense-current-checks",
+              "label": "Duplicate external supplier checks",
+              "category": "spendingReduction",
+              "kind": "non_labor",
+              "unit": "checks",
+              "activeMonths": 12,
+              "capacityActivityId": null,
+              "amount": {
+                "low": 47040,
+                "central": 64260,
+                "high": 83160
+              },
+              "allocatedHours": {
+                "low": 0,
+                "central": 0,
+                "high": 0
+              },
+              "monthlyAllocations": []
+            },
+            {
+              "id": "paid-overtime",
+              "resourceId": "expense-current-overtime",
+              "label": "Paid overtime for supplier exceptions",
+              "category": "spendingReduction",
+              "kind": "labor",
+              "unit": "hours",
+              "activeMonths": 12,
+              "capacityActivityId": "exception-coordination",
+              "amount": {
+                "low": 7680,
+                "central": 12960,
+                "high": 18240
+              },
+              "allocatedHours": {
+                "low": 96,
+                "central": 162,
+                "high": 228
+              },
+              "monthlyAllocations": [
+                {
+                  "month": 1,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                },
+                {
+                  "month": 2,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                },
+                {
+                  "month": 3,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                },
+                {
+                  "month": 4,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                },
+                {
+                  "month": 5,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                },
+                {
+                  "month": 6,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                },
+                {
+                  "month": 7,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                },
+                {
+                  "month": 8,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                },
+                {
+                  "month": 9,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                },
+                {
+                  "month": 10,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                },
+                {
+                  "month": 11,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                },
+                {
+                  "month": 12,
+                  "allocatedHours": {
+                    "low": 8,
+                    "central": 13.5,
+                    "high": 19
+                  }
+                }
+              ]
+            },
+            {
+              "id": "planned-review-support",
+              "resourceId": "expense-planned-review-support",
+              "label": "Planned additional review support",
+              "category": "spendingAvoidance",
+              "kind": "labor",
+              "unit": "hours",
+              "activeMonths": 9,
+              "capacityActivityId": "repeated-reviews",
+              "amount": {
+                "low": 10260,
+                "central": 21802.5,
+                "high": 30780
+              },
+              "allocatedHours": {
+                "low": 108,
+                "central": 229.5,
+                "high": 324
+              },
+              "monthlyAllocations": [
+                {
+                  "month": 4,
+                  "allocatedHours": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  }
+                },
+                {
+                  "month": 5,
+                  "allocatedHours": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  }
+                },
+                {
+                  "month": 6,
+                  "allocatedHours": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  }
+                },
+                {
+                  "month": 7,
+                  "allocatedHours": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  }
+                },
+                {
+                  "month": 8,
+                  "allocatedHours": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  }
+                },
+                {
+                  "month": 9,
+                  "allocatedHours": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  }
+                },
+                {
+                  "month": 10,
+                  "allocatedHours": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  }
+                },
+                {
+                  "month": 11,
+                  "allocatedHours": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  }
+                },
+                {
+                  "month": 12,
+                  "allocatedHours": {
+                    "low": 12,
+                    "central": 25.5,
+                    "high": 36
+                  }
+                }
+              ]
+            },
+            {
+              "id": "planned-external-checks",
+              "resourceId": "expense-planned-growth-checks",
+              "label": "Planned external checks for new suppliers",
+              "category": "spendingAvoidance",
+              "kind": "non_labor",
+              "unit": "checks",
+              "activeMonths": 6,
+              "capacityActivityId": null,
+              "amount": {
+                "low": 26400,
+                "central": 33150,
+                "high": 40500
+              },
+              "allocatedHours": {
+                "low": 0,
+                "central": 0,
+                "high": 0
+              },
+              "monthlyAllocations": []
             }
           ],
           "totals": {
+            "grossPotentialHoursFreed": {
+              "low": 1963.22,
+              "central": 2869.82,
+              "high": 3714.46
+            },
             "potentialHoursFreed": {
-              "low": 626.14,
-              "central": 3495.96,
-              "high": 5341.78
+              "low": 1759.22,
+              "central": 2478.32,
+              "high": 3162.46
             },
             "capacityValue": {
-              "low": 64962.32,
-              "central": 364989.11,
-              "high": 556777.97
+              "low": 184861.41,
+              "central": 260404.29,
+              "high": 331940.93
             },
-            "avoidableNonLaborCash": {
-              "low": 0,
-              "central": 0,
-              "high": 0
+            "existingSpendingReduction": {
+              "low": 54720,
+              "central": 77220,
+              "high": 101400
+            },
+            "futureSpendingAvoidance": {
+              "low": 36660,
+              "central": 54952.5,
+              "high": 71280
             },
             "cashInvestment": {
               "low": 58600,
@@ -7701,15 +9755,30 @@
               "central": 81600,
               "high": 92600
             },
+            "netExistingCashEffect": {
+              "low": -13880,
+              "central": 13620,
+              "high": 42800
+            },
             "netCashEffect": {
-              "low": -68600,
-              "central": -63600,
-              "high": -58600
+              "low": 22780,
+              "central": 68572.5,
+              "high": 114080
             },
             "netCapacityAndCashValue": {
-              "low": -27637.68,
-              "central": 283389.11,
-              "high": 486177.97
+              "low": 183641.41,
+              "central": 310976.79,
+              "high": 434020.93
+            },
+            "knownBenefitSubtotal": {
+              "low": 276241.41,
+              "central": 392576.79,
+              "high": 504620.93
+            },
+            "netKnownBenefitSubtotal": {
+              "low": 183641.41,
+              "central": 310976.79,
+              "high": 434020.93
             }
           }
         },
@@ -8690,6 +10759,37 @@
             ],
             "customer_metadata_version": "customer-report-metadata-20260915.1"
           }
+        },
+        "financial_benefit_assessment": {
+          "version": "three-benefit-assessment-20260919.1",
+          "scopeId": "sample-cross-lens-synthesis-scope",
+          "coverage": {
+            "complete": true,
+            "estimatedCategories": [
+              "spendingReduction",
+              "spendingAvoidance",
+              "staffCapacity"
+            ],
+            "zeroCategories": [],
+            "missingCategories": []
+          },
+          "categories": {
+            "spendingReduction": {
+              "status": "estimated",
+              "basis": "Example current expenses that can be reduced: duplicate external checks and paid overtime. Ordinary salaries remain unchanged.",
+              "requiredInputs": []
+            },
+            "spendingAvoidance": {
+              "status": "estimated",
+              "basis": "Example approved growth plan: added review support from month four and new external verification volume from month seven, without reducing required service.",
+              "requiredInputs": []
+            },
+            "staffCapacity": {
+              "status": "estimated",
+              "basis": "Illustrative 28-day operating records for 30 people. Distinct activity logs exclude external-service invoices.",
+              "requiredInputs": []
+            }
+          }
         }
       },
       "provenance": {
@@ -8720,7 +10820,25 @@
         "ai_generated_at": "2026-09-14T15:58:03.618Z",
         "approved_output_sha256": "1869aa4c62f5f41cedfb188ac4786c9390269d57d70365e0f0c556c57cdf33c9",
         "approved_review_sha256": "d99a10e068287e55651b260e97280792a0434c7df8a3c6975615f6cbbb50e971",
-        "public_source_sha256": "0683229199120b1b182005d6f6842fb5462354f9821837eccd783b76e43bb265"
+        "public_source_sha256": "afd355b4a798291d493ad6e43d2618d368613d1394bb064af5fadb36e920d37d",
+        "financial_revision": {
+          "version": "three-benefit-sample-revision-20260919.1",
+          "created_at": "2026-09-20T03:21:15.380Z",
+          "original_public_source_sha256": "0683229199120b1b182005d6f6842fb5462354f9821837eccd783b76e43bb265",
+          "original_financial_scenario_sha256": "6914da272e79ab2797bac40605ca33946083a42569a16a4725942d2345b99054",
+          "input_sha256": "4179e536703129cc040edbdc8276c7aed48daf27ddb39eccb4838faf8b4f2804",
+          "calculator_result_sha256": "b9661b1ed0b0bade22c894b62a6c9882caa79db14c2e84f3300d7afde607e011",
+          "public_financial_scenario_sha256": "dd1f5d4f953c687521fb303e49e92de107d5c0260dc063b6d7fcaf118fe1d1c5",
+          "public_financial_assessment_sha256": "c9c70efef93527b2fb4ea67687270af63dbf4ef413c01c3088180b968fbde7cf",
+          "unchanged_nonfinancial_source_sha256": "ccccafa8d2cc31cf606a6e58cf552edfafe379ded180f443a3c6997d227397ae",
+          "source_files": {
+            "financial-planning-scenario.js": "25676ca554c287b8c038f18f8303ef7d2d145c06615de597e52e865616d9e9f9",
+            "financial-planning-scenario-v2.js": "0756ebea08012173cc8d0321def366c1dc6210a347936a30ec8cc45b3eac17bc",
+            "certification/three-benefit-samples.mjs": "6475ae9a55dcc3d5f0fc555f5c181600eb621d3c75146f3b712130d92bba6c0d",
+            "certification/public-sample-projection.mjs": "c4cea630f3981d402edc26cbdd38d1872e28e02a39497c62fe9bb77ecb4d49bf"
+          },
+          "note": "New illustrative operating inputs calculated deterministically. Original diagnostic evidence, AI interpretation and generation approvals are unchanged; those original approvals do not cover this financial revision."
+        }
       }
     }
   },
@@ -8758,5 +10876,17 @@
     "original_artifact_file_sha256": "b51ddea8d1af400b24df84a4bae5b53a433ddeb45d197a1e7d481e50bcffd367",
     "note": "Customer metadata and separate planning-scenario subscription assumptions updated. Original measurements, authored interpretations and generation identities are retained; no new AI generation."
   },
-  "artifact_sha256": "e4e86631e31fe1baae576ea52aa93a548623c673c8ba132d4bdcb31ae2de5a62"
+  "financial_publication_update": {
+    "version": "three-benefit-sample-revision-20260919.1",
+    "updated_at": "2026-09-20T03:21:15.380Z",
+    "original_artifact_file_sha256": "316784189dcfc190176edbf49fb37d12dc368bc4782bac7b7bee7de05e166575",
+    "source_files": {
+      "financial-planning-scenario.js": "25676ca554c287b8c038f18f8303ef7d2d145c06615de597e52e865616d9e9f9",
+      "financial-planning-scenario-v2.js": "0756ebea08012173cc8d0321def366c1dc6210a347936a30ec8cc45b3eac17bc",
+      "certification/three-benefit-samples.mjs": "6475ae9a55dcc3d5f0fc555f5c181600eb621d3c75146f3b712130d92bba6c0d",
+      "certification/public-sample-projection.mjs": "c4cea630f3981d402edc26cbdd38d1872e28e02a39497c62fe9bb77ecb4d49bf"
+    },
+    "scope": "Financial attachments only. Existing diagnostic and AI generation identities remain historical. No new model generation."
+  },
+  "artifact_sha256": "b0717a330a5fe89fcc952dda8495c699f78c67639997f9813f4dcfae6d1bf9cb"
 }

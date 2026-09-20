@@ -9,7 +9,10 @@ import {execFileSync} from 'node:child_process';
 import {sourceBeforeSankeyPresentation,restoreSankeyPresentationStyles,PRIOR_SANKEY_RENDERER_SHA256} from './report_sankey_presentation_inverse.mjs';
 import {sourceBeforeMobileBreakdownPresentation,restoreMobileBreakdownPresentationStyles,PRIOR_MOBILE_BREAKDOWN_RENDERER_SHA256} from './report_mobile_breakdown_presentation_inverse.mjs';
 const root=path.resolve(import.meta.dirname,'..'),source=fs.readFileSync(path.join(root,'monderman-report.js'),'utf8');
-const fixtureSource=fs.readFileSync(path.join(root,'sample-data/production-diagnostic-samples.json'),'utf8'),artifact=JSON.parse(fixtureSource),clone=structuredClone;
+// This suite certifies saved v1 reports, not the newer v2 public examples.
+// Keep the complete immutable deployed artifact as its explicit authority.
+const fixtureRevision='b06b72083442f03f7a1e2cadeb5239e4f0449515';
+const fixtureSource=execFileSync('git',['show',fixtureRevision+':sample-data/production-diagnostic-samples.json'],{cwd:root,encoding:'utf8',maxBuffer:32e6}),artifact=JSON.parse(fixtureSource),clone=structuredClone;
 const context={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};
 for(const file of ['participant-evidence-safety.js','monderman-report.js','public-sample-model.js'])vm.runInNewContext(fs.readFileSync(path.join(root,file),'utf8'),context);
 const report=context.window.MondermanReport;

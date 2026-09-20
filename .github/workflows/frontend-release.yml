@@ -187,14 +187,20 @@ jobs:
         run: node scripts/report_financial_legacy_notice_smoke.mjs
       - name: Keep individual results nonfinancial in screen and print layouts
         run: node scripts/single_run_financial_display_smoke.mjs
-      - name: Verify frontloaded financial summaries and honest downside in both synthesis reports
+      - name: Preserve historical v1 financial summaries and honest downside
         env:
           REPORT_FINANCIAL_BLUF_OUT: ${{ runner.temp }}/report-financial-bluf
         run: node scripts/report_financial_bluf_smoke.mjs
+      - name: Verify three-benefit reports, partial assessments and reconciled planning cases
+        env:
+          REPORT_THREE_BENEFIT_OUT: ${{ runner.temp }}/report-three-benefit
+        run: node scripts/report_three_benefit_smoke.mjs
       - name: Verify optional operational scenario entry with synthetic transport
         run: node scripts/campaign_financial_scenario_smoke.mjs
       - name: Check synthetic preview financial policy without changing public samples
         run: node scripts/public_sample_preview_financial_policy_smoke.mjs --browser --out ${{ runner.temp }}/financial-preview-mock
+      - name: Verify three-benefit previews against recorded calculator fixtures
+        run: node scripts/public_sample_three_benefit_preview_smoke.mjs
       - name: Verify published methodology copy and settled browser presentation
         run: node scripts/methodology_business_copy_smoke.mjs --output=${{ runner.temp }}/methodology-copy
       - name: Preserve bounded financial and methodology browser evidence
@@ -207,5 +213,7 @@ jobs:
             /tmp/monderman-financial-scenario-ui-*
             ${{ runner.temp }}/financial-preview-mock
             ${{ runner.temp }}/report-financial-bluf
+            ${{ runner.temp }}/report-three-benefit
+            /tmp/monderman-three-benefit-preview-*
             ${{ runner.temp }}/methodology-copy
           if-no-files-found: error

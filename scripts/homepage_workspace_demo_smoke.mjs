@@ -150,13 +150,27 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
               assert.equal(await evidence.locator('[data-demo-hours]').textContent(),whole(scenario.totals.potentialHoursFreed.central));
               assert.equal(await evidence.locator('[data-demo-capacity]').textContent(),money(scenario.totals.capacityValue.central));
               assert.equal(await evidence.locator('[data-demo-cost]').textContent(),money(scenario.totals.totalImplementationAndSubscriptionCost.central));
-              assert.match(await evidence.textContent(),/Capacity value is not cash savings/);
+              const threeBenefit=scenario.version==='operational-planning-scenario-20260919.2';
+              assert.match(await evidence.textContent(),threeBenefit?/Capacity is not cash savings/:/Capacity value is not cash savings/);
+              if(threeBenefit){
+                assert.equal(await evidence.locator('[data-demo-spending-reduction]').textContent(),money(scenario.totals.existingSpendingReduction.central));
+                assert.equal(await evidence.locator('[data-demo-spending-avoidance]').textContent(),money(scenario.totals.futureSpendingAvoidance.central));
+                assert.match(await evidence.textContent(),/Hours assigned to spending benefits are excluded from retained capacity/);
+              }
               assert.equal(await page.locator('.home-preview-method').isVisible(),true);
               await page.locator('.home-preview-method').evaluate(el=>el.open=true);
               const assumptions=page.locator('[data-demo-assumptions-for="'+key+'"]');
               assert.equal(await assumptions.isVisible(),true);
-              assert.match(await assumptions.textContent(),new RegExp('The low case shows '+money(scenario.totals.netCapacityAndCashValue.low).replace(/[$]/g,'\\$')));
-              assert.match(await assumptions.textContent(),/no cash saving is assumed/);
+              if(threeBenefit){
+                const text=await assumptions.textContent();
+                for(const level of ['low','central','high'])assert.ok(text.includes(money(scenario.totals.existingSpendingReduction[level])+' lower spending; '+money(scenario.totals.futureSpendingAvoidance[level])+' avoided future spending; '+money(scenario.totals.capacityValue[level])+' retained capacity.'),'All three saved benefits stay attached to '+level+' case');
+                assert.ok(text.includes('Combined value after all costs, central case: '+money(scenario.totals.netKnownBenefitSubtotal.central)));
+                assert.match(text,/not a measured bank-balance change/);
+                assert.doesNotMatch(text,/no cash saving is assumed/);
+              }else{
+                assert.match(await assumptions.textContent(),new RegExp('The low case shows '+money(scenario.totals.netCapacityAndCashValue.low).replace(/[$]/g,'\\$')));
+                assert.match(await assumptions.textContent(),/no cash saving is assumed/);
+              }
               await page.locator('.home-preview-method').evaluate(el=>el.open=false);
             } else {
               assert.equal(await evidence.locator('[data-demo-financial-case]').count(),0,'No borrowed financial case on '+key);

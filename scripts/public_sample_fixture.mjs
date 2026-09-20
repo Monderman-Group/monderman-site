@@ -37,6 +37,52 @@ const REQUIRED_SOURCE_FILES = [
   'scripts/refresh_public_sample_previews.mjs','scripts/templates/home-workspace-preview.html',
 ];
 
+// A deterministic financial re-edition is not a new AI approval. Its own
+// receipt pins only the changed attachment while retaining the original AI,
+// scores, campaign evidence and publication history.
+export function assertFinancialSampleRevision(entry,update,key){
+  const r=entry.source,p=entry.provenance,revision=p.financial_revision;
+  assert.equal(update?.status,'reviewed',key+' financial revision has not been reviewed');
+  assert.equal(update.reviewed_by,'Codex');assert.ok(validTime(update.reviewed_at));
+  assert.equal(update.calculation_review,'passed');assert.equal(update.visual_review,'passed');
+  assert.equal(revision?.version,'three-benefit-sample-revision-20260919.1');
+  assert.equal(update.version,revision.version);assert.ok(validTime(revision.created_at));
+  for(const field of ['original_public_source_sha256','original_financial_scenario_sha256','input_sha256','calculator_result_sha256','public_financial_scenario_sha256','public_financial_assessment_sha256','unchanged_nonfinancial_source_sha256'])assert.ok(validHash(revision[field]),key+' financial '+field);
+  assert.deepEqual(revision.source_files,update.source_files);
+  for(const name of ['financial-planning-scenario.js','financial-planning-scenario-v2.js','certification/three-benefit-samples.mjs','certification/public-sample-projection.mjs'])assert.ok(validHash(revision.source_files[name]));
+  const s=r.financial_scenario,a=r.financial_benefit_assessment;
+  assert.equal(s?.version,'operational-planning-scenario-20260919.2');
+  assert.equal(s.publication_projection,'three-benefit-scenario-public-20260919.1');
+  assert.equal(s.source_identity_digest,revision.calculator_result_sha256);
+  assert.equal(evidenceDigest(s.inputs),revision.input_sha256);
+  assert.equal(evidenceDigest(s),revision.public_financial_scenario_sha256);
+  assert.equal(evidenceDigest(a),revision.public_financial_assessment_sha256);
+  assert.equal(a.version,'three-benefit-assessment-20260919.1');assert.equal(a.scopeId,s.scope.scopeId);
+  assert.deepEqual(Object.keys(s.scope).sort(),['label','scopeId']);
+  assert.equal(s.preparedBy,undefined);assert.equal(a.scope,undefined);
+  assert.equal(s.method.usesDiagnosticScores,false);assert.equal(s.method.isConfidenceInterval,false);
+  const unchanged=structuredClone(r);delete unchanged.financial_scenario;delete unchanged.financial_benefit_assessment;
+  assert.equal(evidenceDigest(unchanged),revision.unchanged_nonfinancial_source_sha256);
+  assert.deepEqual(a.coverage,s.coverage);assert.equal(s.coverage.complete,true);
+  for(const category of ['spendingReduction','spendingAvoidance','staffCapacity']){
+    assert.equal(a.categories[category].status,s.benefits[category].status);
+    assert.equal(s.benefits[category].status,'estimated');
+    for(const k of ['low','central','high'])assert.ok(s.benefits[category].amount[k]>0);
+  }
+}
+
+// Only the current financial receipt can bind re-exported Synthesis PDFs.
+// Historical review records remain untouched; page layout has a separate review.
+export function assertFinancialSamplePdfBinding(update,key,pdfBytes){
+  assert.ok(['depth_synthesis','cross_lens_synthesis'].includes(key),'financial PDF product invalid');
+  assert.equal(update?.status,'reviewed',key+' financial PDF revision has not been reviewed');
+  const pin=update.pdf_outputs?.[key];
+  assert.equal(pin?.path,'sample-data/reports/'+key+'.pdf',key+' financial PDF path differs');
+  assert.ok(validHash(pin.sha256),key+' financial PDF digest missing or malformed');
+  assert.ok(Number.isSafeInteger(pin.pages)&&pin.pages>0,key+' financial PDF page count invalid');
+  assert.equal(sha(pdfBytes),pin.sha256,key+' financial PDF bytes differ from the reviewed revision');
+}
+
 // Public counts are a projection of the reviewed synthetic campaign, not a
 // reconstruction of private identities. The enclosing release checks still
 // require exact approved source/provenance hashes. Consistency is not proof of
@@ -228,6 +274,10 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
     assert.equal(report.prompt_version,p.report_ai_prompt_version,key+' AI prompt provenance mismatch');
     assertPublicSampleGenerationProvenance(entry,key);
     if(synthesis) {
+      if(r.financial_scenario?.version==='operational-planning-scenario-20260919.2'){
+        assertFinancialSampleRevision(entry,manifest.financial_publication_update,key);
+        assertFinancialSamplePdfBinding(manifest.financial_publication_update,key,fs.readFileSync(path.join(root,'sample-data/reports/'+key+'.pdf')));
+      }
       assert.equal(r.evidence_assessment?.time_window?.maximum_days,undefined,key+' private qualification limit must not be published');
       assert.equal(r.narrative?.sequenced_action_logic,undefined,key+' internal sequencing duplicate must not be published');
       assert.equal(r.narrative?.what_would_strengthen_the_read,undefined,key+' private next-band target must not be published');

@@ -106,6 +106,30 @@ async function assertAuthoredSections(shell,source,label) {
 }
 
 async function assertOperationalScenario(shell,source,label) {
+  if(source.financial_scenario?.version==='operational-planning-scenario-20260919.2'){
+    const scenario=source.financial_scenario,section=shell.locator('.mr-benefit-assumptions'),brief=shell.locator('.mr-financial-brief');
+    assert(scenario.scope.scopeId===source.campaign_evidence.scopeId,label+' scenario is not bound to the saved campaign scope');
+    assert(await section.isVisible(),label+' three-benefit assumptions not visible');
+    assert(await shell.locator('.mr-exposure-range,.mr-exposure-flow,.mr-financial-scenario').count()===0,label+' retired or legacy financial output displayed beside v2');
+    const rows=[['Lower current spending',scenario.benefits.spendingReduction.amount],['Avoided future spending',scenario.benefits.spendingAvoidance.amount],['Retained staff capacity',scenario.benefits.staffCapacity.amount],
+      ['Retained staff hours',scenario.totals.potentialHoursFreed],['Cash investment',scenario.totals.cashInvestment,true],['Total cost including internal staff time',scenario.totals.totalImplementationAndSubscriptionCost,true],
+      ['Net current-spending effect',scenario.totals.netExistingCashEffect],['Net spending versus baseline',scenario.totals.netCashEffect],['Net planning value',scenario.totals.netCapacityAndCashValue],['Entered benefit subtotal',scenario.totals.knownBenefitSubtotal],['Entered subtotal less full cost',scenario.totals.netKnownBenefitSubtotal]];
+    const tableRows=brief.locator('.mr-benefit-screen-summary tbody tr');
+    assert(await tableRows.count()===rows.length,label+' three-benefit comparison must retain every saved total');
+    for(const [index,[title,values,paired]]of rows.entries()){
+      const row=tableRows.nth(index);
+      assert((await row.locator('th').textContent()).trim()===title,label+' '+title+' comparison label differs');
+      for(const level of ['low','central','high']){
+        const key=paired?({low:'high',central:'central',high:'low'})[level]:level;
+        assert(await row.locator('[data-case="'+level+'"]').getAttribute('data-saved-value')===String(values[key]),label+' '+title+' '+level+' differs from saved case/cost pairing');
+      }
+    }
+    const text=await section.textContent();
+    for(const value of [scenario.inputs.costBasis,...Object.values(scenario.benefits).map(b=>b.basis),...scenario.inputs.capacity.activities.flatMap(a=>[a.label,a.sourceReference,a.changeBasis]),...['spendingReduction','spendingAvoidance'].flatMap(key=>scenario.inputs[key].items.flatMap(a=>[a.label,a.resourceId,a.sourceReference,a.changeBasis]))])assert(text.includes(value),label+' saved three-benefit source/assumption missing');
+    assert(text.includes('Month-by-month capacity allocation'),label+' saved monthly reconciliation missing');
+    assert((await brief.textContent()).includes('not confidence intervals or measured savings'),label+' planning boundary missing');
+    return section;
+  }
   const scenario=source.financial_scenario,section=shell.locator('.mr-financial-scenario');
   assert(scenario?.version==='operational-planning-scenario-20260913.1',label+' saved operational scenario missing');
   assert(scenario.scope.scopeId===source.campaign_evidence.scopeId,label+' scenario is not bound to the saved campaign scope');
@@ -132,14 +156,16 @@ async function assertOperationalScenario(shell,source,label) {
 }
 
 async function assertFinancialReadingOrder(shell,source,measuredSelector,label) {
-  assert(source.financial_scenario?.version==='operational-planning-scenario-20260913.1',label+' requires its saved valid financial scenario');
+  const threeBenefit=source.financial_scenario?.version==='operational-planning-scenario-20260919.2';
+  assert(threeBenefit||source.financial_scenario?.version==='operational-planning-scenario-20260913.1',label+' requires its saved valid financial scenario');
   assert(source.financial_scenario.scope.scopeId===source.campaign_evidence.scopeId,label+' financial scope differs from campaign');
   const brief=shell.locator('.mr-financial-brief');
   assert(await brief.count()===1,label+' requires exactly one financial brief');
   assert(await brief.isVisible(),label+' financial brief is not visible');
-  assert(await brief.getAttribute('data-financial-presentation')==='financial-presentation-20260915.1',label+' financial component version differs');
-  assert(await brief.evaluate(()=>window.MondermanReport?window.MondermanReport.financialPresentationVersion:document.querySelector('meta[name="monderman-financial-presentation-version"]')?.content)==='financial-presentation-20260915.1',label+' runtime or standalone financial component version differs');
-  assert((await brief.locator('h2').textContent()).trim()==='Decision brief',label+' first section heading differs');
+  assert(await brief.getAttribute(threeBenefit?'data-three-benefit-version':'data-financial-presentation')===(threeBenefit?'20260919.1':'financial-presentation-20260915.1'),label+' financial component version differs');
+  if(threeBenefit)assert(await brief.evaluate(el=>window.MondermanReport?el.getAttribute('data-three-benefit-version')==='20260919.1':document.querySelector('meta[name="monderman-three-benefit-presentation-version"]')?.content==='three-benefit-presentation-20260919.1'),label+' runtime or standalone three-benefit component version differs');
+  else assert(await brief.evaluate(()=>window.MondermanReport?window.MondermanReport.financialPresentationVersion:document.querySelector('meta[name="monderman-financial-presentation-version"]')?.content)==='financial-presentation-20260915.1',label+' runtime or standalone financial component version differs');
+  assert((await brief.locator('h2').textContent()).trim()===(threeBenefit?'Decision brief: three sources of value':'Decision brief'),label+' first section heading differs');
   assert(await brief.evaluate((el,measuredSelector)=>{
     const sections=[...el.parentElement.querySelectorAll(':scope > .mr-section')];
     return sections[0]===el&&sections[1]?.matches('.mr-ai-interpretation')&&sections[2]?.matches(measuredSelector);
@@ -493,7 +519,8 @@ fs.writeFileSync(path.join(out, 'result.json'), JSON.stringify({
     coverBoundaryIntegrated:true,
     crossLensEvidenceMap:true,
     crossLensSignalsDeduplicated:true,
-    separateOperationalScenarioWithSevenSavedRanges:true,
+    savedOperationalScenarioMetricsAndCasePairing:true,
+    financialScenarioVersions:[...new Set([crossSource,depthSource].map(source=>source.financial_scenario.version))],
     singleRunInsightDepth:true,
     synthesisContentsNavigation:true,
     executiveDecisionFrame:true,

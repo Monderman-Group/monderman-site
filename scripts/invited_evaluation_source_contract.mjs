@@ -10,6 +10,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {sourceBeforeSankeyPresentation} from './report_sankey_presentation_inverse.mjs';
+import {assertThreeBenefitSourceContract} from './three_benefit_source_contract.mjs';
 export const EVALUATION_BASELINE='0fb1980b4f7dca37c6823e3ae47386215b2834d9';
 export const APPROVED_INTERFACE_PINS=Object.freeze({
   // DV: close the public-first-run flag and update legacy invitation/result copy.
@@ -77,9 +78,10 @@ export function assertInvitedEvaluationSourceContract(root=path.resolve(import.m
   assert.equal(read('assistant.js'),prior('assistant.js').replace(greetingBefore,()=>greetingAfter),'Public assistant only changes the invitation greeting, not behavior or private-IP boundaries');
   const immutable=['accept-invite.html',
     'workspace-theme.js','workspace-assistant.js','public-sample-model.js','sample-report-production.js',
-    'run-inclusion-review.js','participant-evidence-safety.js','sample-data/production-diagnostic-samples.json'];
+    'run-inclusion-review.js','participant-evidence-safety.js'];
   for(const file of immutable)assert.equal(read(file),prior(file),file+': existing engine/evidence/interface bytes remain exact');
-  for(const [file,digest]of Object.entries(APPROVED_INTERFACE_PINS))assert.equal(sha(read(file)),digest,file+': only the explicitly reviewed interface delta is allowed');
+  for(const [file,digest]of Object.entries(APPROVED_INTERFACE_PINS))if(file!=='campaign-analysis.js')assert.equal(sha(read(file)),digest,file+': only the explicitly reviewed interface delta is allowed');
+  assertThreeBenefitSourceContract(root);
   // The five-journey selector is one reviewed addition. Removing that exact
   // whole-file-pinned block must recover all prior four-step tab navigation.
   const journeyRuntime=read('homepage-workspace-demo.js');
@@ -99,6 +101,7 @@ export function assertInvitedEvaluationSourceContract(root=path.resolve(import.m
     "after-an-acquisition.html",
     "assistant.js",
     "campaign-analysis.js",
+    "campaign-analysis.css",
     "connect.html",
     "decision-velocity-article.html",
     "decision-velocity.html",
@@ -114,6 +117,7 @@ export function assertInvitedEvaluationSourceContract(root=path.resolve(import.m
     "institutional-performance.html",
     "legal-document-manifest.json",
     "monderman-report.js",
+    "monderman-depth-lure-tile.css",
     "new-in-the-role.html",
     "operational-systems-article.html",
     "operational-systems.html",

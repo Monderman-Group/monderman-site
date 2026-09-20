@@ -15,54 +15,35 @@ const sha=b=>createHash('sha256').update(b).digest('hex'),read=f=>fs.readFileSyn
 const original=f=>execFileSync('git',['show',base+':'+f],{cwd:root,maxBuffer:8*1024*1024});
 let checks=0,blockedRemoteRequests=0;const check=(x,m)=>{assert.ok(x,m);checks++;},equal=(a,b,m)=>{assert.deepEqual(a,b,m);checks++;};
 const baselineProtection=assertInvitedEvaluationSourceContract(root);
-const runtimeChanges=new Set(['index.html','sample-report.html','homepage-workspace-demo.css','homepage-workspace-demo.js','sample-report-production.css','public-search-index.json']);
-const protectedFiles=['public-sample-model.js','sample-report-production.js','participant-evidence-safety.js','sample-data/production-diagnostic-samples.json','assets/brand/brand-foundations-v2.css'];
-for(const file of protectedFiles)equal(sha(read(file)),sha(original(file)),'Existing report data/adapter/style unchanged: '+file);
+const runtimeChanges=new Set(['index.html','Monderman_Platform_Brief.html','sample-report.html','homepage-workspace-demo.css','homepage-workspace-demo.js','sample-report-production.css','public-search-index.json','campaign-analysis.css','campaign-analysis.js']);
+const protectedFiles=['public-sample-model.js','sample-report-production.js','participant-evidence-safety.js','assets/brand/brand-foundations-v2.css'];
+for(const file of protectedFiles)equal(sha(read(file)),sha(original(file)),'Existing report adapter/style unchanged: '+file);
 const {artifact,manifest:release}=readPublicSampleFixture({root});
 const artifactBytes=read('sample-data/production-diagnostic-samples.json');
-equal(sha(artifactBytes),sha(original('sample-data/production-diagnostic-samples.json')),'Approved sample bytes unchanged');
 equal(artifact.contract,'monderman-public-product-samples/v3');equal(artifact.synthetic,true);
 equal(artifact.publication_projection.version,'monderman-public-sample-projection-20260913.7');
-const releaseFile='sample-data/production-sample-release.json',oldRelease=JSON.parse(original(releaseFile));
-const deployedRelease=JSON.parse(execFileSync('git',['show','f1f5a35c55f1ff9e8243b184658b167848786e2f:'+releaseFile],{cwd:root,encoding:'utf8'}));
-const planningRelease=JSON.parse(execFileSync('git',['show','ebe0d110fb6fc8a52e2817de9bc24634c307bb6c:'+releaseFile],{cwd:root,encoding:'utf8'}));
-const detailedRevision='ce33e084d08e1f1e7c796fbd45d2a8eab0bc43c4';
-const detailedRelease=JSON.parse(execFileSync('git',['show',detailedRevision+':'+releaseFile],{cwd:root,encoding:'utf8'}));
-equal(release.sankey_presentation_review,deployedRelease.sankey_presentation_review,'Historical Sankey approval remains exact, not reissued');
-equal(release.planning_case_presentation_review,planningRelease.planning_case_presentation_review,'Historical planning-case approval remains exact, not reissued');
-equal(release.detailed_sankey_presentation_review,detailedRelease.detailed_sankey_presentation_review,'Historical detailed-chart approval remains exact, not reissued');
-const beforeMobileReview=structuredClone(release);delete beforeMobileReview.mobile_breakdown_presentation_review;
-beforeMobileReview.source_files['monderman-report.js']=detailedRelease.source_files['monderman-report.js'];
-equal(beforeMobileReview,detailedRelease,'Mobile-only change adds one review and one renderer pin; every earlier approval and source pin stays exact');
-for(const file of ['sample-data/reports/depth_synthesis.pdf','sample-data/reports/cross_lens_synthesis.pdf'])equal(read(file),execFileSync('git',['show',detailedRevision+':'+file],{cwd:root,maxBuffer:16*1024*1024}),file+' published PDF bytes remain unchanged by the screen-only fix');
-const restoredRelease=structuredClone(release);delete restoredRelease.sankey_presentation_review;delete restoredRelease.planning_case_presentation_review;delete restoredRelease.detailed_sankey_presentation_review;delete restoredRelease.mobile_breakdown_presentation_review;
+const releaseFile='sample-data/production-sample-release.json';
+const lastRelease=JSON.parse(execFileSync('git',['show','b06b72083442f03f7a1e2cadeb5239e4f0449515:'+releaseFile],{cwd:root,encoding:'utf8'}));
+for(const field of ['mobile_breakdown_presentation_review','detailed_sankey_presentation_review','planning_case_presentation_review','sankey_presentation_review','customer_publication_update','publication_acceptance'])equal(release[field],lastRelease[field],'Historical approval is retained, not reissued: '+field);
+equal(release.financial_publication_update.status,'reviewed');
+equal(release.financial_publication_update.calculation_review,'passed');
+equal(release.financial_publication_update.visual_review,'passed');
 const updatedPins=['monderman-report.js','scripts/refresh_public_sample_previews.mjs','scripts/templates/home-workspace-preview.html'];
-for(const file of updatedPins){equal(release.source_files[file],sha(read(file)),file+' current reviewed source pin');restoredRelease.source_files[file]=oldRelease.source_files[file];}
-equal(restoredRelease,oldRelease,'Original AI approvals, output/provenance, financial and prior presentation reviews remain exact');
-equal(release.sankey_presentation_review.unchanged_artifact_file_sha256,sha(artifactBytes));
-equal(release.planning_case_presentation_review.unchanged_artifact_file_sha256,sha(artifactBytes));
-equal(release.planning_case_presentation_review.prior_renderer_sha256,deployedRelease.source_files['monderman-report.js']);
-equal(release.planning_case_presentation_review.renderer_sha256,planningRelease.source_files['monderman-report.js']);
-equal(release.detailed_sankey_presentation_review.unchanged_artifact_file_sha256,sha(artifactBytes));
-equal(release.detailed_sankey_presentation_review.prior_renderer_sha256,planningRelease.source_files['monderman-report.js']);
-equal(release.detailed_sankey_presentation_review.renderer_sha256,detailedRelease.source_files['monderman-report.js']);
-equal(release.mobile_breakdown_presentation_review.unchanged_artifact_file_sha256,sha(artifactBytes));
-equal(release.mobile_breakdown_presentation_review.prior_renderer_sha256,detailedRelease.source_files['monderman-report.js']);
-equal(release.mobile_breakdown_presentation_review.renderer_sha256,sha(read('monderman-report.js')));
+for(const file of updatedPins)equal(release.source_files[file],sha(read(file)),file+' current reviewed source pin');
 const sourceFiles=[...runtimeChanges,releaseFile,'scripts/inject-public-shell.mjs',...updatedPins];
 const frozen=Object.fromEntries(sourceFiles.map(f=>[f,sha(read(f))]));
 const oldSearch=JSON.parse(original('public-search-index.json')),newSearch=JSON.parse(read('public-search-index.json'));
-equal(newSearch.map(r=>r.url),oldSearch.map(r=>r.url),'Public search inventory stays public, with no workspace/private pages added');
+equal(newSearch.map(r=>r.url),oldSearch.map(r=>r.url),'Public search inventory stays public');
 execFileSync('python3',['scripts/build_public_search_index.py','--check'],{cwd:root});
-for(const [page,css,version]of [['index.html','homepage-workspace-demo.css','20260919.journey3'],['sample-report.html','sample-report-production.css','20260915.consistency1']]){
+for(const [page,css,version]of [['index.html','homepage-workspace-demo.css','20260919.journey3'],['sample-report.html','sample-report-production.css','20260915.consistency1'],['workspace-analysis.html','campaign-analysis.css','20260919.benefits1']]){
   const html=fs.readFileSync(path.join(built,page),'utf8');
   check(html.includes(css+'?v='+version),'Actual built CSS cache key: '+css);
   equal(sha(fs.readFileSync(path.join(built,css))),sha(read(css)));
 }
 const sampleHtml=fs.readFileSync(path.join(built,'sample-report.html'),'utf8');
-for(const [file,version]of [['monderman-report.js','20260919.sankey4'],['sample-report-production.js','20260915.annual1'],['public-sample-model.js','20260915.annual1']]){
+for(const [file,version]of [['monderman-report.js','20260919.benefits1'],['sample-report-production.js','20260915.annual1'],['public-sample-model.js','20260915.annual1']]){
   check(sampleHtml.includes(file+'?v='+version),'Reviewed runtime cache: '+file);
-  equal(sha(fs.readFileSync(path.join(built,file))),sha(read(file)),'Built bytes equal reviewed current source: '+file);
+  equal(sha(fs.readFileSync(path.join(built,file))),sha(read(file)),'Built bytes equal reviewed source: '+file);
 }
 equal(sha(fs.readFileSync(path.join(built,'sample-data/production-diagnostic-samples.json'))),sha(artifactBytes));
 check(sampleHtml.includes('id="sample-selected-pdf"'),'Selected report PDF control present');
@@ -109,10 +90,12 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
       equal(await financial.locator('[data-demo-hours]').textContent(),whole(totals.potentialHoursFreed.central));
       equal(await financial.locator('[data-demo-capacity]').textContent(),money(totals.capacityValue.central));
       equal(await financial.locator('[data-demo-cost]').textContent(),money(totals.totalImplementationAndSubscriptionCost.central));
-      check((await financial.locator('.hwd-financial-note').textContent()).includes('Capacity value is not cash savings'),'Financial distinction retained');
+      check((await financial.locator('.hwd-financial-note').allTextContents()).join(' ').includes('Capacity is not cash savings'),'Financial distinction retained');
+      equal(await financial.locator('[data-demo-spending-reduction]').textContent(),money(totals.existingSpendingReduction.central));
+      equal(await financial.locator('[data-demo-spending-avoidance]').textContent(),money(totals.futureSpendingAvoidance.central));
     }
     equal(await page.locator('[data-demo-financial-case]').count(),2,'Other three Depth journeys do not borrow another report’s financial scenario');
-    check((await page.locator('.home-preview-method').textContent()).includes('The low case shows -$27,638'),'Downside remains disclosed');
+    check((await page.locator('.home-preview-method').textContent()).includes(money(crossScenario.totals.netKnownBenefitSubtotal.central)),'Current calculated after-cost case is disclosed');
     check(!/fictional|generated sample|illustrative interface/i.test(await page.locator('.home-workspace-preview').textContent()),'No fictional wording in marketing preview');
     const hero=await state(page,'.hero-actions .btn-accent',id+' hero',{normal:'rgb(169, 208, 212)',hover:'rgb(196, 225, 227)',background:true,text:'rgb(4, 24, 27)'});
     const link=await state(page,'.home-output-copy>a',id+' sample link',{normal:'rgb(12, 110, 120)',hover:'rgb(10, 91, 99)'});
@@ -147,8 +130,10 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
       equal(await page.locator('#report-'+tab+' .mr-sample-disclosure').textContent(),'Sample report · Example data','Sample origin is explicit on each report cover');
       check(await page.locator('#report-'+tab+' .mr-sample-disclosure').isVisible(),'Sample cover disclosure is not hidden');
       check(!(await page.locator('#report-'+tab).textContent()).includes('About this example'),'Retired duplicate sample section stays removed');
-      if(['depth','synthesis'].includes(tab))equal(await page.locator('#report-'+tab+' .mr-operational-sankey').count(),1,'Eligible source has the restored Sankey');
-      else equal(await page.locator('#report-'+tab+' .mr-operational-sankey').count(),0,'Individual run has no invented operational flow');
+      if(['depth','synthesis'].includes(tab)){
+        equal(await page.locator('#report-'+tab+' .mr-benefit-chart').count(),3,'All three planning cases have a Sankey');
+        equal(await page.locator('#report-'+tab+' .mr-benefit-chart:visible').count(),1,'Only selected Sankey visible on screen');
+      }else equal(await page.locator('#report-'+tab+' .mr-benefit-chart,#report-'+tab+' .mr-operational-sankey').count(),0,'Individual run has no invented operational flow');
     }
     await page.locator('#tab-os').focus();await page.keyboard.press('ArrowRight');equal(await page.locator('#tab-dv').getAttribute('aria-selected'),'true');await page.keyboard.press('End');equal(await page.locator('#tab-depth').getAttribute('aria-selected'),'true');await page.keyboard.press('Home');equal(await page.locator('#tab-os').getAttribute('aria-selected'),'true');
     if(width!==834){await shot(page,'.sample-library-intro',id+'-library.png');await shot(page,'#report-os .psr-toolbar',id+'-toolbar.png');await page.evaluate(()=>scrollTo(0,0));const name=id+'-page-top.png';await page.screenshot({path:path.join(out,name)});screenshots.push(name);}

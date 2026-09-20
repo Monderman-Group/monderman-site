@@ -13,7 +13,11 @@ const root=path.resolve(import.meta.dirname,'..');
 const sourcePath=path.join(root,'sample-data/production-diagnostic-samples.json');
 const rendererPath=path.join(root,'monderman-report.js');
 const source=fs.readFileSync(sourcePath,'utf8'),renderer=fs.readFileSync(rendererPath,'utf8');
-const artifact=JSON.parse(source),clone=value=>structuredClone(value),sha=value=>createHash('sha256').update(value).digest('hex');
+// This is the historical v1 compatibility gate. Current three-benefit sources
+// have their own substantive gate in report_three_benefit_smoke.mjs.
+const historicalFixtureCommit='b06b72083442f03f7a1e2cadeb5239e4f0449515';
+const historicalSource=execFileSync('git',['show',historicalFixtureCommit+':sample-data/production-diagnostic-samples.json'],{cwd:root,encoding:'utf8',maxBuffer:32e6});
+const artifact=JSON.parse(historicalSource),clone=value=>structuredClone(value),sha=value=>createHash('sha256').update(value).digest('hex');
 const sandbox={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};
 vm.runInNewContext(renderer,sandbox);const report=sandbox.window.MondermanReport;
 const out=process.env.REPORT_FINANCIAL_BLUF_OUT?path.resolve(process.env.REPORT_FINANCIAL_BLUF_OUT):fs.mkdtempSync('/tmp/report-financial-bluf-'),print=process.argv.includes('--print');
@@ -152,5 +156,5 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
   }}finally{await browser.close();}
 }
 eq(errors,[],'No browser exceptions');eq(fs.readFileSync(sourcePath,'utf8'),source,'Public source fixture unchanged');eq(fs.readFileSync(rendererPath,'utf8'),renderer,'Candidate renderer unchanged during test');
-const receipt={status:'PASS',checks,states,screenshots,pdfs,blockedRequests,rendererSha256:sha(renderer),sampleSourceSha256:sha(source),harnessSha256:sha(fs.readFileSync(import.meta.filename)),providerCalls:0,productionCalls:0,sourceChanges:0,publicationApproval:false};
+const receipt={status:'PASS',checks,states,screenshots,pdfs,blockedRequests,rendererSha256:sha(renderer),sampleSourceSha256:sha(historicalSource),historicalFixtureCommit,unchangedCurrentSampleSha256:sha(source),harnessSha256:sha(fs.readFileSync(import.meta.filename)),providerCalls:0,productionCalls:0,sourceChanges:0,publicationApproval:false};
 fs.writeFileSync(path.join(out,'RECEIPT.json'),JSON.stringify(receipt,null,2)+'\n');console.log(JSON.stringify({status:'PASS',checks,states:states.length,output:out,pdfs:pdfs.length}));

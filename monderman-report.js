@@ -311,6 +311,7 @@
       differences: differences,
       exposure: exposure,
       financialScenario: obj(r.financial_scenario),
+      ...(r.financial_benefit_assessment ? { financialBenefitAssessment: obj(r.financial_benefit_assessment) } : {}),
       actions: actions,
       remedyPaths: remedyPaths,
       outputPolicy: obj(r.output_policy),
@@ -1106,6 +1107,198 @@
     return '<div class="mr-viz-panel mr-exposure-range"><div class="mr-viz-title">Range of modeled estimates</div>' + rows.join("") + '<p class="mr-copy">Range bars summarize modeled estimates from runs with enough data for a cost estimate. Hours and cost use separate local scales; bar lengths should not be compared across the two metrics.</p></div>';
   }
 
+  // BEGIN THREE BENEFIT PRESENTATION 20260919.1
+  const THREE_BENEFIT_KEYS = ['spendingReduction', 'spendingAvoidance', 'staffCapacity'];
+  const THREE_BENEFIT_LABELS = {spendingReduction:'Lower current spending',spendingAvoidance:'Avoided future spending',staffCapacity:'Retained staff capacity'};
+  const THREE_BENEFIT_CASES = ['low','central','high'];
+  const THREE_BENEFIT_COST_CASE = {low:'high',central:'central',high:'low'};
+  const threeBenefitNumber = value => Number(value).toLocaleString('en-US',{maximumFractionDigits:2});
+  const threeBenefitMoney = value => (value<0?'-$':'$')+threeBenefitNumber(Math.abs(value));
+  const threeBenefitHeadlineMoney = value => (value<0?'-$':'$')+Math.abs(value).toLocaleString('en-US',{maximumFractionDigits:0});
+
+  function threeBenefitPresentation(m) {
+    const s=obj(m.financialScenario),i=obj(s.inputs),t=obj(s.totals),levels=THREE_BENEFIT_CASES;
+    if(m.kind!=='meta-synthesis'||m.selfRun||s.version!=='operational-planning-scenario-20260919.2'||i.schemaVersion!=='operational-planning-input-20260919.2'
+      ||!['early_planning_scenario','synthesis_planning_scenario'].includes(s.kind)||s.currency!=='USD'
+      ||!m.campaignEvidence?.scopeId||obj(s.scope).scopeId!==m.campaignEvidence.scopeId
+      ||!/^[a-f0-9]{64}$/.test(s.digest||(s.publication_projection==='three-benefit-scenario-public-20260919.1'?s.source_identity_digest:'')||'')||!Number.isFinite(Date.parse(s.createdAt))
+      ||i.scopeConfirmed!==true||i.overlapReviewed!==true||obj(s.method).usesDiagnosticScores!==false||obj(s.method).isConfidenceInterval!==false)return null;
+    const finite=v=>typeof v==='number'&&Number.isFinite(v)&&Math.abs(v)<=1e14;
+    const text=(v,max=500,min=3)=>typeof v==='string'&&v.trim()===v&&v.length>=min&&v.length<=max&&!/[\u0000-\u001f\u007f]/.test(v);
+    const range=(v,negative=false,ordered=false,max=1e14)=>v&&levels.every(k=>finite(v[k])&&(negative||v[k]>=0)&&Math.abs(v[k])<=max)&&(!ordered||(v.low<=v.central&&v.central<=v.high));
+    // Each saved row is rounded once to cents. Reconcile using an explicit,
+    // row-count-bounded half-cent allowance, not percentage-based tolerance.
+    const close=(actual,expected,rows=1)=>finite(actual)&&finite(expected)&&Math.abs(actual-expected)<=.005*(rows+1)+.000001;
+    const same=(a,b,n=1)=>range(a,true)&&range(b,true)&&levels.every(k=>close(a[k],b[k],n));
+    const sum=(rows,key,k)=>rows.reduce((v,row)=>v+row[key][k],0);
+    const normalize=v=>String(v).trim().toLowerCase().replace(/\s+/g,' ');
+    if(!Number.isInteger(i.horizonMonths)||i.horizonMonths<1||i.horizonMonths>36||!text(i.title,120)||!text(i.costBasis)
+      ||!range(i.implementationCashCost,false,true,1e12)||!range(i.implementationCapacityCost,false,true,1e12)
+      ||!finite(i.subscriptionCost)||i.subscriptionCost<0||i.subscriptionCost>1e12)return null;
+    const cap=obj(i.capacity),benefits=obj(s.benefits),coverage=obj(s.coverage),statuses=['estimated','none_identified','not_estimated'];
+    for(const key of THREE_BENEFIT_KEYS){
+      const category=obj(key==='staffCapacity'?cap:i[key]),b=obj(benefits[key]);
+      if(!statuses.includes(category.status)||!text(category.basis)||b.status!==category.status||b.basis!==category.basis||!Array.isArray(b.missingInputs)||!b.missingInputs.every(v=>text(v)))return null;
+      if(category.status==='not_estimated'){if(b.amount!==null||!b.missingInputs.length||(key==='staffCapacity'&&b.hours!==null))return null;}
+      else if(!range(b.amount)||(key==='staffCapacity'&&!range(b.hours)))return null;
+      if(category.status==='none_identified'&&levels.some(k=>b.amount[k]!==0||(key==='staffCapacity'&&b.hours[k]!==0)))return null;
+    }
+    const categorySet=(field,status)=>Array.isArray(coverage[field])&&coverage[field].length===THREE_BENEFIT_KEYS.filter(k=>benefits[k].status===status).length&&new Set(coverage[field]).size===coverage[field].length&&coverage[field].every(k=>THREE_BENEFIT_KEYS.includes(k)&&benefits[k].status===status);
+    if(!categorySet('estimatedCategories','estimated')||!categorySet('zeroCategories','none_identified')||!categorySet('missingCategories','not_estimated')||coverage.complete!==(coverage.missingCategories.length===0))return null;
+    if(!Array.isArray(cap.activities)||!Array.isArray(s.activities)||s.activities.length!==cap.activities.length||s.activities.length>12)return null;
+    const activityIds=new Set(),activityLabels=new Set(),calculated=new Map();
+    if(cap.status==='estimated'){
+      const start=Date.parse(cap.measurementStart),end=Date.parse(cap.measurementEnd),days=(end-start)/86400000;
+      if(!Number.isFinite(start)||!Number.isFinite(end)||days<1||days>366||end>Date.parse(s.createdAt)||!Number.isSafeInteger(cap.measuredPeople)||cap.measuredPeople<1||!cap.activities.length)return null;
+      for(const a of cap.activities){
+        if(!a||!text(a.id,64)||!/^[A-Za-z0-9_-]{3,64}$/.test(a.id)||!text(a.label,120)||activityIds.has(normalize(a.id))||activityLabels.has(normalize(a.label))||!finite(a.measuredHours)||a.measuredHours<0||a.measuredHours>1e9
+          ||!finite(a.loadedHourlyCost)||a.loadedHourlyCost<0||a.loadedHourlyCost>10000||!['operational_records','time_study','bounded_test'].includes(a.sourceBasis)
+          ||!text(a.sourceReference,240)||!text(a.changeBasis)||!range(a.reductionPercent,false,true,100)||!range(a.adoptionPercent,false,true,100))return null;
+        activityIds.add(normalize(a.id));activityLabels.add(normalize(a.label));
+        const r=s.activities.find(row=>row?.id===a.id);
+        if(!r||r.label!==a.label||!['grossHoursFreed','hoursUsedForSpendingReduction','hoursUsedForSpendingAvoidance','potentialHoursFreed','capacityValue'].every(k=>range(r[k])))return null;
+        const gross=Object.fromEntries(levels.map(k=>[k,a.measuredHours*(i.horizonMonths*365.25/12)/days*a.reductionPercent[k]/100*a.adoptionPercent[k]/100]));
+        if(!same(r.grossHoursFreed,gross)||!levels.every(k=>close(r.potentialHoursFreed[k],r.grossHoursFreed[k]-r.hoursUsedForSpendingReduction[k]-r.hoursUsedForSpendingAvoidance[k],3)))return null;
+        calculated.set(a.id,{input:a,row:r,gross});
+      }
+      if(cap.activities.reduce((n,a)=>n+a.measuredHours,0)>cap.measuredPeople*days*24)return null;
+    }else if(cap.activities.length||s.activities.length||cap.measurementStart!==null||cap.measurementEnd!==null||cap.measuredPeople!==null)return null;
+    const ids=new Set(),resources=new Set(),labels=new Set(),expenseInputs=[];
+    for(const key of ['spendingReduction','spendingAvoidance']){
+      const category=i[key];
+      if(!Array.isArray(category.items)||category.items.length>12||(category.status==='estimated'?category.items.length<1:category.items.length!==0))return null;
+      for(const item of category.items){
+        if(!item||!text(item.id,64)||!/^[A-Za-z0-9_-]{3,64}$/.test(item.id)||!text(item.resourceId,120)||!text(item.label,120)||ids.has(normalize(item.id))||resources.has(normalize(item.resourceId))||labels.has(normalize(item.label))
+          ||!['labor','non_labor'].includes(item.kind)||!text(item.unit,40,1)||!finite(item.baselineMonthlyUnits)||item.baselineMonthlyUnits<0||item.baselineMonthlyUnits>1e9||!finite(item.unitCost)||item.unitCost<0||item.unitCost>1e9
+          ||!Number.isInteger(item.startMonth)||!Number.isInteger(item.endMonth)||item.startMonth<1||item.endMonth<item.startMonth||item.endMonth>i.horizonMonths
+          ||!range(item.reductionPercent,false,true,100)||!range(item.adoptionPercent,false,true,100)||!text(item.sourceReference,240)||!text(item.changeBasis))return null;
+        if(item.kind==='labor'?(item.unit!=='hours'||!calculated.has(item.capacityActivityId)):(item.capacityActivityId!==null||/(?:^|\s)(?:h|hrs?|hours?|mins?|minutes?|days?|weeks?|months?|years?|ftes?|staff|people|persons?|employees?|workers?|manhours?|personhours?|staffhours?|workhours?|persondays?|mandays?|workdays?|full\s*time\s*equivalents?)(?:\s|$)/i.test(normalize(item.unit).replace(/[-_./]+/g,' '))))return null;
+        ids.add(normalize(item.id));resources.add(normalize(item.resourceId));labels.add(normalize(item.label));expenseInputs.push({...item,category:key});
+      }
+    }
+    if(!Array.isArray(s.spendingItems)||s.spendingItems.length!==expenseInputs.length)return null;
+    for(const a of expenseInputs){
+      const r=s.spendingItems.find(row=>row?.id===a.id),months=a.endMonth-a.startMonth+1;
+      if(!r||['id','resourceId','label','category','kind','unit','capacityActivityId'].some(k=>r[k]!==a[k])||r.activeMonths!==months||!range(r.amount)||!range(r.allocatedHours))return null;
+      for(const k of levels){const units=a.baselineMonthlyUnits*months*a.reductionPercent[k]/100*a.adoptionPercent[k]/100;if(!close(r.amount[k],units*a.unitCost)||!close(r.allocatedHours[k],a.kind==='labor'?units:0))return null;}
+      if(!Array.isArray(r.monthlyAllocations)||r.monthlyAllocations.length!==(a.kind==='labor'?months:0))return null;
+      for(const [index,month] of r.monthlyAllocations.entries())if(!month||typeof month!=='object'||Array.isArray(month)||month.month!==a.startMonth+index||!range(month.allocatedHours)||!levels.every(k=>close(month.allocatedHours[k],a.baselineMonthlyUnits*a.reductionPercent[k]/100*a.adoptionPercent[k]/100)))return null;
+    }
+    for(const {input:a,row:r,gross} of calculated.values()){
+      if(!Array.isArray(r.monthlyReconciliation)||r.monthlyReconciliation.length!==i.horizonMonths)return null;
+      for(const [index,month] of r.monthlyReconciliation.entries()){
+        if(!month||typeof month!=='object'||Array.isArray(month)||month.month!==index+1||!['grossHoursFreed','hoursUsedForSpendingReduction','hoursUsedForSpendingAvoidance','potentialHoursFreed'].every(k=>range(month[k])))return null;
+        for(const k of levels){
+          const allocated=category=>expenseInputs.filter(x=>x.capacityActivityId===a.id&&x.category===category&&x.startMonth<=month.month&&x.endMonth>=month.month).reduce((n,x)=>n+x.baselineMonthlyUnits*x.reductionPercent[k]/100*x.adoptionPercent[k]/100,0);
+          if(!close(month.grossHoursFreed[k],gross[k]/i.horizonMonths)||!close(month.hoursUsedForSpendingReduction[k],allocated('spendingReduction'))||!close(month.hoursUsedForSpendingAvoidance[k],allocated('spendingAvoidance'))||!close(month.potentialHoursFreed[k],gross[k]/i.horizonMonths-allocated('spendingReduction')-allocated('spendingAvoidance')))return null;
+        }
+      }
+      for(const k of levels){
+      for(let month=1;month<=i.horizonMonths;month++){
+        const allocated=expenseInputs.filter(x=>x.capacityActivityId===a.id&&x.startMonth<=month&&x.endMonth>=month).reduce((n,x)=>n+x.baselineMonthlyUnits*x.reductionPercent[k]/100*x.adoptionPercent[k]/100,0);
+        if(allocated>gross[k]/i.horizonMonths+.000001)return null;
+      }
+      const reduction=sum(s.spendingItems.filter(x=>x.capacityActivityId===a.id&&x.category==='spendingReduction'),'allocatedHours',k),avoidance=sum(s.spendingItems.filter(x=>x.capacityActivityId===a.id&&x.category==='spendingAvoidance'),'allocatedHours',k);
+      if(!close(r.hoursUsedForSpendingReduction[k],reduction,s.spendingItems.length)||!close(r.hoursUsedForSpendingAvoidance[k],avoidance,s.spendingItems.length)
+        ||!close(r.capacityValue[k],(gross[k]-expenseInputs.filter(x=>x.capacityActivityId===a.id).reduce((n,x)=>n+x.baselineMonthlyUnits*(x.endMonth-x.startMonth+1)*x.reductionPercent[k]/100*x.adoptionPercent[k]/100,0))*a.loadedHourlyCost))return null;
+      }
+    }
+    const fields={spendingReduction:'existingSpendingReduction',spendingAvoidance:'futureSpendingAvoidance',staffCapacity:'capacityValue'};
+    for(const key of THREE_BENEFIT_KEYS){
+      const b=benefits[key],field=fields[key];
+      if(b.status==='not_estimated'){if(t[field]!==null)return null;}
+      else {const rows=key==='staffCapacity'?s.activities:s.spendingItems.filter(x=>x.category===key),measure=key==='staffCapacity'?'capacityValue':'amount';if(!same(t[field],b.amount)||!levels.every(k=>close(t[field][k],sum(rows,measure,k),rows.length)))return null;}
+    }
+    if(cap.status==='not_estimated'){if(t.grossPotentialHoursFreed!==null||t.potentialHoursFreed!==null)return null;}
+    else if(!range(t.grossPotentialHoursFreed)||!same(t.potentialHoursFreed,benefits.staffCapacity.hours)||!levels.every(k=>close(t.grossPotentialHoursFreed[k],sum(s.activities,'grossHoursFreed',k),s.activities.length)&&close(t.potentialHoursFreed[k],sum(s.activities,'potentialHoursFreed',k),s.activities.length)))return null;
+    if(!range(t.cashInvestment)||!range(t.totalImplementationAndSubscriptionCost)||!range(t.knownBenefitSubtotal)||!range(t.netKnownBenefitSubtotal,true))return null;
+    for(const k of levels){
+      const c=THREE_BENEFIT_COST_CASE[k];
+      if(!close(t.cashInvestment[k],i.implementationCashCost[k]+i.subscriptionCost)||!close(t.totalImplementationAndSubscriptionCost[k],t.cashInvestment[k]+i.implementationCapacityCost[k]))return null;
+      const known=THREE_BENEFIT_KEYS.filter(key=>benefits[key].status!=='not_estimated').reduce((n,key)=>n+benefits[key].amount[k],0);
+      if(!close(t.knownBenefitSubtotal[k],known,3)||!close(t.netKnownBenefitSubtotal[k],known-t.totalImplementationAndSubscriptionCost[c],4))return null;
+      for(const [field,required,cost] of [['netExistingCashEffect',['spendingReduction'],'cashInvestment'],['netCashEffect',['spendingReduction','spendingAvoidance'],'cashInvestment'],['netCapacityAndCashValue',THREE_BENEFIT_KEYS,'totalImplementationAndSubscriptionCost']]){
+        if(required.some(key=>benefits[key].status==='not_estimated')){if(t[field]!==null)return null;}
+        else if(!range(t[field],true)||!close(t[field][k],required.reduce((n,key)=>n+benefits[key].amount[k],0)-t[cost][c],4))return null;
+      }
+    }
+    return {s,input:i};
+  }
+
+  const THREE_BENEFIT_CSS = `<style data-three-benefit-style="20260919.1">
+    .mr-three-benefit{min-width:0;overflow-wrap:anywhere}.mr-three-benefit fieldset{min-width:0;border:0;padding:0;margin:20px 0}.mr-three-benefit legend{font-weight:700;margin-bottom:10px}.mr-benefit-radio{position:absolute;opacity:0;width:1px;height:1px}.mr-benefit-choice{display:inline-block;cursor:pointer;padding:10px 20px;margin:0 8px 12px 0;border:1px solid #0C6E78;border-radius:6px;color:#08383E}.mr-benefit-radio:checked+label{background:#0C6E78;color:white}.mr-benefit-radio:focus-visible+label{outline:3px solid #BC881F;outline-offset:3px}.mr-benefit-panel{display:none;min-width:0}.mr-benefit-radio-low:checked~.mr-benefit-panels>.mr-benefit-low,.mr-benefit-radio-central:checked~.mr-benefit-panels>.mr-benefit-central,.mr-benefit-radio-high:checked~.mr-benefit-panels>.mr-benefit-high{display:block}.mr-benefit-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:18px 0}.mr-benefit-card{padding:18px;border:1px solid #C9DCDD;border-top:4px solid #0C6E78;border-radius:8px;min-width:0;background:#F4F8F7}.mr-benefit-card strong{display:block;font-size:1.65rem;line-height:1.15;margin:10px 0;overflow-wrap:anywhere}.mr-benefit-card h4{margin:0}.mr-benefit-card small{display:block}.mr-benefit-coverage{padding:16px;border-left:4px solid #BC881F;background:#FBF6EA;margin:18px 0}.mr-benefit-net{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.mr-benefit-net>div{padding:14px;background:#F4F6F6;border-radius:6px}.mr-benefit-net strong{display:block;font-size:1.3rem;margin-top:5px}.mr-benefit-scroll{min-width:0;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;margin:20px 0}.mr-benefit-scroll:focus-visible{outline:2px solid #0C6E78;outline-offset:2px}.mr-benefit-table{width:100%;min-width:550px;border-collapse:collapse;font-size:.82rem}.mr-benefit-table caption{text-align:left;font-weight:700;margin-bottom:12px}.mr-benefit-table th,.mr-benefit-table td{padding:10px;border-bottom:1px solid #DCE5E8;text-align:right;vertical-align:top}.mr-benefit-table th:first-child{text-align:left;min-width:170px}.mr-benefit-table td{white-space:nowrap;overflow-wrap:normal;word-break:normal}.mr-benefit-assumption{padding:18px 0;border-bottom:1px solid #DCE5E8}.mr-benefit-assumption h3,.mr-benefit-assumption h4{break-after:avoid}.mr-benefit-assumption dl{display:grid;grid-template-columns:minmax(100px,1fr) minmax(0,2fr);gap:8px 18px}.mr-benefit-assumption dt{color:#53676E}.mr-benefit-assumption dd{margin:0;min-width:0}.mr-benefit-flow{min-width:680px;position:relative;margin:14px 0}.mr-benefit-flow svg{display:block;width:100%;height:100%}.mr-benefit-flow-labels{position:absolute;inset:0;pointer-events:none}.mr-benefit-flow-node{position:absolute;width:32%;min-height:48px;line-height:1.2;font-size:.74rem;background:#fff;border-left:4px solid #0C6E78;padding:6px 8px;box-sizing:border-box}.mr-benefit-flow-node.is-right{right:0;border-color:#B37D20}.mr-benefit-flow-node strong{display:block;margin-top:3px;white-space:nowrap}.mr-benefit-flow-node span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.mr-benefit-chart-note{font-size:.8rem;color:#53676E}.mr-benefit-missing li+li{margin-top:8px}
+    .mr-benefit-print-summary,.mr-benefit-compact-flow{display:none}.mr-benefit-flow{min-width:0;height:calc(var(--benefit-rows)*62px + 16px)!important}.mr-benefit-flow-node{width:38%;top:calc(var(--benefit-row)*62px + 8px)!important}.mr-benefit-node-type{display:block;font-size:.65rem;color:#53676E;margin-top:2px}
+    @media screen and (max-width:640px){.mr-benefit-cards,.mr-benefit-net{grid-template-columns:1fr}.mr-benefit-card strong{font-size:1.6rem}.mr-benefit-choice{padding:10px 17px}.mr-benefit-assumption dl{grid-template-columns:1fr;gap:4px}.mr-benefit-assumption dd{margin-bottom:10px}.mr-benefit-flow-node{font-size:12px;padding:4px;border-left-width:2px}.mr-benefit-flow-node strong{font-size:12px}.mr-benefit-chart{margin-left:0;margin-right:0}.mr-benefit-chart>.mr-benefit-scroll{overflow:visible}}
+    @media print{.mr-benefit-radio,.mr-benefit-choice,.mr-three-benefit legend{display:none!important}.mr-benefit-panel{display:block!important;break-before:page}.mr-benefit-cards{grid-template-columns:repeat(3,minmax(0,1fr))}.mr-benefit-card{padding:10px}.mr-benefit-card strong{font-size:17px}.mr-benefit-card p{font-size:9px}.mr-benefit-net{grid-template-columns:repeat(2,minmax(0,1fr))}.mr-benefit-scroll{overflow:visible;margin:14px 0}.mr-benefit-table{min-width:0;font-size:9px;table-layout:fixed}.mr-benefit-table th,.mr-benefit-table td{padding:6px 4px}.mr-benefit-table th:first-child{min-width:0;width:42%}.mr-benefit-table tr{break-inside:avoid}.mr-benefit-flow{min-width:0!important}.mr-benefit-flow-node{font-size:8px;padding:4px;min-height:36px}.mr-benefit-flow-node strong{font-size:9px}.mr-benefit-coverage{padding:8px}.mr-benefit-assumption{break-inside:avoid}.mr-benefit-chart{break-before:auto;break-inside:avoid}.mr-benefit-assumptions{break-before:page}.mr-benefit-scroll-hint{display:none}}
+    @media print{.mr-benefit-print-summary{display:block}.mr-benefit-screen-summary{display:none}.mr-benefit-flow{height:calc(var(--benefit-rows)*42px + 16px)!important}.mr-benefit-flow-node{top:calc(var(--benefit-row)*42px + 8px)!important}.mr-benefit-node-type{font-size:7px}.mr-benefit-flow-node span{-webkit-line-clamp:2}.mr-benefit-compact-flow{display:none}}
+    @media print{.mr-benefit-month-ledger{break-before:page}}
+  </style>`;
+
+  function threeBenefitTable(caption, rows) {
+    return '<div class="mr-benefit-scroll" role="region" tabindex="0" aria-label="'+esc(caption)+'"><table class="mr-benefit-table"><caption>'+esc(caption)+'</caption><thead><tr><th scope="col">Measure</th>'+THREE_BENEFIT_CASES.map(k=>'<th scope="col">'+humanize(k)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(([label,range,format=threeBenefitMoney,paired=false])=>'<tr><th scope="row">'+esc(label)+'</th>'+THREE_BENEFIT_CASES.map(k=>'<td data-case="'+k+'"'+(range!==null?' data-saved-value="'+range[paired?THREE_BENEFIT_COST_CASE[k]:k]+'"':'')+'>'+esc(range===null?'Not estimated':format(range[paired?THREE_BENEFIT_COST_CASE[k]:k]))+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  }
+
+  function renderThreeBenefitFlow(s,level) {
+    if(!s.coverage.complete)return '';
+    const sources=[];
+    for(const [key,rows,field] of [['staffCapacity',s.activities,'capacityValue'],['spendingReduction',s.spendingItems.filter(x=>x.category==='spendingReduction'),'amount'],['spendingAvoidance',s.spendingItems.filter(x=>x.category==='spendingAvoidance'),'amount']]){
+      const sorted=rows.slice().sort((a,b)=>b[field].central-a[field].central||String(a.id).localeCompare(String(b.id))),visible=sorted.length>4?sorted.slice(0,3):sorted,rest=sorted.length>4?sorted.slice(3):[];
+      for(const row of visible)if(row[field][level]>0)sources.push({label:row.label,type:THREE_BENEFIT_LABELS[key],amount:row[field][level]});
+      if(rest.length){const amount=rest.reduce((n,row)=>n+row[field][level],0);if(amount>0)sources.push({label:'Other '+({staffCapacity:'activities',spendingReduction:'current expenses',spendingAvoidance:'planned expenses'}[key])+' ('+rest.length+')',type:THREE_BENEFIT_LABELS[key],amount});}
+    }
+    const c=THREE_BENEFIT_COST_CASE[level],net=s.totals.netCapacityAndCashValue[level],dest=[{label:'Implementation cash',amount:s.inputs.implementationCashCost[c]},{label:'Internal implementation capacity',amount:s.inputs.implementationCapacityCost[c]},{label:'Subscription allocation',amount:s.inputs.subscriptionCost}].filter(x=>x.amount>0);
+    if(net>0)dest.push({label:'Net planning value',amount:net});
+    if(net<0)sources.push({label:'Value shortfall',type:'Not a benefit or funding',amount:-net});
+    if(!sources.length&&!dest.length)return '<p class="mr-benefit-chart-note">All three benefit categories and costs are explicitly zero in this case. There are no dollar flows to draw.</p>';
+    const rows=Math.max(sources.length,dest.length,1),height=rows*62+16,total=sources.reduce((n,x)=>n+x.amount,0),maximum=Math.max(...sources.map(x=>x.amount),...dest.map(x=>x.amount)),scale=maximum>0?36/maximum:0;
+    let paths='',nodes='';
+    const draw=(items,right)=>{let cumulative=0;items.forEach((item,index)=>{
+      const y=8+index*62,width=item.amount*scale,hubTop=(height-total*scale)/2+cumulative*scale,from=right?340:260,to=right?420:340;
+      const start=right?hubTop:y+25-width/2,end=right?y+25-width/2:hubTop,control1=right?370:290,control2=right?390:310;
+      cumulative+=item.amount;
+      paths+='<path d="M'+from+' '+start+' C'+control1+' '+start+','+control2+' '+end+','+to+' '+end+' L'+to+' '+(end+width)+' C'+control2+' '+(end+width)+','+control1+' '+(start+width)+','+from+' '+(start+width)+' Z" fill="'+(right?'#BC881F':'#0C6E78')+'" opacity=".36" data-three-benefit-flow-value="'+item.amount+'"/>';
+      nodes+='<div class="mr-benefit-flow-node'+(right?' is-right':'')+'" style="--benefit-row:'+index+'"><span>'+esc(item.label)+'</span><strong data-saved-value="'+item.amount+'">'+esc(threeBenefitHeadlineMoney(item.amount))+'</strong></div>';
+    });};draw(sources,false);draw(dest,true);
+    const compact=(title,items)=>'<h5>'+title+'</h5><ul>'+items.map(item=>'<li><span>'+esc(item.label)+(item.type?'<small class="mr-benefit-node-type">'+esc(item.type)+'</small>':'')+'</span><strong>'+esc(threeBenefitMoney(item.amount))+'</strong></li>').join('')+'</ul>';
+    return '<figure class="mr-benefit-chart"><h4>'+humanize(level)+' case: how the value adds up</h4><p class="mr-benefit-chart-note">Dollar-valued benefits and costs share one scale. Retained capacity is staff-time value, not a cash saving. The connections compare totals; they do not assign a spending item to a particular cost.</p><div class="mr-benefit-scroll" role="region" tabindex="0" aria-label="'+humanize(level)+' planning-value Sankey"><div class="mr-benefit-flow" style="--benefit-rows:'+rows+'"><svg viewBox="0 0 680 '+height+'" preserveAspectRatio="none" role="img" aria-label="'+humanize(level)+' planning-value comparison"><desc>Entered benefits '+esc(threeBenefitMoney(s.totals.knownBenefitSubtotal[level]))+'; total cost '+esc(threeBenefitMoney(s.totals.totalImplementationAndSubscriptionCost[c]))+'; net planning value '+esc(threeBenefitMoney(net))+'.</desc>'+paths+'</svg><div class="mr-benefit-flow-labels">'+nodes+'</div></div></div><div class="mr-benefit-compact-flow">'+compact('Benefits and any shortfall',sources)+compact('Costs and net value',dest)+'</div><figcaption class="mr-benefit-chart-note">Directional planning estimates from the recorded operational inputs and stated assumptions. Grouping uses the same largest central-case items across all cases; every item is listed in full below. Hours are not ribbon widths.</figcaption></figure>';
+  }
+
+  function renderThreeBenefitBrief(m) {
+    if(m.kind!=='meta-synthesis'||m.selfRun)return '';
+    const validated=threeBenefitPresentation(m);
+    if(!validated)return '<section class="mr-section mr-financial-brief mr-three-benefit">'+THREE_BENEFIT_CSS+'<h2>Financial benefit assessment</h2><p>The three benefit categories have not been estimated with complete, reconciled inputs for this scope.</p><div class="mr-benefit-cards">'+THREE_BENEFIT_KEYS.map(key=>'<article class="mr-benefit-card"><h4>'+THREE_BENEFIT_LABELS[key]+'</h4><strong>Not estimated</strong><p>'+({spendingReduction:'Enter current expense units, rates, months and the proposed change.',spendingAvoidance:'Enter documented planned expense units, rates, months and the proposed change.',staffCapacity:'Enter measured activity hours, labor rates, time-reduction and adoption assumptions.'}[key])+'</p></article>').join('')+'</div><p>No missing category is treated as zero. Review the saved inputs before using a financial estimate.</p></section>';
+    const {s,input}=validated,t=s.totals,complete=s.coverage.complete;
+    const panels=THREE_BENEFIT_CASES.map(level=>{
+      const cards=THREE_BENEFIT_KEYS.map(key=>{const b=s.benefits[key];return '<article class="mr-benefit-card" data-benefit="'+key+'" data-status="'+b.status+'"><h4>'+THREE_BENEFIT_LABELS[key]+'</h4><strong'+(b.amount!==null?' data-saved-value="'+b.amount[level]+'"':'')+'>'+esc(b.amount===null?'Not estimated':threeBenefitHeadlineMoney(b.amount[level]))+'</strong><small>'+esc(b.status==='none_identified'?'Reviewed: none identified':b.status==='not_estimated'?'Inputs still needed':key==='staffCapacity'?b.hours[level].toLocaleString('en-US',{maximumFractionDigits:0})+' retained hours; not cash savings':'Potential change against the stated spending baseline')+'</small><p>'+esc(b.basis)+'</p></article>';}).join('');
+      return '<div class="mr-benefit-panel mr-benefit-'+level+'" data-three-benefit-case="'+level+'"><h3>'+humanize(level)+' planning case</h3><div class="mr-benefit-cards">'+cards+'</div><div class="mr-benefit-net"><div>Total cost, including internal staff time<strong data-saved-value="'+t.totalImplementationAndSubscriptionCost[THREE_BENEFIT_COST_CASE[level]]+'">'+esc(threeBenefitHeadlineMoney(t.totalImplementationAndSubscriptionCost[THREE_BENEFIT_COST_CASE[level]]))+'</strong></div><div>'+(complete?'Net planning value':'Net of entered benefits only')+'<strong data-saved-value="'+t.netKnownBenefitSubtotal[level]+'">'+esc(threeBenefitHeadlineMoney(t.netKnownBenefitSubtotal[level]))+'</strong><small>'+(complete?'Includes retained staff capacity; not a cash return.':'Incomplete subtotal, not complete ROI.')+'</small></div></div>'+renderThreeBenefitFlow(s,level)+'</div>';
+    }).join('');
+    const coverage=(complete?'All three benefit categories are covered.': 'Partial estimate: '+s.coverage.missingCategories.map(key=>THREE_BENEFIT_LABELS[key].toLowerCase()).join(', ')+' '+(s.coverage.missingCategories.length===1?'is':'are')+' not estimated.')+' Summary and chart values are rounded. Detailed tables retain cents and fractional hours.';
+    const rows=THREE_BENEFIT_KEYS.map(key=>[THREE_BENEFIT_LABELS[key],s.benefits[key].amount]);
+    rows.push(['Retained staff hours',t.potentialHoursFreed,threeBenefitNumber],['Cash investment',t.cashInvestment,threeBenefitMoney,true],['Total cost including internal staff time',t.totalImplementationAndSubscriptionCost,threeBenefitMoney,true],['Net current-spending effect',t.netExistingCashEffect],['Net spending versus baseline',t.netCashEffect],[complete?'Net planning value':'Complete net planning value',t.netCapacityAndCashValue],['Entered benefit subtotal',t.knownBenefitSubtotal],['Entered subtotal less full cost',t.netKnownBenefitSubtotal]);
+    const comparison=threeBenefitTable('Three planning cases',rows);
+    return '<section class="mr-section mr-financial-brief mr-three-benefit" data-three-benefit-version="20260919.1">'+THREE_BENEFIT_CSS+'<p class="mr-financial-eyebrow">Operational value</p><h2>Decision brief: three sources of value</h2><p>'+esc(s.title)+' · '+input.horizonMonths+' months</p><p class="mr-benefit-coverage">'+esc(coverage)+(complete?'':' Missing information is not zero, and the entered subtotal is not complete ROI.')+'</p><div class="mr-benefit-print-summary">'+comparison+'<p>Low pairs low benefit assumptions with high costs; high pairs high assumptions with low costs. Labor assigned to spending reductions is removed from retained capacity first, so retained capacity can be lower in a stronger spending case. These are planning cases, not confidence intervals or measured savings.</p></div><fieldset><legend>Choose a planning case</legend>'+THREE_BENEFIT_CASES.map(k=>'<input class="mr-benefit-radio mr-benefit-radio-'+k+'" id="mr-planning-benefit-'+k+'" name="mr-planning-benefit" type="radio" value="'+k+'"'+(k==='central'?' checked':'')+'><label class="mr-benefit-choice" for="mr-planning-benefit-'+k+'">'+humanize(k)+'</label>').join('')+'<div class="mr-benefit-panels">'+panels+'</div></fieldset><div class="mr-benefit-screen-summary">'+comparison+'</div>'+(complete?'':'<ul class="mr-benefit-missing">'+s.coverage.missingCategories.map(key=>'<li><strong>'+THREE_BENEFIT_LABELS[key]+':</strong> '+s.benefits[key].missingInputs.map(esc).join(' ')+'</li>').join('')+'</ul>')+'<p class="mr-benefit-screen-summary">Low pairs low benefit assumptions with high costs; high pairs high assumptions with low costs. Labor assigned to spending reductions is removed from retained capacity first, so retained capacity can be lower in a stronger spending case. These are planning cases, not confidence intervals or measured savings.</p>'+(s.kind==='early_planning_scenario'?'<p>This early planning scenario does not unlock Synthesis. Complete the campaign readiness checks separately.</p>':'')+'</section>';
+  }
+
+  function renderThreeBenefitAssumptions(m,n) {
+    const valid=threeBenefitPresentation(m);if(!valid)return '';
+    const {s,input:i}=valid,percent=v=>threeBenefitNumber(v)+'%',facts=rows=>'<dl>'+rows.map(([k,v])=>'<dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd>').join('')+'</dl>';
+    let html='<section class="mr-section mr-three-benefit mr-benefit-assumptions"><h2>'+n+'. Operational inputs and reconciliation</h2><p>Each value comes from the saved scenario, not from a diagnostic score. Spending reductions use an existing expense baseline; avoided future spending uses a documented planned expense. Retained staff capacity excludes every hour assigned to either spending category.</p><p>'+esc(obj(s.method).extrapolation)+'</p>';
+    for(const key of THREE_BENEFIT_KEYS)html+='<h3>'+THREE_BENEFIT_LABELS[key]+'</h3><p>'+esc(s.benefits[key].basis)+' · '+esc(humanize(s.benefits[key].status))+'</p>';
+    for(const a of i.capacity.activities){const r=s.activities.find(x=>x.id===a.id);html+='<article class="mr-benefit-assumption"><h3>'+esc(a.label)+'</h3>'+facts([['Measurement window',i.capacity.measurementStart+' to '+i.capacity.measurementEnd],['People covered by records',i.capacity.measuredPeople],['Measured activity hours',threeBenefitNumber(a.measuredHours)],['Loaded hourly cost',threeBenefitMoney(a.loadedHourlyCost)],['Source basis',humanize(a.sourceBasis)],['Source reference',a.sourceReference],['Proposed change',a.changeBasis]])+threeBenefitTable('Activity assumptions',[['Reduction assumption',a.reductionPercent,percent],['Adoption assumption',a.adoptionPercent,percent]])+threeBenefitTable('Saved activity reconciliation',[['Gross hours freed',r.grossHoursFreed,threeBenefitNumber],['Hours assigned to current spending',r.hoursUsedForSpendingReduction,threeBenefitNumber],['Hours assigned to future spending',r.hoursUsedForSpendingAvoidance,threeBenefitNumber],['Retained staff hours',r.potentialHoursFreed,threeBenefitNumber],['Retained capacity value',r.capacityValue]])+'</article>';}
+    for(const key of ['spendingReduction','spendingAvoidance'])for(const item of i[key].items){const r=s.spendingItems.find(x=>x.id===item.id);html+='<article class="mr-benefit-assumption"><h3>'+esc(item.label)+'</h3>'+facts([['Benefit category',THREE_BENEFIT_LABELS[key]],['Resource reference',item.resourceId],['Expense type',humanize(item.kind)],['Baseline each month',threeBenefitNumber(item.baselineMonthlyUnits)+' '+item.unit],['Cost per unit',threeBenefitMoney(item.unitCost)],['Active planning months',item.startMonth+' to '+item.endMonth+' ('+r.activeMonths+' months)'],['Linked capacity activity',item.capacityActivityId||'Not applicable: non-labor expense'],['Source reference',item.sourceReference],['Proposed change',item.changeBasis]])+threeBenefitTable('Spending assumptions',[['Reduction assumption',item.reductionPercent,percent],['Adoption assumption',item.adoptionPercent,percent]])+threeBenefitTable('Saved spending benefit',[['Spending benefit',r.amount],['Capacity hours assigned to this expense',r.allocatedHours,threeBenefitNumber]])+'</article>';}
+    // Group only adjacent months whose saved values are exactly identical.
+    // Do not divide totals to invent a monthly record or silently fill gaps.
+    const monthGroups=records=>records.reduce((groups,row)=>{const {month,...values}=row,last=groups[groups.length-1],signature=JSON.stringify(values);if(last&&last.end+1===month&&last.signature===signature)last.end=month;else groups.push({start:month,end:month,signature,values});return groups;},[]);
+    const monthLabel=g=>(g.start===g.end?'Month '+g.start:'Months '+g.start+' to '+g.end)+' - hours in each month';
+    if(s.activities.length)html+='<div class="mr-benefit-month-ledger"><h3>Month-by-month capacity allocation</h3><p>Identical consecutive months are shown together. Each row still shows one month, not the total for that month range.</p>';
+    for(const a of s.activities)html+='<article class="mr-benefit-assumption"><h4>'+esc(a.label)+'</h4>'+monthGroups(a.monthlyReconciliation).map(g=>threeBenefitTable(monthLabel(g),[['Gross hours freed',g.values.grossHoursFreed,threeBenefitNumber],['Assigned to current spending',g.values.hoursUsedForSpendingReduction,threeBenefitNumber],['Assigned to future spending',g.values.hoursUsedForSpendingAvoidance,threeBenefitNumber],['Retained capacity hours',g.values.potentialHoursFreed,threeBenefitNumber]])).join('')+'</article>';
+    for(const item of s.spendingItems.filter(x=>x.kind==='labor'))html+='<article class="mr-benefit-assumption"><h4>'+esc(item.label)+' - allocated capacity</h4>'+monthGroups(item.monthlyAllocations).map(g=>threeBenefitTable(monthLabel(g),[['Hours allocated to this expense',g.values.allocatedHours,threeBenefitNumber]])).join('')+'</article>';
+    if(s.activities.length)html+='</div>';
+    html+='<article class="mr-benefit-assumption"><h3>Implementation and subscription</h3>'+threeBenefitTable('Cost input ranges (lower to higher costs)',[['Implementation cash',i.implementationCashCost],['Internal implementation capacity',i.implementationCapacityCost]])+'<p>Subscription allocation: '+esc(threeBenefitMoney(i.subscriptionCost))+'</p><p>'+esc(i.costBasis)+'</p></article><p>Gross recovered activity hours are spread evenly across the planning months. Labor expense benefits allocate hours only in their stated active months. Current and future expense allocations share the same capacity limit each month.</p><p>'+esc(obj(s.participation).statement)+'</p>'+arr(s.limitations).map(value=>'<p>'+esc(value)+'</p>').join('')+'</section>';
+    return html;
+  }
+  // END THREE BENEFIT PRESENTATION 20260919.1
+
   function financialScenarioPresentation(m) {
     // Diagnostic score distributions never become recovery estimates. Only a
     // separately calculated, same-scope operational scenario is displayable.
@@ -1126,6 +1319,7 @@
   }
 
   function renderFinancialDecisionBrief(m) {
+    if (obj(m.financialScenario).version === 'operational-planning-scenario-20260919.2' || (!obj(m.financialScenario).version && obj(m.financialBenefitAssessment).version === 'three-benefit-assessment-20260919.1')) return renderThreeBenefitBrief(m);
     const validated=financialScenarioPresentation(m);
     if(!validated)return '';
     const {s,input}=validated,t=s.totals;
@@ -1271,6 +1465,7 @@
   // END PLANNING CASE SANKEY PRESENTATION 20260919.3
 
   function renderMetaExposure(m, n) {
+    if (obj(m.financialScenario).version === 'operational-planning-scenario-20260919.2') return renderThreeBenefitAssumptions(m, n);
     const validated=financialScenarioPresentation(m);
     if(!validated)return '';
     const {s,input}=validated;
@@ -1715,7 +1910,7 @@
 
   function buildReportCover(model) {
     const m = obj(model);
-    const financial=financialScenarioPresentation(m);
+    const financial=financialScenarioPresentation(m) || threeBenefitPresentation(m);
     // Adapt only this known deterministic no-scenario boilerplate when a
     // valid separate scenario is actually attached. Never rewrite saved prose
     // or imply that a score supplies an estimate; source records stay intact.
@@ -3097,6 +3292,7 @@
     return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" />' +
       '<meta name="monderman-renderer-version" content="' + RENDERER_VERSION + '" />' +
       (financialScenarioPresentation(obj(model))?'<meta name="monderman-financial-presentation-version" content="'+FINANCIAL_PRESENTATION_VERSION+'" />':'') +
+      (threeBenefitPresentation(obj(model))?'<meta name="monderman-three-benefit-presentation-version" content="three-benefit-presentation-20260919.1" />':'') +
       '<meta name="viewport" content="width=device-width, initial-scale=1.0" />' +
       "<title>Monderman | Executive Report</title><style>" + REPORT_CSS + AI_CSS + REPORT_READING_CSS + SCREEN_CSS + "</style></head><body>" +
       '<div class="mr-report"><div class="mr-page">' + buildScreenReportBody(model) +
