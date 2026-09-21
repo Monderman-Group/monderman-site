@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 const sha=value=>createHash('sha256').update(value).digest('hex');
-export const THREE_BENEFIT_RENDERER_SHA256='171c36bc67d14e83b9db412f550152d58cc695cc6c4e9a5a9afc9d72bac348d2';
+export const THREE_BENEFIT_RENDERER_SHA256='eaece742a8f0a93ed73dc355ca14e52c29f427fed95ce2cfc839e7043946fa62';
 export const PRIOR_THREE_BENEFIT_RENDERER_SHA256='ca92f06864b1f836cb3b9c92aab67f1fceb1bd6a6815428b8dd921cfca710ec0';
 const replacements=[
   ["      ...(r.financial_benefit_assessment ? { financialBenefitAssessment: obj(r.financial_benefit_assessment) } : {}),\n",''],

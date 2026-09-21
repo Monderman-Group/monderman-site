@@ -211,6 +211,19 @@ for (const {name, raw} of cases) {
       }
       close(roles.get('remaining') || 0, baseline - released, label + ': remaining ribbons reconcile', contract.rows.length);
       ok(Math.abs(drawnTotal - baseline) <= Math.max(1e-8, baseline * 1e-12), label + ': drawn ribbons conserve the baseline despite independently rounded labels');
+      const mobileScale = Number(section.html.match(/data-mobile-burden-scale="([^"]+)"/)?.[1]);
+      ok(Number.isFinite(mobileScale) && mobileScale > 0, label + ': phone overview has a finite fixed baseline scale');
+      ok(Math.abs(mobileScale * baseline - 260) < 1e-8, label + ': phone baseline width is consistent between cases');
+      let mobileTotal = 0;
+      for (const match of section.html.matchAll(/<path\b([^>]*\bdata-mobile-burden-role="[^"]+"[^>]*)>/g)) {
+        const attrs = attributes(match[1]), amount = numeric(attrs, 'data-mobile-burden-amount', label + '/phone');
+        ok(['remaining', 'spendingReduction', 'spendingAvoidance', 'staffCapacity'].includes(attrs['data-mobile-burden-role']), label + ': phone shows no cost or subscription flow');
+        const coordinates = attrs.d.match(/[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?/gi).map(Number);
+        equal(coordinates.length, 16, label + ': complete phone ribbon');
+        for (const width of [coordinates[14] - coordinates[0], coordinates[8] - coordinates[6]]) ok(Math.abs(width - amount * mobileScale) < 1e-7, label + ': phone ribbon uses the same case scale');
+        mobileTotal += amount;
+      }
+      ok(Math.abs(mobileTotal - baseline) <= Math.max(1e-8, baseline * 1e-12), label + ': phone overview conserves the baseline');
       for (const [role, value] of kind === 'workload'
         ? [['spendingReduction', contract.rows.reduce((n, r) => n + r.reduction, 0)], ['spendingAvoidance', contract.rows.reduce((n, r) => n + r.avoidance, 0)], ['staffCapacity', contract.rows.reduce((n, r) => n + r.retained, 0)]]
         : [[kind === 'current-spending' ? 'spendingReduction' : 'spendingAvoidance', released]]) close(roles.get(role) || 0, value, label + ': ' + role + ' ribbons reconcile', contract.rows.length);
