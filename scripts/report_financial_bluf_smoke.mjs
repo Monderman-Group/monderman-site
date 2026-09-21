@@ -8,6 +8,7 @@ import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {chromium,webkit} from 'playwright';
 import {sourceBeforeFinancialPresentation,restoreFinancialPresentationStyles,PRIOR_FINANCIAL_RENDERER_SHA256} from './report_financial_presentation_inverse.mjs';
+import {reportHtmlAfterReviewedPresentation,LEGACY_PLANNING_NOTE_HTML} from './report_three_benefit_presentation_inverse.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 const sourcePath=path.join(root,'sample-data/production-diagnostic-samples.json');
@@ -24,7 +25,7 @@ const out=process.env.REPORT_FINANCIAL_BLUF_OUT?path.resolve(process.env.REPORT_
 fs.mkdirSync(out,{recursive:true,mode:0o700});
 let checks=0,blockedRequests=0;const screenshots=[],pdfs=[],states=[],errors=[];
 const ok=(value,label)=>{assert.ok(value,label);checks++;},eq=(a,b,label)=>{assert.deepEqual(a,b,label);checks++;};
-const build=raw=>{const before=JSON.stringify(raw),model=report.fromSynthesis(raw),html=report.buildReportHtml(model);eq(JSON.stringify(raw),before,'Rendering leaves saved source unchanged');return {model,html};};
+const build=raw=>{const before=JSON.stringify(raw),model=report.fromSynthesis(raw),html=report.buildReportHtml(model);eq(JSON.stringify(raw),before,'Rendering leaves saved source unchanged');ok(!/data-(?:planning|sankey)-node="subscriptionCost"/.test(html),'Current report contains no subscription chart node');return {model,html};};
 const briefPattern=/<section\b[^>]*class="mr-section mr-financial-brief"[\s\S]*?<\/section>/;
 const fullPattern=/<section\b[^>]*class="mr-section mr-financial-scenario"[\s\S]*?<\/section>/;
 const cases=['depth_synthesis','cross_lens_synthesis'].map(key=>{const raw=clone(artifact.outputs[key].source);return {key,raw,...build(raw)};});
@@ -44,6 +45,8 @@ const priorSandbox={window:{},console,Intl,Date,Number,String,Array,Object,Math,
 vm.runInNewContext(priorSource,priorSandbox);const priorReport=priorSandbox.window.MondermanReport;
 for(const item of cases){
   const {html,model}=item;ok(briefPattern.test(html),'Current '+item.key+' has decision brief');
+  ok(html.includes(LEGACY_PLANNING_NOTE_HTML),'Current '+item.key+' explains the earlier saved planning format');
+  ok(!html.includes('data-planning-sankey-version="planning-case-sankey-20260919.3"'),'Current '+item.key+' retires the obsolete benefits-to-costs chart');
   ok(html.indexOf('class="mr-section mr-financial-brief"')<html.indexOf('class="mr-section mr-ai-interpretation'),'Financial summary precedes long AI text');
   ok(model.coverBody.includes('These estimates are withheld.'),'Source cover text unchanged');
   const cover=html.match(/<section\b[^>]*class="mr-cover"[\s\S]*?<\/section>/)[0];
@@ -72,7 +75,7 @@ for(const key of ['structural_clarity','decision_velocity','operational_systems'
   payload.financial_scenario=clone(cases[0].raw.financial_scenario);
   const html=report.buildReportHtml(report.fromRun(raw));ok(!briefPattern.test(html),'Single '+key+' never acquires organizational financial brief');
   eq(report.buildReportBody(report.fromRun(raw)),priorReport.buildReportBody(priorReport.fromRun(raw)),'Actual '+key+' single-run body is byte-identical');
-  eq(restoreFinancialPresentationStyles(html),priorReport.buildReportHtml(priorReport.fromRun(raw)),'Actual '+key+' full HTML differs only by exact new financial CSS');
+  eq(restoreFinancialPresentationStyles(html),reportHtmlAfterReviewedPresentation(priorReport.buildReportHtml(priorReport.fromRun(raw))),'Actual '+key+' full HTML differs only by exact new financial CSS and reviewed category colors');
   ok(!html.includes('meta name="monderman-financial-presentation-version"'),'Single-run HTML has no financial summary edition');
 }
 const zero=clone(cases[0].raw);for(const key of metricKeys)zero.financial_scenario.totals[key]={low:0,central:0,high:0};
@@ -128,26 +131,30 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
       const summaryPages=pages.map((text,index)=>({text:text.replace(/\s+/g,' '),page:index+1})).filter(p=>p.text.includes('Decision brief'));
       eq(summaryPages.length,1,'Exactly one PDF decision-brief page');eq(summaryPages[0].page,2,'Financial BLUF is page two, directly after cover');
       for(const phrase of ['Three planning cases','No direct cash saving assumed.',money(totals.capacityValue.central),money(totals.netCapacityAndCashValue.low),'Exact values, activity records and assumptions'])ok(summaryPages[0].text.includes(phrase),'Full BLUF fits one page: '+phrase);
-      // The approved shared renderer now places all three planning cases after
-      // the unchanged page-two brief. Printing must not omit the unselected
-      // native-radio cases or move long AI prose ahead of the financial read.
-      for(const [index,level]of ['low','central','high'].entries()){
+      // Earlier saved scenarios retain all three cases in tables, but no longer
+      // print the retired benefits-to-costs chart or fabricate new baselines.
+      const normalizedPages=pages.map((text,index)=>({text:text.replace(/\s+/g,' '),page:index+1}));
+      const interpretationPage=normalizedPages.find(row=>row.text.includes('Interpretation and next steps'))?.page;
+      ok(Number.isInteger(interpretationPage),'Printed report retains AI interpretation');
+      const financialText=normalizedPages.filter(row=>row.page<interpretationPage).map(row=>row.text).join(' ');
+      ok(financialText.includes('This saved report uses an earlier planning format.'),'Printed legacy-format explanation remains before interpretation');
+      for(const level of ['low','central','high']){
         const title=level[0].toUpperCase()+level.slice(1)+' planning case';
-        const casePages=pages.map((text,page)=>({text:text.replace(/\s+/g,' '),page:page+1})).filter(row=>row.text.includes(title));
-        eq(casePages.length,1,'Exactly one printed '+level+' planning case');
-        eq(casePages[0].page,index+3,'Planning cases immediately follow the brief in Low/Central/High order');
+        ok(!normalizedPages.some(row=>row.text.includes(title)),'Retired '+level+' chart does not print');
         for(const key of metricKeys){
           const cost=['cashInvestment','totalImplementationAndSubscriptionCost'].includes(key);
           const value=totals[key][cost?costLevel[level]:level];
-          ok(casePages[0].text.includes(key==='potentialHoursFreed'?number(value):money(value)),'Printed case retains exact table display: '+level+' '+key);
+          ok(financialText.includes(key==='potentialHoursFreed'?number(value):money(value)),'Printed tables retain exact case value before interpretation: '+level+' '+key);
         }
       }
-      const breakdownPages=pages.map((text,index)=>({text:text.replace(/\s+/g,' '),page:index+1})).filter(row=>row.text.includes('Activity and cost breakdown'));
+      const breakdownPages=normalizedPages.filter(row=>row.text.includes('Activity and cost breakdown'));
       eq(breakdownPages.length,1,'Exactly one complete printed activity and cost breakdown');
-      eq(breakdownPages[0].page,6,'Activity and cost breakdown immediately follows the three planning cases');
+      ok(breakdownPages[0].page>summaryPages[0].page&&breakdownPages[0].page<interpretationPage,'Activity and cost breakdown follows the brief and precedes interpretation');
       for(const label of ['Implementation cash','Internal staff-time implementation cost','Subscription allocation',...item.raw.financial_scenario.activities.map(activity=>activity.label)])ok(breakdownPages[0].text.includes(label),'Printed breakdown retains each activity and cost component: '+label);
       ok(!breakdownPages[0].text.includes('Interpretation and next steps'),'Interpretation does not crowd the activity and cost breakdown');
-      ok(pages[6].includes('Interpretation and next steps'),'AI interpretation follows the complete financial brief, three planning cases and activity/cost breakdown');
+      for(const activity of item.raw.financial_scenario.activities)for(const level of ['low','central','high'])for(const key of ['potentialHoursFreed','capacityValue','avoidableNonLaborCash']){
+        const value=activity[key]?.[level];if(typeof value==='number')ok(financialText.includes(key==='potentialHoursFreed'?number(value):money(value)),'Printed activity retains exact saved value: '+activity.label+' '+level+' '+key);
+      }
       const fullText=pages.join('\n');for(const value of [totals.capacityValue.low,totals.capacityValue.central,totals.capacityValue.high])ok(fullText.includes(value.toLocaleString('en-US')),'Exact detailed dollar values retained in PDF');
       execFileSync(process.env.PDFTOPPM||'pdftoppm',['-f','2','-l','2','-scale-to','1400','-png','-singlefile',target,path.join(out,item.key+'-page-2')]);
       pdfs.push({file:target,sha256:sha(fs.readFileSync(target)),pages:pages.length,summaryPage:2});
