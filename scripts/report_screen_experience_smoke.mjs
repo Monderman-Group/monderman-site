@@ -152,7 +152,7 @@ for(const key of ['os','dv','sc','ip','synthesis','depth']) {
   assert.equal(surface.methodHeadingTop,'0px',key+' section heading doubles its parent spacing');
   assert.ok(surface.methodPadding>=18,key+' method panel has no inner horizontal spacing');
   assert.equal(surface.methodBackground,'rgb(244, 247, 248)',key+' method panel uses a legacy paper surface');
-  assert.ok(surface.categories.length && surface.categories.every(color=>color==='rgb(94, 127, 152)'),key+' category accents use warning orange');
+  assert.ok(surface.categories.length && surface.categories.every(color=>color==='rgb(201, 162, 39)'),key+' category accents must use the approved gold');
   const destinations=await shell.locator('.mr-screen-shortcuts a').evaluateAll(links=>links.map(link=>({text:link.textContent,id:link.hash.slice(1),exists:!!document.getElementById(link.hash.slice(1))})));
   assert.ok(destinations.length>=4 && destinations.every(link=>link.exists),key+' missing navigation target');
   const next=shell.locator('.mr-screen-next a');
@@ -344,7 +344,7 @@ for (const product of ['operational-systems','decision-velocity','structural-cla
     assert.equal(await bars.count(),5,product+' fixture did not render the actual dimension chart');
     assert.ok((await bars.evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).backgroundColor))).every(color=>color==='rgb(12, 110, 120)'),product+' dimension categories must use canonical teal, not decorative warning colors');
     await emulateMediaAndSettle(direct,'print');
-    assert.ok((await bars.evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).backgroundColor))).includes('rgb(201, 130, 31)'),product+' category restyle changed the original print chart');
+    assert.ok((await bars.evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).backgroundColor))).every(color=>color==='rgb(12, 110, 120)'),product+' print dimension categories must match the canonical teal screen chart');
     await emulateMediaAndSettle(direct,'screen');
   }
   const spacing=await direct.evaluate(()=>{

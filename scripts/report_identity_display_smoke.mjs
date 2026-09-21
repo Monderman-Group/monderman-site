@@ -7,6 +7,7 @@ import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {restoreFinancialPresentationStyles} from './report_financial_presentation_inverse.mjs';
 import {sourceBeforeRenderer42,restoreRenderer42PrintSpacing} from './report_focus_label_smoke.mjs';
+import {reportHtmlAfterReviewedPresentation} from './report_three_benefit_presentation_inverse.mjs';
 const sha=v=>createHash('sha256').update(v).digest('hex');
 const canonical=x=>Array.isArray(x)?x.map(canonical):x&&typeof x==='object'?Object.fromEntries(Object.keys(x).sort().map(k=>[k,canonical(x[k])])):x;
 const DELTA=[
@@ -72,14 +73,14 @@ if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.ur
  const custom=make();custom.narrative.executive_summary='A participant said physical people; keep this exact prose.';eq(R.fromSynthesis(freeze(custom)).coverBody,custom.narrative.executive_summary);
  for(const tool_type of ['structural_clarity','decision_velocity','operational_systems','institutional_performance']){
   const x=freeze({tool_type,score:52,band:'Saved',key_findings:[caveat]});
-  eq(restoreRenderer42PrintSpacing(restoreFinancialPresentationStyles(R.buildReportHtml(R.fromRun(x)))).replaceAll(R.rendererVersion,old.rendererVersion),old.buildReportHtml(old.fromRun(x)),'Ordinary reports differ only by renderer stamp, exact renderer43 print spacing and separately tested financial CSS');
+  eq(restoreRenderer42PrintSpacing(restoreFinancialPresentationStyles(R.buildReportHtml(R.fromRun(x)))).replaceAll(R.rendererVersion,old.rendererVersion),reportHtmlAfterReviewedPresentation(old.buildReportHtml(old.fromRun(x))),'Ordinary reports differ only by renderer stamp, exact print spacing, financial CSS and reviewed category colors');
  }
  const actualArg=process.argv.indexOf('--original');
  if(actualArg>=0){
   const x=JSON.parse(fs.readFileSync(process.argv[actualArg+1],'utf8')).candidate.outputs.depth_synthesis.source;
   eq(sha(JSON.stringify(canonical(x))),'2dc400b53e73e77130e184b2717efdb59bb51d657208c4fa1169fac8d07c339e');
   check(x);const html=R.buildReportHtml(R.fromSynthesis(x)),oldHtml=old.buildReportHtml(old.fromSynthesis(x));
-  eq(restoreRenderer42PrintSpacing(restoreFinancialPresentationStyles(html)),oldHtml.replaceAll(old.rendererVersion,R.rendererVersion).replaceAll('unique physical people','distinct people').replaceAll('verified physical people','verified distinct people'),'Historical nonfinancial Depth HTML has only known copy, version, renderer43 print spacing and financial CSS differences');
+  eq(restoreRenderer42PrintSpacing(restoreFinancialPresentationStyles(html)),reportHtmlAfterReviewedPresentation(oldHtml.replaceAll(old.rendererVersion,R.rendererVersion).replaceAll('unique physical people','distinct people').replaceAll('verified physical people','verified distinct people')),'Historical nonfinancial Depth HTML has only known copy, version, print spacing, financial CSS and reviewed category-color differences');
  }
  console.log(JSON.stringify({status:'PASS',checks,renderer40Sha256:sha(prior),immutableInputs:true,authoredProseUnchanged:true,providerCalls:0}));
 }

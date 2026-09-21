@@ -807,7 +807,7 @@
     svg += '<line x1="' + X(read.max) + '" y1="' + (axisY-8) + '" x2="' + X(read.max) + '" y2="' + (axisY+8) + '" stroke="#6E6F73" stroke-width="2"/>';
     svg += '<rect x="' + X(iqr[0]) + '" y="' + (axisY-14) + '" width="' + Math.max(3, X(iqr[1]) - X(iqr[0])) + '" height="28" rx="5" fill="rgba(12,110,120,.16)" stroke="#0C6E78"/>';
     svg += '<line x1="' + X(read.median) + '" y1="' + (axisY-18) + '" x2="' + X(read.median) + '" y2="' + (axisY+18) + '" stroke="#08383E" stroke-width="3"/>';
-    if (strictFinite(read.mean)) svg += '<circle cx="' + X(read.mean) + '" cy="' + axisY + '" r="5" fill="#C9821F" stroke="#fff" stroke-width="1.5"/>';
+    if (strictFinite(read.mean)) svg += '<circle cx="' + X(read.mean) + '" cy="' + axisY + '" r="5" fill="#C9A227" stroke="#7A6015" stroke-width="1.5"/>';
     svg += '<text x="' + X(read.median) + '" y="' + (axisY+34) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#08383E">median ' + esc(fmt1(read.median)) + '</text>';
     svg += '<text x="' + L + '" y="' + (axisY+55) + '" font-size="11" fill="#6E6F73">Range ' + esc(fmt1(read.min)) + '–' + esc(fmt1(read.max)) + ' · IQR ' + esc(fmtPair(read.iqr, fmt1)) + (strictFinite(read.sd) ? ' · sample sd ' + esc(fmt1(read.sd)) : '') + '</text>';
     let segmentY = 146;
@@ -839,7 +839,7 @@
           esc(fmtWhole(s.n)) + (Number(s.n) === 1 ? ' submitted run' : ' submitted runs') + '</span><dl class="mr-synth-stat-list"><div><dt>Mean</dt><dd>' +
           esc(mean) + '</dd></div><div><dt>Median</dt><dd>' + esc(median) + '</dd></div></dl></div>';
       }).join('') + '</div>' : '') + '</div>';
-    return '<div class="mr-viz-panel mr-depth-distribution-panel"><div class="mr-viz-title">Distribution at a glance</div>' + svg + summary + '<p class="mr-copy"><span class="mr-synth-wide-caption">Box = interquartile range; dark line = median; amber dot = mean. </span>Results by participant perspective describe the submitted groups; they do not change how the Median Diagnostic Score is calculated.</p></div>';
+    return '<div class="mr-viz-panel mr-depth-distribution-panel"><div class="mr-viz-title">Distribution at a glance</div>' + svg + summary + '<p class="mr-copy"><span class="mr-synth-wide-caption">Box = interquartile range; dark line = median; gold dot = mean. </span>Results by participant perspective describe the submitted groups; they do not change how the Median Diagnostic Score is calculated.</p></div>';
   }
 
   function renderDepthDistribution(m, n) {
@@ -2580,7 +2580,7 @@
     .mr-depth-system-read>h2{font-size:clamp(1.9rem,3.8vw,3.1rem)!important;line-height:1.02!important;letter-spacing:-.045em!important;max-width:22ch!important}.mr-depth-system-read{display:flex;flex-direction:column}.mr-depth-system-read>.mr-viz-panel{order:-1;margin-bottom:28px}.mr-depth-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid #E0DCD3;border-radius:12px;overflow:hidden;margin:16px 0}.mr-depth-reading-grid{display:grid;grid-template-columns:1.2fr .8fr;border:1px solid #E0DCD3;border-radius:12px;overflow:hidden}.mr-depth-reading-grid>div{padding:20px 22px}.mr-depth-reading-grid>div+div{border-left:1px solid #E0DCD3;background:#F7F5F0}.mr-depth-reading-grid p{font-size:.9rem!important;line-height:1.58!important;margin:7px 0 0!important}.mr-depth-reading-grid strong{display:block;font-size:1.2rem;margin:8px 0 4px}
     .mr-decision-frame{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:20px 0 16px}
     .mr-decision-metric{padding:16px 15px;border:1px solid #EAE6DD;border-top:3px solid #0C6E78;border-radius:9px;background:#FAFAF8;min-width:0}
-    .mr-decision-metric:nth-child(2){border-top-color:#C9821F}.mr-decision-metric:nth-child(3){border-top-color:#3C8A60}.mr-decision-metric:nth-child(4){border-top-color:#08383E}
+    .mr-decision-metric:nth-child(2){border-top-color:#C9A227}.mr-decision-metric:nth-child(3){border-top-color:#3C8A60}.mr-decision-metric:nth-child(4){border-top-color:#08383E}
     .mr-decision-value{font-size:1.55rem;line-height:1.05;letter-spacing:-.035em;font-weight:700;color:#18191C;margin:8px 0 5px;overflow-wrap:anywhere}
     .mr-decision-story{display:grid;grid-template-columns:1.15fr .85fr;gap:0;margin-top:14px;border:1px solid #EAE6DD;border-radius:11px;overflow:hidden}
     .mr-decision-story>div{padding:20px 22px;background:#FFF}.mr-decision-story>div+div{border-left:1px solid #EAE6DD;background:#F6F3EC}
@@ -2591,7 +2591,7 @@
     .mr-evidence-step.is-active{color:#0C6E78}.mr-evidence-step.is-active span{background:#0C6E78;box-shadow:0 0 0 2px rgba(12,110,120,.18)}
     .mr-action-path{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0 24px}
     .mr-action-step{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start;padding:14px 14px;border:1px solid #EAE6DD;border-top:3px solid #0C6E78;border-radius:9px;background:#FAFAF8}
-    .mr-action-step[data-tier="behavioral"]{border-top-color:#C9821F}.mr-action-step[data-tier="cultural"]{border-top-color:#3C8A60}
+    .mr-action-step[data-tier="behavioral"]{border-top-color:#C9A227}.mr-action-step[data-tier="cultural"]{border-top-color:#3C8A60}
     .mr-action-step-num{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:#08383E;color:#FFF;font-size:.78rem;font-weight:700}
     .mr-action-step strong{display:block;font-size:.83rem;line-height:1.35;color:#18191C;margin-top:5px}
     @media(max-width:760px){.mr-decision-frame{grid-template-columns:repeat(2,minmax(0,1fr))}.mr-decision-story{grid-template-columns:1fr}.mr-decision-story>div+div{border-left:0;border-top:1px solid #EAE6DD}.mr-action-path{grid-template-columns:1fr}}
@@ -2656,10 +2656,10 @@
     .mr-actions-section { margin:24px 0 32px; }
     .mr-action { display:grid; grid-template-columns:40px 1fr; gap:16px; margin:12px 0; padding:16px 18px; background:#FFF; border:1px solid #EAE6DD; border-left:3px solid #0C6E78; border-radius:10px; }
     .mr-action[data-tier="structural"] { border-left-color:#0C6E78; }
-    .mr-action[data-tier="behavioral"] { border-left-color:#C9821F; }
+    .mr-action[data-tier="behavioral"] { border-left-color:#C9A227; }
     .mr-action[data-tier="cultural"] { border-left-color:#3C8A60; }
     .mr-action-num { font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif; font-size:1.5rem; font-weight:700; color:#0C6E78; letter-spacing:-0.02em; }
-    .mr-action[data-tier="behavioral"] .mr-action-num { color:#C9821F; }
+    .mr-action[data-tier="behavioral"] .mr-action-num { color:#7A6015; }
     .mr-action[data-tier="cultural"] .mr-action-num { color:#3C8A60; }
     .mr-action-body p { margin:0 0 6px; font-size:0.98rem; line-height:1.65; }
     .mr-action-label { font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif; font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; color:#6E6F73; font-weight:700; margin:0 0 8px !important; }
@@ -2673,7 +2673,7 @@
     .mr-indicator-tile { background:#FFF; border:1px solid #EAE6DD; border-radius:12px; padding:18px 20px; }
     .mr-indicator-tile[data-lens="os"] { border-left:3px solid #0C6E78; }
     .mr-indicator-tile[data-lens="dv"] { border-left:3px solid #08383E; }
-    .mr-indicator-tile[data-lens="sc"] { border-left:3px solid #C9821F; }
+    .mr-indicator-tile[data-lens="sc"] { border-left:3px solid #C9A227; }
     .mr-indicator-tile[data-lens="ip"] { border-left:3px solid #3C8A60; }
     .mr-indicator-tile[data-lens="cross"] { border-left:3px solid #6E6F73; }
     .mr-indicator-lens { font-size:0.66rem; letter-spacing:0.16em; text-transform:uppercase; color:#6E6F73; font-weight:700; margin:0 0 4px; }
@@ -2732,7 +2732,7 @@
     .mr-run-score-stamp em{font-style:normal;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:#0C6E78;font-weight:700}
     .mr-run-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid #E0DCD3;border-radius:12px;overflow:hidden;background:#FFF}
     .mr-run-metric{position:relative;padding:19px 18px;min-width:0;border-top:3px solid #0C6E78}
-    .mr-run-metric+ .mr-run-metric{border-left:1px solid #EAE6DD}.mr-run-metric[data-tone="ink"]{border-top-color:#08383E}.mr-run-metric[data-tone="amber"]{border-top-color:#C9821F}.mr-run-metric[data-tone="green"]{border-top-color:#3C8A60}
+    .mr-run-metric+ .mr-run-metric{border-left:1px solid #EAE6DD}.mr-run-metric[data-tone="ink"]{border-top-color:#08383E}.mr-run-metric[data-tone="amber"]{border-top-color:#C9A227}.mr-run-metric[data-tone="green"]{border-top-color:#3C8A60}
     .mr-run-metric-value{font-size:1.38rem;line-height:1.08;letter-spacing:-.03em;font-weight:700;margin:9px 0 7px;overflow-wrap:anywhere}
     .mr-run-metric .mr-copy{font-size:.78rem!important;line-height:1.45!important;margin:0!important}
     .mr-run-decision-story{display:grid;grid-template-columns:1fr 1fr;margin-top:16px;border-radius:12px;overflow:hidden;border:1px solid #EAE6DD}
@@ -3284,10 +3284,10 @@
       .mr-report .mr-section-index{letter-spacing:.08em;font-size:.66rem}
       .mr-report .mr-run-metrics,.mr-report .mr-evidence-summary{border-color:#DCE5E8;background:#F4F7F8;border-radius:9px}
       .mr-report .mr-run-metric{padding:16px}
-      /* Categories use a cool palette; warning and score-band colors are retained. */
-      .mr-report .mr-run-metric[data-tone="amber"],.mr-report .mr-decision-metric:nth-child(2),.mr-report .mr-action-step[data-tier="behavioral"]{border-top-color:#5E7F98}
-      .mr-report .mr-action[data-tier="behavioral"],.mr-report .mr-indicator-tile[data-lens="sc"]{border-left-color:#5E7F98}
-      .mr-report .mr-action[data-tier="behavioral"] .mr-action-num{color:#4F708A}
+      /* Category accents share the brand gold; warning and score-band colors are retained. */
+      .mr-report .mr-run-metric[data-tone="amber"],.mr-report .mr-decision-metric:nth-child(2),.mr-report .mr-action-step[data-tier="behavioral"]{border-top-color:#C9A227}
+      .mr-report .mr-action[data-tier="behavioral"],.mr-report .mr-indicator-tile[data-lens="sc"]{border-left-color:#C9A227}
+      .mr-report .mr-action[data-tier="behavioral"] .mr-action-num{color:#7A6015}
       .mr-report .mr-run-metric-value{font-size:1.25rem;line-height:1.2}
       .mr-report .mr-lens-label{letter-spacing:.08em;color:#526D75}
       .mr-report .mr-viz-panel,.mr-report .mr-constraint-view{border-color:#DCE5E8;border-radius:9px;background:#FAFCFC}

@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {assertFinancialSampleRevision} from './public_sample_fixture.mjs';
+import {assertFinancialSampleRevision,assertFinancialSamplePdfBinding,currentSynthesisPdfReview} from './public_sample_fixture.mjs';
 export const THREE_BENEFIT_BASELINE='b06b72083442f03f7a1e2cadeb5239e4f0449515';
 const sha=v=>createHash('sha256').update(v).digest('hex');
 export function assertThreeBenefitSourceContract(root=path.resolve(import.meta.dirname,'..')){
@@ -37,6 +37,8 @@ export function assertThreeBenefitSourceContract(root=path.resolve(import.meta.d
     current.provenance.public_source_sha256=prior.provenance.public_source_sha256;
   }
   assert.deepEqual(restored,original,'Every original AI result, score, response, action, evidence and generation identity remains exact');
-  for(const key of ['operational_systems','decision_velocity','structural_clarity','institutional_performance'])assert.deepEqual(fs.readFileSync(path.join(root,'sample-data/reports/'+key+'.pdf')),execFileSync('git',['show',THREE_BENEFIT_BASELINE+':sample-data/reports/'+key+'.pdf'],{cwd:root,maxBuffer:16e6}),'Individual sample PDF unchanged: '+key);
-  return {base:THREE_BENEFIT_BASELINE,onlyFinancialFormChanged:true,onlySynthesisFinancialSamplesChanged:true,individualPdfsUnchanged:true};
+  const presentation=currentSynthesisPdfReview(manifest);
+  assert.equal(presentation.individual_pdf_change,'palette_only','Individual PDF content may not be revised by this financial release');
+  for(const key of ['operational_systems','decision_velocity','structural_clarity','institutional_performance'])assertFinancialSamplePdfBinding(presentation,key,fs.readFileSync(path.join(root,'sample-data/reports/'+key+'.pdf')));
+  return {base:THREE_BENEFIT_BASELINE,onlyFinancialFormChanged:true,onlySynthesisFinancialSamplesChanged:true,individualPdfPaletteReviewed:true};
 }

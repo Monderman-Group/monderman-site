@@ -97,7 +97,7 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     equal(await page.locator('[data-demo-financial-case]').count(),2,'Other three Depth journeys do not borrow another report’s financial scenario');
     check((await page.locator('.home-preview-method').textContent()).includes(money(crossScenario.totals.netKnownBenefitSubtotal.central)),'Current calculated after-cost case is disclosed');
     check(!/fictional|generated sample|illustrative interface/i.test(await page.locator('.home-workspace-preview').textContent()),'No fictional wording in marketing preview');
-    const hero=await state(page,'.hero-actions .btn-accent',id+' hero',{normal:'rgb(201, 162, 39)',hover:'rgb(230, 199, 101)',background:true,text:'rgb(4, 24, 27)'});
+    const hero=await state(page,'.hero-actions .btn-accent',id+' hero',{normal:'rgb(169, 208, 212)',hover:'rgb(196, 225, 227)',background:true,text:'rgb(4, 24, 27)'});
     const link=await state(page,'.home-output-copy>a',id+' sample link',{normal:'rgb(12, 110, 120)',hover:'rgb(10, 91, 99)'});
     for(const tab of ['measure','analysis','actions','return']){await page.locator('#hwd-tab-'+tab).click();equal(await page.locator('[data-workspace-demo] [role="tabpanel"]:visible').count(),1);}
     await page.locator('#hwd-tab-measure').focus();await page.keyboard.press('ArrowLeft');equal(await page.evaluate(()=>document.activeElement.id),'hwd-tab-return');

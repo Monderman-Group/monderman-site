@@ -260,7 +260,7 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
       await page.keyboard.press('ArrowDown');await assertRadio('decision_velocity','down');
       await page.keyboard.press('ArrowUp');await assertRadio('structural_clarity','up');
       const cta=await page.locator('.hero-actions .btn-accent').evaluate(el=>({bg:getComputedStyle(el).backgroundColor,color:getComputedStyle(el).color}));
-      assert.equal(cta.bg,'rgb(201, 162, 39)');assert.equal(cta.color,'rgb(4, 24, 27)');
+      assert.equal(cta.bg,'rgb(169, 208, 212)');assert.equal(cta.color,'rgb(4, 24, 27)');
       assert.equal(await page.locator('.hero .hero-report-proof').count(),0);
       assert.equal(await page.locator('#sample-output .hero-report-link').getAttribute('href'),'sample-report.html#depth');
       if(width===1440){

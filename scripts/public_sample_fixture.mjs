@@ -74,7 +74,7 @@ export function assertFinancialSampleRevision(entry,update,key){
 // The current financial or subsequent presentation receipt binds exported PDFs.
 // Historical review records remain untouched; page layout has a separate review.
 export function assertFinancialSamplePdfBinding(update,key,pdfBytes){
-  assert.ok(['depth_synthesis','cross_lens_synthesis'].includes(key),'financial PDF product invalid');
+  assert.ok(Object.values(PUBLIC_PRODUCTS).includes(key),'reviewed PDF product invalid');
   assert.equal(update?.status,'reviewed',key+' financial PDF revision has not been reviewed');
   const pin=update.pdf_outputs?.[key];
   assert.equal(pin?.path,'sample-data/reports/'+key+'.pdf',key+' financial PDF path differs');
@@ -92,6 +92,8 @@ export function currentSynthesisPdfReview(manifest){
   assert.equal(review.artifact_file_sha256,manifest.artifact_file_sha256,'Presentation must bind unchanged sample data');
   assert.equal(review.renderer_sha256,manifest.source_files['monderman-report.js'],'Presentation must bind current renderer');
   assert.equal(review.provider_calls,0);
+  assert.equal(review.all_pdf_palette,true,'All six sample PDFs share the reviewed report palette');
+  assert.deepEqual(Object.keys(review.pdf_outputs).sort(),Object.values(PUBLIC_PRODUCTS).sort(),'All six presentation PDF bindings required');
   return review;
 }
 
@@ -261,6 +263,7 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
   for(const [tab,key] of Object.entries(PUBLIC_PRODUCTS)) {
     const entry=artifact.outputs[key],pin=manifest.outputs[key],p=entry.provenance,r=publicResult(entry);
     const synthesis=key.endsWith('_synthesis');
+    assertFinancialSamplePdfBinding(currentSynthesisPdfReview(manifest),key,fs.readFileSync(path.join(root,'sample-data/reports/'+key+'.pdf')));
     assert.equal(entry.kind,synthesis?'synthesis':'diagnostic',key+' kind');
     assert.ok(plain(entry.source)&&plain(p)&&plain(pin),key+' source, provenance and approval required');
     assert.equal(synthesis?r.synthesis_product:r.tool_type,key,key+' identity');
