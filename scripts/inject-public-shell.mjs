@@ -21,8 +21,8 @@ const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
 const shellRelease = "20260913.32";
 // Refresh changed runtime assets without invalidating unchanged brand assets.
 const assetReleases = Object.freeze({
-  "monderman-report.js": "20260920.flow1",
-  "monderman-depth-lure-tile.css": "20260920.gold1",
+  "monderman-report.js": "20260920.flow2",
+  "monderman-depth-lure-tile.css": "20260920.gold2",
   "sample-report-production.js": "20260915.annual1",
   "public-sample-model.js": "20260915.annual1",
   "canonical-site-shell.js": "20260916.floating-support1",
@@ -40,7 +40,7 @@ const assetReleases = Object.freeze({
   "campaign-analysis.css": "20260919.benefits1",
   "workspace-synthesis-readiness.js": "20260919.ready1",
   "workspace-synthesis-readiness.css": "20260919.ready1",
-  "homepage-workspace-demo.css": "20260920.gold1",
+  "homepage-workspace-demo.css": "20260920.gold2",
   "homepage-workspace-demo.js": "20260920.gather1",
   "workspace-access-gate.js": "20260919.invited1",
   "workspace-evaluation.js": "20260919.invited1",
@@ -137,7 +137,7 @@ for (const entry of await readdir(publishDirectory, { withFileTypes: true })) {
   // receives the same shell release without modifying protected source pages.
   let versionedHtml = html
     .replace(canonicalCssPattern, `canonical-site-shell.css?v=${assetReleases["canonical-site-shell.css"]}`)
-    .replace(enterpriseCssPattern, "enterprise-site.css?v=20260920.gold1");
+    .replace(enterpriseCssPattern, "enterprise-site.css?v=20260920.gold2");
   versionedHtml = versionScript(versionedHtml, "canonical-site-shell.js");
   versionedHtml = versionScript(versionedHtml, "assistant.js");
   versionedHtml = versionScript(versionedHtml, "workspace-assistant.js");

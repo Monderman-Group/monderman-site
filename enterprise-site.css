@@ -24,6 +24,10 @@
   --mdm-amber: #C9821F;
   --mdm-amber-dark: #86530D;
   --mdm-amber-light: #F0C47D;
+  /* Promotional accents are separate from the existing status amber. */
+  --mdm-gold: #C9A227;
+  --mdm-gold-light: #E6C765;
+  --mdm-gold-ink: #7A6015;
   --mdm-font: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --mdm-max: 1280px;
   --mdm-hero-max: 1320px;
@@ -458,23 +462,37 @@ body.canonical-green-shell :is(
   }
 }
 
-/* Gold marks the main invitation request on a dark hero only. Navigation,
-   activation, form submission and calls to action on other surfaces stay teal. */
+/* Gold marks the main invitation request on a dark hero. The homepage's
+   matching activation outline is scoped to its second hero action below. */
 @media screen {
   body.canonical-green-shell :is(.hero .hero-actions, .ps-hero .ps-hero-actions) > a.btn:is(.btn-accent, .btn-primary)[href^="pilot.html"],
   body.canonical-green-shell .hero .actions > a.pilot-primary[href="#apply"] {
-    background: var(--mdm-color-amber) !important;
-    border-color: var(--mdm-color-amber) !important;
+    background: var(--mdm-gold) !important;
+    border-color: var(--mdm-gold) !important;
     color: var(--mdm-color-deep) !important;
     box-shadow: none !important;
   }
 
   body.canonical-green-shell :is(.hero .hero-actions, .ps-hero .ps-hero-actions) > a.btn:is(.btn-accent, .btn-primary)[href^="pilot.html"]:is(:hover, :focus-visible),
   body.canonical-green-shell .hero .actions > a.pilot-primary[href="#apply"]:is(:hover, :focus-visible) {
-    background: var(--mdm-color-amber-light) !important;
-    border-color: var(--mdm-color-amber-light) !important;
+    background: var(--mdm-gold-light) !important;
+    border-color: var(--mdm-gold-light) !important;
     color: var(--mdm-color-deep) !important;
-    outline-color: var(--mdm-color-amber-light) !important;
+    outline-color: var(--mdm-gold-light) !important;
+  }
+
+  body.canonical-green-shell.homepage-enterprise .hero .hero-actions > a.btn.btn-secondary[href="pattern-trial.html"] {
+    background: transparent !important;
+    border-color: var(--mdm-gold) !important;
+    color: var(--mdm-gold) !important;
+    box-shadow: none !important;
+  }
+
+  body.canonical-green-shell.homepage-enterprise .hero .hero-actions > a.btn.btn-secondary[href="pattern-trial.html"]:is(:hover, :focus-visible) {
+    background: transparent !important;
+    border-color: var(--mdm-gold-light) !important;
+    color: var(--mdm-gold-light) !important;
+    outline-color: var(--mdm-gold-light) !important;
   }
 
   /* Article pages retain the filled desktop header action. Their hero
@@ -482,14 +500,14 @@ body.canonical-green-shell :is(
   @media (min-width: 1181px) {
     body.canonical-green-shell:not(.product-surface):not(.homepage-enterprise) .hero .hero-actions > a.btn.btn-primary[href^="pilot.html"] {
       background: transparent !important;
-      border-color: var(--mdm-color-amber) !important;
-      color: var(--mdm-color-amber-light) !important;
+      border-color: var(--mdm-gold) !important;
+      color: var(--mdm-gold-light) !important;
     }
 
     body.canonical-green-shell:not(.product-surface):not(.homepage-enterprise) .hero .hero-actions > a.btn.btn-primary[href^="pilot.html"]:is(:hover, :focus-visible) {
       background: transparent !important;
-      border-color: var(--mdm-color-amber-light) !important;
-      color: var(--mdm-color-amber-light) !important;
+      border-color: var(--mdm-gold-light) !important;
+      color: var(--mdm-gold-light) !important;
     }
   }
 }
