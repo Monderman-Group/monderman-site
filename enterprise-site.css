@@ -316,10 +316,19 @@ body.canonical-green-shell .dx-btn-primary:hover {
   color: var(--mdm-white);
 }
 
-/*
- * On dark fields, primary actions use pale sea-glass with dark ink. The main
- * invitation request in a page hero has the bounded gold treatment below.
- */
+/* Secondary calls to action share a gold outline. Gold ink keeps labels
+   readable on light surfaces; dark surfaces use the lighter accent below. */
+@media screen {
+  body.canonical-green-shell :is(a.btn-secondary, a.btn-hero-secondary, a.btn.secondary, a.article-action:not(.article-action-primary)),
+  body.canonical-green-shell .dx-use-actions > a.btn-subtle {
+    background: transparent !important;
+    border-color: var(--mdm-gold) !important;
+    color: var(--mdm-gold-ink) !important;
+    box-shadow: none !important;
+  }
+}
+
+/* On dark fields, primary actions use pale sea-glass with dark ink. */
 body.canonical-green-shell :is(
   .hero,
   .ps-hero,
@@ -371,11 +380,11 @@ body.canonical-green-shell :is(
   .ctaband,
   .slide.dark,
   .ps-enterprise
-) :is(.btn-secondary, .btn-hero-secondary, .btn.secondary):not(.hero-pilot-cta) {
-  background: transparent;
-  border-color: rgba(169, 208, 212, .58);
-  color: var(--mdm-sea-glass);
-  box-shadow: none;
+) :is(.btn-secondary, .btn-hero-secondary, .btn.secondary, .article-action:not(.article-action-primary)):not(.hero-pilot-cta) {
+  background: transparent !important;
+  border-color: var(--mdm-gold) !important;
+  color: var(--mdm-gold) !important;
+  box-shadow: none !important;
 }
 
 body.canonical-green-shell :is(
@@ -387,7 +396,7 @@ body.canonical-green-shell :is(
   .ctaband,
   .slide.dark,
   .ps-enterprise
-) :is(.btn-secondary, .btn-hero-secondary, .btn.secondary):not(.hero-pilot-cta):hover,
+) :is(.btn-secondary, .btn-hero-secondary, .btn.secondary, .article-action:not(.article-action-primary)):not(.hero-pilot-cta):hover,
 body.canonical-green-shell :is(
   .hero,
   .ps-hero,
@@ -397,11 +406,12 @@ body.canonical-green-shell :is(
   .ctaband,
   .slide.dark,
   .ps-enterprise
-) :is(.btn-secondary, .btn-hero-secondary, .btn.secondary):not(.hero-pilot-cta):focus-visible {
-  background: rgba(169, 208, 212, .10);
-  border-color: var(--mdm-sea-glass-hover);
-  color: var(--mdm-sea-glass-hover);
-  box-shadow: none;
+) :is(.btn-secondary, .btn-hero-secondary, .btn.secondary, .article-action:not(.article-action-primary)):not(.hero-pilot-cta):focus-visible {
+  background: transparent !important;
+  border-color: var(--mdm-gold-light) !important;
+  color: var(--mdm-gold-light) !important;
+  box-shadow: none !important;
+  outline-color: var(--mdm-gold-light) !important;
 }
 
 /*
@@ -448,67 +458,68 @@ body.canonical-green-shell :is(
   /* Legacy pilot treatment; the main hero invitation is filled below. */
   body.canonical-green-shell .hero .pilot-primary {
     background: transparent !important;
-    border-color: var(--mdm-amber-light) !important;
-    color: var(--mdm-amber-light) !important;
+    border-color: var(--mdm-sea-glass) !important;
+    color: var(--mdm-sea-glass) !important;
     box-shadow: none !important;
   }
 
   body.canonical-green-shell .hero .pilot-primary:hover,
   body.canonical-green-shell .hero .pilot-primary:focus-visible {
-    background: rgba(201, 130, 31, .12) !important;
-    border-color: #FFD99B !important;
-    color: #FFD99B !important;
-    outline-color: #FFD99B !important;
+    background: transparent !important;
+    border-color: var(--mdm-sea-glass-hover) !important;
+    color: var(--mdm-sea-glass-hover) !important;
+    outline-color: var(--mdm-sea-glass-hover) !important;
   }
 }
 
-/* Gold marks the main invitation request on a dark hero. The homepage's
-   matching activation outline is scoped to its second hero action below. */
+/* Preserve the original primary invitation color and desktop hierarchy. */
 @media screen {
   body.canonical-green-shell :is(.hero .hero-actions, .ps-hero .ps-hero-actions) > a.btn:is(.btn-accent, .btn-primary)[href^="pilot.html"],
   body.canonical-green-shell .hero .actions > a.pilot-primary[href="#apply"] {
-    background: var(--mdm-gold) !important;
-    border-color: var(--mdm-gold) !important;
+    background: var(--mdm-sea-glass) !important;
+    border-color: var(--mdm-sea-glass) !important;
     color: var(--mdm-color-deep) !important;
     box-shadow: none !important;
   }
 
   body.canonical-green-shell :is(.hero .hero-actions, .ps-hero .ps-hero-actions) > a.btn:is(.btn-accent, .btn-primary)[href^="pilot.html"]:is(:hover, :focus-visible),
   body.canonical-green-shell .hero .actions > a.pilot-primary[href="#apply"]:is(:hover, :focus-visible) {
-    background: var(--mdm-gold-light) !important;
-    border-color: var(--mdm-gold-light) !important;
+    background: var(--mdm-sea-glass-hover) !important;
+    border-color: var(--mdm-sea-glass-hover) !important;
     color: var(--mdm-color-deep) !important;
-    outline-color: var(--mdm-gold-light) !important;
-  }
-
-  body.canonical-green-shell.homepage-enterprise .hero .hero-actions > a.btn.btn-secondary[href="pattern-trial.html"] {
-    background: transparent !important;
-    border-color: var(--mdm-gold) !important;
-    color: var(--mdm-gold) !important;
-    box-shadow: none !important;
-  }
-
-  body.canonical-green-shell.homepage-enterprise .hero .hero-actions > a.btn.btn-secondary[href="pattern-trial.html"]:is(:hover, :focus-visible) {
-    background: transparent !important;
-    border-color: var(--mdm-gold-light) !important;
-    color: var(--mdm-gold-light) !important;
-    outline-color: var(--mdm-gold-light) !important;
+    outline-color: var(--mdm-sea-glass-hover) !important;
   }
 
   /* Article pages retain the filled desktop header action. Their hero
-     invitation takes a gold outline so the two actions do not compete. */
+     invitation retains its sea-glass outline. */
   @media (min-width: 1181px) {
     body.canonical-green-shell:not(.product-surface):not(.homepage-enterprise) .hero .hero-actions > a.btn.btn-primary[href^="pilot.html"] {
       background: transparent !important;
-      border-color: var(--mdm-gold) !important;
-      color: var(--mdm-gold-light) !important;
+      border-color: var(--mdm-sea-glass) !important;
+      color: var(--mdm-sea-glass) !important;
     }
 
     body.canonical-green-shell:not(.product-surface):not(.homepage-enterprise) .hero .hero-actions > a.btn.btn-primary[href^="pilot.html"]:is(:hover, :focus-visible) {
       background: transparent !important;
-      border-color: var(--mdm-gold-light) !important;
-      color: var(--mdm-gold-light) !important;
+      border-color: var(--mdm-sea-glass-hover) !important;
+      color: var(--mdm-sea-glass-hover) !important;
     }
+  }
+
+  /* Promotional availability and service accents use the same gold. */
+  body.canonical-green-shell .hero .pilot-status {
+    border-color: rgba(201, 162, 39, .65);
+    background: rgba(201, 162, 39, .14);
+    color: var(--mdm-gold-light);
+  }
+
+  body.canonical-green-shell .hero .pilot-status::before {
+    background: var(--mdm-gold);
+    box-shadow: 0 0 0 4px rgba(201, 162, 39, .14);
+  }
+
+  body.canonical-green-shell table.ps-table td.svc {
+    text-decoration-color: var(--mdm-gold);
   }
 }
 
@@ -628,15 +639,15 @@ body.homepage-enterprise .hero-actions .btn-accent:focus-visible {
 
 body.homepage-enterprise .hero-actions .hero-pilot-cta {
   background: transparent;
-  border-color: var(--mdm-amber-light);
-  color: var(--mdm-amber-light);
+  border-color: var(--mdm-gold);
+  color: var(--mdm-gold);
 }
 
 body.homepage-enterprise .hero-actions .hero-pilot-cta:hover,
 body.homepage-enterprise .hero-actions .hero-pilot-cta:focus-visible {
-  background: rgba(201, 130, 31, .12);
-  border-color: #FFD99B;
-  color: #FFD99B;
+  background: transparent;
+  border-color: var(--mdm-gold-light);
+  color: var(--mdm-gold-light);
 }
 
 body.homepage-enterprise .hero-enterprise-link {

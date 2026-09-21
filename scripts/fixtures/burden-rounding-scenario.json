@@ -1,0 +1,808 @@
+{
+  "version": "operational-planning-scenario-20260919.2",
+  "kind": "synthesis_planning_scenario",
+  "currency": "USD",
+  "title": "Illustrative three-benefit planning cases",
+  "scope": {
+    "organizationId": "test-only",
+    "scopeId": "test-rounding",
+    "label": "Synthetic rounding fixture",
+    "scopeDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "evidenceDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "snapshot": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "preparedBy": "test-only",
+  "createdAt": "2026-09-19T00:00:00Z",
+  "inputs": {
+    "schemaVersion": "operational-planning-input-20260919.2",
+    "title": "Illustrative three-benefit planning cases",
+    "horizonMonths": 12,
+    "capacity": {
+      "status": "estimated",
+      "basis": "Illustrative operational records for a defined approval activity; no customer data.",
+      "measurementStart": "2026-09-01T00:00:00Z",
+      "measurementEnd": "2026-09-11T00:00:00Z",
+      "measuredPeople": 5,
+      "activities": [
+        {
+          "id": "approval-work",
+          "label": "Approval preparation",
+          "measuredHours": 0.006570841889117043,
+          "sourceBasis": "time_study",
+          "sourceReference": "Illustrative ten-day activity register",
+          "loadedHourlyCost": 80,
+          "reductionPercent": {
+            "low": 50,
+            "central": 50,
+            "high": 50
+          },
+          "adoptionPercent": {
+            "low": 100,
+            "central": 100,
+            "high": 100
+          },
+          "changeBasis": "Illustrative checklist trial assumptions, subject to operational verification."
+        }
+      ]
+    },
+    "spendingReduction": {
+      "status": "estimated",
+      "basis": "Illustrative existing license and overtime expenses over the stated months.",
+      "items": [
+        {
+          "id": "current-overtime",
+          "resourceId": "approval-overtime-budget",
+          "label": "Existing approval overtime",
+          "kind": "labor",
+          "unit": "hours",
+          "baselineMonthlyUnits": 0.0004166666666666667,
+          "unitCost": 80,
+          "startMonth": 1,
+          "endMonth": 12,
+          "reductionPercent": {
+            "low": 100,
+            "central": 100,
+            "high": 100
+          },
+          "adoptionPercent": {
+            "low": 100,
+            "central": 100,
+            "high": 100
+          },
+          "sourceReference": "Illustrative current overtime records",
+          "changeBasis": "Assumed reduction in paid overtime; linked hours are excluded from retained capacity.",
+          "capacityActivityId": "approval-work"
+        }
+      ]
+    },
+    "spendingAvoidance": {
+      "status": "estimated",
+      "basis": "Illustrative planned future contractor and storage spending without the proposed changes.",
+      "items": [
+        {
+          "id": "future-contractor",
+          "resourceId": "planned-approval-contractor",
+          "label": "Planned contractor hours",
+          "kind": "labor",
+          "unit": "hours",
+          "baselineMonthlyUnits": 0.0004166666666666667,
+          "unitCost": 80,
+          "startMonth": 1,
+          "endMonth": 12,
+          "reductionPercent": {
+            "low": 100,
+            "central": 100,
+            "high": 100
+          },
+          "adoptionPercent": {
+            "low": 100,
+            "central": 100,
+            "high": 100
+          },
+          "sourceReference": "Illustrative planned contractor budget",
+          "changeBasis": "Assumed avoidance of part of a documented future contractor plan; linked capacity is allocated once.",
+          "capacityActivityId": "approval-work"
+        }
+      ]
+    },
+    "implementationCashCost": {
+      "low": 0,
+      "central": 0,
+      "high": 0
+    },
+    "implementationCapacityCost": {
+      "low": 0,
+      "central": 0,
+      "high": 0
+    },
+    "subscriptionCost": 0,
+    "costBasis": "Illustrative full-period subscription, implementation cash and separate internal staff-time costs.",
+    "scopeConfirmed": true,
+    "overlapReviewed": true
+  },
+  "method": {
+    "measurementDays": 10,
+    "horizonDays": 365.25,
+    "timeFactor": 36.525,
+    "extrapolation": "The same measured activity and people over the stated period; no scaling to unmeasured staff.",
+    "calculation": "Gross hours = measured activity hours × planning days / measured days × time-reduction assumption × adoption assumption. Spending = baseline monthly units × unit cost × active months × reduction assumption × adoption assumption.",
+    "capacityAllocation": "Gross recovered activity hours are spread evenly across planning months. Each labor spending benefit uses linked hours in its active months; those hours are deducted before retained capacity is valued.",
+    "caseInterpretation": "Low, central and high are named input cases, not ordered output bounds. Retained capacity can decrease in a stronger spending case.",
+    "cashInterpretation": "Net cash effect compares spending with the stated current and planned baselines; it is not a measured change in bank balance.",
+    "basis": "Customer-declared operational inputs; Monderman has not independently audited the source records.",
+    "overlap": "Each expense resource is counted once across spending categories. Labor-linked hours are excluded from retained capacity value.",
+    "isConfidenceInterval": false,
+    "usesDiagnosticScores": false
+  },
+  "participation": {
+    "ready": true,
+    "remaining": [],
+    "statement": "Campaign participation checks are satisfied. They do not establish financial accuracy."
+  },
+  "benefits": {
+    "spendingReduction": {
+      "status": "estimated",
+      "basis": "Illustrative existing license and overtime expenses over the stated months.",
+      "missingInputs": [],
+      "amount": {
+        "low": 0.4,
+        "central": 0.4,
+        "high": 0.4
+      }
+    },
+    "spendingAvoidance": {
+      "status": "estimated",
+      "basis": "Illustrative planned future contractor and storage spending without the proposed changes.",
+      "missingInputs": [],
+      "amount": {
+        "low": 0.4,
+        "central": 0.4,
+        "high": 0.4
+      }
+    },
+    "staffCapacity": {
+      "status": "estimated",
+      "basis": "Illustrative operational records for a defined approval activity; no customer data.",
+      "missingInputs": [],
+      "amount": {
+        "low": 8.8,
+        "central": 8.8,
+        "high": 8.8
+      },
+      "hours": {
+        "low": 0.11,
+        "central": 0.11,
+        "high": 0.11
+      }
+    }
+  },
+  "coverage": {
+    "complete": true,
+    "estimatedCategories": [
+      "spendingReduction",
+      "spendingAvoidance",
+      "staffCapacity"
+    ],
+    "zeroCategories": [],
+    "missingCategories": []
+  },
+  "activities": [
+    {
+      "id": "approval-work",
+      "label": "Approval preparation",
+      "grossHoursFreed": {
+        "low": 0.12,
+        "central": 0.12,
+        "high": 0.12
+      },
+      "hoursUsedForSpendingReduction": {
+        "low": 0.01,
+        "central": 0.01,
+        "high": 0.01
+      },
+      "hoursUsedForSpendingAvoidance": {
+        "low": 0.01,
+        "central": 0.01,
+        "high": 0.01
+      },
+      "potentialHoursFreed": {
+        "low": 0.11,
+        "central": 0.11,
+        "high": 0.11
+      },
+      "capacityValue": {
+        "low": 8.8,
+        "central": 8.8,
+        "high": 8.8
+      },
+      "monthlyReconciliation": [
+        {
+          "month": 1,
+          "grossHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          },
+          "hoursUsedForSpendingReduction": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "hoursUsedForSpendingAvoidance": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "potentialHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          }
+        },
+        {
+          "month": 2,
+          "grossHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          },
+          "hoursUsedForSpendingReduction": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "hoursUsedForSpendingAvoidance": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "potentialHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          }
+        },
+        {
+          "month": 3,
+          "grossHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          },
+          "hoursUsedForSpendingReduction": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "hoursUsedForSpendingAvoidance": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "potentialHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          }
+        },
+        {
+          "month": 4,
+          "grossHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          },
+          "hoursUsedForSpendingReduction": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "hoursUsedForSpendingAvoidance": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "potentialHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          }
+        },
+        {
+          "month": 5,
+          "grossHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          },
+          "hoursUsedForSpendingReduction": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "hoursUsedForSpendingAvoidance": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "potentialHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          }
+        },
+        {
+          "month": 6,
+          "grossHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          },
+          "hoursUsedForSpendingReduction": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "hoursUsedForSpendingAvoidance": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "potentialHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          }
+        },
+        {
+          "month": 7,
+          "grossHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          },
+          "hoursUsedForSpendingReduction": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "hoursUsedForSpendingAvoidance": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "potentialHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          }
+        },
+        {
+          "month": 8,
+          "grossHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          },
+          "hoursUsedForSpendingReduction": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "hoursUsedForSpendingAvoidance": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "potentialHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          }
+        },
+        {
+          "month": 9,
+          "grossHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          },
+          "hoursUsedForSpendingReduction": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "hoursUsedForSpendingAvoidance": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "potentialHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          }
+        },
+        {
+          "month": 10,
+          "grossHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          },
+          "hoursUsedForSpendingReduction": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "hoursUsedForSpendingAvoidance": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "potentialHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          }
+        },
+        {
+          "month": 11,
+          "grossHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          },
+          "hoursUsedForSpendingReduction": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "hoursUsedForSpendingAvoidance": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "potentialHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          }
+        },
+        {
+          "month": 12,
+          "grossHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          },
+          "hoursUsedForSpendingReduction": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "hoursUsedForSpendingAvoidance": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          },
+          "potentialHoursFreed": {
+            "low": 0.01,
+            "central": 0.01,
+            "high": 0.01
+          }
+        }
+      ]
+    }
+  ],
+  "spendingItems": [
+    {
+      "id": "current-overtime",
+      "resourceId": "approval-overtime-budget",
+      "label": "Existing approval overtime",
+      "category": "spendingReduction",
+      "kind": "labor",
+      "unit": "hours",
+      "activeMonths": 12,
+      "capacityActivityId": "approval-work",
+      "amount": {
+        "low": 0.4,
+        "central": 0.4,
+        "high": 0.4
+      },
+      "allocatedHours": {
+        "low": 0.01,
+        "central": 0.01,
+        "high": 0.01
+      },
+      "monthlyAllocations": [
+        {
+          "month": 1,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        },
+        {
+          "month": 2,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        },
+        {
+          "month": 3,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        },
+        {
+          "month": 4,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        },
+        {
+          "month": 5,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        },
+        {
+          "month": 6,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        },
+        {
+          "month": 7,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        },
+        {
+          "month": 8,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        },
+        {
+          "month": 9,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        },
+        {
+          "month": 10,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        },
+        {
+          "month": 11,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        },
+        {
+          "month": 12,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "future-contractor",
+      "resourceId": "planned-approval-contractor",
+      "label": "Planned contractor hours",
+      "category": "spendingAvoidance",
+      "kind": "labor",
+      "unit": "hours",
+      "activeMonths": 12,
+      "capacityActivityId": "approval-work",
+      "amount": {
+        "low": 0.4,
+        "central": 0.4,
+        "high": 0.4
+      },
+      "allocatedHours": {
+        "low": 0.01,
+        "central": 0.01,
+        "high": 0.01
+      },
+      "monthlyAllocations": [
+        {
+          "month": 1,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        },
+        {
+          "month": 2,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        },
+        {
+          "month": 3,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        },
+        {
+          "month": 4,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        },
+        {
+          "month": 5,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        },
+        {
+          "month": 6,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        },
+        {
+          "month": 7,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        },
+        {
+          "month": 8,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        },
+        {
+          "month": 9,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        },
+        {
+          "month": 10,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        },
+        {
+          "month": 11,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        },
+        {
+          "month": 12,
+          "allocatedHours": {
+            "low": 0,
+            "central": 0,
+            "high": 0
+          }
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "grossPotentialHoursFreed": {
+      "low": 0.12,
+      "central": 0.12,
+      "high": 0.12
+    },
+    "potentialHoursFreed": {
+      "low": 0.11,
+      "central": 0.11,
+      "high": 0.11
+    },
+    "capacityValue": {
+      "low": 8.8,
+      "central": 8.8,
+      "high": 8.8
+    },
+    "existingSpendingReduction": {
+      "low": 0.4,
+      "central": 0.4,
+      "high": 0.4
+    },
+    "futureSpendingAvoidance": {
+      "low": 0.4,
+      "central": 0.4,
+      "high": 0.4
+    },
+    "cashInvestment": {
+      "low": 0,
+      "central": 0,
+      "high": 0
+    },
+    "totalImplementationAndSubscriptionCost": {
+      "low": 0,
+      "central": 0,
+      "high": 0
+    },
+    "netExistingCashEffect": {
+      "low": 0.4,
+      "central": 0.4,
+      "high": 0.4
+    },
+    "netCashEffect": {
+      "low": 0.8,
+      "central": 0.8,
+      "high": 0.8
+    },
+    "netCapacityAndCashValue": {
+      "low": 9.6,
+      "central": 9.6,
+      "high": 9.6
+    },
+    "knownBenefitSubtotal": {
+      "low": 9.6,
+      "central": 9.6,
+      "high": 9.6
+    },
+    "netKnownBenefitSubtotal": {
+      "low": 9.6,
+      "central": 9.6,
+      "high": 9.6
+    }
+  },
+  "notice": "Planning cases from the operational inputs and assumptions shown. Not measured savings or a forecast. Retained capacity value is not cash savings.",
+  "limitations": [
+    "The three benefit categories are assessed separately. Missing estimates are not zero; partial subtotals include only entered categories.",
+    "Low, central and high are sensitivity cases, not probabilities or confidence intervals; retained capacity values need not be in increasing order.",
+    "The planning period assumes measured activity volume continues, with capacity spread evenly across months. Review seasonality and planned changes.",
+    "Existing-spend reductions and future-spend avoidance require different baselines. A future spending plan is a customer-declared counterfactual.",
+    "Resource identities and overlap attestations require customer review; the source records have not been independently audited.",
+    "Use actual implementation and operating results to update the scenario; a favorable calculation is not proof of effectiveness."
+  ],
+  "digest": "b93e3bd3698adc1d546337b07dec3acb466889362ab49adb2d110954f1940a94"
+}

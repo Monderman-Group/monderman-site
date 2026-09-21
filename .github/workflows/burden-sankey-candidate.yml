@@ -1,0 +1,60 @@
+name: Burden Sankey candidate review
+on:
+  push:
+    branches: [codex/burden-sankey-20260921]
+permissions:
+  contents: write
+jobs:
+  render:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install bounded render dependencies
+        run: |
+          npm install --no-save --package-lock=false --ignore-scripts playwright@1.55.0
+          bash scripts/install_ci_browsers.sh
+          pip install pypdf==6.10.0 pymupdf==1.26.4 Pillow==11.3.0
+          sudo apt-get update -qq
+          sudo apt-get install -y poppler-utils
+      - name: Test actual report adapters, screens and printed cases
+        env:
+          REPORT_THREE_BENEFIT_OUT: candidate-evidence/report-browser
+        run: node scripts/report_three_benefit_smoke.mjs --print
+      - name: Export candidate PDFs from unchanged saved samples
+        run: |
+          node scripts/export_synthesis_sample_pdfs.mjs candidate-evidence/pdfs
+          python scripts/review_synthesis_pdf_pages.py candidate-evidence/pdfs
+      - name: Build candidate site and test approved colors
+        env:
+          RENDER_GIT_COMMIT: ${{ github.sha }}
+          GOLD_ACCENT_OUT: candidate-evidence/gold-browser
+        run: |
+          bash scripts/render-static-build.sh
+          python -m http.server 4175 --directory .render-public > /tmp/burden-preview.log 2>&1 &
+          node scripts/public_gold_accent_smoke.mjs
+      - name: Retain review evidence without publishing
+        if: always()
+        run: |
+          if [ -d candidate-evidence ]; then
+            git config user.name 'Monderman review evidence'
+            git config user.email 'actions@users.noreply.github.com'
+            git checkout -b codex/burden-evidence-${{ github.run_id }}
+            git add -f candidate-evidence
+            git commit -m 'Retain candidate screenshots, PDFs and test receipts; not a release'
+            git push origin HEAD
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: burden-candidate-${{ github.run_id }}
+          path: candidate-evidence
+          if-no-files-found: warn

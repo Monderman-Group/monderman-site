@@ -41,13 +41,13 @@ try{
     const pdf=path.join(out,key+'.pdf');await page.pdf({path:pdf,format:'Letter',preferCSSPageSize:true,printBackground:true});
     const pages=JSON.parse(execFileSync(process.env.PDF_PYTHON||'python3',['-c','import json,sys;from pypdf import PdfReader;print(json.dumps([p.extract_text() or "" for p in PdfReader(sys.argv[1]).pages]))',pdf],{encoding:'utf8',maxBuffer:16e6}));
     const compact=t=>t.normalize('NFKC').toLowerCase().replace(/\s/g,''),text=compact(pages.join(' '));
-    const centralPage=pages.findIndex(p=>p.includes('Central case: how the value adds up'));
+    const centralPage=pages.findIndex(p=>p.includes('Central case: from current demands to potential savings'));
     const comparisonPage=pages.findIndex(p=>p.includes('Three planning cases'));
     assert.ok(centralPage>=1,'Central Sankey follows the cover');
     assert.ok(comparisonPage>=centralPage,'Comparison follows the Central Sankey');
-    if(comparisonPage===centralPage)assert.ok(pages[centralPage].indexOf('Central case: how the value adds up')<pages[centralPage].indexOf('Three planning cases'));
+    if(comparisonPage===centralPage)assert.ok(pages[centralPage].indexOf('Central case: from current demands to potential savings')<pages[centralPage].indexOf('Three planning cases'));
     for(const b of Object.values(entry.source.financial_scenario.benefits))assert.ok(pages[comparisonPage].includes(b.amount.central.toLocaleString('en-US',{maximumFractionDigits:2})));
-    assert.equal((pages.join(' ').match(/case: how the value adds up/g)||[]).length,1,'Exactly one printed Sankey');
+    assert.equal((pages.join(' ').match(/case: from current demands to potential savings/g)||[]).length,1,'Exactly one printed Sankey');
     assert.ok(!/Low planning case|High planning case/.test(pages.join(' ')),'No repeated Low or High case pages');
     const generationDate=model.meta.find(row=>row.label==='Sample created').value;
     assert.ok(compact(pages[0]).includes(compact(generationDate)),'The original sample creation date remains on the cover: '+JSON.stringify({expected:generationDate,cover:pages[0]}));

@@ -30,10 +30,10 @@ for key in ("depth_synthesis", "cross_lens_synthesis"):
         tile.paste(thumb, ((295 - thumb.width) // 2, 20))
         ImageDraw.Draw(tile).text((10, 4), f"{key} · {index + 1}", fill="black")
         thumbnails.append(tile)
-        if "Central case: how the value adds up" in text:
+        if "Central case: from current demands to potential savings" in text:
             chart_pages.append(index + 1)
-        assert "Low case: how the value adds up" not in text
-        assert "High case: how the value adds up" not in text
+        assert "Low case: from current demands to potential savings" not in text
+        assert "High case: from current demands to potential savings" not in text
     assert len(chart_pages) == 1, (key, chart_pages)
     sheets = []
     for start in range(0, len(thumbnails), 12):
