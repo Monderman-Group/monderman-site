@@ -147,7 +147,7 @@ cases.push(
 for(const [label,mutate] of [
   ['missing',m=>{delete m.benefit_flow_presentation_review;}],
   ['pending',m=>{m.benefit_flow_presentation_review.status='pending';}],
-  ['old-version',m=>{m.benefit_flow_presentation_review.version='benefit-flow-presentation-20260920.1';}],
+  ['old-version',m=>{m.benefit_flow_presentation_review.version='benefit-flow-presentation-20260920.2';}],
   ['wrong-renderer',m=>{m.benefit_flow_presentation_review.renderer_sha256='0'.repeat(64);}],
   ['wrong-data',m=>{m.benefit_flow_presentation_review.artifact_file_sha256='0'.repeat(64);}],
   ['wrong-pdf',m=>{m.benefit_flow_presentation_review.pdf_outputs.depth_synthesis.sha256='0'.repeat(64);}],

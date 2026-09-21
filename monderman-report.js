@@ -1259,6 +1259,7 @@
       const baseline=group.sources.reduce((n,r)=>n+r.baseline,0),released=group.sources.reduce((n,r)=>n+r.released,0),residual=difference(baseline,released);
       if(!bound(baseline)||!bound(residual)||group.sources.some(r=>!bound(r.baseline)||!bound(r.residual))){notes.push(group.title+': the baseline cannot be drawn reliably. Refer to the saved inputs and planning table.');continue;}
       if(baseline===0)continue;
+      if(!Number.isFinite(260/baseline)){notes.push(group.title+': the baseline cannot be drawn reliably. Refer to the saved inputs and planning table.');continue;}
       // Independently rounded hour components may differ by a centihour from
       // their saved gross total. Reconcile WIDTHS only, proportionally; labels
       // and data-burden-amount keep the exact saved component values.
@@ -1491,7 +1492,7 @@
     const activityRows=rows.map((a,index)=>[['capacityValue','Staff capacity value'],['avoidableNonLaborCash','Direct cash saving assumed'],['potentialHoursFreed','Potential staff hours freed']].map(([key,label])=>'<tr><th scope="row"><span>A'+(index+1)+'. '+esc(a.label)+'</span><small>'+label+'</small></th>'+cells(a[key],key,a.id)+'</tr>').join('')).join('');
     const costRows=[['implementationCashCost','Implementation cash'],['implementationCapacityCost','Internal staff-time implementation cost'],['subscriptionCost','Subscription allocation']].map(([key,label])=>'<tr><th scope="row">'+label+'</th>'+levels.map(level=>'<td data-case="'+labels[level]+'" data-planning-cost="'+key+'" data-planning-level="'+level+'" data-saved-value="'+(key==='subscriptionCost'?input[key]:input[key][costLevel[level]])+'">'+esc(money(key==='subscriptionCost'?input[key]:input[key][costLevel[level]]))+'</td>').join('')+'</tr>').join('');
     const head='<thead><tr><th scope="col">Component</th><th scope="col">Low</th><th scope="col">Central</th><th scope="col">High</th></tr></thead>';
-    const breakdownBody='<div class="mr-planning-breakdown-body"><h4>Activity and cost breakdown</h4><p>Every activity is listed in full. Large charts name the three largest activities by central value in each benefit type and group the rest as Other activities. The grouping stays the same across cases. Staff hours are separate from dollar-valued ribbons.</p><table class="mr-sankey-table"><caption>Activity benefits over '+fmtWhole(input.horizonMonths)+' months</caption>'+head+'<tbody>'+activityRows+'</tbody></table><table class="mr-sankey-table"><caption>Cost components, using the same case pairing as the planning table</caption>'+head+'<tbody>'+costRows+'</tbody></table></div>';
+    const breakdownBody='<div class="mr-planning-breakdown-body"><h4>Activity and cost breakdown</h4><p>Every activity is listed in full. Staff hours and dollar values are shown separately.</p><table class="mr-sankey-table"><caption>Activity benefits over '+fmtWhole(input.horizonMonths)+' months</caption>'+head+'<tbody>'+activityRows+'</tbody></table><table class="mr-sankey-table"><caption>Cost components, using the same case pairing as the planning table</caption>'+head+'<tbody>'+costRows+'</tbody></table></div>';
     // Keep the print copy unchanged. Screen tables scroll as named, keyboard-
     // focusable regions rather than splitting a saved amount across lines.
     let screenTableIndex=0;
@@ -1501,9 +1502,7 @@
     }).replace(/<\/table>/g,'</table></div>');
     const breakdown='<details class="mr-planning-breakdown"><summary>View every activity and cost</summary>'+screenBreakdownBody+'</details><div class="mr-planning-breakdown mr-planning-print-breakdown">'+breakdownBody+'</div>';
     return '<figure class="mr-operational-sankey" data-sankey-version="planning-case-sankey-20260919.3">'+
-      '<div class="mr-sankey-figure-head"><h3>How each planning case adds up</h3><p>Follow the recorded activity benefits and individual costs over '+fmtWhole(input.horizonMonths)+' months. Ribbon widths represent dollar values on one shared scale, not hours. This is a planning-value comparison, not cash flow. The joined ribbons do not allocate a particular activity to a particular cost.</p></div>'+
-      '<fieldset class="mr-planning-controls"><legend>Choose a planning case</legend>'+levels.map(level=>'<input class="mr-planning-choice mr-planning-choice-'+level+'" type="radio" name="mr-planning-case" id="mr-planning-choice-'+level+'" value="'+level+'"'+(level==='central'?' checked':'')+'/><label for="mr-planning-choice-'+level+'">'+labels[level]+'</label>').join('')+
-      '<div class="mr-planning-panels">'+cases.map(panel).join('')+'</div></fieldset>'+breakdown+'<figcaption>'+caption+'</figcaption></figure>';
+      '<p class="mr-legacy-planning-note">This saved report uses an earlier planning format. Its figures and assumptions remain below. Update the operational inputs to use the current burden-and-savings charts.</p>'+breakdown+'<figcaption>'+caption+'</figcaption></figure>';
   }
   // END PLANNING CASE SANKEY PRESENTATION 20260919.3
 

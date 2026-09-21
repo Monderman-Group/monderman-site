@@ -105,6 +105,14 @@ scenarios['rounded-hour-components'] = JSON.parse(read('scripts/fixtures/burden-
 // can exceed the saved-result limit even with a valid zero reduction estimate.
 scenarios['huge-baseline'] = zeroEstimatedScenario();
 Object.assign(scenarios['huge-baseline'].inputs.spendingReduction.items[0], {baselineMonthlyUnits: 1e9, unitCost: 1e9});
+scenarios['subnormal-baseline'] = zeroEstimatedScenario();
+{
+  const s = scenarios['subnormal-baseline'], input = s.inputs.spendingReduction.items[0];
+  Object.assign(input, {baselineMonthlyUnits: Number.MIN_VALUE, unitCost: 1, startMonth: 1, endMonth: 1});
+  s.inputs.spendingReduction.items = [input];
+  s.spendingItems = s.spendingItems.filter(row => row.category !== 'spendingReduction' || row.id === input.id);
+  s.spendingItems.find(row => row.id === input.id).activeMonths = 1;
+}
 // A saved result rounded to one cent can exceed a sub-cent denominator by less
 // than half a cent. The affected diagram must fall back, not clamp its source.
 scenarios['near-baseline-rounding'] = zeroEstimatedScenario();
@@ -148,7 +156,7 @@ for (const {name, raw} of cases) {
     equal(sections.length, 0, name + ': incomplete coverage does not fabricate complete burden diagrams');
     continue;
   }
-  const omittedKinds = ['huge-baseline', 'near-baseline-rounding'].includes(name) ? new Set(['current-spending']) : new Set();
+  const omittedKinds = ['huge-baseline', 'near-baseline-rounding', 'subnormal-baseline'].includes(name) ? new Set(['current-spending']) : new Set();
   if (omittedKinds.size) {
     equal(html.split('Current spending: the baseline cannot be drawn reliably. Refer to the saved inputs and planning table.').length - 1, 3, name + ': explicit case-by-case fallback');
     ok(!sections.some(section => omittedKinds.has(section.attrs['data-burden-kind'])), name + ': no fabricated denominator or negative-residual diagram');
