@@ -50,7 +50,7 @@ try{
     assert.equal((pages.join(' ').match(/case: how the value adds up/g)||[]).length,1,'Exactly one printed Sankey');
     assert.ok(!/Low planning case|High planning case/.test(pages.join(' ')),'No repeated Low or High case pages');
     const generationDate=model.meta.find(row=>row.label==='Sample created').value;
-    assert.ok(pages[0].includes(generationDate),'The original sample creation date remains on the cover');
+    assert.ok(compact(pages[0]).includes(compact(generationDate)),'The original sample creation date remains on the cover: '+JSON.stringify({expected:generationDate,cover:pages[0]}));
     const authored=await page.locator('p,li,h1,h2,h3,h4,h5,td,th').evaluateAll(nodes=>nodes.filter(n=>getComputedStyle(n).display!=='none'&&n.getBoundingClientRect().width>0&&!n.closest('.mr-benefit-flow,.mr-toolbar')).map(n=>n.textContent.trim()).filter(Boolean));
     for(const field of authored)assert.ok(text.includes(compact(field)),'PDF missing authored text: '+field.slice(0,120));
     assert.ok(pages.some(p=>p.includes('Central planning case')));
