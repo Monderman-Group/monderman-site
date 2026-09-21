@@ -32,7 +32,7 @@ const assetReleases = Object.freeze({
   "workspace-assistant.js": "20260915.consistency1",
   "public-product-design.css": "20260915.consistency1",
   "workspace-product-design.css": "20260915.consistency1",
-  "report-screen-experience.css": "20260915.consistency1",
+  "report-screen-experience.css": "20260921.gold1",
   "diagnostic-intake.css": "20260915.consistency1",
   "visual-polish.css": "20260915.consistency1",
   "workspace-theme.js": "20260915.annual1",

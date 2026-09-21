@@ -1,4 +1,4 @@
-/* Screen-only result surfaces. Questionnaire, model and export styles are unchanged. */
+/* Result presentation only. Questionnaire and model logic are unchanged. */
 @media screen {
   body:has(#resultsStage.active) { background:#F4F7F8; }
   #resultsStage { --accent:#0C6E78; --dark:#07343A; --ink-soft:#53676E; --ink-muted:#62777E; --paper:#F4F7F8; }
@@ -86,4 +86,8 @@
     #resultsStage .rsx-nav button{padding:9px 10px;font-size:.76rem}
   }
 }
-@media print { .rsx-nav { display:none!important; } }
+@media print {
+  .rsx-nav { display:none!important; }
+  /* Dimension categories match the screen chart; score-band colors remain intact. */
+  #resultsStage #clarityDimensionBars .bar-fill { background:#0C6E78!important; }
+}

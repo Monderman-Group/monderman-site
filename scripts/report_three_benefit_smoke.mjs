@@ -6,7 +6,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
-import {legacyPlanningHtmlAfterCorrection} from './report_three_benefit_presentation_inverse.mjs';
+import {reportHtmlAfterReviewedPresentation} from './report_three_benefit_presentation_inverse.mjs';
 const root=path.resolve(import.meta.dirname,'..'),prior='b06b72083442f03f7a1e2cadeb5239e4f0449515';
 const read=f=>fs.readFileSync(path.join(root,f),'utf8'),sha=s=>createHash('sha256').update(s).digest('hex');
 const source=read('monderman-report.js'),fixtureBytes=read('scripts/fixtures/three-benefit-scenarios.json'),fixtures=JSON.parse(fixtureBytes);
@@ -20,7 +20,7 @@ const levels=['low','central','high'],keys=['spendingReduction','spendingAvoidan
 const burdenChecks=JSON.parse(execFileSync(process.execPath,[path.join(root,'scripts/report_burden_flow_smoke.mjs')],{cwd:root,encoding:'utf8'}));
 eq(burdenChecks.status,'PASS','Independent baseline and released-value contract');
 const build=(scenario,assessment)=>{const raw=structuredClone(historic.outputs.depth_synthesis.source);delete raw.financial_scenario;if(scenario){raw.financial_scenario=structuredClone(scenario);raw.campaign_evidence.scopeId=scenario.scope.scopeId;}if(assessment)raw.financial_benefit_assessment=structuredClone(assessment);const before=JSON.stringify(raw),model=report.fromSynthesis(raw),html=report.buildReportHtml(model);eq(JSON.stringify(raw),before,'Renderer does not mutate saved data');return {model,html,raw};};
-for(const [key,entry]of Object.entries(historic.outputs)){const a=entry.kind==='diagnostic'?report.fromRun(entry.source):report.fromSynthesis(entry.source),b=entry.kind==='diagnostic'?old.fromRun(entry.source):old.fromSynthesis(entry.source),html=report.buildReportHtml(a);eq(html,legacyPlanningHtmlAfterCorrection(old.buildReportHtml(b)),'Historical HTML differs only by exact legacy-chart retirement: '+key);ok(!/data-(?:planning|sankey)-node="subscriptionCost"/.test(html),'No subscription node in reopened historical report: '+key);}
+for(const [key,entry]of Object.entries(historic.outputs)){const a=entry.kind==='diagnostic'?report.fromRun(entry.source):report.fromSynthesis(entry.source),b=entry.kind==='diagnostic'?old.fromRun(entry.source):old.fromSynthesis(entry.source),html=report.buildReportHtml(a);eq(html,reportHtmlAfterReviewedPresentation(old.buildReportHtml(b)),'Historical HTML differs only by exact legacy-chart retirement and gold accents: '+key);ok(!/data-(?:planning|sankey)-node="subscriptionCost"/.test(html),'No subscription node in reopened historical report: '+key);ok(html.includes('.mr-run-metric[data-tone="amber"]{border-top-color:#C9A227}'),'Category accents use gold for print: '+key);ok(html.includes('.mr-report .mr-action[data-tier="behavioral"] .mr-action-num{color:#7A6015}'),'Gold category text has a dark readable variant: '+key);}
 const cases=Object.fromEntries(Object.entries(fixtures.cases).map(([key,s])=>[key,{...build(s),s}]));
 const samplePath=process.env.REPORT_THREE_BENEFIT_SAMPLES||path.join(root,'sample-data/production-diagnostic-samples.json'),sampleBytes=fs.readFileSync(samplePath,'utf8'),samples=JSON.parse(sampleBytes),publicKeys=[];
 for(const key of ['depth_synthesis','cross_lens_synthesis'])if(samples.outputs[key].source.financial_scenario?.version==='operational-planning-scenario-20260919.2'){
@@ -144,4 +144,4 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
   }finally{await browser.close();}
 }
 eq(errors,[],'No browser exceptions');eq(unexpected,[],'No unapproved transport');
-const receipt={status:'PASS',checks,burdenChecks:burdenChecks.checks,states:states.length,rendererSha256:sha(source),fixtureSha256:sha(fixtureBytes),calculatorSha256:fixtures.calculatorSha256,publicSampleSha256:sha(sampleBytes),publicSamples:publicKeys,screenshots,pdfs,providerCalls:0,networkCalls:0,historicalHtmlExactExceptLegacyChartRetirement:true};fs.writeFileSync(path.join(out,'RECEIPT.json'),JSON.stringify(receipt,null,2));console.log(JSON.stringify({...receipt,out,screenshots:screenshots.length}));
+const receipt={status:'PASS',checks,burdenChecks:burdenChecks.checks,states:states.length,rendererSha256:sha(source),fixtureSha256:sha(fixtureBytes),calculatorSha256:fixtures.calculatorSha256,publicSampleSha256:sha(sampleBytes),publicSamples:publicKeys,screenshots,pdfs,providerCalls:0,networkCalls:0,historicalHtmlExactExceptReviewedPresentation:true};fs.writeFileSync(path.join(out,'RECEIPT.json'),JSON.stringify(receipt,null,2));console.log(JSON.stringify({...receipt,out,screenshots:screenshots.length}));
