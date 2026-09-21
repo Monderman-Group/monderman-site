@@ -20,9 +20,9 @@ const sourceNames=[
   'monderman-report.js','participant-evidence-safety.js','public-sample-model.js','sample-report-production.js',
   'scripts/refresh_public_sample_previews.mjs','scripts/templates/home-workspace-preview.html',
 ];
-// The reviewed financial revision also binds its two published PDF files.
+// The reviewed presentation revision binds all six published PDF files.
 // Isolated copies must include those exact bytes for the positive control.
-const pdfNames=['sample-data/reports/depth_synthesis.pdf','sample-data/reports/cross_lens_synthesis.pdf'];
+const pdfNames=['operational_systems','decision_velocity','structural_clarity','institutional_performance','depth_synthesis','cross_lens_synthesis'].map(key=>'sample-data/reports/'+key+'.pdf');
 const names=[artifactName,manifestName,adapterName,...sourceNames,...pdfNames];
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const baselineBytes=new Map(names.map(name=>[name,fs.readFileSync(path.join(root,name))]));
@@ -147,10 +147,12 @@ cases.push(
 for(const [label,mutate] of [
   ['missing',m=>{delete m.benefit_flow_presentation_review;}],
   ['pending',m=>{m.benefit_flow_presentation_review.status='pending';}],
-  ['old-version',m=>{m.benefit_flow_presentation_review.version='benefit-flow-presentation-20260920.1';}],
+  ['old-version',m=>{m.benefit_flow_presentation_review.version='benefit-flow-presentation-20260920.2';}],
   ['wrong-renderer',m=>{m.benefit_flow_presentation_review.renderer_sha256='0'.repeat(64);}],
   ['wrong-data',m=>{m.benefit_flow_presentation_review.artifact_file_sha256='0'.repeat(64);}],
   ['wrong-pdf',m=>{m.benefit_flow_presentation_review.pdf_outputs.depth_synthesis.sha256='0'.repeat(64);}],
+  ['wrong-individual-pdf',m=>{m.benefit_flow_presentation_review.pdf_outputs.decision_velocity.sha256='0'.repeat(64);}],
+  ['missing-palette-review',m=>{delete m.benefit_flow_presentation_review.all_pdf_palette;}],
   ['wrong-pdf-path',m=>{m.benefit_flow_presentation_review.pdf_outputs.cross_lens_synthesis.path='old.pdf';}],
   ['missing-visual-review',m=>{m.benefit_flow_presentation_review.visual_review='pending';}],
 ])cases.push(manifestMutation('presentation-review-'+label,null,mutate));
@@ -170,8 +172,8 @@ for(const name of sourceNames) {
 }
 // Four score cases, five bindings per product, five per Synthesis, nine
 // release-level cases, plus manifest/content drift for all six display files.
-assert.equal(cases.length,4+5*6+5*2+9+8+2*sourceNames.length,'bounded sensitivity inventory changed; review before expanding');
-assert.equal(cases.length,73,'Includes eight presentation/PDF binding mutations');
+assert.equal(cases.length,4+5*6+5*2+9+10+2*sourceNames.length,'bounded sensitivity inventory changed; review before expanding');
+assert.equal(cases.length,75,'Includes ten presentation/PDF binding mutations, covering the individual PDF palette');
 assert.equal(new Set(cases.map(item=>item.label)).size,cases.length);
 try {
   const baseline=run(prepare('baseline'));
