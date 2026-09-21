@@ -30,7 +30,7 @@ try{
     // Native screen selection must never change which case is printed.
     for(const level of ['low','central','high']){
       await page.emulateMedia({media:'screen'});
-      await page.locator('.mr-benefit-choice[for="mr-planning-benefit-'+level+'"]').click();
+      await page.locator('.mr-benefit-choice').filter({hasText:new RegExp('^'+level+'$','i')}).click();
       assert.equal(await page.locator('.mr-benefit-panel:visible').getAttribute('data-three-benefit-case'),level);
       await page.emulateMedia({media:'print'});
       assert.equal(await page.locator('.mr-benefit-panel:visible').count(),1);
