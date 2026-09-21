@@ -372,7 +372,9 @@ concurrency:
 jobs:
   certify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    # Preserve the full report/PDF and 83-page responsive sweeps; the expanded
+    # suite exceeded 35 minutes on the hosted runner without an assertion failure.
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@v4
         with:
