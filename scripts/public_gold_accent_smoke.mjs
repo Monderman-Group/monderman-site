@@ -14,8 +14,9 @@ const baseline = '30138204856fb7e6d5e14264c060c7b89ed391a1';
 const cssFiles = ['enterprise-site.css', 'homepage-workspace-demo.css', 'monderman-depth-lure-tile.css'];
 const oldCSS = Object.fromEntries(cssFiles.map(file => [file, execFileSync('git', ['show', `${baseline}:${file}`], {cwd: root, encoding: 'utf8'})]));
 const heroSelector = ':is(.hero .hero-actions, .ps-hero .ps-hero-actions) > a.btn:is(.btn-accent, .btn-primary)[href^="pilot.html"], .hero .actions > a.pilot-primary[href="#apply"]';
+const activationSelector = 'body.homepage-enterprise .hero .hero-actions > a.btn.btn-secondary[href="pattern-trial.html"]';
 const heroPages = ['index.html', 'platform-services.html', 'why-monderman.html', 'pilot.html', 'decision-velocity-article.html', 'structural-clarity-article.html', 'operational-systems-article.html', 'institutional-performance-article.html'];
-const gold = 'rgb(201, 130, 31)', lightGold = 'rgb(240, 196, 125)', goldInk = 'rgb(134, 83, 13)', deep = 'rgb(4, 24, 27)', teal = 'rgb(12, 110, 120)';
+const gold = 'rgb(201, 162, 39)', lightGold = 'rgb(230, 199, 101)', goldInk = 'rgb(122, 96, 21)', deep = 'rgb(4, 24, 27)', teal = 'rgb(12, 110, 120)';
 const rows = [], errors = [];
 let checks = 0, screenshots = 0;
 fs.mkdirSync(out, {recursive: true});
@@ -105,7 +106,7 @@ for (const [engine, type] of [['chromium', chromium], ['webkit', webkit]]) {
             const box = el.getBoundingClientRect(), style = getComputedStyle(el);
             return box.width > 0 && box.height > 0 && box.top < innerHeight && box.bottom > 0
               && style.visibility !== 'hidden' && Number(style.opacity) > 0
-              && ['rgb(169, 208, 212)', 'rgb(196, 225, 227)', 'rgb(201, 130, 31)', 'rgb(12, 110, 120)'].includes(style.backgroundColor);
+              && ['rgb(169, 208, 212)', 'rgb(196, 225, 227)', 'rgb(201, 162, 39)', 'rgb(12, 110, 120)'].includes(style.backgroundColor);
           }).length);
           equal(filledHeaderActions + (outlined ? 0 : 1), 1, label + ': header and hero retain exactly one filled invitation');
           ok(minimumContrast(initial) >= 4.5, label + ': invitation text contrast across backing colors');
@@ -123,6 +124,25 @@ for (const [engine, type] of [['chromium', chromium], ['webkit', webkit]]) {
           rows.push({engine, width, file, outlined, invitationContrast: minimumContrast(initial)});
         }
         if (file === 'index.html') {
+          const activation = page.locator(activationSelector);
+          equal(await activation.count(), 1, label + ': exactly one hero activation action');
+          equal((await activation.textContent()).trim(), 'Activate your invitation', label + ': activation copy unchanged');
+          const activationInitial = await colors(activation);
+          equal(await activation.evaluate(el => getComputedStyle(el).backgroundColor), 'rgba(0, 0, 0, 0)', label + ': activation remains outlined');
+          equal(activationInitial.color, gold, label + ': activation text matches invitation gold');
+          equal(activationInitial.border, gold, label + ': activation border matches invitation gold');
+          ok(minimumContrast(activationInitial) >= 4.5, label + ': activation text contrast');
+          for (const state of ['hover', 'focus']) {
+            if (state === 'hover') await activation.hover();
+            else { await page.mouse.move(0, 0); await page.keyboard.press('Tab'); await activation.focus(); }
+            await page.waitForFunction(({selector, target}) => getComputedStyle(document.querySelector(selector)).borderBottomColor === target, {selector: activationSelector, target: lightGold});
+            const active = await colors(activation);
+            equal(active.color, lightGold, label + ': activation ' + state + ' text');
+            equal(await activation.evaluate(el => getComputedStyle(el).backgroundColor), 'rgba(0, 0, 0, 0)', label + ': activation ' + state + ' remains outlined');
+            ok(minimumContrast(active) >= 4.5, label + ': activation ' + state + ' contrast');
+          }
+          await activation.evaluate(el => el.blur());
+          await page.mouse.move(0, 0);
           const tabs = page.locator('.hwd-tabs button');
           for (let index = 0; index < 4; index++) {
             await tabs.nth(index).click();
@@ -135,7 +155,7 @@ for (const [engine, type] of [['chromium', chromium], ['webkit', webkit]]) {
             const tab = await colors(selected);
             equal(tab.border, gold, label + ': active underline');
             ok([teal, 'rgb(10, 91, 99)'].includes(tab.color), label + ': active label remains teal');
-            equal(await page.locator('.hwd-tabs button:not([aria-selected="true"]) span').evaluateAll(els => els.some(el => getComputedStyle(el).color === 'rgb(134, 83, 13)')), false, label + ': inactive numbers do not acquire gold');
+            equal(await page.locator('.hwd-tabs button:not([aria-selected="true"]) span').evaluateAll((els, ink) => els.some(el => getComputedStyle(el).color === ink), goldInk), false, label + ': inactive numbers do not acquire gold');
           }
           await tabs.first().click();
           await page.mouse.move(0, 0);
@@ -148,7 +168,7 @@ for (const [engine, type] of [['chromium', chromium], ['webkit', webkit]]) {
           const value = await colors(tile.locator('.md-opportunity > strong'));
           equal(value.color, goldInk, label + ': primary report value is gold ink');
           ok(contrast(value.color, value.background) >= 4.5, label + ': primary report value contrast');
-          equal(await tile.locator('strong, dd').evaluateAll(els => els.filter(el => getComputedStyle(el).color === 'rgb(134, 83, 13)').length), 1, label + ': exactly one gold report value');
+          equal(await tile.locator('strong, dd').evaluateAll((els, ink) => els.filter(el => getComputedStyle(el).color === ink).length, goldInk), 1, label + ': exactly one gold report value');
           equal((await colors(tile.locator('.md-opportunity'))).leftBorder, teal, label + ': report frame remains teal');
           if (await tile.isVisible()) await screenshot(tile, `${engine}-${width}-${file === 'index.html' ? 'home' : 'brief'}-report-tile.png`);
           rows.push({engine, width, file, reportValueContrast: contrast(value.color, value.background), reportTileVisible: await tile.isVisible()});

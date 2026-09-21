@@ -86,7 +86,7 @@ export function assertFinancialSamplePdfBinding(update,key,pdfBytes){
 export function currentSynthesisPdfReview(manifest){
   const review=manifest.benefit_flow_presentation_review;
   if(!review)return manifest.financial_publication_update;
-  assert.equal(review.version,'benefit-flow-presentation-20260920.1');
+  assert.equal(review.version,'benefit-flow-presentation-20260920.2');
   assert.equal(review.status,'reviewed');assert.equal(review.reviewed_by,'Codex');
   assert.ok(validTime(review.reviewed_at));assert.equal(review.visual_review,'passed');
   assert.equal(review.artifact_file_sha256,manifest.artifact_file_sha256,'Presentation must bind unchanged sample data');

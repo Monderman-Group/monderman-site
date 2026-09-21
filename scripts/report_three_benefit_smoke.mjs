@@ -102,8 +102,34 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
       }
       // Print uses a paper-sized layout, not a 320px screen. The PDF below
       // additionally verifies actual page composition and complete values.
-      await page.setViewportSize({width:1440,height:1000});await page.emulateMedia({media:'print'});await stylesSettled(page);eq(await page.locator('.mr-benefit-panel:visible').count(),3,'Print shows all cases');eq(await page.evaluate(geometry),[],engine+'/'+width+'/'+name+' print geometry');
-      if(process.argv.includes('--print')&&engine==='chromium'&&width===1440&&['complete','stress'].includes(name)){const file=path.join(out,'QA-only-'+name+'.pdf');await page.pdf({path:file,printBackground:true,preferCSSPageSize:true});const pages=JSON.parse(execFileSync(process.env.PDF_PYTHON||'python3',['-c','import json,sys;from pypdf import PdfReader;print(json.dumps([p.extract_text() for p in PdfReader(sys.argv[1]).pages]))',file],{encoding:'utf8',maxBuffer:16e6})),compact=s=>s.replace(/\s/g,''),text=compact(pages.join(' '));ok(pages[1].includes('Decision brief: three sources of value')&&pages[1].includes('Three planning cases'),'PDF page two has decision brief and full financial table');for(const key of keys)ok(pages[1].includes(item.s.benefits[key].amount.central.toLocaleString('en-US',{maximumFractionDigits:2})),'PDF central benefit front-loaded');ok(compact(pages[1]).includes('Lowpairslowbenefitassumptionswithhighcosts'),'Printed case-pairing note stays with front summary');if(name==='complete')for(const level of levels){const label=level[0].toUpperCase()+level.slice(1);ok(pages.some(p=>p.includes(label+' planning case')&&p.includes(label+' case: how the value adds up')),'Ordinary case cards and Sankey share a page');}for(const level of levels)ok(text.includes(compact(level[0].toUpperCase()+level.slice(1)+' planning case')),'PDF all cases');for(const a of item.s.inputs.capacity.activities)ok(text.includes(compact(a.label)),'PDF complete activity label');for(const category of ['spendingReduction','spendingAvoidance'])for(const a of item.s.inputs[category].items)ok(text.includes(compact(a.label)),'PDF complete expense label');ok(text.includes('Month-by-monthcapacityallocation'),'PDF month ledger');for(const pageNumber of pages.map((p,index)=>({p,index})).filter(x=>/case: how the value adds up/.test(x.p)).map(x=>x.index+1))execFileSync(process.env.PDFTOPPM||'pdftoppm',['-f',String(pageNumber),'-l',String(pageNumber),'-scale-to','1400','-singlefile','-png',file,path.join(out,name+'-page-'+pageNumber)]);pdfs.push({file,pages:pages.length,sha256:sha(fs.readFileSync(file))});}
+      await page.setViewportSize({width:1440,height:1000});
+      for(const selected of levels){
+        await page.emulateMedia({media:'screen'});
+        await page.locator('.mr-benefit-choice').filter({hasText:new RegExp('^'+selected+'$','i')}).click();
+        await page.emulateMedia({media:'print'});await stylesSettled(page);
+        eq(await page.locator('.mr-benefit-panel:visible').count(),1,'Print shows one planning case');
+        eq(await page.locator('.mr-benefit-panel:visible').getAttribute('data-three-benefit-case'),'central','Print always shows Central regardless of screen choice');
+        eq(await page.locator('.mr-benefit-chart:visible').count(),1,'One printed Sankey');
+        ok(await page.locator('.mr-benefit-print-summary').evaluate(el=>!!(el.compareDocumentPosition(document.querySelector('.mr-benefit-central .mr-benefit-chart'))&Node.DOCUMENT_POSITION_PRECEDING)),'Three-case table follows Central chart');
+        eq(await page.evaluate(geometry),[],engine+'/'+width+'/'+name+'/'+selected+' print geometry');
+      }
+      if(process.argv.includes('--print')&&engine==='chromium'&&width===1440&&['complete','stress'].includes(name)){
+        const file=path.join(out,'QA-only-'+name+'.pdf');await page.pdf({path:file,printBackground:true,preferCSSPageSize:true});
+        const pages=JSON.parse(execFileSync(process.env.PDF_PYTHON||'python3',['-c','import json,sys;from pypdf import PdfReader;print(json.dumps([p.extract_text() for p in PdfReader(sys.argv[1]).pages]))',file],{encoding:'utf8',maxBuffer:16e6})),compact=s=>s.replace(/\s/g,''),text=compact(pages.join(' '));
+        ok(pages[1].includes('Decision brief: three sources of value'),'PDF page two has decision brief');
+        for(const key of keys)ok(pages[1].includes(item.s.benefits[key].amount.central.toLocaleString('en-US',{maximumFractionDigits:0})),'PDF central benefit front-loaded');
+        const chartPage=pages.findIndex(p=>p.includes('Central case: how the value adds up')),tablePage=pages.findIndex(p=>p.includes('Three planning cases'));
+        ok(chartPage>=1&&tablePage>=chartPage,'Central chart precedes case comparison');
+        eq((pages.join(' ').match(/case: how the value adds up/g)||[]).length,1,'PDF contains exactly one Sankey');
+        ok(!/Low planning case|High planning case/.test(pages.join(' ')),'Repeated case pages removed');
+        ok(compact(pages[tablePage]).includes('Lowpairslowbenefitassumptionswithhighcosts'),'Pairing note stays with comparison');
+        for(const key of keys)for(const level of levels)ok(text.includes(compact(item.s.benefits[key].amount[level].toLocaleString('en-US',{maximumFractionDigits:2}))),'PDF retains every case amount');
+        for(const a of item.s.inputs.capacity.activities)ok(text.includes(compact(a.label)),'PDF complete activity label');
+        for(const category of ['spendingReduction','spendingAvoidance'])for(const a of item.s.inputs[category].items)ok(text.includes(compact(a.label)),'PDF complete expense label');
+        ok(text.includes('Month-by-monthcapacityallocation'),'PDF month ledger');
+        execFileSync(process.env.PDFTOPPM||'pdftoppm',['-f',String(chartPage+1),'-l',String(chartPage+1),'-scale-to','1400','-singlefile','-png',file,path.join(out,name+'-page-'+(chartPage+1))]);
+        pdfs.push({file,pages:pages.length,sha256:sha(fs.readFileSync(file))});
+      }
       if(process.argv.includes('--print')&&engine==='chromium'&&width===1440&&['complete','stress'].includes(name)){
         const pages=JSON.parse(execFileSync(process.env.PDF_PYTHON||'python3',['-c','import json,sys;from pypdf import PdfReader;print(json.dumps([p.extract_text() for p in PdfReader(sys.argv[1]).pages]))',path.join(out,'QA-only-'+name+'.pdf')],{encoding:'utf8',maxBuffer:16e6}));
         const ledgerPage=(pages.find(p=>p.includes('Month-by-month capacity allocation'))||'').replace(/\s/g,'');
