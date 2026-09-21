@@ -34,10 +34,12 @@ jobs:
           REPORT_SANKEY_OUT: candidate-evidence/legacy-browser
         run: node scripts/report_operational_sankey_smoke.mjs
       - name: Export candidate PDFs from unchanged saved samples
+        if: ${{ !cancelled() }}
         run: |
           node scripts/export_synthesis_sample_pdfs.mjs candidate-evidence/pdfs --all
           python scripts/review_synthesis_pdf_pages.py candidate-evidence/pdfs
       - name: Build candidate site and test approved colors
+        if: ${{ !cancelled() }}
         env:
           RENDER_GIT_COMMIT: ${{ github.sha }}
           GOLD_ACCENT_OUT: candidate-evidence/gold-browser
