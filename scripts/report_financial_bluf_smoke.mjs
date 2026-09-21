@@ -46,7 +46,7 @@ vm.runInNewContext(priorSource,priorSandbox);const priorReport=priorSandbox.wind
 for(const item of cases){
   const {html,model}=item;ok(briefPattern.test(html),'Current '+item.key+' has decision brief');
   ok(html.includes(LEGACY_PLANNING_NOTE_HTML),'Current '+item.key+' explains the earlier saved planning format');
-  ok(!html.includes('data-planning-sankey-version="planning-case-sankey-20260919.3"'),'Current '+item.key+' retires the obsolete benefits-to-costs chart');
+  ok(!html.includes('class="mr-planning-controls"')&&!/data-(?:planning|sankey)-node=/.test(html),'Current '+item.key+' retires the obsolete benefits-to-costs chart and controls');
   ok(html.indexOf('class="mr-section mr-financial-brief"')<html.indexOf('class="mr-section mr-ai-interpretation'),'Financial summary precedes long AI text');
   ok(model.coverBody.includes('These estimates are withheld.'),'Source cover text unchanged');
   const cover=html.match(/<section\b[^>]*class="mr-cover"[\s\S]*?<\/section>/)[0];
