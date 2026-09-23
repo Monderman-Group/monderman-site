@@ -118,7 +118,23 @@ for (const [engineName, engine] of [['chromium', chromium], ['webkit', webkit]])
         await visit(page, file);
         await noWarm(page, '.pl-advisory-box', ['backgroundColor', 'borderLeftColor'], at(file));
         if (file === 'plan-enterprise.html') {
-          await noWarm(page, '.pl-svc-tag', ['color'], at(file));
+          // This single semantic service tag is an explicitly reviewed gold
+          // placement. Pin the exact accessible ink, not an arbitrary warm hue.
+          const serviceTags = await page.locator('.pl-includes li.svc .pl-svc-tag').evaluateAll(els => els.map(el => {
+            let parent = el, background = 'rgba(0, 0, 0, 0)';
+            while (parent && (background === 'rgba(0, 0, 0, 0)' || background === 'transparent')) {
+              background = getComputedStyle(parent).backgroundColor;
+              parent = parent.parentElement;
+            }
+            return {text: el.textContent.trim(), color: getComputedStyle(el).color, background};
+          }));
+          check(serviceTags.length === 1, `${at(file)}: one reviewed custom-service tag is required`);
+          check(await page.locator('.pl-svc-tag').count() === serviceTags.length, `${at(file)}: no service tag may appear outside the reviewed placement`);
+          for (const tag of serviceTags) {
+            check(tag.text === 'built for you', `${at(file)}: custom-service tag meaning changed`);
+            check(tag.color === 'rgb(122, 96, 21)', `${at(file)}: custom-service tag must use approved gold ink: ${tag.color}`);
+            check(contrast(tag.color, tag.background) >= 4.5, `${at(file)}: custom-service tag contrast is too low: ${JSON.stringify(tag)}`);
+          }
           await noWarm(page, '.pl-includes li.svc', ['backgroundColor', 'borderLeftColor'], at(file), '::before');
         }
       }
