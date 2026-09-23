@@ -4,7 +4,7 @@ Status: local presentation review passed. This is not a deployment receipt or em
 
 ## Reviewed bytes and scope
 
-Renderer: `diagnostic-renderer-report-overview-20260923.1`, SHA-256 `21a8f8e08ecfd9bcecc90dd77ef2b062f2eb28b81158d5a7f0511c5c3611621f`.
+Renderer: `diagnostic-renderer-report-overview-20260923.1`, current SHA-256 `977cf5497c16b1e4427e5efa5113ff06e718e1331f18cde8c0069c0d10ba5791`. The original visual review below used SHA `21a8f8e08ecfd9bcecc90dd77ef2b062f2eb28b81158d5a7f0511c5c3611621f`; the exact self-run-only policy correction is recorded below.
 
 Saved sample JSON is unchanged: `35a929949e31f24bace415d0b38f1fe513d19e8f01fec091d2cccdaf7593bd03`. Scores, financial calculations, saved assumptions, authored prose, generation identities and original September 13/14 sample dates remain unchanged. No paid provider calls occurred.
 
@@ -47,7 +47,7 @@ WebKit needed a paint after table focus before its native ArrowRight scrolling d
 
 `sample-data/production-sample-release.json` adds a separate `report_overview_presentation_review` with current source/PDF hashes, preserved prior source pins, the canonical digest of the untouched prior benefit-flow receipt, and the evidence above. Six reviewed PDF bytes were copied into `sample-data/reports/`. No old approval was reissued.
 
-`report_overview_presentation_inverse.mjs` accepts only the exact reviewed current renderer, reverses 12 finite reviewed hunks, and must recover the complete preceding renderer SHA `73c939fac58d0d2f7020207e6e1f869ec30e7f6ff745dbbfa6b76984b663ef98`. Earlier inverse fixtures and their hashes remain untouched. Current-version assertions were advanced; exact historical HTML checks remove only the separately tested overview additions.
+`report_overview_presentation_inverse.mjs` accepts only the exact reviewed current renderer, reverses the one-line self-run correction followed by the original 12 finite reviewed hunks, and must recover the complete preceding renderer SHA `73c939fac58d0d2f7020207e6e1f869ec30e7f6ff745dbbfa6b76984b663ef98`. Earlier inverse fixtures and their hashes remain untouched. Current-version assertions were advanced; exact historical HTML checks remove only the separately tested overview additions.
 
 Publication fixture and preview checks pass. The sensitivity suite rejects 91 mutations, including unapproved presentation sources, altered historical review, missing browser/PDF review, changed saved evidence and mismatched PDFs. Certification CI now watches the new files and runs overview/unified-flow/homepage contracts and actual browser checks. The installed local dependency symlink is unchanged and must not be committed.
 
@@ -70,3 +70,11 @@ Older tests were updated only for known presentation boundaries: use the visible
 Historical site guards now use a separate exact compatibility inverse for 19 whitelisted files and 75 finite reviewed changes, preserving every older approval constant. The complete inverse fixture is pinned, all restored files must match their preceding SHA, and 58 mutation checks reject altered or missing current changes. Earlier palette-only PDF approval is checked against the historical PDF bytes, while current exports remain bound to the separate overview review.
 
 Executable baseline references now use published commit `31c87d9944d58cd58a48e389a680e0e909536329`, whose tree is byte-identical to the local baseline. This avoids unresolvable local-only commit IDs in remote CI. A stale generated homepage entry in `public-search-index.json` was regenerated; only that entry changed, and the index check passes. This generated asset and the test-only follow-ups require the root's next commit/build before deployment. Renderer, public PDFs and saved sample JSON were not changed during this follow-up.
+
+## CI follow-up: personal report qualification
+
+The individual-output policy check caught a real overview defect: a personal saved-run report could display an organization-level condition band in its new findings tile. The one-line correction uses the existing `headlineBand` for self-run reports. The original whole-document forbidden-band assertion is retained and expanded across published/withheld Synthesis and comparison reports, with an inverse mutation proving the old defect is rejected (333 policy checks).
+
+The current renderer is `977cf5497c16b1e4427e5efa5113ff06e718e1331f18cde8c0069c0d10ba5791`. All six newly generated public sample HTML files are byte-for-byte identical to their reviewed `html_sha256` values (`self-run-policy-candidates/CANDIDATE.json`), so the six reviewed PDFs and all 141 reviewed pages remain valid without regenerating their bytes. Saved JSON, historic financial receipts and PDF hashes are unchanged. The separate presentation receipt records this correction and preserves its original review basis.
+
+The refreshed Chromium/WebKit overview suite passed 3,634 checks over the original 96 public states and eight published/withheld self-run states at phone/desktop widths (`self-run-policy-browser/RECEIPT.json`). The phone published and desktop withheld screenshots were visually inspected: the personal qualification is visible and unclipped; the interpretation boundary remains intact. Exact historical inverse checks pass (93 reading-unit and 350 review-label checks), and all 91 public-manifest sensitivity mutations remain rejected. The self-run correction is not a financial or salary-policy change.

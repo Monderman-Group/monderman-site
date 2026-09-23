@@ -6,6 +6,7 @@ import vm from 'node:vm';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {sourceBeforeRenderer39,renderer38Output} from './report_print_conditions_sources_smoke.mjs';
+import {sourceBeforeOverviewPresentation} from './report_overview_presentation_inverse.mjs';
 const root=path.resolve(import.meta.dirname,'..'),sha=v=>createHash('sha256').update(v).digest('hex');
 export const CURRENT='diagnostic-renderer-evidence-reading-20260913.38',PREVIOUS='diagnostic-renderer-evidence-reading-20260913.37';
 const DELTA=[
@@ -35,6 +36,7 @@ const DELTA=[
   ]
 ];
 export function sourceBeforeRenderer38(source){
+  source=sourceBeforeOverviewPresentation(source);
   if(/diagnostic-renderer-evidence-reading-(?:20260913\.39|20260914\.4[0123])/.test(source))source=sourceBeforeRenderer39(source);
   for(const [now,before]of DELTA){assert.equal(source.split(now).length,2,'Exact approved renderer38 delta occurrence');source=source.replace(now,before);}
   assert.equal(sha(source),'39cd55e6b542940a3979d67f9aa652adcd7fa58d6fa2e907438d1cb42bec0b82');

@@ -7,6 +7,7 @@ import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {assertInvitedEvaluationSourceContract,EVALUATION_BASELINE} from './invited_evaluation_source_contract.mjs';
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
+import {sourceBeforeOverviewSiteCompatibility} from './report_overview_site_compatibility_inverse.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const baseline = '80bf58384c641f1614280a34532bfcd8ec03d951';
@@ -107,13 +108,15 @@ const priorSample = currentPrior('sample-report.html');
 equal(priorSample.split(headerHandlersBefore).length, 2, 'Sample baseline contains exactly one header-layout handler block');
 const approvedSampleScripts = scripts(priorSample.replace(headerHandlersBefore, () => headerHandlersAfter));
 function assertScripts(file, source) {
-  equal(scripts(source), file === 'sample-report.html' ? approvedSampleScripts : scripts(currentPrior(file)),
+  // Restore only the whole-file-pinned September 23 presentation delta before
+  // applying the unchanged historical copy and header-layout boundary.
+  equal(scripts(sourceBeforeOverviewSiteCompatibility(file,source)), file === 'sample-report.html' ? approvedSampleScripts : scripts(currentPrior(file)),
     file + ': executable scripts match the exact approved baseline and header-layout correction; only JSON-LD descriptions may vary');
 }
 const styles = html => [...html.matchAll(/<style\b[^>]*>[\s\S]*?<\/style>/gi)].map(match => match[0]);
 for (const file of marketing) {
   if(file!=='pattern-trial.html')assertScripts(file,read(file));
-  if(file!=='pattern-trial.html')equal(styles(read(file)),styles(currentPrior(file)),file+': embedded styles unchanged');
+  if(file!=='pattern-trial.html')equal(styles(sourceBeforeOverviewSiteCompatibility(file,read(file))),styles(currentPrior(file)),file+': embedded styles unchanged outside the exact reviewed presentation delta');
 }
 const acceptedSample = read('sample-report.html');
 for (const [label, mutation] of [
@@ -123,7 +126,7 @@ for (const [label, mutation] of [
   ['unrelated executable addition', acceptedSample.replace('</body>', '<script>window.unapprovedBehavior = true;</script></body>')],
 ]) {
   check(mutation !== acceptedSample, label + ': negative control changes the sample page');
-  assert.throws(() => assertScripts('sample-report.html', mutation), /executable scripts match the exact approved baseline/); checks++;
+  assert.throws(() => assertScripts('sample-report.html', mutation), /executable scripts match the exact approved baseline|only the exact reviewed current source can be inverted/); checks++;
 }
 
 const currentProtection=assertInvitedEvaluationSourceContract(root);

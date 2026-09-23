@@ -24,7 +24,7 @@ const htmls=Object.fromEntries(Object.entries(artifact.outputs).map(([key,entry]
   assert.equal(JSON.stringify(entry),before);
   return [key,html];
 }));
-const rows=[],errors=[],requests=[];
+const rows=[],selfRunRows=[],errors=[],requests=[];
 let assertions=0;
 const ok=(condition,label)=>{assert.ok(condition,label);assertions++;};
 const eq=(a,b,label)=>{assert.deepEqual(a,b,label);assertions++;};
@@ -90,9 +90,31 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]]){
       rows.push({engine,width,key,javaScriptEnabled});
       await page.close();
     }
+    for(const width of [390,1440])for(const score_status of ['published','withheld']){
+      const source={report_kind:'self_run_synthesis',source_mode:'own_saved_runs',synthesis_product:'depth_synthesis',score_status,cross_diagnostic_score:90,condition_band:'Strong observed condition',score_label:'Median of your selected scores',source_groups:[{tool_label:'Decision Velocity',submitted_runs:2,median_score:90}]};
+      const before=JSON.stringify(source),model=context.window.MondermanReport.fromSynthesis(source),html=context.window.MondermanReport.buildReportHtml(model);
+      eq(JSON.stringify(source),before,'Self-run source remains unchanged');
+      const page=await browser.newPage({viewport:{width,height:1000},reducedMotion:'reduce'});
+      page.on('pageerror',error=>errors.push({engine,width,key:'self-run',error:error.message}));
+      await page.route('**/*',route=>{
+        const font=/^https:\/\/www\.monderman\.com\/(55|65|75)font\.woff2$/.exec(route.request().url());
+        if(font)return route.fulfill({contentType:'font/woff2',body:read(font[1]+'font.woff2')});
+        requests.push(route.request().url());return route.abort();
+      });
+      await page.setContent(html);await page.evaluate(()=>document.fonts.ready);
+      const qualification=score_status==='published'?'Your selected scores only':'No combined score';
+      ok(!(await page.locator('body').textContent()).includes('Strong observed condition'),'Self-run page never exposes organizational band');
+      ok((await page.locator('[data-report-link-role="overview-findings"] .mr-overview-label').innerText()).includes(qualification),'Visible overview follows self-run policy');
+      ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Self-run overview has no overflow');
+      await page.screenshot({path:path.join(out,`${engine}-${width}-self-run-${score_status}.png`)});
+      await page.emulateMedia({media:'print'});
+      eq(await page.locator('.mr-report-overview:visible').count(),0,'Self-run overview remains screen-only');
+      ok(!(await page.locator('body').textContent()).includes('Strong observed condition'),'Print DOM preserves self-run policy');
+      selfRunRows.push({engine,width,score_status});await page.close();
+    }
   } finally {await browser.close();}
 }
 eq(errors,[],'No browser exceptions');eq(requests,[],'No unexpected transport');
-const receipt={status:'PASS',assertions,states:rows.length,renderer_sha256:sha(read('monderman-report.js')),artifact_file_sha256:sha(artifactBytes),rows,errors,provider_calls:0,network_calls:0};
+const receipt={status:'PASS',assertions,states:rows.length,self_run_states:selfRunRows.length,renderer_sha256:sha(read('monderman-report.js')),artifact_file_sha256:sha(artifactBytes),rows,selfRunRows,errors,provider_calls:0,network_calls:0};
 fs.writeFileSync(path.join(out,'RECEIPT.json'),JSON.stringify(receipt,null,2)+'\n');
 console.log(JSON.stringify({...receipt,rows:rows.length,out}));

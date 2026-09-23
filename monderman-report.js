@@ -3189,7 +3189,7 @@
     const summary = firstStr(interpretation.summary, m.centralFinding, m.execSummary, m.coverBody, m.primaryPattern);
     const score = m.kind === 'run' ? m.score : m.scorePublished ? m.score : null;
     const scoreLabel = m.kind === 'run' ? 'Diagnostic score' : firstStr(m.scoreLabel, 'Condition score');
-    const scoreBand = m.kind === 'run' ? firstStr(m.headlineBand) : firstStr(m.conditionBand);
+    const scoreBand = m.kind === 'run' || m.selfRun ? firstStr(m.headlineBand) : firstStr(m.conditionBand);
     const findingContent = '<div class="mr-overview-score"><strong>' + esc(strictFinite(score) ? fmt1(score) : 'Unavailable') + '</strong>' + (strictFinite(score) ? '<span>/ 100</span>' : '') + '</div><p class="mr-overview-label">' + esc(scoreLabel) + (scoreBand ? ' · ' + esc(scoreBand) : '') + '</p><p class="mr-overview-summary">' + esc(summary || 'Review the recorded findings in the full report.') + '</p>';
     const validated = threeBenefitPresentation(m);
     let valueContent = '', valueTitle = 'Time and money', valueTarget = financial || evidence;

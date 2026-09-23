@@ -7,6 +7,14 @@ import vm from 'node:vm';
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const html = read('decision-velocity.html');
 const helper = read('assignment-draft.js');
+// Execute the real capability method in the isolated assignment API fixture.
+// This keeps draft restoration coupled to the shipped omission/cleanup rule,
+// instead of inventing a no-op method solely to satisfy the controller.
+const assignmentSource = read('assignment-mode.js');
+const prestartStart=assignmentSource.indexOf('    prestartFields: function (fields, values) {');
+const prestartEnd=assignmentSource.indexOf('    // banner:',prestartStart);
+assert.ok(prestartStart>=0&&prestartEnd>prestartStart,'Bounded shipped assignment prestart method');
+const prestartMethod=assignmentSource.slice(prestartStart,prestartEnd);
 function section(start, end) {
   const a = html.indexOf(start), b = html.indexOf(end, a);
   assert.ok(a >= 0 && b > a, `source boundary ${start}`);
@@ -36,14 +44,14 @@ function remote() {
 }
 function deferred() { let resolve; const promise = new Promise(r => {resolve=r;}); return {promise,resolve}; }
 const flush = async () => { await Promise.resolve(); await Promise.resolve(); await Promise.resolve(); };
-function runtime({anonymous=false, optIn=true, hasRun=true, tool='decision_velocity', depthChoice=false}={}) {
+function runtime({anonymous=false, optIn=true, hasRun=true, tool='decision_velocity', depthChoice=false, omitHourlyCost=false}={}) {
   const calls=[], timers=[], intervals=[], renders=[], notices=[], storage=new Map(), listeners={};
   const state={mode:'managerial',depth:'10',started:hasRun,runId:hasRun?runId:null,
     configVersion:null,sessionRevision:null,preflight:{confidenceLevel:'high'},
     currentItem:{id:'stale-reviewed-item'}, questionHistory:[{item:{id:'stale-q'},value:'stale'}],
     answerCache:{'stale-q':'stale'}, experiential:{self:'local note'},experienceIndex:0,
     experienceComplete:false,result:null,renderPayload:null};
-  const cfg={id,tool_type:tool,participant_lens:'managerial',depth:'10',depth_choice:depthChoice,is_anonymous_response:anonymous};
+  const cfg={id,tool_type:tool,participant_lens:'managerial',depth:'10',depth_choice:depthChoice,is_anonymous_response:anonymous,omit_hourly_cost_question:omitHourlyCost};
   const fixture={active:true,token,remote:remote(),status:200,gate:null,post:null,completeOk:true,retire:false};
   const elements={};
   for (const name of ['introStage','questionStage','resultsStage','processingStage','persistenceNotice',
@@ -83,6 +91,7 @@ function runtime({anonymous=false, optIn=true, hasRun=true, tool='decision_veloc
       if(fixture.gate) await fixture.gate.promise;
       return {ok:fixture.status===200,status:fixture.status,json:async()=>clone(fixture.remote)};
     }});
+  win.MondermanAssignment.prestartFields=vm.runInContext('(function(){const _config=window.MondermanAssignment.config();return ({'+prestartMethod+'}).prestartFields;})()',context,{filename:'assignment-mode.js shipped prestart method'});
   vm.runInContext(helper,context,{filename:'assignment-draft.js'});
   vm.runInContext(`${questionnaire}\n${applyHistory}\n${answers}\n${back}\n${finalizer}\n${restore}`,context,{filename:'decision-velocity recovery and handlers'});
   const storedState=clone(state);
@@ -105,6 +114,20 @@ function runtime({anonymous=false, optIn=true, hasRun=true, tool='decision_veloc
 // Run every original assertion with both supported saved questionnaire banks.
 for (const questionnaireVersion of ['1.0.0','1.1.0']) {
 activeQuestionnaireVersion = questionnaireVersion;
+for(const omitHourlyCost of [false,true]){
+  const recovered=runtime({omitHourlyCost}),saved=JSON.parse(recovered.storage.get(key));
+  saved.state.preflight.hourlyCost=120;saved.state.preflight.hourlyRate=90;
+  recovered.storage.set(key,JSON.stringify(saved));
+  assert.equal(recovered.activate(),true);assert.equal(await recovered.done(),true);await flush();
+  recovered.tick();
+  const persisted=JSON.parse(recovered.storage.get(key)).state.preflight;
+  for(const field of ['hourlyCost','hourlyRate']){
+    assert.equal(Object.hasOwn(recovered.state.preflight,field),!omitHourlyCost,'Protected recovery clears stale cost; ordinary recovery preserves its inputs');
+    assert.equal(Object.hasOwn(persisted,field),!omitHourlyCost,'Autosave follows the authoritative protected capability');
+  }
+  const fields=[{id:'confidenceLevel'},{id:'hourlyCost'}];
+  assert.deepEqual(clone(recovered.context.window.MondermanAssignment.prestartFields(fields,recovered.state.preflight)),omitHourlyCost?[{id:'confidenceLevel'}]:fields);
+}
 const pending=runtime();pending.fixture.gate=deferred();
 assert.equal(pending.activate(),true,'activation owns the restore path synchronously; init must not start another');
 assert.equal(pending.state.answerInFlight,true);

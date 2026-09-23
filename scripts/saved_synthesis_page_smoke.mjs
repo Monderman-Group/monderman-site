@@ -6,14 +6,20 @@ import path from 'node:path';
 import http from 'node:http';
 import {createHash} from 'node:crypto';
 import {chromium,webkit} from 'playwright';
+import {sourceBeforeOverviewPresentation} from './report_overview_presentation_inverse.mjs';
+import {sourceBeforeOverviewSiteCompatibility} from './report_overview_site_compatibility_inverse.mjs';
 
 const root=path.resolve(import.meta.dirname,'..'),sha=b=>createHash('sha256').update(b).digest('hex');
 const out=process.env.SAVED_SYNTHESIS_OUT||fs.mkdtempSync('/tmp/saved-synthesis-page-');
 if(process.env.SAVED_SYNTHESIS_OUT)fs.mkdirSync(out,{recursive:false,mode:0o700});
 const pageSource=fs.readFileSync(path.join(root,'cross-tool-synthesis.html'),'utf8');
 const rendererSource=fs.readFileSync(path.join(root,'monderman-report.js'),'utf8');
-assert.match(rendererSource,/RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260914\.43"/);
-assert.match(pageSource,/monderman-report\.js\?v=20260915\.financial1/);
+assert.match(rendererSource,/RENDERER_VERSION = "diagnostic-renderer-report-overview-20260923\.1"/);
+assert.match(pageSource,/monderman-report\.js\?v=20260923\.overview1/);
+// Preserve the exact historical identifiers after the reviewed, hash-pinned
+// presentation inverse; the browser still executes the current candidate.
+assert.match(sourceBeforeOverviewPresentation(rendererSource),/RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260914\.43"/);
+assert.match(sourceBeforeOverviewSiteCompatibility('cross-tool-synthesis.html',pageSource),/monderman-report\.js\?v=20260915\.financial1/);
 const ORG='22222222-2222-4222-8222-222222222222',ID='33333333-3333-4333-8333-333333333333';
 const SOURCE_IDS=['44444444-4444-4444-8444-444444444444','55555555-5555-4555-8555-555555555555'];
 function fixture({personal,depth,published}){
@@ -55,7 +61,7 @@ for(const name of ['fromSynthesis','render','openReport','downloadHtml','downloa
  window.MondermanReport[name]=function(...args){const before=JSON.stringify(args);const value=original.apply(this,args);
  window.__savedPageCalls.push({name,args:JSON.parse(before),unchanged:before===JSON.stringify(args)});return value;};
 }`;
-let checks=2;const results=[],errors=[],unexpected=[];
+let checks=4;const results=[],errors=[],unexpected=[];
 const eq=(a,b,label)=>{assert.deepEqual(a,b,label);checks++;};
 try{for(const [engineName,engine]of Object.entries({chromium,webkit})){
   const browser=await engine.launch();
