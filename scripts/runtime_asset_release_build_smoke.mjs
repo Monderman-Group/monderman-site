@@ -42,10 +42,11 @@ const annualAssets=['monderman-report.js','sample-report-production.js','public-
 const consistencyAssets=['canonical-site-shell.js','workspace-assistant.js','public-product-design.css','workspace-product-design.css','report-screen-experience.css','diagnostic-intake.css','visual-polish.css','sample-report-production.css'];
 const footerSupportAssets=['canonical-site-shell.js','canonical-site-shell.css','connect-widget.js','assistant.js'];
 const evaluationAssets=['homepage-workspace-demo.css','homepage-workspace-demo.js','workspace-access-gate.js','workspace-evaluation.js','feedback-widget.js','first-run-telemetry.js','pilot-waitlist.js'];
-const changed=[...new Set([...annualAssets,...consistencyAssets,...footerSupportAssets,...evaluationAssets,'monderman-depth-lure-tile.css','campaign-analysis.js','campaign-analysis.css','workspace-synthesis-readiness.js','workspace-synthesis-readiness.css'])];
+const salaryAssets=['assignment-mode.js','assignment-draft.js','employer-salary-import.js','employer-salary-settings.js'];
+const changed=[...new Set([...annualAssets,...consistencyAssets,...footerSupportAssets,...evaluationAssets,...salaryAssets,'sample-report-tile.css','pilot-waitlist.css','monderman-depth-lure-tile.css','campaign-analysis.js','campaign-analysis.css','workspace-synthesis-readiness.js','workspace-synthesis-readiness.css'])];
 const priorRuntimeRelease=asset=>['campaign-analysis.js','campaign-analysis.css','monderman-report.js','monderman-depth-lure-tile.css'].includes(asset)?'20260919.benefits1':['workspace-synthesis-readiness.js','workspace-synthesis-readiness.css'].includes(asset)?'20260919.ready1':['homepage-workspace-demo.js','homepage-workspace-demo.css'].includes(asset)?'20260919.journey3':['workspace-access-gate.js','workspace-evaluation.js','feedback-widget.js','assistant.js'].includes(asset)?'20260919.invited1':evaluationAssets.includes(asset)?'20260919.invitation1':asset==='connect-widget.js'?'20260917.widget-visible1':asset==='canonical-site-shell.css'?'20260916.widget-anchor1':footerSupportAssets.includes(asset)?'20260916.floating-support1':consistencyAssets.includes(asset)?'20260915.consistency1':annualAssets.includes(asset)?'20260915.annual1':'20260913.34';
-const runtimeRelease=asset=>({'monderman-report.js':'20260921.burden1','report-screen-experience.css':'20260921.gold1','monderman-depth-lure-tile.css':'20260920.gold2','homepage-workspace-demo.js':'20260920.gather1','homepage-workspace-demo.css':'20260920.gold3'}[asset])||priorRuntimeRelease(asset);
-eq(read('monderman-report.js').toString().match(/const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-([^"]+)"/)?.[1],'20260914.43','Renderer version remains 43; annual metadata changes receive a separate cache identity');
+const runtimeRelease=asset=>({'monderman-report.js':'20260923.overview1','report-screen-experience.css':'20260921.gold1','monderman-depth-lure-tile.css':'20260920.gold2','homepage-workspace-demo.js':'20260920.gather1','homepage-workspace-demo.css':'20260923.samples1','sample-report-tile.css':'20260923.gold1','pilot-waitlist.css':'20260923.gold1','canonical-site-shell.css':'20260923.gold1','public-product-design.css':'20260923.gold1','campaign-analysis.js':'20260923.salary1','assignment-mode.js':'20260923.salary1','assignment-draft.js':'20260923.salary1','employer-salary-import.js':'20260923.1','employer-salary-settings.js':'20260923.1'}[asset])||priorRuntimeRelease(asset);
+eq(read('monderman-report.js').toString().match(/const RENDERER_VERSION = "([^"]+)"/)?.[1],'diagnostic-renderer-report-overview-20260923.1','Current renderer edition has a matching build cache identity');
 for(const asset of changed){
   for(const quote of ['"',"'"])for(const prefix of ['', './'])for(const query of ['', '?v=20260913.32','?v=20260913.35','?v=20260913.39'])
     eq(versionScript(`${quote}${prefix}${asset}${query}${quote}`,asset),`${quote}${prefix}${asset}?v=${runtimeRelease(asset)}${quote}`);
@@ -92,7 +93,7 @@ for(const file of pages){
     eq(after.length,expectedCount,file+': exact existing or explicitly injected asset reference count');
     // The build refreshes the shared support assets without touching dozens of
     // page sources. Report assets retain their established source-key checks.
-    if([...annualAssets,'homepage-workspace-demo.css'].includes(asset)&&! /^(?:terms|privacy)(?:-|\.)/.test(file))for(const match of before)eq(match[3],`?v=${asset==='canonical-site-shell.js'?'20260915.consistency1':asset==='monderman-report.js'?'20260915.financial1':asset==='homepage-workspace-demo.css'?'20260919.journey3':runtimeRelease(asset)}`,file+': expected source cache identity; the build normalizes unchanged consumer markup');
+    if([...annualAssets,'homepage-workspace-demo.css'].includes(asset)&&! /^(?:terms|privacy)(?:-|\.)/.test(file))for(const match of before)eq(match[3],`?v=${asset==='canonical-site-shell.js'?'20260915.consistency1':runtimeRelease(asset)}`,file+': expected source cache identity; the build normalizes unchanged consumer markup');
     for(const match of after){eq(match[3],`?v=${runtimeRelease(asset)}`,file+': current asset URL');references[asset]++;}
   }
 }
@@ -108,7 +109,11 @@ eq(references['monderman-report.js'],9,'All nine renderer consumers are covered'
 eq(references['sample-report-production.js'],1,'The real sample page uses the mixed-origin export handler');
 eq(references['public-sample-model.js'],1,'The sample page loads the current public sample model');
 eq(references['homepage-workspace-demo.css'],1,'Interactive preview text receives its current stylesheet');
-ok(fs.readFileSync(path.join(built,'workspace-analysis.html'),'utf8').includes("from './campaign-analysis.js?v=20260919.benefits1'"));
+ok(fs.readFileSync(path.join(built,'workspace-analysis.html'),'utf8').includes("from './campaign-analysis.js?v=20260923.salary1'"));
+eq(references['assignment-mode.js'],4,'All four participant pages receive current assignment routing');
+eq(references['assignment-draft.js'],4,'All four participant pages receive current salary-safe draft recovery');
+eq(references['employer-salary-import.js'],2,'Composer and Settings receive the salary CSV module');
+eq(references['employer-salary-settings.js'],1,'Settings receives the controlled salary settings module');
 ok(fs.readFileSync(path.join(built,'diagnostics.html'),'utf8').includes('id="methodology-and-sources"'));
 eq(sha(fs.readFileSync(path.join(built,'single-run-financial-display.css'))),hashes['single-run-financial-display.css']);
 for(const tool of ['structural-clarity','decision-velocity','operational-systems','institutional-performance']){

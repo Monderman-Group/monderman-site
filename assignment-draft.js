@@ -110,6 +110,7 @@
     var restoring = false;
 
     function selectedState() {
+      window.MondermanAssignment?.prestartFields([], state.preflight);
       var out = {};
       STATE_FIELDS.forEach(function (field) {
         if (state[field] !== undefined) out[field] = cloneJson(state[field], null);
@@ -211,6 +212,7 @@
           if (saved.state[field] !== undefined && saved.state[field] !== null) state[field] = saved.state[field];
         });
         state.mode = config.participant_lens || state.mode;
+        window.MondermanAssignment?.prestartFields([], state.preflight);
         if (!config.depth_choice && config.depth != null) state.depth = String(config.depth);
         restoreStage(saved);
       } else if (saved) {

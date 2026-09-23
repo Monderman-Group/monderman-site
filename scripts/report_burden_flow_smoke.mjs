@@ -16,7 +16,7 @@ const artifact = JSON.parse(artifactBytes);
 const fixtures = JSON.parse(read('scripts/fixtures/three-benefit-scenarios.json'));
 const levels = ['low', 'central', 'high'];
 const costCase = {low: 'high', central: 'central', high: 'low'};
-const categoryKinds = {spendingReduction: 'current-spending', spendingAvoidance: 'planned-spending'};
+const moneyCategories = ['spendingReduction', 'spendingAvoidance'];
 const context = {window: {}, console, Intl, Date, Number, String, Array, Object, Math, JSON, WeakSet, Blob, URL, setTimeout, clearTimeout};
 vm.runInNewContext(read('participant-evidence-safety.js'), context);
 vm.runInNewContext(renderer, context);
@@ -49,14 +49,13 @@ const freeze = value => {
 
 function expectedSources(s, level) {
   const result = new Map();
-  for (const [category, kind] of Object.entries(categoryKinds)) {
-    const rows = s.inputs[category].items.map(input => {
+  const moneyRows = moneyCategories.flatMap(category =>
+    s.inputs[category].items.map(input => {
       const saved = s.spendingItems.find(row => row.id === input.id);
       const baseline = input.baselineMonthlyUnits * input.unitCost * (input.endMonth - input.startMonth + 1);
-      return {id: input.id, input, baseline, released: saved.amount[level]};
-    });
-    if (rows.length && rows.some(row => row.baseline > 0)) result.set(kind, {unit: 'USD', rows});
-  }
+      return {id: input.id, category, input, baseline, released: saved.amount[level]};
+    }));
+  if (moneyRows.some(row => row.baseline > 0)) result.set('money', {unit: 'USD', rows: moneyRows});
   const capacity = s.inputs.capacity;
   const measuredDays = (Date.parse(capacity.measurementEnd) - Date.parse(capacity.measurementStart)) / 86400000;
   const rows = capacity.activities.map(input => {
@@ -77,7 +76,7 @@ function zeroEstimatedScenario() {
   const s = structuredClone(fixtures.cases.complete);
   const zero = () => ({low: 0, central: 0, high: 0});
   for (const input of s.inputs.capacity.activities) input.reductionPercent = zero();
-  for (const category of Object.keys(categoryKinds)) for (const input of s.inputs[category].items) input.reductionPercent = zero();
+  for (const category of moneyCategories) for (const input of s.inputs[category].items) input.reductionPercent = zero();
   for (const row of s.activities) {
     for (const key of ['grossHoursFreed', 'hoursUsedForSpendingReduction', 'hoursUsedForSpendingAvoidance', 'potentialHoursFreed', 'capacityValue']) row[key] = zero();
     for (const month of row.monthlyReconciliation) for (const key of Object.keys(month)) if (key !== 'month') month[key] = zero();
@@ -112,6 +111,9 @@ scenarios['subnormal-baseline'] = zeroEstimatedScenario();
   s.inputs.spendingReduction.items = [input];
   s.spendingItems = s.spendingItems.filter(row => row.category !== 'spendingReduction' || row.id === input.id);
   s.spendingItems.find(row => row.id === input.id).activeMonths = 1;
+  // Money is one combined diagram now. Keep its entire denominator subnormal
+  // so the original unsafe-scale probe still tests the same failure boundary.
+  for (const planned of s.inputs.spendingAvoidance.items) planned.baselineMonthlyUnits = 0;
 }
 // A saved result rounded to one cent can exceed a sub-cent denominator by less
 // than half a cent. The affected diagram must fall back, not clamp its source.
@@ -156,9 +158,9 @@ for (const {name, raw} of cases) {
     equal(sections.length, 0, name + ': incomplete coverage does not fabricate complete burden diagrams');
     continue;
   }
-  const omittedKinds = ['huge-baseline', 'near-baseline-rounding', 'subnormal-baseline'].includes(name) ? new Set(['current-spending']) : new Set();
+  const omittedKinds = ['huge-baseline', 'near-baseline-rounding', 'subnormal-baseline'].includes(name) ? new Set(['money']) : new Set();
   if (omittedKinds.size) {
-    equal(html.split('Current spending: the baseline cannot be drawn reliably. Refer to the saved inputs and planning table.').length - 1, 3, name + ': explicit case-by-case fallback');
+    equal(html.split('Money: current and planned spending: the baseline cannot be drawn reliably. Refer to the saved inputs and planning table.').length - 1, 3, name + ': explicit case-by-case fallback');
     ok(!sections.some(section => omittedKinds.has(section.attrs['data-burden-kind'])), name + ': no fabricated denominator or negative-residual diagram');
   }
   const scales = new Map();
@@ -176,10 +178,11 @@ for (const {name, raw} of cases) {
       const svg = section.html.match(/<svg\b([^>]*)>/);
       ok(svg, label + ': native SVG exists');
       const viewBox = attributes(svg[1]).viewBox?.trim().split(/\s+/).map(Number);
-      equal(viewBox?.slice(0, 3), [0, 0, 800], label + ': shared SVG coordinate width');
+      equal(viewBox?.slice(0, 3), [0, 0, 200], label + ': shared SVG coordinate width');
       ok(viewBox.length === 4 && Number.isFinite(viewBox[3]) && viewBox[3] > 0, label + ': bounded SVG height');
       const baseline = contract.rows.reduce((sum, row) => sum + row.baseline, 0);
       const released = contract.rows.reduce((sum, row) => sum + row.released, 0);
+      close(scale * baseline, 180, label + ': shared baseline height');
       close(numeric(section.attrs, 'data-baseline-value', label), baseline, label + ': declared baseline', contract.rows.length);
       close(numeric(section.attrs, 'data-released-value', label), released, label + ': saved released amount', contract.rows.length);
       close(numeric(section.attrs, 'data-residual-value', label), baseline - released, label + ': residual burden', contract.rows.length);
@@ -192,6 +195,7 @@ for (const {name, raw} of cases) {
         close(numeric(row.attrs, 'data-released-value', sourceLabel), expectedRow.released, sourceLabel + ': exact saved released value');
         close(numeric(row.attrs, 'data-residual-value', sourceLabel), expectedRow.baseline - expectedRow.released, sourceLabel + ': conserved source');
         ok(Number(row.attrs['data-residual-value']) >= 0, sourceLabel + ': no negative source remainder');
+        if (kind === 'money') equal(row.attrs['data-burden-category'], expectedRow.category, sourceLabel + ': current and planned sources retain their own category');
         if (kind === 'workload') {
           for (const [attr, key] of [['data-spending-reduction-hours', 'reduction'], ['data-spending-avoidance-hours', 'avoidance'], ['data-retained-hours', 'retained']]) close(numeric(row.attrs, attr, sourceLabel), expectedRow[key], sourceLabel + ': saved ' + key);
           close(expectedRow.reduction + expectedRow.avoidance + expectedRow.retained, expectedRow.released, sourceLabel + ': allocated hours excluded from retained hours', 3);
@@ -202,7 +206,7 @@ for (const {name, raw} of cases) {
       let drawnTotal = 0;
       for (const match of section.html.matchAll(/<path\b([^>]*\bdata-burden-role="[^"]+"[^>]*)>/g)) {
         const attrs = attributes(match[1]), role = attrs['data-burden-role'];
-        const allowed = kind === 'workload' ? ['remaining', 'spendingReduction', 'spendingAvoidance', 'staffCapacity'] : ['remaining', kind === 'current-spending' ? 'spendingReduction' : 'spendingAvoidance'];
+        const allowed = kind === 'workload' ? ['remaining', 'spendingReduction', 'spendingAvoidance', 'staffCapacity'] : ['currentRemaining', 'plannedRemaining', 'spendingReduction', 'spendingAvoidance'];
         ok(allowed.includes(role), label + ': no cost, subscription or mixed-unit flow role');
         const amount = numeric(attrs, 'data-burden-amount', label + '/' + role);
         const drawnAmount = numeric(attrs, 'data-burden-drawn-amount', label + '/' + role);
@@ -210,6 +214,8 @@ for (const {name, raw} of cases) {
         drawnTotal += drawnAmount;
         ok(amount >= 0, label + ': nonnegative ribbon');
         ok(!/NaN|Infinity/.test(attrs.d || ''), label + ': finite ribbon geometry');
+        equal(attrs['fill-opacity'], '.34', label + ': translucent ribbons');
+        for (const id of attrs['data-burden-source-ids'].split(' ')) ok(contract.rows.some(row => row.id === id), label + ': grouped ribbon refers only to real sources');
         const coordinates = (attrs.d || '').match(/[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?/gi)?.map(Number);
         equal(coordinates?.length, 16, label + ': complete closed cubic ribbon');
         for (const width of [coordinates[15] - coordinates[1], coordinates[9] - coordinates[7]]) {
@@ -217,24 +223,22 @@ for (const {name, raw} of cases) {
         }
         roles.set(role, (roles.get(role) || 0) + amount);
       }
-      close(roles.get('remaining') || 0, baseline - released, label + ': remaining ribbons reconcile', contract.rows.length);
+      const remaining = kind === 'workload' ? roles.get('remaining') || 0 : (roles.get('currentRemaining') || 0) + (roles.get('plannedRemaining') || 0);
+      close(remaining, baseline - released, label + ': remaining ribbons reconcile', contract.rows.length);
       ok(Math.abs(drawnTotal - baseline) <= Math.max(1e-8, baseline * 1e-12), label + ': drawn ribbons conserve the baseline despite independently rounded labels');
-      const mobileScale = Number(section.html.match(/data-mobile-burden-scale="([^"]+)"/)?.[1]);
-      ok(Number.isFinite(mobileScale) && mobileScale > 0, label + ': phone overview has a finite fixed baseline scale');
-      ok(Math.abs(mobileScale * baseline - 260) < 1e-8, label + ': phone baseline width is consistent between cases');
-      let mobileTotal = 0;
-      for (const match of section.html.matchAll(/<path\b([^>]*\bdata-mobile-burden-role="[^"]+"[^>]*)>/g)) {
-        const attrs = attributes(match[1]), amount = numeric(attrs, 'data-mobile-burden-amount', label + '/phone');
-        ok(['remaining', 'spendingReduction', 'spendingAvoidance', 'staffCapacity'].includes(attrs['data-mobile-burden-role']), label + ': phone shows no cost or subscription flow');
-        const coordinates = attrs.d.match(/[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?/gi).map(Number);
-        equal(coordinates.length, 16, label + ': complete phone ribbon');
-        for (const width of [coordinates[14] - coordinates[0], coordinates[8] - coordinates[6]]) ok(Math.abs(width - amount * mobileScale) < 1e-7, label + ': phone ribbon uses the same case scale');
-        mobileTotal += amount;
-      }
-      ok(Math.abs(mobileTotal - baseline) <= Math.max(1e-8, baseline * 1e-12), label + ': phone overview conserves the baseline');
+      // Phone now uses this same left-to-right SVG, not a separately calculated
+      // vertical diagram. Every amount/scale/conservation assertion above thus
+      // applies to both layouts; actual label containment still needs a browser.
+      equal((section.html.match(/<svg\b/g) || []).length, 1, label + ': shared phone/desktop SVG');
+      ok(!/data-mobile-burden-|mr-burden-mobile/.test(section.html), label + ': no obsolete phone-only calculation');
+      ok(section.html.includes('data-flow-direction="left-to-right"'), label + ': common left-to-right direction');
+      equal((section.html.match(/class="mr-unified-labels"/g) || []).length, 2, label + ': separate source/outcome label columns');
       for (const [role, value] of kind === 'workload'
         ? [['spendingReduction', contract.rows.reduce((n, r) => n + r.reduction, 0)], ['spendingAvoidance', contract.rows.reduce((n, r) => n + r.avoidance, 0)], ['staffCapacity', contract.rows.reduce((n, r) => n + r.retained, 0)]]
-        : [[kind === 'current-spending' ? 'spendingReduction' : 'spendingAvoidance', released]]) close(roles.get(role) || 0, value, label + ': ' + role + ' ribbons reconcile', contract.rows.length);
+        : moneyCategories.flatMap(category => {
+          const rows = contract.rows.filter(row => row.category === category);
+          return [[category, rows.reduce((n, row) => n + row.released, 0)], [category === 'spendingReduction' ? 'currentRemaining' : 'plannedRemaining', rows.reduce((n, row) => n + row.baseline - row.released, 0)]];
+        })) close(roles.get(role) || 0, value, label + ': ' + role + ' ribbons reconcile', contract.rows.length);
       ok(!/Subscription allocation|Implementation cash|Net planning value/.test(section.html), label + ': costs and net outside diagram');
       sectionsChecked++;
     }

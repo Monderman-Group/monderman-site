@@ -8,6 +8,7 @@ import {fileURLToPath} from 'node:url';
 import {restoreFinancialPresentationStyles} from './report_financial_presentation_inverse.mjs';
 import {sourceBeforeRenderer42,restoreRenderer42PrintSpacing} from './report_focus_label_smoke.mjs';
 import {reportHtmlAfterReviewedPresentation} from './report_three_benefit_presentation_inverse.mjs';
+import {withoutReportOverview} from './report_overview_test_normalizer.mjs';
 const sha=v=>createHash('sha256').update(v).digest('hex');
 const canonical=x=>Array.isArray(x)?x.map(canonical):x&&typeof x==='object'?Object.fromEntries(Object.keys(x).sort().map(k=>[k,canonical(x[k])])):x;
 const DELTA=[
@@ -47,7 +48,7 @@ if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.ur
  let checks=0;const eq=(a,b,m)=>{assert.deepEqual(a,b,m);checks++;};
  const load=s=>{const c={window:{}};vm.runInNewContext(fs.readFileSync(root+'/participant-evidence-safety.js','utf8'),c);vm.runInNewContext(s,c);return c.window.MondermanReport;};
  const R=load(source),old=load(prior),freeze=x=>{if(x&&typeof x==='object'){Object.freeze(x);Object.values(x).forEach(freeze);}return x;};
- eq(R.rendererVersion,'diagnostic-renderer-evidence-reading-20260914.43');
+ eq(R.rendererVersion,'diagnostic-renderer-report-overview-20260923.1');
  assert.throws(()=>sourceBeforeRenderer41(source+'\nUNREVIEWED'));checks++;
  const caveat='This is not independent proof of unique physical people, a representative sample or an accurate population declaration.';
  const stats='These are recorded account or invitation identities, not independently verified physical people.';
@@ -73,14 +74,14 @@ if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.ur
  const custom=make();custom.narrative.executive_summary='A participant said physical people; keep this exact prose.';eq(R.fromSynthesis(freeze(custom)).coverBody,custom.narrative.executive_summary);
  for(const tool_type of ['structural_clarity','decision_velocity','operational_systems','institutional_performance']){
   const x=freeze({tool_type,score:52,band:'Saved',key_findings:[caveat]});
-  eq(restoreRenderer42PrintSpacing(restoreFinancialPresentationStyles(R.buildReportHtml(R.fromRun(x)))).replaceAll(R.rendererVersion,old.rendererVersion),reportHtmlAfterReviewedPresentation(old.buildReportHtml(old.fromRun(x))),'Ordinary reports differ only by renderer stamp, exact print spacing, financial CSS and reviewed category colors');
+  eq(restoreRenderer42PrintSpacing(restoreFinancialPresentationStyles(withoutReportOverview(R.buildReportHtml(R.fromRun(x)),{preserveVersion:true}))).replaceAll(R.rendererVersion,old.rendererVersion),reportHtmlAfterReviewedPresentation(old.buildReportHtml(old.fromRun(x))),'Ordinary reports differ only by screen overview, renderer stamp, exact print spacing, financial CSS and reviewed category colors');
  }
  const actualArg=process.argv.indexOf('--original');
  if(actualArg>=0){
   const x=JSON.parse(fs.readFileSync(process.argv[actualArg+1],'utf8')).candidate.outputs.depth_synthesis.source;
   eq(sha(JSON.stringify(canonical(x))),'2dc400b53e73e77130e184b2717efdb59bb51d657208c4fa1169fac8d07c339e');
   check(x);const html=R.buildReportHtml(R.fromSynthesis(x)),oldHtml=old.buildReportHtml(old.fromSynthesis(x));
-  eq(restoreRenderer42PrintSpacing(restoreFinancialPresentationStyles(html)),reportHtmlAfterReviewedPresentation(oldHtml.replaceAll(old.rendererVersion,R.rendererVersion).replaceAll('unique physical people','distinct people').replaceAll('verified physical people','verified distinct people')),'Historical nonfinancial Depth HTML has only known copy, version, print spacing, financial CSS and reviewed category-color differences');
+  eq(restoreRenderer42PrintSpacing(restoreFinancialPresentationStyles(withoutReportOverview(html,{preserveVersion:true}))),reportHtmlAfterReviewedPresentation(oldHtml.replaceAll(old.rendererVersion,R.rendererVersion).replaceAll('unique physical people','distinct people').replaceAll('verified physical people','verified distinct people')),'Historical nonfinancial Depth HTML has only screen overview, known copy, version, print spacing, financial CSS and reviewed category-color differences');
  }
  console.log(JSON.stringify({status:'PASS',checks,renderer40Sha256:sha(prior),immutableInputs:true,authoredProseUnchanged:true,providerCalls:0}));
 }

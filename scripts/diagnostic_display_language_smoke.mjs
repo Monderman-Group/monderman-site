@@ -6,6 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import vm from "node:vm";
 import { fileURLToPath } from "node:url";
+import { withoutReportOverview } from "./report_overview_test_normalizer.mjs";
 
 const SITE_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (name) => fs.readFileSync(path.join(SITE_ROOT, name), "utf8");
@@ -152,7 +153,7 @@ const rendererSandbox = { window: {} };
 vm.runInNewContext(rendererSource, rendererSandbox, { filename: "monderman-report.js" });
 const Report = rendererSandbox.window.MondermanReport;
 assert.ok(Report, "shared report renderer did not initialize");
-assert.equal(Report.rendererVersion, "diagnostic-renderer-evidence-reading-20260914.43", "display version was not advanced");
+assert.equal(Report.rendererVersion, "diagnostic-renderer-report-overview-20260923.1", "display version was not advanced");
 
 const CONFIDENCE_CASES = Object.freeze([
   {
@@ -309,7 +310,7 @@ if (fs.existsSync(controlledFixturePath)) {
   assert.equal(model.score, 71, "controlled saved result score changed");
   assert.equal(model.band, "Compounding", "controlled saved result band changed");
   assert.match(html, /Decision Velocity: Executive Report/, "canonical instrument name missing from controlled saved report");
-  assert.match(html, /<section[^>]* class="mr-section mr-ai-interpretation"[^>]*><h2>Interpretation and next steps<\/h2>/, "accepted AI sidecar did not render under the current heading");
+  assert.match(withoutReportOverview(html), /<section[^>]* class="mr-section mr-ai-interpretation"[^>]*><h2>Interpretation and next steps<\/h2>/, "accepted AI sidecar did not render under the current heading after the exact screen-only overview additions");
   assert.match(html, /The Monderman diagnostic engine produced this report’s scores, classifications and evidence limits\. AI assisted with the interpretation within the saved report’s evidence limits\. It did not determine the score\./, "current AI attribution and engine-score boundary are not readable");
   assert.match(html, /Decision timing/, "controlled saved dimension label is not readable");
   assert.doesNotMatch(html, /Modeled recovery scenario|class="mr-exposure-flow"|\$720/, "controlled saved report still exposes the retired financial section");

@@ -950,7 +950,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   </footer>
   <script src="participant-evidence-safety.js?v=20260905-report-quarantine"></script>
   <script src="monderman-viz.js?v=20260914-native-review2"></script>
-  <script src="monderman-report.js?v=20260915.financial1"></script>
+  <script src="monderman-report.js?v=20260923.overview1"></script>
   <script src="assignment-mode.js"></script>
   <script src="assignment-draft.js"></script>
   <script src="self-diagnostic-draft.js"></script>
@@ -1984,6 +1984,9 @@ if (typeof updateV4DepthContinueState === "function") updateV4DepthContinueState
 if (typeof updateV4CalibrationSidebar === "function") updateV4CalibrationSidebar();
 }
 
+function activePrestartFields() {
+return window.MondermanAssignment?.prestartFields(PRESTART_FIELDS, state.preflight) || PRESTART_FIELDS;
+}
 function renderPreflightForm() {
 const introCard = document.querySelector("#introStage .card");
 if (!introCard) return;
@@ -2026,7 +2029,7 @@ function _renderPreflightFieldHtml(field) {
 // without a .group fall into a default cluster with no header.
 const _groupOrder = [];
 const _groupedFields = {};
-for (const field of PRESTART_FIELDS) {
+for (const field of activePrestartFields()) {
   const g = field.group || "_default";
   if (!_groupedFields[g]) { _groupedFields[g] = []; _groupOrder.push(g); }
   _groupedFields[g].push(field);
@@ -2098,7 +2101,7 @@ if (msg) msg.textContent = '';
 });
 });
 
-window.MondermanIntake?.enhanceFields(mount, PRESTART_FIELDS);
+window.MondermanIntake?.enhanceFields(mount, activePrestartFields());
 initPreflightPager();
 }
 
@@ -2278,7 +2281,7 @@ if (!fieldIsValid(cur)) {
 
 function readPreflightForm() {
 const next = {};
-PRESTART_FIELDS.forEach((field) => {
+activePrestartFields().forEach((field) => {
 const el = $(`preflight_${field.id}`);
 if (!el) return;
 next[field.id] = field.kind === "number" ? parseDirectionalNumber(el.value) : el.value;
@@ -2360,7 +2363,7 @@ function validatePreflightForm() {
 const values = readPreflightForm();
 clearFieldErrors($('preflightContextMount') || document);
 let firstError = null;
-for (const field of PRESTART_FIELDS) {
+for (const field of activePrestartFields()) {
 if (!field.required) continue;
 const value = values[field.id];
 const missing = value === "" || value === null || value === undefined || (field.kind === "number" && !Number.isFinite(Number(value)));
