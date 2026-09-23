@@ -1,0 +1,421 @@
+{
+  "purpose": "Historical compatibility only: exact committed site presentation and salary UI deltas; not behavior approval.",
+  "prior_commit": "31c87d9944d58cd58a48e389a680e0e909536329",
+  "reviewed_commit": "bd5948aa32bb738c10eef2f9261d5d580bdc91e2",
+  "files": {
+    "assignment-draft.js": {
+      "current_sha256": "e1a8ec6ae1d18e3b8198317f3130d11b76e4eb8f05aebac8f76a42ebd26716c4",
+      "prior_sha256": "b93bef5893d1884352bd505b148342588f6facd9b0c71e88777e90ef1e8816ac",
+      "replacements": [
+        [
+          "    var restoring = false;\n\n    function selectedState() {\n      window.MondermanAssignment?.prestartFields([], state.preflight);\n      var out = {};\n      STATE_FIELDS.forEach(function (field) {\n        if (state[fi",
+          "    var restoring = false;\n\n    function selectedState() {\n      var out = {};\n      STATE_FIELDS.forEach(function (field) {\n        if (state[fi"
+        ],
+        [
+          "        });\n        state.mode = config.participant_lens || state.mode;\n        window.MondermanAssignment?.prestartFields([], state.preflight);\n        if (!config.depth_choice && config.depth != null) state.depth = String(config.de",
+          "        });\n        state.mode = config.participant_lens || state.mode;\n        if (!config.depth_choice && config.depth != null) state.depth = String(config.de"
+        ]
+      ]
+    },
+    "assignment-mode.js": {
+      "current_sha256": "82768f5bd6fc94547c7c7f34d3a7346b5c46f9cd2a298b4abfc715989025e686",
+      "prior_sha256": "c4f45756258acec19b3ef3550894e0f218297af0644fd761797ab9282ba6fb44",
+      "replacements": [
+        [
+          ") {\n      return !_config || _config.show_results_to_assignee !== false;\n    },\n    prestartFields: function (fields, values) {\n      if (!this.active() || _config.omit_hourly_cost_question !== true) return fields;\n      // The capability carries no amount. Discard a previously entered draft\n      // value so an omitted question cannot leak stale cost back to the API.\n      if (values && typeof values === \"object\") {\n        delete values.hourlyCost;\n        delete values.hourlyRate;\n      }\n      return fields.filter(function (field) { return field.id !== \"hourlyCost\"; });\n    },\n\n    // banner: prepend a strip signalling the run is organization-assigned\n\n",
+          ") {\n      return !_config || _config.show_results_to_assignee !== false;\n    },\n\n    // banner: prepend a strip signalling the run is organization-assigned\n\n"
+        ]
+      ]
+    },
+    "campaign-analysis.js": {
+      "current_sha256": "06f23d7eb680ead0f718750488da1d3b24f9c8ac086b1a3e55a0e6a01a631e9f",
+      "prior_sha256": "e06b405673a530bf5a8b0c553a427180c854837e10d216d8818e45294c4dcb3e",
+      "replacements": [
+        [
+          "['light','compounding'].includes(lens.bounds?.stableBand?.id));\nexport function campaignSalaryCostAvailable(evidence){\n  const lenses=Object.keys(evidence?.scope?.lenses||{});\n  return !!evidence?.scope?.id&&evidence.readiness?.salary_cost_available===true&&lenses.length>0&&(lenses.length>1?evidence.readiness.crossLens:evidence.readiness.depth)?.status==='satisfied';\n}\nexport function campaignSalaryCostRequest(evidence,scenario,selection){\n  if(selection===undefined)return undefined;\n  if(!selection||Array.isArray(selection)||Object.keys(selection).length!==2||selection.use!==true||selection.scope_match_confirmed!==true)throw new Error('Confirm that the measured activities cover the entire named campaign population and its typical mix of work, not a selected subset.');\n  const population=evidence?.scope?.population?.size;\n  if(!campaignSalaryCostAvailable(evidence))throw new Error('The uploaded-salary average is not available for a saved Synthesis of this campaign. Refresh the evidence or enter activity costs manually.');\n  if(scenario?.schemaVersion!=='operational-planning-input-20260919.2'||scenario.capacity?.status!=='estimated'||!Number.isInteger(population)||population<5||scenario.capacity.measuredPeople!==population)throw new Error('Use the uploaded-salary average only when the measured activities cover the entire named campaign population. For a subset, enter activity costs manually.');\n  const activities=scenario.capacity.activities;\n  if(!Array.isArray(activities)||!activities.length||activities.length>12||activities.some(activity=>!activity||Object.hasOwn(activity,'loadedHourlyCost')))throw new Error('Do not combine manually entered hourly costs with the uploaded-salary average.');\n  return {use:true,scope_match_confirmed:true};\n}\nexport function readinessCards(readiness,options){\n  const noAlternatives=favorableWithoutAltern",
+          "['light','compounding'].includes(lens.bounds?.stableBand?.id));\nexport function readinessCards(readiness,options){\n  const noAlternatives=favorableWithoutAltern"
+        ],
+        [
+          "ls');details.className='ca-financial';details.dataset.caFinancial='';\n    const salaryCostAvailable=campaignSalaryCostAvailable(current);\n    const salaryCostChoice=salaryCostAvailable?`<div data-ca-salary-source><label><span>Hourly employment cost source</span><select name=\"campaignSalaryCostSource\"><option value=\"manual\">Enter an hourly cost for each activity</option><option value=\"campaign\">Use uploaded salaries for this whole group</option></select></label><p class=\"ca-muted\">For ${esc(current.scope.label||'this named campaign population')}, Monderman can use the uploaded annual base salaries and each campaign's saved working hours and benefits/overhead to calculate one average hourly employment cost. Salary coverage must be complete for this group. Each person is counted once, even across multiple lenses. No individual salary or rate is shown here.</p><label class=\"ca-check\" data-ca-salary-confirmation hidden><input type=\"checkbox\" name=\"campaignSalaryScopeConfirmed\" disabled><span>I confirm these measured activities cover the entire named campaign population and its typical mix of work, not a selected subset.</span></label></div>`:'';\n    const field=(name,label,{type='text',max=500,min=3,step='any',hint=''}={})=>`<label><span>${esc(label)}</span>${type==='textarea'?`<textarea name=\"${name}\" minlength=\"${min}\" maxlength=\"${max}\" aria-describedby=\"ca-financial-privacy\" required></textarea>`:`<input name=\"${name}\" type=\"${type}\" ${type==='number'?`min=\"${min}\" max=\"${max}\" step=\"${step}\"`:type==='text'?`minlength=\"${min}\" maxlength=\"${max}\" aria-describedby=\"ca-financial-privacy\"`:'step=\"60\"'} required>`}${hint?`<small class=\"ca-muted\">${esc(hint)}</small>`:''}</label>`;\n    const range=(name,label,max=1e12)=>`<fieldset class=\"ca-financial-range\" data-ca-range=\"${name}\"><legend>${esc(label)}</legend><div>${['low','central','high'].map(level=>field(`${name}.${level}`,level[0].toUpperCase()+level.slice(1),{type:'number',min:0,max})).join('')}</div></fieldset>`;\n    const category=(key,title,intro,body)=>`<section class=\"ca-financial-category\" data-ca-benefit=\"${key}\"><h3>${title}</h3><p>${intro}</p><label><span>${title}: estimate status</span><select name=\"${key}.status\" required><option value=\"\">Choose a status</option><option value=\"estimated\">Enter an estimate</option><option value=\"none_identified\">Reviewed — none identified ($0)</option><option value=\"not_estimated\">Not estimated</option></select></label>${field(`${key}.basis`,'Basis for this status',{type:'textarea',hint:'Describe the evidence for your estimate or review, or what is missing. This does not imply an independent audit.'})}<fieldset class=\"ca-financial-category-fields\" data-ca-benefit-fields=\"${key}\" disabled hidden><legend>${title} inputs</legend>${body}</fieldset></section>`;\n    const capacityBody=`<div class=\"ca-fields\">${field('measurementStart','Measurement begins (UTC)',{type:'datetime-local'})}${field('measurementEnd','Measurement ends (UTC)',{type:'datetime-local'})}${field('measuredPeople','People covered by the operational records',{type:'number',min:1,max:current.scope.population?.size||1000000,step:1,hint:'Use the actual measured people, not invitations or diagnostic responses.'})}</div><p class=\"ca-muted\">Use a completed measurement period of one to 366 days within the selected campaign period. Activity hours are totals for these people and this period. Do not extend them to unmeasured staff.</p>${salaryCostChoice}<div data-ca-financial-activities></div><button type=\"button\" data-ca-financial-add>Add another activity</button><p class=\"ca-muted\">One to twelve distinct activities. Enter each activity once, even if several diagnostics describe it. Recovered hours are spread evenly across planning months. Hours assigned to spending reductions or avoidance are removed before the remaining staff capacity is valued.</p>`;\n    const spendingBody=key=>`<p class=\"ca-muted\">Enter one to twelve distinct expenses. Month 1 is the first month of the planning period. Include each underlying expense once across both spending categories.</p><div data-ca-spending-items=\"${key}\"></div><button type=\"button\" data-ca-spending-add=\"${key}\">Add another expense</button>`;\n    details.innerHTML=`<summary>Add an operational planning scenario</summary><p>This is optional and separate from campaign readiness. Use operating records and stated assumptions. You can build a report without a scenario; financial benefits will remain not estimated.</p><p class=\"ca-notice\">Review three different benefits: current spending reduced, future spending avoided, and staff capacity available for other work. Unestimated benefits are not zero. These cases are assumptions, not confidence intervals or measured savings.</p><form data-ca-financial-form novalidate><label class=\"ca-check\"><input type=\"checkbox\" name=\"includeScenario\"><span>Include this scenario with the next report</span></label><p id=\"ca-financial-privacy\" class=\"ca-muted\">Do not enter names, personal, confidential, classified, controlled or other sensitive information in any text field. Use short non-sensitive record references, not record contents.</p><fieldset data-ca-financial-fields disabled><legend>Operational records and assumptions</legend>${field('title','Scenario title',{max:120})}${field('horizonMonths','Planning period (months)',{type:'number',min:1,max:36,step:1})}${category('capacity','Staff capacity recovered','Time made available for other work, valued using its loaded labor cost. This is not automatically a payroll or cash saving.',capacityBody)}${category('spendingReduction','Cash spending reduced','Reductions to expenses already being incurred, such as current licenses, overtime or contractor bills. Use the current monthly expense baseline.',spendingBody('spendingReduction'))}${category('spendingAvoidance','Future spending avoided','Planned expenses that would otherwise be incurred, such as a documented future hire or purchase. Use the planned monthly expense baseline and explain why it is expected.',spendingBody('spendingAvoidance'))}<h3>Costs over the whole planning period</h3>${range('implementationCashCost','Incremental cash implementation cost (USD)')}${range('implementationCapacityCost','Internal staff-time implementation value (USD, not cash)')}<p class=\"ca-muted\">Cash implementation costs are additional spending. Internal staff-time value is capacity used to implement the change; exclude any amount already counted as cash.</p>${field('subscriptionCost','Allocated subscription cost for the whole planning period (USD)',{type:'number',min:0,max:1e12})}${field('costBasis','Cost scope and allocation basis',{type:'textarea',hint:'Explain what each cost includes and how the subscription allocation relates to this planning period.'})}<label class=\"ca-check\"><input type=\"checkbox\" name=\"scopeConfirmed\" required><span>I confirm that the operating records and planned expenses cover the stated work and periods.</span></label><label class=\"ca-check\"><input type=\"checkbox\" name=\"overlapReviewed\" required><span>I checked that each expense and activity is counted once. Labor hours assigned to spending benefits must not also be valued as remaining staff capacity.</span></label></fieldset><p class=\"ca-muted\">Nothing is submitted while you edit. Entries are sent only with the report button below. An early comparison is not saved and uses no synthesis allowance; an eligible saved report retains its scenario in that report edition. Changing or refreshing the analysis clears these unsaved entries.</p></form>`;\n    content.insertBefore(details,$('[data-ca-build]').closest('.ca-actions'));\n    const form=details.querySelector('form'),fields=form.querySelector('[data-ca-financial-fields]'),activities=form.querySelector('[data-ca-financial-activities]');\n    const value=(container,name)=>container.querySelector(`[name=\"${name}\"]`);\n    const usingCampaignSalaryCost=()=>salaryCostAvailable&&form.elements.includeScenario.checked&&value(form,'capacity.status').value==='estimated'&&value(form,'campaignSalaryCostSource')?.value==='campaign';\n    function updateSalaryCostControls(resetConfirmation=false){\n      const enabled=usingCampaignSalaryCost(),confirmation=value(form,'campaignSalaryScopeConfirmed');\n      if(confirmation){confirmation.disabled=!enabled;confirmation.required=enabled;if(!enabled||resetConfirmation)confirmation.checked=false;form.querySelector('[data-ca-salary-confirmation]').hidden=!enabled;}\n      activities.querySelectorAll('[name=\"loadedHourlyCost\"]').forEach(input=>{input.disabled=enabled;});\n    }\n    if(salaryCostAvailable){value(form,'campaignSalaryCostSource').onchange=()=>updateSalaryCostControls(true);value(form,'measuredPeople').addEventListener('input',()=>updateSalaryCostControls(true));}\n    let nextId=0,nextExpenseId=0;\n    const updateButtons=()=>{const rows=[...a",
+          "ls');details.className='ca-financial';details.dataset.caFinancial='';\n    const field=(name,label,{type='text',max=500,min=3,step='any',hint=''}={})=>`<label><span>${esc(label)}</span>${type==='textarea'?`<textarea name=\"${name}\" minlength=\"${min}\" maxlength=\"${max}\" aria-describedby=\"ca-financial-privacy\" required></textarea>`:`<input name=\"${name}\" type=\"${type}\" ${type==='number'?`min=\"${min}\" max=\"${max}\" step=\"${step}\"`:type==='text'?`minlength=\"${min}\" maxlength=\"${max}\" aria-describedby=\"ca-financial-privacy\"`:'step=\"60\"'} required>`}${hint?`<small class=\"ca-muted\">${esc(hint)}</small>`:''}</label>`;\n    const range=(name,label,max=1e12)=>`<fieldset class=\"ca-financial-range\" data-ca-range=\"${name}\"><legend>${esc(label)}</legend><div>${['low','central','high'].map(level=>field(`${name}.${level}`,level[0].toUpperCase()+level.slice(1),{type:'number',min:0,max})).join('')}</div></fieldset>`;\n    const category=(key,title,intro,body)=>`<section class=\"ca-financial-category\" data-ca-benefit=\"${key}\"><h3>${title}</h3><p>${intro}</p><label><span>${title}: estimate status</span><select name=\"${key}.status\" required><option value=\"\">Choose a status</option><option value=\"estimated\">Enter an estimate</option><option value=\"none_identified\">Reviewed — none identified ($0)</option><option value=\"not_estimated\">Not estimated</option></select></label>${field(`${key}.basis`,'Basis for this status',{type:'textarea',hint:'Describe the evidence for your estimate or review, or what is missing. This does not imply an independent audit.'})}<fieldset class=\"ca-financial-category-fields\" data-ca-benefit-fields=\"${key}\" disabled hidden><legend>${title} inputs</legend>${body}</fieldset></section>`;\n    const capacityBody=`<div class=\"ca-fields\">${field('measurementStart','Measurement begins (UTC)',{type:'datetime-local'})}${field('measurementEnd','Measurement ends (UTC)',{type:'datetime-local'})}${field('measuredPeople','People covered by the operational records',{type:'number',min:1,max:current.scope.population?.size||1000000,step:1,hint:'Use the actual measured people, not invitations or diagnostic responses.'})}</div><p class=\"ca-muted\">Use a completed measurement period of one to 366 days within the selected campaign period. Activity hours are totals for these people and this period. Do not extend them to unmeasured staff.</p><div data-ca-financial-activities></div><button type=\"button\" data-ca-financial-add>Add another activity</button><p class=\"ca-muted\">One to twelve distinct activities. Enter each activity once, even if several diagnostics describe it. Recovered hours are spread evenly across planning months. Hours assigned to spending reductions or avoidance are removed before the remaining staff capacity is valued.</p>`;\n    const spendingBody=key=>`<p class=\"ca-muted\">Enter one to twelve distinct expenses. Month 1 is the first month of the planning period. Include each underlying expense once across both spending categories.</p><div data-ca-spending-items=\"${key}\"></div><button type=\"button\" data-ca-spending-add=\"${key}\">Add another expense</button>`;\n    details.innerHTML=`<summary>Add an operational planning scenario</summary><p>This is optional and separate from campaign readiness. Use operating records and stated assumptions. You can build a report without a scenario; financial benefits will remain not estimated.</p><p class=\"ca-notice\">Review three different benefits: current spending reduced, future spending avoided, and staff capacity available for other work. Unestimated benefits are not zero. These cases are assumptions, not confidence intervals or measured savings.</p><form data-ca-financial-form novalidate><label class=\"ca-check\"><input type=\"checkbox\" name=\"includeScenario\"><span>Include this scenario with the next report</span></label><p id=\"ca-financial-privacy\" class=\"ca-muted\">Do not enter names, personal, confidential, classified, controlled or other sensitive information in any text field. Use short non-sensitive record references, not record contents.</p><fieldset data-ca-financial-fields disabled><legend>Operational records and assumptions</legend>${field('title','Scenario title',{max:120})}${field('horizonMonths','Planning period (months)',{type:'number',min:1,max:36,step:1})}${category('capacity','Staff capacity recovered','Time made available for other work, valued using its loaded labor cost. This is not automatically a payroll or cash saving.',capacityBody)}${category('spendingReduction','Cash spending reduced','Reductions to expenses already being incurred, such as current licenses, overtime or contractor bills. Use the current monthly expense baseline.',spendingBody('spendingReduction'))}${category('spendingAvoidance','Future spending avoided','Planned expenses that would otherwise be incurred, such as a documented future hire or purchase. Use the planned monthly expense baseline and explain why it is expected.',spendingBody('spendingAvoidance'))}<h3>Costs over the whole planning period</h3>${range('implementationCashCost','Incremental cash implementation cost (USD)')}${range('implementationCapacityCost','Internal staff-time implementation value (USD, not cash)')}<p class=\"ca-muted\">Cash implementation costs are additional spending. Internal staff-time value is capacity used to implement the change; exclude any amount already counted as cash.</p>${field('subscriptionCost','Allocated subscription cost for the whole planning period (USD)',{type:'number',min:0,max:1e12})}${field('costBasis','Cost scope and allocation basis',{type:'textarea',hint:'Explain what each cost includes and how the subscription allocation relates to this planning period.'})}<label class=\"ca-check\"><input type=\"checkbox\" name=\"scopeConfirmed\" required><span>I confirm that the operating records and planned expenses cover the stated work and periods.</span></label><label class=\"ca-check\"><input type=\"checkbox\" name=\"overlapReviewed\" required><span>I checked that each expense and activity is counted once. Labor hours assigned to spending benefits must not also be valued as remaining staff capacity.</span></label></fieldset><p class=\"ca-muted\">Nothing is submitted while you edit. Entries are sent only with the report button below. An early comparison is not saved and uses no synthesis allowance; an eligible saved report retains its scenario in that report edition. Changing or refreshing the analysis clears these unsaved entries.</p></form>`;\n    content.insertBefore(details,$('[data-ca-build]').closest('.ca-actions'));\n    const form=details.querySelector('form'),fields=form.querySelector('[data-ca-financial-fields]'),activities=form.querySelector('[data-ca-financial-activities]');\n    const value=(container,name)=>container.querySelector(`[name=\"${name}\"]`);\n    let nextId=0,nextExpenseId=0;\n    const updateButtons=()=>{const rows=[...a"
+        ],
+        [
+          "'})}`;\n      activities.appendChild(row);updateButtons();refreshActivityLinks();updateSalaryCostControls(true);\n      value(row,'label').addEventListener('input',refreshActivityLinks);\n      ",
+          "'})}`;\n      activities.appendChild(row);updateButtons();refreshActivityLinks();\n      value(row,'label').addEventListener('input',refreshActivityLinks);\n      "
+        ],
+        [
+          "nding-items=\"${key}\"]`).children.length)addExpense(key);}refreshActivityLinks();if(key==='capacity')updateSalaryCostControls(true);};\n      if(key!=='capacity')form.querySelector(`[data-ca-spending-add=\"${key}\"]`).onclick=()=>addExpense(key,true);\n    }\n    form.elements.includeScenario.onchange=()=>{fields.disabled=!form.elements.includeScenario.checked;updateSalaryCostControls(true);};\n    form.querySelector('[data-ca-financial-add]').onclick=()=>addActivity(true);\n    // There is no scenario submit action: Enter must not build a report or\n    // change campaign readiness. The existing explicit report button owns it.\n    form.onsubmit=event=>event.preventDefault();\n    form.addEventListener('keydown',event=>{if(event.key==='Enter'&&event.target.tagName==='INPUT')event.preventDefault();});\n    const readScenario=()=>{\n      if(!form.elements.includeScenario.checked)return undefined;\n      fo",
+          "nding-items=\"${key}\"]`).children.length)addExpense(key);}refreshActivityLinks();};\n      if(key!=='capacity')form.querySelector(`[data-ca-spending-add=\"${key}\"]`).onclick=()=>addExpense(key,true);\n    }\n    form.elements.includeScenario.onchange=()=>{fields.disabled=!form.elements.includeScenario.checked;};\n    form.querySelector('[data-ca-financial-add]').onclick=()=>addActivity(true);\n    // There is no scenario submit action: Enter must not build a report or\n    // change campaign readiness. The existing explicit report button owns it.\n    form.onsubmit=event=>event.preventDefault();\n    form.addEventListener('keydown',event=>{if(event.key==='Enter'&&event.target.tagName==='INPUT')event.preventDefault();});\n    return ()=>{\n      if(!form.elements.includeScenario.checked)return undefined;\n      fo"
+        ],
+        [
+          "s:textValue(row,'sourceBasis'),sourceReference:textValue(row,'sourceReference'),...(usingCampaignSalaryCost()?{}:{loadedHourlyCost:numberValue(row,'loadedHourlyCost')}),reductionPercent:readRange(row,'reductionPercent'),adoptionPercent:readRange(row,'adoptionPercent'),changeBasis:textValue(row,'changeBasis')};\n        });\n        const measuredPeople=numberValue(form,'measuredPeople');\n        if(usingCampaignSalaryCost()&&measuredPeople!==current.scope.population?.size)reject(value(form,'measuredPeople'),'The uploaded-salary average requires operating records for the entire named campaign population. For a subset, enter activity costs manually.');\n        if(selected.reduce((total,row)=>total+row.measuredHours,0)>measuredP",
+          "s:textValue(row,'sourceBasis'),sourceReference:textValue(row,'sourceReference'),loadedHourlyCost:numberValue(row,'loadedHourlyCost'),reductionPercent:readRange(row,'reductionPercent'),adoptionPercent:readRange(row,'adoptionPercent'),changeBasis:textValue(row,'changeBasis')};\n        });\n        const measuredPeople=numberValue(form,'measuredPeople');\n        if(selected.reduce((total,row)=>total+row.measuredHours,0)>measuredP"
+        ],
+        [
+          "firmed.checked,overlapReviewed:form.elements.overlapReviewed.checked};\n    };\n    readScenario.campaignSalaryCost=scenario=>usingCampaignSalaryCost()?campaignSalaryCostRequest(current,scenario,{use:true,scope_match_confirmed:value(form,'campaignSalaryScopeConfirmed').checked}):undefined;\n    return readScenario;\n  }\n  function render(){const r=current.readiness;const content=$('[data-ca-conten",
+          "firmed.checked,overlapReviewed:form.elements.overlapReviewed.checked};\n    };\n  }\n  function render(){const r=current.readiness;const content=$('[data-ca-conten"
+        ],
+        [
+          "   const scenario=financialScenario();\n      try{await onReport(current,scenario,financialScenario.campaignSalaryCost(scenario));}\n      catch(error){message(error.message,true);const notice=$('[data-ca-mess",
+          "   const scenario=financialScenario();\n      try{await onReport(current,scenario);}\n      catch(error){message(error.message,true);const notice=$('[data-ca-mess"
+        ]
+      ]
+    },
+    "canonical-site-shell.css": {
+      "current_sha256": "d4c2346b12c6b3393a0c2cc30a6d9d01a87d429512e177a60c31f06c3ef45a3d",
+      "prior_sha256": "71a0f1f83341ee64341d126fd76edeab5f91294dc41c5a3a7adb4b18c232f273",
+      "replacements": [
+        [
+          "transform .15s ease}\n.skip-link:focus{transform:translateY(0);outline:3px solid var(--mdm-gold,#C9A227);outline-offset:2px}\n.canonical-green-shell .skip-link:focus{outline-color:#0C6E",
+          "transform .15s ease}\n.skip-link:focus{transform:translateY(0);outline:3px solid #C9821F;outline-offset:2px}\n.canonical-green-shell .skip-link:focus{outline-color:#0C6E"
+        ]
+      ]
+    },
+    "cross-tool-synthesis.html": {
+      "current_sha256": "8469d1d8664f699192fc084b599c5c9812b35be6199eda284309e6eb1e8cff4b",
+      "prior_sha256": "64c3a06b6d4150b6639ef89b971dea7f2c250074217a42ab39fc87019b95678a",
+      "replacements": [
+        [
+          "held in every export.</p>\n  </main>\n\n  <script src=\"monderman-report.js?v=20260923.overview1\"></script>\n  <script src=\"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+          "held in every export.</p>\n  </main>\n\n  <script src=\"monderman-report.js?v=20260915.financial1\"></script>\n  <script src=\"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+        ]
+      ]
+    },
+    "decision-velocity.html": {
+      "current_sha256": "ab1c908cc53dbf61cbe58c9b40d6e4b364e72a4b00e87118d22bce86169e5c6e",
+      "prior_sha256": "aad59fa601a33fb7e5f8871624a1c54f1f68dd0763212af4d247a3298439e344",
+      "replacements": [
+        [
+          "c=\"dv-journey-recovery.js\"></script>\n  <script src=\"monderman-report.js?v=20260923.overview1\"></script>\n  <script src=\"dv-result-dialog.js?v=20260908-journey1\"></script>\n ",
+          "c=\"dv-journey-recovery.js\"></script>\n  <script src=\"monderman-report.js?v=20260915.financial1\"></script>\n  <script src=\"dv-result-dialog.js?v=20260908-journey1\"></script>\n "
+        ],
+        [
+          "eV4CalibrationSidebar === \"function\") updateV4CalibrationSidebar();\n}\n\nfunction activePrestartFields() {\nreturn window.MondermanAssignment?.prestartFields(PRESTART_FIELDS, state.preflight) || PRESTART_FIELDS;\n}\nfunction renderPreflightForm() {\nconst introCard = document.querySelector(\"#introStage .c",
+          "eV4CalibrationSidebar === \"function\") updateV4CalibrationSidebar();\n}\n\nfunction renderPreflightForm() {\nconst introCard = document.querySelector(\"#introStage .c"
+        ],
+        [
+          " header.\nconst _groupOrder = [];\nconst _groupedFields = {};\nfor (const field of activePrestartFields()) {\n  const g = field.group || \"_default\";\n  if (!_groupedFields[g]) { _groupedF",
+          " header.\nconst _groupOrder = [];\nconst _groupedFields = {};\nfor (const field of PRESTART_FIELDS) {\n  const g = field.group || \"_default\";\n  if (!_groupedFields[g]) { _groupedF"
+        ],
+        [
+          "});\n});\n\nwindow.MondermanIntake?.enhanceFields(mount, activePrestartFields());\ninitPreflightPager();\n}\n\n",
+          "});\n});\n\nwindow.MondermanIntake?.enhanceFields(mount, PRESTART_FIELDS);\ninitPreflightPager();\n}\n\n"
+        ],
+        [
+          "\nfunction readPreflightForm() {\nconst next = {};\nactivePrestartFields().forEach((field) => {\nconst el = $(`preflight_${field.id}`);\nif (!el) return;\nne",
+          "\nfunction readPreflightForm() {\nconst next = {};\nPRESTART_FIELDS.forEach((field) => {\nconst el = $(`preflight_${field.id}`);\nif (!el) return;\nne"
+        ],
+        [
+          "reflightContextMount') || document);\nlet firstError = null;\nfor (const field of activePrestartFields()) {\nif (!field.required) continue;\nconst value = values[field.id];\nconst missing",
+          "reflightContextMount') || document);\nlet firstError = null;\nfor (const field of PRESTART_FIELDS) {\nif (!field.required) continue;\nconst value = values[field.id];\nconst missing"
+        ]
+      ]
+    },
+    "homepage-workspace-demo.css": {
+      "current_sha256": "4c105dd110299f238f0f5934b3ea924a5b3e33ff0d3ada1c4a2213825b19f59e",
+      "prior_sha256": "91536e919d69b47489a2514a07da993515d800bf2f1d99cfd8dd11ec616c02b9",
+      "replacements": [
+        [
+          "argin-top:17px; font-size:13px; color:#C0D0D2; }\nbody.homepage-enterprise .hero-sample-link { width:fit-content; max-width:100%; min-height:44px; margin-top:8px; gap:7px; padding-block:9px; color:var(--mdm-action-on-dark-bg); font-size:14px; }\nbody.homepage-enterprise .hero-sample-link:hover,\nbody.homepage-enterprise .hero-sample-link:focus-visible { color:var(--mdm-action-on-dark-bg-hover); border-color:currentColor; }\nbody.homepage-enterprise .hero-sample-link:focus-visible { outline:3px solid var(--mdm-focus-ring-on-dark); outline-offset:4px; }\nbody.homepage-enterprise .hero-facts { margin-top:25px; gap:16px; }\nbody.homepage-enterprise .hero-facts li { f",
+          "argin-top:17px; font-size:13px; color:#C0D0D2; }\nbody.homepage-enterprise .hero-facts { margin-top:25px; gap:16px; }\nbody.homepage-enterprise .hero-facts li { f"
+        ],
+        [
+          "width:5px; height:5px; border:1px solid var(--mdm-link); border-radius:50%; }\n.hwd-footer .hwd-sample-link { display:inline-flex; align-items:center; gap:6px; min-height:44px; margin-block:-8px; color:var(--mdm-link); font-size:11px; font-weight:600; text-decoration:underline; text-underline-offset:3px; }\n.hwd-footer .hwd-sample-link:hover { color:var(--mdm-link-hover); }\n.home-preview-caption { margin:12px 0 0; color:#9EB6BB; font-size:10px; line-heigh",
+          "width:5px; height:5px; border:1px solid var(--mdm-link); border-radius:50%; }\n.home-preview-caption { margin:12px 0 0; color:#9EB6BB; font-size:10px; line-heigh"
+        ]
+      ]
+    },
+    "index.html": {
+      "current_sha256": "81e450494d4af77dd08214cf1c4c04056bc77e97005857f35b40b99f412f90f2",
+      "prior_sha256": "d072f5df2f7d2501ca3364c54fa2972441abbc5dd7ee976f6837b9830c7b7161",
+      "replacements": [
+        [
+          "order-color:#C4E1E3}\n.hero-actions .hero-pilot-cta{background:transparent;color:var(--mdm-gold,#C9A227);border-color:var(--mdm-gold,#C9A227);box-shadow:none}\n.hero-actions .hero-pilot-cta:hover,.hero-actions .hero-pilot-cta:focus-visible{background:rgba(201,162,39,.12);color:var(--mdm-gold-light,#E6C765);border-color:var(--mdm-gold-light,#E6C765)}\n.nav a.is-active{color:#FFFFFF}\n@media (min-width:981px){\n  .header:not(.scrol",
+          "order-color:#C4E1E3}\n.hero-actions .hero-pilot-cta{background:transparent;color:#F0C47D;border-color:#F0C47D;box-shadow:none}\n.hero-actions .hero-pilot-cta:hover,.hero-actions .hero-pilot-cta:focus-visible{background:rgba(201,130,31,.12);color:#FFD99B;border-color:#FFD99B}\n.nav a.is-active{color:#FFFFFF}\n@media (min-width:981px){\n  .header:not(.scrol"
+        ],
+        [
+          "50%;position:relative;display:grid;place-items:center;background:conic-gradient(var(--mdm-gold,#C9A227) 0 30%,#DDDAD2 30% 100%);}\n.hrp-recovery-ring::after{content:\"\";position:absolut",
+          "50%;position:relative;display:grid;place-items:center;background:conic-gradient(#C9821F 0 30%,#DDDAD2 30% 100%);}\n.hrp-recovery-ring::after{content:\"\";position:absolut"
+        ],
+        [
+          "metric:nth-child(2) b{color:#0C6E78;}\n.hrp-recovery-metric:nth-child(3) b{color:var(--mdm-gold-ink,#7A6015);}\n.hrp-recovery-note{margin:10px 0 0 !important;opacity:1 !important;transform:",
+          "metric:nth-child(2) b{color:#0C6E78;}\n.hrp-recovery-metric:nth-child(3) b{color:#C9821F;}\n.hrp-recovery-note{margin:10px 0 0 !important;opacity:1 !important;transform:"
+        ],
+        [
+          "  }\n</style>\n  <link rel=\"stylesheet\" href=\"homepage-workspace-demo.css?v=20260923.samples1\">\n  <script src=\"homepage-workspace-demo.js?v=20260919.journey3\" defer></script",
+          "  }\n</style>\n  <link rel=\"stylesheet\" href=\"homepage-workspace-demo.css?v=20260919.journey3\">\n  <script src=\"homepage-workspace-demo.js?v=20260919.journey3\" defer></script"
+        ],
+        [
+          "condary\" href=\"pattern-trial.html\">Activate your invitation</a>\n        </div>\n<a class=\"hero-enterprise-link hero-sample-link\" href=\"sample-report.html\">View sample reports <span aria-hidden=\"true\">&rarr;</span></a>\n<p class=\"hero-access-note\">Available by invitation. Evaluate Monderman free for 60 days. No credit card. No automatic renewal.</p>\n<a class=\"hero-enterprise-link\" href=\"diagnostics.html#methodology-and-sources",
+          "condary\" href=\"pattern-trial.html\">Activate your invitation</a>\n        </div>\n<p class=\"hero-access-note\">Available by invitation. Evaluate Monderman free for 60 days. No credit card. No automatic renewal.</p>\n<a class=\"hero-enterprise-link\" href=\"sample-report.html\">See what a completed diagnostic produces &rarr;</a>\n<a class=\"hero-enterprise-link\" href=\"diagnostics.html#methodology-and-sources"
+        ],
+        [
+          "\"><span><i aria-hidden=\"true\"></i>Illustrative organizational evaluation</span><a class=\"hwd-sample-link\" href=\"sample-report.html\">View sample reports <span aria-hidden=\"true\">&rarr;</span></a></div>\n  </div>\n  <p class=\"home-preview-caption\">Combine organizational eviden",
+          "\"><span><i aria-hidden=\"true\"></i>Illustrative organizational evaluation</span><span>Evidence. Action. Follow-up.</span></div>\n  </div>\n  <p class=\"home-preview-caption\">Combine organizational eviden"
+        ]
+      ]
+    },
+    "institutional-performance.html": {
+      "current_sha256": "5576555aa68e3b25e0204914b13f1c7c1be862a9234d41e9a254a9831becba2c",
+      "prior_sha256": "bdad8583889e0eb83ef0d9354e28bc618d347dd0a2cbbfa3e6ea0a528c0418bb",
+      "replacements": [
+        [
+          "t src=\"assignment-mode.js\"></script>\n  <script src=\"monderman-report.js?v=20260923.overview1\"></script>\n  <script src=\"assignment-draft.js\"></script>\n  <script src=\"self-d",
+          "t src=\"assignment-mode.js\"></script>\n  <script src=\"monderman-report.js?v=20260915.financial1\"></script>\n  <script src=\"assignment-draft.js\"></script>\n  <script src=\"self-d"
+        ],
+        [
+          "eV4CalibrationSidebar === \"function\") updateV4CalibrationSidebar();\n}\n\nfunction activePrestartFields() {\nreturn window.MondermanAssignment?.prestartFields(PRESTART_FIELDS, state.preflight) || PRESTART_FIELDS;\n}\nfunction renderPreflightForm() {\nconst introCard = document.querySelector(\"#introStage .c",
+          "eV4CalibrationSidebar === \"function\") updateV4CalibrationSidebar();\n}\n\nfunction renderPreflightForm() {\nconst introCard = document.querySelector(\"#introStage .c"
+        ],
+        [
+          " header.\nconst _groupOrder = [];\nconst _groupedFields = {};\nfor (const field of activePrestartFields()) {\n  const g = field.group || \"_default\";\n  if (!_groupedFields[g]) { _groupedF",
+          " header.\nconst _groupOrder = [];\nconst _groupedFields = {};\nfor (const field of PRESTART_FIELDS) {\n  const g = field.group || \"_default\";\n  if (!_groupedFields[g]) { _groupedF"
+        ],
+        [
+          "});\n});\n\nwindow.MondermanIntake?.enhanceFields(mount, activePrestartFields());\ninitPreflightPager();\n}\n\n",
+          "});\n});\n\nwindow.MondermanIntake?.enhanceFields(mount, PRESTART_FIELDS);\ninitPreflightPager();\n}\n\n"
+        ],
+        [
+          "\nfunction readPreflightForm() {\nconst next = {};\nactivePrestartFields().forEach((field) => {\nconst el = $(`preflight_${field.id}`);\nif (!el) return;\nne",
+          "\nfunction readPreflightForm() {\nconst next = {};\nPRESTART_FIELDS.forEach((field) => {\nconst el = $(`preflight_${field.id}`);\nif (!el) return;\nne"
+        ],
+        [
+          "reflightContextMount') || document);\nlet firstError = null;\nfor (const field of activePrestartFields()) {\nif (!field.required) continue;\nconst value = values[field.id];\nconst missing",
+          "reflightContextMount') || document);\nlet firstError = null;\nfor (const field of PRESTART_FIELDS) {\nif (!field.required) continue;\nconst value = values[field.id];\nconst missing"
+        ]
+      ]
+    },
+    "operational-systems.html": {
+      "current_sha256": "c702b0484ffad941a00505d0238e6525263c1b444414ed09e85576c15f1378a0",
+      "prior_sha256": "446c0288ae6d6e67cfd75e501f72523222f97ada92ef0af91ed0721be74d892a",
+      "replacements": [
+        [
+          "v=20260914-native-review2\"></script>\n  <script src=\"monderman-report.js?v=20260923.overview1\"></script>\n  <script src=\"assignment-mode.js\"></script>\n  <script src=\"assignm",
+          "v=20260914-native-review2\"></script>\n  <script src=\"monderman-report.js?v=20260915.financial1\"></script>\n  <script src=\"assignment-mode.js\"></script>\n  <script src=\"assignm"
+        ],
+        [
+          "ggle(\"selected\", btn.dataset.depth === String(state.depth || \"\")));\n}\n\nfunction activePrestartFields() {\nreturn window.MondermanAssignment?.prestartFields(PRESTART_FIELDS, state.preflight) || PRESTART_FIELDS;\n}\nfunction renderPreflightForm() {\nconst introCard = document.querySelector(\"#introStage .c",
+          "ggle(\"selected\", btn.dataset.depth === String(state.depth || \"\")));\n}\n\nfunction renderPreflightForm() {\nconst introCard = document.querySelector(\"#introStage .c"
+        ],
+        [
+          "(\".checkbox-card\");\nintroCard.insertBefore(mount, checkboxCard);\n}\nconst html = activePrestartFields().map((field) => {\nconst value = state.preflight[field.id] ?? \"\";\nif (field.kind ",
+          "(\".checkbox-card\");\nintroCard.insertBefore(mount, checkboxCard);\n}\nconst html = PRESTART_FIELDS.map((field) => {\nconst value = state.preflight[field.id] ?? \"\";\nif (field.kind "
+        ],
+        [
+          "});\n});\n\nwindow.MondermanIntake?.enhanceFields(mount, activePrestartFields());\ninitPreflightPager();\n}\n\n",
+          "});\n});\n\nwindow.MondermanIntake?.enhanceFields(mount, PRESTART_FIELDS);\ninitPreflightPager();\n}\n\n"
+        ],
+        [
+          "\nfunction readPreflightForm() {\nconst next = {};\nactivePrestartFields().forEach((field) => {\nconst el = $(`preflight_${field.id}`);\nif (!el) return;\nne",
+          "\nfunction readPreflightForm() {\nconst next = {};\nPRESTART_FIELDS.forEach((field) => {\nconst el = $(`preflight_${field.id}`);\nif (!el) return;\nne"
+        ],
+        [
+          "reflightContextMount') || document);\nlet firstError = null;\nfor (const field of activePrestartFields()) {\nif (!field.required) continue;\nconst value = values[field.id];\nconst missing",
+          "reflightContextMount') || document);\nlet firstError = null;\nfor (const field of PRESTART_FIELDS) {\nif (!field.required) continue;\nconst value = values[field.id];\nconst missing"
+        ],
+        [
+          "nst context = remote.context;\n    state.preflight = {};\n    for (const field of activePrestartFields()) {\n      const value = field.id === 'peopleInvolved' ? context.peopleAffected :",
+          "nst context = remote.context;\n    state.preflight = {};\n    for (const field of PRESTART_FIELDS) {\n      const value = field.id === 'peopleInvolved' ? context.peopleAffected :"
+        ]
+      ]
+    },
+    "pilot-waitlist.css": {
+      "current_sha256": "a13d4a727e148ef3745574fc4de38cc2127cdfba15c3c073745109238315f6c9",
+      "prior_sha256": "01dd1ba856c794d0acafc58f73e27655ab03bf96777d965b6ad7636679a9d112",
+      "replacements": [
+        [
+          "tems:center;gap:9px;margin:0 0 18px;padding:8px 12px;border:1px solid rgba(201,162,39,.65);border-radius:999px;background:rgba(201,162,39,.14);color:var(--mdm-gold-light,#E6C765);font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase}\n.pilot-status::before{content:\"\";width:7px;height:7px;border-radius:50%;background:var(--mdm-gold,#C9A227);box-shadow:0 0 0 4px rgba(201,162,39,.14)}\n.pilot-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));g",
+          "tems:center;gap:9px;margin:0 0 18px;padding:8px 12px;border:1px solid rgba(201,130,31,.65);border-radius:999px;background:rgba(201,130,31,.14);color:#f0c47d;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase}\n.pilot-status::before{content:\"\";width:7px;height:7px;border-radius:50%;background:#c9821f;box-shadow:0 0 0 4px rgba(201,130,31,.14)}\n.pilot-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));g"
+        ]
+      ]
+    },
+    "public-product-design.css": {
+      "current_sha256": "efe533f0afa0500ffe4d87c2a75b00a2a2a046bc3c61ca2d20c5334afb8b9b75",
+      "prior_sha256": "b2a0bc3f2e819056bb7e74f99d4f7d8f55007a1bd6b5e801a98f7e853903e9bb",
+      "replacements": [
+        [
+          "editorial palette; printed documents keep their own rules. */\n@media screen {\n  /* Decorative service and shared-context accents use the promotional gold.\n     Condition badges, warnings and score bands retain their semantic colors. */\n  body.canonical-green-shell :is(.ps-feat li.svc, .pl-includes li.svc, .hub-disclosure) {\n    --gold: var(--mdm-gold, #C9A227);\n    --gold-soft: rgba(201, 162, 39, .11);\n  }\n  body.canonical-green-shell :is(.pl-svc-tag, .hub-disclosure-kicker) { color: var(--mdm-gold-ink, #7A6015); }\n  body.canonical-green-shell :is(.tool-badge-secondary, .shared-context-flag) {\n    background: rgba(201, 162, 39, .11);\n    border-color: rgba(201, 162, 39, .26);\n    color: var(--mdm-gold-ink, #7A6015);\n  }\n  body.canonical-green-shell .hub-disclosure[open] { border-color: rgba(201, 162, 39, .34); }\n  body.canonical-green-shell .hub-disclosure > summary:hover .hub-disclosure-action { border-color: rgba(201, 162, 39, .42); }\n  body.canonical-green-shell .hub-disclosure-when { border-color: rgba(201, 162, 39, .18); }\n\n  body.product-surface {\n    --mdm-teal: var(--mdm-color-teal, #0C6E78);\n    --mdm",
+          "editorial palette; printed documents keep their own rules. */\n@media screen {\n  body.product-surface {\n    --mdm-teal: var(--mdm-color-teal, #0C6E78);\n    --mdm"
+        ]
+      ]
+    },
+    "sample-report-tile.css": {
+      "current_sha256": "bda7126608141e362c09f6ffe3480c1e36208b660c6e46644520a4800fc736e3",
+      "prior_sha256": "becc083ea720267447e924b272a3a044361a0f683af0ae891fd53d30d592a3c6",
+      "replacements": [
+        [
+          "  bottom:-3px;\n  left:var(--median);\n  width:2px;\n  background:var(--mdm-gold,#C9A227);\n  transform:translateX(-1px);\n}\n\n",
+          "  bottom:-3px;\n  left:var(--median);\n  width:2px;\n  background:#C9821F;\n  transform:translateX(-1px);\n}\n\n"
+        ],
+        [
+          "  gap:12px;\n  margin-top:10px;\n  padding:7px 9px;\n  background:rgba(201,162,39,.065);\n  border-left:2px solid var(--mdm-gold,#C9A227);\n  font-size:6.4px;\n  letter-spacing:.05em;\n  text-transform:uppercase;\n",
+          "  gap:12px;\n  margin-top:10px;\n  padding:7px 9px;\n  background:rgba(201,130,31,.065);\n  border-left:2px solid #C9821F;\n  font-size:6.4px;\n  letter-spacing:.05em;\n  text-transform:uppercase;\n"
+        ],
+        [
+          "  font-size:10px;\n  letter-spacing:-.02em;\n  text-transform:none;\n  color:var(--mdm-gold-ink,#7A6015);\n}\n\n.sdt-scale-note{\n",
+          "  font-size:10px;\n  letter-spacing:-.02em;\n  text-transform:none;\n  color:#9A6110;\n}\n\n.sdt-scale-note{\n"
+        ]
+      ]
+    },
+    "sample-report.html": {
+      "current_sha256": "f14eb59a66594afd333dd81d6c79ad7d2f260834da23a392f2b4e69754391757",
+      "prior_sha256": "890953364fbe7ecc8e5b577cf20f569fdd6d5fee9d609d63189fde4e7a123185",
+      "replacements": [
+        [
+          "=20260905-report-quarantine\"></script>\n<script src=\"monderman-report.js?v=20260923.overview1\"></script>\n<script src=\"public-sample-model.js?v=20260915.annual1\"></script>\n<",
+          "=20260905-report-quarantine\"></script>\n<script src=\"monderman-report.js?v=20260915.financial1\"></script>\n<script src=\"public-sample-model.js?v=20260915.annual1\"></script>\n<"
+        ]
+      ]
+    },
+    "structural-clarity.html": {
+      "current_sha256": "3a04edd4d596c2456de084c4a236efb34621fcb9e7027a2520f51b19ff970115",
+      "prior_sha256": "a381f2309e926690706a5143b7cca8f24bbcaddba336edf1e81242c6e98479e3",
+      "replacements": [
+        [
+          "v=20260914-native-review2\"></script>\n  <script src=\"monderman-report.js?v=20260923.overview1\"></script>\n  <script src=\"assignment-mode.js\"></script>\n  <script src=\"assignm",
+          "v=20260914-native-review2\"></script>\n  <script src=\"monderman-report.js?v=20260915.financial1\"></script>\n  <script src=\"assignment-mode.js\"></script>\n  <script src=\"assignm"
+        ],
+        [
+          "eV4CalibrationSidebar === \"function\") updateV4CalibrationSidebar();\n}\n\nfunction activePrestartFields() {\nreturn window.MondermanAssignment?.prestartFields(PRESTART_FIELDS, state.preflight) || PRESTART_FIELDS;\n}\nfunction renderPreflightForm() {\nconst introCard = document.querySelector(\"#introStage .c",
+          "eV4CalibrationSidebar === \"function\") updateV4CalibrationSidebar();\n}\n\nfunction renderPreflightForm() {\nconst introCard = document.querySelector(\"#introStage .c"
+        ],
+        [
+          " header.\nconst _groupOrder = [];\nconst _groupedFields = {};\nfor (const field of activePrestartFields()) {\n  const g = field.group || \"_default\";\n  if (!_groupedFields[g]) { _groupedF",
+          " header.\nconst _groupOrder = [];\nconst _groupedFields = {};\nfor (const field of PRESTART_FIELDS) {\n  const g = field.group || \"_default\";\n  if (!_groupedFields[g]) { _groupedF"
+        ],
+        [
+          "});\n});\n\nwindow.MondermanIntake?.enhanceFields(mount, activePrestartFields());\ninitPreflightPager();\n}\n\n",
+          "});\n});\n\nwindow.MondermanIntake?.enhanceFields(mount, PRESTART_FIELDS);\ninitPreflightPager();\n}\n\n"
+        ],
+        [
+          "\nfunction readPreflightForm() {\nconst next = {};\nactivePrestartFields().forEach((field) => {\nconst el = $(`preflight_${field.id}`);\nif (!el) return;\nne",
+          "\nfunction readPreflightForm() {\nconst next = {};\nPRESTART_FIELDS.forEach((field) => {\nconst el = $(`preflight_${field.id}`);\nif (!el) return;\nne"
+        ],
+        [
+          "reflightContextMount') || document);\nlet firstError = null;\nfor (const field of activePrestartFields()) {\nif (!field.required) continue;\nconst value = values[field.id];\nconst missing",
+          "reflightContextMount') || document);\nlet firstError = null;\nfor (const field of PRESTART_FIELDS) {\nif (!field.required) continue;\nconst value = values[field.id];\nconst missing"
+        ]
+      ]
+    },
+    "workspace-actions.html": {
+      "current_sha256": "ee3b325e7ab61d36557fdd3f31b1853679248ad76f507b503c4d564a9fe2a541",
+      "prior_sha256": "ff4e542a270d0949333de6f04dc340ab588dcc1c8b18516cd2ae822795b6a43c",
+      "replacements": [
+        [
+          "    </div>\n  </div>\n\n  <script src=\"monderman-report.js?v=20260923.overview1\"></script>\n  <script src=\"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+          "    </div>\n  </div>\n\n  <script src=\"monderman-report.js?v=20260915.financial1\"></script>\n  <script src=\"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+        ]
+      ]
+    },
+    "workspace-analysis.html": {
+      "current_sha256": "f065fb9862461b7bacdeeed408faec187e03f12e21fc5fa994b32a380ef81a31",
+      "prior_sha256": "d0d2d7ccafdda0f11f6b132c3c99f20a2d858b50c0e972dcf60f3acacaf5b1e6",
+      "replacements": [
+        [
+          "0260905-report-quarantine\"></script>\n  <script src=\"monderman-report.js?v=20260923.overview1\"></script>\n  <script src=\"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0\" integrity=\"sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti\" crossorigin=\"anonymous\"></script>\n  <script src=\"workspace-access-gate.js\"></script>\n<script type=\"module\">\n    import {createSynthesisRequestStore} from './synthesis-request-state.js?v=20260909-idempotent1';\n    import {mountCampaignAnalysis,campaignSalaryCostRequest} from './campaign-analysis.js?v=20260923.salary1';\n    import {mountSynthesisReadiness} from './workspace-synthesis-readiness.",
+          "0260905-report-quarantine\"></script>\n  <script src=\"monderman-report.js?v=20260915.financial1\"></script>\n  <script src=\"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0\" integrity=\"sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti\" crossorigin=\"anonymous\"></script>\n  <script src=\"workspace-access-gate.js\"></script>\n<script type=\"module\">\n    import {createSynthesisRequestStore} from './synthesis-request-state.js?v=20260909-idempotent1';\n    import {mountCampaignAnalysis} from './campaign-analysis.js?v=20260919.ready1';\n    import {mountSynthesisReadiness} from './workspace-synthesis-readiness."
+        ],
+        [
+          "Invitations?.refresh();},\n        onReport:async(evidence,financialScenarioInput,campaignSalaryCost)=>{\n          const {data}=await supabase.auth.getSession();const token=data?.session?.access_token;\n          const cross=Object.keys(evidence.scope.lenses).length>1;\n          const requestBody={campaign_scope_id:evidence.scope.id,evidence_digest:evidence.readiness.evidenceDigest,analysis_mode:(cross?evidence.readiness.crossLens:evidence.readiness.depth).status==='satisfied'?'synthesis':'descriptive',options:{mode:cross?'cross_lens':'depth',includeNarrative:true,includeExport:true}};\n          if(financialScenarioInput!==undefined)requestBody.financial_scenario_input=financialScenarioInput;\n          const salaryCost=campaignSalaryCostRequest(evidence,financialScenarioInput,campaignSalaryCost);\n          if(salaryCost)requestBody.campaign_salary_cost=salaryCost;\n          const ticket=await synthesisRequestStore.prepare(ws5OrgId,data.sess",
+          "Invitations?.refresh();},\n        onReport:async(evidence,financialScenarioInput)=>{\n          const {data}=await supabase.auth.getSession();const token=data?.session?.access_token;\n          const cross=Object.keys(evidence.scope.lenses).length>1;\n          const requestBody={campaign_scope_id:evidence.scope.id,evidence_digest:evidence.readiness.evidenceDigest,analysis_mode:(cross?evidence.readiness.crossLens:evidence.readiness.depth).status==='satisfied'?'synthesis':'descriptive',options:{mode:cross?'cross_lens':'depth',includeNarrative:true,includeExport:true}};\n          if(financialScenarioInput!==undefined)requestBody.financial_scenario_input=financialScenarioInput;\n          const ticket=await synthesisRequestStore.prepare(ws5OrgId,data.sess"
+        ]
+      ]
+    },
+    "workspace-diagnostics.html": {
+      "current_sha256": "9091a77ad62303cfc6a9bf5ccdd59a13a69e0f297e576e51e6bb0450ca2ea845",
+      "prior_sha256": "64ba5ddd08cad7426257c4e84451aae98e7fad4c6e79d61b67031b1bbcb22728",
+      "replacements": [
+        [
+          "            </div>\n          </div>\n\n          <p class=\"bulk-help\" id=\"salaryAnonymousNotice\" hidden>Salary uploads are not available for anonymous campaigns. Matching an employee's salary to their response would conflict with anonymity.</p>\n          <details class=\"bulk-box\" id=\"salaryImportBox\" hidden>\n            <summary>Optional annual base salary</summary>\n            <p class=\"bulk-help\" style=\"margin-top:12px\">Use a CSV with <code>email, annual_base_salary, salary_currency</code>. Annual base salary excludes bonuses, benefits, and overhead. USD is the only supported currency. Leave salary and currency blank for anyone whose cost you are not supplying.</p>\n            <p class=\"bulk-help\">Salary is sensitive personal information. Only upload it if company policy permits this use and you have authority to provide it. It is used for financial estimates, never diagnostic scoring. Participants are not shown the supplied salary or an upload notice. Salary files stay out of campaign drafts and must be selected again after a reload.</p>\n            <div class=\"grid\">\n              <div class=\"field\"><label for=\"salaryAnnualHours\">Annual working hours per person</label><input id=\"salaryAnnualHours\" type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" aria-describedby=\"salaryCalculationHelp\"><span class=\"hint\">Use your organization's working-hours basis for this campaign.</span></div>\n              <div class=\"field\"><label for=\"salaryOverheadPercent\">Benefits and overhead (% of base salary)</label><input id=\"salaryOverheadPercent\" type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" aria-describedby=\"salaryCalculationHelp\"><span class=\"hint\">Enter 0 if these costs should not be included.</span></div>\n            </div>\n            <p class=\"bulk-help\" id=\"salaryCalculationHelp\">We add your chosen percentage of base salary for benefits and overhead, then divide by annual working hours. Hourly employment cost = annual base salary × (1 + percentage ÷ 100) ÷ annual working hours. Both settings are required when supplying salaries. They are saved for this campaign when you send it and cannot then be changed. No default is applied.</p>\n            <label class=\"toggle\"><input type=\"checkbox\" id=\"salaryAuthorization\"> I am authorized to disclose these participants’ annual base salaries to Monderman for this diagnostic purpose, and I confirm this use complies with our company policy and applicable requirements.</label>\n            <div class=\"bulk-actions\">\n              <label class=\"btn btn-secondary file-btn\" style=\"height:34px;padding:0 16px\">Select salary CSV<input type=\"file\" id=\"salaryFile\" accept=\".csv,text/csv\" hidden></label>\n              <a class=\"bulk-tmpl\" id=\"salaryTemplate\" href=\"#\">Download salary template</a>\n              <button class=\"btn btn-secondary\" id=\"salaryClear\" type=\"button\" hidden>Remove supplied salaries</button>\n            </div>\n            <div id=\"salaryImportResult\" role=\"status\" aria-live=\"polite\"></div>\n          </details>\n\n          <div class=\"actions-row\">\n            <button class=\"btn btn-secondary\" id=\"btnPr",
+          "            </div>\n          </div>\n\n          <div class=\"actions-row\">\n            <button class=\"btn btn-secondary\" id=\"btnPr"
+        ],
+        [
+          "0260905-report-quarantine\"></script>\n  <script src=\"monderman-report.js?v=20260923.overview1\"></script>\n  <script src=\"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0\" integrity=\"sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti\" crossorigin=\"anonymous\"></script>\n  <script src=\"workspace-access-gate.js\"></script>\n  <script src=\"campaign-access.js\"></script>\n  <script src=\"employer-salary-import.js?v=20260923.1\"></script>\n<script type=\"module\">\n    import {confirmRunInclusion} from './run-",
+          "0260905-report-quarantine\"></script>\n  <script src=\"monderman-report.js?v=20260915.financial1\"></script>\n  <script src=\"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0\" integrity=\"sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti\" crossorigin=\"anonymous\"></script>\n  <script src=\"workspace-access-gate.js\"></script>\n  <script src=\"campaign-access.js\"></script>\n<script type=\"module\">\n    import {confirmRunInclusion} from './run-"
+        ],
+        [
+          "planId:null, items:[], members:[], promotedRuns:[], promotedLoaded:false };\n    // Salary values are scoped to this open composer, never to recipient rows,\n    // campaign drafts, general reports, or persistent browser storage.\n    const employerSalaries = new Map();\n    let salaryCapability = null;\n    function isAdmin(){ return state.role===\"admin\" || state.role===\"owner\"; }\n\n    ",
+          "planId:null, items:[], members:[], promotedRuns:[], promotedLoaded:false };\n    function isAdmin(){ return state.role===\"admin\" || state.role===\"owner\"; }\n\n    "
+        ],
+        [
+          " return;\n        const i=+t.dataset.i; if(!state.recipients[i]) return;\n        if(t.dataset.f===\"email\") employerSalaries.delete(String(state.recipients[i].email||\"\").trim().toLowerCase());\n        state.recipients[i][t.dataset.f]=t.value; invalidateCampaignPreview(); scheduleSave();\n      });\n      tb.addEventListener(\"click\", (e)=>{\n        const b=e.target.closest(\".rm-btn\"); if(!b) return;\n        employerSalaries.delete(String(state.recipients[+b.dataset.rm]?.email||\"\").trim().toLowerCase());\n        state.recipients.splice(+b.dataset.rm,1);\n        if(!state.recipients",
+          " return;\n        const i=+t.dataset.i; if(!state.recipients[i]) return;\n        state.recipients[i][t.dataset.f]=t.value; invalidateCampaignPreview(); scheduleSave();\n      });\n      tb.addEventListener(\"click\", (e)=>{\n        const b=e.target.closest(\".rm-btn\"); if(!b) return;\n        state.recipients.splice(+b.dataset.rm,1);\n        if(!state.recipients"
+        ],
+        [
+          "   return {added, dup, invalid};\n    }\n    function clearAllRecipients(){\n      clearEmployerSalaries();\n      state.recipients=[{email:\"\",full_name:\"\",business_unit:\"\",team:\"\"}];\n      state",
+          "   return {added, dup, invalid};\n    }\n    function clearAllRecipients(){\n      state.recipients=[{email:\"\",full_name:\"\",business_unit:\"\",team:\"\"}];\n      state"
+        ],
+        [
+          "     $(\"btnBulkParse\")?.addEventListener(\"click\", ()=>{ const ta=$(\"bulkText\"); if(window.MondermanEmployerSalaryImport.hasSalaryColumns(ta?.value)){ importEmployerSalaryCSV(ta.value); ta.value=\"\"; return; } const res=importRecipients(parsePasted(ta?.value)); showBulkResult(res); if(res.added && ta) ta.value=\"\"; });\n      $(\"bulkFile\")?.addEventListener(\"change\", (e)=>{\n        const f=e.target.files && e.target.files[0]; if(!f) return;\n        const rd=new FileReader();\n        rd.onload=()=>{ const text=String(rd.result||\"\"); if(window.MondermanEmployerSalaryImport.hasSalaryColumns(text)){ importEmployerSalaryCSV(text); return; } const res=importRecipients(parseCSVText(text)); showBulkResult(res); };\n        rd.onerror=()=>{ const el=$(\"bulkResult\"); i",
+          "     $(\"btnBulkParse\")?.addEventListener(\"click\", ()=>{ const ta=$(\"bulkText\"); const res=importRecipients(parsePasted(ta?.value)); showBulkResult(res); if(res.added && ta) ta.value=\"\"; });\n      $(\"bulkFile\")?.addEventListener(\"change\", (e)=>{\n        const f=e.target.files && e.target.files[0]; if(!f) return;\n        const rd=new FileReader();\n        rd.onload=()=>{ const res=importRecipients(parseCSVText(String(rd.result||\"\"))); showBulkResult(res); };\n        rd.onerror=()=>{ const el=$(\"bulkResult\"); i"
+        ],
+        [
+          "target && e.target.id===\"rClear\") clearAllRecipients(); });\n    }\n\n    function salaryRecipientEntries(){\n      return state.recipients.filter(r=>employerSalaries.has(String(r.email||\"\").trim().toLowerCase()));\n    }\n    function clearEmployerSalaries({keepSettings=false}={}){\n      employerSalaries.clear();\n      state.salarySendAttempt=null;\n      if($(\"salaryAuthorization\")) $(\"salaryAuthorization\").checked=false;\n      if($(\"salaryImportResult\")) $(\"salaryImportResult\").textContent=\"\";\n      if($(\"salaryClear\")) $(\"salaryClear\").hidden=true;\n      if(!keepSettings && $(\"salaryAnnualHours\")) $(\"salaryAnnualHours\").value=\"\";\n      if(!keepSettings && $(\"salaryOverheadPercent\")) $(\"salaryOverheadPercent\").value=\"\";\n      invalidateCampaignPreview();\n    }\n    function importEmployerSalaryCSV(text){\n      const target=$(\"salaryImportResult\");\n      if(!salaryCapability?.enabled || salaryCapability.can_upload!==true || salaryCapability.can_configure!==true || $(\"fAnon\").checked){\n        flash(\"bulkResult\",\"Salary upload is not available for this workspace or your account.\",\"bad\"); return;\n      }\n      const parsed=window.MondermanEmployerSalaryImport.parse(text);\n      clearEmployerSalaries({keepSettings:true});\n      if(!parsed.ok){\n        target.innerHTML=`<div class=\"prev-issues\"><b>Nothing imported. Correct these rows and select the file again.</b><ul>${parsed.errors.map(error=>`<li>Row ${error.row}: ${esc(error.message)}</li>`).join(\"\")}</ul></div>`;\n        return;\n      }\n      importRecipients(parsed.rows);\n      employerSalaries.clear();\n      parsed.rows.forEach(row=>{ if(row.annual_base_salary) employerSalaries.set(row.email.toLowerCase(),{annual_base_salary:row.annual_base_salary,salary_currency:row.salary_currency}); });\n      $(\"salaryAuthorization\").checked=false;\n      $(\"salaryClear\").hidden=!employerSalaries.size;\n      target.innerHTML=`<p class=\"bulk-help\">${parsed.rows.length} recipient rows validated; annual base salary supplied for ${parsed.salaryCount}. Amounts are not displayed in the campaign preview. Confirm your authority above, then preview the campaign before sending.</p>`;\n      invalidateCampaignPreview();\n    }\n    async function setupEmployerSalaryImport(){\n      try{\n        const response=await fetch(`${API_BASE}/api/assignments/salary-capability?organization_id=${encodeURIComponent(state.orgId)}`,{headers:await apiAuthHeaders()});\n        const data=await response.json();\n        if(response.ok && data.ok && data.enabled===true && data.can_upload===true && data.can_configure===true && data.currency===\"USD\" && data.notice_version===window.MondermanEmployerSalaryImport.noticeVersion) salaryCapability=data;\n      }catch(_error){}\n      function updateSalaryAvailability(){\n        const anonymous=$(\"fAnon\").checked;\n        $(\"salaryImportBox\").hidden=!salaryCapability || anonymous;\n        $(\"salaryAnonymousNotice\").hidden=!salaryCapability || !anonymous;\n        if(anonymous) clearEmployerSalaries();\n      }\n      updateSalaryAvailability();\n      $(\"fAnon\").addEventListener(\"change\",updateSalaryAvailability);\n      $(\"salaryAuthorization\").addEventListener(\"change\",invalidateCampaignPreview);\n      [\"salaryAnnualHours\",\"salaryOverheadPercent\"].forEach(id=>$(id).addEventListener(\"input\",invalidateCampaignPreview));\n      $(\"salaryClear\").addEventListener(\"click\",clearEmployerSalaries);\n      $(\"salaryFile\").addEventListener(\"change\",async event=>{\n        const file=event.target.files?.[0]; event.target.value=\"\"; if(!file) return;\n        try{ if(file.size>5*1024*1024) throw new Error(\"too_large\"); importEmployerSalaryCSV(await file.text()); }\n        catch(_error){ $(\"salaryImportResult\").textContent=\"Could not read this CSV. Use a file smaller than 5 MB.\"; }\n      });\n      $(\"salaryTemplate\").addEventListener(\"click\",event=>{\n        event.preventDefault(); const url=URL.createObjectURL(new Blob([window.MondermanEmployerSalaryImport.template],{type:\"text/csv\"}));\n        const link=document.createElement(\"a\"); link.href=url; link.download=\"annual-base-salary-template.csv\"; link.click(); setTimeout(()=>URL.revokeObjectURL(url),0);\n      });\n    }\n    function appendSalaryAuthorization(fd){\n      if(!salaryRecipientEntries().length) return;\n      fd.append(\"salary_authorization_consent\",String($(\"salaryAuthorization\").checked));\n      fd.append(\"salary_notice_version\",window.MondermanEmployerSalaryImport.noticeVersion);\n      fd.append(\"salary_annual_working_hours\",$(\"salaryAnnualHours\").value.trim());\n      fd.append(\"salary_benefits_overhead_percent\",$(\"salaryOverheadPercent\").value.trim());\n    }\n    function buildCSV(){\n      const withSalary=salaryRecipientEntries().length>0;\n      const header=\"email,full_name,business_unit,team\"+(withSalary?\",annual_base_salary,salary_currency\":\"\");\n      const lines=state.recipients.filter(r=>r.email && r.email.trim()).map(r=>{\n        const cells=[r.email,r.full_name,r.business_unit,r.team];\n        const supplied=employerSalaries.get(r.email.trim().toLowerCase());\n        if(withSalary) cells.push(supplied?.annual_base_salary||\"\",supplied?.salary_currency||\"\");\n        return cells.map(csvCell).join(\",\");\n      });\n      return header+\"\\n\"+lines.join(\"\\n\")+\"\\n\";\n    }\n    function buildDefau",
+          "target && e.target.id===\"rClear\") clearAllRecipients(); });\n    }\n\n    function buildCSV(){\n      const header=\"email,full_name,business_unit,team\";\n      const lines=state.recipients.filter(r=>r.email && r.email.trim()).map(r=>[r.email,r.full_name,r.business_unit,r.team].map(csvCell).join(\",\"));\n      return header+\"\\n\"+lines.join(\"\\n\")+\"\\n\";\n    }\n    function buildDefau"
+        ],
+        [
+          "=>r.email && r.email.trim())) return \"Add at least one recipient email.\";\n      if(salaryRecipientEntries().length && $(\"fAnon\").checked) return \"Salary uploads are not available for anonymous campaigns.\";\n      if(salaryRecipientEntries().length && (!salaryCapability?.enabled || !salaryCapability.can_upload || !salaryCapability.can_configure)) return \"Salary upload permission could not be confirmed.\";\n      if(salaryRecipientEntries().length && !$(\"salaryAuthorization\").checked) return \"Confirm your authority to provide sensitive salary information before previewing or sending.\";\n      if(salaryRecipientEntries().length){\n        const result=window.MondermanEmployerSalaryImport.validateSettings($(\"salaryAnnualHours\").value,$(\"salaryOverheadPercent\").value);\n        if(!result.ok) return result.error;\n      }\n      return null;\n    }\n    function flash(id,msg,kind){ $(id).innerHTML = `<div clas",
+          "=>r.email && r.email.trim())) return \"Add at least one recipient email.\";\n      return null;\n    }\n    function flash(id,msg,kind){ $(id).innerHTML = `<div clas"
+        ],
+        [
+          "ldCSV(),defaults:buildDefaults(),batch_label:buildDefaults().event_path_name||\"\",salary_authorization_consent:salaryRecipientEntries().length?$(\"salaryAuthorization\").checked:undefined,salary_annual_working_hours:salaryRecipientEntries().length?$(\"salaryAnnualHours\").value.trim():undefined,salary_benefits_overhead_percent:salaryRecipientEntries().length?$(\"salaryOverheadPercent\").value.trim():undefined});\n    }\n    function invalidateCampaignPreview(){\n      state.previewRevision=",
+          "ldCSV(),defaults:buildDefaults(),batch_label:buildDefaults().event_path_name||\"\"});\n    }\n    function invalidateCampaignPreview(){\n      state.previewRevision="
+        ],
+        [
+          " function prepareCampaignSendAttempt(material=campaignPayloadMaterial()){\n      // Do not persist even a salary-derived fingerprint in browser storage.\n      if(salaryRecipientEntries().length){\n        if(state.salarySendAttempt?.material===material) return state.salarySendAttempt.key;\n        state.salarySendAttempt={material,key:crypto.randomUUID()};\n        return state.salarySendAttempt.key;\n      }\n      const fingerprint=await campaignPayloadFingerprint(material);\n      try{\n       ",
+          " function prepareCampaignSendAttempt(material=campaignPayloadMaterial()){\n      const fingerprint=await campaignPayloadFingerprint(material);\n      try{\n       "
+        ],
+        [
+          "   function clearCampaignSendAttempt(){\n      state.campaignSendKey=null;\n      state.salarySendAttempt=null;\n      try{localStorage.removeItem(campaignAttemptStorageKey());}catch(_error){}\n    }\n",
+          "   function clearCampaignSendAttempt(){\n      state.campaignSendKey=null;\n      try{localStorage.removeItem(campaignAttemptStorageKey());}catch(_error){}\n    }\n"
+        ],
+        [
+          "}\n      const material=campaignPayloadMaterial(), revision=state.previewRevision, withSalary=salaryRecipientEntries().length>0;\n      $(\"sendOut\").innerHTML=\"\";\n      const fd=new FormData();\n      fd.append(\"file\", new Blob([buildCSV()],{type:\"text/csv\"}), \"recipients.csv\");\n      fd.append(\"defaults\", JSON.stringify(buildDefaults()));\n      fd.append(\"organization_id\",state.orgId);\n      appendSalaryAuthorization(fd);\n      state.previewing=true;\n      $(\"btnPreview\").dataset.label=\"Preview\"; busy(\"btnPreview\",true,\"Checking\\u2026\");\n      try{\n        const res=await fetch(`${API_BASE}/api/workspace/assignments/preview-batch`, { method:\"POST\", headers: await apiAuthHeaders(), body:fd });\n        const data=await res.json().catch(()=>({}));\n        if(!res.ok || data.ok===false) throw new Error(data.error || (\"HTTP \"+res.status));\n        const salaryIssues=salaryRecipientEntries().length && ((data.invalid_rows||[]).length || (data.duplicate_rows||[]).length);\n        const ready = salaryIssues ? 0 : ((data.ready_rows||[]).length || (data.summary && data.summary.valid) || 0);\n        const key = ready > 0 ? await prepareCampaignSendAttempt(material) : null;\n        if(!campaignPreviewMatches(material,revision)){\n          invalidateCampaignPreview();\n          flash(\"previewOut\",\"The campaign changed. Preview it again before sending.\",\"bad\"); return;\n        }\n        renderPreview(data,{withSalary});\n        state.lastReady=ready; state.previewMaterial=material; state.campaignSendKey=key;\n        $(\"btnSend\").disabled = state.lastReady < 1;\n      }catch(e){ flash(\"previewOut\",\"Preview failed: \"+(withSalary?\"Check your salary file, campaign settings, and upload permission, then try again.\":e.message),\"bad\"); state.lastReady=0; $(\"btnSend\").disabled=true; }\n      finally{ state.previewing=false; busy(\"btnPreview\",false); }\n    }\n    function renderPreview(d,{withSalary=salaryRecipientEntries().length>0}={}){\n      const ready=(d.ready_rows||[]).length, invalid=(d.invalid_rows||[]), dups=(d.duplicate_rows||[]);\n      let html=`<div class=\"prev-summary\"><span class=\"chip ok\">${ready} ready</span>`;\n      if(invalid.length) html+=`<span class=\"chip bad\">${invalid.length} invalid</span>`;\n      if(dups.length) html+=`<span class=\"chip warn\">${dups.length} duplicate</span>`;\n      html+=`</div>`;\n      if(invalid.length){\n        html+=`<div class=\"prev-issues\"><b>Needs attention</b><ul>`+invalid.map(r=>withSalary?`<li>Row ${Number.isInteger(r.row_number)?r.row_number:\"?\"}: Check its email, salary, currency, and participant status.</li>`:`<li>${esc(r.email||\"(no email)\")}: ${esc((r.problems||[]).join(\", \")||\"invalid\")}</li>`).join(\"\")+`</ul></div>`;\n      }\n      if(ready>0) html+=`<p class=\"prev-note\">${ready} recipient${ready>1?\"s\":\"\"} ready. Send creates a directed run for each.</p>`;\n      else html+=`<p class=\"prev-note\">No valid recipients yet.</p>`;\n      if(salaryRecipientEntries().length) html+=`<p class=\"prev-note\">Annual base salary supplied for ${salaryRecipientEntries().length} recipients. Values are excluded from this preview and participant invitations.</p>`;\n      $(\"previewOut\").innerHTML=html;\n    }\n\n",
+          "}\n      const material=campaignPayloadMaterial(), revision=state.previewRevision;\n      $(\"sendOut\").innerHTML=\"\";\n      const fd=new FormData();\n      fd.append(\"file\", new Blob([buildCSV()],{type:\"text/csv\"}), \"recipients.csv\");\n      fd.append(\"defaults\", JSON.stringify(buildDefaults()));\n      state.previewing=true;\n      $(\"btnPreview\").dataset.label=\"Preview\"; busy(\"btnPreview\",true,\"Checking\\u2026\");\n      try{\n        const res=await fetch(`${API_BASE}/api/workspace/assignments/preview-batch`, { method:\"POST\", headers: await apiAuthHeaders(), body:fd });\n        const data=await res.json().catch(()=>({}));\n        if(!res.ok || data.ok===false) throw new Error(data.error || (\"HTTP \"+res.status));\n        const ready = (data.ready_rows||[]).length || (data.summary && data.summary.valid) || 0;\n        const key = ready > 0 ? await prepareCampaignSendAttempt(material) : null;\n        if(!campaignPreviewMatches(material,revision)){\n          invalidateCampaignPreview();\n          flash(\"previewOut\",\"The campaign changed. Preview it again before sending.\",\"bad\"); return;\n        }\n        renderPreview(data);\n        state.lastReady=ready; state.previewMaterial=material; state.campaignSendKey=key;\n        $(\"btnSend\").disabled = state.lastReady < 1;\n      }catch(e){ flash(\"previewOut\",\"Preview failed: \"+e.message,\"bad\"); state.lastReady=0; $(\"btnSend\").disabled=true; }\n      finally{ state.previewing=false; busy(\"btnPreview\",false); }\n    }\n    function renderPreview(d){\n      const ready=(d.ready_rows||[]).length, invalid=(d.invalid_rows||[]), dups=(d.duplicate_rows||[]);\n      let html=`<div class=\"prev-summary\"><span class=\"chip ok\">${ready} ready</span>`;\n      if(invalid.length) html+=`<span class=\"chip bad\">${invalid.length} invalid</span>`;\n      if(dups.length) html+=`<span class=\"chip warn\">${dups.length} duplicate</span>`;\n      html+=`</div>`;\n      if(invalid.length){\n        html+=`<div class=\"prev-issues\"><b>Needs attention</b><ul>`+invalid.map(r=>`<li>${esc(r.email||\"(no email)\")}: ${esc((r.problems||[]).join(\", \")||\"invalid\")}</li>`).join(\"\")+`</ul></div>`;\n      }\n      if(ready>0) html+=`<p class=\"prev-note\">${ready} recipient${ready>1?\"s\":\"\"} ready. Send creates a directed run for each.</p>`;\n      else html+=`<p class=\"prev-note\">No valid recipients yet.</p>`;\n      $(\"previewOut\").innerHTML=html;\n    }\n\n"
+        ],
+        [
+          "    const sentMaterial=state.previewMaterial, sentRevision=state.previewRevision, withSalary=salaryRecipientEntries().length>0;\n      const fd=new FormData();\n      fd.append(\"file\", new Blob([buildCSV()],{",
+          "    const sentMaterial=state.previewMaterial, sentRevision=state.previewRevision;\n      const fd=new FormData();\n      fd.append(\"file\", new Blob([buildCSV()],{"
+        ],
+        [
+          "name || \"\");\n      fd.append(\"campaign_send_key\", state.campaignSendKey);\n      appendSalaryAuthorization(fd);\n      state.sending=true; $(\"btnPreview\").disabled=true;\n      $(\"btnSend\").dataset.la",
+          "name || \"\");\n      fd.append(\"campaign_send_key\", state.campaignSendKey);\n      state.sending=true; $(\"btnPreview\").disabled=true;\n      $(\"btnSend\").dataset.la"
+        ],
+        [
+          ".innerHTML=\"\";\n        if(unchanged) clearDraft(); else scheduleSave();\n        if(unchanged) clearEmployerSalaries();\n        loadTracking();\n      }catch(e){ flash(\"sendOut\",\"Send failed: \"+(withSalary?\"Your campaign was not confirmed. Check the file, settings, and permission before retrying.\":e.message),\"bad\"); }\n      finally{ state.sending=false; busy(\"btnSend\",false); $(\"btnSend",
+          ".innerHTML=\"\";\n        if(unchanged) clearDraft(); else scheduleSave();\n        loadTracking();\n      }catch(e){ flash(\"sendOut\",\"Send failed: \"+e.message,\"bad\"); }\n      finally{ state.sending=false; busy(\"btnSend\",false); $(\"btnSend"
+        ],
+        [
+          "on_id\", state.orgId); }catch(e){}\n    }\n    function discardDraft(){\n      clearEmployerSalaries();\n      clearDraft();\n      $(\"fPath\").value=\"\"; $(\"fDue\").value=\"\"; $(\"fMessage\").value=\"\";\n",
+          "on_id\", state.orgId); }catch(e){}\n    }\n    function discardDraft(){\n      clearDraft();\n      $(\"fPath\").value=\"\"; $(\"fDue\").value=\"\"; $(\"fMessage\").value=\"\";\n"
+        ],
+        [
+          "idden=false;\n        setupComposerAutosave();\n        wireBulkImport();\n        await setupEmployerSalaryImport();\n        if(!(await restoreDraft())){\n          state.recipients=[{email:\"\",full_name:\"\",",
+          "idden=false;\n        setupComposerAutosave();\n        wireBulkImport();\n        if(!(await restoreDraft())){\n          state.recipients=[{email:\"\",full_name:\"\","
+        ]
+      ]
+    },
+    "workspace-settings.html": {
+      "current_sha256": "c7baeff211d457f8bdc0056a579ed31189257d4f8918323deca877ea3cd98eb0",
+      "prior_sha256": "bb8e61a3cfd1fe7158baacc0f9133c961de5f1b1da86c7c942ed99c16edabe98",
+      "replacements": [
+        [
+          "k rel=\"stylesheet\" href=\"workspace-product-design.css?v=20260915.consistency1\">\n  <style>\n    #employerSalarySettings input[type=\"file\"]{width:100%;min-width:0;min-height:44px;font:inherit;font-size:16px}\n    #employerSalarySettings input[type=\"file\"]::file-selector-button{min-height:44px;margin-right:10px;padding:8px 12px;border:1px solid var(--line);border-radius:7px;background:var(--card,#fff);color:inherit;font:inherit;cursor:pointer}\n  </style>\n</head>\n<body class=\"workspace-surface workspace-settings-surface\">\n  <div class",
+          "k rel=\"stylesheet\" href=\"workspace-product-design.css?v=20260915.consistency1\">\n</head>\n<body class=\"workspace-surface workspace-settings-surface\">\n  <div class"
+        ],
+        [
+          "iv id=\"peopleBody\"></div>\n        </section>\n\n        <section class=\"card\" id=\"employerSalarySettings\" hidden></section>\n\n        <section class=\"card\" id=\"billing\">\n          <div class=\"card-h\"><h3>Subscription &amp; renewal</h3></div",
+          "iv id=\"peopleBody\"></div>\n        </section>\n\n        <section class=\"card\" id=\"billing\">\n          <div class=\"card-h\"><h3>Subscription &amp; renewal</h3></div"
+        ],
+        [
+          "origin=\"anonymous\"></script>\n  <script src=\"workspace-access-gate.js\"></script>\n  <script src=\"employer-salary-import.js?v=20260923.1\"></script>\n  <script src=\"employer-salary-settings.js?v=20260923.1\"></script>\n<script type=\"module\">\n    const workspaceAccess = await window.mondermanWorkspa",
+          "origin=\"anonymous\"></script>\n  <script src=\"workspace-access-gate.js\"></script>\n<script type=\"module\">\n    const workspaceAccess = await window.mondermanWorkspa"
+        ],
+        [
+          "rs(), loadPeople(), loadUsage(), loadWorkspaceDeletion(), loadBilling() ]);\n      await window.MondermanEmployerSalarySettings.mount({\n        apiBase:API_BASE,organizationId:state.orgId,members:state.members,\n        headers:async()=>{const {data}=await supabase.auth.getSession();return {Authorization:\"Bearer \"+(data?.session?.access_token||\"\"),\"X-Monderman-Organization-Id\":requireWorkspaceOrgId()};}\n      });\n    }\n    boot();\n  </script>\n",
+          "rs(), loadPeople(), loadUsage(), loadWorkspaceDeletion(), loadBilling() ]);\n    }\n    boot();\n  </script>\n"
+        ]
+      ]
+    }
+  }
+}

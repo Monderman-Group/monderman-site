@@ -17,7 +17,7 @@ const load=source=>{
   return {report:context.window.MondermanReport,flow:context.window.__flowForContract};
 };
 const renderer=read('monderman-report.js'),{report,flow}=load(renderer);
-const old=load(execFileSync('git',['show','27ef3b10008cd8f34f7b215007921905cfca686f:monderman-report.js'],{cwd:root,encoding:'utf8',maxBuffer:4e6})).report;
+const old=load(execFileSync('git',['show','31c87d9944d58cd58a48e389a680e0e909536329:monderman-report.js'],{cwd:root,encoding:'utf8',maxBuffer:4e6})).report;
 const attrs=tag=>Object.fromEntries([...tag.matchAll(/([\w:-]+)="([^"]*)"/g)].map(match=>[match[1],match[2]]));
 const escape=value=>String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const decode=value=>value.replace(/&(?:amp|lt|gt|quot|#39);/g,entity=>({'&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"','&#39;':"'"}[entity]));

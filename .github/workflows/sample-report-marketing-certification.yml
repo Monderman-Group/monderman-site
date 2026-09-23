@@ -24,6 +24,9 @@ on:
       - 'scripts/report_overview_test_normalizer.mjs'
       - 'scripts/report_overview_presentation_inverse.mjs'
       - 'scripts/fixtures/report-overview-reviewed-delta.json'
+      - 'scripts/report_overview_site_compatibility_inverse.mjs'
+      - 'scripts/report_overview_site_compatibility_smoke.mjs'
+      - 'scripts/fixtures/report-overview-reviewed-site-delta.json'
       - 'scripts/homepage_sample_discovery_contract.mjs'
       - 'scripts/homepage_sample_discovery_smoke.mjs'
       - 'scripts/export_report_overview_candidates.mjs'
@@ -216,6 +219,9 @@ on:
       - 'scripts/report_overview_test_normalizer.mjs'
       - 'scripts/report_overview_presentation_inverse.mjs'
       - 'scripts/fixtures/report-overview-reviewed-delta.json'
+      - 'scripts/report_overview_site_compatibility_inverse.mjs'
+      - 'scripts/report_overview_site_compatibility_smoke.mjs'
+      - 'scripts/fixtures/report-overview-reviewed-site-delta.json'
       - 'scripts/homepage_sample_discovery_contract.mjs'
       - 'scripts/homepage_sample_discovery_smoke.mjs'
       - 'scripts/export_report_overview_candidates.mjs'
@@ -430,6 +436,7 @@ jobs:
           node scripts/public_sample_manifest_sensitivity_smoke.mjs --check
           node scripts/refresh_public_sample_previews.mjs --check
           node scripts/report_overview_contract.mjs
+          node scripts/report_overview_site_compatibility_smoke.mjs
           node scripts/report_unified_sankey_contract.mjs
           node scripts/homepage_sample_discovery_contract.mjs
           node --check scripts/generate_production_sample_outputs.mjs

@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {execFileSync} from 'node:child_process';
 import {buildPublicSamplePreviewSections} from './refresh_public_sample_previews.mjs';
 
-export const HOMEPAGE_DISCOVERY_BASELINE='27ef3b10008cd8f34f7b215007921905cfca686f';
+export const HOMEPAGE_DISCOVERY_BASELINE='31c87d9944d58cd58a48e389a680e0e909536329';
 export const PREVIEW_FOOTER_BEFORE='<div class="hwd-footer"><span><i aria-hidden="true"></i>Illustrative organizational evaluation</span><span>Evidence. Action. Follow-up.</span></div>';
 export const PREVIEW_FOOTER_AFTER='<div class="hwd-footer"><span><i aria-hidden="true"></i>Illustrative organizational evaluation</span><a class="hwd-sample-link" href="sample-report.html">View sample reports <span aria-hidden="true">&rarr;</span></a></div>';
 
