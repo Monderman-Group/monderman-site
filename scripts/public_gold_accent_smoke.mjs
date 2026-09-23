@@ -15,7 +15,10 @@ const cssFiles = ['enterprise-site.css', 'homepage-workspace-demo.css', 'monderm
 const oldCSS = Object.fromEntries(cssFiles.map(file => [file, execFileSync('git', ['show', `${baseline}:${file}`], {cwd: root, encoding: 'utf8'})]));
 const heroSelector = ':is(.hero .hero-actions, .ps-hero .ps-hero-actions) > a.btn:is(.btn-accent, .btn-primary)[href^="pilot.html"], .hero .actions > a.pilot-primary[href="#apply"]';
 const heroPages = ['index.html', 'platform-services.html', 'why-monderman.html', 'pilot.html', 'decision-velocity-article.html', 'structural-clarity-article.html', 'operational-systems-article.html', 'institutional-performance-article.html'];
-const gold = 'rgb(201, 130, 31)', lightGold = 'rgb(240, 196, 125)', goldInk = 'rgb(134, 83, 13)', deep = 'rgb(4, 24, 27)', teal = 'rgb(12, 110, 120)';
+const secondaryPages = ['plan-signal.html', 'plan-pattern.html', 'diagnostics.html', 'from-tokens-to-outcomes.html'];
+const pages = [...heroPages, ...secondaryPages, 'Monderman_Platform_Brief.html'];
+const gold = 'rgb(201, 162, 39)', lightGold = 'rgb(230, 199, 101)', goldInk = 'rgb(122, 96, 21)', deep = 'rgb(4, 24, 27)', teal = 'rgb(12, 110, 120)';
+const seaGlass = 'rgb(169, 208, 212)', seaGlassHover = 'rgb(196, 225, 227)';
 const rows = [], errors = [];
 let checks = 0, screenshots = 0;
 fs.mkdirSync(out, {recursive: true});
@@ -33,9 +36,27 @@ const contrast = (foreground, background) => {
 const colors = locator => locator.evaluate(el => {
   const style = getComputedStyle(el);
   let background = el;
-  while (background && getComputedStyle(background).backgroundColor === 'rgba(0, 0, 0, 0)') background = background.parentElement;
-  return {color: style.color, background: background ? getComputedStyle(background).backgroundColor : 'rgb(255, 255, 255)', border: style.borderBottomColor, leftBorder: style.borderLeftColor, opacity: style.opacity};
+  while (background && getComputedStyle(background).backgroundColor === 'rgba(0, 0, 0, 0)' && getComputedStyle(background).backgroundImage === 'none') background = background.parentElement;
+  const backing = background ? getComputedStyle(background) : null;
+  let backgrounds = [backing ? backing.backgroundColor : 'rgb(255, 255, 255)'];
+  if (backing && backing.backgroundImage !== 'none') {
+    const stops = [...backing.backgroundImage.matchAll(/rgba?\(([^)]+)\)/g)].map(match => match[1].split(',').map(Number));
+    const opaque = stops.filter(stop => stop.length === 3 || stop[3] === 1);
+    if (!opaque.length) throw new Error('Gradient contrast requires an opaque backing stop');
+    let samples = opaque.map(stop => stop.slice(0, 3));
+    const overlays = stops.filter(stop => stop.length === 4 && stop[3] > 0 && stop[3] < 1);
+    for (const pseudo of ['::before', '::after']) {
+      const layer = getComputedStyle(background, pseudo);
+      if (layer.display !== 'none' && layer.content !== 'none') {
+        overlays.push(...[...layer.backgroundImage.matchAll(/rgba?\(([^)]+)\)/g)].map(match => match[1].split(',').map(Number)).filter(stop => stop.length === 4 && stop[3] > 0 && stop[3] < 1));
+      }
+    }
+    for (const overlay of overlays) samples = samples.concat(samples.map(base => base.map((value, i) => value * (1 - overlay[3]) + overlay[i] * overlay[3])));
+    backgrounds = samples.map(sample => 'rgb(' + sample.map(Math.round).join(', ') + ')');
+  }
+  return {color: style.color, background: backgrounds[0], backgrounds, border: style.borderBottomColor, leftBorder: style.borderLeftColor, opacity: style.opacity};
 });
+const minimumContrast = paint => Math.min(...paint.backgrounds.map(background => contrast(paint.color, background)));
 const chromeColors = page => page.locator('.header, .header *, footer.mond-footer, footer.mond-footer *').evaluateAll(elements => elements.map(el => {
   const style = getComputedStyle(el);
   return [el.tagName, el.className, style.color, style.backgroundColor, style.backgroundImage, style.borderColor];
@@ -68,7 +89,7 @@ for (const [engine, type] of [['chromium', chromium], ['webkit', webkit]]) {
   const browser = await type.launch({headless: true});
   try {
     for (const width of [390, 768, 1440]) {
-      for (const file of [...heroPages, 'Monderman_Platform_Brief.html']) {
+      for (const file of pages) {
         const label = `${engine}/${width}/${file}`;
         const [page, prior] = await Promise.all([open(browser, file, width), open(browser, file, width, true)]);
         equal(await chromeColors(page), await chromeColors(prior), label + ': navigation and footer colors remain exact');
@@ -76,23 +97,69 @@ for (const [engine, type] of [['chromium', chromium], ['webkit', webkit]]) {
         ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), label + ': no horizontal overflow');
         if (heroPages.includes(file)) {
           const cta = page.locator(heroSelector);
+          const outlined = width >= 1181 && file.endsWith('-article.html');
           equal(await cta.count(), 1, label + ': exactly one dark hero invitation request');
           equal((await cta.textContent()).trim(), 'Request an invitation', label + ': approved invitation copy');
           const initial = await colors(cta);
-          equal(initial.background, gold, label + ': invitation fill');
-          equal(initial.color, deep, label + ': dark invitation text');
-          ok(contrast(initial.color, initial.background) >= 4.5, label + ': invitation text contrast');
+          equal(await cta.evaluate(el => getComputedStyle(el).backgroundColor), outlined ? 'rgba(0, 0, 0, 0)' : seaGlass, label + ': invitation fill preserves desktop hierarchy');
+          equal(initial.color, outlined ? seaGlass : deep, label + ': invitation text');
+          equal(initial.border, seaGlass, label + ': original sea-glass invitation border');
+          const filledHeaderActions = await page.locator('.header .site-entry-link').evaluateAll(nodes => nodes.filter(el => {
+            const box = el.getBoundingClientRect(), style = getComputedStyle(el);
+            return box.width > 0 && box.height > 0 && box.top < innerHeight && box.bottom > 0
+              && style.visibility !== 'hidden' && Number(style.opacity) > 0
+              && ['rgb(169, 208, 212)', 'rgb(196, 225, 227)', 'rgb(201, 162, 39)', 'rgb(12, 110, 120)'].includes(style.backgroundColor);
+          }).length);
+          equal(filledHeaderActions + (outlined ? 0 : 1), 1, label + ': header and hero retain exactly one filled invitation');
+          ok(minimumContrast(initial) >= 4.5, label + ': invitation text contrast across backing colors');
           for (const state of ['hover', 'focus']) {
             if (state === 'hover') await cta.hover();
             else { await page.mouse.move(0, 0); await page.keyboard.press('Tab'); await cta.focus(); }
-            await page.waitForFunction(({selector, target}) => getComputedStyle(document.querySelector(selector)).backgroundColor === target, {selector: heroSelector, target: lightGold});
+            await page.waitForFunction(({selector, target}) => getComputedStyle(document.querySelector(selector)).borderBottomColor === target, {selector: heroSelector, target: seaGlassHover});
             const active = await colors(cta);
-            equal(active.color, deep, label + ': ' + state + ' text');
-            ok(contrast(active.color, active.background) >= 4.5, label + ': ' + state + ' contrast');
+            equal(active.color, outlined ? seaGlassHover : deep, label + ': ' + state + ' text');
+            equal(await cta.evaluate(el => getComputedStyle(el).backgroundColor), outlined ? 'rgba(0, 0, 0, 0)' : seaGlassHover, label + ': ' + state + ' fill');
+            ok(minimumContrast(active) >= 4.5, label + ': ' + state + ' contrast across backing colors');
           }
           await cta.evaluate(el => el.blur());
           await page.mouse.move(0, 0);
-          rows.push({engine, width, file, invitationContrast: contrast(deep, gold), invitationHoverContrast: contrast(deep, lightGold)});
+          rows.push({engine, width, file, outlined, invitationContrast: minimumContrast(initial)});
+        }
+        if (heroPages.includes(file) || secondaryPages.includes(file)) {
+          const lightSurface = file.startsWith('plan-');
+          const selector = lightSurface ? '.pl-buy > a.btn-secondary' : ':is(.hero .hero-actions, .ps-hero .ps-hero-actions, .hero .actions, .article-hero .article-actions) > :is(a.btn-secondary, a.btn-hero-secondary, a.btn.secondary, a.article-action:not(.article-action-primary))';
+          const secondary = page.locator(selector);
+          equal(await secondary.count(), 1, label + ': exactly one secondary opening action');
+          if (file === 'index.html') equal((await secondary.textContent()).trim(), 'Activate your invitation', label + ': activation copy unchanged');
+          const initial = await colors(secondary);
+          equal(await secondary.evaluate(el => getComputedStyle(el).backgroundColor), 'rgba(0, 0, 0, 0)', label + ': secondary action remains outlined');
+          equal(initial.border, gold, label + ': secondary outline uses the shared gold');
+          equal(initial.color, lightSurface ? goldInk : gold, label + ': secondary text fits its backing surface');
+          ok(minimumContrast(initial) >= 4.5, label + ': secondary text contrast');
+          for (const state of ['hover', 'focus']) {
+            if (state === 'hover') await secondary.hover();
+            else { await page.mouse.move(0, 0); await page.keyboard.press('Tab'); await secondary.focus(); }
+            const target = lightSurface ? gold : lightGold;
+            await page.waitForFunction(({selector, target}) => getComputedStyle(document.querySelector(selector)).borderBottomColor === target, {selector, target});
+            const active = await colors(secondary);
+            equal(active.color, lightSurface ? goldInk : lightGold, label + ': secondary ' + state + ' text');
+            equal(await secondary.evaluate(el => getComputedStyle(el).backgroundColor), 'rgba(0, 0, 0, 0)', label + ': secondary ' + state + ' remains outlined');
+            ok(minimumContrast(active) >= 4.5, label + ': secondary ' + state + ' contrast');
+          }
+          await secondary.evaluate(el => el.blur());
+          await page.mouse.move(0, 0);
+          await settle(page);
+          if (lightSurface) {
+            const primary = await colors(page.locator('.pl-buy > a.btn-accent'));
+            equal(primary.background, teal, label + ': light-surface primary retains teal');
+          }
+        }
+        if (file === 'pilot.html') {
+          equal((await colors(page.locator('.pilot-status'))).color, lightGold, label + ': invitation availability uses mild gold');
+          equal(await page.locator('.pilot-status').evaluate(el => getComputedStyle(el, '::before').backgroundColor), gold, label + ': invitation status dot uses the same gold');
+        }
+        if (file === 'platform-services.html') {
+          equal(await page.locator('table.ps-table td.svc').evaluateAll((cells, color) => cells.every(el => getComputedStyle(el).textDecorationColor === color), gold), true, label + ': service underlines use the same gold');
         }
         if (file === 'index.html') {
           const tabs = page.locator('.hwd-tabs button');
@@ -107,7 +174,7 @@ for (const [engine, type] of [['chromium', chromium], ['webkit', webkit]]) {
             const tab = await colors(selected);
             equal(tab.border, gold, label + ': active underline');
             ok([teal, 'rgb(10, 91, 99)'].includes(tab.color), label + ': active label remains teal');
-            equal(await page.locator('.hwd-tabs button:not([aria-selected="true"]) span').evaluateAll(els => els.some(el => getComputedStyle(el).color === 'rgb(134, 83, 13)')), false, label + ': inactive numbers do not acquire gold');
+            equal(await page.locator('.hwd-tabs button:not([aria-selected="true"]) span').evaluateAll((els, ink) => els.some(el => getComputedStyle(el).color === ink), goldInk), false, label + ': inactive numbers do not acquire gold');
           }
           await tabs.first().click();
           await page.mouse.move(0, 0);
@@ -120,7 +187,7 @@ for (const [engine, type] of [['chromium', chromium], ['webkit', webkit]]) {
           const value = await colors(tile.locator('.md-opportunity > strong'));
           equal(value.color, goldInk, label + ': primary report value is gold ink');
           ok(contrast(value.color, value.background) >= 4.5, label + ': primary report value contrast');
-          equal(await tile.locator('strong, dd').evaluateAll(els => els.filter(el => getComputedStyle(el).color === 'rgb(134, 83, 13)').length), 1, label + ': exactly one gold report value');
+          equal(await tile.locator('strong, dd').evaluateAll((els, ink) => els.filter(el => getComputedStyle(el).color === ink).length, goldInk), 1, label + ': exactly one gold report value');
           equal((await colors(tile.locator('.md-opportunity'))).leftBorder, teal, label + ': report frame remains teal');
           if (await tile.isVisible()) await screenshot(tile, `${engine}-${width}-${file === 'index.html' ? 'home' : 'brief'}-report-tile.png`);
           rows.push({engine, width, file, reportValueContrast: contrast(value.color, value.background), reportTileVisible: await tile.isVisible()});
@@ -132,4 +199,4 @@ for (const [engine, type] of [['chromium', chromium], ['webkit', webkit]]) {
 }
 equal(errors, [], 'No browser runtime errors');
 fs.writeFileSync(path.join(out, 'checks.json'), JSON.stringify({status: 'PASS', checks, screenshots, baseline, rows, providerCalls: 0}, null, 2) + '\n');
-console.log(JSON.stringify({status: 'PASS', checks, screenshots, layouts: 6, pages: 9, out, providerCalls: 0}));
+console.log(JSON.stringify({status: 'PASS', checks, screenshots, layouts: 6, pages: pages.length, out, providerCalls: 0}));

@@ -5,6 +5,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import {execFileSync} from 'node:child_process';
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
+import {LEGACY_PLANNING_NOTE_HTML} from './report_three_benefit_presentation_inverse.mjs';
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const base = process.env.SITE_BASE || process.env.REPORT_BASE || 'http://127.0.0.1:8080';
 const out = process.env.REPORT_OUT || '/tmp/report-screen-experience';
@@ -152,7 +153,7 @@ for(const key of ['os','dv','sc','ip','synthesis','depth']) {
   assert.equal(surface.methodHeadingTop,'0px',key+' section heading doubles its parent spacing');
   assert.ok(surface.methodPadding>=18,key+' method panel has no inner horizontal spacing');
   assert.equal(surface.methodBackground,'rgb(244, 247, 248)',key+' method panel uses a legacy paper surface');
-  assert.ok(surface.categories.length && surface.categories.every(color=>color==='rgb(94, 127, 152)'),key+' category accents use warning orange');
+  assert.ok(surface.categories.length && surface.categories.every(color=>color==='rgb(201, 162, 39)'),key+' category accents must use the approved gold');
   const destinations=await shell.locator('.mr-screen-shortcuts a').evaluateAll(links=>links.map(link=>({text:link.textContent,id:link.hash.slice(1),exists:!!document.getElementById(link.hash.slice(1))})));
   assert.ok(destinations.length>=4 && destinations.every(link=>link.exists),key+' missing navigation target');
   const next=shell.locator('.mr-screen-next a');
@@ -167,11 +168,11 @@ for(const key of ['os','dv','sc','ip','synthesis','depth']) {
   await shell.locator('.mr-cover').screenshot({path:path.join(out,key+'-cover-mobile.png')});
   await page.setViewportSize({width:1440,height:1000});
 }
-// Preserve the existing v1 control contract with its immutable saved reports;
-// the reviewed current publication now exercises the v2 three-benefit UI.
+// Earlier saved reports preserve their explanation and complete tables without
+// the retired graphic; current publications exercise the v2 three-benefit UI.
 const legacyArtifact=JSON.parse(execFileSync('git',['show','b06b72083442f03f7a1e2cadeb5239e4f0449515:sample-data/production-diagnostic-samples.json'],{encoding:'utf8',maxBuffer:32e6}));
 const legacySources=['depth_synthesis','cross_lens_synthesis'].map(key=>legacyArtifact.outputs[key].source);
-const invariants=await page.evaluate(async legacySources=>{
+const invariants=await page.evaluate(async ({legacySources,legacyNoteHtml})=>{
   const artifact=await fetch('sample-data/production-diagnostic-samples.json').then(r=>r.json());
   MondermanPublicSamples.validate(artifact);
   const models=[...Object.values(artifact.outputs).map(entry=>({model:MondermanPublicSamples.model(entry,artifact),fixture:'current'})),
@@ -237,6 +238,33 @@ const invariants=await page.evaluate(async legacySources=>{
     return groups.length;
   };
   const normalizeSvg = html => html.replace(/id="mr-[^"]+-system-gradient"/g,'id="mr-system-gradient"').replace(/url\(#mr-[^)]+-system-gradient\)/g,'url(#mr-system-gradient)');
+  const validateLegacyPlanning=(root,scenario)=>{
+    const require=(condition,message)=>{if(!condition)throw new Error(message);};
+    const figure=root.querySelector('.mr-operational-sankey');
+    require(root.querySelectorAll('.mr-operational-sankey').length===1,'Missing or repeated saved-planning figure');
+    require(figure.querySelector('.mr-legacy-planning-note')?.outerHTML===legacyNoteHtml,'Changed saved-planning explanation');
+    require(!figure.querySelector('.mr-planning-controls,.mr-planning-panel,svg,[data-sankey-node],[data-planning-node]'),'Retired chart or controls reintroduced');
+    const copies=[figure.querySelector('details.mr-planning-breakdown'),figure.querySelector('.mr-planning-print-breakdown')];
+    const number=value=>Number(value).toLocaleString('en-US',Math.abs(value)>0&&Math.abs(value)<1?{maximumSignificantDigits:3}:{maximumFractionDigits:0});
+    const money=value=>(value<0?'-$':'$')+number(Math.abs(value));
+    for(const copy of copies){
+      require(copy&&copy.querySelectorAll('table').length===2,'Missing saved activity or cost table');
+      const cells=[...copy.querySelectorAll('[data-planning-activity]')],costs=[...copy.querySelectorAll('[data-planning-cost]')];
+      require(cells.length===scenario.activities.length*9&&costs.length===9,'Missing saved planning cells');
+      for(const cell of cells){
+        const activity=scenario.activities.find(row=>row.id===cell.dataset.planningActivity),key=cell.dataset.planningMeasure,level=cell.dataset.planningLevel;
+        const value=activity?.[key]?.[level];
+        require(typeof value==='number'&&cell.dataset.savedValue===String(value)&&cell.textContent===(key==='potentialHoursFreed'?number(value):money(value)),'Changed saved activity amount');
+        require(cell.closest('tr').querySelector('th').textContent.includes(activity.label),'Changed saved activity label');
+      }
+      for(const cell of costs){
+        const key=cell.dataset.planningCost,level=cell.dataset.planningLevel,costCase={low:'high',central:'central',high:'low'};
+        const value=key==='subscriptionCost'?scenario.inputs[key]:scenario.inputs[key]?.[costCase[level]];
+        require(typeof value==='number'&&cell.dataset.savedValue===String(value)&&cell.textContent===money(value),'Changed saved cost amount or pairing');
+      }
+    }
+    return true;
+  };
   return models.map(({model,fixture})=>{
     const before=JSON.stringify(model);
     const wrapper=document.createElement('div');document.body.append(wrapper);
@@ -252,6 +280,24 @@ const invariants=await page.evaluate(async legacySources=>{
       node.removeAttribute('id');
     });
     const baseline=document.createElement('div');baseline.innerHTML=MondermanReport.buildReportBody(model);
+    const legacyNegativeControls=[];
+    let legacyTablesPreserved=false;
+    if(fixture==='historical-v1'){
+      legacyTablesPreserved=validateLegacyPlanning(printed,model.financialScenario);
+      for(const [name,mutate]of [
+        ['explanation',root=>root.querySelector('.mr-legacy-planning-note').textContent='CHANGED'],
+        ['saved activity',root=>root.querySelector('[data-planning-activity]').setAttribute('data-saved-value','-1')],
+        ['visible activity',root=>root.querySelector('[data-planning-activity]').textContent='CHANGED'],
+        ['saved cost',root=>root.querySelector('[data-planning-cost]').setAttribute('data-saved-value','-1')],
+        ['print table',root=>root.querySelector('.mr-planning-print-breakdown table').remove()],
+        ['retired chart',root=>root.querySelector('.mr-operational-sankey').insertAdjacentHTML('beforeend','<svg></svg>')],
+      ]){
+        const changed=printed.cloneNode(true);mutate(changed);let rejected=false;
+        try{validateLegacyPlanning(changed,model.financialScenario);}catch{rejected=true;}
+        if(!rejected)throw new Error('Saved-planning preservation accepted changed '+name);
+        legacyNegativeControls.push(name);
+      }
+    }
     const negativeControls=[];
     if(printed.querySelector('.mr-planning-controls')){
       for(const [name,mutate]of [
@@ -300,16 +346,49 @@ const invariants=await page.evaluate(async legacySources=>{
     const ids=[...wrapper.querySelectorAll('[id]'),...another.querySelectorAll('[id]')].map(node=>node.id);
     const unique=ids.length===new Set(ids).size;
     wrapper.remove();another.remove();
-    return {product:model.filenameBase,fixture,intact,mutated,unique,planningGroups,negativeControls,threeBenefitGroups,threeBenefitNegativeControls};
+    return {product:model.filenameBase,fixture,intact,mutated,unique,planningGroups,negativeControls,legacyTablesPreserved,legacyNegativeControls,threeBenefitGroups,threeBenefitNegativeControls};
   });
-},legacySources);
+},{legacySources,legacyNoteHtml:LEGACY_PLANNING_NOTE_HTML});
 assert.ok(invariants.every(row=>row.intact&&!row.mutated&&row.unique),JSON.stringify(invariants));
 assert.equal(invariants.filter(row=>row.fixture==='current').length,6,'All six current publications must retain their complete report bodies');
-assert.equal(invariants.filter(row=>row.fixture==='historical-v1'&&row.planningGroups===1).length,2,'Both historical synthesis products must exercise v1 planning control preservation');
-assert.ok(invariants.filter(row=>row.planningGroups).every(row=>row.negativeControls.length===6),'Missing planning preservation negative control');
+assert.equal(invariants.filter(row=>row.fixture==='historical-v1'&&row.planningGroups===0&&row.legacyTablesPreserved).length,2,'Both historical synthesis products must preserve complete saved tables without the retired chart');
+assert.ok(invariants.every(row=>row.planningGroups===0),'Retired v1 controls reappeared');
+assert.ok(invariants.filter(row=>row.fixture==='historical-v1').every(row=>row.legacyNegativeControls.length===6),'Missing saved-planning preservation negative control');
 assert.equal(invariants.filter(row=>row.fixture==='current'&&row.threeBenefitGroups===1).length,2,'Both current synthesis products must exercise three-benefit control preservation');
 assert.ok(invariants.filter(row=>row.threeBenefitGroups).every(row=>row.threeBenefitNegativeControls.length===8),'Missing three-benefit preservation negative control');
 fs.writeFileSync(path.join(out,'body-preservation-checks.json'),JSON.stringify({products:6,historicalProducts:2,rows:invariants},null,2));
+const legacyScreenPrint=[];
+for(const [index,source]of legacySources.entries())for(const width of [390,1440]){
+  const saved=await browser.newPage({viewport:{width,height:1000},reducedMotion:'reduce'});
+  await saved.route('**/*',route=>{
+    const url=new URL(route.request().url());
+    return url.hostname==='www.monderman.com'&&/^\/(55|65|75)font\.woff2$/.test(url.pathname)?route.fulfill({contentType:'font/woff2',body:fs.readFileSync(path.basename(url.pathname))}):route.abort();
+  });
+  const html=await page.evaluate(source=>{const before=JSON.stringify(source),html=MondermanReport.buildReportHtml(MondermanReport.fromSynthesis(source));if(JSON.stringify(source)!==before)throw Error('Saved source mutated');return html;},source);
+  await saved.setContent(html,{waitUntil:'load'});await saved.evaluate(()=>document.fonts.ready);
+  assert.equal(await saved.locator('.mr-legacy-planning-note').isVisible(),true);
+  assert.equal(await saved.locator('.mr-operational-sankey svg,.mr-planning-controls').count(),0);
+  await saved.locator('details.mr-planning-breakdown summary').focus();await saved.keyboard.press('Enter');
+  const regions=saved.locator('.mr-planning-table-scroll');assert.equal(await regions.count(),2);
+  for(let i=0;i<2;i++){
+    assert.equal(await regions.nth(i).getAttribute('role'),'region');
+    assert.equal(await regions.nth(i).getAttribute('tabindex'),'0');
+    assert.ok(await regions.nth(i).getAttribute('aria-label'));
+    assert.equal(await regions.nth(i).isVisible(),true);
+  }
+  const screenCells=await saved.locator('details.mr-planning-breakdown td[data-saved-value]').evaluateAll(nodes=>nodes.map(node=>({value:node.dataset.savedValue,text:node.textContent})));
+  assert.equal(screenCells.length,source.financial_scenario.activities.length*9+9);
+  assert.ok(await saved.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Saved planning tables overflow the screen');
+  await saved.screenshot({path:path.join(out,'historical-'+index+'-'+width+'-tables.png')});
+  await emulateMediaAndSettle(saved,'print');
+  assert.equal(await saved.locator('details.mr-planning-breakdown').isVisible(),false);
+  assert.equal(await saved.locator('.mr-planning-print-breakdown').isVisible(),true);
+  assert.equal(await saved.locator('.mr-legacy-planning-note').isVisible(),true);
+  const printCells=await saved.locator('.mr-planning-print-breakdown td[data-saved-value]').evaluateAll(nodes=>nodes.map(node=>({value:node.dataset.savedValue,text:node.textContent})));
+  assert.deepEqual(printCells,screenCells,'Print loses or changes saved activity/cost figures');
+  legacyScreenPrint.push({product:index,width,screenCells:screenCells.length,printCells:printCells.length});await saved.close();
+}
+fs.writeFileSync(path.join(out,'legacy-screen-print-checks.json'),JSON.stringify(legacyScreenPrint,null,2));
 await emulateMediaAndSettle(page,'print');
 assert.equal(await page.locator('#report-depth .mr-screen-nav').isVisible(),false,'screen nav appears in print');
 assert.equal(await page.locator('#report-depth .mr-screen-next').isVisible(),false,'screen action appears in print');
@@ -344,7 +423,7 @@ for (const product of ['operational-systems','decision-velocity','structural-cla
     assert.equal(await bars.count(),5,product+' fixture did not render the actual dimension chart');
     assert.ok((await bars.evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).backgroundColor))).every(color=>color==='rgb(12, 110, 120)'),product+' dimension categories must use canonical teal, not decorative warning colors');
     await emulateMediaAndSettle(direct,'print');
-    assert.ok((await bars.evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).backgroundColor))).includes('rgb(201, 130, 31)'),product+' category restyle changed the original print chart');
+    assert.ok((await bars.evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).backgroundColor))).every(color=>color==='rgb(12, 110, 120)'),product+' print dimension categories must match the canonical teal screen chart');
     await emulateMediaAndSettle(direct,'screen');
   }
   const spacing=await direct.evaluate(()=>{

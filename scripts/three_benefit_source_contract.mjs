@@ -5,13 +5,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {assertFinancialSampleRevision} from './public_sample_fixture.mjs';
+import {assertFinancialSampleRevision,assertFinancialSamplePdfBinding,currentSynthesisPdfReview} from './public_sample_fixture.mjs';
 export const THREE_BENEFIT_BASELINE='b06b72083442f03f7a1e2cadeb5239e4f0449515';
 const sha=v=>createHash('sha256').update(v).digest('hex');
 export function assertThreeBenefitSourceContract(root=path.resolve(import.meta.dirname,'..')){
   const read=f=>fs.readFileSync(path.join(root,f),'utf8');
   const before=f=>execFileSync('git',['show',THREE_BENEFIT_BASELINE+':'+f],{cwd:root,encoding:'utf8',maxBuffer:16e6});
-  assert.equal(sha(read('monderman-depth-lure-tile.css')),'00c45faf4d6bea0f4c6175f5d8d308240fcc9ff72d5221726145b0c5996ce558','Reviewed compact preview, mobile containment and approved single gold value');
+  assert.equal(sha(read('monderman-depth-lure-tile.css')),'ebe55b897ab099412799e0e1a6005e5c9465e4408ce2f76a66591c21c0021c92','Reviewed compact preview, mobile containment and approved single gold value');
   const currentForm=read('campaign-analysis.js'),originalForm=before('campaign-analysis.js');
   assert.equal(sha(currentForm),'e06b405673a530bf5a8b0c553a427180c854837e10d216d8818e45294c4dcb3e','Reviewed three-benefit form source');
   const block=/  function mountFinancialScenario\(content\)\{[\s\S]*?(?=  function render\(\))/;
@@ -37,6 +37,8 @@ export function assertThreeBenefitSourceContract(root=path.resolve(import.meta.d
     current.provenance.public_source_sha256=prior.provenance.public_source_sha256;
   }
   assert.deepEqual(restored,original,'Every original AI result, score, response, action, evidence and generation identity remains exact');
-  for(const key of ['operational_systems','decision_velocity','structural_clarity','institutional_performance'])assert.deepEqual(fs.readFileSync(path.join(root,'sample-data/reports/'+key+'.pdf')),execFileSync('git',['show',THREE_BENEFIT_BASELINE+':sample-data/reports/'+key+'.pdf'],{cwd:root,maxBuffer:16e6}),'Individual sample PDF unchanged: '+key);
-  return {base:THREE_BENEFIT_BASELINE,onlyFinancialFormChanged:true,onlySynthesisFinancialSamplesChanged:true,individualPdfsUnchanged:true};
+  const presentation=currentSynthesisPdfReview(manifest);
+  assert.equal(presentation.individual_pdf_change,'palette_only','Individual PDF content may not be revised by this financial release');
+  for(const key of ['operational_systems','decision_velocity','structural_clarity','institutional_performance'])assertFinancialSamplePdfBinding(presentation,key,fs.readFileSync(path.join(root,'sample-data/reports/'+key+'.pdf')));
+  return {base:THREE_BENEFIT_BASELINE,onlyFinancialFormChanged:true,onlySynthesisFinancialSamplesChanged:true,individualPdfPaletteReviewed:true};
 }

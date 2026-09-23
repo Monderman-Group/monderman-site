@@ -44,7 +44,7 @@ const footerSupportAssets=['canonical-site-shell.js','canonical-site-shell.css',
 const evaluationAssets=['homepage-workspace-demo.css','homepage-workspace-demo.js','workspace-access-gate.js','workspace-evaluation.js','feedback-widget.js','first-run-telemetry.js','pilot-waitlist.js'];
 const changed=[...new Set([...annualAssets,...consistencyAssets,...footerSupportAssets,...evaluationAssets,'monderman-depth-lure-tile.css','campaign-analysis.js','campaign-analysis.css','workspace-synthesis-readiness.js','workspace-synthesis-readiness.css'])];
 const priorRuntimeRelease=asset=>['campaign-analysis.js','campaign-analysis.css','monderman-report.js','monderman-depth-lure-tile.css'].includes(asset)?'20260919.benefits1':['workspace-synthesis-readiness.js','workspace-synthesis-readiness.css'].includes(asset)?'20260919.ready1':['homepage-workspace-demo.js','homepage-workspace-demo.css'].includes(asset)?'20260919.journey3':['workspace-access-gate.js','workspace-evaluation.js','feedback-widget.js','assistant.js'].includes(asset)?'20260919.invited1':evaluationAssets.includes(asset)?'20260919.invitation1':asset==='connect-widget.js'?'20260917.widget-visible1':asset==='canonical-site-shell.css'?'20260916.widget-anchor1':footerSupportAssets.includes(asset)?'20260916.floating-support1':consistencyAssets.includes(asset)?'20260915.consistency1':annualAssets.includes(asset)?'20260915.annual1':'20260913.34';
-const runtimeRelease=asset=>({'monderman-report.js':'20260920.flow1','monderman-depth-lure-tile.css':'20260920.gold1','homepage-workspace-demo.js':'20260920.gather1','homepage-workspace-demo.css':'20260920.gold1'}[asset])||priorRuntimeRelease(asset);
+const runtimeRelease=asset=>({'monderman-report.js':'20260921.burden1','report-screen-experience.css':'20260921.gold1','monderman-depth-lure-tile.css':'20260920.gold2','homepage-workspace-demo.js':'20260920.gather1','homepage-workspace-demo.css':'20260920.gold3'}[asset])||priorRuntimeRelease(asset);
 eq(read('monderman-report.js').toString().match(/const RENDERER_VERSION = "diagnostic-renderer-evidence-reading-([^"]+)"/)?.[1],'20260914.43','Renderer version remains 43; annual metadata changes receive a separate cache identity');
 for(const asset of changed){
   for(const quote of ['"',"'"])for(const prefix of ['', './'])for(const query of ['', '?v=20260913.32','?v=20260913.35','?v=20260913.39'])
@@ -75,6 +75,7 @@ const instrumentPages=new Set(['decision-velocity.html','structural-clarity.html
 let canonicalPages=0,footerPages=0;
 for(const file of pages){
   const original=read(file).toString(),html=fs.readFileSync(path.join(built,file),'utf8');
+  for(const reference of html.matchAll(/enterprise-site\.css\?v=([^"']+)/g))eq(reference[1],'20260920.gold3',file+': current primary/secondary CTA stylesheet');
   ok(!html.replace(/\s+/g,' ').includes('Monderman helps you examine responsibilities, decisions, processes and performance.'),file+': retired sub-hero is absent from the published page');
   const canonical=/<body\b[^>]*\bclass=["'][^"']*\bcanonical-green-shell\b/i.test(original)&&/canonical-site-shell\.js/.test(original);
   if(canonical){canonicalPages++;eq(html.match(headerPattern)?.[0],header,file+': canonical header');}

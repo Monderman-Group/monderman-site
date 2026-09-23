@@ -240,7 +240,7 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
                 const style = getComputedStyle(node);
                 if (style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) === 0) return false;
                 if (box.width < 1 || box.height < 1 || box.bottom <= 0 || box.top >= innerHeight) return false;
-                return ['rgb(255, 255, 255)', 'rgb(201, 130, 31)', 'rgb(12, 110, 120)', 'rgb(169, 208, 212)', 'rgb(8, 127, 140)'].includes(style.backgroundColor);
+                return ['rgb(255, 255, 255)', 'rgb(201, 130, 31)', 'rgb(201, 162, 39)', 'rgb(12, 110, 120)', 'rgb(169, 208, 212)', 'rgb(8, 127, 140)'].includes(style.backgroundColor);
               })
               .map((node) => (node.textContent || node.getAttribute('aria-label') || '').trim()),
           };

@@ -29,7 +29,7 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
     assert.equal(await page.locator('footer a[aria-label="Monderman on LinkedIn"]').count(), 1, `${browserName}/${viewport.name}: social footer missing`);
     const pilotAction = page.locator(".pilot-primary").first();
     const pilotBackground = await pilotAction.evaluate((node) => getComputedStyle(node).backgroundColor);
-    const expectedPilotBackground = "rgb(201, 130, 31)";
+    const expectedPilotBackground = "rgb(169, 208, 212)";
     assert.equal(pilotBackground, expectedPilotBackground, `${browserName}/${viewport.name}: pilot action hierarchy is incorrect`);
     const pilotColor = await pilotAction.evaluate((node) => getComputedStyle(node).color);
     const expectedPilotColor = "rgb(4, 24, 27)";
