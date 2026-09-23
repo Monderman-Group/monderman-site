@@ -14,7 +14,7 @@ const root=path.resolve(import.meta.dirname,'..'),currentSource=fs.readFileSync(
 // Retain the complete original chart regression suite against the exact
 // reviewed inverse. Independently test today's retirement of that legacy
 // graphic below; do not weaken or discard the historical chart assertions.
-const reviewedSource=execFileSync('git',['show','27ef3b10008cd8f34f7b215007921905cfca686f:monderman-report.js'],{cwd:root,encoding:'utf8',maxBuffer:4e6});
+const reviewedSource=execFileSync('git',['show','31c87d9944d58cd58a48e389a680e0e909536329:monderman-report.js'],{cwd:root,encoding:'utf8',maxBuffer:4e6});
 const source=sourceBeforeThreeBenefitPresentation(reviewedSource);
 const publicationSource=fs.readFileSync(path.join(root,'sample-data/production-diagnostic-samples.json'),'utf8');
 // This suite certifies saved v1 reports, not the newer v2 public examples.

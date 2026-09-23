@@ -12,14 +12,27 @@ def forbid(src, token, label):
     if token.lower() in src.lower(): raise AssertionError(f'{label}: forbidden customer term {token!r}')
 
 def validate_synthesis_controls(analysis, campaign):
+    import re
+    # Validate the actual local module import by its named bindings. Extra
+    # reviewed helpers, whitespace and the asset version do not change the
+    # identity of the mounted campaign module.
+    imports = re.findall(
+        r'''(?m)^[ \t]*import\s*\{([^{}]*)\}\s*from\s*(['"])(\./campaign-analysis\.js(?:\?[^'"\r\n]*)?)\2\s*;''',
+        analysis,
+    )
+    bindings = {name.strip() for names, _quote, _module in imports for name in names.split(',')}
+    for name in ['mountCampaignAnalysis', 'campaignSalaryCostRequest']:
+        assert name in bindings, f'Analysis control missing local campaign module binding: {name!r}'
+        assert re.search(r'(?m)^export\s+function\s+' + name + r'\s*\(', campaign), f'Campaign module missing export: {name!r}'
     # The campaign buttons moved into the mounted module. Require both their
     # current labels and the page/module event wiring, not obsolete page copy.
     for token in [
         'id="campaignEvidence"',
-        "import {mountCampaignAnalysis} from './campaign-analysis.js",
         'mountCampaignAnalysis({element:$("campaignEvidence")',
-        'onReport:async(evidence,financialScenarioInput)=>', 'campaign_scope_id:evidence.scope.id',
+        'onReport:async(evidence,financialScenarioInput,campaignSalaryCost)=>', 'campaign_scope_id:evidence.scope.id',
         'if(financialScenarioInput!==undefined)requestBody.financial_scenario_input=financialScenarioInput;',
+        'const salaryCost=campaignSalaryCostRequest(evidence,financialScenarioInput,campaignSalaryCost);',
+        'if(salaryCost)requestBody.campaign_salary_cost=salaryCost;',
         'Go to campaign evidence', 'Build self-run Synthesis',
         '$("synthRun")?.addEventListener(\'click\',runSynthesis)',
     ]:
@@ -29,7 +42,7 @@ def validate_synthesis_controls(analysis, campaign):
         'View response comparison', 'data-ca-build',
         "ready=(cross?r.crossLens:r.depth).status==='satisfied'",
         "$('[data-ca-build]').onclick=", 'const financialScenario=mountFinancialScenario(content);',
-        'const scenario=financialScenario();', 'await onReport(current,scenario);',
+        'const scenario=financialScenario();', 'await onReport(current,scenario,financialScenario.campaignSalaryCost(scenario));',
         'catch(error){message(error.message,true);', 'notice.focus({preventScroll:true});',
     ]:
         assert token in campaign, f'Campaign control missing: {token!r}'

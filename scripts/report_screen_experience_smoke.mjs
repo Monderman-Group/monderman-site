@@ -41,6 +41,9 @@ async function verifyAIScreenRefresh(browser) {
         const pending={status:'pending',message:'Synthetic interpretation pending.',report:{interpretation:{recommendations:[{action:'STALE_AI_ACTION'}]}}};
         const model={...base,aiReport:structuredClone(pending)},before=JSON.stringify(model);
         R.render(host,model);R.render(peer,model);
+        // Each fixture starts at the overview. Do not inherit scroll from
+        // the preceding product's mobile screenshot or action navigation.
+        window.scrollTo(0,0);
         const initialAI=host.querySelector('.mr-ai-interpretation'),aiId=initialAI.id;
         const result={ai_report:structuredClone(pending)};
         let calls=0;
@@ -63,13 +66,15 @@ async function verifyAIScreenRefresh(browser) {
       await lifecycle.clock.fastForward(15000);
       const completed = await lifecycle.evaluate(()=>{
         const x=screenRefresh,host=x.host,nav=host.querySelector('.mr-screen-nav'),action=Array.from(nav.querySelectorAll('.mr-screen-shortcuts a')).find(link=>link.textContent==='Actions');
-        return {calls:x.calls(),aiId:host.querySelector('.mr-ai-inline').id,actionTarget:action?.getAttribute('href'),coverTarget:host.querySelector('.mr-screen-next a')?.getAttribute('href'),coverText:host.querySelector('.mr-screen-next')?.textContent,mainContext:host.querySelector('.mr-ai-interpretation').textContent,peerPending:x.peer.textContent.includes('Synthetic interpretation pending.')&&!x.peer.textContent.includes('CURRENT_AI_ACTION'),pageSame:x.reportPage===host.querySelector('.mr-page'),nodesSame:x.nonAI.every(node=>node.isConnected&&x.reportPage.contains(node)),bodySame:x.bodySnapshot()===x.bodyBefore,unmutated:JSON.stringify(x.model)===x.before,contentsOpen:nav.querySelector('details').open,summaryFocused:document.activeElement===nav.querySelector('summary'),scrollSame:scrollY===x.scrollY};
+        return {calls:x.calls(),aiId:host.querySelector('.mr-ai-inline').id,actionTarget:action?.getAttribute('href'),coverTarget:host.querySelector('.mr-screen-next a')?.getAttribute('href'),coverText:host.querySelector('.mr-screen-next')?.textContent,mainContext:host.querySelector('.mr-ai-interpretation').textContent,peerPending:x.peer.textContent.includes('Synthetic interpretation pending.')&&!x.peer.textContent.includes('CURRENT_AI_ACTION'),pageSame:x.reportPage===host.querySelector('.mr-page'),nodesSame:x.nonAI.every(node=>node.isConnected&&x.reportPage.contains(node)),bodySame:x.bodySnapshot()===x.bodyBefore,unmutated:JSON.stringify(x.model)===x.before,contentsOpen:nav.querySelector('details').open,summaryFocused:document.activeElement===nav.querySelector('summary'),scrollSame:scrollY===x.scrollY,scroll:{before:x.scrollY,after:scrollY},overviewTarget:host.querySelector('[data-report-link-role="overview-actions"]')?.getAttribute('href'),overviewText:host.querySelector('[data-report-link-role="overview-actions"]')?.textContent};
       });
       assert.equal(completed.calls,2);assert.equal(completed.aiId,initial.aiId);
       assert.equal(completed.actionTarget,'#'+initial.aiId);assert.equal(completed.coverTarget,'#'+initial.aiId);
+      assert.equal(completed.overviewTarget,'#'+initial.aiId,'Updated overview targets the completed interpretation');
+      assert.ok(completed.overviewText.includes('CURRENT_AI_ACTION '+fixture.name),'Updated overview shows the completed action');
       assert.ok(completed.coverText.includes('CURRENT_AI_ACTION '+fixture.name));
       assert.ok(completed.mainContext.includes('REQUIRED_CONTEXT '+fixture.name)&&completed.mainContext.includes('REQUIRED_RISK '+fixture.name));
-      for(const key of ['peerPending','pageSame','nodesSame','bodySame','unmutated','contentsOpen','summaryFocused','scrollSame'])assert.equal(completed[key],true,fixture.name+' completion changed '+key);
+      for(const key of ['peerPending','pageSame','nodesSame','bodySame','unmutated','contentsOpen','summaryFocused','scrollSame'])assert.equal(completed[key],true,fixture.name+' completion changed '+key+' '+JSON.stringify(completed.scroll));
       await lifecycle.locator('#refresh-primary .mr-screen-shortcuts a').filter({hasText:/^Actions$/}).click();
       assert.equal(await lifecycle.evaluate(()=>document.activeElement.id),initial.aiId,fixture.name+' completed action shortcut has the wrong focus target');
       const remount = await lifecycle.evaluate(()=>{const x=screenRefresh;x.stop();const stop=MondermanReport.mountAIInterpretation(x.host,x.result);stop();return {wrappers:x.host.querySelectorAll('.mr-ai-inline').length,sections:x.host.querySelectorAll('.mr-ai-interpretation').length,id:x.host.querySelector('.mr-ai-inline').id,inside:x.reportPage.contains(x.host.querySelector('.mr-ai-inline'))};});
@@ -156,8 +161,11 @@ for(const key of ['os','dv','sc','ip','synthesis','depth']) {
   assert.ok(surface.categories.length && surface.categories.every(color=>color==='rgb(201, 162, 39)'),key+' category accents must use the approved gold');
   const destinations=await shell.locator('.mr-screen-shortcuts a').evaluateAll(links=>links.map(link=>({text:link.textContent,id:link.hash.slice(1),exists:!!document.getElementById(link.hash.slice(1))})));
   assert.ok(destinations.length>=4 && destinations.every(link=>link.exists),key+' missing navigation target');
-  const next=shell.locator('.mr-screen-next a');
+  const legacyNext=shell.locator('.mr-screen-next a');
+  assert.equal(await legacyNext.isVisible(),false,key+' prior cover guidance stays replaced by overview');
+  const next=shell.locator('.mr-overview-tile[data-report-link-role="overview-actions"]');
   assert.equal(await next.count(),1,key+' missing supported action destination');
+  assert.ok(await next.evaluate((link,legacyTarget)=>document.getElementById(link.hash.slice(1))?.contains(document.getElementById(legacyTarget.slice(1))),await legacyNext.getAttribute('href')),key+' overview guidance section contains the complete supported action destination');
   await next.click();
   assert.ok(await next.evaluate(link=>document.activeElement?.id===link.getAttribute('href').slice(1)),key+' action destination cannot be reached');
   assert.equal(await page.locator('.report-sheet>.dx-tabs-wrap').evaluate(node=>getComputedStyle(node).position),'relative','product tabs compete with report navigation for the same sticky position');
@@ -271,6 +279,9 @@ const invariants=await page.evaluate(async ({legacySources,legacyNoteHtml})=>{
     MondermanReport.render(wrapper,model);
     const prefix=wrapper.querySelector('section[id]').id.replace(/-section-\d+$/,'');
     const printed=wrapper.querySelector('.mr-page').cloneNode(true);
+    const overviewCovers=printed.querySelectorAll('.mr-cover-white.mr-has-overview');
+    if(overviewCovers.length!==1)throw new Error('One exact screen-overview cover modifier required');
+    overviewCovers[0].classList.remove('mr-has-overview');
     printed.querySelectorAll('.mr-screen-only').forEach(node=>node.remove());
     printed.querySelectorAll('section[id]').forEach(node=>node.removeAttribute('id'));
     // Current action navigation also targets the existing guidance divs.

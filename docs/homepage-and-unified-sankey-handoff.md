@@ -57,4 +57,4 @@ The homepage contract exports `homepagePreviewBeforeDiscoverability(template)`, 
 
 Browser/PDF commands, their prerequisites and the separate salary activation hold are recorded in [the release verification checklist](report-overview-release-verification.md). The actual presentation evidence supersedes the historical deferrals above. Presentation approval is not native database or deployment sign-off.
 
-Baseline used by new contracts: local `27ef3b10008cd8f34f7b215007921905cfca686f`; root verified its tree equals remote `31c87` (`c160aeeddd876bf08280d970a8ecc6cd7318d83d`).
+Executable contracts use published baseline `31c87d9944d58cd58a48e389a680e0e909536329`, available to remote CI. Its tree `c160aeeddd876bf08280d970a8ecc6cd7318d83d` was verified byte-identical to the local working baseline `27ef3b10008cd8f34f7b215007921905cfca686f`.

@@ -10,6 +10,7 @@ import ast
 import copy
 import hashlib
 import json
+import re
 from pathlib import Path
 import subprocess
 
@@ -42,10 +43,11 @@ controls(analysis,campaign)
 control_checks=1
 for surface,token in [
     ('analysis','id="campaignEvidence"'),
-    ('analysis',"import {mountCampaignAnalysis} from './campaign-analysis.js"),
     ('analysis','mountCampaignAnalysis({element:$("campaignEvidence")'),
-    ('analysis','onReport:async(evidence,financialScenarioInput)=>'),
+    ('analysis','onReport:async(evidence,financialScenarioInput,campaignSalaryCost)=>'),
     ('analysis','if(financialScenarioInput!==undefined)requestBody.financial_scenario_input=financialScenarioInput;'),
+    ('analysis','const salaryCost=campaignSalaryCostRequest(evidence,financialScenarioInput,campaignSalaryCost);'),
+    ('analysis','if(salaryCost)requestBody.campaign_salary_cost=salaryCost;'),
     ('analysis','campaign_scope_id:evidence.scope.id'),
     ('analysis','Go to campaign evidence'),
     ('analysis','Build self-run Synthesis'),
@@ -58,17 +60,46 @@ for surface,token in [
     ('campaign',"$('[data-ca-build]').onclick="),
     ('campaign','const financialScenario=mountFinancialScenario(content);'),
     ('campaign','const scenario=financialScenario();'),
-    ('campaign','await onReport(current,scenario);'),
+    ('campaign','await onReport(current,scenario,financialScenario.campaignSalaryCost(scenario));'),
+    ('campaign','export function mountCampaignAnalysis('),
+    ('campaign','export function campaignSalaryCostRequest('),
     ('campaign','catch(error){message(error.message,true);'),
     ('campaign','notice.focus({preventScroll:true});'),
 ]:
-    changed=(analysis if surface=='analysis' else campaign).replace(token,'removed-control')
+    original_surface=analysis if surface=='analysis' else campaign
+    assert token in original_surface, f'negative control target missing: {token!r}'
+    changed=original_surface.replace(token,'removed-control')
     try:
         controls(changed if surface=='analysis' else analysis, changed if surface=='campaign' else campaign)
     except AssertionError:
         control_checks+=1
         continue
     raise AssertionError(f'validator accepted missing {surface} control {token!r}')
+
+campaign_import=re.search(r'''(?m)^[ \t]*import\s*\{[^{}]*\}\s*from\s*['"]\./campaign-analysis\.js[^'"\r\n]*['"]\s*;''',analysis)
+assert campaign_import, 'actual local campaign module import missing'
+for replacement in [
+    "import { mountCampaignAnalysis, campaignSalaryCostRequest, anotherHelper } from './campaign-analysis.js?v=fixture';",
+    'import {\n campaignSalaryCostRequest,\n mountCampaignAnalysis,\n} from "./campaign-analysis.js";',
+]:
+    controls(analysis.replace(campaign_import.group(),replacement),campaign)
+    control_checks+=1
+for replacement in [
+    '',
+    "import { campaignSalaryCostRequest } from './campaign-analysis.js';",
+    "import { mountCampaignAnalysis } from './campaign-analysis.js';",
+    "import { mountCampaignAnalysis, campaignSalaryCostRequest } from './different-module.js';",
+    "import { mountCampaignAnalysis, campaignSalaryCostRequest } from 'https://example.test/campaign-analysis.js';",
+    "import { mountCampaignAnalysis, campaignSalaryCostRequest } from './campaign-analysis.js.old';",
+    "import { mountCampaignAnalysis as removedMount, campaignSalaryCostRequest } from './campaign-analysis.js';",
+    "// import { mountCampaignAnalysis, campaignSalaryCostRequest } from './campaign-analysis.js';",
+]:
+    try:
+        controls(analysis.replace(campaign_import.group(),replacement),campaign)
+    except AssertionError:
+        control_checks+=1
+        continue
+    raise AssertionError(f'validator accepted broken local campaign import: {replacement!r}')
 
 def rejects(label, change):
     global checked
