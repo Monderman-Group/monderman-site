@@ -78,10 +78,14 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]]){
         }
       }
       if(javaScriptEnabled){
-        // Full-document screenshots avoid locator centering, which otherwise
-        // composites the sticky navigation across the middle of a tall cover.
+        // Capture the entire overview at its real top-of-page position rather
+        // than centering a locator under the sticky nav. Linux WebKit cannot
+        // screenshot a whole long report above 32767px; the overview evidence
+        // needs the full cover, not the unrelated detailed-report pages.
         await page.evaluate(()=>scrollTo(0,0));
-        await page.screenshot({path:path.join(out,tag+'-overview.png'),fullPage:true});
+        const coverHeight=Math.ceil(await page.locator('.mr-cover').evaluate(node=>node.getBoundingClientRect().bottom));
+        ok(coverHeight>0&&coverHeight<32767,tag+' complete overview fits the browser screenshot limit');
+        await page.screenshot({path:path.join(out,tag+'-overview.png'),fullPage:true,clip:{x:0,y:0,width,height:coverHeight}});
       }
       await page.emulateMedia({media:'print'});
       await page.waitForTimeout(80);
