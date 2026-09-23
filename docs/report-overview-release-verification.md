@@ -9,9 +9,10 @@ The root task subsequently reported restored access and a successful local-serve
 ## Current evidence and holds
 
 - All six current-candidate reports passed browser/PDF presentation review; the exact renderer and public PDFs have a new separate presentation receipt.
-- Actual salary SQL passed **204 assertions in isolated PGlite 0.5.8 / PostgreSQL 18.3 WASM**, including a saved salary-backed Synthesis and transactional rollback. That is not native PostgreSQL 17.6 or independent-session concurrency evidence. Mocked API/DOM tests are a separate layer.
-- `EMPLOYER_SALARY_RELEASE_READY` is still `false`. Keep it false until the native database, privacy, participant and authorization checks below pass. There is no live salary-feature sign-off.
-- The six legacy locking replacements and role-exit grant revocation are implemented locally. Role restoration/rejoining requires fresh Admin delegation. Remaining native concurrency concerns include completion replay/worker run/job versus job/run locking and membership-update member/organization versus organization/member locking. See the API staging document and native-test handoff for the current native test plan.
+- Actual native PostgreSQL verification passed **219 SQL assertions**, **39 independent-session concurrency assertions across 10 schedules**, **69 hosted-surface checks plus 47 preserved legacy checks**, and the native HTTP end-to-end suites reported **66 / 22 / 23** passing assertions. These supersede the earlier 204-assertion PGlite-only checkpoint; they are separate from mocked DOM/API evidence. See the API release evidence for exact native fixtures and receipts.
+- Actual salary browser coverage passed **46 cases / 1,742 assertions** in Chromium and WebKit with synthetic local services. These checks cover UI, participant omission and browser privacy boundaries; they do not substitute for the native HTTP/database suites above.
+- The candidate's `EMPLOYER_SALARY_RELEASE_READY` is now `true`, following the focused enabled-candidate rerun. Production is unchanged and deployment is held for CI and the root release decision. Earlier false-gate statements in historical receipts describe their actual review-time state and must not be relabeled as enabled-candidate or live-production evidence.
+- The six legacy locking replacements, lock-order checks and role-exit grant revocation have native evidence. Role restoration/rejoining still requires fresh Admin delegation. Candidate activation does not replace the immutable-source, CI and post-deployment verification gates.
 - Saved sample data, historical fixtures and earlier review records remain unchanged. The new presentation review records current renderer/template/public asset pins and six reviewed PDF bindings, preserving prior pins and the earlier receipt digest. Exact historical source inversion and publication sensitivity checks pass.
 
 The checked paths below are the current candidate repositories. Results are evidence only where explicitly recorded in the presentation review or the separate API/salary handoff; a command appearing here is not proof that it ran.
@@ -91,7 +92,7 @@ The preserved inverse guard now passes the exact reviewed renderer and still rej
 
 ## 4. Separate salary activation checks
 
-Use a disposable native database with the deployed PostgreSQL version and reviewed production-shaped migrations. Do not point destructive fixtures at production. Generate/register the migration using the approved CLI workflow; the checked-in SQL design draft is not an applied migration. Native test commands belong in the API handoff once that harness and target have been validated; do not substitute the PGlite command for them.
+Native and controlled HTTP checks listed in the current evidence section have now run against disposable targets. Their exact commands, migration provenance and receipts belong to the API handoff. The requirements below remain the acceptance criteria for future reruns, not a claim that the earlier PGlite checkpoint proved native behavior. Do not point destructive fixtures at production or substitute PGlite for independent native sessions.
 
 Required database evidence:
 
@@ -107,4 +108,4 @@ Required controlled browser/API evidence after native checks:
 - The Analysis choice appears only for exact authorized readiness, complete matched population and a ready saved Synthesis. The unchecked whole-population/typical-work-mix attestation is required. Selected mode omits all manual activity rates; switching back restores manual values. Cash expense inputs remain separate. Reject previews, unsaved comparisons and malformed/stale options server-side.
 - Open and export the resulting real controlled saved report. Confirm only the authorized whole-group average and stable basis explanation are public, with unchanged scores and no invented cash savings.
 
-Retain `EMPLOYER_SALARY_RELEASE_READY = false` unless all required evidence passes and activation is explicitly approved. Report-layout approval alone does not authorize salary activation. After an authorized deployment, match immutable source/release markers and repeat permitted live smoke checks; do not call this complete before that evidence exists.
+The reviewed candidate is now enabled and its focused rerun passed; production remains unchanged pending CI and the root release decision. Report-layout approval alone does not authorize salary activation. After an authorized deployment, match immutable source/release markers and repeat permitted live smoke checks; do not call the release complete before that evidence exists. Preserve earlier disabled-state receipts as historical evidence rather than editing their recorded metadata.

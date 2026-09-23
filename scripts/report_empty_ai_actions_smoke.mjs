@@ -65,7 +65,11 @@ try{
     await page.setViewportSize({width,height:1000});await page.setContent(factual.html);await page.evaluate(async()=>{await document.fonts.ready;});
     assert.equal(await page.locator('.mr-screen-shortcuts a').count(),5);assert.equal(await page.locator('.mr-screen-shortcuts a').filter({hasText:/^Interpretation$/}).count(),1);
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
-    await page.locator('.mr-screen-next a').click();assert.equal(await page.evaluate(()=>document.activeElement.classList.contains('mr-ai-interpretation')),true);
+    assert.equal(await page.locator('.mr-screen-next a').isVisible(),false,'Overview replaces the legacy cover control');
+    const overview=page.locator('.mr-overview-tile[data-report-link-role="overview-actions"]');
+    assert.equal(await overview.locator('.mr-overview-options').count(),0,'Facts-only overview invents no next steps');
+    assert.ok((await overview.innerText()).includes('Review the interpretation before deciding what to change.'));
+    await overview.focus();await page.keyboard.press('Enter');assert.equal(await page.evaluate(()=>document.activeElement.classList.contains('mr-ai-interpretation')),true);
     assert.ok(await page.evaluate(()=>document.activeElement.getBoundingClientRect().top>=document.querySelector('.mr-screen-nav').getBoundingClientRect().bottom-1));
     await page.locator('.mr-cover').screenshot({path:path.join(out,`factual-cover-${width}.png`)});checks.widths.push(width);
   }
@@ -90,11 +94,11 @@ try{
       // give this synthetic UI model one explicit local check, not a fabricated
       // historical or newly approved provider recommendation.
       const model={...base,actions:fixture.kind==='run'?['Review the saved responses.']:[{label:'Review the saved responses.',text:'Check the selected source records.',tier:'limited'}],aiReport:pending},before=JSON.stringify(model);
-      R.render(host,model);R.render(peer,model);const result={ai_report:pending},aiId=host.querySelector('.mr-ai-interpretation').id,reportPage=host.querySelector('.mr-page');
+      R.render(host,model);R.render(peer,model);window.scrollTo(0,0);const result={ai_report:pending},aiId=host.querySelector('.mr-ai-interpretation').id,reportPage=host.querySelector('.mr-page');
       const bodySnapshot=()=>{const clone=reportPage.cloneNode(true);clone.querySelectorAll('.mr-screen-only,.mr-ai-inline,.mr-ai-interpretation').forEach(n=>n.remove());return clone.innerHTML;};
       let calls=0;const stop=R.mountAIInterpretation(host,result,async()=>({ai_report:++calls===1?pending:complete}));
       const nav=host.querySelector('.mr-screen-nav'),contents=nav.querySelector('details');contents.open=true;
-      const focused=focusedControl==='guidance'?nav.querySelector('[data-report-link-role="guidance"]'):focusedControl==='cover'?host.querySelector('.mr-screen-next a'):focusedControl==='evidence'?[...nav.querySelectorAll('.mr-screen-shortcuts a')].find(a=>a.textContent==='Evidence'):nav.querySelector('summary');
+      const focused=focusedControl==='guidance'?nav.querySelector('[data-report-link-role="guidance"]'):focusedControl==='cover'?host.querySelector('[data-report-link-role="overview-actions"]'):focusedControl==='evidence'?[...nav.querySelectorAll('.mr-screen-shortcuts a')].find(a=>a.textContent==='Evidence'):nav.querySelector('summary');
       if(!focused)throw Error('Missing synthetic transition control: '+fixture.name+'/'+focusedControl);
       focused.focus({preventScroll:true});window.testState={host,peer,model,before,aiId,reportPage,nav,focused,focusedControl,bodySnapshot,bodyBefore:bodySnapshot(),scroll:scrollY,stop,calls:()=>calls};
       return {aiId,shortcuts:nav.querySelectorAll('.mr-screen-shortcuts a').length};
@@ -103,7 +107,7 @@ try{
     assert.equal(await page.evaluate(()=>document.activeElement===testState.focused&&testState.host.querySelector('.mr-screen-nav')===testState.nav),true,'unchanged poll disturbed focus');
     await page.clock.fastForward(15000);
     const result=await page.evaluate(()=>{
-      const t=testState,nav=t.host.querySelector('.mr-screen-nav'),expected=t.focusedControl==='guidance'?nav.querySelector('[data-report-link-role="guidance"]'):t.focusedControl==='cover'?t.host.querySelector('.mr-screen-next a'):t.focusedControl==='evidence'?[...nav.querySelectorAll('.mr-screen-shortcuts a')].find(a=>a.textContent==='Evidence'):nav.querySelector('summary');t.stop();
+      const t=testState,nav=t.host.querySelector('.mr-screen-nav'),expected=t.focusedControl==='guidance'?nav.querySelector('[data-report-link-role="guidance"]'):t.focusedControl==='cover'?t.host.querySelector('[data-report-link-role="overview-actions"]'):t.focusedControl==='evidence'?[...nav.querySelectorAll('.mr-screen-shortcuts a')].find(a=>a.textContent==='Evidence'):nav.querySelector('summary');t.stop();
       const guidance=nav.querySelector('[data-report-link-role="guidance"]');return {calls:t.calls(),focused:document.activeElement===expected,scrollSame:scrollY===t.scroll,bodySame:t.bodySnapshot()===t.bodyBefore,unmutated:JSON.stringify(t.model)===t.before,peerPending:t.peer.textContent.includes('Synthetic pending.')&&!t.peer.textContent.includes('SAVED_FACTS_ONLY'),contentsOpen:nav.querySelector('details').open,label:guidance.textContent,target:guidance.getAttribute('href'),shortcuts:nav.querySelectorAll('.mr-screen-shortcuts a').length,cards:t.host.querySelectorAll('.mr-ai-action').length,next:t.host.querySelector('.mr-screen-next p').textContent};
     });
     assert.deepEqual(result,{calls:2,focused:true,scrollSame:true,bodySame:true,unmutated:true,peerPending:true,contentsOpen:true,label:'Interpretation',target:'#'+initial.aiId,shortcuts:initial.shortcuts,cards:0,next:'Review the interpretation and its limits.'},fixture.name+'/'+focusedControl);

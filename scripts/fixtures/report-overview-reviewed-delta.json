@@ -1,8 +1,12 @@
 {
   "version": "report-overview-presentation-20260923.1",
-  "renderer_sha256": "21a8f8e08ecfd9bcecc90dd77ef2b062f2eb28b81158d5a7f0511c5c3611621f",
+  "renderer_sha256": "977cf5497c16b1e4427e5efa5113ff06e718e1331f18cde8c0069c0d10ba5791",
   "prior_renderer_sha256": "73c939fac58d0d2f7020207e6e1f869ec30e7f6ff745dbbfa6b76984b663ef98",
   "replacements": [
+    [
+      "    const scoreBand = m.kind === 'run' || m.selfRun ? firstStr(m.headlineBand) : firstStr(m.conditionBand);",
+      "    const scoreBand = m.kind === 'run' ? firstStr(m.headlineBand) : firstStr(m.conditionBand);"
+    ],
     [
       "  \"use strict\";\n  // This identifies the code displaying/exporting the report now, not the\n  // renderer that may have displayed a historical run when it was created.\n  const RENDERER_VERSION = \"diagnostic-renderer-report-overview-20260923.1\";\n  // The measured-report adapter stays at r43; financial reading order and\n  // summary presentation have their own explicit, independently tested edition.\n  const FINANCIAL_PRESENTATION_VERSION = \"financial-presentation-20260915.1\";\n",
       "  \"use strict\";\n  // This identifies the code displaying/exporting the report now, not the\n  // renderer that may have displayed a historical run when it was created.\n  const RENDERER_VERSION = \"diagnostic-renderer-evidence-reading-20260914.43\";\n  // The measured-report adapter stays at r43; financial reading order and\n  // summary presentation have their own explicit, independently tested edition.\n  const FINANCIAL_PRESENTATION_VERSION = \"financial-presentation-20260915.1\";\n"

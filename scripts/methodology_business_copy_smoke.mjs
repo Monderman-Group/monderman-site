@@ -88,8 +88,8 @@ for(const candidate of [
   assert.notEqual(candidate,approvedFloatingShell,'Header-state negative actually mutates the approved source');
   assert.throws(()=>assertApprovedShell(candidate),'Restored proxies or unrelated navigation changes must fail');checks++;
 }
-check(read('index.html').includes('homepage-workspace-demo.css?v=20260919.journey3'),'Source preview stylesheet has the reviewed lens-journey cache ID');
-check(read('scripts/inject-public-shell.mjs').includes('"homepage-workspace-demo.css": "20260920.gold3"'),'Build refreshes the reviewed selective-gold stylesheet cache ID');
+check(read('index.html').includes('homepage-workspace-demo.css?v=20260923.samples1'),'Source preview stylesheet has the reviewed sample-discovery cache ID');
+check(read('scripts/inject-public-shell.mjs').includes('"homepage-workspace-demo.css": "20260923.samples1"'),'Build refreshes the reviewed sample-discovery stylesheet cache ID');
 execFileSync(process.execPath,['scripts/refresh_public_sample_previews.mjs','--check'],{cwd:root,stdio:'pipe'});
 check(read('scripts/templates/home-workspace-preview.html').split('{{journeyOptions}}').length===2,'One generated Gather-choice region contains the source-backed lens summaries');
 check(!read('scripts/templates/home-workspace-preview.html').includes('{{lensCards}}'),'Compacted Gather choices do not duplicate the old evidence cards');

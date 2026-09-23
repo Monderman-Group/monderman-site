@@ -118,6 +118,21 @@ assert.equal(incompatibleModel.meta.find(row=>row.label==='Recorded').value,'Jan
 assert(!incompatibleHtml.includes('approval_density'));assert(incompatibleHtml.includes('Not shown: compatible measurements are required'));checks+=3;
 const personal=R.fromSynthesis({...incompatible,score_status:'published',cross_diagnostic_score:90,condition_band:'Strong observed condition',score_label:'Median of your selected scores',source_groups:[{tool_label:'Decision Velocity',submitted_runs:2,median_score:90}]});
 assert.equal(personal.headlineBand,'Your selected scores only');assert(!R.buildReportHtml(personal).includes('Strong observed condition'));checks+=2;
+const checkSelfRunBands=renderer=>{
+  for(const report_kind of ['self_run_synthesis','self_run_response_comparison'])for(const score_status of ['published','withheld']){
+    const source={...incompatible,report_kind,score_status,cross_diagnostic_score:90,condition_band:'Strong observed condition',score_label:'Median of your selected scores'},before=JSON.stringify(source);
+    const model=renderer.fromSynthesis(source),html=renderer.buildReportHtml(model);
+    assert.equal(model.headlineBand,score_status==='published'?'Your selected scores only':'No combined score');
+    assert(!html.includes('Strong observed condition'),'No organizational band anywhere in a self-run document');
+    const overview=html.match(/data-report-link-role="overview-findings"[\s\S]*?<\/a>/)?.[0];
+    assert(overview?.includes(model.headlineBand),'Overview preserves the same self-run qualification as the complete report');
+    assert.equal(JSON.stringify(source),before);checks+=4;
+  }
+};
+checkSelfRunBands(R);
+const currentRenderer=fs.readFileSync('monderman-report.js','utf8'),wrongBand=currentRenderer.replace("m.kind === 'run' || m.selfRun ? firstStr(m.headlineBand) : firstStr(m.conditionBand)","m.kind === 'run' ? firstStr(m.headlineBand) : firstStr(m.conditionBand)");
+assert.notEqual(wrongBand,currentRenderer);const wrongContext={window:{}};vm.runInNewContext(wrongBand,wrongContext);
+assert.throws(()=>checkSelfRunBands(wrongContext.window.MondermanReport));checks++;
 const workspace=fs.readFileSync('workspace-diagnostics.html','utf8'),actions=workspace.slice(workspace.indexOf('    function actionsFor(r){'),workspace.indexOf('    function runRowHTML(r){'));
 for(const role of ['admin','analyst','member']){const context=vm.createContext({state:{role}});vm.runInContext(actions,context);for(const status of ['staged','promoted','archived']){const html=context.actionsFor({id:'r',status});if(role==='member')assert.equal(html,'');if(role==='analyst'){assert(!/Archive|Restore|Remove from analysis/.test(html));assert.equal(html.includes('Review & include'),status==='staged');}if(role==='admin')assert(html.length>0);checks++;}}
 console.log(`PASS individual output policy: ${checks} actual renderer/native helper checks. New individual fallback paths preserve next steps and withhold cohort tiers; historical measurements/dates unchanged; self-run reports explicitly one-account; staff actions match server authority.`);
