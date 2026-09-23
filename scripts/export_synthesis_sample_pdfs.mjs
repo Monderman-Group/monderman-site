@@ -33,29 +33,38 @@ try{
       await page.emulateMedia({media:'screen'});
       await page.locator('.mr-benefit-choice').filter({hasText:new RegExp('^'+level+'$','i')}).click();
       assert.equal(await page.locator('.mr-benefit-panel:visible').getAttribute('data-three-benefit-case'),level);
+      assert.deepEqual(await page.locator('.mr-benefit-panel:visible [data-burden-kind]').evaluateAll(nodes=>nodes.map(n=>[n.dataset.burdenKind,n.dataset.burdenUnit])),[['money','USD'],['workload','hours']],'One money diagram and one time diagram for each selected case');
       await page.emulateMedia({media:'print'});
       assert.equal(await page.locator('.mr-benefit-panel:visible').count(),1);
       assert.equal(await page.locator('.mr-benefit-panel:visible').getAttribute('data-three-benefit-case'),'central');
       assert.equal(await page.locator('.mr-benefit-chart:visible').count(),1);
-      assert.ok(await page.locator('.mr-benefit-print-summary').evaluate(summary=>summary.compareDocumentPosition(document.querySelector('.mr-benefit-central .mr-benefit-chart'))&Node.DOCUMENT_POSITION_PRECEDING),'Comparison follows the Central Sankey');
+      assert.deepEqual(await page.locator('.mr-benefit-chart:visible [data-burden-kind]').evaluateAll(nodes=>nodes.map(n=>[n.dataset.burdenKind,n.dataset.burdenUnit])),[['money','USD'],['workload','hours']],'The central printed case contains exactly two unit-separated diagrams');
+      assert.equal(await page.locator('.mr-benefit-chart:visible .mr-unified-flow>svg:visible').count(),2,'Both complete diagrams print');
+      assert.equal(await page.locator('.mr-report-overview:visible,.mr-section-back:visible').count(),0,'Screen overview and navigation do not duplicate printed findings');
+      assert.ok(await page.locator('.mr-benefit-print-summary').evaluate(summary=>summary.compareDocumentPosition(document.querySelector('.mr-benefit-central .mr-benefit-chart'))&Node.DOCUMENT_POSITION_PRECEDING),'Comparison follows the central money/time charts');
     }
     await page.emulateMedia({media:'print'});
     const pdf=path.join(out,key+'.pdf');await page.pdf({path:pdf,format:'Letter',preferCSSPageSize:true,printBackground:true});
     const pages=JSON.parse(execFileSync(process.env.PDF_PYTHON||'python3',['-c','import json,sys;from pypdf import PdfReader;print(json.dumps([p.extract_text() or "" for p in PdfReader(sys.argv[1]).pages]))',pdf],{encoding:'utf8',maxBuffer:16e6}));
     const compact=t=>t.normalize('NFKC').toLowerCase().replace(/\s/g,''),text=compact(pages.join(' '));
-    const centralPage=pages.findIndex(p=>p.includes('Central case: from current demands to potential savings'));
+    const centralHeading='Central case: money and staff time';
+    const centralPage=pages.findIndex(p=>p.includes(centralHeading));
     const comparisonPage=pages.findIndex(p=>p.includes('Three planning cases'));
     if(synthesis){
-    assert.ok(centralPage>=1,'Central Sankey follows the cover');
-    assert.ok(comparisonPage>=centralPage,'Comparison follows the Central Sankey');
-    if(comparisonPage===centralPage)assert.ok(pages[centralPage].indexOf('Central case: from current demands to potential savings')<pages[centralPage].indexOf('Three planning cases'));
+    assert.ok(centralPage>=1,'Central money/time charts follow the cover');
+    assert.ok(comparisonPage>=centralPage,'Comparison follows the central money/time charts');
+    if(comparisonPage===centralPage)assert.ok(pages[centralPage].indexOf(centralHeading)<pages[centralPage].indexOf('Three planning cases'));
     for(const b of Object.values(entry.source.financial_scenario.benefits))assert.ok(pages[comparisonPage].includes(b.amount.central.toLocaleString('en-US',{maximumFractionDigits:2})));
-    assert.equal((pages.join(' ').match(/case: from current demands to potential savings/g)||[]).length,1,'Exactly one printed Sankey');
+    assert.equal((pages.join(' ').match(/case: money and staff time/g)||[]).length,1,'Exactly one central planning-case heading');
+    for(const heading of ['Money: current and planned spending','Staff time: allocation and retained capacity']){
+      assert.equal(text.split(compact(heading)).length-1,1,'Exactly one printed diagram: '+heading);
+      assert.ok(text.indexOf(compact(heading))<text.indexOf(compact('Three planning cases')),'Each complete diagram precedes the three-case comparison');
+    }
     assert.ok(!/Low planning case|High planning case/.test(pages.join(' ')),'No repeated Low or High case pages');
     }else assert.equal(centralPage,-1,'No financial chart in individual reports');
     const generationDate=model.meta.find(row=>row.label==='Sample created').value;
     assert.ok(compact(pages[0]).includes(compact(generationDate)),'The original sample creation date remains on the cover: '+JSON.stringify({expected:generationDate,cover:pages[0]}));
-    const authored=await page.locator('p,li,h1,h2,h3,h4,h5,td,th').evaluateAll(nodes=>nodes.filter(n=>getComputedStyle(n).display!=='none'&&n.getBoundingClientRect().width>0&&!n.closest('.mr-benefit-flow,.mr-toolbar')).map(n=>n.textContent.trim()).filter(Boolean));
+    const authored=await page.locator('p,li,h1,h2,h3,h4,h5,td,th,.mr-unified-label>strong').evaluateAll(nodes=>nodes.filter(n=>getComputedStyle(n).display!=='none'&&n.getBoundingClientRect().width>0&&!n.closest('.mr-benefit-flow,.mr-toolbar')).map(n=>n.textContent.trim()).filter(Boolean));
     for(const field of authored)assert.ok(text.includes(compact(field)),'PDF missing authored text: '+field.slice(0,120));
     if(synthesis){assert.ok(pages.some(p=>p.includes('Central planning case')));assert.ok(!pages[centralPage].includes('Subscription allocation'));}
     rows.push({key,path:'sample-data/reports/'+key+'.pdf',sha256:sha(fs.readFileSync(pdf)),pages:pages.length,case_pages:synthesis?[centralPage+1]:[],comparison_page:synthesis?comparisonPage+1:null,sample_created:generationDate,html_sha256:sha(html),authored_fields:authored.length});

@@ -9,6 +9,7 @@ import {execFileSync} from 'node:child_process';
 import {chromium,webkit} from 'playwright';
 import {sourceBeforeFinancialPresentation,restoreFinancialPresentationStyles,PRIOR_FINANCIAL_RENDERER_SHA256} from './report_financial_presentation_inverse.mjs';
 import {reportHtmlAfterReviewedPresentation,LEGACY_PLANNING_NOTE_HTML} from './report_three_benefit_presentation_inverse.mjs';
+import {withoutReportOverview} from './report_overview_test_normalizer.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 const sourcePath=path.join(root,'sample-data/production-diagnostic-samples.json');
@@ -33,7 +34,7 @@ const number=value=>Number(value).toLocaleString('en-US',Math.abs(value)>0&&Math
 const money=value=>(value<0?'-$':'$')+number(Math.abs(value));
 const costLevel={low:'high',central:'central',high:'low'};
 const metricKeys=['potentialHoursFreed','capacityValue','avoidableNonLaborCash','cashInvestment','totalImplementationAndSubscriptionCost','netCashEffect','netCapacityAndCashValue'];
-eq(report.rendererVersion,'diagnostic-renderer-evidence-reading-20260914.43','Measured-report adapter edition retained');
+eq(report.rendererVersion,'diagnostic-renderer-report-overview-20260923.1','Current display explicitly identifies the approved overview edition');
 eq(report.financialPresentationVersion,'financial-presentation-20260915.1','New financial display has explicit component edition');
 const priorSource=sourceBeforeFinancialPresentation(renderer);
 eq(sha(priorSource),PRIOR_FINANCIAL_RENDERER_SHA256,'Exact inverse preserves entire previous renderer source');
@@ -47,6 +48,8 @@ for(const item of cases){
   const {html,model}=item;ok(briefPattern.test(html),'Current '+item.key+' has decision brief');
   ok(html.includes(LEGACY_PLANNING_NOTE_HTML),'Current '+item.key+' explains the earlier saved planning format');
   ok(!html.includes('class="mr-planning-controls"')&&!/data-(?:planning|sankey)-node=/.test(html),'Current '+item.key+' retires the obsolete benefits-to-costs chart and controls');
+  ok(!html.includes('data-burden-kind='),'Historical '+item.key+' does not invent current money/time chart baselines');
+  eq((html.match(/class="mr-overview-tile"/g)||[]).length,4,'Historical '+item.key+' retains the four-tile screen orientation');
   ok(html.indexOf('class="mr-section mr-financial-brief"')<html.indexOf('class="mr-section mr-ai-interpretation'),'Financial summary precedes long AI text');
   ok(model.coverBody.includes('These estimates are withheld.'),'Source cover text unchanged');
   const cover=html.match(/<section\b[^>]*class="mr-cover"[\s\S]*?<\/section>/)[0];
@@ -74,8 +77,10 @@ for(const key of ['structural_clarity','decision_velocity','operational_systems'
   const raw=clone(artifact.outputs[key].source),payload=raw.result?.tool_type?raw.result:raw;
   payload.financial_scenario=clone(cases[0].raw.financial_scenario);
   const html=report.buildReportHtml(report.fromRun(raw));ok(!briefPattern.test(html),'Single '+key+' never acquires organizational financial brief');
-  eq(report.buildReportBody(report.fromRun(raw)),priorReport.buildReportBody(priorReport.fromRun(raw)),'Actual '+key+' single-run body is byte-identical');
-  eq(restoreFinancialPresentationStyles(html),reportHtmlAfterReviewedPresentation(priorReport.buildReportHtml(priorReport.fromRun(raw))),'Actual '+key+' full HTML differs only by exact new financial CSS and reviewed category colors');
+  const currentBody=report.buildReportBody(report.fromRun(raw)),displayVersion='<dt>Current display version</dt><dd>diagnostic-renderer-report-overview-20260923.1</dd>';
+  eq(currentBody.split(displayVersion).length,2,'Exactly one current-display edition in '+key+' method');
+  eq(currentBody.replace(displayVersion,'<dt>Current display version</dt><dd>diagnostic-renderer-evidence-reading-20260914.43</dd>'),priorReport.buildReportBody(priorReport.fromRun(raw)),'Actual '+key+' single-run body is byte-identical apart from current-display edition');
+  eq(restoreFinancialPresentationStyles(withoutReportOverview(html)),reportHtmlAfterReviewedPresentation(priorReport.buildReportHtml(priorReport.fromRun(raw))),'Actual '+key+' full HTML differs only by screen overview, exact new financial CSS and reviewed category colors');
   ok(!html.includes('meta name="monderman-financial-presentation-version"'),'Single-run HTML has no financial summary edition');
 }
 const zero=clone(cases[0].raw);for(const key of metricKeys)zero.financial_scenario.totals[key]={low:0,central:0,high:0};
@@ -98,6 +103,7 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
     await page.setContent(item.html,{waitUntil:'load'});await page.evaluate(()=>document.fonts.ready);
     const section=page.locator('.mr-financial-brief'),totals=item.raw.financial_scenario.totals;
     eq(await section.count(),1,'One financial decision brief');
+    eq(await page.locator('.mr-overview-tile:visible').count(),4,'Four-tile screen overview does not replace the detailed financial brief');
     eq(await section.getAttribute('data-financial-presentation'),report.financialPresentationVersion,'BLUF declares its component edition');
     eq(await page.locator('meta[name="monderman-financial-presentation-version"]').getAttribute('content'),report.financialPresentationVersion,'Portable HTML records current financial display edition');
     eq(await page.locator('.mr-section').first().getAttribute('class'),'mr-section mr-financial-brief','First substantive section is financial BLUF');
@@ -124,6 +130,7 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
     await page.evaluate(()=>document.activeElement?.blur());
     const shot=`${name}-${width}-${item.key}.png`;await section.screenshot({path:path.join(out,shot)});screenshots.push(shot);
     await page.emulateMedia({media:'print'});eq(await section.evaluate(el=>getComputedStyle(el).breakBefore),'page','PDF summary starts a content page');
+    eq(await page.locator('.mr-report-overview:visible,.mr-section-back:visible').count(),0,'Overview and return controls do not duplicate printed content');
     if(print&&name==='chromium'&&width===1440){
       const target=path.join(out,item.key+'-candidate.pdf');await page.pdf({path:target,printBackground:true,preferCSSPageSize:true});
       const python=process.env.PDF_PYTHON||'python3';

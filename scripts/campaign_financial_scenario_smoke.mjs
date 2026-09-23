@@ -12,7 +12,7 @@ const root=path.resolve(import.meta.dirname,'..'),origin='http://scenario-ui.tes
 const out=fs.mkdtempSync('/tmp/monderman-financial-scenario-ui-');
 const source=fs.readFileSync(path.join(root,'campaign-analysis.js'),'utf8'),styles=fs.readFileSync(path.join(root,'campaign-analysis.css'),'utf8');
 const workspace=fs.readFileSync(path.join(root,'workspace-analysis.html'),'utf8');
-const callback=workspace.match(/onReport:async\(evidence,financialScenarioInput\)=>\{([\s\S]*?)\n        \}\}\);/)?.[1];
+const callback=workspace.match(/onReport:async\(evidence,financialScenarioInput,campaignSalaryCost\)=>\{([\s\S]*?)\n        \}\}\);/)?.[1];
 assert.ok(callback,'Exercise the current workspace callback, not a rewritten approximation');
 const calculator=process.env.FINANCIAL_SCENARIO_MODULE?await import(pathToFileURL(path.resolve(process.env.FINANCIAL_SCENARIO_MODULE))):null;
 const scope={id:'scope-mock',organizationId:'org-mock',label:'MOCK operational records',campaignIds:['campaign-mock'],population:{size:12},
@@ -51,12 +51,12 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
       document.head.innerHTML=`<meta name="viewport" content="width=device-width"><link rel="stylesheet" href="${origin}/campaign-analysis.css"><style>@font-face{font-family:NHG;src:url(${origin}/55font.woff2)}body{font-family:NHG,Arial,sans-serif;margin:0;--text:#183f47;--muted:#53676e;--line:#dce5e8;--panel:#fff;--bg:#fff}main{max-width:1100px;margin:auto;padding:12px}</style>`;
       document.body.innerHTML='<main><p>MOCK operational records and transport. No actual campaign or saved report.</p><section id="mount"></section><div id="synthResult"></div></main>';
       window.sent=[];window.prepared=[];window.completed=[];window.savedLocation={href:''};window.rejectReport=false;window.savedReport=false;window.rendered=[];
-      const actual=new (Object.getPrototypeOf(async()=>{}).constructor)('evidence','financialScenarioInput','supabase','ws5OrgId','API_BASE','synthesisRequestStore','fetch','location','loadSynthesisRuns','renderSynthResult','$',callback);
-      const onReport=(evidence,input)=>actual(evidence,input,{auth:{getSession:async()=>({data:{session:{access_token:'MOCK-NO-AUTH',user:{id:'actor-mock'}}}})}},'org-mock','https://report.mock.invalid',
+      const {mountCampaignAnalysis,campaignSalaryCostRequest}=await import(origin+'/campaign-analysis.js');
+      const actual=new (Object.getPrototypeOf(async()=>{}).constructor)('evidence','financialScenarioInput','campaignSalaryCost','campaignSalaryCostRequest','supabase','ws5OrgId','API_BASE','synthesisRequestStore','fetch','location','loadSynthesisRuns','renderSynthResult','$',callback);
+      const onReport=(evidence,input,salaryCost)=>actual(evidence,input,salaryCost,campaignSalaryCostRequest,{auth:{getSession:async()=>({data:{session:{access_token:'MOCK-NO-AUTH',user:{id:'actor-mock'}}}})}},'org-mock','https://report.mock.invalid',
         {prepare:async(org,actor,body)=>{window.prepared.push(structuredClone(body));return {requestId:'mock-'+window.prepared.length};},complete:ticket=>window.completed.push(ticket.requestId)},
         async(url,options)=>{const body=JSON.parse(options.body);window.sent.push({url,body});if(window.validateScenarioWithCalculator&&body.financial_scenario_input){const validation=await window.validateFinancialScenario(body.financial_scenario_input);if(!validation.ok)return {ok:false,json:async()=>({message:validation.message})};}return {ok:!window.rejectReport,json:async()=>window.rejectReport?{message:'MOCK server rejected the operational source basis.'}:{result:{kind:window.savedReport?'synthesis_planning_scenario':'early_planning_scenario'},...(window.savedReport?{synthesis:{id:'saved-mock'}}:{})}};},
         window.savedLocation,async()=>{},result=>window.rendered.push(result),id=>document.getElementById(id));
-      const {mountCampaignAnalysis}=await import(origin+'/campaign-analysis.js');
       window.mount=mountCampaignAnalysis({element:document.getElementById('mount'),organizationId:'org-mock',role:'admin',getToken:async()=>'MOCK-NO-AUTH',apiBase:'https://mock.monderman.invalid',onReport});
     },{origin,callback});
     await page.locator('[data-ca-financial]').waitFor();await page.evaluate(()=>document.fonts.ready);

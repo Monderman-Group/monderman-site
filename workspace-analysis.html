@@ -552,12 +552,12 @@ body{transition:background-color .25s ease, color .25s ease}
   <link rel="stylesheet" href="campaign-analysis.css?v=20260911-1">
   <link rel="stylesheet" href="workspace-synthesis-readiness.css?v=20260919.ready1">
   <script src="participant-evidence-safety.js?v=20260905-report-quarantine"></script>
-  <script src="monderman-report.js?v=20260915.financial1"></script>
+  <script src="monderman-report.js?v=20260923.overview1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
   <script src="workspace-access-gate.js"></script>
 <script type="module">
     import {createSynthesisRequestStore} from './synthesis-request-state.js?v=20260909-idempotent1';
-    import {mountCampaignAnalysis} from './campaign-analysis.js?v=20260919.ready1';
+    import {mountCampaignAnalysis,campaignSalaryCostRequest} from './campaign-analysis.js?v=20260923.salary1';
     import {mountSynthesisReadiness} from './workspace-synthesis-readiness.js?v=20260919.ready1';
     const workspaceAccess = await window.mondermanWorkspaceAccessReady;
     if (!workspaceAccess?.allowed) await new Promise(function () {});
@@ -1106,11 +1106,13 @@ body{transition:background-color .25s ease, color .25s ease}
         initialScopeId:new URLSearchParams(location.search).get('campaign_scope'),
         getToken:async()=>{const {data}=await supabase.auth.getSession();if(window.__mondermanActiveOrganizationId!==ws5OrgId||data?.session?.user?.id!==user.id)return null;return data?.session?.access_token;},
         onEvidenceChanged:()=>{SYNTH_RUNS=null;loadAndRenderTrust();void readinessInvitations?.refresh();},
-        onReport:async(evidence,financialScenarioInput)=>{
+        onReport:async(evidence,financialScenarioInput,campaignSalaryCost)=>{
           const {data}=await supabase.auth.getSession();const token=data?.session?.access_token;
           const cross=Object.keys(evidence.scope.lenses).length>1;
           const requestBody={campaign_scope_id:evidence.scope.id,evidence_digest:evidence.readiness.evidenceDigest,analysis_mode:(cross?evidence.readiness.crossLens:evidence.readiness.depth).status==='satisfied'?'synthesis':'descriptive',options:{mode:cross?'cross_lens':'depth',includeNarrative:true,includeExport:true}};
           if(financialScenarioInput!==undefined)requestBody.financial_scenario_input=financialScenarioInput;
+          const salaryCost=campaignSalaryCostRequest(evidence,financialScenarioInput,campaignSalaryCost);
+          if(salaryCost)requestBody.campaign_salary_cost=salaryCost;
           const ticket=await synthesisRequestStore.prepare(ws5OrgId,data.session.user.id,requestBody);
           const response=await fetch(`${API_BASE}/api/synthesis`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token,'X-Monderman-Organization-Id':ws5OrgId},body:JSON.stringify({...requestBody,request_id:ticket.requestId})});
           const payload=await response.json().catch(()=>({}));if(!response.ok||!payload.result)throw new Error(payload.message||'The report could not be prepared.');

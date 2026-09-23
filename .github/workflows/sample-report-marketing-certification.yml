@@ -18,6 +18,17 @@ on:
       - 'scripts/report_mobile_breakdown_presentation_inverse.mjs'
       - 'scripts/report_three_benefit_presentation_inverse.mjs'
       - 'scripts/report_three_benefit_smoke.mjs'
+      - 'scripts/report_overview_contract.mjs'
+      - 'scripts/report_unified_sankey_contract.mjs'
+      - 'scripts/report_overview_browser_smoke.mjs'
+      - 'scripts/report_overview_test_normalizer.mjs'
+      - 'scripts/report_overview_presentation_inverse.mjs'
+      - 'scripts/fixtures/report-overview-reviewed-delta.json'
+      - 'scripts/homepage_sample_discovery_contract.mjs'
+      - 'scripts/homepage_sample_discovery_smoke.mjs'
+      - 'scripts/export_report_overview_candidates.mjs'
+      - 'scripts/export_synthesis_sample_pdfs.mjs'
+      - 'scripts/review_report_overview_pdfs.py'
       - 'scripts/fixtures/three-benefit-scenarios.json'
       - 'scripts/public_sample_three_benefit_preview_smoke.mjs'
       - 'scripts/three_benefit_source_contract.mjs'
@@ -199,6 +210,17 @@ on:
       - 'scripts/report_mobile_breakdown_presentation_inverse.mjs'
       - 'scripts/report_three_benefit_presentation_inverse.mjs'
       - 'scripts/report_three_benefit_smoke.mjs'
+      - 'scripts/report_overview_contract.mjs'
+      - 'scripts/report_unified_sankey_contract.mjs'
+      - 'scripts/report_overview_browser_smoke.mjs'
+      - 'scripts/report_overview_test_normalizer.mjs'
+      - 'scripts/report_overview_presentation_inverse.mjs'
+      - 'scripts/fixtures/report-overview-reviewed-delta.json'
+      - 'scripts/homepage_sample_discovery_contract.mjs'
+      - 'scripts/homepage_sample_discovery_smoke.mjs'
+      - 'scripts/export_report_overview_candidates.mjs'
+      - 'scripts/export_synthesis_sample_pdfs.mjs'
+      - 'scripts/review_report_overview_pdfs.py'
       - 'scripts/fixtures/three-benefit-scenarios.json'
       - 'scripts/public_sample_three_benefit_preview_smoke.mjs'
       - 'scripts/three_benefit_source_contract.mjs'
@@ -407,6 +429,9 @@ jobs:
           python scripts/validate_six_product_ecosystem_test.py --artifact sample-data/production-diagnostic-samples.json --sha256 "$ecosystem_artifact_sha"
           node scripts/public_sample_manifest_sensitivity_smoke.mjs --check
           node scripts/refresh_public_sample_previews.mjs --check
+          node scripts/report_overview_contract.mjs
+          node scripts/report_unified_sankey_contract.mjs
+          node scripts/homepage_sample_discovery_contract.mjs
           node --check scripts/generate_production_sample_outputs.mjs
           node --check scripts/authenticated_report_engine_fixture.mjs
           node --check scripts/report_presentation_smoke.mjs
@@ -503,6 +528,14 @@ jobs:
       - name: Verify Cross-Lens phone and print readability
         run: node scripts/report_cross_lens_phone_smoke.mjs
 
+      - name: Verify overview navigation and case controls in Chromium and WebKit with and without scripts
+        run: node scripts/report_overview_browser_smoke.mjs /tmp/report-presentation-smoke/report-overview
+
+      - name: Verify unified money and time flows with maximum-input and print fixtures
+        env:
+          REPORT_THREE_BENEFIT_OUT: /tmp/report-presentation-smoke/unified-benefit-flows
+        run: node scripts/report_three_benefit_smoke.mjs --print
+
       - name: Serve candidate
         run: |
           RENDER_GIT_COMMIT="$GITHUB_SHA" bash scripts/render-static-build.sh
@@ -518,6 +551,12 @@ jobs:
           ANNUAL_UI_SITE_ROOT: .render-public
           ANNUAL_UI_OUT: /tmp/report-presentation-smoke/annual-pricing-billing
         run: node scripts/annual_pricing_billing_browser_smoke.mjs
+
+      - name: Verify direct sample discovery and approved buttons with and without scripts
+        env:
+          SITE_BASE: http://127.0.0.1:8080
+          HOMEPAGE_DISCOVERY_OUT: /tmp/report-presentation-smoke/homepage-sample-discovery
+        run: node scripts/homepage_sample_discovery_smoke.mjs
 
       - name: Verify visible header entry text after scroll and interaction
         run: node scripts/header_entry_visibility_smoke.mjs

@@ -1,6 +1,7 @@
 // One display label only. Saved answers, scores, priority evidence and AI text remain exact.
 import assert from 'node:assert/strict';import fs from 'node:fs';import path from 'node:path';import vm from 'node:vm';import {createHash} from 'node:crypto';import {fileURLToPath} from 'node:url';
 import {sourceBeforeCustomerMetadata} from './report_customer_metadata_inverse.mjs';
+import {sourceBeforeOverviewPresentation} from './report_overview_presentation_inverse.mjs';
 const sha=s=>createHash('sha256').update(s).digest('hex');
 const COMPOSITE_CLEARANCE_DELTA=[
  `      // Leave each score row clear of the reference line, regardless of its x-position.
@@ -31,6 +32,7 @@ export function restoreRenderer42PrintSpacing(text){
  return text;
 }
 export function sourceBeforeRenderer43(source){
+ source=sourceBeforeOverviewPresentation(source);
  if(!source.includes('diagnostic-renderer-evidence-reading-20260914.43'))return source;
  source=sourceBeforeCompositeClearance(source);
  source=restoreRenderer42PrintSpacing(source).replace('diagnostic-renderer-evidence-reading-20260914.43','diagnostic-renderer-evidence-reading-20260914.42');
@@ -48,7 +50,7 @@ if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.ur
  const root=path.resolve(import.meta.dirname,'..'),source=fs.readFileSync(root+'/monderman-report.js','utf8'),old=sourceBeforeRenderer42(source);
  const load=s=>{const c={window:{}};vm.runInNewContext(fs.readFileSync(root+'/participant-evidence-safety.js','utf8'),c);vm.runInNewContext(s,c);return c.window.MondermanReport;};
  const R=load(source),prior=load(old);let checks=0;const eq=(a,b,m)=>{assert.deepEqual(a,b,m);checks++;};
- eq(R.rendererVersion,'diagnostic-renderer-evidence-reading-20260914.43');
+ eq(R.rendererVersion,'diagnostic-renderer-report-overview-20260923.1');
  const priorClearance=sourceBeforeCompositeClearance(source);
  eq(sourceBeforeCompositeClearance(priorClearance),priorClearance,'Historical input passes idempotently');
  for(const mutate of [s=>s.replace('rowH + 12;','rowH + 11;'),s=>s.replace(COMPOSITE_CLEARANCE_DELTA[0],COMPOSITE_CLEARANCE_DELTA[0]+COMPOSITE_CLEARANCE_DELTA[0])]){

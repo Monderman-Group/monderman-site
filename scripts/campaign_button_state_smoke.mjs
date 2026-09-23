@@ -29,7 +29,7 @@ const functionNames = [
   "campaignAttemptStorageKey", "campaignPayloadFingerprint", "prepareCampaignSendAttempt",
   "clearCampaignSendAttempt", "doPreview", "renderPreview", "doSend"
 ];
-for (const name of ["campaignPayloadMaterial", "invalidateCampaignPreview", "campaignPreviewMatches"]) {
+for (const name of ["campaignPayloadMaterial", "invalidateCampaignPreview", "campaignPreviewMatches", "salaryRecipientEntries", "appendSalaryAuthorization", "clearEmployerSalaries"]) {
   if (composer.includes(`function ${name}(`)) functionNames.push(name);
 }
 const helperSource = functionNames.map(productionFunction).join("\n")
@@ -40,7 +40,7 @@ function deferred() {
   const promise = new Promise((accept) => { resolve = accept; });
   return { promise, resolve };
 }
-function fixture() {
+function fixture({salary=false,authority=false,hours="2080",overhead="30"}={}) {
   const fields = {
     fPath: { value: "Controlled supplier onboarding" }, fTool: { value: "operational_systems" },
     fVantage: { value: "operational" }, fDepth: { value: "10" }, fMessage: { value: "" },
@@ -49,12 +49,19 @@ function fixture() {
     btnSend: { textContent: "Send campaign", disabled: true, dataset: {} },
     previewOut: { innerHTML: "" }, sendOut: { innerHTML: "" }
   };
+  fields.salaryAuthorization={checked:authority}; fields.salaryImportResult={textContent:""}; fields.salaryClear={hidden:true};
+  fields.salaryAnnualHours={value:hours}; fields.salaryOverheadPercent={value:overhead};
   const state = { orgId: "org_controlled", userId: "user_controlled", lastReady: 0, campaignSendKey: null,
     recipients: [{ email: "controlled@example.test", full_name: "Controlled Person", business_unit: "Operations", team: "" }] };
   const calls = { requests: [], generatedKeys: 0, clearDraft: 0, loadTracking: 0, scheduleSave: 0 };
   const store = new Map();
   const responses = [];
+  const employerSalaries=new Map(salary?[["controlled@example.test",{annual_base_salary:"123456.78",salary_currency:"USD"}]]:[]);
+  const salaryHelperScope={window:{}};
+  vm.runInNewContext(readFileSync(new URL("../employer-salary-import.js",import.meta.url),"utf8"),salaryHelperScope);
   const handlers = vm.runInNewContext(helperSource, {
+    employerSalaries,salaryCapability:salary?{enabled:true,can_upload:true,can_configure:true}:null,
+    window:salaryHelperScope.window,
     state, $: (id) => { assert.ok(fields[id], `unexpected element ${id}`); return fields[id]; },
     API_BASE: "https://api.example.test",
     FormData, Blob, TextEncoder,
@@ -83,7 +90,7 @@ function fixture() {
         async json() { return expected.data; } };
     }
   });
-  return { fields, state, calls, store, ...handlers,
+  return { fields, state, calls, store, employerSalaries, ...handlers,
     response(kind, { status = 200, data = { ok: true, ready_rows: [{ email: "controlled@example.test" }] }, error = null, held = false } = {}) {
       const item = { kind, status, data, error, gate: held ? deferred() : null, started: deferred() };
       responses.push(item);
@@ -201,5 +208,68 @@ for (const failure of [
 }
 
 console.log(`Campaign button-state handlers: ${cases} isolated scenarios passed${revision ? ` (source ${revision})` : ""}.`);
+if(composer.includes("function salaryRecipientEntries(")){
+  {
+    const test=fixture({salary:true}); await test.doPreview();
+    assert.equal(test.calls.requests.length,0,"salary cannot be sent to preview without explicit authority");
+    assert.match(test.fields.previewOut.innerHTML,/Confirm your authority/);
+  }
+  {
+    const test=fixture({salary:true,authority:true}); await previewReady(test);
+    const key=test.state.campaignSendKey;
+    assert.equal(test.store.size,0,"salary preview must not persist a fingerprint");
+    assert.doesNotMatch(test.fields.previewOut.innerHTML,/123456\.78/);
+    assert.equal(test.calls.requests[0].options.body.get("salary_authorization_consent"),"true");
+    assert.equal(test.calls.requests[0].options.body.get("salary_notice_version"),"employer-salary-20260923.1");
+    assert.equal(test.calls.requests[0].options.body.get("salary_annual_working_hours"),"2080");
+    assert.equal(test.calls.requests[0].options.body.get("salary_benefits_overhead_percent"),"30");
+    assert.match(await test.calls.requests[0].options.body.get("file").text(),/123456\.78,USD/);
+    test.response("send",{error:"controlled_timeout"}); await test.doSend();
+    await previewReady(test); assert.equal(test.state.campaignSendKey,key,"salary retry keeps its in-memory admission identity");
+    test.response("send",{data:{ok:true,queued_count:1}}); await test.doSend();
+    assert.equal(test.employerSalaries.size,0,"successful send clears salary memory");
+    assert.equal(test.state.salarySendAttempt,null,"successful send clears salary retry memory");
+    assert.equal(test.fields.salaryAuthorization.checked,false);
+    assert.equal(test.fields.salaryAnnualHours.value,"");
+    assert.equal(test.fields.salaryOverheadPercent.value,"");
+  }
+  for(const settings of [{hours:"",overhead:"30"},{hours:"2080",overhead:""},{hours:"8784.01",overhead:"0"},{hours:"2080",overhead:"300.01"}]){
+    const test=fixture({salary:true,authority:true,...settings}); await test.doPreview();
+    assert.equal(test.calls.requests.length,0,"invalid or missing settings cannot submit salary data");
+  }
+  {
+    const test=fixture({salary:true,authority:true,overhead:"0"}); await previewReady(test);
+    assert.equal(test.calls.requests[0].options.body.get("salary_benefits_overhead_percent"),"0","explicit zero is retained");
+    const originalKey=test.state.campaignSendKey;
+    test.fields.salaryAnnualHours.value="1920";
+    await test.doSend();
+    assert.equal(test.calls.requests.length,1,"settings change requires a fresh preview");
+    await previewReady(test);
+    assert.notEqual(test.state.campaignSendKey,originalKey,"different conversion settings create a new memory-only identity");
+    assert.equal(test.store.size,0);
+    assert.equal(test.calls.requests[1].options.body.get("salary_annual_working_hours"),"1920");
+  }
+  {
+    const test=fixture({salary:true,authority:true}); test.fields.fAnon.checked=true; await test.doPreview();
+    assert.equal(test.calls.requests.length,0,"salary import cannot be used for anonymous campaigns");
+  }
+  {
+    const test=fixture({salary:true,authority:true});
+    test.response("preview",{data:{ok:true,ready_rows:[{email:"controlled@example.test"}],invalid_rows:[{row_number:3,problems:["invalid 123456.78"]}]}});
+    await test.doPreview(); await test.doSend();
+    assert.equal(test.state.lastReady,0,"salary import is all-or-none");
+    assert.equal(test.calls.requests.length,1,"partially valid salary preview cannot send");
+    assert.doesNotMatch(test.fields.previewOut.innerHTML,/123456\.78/,"server row messages cannot echo salary data");
+  }
+  {
+    const test=fixture({salary:true,authority:true});
+    test.response("preview",{status:400,data:{ok:false,error:"Invalid salary 123456.78"}}); await test.doPreview();
+    assert.doesNotMatch(test.fields.previewOut.innerHTML,/123456\.78/);
+    await previewReady(test);
+    test.response("send",{status:400,data:{ok:false,error:"Invalid salary 123456.78"}}); await test.doSend();
+    assert.doesNotMatch(test.fields.sendOut.innerHTML,/123456\.78/);
+  }
+  console.log("Salary composer: authority, redacted preview, memory-only idempotency, cleanup, and all-or-none checks passed.");
+}
 const { runCampaignPreviewSnapshotChecks } = await import('./campaign_preview_snapshot_smoke.mjs');
 await runCampaignPreviewSnapshotChecks({ fixture, previewReady, button, source });

@@ -154,6 +154,16 @@
     showsResults: function () {
       return !_config || _config.show_results_to_assignee !== false;
     },
+    prestartFields: function (fields, values) {
+      if (!this.active() || _config.omit_hourly_cost_question !== true) return fields;
+      // The capability carries no amount. Discard a previously entered draft
+      // value so an omitted question cannot leak stale cost back to the API.
+      if (values && typeof values === "object") {
+        delete values.hourlyCost;
+        delete values.hourlyRate;
+      }
+      return fields.filter(function (field) { return field.id !== "hourlyCost"; });
+    },
 
     // banner: prepend a strip signalling the run is organization-assigned
 

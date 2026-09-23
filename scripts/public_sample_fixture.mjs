@@ -84,6 +84,23 @@ export function assertFinancialSamplePdfBinding(update,key,pdfBytes){
 }
 
 export function currentSynthesisPdfReview(manifest){
+  const overview=manifest.report_overview_presentation_review;
+  if(overview){
+    assert.equal(overview.version,'report-overview-presentation-20260923.1');
+    assert.equal(overview.status,'reviewed');assert.equal(overview.reviewed_by,'Codex');
+    assert.ok(validTime(overview.reviewed_at));assert.equal(overview.visual_review,'passed');
+    assert.equal(overview.artifact_file_sha256,manifest.artifact_file_sha256,'Overview binds unchanged saved evidence');
+    assert.equal(overview.renderer_sha256,manifest.source_files['monderman-report.js'],'Overview binds current renderer');
+    assert.equal(overview.renderer_version,manifest.renderer_version);
+    assert.equal(overview.prior_renderer_sha256,overview.prior_source_files['monderman-report.js']);
+    assert.ok(plain(manifest.benefit_flow_presentation_review),'Historical presentation review must remain present');
+    assert.equal(evidenceDigest(manifest.benefit_flow_presentation_review),overview.prior_benefit_flow_review_sha256,'Historical presentation review must remain exact');
+    assert.equal(overview.provider_calls,0);assert.equal(overview.all_pdf_palette,true);
+    assert.equal(overview.browser_states,96);assert.equal(overview.overview_browser_states,96);
+    assert.equal(overview.homepage_browser_states,12);assert.equal(overview.pdf_pages_reviewed,141);
+    assert.deepEqual(Object.keys(overview.pdf_outputs).sort(),Object.values(PUBLIC_PRODUCTS).sort());
+    return overview;
+  }
   const review=manifest.benefit_flow_presentation_review;
   if(!review)return manifest.financial_publication_update;
   assert.equal(review.version,'benefit-flow-presentation-20260921.1');
@@ -259,6 +276,13 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
     assert.ok(validHash(manifest.source_files?.[filename]),'missing reviewed source pin: '+filename);
     assert.equal(sha(fs.readFileSync(path.join(root,filename))),manifest.source_files[filename],'reviewed source changed: '+filename);
   }
+  if(manifest.report_overview_presentation_review){
+    const review=currentSynthesisPdfReview(manifest);
+    for(const filename of ['monderman-report.js','index.html','homepage-workspace-demo.css','scripts/templates/home-workspace-preview.html','sample-report-tile.css','pilot-waitlist.css','canonical-site-shell.css','public-product-design.css']){
+      assert.ok(validHash(review.source_files?.[filename]),'missing overview source pin: '+filename);
+      assert.equal(sha(fs.readFileSync(path.join(root,filename))),review.source_files[filename],'reviewed overview source changed: '+filename);
+    }
+  }
   const entries=[],runs={};
   for(const [tab,key] of Object.entries(PUBLIC_PRODUCTS)) {
     const entry=artifact.outputs[key],pin=manifest.outputs[key],p=entry.provenance,r=publicResult(entry);
@@ -330,7 +354,7 @@ export function createPublicSampleModels(options={}) {
   vm.runInContext(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8'),context,{filename:'monderman-report.js'});
   vm.runInContext(fs.readFileSync(path.join(root,'public-sample-model.js'),'utf8'),context,{filename:'public-sample-model.js'});
   const Report=context.window.MondermanReport,Public=context.window.MondermanPublicSamples;
-  assert.equal(Report.rendererVersion,'diagnostic-renderer-evidence-reading-20260914.43');
+  assert.equal(Report.rendererVersion,'diagnostic-renderer-report-overview-20260923.1');
   assert.equal(Report.rendererVersion,fixture.manifest.renderer_version);
   Public.validate(fixture.artifact);
   const models={};

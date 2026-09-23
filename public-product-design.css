@@ -1,6 +1,22 @@
 /* Product surfaces share the brand's typography and dark green anchor.
    Research keeps its editorial palette; printed documents keep their own rules. */
 @media screen {
+  /* Decorative service and shared-context accents use the promotional gold.
+     Condition badges, warnings and score bands retain their semantic colors. */
+  body.canonical-green-shell :is(.ps-feat li.svc, .pl-includes li.svc, .hub-disclosure) {
+    --gold: var(--mdm-gold, #C9A227);
+    --gold-soft: rgba(201, 162, 39, .11);
+  }
+  body.canonical-green-shell :is(.pl-svc-tag, .hub-disclosure-kicker) { color: var(--mdm-gold-ink, #7A6015); }
+  body.canonical-green-shell :is(.tool-badge-secondary, .shared-context-flag) {
+    background: rgba(201, 162, 39, .11);
+    border-color: rgba(201, 162, 39, .26);
+    color: var(--mdm-gold-ink, #7A6015);
+  }
+  body.canonical-green-shell .hub-disclosure[open] { border-color: rgba(201, 162, 39, .34); }
+  body.canonical-green-shell .hub-disclosure > summary:hover .hub-disclosure-action { border-color: rgba(201, 162, 39, .42); }
+  body.canonical-green-shell .hub-disclosure-when { border-color: rgba(201, 162, 39, .18); }
+
   body.product-surface {
     --mdm-teal: var(--mdm-color-teal, #0C6E78);
     --mdm-teal-dark: var(--mdm-color-teal-hover, #0A5B63);
