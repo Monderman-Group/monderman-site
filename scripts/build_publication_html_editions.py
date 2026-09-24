@@ -54,11 +54,13 @@ class Publication:
     reference_start: int
     figures: tuple[Figure, ...] = ()
     exclusions: dict[int, tuple[tuple[float, float], ...]] = field(default_factory=dict)
+    body_min_font_size: float = 8.9
+    body_bottom: float = 730
 
 
 PUBLICATIONS = (
     Publication(
-        "merit-after-the-machine", "Monderman_Insight_Merit_After_the_Machine_2026-09-02.pdf", "v=20260902-final",
+        "merit-after-the-machine", "Monderman_Insight_Merit_After_the_Machine_2026-09-02.pdf", "v=20260924-copy",
         "Insight", "Artificial Intelligence", "Merit After the Machine",
         "Why AI Weakens the Evidence of Being Smart and Hardworking Faster Than Institutions Can Rebuild It",
         "The worry about artificial intelligence usually gets told as a story about jobs, or safety, or truth. This paper tells it another way: as a story about being smart and being hardworking, the two qualities modern professional life learned to prize most—and what happens when the familiar evidence of both stops being reliable.",
@@ -83,7 +85,7 @@ PUBLICATIONS = (
         ),
     ),
     Publication(
-        "built-to-please", "Monderman_Insight_Built_to_Please_2026-09-02.pdf", "v=20260902",
+        "built-to-please", "Monderman_Insight_Built_to_Please_2026-09-02.pdf", "v=20260924-copy",
         "Insight", "Artificial Intelligence", "Built to Please",
         "Why Consumer AI Tells You What You Want to Hear, and What Serious Users Build Around It",
         "A general-purpose AI assistant is trained toward several goals at once: to be helpful, to give answers people prefer, to stay safe, and to be truthful. This paper separates what is known about the lean toward the asker from what is only suspected, and describes what serious users build around a model so its answers can be trusted.",
@@ -121,7 +123,7 @@ PUBLICATIONS = (
         ),
     ),
     Publication(
-        "quarter-trillion-friction-us-healthcare", "Monderman_Brief_Quarter_Trillion_Dollar_Friction_US_Healthcare.pdf", "v=20260828-house5",
+        "quarter-trillion-friction-us-healthcare", "Monderman_Brief_Quarter_Trillion_Dollar_Friction_US_Healthcare.pdf", "v=20260924-copy",
         "Brief", "Healthcare", "The Quarter-Trillion-Dollar Friction in U.S. Healthcare",
         "How Administrative Complexity Absorbs Capacity from Patient Care",
         "The United States healthcare system spent $5.3 trillion in 2024—roughly twice what comparable nations spend per person—and a substantial share of that spending is consumed by administrative complexity rather than patient care. The friction is structural, and it is a design problem.",
@@ -132,7 +134,7 @@ PUBLICATIONS = (
             Figure(5, 52, 332, "A chart showing administrative complexity as the largest single category of waste in U.S. healthcare."),
             Figure(6, 288, 496, "A chart showing that less than half of physician work time is spent on direct patient care."),
             Figure(7, 220, 456, "A comparison of billing costs per inpatient claim in the United States and peer countries."),
-            Figure(8, 235, 522, "Four structural pathways for reducing administrative drag in U.S. healthcare."),
+            Figure(8, 250, 526, "Four structural pathways for reducing administrative drag in U.S. healthcare."),
         ),
     ),
     Publication(
@@ -178,7 +180,7 @@ PUBLICATIONS = (
         ),
     ),
     Publication(
-        "the-culture-trap-brief", "Monderman_Brief_The_Culture_Trap.pdf", "v=20260828-house5",
+        "the-culture-trap-brief", "Monderman_Brief_The_Culture_Trap.pdf", "v=20260924-copy",
         "Brief", "Enterprise · Culture", "The Culture Trap",
         "Why Sentiment Measurement Can Locate Strain Without Identifying the Organizational Systems Beneath It",
         "A research brief on the difference between reported experience and the mechanisms through which work is organized.",
@@ -192,7 +194,7 @@ PUBLICATIONS = (
             Figure(5, 165, 465, "A two-layer comparison of sentiment measurement and Systems Measurement, with five elements of the operating layer.", "Sentiment measurement reports experience. Systems Measurement examines ownership, authority, handoffs, routing, process load, and performance discipline."),
             Figure(6, 205, 318, "A four-stage measurement loop: measure, locate, act, and re-measure.", "Systems Measurement begins with a baseline and returns to the same system after action."),
             Figure(6, 405, 562, "Four Monderman measurement cards: Operational Systems, Decision Velocity, Structural Clarity, and Institutional Performance.", "The four measurement lenses examine related organizational structures."),
-            Figure(7, 300, 430, "A five-part complete-read diagram spanning experience, structure, decision flow, operating load, and remeasurement.", "A complete read keeps both experience and operating structure visible."),
+            Figure(7, 221, 339, "A five-part complete-read diagram spanning experience, structure, decision flow, operating load, and remeasurement.", "A complete read keeps both experience and operating structure visible."),
         ),
     ),
     Publication(
@@ -208,6 +210,8 @@ PUBLICATIONS = (
             Figure(7, 245, 522, "Three traps—Pole A, Pole B, and midpoint compromise—and an escape into the interior decision field."),
             Figure(2, 200, 335, "Three summary cards defining the line, the field, and the derivative in interior reasoning.", "Binary framing collapses a multidimensional problem into apparent opposites. The field restores independent variables, and the derivative is an answer that exists outside the original framing."),
         ),
+        body_min_font_size=8.5,
+        body_bottom=735,
     ),
 )
 
@@ -216,10 +220,15 @@ def normalize_text(value: str) -> str:
     value = value.replace("—", "–")
     value = re.sub(r"\s+", " ", value).strip()
     value = re.sub(r"\s+([,.;:?!])", r"\1", value)
+    value = re.sub(r"(?<=\d)–\s+(?=\d)", "–", value)
     value = re.sub(r"([A-Za-z0-9])\s*[’']\s*(s|t|re|ve|ll|d|m)\b", r"\1’\2", value, flags=re.I)
     value = value.replace("“ ", "“").replace(" ”", "”").replace("‘ ", "‘").replace(" ’", "’")
     for broken, repaired in {
         "I nstitutions": "Institutions",
+        "N ot": "Not",
+        "I t": "It",
+        "like - for - like": "like-for-like",
+        "like-forlike": "like-for-like",
         "W hen": "When",
         "Y ears": "Years",
         "ma j or": "major",
@@ -338,7 +347,7 @@ def extract_blocks(pdf, publication: Publication) -> list[dict]:
         events: list[dict] = []
         for line in page_lines(page, dropped_font_layers(publication)):
             middle = (line["top"] + line["bottom"]) / 2
-            if line["top"] < 54 or line["bottom"] > 730 or line["size"] < 8.9 or in_ranges(middle, excluded):
+            if line["top"] < 54 or line["bottom"] > publication.body_bottom or line["size"] < publication.body_min_font_size or in_ranges(middle, excluded):
                 continue
             if re.fullmatch(r"(?:January|February|March|April|May|June|July|August|September|October|November|December) 2026", line["text"]):
                 continue
@@ -433,12 +442,14 @@ def extract_references(pdf, publication: Publication) -> list[str]:
             text = line["text"]
             if text.upper() in {"REFERENCES", "CONTINUED"}:
                 continue
-            numbered = re.match(r"^\d+\.\s*", text)
+            # A wrapped publication year ("2025.") or page-range endpoint
+            # ("1594.") is continuation text, not a numbered reference.
+            numbered = re.match(r"^\d{1,3}\.\s+", text)
             new_unnumbered = line["x0"] < 65 and previous_top is not None and line["top"] - previous_top > 14
             if numbered or new_unnumbered:
                 if current:
                     references.append(normalize_text(current))
-                current = re.sub(r"^\d+\.\s*", "", text)
+                current = re.sub(r"^\d{1,3}\.\s+", "", text)
             else:
                 current = join_line_text(current, text)
             previous_top = line["top"]
@@ -524,8 +535,12 @@ def render_blocks(blocks: list[dict], captions: dict[int, str], publication: Pub
         if kind == "figure":
             index = block["index"]
             figure = block["figure"]
+            asset_query = "?v=20260924-copy" if (publication.slug, index) in {
+                ("the-culture-trap-brief", 9),
+                ("quarter-trillion-friction-us-healthcare", 6),
+            } else ""
             output.append(
-                f'<figure><img src="assets/research/{publication.slug}-figure-{index}.png" alt="{escape(figure.alt.replace("—", "–"))}" loading="lazy" width="1300"><figcaption>{escape(captions[index].replace("—", "–"))}</figcaption></figure>'
+                f'<figure><img src="assets/research/{publication.slug}-figure-{index}.png{asset_query}" alt="{escape(figure.alt.replace("—", "–"))}" loading="lazy" width="1300"><figcaption>{escape(captions[index].replace("—", "–"))}</figcaption></figure>'
             )
         elif kind == "label":
             output.append(f'<div class="publication-label">{escape(block["text"])}</div>')
@@ -593,7 +608,12 @@ def build_page(publication: Publication, standard_footer: str) -> None:
     generate_social_card(publication)
     body = render_blocks(blocks, captions, publication)
     refs = "\n".join(f"<li>{wrap_urls(reference)}</li>" for reference in references)
-    pdf_url = f"{publication.pdf}?v=20260904-wordmark1"
+    pdf_url = f"{publication.pdf}?{publication.pdf_query}"
+    about_monderman = (
+        "Monderman builds organizational diagnostics that collect structured responses about ownership, decisions, administrative burden, and institutional performance. Its versioned scoring system is separate from the AI explanation of completed results."
+        if publication.slug == "the-culture-trap-brief" else
+        "Monderman is an institutional performance research company building Deterministic AI Infrastructure for organizational diagnostics. Its diagnostic platform produces structured operational reads for enterprises across sectors, including defense, healthcare, government, financial services, technology, manufacturing, and higher education."
+    )
     title = escape(publication.title.replace("—", "–"))
     author = escape(publication.author.replace("—", "–"))
     deck = escape(publication.deck.replace("—", "–"))
@@ -682,7 +702,7 @@ def build_page(publication: Publication, standard_footer: str) -> None:
     <h2 class="about-heading" id="about-author-heading">About the author</h2>
     <p>{author_about(publication.author)}</p>
     <h2 class="about-heading">About Monderman</h2>
-    <p>Monderman is an institutional performance research company building Deterministic AI Infrastructure for organizational diagnostics. Its diagnostic platform produces structured operational reads for enterprises across sectors, including defense, healthcare, government, financial services, technology, manufacturing, and higher education.</p>
+    <p>{about_monderman}</p>
   </section>
   <section class="article-further" aria-label="Article links">
     <p class="article-kicker">Continue</p>

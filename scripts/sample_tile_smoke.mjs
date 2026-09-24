@@ -9,6 +9,9 @@ const out = process.env.TILE_OUT || '/tmp/sample-tile-smoke';
 fs.mkdirSync(out, { recursive: true });
 const {artifact}=readPublicSampleFixture();
 const source=artifact.outputs.depth_synthesis.source,scenario=source.financial_scenario;
+const interpretation=source.ai_report.report.interpretation;
+const limitedOptions=(interpretation.action_options||[]).filter(option=>option.intensity==='limited'&&option.action?.trim());
+assert.equal(limitedOptions.length,1,'The tile requires one accepted limited-change option, never an unrelated first task');
 assert.equal(scenario.version,'operational-planning-scenario-20260919.2');
 assert.equal(scenario.method.usesDiagnosticScores,false);
 assert.equal(scenario.method.isConfidenceInterval,false);
@@ -157,7 +160,7 @@ try {
         'Total cost, including staff time · central case'
       ],'All three benefit categories and central-case financial meanings must remain explicit');
       assert.equal(geometry.obsoleteFinancialFields,0,'Score-derived recovery must remain absent');
-      assert.equal(geometry.actionText,source.ai_report.report.interpretation.recommendations.find(a=>a.action?.trim()).action);
+      assert.equal(geometry.actionText,limitedOptions[0].action);
       assert.equal(geometry.qualification,'Staff capacity value, not cash savings.'+exceptionalStatus(benefits.staffCapacity));
       assert.deepEqual(await tile.locator('.md-opportunity>p').allTextContents(),[
         'Staff capacity value, not cash savings.'+exceptionalStatus(benefits.staffCapacity),

@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const ARTIFACT_URL = "sample-data/production-diagnostic-samples.json?v=customer-metadata-pricing-20260915";
+  const ARTIFACT_URL = "sample-data/production-diagnostic-samples.json?v=response-comparisons-20260924";
   const REPORT_KEYS = {
     os: "operational_systems",
     dv: "decision_velocity",

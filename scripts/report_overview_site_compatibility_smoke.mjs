@@ -10,8 +10,8 @@ for(const file of OVERVIEW_SITE_FILES){
   const current=fs.readFileSync(path.join(root,file),'utf8');
   const prior=execFileSync('git',['show',OVERVIEW_SITE_PRIOR_COMMIT+':'+file],{cwd:root,encoding:'utf8',maxBuffer:16e6});
   assert.equal(sourceBeforeOverviewSiteCompatibility(file,current),prior,file+': exact historical bytes');checks++;
-  assert.throws(()=>sourceBeforeOverviewSiteCompatibility(file,current+'\n'),/only the exact reviewed current source/,file+': extra current-source byte rejected');checks++;
-  assert.throws(()=>sourceBeforeOverviewSiteCompatibility(file,prior),/only the exact reviewed current source/,file+': missing reviewed current changes rejected');checks++;
+  assert.throws(()=>sourceBeforeOverviewSiteCompatibility(file,current+'\n'),/only the exact reviewed (?:current|compact-homepage|public-language) source/,file+': extra current-source byte rejected');checks++;
+  assert.throws(()=>sourceBeforeOverviewSiteCompatibility(file,prior),/only the exact reviewed (?:current|compact-homepage|public-language) source|exact approved promotional gold fragment count/,file+': missing reviewed current changes rejected');checks++;
 }
 const unrelated=Buffer.from('Unrelated source must not be normalized.\n');
 assert.equal(sourceBeforeOverviewSiteCompatibility('unrelated.js',unrelated),unrelated);checks++;

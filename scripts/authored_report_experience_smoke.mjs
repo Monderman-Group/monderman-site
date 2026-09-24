@@ -40,16 +40,16 @@ for(const job of prepared.privateEvidence.jobs){
     ...(packet.campaign_source_evidence?{campaign_answer_evidence:structuredClone(packet.campaign_source_evidence)}:{}),
     sources:packet.research.sources,benchmark:packet.research.benchmark,limitations:packet.limitations,research_context:{status:'not_started',checked_at:null}};
   const ai={status:'complete',report},entry=prepared.publicDraft.outputs[job.key];
-  results.push({key:job.key,projection:'private',source:{...job.source,ai_report:ai},provenance:entry.provenance});
+  results.push({key:job.key,kind:entry.kind,projection:'private',source:{...job.source,ai_report:ai},provenance:entry.provenance});
   // Exercise the actual committed public projection, not only the richer
   // private packet. Missing evidence references must fail this same display
   // gate; mocked prose remains explicitly non-publication in both variants.
-  results.push({key:job.key,projection:'public',source:{...entry.source,ai_report:publicAIState(ai)},provenance:entry.provenance});
+  results.push({key:job.key,kind:entry.kind,projection:'public',source:{...entry.source,ai_report:publicAIState(ai)},provenance:entry.provenance});
 }
 }else{
   const {artifact}=readPublicSampleFixture();sourceCommit=artifact.engine_commit;
   fixtureLabel='PUBLIC CI: actual reviewed public sample artifact and public display only; no private source or private engine execution.';
-  for(const [key,entry]of Object.entries(artifact.outputs))results.push({key,projection:'public',source:entry.source,provenance:entry.provenance});
+  for(const [key,entry]of Object.entries(artifact.outputs))results.push({key,kind:entry.kind,projection:'public',source:entry.source,provenance:entry.provenance});
 }
 const outputLabel=privateMode?'MOCK':'REVIEWED-PUBLIC';
 const checks=[],errors=[];
@@ -60,11 +60,17 @@ for(const [name,engine]of [['chromium',chromium],['webkit',webkit]]){
     await page.route('**/*',route=>{const url=new URL(route.request().url());if(/^\/(55|65|75)font\.woff2$/.test(url.pathname))return route.fulfill({contentType:'font/woff2',body:fs.readFileSync(url.pathname.slice(1))});return route.abort();});
     for(const result of results){
       await page.setContent('<!doctype html><html><body></body></html>');await page.addScriptTag({content:safety});await page.addScriptTag({content:renderer});
-      const html=await page.evaluate(({source,provenance,key})=>{const m=key.endsWith('synthesis')?MondermanReport.fromSynthesis(source):MondermanReport.fromRun(source);m.sampleProvenance=provenance;return MondermanReport.buildReportHtml(m);},result);
+      assert.ok(['diagnostic','response_comparison','synthesis'].includes(result.kind));
+      const html=await page.evaluate(({source,provenance,kind})=>{const m=kind==='diagnostic'?MondermanReport.fromRun(source):MondermanReport.fromSynthesis(source);m.sampleProvenance=provenance;return MondermanReport.buildReportHtml(m);},result);
       assert.doesNotMatch(html,/About this example|\[object Object\]|\bundefined\b|\bNaN\b/);
       assert.match(html,/Sample report · Example data/);
       assert.doesNotMatch(html,/fictional inputs|Neither review establishes scientific validity or guarantees a result/);
-      if(!result.key.endsWith('synthesis'))assert.doesNotMatch(html,/No written participant notes are included/,'Actual saved observations must appear in the evidence section');
+      if(result.kind==='diagnostic')assert.doesNotMatch(html,/No written participant notes are included/,'Actual saved observations must appear in the evidence section');
+      if(result.kind==='response_comparison'){
+        assert.equal(result.source.report_kind,'response_comparison');
+        assert.match(html,/response comparison/);
+        assert.equal(result.source.recommended_path_available,false);
+      }
       for(const width of [1440,834,390,320]){
         await page.setViewportSize({width,height:1000});await page.setContent(html);await page.evaluate(()=>document.fonts.ready);
         assert.equal(await page.locator('.mr-authored-report').count(),1);
@@ -73,11 +79,11 @@ for(const [name,engine]of [['chromium',chromium],['webkit',webkit]]){
         assert(await page.locator('.mr-cover .mr-sample-disclosure').isVisible());
         assert(await page.locator('.mr-evidence-detail').count()>0,`${result.projection}/${result.key}: saved supporting evidence is missing`);
         const detail=page.locator('.mr-evidence-detail').first();await detail.locator('summary').focus();await page.keyboard.press('Enter');assert(await detail.getAttribute('open')!==null);
-        if(result.key.endsWith('synthesis')){assert.equal(await page.locator('.mr-report-options .mr-ai-action').count(),3);assert.equal(await page.locator('.mr-recommended-path').count(),1);}
-        else assert.equal(await page.locator('.mr-report-options').count(),0);
+        if(result.kind==='synthesis'){assert.equal(await page.locator('.mr-report-options .mr-ai-action').count(),3);assert.equal(await page.locator('.mr-recommended-path').count(),1);}
+        else {assert.equal(await page.locator('.mr-report-options').count(),0);assert.equal(await page.locator('.mr-recommended-path').count(),0);}
         const link=page.locator('.mr-screen-shortcuts [data-report-link-role=guidance]');if(await link.count()){await link.click();const target=await link.getAttribute('href');assert(await page.locator(target).evaluate(el=>el===document.activeElement));}
         if(width===390||width===1440)await page.locator('.mr-authored-report').screenshot({path:path.join(out,`${name}-${result.projection}-${result.key}-${width}.png`)});
-        checks.push({engine:name,projection:result.projection,key:result.key,width,overflow:false,keyboardEvidence:true,navigationTargets:true});
+        checks.push({engine:name,projection:result.projection,key:result.key,kind:result.kind,width,overflow:false,keyboardEvidence:true,navigationTargets:true});
       }
       if(name==='chromium'){
         await page.emulateMedia({media:'print'});

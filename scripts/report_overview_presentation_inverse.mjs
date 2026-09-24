@@ -3,11 +3,13 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
+import {sourceBeforeHorizontalOverviewPresentation} from './report_overview_horizontal_inverse.mjs';
 const delta=JSON.parse(fs.readFileSync(new URL('./fixtures/report-overview-reviewed-delta.json',import.meta.url),'utf8'));
 const sha=value=>createHash('sha256').update(value).digest('hex');
 export const OVERVIEW_RENDERER_SHA256='977cf5497c16b1e4427e5efa5113ff06e718e1331f18cde8c0069c0d10ba5791';
 export const PRIOR_OVERVIEW_RENDERER_SHA256='73c939fac58d0d2f7020207e6e1f869ec30e7f6ff745dbbfa6b76984b663ef98';
 export function sourceBeforeOverviewPresentation(source){
+  source=sourceBeforeHorizontalOverviewPresentation(source);
   if(!source.includes('diagnostic-renderer-report-overview-20260923.1'))return source;
   assert.equal(sha(source),OVERVIEW_RENDERER_SHA256,'Only the reviewed overview renderer can be inverted');
   assert.equal(delta.renderer_sha256,OVERVIEW_RENDERER_SHA256);

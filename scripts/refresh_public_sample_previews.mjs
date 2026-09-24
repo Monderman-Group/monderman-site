@@ -97,25 +97,15 @@ const whole = value => number(value).toLocaleString('en-US',{maximumFractionDigi
 const money = value => {assert.equal(typeof value,'number');assert.ok(Number.isFinite(value));return value.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});};
 const roundedMoney = value => money(Math.abs(value)>=10000?Math.round(value/1000)*1000:value);
 const result = entry => entry.source.result?.tool_type ? entry.source.result : entry.source;
-const firstAction = source => {
+const featuredAction = source => {
   assert.equal(source.ai_report.status,'complete');
-  const action = source.ai_report.report.interpretation.recommendations.find(a=>typeof a.action==='string'&&a.action.trim())?.action;
-  assert.ok(action,'Featured examples must have an actual accepted next step');
+  // Feature the accepted limited-change option, not an editorial invention or
+  // an implication that this is the report's preferred organizational path.
+  const action = source.ai_report.report.interpretation.action_options.find(a=>a.intensity==='limited'&&typeof a.action==='string'&&a.action.trim())?.action;
+  assert.ok(action,'Featured examples must have an actual accepted limited-change option');
   return action;
 };
-const dv = result(artifact.outputs.decision_velocity);
 const depth = result(artifact.outputs.depth_synthesis);
-const dvEntry=artifact.outputs.decision_velocity;
-assert.equal(dvEntry.kind,'diagnostic');assert.equal(dvEntry.provenance?.synthetic,true);
-assert.equal(evidenceDigest(dvEntry.source),dvEntry.provenance.public_source_sha256,'DV preview source differs from its reviewed projection');
-assert.equal(dv.tool_type,'decision_velocity');assert.ok(number(dv.score)<=100);
-const names = {approval:'Approvals',coordination:'Coordination',handoff:'Handoffs',escalation:'Escalations',rework:'Rework',key_person:'Key-person reliance'};
-// Missing dimensions are unknown, never zero-valued chart bars.
-const burdens = Object.entries(dv.burden_breakdown).filter(([key,value])=>names[key]&&value!==null&&value!==undefined);
-for(const [,value] of burdens) assert.ok(number(value)<=100);
-burdens.sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));burdens.splice(3);
-assert.ok(burdens.length,'DV preview needs a recorded burden indicator');
-const [focusKey,focusValue]=burdens[0];
 const crossEntry=artifact.outputs.cross_lens_synthesis;
 assert.equal(crossEntry?.kind,'synthesis');
 assert.equal(crossEntry.provenance?.synthetic,true);
@@ -231,6 +221,42 @@ const values={
  sensitivityRows:['low','central','high'].map(k=>'<div><dt>'+({low:'Low',central:'Central',high:'High'}[k])+' case</dt><dd>'+(hours===null?'Not estimated':whole(hours[k])+' hours')+' / '+(capacity===null?'Not estimated':money(capacity[k])+' capacity value')+'</dd></div>').join(''),
  downside:escape(threeBenefit?'Entered-benefit subtotal after all costs, central case: '+money(scenario.totals.netKnownBenefitSubtotal.central)+'. '+benefitCoverage(scenario):'The low case shows '+money(net.low)+' after implementation and subscription costs. The central net cash effect is '+money(cash.central)+': no cash saving is assumed. Capacity value and cash are different; costs include internal staff time.')
 };
+// Compact homepage fields remain a projection of this same accepted source.
+// An exact legacy-pattern mapping is intentionally narrow: never manufacture
+// a short finding when a future sample records a different condition.
+if (template.includes('{{compactFinding}}')) {
+ const counts=cross.campaign_evidence?.counts;
+ assert.equal(cross.score_status,'published');
+ assert.equal(cross.cross_diagnostic_score,cross.aggregate_score);
+ assert.ok(number(cross.cross_diagnostic_score)<=100);
+ assert.equal(counts?.distinctParticipantsAcrossLenses,cross.participant_count);
+ assert.equal(counts?.selectedRuns,cross.submitted_run_count);
+ assert.ok(Number.isSafeInteger(counts.declaredPopulation)&&counts.declaredPopulation>=cross.participant_count);
+ const roles=cross.campaign_evidence.depth.lenses[0].requiredGroups;
+ const roleView=rows=>rows.map(g=>({id:g.id,label:g.label,count:g.participants}));
+ for(const lens of cross.campaign_evidence.depth.lenses){
+  assert.deepEqual(roleView(lens.requiredGroups),roleView(roles),'Compact role counts must agree across lenses, never be summed');
+  for(const group of lens.requiredGroups)assert.ok(group.privacy?.mayDisplayGroupStatistics===true&&Number.isSafeInteger(group.privacy.minimumDisplayedGroupSize)&&group.privacy.minimumDisplayedGroupSize>0&&Number.isSafeInteger(group.participants)&&group.participants>=group.privacy.minimumDisplayedGroupSize,'Compact group display requires the saved privacy permission');
+ }
+ const legacy='Two or more lens-level signals share the highest observed count, so the coherent read does not identify one unique dominant shared pattern. Use the lens summaries and contradictions to define a bounded validation question rather than forcing one causal diagnosis.';
+ assert.equal(cross.primary_pattern,legacy,'Compact finding has only one reviewed source mapping');
+ const option=cross.campaign_action_options.find(a=>a.id==='campaign_moderate'&&a.intensity==='moderate');
+ assert.ok(option);
+ const accepted=cross.ai_report.report.interpretation.action_options.find(a=>a.option_id===option.id);
+ assert.equal(accepted?.action,option.action,'Compact action must be both engine-owned and present in the accepted report');
+ const action=option.action.match(/^[^]*?\.(?:\s|$)/)?.[0].trim();
+ assert.ok(action,'Compact action uses a complete saved sentence, not an ellipsis');
+ const metric=(attr,label,range,format)=>'<div><dt>'+label+'</dt><dd '+attr+(range===null?'':' data-exact-value="'+range.central+'" title="'+escape(label+': '+range.central)+'"')+'>'+(range===null?'Not estimated':format(range.central))+'</dd></div>';
+ Object.assign(values,{
+  population:whole(counts.declaredPopulation),composite:whole(cross.cross_diagnostic_score),conditionBand:escape(cross.condition_band),
+  compactFinding:'Several patterns appear across the diagnostics; none stands out as the single shared explanation.',
+  compactRoles:roles.map(g=>'<div><strong>'+whole(g.participants)+'</strong><span>'+escape(g.label)+'</span></div>').join(''),
+  compactLenses:groups.map(g=>'<span>'+escape(g.tool_label)+'</span>').join(''),
+  compactFinancials:metric('data-demo-hours','Capacity for other work',hours,value=>caseNumber(value)+' h')+metric('data-demo-spending-reduction','Current spending reduced',threeBenefit?scenario.totals.existingSpendingReduction:null,caseMoney)+metric('data-demo-spending-avoidance','Future spending avoided',threeBenefit?scenario.totals.futureSpendingAvoidance:null,caseMoney),
+  compactAction:escape(action),optionCount:whole(cross.campaign_action_options.length),compactPrerequisite:escape(option.prerequisite),compactSuccess:escape(option.success_check),
+  compactFinancialAssumptions:crossCase.assumptions
+ });
+}
 let hero=template.trimEnd().replace(/\{\{(\w+)\}\}/g,(_,key)=>{assert.ok(key in values,'Unknown preview field '+key);return values[key];});
 assert.ok(!/\{\{/.test(hero));
 
@@ -280,7 +306,7 @@ function depthCard(place) {
 '          '+opportunity+'\n'+
 '          '+economics+'\n'+
 '          <div class="md-score-summary"><strong data-promo-score>'+whole(med)+'</strong><span>Median Diagnostic Score<br>Middle half: '+whole(range[0])+'–'+whole(range[1])+' / 100</span><span>'+escape(spread)+'<br>Range: '+whole(group.score_range[0])+'–'+whole(group.score_range[1])+' / 100</span></div>\n'+
-'          <div class="md-action"><strong>One recommended next step</strong><p>'+escape(firstAction(depth))+'</p></div>\n'+
+'          <div class="md-action"><strong>One change to consider</strong><p>'+escape(featuredAction(depth))+'</p></div>\n'+
 '          <p class="md-basis">'+escape(basis)+'</p>\n'+
 '        </div>\n'+
 '      </section>\n'+

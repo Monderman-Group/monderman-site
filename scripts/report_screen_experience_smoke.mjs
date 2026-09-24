@@ -24,6 +24,11 @@ async function verifyAIScreenRefresh(browser) {
   const {artifact}=readPublicSampleFixture();
   const fixtures = Object.entries(artifact.outputs).map(([name,entry])=>({name,source:entry.source,kind:entry.kind==='diagnostic'?'run':'synthesis'}));
   assert.equal(fixtures.length,6);
+  // Public lens examples are now comparisons. Retain each individual-report
+  // refresh path independently using the existing deterministic test fixture.
+  const individual=JSON.parse(fs.readFileSync(new URL('../test-fixtures/authenticated-report-engine-runs.json',import.meta.url),'utf8'));
+  for(const [name,source]of Object.entries(individual.outputs))fixtures.push({name:'historical-individual-'+name,source,kind:'run'});
+  assert.equal(fixtures.length,10);
   const lifecycle = await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
   const errors = [], rows = [];
   lifecycle.on('pageerror',error=>errors.push(error.message));
@@ -127,7 +132,7 @@ const browser = await chromium.launch({headless:true});
 if (aiRefreshOnly) {
   await verifyAIScreenRefresh(browser);
   await browser.close();
-  console.log('REPORT_SCREEN_AI_REFRESH_PASS all6 pending/complete/attention/rejected, stableTargets, isolatedMounts, unchangedModelAndBody, focus, printControls; network blocked');
+  console.log('REPORT_SCREEN_AI_REFRESH_PASS six public products plus four separate historical individual fixtures: pending/complete/attention/rejected, stableTargets, isolatedMounts, unchangedModelAndBody, focus, printControls; network blocked');
   process.exit(0);
 }
 const page = await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});

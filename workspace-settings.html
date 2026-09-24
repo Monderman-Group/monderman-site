@@ -351,7 +351,7 @@ body{transition:background-color .25s ease, color .25s ease}
         <div class="lead">
           <div class="eyebrow">Settings</div>
           <h2>Workspace settings</h2>
-          <p>Manage the organization profile, invite teammates and set their role, review usage, and export your data.</p>
+          <p>Manage the organization profile, invite people and assign their roles, review usage, and export your data.</p>
         </div>
 
         <!-- ORGANISATION -->
@@ -607,7 +607,7 @@ body{transition:background-color .25s ease, color .25s ease}
     async function loadInvites(){
       if(!isAdmin()){
         $("inviteComposer").style.display="none";
-        $("invitesBody").innerHTML = `<div class="empty">Ask an organization admin to invite teammates.</div>`;
+        $("invitesBody").innerHTML = `<div class="empty">Ask an organization admin to invite people to this Workspace.</div>`;
         return;
       }
       try{
@@ -638,7 +638,7 @@ body{transition:background-color .25s ease, color .25s ease}
       return `<div class="lrow"><div class="main"><b>${esc(i.email)}</b><span>${esc(ROLE_LABEL[i.role]||i.role)}</span></div>${badge}<div class="act">${act}</div></div>`;
     }
     async function createInvite(){
-      if(!isAdmin()){ flash("inviteMsg","bad","Only admins can invite teammates."); return; }
+      if(!isAdmin()){ flash("inviteMsg","bad","Only admins can invite people to this Workspace."); return; }
       const email=($("invEmail").value||"").trim().toLowerCase();
       const role=$("invRole").value;
       if(!validEmail(email)){ flash("inviteMsg","bad","Enter a valid email address."); return; }

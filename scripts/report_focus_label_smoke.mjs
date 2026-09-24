@@ -50,7 +50,7 @@ if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.ur
  const root=path.resolve(import.meta.dirname,'..'),source=fs.readFileSync(root+'/monderman-report.js','utf8'),old=sourceBeforeRenderer42(source);
  const load=s=>{const c={window:{}};vm.runInNewContext(fs.readFileSync(root+'/participant-evidence-safety.js','utf8'),c);vm.runInNewContext(s,c);return c.window.MondermanReport;};
  const R=load(source),prior=load(old);let checks=0;const eq=(a,b,m)=>{assert.deepEqual(a,b,m);checks++;};
- eq(R.rendererVersion,'diagnostic-renderer-report-overview-20260923.1');
+ eq(R.rendererVersion,'diagnostic-renderer-report-overview-20260924.1');
  const priorClearance=sourceBeforeCompositeClearance(source);
  eq(sourceBeforeCompositeClearance(priorClearance),priorClearance,'Historical input passes idempotently');
  for(const mutate of [s=>s.replace('rowH + 12;','rowH + 11;'),s=>s.replace(COMPOSITE_CLEARANCE_DELTA[0],COMPOSITE_CLEARANCE_DELTA[0]+COMPOSITE_CLEARANCE_DELTA[0])]){

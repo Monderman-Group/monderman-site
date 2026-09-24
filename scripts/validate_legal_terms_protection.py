@@ -332,10 +332,10 @@ def validate():
     # Full-feature release: these disclosures ship with API activation.
     # The separate Privacy publication did not activate authored reporting.
     require(security, [
-        "When AI-assisted reporting is enabled",
+        "AI-assisted interpretation is currently enabled for eligible Diagnostic and Synthesis reports, including evaluation reports.",
         "The interpretation does not change the saved score.",
         "Monderman's diagnostic engine produces the scores, classifications, evidence limits and available action options.",
-        "Anthropic’s AI supports research and writes the explanation from authorized evidence within those rules.",
+        "Anthropic's AI supports research and writes the explanation from authorized evidence within those rules.",
         "they do not establish scientific validity or guarantee an outcome.",
         "A bounded selection of permitted participant observations",
         "Synthesis of your own saved runs can include selected original structured answers",
@@ -349,21 +349,25 @@ def validate():
     if "All public Postgres tables currently have row-level security enabled" in security:
         raise AssertionError("unverified universal live RLS claim must not return")
     subprocessors = (ROOT / "subprocessors.html").read_text(errors="strict")
-    require(subprocessors, [
-        "Research support, authored explanations and review within Monderman's engine-defined evidence and action limits.",
-        "Anthropic does not calculate scores.",
-        "for Synthesis of your own saved runs, selected original structured answers and exact questions",
-        "for campaign Synthesis, descriptive answer distributions grouped by exact question and context",
-        "written observations only with the participant's recorded permission under the September 12 notice for those saved observations",
-        "Earlier permission does not authorize this expanded use.",
+    # The approved Center consolidates these disclosures in one current source.
+    # Legacy URLs must still lead directly to those preserved sections.
+    require(subprocessors, ['security.html#providers', 'id="ai-processing"', 'security.html#ai-processing', 'id="provider-security"', 'security.html#provider-security'], "provider page compatibility")
+    require(security, [
+        "Monderman's diagnostic engine produces the scores, classifications, evidence limits and available action options.",
+        "Anthropic's AI supports research and writes the explanation from authorized evidence within those rules.",
+        "The interpretation does not change the saved score.",
+        "Synthesis of your own saved runs can include selected original structured answers and their exact questions",
+        "Campaign Synthesis can include descriptive answer distributions for each exact question and context",
+        "not named participants' individual answer records. Small or insufficiently supported groups are withheld.",
+        "A bounded selection of permitted participant observations can be included only with new per-run permission under the September 12 notice for those saved observations.",
+        "Earlier permission does not authorize this expanded use. Earlier observations are not automatically made eligible.",
         "request-size checks before drafting or review",
-        "Earlier observations are not automatically made eligible.",
-        "Public research uses predefined sector and Diagnostic categories without customer content.",
-        "Standard API retention is not zero"
+        "only predefined sector and Diagnostic categories, not customer answers, organization names or Workspace history",
+        "This is not a zero-retention arrangement."
     ], "Anthropic purpose and retention disclosure")
-    require(subprocessors, [
-        "Conversational product guidance through the public assistant and Hans is a separate use.",
-        "For chat: submitted messages and limited recent replies",
+    require(security, [
+        "The public assistant and Hans use Anthropic for conversational product guidance, separately from report interpretation.",
+        "submitted messages, limited recent replies, approved public product information",
         "server-checked plan and role"
     ], "assistant processing disclosure")
     if "assistants currently use rule-based replies" in privacy:

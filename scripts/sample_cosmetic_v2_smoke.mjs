@@ -6,6 +6,7 @@ import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 import {assertInvitedEvaluationSourceContract,EVALUATION_BASELINE} from './invited_evaluation_source_contract.mjs';
+import {sourceBeforeOverviewSiteCompatibility} from './report_overview_site_compatibility_inverse.mjs';
 const {chromium,webkit}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 const root=path.resolve(import.meta.dirname,'..'),built=path.join(root,'.render-public');
 const base=EVALUATION_BASELINE,origin='http://cosmetic.test';
@@ -17,11 +18,16 @@ let checks=0,blockedRemoteRequests=0;const check=(x,m)=>{assert.ok(x,m);checks++
 const baselineProtection=assertInvitedEvaluationSourceContract(root);
 const runtimeChanges=new Set(['index.html','Monderman_Platform_Brief.html','sample-report.html','homepage-workspace-demo.css','homepage-workspace-demo.js','sample-report-production.css','public-search-index.json','campaign-analysis.css','campaign-analysis.js']);
 const protectedFiles=['public-sample-model.js','sample-report-production.js','participant-evidence-safety.js','assets/brand/brand-foundations-v2.css'];
-for(const file of protectedFiles)equal(sha(read(file)),sha(original(file)),'Existing report adapter/style unchanged: '+file);
+for(const file of protectedFiles){
+  // Exact separately pinned display layers are inverted for the old guard;
+  // this never treats the changed current adapters as historically unchanged.
+  const historical=sourceBeforeOverviewSiteCompatibility(file,read(file));
+  equal(sha(historical),sha(original(file)),'Complete historical report adapter/style preserved: '+file);
+}
 const {artifact,manifest:release}=readPublicSampleFixture({root});
 const artifactBytes=read('sample-data/production-diagnostic-samples.json');
 equal(artifact.contract,'monderman-public-product-samples/v3');equal(artifact.synthetic,true);
-equal(artifact.publication_projection.version,'monderman-public-sample-projection-20260913.7');
+equal(artifact.publication_projection.version,release.response_comparison_publication_review?'monderman-public-sample-projection-20260924.8':'monderman-public-sample-projection-20260913.7','Projection edition matches the separately validated publication route');
 const releaseFile='sample-data/production-sample-release.json';
 const lastRelease=JSON.parse(execFileSync('git',['show','b06b72083442f03f7a1e2cadeb5239e4f0449515:'+releaseFile],{cwd:root,encoding:'utf8'}));
 for(const field of ['mobile_breakdown_presentation_review','detailed_sankey_presentation_review','planning_case_presentation_review','sankey_presentation_review','customer_publication_update','publication_acceptance'])equal(release[field],lastRelease[field],'Historical approval is retained, not reissued: '+field);
@@ -30,18 +36,18 @@ equal(release.financial_publication_update.calculation_review,'passed');
 equal(release.financial_publication_update.visual_review,'passed');
 const updatedPins=['monderman-report.js','scripts/refresh_public_sample_previews.mjs','scripts/templates/home-workspace-preview.html'];
 for(const file of updatedPins)equal(release.source_files[file],sha(read(file)),file+' current reviewed source pin');
-const sourceFiles=[...runtimeChanges,releaseFile,'scripts/inject-public-shell.mjs',...updatedPins];
+const sourceFiles=[...new Set([...runtimeChanges,...protectedFiles,releaseFile,'scripts/inject-public-shell.mjs',...updatedPins])];
 const frozen=Object.fromEntries(sourceFiles.map(f=>[f,sha(read(f))]));
 const oldSearch=JSON.parse(original('public-search-index.json')),newSearch=JSON.parse(read('public-search-index.json'));
 equal(newSearch.map(r=>r.url),oldSearch.map(r=>r.url),'Public search inventory stays public');
 execFileSync('python3',['scripts/build_public_search_index.py','--check'],{cwd:root});
-for(const [page,css,version]of [['index.html','homepage-workspace-demo.css','20260923.samples1'],['sample-report.html','sample-report-production.css','20260915.consistency1'],['workspace-analysis.html','campaign-analysis.css','20260919.benefits1']]){
+for(const [page,css,version]of [['index.html','homepage-workspace-demo.css','20260924.compact1'],['sample-report.html','sample-report-production.css','20260915.consistency1'],['workspace-analysis.html','campaign-analysis.css','20260919.benefits1']]){
   const html=fs.readFileSync(path.join(built,page),'utf8');
   check(html.includes(css+'?v='+version),'Actual built CSS cache key: '+css);
   equal(sha(fs.readFileSync(path.join(built,css))),sha(read(css)));
 }
 const sampleHtml=fs.readFileSync(path.join(built,'sample-report.html'),'utf8');
-for(const [file,version]of [['monderman-report.js','20260923.overview1'],['sample-report-production.js','20260915.annual1'],['public-sample-model.js','20260915.annual1']]){
+for(const [file,version]of [['monderman-report.js','20260924.overview2'],['sample-report-production.js','20260924.comparisons1'],['public-sample-model.js','20260924.projection8']]){
   check(sampleHtml.includes(file+'?v='+version),'Reviewed runtime cache: '+file);
   equal(sha(fs.readFileSync(path.join(built,file))),sha(read(file)),'Built bytes equal reviewed source: '+file);
 }
@@ -79,23 +85,34 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     });
     const id=engine+'-'+width;
     await page.goto(origin+'/index.html',{waitUntil:'load'});await page.evaluate(()=>document.fonts.ready);
-    equal(await page.locator('.home-preview-label span').allTextContents(),['From organizational evidence to a business case','Illustrative example']);
+    equal(await page.locator('.home-preview-label span').allTextContents(),['See what the report tells you.','Illustrative example']);
     equal((await page.locator('#home-output-title').innerText()).replace(/\s+/g,' '),'See the findings. Understand the opportunity.');
     equal(await page.locator('.home-output-copy>a').getAttribute('href'),'sample-report.html');
     equal(await page.locator('[data-demo-score]').count(),0,'No single-run score becomes organizational money');
     equal(await page.locator('[data-demo-recovery]').count(),0,'No score-derived money field');
-    for(const [journey,source]of [['structural_clarity',artifact.outputs.depth_synthesis.source],['cross_lens_synthesis',cross]]){
-      const financial=page.locator('[data-demo-financial-case="'+journey+'"]'),totals=source.financial_scenario.totals;
-      equal(await financial.count(),1,'Only the matching accepted report supplies this planning case: '+journey);
-      equal(await financial.locator('[data-demo-hours]').textContent(),whole(totals.potentialHoursFreed.central));
-      equal(await financial.locator('[data-demo-capacity]').textContent(),money(totals.capacityValue.central));
-      equal(await financial.locator('[data-demo-cost]').textContent(),money(totals.totalImplementationAndSubscriptionCost.central));
-      check((await financial.locator('.hwd-financial-note').allTextContents()).join(' ').includes('Capacity is not cash savings'),'Financial distinction retained');
-      equal(await financial.locator('[data-demo-spending-reduction]').textContent(),money(totals.existingSpendingReduction.central));
-      equal(await financial.locator('[data-demo-spending-avoidance]').textContent(),money(totals.futureSpendingAvoidance.central));
+    equal(await page.locator('.home-workspace-preview').getAttribute('data-sample-id'),'cross_lens_synthesis','Compact preview identifies its one saved report');
+    equal(await page.locator('.hwd-compact-quad .hwd-compact-tile').count(),4,'Four concise report overview sections');
+    equal(await page.locator('.hwd-compact-values').count(),1,'Only the matching accepted Cross-Lens report supplies a planning case');
+    const financial=page.locator('.hwd-compact-values'),totals=crossScenario.totals;
+    for(const [attr,value,display]of [['data-demo-hours',totals.potentialHoursFreed.central,whole(totals.potentialHoursFreed.central)+' h'],
+      ['data-demo-spending-reduction',totals.existingSpendingReduction.central,money(totals.existingSpendingReduction.central)],
+      ['data-demo-spending-avoidance',totals.futureSpendingAvoidance.central,money(totals.futureSpendingAvoidance.central)]]){
+      const metric=financial.locator('['+attr+']');
+      equal(await metric.count(),1,'One displayed '+attr);
+      equal(await metric.getAttribute('data-exact-value'),String(value),'Unrounded saved planning value: '+attr);
+      equal(await metric.textContent(),display,'Rounded display retains the saved value: '+attr);
     }
-    equal(await page.locator('[data-demo-financial-case]').count(),2,'Other three Depth journeys do not borrow another report’s financial scenario');
-    check((await page.locator('.home-preview-method').textContent()).includes(money(crossScenario.totals.netKnownBenefitSubtotal.central)),'Current calculated after-cost case is disclosed');
+    equal(await page.locator('[data-demo-financial-case]').count(),0,'Retired multi-report cards cannot borrow a different report’s financial scenario');
+    equal(await page.locator('.hwd-compact-values [data-demo-capacity],.hwd-compact-values [data-demo-cost]').count(),0,'Compact headlines do not turn capacity value or costs into cash benefits');
+    check((await page.locator('.hwd-compact-boundary').textContent()).includes('Capacity is not cash savings'),'Financial distinction retained');
+    const assumptions=page.locator('[data-demo-assumptions-for="cross_lens_synthesis"]');
+    equal(await page.locator('[data-demo-assumptions-for]').count(),1,'Only the exact Cross-Lens planning assumptions accompany this overview');
+    const assumptionsText=await assumptions.textContent();
+    for(const range of ['low','central','high'])for(const category of ['existingSpendingReduction','futureSpendingAvoidance','capacityValue']){
+      check(assumptionsText.includes(money(totals[category][range])),'Saved '+range+' '+category+' remains in the full assumptions');
+    }
+    for(const category of ['netKnownBenefitSubtotal','netExistingCashEffect','netCashEffect'])check(assumptionsText.includes(money(totals[category].central)),'Current calculated after-cost '+category+' is disclosed');
+    check(assumptionsText.includes('Costs include internal staff time.'),'Cost scope remains explicit despite compact headline removal');
     check(!/fictional|generated sample|illustrative interface/i.test(await page.locator('.home-workspace-preview').textContent()),'No fictional wording in marketing preview');
     const hero=await state(page,'.hero-actions .btn-accent',id+' hero',{normal:'rgb(169, 208, 212)',hover:'rgb(196, 225, 227)',background:true,text:'rgb(4, 24, 27)'});
     const link=await state(page,'.home-output-copy>a',id+' sample link',{normal:'rgb(12, 110, 120)',hover:'rgb(10, 91, 99)'});
@@ -133,7 +150,7 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
       if(['depth','synthesis'].includes(tab)){
         equal(await page.locator('#report-'+tab+' .mr-benefit-chart').count(),3,'All three planning cases have a Sankey');
         equal(await page.locator('#report-'+tab+' .mr-benefit-chart:visible').count(),1,'Only selected Sankey visible on screen');
-      }else equal(await page.locator('#report-'+tab+' .mr-benefit-chart,#report-'+tab+' .mr-operational-sankey').count(),0,'Individual run has no invented operational flow');
+      }else equal(await page.locator('#report-'+tab+' .mr-benefit-chart,#report-'+tab+' .mr-operational-sankey').count(),0,'Below-readiness comparison has no invented operational flow');
     }
     await page.locator('#tab-os').focus();await page.keyboard.press('ArrowRight');equal(await page.locator('#tab-dv').getAttribute('aria-selected'),'true');await page.keyboard.press('End');equal(await page.locator('#tab-depth').getAttribute('aria-selected'),'true');await page.keyboard.press('Home');equal(await page.locator('#tab-os').getAttribute('aria-selected'),'true');
     if(width!==834){await shot(page,'.sample-library-intro',id+'-library.png');await shot(page,'#report-os .psr-toolbar',id+'-toolbar.png');await page.evaluate(()=>scrollTo(0,0));const name=id+'-page-top.png';await page.screenshot({path:path.join(out,name)});screenshots.push(name);}

@@ -41,6 +41,7 @@ const mutations=[
   ['missing source group',e=>e.source.source_groups=[]],
   ['wrong product',e=>e.source.synthesis_product='cross_lens_synthesis'],
   ['wrong kind',e=>e.kind='diagnostic'],
+  ['response comparison is not an eligible Depth tile',e=>{e.kind='response_comparison';e.source.report_kind='response_comparison';}],
   ['not synthetic',e=>e.provenance.synthetic=false],
   ['source count mismatch',e=>e.source.submitted_run_count=28],
   ['provenance count mismatch',e=>e.provenance.submitted_run_count=28],

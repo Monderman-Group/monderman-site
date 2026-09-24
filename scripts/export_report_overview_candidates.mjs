@@ -11,9 +11,13 @@ const out=path.resolve(process.argv[2]);
 assert.ok(!fs.existsSync(out),'Candidate output directory must not already exist.');
 const read=file=>fs.readFileSync(path.join(root,file));
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
-const bytes=read('sample-data/production-diagnostic-samples.json');
+const candidateArgument=process.argv.find(arg=>arg.startsWith('--candidate='));
+const expectedArgument=process.argv.find(arg=>arg.startsWith('--sha256='));
+assert.equal(Boolean(candidateArgument),Boolean(expectedArgument),'Candidate input requires its explicit SHA-256.');
+const candidatePath=candidateArgument?path.resolve(candidateArgument.slice('--candidate='.length)):null;
+const bytes=candidatePath?fs.readFileSync(candidatePath):read('sample-data/production-diagnostic-samples.json');
 const artifact=JSON.parse(bytes),release=JSON.parse(read('sample-data/production-sample-release.json'));
-assert.equal(sha(bytes),release.artifact_file_sha256,'Do not change saved sample evidence.');
+assert.equal(sha(bytes),candidatePath?expectedArgument.slice('--sha256='.length):release.artifact_file_sha256,'Do not change saved sample evidence.');
 const context={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};
 for(const file of ['participant-evidence-safety.js','monderman-report.js','public-sample-model.js'])vm.runInNewContext(read(file).toString(),context,{filename:file});
 context.window.MondermanPublicSamples.validate(artifact);
@@ -28,6 +32,6 @@ for(const [product,entry]of Object.entries(artifact.outputs)){
 }
 fs.mkdirSync(out,{recursive:true});
 for(const row of rows)fs.writeFileSync(path.join(out,row.product+'.html'),row.html);
-const receipt={status:'candidate_unreviewed',artifact_file_sha256:sha(bytes),renderer_sha256:sha(read('monderman-report.js')),browser_review:'not_run',pdf_review:'not_run',provider_calls:0,source_mutations:0,outputs:rows.map(({product,sha256})=>({product,path:product+'.html',sha256}))};
+const receipt={status:'candidate_unreviewed',candidate_input:candidatePath,artifact_file_sha256:sha(bytes),renderer_sha256:sha(read('monderman-report.js')),browser_review:'not_run',pdf_review:'not_run',provider_calls:0,source_mutations:0,outputs:rows.map(({product,sha256})=>({product,path:product+'.html',sha256}))};
 fs.writeFileSync(path.join(out,'CANDIDATE.json'),JSON.stringify(receipt,null,2)+'\n');
 console.log(JSON.stringify(receipt));

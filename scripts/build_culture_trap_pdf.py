@@ -99,7 +99,6 @@ def executive(c):
     c.setFillColor(HexColor("#9ED0D3")); c.setFont("Haas-Bold",8); c.drawString(M+18,y-25,"S Y S T E M S   M E A S U R E M E N T")
     paragraph(c,"Systems Measurement is Monderman's term for examining the organizational mechanisms people work within rather than measuring only how they feel about working inside them.",M+18,y-42,W-2*M-36,ParagraphStyle("def",fontName="Haas-Medium",fontSize=15,leading=20,textColor=HexColor("#FFFFFF")))
     y-=156; y=paragraph(c,"The distinction is complementary. Sentiment information has value. It can locate reported strain. It was not designed, by itself, to identify the operating mechanisms beneath that strain. Systems Measurement examines that second layer.",M,y,W-2*M,BODY)-14
-    box(c,M,y-71,W-2*M,71,PALE,PALE); paragraph(c,"<b>The central contrast</b><br/>Sentiment measurement shows where people experience strain. Systems Measurement examines the organizational systems beneath that experience.",M+16,y-14,W-2*M-32,BODY)
     c.showPage()
 
 def scoreboard(c):
@@ -159,13 +158,12 @@ def loop_page(c):
 
 def conclusion(c):
     y=page_start(c,7,"05  |  Conclusion","Measure experience. Examine mechanisms.")
-    y=paragraph(c,"Sentiment reports experience. Systems Measurement examines organizational mechanisms. The distinction is not a verdict on either category. It is a boundary between two kinds of evidence.",M,y,W-2*M,LEDE)-20
-    y=paragraph(c,"Culture can affect performance, and operating conditions can shape culture. The defensible point is narrower: a culture or sentiment score does not, by itself, identify the organizational mechanisms producing the condition.",M,y,W-2*M,BODY)-18
+    y=paragraph(c,"Culture can affect performance, and operating conditions can shape culture. Use sentiment measurement to locate reported strain, then examine ownership, decisions, handoffs, and process load to understand what may be producing it.",M,y,W-2*M,LEDE)-20
     c.setFillColor(DARK); c.rect(M,y-118,W-2*M,118,fill=1,stroke=0); c.setFillColor(HexColor("#9ED0D3")); c.setFont("Haas-Bold",8); c.drawString(M+16,y-22,"A   C O M P L E T E   R E A D   K E E P S   B O T H   L A Y E R S   V I S I B L E")
     labels=["Experience","Structure","Decision flow","Operating load","Remeasurement"]; nw=(W-2*M-52)/5
     for i,label in enumerate(labels):
         x=M+16+i*(nw+5); c.setStrokeColor(HexColor("#53777B")); c.rect(x,y-101,nw,54,fill=0,stroke=1); paragraph(c,label,x+3,y-64,nw-6,DARK_CENTER)
-    y-=142; y=paragraph(c,"Organizations can continue to use sentiment measurement to locate reported strain. Systems Measurement adds a distinct question: what mechanisms are people working within, and where does that system show strain?",M,y,W-2*M,BODY)-17
+    y-=142
     box(c,M,y-83,W-2*M,83,SAND,SAND); c.setFillColor(GOLD); c.rect(M,y-83,4,83,fill=1,stroke=0); paragraph(c,"<b>No instrument-validation claim</b><br/>The cited studies provide evidence about engagement interventions, corporate values, management integrity, and management practices. They did not test or validate Monderman's Diagnostics.",M+16,y-15,W-2*M-32,BODY)
     y-=104; box(c,M,y-67,W-2*M,67,PALE,PALE); paragraph(c,"<b>Further reading</b><br/>Visit www.monderman.com/the-culture-trap.html for the short evidence page, the Platform Brief, and a sample report.",M+15,y-13,W-2*M-30,BODY)
     c.showPage()

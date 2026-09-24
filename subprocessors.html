@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Subprocessors and infrastructure | Monderman</title>
-  <link rel="canonical" href="https://www.monderman.com/subprocessors.html">
-  <meta name="description" content="Review the outside services Monderman currently uses for hosting, authentication, AI-assisted interpretation, email, billing, and security.">
+  <title>Provider information | Monderman Trust &amp; Security Center</title>
+  <link rel="canonical" href="https://www.monderman.com/security.html">
+  <meta name="description" content="Provider and AI-processing information is now in Monderman’s Trust &amp; Security Center. Follow the preserved links to the current disclosures.">
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260906-enterprise1">
   <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260906-enterprise1">
   <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260906-enterprise1">
@@ -28,8 +28,10 @@
   <meta name="twitter:image" content="https://www.monderman.com/assets/brand/monderman-social-card.png?v=20260907-wordmark2">
   <meta name="twitter:image:alt" content="Monderman">
   <link rel="stylesheet" href="enterprise-site.css?v=20260915.consistency1">
+  <link rel="stylesheet" href="trust-security-center.css?v=20260924.center1">
 </head>
-<body class="canonical-green-shell page-legal">
+<body class="canonical-green-shell page-legal page-trust-compat">
+<a class="skip-link" href="#main-content">Skip to main content</a>
   <header class="header" id="siteHeader">
     <div class="header-inner">
       <a href="index.html" class="brand">Monderman.</a>
@@ -45,21 +47,15 @@
       </nav>
     </div>
   </header>
-  <section class="hero"><div class="hero-inner"><h1>Subprocessors and infrastructure</h1><p class="hero-dek">This page lists the outside services used to operate Monderman. It separates providers that may process customer content from services used only for the public site or browser libraries.</p><p class="hero-meta">Last reviewed: September 12, 2026</p></div></section>
-  <main>
-    <div class="notice"><strong>Factual inventory, not a contract.</strong> This page identifies current providers and does not represent that a particular DPA, certification, transfer mechanism, retention period or data-residency commitment applies. Organizational data-processing terms may be made available where required for an engagement.</div>
-    <p class="notice">AI-assisted interpretation is currently enabled for eligible Diagnostic and Synthesis reports, including evaluation reports, through Anthropic's commercial API. Optional written observations are used only when the participant has explicitly allowed the applicable processing. Earlier observations are not automatically made eligible. Customer content is not used for model training. Outside processing still occurs, and standard API retention is not zero; see the <a href="privacy.html">Privacy Notice</a> for retention details and exceptions.</p>
-    <section class="group"><h2>Core product providers</h2><p>These services may receive account, customer, participant, support, or billing information when their function is used.</p><div class="table-wrap"><table><thead><tr><th>Provider</th><th>Purpose</th><th>Broad data category</th><th>Customer content?</th></tr></thead><tbody>
-      <tr><td>Supabase</td><td>Authentication, Postgres database, and temporary durable run recovery</td><td>Account identifiers, Workspace records, Diagnostic and campaign records, acceptance records</td><td>Yes</td></tr>
-      <tr><td>Render</td><td>Hosts the Monderman production API and public static site</td><td>API requests, application processing, technical logs, and public-page request metadata</td><td>Yes</td></tr>
-      <tr><td>Anthropic</td><td>Research support, authored explanations and review within Monderman's engine-defined evidence and action limits. Anthropic does not calculate scores. Public research uses predefined sector and Diagnostic categories without customer content. Conversational product guidance through the public assistant and Hans is a separate use.</td><td>For reports: selected structured answers, computed results and context; for Synthesis of your own saved runs, selected original structured answers and exact questions with each run's Diagnostic, perspective, run length and questionnaire version; for campaign Synthesis, descriptive answer distributions grouped by exact question and context, not named participants' individual answer records, with small or insufficiently supported groups withheld; a bounded selection of written observations only with the participant's recorded permission under the September 12 notice for those saved observations. Earlier permission does not authorize this expanded use. The same permitted evidence and proposed report text may be sent for request-size checks before drafting or review, even if no interpretation is generated. For chat: submitted messages and limited recent replies, approved public product information and, for Hans, the current page and server-checked plan and role. Chat does not automatically retrieve saved reports or participant records.</td><td>Yes, when AI-assisted reporting or chat is used. Customer content is not submitted for model training, fine-tuning or provider feedback. Standard API retention is not zero; see the <a href="privacy.html">Privacy Notice</a> for the retention period and exceptions.</td></tr>
-      <tr><td>Resend</td><td>Authentication, invitation, notification, and inquiry email delivery</td><td>Email addresses, names where supplied, delivery content and events</td><td>Limited communication content</td></tr>
-      <tr><td>Stripe</td><td>Hosted checkout, subscriptions, billing portal, and billing events</td><td>Billing identity, subscription and payment information</td><td>Billing data; Diagnostic content is not ordinarily sent</td></tr>
-      <tr><td>Google</td><td>Optional Google account sign-in</td><td>OAuth identity, email, and authentication metadata</td><td>No Diagnostic content through sign-in</td></tr>
-      <tr><td>Cloudflare</td><td>Bot verification and security-related request handling</td><td>IP/browser signals, verification tokens, request/security metadata</td><td>Request content may traverse relevant infrastructure</td></tr>
-    </tbody></table></div></section>
-    <section class="group"><h2>Public-site and browser infrastructure</h2><p>Render hosts and delivers the public static site. GitHub provides the source repository and deployment workflows. jsDelivr and cdnjs deliver versioned browser libraries. Google Fonts delivers a Workspace font. Public-site hosting and browser-library providers ordinarily receive request metadata such as an IP address and user agent. Monderman does not intentionally send Diagnostic answers to browser-library providers for content processing.</p></section>
-    <section class="group"><h2>Questions and changes</h2><p>Send questions to <a href="mailto:connect@monderman.com">connect@monderman.com</a>. Monderman will update this page when the providers used by the product materially change. Any engagement-specific notice or objection procedure will be stated in the applicable signed organizational data-processing terms.</p></section>
+  <main id="main-content">
+    <section class="hero"><div class="hero-inner"><p class="hero-eyebrow">Trust &amp; Security</p><h1>Our provider information has moved</h1><p class="hero-dek">Providers, AI processing and security information are now together in the Trust &amp; Security Center.</p></div></section>
+    <div class="trust-compat-content">
+      <p>This address remains available so earlier links continue to work. Use the sections below for the current information.</p>
+      <section aria-labelledby="providers"><h2 id="providers">Providers and infrastructure</h2><p>See the services Monderman uses, what information each receives and their security references.</p><p><a href="security.html#providers">View the provider inventory</a></p></section>
+      <section aria-labelledby="ai-processing"><h2 id="ai-processing">AI processing</h2><p>See what Anthropic receives for reports and chat, permission requirements for written observations, and the training and retention boundaries.</p><p><a href="security.html#ai-processing">Read about AI-assisted reports</a> · <a href="security.html#chat">Read about chat processing</a> · <a href="security.html#privacy-and-retention">Read about retention</a></p></section>
+      <section aria-labelledby="provider-security"><h2 id="provider-security">Provider security</h2><p>See the specific security roles documented by our providers and the separate scope of Monderman's administrative-device protection.</p><p><a href="security.html#provider-security">View provider-security roles</a> · <a href="security.html#administrative-device-protection">View device protection and assurance</a></p></section>
+      <p><a href="security.html">Open the Trust &amp; Security Center</a>. The <a href="privacy.html">Privacy Notice</a> and <a href="terms.html">Terms of Use</a> remain the authoritative legal documents.</p>
+    </div>
   </main>
   <footer class="footer mond-footer">
     <div class="mf-inner">

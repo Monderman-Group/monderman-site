@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import vm from 'node:vm';
+import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 
 export const PUBLIC_PRODUCTS = Object.freeze({
   os:'operational_systems', dv:'decision_velocity', sc:'structural_clarity',
@@ -32,10 +33,64 @@ export function assertPublicSampleGenerationProvenance(entry,key) {
   return entry;
 }
 const DEFAULT_ROOT = fileURLToPath(new URL('../',import.meta.url));
+let comparisonValidator;
+function assertComparisonDisplayBoundary(source,provenance,key){
+  if(!comparisonValidator){
+    const context={window:{}};
+    vm.runInNewContext(fs.readFileSync(new URL('../public-sample-model.js',import.meta.url),'utf8'),context);
+    comparisonValidator=context.window.MondermanPublicSamples.validateComparison;
+  }
+  assert.doesNotThrow(()=>comparisonValidator({kind:'response_comparison',source,provenance},key),key+': shared comparison display/privacy boundary');
+}
 const REQUIRED_SOURCE_FILES = [
   'monderman-report.js','participant-evidence-safety.js','public-sample-model.js','sample-report-production.js',
   'scripts/refresh_public_sample_previews.mjs','scripts/templates/home-workspace-preview.html',
 ];
+
+// New comparison exports use projection .8; the prior reviewed artifact stays
+// on .7. This checks format/binding only and never creates release approval.
+export function assertPublicSampleProjection(artifact,manifest){
+  const projection=artifact.publication_projection;
+  assert.ok(plain(projection),'public sample projection missing');
+  assert.deepEqual(Object.keys(projection).sort(),['projection_commit','source_sha256','version'],'public sample projection shape differs');
+  const current=Boolean(manifest.response_comparison_publication_review);
+  assert.equal(projection.version,current?'monderman-public-sample-projection-20260924.8':'monderman-public-sample-projection-20260913.7');
+  assert.ok(validHash(projection.source_sha256));
+  assert.match(projection.projection_commit,/^[a-f0-9]{40}$/);
+  if(current)assert.equal(projection.projection_commit,artifact.engine_commit,'projection differs from comparison generation');
+  assert.deepEqual(projection,manifest.publication_projection,'publication projection differs from reviewed export');
+}
+
+// Rebuild the reviewed PDF source HTML in memory, using the same VM and public
+// adapter as export_report_overview_candidates.mjs. HTML remains a QA artifact;
+// this hash check neither publishes extra files nor creates review approval.
+export function assertPublicSampleHtmlBindings(artifact,review,{root=DEFAULT_ROOT}={}){
+  root=path.resolve(root);
+  const keys=Object.values(PUBLIC_PRODUCTS).sort();
+  assert.deepEqual(Object.keys(artifact.outputs||{}).sort(),keys,'HTML binding requires exactly six sample products');
+  assert.deepEqual(Object.keys(review.pdf_outputs||{}).sort(),keys,'HTML binding requires all six reviewed digests');
+  const context={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};
+  for(const file of ['participant-evidence-safety.js','monderman-report.js','public-sample-model.js']){
+    const bytes=fs.readFileSync(path.join(root,file));
+    assert.ok(validHash(review.source_files?.[file]),'HTML binding source pin missing: '+file);
+    assert.equal(sha(bytes),review.source_files[file],'HTML binding source changed: '+file);
+    vm.runInNewContext(bytes.toString(),context,{filename:file});
+  }
+  const Report=context.window.MondermanReport,Public=context.window.MondermanPublicSamples;
+  assert.equal(Report.rendererVersion,review.renderer_version,'HTML binding renderer edition differs');
+  assert.equal(review.source_files['monderman-report.js'],review.renderer_sha256,'HTML binding renderer digest differs');
+  Public.validate(artifact);
+  const before=JSON.stringify(artifact),digests={};
+  for(const [key,entry]of Object.entries(artifact.outputs)){
+    const expected=review.pdf_outputs[key].html_sha256;
+    assert.ok(validHash(expected),key+' reviewed HTML digest missing');
+    const html=Report.buildReportHtml(Public.model(entry,artifact));
+    digests[key]=sha(html);
+    assert.equal(digests[key],expected,key+' regenerated reviewed HTML changed');
+  }
+  assert.equal(JSON.stringify(artifact),before,'HTML verification must not mutate sample evidence');
+  return {products:keys.length,html_sha256:digests};
+}
 
 // A deterministic financial re-edition is not a new AI approval. Its own
 // receipt pins only the changed attachment while retaining the original AI,
@@ -83,7 +138,94 @@ export function assertFinancialSamplePdfBinding(update,key,pdfBytes){
   assert.equal(sha(pdfBytes),pin.sha256,key+' financial PDF bytes differ from the reviewed revision');
 }
 
-export function currentSynthesisPdfReview(manifest){
+export function currentSynthesisPdfReview(manifest,artifact=null){
+  const comparison=manifest.response_comparison_publication_review;
+  if(comparison){
+    const message=detail=>'Response-comparison publication: '+detail;
+    const generationCommit='de66200d6c30d749757c2eb2515740049cfaf4b1';
+    const replacements=['operational_systems','decision_velocity','structural_clarity','institutional_performance'];
+    const retained=['depth_synthesis','cross_lens_synthesis'],products=Object.values(PUBLIC_PRODUCTS).sort();
+    const natural=value=>Number.isSafeInteger(value)&&value>=0;
+    const positive=value=>natural(value)&&value>0;
+    const hashes=(value,names,label)=>{assert.ok(plain(value),message(label+' missing'));for(const name of names)assert.ok(validHash(value[name]),message(label+' '+name+' missing'));};
+    assert.equal(comparison.version,'response-comparison-publication-20260924.1');
+    assert.equal(comparison.status,'reviewed');assert.equal(comparison.reviewed_by,'Codex');assert.ok(validTime(comparison.reviewed_at));
+    assert.equal(comparison.fidelity_review,'passed');assert.equal(comparison.visual_review,'passed');
+    assert.equal(comparison.review_basis,'independent_source_replay_and_visual_review');assert.equal(comparison.publicationApproved,true);
+    hashes(comparison,['artifact_file_sha256','artifact_sha256','renderer_sha256'],'current content');
+    assert.equal(comparison.artifact_file_sha256,manifest.artifact_file_sha256);assert.equal(comparison.artifact_sha256,manifest.artifact_sha256);
+    assert.equal(comparison.renderer_sha256,manifest.source_files?.['monderman-report.js']);
+    assert.equal(comparison.renderer_version,manifest.renderer_version);assert.equal(comparison.renderer_version,'diagnostic-renderer-report-overview-20260924.1');
+    assert.deepEqual(comparison.replaced_keys,replacements);
+    // Validate the previous review against the content it actually certified,
+    // then bind that exact historical record into the new publication review.
+    // Historical metrics and hashes are never rewritten to describe this run.
+    const overview=manifest.report_overview_presentation_review;
+    assert.ok(plain(overview),message('historical overview review missing'));
+    hashes(comparison.prior_review,['sha256','artifact_file_sha256','renderer_sha256'],'historical review');
+    assert.equal(comparison.prior_review.field,'report_overview_presentation_review');
+    assert.equal(comparison.prior_review.sha256,evidenceDigest(overview));
+    assert.equal(comparison.prior_review.artifact_file_sha256,overview.artifact_file_sha256);
+    assert.equal(comparison.prior_review.renderer_sha256,overview.renderer_sha256);
+    assert.equal(comparison.prior_review.renderer_version,overview.renderer_version);
+    const historical={...manifest,artifact_file_sha256:overview.artifact_file_sha256,renderer_version:overview.renderer_version,
+      source_files:{...manifest.source_files,'monderman-report.js':overview.renderer_sha256}};
+    delete historical.response_comparison_publication_review;
+    assert.equal(currentSynthesisPdfReview(historical),overview);
+    const sourceFiles=[...new Set([...REQUIRED_SOURCE_FILES,'index.html','homepage-workspace-demo.css','sample-report-tile.css',
+      'pilot-waitlist.css','canonical-site-shell.css','public-product-design.css','scripts/public_sample_fixture.mjs'])];
+    hashes(comparison.source_files,sourceFiles,'reviewed current source');
+    for(const name of REQUIRED_SOURCE_FILES)assert.equal(comparison.source_files[name],manifest.source_files[name],message(name+' current source pin differs'));
+    const g=comparison.generation;
+    hashes(g,['private_receipt_sha256','prepared_input_sha256','source_manifest_sha256'],'paid generation');
+    assert.equal(g.source_commit,generationCommit);assert.equal(manifest.engine_commit,generationCommit);
+    assert.match(g.host_release||'',/^[a-f0-9]{40}$/);
+    assert.equal(g.source_manifest_sha256,'8a6aecbff1e5c28f73565df227f667ae5142ad34873fb810048b65c036571598');
+    assert.equal(g.prepared_input_sha256,'d47509178e2b0c76f52a4269100f6a180f5d134e2934eea7bb4e51aca7da6be2');
+    assert.equal(g.status,'four_comparisons_generated_and_review_approved');assert.equal(g.evaluation_passed,true);
+    assert.equal(g.jobs,4);assert.equal(g.provider_calls,8);assert.equal(g.maximum_provider_calls,8);assert.equal(g.maximum_free_count_requests,8);
+    assert.ok(natural(g.free_count_requests)&&g.free_count_requests<=8);assert.equal(g.automatic_retries,0);
+    assert.ok(positive(g.budget_ceiling_microusd)&&g.budget_ceiling_microusd<=9638950);
+    assert.ok(positive(g.reserved_microusd)&&g.reserved_microusd<=8683520);
+    assert.ok(natural(g.settled_microusd)&&g.settled_microusd<=g.reserved_microusd&&g.settled_microusd<=g.budget_ceiling_microusd);
+    assert.equal(g.unsettled_attempts,0);assert.equal(g.retained_microusd,0);assert.equal(g.known_paid_requests,8);assert.equal(g.checkpoint_failed,false);
+    assert.ok(validTime(g.finished_at)&&Date.parse(g.finished_at)<=Date.parse(comparison.reviewed_at));
+    assert.deepEqual(Object.keys(comparison.outputs||{}).sort(),[...replacements].sort());
+    assert.deepEqual(Object.keys(comparison.retained_outputs||{}).sort(),[...retained].sort());
+    for(const key of products){
+      const replacement=replacements.includes(key),pin=replacement?comparison.outputs[key]:comparison.retained_outputs[key];
+      const approved=manifest.outputs[key]?.provenance;
+      hashes(pin,['entry_sha256','public_source_sha256','approved_output_sha256','approved_review_sha256','provenance_sha256'],key);
+      assert.equal(pin.kind,replacement?'response_comparison':'synthesis');assert.ok(plain(approved));
+      for(const field of ['public_source_sha256','approved_output_sha256','approved_review_sha256'])assert.equal(pin[field],approved[field],message(key+' '+field+' differs'));
+      assert.equal(pin.provenance_sha256,evidenceDigest(approved));
+      if(replacement){assert.equal(approved.engine_commit,generationCommit);assert.equal(approved.source_manifest_sha256,g.source_manifest_sha256);
+        assert.equal(approved.sample_lens,key);assert.equal(approved.ai_status,'complete');}
+      if(artifact){
+        assert.equal(evidenceDigest(artifact.outputs[key]),pin.entry_sha256,message(key+' reviewed entry changed'));
+        if(!replacement)assert.equal(artifact.assembly?.retained_outputs?.[key],pin.entry_sha256,message(key+' retained historical entry changed'));
+      }
+    }
+    if(artifact){
+      assert.equal(artifact.assembly?.version,'comparison-sample-candidate-assembly-20260924.1');
+      assert.equal(artifact.assembly.private_receipt_sha256,g.private_receipt_sha256);
+      assert.equal(artifact.assembly.prepared_input_sha256,g.prepared_input_sha256);
+      assert.equal(artifact.assembly.original_artifact_file_sha256,comparison.prior_review.artifact_file_sha256);
+      assert.equal(artifact.assembly.generation_commit,g.source_commit);
+    }
+    assert.deepEqual(Object.keys(comparison.pdf_outputs||{}).sort(),products);
+    for(const key of products){const pdf=comparison.pdf_outputs[key];
+      hashes(pdf,['sha256','html_sha256'],key+' PDF/HTML');assert.equal(pdf.path,'sample-data/reports/'+key+'.pdf');assert.ok(positive(pdf.pages));}
+    const browser=comparison.browser_review,visual=comparison.pdf_visual_review;
+    hashes(browser,['receipt_sha256'],'browser review');assert.ok(positive(browser.states));
+    assert.ok(Array.isArray(browser.engines)&&browser.engines.includes('Chromium')&&new Set(browser.engines).size===browser.engines.length);
+    assert.ok(browser.engines.every(engine=>['Chromium','WebKit','Firefox'].includes(engine)));
+    assert.deepEqual(browser.widths,[320,390,834,1440]);assert.deepEqual([...browser.products].sort(),products);
+    assert.equal(browser.interactions,'passed');assert.equal(browser.responsive,'passed');
+    hashes(visual,['receipt_sha256'],'PDF visual review');assert.equal(visual.pages_reviewed,Object.values(comparison.pdf_outputs).reduce((total,pdf)=>total+pdf.pages,0));
+    assert.ok(typeof visual.method==='string'&&visual.method.trim());
+    return comparison;
+  }
   const overview=manifest.report_overview_presentation_review;
   if(overview){
     assert.equal(overview.version,'report-overview-presentation-20260923.1');
@@ -120,13 +262,24 @@ export function currentSynthesisPdfReview(manifest){
 // independent people, population accuracy or scientific validity.
 export function assertPublicCampaignEvidence(r,p,key) {
   const message=detail=>`${key}: ${detail}`;
+  const comparison=!key.endsWith('_synthesis');
   const people=p.distinct_included_participants,population=p.declared_eligible_population;
   assert.ok(Number.isSafeInteger(people)&&people>0,message('reviewed distinct-participant count missing'));
   assert.ok(Number.isSafeInteger(population)&&population>=people,message('reviewed population smaller than participation'));
   assert.ok(validHash(p.campaign_handoff_sha256),message('actual campaign handoff binding missing'));
   assert.equal(p.experience_source,'fabricated_participant_accounts');
-  assert.equal(p.operating_review_source,'fabricated_operational_corroboration');
-  assert.equal(r.report_kind,key,message('campaign report kind differs'));
+  assert.equal(p.operating_review_source,comparison?'not_supplied':'fabricated_operational_corroboration');
+  assert.equal(r.report_kind,comparison?'response_comparison':key,message('campaign report kind differs'));
+  if(comparison){
+    assertComparisonDisplayBoundary(r,p,key);
+    assert.equal(p.sample_lens,key);assert.equal(r.synthesis_product,'depth_synthesis');
+    assert.ok(people>=2&&people<population,message('comparison needs multiple participants and outstanding responses'));
+    assert.equal(r.financial_scenario,undefined,message('no organizational ROI in this example'));
+    assert.equal(r.recommended_path_available,false);
+    assert.deepEqual(r.campaign_action_options,[]);
+    assert.equal(r.ai_report?.report?.interpretation?.recommended_option??null,null);
+    assert.equal((r.ai_report?.report?.interpretation?.action_options||[]).length,0);
+  }
   assert.ok(typeof r.campaign_scope_label==='string'&&r.campaign_scope_label.trim(),message('bounded campaign scope missing'));
   assert.equal(r.count_basis,'server_bound_account_or_invitation_identities');
   assert.match(r.participant_count_note||'',/not independent proof/);
@@ -156,7 +309,7 @@ export function assertPublicCampaignEvidence(r,p,key) {
   assert.equal(e.representativeness.participant_count,people);
   assert.equal(e.representativeness.population_size,population);
   const lensKeys=Object.keys(p.questionnaire_versions||{}).sort();
-  const expectedKeys=key==='depth_synthesis'?['structural_clarity']:Object.values(PUBLIC_PRODUCTS).filter(lens=>!lens.endsWith('_synthesis')).sort();
+  const expectedKeys=comparison?[key]:key==='depth_synthesis'?['structural_clarity']:Object.values(PUBLIC_PRODUCTS).filter(lens=>!lens.endsWith('_synthesis')).sort();
   assert.deepEqual(lensKeys,expectedKeys,message('approved showcase lens scope changed'));
   assert.equal(r.lens_count,lensKeys.length);
   const sameLenses=(rows,field,label)=>assert.deepEqual((rows||[]).map(row=>row[field]).sort(),lensKeys,message(label));
@@ -164,7 +317,8 @@ export function assertPublicCampaignEvidence(r,p,key) {
   sameLenses(c.depth?.lenses,'lens','readiness lenses missing or duplicated');
   sameLenses(e.versions.per_lens,'tool_type','versioned lenses missing or duplicated');
   sameLenses(e.representativeness.per_lens,'tool_type','participation lenses missing or duplicated');
-  assert.equal(c.depth.status,'satisfied');
+  assert.equal(c.depth.status,comparison?'in_progress':'satisfied');
+  if(comparison){assert.equal(c.crossLens.status,'in_progress');assert.equal(c.recommendedPath.status,'in_progress');}
   if(key==='cross_lens_synthesis')assert.equal(c.crossLens?.status,'satisfied');
   const coverage=(value,label)=>{
     assert.equal(value?.numerator,people,message(label+' numerator'));
@@ -182,7 +336,8 @@ export function assertPublicCampaignEvidence(r,p,key) {
     const version=e.versions.per_lens.find(row=>row.tool_type===lens);
     assert.equal(version.compatible,true);assert.deepEqual(version.config_versions,group.config_versions);
     assert.deepEqual(version.scorer_versions,group.scorer_versions);
-    assert.equal(ready.status,'satisfied');
+    assert.equal(ready.status,comparison?'in_progress':'satisfied');
+    if(comparison){assert.equal(ready.descriptiveReadAvailable,true);assert.equal(ready.bounds.stableBand,null);}
     for(const field of ['includedRuns','distinctParticipants','usableDistinctParticipants'])assert.equal(ready.counts?.[field],people,message(lens+' '+field));
     for(const field of ['repeatedParticipants','duplicateRunIds','excludedRuns','pendingRuns'])assert.equal(ready.counts?.[field],0,message(lens+' '+field));
     assert.equal(ready.counts.eligiblePopulation,population);
@@ -265,10 +420,7 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
   assert.equal(artifact.engine_commit,manifest.engine_commit);
   assert.ok(validTime(artifact.generated_at));
   assert.equal(artifact.generated_at,manifest.generated_at);
-  assert.equal(artifact.publication_projection?.version,'monderman-public-sample-projection-20260913.7');
-  assert.ok(validHash(artifact.publication_projection.source_sha256));
-  assert.match(artifact.publication_projection.projection_commit,/^[a-f0-9]{40}$/);
-  assert.deepEqual(artifact.publication_projection,manifest.publication_projection,'publication projection differs from reviewed export');
+  assertPublicSampleProjection(artifact,manifest);
   const keys=Object.values(PUBLIC_PRODUCTS).sort();
   assert.deepEqual(Object.keys(artifact.outputs||{}).sort(),keys,'exactly six current public products required');
   assert.deepEqual(Object.keys(manifest.outputs||{}).sort(),keys,'all six approved output pins required');
@@ -276,21 +428,33 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
     assert.ok(validHash(manifest.source_files?.[filename]),'missing reviewed source pin: '+filename);
     assert.equal(sha(fs.readFileSync(path.join(root,filename))),manifest.source_files[filename],'reviewed source changed: '+filename);
   }
-  if(manifest.report_overview_presentation_review){
-    const review=currentSynthesisPdfReview(manifest);
+  const currentReview=currentSynthesisPdfReview(manifest,artifact);
+  if(manifest.response_comparison_publication_review){
+    // A new content edition needs exact current bytes, not an inverse back to
+    // a historical renderer/template. The prior review stays separately bound.
+    for(const [filename,digest]of Object.entries(currentReview.source_files)){
+      assert.ok(filename&&!path.isAbsolute(filename)&&!filename.split(/[\\/]/).includes('..')&&validHash(digest),'unsafe comparison source pin');
+      assert.equal(sha(fs.readFileSync(path.join(root,filename))),digest,'reviewed comparison source changed: '+filename);
+    }
+    assertPublicSampleHtmlBindings(artifact,currentReview,{root});
+  }else if(manifest.report_overview_presentation_review){
+    const review=currentReview;
     for(const filename of ['monderman-report.js','index.html','homepage-workspace-demo.css','scripts/templates/home-workspace-preview.html','sample-report-tile.css','pilot-waitlist.css','canonical-site-shell.css','public-product-design.css']){
       assert.ok(validHash(review.source_files?.[filename]),'missing overview source pin: '+filename);
-      assert.equal(sha(fs.readFileSync(path.join(root,filename))),review.source_files[filename],'reviewed overview source changed: '+filename);
+      // Only reviewed surrounding HTML copy changed on the homepage. Its
+      // pinned inverse preserves the certified report preview unchanged.
+      assert.equal(sha(sourceBeforePublicCopyClarity(filename,fs.readFileSync(path.join(root,filename)))),review.source_files[filename],'reviewed overview source changed: '+filename);
     }
   }
   const entries=[],runs={};
   for(const [tab,key] of Object.entries(PUBLIC_PRODUCTS)) {
     const entry=artifact.outputs[key],pin=manifest.outputs[key],p=entry.provenance,r=publicResult(entry);
     const synthesis=key.endsWith('_synthesis');
-    assertFinancialSamplePdfBinding(currentSynthesisPdfReview(manifest),key,fs.readFileSync(path.join(root,'sample-data/reports/'+key+'.pdf')));
-    assert.equal(entry.kind,synthesis?'synthesis':'diagnostic',key+' kind');
+    assertFinancialSamplePdfBinding(currentReview,key,fs.readFileSync(path.join(root,'sample-data/reports/'+key+'.pdf')));
+    const comparison=!synthesis&&entry.kind==='response_comparison';
+    assert.equal(entry.kind,synthesis?'synthesis':comparison?'response_comparison':'diagnostic',key+' kind');
     assert.ok(plain(entry.source)&&plain(p)&&plain(pin),key+' source, provenance and approval required');
-    assert.equal(synthesis?r.synthesis_product:r.tool_type,key,key+' identity');
+    assert.equal(synthesis?r.synthesis_product:comparison?p.sample_lens:r.tool_type,key,key+' identity');
     assert.equal(p.synthetic,true,key+' synthetic origin');
     assert.ok(validTime(p.generated_at),key+' original sample time');
     for(const name of ['input_sha256','result_sha256','source_manifest_sha256','approved_output_sha256','approved_review_sha256','public_source_sha256']) {
@@ -312,10 +476,10 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
     },pin.ai,key+' AI source differs from approved output');
     assert.equal(report.prompt_version,p.report_ai_prompt_version,key+' AI prompt provenance mismatch');
     assertPublicSampleGenerationProvenance(entry,key);
-    if(synthesis) {
+    if(synthesis||comparison) {
       if(r.financial_scenario?.version==='operational-planning-scenario-20260919.2'){
         assertFinancialSampleRevision(entry,manifest.financial_publication_update,key);
-        assertFinancialSamplePdfBinding(currentSynthesisPdfReview(manifest),key,fs.readFileSync(path.join(root,'sample-data/reports/'+key+'.pdf')));
+        assertFinancialSamplePdfBinding(currentReview,key,fs.readFileSync(path.join(root,'sample-data/reports/'+key+'.pdf')));
       }
       assert.equal(r.evidence_assessment?.time_window?.maximum_days,undefined,key+' private qualification limit must not be published');
       assert.equal(r.narrative?.sequenced_action_logic,undefined,key+' internal sequencing duplicate must not be published');
@@ -354,7 +518,7 @@ export function createPublicSampleModels(options={}) {
   vm.runInContext(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8'),context,{filename:'monderman-report.js'});
   vm.runInContext(fs.readFileSync(path.join(root,'public-sample-model.js'),'utf8'),context,{filename:'public-sample-model.js'});
   const Report=context.window.MondermanReport,Public=context.window.MondermanPublicSamples;
-  assert.equal(Report.rendererVersion,'diagnostic-renderer-report-overview-20260923.1');
+  assert.equal(Report.rendererVersion,'diagnostic-renderer-report-overview-20260924.1');
   assert.equal(Report.rendererVersion,fixture.manifest.renderer_version);
   Public.validate(fixture.artifact);
   const models={};

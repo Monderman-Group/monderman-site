@@ -172,30 +172,34 @@ async function assertFinancialReadingOrder(shell,source,measuredSelector,label) 
   },measuredSelector),label+' must begin financial brief, AI interpretation, then measured section in that exact order');
 }
 
-// The four Diagnostic samples must be the live projection of the locked
-// production-engine artifact, not the legacy hand-authored report markup.
-const diagnostics = Object.fromEntries(Object.entries({os:'operational_systems',dv:'decision_velocity',sc:'structural_clarity',ip:'institutional_performance'}).map(([tab,key])=>{
+// The four lens samples are descriptive comparisons. Independent individual
+// report coverage below continues to use the authenticated engine fixture.
+const comparisons = Object.fromEntries(Object.entries({os:'operational_systems',dv:'decision_velocity',sc:'structural_clarity',ip:'institutional_performance'}).map(([tab,key])=>{
   const entry=artifact.outputs[key],source=publicResult(entry);
-  return [tab,{score:String(source.score),dimensions:Object.keys(source.dimensions).length,source,engineCommit:entry.provenance.engine_commit}];
+  assert(entry.kind==='response_comparison'&&source.report_kind==='response_comparison',key+' must be the reviewed response comparison');
+  assert(source.source_groups.length===1&&source.source_groups[0].tool_type===key,key+' comparison lens differs');
+  assert(source.participant_count===15&&source.submitted_run_count===15,key+' comparison participant count differs');
+  assert(source.campaign_evidence.depth.status==='in_progress'&&source.recommended_path_available===false,key+' must remain below Synthesis readiness');
+  assert(!source.financial_scenario,key+' comparison must not acquire a financial scenario');
+  return [tab,{score:String(source.aggregate_score),source,engineCommit:entry.provenance.engine_commit}];
 }));
-for (const [key, expected] of Object.entries(diagnostics)) {
+for (const [key, expected] of Object.entries(comparisons)) {
   const shell = await openTab(key);
   const report = shell.locator('.psr-wrap');
   assert(await report.getAttribute('data-engine-commit') === expected.engineCommit, `${key} original generation revision mismatch`);
   assert(await report.getAttribute('data-artifact-sha256') === artifact.artifact_sha256, `${key} artifact digest mismatch`);
-  assert((await shell.locator('.mr-run-score-stamp strong').textContent()).trim() === expected.score, `${key} score mismatch`);
-  assert(await shell.locator('.mr-dimension-row').count() === expected.dimensions, `${key} dimension profile mismatch`);
-  assert(await shell.locator('.mr-run-remedy').count() === 0, `${key} completed AI duplicates fallback remedy paths`);
+  assert((await shell.locator('.mr-cover-score').textContent()).trim() === expected.score, `${key} included-response median mismatch`);
+  assert((await shell.locator('.mr-cover-score-label').textContent()).trim() === expected.source.score_label, `${key} median label mismatch`);
+  assert(await shell.locator('.mr-depth-distribution-panel').isVisible(), `${key} score distribution missing`);
+  assert(await shell.locator('.mr-run-score-stamp,.mr-dimension-row,.mr-run-remedy,.mr-recommended-path,.mr-report-options').count() === 0, `${key} comparison became an individual report or recommended change path`);
   await assertAuthoredSections(shell,expected.source,key);
-  assert(await shell.locator('.mr-exposure-flow').count()===0,`${key} single-run modeled exposure returned`);
+  assert(await shell.locator('.mr-exposure-flow,.mr-exposure-range,.mr-financial-scenario,.mr-benefit-assumptions').count()===0,`${key} comparison displays a recovery estimate or financial scenario`);
   assert(await shell.locator('.cover').count() === 0, `${key} legacy sample remains in the live DOM`);
   const text = await shell.textContent();
-  for (const token of ['Decision summary','Dimension profile',key==='sc'?'Clarity indicator distribution':'Where the measured issue appears','Evidence in this run',key==='sc'?'Review order and clarity indicators':'Priority order and measured severity','Method and limits','Interpretation boundary','Interpretation and next steps']) {
+  for (const token of ['Response comparison','Included responses only','Agreement, divergence, and coverage','Results by participant perspective','Evidence in this run','Method and limits','Interpretation boundary','Interpretation and next steps']) {
     assert(text.includes(token), `${key} production-contract section missing: ${token}`);
   }
-  const sectionNotes=await page.evaluate(source=>window.MondermanReport.fromRun(source).participantEvidence,expected.source);
-  assert(await shell.locator('.mr-run-evidence .mr-evidence-quote').count()===sectionNotes.length,`${key} saved note-section count differs`);
-  assert(await shell.locator('.mr-run-evidence .mr-evidence-empty').count()===(sectionNotes.length?0:1),`${key} note-section empty state differs from displayed source`);
+  assert(expected.source.experiential_records.length===12&&expected.source.experiential_selection.available===15&&expected.source.experiential_selection.exhaustive===false,`${key} selected-observation disclosure differs`);
   for (const action of expected.source.ai_report.report.interpretation.recommendations.filter(row=>row.action?.trim())) {
     assert(text.includes(action.action), `${key} accepted next step differs from source`);
   }
@@ -511,7 +515,7 @@ fs.writeFileSync(path.join(out, 'result.json'), JSON.stringify({
   crossChartFont,
   depthChartFont,
   boundaryStyle,
-  diagnosticTabs:4,
+  responseComparisonTabs:4,
   synthesisTabs:2,
   authenticatedRunChecks,
   synthesisResponsiveChecks,
