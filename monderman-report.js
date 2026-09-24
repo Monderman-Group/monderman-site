@@ -798,7 +798,7 @@
       const s = obj(segment), hasMean = strictFinite(s.mean_score), hasMedian = strictFinite(s.median_score);
       // A missing statistic is not interchangeable with the other statistic.
       // Long or right-edge value labels get their own row within the chart.
-      const labelBelow = !hasMean || !hasMedian || Number(s.mean_score) > 70;
+      const labelBelow = !hasMean || !hasMedian || Math.max(Number(s.mean_score), Number(s.median_score)) > 70;
       return { s, hasMean, hasMedian, labelBelow, height: labelBelow ? 54 : 36 };
     });
     const H = 148 + segmentRows.reduce((height, row) => height + row.height, 0);
@@ -829,7 +829,7 @@
       svg += '<line x1="' + X(0) + '" y1="' + (y+14) + '" x2="' + X(100) + '" y2="' + (y+14) + '" stroke="rgba(24,25,28,.09)"/>';
       if (hasMean) svg += '<circle class="mr-depth-segment-mean" cx="' + X(mean) + '" cy="' + (y+14) + '" r="6" fill="#0C6E78"/>';
       if (hasMedian) svg += '<circle class="mr-depth-segment-median" cx="' + X(med) + '" cy="' + (y+14) + '" r="3" fill="#fff" stroke="#08383E" stroke-width="2"/>';
-      svg += '<text class="mr-depth-segment-label" x="' + (labelBelow ? W-R : X(mean)+12) + '" y="' + (y+(labelBelow ? 36 : 18)) + '" text-anchor="' + (labelBelow ? 'end' : 'start') + '" font-size="11" fill="#6E6F73">mean ' + esc(hasMean ? fmt1(mean) : 'Not available') + ' · median ' + esc(hasMedian ? fmt1(med) : 'Not available') + '</text></g>';
+      svg += '<text class="mr-depth-segment-label" x="' + (labelBelow ? W-R : X(Math.max(mean,med))+12) + '" y="' + (y+(labelBelow ? 36 : 18)) + '" text-anchor="' + (labelBelow ? 'end' : 'start') + '" font-size="11" fill="#6E6F73">mean ' + esc(hasMean ? fmt1(mean) : 'Not available') + ' · median ' + esc(hasMedian ? fmt1(med) : 'Not available') + '</text></g>';
     });
     svg += '</svg>';
     // A fixed-width SVG scaled into a phone panel makes its labels unreadable.
@@ -2973,7 +2973,7 @@
       .mr-report .mr-cover{break-inside:avoid;page-break-inside:avoid}
       .mr-cover-dark{padding:28px 30px 24px}
       .mr-cover-white{padding:22px 30px 24px}
-      .mr-cover-title{font-size:28pt!important;line-height:1.04!important}
+      .mr-cover-title{font-size:28pt!important;line-height:1.04!important;max-width:none}
       .mr-cover-sub,.mr-cover-body{font-size:10pt!important;line-height:1.45!important}
       .mr-cover-meta{margin-top:16px;padding-top:12px;gap:8px 12px}
       .mr-cover-body{margin-top:14px!important;padding-top:12px}

@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
 import {sourceBeforeExecutiveOverview} from './executive_overview_renderer_inverse.mjs';
+import {restoreComparisonPrint20260924Html} from './report_comparison_print_20260924_inverse.mjs';
 const root=path.resolve(import.meta.dirname,'..');
 const read=f=>fs.readFileSync(path.join(root,f),'utf8');
 const source=read('monderman-report.js');
@@ -24,13 +25,13 @@ for(const key of ['depth_synthesis','cross_lens_synthesis']){
   const unit=text=>({text,evidence_ids:[report.evidence[0].id],source_ids:[]});
   const overview={version:'executive-overview-20260924.1',headline:unit('Review the reported delays before choosing a change.'),findings:[unit('Participants describe different experiences of the same work.'),unit('Check those differences against examples from the measurement period.')],option_summaries:interpretation.action_options.map((option,i)=>({option_id:option.option_id,...unit(['Test one recurring decision with the people responsible.','Review related handoffs before expanding the change.','Agree the scope before changing responsibilities across the organization.'][i])})),preferred:null};
   const before=R.fromSynthesis(raw);
-  eq(R.buildReportHtml(before),old.buildReportHtml(before),key+': historical report renders identically without new summary');
+  eq(restoreComparisonPrint20260924Html(R.buildReportHtml(before)),old.buildReportHtml(before),key+': historical report renders identically except separately reviewed PDF presentation');
   interpretation.executive_overview=overview;
   for(const [name,model]of [['real',R.fromSynthesis(raw)],['sample',ctx.window.MondermanPublicSamples.model(entry,artifact)]]){
     const original=JSON.stringify(model),html=R.buildReportHtml(model);
     eq(JSON.stringify(model),original,key+'/'+name+': caller data retained');
     for(const row of [overview.headline,...overview.findings,...overview.option_summaries])ok(html.includes(row.text),key+'/'+name+': complete summary unit retained');
-    eq(R.buildReportBody(model),old.buildReportBody(model),key+'/'+name+': long report and print body bytes unchanged');
+    eq(restoreComparisonPrint20260924Html(R.buildReportBody(model)),old.buildReportBody(model),key+'/'+name+': long report and print body bytes unchanged except separately reviewed PDF presentation');
     for(const mutate of [
       x=>x.version='unknown',x=>x.findings[0].evidence_ids=['missing'],x=>x.findings[0].source_ids=['missing'],
       x=>x.findings[0].text='long '.repeat(31),x=>x.findings.length=1,
@@ -39,11 +40,11 @@ for(const key of ['depth_synthesis','cross_lens_synthesis']){
       x=>x.headline.text='long '.repeat(13),x=>x.findings[0].evidence_ids=[],x=>x.option_summaries.pop()
     ]){
       const changed=structuredClone(model);mutate(changed.aiReport.report.interpretation.executive_overview);
-      eq(R.buildReportHtml(changed),old.buildReportHtml(changed),key+'/'+name+': malformed edition falls back intact');
+      eq(restoreComparisonPrint20260924Html(R.buildReportHtml(changed)),old.buildReportHtml(changed),key+'/'+name+': malformed edition falls back intact');
     }
     for(const variant of [{comparisonOnly:true},{selfRun:true},{aiReport:{status:'pending'}},{aiReport:{status:'failed'}}]){
       const changed={...model,...variant};
-      eq(R.buildReportHtml(changed),old.buildReportHtml(changed),key+'/'+name+': no upgraded summary outside ready synthesis');
+      eq(restoreComparisonPrint20260924Html(R.buildReportHtml(changed)),old.buildReportHtml(changed),key+'/'+name+': no upgraded summary outside ready synthesis');
     }
     const preferred=interpretation.recommended_option;
     if(preferred?.option_id&&model.campaignEvidence?.recommendedPath?.status==='satisfied'){

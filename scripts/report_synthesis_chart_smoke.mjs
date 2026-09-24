@@ -75,7 +75,8 @@ for(const [engine,type] of Object.entries({chromium,webkit})){
      const plot=measured.segmentPlots[i];assert.equal(plot.meanMarkers,Number(present(segment.mean_score)));assert.equal(plot.medianMarkers,Number(present(segment.median_score)));
      assert.equal(plot.label,`mean ${expectedMean} · median ${expectedMedian}`);
      if(!compactExpected){assert.ok(plot.labelBox.left>=measured.svgBox.left&&plot.labelBox.right<=measured.svgBox.right,`${name}: segment value label outside SVG`);assert.ok(plot.labelBox.bottom<=measured.svgBox.bottom,`${name}: segment label below SVG`);
-      if(!present(segment.mean_score)||!present(segment.median_score)||Number(segment.mean_score)>70)for(const marker of plot.markers)assert.ok(plot.labelBox.top>=marker.bottom,`${name}: missing/edge segment label overlaps marker`);}
+      if(!present(segment.mean_score)||!present(segment.median_score)||Math.max(Number(segment.mean_score),Number(segment.median_score))>70){for(const marker of plot.markers)assert.ok(plot.labelBox.top>=marker.bottom,`${name}: missing/edge segment label overlaps marker`);}
+      else for(const marker of plot.markers)assert.ok(plot.labelBox.left>=marker.right,`${name}: inline segment label overlaps mean or median marker`);}
     });
    }
    else{

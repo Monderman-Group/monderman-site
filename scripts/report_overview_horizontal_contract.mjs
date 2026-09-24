@@ -317,7 +317,7 @@ if (comparisonArg >= 0) {
 const cssStart = source.indexOf('      .mr-overview-grid{'), cssEnd = source.indexOf('      .mr-report .mr-cover-kicker{', cssStart), overviewCss = source.slice(cssStart, cssEnd);
 equal(sha(priorSource), PRIOR_HORIZONTAL_OVERVIEW_SHA256, 'exact inverse restores complete original renderer');
 for (const mutation of [source + '\n', source.replace('limit = 180', 'limit = 999'), source.replace('spendingReduction:\'#E6C765\'', 'spendingReduction:\'#ff0000\'')]) {
-  assert.throws(() => sourceBeforeHorizontalOverviewPresentation(mutation), /Only the exact (?:approved horizontal|reviewed executive overview) renderer/); checks++;
+  assert.throws(() => sourceBeforeHorizontalOverviewPresentation(mutation), /Only the exact (?:approved horizontal renderer|reviewed executive overview renderer|reviewed cover\/segment-label presentation)/); checks++;
 }
 ok(/\.mr-overview-grid\{[^}]*grid-template-columns:minmax\(0,1fr\)/.test(overviewCss), 'other report types retain their existing one-column overview');
 ok(/background:rgba\(36,48,52,\.78\)/.test(overviewCss), 'rows sit on translucent charcoal backing');

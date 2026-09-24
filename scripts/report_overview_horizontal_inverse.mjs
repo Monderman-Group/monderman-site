@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
 import {sourceBeforeExecutiveOverview} from './executive_overview_renderer_inverse.mjs';
+import {restoreComparisonPrint20260924Html} from './report_comparison_print_20260924_inverse.mjs';
 const sha = value => createHash('sha256').update(value).digest('hex');
 export const HORIZONTAL_OVERVIEW_VERSION = 'diagnostic-renderer-report-overview-20260924.1';
 export const HORIZONTAL_OVERVIEW_SHA256 = '9c3563c5ff811133da185cbedb0c53bcdea4307b60b1e395d6cd207e11e44180';
@@ -29,6 +30,7 @@ export function sourceBeforeHorizontalOverviewPresentation(source) {
 // comparison labels. The overview itself is removed by its existing normalizer.
 // Numbers, chart geometry, financial wording and all report text remain exact.
 export function restoreHorizontalOverviewDetailPresentation(html) {
+  html = restoreComparisonPrint20260924Html(html);
   html = html.replace(/(<section\b[^>]*class="mr-cover") data-overview-first="true">/g, '$1>');
   html = html.replace(`      /* A Letter cover must not inherit the phone metadata grid. Keep the
          full boundary on its cover without shrinking the report prose. */

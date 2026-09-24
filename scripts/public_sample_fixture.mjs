@@ -142,13 +142,25 @@ export function currentSynthesisPdfReview(manifest,artifact=null){
   const comparison=manifest.response_comparison_publication_review;
   if(comparison){
     const message=detail=>'Response-comparison publication: '+detail;
-    const generationCommit='de66200d6c30d749757c2eb2515740049cfaf4b1';
+    const generationCommit='42d80a5f8d16da653ff74e47f698df6834864e26';
+    const originalReceipt='a3d5e0813deda8bf967eac20c8d4793f0913cfd2ebf560c69f30011e6aee13b2';
+    const correctionReceipt='88863b677300f8978a3a27937659cd619aa50bc2732c0ba06a733ad7b3aa0fb4';
+    const correctionRunner='bfd1fda23690de98d0bce585e661142103a3c59a22f3fef3ffe934084c88ab4c';
+    const lineageDigest='c7342b8d36186d87d973f40273a8dbdf5b647470543bed93db029824abde1efc';
+    const entryDigests={
+      operational_systems:'56bb40144c5e4f12339a92dfad4899a83b25f0642deaec65b44df8be772f19a8',
+      decision_velocity:'2b1c7d830f999b5d44ced38947d686574c1fc78f0e6e196c1feb081ea67471b7',
+      structural_clarity:'e6c4b103f5390bb1e51779fec76068a9baca44dd1f18ae7bd513be4865fa979e',
+      institutional_performance:'513f595c1dab0d2fd23fc756e441835f45ae78a49153da17e5662a418f6626ac',
+      depth_synthesis:'2ccfc2887d16bdf2429adef90a10a1f3ebc3695c1f3460317399a327d31673e6',
+      cross_lens_synthesis:'24ac7b715614d3e4501b3807a8b64028e94ca42be6d69e36557171d137384118',
+    };
     const replacements=['operational_systems','decision_velocity','structural_clarity','institutional_performance'];
     const retained=['depth_synthesis','cross_lens_synthesis'],products=Object.values(PUBLIC_PRODUCTS).sort();
     const natural=value=>Number.isSafeInteger(value)&&value>=0;
     const positive=value=>natural(value)&&value>0;
     const hashes=(value,names,label)=>{assert.ok(plain(value),message(label+' missing'));for(const name of names)assert.ok(validHash(value[name]),message(label+' '+name+' missing'));};
-    assert.equal(comparison.version,'response-comparison-publication-20260924.1');
+    assert.equal(comparison.version,'response-comparison-publication-20260924.2');
     assert.equal(comparison.status,'reviewed');assert.equal(comparison.reviewed_by,'Codex');assert.ok(validTime(comparison.reviewed_at));
     assert.equal(comparison.fidelity_review,'passed');assert.equal(comparison.visual_review,'passed');
     assert.equal(comparison.review_basis,'independent_source_replay_and_visual_review');assert.equal(comparison.publicationApproved,true);
@@ -180,26 +192,44 @@ export function currentSynthesisPdfReview(manifest,artifact=null){
     hashes(g,['private_receipt_sha256','prepared_input_sha256','source_manifest_sha256'],'paid generation');
     assert.equal(g.source_commit,generationCommit);assert.equal(manifest.engine_commit,generationCommit);
     assert.match(g.host_release||'',/^[a-f0-9]{40}$/);
-    assert.equal(g.source_manifest_sha256,'8a6aecbff1e5c28f73565df227f667ae5142ad34873fb810048b65c036571598');
-    assert.equal(g.prepared_input_sha256,'d47509178e2b0c76f52a4269100f6a180f5d134e2934eea7bb4e51aca7da6be2');
-    assert.equal(g.status,'four_comparisons_generated_and_review_approved');assert.equal(g.evaluation_passed,true);
-    assert.equal(g.jobs,4);assert.equal(g.provider_calls,8);assert.equal(g.maximum_provider_calls,8);assert.equal(g.maximum_free_count_requests,8);
-    assert.ok(natural(g.free_count_requests)&&g.free_count_requests<=8);assert.equal(g.automatic_retries,0);
-    assert.ok(positive(g.budget_ceiling_microusd)&&g.budget_ceiling_microusd<=9638950);
+    assert.equal(g.private_receipt_sha256,originalReceipt);
+    assert.equal(g.source_manifest_sha256,'66482277a4a7da3d66213300e2a1c2ad5c28b42110b08994390786ff182c95b0');
+    assert.equal(g.prepared_input_sha256,'fa5300d3e6f967d2cd8301eb3d25c6e7322d65882317d493e9b2cb17e9dce180');
+    // Preserve the actual partial batch and failed IP attempt. The separately
+    // requested correction is not a relabelled successful eight-call batch.
+    assert.equal(g.status,'four_comparisons_complete_with_failures');assert.equal(g.evaluation_passed,false);
+    assert.equal(g.jobs,4);assert.equal(g.provider_calls,7);assert.equal(g.maximum_provider_calls,8);assert.equal(g.maximum_free_count_requests,8);
+    assert.equal(g.free_count_requests,7);assert.equal(g.automatic_retries,0);
+    assert.equal(g.budget_ceiling_microusd,5939590);
     assert.ok(positive(g.reserved_microusd)&&g.reserved_microusd<=8683520);
     assert.ok(natural(g.settled_microusd)&&g.settled_microusd<=g.reserved_microusd&&g.settled_microusd<=g.budget_ceiling_microusd);
-    assert.equal(g.unsettled_attempts,0);assert.equal(g.retained_microusd,0);assert.equal(g.known_paid_requests,8);assert.equal(g.checkpoint_failed,false);
+    assert.equal(g.unsettled_attempts,0);assert.equal(g.retained_microusd,0);assert.equal(g.known_paid_requests,7);assert.equal(g.checkpoint_failed,false);
     assert.ok(validTime(g.finished_at)&&Date.parse(g.finished_at)<=Date.parse(comparison.reviewed_at));
+    const correction=g.correction,lineage=g.receipt_lineage;
+    hashes(correction,['private_receipt_sha256','runner_sha256'],'manual correction');
+    assert.equal(correction.private_receipt_sha256,correctionReceipt);assert.equal(correction.runner_sha256,correctionRunner);
+    assert.equal(correction.version,'comparison-manual-presentation-correction-20260924.1');
+    assert.equal(correction.status,'comparison_presentation_correction_approved');assert.equal(correction.correction_mode,'production_presentation_retry');
+    assert.equal(correction.jobs,1);assert.equal(correction.provider_calls,2);assert.equal(correction.automatic_retries,0);
+    assert.equal(correction.settled_microusd,505705);assert.equal(correction.unsettled_attempts,0);assert.equal(correction.retained_microusd,0);
+    assert.ok(validTime(correction.finished_at)&&Date.parse(correction.finished_at)<=Date.parse(comparison.reviewed_at));
+    assert.equal(evidenceDigest(lineage),lineageDigest,message('original/correction receipt lineage differs'));
+    // Exact independently verified generation facts, including the original
+    // failure binding, both settlements, caps, runner and all attempt IDs.
+    assert.equal(evidenceDigest(g),'d4011eadc63310d9aa1d742fd9393a9719578aa27929e3209447f297e41d4437',message('exact paid generation receipts differ'));
     assert.deepEqual(Object.keys(comparison.outputs||{}).sort(),[...replacements].sort());
     assert.deepEqual(Object.keys(comparison.retained_outputs||{}).sort(),[...retained].sort());
     for(const key of products){
       const replacement=replacements.includes(key),pin=replacement?comparison.outputs[key]:comparison.retained_outputs[key];
       const approved=manifest.outputs[key]?.provenance;
       hashes(pin,['entry_sha256','public_source_sha256','approved_output_sha256','approved_review_sha256','provenance_sha256'],key);
+      assert.equal(pin.entry_sha256,entryDigests[key],message(key+' independently reviewed entry differs'));
       assert.equal(pin.kind,replacement?'response_comparison':'synthesis');assert.ok(plain(approved));
       for(const field of ['public_source_sha256','approved_output_sha256','approved_review_sha256'])assert.equal(pin[field],approved[field],message(key+' '+field+' differs'));
       assert.equal(pin.provenance_sha256,evidenceDigest(approved));
       if(replacement){assert.equal(approved.engine_commit,generationCommit);assert.equal(approved.source_manifest_sha256,g.source_manifest_sha256);
+        assert.equal(approved.generation_receipt_sha256,lineage.outputs[key].receipt_sha256);
+        assert.equal(approved.generation_attempt_id,lineage.outputs[key].attempt_id);
         assert.equal(approved.sample_lens,key);assert.equal(approved.ai_status,'complete');}
       if(artifact){
         assert.equal(evidenceDigest(artifact.outputs[key]),pin.entry_sha256,message(key+' reviewed entry changed'));
@@ -207,8 +237,12 @@ export function currentSynthesisPdfReview(manifest,artifact=null){
       }
     }
     if(artifact){
-      assert.equal(artifact.assembly?.version,'comparison-sample-candidate-assembly-20260924.1');
+      assert.equal(artifact.assembly?.version,'comparison-sample-candidate-assembly-20260924.2');
       assert.equal(artifact.assembly.private_receipt_sha256,g.private_receipt_sha256);
+      assert.equal(artifact.assembly.correction_receipt_sha256,correctionReceipt);
+      assert.equal(artifact.assembly.correction_runner_sha256,correctionRunner);
+      assert.equal(evidenceDigest(artifact.assembly.receipt_lineage),lineageDigest);
+      assert.equal(artifact.assembly.publicationApproved,false,'Candidate assembly must not manufacture publication approval');
       assert.equal(artifact.assembly.prepared_input_sha256,g.prepared_input_sha256);
       assert.equal(artifact.assembly.original_artifact_file_sha256,comparison.prior_review.artifact_file_sha256);
       assert.equal(artifact.assembly.generation_commit,g.source_commit);
