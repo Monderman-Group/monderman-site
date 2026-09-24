@@ -93,6 +93,7 @@ ok(!decimalsBuilt.html.match(briefPattern)[0].includes('No direct cash saving as
 const early=clone(cases[0].raw);early.report_kind='response_comparison';early.financial_scenario.kind='early_planning_scenario';
 ok(build(early).html.includes('This scenario does not unlock Synthesis.'),'Early participation boundary is explicit');
 
+if(process.argv.includes('--deterministic-only')){console.log(JSON.stringify({passed:true,checks,scope:'VM and historical HTML preconditions only; browser checks not run',providerCalls:0,networkCalls:0}));process.exit(0);}
 for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
   const browser=await type.launch({headless:true});
   try{for(const width of [390,834,1440])for(const item of cases){

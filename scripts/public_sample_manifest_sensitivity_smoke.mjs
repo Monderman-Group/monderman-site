@@ -28,7 +28,7 @@ const pdfNames=['operational_systems','decision_velocity','structural_clarity','
 const overviewSources=['index.html','homepage-workspace-demo.css','sample-report-tile.css','pilot-waitlist.css','canonical-site-shell.css','public-product-design.css'];
 const adapterDependencies=['scripts/public_copy_clarity_inverse.mjs','scripts/promotional_gold_20260924_inverse.mjs','scripts/report_library_20260924_inverse.mjs',
   'scripts/public_sample_projection_20260924_inverse.mjs','scripts/public_language_pass_20260924_inverse.mjs','scripts/trust_security_center_20260924_inverse.mjs',
-  'scripts/homepage_compact_journey_20260924_inverse.mjs',
+  'scripts/homepage_compact_journey_20260924_inverse.mjs','scripts/public_sample_preview_binding_20260924_inverse.mjs',
   'scripts/fixtures/public-copy-clarity-20260924.json','scripts/fixtures/report-library-presentation-20260924.json',
   'scripts/fixtures/public-language-pass-20260924.json','scripts/fixtures/trust-security-center-20260924.json','scripts/fixtures/homepage-compact-journey-20260924.json'];
 const currentPublication=JSON.parse(fs.readFileSync(path.join(root,manifestName))).response_comparison_publication_review;

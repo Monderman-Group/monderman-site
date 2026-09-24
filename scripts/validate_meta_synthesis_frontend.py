@@ -205,7 +205,7 @@ for token in (
     'const STORAGE_KEY="mondermanCrossDiagnosticSynthesis"',
     "MondermanReport.fromSynthesis(result)",
     'result.score_status==="published"',
-    "This page renders the API result; it does not recalculate scores",
+    "This page displays the saved result without recalculating scores, evidence bands, or exposure.",
     '/api/synthesis-runs/',
     'Cross-Lens Composite Score withheld',
 ):

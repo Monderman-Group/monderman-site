@@ -7,7 +7,17 @@ import {HORIZONTAL_OVERVIEW_VERSION,restoreHorizontalOverviewDetailPresentation}
 
 export function withoutReportOverview(html,{preserveVersion=false}={}) {
   const edition=html.includes('<meta name="monderman-renderer-version" content="'+HORIZONTAL_OVERVIEW_VERSION+'" />')?HORIZONTAL_OVERVIEW_VERSION:'diagnostic-renderer-report-overview-20260923.1';
-  if(edition===HORIZONTAL_OVERVIEW_VERSION)html=restoreHorizontalOverviewDetailPresentation(html);
+  if(edition===HORIZONTAL_OVERVIEW_VERSION){
+    html=restoreHorizontalOverviewDetailPresentation(html);
+    // The separately reviewed immediate jump prevents taps landing on a moving
+    // neighboring tile. Reverse only this exact handler for old HTML baselines.
+    const instant=`    // Reports can be very long. An immediate jump keeps the return link and
+    // next tap stationary instead of racing an in-flight scroll animation.
+    target.scrollIntoView({ behavior: 'instant', block: 'start' });`;
+    const prior="    target.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });";
+    assert.equal(html.split(instant).length,2,'One exact approved immediate-navigation handler');
+    html=html.replace(instant,()=>prior);
+  }
   const opening='<div class="mr-screen-only mr-report-overview" aria-label="Report overview">';
   assert.equal(html.split(opening).length,2,'One screen-only overview');
   const start=html.indexOf(opening),tokens=/<\/?div\b[^>]*>/g;

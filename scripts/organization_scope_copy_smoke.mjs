@@ -130,7 +130,7 @@ for (const [label, mutation] of [
   ['unrelated executable addition', acceptedSample.replace('</body>', '<script>window.unapprovedBehavior = true;</script></body>')],
 ]) {
   check(mutation !== acceptedSample, label + ': negative control changes the sample page');
-  assert.throws(() => assertScripts('sample-report.html', mutation), /executable scripts match the exact approved baseline|only the exact reviewed current source can be inverted|only the exact reviewed public-language source can be inverted/); checks++;
+  assert.throws(() => assertScripts('sample-report.html', mutation), /executable scripts match the exact approved baseline|only the exact reviewed current source can be inverted|only the exact reviewed public-language source can be inverted|only the exact reviewed current source can restore projection cache compatibility/); checks++;
 }
 
 const currentProtection=assertInvitedEvaluationSourceContract(root);
@@ -150,7 +150,7 @@ const template = 'scripts/templates/home-workspace-preview.html';
 const oldPreview = 'Choose a diagnostic for a team, unit, or decision path.';
 const newPreview = 'Choose a diagnostic for a defined part of your organization.';
 equal(historicalCopy(template).split(newPreview).length - 1,1,'Historical copy release had one organization-scope preview sentence');
-check(read(template).includes('Gather organizational evidence')&&read(template).includes('organizational evaluation')&&read(template).includes('Repeat compatible campaigns for the same work.'),'Compacted five-journey preview retains organizational scope and comparable campaign follow-up');
+check(read(template).includes('One scope. Different perspectives.')&&read(template).includes('organizational evaluation')&&read(template).includes('Repeat with compatible scope and measures.'),'Approved compact four-step preview retains organizational scope and comparable follow-up');
 equal(historicalCopy(template).replace(newPreview, oldPreview), prior(template), 'Only approved preview-template copy differs from baseline');
 const digest = value => createHash('sha256').update(value).digest('hex');
 const manifest = JSON.parse(historicalCopy('sample-data/production-sample-release.json'));

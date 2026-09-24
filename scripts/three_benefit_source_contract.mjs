@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {assertFinancialSampleRevision,assertFinancialSamplePdfBinding,currentSynthesisPdfReview} from './public_sample_fixture.mjs';
+import {assertFinancialSampleRevision,assertFinancialSamplePdfBinding,currentSynthesisPdfReview,readPublicSampleFixture} from './public_sample_fixture.mjs';
 import {OVERVIEW_SITE_PRIOR_COMMIT,sourceBeforeOverviewSiteCompatibility} from './report_overview_site_compatibility_inverse.mjs';
 export const THREE_BENEFIT_BASELINE='b06b72083442f03f7a1e2cadeb5239e4f0449515';
 const sha=v=>createHash('sha256').update(v).digest('hex');
@@ -30,7 +30,21 @@ export function assertThreeBenefitSourceContract(root=path.resolve(import.meta.d
   assert.equal(currentForm.replace(block,originalForm.match(block)[0]).replace(visibleRejection,()=>priorBuild),originalForm,'All campaign behavior outside financial form and report-error visibility unchanged');
   const artifact=JSON.parse(read('sample-data/production-diagnostic-samples.json')),original=JSON.parse(before('sample-data/production-diagnostic-samples.json'));
   const manifest=JSON.parse(read('sample-data/production-sample-release.json'));
-  const restored=structuredClone(artifact);delete restored.financial_publication_update;restored.artifact_sha256=original.artifact_sha256;
+  let historicalArtifact=artifact;
+  const comparisons=Boolean(manifest.response_comparison_publication_review);
+  if(comparisons){
+    // The later four-comparison publication has its own exact source, accepted
+    // output, HTML and six-PDF bindings. It is not the older financial release.
+    const reviewed=readPublicSampleFixture({root});
+    assert.deepEqual(reviewed.artifact,artifact,'Use the actual source-bound current publication');
+    assert.deepEqual(reviewed.manifest,manifest,'Use the actual reviewed current manifest');
+    const priorBytes=execFileSync('git',['show',OVERVIEW_SITE_PRIOR_COMMIT+':sample-data/production-diagnostic-samples.json'],{cwd:root,maxBuffer:16e6});
+    assert.equal(sha(priorBytes),artifact.assembly.original_artifact_file_sha256,'Historical financial artifact remains bound to the comparison assembly');
+    assert.equal(sha(priorBytes),manifest.response_comparison_publication_review.prior_review.artifact_file_sha256,'Historical artifact remains bound to its unchanged review');
+    historicalArtifact=JSON.parse(priorBytes);
+    for(const key of ['depth_synthesis','cross_lens_synthesis'])assert.deepEqual(artifact.outputs[key],historicalArtifact.outputs[key],key+' retained entry is exact');
+  }
+  const restored=structuredClone(historicalArtifact);delete restored.financial_publication_update;restored.artifact_sha256=original.artifact_sha256;
   for(const key of ['depth_synthesis','cross_lens_synthesis']){
     assertFinancialSampleRevision(artifact.outputs[key],manifest.financial_publication_update,key);
     const current=restored.outputs[key],prior=original.outputs[key];
@@ -40,7 +54,7 @@ export function assertThreeBenefitSourceContract(root=path.resolve(import.meta.d
     current.provenance.public_source_sha256=prior.provenance.public_source_sha256;
   }
   assert.deepEqual(restored,original,'Every original AI result, score, response, action, evidence and generation identity remains exact');
-  const presentation=currentSynthesisPdfReview(manifest);
+  const presentation=currentSynthesisPdfReview(manifest,artifact);
   // Keep the historical palette-only claim and its PDF bytes anchored to the
   // pre-overview commit. The later overview has its own current PDF bindings;
   // it must not silently relabel that older approval as a new layout approval.
@@ -54,5 +68,7 @@ export function assertThreeBenefitSourceContract(root=path.resolve(import.meta.d
     if(manifest.report_overview_presentation_review)assertFinancialSamplePdfBinding(historicalPresentation,key,execFileSync('git',['show',OVERVIEW_SITE_PRIOR_COMMIT+':sample-data/reports/'+key+'.pdf'],{cwd:root,maxBuffer:16e6}));
     assertFinancialSamplePdfBinding(presentation,key,fs.readFileSync(path.join(root,'sample-data/reports/'+key+'.pdf')));
   }
-  return {base:THREE_BENEFIT_BASELINE,onlyFinancialFormChanged:true,onlySynthesisFinancialSamplesChanged:true,individualPdfPaletteReviewed:true};
+  return comparisons
+    ? {base:THREE_BENEFIT_BASELINE,onlyFinancialFormChanged:true,historicalOnlySynthesisFinancialSamplesChanged:true,historicalIndividualPdfPaletteReviewed:true,currentComparisonPublicationVerified:true,retainedSynthesisEntriesExact:true}
+    : {base:THREE_BENEFIT_BASELINE,onlyFinancialFormChanged:true,onlySynthesisFinancialSamplesChanged:true,individualPdfPaletteReviewed:true};
 }

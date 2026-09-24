@@ -33,7 +33,7 @@ function fixture({kind='ordinary',empty=false,long=false,escaped=false}={}){
 }
 let checks=0;const equal=(a,b,message)=>{assert.deepEqual(a,b,message);checks++;};
 const render=value=>{const before=JSON.stringify(value),model=value.synthesis_product?Report.fromSynthesis(value):Report.fromRun(value),html=Report.buildReportHtml(model);equal(JSON.stringify(value),before,'Source input unchanged');return html;};
-equal(Report.rendererVersion,'diagnostic-renderer-report-overview-20260923.1');
+equal(Report.rendererVersion,'diagnostic-renderer-report-overview-20260924.1');
 const cases=[['ordinary',{}],['no-interpretation',{empty:true}],['long',{long:true}],['escaped',{escaped:true}],['campaign',{kind:'campaign'}],['personal',{kind:'personal'}]]
   .map(([name,options])=>{const value=fixture(options);return {name,options,value,html:render(value)};});
 const invalid=[
@@ -72,6 +72,7 @@ for(const role of Object.keys(roles))for(const lens of Object.keys(lenses)){
   Object.assign(row.experiential_block,{role,lens});Object.assign(report.experiential_evidence[0],{role,lens});row.text=format(row.experiential_block,row.interpretation_text);
   assert.ok(render(value).includes('class="mr-experience-evidence"'));checks++;
 }
+if(process.argv.includes('--deterministic-only')){console.log(JSON.stringify({passed:true,checks,scope:'VM preconditions only; browser checks not run',providerCalls:0,networkCalls:0}));process.exit(0);}
 const receipt={mockOnly:true,providerCalls:0,databaseWrites:0,rendererSha256:sha(source),layouts:[],screens:[],pdfs:[],errors:[],passed:false};
 for(const [name,engine]of [['chromium',chromium],['webkit',webkit]]){
   const browser=await engine.launch({headless:true});
