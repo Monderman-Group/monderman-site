@@ -111,7 +111,7 @@ function makeHarness({resumeRunId = RUN, source = html, controllerSource = draft
   const mapsEnd = source.indexOf('function assertCachedStaticQuestion(', mapsStart);
   assert.ok(mapsStart > 0 && mapsEnd > mapsStart);
   vm.runInContext(source.slice(mapsStart, mapsEnd), sandbox);
-  for (const name of ['isRunUuid', 'checkpointSameRunUrl', 'clearSameRunUrl', 'isClientOwnedQuestion',
+  for (const name of ['activePrestartFields', 'isRunUuid', 'checkpointSameRunUrl', 'clearSameRunUrl', 'isClientOwnedQuestion',
     'sameQuestionnaireItemCopy', 'showQuestionnaireVersionUnavailable', 'resumeOperationalSession',
     'restorePinnedQuestionnaireDraft', 'confirmRestart']) vm.runInContext(declaration(source, name), sandbox);
   vm.runInContext(controllerSource, sandbox);
