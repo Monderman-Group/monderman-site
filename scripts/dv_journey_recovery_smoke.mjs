@@ -398,7 +398,7 @@ assert.ok(signin.includes("bindAuthenticatedReturn(supabase, nextTarget, session
 assert.ok(signin.includes('if (event === "SIGNED_OUT") window.MondermanDVJourneyRecovery?.clearPending()'));
 assert.ok(signin.includes('const params = new URLSearchParams({ next: nextTarget, acceptance_source: current.source })'));
 assert.ok(signin.includes("window.location.replace(nextTarget)"));
-assert.ok(signin.includes("setTimeout(() => { void continueAfterAuth(session); }, 0)"), "auth callbacks must not hold the Supabase lock across getUser");
+assert.ok(signin.includes("setTimeout(() => { if (revision === legalAuthRevision) void continueAfterAuth(session); }, 0)"), "auth callbacks must defer Supabase work and discard callbacks from a signed-out or changed account");
 assert.ok(diagnostic.includes('<script src="dv-journey-recovery.js"></script>'));
 assert.match(diagnostic, /id="mdmTeaserSignIn"[^>]*href="signin\.html\?next=decision-velocity\.html%3Fresume%3D1"/);
 assert.doesNotMatch(diagnostic, /id="mdmTeaserSignIn"[^>]*target="_blank"/, "account unlock must preserve the current tab's recovery storage");

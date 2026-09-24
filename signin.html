@@ -426,6 +426,46 @@
     let acceptanceCheckStarted = false;
     let pendingSession = null;
     let currentDocuments = null;
+    let legalSubmissionInProgress = false;
+    let legalAuthRevision = 0;
+    function clearLegalSession(){
+      legalAuthRevision++;
+      pendingSession = null;
+      currentDocuments = null;
+      acceptanceCheckStarted = false;
+      legalSubmissionInProgress = false;
+      ui.legalAgree.checked = false;
+      ui.legalAgree.disabled = false;
+      ui.legalDecline.disabled = false;
+      ui.legalSubmit.disabled = true;
+      ui.legalSubmit.textContent = "Agree and continue";
+      ui.legalAcceptance.classList.remove("show");
+      ui.google.hidden = false;
+      document.querySelector(".divider").hidden = false;
+      ui.emailForm.hidden = false;
+    }
+    function assertLegalIdentity(userId, revision){
+      if (revision !== legalAuthRevision || pendingSession?.user?.id !== userId) throw new Error("legal_session_changed");
+    }
+    async function currentLegalSession(userId, revision, refresh=false){
+      // Read SDK-owned state, never refresh with the old page-load token.
+      // getSession refreshes an expired session when necessary.
+      let result = await supabase.auth.getSession();
+      assertLegalIdentity(userId, revision);
+      if (result.error || !result.data?.session?.access_token || result.data.session.user?.id !== userId) {
+        clearLegalSession();
+        throw new Error("legal_session_changed");
+      }
+      if (refresh) {
+        result = await supabase.auth.refreshSession();
+        assertLegalIdentity(userId, revision);
+        if (result.error || !result.data?.session?.access_token || result.data.session.user?.id !== userId) {
+          clearLegalSession();
+          throw new Error("legal_session_changed");
+        }
+      }
+      return result.data.session;
+    }
     function legalDocumentPath(kind, version){
       // Exact archived editions in legal-document-manifest.json, not a suffix rule.
       const versions = {
@@ -444,6 +484,7 @@
       acceptanceCheckStarted = true;
       clearPendingOtp();
       pendingSession = session;
+      const revision = legalAuthRevision;
       const context = acceptanceContext();
       const query = new URLSearchParams({ source: context.source });
       if (context.inviteToken) query.set("invite_token", context.inviteToken);
@@ -451,10 +492,12 @@
         // The free diagnostic returns in this same tab. Bind its private
         // recovery record to a server-verified identity before continuing.
         await window.MondermanDVJourneyRecovery?.bindAuthenticatedReturn(supabase, nextTarget, session.user.id);
+        assertLegalIdentity(session.user.id, revision);
         const response = await fetch(`${API_BASE}/api/legal/acceptance/status?${query.toString()}`, {
           headers: { authorization: `Bearer ${session.access_token}` }
         });
         const result = await response.json().catch(() => ({}));
+        assertLegalIdentity(session.user.id, revision);
         if (!response.ok || !result.ok) {
           const statusError = new Error(result.error || "legal_acceptance_status_failed");
           statusError.code = result.error || "legal_acceptance_status_failed";
@@ -463,6 +506,8 @@
         if (!result.requiresAcceptance){ forwardOn(); return; }
         setExactLegalDocumentLinks(result);
         currentDocuments = result;
+        ui.legalAgree.checked = false;
+        ui.legalSubmit.disabled = true;
         clearTimeout(revealTimer);
         ui.sessionCheck.classList.add("hidden");
         ui.google.hidden = true;
@@ -473,6 +518,7 @@
         ui.legalAgree.focus();
         setStatus("");
       }catch(error){
+        if (revision !== legalAuthRevision) return;
         acceptanceCheckStarted = false;
         clearTimeout(revealTimer);
         ui.sessionCheck.classList.add("hidden");
@@ -503,9 +549,10 @@
     });
 
     ui.legalAgree.addEventListener("change", () => {
-      ui.legalSubmit.disabled = !ui.legalAgree.checked;
+      ui.legalSubmit.disabled = legalSubmissionInProgress || !currentDocuments || !ui.legalAgree.checked;
     });
     ui.legalDecline.addEventListener("click", async () => {
+      if (legalSubmissionInProgress) return;
       ui.legalAgree.disabled = true;
       ui.legalSubmit.disabled = true;
       ui.legalDecline.disabled = true;
@@ -531,32 +578,82 @@
       }
     });
     ui.legalSubmit.addEventListener("click", async () => {
-      if (!ui.legalAgree.checked || !pendingSession || !currentDocuments) return;
+      if (forwarded || legalSubmissionInProgress || !ui.legalAgree.checked || !pendingSession?.user?.id || !currentDocuments) return;
       const context = acceptanceContext();
+      const userId = pendingSession.user.id, revision = legalAuthRevision;
+      const agreedDocuments = { termsVersion: currentDocuments.termsVersion, privacyNoticeVersion: currentDocuments.privacyNoticeVersion };
+      const body = JSON.stringify({
+        agreed: true,
+        source: context.source,
+        invite_token: context.inviteToken || undefined,
+        terms_version: agreedDocuments.termsVersion,
+        privacy_notice_version: agreedDocuments.privacyNoticeVersion
+      });
+      const query = new URLSearchParams({ source: context.source });
+      if (context.inviteToken) query.set("invite_token", context.inviteToken);
+      legalSubmissionInProgress = true;
+      ui.legalAgree.disabled = true;
+      ui.legalDecline.disabled = true;
       ui.legalSubmit.disabled = true;
       ui.legalSubmit.textContent = "Recording…";
       try{
-        const response = await fetch(`${API_BASE}/api/legal/acceptance`, {
-          method: "POST",
-          headers: { "content-type": "application/json", authorization: `Bearer ${pendingSession.access_token}` },
-          body: JSON.stringify({
-            agreed: true,
-            source: context.source,
-            invite_token: context.inviteToken || undefined,
-            terms_version: currentDocuments.termsVersion,
-            privacy_notice_version: currentDocuments.privacyNoticeVersion
-          })
-        });
-        const result = await response.json().catch(() => ({}));
-        if (!response.ok || !result.ok) throw new Error(result.error || "legal_acceptance_failed");
-        forwardOn();
+        // At most one explicit refresh/retry, and only after a real HTTP 401.
+        // Every attempt rechecks the editions; a changed edition needs a new click.
+        for (let attempt = 0; attempt < 2; attempt++) {
+          let session = await currentLegalSession(userId, revision, attempt === 1);
+          assertLegalIdentity(userId, revision);
+          const statusResponse = await fetch(`${API_BASE}/api/legal/acceptance/status?${query.toString()}`, {
+            headers: { authorization: `Bearer ${session.access_token}` }
+          });
+          const status = await statusResponse.json().catch(() => ({}));
+          assertLegalIdentity(userId, revision);
+          if (statusResponse.status === 401 && attempt === 0) continue;
+          if (!statusResponse.ok || !status.ok) throw new Error(status.error || "legal_acceptance_status_failed");
+          if (status.termsVersion !== agreedDocuments.termsVersion || status.privacyNoticeVersion !== agreedDocuments.privacyNoticeVersion) {
+            ui.legalAgree.checked = false;
+            currentDocuments = null;
+            setExactLegalDocumentLinks(status);
+            currentDocuments = status;
+            throw new Error("legal_documents_changed");
+          }
+          session = await currentLegalSession(userId, revision);
+          assertLegalIdentity(userId, revision);
+          const response = await fetch(`${API_BASE}/api/legal/acceptance`, {
+            method: "POST",
+            headers: { "content-type": "application/json", authorization: `Bearer ${session.access_token}` },
+            body
+          });
+          const result = await response.json().catch(() => ({}));
+          assertLegalIdentity(userId, revision);
+          if (response.status === 401 && attempt === 0) continue;
+          if (!response.ok || !result.ok) {
+            if (result.error === "legal_document_version_changed") { ui.legalAgree.checked = false; currentDocuments = null; }
+            throw new Error(result.error || "legal_acceptance_failed");
+          }
+          forwardOn();
+          return;
+        }
       }catch(error){
-        ui.legalSubmit.disabled = false;
-        ui.legalSubmit.textContent = "Agree and continue";
-        setStatus(invitationMode
+        if (revision !== legalAuthRevision) {
+          if (!pendingSession) setStatus("Your sign-in changed or expired. Sign in again and review the Terms and Privacy Notice before agreeing.", "error");
+          return;
+        }
+        setStatus(error?.message === "legal_session_changed"
+          ? "Your sign-in changed or expired. Sign in again and review the Terms and Privacy Notice before agreeing."
+          : ["legal_documents_changed", "legal_document_version_changed", "invalid_legal_document_version"].includes(error?.message)
+          ? "The Terms or Privacy Notice changed. Reload this page and review the updated documents before agreeing again."
+          : invitationMode
           ? "We couldn’t record your agreement, so the invitation was not accepted. Please try again."
           : "We couldn’t record your agreement. Nothing was activated; please try again.", "error");
         console.warn("Legal acceptance error:", error?.message || error);
+      }finally{
+        if (revision === legalAuthRevision) {
+          legalSubmissionInProgress = false;
+          ui.legalAgree.disabled = false;
+          ui.legalDecline.disabled = false;
+          ui.legalSubmit.disabled = forwarded || !currentDocuments || !ui.legalAgree.checked;
+          ui.legalSubmit.textContent = "Agree and continue";
+        }
       }
     });
 
@@ -577,9 +674,13 @@
 
     // Forward the instant Supabase finishes establishing the session.
     supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_OUT") window.MondermanDVJourneyRecovery?.clearPending();
+      if (event === "SIGNED_OUT" || (pendingSession && session?.user?.id !== pendingSession.user?.id)) {
+        clearLegalSession();
+        if (event === "SIGNED_OUT") window.MondermanDVJourneyRecovery?.clearPending();
+      }
       // Run the verified-user lookup outside Supabase's auth-event callback.
-      if (session?.user) setTimeout(() => { void continueAfterAuth(session); }, 0);
+      const revision = legalAuthRevision;
+      if (session?.user) setTimeout(() => { if (revision === legalAuthRevision) void continueAfterAuth(session); }, 0);
     });
 
     // Safety net: never trap the user on the spinner. Wait LONGER if we're
