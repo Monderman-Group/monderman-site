@@ -61,7 +61,7 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]].filter(([en
     if(url.pathname==='/api/normalization/workspace-runs/fixture-org')payload={ok:true,runs};
     else if(url.pathname==='/api/campaign-analysis/fixture-org')payload={ok:true,campaigns:[],scopes:[]};
     else if(url.pathname==='/api/synthesis-runs')payload={ok:true,syntheses:[]};
-    else if(url.pathname==='/api/assignments/salary-capability'){
+    else if(url.pathname==='/api/workspace/assignments/salary-capability'){
      assert.equal(url.search,'?organization_id=fixture-org');
      assert.equal(request.headers().authorization,'Bearer fixture-token');
      assert.equal(request.headers()['x-monderman-organization-id'],'fixture-org');

@@ -23,7 +23,7 @@
       return data;
     }
     async function refresh(selectedId) {
-      try { capability = await request("/api/assignments/salary-capability?organization_id=" + encodeURIComponent(options.organizationId)); }
+      try { capability = await request("/api/workspace/assignments/salary-capability?organization_id=" + encodeURIComponent(options.organizationId)); }
       catch (_error) { capability = null; }
       if (!capability || capability.enabled !== true || capability.notice_version !== helper.noticeVersion || capability.currency !== "USD" || (!capability.can_upload && !capability.can_delegate)) { host.hidden = true; return; }
       render();
@@ -84,7 +84,7 @@
       var batchId = byId("salaryBatch").value;
       pending = true; updateButtons();
       try {
-        await request("/api/assignments/salary-settings", "POST", { organization_id: options.organizationId, batch_id: batchId, annual_working_hours: result.settings.annual_working_hours, benefits_overhead_percent: result.settings.benefits_overhead_percent });
+        await request("/api/workspace/assignments/salary-settings", "POST", { organization_id: options.organizationId, batch_id: batchId, annual_working_hours: result.settings.annual_working_hours, benefits_overhead_percent: result.settings.benefits_overhead_percent });
         await refresh(batchId);
       } catch (_error) {
         if (byId("settingsSalaryCalculationResult")) byId("settingsSalaryCalculationResult").textContent = "The calculation settings could not be saved. They may already be locked, a participant may have started, or your permissions may have changed. Refresh before trying again.";
@@ -117,7 +117,7 @@
       form.append("preview_only", String(previewOnly));
       pending = true; updateButtons();
       try {
-        var data = await request("/api/assignments/import-salaries", "POST", form);
+        var data = await request("/api/workspace/assignments/import-salaries", "POST", form);
         if ((data.invalid_rows || []).length) { var invalid = new Error("invalid"); invalid.issues = data.invalid_rows; throw invalid; }
         previewed = previewOnly;
         if (!previewOnly) { csv = ""; byId("settingsSalaryFile").value = ""; byId("settingsSalaryAuthority").checked = false; }
@@ -156,7 +156,7 @@
       host.querySelectorAll("[data-salary-user]").forEach(function (button) {
         button.addEventListener("click", async function () {
           button.disabled = true;
-          try { await request("/api/assignments/salary-delegation", "POST", { organization_id: options.organizationId, user_id: button.dataset.salaryUser, can_upload: button.dataset.allow === "true" }); await refresh(); }
+          try { await request("/api/workspace/assignments/salary-delegation", "POST", { organization_id: options.organizationId, user_id: button.dataset.salaryUser, can_upload: button.dataset.allow === "true" }); await refresh(); }
           catch (_error) { byId("salaryDelegationResult").textContent = "Salary authority was not changed. Refresh and try again."; button.disabled = false; }
         });
       });

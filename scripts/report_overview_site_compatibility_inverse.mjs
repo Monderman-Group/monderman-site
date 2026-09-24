@@ -7,7 +7,7 @@ import {createHash} from 'node:crypto';
 
 export const OVERVIEW_SITE_PRIOR_COMMIT='31c87d9944d58cd58a48e389a680e0e909536329';
 export const OVERVIEW_SITE_REVIEWED_COMMIT='bd5948aa32bb738c10eef2f9261d5d580bdc91e2';
-export const OVERVIEW_SITE_DELTA_SHA256='19ca030f899437e6c76ef95927951fe01987657f88cec1db57aa659f02e99f52';
+export const OVERVIEW_SITE_DELTA_SHA256='60c176477b66bf97c4327cd1e922f886bbf16ab3483e756f703e3b0d1293c135';
 export const OVERVIEW_SITE_FILES=Object.freeze([
   'assignment-draft.js','assignment-mode.js','campaign-analysis.js',
   'canonical-site-shell.css','cross-tool-synthesis.html','decision-velocity.html',

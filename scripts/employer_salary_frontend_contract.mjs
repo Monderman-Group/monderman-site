@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import vm from "node:vm";
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
@@ -89,6 +89,23 @@ assert.match(settings, /form.append\("preview_only", String\(previewOnly\)\)/);
 assert.match(settings, /id="settingsSalaryAuthority">/, "dedicated attestation starts unchecked");
 assert.match(settings, /capability.enabled !== true/);
 assert.match(settings, /capability.can_configure === true/);
-assert.match(settings, /\/api\/assignments\/salary-settings/);
+// server.js mounts the batch-assignment router at /api/workspace; these are
+// full client routes, not suffix-only mocks. Public participant resolve routes
+// deliberately remain under the separate /api/assignments router.
+const salaryRoutes = ["salary-capability?organization_id=", "salary-settings", "import-salaries", "salary-delegation"].map(route => "/api/workspace/assignments/" + route);
+function checkSalaryRoutes(source) {
+  assert.deepEqual([...source.matchAll(/\brequest\("([^"]+)"/g)].map(match=>match[1]),salaryRoutes);
+  assert.match(source,/method: method \|\| "GET"/);
+  for(const route of salaryRoutes.slice(1))assert.ok(source.includes(`request("${route}", "POST",`),route+' is an exact POST');
+}
+checkSalaryRoutes(settings);
+for(const route of salaryRoutes){
+  const broken=settings.replace(route,route.replace('/api/workspace/','/api/'));
+  assert.notEqual(broken,settings);assert.throws(()=>checkSalaryRoutes(broken),'An unmounted route must fail the contract');
+}
+assert.ok(composer.includes('/api/workspace/assignments/salary-capability?organization_id=${encodeURIComponent(state.orgId)}'));
+for(const file of readdirSync(new URL('../',import.meta.url)).filter(name=>/\.(?:html|js)$/.test(name)))
+  assert.doesNotMatch(read(file),/\/api\/assignments\/(?:salary-capability|salary-settings|salary-delegation|import-salaries)\b/,file+': no unmounted employer-salary endpoint');
+assert.match(read('workspace-settings.html'),/employer-salary-settings\.js\?v=20260923\.2/,'Corrected module has a new cache identity');
 assert.doesNotMatch(settings, /form.append\("(?:salary_)?(?:annual_working_hours|benefits_overhead_percent)"/, "salary import cannot override saved campaign settings");
 console.log("Salary frontend contract passed: strict CSV, 48 assigned role/depth combinations, no saved salary drafts, explicit permission and attestation gates. Browser checks not run.");

@@ -1271,7 +1271,7 @@ body{transition:background-color .25s ease, color .25s ease}
     }
     async function setupEmployerSalaryImport(){
       try{
-        const response=await fetch(`${API_BASE}/api/assignments/salary-capability?organization_id=${encodeURIComponent(state.orgId)}`,{headers:await apiAuthHeaders()});
+        const response=await fetch(`${API_BASE}/api/workspace/assignments/salary-capability?organization_id=${encodeURIComponent(state.orgId)}`,{headers:await apiAuthHeaders()});
         const data=await response.json();
         if(response.ok && data.ok && data.enabled===true && data.can_upload===true && data.can_configure===true && data.currency==="USD" && data.notice_version===window.MondermanEmployerSalaryImport.noticeVersion) salaryCapability=data;
       }catch(_error){}

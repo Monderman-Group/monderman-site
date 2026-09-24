@@ -322,9 +322,13 @@
       ]
     },
     "workspace-diagnostics.html": {
-      "current_sha256": "9091a77ad62303cfc6a9bf5ccdd59a13a69e0f297e576e51e6bb0450ca2ea845",
+      "current_sha256": "42f93b44d86f4b629c6fd43736db1b3235497611d8c793bcd917cf437a5e3b73",
       "prior_sha256": "64ba5ddd08cad7426257c4e84451aae98e7fad4c6e79d61b67031b1bbcb22728",
       "replacements": [
+        [
+          "/api/workspace/assignments/salary-capability?organization_id=",
+          "/api/assignments/salary-capability?organization_id="
+        ],
         [
           "            </div>\n          </div>\n\n          <p class=\"bulk-help\" id=\"salaryAnonymousNotice\" hidden>Salary uploads are not available for anonymous campaigns. Matching an employee's salary to their response would conflict with anonymity.</p>\n          <details class=\"bulk-box\" id=\"salaryImportBox\" hidden>\n            <summary>Optional annual base salary</summary>\n            <p class=\"bulk-help\" style=\"margin-top:12px\">Use a CSV with <code>email, annual_base_salary, salary_currency</code>. Annual base salary excludes bonuses, benefits, and overhead. USD is the only supported currency. Leave salary and currency blank for anyone whose cost you are not supplying.</p>\n            <p class=\"bulk-help\">Salary is sensitive personal information. Only upload it if company policy permits this use and you have authority to provide it. It is used for financial estimates, never diagnostic scoring. Participants are not shown the supplied salary or an upload notice. Salary files stay out of campaign drafts and must be selected again after a reload.</p>\n            <div class=\"grid\">\n              <div class=\"field\"><label for=\"salaryAnnualHours\">Annual working hours per person</label><input id=\"salaryAnnualHours\" type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" aria-describedby=\"salaryCalculationHelp\"><span class=\"hint\">Use your organization's working-hours basis for this campaign.</span></div>\n              <div class=\"field\"><label for=\"salaryOverheadPercent\">Benefits and overhead (% of base salary)</label><input id=\"salaryOverheadPercent\" type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" aria-describedby=\"salaryCalculationHelp\"><span class=\"hint\">Enter 0 if these costs should not be included.</span></div>\n            </div>\n            <p class=\"bulk-help\" id=\"salaryCalculationHelp\">We add your chosen percentage of base salary for benefits and overhead, then divide by annual working hours. Hourly employment cost = annual base salary × (1 + percentage ÷ 100) ÷ annual working hours. Both settings are required when supplying salaries. They are saved for this campaign when you send it and cannot then be changed. No default is applied.</p>\n            <label class=\"toggle\"><input type=\"checkbox\" id=\"salaryAuthorization\"> I am authorized to disclose these participants’ annual base salaries to Monderman for this diagnostic purpose, and I confirm this use complies with our company policy and applicable requirements.</label>\n            <div class=\"bulk-actions\">\n              <label class=\"btn btn-secondary file-btn\" style=\"height:34px;padding:0 16px\">Select salary CSV<input type=\"file\" id=\"salaryFile\" accept=\".csv,text/csv\" hidden></label>\n              <a class=\"bulk-tmpl\" id=\"salaryTemplate\" href=\"#\">Download salary template</a>\n              <button class=\"btn btn-secondary\" id=\"salaryClear\" type=\"button\" hidden>Remove supplied salaries</button>\n            </div>\n            <div id=\"salaryImportResult\" role=\"status\" aria-live=\"polite\"></div>\n          </details>\n\n          <div class=\"actions-row\">\n            <button class=\"btn btn-secondary\" id=\"btnPr",
           "            </div>\n          </div>\n\n          <div class=\"actions-row\">\n            <button class=\"btn btn-secondary\" id=\"btnPr"
@@ -396,9 +400,13 @@
       ]
     },
     "workspace-settings.html": {
-      "current_sha256": "c7baeff211d457f8bdc0056a579ed31189257d4f8918323deca877ea3cd98eb0",
+      "current_sha256": "86e380aafbfb3c2789b649303c7e3e757924bbd8e13ee1b2c3c838413a0e5d8a",
       "prior_sha256": "bb8e61a3cfd1fe7158baacc0f9133c961de5f1b1da86c7c942ed99c16edabe98",
       "replacements": [
+        [
+          "employer-salary-settings.js?v=20260923.2",
+          "employer-salary-settings.js?v=20260923.1"
+        ],
         [
           "k rel=\"stylesheet\" href=\"workspace-product-design.css?v=20260915.consistency1\">\n  <style>\n    #employerSalarySettings input[type=\"file\"]{width:100%;min-width:0;min-height:44px;font:inherit;font-size:16px}\n    #employerSalarySettings input[type=\"file\"]::file-selector-button{min-height:44px;margin-right:10px;padding:8px 12px;border:1px solid var(--line);border-radius:7px;background:var(--card,#fff);color:inherit;font:inherit;cursor:pointer}\n  </style>\n</head>\n<body class=\"workspace-surface workspace-settings-surface\">\n  <div class",
           "k rel=\"stylesheet\" href=\"workspace-product-design.css?v=20260915.consistency1\">\n</head>\n<body class=\"workspace-surface workspace-settings-surface\">\n  <div class"
