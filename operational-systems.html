@@ -917,7 +917,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   </footer>
   <script src="participant-evidence-safety.js?v=20260905-report-quarantine"></script>
   <script src="monderman-viz.js?v=20260914-native-review2"></script>
-  <script src="monderman-report.js?v=20260915.financial1"></script>
+  <script src="monderman-report.js?v=20260923.overview1"></script>
   <script src="assignment-mode.js"></script>
   <script src="assignment-draft.js"></script>
   <script src="self-diagnostic-draft.js"></script>
@@ -1972,6 +1972,9 @@ document.querySelectorAll("[data-lane-tile]").forEach((tile) => tile.classList.t
 document.querySelectorAll("[data-depth]").forEach((btn) => btn.classList.toggle("selected", btn.dataset.depth === String(state.depth || "")));
 }
 
+function activePrestartFields() {
+return window.MondermanAssignment?.prestartFields(PRESTART_FIELDS, state.preflight) || PRESTART_FIELDS;
+}
 function renderPreflightForm() {
 const introCard = document.querySelector("#introStage .card");
 if (!introCard) return;
@@ -1982,7 +1985,7 @@ mount.id = "preflightContextMount";
 const checkboxCard = introCard.querySelector(".checkbox-card");
 introCard.insertBefore(mount, checkboxCard);
 }
-const html = PRESTART_FIELDS.map((field) => {
+const html = activePrestartFields().map((field) => {
 const value = state.preflight[field.id] ?? "";
 if (field.kind === "select") {
 const _otherVal = String(state.preflight[`${field.id}Other`] ?? "");
@@ -2065,7 +2068,7 @@ if (msg) msg.textContent = '';
 });
 });
 
-window.MondermanIntake?.enhanceFields(mount, PRESTART_FIELDS);
+window.MondermanIntake?.enhanceFields(mount, activePrestartFields());
 initPreflightPager();
 }
 
@@ -2240,7 +2243,7 @@ if (!fieldIsValid(cur)) {
 
 function readPreflightForm() {
 const next = {};
-PRESTART_FIELDS.forEach((field) => {
+activePrestartFields().forEach((field) => {
 const el = $(`preflight_${field.id}`);
 if (!el) return;
 next[field.id] = field.kind === "number" ? parseDirectionalNumber(el.value) : el.value;
@@ -2322,7 +2325,7 @@ function validatePreflightForm() {
 const values = readPreflightForm();
 clearFieldErrors($('preflightContextMount') || document);
 let firstError = null;
-for (const field of PRESTART_FIELDS) {
+for (const field of activePrestartFields()) {
 if (!field.required) continue;
 const value = values[field.id];
 const missing = value === "" || value === null || value === undefined || (field.kind === "number" && !Number.isFinite(Number(value)));
@@ -3025,7 +3028,7 @@ async function resumeOperationalSession(runId) {
     state.depth = String(remote.depth);
     const context = remote.context;
     state.preflight = {};
-    for (const field of PRESTART_FIELDS) {
+    for (const field of activePrestartFields()) {
       const value = field.id === 'peopleInvolved' ? context.peopleAffected : context[field.id];
       if (['string','number'].includes(typeof value)) state.preflight[field.id] = value;
     }

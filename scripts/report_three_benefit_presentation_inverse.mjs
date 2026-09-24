@@ -2,6 +2,7 @@
 // the complete deployed v1 renderer; unknown changes are not normalized away.
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
+import {sourceBeforeOverviewPresentation} from './report_overview_presentation_inverse.mjs';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 export const THREE_BENEFIT_RENDERER_SHA256='73c939fac58d0d2f7020207e6e1f869ec30e7f6ff745dbbfa6b76984b663ef98';
 export const PRIOR_THREE_BENEFIT_RENDERER_SHA256='ca92f06864b1f836cb3b9c92aab67f1fceb1bd6a6815428b8dd921cfca710ec0';
@@ -39,6 +40,7 @@ const replacements=[
   ["      (threeBenefitPresentation(obj(model))?'<meta name=\"monderman-three-benefit-presentation-version\" content=\"three-benefit-presentation-20260919.1\" />':'') +\n",'']
 ];
 export function sourceBeforeThreeBenefitPresentation(source){
+  source=sourceBeforeOverviewPresentation(source);
   if(!source.includes('THREE BENEFIT PRESENTATION 20260919.1'))return source;
   assert.equal(sha(source),THREE_BENEFIT_RENDERER_SHA256,'Only the exact reviewed three-benefit renderer may be inverted');
   const blocks=source.match(/  \/\/ BEGIN THREE BENEFIT PRESENTATION 20260919\.1\n[\s\S]*?  \/\/ END THREE BENEFIT PRESENTATION 20260919\.1\n\n/g)||[];

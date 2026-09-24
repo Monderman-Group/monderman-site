@@ -7,6 +7,7 @@ import vm from 'node:vm';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {reportHtmlAfterReviewedPresentation} from './report_three_benefit_presentation_inverse.mjs';
+import {withoutReportOverview} from './report_overview_test_normalizer.mjs';
 const root=path.resolve(import.meta.dirname,'..'),prior='b06b72083442f03f7a1e2cadeb5239e4f0449515';
 const read=f=>fs.readFileSync(path.join(root,f),'utf8'),sha=s=>createHash('sha256').update(s).digest('hex');
 const source=read('monderman-report.js'),fixtureBytes=read('scripts/fixtures/three-benefit-scenarios.json'),fixtures=JSON.parse(fixtureBytes);
@@ -20,7 +21,7 @@ const levels=['low','central','high'],keys=['spendingReduction','spendingAvoidan
 const burdenChecks=JSON.parse(execFileSync(process.execPath,[path.join(root,'scripts/report_burden_flow_smoke.mjs')],{cwd:root,encoding:'utf8'}));
 eq(burdenChecks.status,'PASS','Independent baseline and released-value contract');
 const build=(scenario,assessment)=>{const raw=structuredClone(historic.outputs.depth_synthesis.source);delete raw.financial_scenario;if(scenario){raw.financial_scenario=structuredClone(scenario);raw.campaign_evidence.scopeId=scenario.scope.scopeId;}if(assessment)raw.financial_benefit_assessment=structuredClone(assessment);const before=JSON.stringify(raw),model=report.fromSynthesis(raw),html=report.buildReportHtml(model);eq(JSON.stringify(raw),before,'Renderer does not mutate saved data');return {model,html,raw};};
-for(const [key,entry]of Object.entries(historic.outputs)){const a=entry.kind==='diagnostic'?report.fromRun(entry.source):report.fromSynthesis(entry.source),b=entry.kind==='diagnostic'?old.fromRun(entry.source):old.fromSynthesis(entry.source),html=report.buildReportHtml(a);eq(html,reportHtmlAfterReviewedPresentation(old.buildReportHtml(b)),'Historical HTML differs only by exact legacy-chart retirement and gold accents: '+key);ok(!/data-(?:planning|sankey)-node="subscriptionCost"/.test(html),'No subscription node in reopened historical report: '+key);ok(html.includes('.mr-run-metric[data-tone="amber"]{border-top-color:#C9A227}'),'Category accents use gold for print: '+key);ok(html.includes('.mr-report .mr-action[data-tier="behavioral"] .mr-action-num{color:#7A6015}'),'Gold category text has a dark readable variant: '+key);}
+for(const [key,entry]of Object.entries(historic.outputs)){const a=entry.kind==='diagnostic'?report.fromRun(entry.source):report.fromSynthesis(entry.source),b=entry.kind==='diagnostic'?old.fromRun(entry.source):old.fromSynthesis(entry.source),html=report.buildReportHtml(a);eq(withoutReportOverview(html),reportHtmlAfterReviewedPresentation(old.buildReportHtml(b)),'Historical HTML differs only by screen overview, exact legacy-chart retirement and gold accents: '+key);ok(!/data-(?:planning|sankey)-node="subscriptionCost"/.test(html),'No subscription node in reopened historical report: '+key);ok(html.includes('.mr-run-metric[data-tone="amber"]{border-top-color:#C9A227}'),'Category accents use gold for print: '+key);ok(html.includes('.mr-report .mr-action[data-tier="behavioral"] .mr-action-num{color:#7A6015}'),'Gold category text has a dark readable variant: '+key);}
 const cases=Object.fromEntries(Object.entries(fixtures.cases).map(([key,s])=>[key,{...build(s),s}]));
 const samplePath=process.env.REPORT_THREE_BENEFIT_SAMPLES||path.join(root,'sample-data/production-diagnostic-samples.json'),sampleBytes=fs.readFileSync(samplePath,'utf8'),samples=JSON.parse(sampleBytes),publicKeys=[];
 for(const key of ['depth_synthesis','cross_lens_synthesis'])if(samples.outputs[key].source.financial_scenario?.version==='operational-planning-scenario-20260919.2'){
@@ -36,7 +37,7 @@ for(const [key,item]of Object.entries(cases)){
   eq(item.html.includes('<figure class="mr-benefit-chart"'),item.s.coverage.complete&&key!=='zero','Incomplete estimates have no Sankey');
   for(const chart of item.html.match(/<figure class="mr-benefit-chart"[\s\S]*?<\/figure>/g)||[]){
     ok(!/Subscription allocation|Implementation cash|Net planning value<\/span>/.test(chart),'Chart only shows gross operational benefit flows');
-    ok(chart.includes('data-flow-version="20260921.1"'),'Current burden-flow presentation');
+    ok(chart.includes('data-flow-version="20260923.1"'),'Current two-view burden-flow presentation');
     ok(chart.includes('data-burden-unit="USD"')&&chart.includes('data-burden-unit="hours"'),'Spending and staff hours use separate diagrams');
   }
   for(const a of item.s.inputs.capacity.activities){ok(item.html.includes(a.sourceReference),'Activity source reference retained');ok(item.html.includes(a.changeBasis),'Activity proposed-change basis retained');}
@@ -67,9 +68,9 @@ const stylesSettled=page=>page.evaluate(()=>new Promise(resolve=>requestAnimatio
 const geometry=()=>{
   const failures=[],visible=e=>!!e.getBoundingClientRect().width&&getComputedStyle(e).visibility!=='hidden';
   if(document.documentElement.scrollWidth>innerWidth+1)failures.push('document overflow');
-  for(const node of document.querySelectorAll('.mr-benefit-flow-node strong'))if(visible(node)&&node.scrollWidth>node.clientWidth+1)failures.push('currency overflow: '+node.textContent);
+  for(const node of document.querySelectorAll('.mr-unified-label strong'))if(visible(node)&&(node.scrollWidth>node.clientWidth+1||node.scrollHeight>node.clientHeight+1))failures.push('currency overflow: '+node.textContent);
   for(const table of document.querySelectorAll('.mr-benefit-table'))if(visible(table))for(const td of table.querySelectorAll('td'))if(getComputedStyle(td).whiteSpace!=='nowrap')failures.push('numeric table wrapping');
-  for(const chart of document.querySelectorAll('.mr-benefit-flow'))if(visible(chart)){const box=chart.getBoundingClientRect();for(const node of chart.querySelectorAll('.mr-benefit-flow-node')){const b=node.getBoundingClientRect();if(b.bottom>box.bottom+1||b.left<box.left-1||b.right>box.right+1)failures.push('node outside diagram');}const nodes=[...chart.querySelectorAll('.mr-benefit-flow-node:not(.is-right)')];for(let i=1;i<nodes.length;i++)if(nodes[i-1].getBoundingClientRect().bottom>nodes[i].getBoundingClientRect().top+1)failures.push('overlapping nodes');}
+  for(const chart of document.querySelectorAll('.mr-unified-flow'))if(visible(chart)){const box=chart.getBoundingClientRect();for(const column of chart.querySelectorAll('.mr-unified-labels')){const bounds=column.getBoundingClientRect(),nodes=[...column.querySelectorAll('.mr-unified-label')];for(const node of nodes){const b=node.getBoundingClientRect();if(b.top<box.top-1||b.bottom>box.bottom+1||b.left<bounds.left-1||b.right>bounds.right+1)failures.push('node outside diagram');}for(let i=1;i<nodes.length;i++)if(nodes[i-1].getBoundingClientRect().bottom>nodes[i].getBoundingClientRect().top+1)failures.push('overlapping nodes');}}
   return failures;
 };
 for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
@@ -80,24 +81,24 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
       await page.setContent(item.html);await page.evaluate(()=>document.fonts.ready);await stylesSettled(page);
       for(const level of levels){await page.locator('.mr-benefit-choice').filter({hasText:new RegExp('^'+level+'$','i')}).click();await stylesSettled(page);eq(await page.locator('.mr-benefit-panel:visible').getAttribute('data-three-benefit-case'),level,'Exactly selected native case visible');eq(await page.evaluate(geometry),[],engine+'/'+width+'/'+name+'/'+level+' geometry');ok(await page.locator('.mr-benefit-panel:visible svg:visible').first().isVisible(),'Actual Sankey visible including phone');states.push({engine,width,name,level});if(level==='central'){const file=path.join(out,engine+'-'+width+'-'+name+'.png');await page.locator('.mr-benefit-panel:visible').screenshot({path:file});screenshots.push(file);}}
       const central=page.locator('.mr-benefit-radio-central');await central.focus();await page.keyboard.press('ArrowRight');eq(await page.locator('.mr-benefit-radio-high').isChecked(),true,'Native radio keyboard selection');
-      eq(await page.locator('.mr-benefit-panel:visible .mr-burden-mobile:visible').count(),width<=640?3:0,'Phone has three complete inline flow overviews');
-      if(width<=640)ok(await page.locator('.mr-benefit-panel:visible .mr-burden-mobile').evaluateAll(nodes=>nodes.every(n=>n.scrollWidth<=n.clientWidth+1&&n.getBoundingClientRect().right<=innerWidth+1)),'Phone overview requires no horizontal swipe');
-      const chart=page.locator('.mr-benefit-panel:visible .mr-benefit-chart'),scrollers=chart.locator('.mr-burden-section > .mr-benefit-scroll');
+      eq(await page.locator('.mr-overview-tile').count(),4,'Four overview tiles');
+      eq(await page.locator('.mr-benefit-panel:visible .mr-burden-mobile').count(),0,'No obsolete phone-only diagram');
+      const chart=page.locator('.mr-benefit-panel:visible .mr-benefit-chart'),flows=chart.locator('.mr-unified-flow'),details=chart.locator('.mr-burden-source-details');
+      eq(await flows.count(),2,'Money and time each have one complete flow at every screen width');
+      eq(await flows.locator('svg').count(),2,'The actual diagrams remain visible on phone, tablet and desktop');
+      ok(await flows.evaluateAll(nodes=>nodes.every(n=>n.scrollWidth<=n.clientWidth+1&&n.getBoundingClientRect().right<=innerWidth+1)),'Unified diagrams require no horizontal swipe');
       eq(await chart.locator('svg path[data-burden-role]').evaluateAll(nodes=>new Set(nodes.map(n=>n.getAttribute('fill'))).size),4,'Three distinct result colors plus neutral remaining burden');
-      eq(await scrollers.count(),3,'Current spending, planned spending and workload have separate scroll regions');
+      eq(await details.count(),2,'Money and time retain separate complete source details');
       ok(!(await chart.textContent()).includes('Subscription allocation'),'No subscription allocation inside diagram');
-      for(let index=0;index<await scrollers.count();index++){
-        const scroller=scrollers.nth(index);if(!(await scroller.isVisible()))continue;const canScroll=await scroller.evaluate(n=>n.scrollWidth>n.clientWidth+1);
-        await scroller.scrollIntoViewIfNeeded();await scroller.focus();
-        eq(await scroller.evaluate(n=>document.activeElement===n),true,'Each burden region accepts keyboard focus');
-        if(canScroll){
-          await page.keyboard.press('Home');await page.keyboard.press('ArrowRight');
-          try{await page.waitForFunction(()=>document.activeElement?.scrollLeft>0,null,{timeout:2000});}catch(error){console.error(JSON.stringify({engine,width,name,section:index,scroll:await scroller.evaluate(n=>({focus:document.activeElement===n,left:n.scrollLeft,width:n.clientWidth,total:n.scrollWidth,active:document.activeElement.outerHTML.slice(0,300)}))}));throw error;}
-          ok(await scroller.evaluate(n=>n.scrollLeft>0),'Keyboard can pan each actual diagram');
-          await page.keyboard.press('End');
-          await page.waitForFunction(()=>{const n=document.activeElement;return Math.abs(n.scrollWidth-n.clientWidth-n.scrollLeft)<=1;});await stylesSettled(page);
-          ok(await scroller.evaluate(n=>{const r=n.getBoundingClientRect();return [...n.querySelectorAll('.is-right')].every(x=>{const b=x.getBoundingClientRect();return b.left>=r.left-1&&b.right<=r.right+1;});}),'Every outcome is reachable by native horizontal scrolling');
-        }
+      for(let index=0;index<await details.count();index++){
+        const detail=details.nth(index),summary=detail.locator('summary');
+        await summary.scrollIntoViewIfNeeded();await summary.focus();
+        eq(await summary.evaluate(n=>document.activeElement===n),true,'Each source-detail summary accepts keyboard focus');
+        await page.keyboard.press('Enter');
+        eq(await detail.evaluate(n=>n.open),true,'Keyboard reveals original source records');
+        eq(await detail.locator('[data-burden-source]:visible').count(),index===0?item.s.inputs.spendingReduction.items.length+item.s.inputs.spendingAvoidance.items.length:item.s.inputs.capacity.activities.length,'Every source remains accessible without grouping loss');
+        await page.keyboard.press('Enter');
+        eq(await detail.evaluate(n=>n.open),false,'Keyboard closes source records');
       }
       // Print uses a paper-sized layout, not a 320px screen. The PDF below
       // additionally verifies actual page composition and complete values.
@@ -109,7 +110,7 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
         eq(await page.locator('.mr-benefit-panel:visible').count(),1,'Print shows one planning case');
         eq(await page.locator('.mr-benefit-panel:visible').getAttribute('data-three-benefit-case'),'central','Print always shows Central regardless of screen choice');
         eq(await page.locator('.mr-benefit-chart:visible').count(),1,'One printed Sankey');
-        eq(await page.locator('.mr-benefit-chart:visible .mr-burden-section').count(),3,'All three unit-separated diagrams print');
+        eq(await page.locator('.mr-benefit-chart:visible .mr-burden-section').count(),2,'Separate money and time diagrams print');
         ok(await page.locator('.mr-benefit-chart:visible .mr-burden-section').evaluateAll(nodes=>nodes.every(n=>getComputedStyle(n).breakInside==='avoid')),'Each printed diagram stays together');
         ok(await page.locator('.mr-benefit-print-summary').evaluate(el=>!!(el.compareDocumentPosition(document.querySelector('.mr-benefit-central .mr-benefit-chart'))&Node.DOCUMENT_POSITION_PRECEDING)),'Three-case table follows Central chart');
         eq(await page.evaluate(geometry),[],engine+'/'+width+'/'+name+'/'+selected+' print geometry');
@@ -119,10 +120,10 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
         const pages=JSON.parse(execFileSync(process.env.PDF_PYTHON||'python3',['-c','import json,sys;from pypdf import PdfReader;print(json.dumps([p.extract_text() for p in PdfReader(sys.argv[1]).pages]))',file],{encoding:'utf8',maxBuffer:16e6})),compact=s=>s.replace(/\s/g,''),text=compact(pages.join(' '));
         ok(pages[1].includes('Decision brief: three sources of value'),'PDF page two has decision brief');
         for(const key of keys)ok(pages[1].includes(item.s.benefits[key].amount.central.toLocaleString('en-US',{maximumFractionDigits:0})),'PDF central benefit front-loaded');
-        const chartTitle='Central case: from current demands to potential savings';
+        const chartTitle='Central case: money and staff time';
         const chartPage=pages.findIndex(p=>compact(p).includes(compact(chartTitle))),tablePage=pages.findIndex(p=>p.includes('Three planning cases'));
         ok(chartPage>=1&&tablePage>=chartPage,'Central chart precedes case comparison');
-        eq(compact(pages.join(' ')).split(compact('case: from current demands to potential savings')).length-1,1,'PDF contains exactly one planning-case chart');
+        eq(compact(pages.join(' ')).split(compact('case: money and staff time')).length-1,1,'PDF contains exactly one planning-case chart');
         ok(!/Low planning case|High planning case/.test(pages.join(' ')),'Repeated case pages removed');
         ok(compact(pages[tablePage]).includes('Lowpairslowbenefitassumptionswithhighcosts'),'Pairing note stays with comparison');
         for(const key of keys)for(const level of levels)ok(text.includes(compact(item.s.benefits[key].amount[level].toLocaleString('en-US',{maximumFractionDigits:2}))),'PDF retains every case amount');

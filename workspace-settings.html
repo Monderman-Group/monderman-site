@@ -307,6 +307,10 @@ body{transition:background-color .25s ease, color .25s ease}
   <link rel="stylesheet" href="visual-polish.css?v=20260915.consistency1">
   <link rel="stylesheet" href="workspace-cosmetic-audit.css?v=20260829-1">
   <link rel="stylesheet" href="workspace-product-design.css?v=20260915.consistency1">
+  <style>
+    #employerSalarySettings input[type="file"]{width:100%;min-width:0;min-height:44px;font:inherit;font-size:16px}
+    #employerSalarySettings input[type="file"]::file-selector-button{min-height:44px;margin-right:10px;padding:8px 12px;border:1px solid var(--line);border-radius:7px;background:var(--card,#fff);color:inherit;font:inherit;cursor:pointer}
+  </style>
 </head>
 <body class="workspace-surface workspace-settings-surface">
   <div class="ws5-shell">
@@ -400,6 +404,8 @@ body{transition:background-color .25s ease, color .25s ease}
           <div id="peopleBody"></div>
         </section>
 
+        <section class="card" id="employerSalarySettings" hidden></section>
+
         <section class="card" id="billing">
           <div class="card-h"><h3>Subscription &amp; renewal</h3></div>
           <p class="card-sub" id="billingSummary">Checking billing access…</p>
@@ -451,6 +457,8 @@ body{transition:background-color .25s ease, color .25s ease}
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
   <script src="workspace-access-gate.js"></script>
+  <script src="employer-salary-import.js?v=20260923.1"></script>
+  <script src="employer-salary-settings.js?v=20260923.2"></script>
 <script type="module">
     const workspaceAccess = await window.mondermanWorkspaceAccessReady;
     if (!workspaceAccess?.allowed) await new Promise(function () {});
@@ -966,6 +974,10 @@ body{transition:background-color .25s ease, color .25s ease}
       if(!okc) return;
       renderOrg();
       await Promise.all([ loadInvites(), loadMembers(), loadPeople(), loadUsage(), loadWorkspaceDeletion(), loadBilling() ]);
+      await window.MondermanEmployerSalarySettings.mount({
+        apiBase:API_BASE,organizationId:state.orgId,members:state.members,
+        headers:async()=>{const {data}=await supabase.auth.getSession();return {Authorization:"Bearer "+(data?.session?.access_token||""),"X-Monderman-Organization-Id":requireWorkspaceOrgId()};}
+      });
     }
     boot();
   </script>

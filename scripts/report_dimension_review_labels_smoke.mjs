@@ -7,6 +7,7 @@ import vm from 'node:vm';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {sourceBeforeRenderer38,renderer37Output} from './report_print_reading_units_smoke.mjs';
+import {sourceBeforeOverviewPresentation} from './report_overview_presentation_inverse.mjs';
 const root=path.resolve(import.meta.dirname,'..'),sha=s=>createHash('sha256').update(s).digest('hex');
 export const CURRENT='diagnostic-renderer-evidence-reading-20260913.37',PREVIOUS='diagnostic-renderer-evidence-reading-20260913.36';
 const mapper='  function priorityReviewLabel(value) {\n    // Display wording only: keep the saved priority, order and values intact.\n    const label = firstStr(value, "Priority");\n    return label.toLowerCase() === "fix now" ? "First review" : label.toLowerCase() === "fix next" ? "Next review" : label;\n  }\n\n';
@@ -17,6 +18,7 @@ const styles=[
 ];
 export function renderer36StyleOutput(value){value=renderer37Output(value);for(const [now,before]of styles)value=value.replaceAll(now,before);return value.replaceAll(CURRENT,PREVIOUS);}
 export function sourceBeforeRenderer37(source){
+ source=sourceBeforeOverviewPresentation(source);
  if(/diagnostic-renderer-evidence-reading-(?:20260913\.3[89]|20260914\.4[0123])/.test(source))source=sourceBeforeRenderer38(source);
  assert.equal(source.split(mapper).length,2);
  assert.equal(source.split('esc(priorityReviewLabel(row.priority))').length,3);

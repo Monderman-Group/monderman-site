@@ -23,6 +23,7 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]].filter(([en
  for(const width of process.env.WORKSPACE_LAYOUT_WIDTH?[Number(process.env.WORKSPACE_LAYOUT_WIDTH)]:[1440,834,390,320])for(const theme of ['light','dark'])for(const name of (process.env.WORKSPACE_LAYOUT_PAGE?[process.env.WORKSPACE_LAYOUT_PAGE]:['settings','actions','analysis','diagnostics'])){
   const page=await browser.newPage({viewport:{width,height:1000}});
   const errors=[],unexpected=[];
+  let salaryCapabilityReads=0;
   page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(({theme,runs})=>{
    localStorage.setItem('mndTheme',theme);
@@ -60,6 +61,15 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]].filter(([en
     if(url.pathname==='/api/normalization/workspace-runs/fixture-org')payload={ok:true,runs};
     else if(url.pathname==='/api/campaign-analysis/fixture-org')payload={ok:true,campaigns:[],scopes:[]};
     else if(url.pathname==='/api/synthesis-runs')payload={ok:true,syntheses:[]};
+    else if(url.pathname==='/api/workspace/assignments/salary-capability'){
+     assert.equal(url.search,'?organization_id=fixture-org');
+     assert.equal(request.headers().authorization,'Bearer fixture-token');
+     assert.equal(request.headers()['x-monderman-organization-id'],'fixture-org');
+     salaryCapabilityReads++;
+     // This layout fixture keeps the feature disabled even for its Admin.
+     // Enabled/denied role cases belong to employer_salary_browser_smoke.
+     payload={ok:true,enabled:false,can_upload:false,can_delegate:false,can_configure:false,currency:'USD',notice_version:'employer-salary-20260923.1',delegated_user_ids:[],eligible_batches:[]};
+    }
     else if(url.pathname==='/api/workspace/members')payload={ok:true,members:[{user_id:'fixture-other',name:'Alexandertheverylongunbrokenfirstname Morgan',email:'fixture@example.invalid'}]};
     else if(url.pathname==='/api/billing/commercial-status'){
      assert.equal(url.searchParams.get('organization_id'),'fixture-org');
@@ -189,6 +199,10 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]].filter(([en
    }
   }
   assert.deepEqual(errors,[],`${engine} ${name}: ${errors.join('; ')}`);
+  if(name==='settings'||name==='diagnostics'){
+   assert.equal(salaryCapabilityReads,1,'Salary capability is one explicit authenticated read');
+   assert.equal(await page.locator(name==='settings'?'#employerSalarySettings':'#salaryImportBox').isVisible(),false,'Disabled capability cannot expose salary controls even to an Admin');
+  }else assert.equal(salaryCapabilityReads,0,'Unrelated layout pages do not read salary capability');
   assert.deepEqual(unexpected,[]);
   assert.deepEqual(await page.evaluate(()=>window.__fixtureWrites),[]);
   await page.close();

@@ -1,0 +1,68 @@
+name: Employer salary UI boundaries
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/employer-salary-ui.yml'
+      - 'employer-salary-*.js'
+      - 'assignment-*.js'
+      - 'campaign-analysis.js'
+      - 'campaign-access.js'
+      - 'workspace-*.html'
+      - 'workspace-*.css'
+      - 'decision-velocity.html'
+      - 'structural-clarity.html'
+      - 'operational-systems.html'
+      - 'institutional-performance.html'
+      - 'diagnostic-intake.*'
+      - 'monderman-report.js'
+      - 'scripts/*salary*'
+      - 'scripts/campaign_button_state_smoke.mjs'
+      - 'scripts/install_ci_browsers.sh'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/employer-salary-ui.yml'
+      - 'employer-salary-*.js'
+      - 'assignment-*.js'
+      - 'campaign-analysis.js'
+      - 'campaign-access.js'
+      - 'workspace-*.html'
+      - 'workspace-*.css'
+      - 'decision-velocity.html'
+      - 'structural-clarity.html'
+      - 'operational-systems.html'
+      - 'institutional-performance.html'
+      - 'diagnostic-intake.*'
+      - 'monderman-report.js'
+      - 'scripts/*salary*'
+      - 'scripts/campaign_button_state_smoke.mjs'
+      - 'scripts/install_ci_browsers.sh'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  salary-ui:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned browser tooling
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          bash scripts/install_ci_browsers.sh
+      - name: Verify salary contracts
+        run: |
+          node scripts/employer_salary_frontend_contract.mjs
+          node scripts/employer_salary_settings_contract.mjs
+          node scripts/campaign_salary_cost_contract.mjs
+          node scripts/campaign_button_state_smoke.mjs
+      - name: Verify real pages with synthetic local services
+        run: node scripts/employer_salary_browser_smoke.mjs output/employer-salary-browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: employer-salary-ui-evidence
+          path: output/employer-salary-browser

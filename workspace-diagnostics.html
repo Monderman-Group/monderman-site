@@ -699,6 +699,25 @@ body{transition:background-color .25s ease, color .25s ease}
             </div>
           </div>
 
+          <p class="bulk-help" id="salaryAnonymousNotice" hidden>Salary uploads are not available for anonymous campaigns. Matching an employee's salary to their response would conflict with anonymity.</p>
+          <details class="bulk-box" id="salaryImportBox" hidden>
+            <summary>Optional annual base salary</summary>
+            <p class="bulk-help" style="margin-top:12px">Use a CSV with <code>email, annual_base_salary, salary_currency</code>. Annual base salary excludes bonuses, benefits, and overhead. USD is the only supported currency. Leave salary and currency blank for anyone whose cost you are not supplying.</p>
+            <p class="bulk-help">Salary is sensitive personal information. Only upload it if company policy permits this use and you have authority to provide it. It is used for financial estimates, never diagnostic scoring. Participants are not shown the supplied salary or an upload notice. Salary files stay out of campaign drafts and must be selected again after a reload.</p>
+            <div class="grid">
+              <div class="field"><label for="salaryAnnualHours">Annual working hours per person</label><input id="salaryAnnualHours" type="text" inputmode="decimal" autocomplete="off" aria-describedby="salaryCalculationHelp"><span class="hint">Use your organization's working-hours basis for this campaign.</span></div>
+              <div class="field"><label for="salaryOverheadPercent">Benefits and overhead (% of base salary)</label><input id="salaryOverheadPercent" type="text" inputmode="decimal" autocomplete="off" aria-describedby="salaryCalculationHelp"><span class="hint">Enter 0 if these costs should not be included.</span></div>
+            </div>
+            <p class="bulk-help" id="salaryCalculationHelp">We add your chosen percentage of base salary for benefits and overhead, then divide by annual working hours. Hourly employment cost = annual base salary × (1 + percentage ÷ 100) ÷ annual working hours. Both settings are required when supplying salaries. They are saved for this campaign when you send it and cannot then be changed. No default is applied.</p>
+            <label class="toggle"><input type="checkbox" id="salaryAuthorization"> I am authorized to disclose these participants’ annual base salaries to Monderman for this diagnostic purpose, and I confirm this use complies with our company policy and applicable requirements.</label>
+            <div class="bulk-actions">
+              <label class="btn btn-secondary file-btn" style="height:34px;padding:0 16px">Select salary CSV<input type="file" id="salaryFile" accept=".csv,text/csv" hidden></label>
+              <a class="bulk-tmpl" id="salaryTemplate" href="#">Download salary template</a>
+              <button class="btn btn-secondary" id="salaryClear" type="button" hidden>Remove supplied salaries</button>
+            </div>
+            <div id="salaryImportResult" role="status" aria-live="polite"></div>
+          </details>
+
           <div class="actions-row">
             <button class="btn btn-secondary" id="btnPreview" type="button">Preview</button>
             <button class="btn btn-primary" id="btnSend" type="button" disabled>Send campaign</button>
@@ -719,10 +738,11 @@ body{transition:background-color .25s ease, color .25s ease}
   </div>
 
   <script src="participant-evidence-safety.js?v=20260905-report-quarantine"></script>
-  <script src="monderman-report.js?v=20260915.financial1"></script>
+  <script src="monderman-report.js?v=20260923.overview1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
   <script src="workspace-access-gate.js"></script>
   <script src="campaign-access.js"></script>
+  <script src="employer-salary-import.js?v=20260923.1"></script>
 <script type="module">
     import {confirmRunInclusion} from './run-inclusion-review.js?v=20260911-1';
     const workspaceAccess = await window.mondermanWorkspaceAccessReady;
@@ -1025,6 +1045,10 @@ body{transition:background-color .25s ease, color .25s ease}
     const TOOL_HTML = { operational_systems:"operational-systems.html", decision_velocity:"decision-velocity.html", structural_clarity:"structural-clarity.html", institutional_performance:"institutional-performance.html" };
 
     const state = { user:null, orgId:null, userId:null, role:"viewer", organization:null, campaignAccess:null, recipients:[], lastReady:0, campaignSendKey:null, plans:[], planId:null, items:[], members:[], promotedRuns:[], promotedLoaded:false };
+    // Salary values are scoped to this open composer, never to recipient rows,
+    // campaign drafts, general reports, or persistent browser storage.
+    const employerSalaries = new Map();
+    let salaryCapability = null;
     function isAdmin(){ return state.role==="admin" || state.role==="owner"; }
 
     const $ = id => document.getElementById(id);
@@ -1063,10 +1087,12 @@ body{transition:background-color .25s ease, color .25s ease}
       tb.addEventListener("input", (e)=>{
         const t=e.target; if(t.dataset.i==null || t.dataset.f==null) return;
         const i=+t.dataset.i; if(!state.recipients[i]) return;
+        if(t.dataset.f==="email") employerSalaries.delete(String(state.recipients[i].email||"").trim().toLowerCase());
         state.recipients[i][t.dataset.f]=t.value; invalidateCampaignPreview(); scheduleSave();
       });
       tb.addEventListener("click", (e)=>{
         const b=e.target.closest(".rm-btn"); if(!b) return;
+        employerSalaries.delete(String(state.recipients[+b.dataset.rm]?.email||"").trim().toLowerCase());
         state.recipients.splice(+b.dataset.rm,1);
         if(!state.recipients.length) state.recipients.push({email:"",full_name:"",business_unit:"",team:""});
         state.lastReady=0; const sb=$("btnSend"); if(sb) sb.disabled=true;
@@ -1176,6 +1202,7 @@ body{transition:background-color .25s ease, color .25s ease}
       return {added, dup, invalid};
     }
     function clearAllRecipients(){
+      clearEmployerSalaries();
       state.recipients=[{email:"",full_name:"",business_unit:"",team:""}];
       state.lastReady=0; const sb=$("btnSend"); if(sb) sb.disabled=true;
       const r=$("bulkResult"); if(r){ r.textContent=""; r.className="bulk-result"; }
@@ -1192,11 +1219,11 @@ body{transition:background-color .25s ease, color .25s ease}
     }
     function wireBulkImport(){
       $("btnBulkToggle")?.addEventListener("click", ()=>{ const b=$("bulkBox"); if(b){ b.hidden=!b.hidden; if(!b.hidden) $("bulkText")?.focus(); } });
-      $("btnBulkParse")?.addEventListener("click", ()=>{ const ta=$("bulkText"); const res=importRecipients(parsePasted(ta?.value)); showBulkResult(res); if(res.added && ta) ta.value=""; });
+      $("btnBulkParse")?.addEventListener("click", ()=>{ const ta=$("bulkText"); if(window.MondermanEmployerSalaryImport.hasSalaryColumns(ta?.value)){ importEmployerSalaryCSV(ta.value); ta.value=""; return; } const res=importRecipients(parsePasted(ta?.value)); showBulkResult(res); if(res.added && ta) ta.value=""; });
       $("bulkFile")?.addEventListener("change", (e)=>{
         const f=e.target.files && e.target.files[0]; if(!f) return;
         const rd=new FileReader();
-        rd.onload=()=>{ const res=importRecipients(parseCSVText(String(rd.result||""))); showBulkResult(res); };
+        rd.onload=()=>{ const text=String(rd.result||""); if(window.MondermanEmployerSalaryImport.hasSalaryColumns(text)){ importEmployerSalaryCSV(text); return; } const res=importRecipients(parseCSVText(text)); showBulkResult(res); };
         rd.onerror=()=>{ const el=$("bulkResult"); if(el){ el.textContent="Couldn\u2019t read that file."; el.className="bulk-result bad"; } };
         rd.readAsText(f); e.target.value="";
       });
@@ -1210,9 +1237,81 @@ body{transition:background-color .25s ease, color .25s ease}
       $("rCount")?.addEventListener("click", (e)=>{ if(e.target && e.target.id==="rClear") clearAllRecipients(); });
     }
 
+    function salaryRecipientEntries(){
+      return state.recipients.filter(r=>employerSalaries.has(String(r.email||"").trim().toLowerCase()));
+    }
+    function clearEmployerSalaries({keepSettings=false}={}){
+      employerSalaries.clear();
+      state.salarySendAttempt=null;
+      if($("salaryAuthorization")) $("salaryAuthorization").checked=false;
+      if($("salaryImportResult")) $("salaryImportResult").textContent="";
+      if($("salaryClear")) $("salaryClear").hidden=true;
+      if(!keepSettings && $("salaryAnnualHours")) $("salaryAnnualHours").value="";
+      if(!keepSettings && $("salaryOverheadPercent")) $("salaryOverheadPercent").value="";
+      invalidateCampaignPreview();
+    }
+    function importEmployerSalaryCSV(text){
+      const target=$("salaryImportResult");
+      if(!salaryCapability?.enabled || salaryCapability.can_upload!==true || salaryCapability.can_configure!==true || $("fAnon").checked){
+        flash("bulkResult","Salary upload is not available for this workspace or your account.","bad"); return;
+      }
+      const parsed=window.MondermanEmployerSalaryImport.parse(text);
+      clearEmployerSalaries({keepSettings:true});
+      if(!parsed.ok){
+        target.innerHTML=`<div class="prev-issues"><b>Nothing imported. Correct these rows and select the file again.</b><ul>${parsed.errors.map(error=>`<li>Row ${error.row}: ${esc(error.message)}</li>`).join("")}</ul></div>`;
+        return;
+      }
+      importRecipients(parsed.rows);
+      employerSalaries.clear();
+      parsed.rows.forEach(row=>{ if(row.annual_base_salary) employerSalaries.set(row.email.toLowerCase(),{annual_base_salary:row.annual_base_salary,salary_currency:row.salary_currency}); });
+      $("salaryAuthorization").checked=false;
+      $("salaryClear").hidden=!employerSalaries.size;
+      target.innerHTML=`<p class="bulk-help">${parsed.rows.length} recipient rows validated; annual base salary supplied for ${parsed.salaryCount}. Amounts are not displayed in the campaign preview. Confirm your authority above, then preview the campaign before sending.</p>`;
+      invalidateCampaignPreview();
+    }
+    async function setupEmployerSalaryImport(){
+      try{
+        const response=await fetch(`${API_BASE}/api/workspace/assignments/salary-capability?organization_id=${encodeURIComponent(state.orgId)}`,{headers:await apiAuthHeaders()});
+        const data=await response.json();
+        if(response.ok && data.ok && data.enabled===true && data.can_upload===true && data.can_configure===true && data.currency==="USD" && data.notice_version===window.MondermanEmployerSalaryImport.noticeVersion) salaryCapability=data;
+      }catch(_error){}
+      function updateSalaryAvailability(){
+        const anonymous=$("fAnon").checked;
+        $("salaryImportBox").hidden=!salaryCapability || anonymous;
+        $("salaryAnonymousNotice").hidden=!salaryCapability || !anonymous;
+        if(anonymous) clearEmployerSalaries();
+      }
+      updateSalaryAvailability();
+      $("fAnon").addEventListener("change",updateSalaryAvailability);
+      $("salaryAuthorization").addEventListener("change",invalidateCampaignPreview);
+      ["salaryAnnualHours","salaryOverheadPercent"].forEach(id=>$(id).addEventListener("input",invalidateCampaignPreview));
+      $("salaryClear").addEventListener("click",clearEmployerSalaries);
+      $("salaryFile").addEventListener("change",async event=>{
+        const file=event.target.files?.[0]; event.target.value=""; if(!file) return;
+        try{ if(file.size>5*1024*1024) throw new Error("too_large"); importEmployerSalaryCSV(await file.text()); }
+        catch(_error){ $("salaryImportResult").textContent="Could not read this CSV. Use a file smaller than 5 MB."; }
+      });
+      $("salaryTemplate").addEventListener("click",event=>{
+        event.preventDefault(); const url=URL.createObjectURL(new Blob([window.MondermanEmployerSalaryImport.template],{type:"text/csv"}));
+        const link=document.createElement("a"); link.href=url; link.download="annual-base-salary-template.csv"; link.click(); setTimeout(()=>URL.revokeObjectURL(url),0);
+      });
+    }
+    function appendSalaryAuthorization(fd){
+      if(!salaryRecipientEntries().length) return;
+      fd.append("salary_authorization_consent",String($("salaryAuthorization").checked));
+      fd.append("salary_notice_version",window.MondermanEmployerSalaryImport.noticeVersion);
+      fd.append("salary_annual_working_hours",$("salaryAnnualHours").value.trim());
+      fd.append("salary_benefits_overhead_percent",$("salaryOverheadPercent").value.trim());
+    }
     function buildCSV(){
-      const header="email,full_name,business_unit,team";
-      const lines=state.recipients.filter(r=>r.email && r.email.trim()).map(r=>[r.email,r.full_name,r.business_unit,r.team].map(csvCell).join(","));
+      const withSalary=salaryRecipientEntries().length>0;
+      const header="email,full_name,business_unit,team"+(withSalary?",annual_base_salary,salary_currency":"");
+      const lines=state.recipients.filter(r=>r.email && r.email.trim()).map(r=>{
+        const cells=[r.email,r.full_name,r.business_unit,r.team];
+        const supplied=employerSalaries.get(r.email.trim().toLowerCase());
+        if(withSalary) cells.push(supplied?.annual_base_salary||"",supplied?.salary_currency||"");
+        return cells.map(csvCell).join(",");
+      });
       return header+"\n"+lines.join("\n")+"\n";
     }
     function buildDefaults(){
@@ -1232,6 +1331,13 @@ body{transition:background-color .25s ease, color .25s ease}
     function validate(){
       if(!$("fPath").value.trim()) return "Add a pathway label.";
       if(!state.recipients.some(r=>r.email && r.email.trim())) return "Add at least one recipient email.";
+      if(salaryRecipientEntries().length && $("fAnon").checked) return "Salary uploads are not available for anonymous campaigns.";
+      if(salaryRecipientEntries().length && (!salaryCapability?.enabled || !salaryCapability.can_upload || !salaryCapability.can_configure)) return "Salary upload permission could not be confirmed.";
+      if(salaryRecipientEntries().length && !$("salaryAuthorization").checked) return "Confirm your authority to provide sensitive salary information before previewing or sending.";
+      if(salaryRecipientEntries().length){
+        const result=window.MondermanEmployerSalaryImport.validateSettings($("salaryAnnualHours").value,$("salaryOverheadPercent").value);
+        if(!result.ok) return result.error;
+      }
       return null;
     }
     function flash(id,msg,kind){ $(id).innerHTML = `<div class="note ${kind}">${esc(msg)}</div>`; }
@@ -1243,7 +1349,7 @@ body{transition:background-color .25s ease, color .25s ease}
 
     function campaignAttemptStorageKey(){ return `mondermanCampaignSendAttempt:${state.orgId||"unknown"}`; }
     function campaignPayloadMaterial(){
-      return JSON.stringify({organization_id:state.orgId,csv:buildCSV(),defaults:buildDefaults(),batch_label:buildDefaults().event_path_name||""});
+      return JSON.stringify({organization_id:state.orgId,csv:buildCSV(),defaults:buildDefaults(),batch_label:buildDefaults().event_path_name||"",salary_authorization_consent:salaryRecipientEntries().length?$("salaryAuthorization").checked:undefined,salary_annual_working_hours:salaryRecipientEntries().length?$("salaryAnnualHours").value.trim():undefined,salary_benefits_overhead_percent:salaryRecipientEntries().length?$("salaryOverheadPercent").value.trim():undefined});
     }
     function invalidateCampaignPreview(){
       state.previewRevision=(state.previewRevision||0)+1;
@@ -1259,6 +1365,12 @@ body{transition:background-color .25s ease, color .25s ease}
       return Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,"0")).join("");
     }
     async function prepareCampaignSendAttempt(material=campaignPayloadMaterial()){
+      // Do not persist even a salary-derived fingerprint in browser storage.
+      if(salaryRecipientEntries().length){
+        if(state.salarySendAttempt?.material===material) return state.salarySendAttempt.key;
+        state.salarySendAttempt={material,key:crypto.randomUUID()};
+        return state.salarySendAttempt.key;
+      }
       const fingerprint=await campaignPayloadFingerprint(material);
       try{
         const saved=JSON.parse(localStorage.getItem(campaignAttemptStorageKey())||"null");
@@ -1270,6 +1382,7 @@ body{transition:background-color .25s ease, color .25s ease}
     }
     function clearCampaignSendAttempt(){
       state.campaignSendKey=null;
+      state.salarySendAttempt=null;
       try{localStorage.removeItem(campaignAttemptStorageKey());}catch(_error){}
     }
 
@@ -1278,40 +1391,44 @@ body{transition:background-color .25s ease, color .25s ease}
       if(state.previewing || state.sending) return;
       invalidateCampaignPreview();
       const err=validate(); if(err){ flash("previewOut",err,"bad"); return; }
-      const material=campaignPayloadMaterial(), revision=state.previewRevision;
+      const material=campaignPayloadMaterial(), revision=state.previewRevision, withSalary=salaryRecipientEntries().length>0;
       $("sendOut").innerHTML="";
       const fd=new FormData();
       fd.append("file", new Blob([buildCSV()],{type:"text/csv"}), "recipients.csv");
       fd.append("defaults", JSON.stringify(buildDefaults()));
+      fd.append("organization_id",state.orgId);
+      appendSalaryAuthorization(fd);
       state.previewing=true;
       $("btnPreview").dataset.label="Preview"; busy("btnPreview",true,"Checking\u2026");
       try{
         const res=await fetch(`${API_BASE}/api/workspace/assignments/preview-batch`, { method:"POST", headers: await apiAuthHeaders(), body:fd });
         const data=await res.json().catch(()=>({}));
         if(!res.ok || data.ok===false) throw new Error(data.error || ("HTTP "+res.status));
-        const ready = (data.ready_rows||[]).length || (data.summary && data.summary.valid) || 0;
+        const salaryIssues=salaryRecipientEntries().length && ((data.invalid_rows||[]).length || (data.duplicate_rows||[]).length);
+        const ready = salaryIssues ? 0 : ((data.ready_rows||[]).length || (data.summary && data.summary.valid) || 0);
         const key = ready > 0 ? await prepareCampaignSendAttempt(material) : null;
         if(!campaignPreviewMatches(material,revision)){
           invalidateCampaignPreview();
           flash("previewOut","The campaign changed. Preview it again before sending.","bad"); return;
         }
-        renderPreview(data);
+        renderPreview(data,{withSalary});
         state.lastReady=ready; state.previewMaterial=material; state.campaignSendKey=key;
         $("btnSend").disabled = state.lastReady < 1;
-      }catch(e){ flash("previewOut","Preview failed: "+e.message,"bad"); state.lastReady=0; $("btnSend").disabled=true; }
+      }catch(e){ flash("previewOut","Preview failed: "+(withSalary?"Check your salary file, campaign settings, and upload permission, then try again.":e.message),"bad"); state.lastReady=0; $("btnSend").disabled=true; }
       finally{ state.previewing=false; busy("btnPreview",false); }
     }
-    function renderPreview(d){
+    function renderPreview(d,{withSalary=salaryRecipientEntries().length>0}={}){
       const ready=(d.ready_rows||[]).length, invalid=(d.invalid_rows||[]), dups=(d.duplicate_rows||[]);
       let html=`<div class="prev-summary"><span class="chip ok">${ready} ready</span>`;
       if(invalid.length) html+=`<span class="chip bad">${invalid.length} invalid</span>`;
       if(dups.length) html+=`<span class="chip warn">${dups.length} duplicate</span>`;
       html+=`</div>`;
       if(invalid.length){
-        html+=`<div class="prev-issues"><b>Needs attention</b><ul>`+invalid.map(r=>`<li>${esc(r.email||"(no email)")}: ${esc((r.problems||[]).join(", ")||"invalid")}</li>`).join("")+`</ul></div>`;
+        html+=`<div class="prev-issues"><b>Needs attention</b><ul>`+invalid.map(r=>withSalary?`<li>Row ${Number.isInteger(r.row_number)?r.row_number:"?"}: Check its email, salary, currency, and participant status.</li>`:`<li>${esc(r.email||"(no email)")}: ${esc((r.problems||[]).join(", ")||"invalid")}</li>`).join("")+`</ul></div>`;
       }
       if(ready>0) html+=`<p class="prev-note">${ready} recipient${ready>1?"s":""} ready. Send creates a directed run for each.</p>`;
       else html+=`<p class="prev-note">No valid recipients yet.</p>`;
+      if(salaryRecipientEntries().length) html+=`<p class="prev-note">Annual base salary supplied for ${salaryRecipientEntries().length} recipients. Values are excluded from this preview and participant invitations.</p>`;
       $("previewOut").innerHTML=html;
     }
 
@@ -1323,7 +1440,7 @@ body{transition:background-color .25s ease, color .25s ease}
       }
       const err=validate(); if(err){ invalidateCampaignPreview(); flash("sendOut",err,"bad"); return; }
       if(!state.orgId){ flash("sendOut","No organization is linked to your account.","bad"); return; }
-      const sentMaterial=state.previewMaterial, sentRevision=state.previewRevision;
+      const sentMaterial=state.previewMaterial, sentRevision=state.previewRevision, withSalary=salaryRecipientEntries().length>0;
       const fd=new FormData();
       fd.append("file", new Blob([buildCSV()],{type:"text/csv"}), "recipients.csv");
       fd.append("defaults", JSON.stringify(buildDefaults()));
@@ -1331,6 +1448,7 @@ body{transition:background-color .25s ease, color .25s ease}
       fd.append("sender_user_id", state.userId);
       fd.append("batch_label", buildDefaults().event_path_name || "");
       fd.append("campaign_send_key", state.campaignSendKey);
+      appendSalaryAuthorization(fd);
       state.sending=true; $("btnPreview").disabled=true;
       $("btnSend").dataset.label="Send campaign"; busy("btnSend",true,"Sending\u2026");
       try{
@@ -1342,8 +1460,9 @@ body{transition:background-color .25s ease, color .25s ease}
         const unchanged=campaignPreviewMatches(sentMaterial,sentRevision);
         state.lastReady=0; state.previewMaterial=null; clearCampaignSendAttempt(); $("btnSend").disabled=true; $("previewOut").innerHTML="";
         if(unchanged) clearDraft(); else scheduleSave();
+        if(unchanged) clearEmployerSalaries();
         loadTracking();
-      }catch(e){ flash("sendOut","Send failed: "+e.message,"bad"); }
+      }catch(e){ flash("sendOut","Send failed: "+(withSalary?"Your campaign was not confirmed. Check the file, settings, and permission before retrying.":e.message),"bad"); }
       finally{ state.sending=false; busy("btnSend",false); $("btnSend").disabled = state.lastReady < 1; $("btnPreview").disabled=false; }
     }
 
@@ -1647,6 +1766,7 @@ body{transition:background-color .25s ease, color .25s ease}
       try{ await supabase.from("campaign_drafts").delete().eq("user_id", state.userId).eq("organization_id", state.orgId); }catch(e){}
     }
     function discardDraft(){
+      clearEmployerSalaries();
       clearDraft();
       $("fPath").value=""; $("fDue").value=""; $("fMessage").value="";
       $("fTool").value="decision_velocity"; $("fVantage").value="operational"; $("fDepth").value="30";
@@ -1714,6 +1834,7 @@ body{transition:background-color .25s ease, color .25s ease}
         $("composeCard").hidden=false;
         setupComposerAutosave();
         wireBulkImport();
+        await setupEmployerSalaryImport();
         if(!(await restoreDraft())){
           state.recipients=[{email:"",full_name:"",business_unit:"",team:""}];
           renderRecipients();

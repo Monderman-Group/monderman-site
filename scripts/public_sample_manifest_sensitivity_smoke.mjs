@@ -23,7 +23,8 @@ const sourceNames=[
 // The reviewed presentation revision binds all six published PDF files.
 // Isolated copies must include those exact bytes for the positive control.
 const pdfNames=['operational_systems','decision_velocity','structural_clarity','institutional_performance','depth_synthesis','cross_lens_synthesis'].map(key=>'sample-data/reports/'+key+'.pdf');
-const names=[artifactName,manifestName,adapterName,...sourceNames,...pdfNames];
+const overviewSources=['index.html','homepage-workspace-demo.css','sample-report-tile.css','pilot-waitlist.css','canonical-site-shell.css','public-product-design.css'];
+const names=[artifactName,manifestName,adapterName,...sourceNames,...overviewSources,...pdfNames];
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const baselineBytes=new Map(names.map(name=>[name,fs.readFileSync(path.join(root,name))]));
 const baselineArtifact=JSON.parse(baselineBytes.get(artifactName));
@@ -173,7 +174,23 @@ for(const name of sourceNames) {
 // Four score cases, five bindings per product, five per Synthesis, nine
 // release-level cases, plus manifest/content drift for all six display files.
 assert.equal(cases.length,4+5*6+5*2+9+10+2*sourceNames.length,'bounded sensitivity inventory changed; review before expanding');
-assert.equal(cases.length,75,'Includes ten presentation/PDF binding mutations, covering the individual PDF palette');
+for(const [label,mutate] of [
+  ['missing',m=>{delete m.report_overview_presentation_review;}],
+  ['pending',m=>{m.report_overview_presentation_review.status='pending';}],
+  ['no-visual-review',m=>{m.report_overview_presentation_review.visual_review='pending';}],
+  ['wrong-renderer',m=>{m.report_overview_presentation_review.renderer_sha256='0'.repeat(64);}],
+  ['wrong-data',m=>{m.report_overview_presentation_review.artifact_file_sha256='0'.repeat(64);}],
+  ['wrong-pdf',m=>{m.report_overview_presentation_review.pdf_outputs.depth_synthesis.sha256='0'.repeat(64);}],
+  ['missing-pdf',m=>{delete m.report_overview_presentation_review.pdf_outputs.operational_systems;}],
+  ['wrong-history',m=>{m.report_overview_presentation_review.prior_benefit_flow_review_sha256='0'.repeat(64);}],
+  ['missing-browser-review',m=>{delete m.report_overview_presentation_review.overview_browser_states;}],
+  ['changed-reviewer',m=>{m.report_overview_presentation_review.reviewed_by='Jason';}],
+])cases.push(manifestMutation('overview-review-'+label,null,mutate));
+for(const name of overviewSources)cases.push({
+  label:'overview-source-drift-'+path.basename(name),layer:'source-byte-binding',expected:'reviewed overview source changed: '+name,
+  mutate(directory){fs.appendFileSync(path.join(directory,name),'\n/* sensitivity mutation only */\n');},
+});
+assert.equal(cases.length,91,'Historical mutations plus ten overview review mutations and six additional presentation sources');
 assert.equal(new Set(cases.map(item=>item.label)).size,cases.length);
 try {
   const baseline=run(prepare('baseline'));
