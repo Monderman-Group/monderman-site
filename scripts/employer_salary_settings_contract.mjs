@@ -5,10 +5,44 @@ import vm from "node:vm";
 // Run the shipped settings module with a minimal DOM and a mock API. This is
 // not a browser, layout, database, or production-network test.
 const read = (name) => readFileSync(new URL(`../${name}`, import.meta.url), "utf8");
+const routeMethods = Object.freeze({
+  "/api/workspace/assignments/salary-capability":"GET",
+  "/api/workspace/assignments/salary-settings":"POST",
+  "/api/workspace/assignments/import-salaries":"POST",
+  "/api/workspace/assignments/salary-delegation":"POST"
+});
+const authHeaders = () => ({Authorization:"Bearer SETTINGS-FIXTURE-ONLY","X-Monderman-Organization-Id":"org-test"});
+function assertSettingsRequest(address, options) {
+  const url=new URL(address), headers=new Headers(options.headers);
+  assert.equal(url.origin,"https://local.invalid","exact API origin");
+  assert.ok(Object.hasOwn(routeMethods,url.pathname),"exact mounted Workspace salary route");
+  assert.equal(options.method,routeMethods[url.pathname],"exact salary route method");
+  assert.equal(url.search,url.pathname==="/api/workspace/assignments/salary-capability"?"?organization_id=org-test":"","exact capability query; no mutation query");
+  assert.equal(headers.get("authorization"),"Bearer SETTINGS-FIXTURE-ONLY","salary request carries caller authorization");
+  assert.equal(headers.get("x-monderman-organization-id"),"org-test","salary request carries selected Workspace");
+  return url.pathname;
+}
+let routeNegativeControls=0;
+for (const [pathname,method] of Object.entries(routeMethods)) {
+  const address="https://local.invalid"+pathname+(method==="GET"?"?organization_id=org-test":"");
+  const options={method,headers:authHeaders()};
+  assertSettingsRequest(address,options);
+  for (const [wrongAddress,wrongOptions] of [
+    [address.replace("/api/workspace/assignments/","/api/assignments/"),options],
+    [address,{...options,method:method==="GET"?"POST":"GET"}],
+    [address.replace("local.invalid","wrong.invalid"),options],
+    [address+(method==="GET"?"&unexpected=true":"?organization_id=org-test"),options],
+    [address,{...options,headers:{"X-Monderman-Organization-Id":"org-test"}}],
+    [address,{...options,headers:{...authHeaders(),"X-Monderman-Organization-Id":"other-org"}}]
+  ]) { assert.throws(()=>assertSettingsRequest(wrongAddress,wrongOptions)); routeNegativeControls++; }
+  if(method==="GET")for(const query of ["", "?organization_id=other-org"]){
+    assert.throws(()=>assertSettingsRequest("https://local.invalid"+pathname+query,options));routeNegativeControls++;
+  }
+}
 function deferred() { let resolve; const promise = new Promise(r => { resolve = r; }); return { promise, resolve }; }
 async function tick() { await new Promise(setImmediate); }
 async function fixture({admin=true, configured=false, enabled=true}={}) {
-  const elements = new Map(), requests = [];
+  const elements = new Map(), requests = [], transportErrors=[];
   class Element {
     constructor(id, parent=null) { this.id=id; this.parent=parent; this.children=[]; this.listeners={}; this.value=""; this.checked=false; this.disabled=false; this.hidden=false; this._html=""; this.textContent=""; }
     set innerHTML(html) {
@@ -23,7 +57,7 @@ async function fixture({admin=true, configured=false, enabled=true}={}) {
     querySelector(selector) { return elements.get(selector.replace(/^#/,"")) || null; }
     querySelectorAll() { return []; }
     addEventListener(name,listener) { this.listeners[name]=listener; }
-    async fire(name,event={}) { await this.listeners[name]?.({target:this,...event}); await tick(); }
+    async fire(name,event={}) { await this.listeners[name]?.({target:this,...event}); await tick(); assert.deepEqual(transportErrors,[],"no invalid salary transport hidden by UI error handling"); }
   }
   const host=new Element("employerSalarySettings"); elements.set(host.id,host);
   const capability={ok:true,enabled,can_upload:true,can_delegate:admin,can_configure:admin,currency:"USD",notice_version:"employer-salary-20260923.1",eligible_batches:[
@@ -32,10 +66,12 @@ async function fixture({admin=true, configured=false, enabled=true}={}) {
   ]};
   const scope=vm.createContext({window:{},document:{getElementById:id=>elements.get(id)},FormData,Blob,URL,setTimeout,
     fetch:async (url,options)=>{
-      assert.ok(url.startsWith("https://local.invalid/api/assignments/"));
+      let pathname;
+      try { pathname=assertSettingsRequest(url,options); }
+      catch (error) { transportErrors.push(error.message); throw error; }
       requests.push({url,options});
-      if(url.includes("salary-capability?"))return{ok:true,json:async()=>JSON.parse(JSON.stringify(capability))};
-      if(url.endsWith("/salary-settings")){
+      if(pathname==="/api/workspace/assignments/salary-capability")return{ok:true,json:async()=>JSON.parse(JSON.stringify(capability))};
+      if(pathname==="/api/workspace/assignments/salary-settings"){
         const body=JSON.parse(options.body); assert.ok(admin,"Analyst cannot save settings");
         capability.eligible_batches.find(batch=>batch.id===body.batch_id).salary_settings={annual_working_hours:body.annual_working_hours,benefits_overhead_percent:body.benefits_overhead_percent,locked:true};
       }
@@ -44,7 +80,8 @@ async function fixture({admin=true, configured=false, enabled=true}={}) {
   });
   vm.runInContext(read("employer-salary-import.js"),scope);
   vm.runInContext(read("employer-salary-settings.js"),scope);
-  await scope.window.MondermanEmployerSalarySettings.mount({organizationId:"org-test",apiBase:"https://local.invalid",headers:async()=>({}),members:[]});
+  await scope.window.MondermanEmployerSalarySettings.mount({organizationId:"org-test",apiBase:"https://local.invalid",headers:async()=>authHeaders(),members:[]});
+  assert.deepEqual(transportErrors,[],"no invalid salary capability hidden by UI error handling");
   const field=id=>elements.get(id);
   async function campaign(id) { field("salaryBatch").value=id; await field("salaryBatch").fire("change"); }
   async function file() {
@@ -105,4 +142,4 @@ async function fixture({admin=true, configured=false, enabled=true}={}) {
   assert.equal(f.field("settingsSalaryResult").textContent,"");
   assert.equal(f.field("settingsSalaryPreview").disabled,true,"late file reads cannot attach data to a different campaign");
 }
-console.log("Salary settings interaction contract passed: explicit values, zero overhead, immutable settings, Admin/Analyst separation, preview/apply payloads, release gate and stale-file protection. Mock DOM/API only; no browser or production requests.");
+console.log(`Salary settings interaction contract passed: four exact mounted routes, ${routeNegativeControls} rejected transport mutations, explicit values, zero overhead, immutable settings, Admin/Analyst separation, preview/apply payloads, release gate and stale-file protection. Mock DOM/API only; no browser or production requests.`);

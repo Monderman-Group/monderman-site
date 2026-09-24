@@ -25,6 +25,43 @@ const ok=(value,label)=>{assert.ok(value,label);assertions++;};
 const eq=(a,b,label)=>{assert.deepEqual(a,b,label);assertions++;};
 const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.woff2':'font/woff2','.woff':'font/woff','.png':'image/png','.jpg':'image/jpeg','.ico':'image/x-icon'};
 const clone=value=>JSON.parse(JSON.stringify(value));
+const salaryRoutes=Object.freeze({
+  capability:{path:'/api/workspace/assignments/salary-capability',method:'GET'},
+  settings:{path:'/api/workspace/assignments/salary-settings',method:'POST'},
+  import:{path:'/api/workspace/assignments/import-salaries',method:'POST'},
+  delegation:{path:'/api/workspace/assignments/salary-delegation',method:'POST'},
+  preview:{path:'/api/workspace/assignments/preview-batch',method:'POST'},
+  send:{path:'/api/workspace/assignments/send-batch',method:'POST'}
+});
+const salaryEndpointNames=new Set(Object.values(salaryRoutes).map(route=>route.path.split('/').at(-1)));
+const isSalaryRequest=(request,key)=>request.path===salaryRoutes[key].path&&request.method===salaryRoutes[key].method;
+function assertSalaryRequest(url,method,headers){
+  const route=Object.values(salaryRoutes).find(route=>route.path===url.pathname),auth=new Headers(headers);
+  assert.equal(url.origin,'https://monderman-api.onrender.com','exact salary API origin');
+  assert.ok(route,'exact mounted Workspace salary route');
+  assert.equal(method,route.method,'exact salary method');
+  assert.equal(url.search,route===salaryRoutes.capability?'?organization_id='+orgId:'','exact capability query; no mutation query');
+  assert.equal(auth.get('authorization'),'Bearer SYNTHETIC-LOCAL-ONLY','salary authorization');
+  assert.equal(auth.get('x-monderman-organization-id'),orgId,'selected salary Workspace');
+}
+let routeNegativeControls=0;
+for(const route of Object.values(salaryRoutes)){
+  const url=new URL('https://monderman-api.onrender.com'+route.path+(route.method==='GET'?'?organization_id='+orgId:''));
+  const headers={authorization:'Bearer SYNTHETIC-LOCAL-ONLY','x-monderman-organization-id':orgId};
+  assertSalaryRequest(url,route.method,headers);assertions++;
+  for(const [address,method,auth] of [
+    [url.href.replace('/api/workspace/assignments/','/api/assignments/'),route.method,headers],
+    [url.href,route.method==='GET'?'POST':'GET',headers],
+    [url.href.replace('monderman-api.onrender.com','wrong.example.test'),route.method,headers],
+    [url.href+(route.method==='GET'?'&unexpected=true':'?organization_id='+orgId),route.method,headers],
+    [url.href,route.method,{'x-monderman-organization-id':orgId}],
+    [url.href,route.method,{...headers,'x-monderman-organization-id':'wrong-org'}]
+  ]){assert.throws(()=>assertSalaryRequest(new URL(address),method,auth));routeNegativeControls++;assertions++;}
+  if(route.method==='GET')for(const search of ['', '?organization_id=wrong-org']){
+    const bad=new URL(url);bad.search=search;
+    assert.throws(()=>assertSalaryRequest(bad,route.method,headers));routeNegativeControls++;assertions++;
+  }
+}
 
 async function setup(browser,{role='admin',api}){
   const page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});
@@ -59,6 +96,10 @@ async function setup(browser,{role='admin',api}){
   await page.route('**/*',async route=>{
     const req=route.request(),url=new URL(req.url());
     if(url.pathname.startsWith('/api/')){
+      if(salaryEndpointNames.has(url.pathname.split('/').at(-1))){
+        try{assertSalaryRequest(url,req.method(),req.headers());assertions+=6;}
+        catch(error){unexpected.push({method:req.method(),path:url.pathname,error:error.message});return route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({ok:false,error:'unapproved_salary_fixture_route'})});}
+      }
       // WebKit's transport omits file bytes from postData. Record the exact
       // FormData entries passed to native fetch in both engines for parity.
       const form=/multipart\/form-data/.test(req.headers()['content-type']||'')?await page.evaluate(url=>window.__fixtureFormRequests.findLast(entry=>entry.url===url),req.url()):null;
@@ -127,20 +168,20 @@ async function settingsCase(browser,engine,role,width){
   ]};
   let failImport=false;
   const fixture=await setup(browser,{role:role==='disabled'?'admin':role,api:async(url,req,entry)=>{
-    if(url.pathname.endsWith('/salary-capability'))return clone(capability);
-    if(url.pathname.endsWith('/salary-settings')){
+    if(isSalaryRequest(entry,'capability'))return clone(capability);
+    if(isSalaryRequest(entry,'settings')){
       eq(role,'admin','only admin sends calculation request');
       const body=req.postDataJSON();eq(body,{organization_id:orgId,batch_id:'campaign-a',annual_working_hours:1920,benefits_overhead_percent:0},'explicit zero calculation payload');
       capability.eligible_batches[0].salary_settings={annual_working_hours:body.annual_working_hours,benefits_overhead_percent:body.benefits_overhead_percent,locked:true};return {ok:true};
     }
-    if(url.pathname.endsWith('/import-salaries')){
+    if(isSalaryRequest(entry,'import')){
       const body=entry.body;ok(body.includes(salary),'salary appears only in authorized import request');
       ok(body.includes('employer-salary-20260923.1'),'current notice version sent');
       ok(!/name="(?:salary_)?(?:annual_working_hours|benefits_overhead_percent)"/.test(body),'import cannot override saved settings');
       if(failImport)return {status:409,body:{ok:false,message:salary,invalid_rows:[{row:2,message:salary,annual_base_salary:salary}]}};
       return {ok:true,invalid_rows:[]};
     }
-    if(url.pathname.endsWith('/salary-delegation')){
+    if(isSalaryRequest(entry,'delegation')){
       const body=req.postDataJSON();eq(body.organization_id,orgId,'delegation tenant');eq(body.user_id,'analyst-user','delegation target');
       capability.delegated_user_ids=body.can_upload?['analyst-user']:[];return {ok:true};
     }
@@ -160,7 +201,7 @@ async function settingsCase(browser,engine,role,width){
         eq(await page.locator('#settingsSalaryOverhead').inputValue(),'','overhead has no default');
         await layout(page,engine+'-'+role+'-'+width+'-calculation','#employerSalarySettings');
         await page.locator('#settingsSalarySaveCalculation').focus();await page.keyboard.press('Enter');
-        eq(requests.filter(r=>r.path.endsWith('/salary-settings')).length,0,'blank settings cannot submit');
+        eq(requests.filter(r=>isSalaryRequest(r,'settings')).length,0,'blank settings cannot submit');
         await page.locator('#settingsSalaryHours').fill('1920');await page.locator('#settingsSalaryOverhead').fill('0');
         await page.locator('#settingsSalarySaveCalculation').focus();await page.keyboard.press('Enter');
         await page.waitForFunction(()=>!document.querySelector('#settingsSalaryHours')&&document.querySelector('#salaryCampaignSettings').textContent.includes('cannot be changed'));
@@ -178,7 +219,7 @@ async function settingsCase(browser,engine,role,width){
       eq(await page.locator('#settingsSalaryFile').inputValue(),'','applied file cleared');
       eq(await page.locator('#settingsSalaryAuthority').isChecked(),false,'applied consent cleared');
       eq(await page.locator('#settingsSalarySave').isDisabled(),true,'apply cannot be repeated');
-      const imports=requests.filter(r=>r.path.endsWith('/import-salaries'));eq(imports.length,2,'exactly preview and apply');
+      const imports=requests.filter(r=>isSalaryRequest(r,'import'));eq(imports.length,2,'exactly preview and apply');
       ok(/name="preview_only"\r\n\r\ntrue/.test(imports[0].body),'preview true');ok(/name="preview_only"\r\n\r\nfalse/.test(imports[1].body),'apply false');
       await salaryFile(page);failImport=true;await page.locator('#settingsSalaryPreview').click();
       await page.waitForFunction(()=>document.querySelector('#settingsSalaryResult').textContent.includes('No salary changes'));
@@ -195,7 +236,7 @@ async function settingsCase(browser,engine,role,width){
         await page.waitForFunction(()=>document.querySelector('[data-salary-user]')?.textContent.includes('Revoke'));
         await page.locator('[data-salary-user="analyst-user"]').click();
         await page.waitForFunction(()=>document.querySelector('[data-salary-user]')?.textContent.includes('Authorize'));
-        eq(requests.filter(r=>r.path.endsWith('/salary-delegation')).length,2,'grant/revoke controls send correct changes');
+        eq(requests.filter(r=>isSalaryRequest(r,'delegation')).length,2,'grant/revoke controls send correct changes');
       }
     }
     const settingsNav=page.locator('.ws5-nav a[href="workspace-settings.html"]');
@@ -215,8 +256,8 @@ async function participantCase(browser,engine,tool,omit){
   const active=fields.filter(field=>!omit||field.id!=='hourlyCost');
   const item={id:'browser-question',scorerField:'browser-question',dimension:'coordination',secondaryDimension:null,role:['managerial'],depth:[10],questionType:'numeric',text:{managerial:'Synthetic non-pay diagnostic question'},options:[],isOptional:false};
   const remote={ok:true,runId,role:'managerial',depth:10,questionnaire_version:tool==='decision-velocity'?'1.1.0':'1.3.0',configVersion:tool==='decision-velocity'?'1.1.0':'1.3.0',questionnaire_copy_version:'diagnostic-language-20260908',finalized:false,sessionCapability:'synthetic-capability',nextItem:item,shouldStop:false,sessionRevision:1,progress:{answered:0,total:10,progressPercent:0},answerHistory:[]};
-  const fixture=await setup(browser,{api:async(url)=>{
-    if(url.pathname.startsWith('/api/assignments/resolve/'))return {ok:true,assignment:{id:assignmentId,tool_type:tool.replaceAll('-','_'),participant_lens:'managerial',depth:10,depth_choice:false,is_anonymous_response:false,show_results_to_assignee:false,interview_mode:'guided',omit_hourly_cost_question:omit}};
+  const fixture=await setup(browser,{api:async(url,req)=>{
+    if(url.pathname==='/api/assignments/resolve/'+token&&req.method()==='GET')return {ok:true,assignment:{id:assignmentId,tool_type:tool.replaceAll('-','_'),participant_lens:'managerial',depth:10,depth_choice:false,is_anonymous_response:false,show_results_to_assignee:false,interview_mode:'guided',omit_hourly_cost_question:omit}};
     if(url.pathname===`/api/${tool}/run/start`||url.pathname===`/api/${tool}/run/${runId}`)return remote;
     if(url.pathname===`/api/${tool}/run/${runId}/answer`)return {...remote,nextItem:{...item,id:'browser-next',scorerField:'browser-next',text:{managerial:'Synthetic next non-pay diagnostic question'}},sessionRevision:2,progress:{answered:1,total:10,progressPercent:10}};
   }});
@@ -224,6 +265,7 @@ async function participantCase(browser,engine,tool,omit){
   try{
     await page.goto(origin+'/'+tool+'.html?assignment_token='+token,{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>window.MondermanAssignment?.active());
+    eq(requests.filter(r=>r.method==='GET'&&r.path==='/api/assignments/resolve/'+token).length,1,'participant resolution retains its public assignment route');
     await page.locator('#pageLoader').waitFor({state:'hidden'});
     await page.locator('#preStartConsent').check();await page.locator('.preflight-gate-next').click();
     eq(await page.locator('#preflight_hourlyCost').count(),omit?0:1,'server capability controls the cost field');
@@ -261,8 +303,8 @@ async function participantCase(browser,engine,tool,omit){
 
 async function composerCase(browser,engine,width){
   const fixture=await setup(browser,{api:async(url,req,entry)=>{
-    if(url.pathname.endsWith('/salary-capability'))return {ok:true,enabled:true,can_upload:true,can_configure:true,currency:'USD',notice_version:'employer-salary-20260923.1'};
-    if(['/api/workspace/assignments/preview-batch','/api/workspace/assignments/send-batch'].includes(url.pathname)){
+    if(isSalaryRequest(entry,'capability'))return {ok:true,enabled:true,can_upload:true,can_configure:true,currency:'USD',notice_version:'employer-salary-20260923.1'};
+    if(isSalaryRequest(entry,'preview')||isSalaryRequest(entry,'send')){
       ok(entry.body.includes(salary),'composer supplies salary only to the privileged campaign endpoint');
       ok(/name="salary_annual_working_hours"\r\n\r\n1920/.test(entry.body),'composer sends explicit annual hours');
       ok(/name="salary_benefits_overhead_percent"\r\n\r\n(?:0|20)/.test(entry.body),'composer sends explicit overhead');
@@ -280,9 +322,9 @@ async function composerCase(browser,engine,width){
     await page.locator('#salaryFile').setInputFiles({name:'fixture.csv',mimeType:'text/csv',buffer:Buffer.from(csv)});
     await page.waitForFunction(()=>document.querySelector('#salaryImportResult').textContent.includes('supplied for 1'));
     await page.locator('#btnPreview').click();
-    eq(requests.filter(r=>r.path.endsWith('/preview-batch')).length,0,'composer preview requires authority');
+    eq(requests.filter(r=>isSalaryRequest(r,'preview')).length,0,'composer preview requires authority');
     await page.locator('#salaryAuthorization').check();await page.locator('#btnPreview').click();
-    eq(requests.filter(r=>r.path.endsWith('/preview-batch')).length,0,'composer preview requires calculation values');
+    eq(requests.filter(r=>isSalaryRequest(r,'preview')).length,0,'composer preview requires calculation values');
     await page.locator('#salaryAnnualHours').fill('1920');await page.locator('#salaryOverheadPercent').fill('0');
     await page.locator('#btnPreview').focus();await page.keyboard.press('Enter');
     await page.waitForFunction(()=>!document.querySelector('#btnSend').disabled);
@@ -299,7 +341,7 @@ async function composerCase(browser,engine,width){
     await page.locator('#btnPreview').click();await page.waitForFunction(()=>!document.querySelector('#btnSend').disabled);
     await page.locator('#btnSend').focus();await page.keyboard.press('Enter');
     await page.waitForFunction(()=>document.querySelector('#sendOut').textContent.includes('Campaign created: 1'));
-    eq(requests.filter(r=>r.path.endsWith('/send-batch')).length,1,'one synthetic send, intercepted before any delivery');
+    eq(requests.filter(r=>isSalaryRequest(r,'send')).length,1,'one synthetic send, intercepted before any delivery');
     eq(await page.locator('#salaryAuthorization').isChecked(),false,'send clears salary authority');
     eq(await page.locator('#salaryAnnualHours').inputValue(),'','send clears annual-hours input');
     // A newly selected salary file must be discarded when anonymity is chosen.
@@ -329,7 +371,7 @@ try{
 }catch(error){errors.push(error.stack);throw error;}
 finally{
   const sourceHashes=Object.fromEntries(['employer-salary-import.js','employer-salary-settings.js','assignment-mode.js','assignment-draft.js','workspace-settings.html','workspace-diagnostics.html','decision-velocity.html','structural-clarity.html','operational-systems.html','institutional-performance.html'].map(file=>[file,createHash('sha256').update(read(file)).digest('hex')]));
-  const receipt={status:errors.length?'FAIL':'PASS',assertions,cases:rows.length,mode:'real candidate pages, synthetic local API/auth fixtures; no live requests',networkRequestsSent:0,providerCalls:0,databaseIntegration:false,sourceHashes,rows,errors};
+  const receipt={status:errors.length?'FAIL':'PASS',assertions,cases:rows.length,exactSalaryRoutes:salaryRoutes,routeNegativeControls,mode:'real candidate pages, synthetic local API/auth fixtures; no live requests',networkRequestsSent:0,providerCalls:0,databaseIntegration:false,sourceHashes,rows,errors};
   fs.writeFileSync(path.join(out,'RECEIPT.json'),JSON.stringify(receipt,null,2)+'\n');
   console.log(JSON.stringify({status:receipt.status,assertions,cases:rows.length,out}));
 }

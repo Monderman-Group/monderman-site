@@ -27,7 +27,7 @@ const assetReleases = Object.freeze({
   "assignment-mode.js": "20260923.salary1",
   "assignment-draft.js": "20260923.salary1",
   "employer-salary-import.js": "20260923.1",
-  "employer-salary-settings.js": "20260923.1",
+  "employer-salary-settings.js": "20260923.2",
   "monderman-depth-lure-tile.css": "20260920.gold2",
   "sample-report-production.js": "20260915.annual1",
   "public-sample-model.js": "20260915.annual1",
