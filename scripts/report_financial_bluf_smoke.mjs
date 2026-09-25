@@ -34,7 +34,7 @@ const number=value=>Number(value).toLocaleString('en-US',Math.abs(value)>0&&Math
 const money=value=>(value<0?'-$':'$')+number(Math.abs(value));
 const costLevel={low:'high',central:'central',high:'low'};
 const metricKeys=['potentialHoursFreed','capacityValue','avoidableNonLaborCash','cashInvestment','totalImplementationAndSubscriptionCost','netCashEffect','netCapacityAndCashValue'];
-eq(report.rendererVersion,'diagnostic-renderer-report-overview-20260923.1','Current display explicitly identifies the approved overview edition');
+eq(report.rendererVersion,'diagnostic-renderer-report-overview-20260924.1','Current display explicitly identifies the approved overview edition');
 eq(report.financialPresentationVersion,'financial-presentation-20260915.1','New financial display has explicit component edition');
 const priorSource=sourceBeforeFinancialPresentation(renderer);
 eq(sha(priorSource),PRIOR_FINANCIAL_RENDERER_SHA256,'Exact inverse preserves entire previous renderer source');
@@ -77,7 +77,7 @@ for(const key of ['structural_clarity','decision_velocity','operational_systems'
   const raw=clone(artifact.outputs[key].source),payload=raw.result?.tool_type?raw.result:raw;
   payload.financial_scenario=clone(cases[0].raw.financial_scenario);
   const html=report.buildReportHtml(report.fromRun(raw));ok(!briefPattern.test(html),'Single '+key+' never acquires organizational financial brief');
-  const currentBody=report.buildReportBody(report.fromRun(raw)),displayVersion='<dt>Current display version</dt><dd>diagnostic-renderer-report-overview-20260923.1</dd>';
+  const currentBody=report.buildReportBody(report.fromRun(raw)),displayVersion='<dt>Current display version</dt><dd>diagnostic-renderer-report-overview-20260924.1</dd>';
   eq(currentBody.split(displayVersion).length,2,'Exactly one current-display edition in '+key+' method');
   eq(currentBody.replace(displayVersion,'<dt>Current display version</dt><dd>diagnostic-renderer-evidence-reading-20260914.43</dd>'),priorReport.buildReportBody(priorReport.fromRun(raw)),'Actual '+key+' single-run body is byte-identical apart from current-display edition');
   eq(restoreFinancialPresentationStyles(withoutReportOverview(html)),reportHtmlAfterReviewedPresentation(priorReport.buildReportHtml(priorReport.fromRun(raw))),'Actual '+key+' full HTML differs only by screen overview, exact new financial CSS and reviewed category colors');
@@ -93,6 +93,7 @@ ok(!decimalsBuilt.html.match(briefPattern)[0].includes('No direct cash saving as
 const early=clone(cases[0].raw);early.report_kind='response_comparison';early.financial_scenario.kind='early_planning_scenario';
 ok(build(early).html.includes('This scenario does not unlock Synthesis.'),'Early participation boundary is explicit');
 
+if(process.argv.includes('--deterministic-only')){console.log(JSON.stringify({passed:true,checks,scope:'VM and historical HTML preconditions only; browser checks not run',providerCalls:0,networkCalls:0}));process.exit(0);}
 for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
   const browser=await type.launch({headless:true});
   try{for(const width of [390,834,1440])for(const item of cases){

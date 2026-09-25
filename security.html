@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Trust and Security | Monderman</title>
+<title>Trust &amp; Security Center | Monderman</title>
 <link rel="canonical" href="https://www.monderman.com/security.html"/>
-<meta property="og:title" content="Trust and Security | Monderman"/>
+<meta property="og:title" content="Trust &amp; Security Center | Monderman"/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://www.monderman.com/security.html"/>
-<meta property="og:description" content="Review Monderman's current security architecture, data handling, access controls, outside providers, and certification boundaries."/>
-<meta name="description" content="Review Monderman's current security architecture, data handling, access controls, outside providers, and certification boundaries."/>
+<meta property="og:description" content="Monderman's Trust &amp; Security Center: access controls, privacy, AI processing, providers, retention and assurance."/>
+<meta name="description" content="Monderman's Trust &amp; Security Center: access controls, privacy, AI processing, providers, retention and assurance."/>
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260906-enterprise1">
   <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260906-enterprise1">
   <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260906-enterprise1">
@@ -639,8 +639,9 @@
   <meta name="twitter:image" content="https://www.monderman.com/assets/brand/monderman-social-card.png?v=20260907-wordmark2">
   <meta name="twitter:image:alt" content="Monderman">
   <link rel="stylesheet" href="enterprise-site.css?v=20260915.consistency1">
+  <link rel="stylesheet" href="trust-security-center.css?v=20260924.center1">
 </head>
-<body class="canonical-green-shell page-legal page-trust">
+<body class="canonical-green-shell page-legal page-trust page-trust-center">
 <a class="skip-link" href="#main-content">Skip to main content</a>
 
 <header class="header" id="siteHeader">
@@ -659,130 +660,131 @@
     </div>
   </header>
 <main id="main-content">
-
 <section class="hero">
   <div class="hero-inner">
-    <p class="hero-eyebrow">Trust</p>
-    <h1>Trust and Security.</h1>
-<p class="hero-dek">
-      This page explains the controls operating today, what Monderman stores, which providers process data, and which certifications Monderman does not claim.
-    </p>
-</div>
+    <p class="hero-eyebrow">Trust &amp; Security</p>
+    <h1>Trust &amp; Security Center</h1>
+    <p class="hero-dek">How Monderman protects access, handles information and works with outside providers.</p>
+  </div>
 </section>
-<section class="section">
+<div class="trust-center-intro section-inner">
+  <p>Protecting the information you share in a diagnostic is a core responsibility. This center brings together our access controls, data practices, provider inventory and security boundaries. The <a href="privacy.html">Privacy Notice</a> and <a href="terms.html">Terms of Use</a> remain the authoritative legal documents.</p>
+  <nav class="trust-center-index" aria-label="Trust and security topics">
+    <a href="#access-controls">Access and accounts</a>
+    <a href="#data-processing">Answers and saved results</a>
+    <a href="#ai-processing">AI-assisted reports</a>
+    <a href="#chat">Product-guidance chat</a>
+    <a href="#privacy-and-retention">Privacy and retention</a>
+    <a href="#providers">Providers and infrastructure</a>
+    <a href="#administrative-device-protection">Device protection and assurance</a>
+    <a href="#documents-and-contact">Documents and contact</a>
+  </nav>
+</div>
+<section class="section" aria-labelledby="access-controls">
   <div class="section-inner">
-    <p class="section-eyebrow">INVITATION-ONLY ACCESS</p>
-    <h2>Current security posture</h2>
-    <p>Monderman Workspace is available by invitation. This page describes controls that are operating today and avoids claiming certifications or controls that Monderman has not completed.</p>
+    <p class="section-eyebrow">Access and accounts</p>
+    <h2 id="access-controls">Access follows your role and assignment</h2>
+    <p>Monderman Workspace is available by invitation. Direct Diagnostics require a signed-in member with active Workspace access. New organizations need a valid invitation to activate their evaluation. Directed campaign links authorize only the assigned Diagnostic and do not make the recipient a Workspace member.</p>
+    <p>Supabase Auth manages member sessions. Protected Workspace pages redirect signed-out users to sign in. The database or API then checks what the signed-in user is allowed to do; access does not depend on hiding buttons in the browser.</p>
+    <p>Monderman uses database row-level security and server-side authorization to restrict Workspace data access. Database policies and permissions limit users to the operations their role allows. Tables reserved for server use can have row-level security enabled with no customer policies, so browser roles cannot read or write those rows.</p>
+    <p>Workspace administrators can change the Workspace name and review status through the customer interface. Plan, usage, billing and stored Diagnostic result fields remain server-managed, with browser write permissions restricted at the database level.</p>
+    <p><strong>Public configuration is not a secret.</strong> Browser code includes the Supabase project URL, public publishable key and public bot-verification site key. Customer database access also requires the signed-in user's session. Privileged database, payment, AI and email credentials stay on the server and are not shipped to the browser.</p>
+  </div>
+</section>
+<section class="section" aria-labelledby="data-processing">
+  <div class="section-inner">
+    <p class="section-eyebrow">Answers and saved results</p>
+    <h2 id="data-processing">How answers become a saved result</h2>
+    <p>The public site is served as static pages. Diagnostics call a single API service on Render. Monderman's server builds the scoring input, applies versioned scoring logic and saves the result in Supabase Postgres. The browser does not set the saved score, and directed assignments use the same server process.</p>
+    <p>Optional written observations are stored and displayed separately and do not change the structured score. They are sent for AI interpretation only when that separate feature is enabled and the participant has recorded the required permission for those saved observations; the report states when they were not incorporated.</p>
+    <p><strong>Encrypted in transit.</strong> Browser traffic to the Monderman site, API and core hosted services uses HTTPS/TLS. Payment details are entered on Stripe-hosted payment systems rather than into Monderman's own application.</p>
+    <p>The <a href="#providers">provider inventory</a> below explains what information each outside service receives and links to its security documentation.</p>
+  </div>
+</section>
+<section class="section" aria-labelledby="ai-processing">
+  <div class="section-inner">
+    <p class="section-eyebrow">AI-assisted reports</p>
+    <h2 id="ai-processing">What AI receives and what it can do</h2>
+    <p>AI-assisted interpretation is currently enabled for eligible Diagnostic and Synthesis reports, including evaluation reports. A saved report can show measured results before interpretation is ready; its status identifies whether interpretation is available. Restoring this service does not automatically regenerate or replace older saved reports.</p>
+    <p><strong>Scores and explanations have different jobs.</strong> Monderman's diagnostic engine produces the scores, classifications, evidence limits and available action options. Anthropic's AI supports research and writes the explanation from authorized evidence within those rules. The interpretation does not change the saved score. Automated checks and a separate AI review screen the interpretation before release; they do not establish scientific validity or guarantee an outcome. Review the report before acting.</p>
+    <p><strong>Individual reports and your own saved runs.</strong> Selected structured answers, computed results and context are sent to Anthropic's commercial API. Synthesis of your own saved runs can include selected original structured answers and their exact questions, with each run's Diagnostic, perspective, run length and questionnaire version.</p>
+    <p><strong>Campaign evidence.</strong> Campaign Synthesis can include descriptive answer distributions for each exact question and context, not named participants' individual answer records. Small or insufficiently supported groups are withheld.</p>
+    <p><strong>Written observations require permission.</strong> A bounded selection of permitted participant observations can be included only with new per-run permission under the September 12 notice for those saved observations. Earlier permission does not authorize this expanded use. Earlier observations are not automatically made eligible.</p>
+    <p><strong>Processing before a report is written.</strong> The same permitted evidence and proposed report text may be sent for request-size checks before drafting or review, even if no interpretation is generated. Monderman does not send Stripe card details or Monderman service credentials with Diagnostic interpretation requests.</p>
+    <p><strong>No training or cross-customer research.</strong> Monderman does not use Customer responses, observations, reports, chat messages or organization history for model training, fine-tuning, provider feedback, shared benchmarks or cross-customer research, including in aggregated or de-identified form. Saved results remain available to authorized users within their own organization. External practice guidance comes from reviewed public or properly licensed sources.</p>
+    <p>A separate public-research process uses only predefined sector and Diagnostic categories, not customer answers, organization names or Workspace history. Reports show the research date or disclose that no newly checked research is included. Anthropic states that <a href="https://privacy.anthropic.com/en/articles/7996868-is-my-data-used-for-model-training" target="_blank" rel="noopener noreferrer">commercial-product inputs and outputs are not used to train its models by default</a> unless the customer explicitly opts in or submits qualifying feedback. Outside processing still occurs; see <a href="#privacy-and-retention">provider retention</a> below.</p>
+  </div>
+</section>
+<section class="section" aria-labelledby="chat">
+  <div class="section-inner">
+    <p class="section-eyebrow">Product-guidance chat</p>
+    <h2 id="chat">Guidance without access to saved reports</h2>
+    <p>The public assistant and Hans use Anthropic for conversational product guidance, separately from report interpretation. Their requests contain submitted messages, limited recent replies, approved public product information and, for Hans, the current page and server-checked plan and role. They do not automatically retrieve source code, scoring formulas, question banks, participant records or saved report contents. Hans requires verified sign-in and eligible membership in the selected organization. Do not paste report contents, personal information, credentials or confidential, classified or controlled information into either chat.</p>
+    <p>Chat requests and replies are screened for prohibited requests, unsupported claims and unsafe links. These checks reduce risk but do not guarantee every reply is correct or every attack will be detected. The assistants cannot change a score, send a campaign, modify records or buy a subscription.</p>
+    <p>Monderman's chat application does not store transcripts in its database or intentionally log message contents; limited usage metadata supports spending controls. AI-backed API endpoints also apply request-size and rate limits to reduce automated abuse and unexpected model spend. Chat content is subject to the same no-training policy and standard provider-retention exceptions described in this center and in the <a href="privacy.html">Privacy Notice</a>.</p>
+  </div>
+</section>
+<section class="section" aria-labelledby="privacy-and-retention">
+  <div class="section-inner">
+    <p class="section-eyebrow">Privacy and retention</p>
+    <h2 id="privacy-and-retention">What is retained and what anonymity protects</h2>
+    <h3>Anonymous campaign responses</h3>
+    <p>When a campaign is sent as anonymous, the completed Diagnostic run is not saved with a direct link back to the named recipient assignment. The person is told about the anonymity setting before responding.</p>
+    <p>Business unit and team can still be retained for organizational analysis. In a small group, that context may make a person identifiable. Monderman still processes necessary invitation, request, delivery and security metadata, but the customer Workspace has no direct link between the completed result and the recipient. A specific anonymous result therefore ordinarily cannot be located later from the recipient identity alone.</p>
+    <h3>Temporary run recovery</h3>
+    <p>While a Diagnostic is in progress, Monderman keeps temporary run state so a 30- or 60-minute Diagnostic can survive a service restart or deploy. The API keeps a local copy and a durable Supabase snapshot.</p>
+    <p>For all four Diagnostics, active run state has a four-hour cutoff. Restore logic ignores a session once it is older than that cutoff. The durable snapshot can remain until it is overwritten, so four hours is the active-use and restore boundary, not a promise of physical deletion from every stored snapshot at exactly four hours.</p>
+    <h3>Provider retention and deletion</h3>
+    <p>Anthropic states that <a href="https://privacy.anthropic.com/en/articles/7996866-how-long-do-you-store-my-organization-s-data" target="_blank" rel="noopener noreferrer">standard API inputs and outputs are automatically deleted from its backend within 30 days</a>, subject to its documented usage-policy, legal, contractual, and customer-agreement exceptions. This is not a zero-retention arrangement. The <a href="privacy.html">Privacy Notice</a> explains Monderman's wider retention and deletion practices, and its <a href="privacy.html#optional-measurement">optional measurement section</a> explains that separate choice.</p>
+    <h3>Evaluation and billing records</h3>
+    <p>The 60-day free evaluation requires a valid invitation. A durable redemption record links activation to the account identity and normalized email, not only to a Workspace. Deleting a Workspace does not create another evaluation.</p>
+    <p>The database and Stripe each enforce the evaluation end. A delayed Stripe update cannot restore Pattern access after the database marks the evaluation as expired.</p>
+  </div>
+</section>
+<section class="section" aria-labelledby="providers">
+  <div class="section-inner">
+    <p class="section-eyebrow">Providers and infrastructure</p>
+    <h2 id="providers">Outside services and the information they receive</h2>
+    <p>Each provider is responsible for its service's security. Monderman is responsible for how those services are configured and used in the product. These links describe providers' own safeguards; they do not certify Monderman.</p>
+    <p class="trust-center-meta">Provider inventory: September 12, 2026. Security references checked: September 24, 2026.</p>
+    <p class="trust-center-notice">This inventory describes current providers, not a separate contract. It does not establish a particular data-processing agreement, certification, transfer mechanism, retention period or data-residency commitment. Organizational data-processing terms may be made available where required for an engagement.</p>
+    <div class="trust-provider-grid">
+      <article class="trust-provider"><h3><a href="https://supabase.com/security">Supabase</a></h3><dl><dt>Purpose</dt><dd>Sign-in, Postgres database and saved state for run recovery.</dd><dt>Information received</dt><dd>Account identifiers, Workspace records, Diagnostic and campaign records, and acceptance records. Includes customer content.</dd></dl></article>
+      <article class="trust-provider"><h3><a href="https://render.com/docs/ddos-protection">Render</a></h3><dl><dt>Purpose</dt><dd>Hosts the production API and public site.</dd><dt>Information received</dt><dd>API requests, application processing, technical logs and public-page request metadata. Includes customer content.</dd></dl></article>
+      <article class="trust-provider"><h3><a href="https://trust.anthropic.com/">Anthropic</a></h3><dl><dt>Purpose</dt><dd>Report explanations and review, public research, and separate product-guidance chat.</dd><dt>Information received</dt><dd>Permitted report evidence and submitted chat content when those features are used. See <a href="#ai-processing">AI-assisted reports</a> and <a href="#chat">chat processing</a>.</dd></dl></article>
+      <article class="trust-provider"><h3><a href="https://resend.com/legal/subprocessors">Resend</a></h3><dl><dt>Purpose</dt><dd>Authentication, invitation, notification and inquiry email.</dd><dt>Information received</dt><dd>Email addresses, names where supplied, delivery content and events. Includes limited communication content.</dd></dl></article>
+      <article class="trust-provider"><h3><a href="https://stripe.com/legal/dpa">Stripe</a></h3><dl><dt>Purpose</dt><dd>Hosted checkout, subscriptions, billing portal and billing events.</dd><dt>Information received</dt><dd>Billing identity, subscription and payment information. Diagnostic content is not ordinarily sent.</dd></dl></article>
+      <article class="trust-provider"><h3><a href="https://safety.google/safety/">Google</a></h3><dl><dt>Purpose</dt><dd>Optional Google account sign-in.</dd><dt>Information received</dt><dd>OAuth identity, email and authentication metadata. No Diagnostic content through sign-in.</dd></dl></article>
+      <article class="trust-provider"><h3><a href="https://www.cloudflare.com/trust-hub/">Cloudflare</a></h3><dl><dt>Purpose</dt><dd>Bot verification and security-related request handling.</dd><dt>Information received</dt><dd>IP/browser signals, verification tokens and request/security metadata. Request content may pass through relevant infrastructure.</dd></dl></article>
+    </div>
+    <h3>Public-site and browser infrastructure</h3>
+    <p>Render hosts and delivers the public static site. GitHub provides the source repository and deployment workflows. jsDelivr and cdnjs deliver versioned browser libraries. Public-site hosting and browser-library providers ordinarily receive request metadata such as an IP address and user agent. Monderman does not intentionally send Diagnostic answers to browser-library providers for content processing.</p>
+    <h3 id="provider-security">Specific provider-security roles</h3>
+    <p>The linked provider references identify Cloudflare for content-delivery-layer protection against distributed denial-of-service attacks for Supabase, DDoS protection for Render's hosted applications and websites, and a web application firewall for Resend. These specific roles do not make Cloudflare responsible for every part of a provider's security.</p>
+    <p>Monderman will update this inventory when the providers used by the product materially change. Any engagement-specific notice or objection procedure will be stated in the applicable signed organizational data-processing terms.</p>
+  </div>
+</section>
+<section class="section" aria-labelledby="administrative-device-protection">
+  <div class="section-inner">
+    <p class="section-eyebrow">Device protection and assurance</p>
+    <h2 id="administrative-device-protection">Where protection applies</h2>
+    <p>Monderman uses CrowdStrike Falcon Go to protect the administrative devices used to operate the business. This protection applies to those devices. The website, application servers and databases are hosted separately and are not covered by this device subscription.</p>
+    <p>Monderman does not currently claim SOC 2, ISO 27001, FedRAMP or another formal security certification, and does not represent that Monderman has completed an independent penetration test.</p>
+    <p>If your organization has regulated-data, residency, contractual or formal assurance requirements, contact us before using Monderman for that data.</p>
     <p><strong>Browser support.</strong> Controlled release checks currently cover current Chrome/Chromium and automated WebKit rendering for public pages, generated reports, HTML and JSON downloads, responsive layouts, and opening reports for printing or PDF export. Native Safari and browser-managed print dialogs remain best-effort until dedicated native testing is complete.</p>
   </div>
 </section>
-<section class="section">
+<section class="section" aria-labelledby="documents-and-contact">
   <div class="section-inner">
-    <p class="section-eyebrow">ADMINISTRATIVE DEVICES</p>
-    <h2 id="administrative-device-protection">Administrative device protection</h2>
-    <p>Monderman uses CrowdStrike Falcon Go to protect the administrative devices used to operate the business. This protection applies to those devices. The website, application servers and databases are hosted separately and are not covered by this device subscription.</p>
-  </div>
-</section>
-<section class="section">
-  <div class="section-inner">
-    <p class="section-eyebrow">ARCHITECTURE</p>
-    <h2>How a Diagnostic moves from browser to saved result</h2>
-    <p>The Monderman site is served as static pages over HTTPS. Direct Diagnostics require a signed-in member with active Workspace access. New organizations need a valid invitation to activate their evaluation. Directed campaign assignment links can be completed without the recipient becoming a Workspace member.</p>
-    <p>Diagnostics call a single API service on Render. Monderman calculates and saves scores using versioned application code and Supabase Postgres. When AI-assisted reporting is enabled, the server sends selected report evidence to Anthropic's commercial API for a separate written interpretation. The interpretation does not change the saved score. Service-role database credentials, Stripe secret keys, Anthropic credentials and email-provider credentials stay server-side and are not shipped to the browser.</p>
-    <p>Core outside services currently include Supabase for database and authentication, Render for the API, Anthropic for AI-assisted report interpretation when enabled, Resend for email delivery, Stripe for billing, Cloudflare for bot verification, GitHub for the static site repository and hosting workflow, and public content-delivery networks for versioned browser libraries.</p>
-  </div>
-</section>
-<section class="section">
-  <div class="section-inner">
-    <p class="section-eyebrow">TRANSPORT</p>
-    <h2>Encrypted in transit</h2>
-    <p>Browser traffic to the Monderman site, API and core hosted services uses HTTPS/TLS. Payment details are entered on Stripe-hosted payment systems rather than into Monderman's own application.</p>
-  </div>
-</section>
-<section class="section">
-  <div class="section-inner">
-    <p class="section-eyebrow">DATABASE ACCESS</p>
-    <h2>Row-level security and server-side authorization</h2>
-    <p>Monderman uses database row-level security and server-side authorization to restrict Workspace data access. Customer browser access uses Supabase's public publishable key plus the signed-in user's session. The publishable key is intentionally visible in browser code; it is not a service-role secret.</p>
-    <p>Policies and authorization helpers restrict signed-in users to the Workspace operations their role allows. Service-only tables can have RLS enabled with no customer policies, which means browser roles cannot read or write those rows. Privileged server operations use server-side credentials.</p>
-    <p>Client write privileges are also narrowed at the grant layer. Workspace administrators can change the Workspace name and review status through the customer interface, while plan, usage, billing and stored Diagnostic result fields remain server-managed.</p>
-  </div>
-</section>
-<section class="section">
-  <div class="section-inner">
-    <p class="section-eyebrow">AUTHENTICATION</p>
-    <h2>Workspace pages require a valid session</h2>
-    <p>Supabase Auth manages member sessions. Protected Workspace pages check for a valid session and redirect signed-out users to sign in. Authorization is then enforced again at the database or API boundary instead of trusting a hidden button or browser-only check.</p>
-    <p>Directed campaign recipients receive scoped assignment links. Those links authorize only the assigned Diagnostic flow and do not turn the recipient into a Workspace member.</p>
-  </div>
-</section>
-<section class="section">
-  <div class="section-inner">
-    <p class="section-eyebrow">IN-PROGRESS SESSIONS</p>
-    <h2>Temporary state protects longer Diagnostics during a restart</h2>
-    <p>While a Diagnostic is in progress, Monderman keeps temporary run state so a 30- or 60-minute Diagnostic can survive a service restart or deploy. The API keeps a local copy and a durable Supabase snapshot.</p>
-    <p>For all four Diagnostics, active run state has a four-hour cutoff. Restore logic ignores a session once it is older than that cutoff. The durable snapshot can remain until it is overwritten, so four hours is the active-use and restore boundary, not a promise of physical deletion from every stored snapshot at exactly four hours.</p>
-  </div>
-</section>
-<section class="section">
-  <div class="section-inner">
-    <p class="section-eyebrow">DIAGNOSTIC INTEGRITY</p>
-    <h2>The server calculates and saves the score</h2>
-    <p>The browser does not set the score for a saved Diagnostic. The API builds the scoring input, applies the versioned scoring logic, and saves the result. Directed assignments use the same server path rather than accepting a result calculated in the browser.</p>
-    <p>Optional written observations are stored and displayed separately and do not change the structured score. They are sent for AI interpretation only when that separate feature is enabled and the participant has recorded the required permission for those saved observations; the report states when they were not incorporated.</p>
-  </div>
-</section>
-<section class="section">
-  <div class="section-inner">
-    <p class="section-eyebrow">ANONYMITY</p>
-    <h2>Anonymous responses remove the saved identity link</h2>
-    <p>When a campaign is sent as anonymous, the completed Diagnostic run is not saved with a join back to the named recipient assignment. The person is told about the anonymity setting before responding.</p>
-    <p>Business unit and team can still be retained because they are part of the organizational analysis. In a small group, that context can make a person inferable. The customer Workspace has no direct completed-result-to-recipient join, although Monderman still processes necessary invitation, request, delivery, and security metadata. A specific anonymous result therefore ordinarily cannot be located later from the recipient identity alone.</p>
-  </div>
-</section>
-<section class="section">
-  <div class="section-inner">
-    <p class="section-eyebrow">AI PROCESSING</p>
-    <h2>How AI-assisted reports and chat are processed</h2>
-    <p>AI-assisted interpretation is currently enabled for eligible Diagnostic and Synthesis reports, including evaluation reports. Optional written observations are used only when the participant has explicitly allowed the applicable processing. Earlier observations are not automatically made eligible. A saved report can show measured results before interpretation is ready; its status identifies whether interpretation is available. Restoring this service does not automatically regenerate or replace older saved reports.</p>
-    <p>Monderman does not use Customer responses, observations, reports, chat messages or organization history for model training, fine-tuning, provider feedback, shared benchmarks or cross-customer research, including in aggregated or de-identified form. Saved results remain available to authorized users within their own organization. External practice guidance comes from reviewed public or properly licensed sources.</p>
-    <p>The public assistant and Hans use Anthropic for conversational product guidance, separately from report interpretation. Their requests contain a limited recent conversation, approved public product information and, for Hans, the current page and server-checked plan and role. They do not have access to source code, scoring formulas, question banks, participant records or saved report contents. Hans requires verified sign-in and eligible membership in the selected organization. Do not paste report contents, personal information, credentials or confidential, classified or controlled information into either chat.</p>
-    <p>Chat requests and replies are screened for prohibited requests, unsupported claims and unsafe links. These checks reduce risk but do not guarantee every reply is correct or every attack will be detected. The assistants cannot change a score, send a campaign, modify records or buy a subscription. Monderman's chat application does not store transcripts in its database or intentionally log message contents; limited usage metadata supports spending controls. Chat content is subject to the same no-training policy and standard provider-retention exceptions described below and in the Privacy Notice.</p>
-    <p>When AI-assisted reporting is enabled, selected structured answers, computed results and context are sent to Anthropic's commercial API. Synthesis of your own saved runs can include selected original structured answers and their exact questions, with each run's Diagnostic, perspective, run length and questionnaire version. Campaign Synthesis can include descriptive answer distributions for each exact question and context, not named participants' individual answer records. Small or insufficiently supported groups are withheld. A bounded selection of permitted participant observations can also be included, with new per-run permission under the September 12 notice; an earlier permission does not authorize this expanded use. The same permitted evidence and proposed report text may be sent for request-size checks before drafting or review, even if no interpretation is generated. Monderman's diagnostic engine produces the scores, classifications, evidence limits and available action options. Anthropic’s AI supports research and writes the explanation from authorized evidence within those rules. Automated checks and a separate AI review screen the interpretation before release; they do not establish scientific validity or guarantee an outcome. A separate public-research process uses only predefined sector and Diagnostic categories, not customer answers, organization names or Workspace history. Reports show the research date or disclose that no newly checked research is included. Review the report before acting. Anthropic states that <a href="https://privacy.anthropic.com/en/articles/7996868-is-my-data-used-for-model-training" target="_blank" rel="noopener noreferrer">commercial-product inputs and outputs are not used to train its models by default</a> unless the customer explicitly opts in or submits qualifying feedback.</p>
-    <p>Anthropic states that <a href="https://privacy.anthropic.com/en/articles/7996866-how-long-do-you-store-my-organization-s-data" target="_blank" rel="noopener noreferrer">standard API inputs and outputs are automatically deleted from its backend within 30 days</a>, subject to its documented usage-policy, legal, contractual, and customer-agreement exceptions. This is not a zero-retention arrangement. Monderman does not send Stripe card details or Monderman service credentials with Diagnostic interpretation requests.</p>
-  </div>
-</section>
-<section class="section">
-  <div class="section-inner">
-    <p class="section-eyebrow">TRIAL &amp; BILLING BOUNDARIES</p>
-    <h2>Deleting a Workspace does not reset trial eligibility</h2>
-    <p>The 60-day free evaluation requires a valid invitation. A durable redemption record links activation to the account identity and normalized email, not only to a Workspace. Deleting a Workspace does not create another evaluation.</p>
-    <p>The trial has an independent database expiry boundary and a Stripe trial end/cancellation boundary. Delayed Stripe trial events are not allowed to restore Pattern access after the database has already expired the evaluation.</p>
-  </div>
-</section>
-<section class="section">
-  <div class="section-inner">
-    <p class="section-eyebrow">SECRETS</p>
-    <h2>Privileged credentials stay on the server</h2>
-    <p>The browser necessarily contains public configuration such as the Supabase project URL, publishable key and public bot-verification site key. Those values are not treated as secrets. Privileged database, payment, AI and email credentials stay on the server.</p>
-    <p>AI-backed API endpoints also apply request-size and rate limits to reduce automated abuse and unexpected model spend.</p>
-  </div>
-</section>
-<section class="section">
-  <div class="section-inner">
-    <p class="section-eyebrow">WHAT WE HAVE NOT DONE</p>
-    <h2>Current certification boundary</h2>
-    <p>Monderman does not currently claim SOC 2, ISO 27001, FedRAMP or another formal security certification, and does not represent that Monderman has completed an independent penetration test. We will not describe those controls as complete before they are complete.</p>
-    <p>If your organization has regulated-data, residency, contractual or formal assurance requirements, contact us before using Monderman for that data.</p>
-  </div>
-</section>
-<section class="section">
-  <div class="section-inner">
-    <p class="section-eyebrow">REPORTING</p>
-    <h2>Security questions and responsible reporting</h2>
-    <p>For a security questionnaire, architecture review, suspected vulnerability or security concern, use the <a href="connect.html">Connect form</a> or email <a href="mailto:connect@monderman.com">connect@monderman.com</a>.</p>
-    <p><em>See also: <a href="privacy.html">Privacy</a> for what Monderman collects and why, <a href="subprocessors.html">Subprocessors</a> for current providers, and <a href="terms.html">Terms of Use</a> for the rules of use.</em></p>
+    <p class="section-eyebrow">Documents and contact</p>
+    <h2 id="documents-and-contact">Find the detail or ask a question</h2>
+    <ul class="trust-document-links">
+      <li><a href="privacy.html">Privacy Notice</a>: information collected, purposes, retention, deletion and privacy choices.</li>
+      <li><a href="terms.html">Terms of Use</a>: permitted uses, responsibilities and the terms governing the service.</li>
+      <li><a href="diagnostics.html#methodology-and-sources">Methodology and sources</a>: how the Diagnostics work and the limits of their evidence.</li>
+      <li><a href="deterministic-ai-infrastructure.html">Diagnostic and AI architecture</a>: the distinction between repeatable scoring and AI explanation.</li>
+    </ul>
+    <p>For a security questionnaire, architecture review, suspected vulnerability, privacy question or security concern, use the <a href="connect.html">Connect form</a> or email <a href="mailto:connect@monderman.com">connect@monderman.com</a>.</p>
   </div>
 </section>
 </main>

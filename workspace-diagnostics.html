@@ -533,7 +533,7 @@ body{transition:background-color .25s ease, color .25s ease}
         <div class="lead">
           <div class="eyebrow">Measure</div>
           <h2>Measure and review</h2>
-          <p>This is where measurement starts. Each completion lands as Staged. Review it, check its quality status and scope, then Include in analysis only when it is complete and suitable for organizational analysis.</p>
+          <p>Run a diagnostic, review the completed responses and choose which to include in organizational analysis.</p>
         </div>
 
         <div class="dx-flow">
@@ -546,7 +546,7 @@ body{transition:background-color .25s ease, color .25s ease}
 
         <section class="card" id="launch">
           <div class="card-h"><h3>Launch a diagnostic</h3><span class="hist-note">Choose a 10-, 30-, or 60-minute version</span></div>
-          <p class="card-sub">Each instrument is a different lens on the organization. Pick the one whose question fits what you’re trying to see.</p>
+          <p class="card-sub">Choose the diagnostic that covers the problem you want to understand.</p>
           <div class="launch-grid">
             <a class="launch-card" href="structural-clarity.html">
               <span class="launch-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h8"/><path d="M4 12h16"/><path d="M4 17h11"/></svg></span>
@@ -576,7 +576,7 @@ body{transition:background-color .25s ease, color .25s ease}
             <h3>Run history</h3>
             <div class="right"><span class="hist-note" id="histNote"></span><button class="btn-refresh" id="btnRefresh" type="button">Refresh</button></div>
           </div>
-          <p class="card-sub">Completed runs are Staged first. Review completed runs and include those that are complete, in scope, and suitable for organizational analysis. Included runs are eligible for Analysis and Synthesis; archived runs remain out of both.</p>
+          <p class="card-sub">Staged runs are waiting for review. Check that each run is complete, fits the campaign scope and has a suitable quality status before choosing Include in analysis. Included runs can be used in Analysis and count toward Synthesis readiness; archived runs cannot.</p>
           <div class="filters" id="filters">
             <button data-f="all" class="active">All</button>
             <button data-f="staged">Staged</button>
@@ -592,7 +592,7 @@ body{transition:background-color .25s ease, color .25s ease}
         <div class="lead">
           <div class="eyebrow">Diagnostic campaigns</div>
           <h2>Launch a campaign</h2>
-          <p>Create a Diagnostic campaign, choose the participant vantage, and send each participant a unique invitation. Completed participant runs are Staged for review before they can be Included in analysis.</p>
+          <p>Name your campaign, choose a diagnostic and participant perspective, then send each person a unique invitation. Review completed responses before including them in analysis.</p>
         </div>
 
         <!-- locked notice for non-admins -->
@@ -611,12 +611,12 @@ body{transition:background-color .25s ease, color .25s ease}
 
           <div class="grid">
             <div class="field full">
-              <label for="fPath">Pathway label</label>
+              <label for="fPath">Campaign name</label>
               <input type="text" id="fPath" placeholder="e.g. Q3 procurement intake review">
               <span class="hint">Shown to recipients and used to group this batch in tracking.</span>
             </div>
             <div class="field">
-              <label for="fTool">Instrument</label>
+              <label for="fTool">Diagnostic</label>
               <select id="fTool">
                 <option value="operational_systems">Operational Systems</option>
                 <option value="decision_velocity" selected>Decision Velocity</option>
@@ -625,7 +625,7 @@ body{transition:background-color .25s ease, color .25s ease}
               </select>
             </div>
             <div class="field">
-              <label for="fVantage">Vantage</label>
+              <label for="fVantage">Participant perspective</label>
               <select id="fVantage">
                 <option value="operational" selected>Operational</option>
                 <option value="managerial">Managerial</option>
@@ -635,10 +635,10 @@ body{transition:background-color .25s ease, color .25s ease}
           </div>
 
           <details class="finetune">
-            <summary><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg><span>Fine-tune <span class="ft-hint">depth, due date, message, response options</span></span></summary>
+            <summary><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg><span>Campaign options <span class="ft-hint">run length, due date, message, response options</span></span></summary>
           <div class="grid">
             <div class="field">
-              <label for="fDepth">Depth</label>
+              <label for="fDepth">Run length</label>
               <select id="fDepth">
                 <option value="10">Quick: about 10 minutes</option>
                 <option value="30" selected>Standard: about 30 minutes</option>
@@ -738,7 +738,7 @@ body{transition:background-color .25s ease, color .25s ease}
   </div>
 
   <script src="participant-evidence-safety.js?v=20260905-report-quarantine"></script>
-  <script src="monderman-report.js?v=20260923.overview1"></script>
+  <script src="monderman-report.js?v=20260924.overview2"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
   <script src="workspace-access-gate.js"></script>
   <script src="campaign-access.js"></script>
@@ -1329,7 +1329,7 @@ body{transition:background-color .25s ease, color .25s ease}
       return d;
     }
     function validate(){
-      if(!$("fPath").value.trim()) return "Add a pathway label.";
+      if(!$("fPath").value.trim()) return "Add a campaign name.";
       if(!state.recipients.some(r=>r.email && r.email.trim())) return "Add at least one recipient email.";
       if(salaryRecipientEntries().length && $("fAnon").checked) return "Salary uploads are not available for anonymous campaigns.";
       if(salaryRecipientEntries().length && (!salaryCapability?.enabled || !salaryCapability.can_upload || !salaryCapability.can_configure)) return "Salary upload permission could not be confirmed.";

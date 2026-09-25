@@ -90,7 +90,7 @@
 
     <section class="state" id="missingState">
       <h2 id="missingTitle">No saved Synthesis selected</h2>
-      <p id="missingCopy">Open a saved Synthesis from Analysis, or build a new Depth Synthesis or Cross-Lens Synthesis. This page renders the API result; it does not recalculate scores, evidence bands, or exposure.</p>
+      <p id="missingCopy">Open a saved Synthesis from Analysis, or create a new Depth Synthesis or Cross-Lens Synthesis. This page displays the saved result without recalculating scores, evidence bands, or exposure.</p>
       <div class="actions">
         <a class="btn primary" href="workspace-analysis.html#synthesis">Open Analysis</a>
         <a class="btn" href="diagnostics.html">Open Diagnostics</a>
@@ -98,10 +98,10 @@
     </section>
 
     <div id="reportHost"></div>
-    <p class="note" id="methodNote" hidden>The report preserves the API’s distinction between condition and evidence strength. A withheld composite remains withheld in every export.</p>
+    <p class="note" id="methodNote" hidden>The report distinguishes what the answers describe from how strong the supporting evidence is. Any score withheld from the report stays withheld in every export.</p>
   </main>
 
-  <script src="monderman-report.js?v=20260923.overview1"></script>
+  <script src="monderman-report.js?v=20260924.overview2"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
   <script src="workspace-access-gate.js"></script>
   <script>
@@ -149,7 +149,7 @@
         byId("resultBadge").textContent=`${label} · ${evidence} · ${scoreState}`;
         byId("methodNote").textContent=selfRun
           ? "Scores and supporting answers are preserved from your selected runs. The report explains what can be compared and which conclusions the evidence supports."
-          : "The report preserves the API’s distinction between condition and evidence strength. A withheld composite remains withheld in every export.";
+          : "The report distinguishes what the answers describe from how strong the supporting evidence is. Any score withheld from the report stays withheld in every export.";
         byId("missingState").hidden=true; byId("reportActions").hidden=false; byId("methodNote").hidden=false;
         window.MondermanReport.render("reportHost",model);
         const filename=safeFilename(result,model);

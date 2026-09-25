@@ -25,7 +25,7 @@
   --mdm-amber-dark: #86530D;
   --mdm-amber-light: #F0C47D;
   /* Promotional accents are separate from the existing status amber. */
-  --mdm-gold: #C9A227;
+  --mdm-gold: #E6C765;
   --mdm-gold-light: #E6C765;
   --mdm-gold-ink: #7A6015;
   --mdm-font: "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -326,6 +326,12 @@ body.canonical-green-shell .dx-btn-primary:hover {
     color: var(--mdm-gold-ink) !important;
     box-shadow: none !important;
   }
+
+  body.canonical-green-shell :is(a.btn-secondary, a.btn-hero-secondary, a.btn.secondary, a.article-action:not(.article-action-primary)):focus-visible,
+  body.canonical-green-shell .dx-use-actions > a.btn-subtle:focus-visible {
+    outline: 3px solid currentColor !important;
+    outline-offset: 3px;
+  }
 }
 
 /* On dark fields, primary actions use pale sea-glass with dark ink. */
@@ -508,14 +514,14 @@ body.canonical-green-shell :is(
 
   /* Promotional availability and service accents use the same gold. */
   body.canonical-green-shell .hero .pilot-status {
-    border-color: rgba(201, 162, 39, .65) !important;
-    background: rgba(201, 162, 39, .14) !important;
+    border-color: rgba(230, 199, 101, .65) !important;
+    background: rgba(230, 199, 101, .14) !important;
     color: var(--mdm-gold-light) !important;
   }
 
   body.canonical-green-shell .hero .pilot-status::before {
     background: var(--mdm-gold);
-    box-shadow: 0 0 0 4px rgba(201, 162, 39, .14);
+    box-shadow: 0 0 0 4px rgba(230, 199, 101, .14);
   }
 
   body.canonical-green-shell table.ps-table td.svc {

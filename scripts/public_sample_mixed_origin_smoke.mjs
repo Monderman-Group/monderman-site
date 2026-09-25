@@ -11,6 +11,7 @@ const Public=scope.window.MondermanPublicSamples,Report=scope.window.MondermanRe
 const hash='a'.repeat(64),ordinaryCommit='1'.repeat(40),synthesisCommit='2'.repeat(40),assemblyCommit='3'.repeat(40);
 const keys=Object.values(Public.products),artifact={contract:Public.contract,synthetic:true,status:'MOCK-unapproved-not-for-publication',engine_commit:assemblyCommit,artifact_sha256:hash,
   publication_projection:{version:'monderman-public-sample-projection-20260913.7',source_sha256:hash,projection_commit:'4'.repeat(40)},outputs:{}};
+const individualEntries={};
 for(const [i,key]of keys.entries()){
   const synthesis=key.endsWith('_synthesis'),generation=synthesis?synthesisCommit:ordinaryCommit,version=synthesis?'MOCK-release39':'MOCK-release38',prompt=synthesis?'MOCK-prompt39':'MOCK-prompt38';
   const created=`2026-09-13T0${i}:00:00.000Z`,prepared=`2026-09-13T0${i}:01:00.000Z`;
@@ -21,16 +22,42 @@ for(const [i,key]of keys.entries()){
     questionnaire_version:'MOCK-questionnaire',scorer_version:'MOCK-scorer',ai_report:{status:'complete',report}},
     provenance:{synthetic:true,engine_commit:generation,generated_at:created,report_ai_release:version,report_ai_prompt_version:prompt,
       input_sha256:hash,result_sha256:hash,approved_output_sha256:hash,report_language_version:'MOCK-language'}};
+  if(!synthesis){
+    // Preserve the old individual/wrapped-result adapter checks separately;
+    // the four current public lens entries exercise fromSynthesis comparisons.
+    individualEntries[key]=structuredClone(artifact.outputs[key]);
+    artifact.outputs[key]={kind:'response_comparison',source:{
+      report_kind:'response_comparison',synthesis_product:'depth_synthesis',synthesis_mode:'depth',generated_at:created,
+      aggregate_score:50,score_status:'published',score_type:'within_lens_median',score_label:'Median Diagnostic Score',
+      participant_count:15,submitted_run_count:15,recommended_path_available:false,campaign_action_options:[],
+      source_groups:[{tool_type:key,tool_label:key.replaceAll('_',' '),participants:15,submitted_runs:15,median_score:50,mean_score:50,score_iqr:[45,55],score_range:[40,60],
+        participant_mode_counts:{operational:5,managerial:5,senior_leader:5}}],
+      campaign_evidence:{privacyPolicy:{minimumDisplayedGroupSize:5},
+        depth:{status:'in_progress',lenses:[{lens:key,status:'in_progress',descriptiveReadAvailable:true,
+          requiredGroups:['operational','managerial','senior'].map(id=>({id,participants:5,population:10,status:'in_progress',
+            privacy:{minimumDisplayedGroupSize:5,mayDisplayGroupStatistics:true}}))}]},
+        recommendedPath:{status:'in_progress'},crossLens:{status:'in_progress'}},
+      // This provenance-only mock intentionally has no selected notes or
+      // financial estimates; full generated-content coverage is separate.
+      experiential_records:[],experiential_selection:{available:15,incorporated:0,method:'bounded_role_and_lens_rotation',exhaustive:false},
+      pathway_exposure:{status:'withheld',priceable:false},compounded_exposure:{status:'withheld',priceable:false},
+      financial_benefit_assessment:{coverage:{complete:false,estimatedCategories:[]},
+        categories:Object.fromEntries(['spendingReduction','spendingAvoidance','staffCapacity'].map(category=>[category,{status:'not_estimated'}]))},
+      ai_report:{status:'complete',report}},
+      provenance:{...artifact.outputs[key].provenance,sample_lens:key,distinct_included_participants:15,declared_eligible_population:30,operating_review_source:'not_supplied'}};
+  }
 }
 const freeze=x=>{if(x&&typeof x==='object'){Object.values(x).forEach(freeze);Object.freeze(x);}return x;};
-freeze(artifact);const before=JSON.stringify(artifact);let checks=0;const ok=fn=>{fn();checks++;};
-ok(()=>assert.equal(Report.rendererVersion,'diagnostic-renderer-report-overview-20260923.1'));
+freeze(artifact);freeze(individualEntries);const before=JSON.stringify(artifact);let checks=0;const ok=fn=>{fn();checks++;};
+ok(()=>assert.equal(Report.rendererVersion,'diagnostic-renderer-report-overview-20260924.1'));
 ok(()=>assert.equal(Public.validate(artifact),artifact)); // shape only, not a release/approval validator
-for(const [i,key]of keys.entries()){
-  const entry=artifact.outputs[key],p=entry.provenance,report=publicResult(entry).ai_report.report;
+for(const [key,entry]of [...Object.entries(artifact.outputs),...Object.entries(individualEntries)]){
+  const p=entry.provenance,report=publicResult(entry).ai_report.report;
   ok(()=>assert.equal(assertPublicSampleGenerationProvenance(entry,key),entry));
   const model=Public.model(entry,artifact);
-  ok(()=>assert.equal(model.sampleProvenance.engine_commit,i<4?ordinaryCommit:synthesisCommit));
+  ok(()=>assert.equal(model.sampleProvenance.engine_commit,key.endsWith('_synthesis')?synthesisCommit:ordinaryCommit));
+  ok(()=>assert.equal(model.kind,entry.kind==='diagnostic'?'run':'meta-synthesis'));
+  if(entry.kind==='response_comparison')ok(()=>assert.equal(model.comparisonOnly,true));
   ok(()=>assert.notEqual(model.sampleProvenance.engine_commit,assemblyCommit));
   ok(()=>assert.equal(model.provenance.engine_commit,p.engine_commit));
   ok(()=>assert.equal(model.meta.some(row=>row.label==='Engine revision'),false,'No technical revision row on cover'));
@@ -41,10 +68,10 @@ for(const [i,key]of keys.entries()){
   ok(()=>assert.equal(JSON.stringify(model.aiReport),JSON.stringify(publicResult(entry).ai_report)));
   const html=Report.buildReportHtml(model);
   ok(()=>assert.ok(!html.includes(assemblyCommit),'assembly commit must never be presented as original generation'));
-  ok(()=>assert.equal(html.includes(p.engine_commit),i<4,'Ordinary Method retains original revision; synthesis cover stays readable'));
+  ok(()=>assert.equal(html.includes(p.engine_commit),entry.kind==='diagnostic','Individual Method retains original revision; aggregate covers stay readable'));
   const changedAssembly={...artifact,engine_commit:'5'.repeat(40)};
   ok(()=>assert.equal(Public.model(entry,changedAssembly).sampleProvenance.engine_commit,p.engine_commit));
-  if(i<4){
+  if(entry.kind==='diagnostic'){
     const wrapped={...structuredClone(entry),source:{result:{...structuredClone(entry.source),provenance:{engine_commit:assemblyCommit}}}};
     const wrappedBefore=JSON.stringify(wrapped),wrappedModel=Public.model(wrapped,artifact);
     ok(()=>assert.equal(assertPublicSampleGenerationProvenance(wrapped,key),wrapped));
@@ -88,8 +115,8 @@ function shellStub(){
  for(const selector of ['.psr-engine-stage','.psr-toc ol','.psr-toc-mobile select','.psr-toc','[data-action="read"]','[data-action="html"]','[data-action="json"]','[data-action="print"]'])nodes.set(selector,node());
  return {innerHTML:'',nodes,querySelector(selector){assert.ok(nodes.has(selector),'Unexpected DOM dependency: '+selector);return nodes.get(selector);}};
 }
-for(const key of keys){
- const entry=artifact.outputs[key],p=entry.provenance,shell=shellStub(),previous=JSON.stringify(entry);
+for(const [key,entry]of [...Object.entries(artifact.outputs),...Object.entries(individualEntries)]){
+ const p=entry.provenance,shell=shellStub(),previous=JSON.stringify(entry);
  wire(shell,entry,artifact,key);
  ok(()=>assert.ok(shell.innerHTML.includes('data-engine-commit="'+p.engine_commit+'"')));
  ok(()=>assert.ok(shell.innerHTML.includes(' · API '+p.engine_commit.slice(0,8))));
@@ -137,4 +164,4 @@ for(const file of ['report_presentation_smoke.mjs','sample_product_fidelity_smok
   ok(()=>assert.doesNotMatch(source,/getAttribute\('data-engine-commit'\)\s*===\s*artifact\.engine_commit/));
   ok(()=>assert.doesNotMatch(source,/JSON\.parse\(fs\.readFileSync[^\n]*production-diagnostic-samples\.json/));
 }
-console.log(JSON.stringify({status:'PASS',checks,products:6,mixedGenerationCommits:2,renderer:Report.rendererVersion,publicationApprovalClaimed:false,providerCalls:0,artifactsWritten:0}));
+console.log(JSON.stringify({status:'PASS',checks,products:6,responseComparisons:4,separateIndividualFixtures:4,mixedGenerationCommits:2,renderer:Report.rendererVersion,publicationApprovalClaimed:false,providerCalls:0,artifactsWritten:0}));

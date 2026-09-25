@@ -48,7 +48,7 @@ if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.ur
  let checks=0;const eq=(a,b,m)=>{assert.deepEqual(a,b,m);checks++;};
  const load=s=>{const c={window:{}};vm.runInNewContext(fs.readFileSync(root+'/participant-evidence-safety.js','utf8'),c);vm.runInNewContext(s,c);return c.window.MondermanReport;};
  const R=load(source),old=load(prior),freeze=x=>{if(x&&typeof x==='object'){Object.freeze(x);Object.values(x).forEach(freeze);}return x;};
- eq(R.rendererVersion,'diagnostic-renderer-report-overview-20260923.1');
+ eq(R.rendererVersion,'diagnostic-renderer-report-overview-20260924.1');
  assert.throws(()=>sourceBeforeRenderer41(source+'\nUNREVIEWED'));checks++;
  const caveat='This is not independent proof of unique physical people, a representative sample or an accurate population declaration.';
  const stats='These are recorded account or invitation identities, not independently verified physical people.';

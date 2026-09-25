@@ -39,7 +39,9 @@ req('Number.isInteger(score) ? score : Math.round(score * 10) / 10' in report, '
 # backed economics need a bounded range visual when the fields are available.
 for token, msg in [
     ('aria-label="Cross-Lens Diagnostic score comparison"', 'Cross-Lens comparison visual missing'),
-    ('aria-label="Depth Synthesis score distribution"', 'Depth distribution visual missing'),
+    ("function renderDepthDistributionGraphic(read, chartLabel = 'Depth Synthesis score distribution')", 'Depth distribution visual default label missing'),
+    ('role="img" aria-label="\' + esc(chartLabel) + \'"', 'Depth/comparison distribution label is not escaped and accessible'),
+    ("renderDepthDistributionGraphic(read, m.comparisonOnly ? firstStr(read.toolLabel, 'Diagnostic') + ' response comparison score distribution' : undefined)", 'Response-comparison distribution does not retain its Diagnostic-specific label'),
     ('function renderCrossLensEvidenceMap', 'Cross-Lens evidence map renderer missing'),
     ('Cross-lens evidence map', 'Cross-Lens evidence map label missing'),
     ('it does not assert a causal pathway', 'Cross-Lens evidence map lacks explicit non-causal boundary'),

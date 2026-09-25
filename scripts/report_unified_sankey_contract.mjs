@@ -82,7 +82,7 @@ function inspect(s,html,label){
       for(const item of paths){
         const amount=Number(item['data-burden-amount']),width=Number(item['data-burden-drawn-amount']);
         assert.ok(amount>0&&width>0);assert.equal(item['fill-opacity'],'.34');
-        assert.ok(['#09383E','#187783','#A9D0D4','#C9A227'].includes(item.fill));
+        assert.ok(['#09383E','#187783','#A9D0D4','#E6C765'].includes(item.fill));
         assert.match(item.d,/^M6 [\d.e+-]+ C70 /);assert.match(item.d,/,194 /);
         for(const id of item['data-burden-source-ids'].split(' '))assert.ok(rows.some(row=>row.id===id));
         amounts[item['data-burden-role']]=(amounts[item['data-burden-role']]||0)+amount;drawn+=width;pathsChecked++;

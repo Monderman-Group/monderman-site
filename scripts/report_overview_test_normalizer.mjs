@@ -3,8 +3,21 @@
 // Long-report text, numbers, tables, charts and pre-existing styles are kept.
 // The separate overview contract validates the four tiles and their targets.
 import assert from 'node:assert/strict';
+import {HORIZONTAL_OVERVIEW_VERSION,restoreHorizontalOverviewDetailPresentation} from './report_overview_horizontal_inverse.mjs';
 
 export function withoutReportOverview(html,{preserveVersion=false}={}) {
+  const edition=html.includes('<meta name="monderman-renderer-version" content="'+HORIZONTAL_OVERVIEW_VERSION+'" />')?HORIZONTAL_OVERVIEW_VERSION:'diagnostic-renderer-report-overview-20260923.1';
+  if(edition===HORIZONTAL_OVERVIEW_VERSION){
+    html=restoreHorizontalOverviewDetailPresentation(html);
+    // The separately reviewed immediate jump prevents taps landing on a moving
+    // neighboring tile. Reverse only this exact handler for old HTML baselines.
+    const instant=`    // Reports can be very long. An immediate jump keeps the return link and
+    // next tap stationary instead of racing an in-flight scroll animation.
+    target.scrollIntoView({ behavior: 'instant', block: 'start' });`;
+    const prior="    target.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });";
+    assert.equal(html.split(instant).length,2,'One exact approved immediate-navigation handler');
+    html=html.replace(instant,()=>prior);
+  }
   const opening='<div class="mr-screen-only mr-report-overview" aria-label="Report overview">';
   assert.equal(html.split(opening).length,2,'One screen-only overview');
   const start=html.indexOf(opening),tokens=/<\/?div\b[^>]*>/g;
@@ -28,9 +41,9 @@ export function withoutReportOverview(html,{preserveVersion=false}={}) {
   const cssFrom=html.indexOf(cssStart),cssTo=html.indexOf(cssEnd,cssFrom);
   assert.ok(cssFrom>=0&&cssTo>cssFrom,'Bounded additive overview CSS');
   html=html.slice(0,cssFrom)+html.slice(cssTo);
-  const version='<meta name="monderman-renderer-version" content="diagnostic-renderer-report-overview-20260923.1" />';
+  const version='<meta name="monderman-renderer-version" content="'+edition+'" />';
   assert.equal(html.split(version).length,2,'Exact orientation renderer edition');
-  const displayVersion='<dt>Current display version</dt><dd>diagnostic-renderer-report-overview-20260923.1</dd>';
+  const displayVersion='<dt>Current display version</dt><dd>'+edition+'</dd>';
   assert.ok(html.split(displayVersion).length<=2,'At most one visible current-display edition');
   if(preserveVersion)return html;
   html=html.replace(displayVersion,'<dt>Current display version</dt><dd>diagnostic-renderer-evidence-reading-20260914.43</dd>');

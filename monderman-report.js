@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-report-overview-20260923.1";
+  const RENDERER_VERSION = "diagnostic-renderer-report-overview-20260924.1";
   // The measured-report adapter stays at r43; financial reading order and
   // summary presentation have their own explicit, independently tested edition.
   const FINANCIAL_PRESENTATION_VERSION = "financial-presentation-20260915.1";
@@ -245,16 +245,24 @@
       const detail = obj(obj(experiential.detail)[role]);
       if (experiential.participant_reports_available === false && detail.basis === "segment_statistics_only" && detail.text === experiential[role]) experiential[role] = identityCopy(experiential[role]);
     }
-    const briefParagraphs = arr(briefing.paragraphs).map(firstStr).filter(Boolean).map(identityCopy);
     const selfRun = r.source_mode==='own_saved_runs' && ['self_run_synthesis','self_run_response_comparison'].includes(r.report_kind);
     const comparisonOnly = ['response_comparison','self_run_response_comparison'].includes(r.report_kind);
+    // Only correct the known deterministic briefing openings for comparisons.
+    // Saved source, AI prose and genuine Synthesis eligibility language remain intact.
+    const briefParagraphs = arr(briefing.paragraphs).map(firstStr).filter(Boolean).map(identityCopy).map(paragraph => comparisonOnly
+      ? paragraph.replace(/^This is a same-Diagnostic Depth Synthesis\./, 'This is a same-Diagnostic response comparison.')
+        .replace(/^Use this Depth Synthesis to review /, 'Use this response comparison to review ')
+      : paragraph);
+    const comparisonLens = product === 'depth' && sourceGroups.length === 1 ? sourceGroups[0].toolLabel : '';
     const modeLabel = selfRun ? (comparisonOnly ? 'Self-run comparison' : 'Self-run Synthesis') : comparisonOnly ? 'Response comparison' : product === "depth" ? "Depth Synthesis" : "Cross-Lens Synthesis";
     const reads = strictNum(r.submitted_run_count ?? r.source_result_count ?? r.respondent_count) ?? sourceGroups.reduce((sum, group) => sum + (group.n || 0), 0);
     const lensCount = strictNum(r.lens_count) ?? sourceGroups.length;
     const evidenceLabel = firstStr(evidence.evidence_label, r.readiness_label, "Evidence band unavailable");
     const conditionBand = firstStr(r.condition_band, scorePublished ? "Observed condition" : "Composite withheld");
     const coverBody = firstStr(identityCopy(narrative.executive_summary), briefing.lede, diagnosis.body, r.primary_pattern);
-    const filenameStem = product === "depth"
+    const filenameStem = comparisonOnly
+      ? (selfRun ? 'self-run-response-comparison-' : 'response-comparison-') + slug(comparisonLens ? sourceGroups[0].toolType : 'cross-lens') + '-n' + (reads || 'x')
+      : product === "depth"
       ? "depth-synthesis-" + slug(sourceGroups[0]?.toolType || "diagnostic") + "-n" + (reads || "x")
       : "cross-lens-synthesis-n" + (reads || "x");
 
@@ -267,7 +275,7 @@
       compatibility: compatibility,
       product: product,
       mastline: "Monderman. " + modeLabel,
-      title: selfRun ? 'Your saved runs, considered together' : comparisonOnly ? 'Campaign response comparison' : product === "depth" ? "Depth Synthesis Executive Report" : "Cross-Lens Synthesis Executive Report",
+      title: selfRun ? 'Your saved runs, considered together' : comparisonOnly ? (comparisonLens ? comparisonLens + ' response comparison' : 'Campaign response comparison') : product === "depth" ? "Depth Synthesis Executive Report" : "Cross-Lens Synthesis Executive Report",
       subtitle: selfRun ? 'A comparison of your own recorded views.' : comparisonOnly ? 'What the included participants reported, where their views differ and what to investigate next. This is not a population conclusion or an unlocked Synthesis.' : product === "depth"
         ? "Results from eligible runs of one Diagnostic, showing the median, score distribution, differences between participant perspectives and limits of the evidence."
         : "Results across Diagnostics, showing where findings agree, where they differ and whether the evidence supports a combined score.",
@@ -748,7 +756,7 @@
         m.scoreBasis
       ),
       evidenceCard("Scope", firstStr(scope.label, humanize(scope.status)), firstStr(scope.statement)),
-      evidenceCard("Run-count balance across Diagnostics", firstStr(humanize(balance.status), "Not applicable"), strictFinite(balance.ratio) ? "Largest-to-smallest submitted-run count ratio: " + fmt1(balance.ratio) + ":1" : "Not applicable to one-Diagnostic Depth Synthesis."),
+      evidenceCard("Run-count balance across Diagnostics", firstStr(humanize(balance.status), "Not applicable"), strictFinite(balance.ratio) ? "Largest-to-smallest submitted-run count ratio: " + fmt1(balance.ratio) + ":1" : m.comparisonOnly ? "Not applicable to a one-Diagnostic response comparison." : "Not applicable to one-Diagnostic Depth Synthesis."),
       evidenceCard("Questionnaire and scoring versions", firstStr(versions.label, humanize(versions.status)), versions.conflicting_lenses?.length ? "Conflicting Diagnostics: " + versions.conflicting_lenses.map(humanize).join(", ") : ""),
       evidenceCard("Identifiers for submitted runs", humanize(identity.status), firstStr(identity.statement)),
       evidenceCard("Measurement window", humanize(timeWindow.status), firstStr(timeWindow.statement)),
@@ -765,7 +773,7 @@
   function renderMetaFinding(m, n) {
     const diagnosis = obj(m.diagnosis);
     const paragraphs = arr(m.briefing?.paragraphs).map(textItem).filter(Boolean);
-    return '<section class="mr-section mr-executive-synthesis"><h2>' + n + '. Executive synthesis</h2>' +
+    return '<section class="mr-section mr-executive-synthesis"><h2>' + n + '. ' + (m.comparisonOnly ? 'Response comparison' : 'Executive synthesis') + '</h2>' +
       '<div class="mr-card mr-diagnosis-block"><h3>' + esc(firstStr(diagnosis.name, m.product === "depth" ? "Observed same-Diagnostic pattern" : "Cross-Lens finding")) + '</h3>' +
       (diagnosis.type ? '<span class="mr-pill">' + esc(humanize(diagnosis.type)) + '</span>' : '') +
       '<p>' + esc(firstStr(diagnosis.body, m.primaryPattern, m.briefing?.lede)) + '</p></div>' +
@@ -781,7 +789,7 @@
     return left + (bounded / 100) * width;
   }
 
-  function renderDepthDistributionGraphic(read) {
+  function renderDepthDistributionGraphic(read, chartLabel = 'Depth Synthesis score distribution') {
     const iqr = arr(read.iqr);
     if (!strictFinite(read.min) || !strictFinite(read.max) || !strictFinite(read.median) || iqr.length < 2 || !strictFinite(iqr[0]) || !strictFinite(iqr[1])) return "";
     const W = 680, L = 52, R = 28, plotW = W - L - R;
@@ -790,13 +798,13 @@
       const s = obj(segment), hasMean = strictFinite(s.mean_score), hasMedian = strictFinite(s.median_score);
       // A missing statistic is not interchangeable with the other statistic.
       // Long or right-edge value labels get their own row within the chart.
-      const labelBelow = !hasMean || !hasMedian || Number(s.mean_score) > 70;
+      const labelBelow = !hasMean || !hasMedian || Math.max(Number(s.mean_score), Number(s.median_score)) > 70;
       return { s, hasMean, hasMedian, labelBelow, height: labelBelow ? 54 : 36 };
     });
     const H = 148 + segmentRows.reduce((height, row) => height + row.height, 0);
     const axisY = 72;
     const X = (v) => synthAxisX(v, L, plotW);
-    let svg = '<svg class="mr-synth-chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Depth Synthesis score distribution" style="display:block;width:100%;height:auto;font-family:Neue Haas Grotesk,Helvetica Neue,Helvetica,Arial,sans-serif">';
+    let svg = '<svg class="mr-synth-chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(chartLabel) + '" style="display:block;width:100%;height:auto;font-family:Neue Haas Grotesk,Helvetica Neue,Helvetica,Arial,sans-serif">';
     [0,25,50,75,100].forEach((tick) => {
       svg += '<line x1="' + X(tick) + '" y1="46" x2="' + X(tick) + '" y2="' + (H - 18) + '" stroke="rgba(24,25,28,.07)"/>';
       svg += '<text x="' + X(tick) + '" y="36" text-anchor="middle" font-size="11" fill="#9A9892">' + tick + '</text>';
@@ -807,7 +815,7 @@
     svg += '<line x1="' + X(read.max) + '" y1="' + (axisY-8) + '" x2="' + X(read.max) + '" y2="' + (axisY+8) + '" stroke="#6E6F73" stroke-width="2"/>';
     svg += '<rect x="' + X(iqr[0]) + '" y="' + (axisY-14) + '" width="' + Math.max(3, X(iqr[1]) - X(iqr[0])) + '" height="28" rx="5" fill="rgba(12,110,120,.16)" stroke="#0C6E78"/>';
     svg += '<line x1="' + X(read.median) + '" y1="' + (axisY-18) + '" x2="' + X(read.median) + '" y2="' + (axisY+18) + '" stroke="#08383E" stroke-width="3"/>';
-    if (strictFinite(read.mean)) svg += '<circle cx="' + X(read.mean) + '" cy="' + axisY + '" r="5" fill="#C9A227" stroke="#7A6015" stroke-width="1.5"/>';
+    if (strictFinite(read.mean)) svg += '<circle cx="' + X(read.mean) + '" cy="' + axisY + '" r="5" fill="#E6C765" stroke="#7A6015" stroke-width="1.5"/>';
     svg += '<text x="' + X(read.median) + '" y="' + (axisY+34) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#08383E">median ' + esc(fmt1(read.median)) + '</text>';
     svg += '<text x="' + L + '" y="' + (axisY+55) + '" font-size="11" fill="#6E6F73">Range ' + esc(fmt1(read.min)) + '–' + esc(fmt1(read.max)) + ' · IQR ' + esc(fmtPair(read.iqr, fmt1)) + (strictFinite(read.sd) ? ' · sample sd ' + esc(fmt1(read.sd)) : '') + '</text>';
     let segmentY = 146;
@@ -821,7 +829,7 @@
       svg += '<line x1="' + X(0) + '" y1="' + (y+14) + '" x2="' + X(100) + '" y2="' + (y+14) + '" stroke="rgba(24,25,28,.09)"/>';
       if (hasMean) svg += '<circle class="mr-depth-segment-mean" cx="' + X(mean) + '" cy="' + (y+14) + '" r="6" fill="#0C6E78"/>';
       if (hasMedian) svg += '<circle class="mr-depth-segment-median" cx="' + X(med) + '" cy="' + (y+14) + '" r="3" fill="#fff" stroke="#08383E" stroke-width="2"/>';
-      svg += '<text class="mr-depth-segment-label" x="' + (labelBelow ? W-R : X(mean)+12) + '" y="' + (y+(labelBelow ? 36 : 18)) + '" text-anchor="' + (labelBelow ? 'end' : 'start') + '" font-size="11" fill="#6E6F73">mean ' + esc(hasMean ? fmt1(mean) : 'Not available') + ' · median ' + esc(hasMedian ? fmt1(med) : 'Not available') + '</text></g>';
+      svg += '<text class="mr-depth-segment-label" x="' + (labelBelow ? W-R : X(Math.max(mean,med))+12) + '" y="' + (y+(labelBelow ? 36 : 18)) + '" text-anchor="' + (labelBelow ? 'end' : 'start') + '" font-size="11" fill="#6E6F73">mean ' + esc(hasMean ? fmt1(mean) : 'Not available') + ' · median ' + esc(hasMedian ? fmt1(med) : 'Not available') + '</text></g>';
     });
     svg += '</svg>';
     // A fixed-width SVG scaled into a phone panel makes its labels unreadable.
@@ -876,8 +884,8 @@
     const gap = obj(read.vantageGap);
     const meanMedianGap = strictFinite(read.mean) && strictFinite(read.median) ? Math.abs(Number(read.mean) - Number(read.median)) : null;
     const diagnosis = obj(m.diagnosis);
-    return '<section class="mr-section mr-depth-system-read"><div class="mr-section-index">0' + n + ' · Depth read</div><h2>' + esc(firstStr(diagnosis.name, "The median and the pattern around it")) + '</h2>' +
-      '<p class="mr-exec-lede">' + esc(firstStr(diagnosis.body, m.primaryPattern, m.briefing?.lede)) + '</p>' + renderDepthDistributionGraphic(read) +
+    return '<section class="mr-section mr-depth-system-read"><div class="mr-section-index">0' + n + ' · ' + (m.comparisonOnly ? 'Comparison read' : 'Depth read') + '</div><h2>' + esc(firstStr(diagnosis.name, "The median and the pattern around it")) + '</h2>' +
+      '<p class="mr-exec-lede">' + esc(firstStr(diagnosis.body, m.primaryPattern, m.briefing?.lede)) + '</p>' + renderDepthDistributionGraphic(read, m.comparisonOnly ? firstStr(read.toolLabel, 'Diagnostic') + ' response comparison score distribution' : undefined) +
       '<div class="mr-depth-metrics">' +
         runMetric("Median Diagnostic Score", fmt1(read.median), firstStr(read.observedBand, m.conditionBand), "teal") +
         runMetric("Interquartile range", fmtPair(read.iqr, fmt1), "Middle 50% of eligible runs", "ink") +
@@ -1226,7 +1234,7 @@
   }
 
   const THREE_BENEFIT_CSS = `<style data-three-benefit-style="20260919.1">
-    .mr-three-benefit{min-width:0;overflow-wrap:anywhere}.mr-three-benefit fieldset{min-width:0;border:0;padding:0;margin:20px 0}.mr-three-benefit legend{font-weight:700;margin-bottom:10px}.mr-benefit-radio{position:absolute;opacity:0;width:1px;height:1px}.mr-benefit-choice{display:inline-block;cursor:pointer;padding:10px 20px;margin:0 8px 12px 0;border:1px solid #0C6E78;border-radius:6px;color:#08383E}.mr-benefit-radio:checked+label{background:#0C6E78;color:white}.mr-benefit-radio:focus-visible+label{outline:3px solid #C9A227;outline-offset:3px}.mr-benefit-panel{display:none;min-width:0}.mr-benefit-radio-low:checked~.mr-benefit-panels>.mr-benefit-low,.mr-benefit-radio-central:checked~.mr-benefit-panels>.mr-benefit-central,.mr-benefit-radio-high:checked~.mr-benefit-panels>.mr-benefit-high{display:block}.mr-benefit-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:18px 0}.mr-benefit-card{padding:18px;border:1px solid #C9DCDD;border-top:4px solid #0C6E78;border-radius:8px;min-width:0;background:#F4F8F7}.mr-benefit-card strong{display:block;font-size:1.65rem;line-height:1.15;margin:10px 0;overflow-wrap:anywhere}.mr-benefit-card h4{margin:0}.mr-benefit-card small{display:block}.mr-benefit-coverage{padding:16px;border-left:4px solid #C9A227;background:#FBF6EA;margin:18px 0}.mr-benefit-net{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.mr-benefit-net>div{padding:14px;background:#F4F6F6;border-radius:6px}.mr-benefit-net strong{display:block;font-size:1.3rem;margin-top:5px}.mr-benefit-scroll{min-width:0;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;margin:20px 0}.mr-benefit-scroll:focus-visible{outline:2px solid #0C6E78;outline-offset:2px}.mr-benefit-table{width:100%;min-width:550px;border-collapse:collapse;font-size:.82rem}.mr-benefit-table caption{text-align:left;font-weight:700;margin-bottom:12px}.mr-benefit-table th,.mr-benefit-table td{padding:10px;border-bottom:1px solid #DCE5E8;text-align:right;vertical-align:top}.mr-benefit-table th:first-child{text-align:left;min-width:170px}.mr-benefit-table td{white-space:nowrap;overflow-wrap:normal;word-break:normal}.mr-benefit-assumption{padding:18px 0;border-bottom:1px solid #DCE5E8}.mr-benefit-assumption h3,.mr-benefit-assumption h4{break-after:avoid}.mr-benefit-assumption dl{display:grid;grid-template-columns:minmax(100px,1fr) minmax(0,2fr);gap:8px 18px}.mr-benefit-assumption dt{color:#53676E}.mr-benefit-assumption dd{margin:0;min-width:0}.mr-benefit-flow{min-width:680px;position:relative;margin:14px 0}.mr-benefit-flow svg{display:block;width:100%;height:100%}.mr-benefit-flow-labels{position:absolute;inset:0;pointer-events:none}.mr-benefit-flow-node{position:absolute;width:32%;min-height:48px;line-height:1.2;font-size:.74rem;background:#fff;border-left:4px solid #0C6E78;padding:6px 8px;box-sizing:border-box}.mr-benefit-flow-node.is-right{right:0;border-color:#C9A227}.mr-benefit-flow-node strong{display:block;margin-top:3px;white-space:nowrap}.mr-benefit-flow-node span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.mr-benefit-chart-note{font-size:.8rem;color:#53676E}.mr-benefit-missing li+li{margin-top:8px}
+    .mr-three-benefit{min-width:0;overflow-wrap:anywhere}.mr-three-benefit fieldset{min-width:0;border:0;padding:0;margin:20px 0}.mr-three-benefit legend{font-weight:700;margin-bottom:10px}.mr-benefit-radio{position:absolute;opacity:0;width:1px;height:1px}.mr-benefit-choice{display:inline-block;cursor:pointer;padding:10px 20px;margin:0 8px 12px 0;border:1px solid #0C6E78;border-radius:6px;color:#08383E}.mr-benefit-radio:checked+label{background:#0C6E78;color:white}.mr-benefit-radio:focus-visible+label{outline:3px solid #0C6E78;outline-offset:3px}.mr-benefit-panel{display:none;min-width:0}.mr-benefit-radio-low:checked~.mr-benefit-panels>.mr-benefit-low,.mr-benefit-radio-central:checked~.mr-benefit-panels>.mr-benefit-central,.mr-benefit-radio-high:checked~.mr-benefit-panels>.mr-benefit-high{display:block}.mr-benefit-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:18px 0}.mr-benefit-card{padding:18px;border:1px solid #C9DCDD;border-top:4px solid #0C6E78;border-radius:8px;min-width:0;background:#F4F8F7}.mr-benefit-card strong{display:block;font-size:1.65rem;line-height:1.15;margin:10px 0;overflow-wrap:anywhere}.mr-benefit-card h4{margin:0}.mr-benefit-card small{display:block}.mr-benefit-coverage{padding:16px;border-left:4px solid #E6C765;background:#FBF6EA;margin:18px 0}.mr-benefit-net{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.mr-benefit-net>div{padding:14px;background:#F4F6F6;border-radius:6px}.mr-benefit-net strong{display:block;font-size:1.3rem;margin-top:5px}.mr-benefit-scroll{min-width:0;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;margin:20px 0}.mr-benefit-scroll:focus-visible{outline:2px solid #0C6E78;outline-offset:2px}.mr-benefit-table{width:100%;min-width:550px;border-collapse:collapse;font-size:.82rem}.mr-benefit-table caption{text-align:left;font-weight:700;margin-bottom:12px}.mr-benefit-table th,.mr-benefit-table td{padding:10px;border-bottom:1px solid #DCE5E8;text-align:right;vertical-align:top}.mr-benefit-table th:first-child{text-align:left;min-width:170px}.mr-benefit-table td{white-space:nowrap;overflow-wrap:normal;word-break:normal}.mr-benefit-assumption{padding:18px 0;border-bottom:1px solid #DCE5E8}.mr-benefit-assumption h3,.mr-benefit-assumption h4{break-after:avoid}.mr-benefit-assumption dl{display:grid;grid-template-columns:minmax(100px,1fr) minmax(0,2fr);gap:8px 18px}.mr-benefit-assumption dt{color:#53676E}.mr-benefit-assumption dd{margin:0;min-width:0}.mr-benefit-flow{min-width:680px;position:relative;margin:14px 0}.mr-benefit-flow svg{display:block;width:100%;height:100%}.mr-benefit-flow-labels{position:absolute;inset:0;pointer-events:none}.mr-benefit-flow-node{position:absolute;width:32%;min-height:48px;line-height:1.2;font-size:.74rem;background:#fff;border-left:4px solid #0C6E78;padding:6px 8px;box-sizing:border-box}.mr-benefit-flow-node.is-right{right:0;border-color:#E6C765}.mr-benefit-flow-node strong{display:block;margin-top:3px;white-space:nowrap}.mr-benefit-flow-node span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.mr-benefit-chart-note{font-size:.8rem;color:#53676E}.mr-benefit-missing li+li{margin-top:8px}
     .mr-benefit-print-summary,.mr-benefit-compact-flow{display:none}.mr-benefit-flow{min-width:0;height:calc(var(--benefit-rows)*62px + 16px)!important}.mr-benefit-flow-node{width:38%;top:calc(var(--benefit-row)*62px + 8px)!important}.mr-benefit-node-type{display:block;font-size:.65rem;color:#53676E;margin-top:2px}
     @media screen and (max-width:640px){.mr-benefit-cards,.mr-benefit-net{grid-template-columns:1fr}.mr-benefit-card strong{font-size:1.6rem}.mr-benefit-choice{padding:10px 17px}.mr-benefit-assumption dl{grid-template-columns:1fr;gap:4px}.mr-benefit-assumption dd{margin-bottom:10px}.mr-benefit-flow-node{font-size:12px;padding:4px;border-left-width:2px}.mr-benefit-flow-node strong{font-size:12px}.mr-benefit-chart{margin-left:0;margin-right:0}.mr-benefit-chart>.mr-benefit-scroll{overflow:visible}}
     @media print{.mr-benefit-radio,.mr-benefit-choice,.mr-three-benefit legend{display:none!important}.mr-three-benefit .mr-benefit-panels>.mr-benefit-panel{display:none!important;break-before:auto}.mr-three-benefit .mr-benefit-panels>.mr-benefit-panel.mr-benefit-central{display:block!important}.mr-benefit-cards{grid-template-columns:repeat(3,minmax(0,1fr))}.mr-benefit-card{padding:10px}.mr-benefit-card strong{font-size:17px}.mr-benefit-card p{font-size:9px}.mr-benefit-net{grid-template-columns:repeat(2,minmax(0,1fr))}.mr-benefit-scroll{overflow:visible;margin:14px 0}.mr-benefit-table{min-width:0;font-size:9px;table-layout:fixed}.mr-benefit-table th,.mr-benefit-table td{padding:6px 4px}.mr-benefit-table th:first-child{min-width:0;width:42%}.mr-benefit-table tr{break-inside:avoid}.mr-benefit-flow{min-width:0!important}.mr-benefit-flow-node{font-size:8px;padding:4px;min-height:36px}.mr-benefit-flow-node strong{font-size:9px}.mr-benefit-coverage{padding:8px}.mr-benefit-assumption{break-inside:avoid}.mr-benefit-chart{break-before:auto;break-inside:avoid}.mr-benefit-assumptions{break-before:page}.mr-benefit-scroll-hint{display:none}}
@@ -1241,7 +1249,7 @@
   function renderThreeBenefitFlow(s,level) {
     if(!s?.coverage?.complete||!THREE_BENEFIT_CASES.includes(level))return '';
     const input=s.inputs,panels=[],notes=[],groups=[];
-    const colors={currentRemaining:'#09383E',plannedRemaining:'#A9D0D4',remaining:'#09383E',spendingReduction:'#C9A227',spendingAvoidance:'#A9D0D4',staffCapacity:'#187783'};
+    const colors={currentRemaining:'#09383E',plannedRemaining:'#A9D0D4',remaining:'#09383E',spendingReduction:'#E6C765',spendingAvoidance:'#A9D0D4',staffCapacity:'#187783'};
     const bound=v=>typeof v==='number'&&Number.isFinite(v)&&v>=0&&v<=1e14;
     const difference=(a,b)=>{const v=a-b;return v<0&&Math.abs(v)<=8*Number.EPSILON*Math.max(1,a,b)?0:v;};
     const attrs=row=>' data-baseline-value="'+row.baseline+'" data-residual-value="'+row.residual+'" data-released-value="'+row.released+'"';
@@ -2642,7 +2650,7 @@
     .mr-depth-system-read>h2{font-size:clamp(1.9rem,3.8vw,3.1rem)!important;line-height:1.02!important;letter-spacing:-.045em!important;max-width:22ch!important}.mr-depth-system-read{display:flex;flex-direction:column}.mr-depth-system-read>.mr-viz-panel{order:-1;margin-bottom:28px}.mr-depth-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid #E0DCD3;border-radius:12px;overflow:hidden;margin:16px 0}.mr-depth-reading-grid{display:grid;grid-template-columns:1.2fr .8fr;border:1px solid #E0DCD3;border-radius:12px;overflow:hidden}.mr-depth-reading-grid>div{padding:20px 22px}.mr-depth-reading-grid>div+div{border-left:1px solid #E0DCD3;background:#F7F5F0}.mr-depth-reading-grid p{font-size:.9rem!important;line-height:1.58!important;margin:7px 0 0!important}.mr-depth-reading-grid strong{display:block;font-size:1.2rem;margin:8px 0 4px}
     .mr-decision-frame{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:20px 0 16px}
     .mr-decision-metric{padding:16px 15px;border:1px solid #EAE6DD;border-top:3px solid #0C6E78;border-radius:9px;background:#FAFAF8;min-width:0}
-    .mr-decision-metric:nth-child(2){border-top-color:#C9A227}.mr-decision-metric:nth-child(3){border-top-color:#3C8A60}.mr-decision-metric:nth-child(4){border-top-color:#08383E}
+    .mr-decision-metric:nth-child(2){border-top-color:#E6C765}.mr-decision-metric:nth-child(3){border-top-color:#3C8A60}.mr-decision-metric:nth-child(4){border-top-color:#08383E}
     .mr-decision-value{font-size:1.55rem;line-height:1.05;letter-spacing:-.035em;font-weight:700;color:#18191C;margin:8px 0 5px;overflow-wrap:anywhere}
     .mr-decision-story{display:grid;grid-template-columns:1.15fr .85fr;gap:0;margin-top:14px;border:1px solid #EAE6DD;border-radius:11px;overflow:hidden}
     .mr-decision-story>div{padding:20px 22px;background:#FFF}.mr-decision-story>div+div{border-left:1px solid #EAE6DD;background:#F6F3EC}
@@ -2653,7 +2661,7 @@
     .mr-evidence-step.is-active{color:#0C6E78}.mr-evidence-step.is-active span{background:#0C6E78;box-shadow:0 0 0 2px rgba(12,110,120,.18)}
     .mr-action-path{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0 24px}
     .mr-action-step{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start;padding:14px 14px;border:1px solid #EAE6DD;border-top:3px solid #0C6E78;border-radius:9px;background:#FAFAF8}
-    .mr-action-step[data-tier="behavioral"]{border-top-color:#C9A227}.mr-action-step[data-tier="cultural"]{border-top-color:#3C8A60}
+    .mr-action-step[data-tier="behavioral"]{border-top-color:#E6C765}.mr-action-step[data-tier="cultural"]{border-top-color:#3C8A60}
     .mr-action-step-num{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:#08383E;color:#FFF;font-size:.78rem;font-weight:700}
     .mr-action-step strong{display:block;font-size:.83rem;line-height:1.35;color:#18191C;margin-top:5px}
     @media(max-width:760px){.mr-decision-frame{grid-template-columns:repeat(2,minmax(0,1fr))}.mr-decision-story{grid-template-columns:1fr}.mr-decision-story>div+div{border-left:0;border-top:1px solid #EAE6DD}.mr-action-path{grid-template-columns:1fr}}
@@ -2718,7 +2726,7 @@
     .mr-actions-section { margin:24px 0 32px; }
     .mr-action { display:grid; grid-template-columns:40px 1fr; gap:16px; margin:12px 0; padding:16px 18px; background:#FFF; border:1px solid #EAE6DD; border-left:3px solid #0C6E78; border-radius:10px; }
     .mr-action[data-tier="structural"] { border-left-color:#0C6E78; }
-    .mr-action[data-tier="behavioral"] { border-left-color:#C9A227; }
+    .mr-action[data-tier="behavioral"] { border-left-color:#E6C765; }
     .mr-action[data-tier="cultural"] { border-left-color:#3C8A60; }
     .mr-action-num { font-family:"Neue Haas Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif; font-size:1.5rem; font-weight:700; color:#0C6E78; letter-spacing:-0.02em; }
     .mr-action[data-tier="behavioral"] .mr-action-num { color:#7A6015; }
@@ -2735,7 +2743,7 @@
     .mr-indicator-tile { background:#FFF; border:1px solid #EAE6DD; border-radius:12px; padding:18px 20px; }
     .mr-indicator-tile[data-lens="os"] { border-left:3px solid #0C6E78; }
     .mr-indicator-tile[data-lens="dv"] { border-left:3px solid #08383E; }
-    .mr-indicator-tile[data-lens="sc"] { border-left:3px solid #C9A227; }
+    .mr-indicator-tile[data-lens="sc"] { border-left:3px solid #E6C765; }
     .mr-indicator-tile[data-lens="ip"] { border-left:3px solid #3C8A60; }
     .mr-indicator-tile[data-lens="cross"] { border-left:3px solid #6E6F73; }
     .mr-indicator-lens { font-size:0.66rem; letter-spacing:0.16em; text-transform:uppercase; color:#6E6F73; font-weight:700; margin:0 0 4px; }
@@ -2794,7 +2802,7 @@
     .mr-run-score-stamp em{font-style:normal;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:#0C6E78;font-weight:700}
     .mr-run-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid #E0DCD3;border-radius:12px;overflow:hidden;background:#FFF}
     .mr-run-metric{position:relative;padding:19px 18px;min-width:0;border-top:3px solid #0C6E78}
-    .mr-run-metric+ .mr-run-metric{border-left:1px solid #EAE6DD}.mr-run-metric[data-tone="ink"]{border-top-color:#08383E}.mr-run-metric[data-tone="amber"]{border-top-color:#C9A227}.mr-run-metric[data-tone="green"]{border-top-color:#3C8A60}
+    .mr-run-metric+ .mr-run-metric{border-left:1px solid #EAE6DD}.mr-run-metric[data-tone="ink"]{border-top-color:#08383E}.mr-run-metric[data-tone="amber"]{border-top-color:#E6C765}.mr-run-metric[data-tone="green"]{border-top-color:#3C8A60}
     .mr-run-metric-value{font-size:1.38rem;line-height:1.08;letter-spacing:-.03em;font-weight:700;margin:9px 0 7px;overflow-wrap:anywhere}
     .mr-run-metric .mr-copy{font-size:.78rem!important;line-height:1.45!important;margin:0!important}
     .mr-run-decision-story{display:grid;grid-template-columns:1fr 1fr;margin-top:16px;border-radius:12px;overflow:hidden;border:1px solid #EAE6DD}
@@ -2965,11 +2973,25 @@
       .mr-report .mr-cover{break-inside:avoid;page-break-inside:avoid}
       .mr-cover-dark{padding:28px 30px 24px}
       .mr-cover-white{padding:22px 30px 24px}
-      .mr-cover-title{font-size:28pt!important;line-height:1.04!important}
+      .mr-cover-title{font-size:28pt!important;line-height:1.04!important;max-width:none}
       .mr-cover-sub,.mr-cover-body{font-size:10pt!important;line-height:1.45!important}
       .mr-cover-meta{margin-top:16px;padding-top:12px;gap:8px 12px}
       .mr-cover-body{margin-top:14px!important;padding-top:12px}
       .mr-cover-boundary{margin-top:14px;padding:10px 12px;break-inside:avoid;page-break-inside:avoid}
+      /* A Letter cover must not inherit the phone metadata grid. Keep the
+         full boundary on its cover without shrinking the report prose. */
+      .mr-report .mr-cover-dark{padding:20px 30px 18px}
+      .mr-report .mr-cover-mark{margin-bottom:12px!important}
+      .mr-report .mr-cover-rule{margin-bottom:16px}
+      .mr-report .mr-cover-sub{margin-top:12px!important}
+      .mr-report .mr-cover-white{padding:18px 30px 20px}
+      .mr-report .mr-cover-pills{margin-top:12px}
+      .mr-report .mr-cover-meta{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px;padding-top:10px;gap:6px 12px}
+      .mr-report .mr-cover-meta>span:last-child:nth-child(5){grid-column:2 / -1}
+      .mr-report .mr-cover-body{margin-top:12px!important;padding-top:10px}
+      .mr-report .mr-cover-boundary{margin-top:12px}
+      .mr-report .mr-benefit-chart .mr-benefit-chart-note{font-size:9pt;line-height:1.4;margin:8px 0;break-inside:avoid;page-break-inside:avoid}
+      .mr-report .mr-benefit-chart>figcaption{break-before:avoid;page-break-before:avoid}
       .mr-system-metrics,.mr-system-decision,.mr-depth-metrics,.mr-depth-reading-grid,.mr-editorial-row,.mr-report .callout{break-inside:avoid;page-break-inside:avoid}
       .mr-section>h2{page-break-after:avoid}
       .mr-section>h2+p{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}
@@ -3168,62 +3190,203 @@
     event.preventDefault();
     const contents = link.closest('details');
     if (contents) contents.open = false;
-    target.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    // Reports can be very long. An immediate jump keeps the return link and
+    // next tap stationary instead of racing an in-flight scroll animation.
+    target.scrollIntoView({ behavior: 'instant', block: 'start' });
     if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
     target.focus({ preventScroll:true });
   }
 
   const screenReportModels = new WeakMap();
 
+  // Abbreviate the same saved central-case flows used by the detailed charts.
+  // Aggregate sources, not benefits: dollars and hours retain separate scales.
+  function buildOverviewSankeys({s, input}) {
+    if (!s.coverage.complete) return '';
+    const bound = v => typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 1e14;
+    const difference = (a, b) => { const v = a - b; return v < 0 && Math.abs(v) <= 8 * Number.EPSILON * Math.max(1, a, b) ? 0 : v; };
+    const money = {kind:'money', title:'Money', source:'Current + planned spending', unit:'USD', baseline:0, ids:[], valid:true, amounts:[0,0,0], drawn:[0,0,0], labels:['Current savings','Future avoided','Spending remains'], colors:['#E6C765','#187783','#09383E'], benefits:['spending-reduction','spending-avoidance',null]};
+    for (const [category, index] of [['spendingReduction',0],['spendingAvoidance',1]]) {
+      for (const item of input[category].items) {
+        const row = s.spendingItems.find(value => value.id === item.id);
+        const baseline = item.baselineMonthlyUnits * item.unitCost * (item.endMonth - item.startMonth + 1);
+        if (!row || !bound(baseline) || !THREE_BENEFIT_CASES.every(k => bound(row.amount[k]) && bound(difference(baseline, row.amount[k])))) { money.valid = false; continue; }
+        money.ids.push(item.id); money.baseline += baseline;
+        money.amounts[index] += row.amount.central;
+        money.amounts[2] += difference(baseline, row.amount.central);
+      }
+    }
+    money.drawn = money.amounts.slice();
+    const time = {kind:'time', title:'Time', source:'Recorded work time', unit:'hours', baseline:0, ids:[], valid:true, amounts:[0,0,0], drawn:[0,0,0], labels:['Other-work capacity','Assigned to spending changes','Work remains'], colors:['#187783','#A9D0D4','#09383E'], benefits:['retained-capacity',null,null]};
+    const cap = input.capacity, days = (Date.parse(cap.measurementEnd) - Date.parse(cap.measurementStart)) / 86400000;
+    for (const item of cap.activities) {
+      const row = s.activities.find(value => value.id === item.id);
+      const baseline = item.measuredHours * (input.horizonMonths * 365.25 / 12) / days;
+      if (!row || !bound(baseline)) { time.valid = false; continue; }
+      let central;
+      for (const k of THREE_BENEFIT_CASES) {
+        const released = row.grossHoursFreed[k], retained = row.potentialHoursFreed[k], current = row.hoursUsedForSpendingReduction[k], future = row.hoursUsedForSpendingAvoidance[k], residual = difference(baseline, released);
+        const sum = retained + current + future;
+        if (![released,retained,current,future,residual].every(bound) || (sum === 0) !== (released === 0) || Math.abs(sum - released) > .02 + 8 * Number.EPSILON * Math.max(1, sum, released)) { time.valid = false; break; }
+        if (k === 'central') central = {amounts:[retained,current + future,residual], drawn:[sum ? retained * released / sum : 0,sum ? (current + future) * released / sum : 0,residual]};
+      }
+      if (!central) continue;
+      time.ids.push(item.id); time.baseline += baseline;
+      for (let i = 0; i < 3; i++) { time.amounts[i] += central.amounts[i]; time.drawn[i] += central.drawn[i]; }
+    }
+    return '<div class="mr-overview-sankeys" aria-label="Abbreviated central-case Sankeys">' + [money,time].map(group => {
+      if (!group.valid || !group.ids.length || !bound(group.baseline) || group.baseline === 0 || !Number.isFinite(48 / group.baseline) || !group.amounts.every(bound)) return '<p class="mr-overview-note">' + group.title + ': no drawable baseline. Review the saved inputs and planning table.</p>';
+      const format = value => {
+        const number = Number(value).toLocaleString('en-US', value > 0 && value < 1 ? {maximumSignificantDigits:3} : {maximumFractionDigits:0});
+        const compact = number.length > 10 ? Number(value).toLocaleString('en-US', {notation:'compact',maximumSignificantDigits:3}) : number;
+        return (group.unit === 'USD' ? '$' : '') + compact + (group.unit === 'hours' ? ' h' : '');
+      };
+      const exact = value => (group.unit === 'USD' ? '$' : '') + String(value) + (group.unit === 'hours' ? ' hours' : '');
+      const scale = 30 / group.baseline, heights = group.drawn.map(value => value * scale), slots = heights.map(value => Math.max(28, value)), height = slots.reduce((a,b) => a+b, 0) + 4;
+      const shortLabels = group.kind === 'money' ? ['Current saved','Future avoided','Remaining'] : ['Other work','Assigned','Remaining'];
+      let sourceY = (height - 30) / 2, targetY = 0, paths = '', nodes = '', labels = '';
+      for (let i = 0; i < 3; i++) {
+        const h = heights[i], y = targetY + (slots[i] - h) / 2, color = group.colors[i], value = group.amounts[i];
+        if (h > 0) paths += '<path data-preview-role="' + i + '" data-preview-amount="' + value + '" data-preview-drawn-amount="' + group.drawn[i] + '" d="M 7 ' + sourceY + ' C 42 ' + sourceY + ' 58 ' + y + ' 93 ' + y + ' L 93 ' + (y+h) + ' C 58 ' + (y+h) + ' 42 ' + (sourceY+h) + ' 7 ' + (sourceY+h) + ' Z" fill="' + color + '" fill-opacity=".34"><title>' + esc(group.source + ' → ' + group.labels[i] + ': ' + exact(value)) + '</title></path>';
+        nodes += '<rect x="93" y="' + y + '" width="5" height="' + h + '" fill="' + color + '"/>';
+        const benefit = group.benefits[i];
+        labels += '<div class="mr-overview-sankey-outcome' + (benefit ? ' mr-overview-benefit' : '') + '" data-preview-role="' + i + '" data-preview-amount="' + value + '"' + (benefit ? ' data-overview-benefit="' + benefit + '" data-value="' + value + '"' : '') + ' title="' + esc(group.labels[i] + ': ' + exact(value)) + '" style="height:' + slots[i] + 'px"><strong>' + esc(format(value)) + '</strong><span>' + shortLabels[i] + '</span></div>';
+        sourceY += h; targetY += slots[i] + 2;
+      }
+      const desc = group.labels.map((label,i) => label + ': ' + exact(group.amounts[i])).join('; ');
+      return '<div class="mr-overview-sankey" data-preview-kind="' + group.kind + '" data-preview-case="central" data-preview-baseline="' + group.baseline + '" data-preview-source-ids="' + esc(group.ids.join(',')) + '"><div class="mr-overview-sankey-flow" style="--preview-height:' + height + 'px"><div class="mr-overview-sankey-source"><b>' + group.title + '</b><strong>' + esc(format(group.baseline)) + '</strong><span>' + group.source + '</span></div><svg viewBox="0 0 100 ' + height + '" preserveAspectRatio="none" role="img" aria-label="' + esc('Abbreviated ' + group.title + ': ' + exact(group.baseline) + ' baseline. ' + desc) + '"><desc>' + esc('Central case. ' + desc + '. Ribbons use a separate scale for ' + group.unit + '.') + '</desc>' + paths + '<rect x="2" y="' + ((height-30)/2) + '" width="5" height="30" fill="#53676E"/>' + nodes + '</svg><div class="mr-overview-sankey-outcomes">' + labels + '</div></div></div>';
+    }).join('') + '</div>';
+  }
+
   // An orientation layer over the saved report, never a second calculation or
   // a replacement for its evidence, assumptions and complete recommendations.
+  function reviewedExecutiveOverview(report, interpretation, model) {
+    const overview = obj(interpretation.executive_overview);
+    if (overview.version !== 'executive-overview-20260924.1') return null;
+    const evidence = new Set(arr(report.evidence).concat(arr(report.experiential_evidence)).map(row => row.id));
+    const sources = new Set(arr(report.sources).map(row => row.id));
+    const wordCount = text => text.trim().split(/\s+/u).length;
+    const citedText = (unit, limit) => unit && typeof unit.text === 'string' && unit.text.trim() && wordCount(unit.text) <= limit &&
+      Array.isArray(unit.evidence_ids) && unit.evidence_ids.length > 0 && unit.evidence_ids.every(id => typeof id === 'string' && evidence.has(id)) &&
+      Array.isArray(unit.source_ids) && unit.source_ids.every(id => typeof id === 'string' && sources.has(id));
+    const options = arr(interpretation.action_options), summaries = arr(overview.option_summaries);
+    const ids = new Set(options.map(option => option.option_id));
+    if (!citedText(overview.headline, 12) || !Array.isArray(overview.findings) || overview.findings.length < 2 || overview.findings.length > 3 ||
+      !overview.findings.every(unit => citedText(unit, 30)) || !options.length || ids.size !== options.length ||
+      summaries.length !== options.length || new Set(summaries.map(unit => unit.option_id)).size !== ids.size ||
+      !summaries.every(unit => ids.has(unit.option_id) && citedText(unit, 24))) return null;
+    const readiness = obj(obj(model.campaignEvidence).recommendedPath), preferred = obj(interpretation.recommended_option);
+    if (overview.preferred !== null && (!citedText(overview.preferred, 30) || readiness.status !== 'satisfied' ||
+      !ids.has(overview.preferred.option_id) || overview.preferred.option_id !== preferred.option_id ||
+      overview.preferred.option_id !== readiness.recommendedActionId)) return null;
+    const units = [overview.headline, ...overview.findings, ...summaries, ...(overview.preferred ? [overview.preferred] : [])];
+    if (units.reduce((sum, unit) => sum + wordCount(unit.text), 0) > 180) return null;
+    // This is separately authored and reviewed summary prose, not a clipped
+    // prefix of the full report. Any malformed/unknown edition uses the intact
+    // historical fallback below. Full findings and calculations remain saved.
+    return overview;
+  }
+
   function buildReportOverview(model, sections) {
     const m = obj(model), find = pattern => sections.find(s => pattern.test(s.classes));
+    const synthesisQuad = m.kind === 'meta-synthesis' && !m.comparisonOnly && !m.selfRun && ['depth','cross_lens'].includes(m.product);
     const ai = obj(m.aiReport), interpretation = ai.status === 'complete' ? obj(obj(ai.report).interpretation) : {};
+    const compact = synthesisQuad && ai.status === 'complete' ? reviewedExecutiveOverview(obj(ai.report), interpretation, m) : null;
     const findings = find(/mr-run-headline|mr-system-read|mr-depth-system-read|mr-ai-interpretation/) || sections[1];
     const financial = find(/mr-financial-brief/), profile = find(/mr-run-dimensions|mr-system-read|mr-depth-system-read/);
-    const actions = ai.status === 'complete' ? find(/mr-report-options|mr-report-nextsteps|mr-ai-interpretation/) : find(/mr-run-action-board/);
+    const actions = ai.status === 'complete' ? (find(/mr-report-options/) || find(/mr-report-nextsteps/) || find(/mr-ai-interpretation/)) : find(/mr-run-action-board/);
     const evidence = find(/mr-run-evidence|mr-evidence-status|mr-run-method|mr-meta-method/) || sections[sections.length - 1];
     if (!sections[0] || !findings || !evidence) return '';
-    const tile = (number, title, content, target, footer, role) => '<a class="mr-overview-tile" data-report-link-role="overview-' + role + '" href="#' + (target || evidence).id + '"><div class="mr-overview-title"><span>' + number + '</span><h2>' + title + '</h2><span aria-hidden="true">↗</span></div><div class="mr-overview-content">' + content + '</div><div class="mr-overview-link">' + footer + ' <span aria-hidden="true">→</span></div></a>';
+    const tile = (title, content, target, footer, role) => '<a class="mr-overview-tile" data-report-link-role="overview-' + role + '" href="#' + (target || evidence).id + '"><div class="mr-overview-title"><h2>' + title + '</h2></div><div class="mr-overview-content">' + content + '</div><div class="mr-overview-link">' + footer + ' <span aria-hidden="true">→</span></div></a>';
+    // Excerpts are explicitly identified and never replace the complete saved
+    // text below. Prefer its first sentence; otherwise stop at a word boundary.
+    const excerpt = (value, limit = 180) => {
+      const text = String(value || '').replace(/\s+/g, ' ').trim();
+      if (text.length <= limit) return text;
+      const sentence = text.match(/^.*?[.!?](?=\s|$)/)?.[0];
+      if (sentence && sentence.length <= limit) return sentence;
+      return (text.slice(0, limit + 1).replace(/\s+\S*$/, '').trimEnd() || text.slice(0, limit)) + '…';
+    };
     const summary = firstStr(interpretation.summary, m.centralFinding, m.execSummary, m.coverBody, m.primaryPattern);
     const score = m.kind === 'run' ? m.score : m.scorePublished ? m.score : null;
     const scoreLabel = m.kind === 'run' ? 'Diagnostic score' : firstStr(m.scoreLabel, 'Condition score');
     const scoreBand = m.kind === 'run' || m.selfRun ? firstStr(m.headlineBand) : firstStr(m.conditionBand);
-    const findingContent = '<div class="mr-overview-score"><strong>' + esc(strictFinite(score) ? fmt1(score) : 'Unavailable') + '</strong>' + (strictFinite(score) ? '<span>/ 100</span>' : '') + '</div><p class="mr-overview-label">' + esc(scoreLabel) + (scoreBand ? ' · ' + esc(scoreBand) : '') + '</p><p class="mr-overview-summary">' + esc(summary || 'Review the recorded findings in the full report.') + '</p>';
+    let findingContent = '<div class="mr-overview-stat-summary"><div><div class="mr-overview-score"><strong>' + esc(strictFinite(score) ? fmt1(score) : 'Unavailable') + '</strong>' + (strictFinite(score) ? '<span>/ 100</span>' : '') + '</div><p class="mr-overview-label">' + esc(scoreLabel) + (scoreBand ? ' · ' + esc(scoreBand) : '') + '</p></div><div><p class="mr-overview-summary">' + esc(excerpt(summary || 'Review the recorded findings in the full report.')) + '</p><p class="mr-overview-note">' + (m.kind === 'run' ? 'One person’s responses.' : m.selfRun ? 'Your selected runs only.' : 'Included responses only.') + ' Excerpt; read the full findings and limits before acting.</p></div></div>';
+    if (synthesisQuad) {
+      // These are complete saved units, not an inferred cause or a shortened
+      // model sentence with its qualifying clause removed. Longer/unfamiliar
+      // records may grow the card rather than silently lose their meaning.
+      const savedFacts = ai.status === 'complete' ? arr(obj(ai.report).evidence).filter(f => f.provenance === 'deterministic_sample_summary' && typeof f.label === 'string' && typeof f.value === 'string') : [];
+      const focus = savedFacts.filter(f => f.label.endsWith(': most common classified focus'));
+      const facts = focus.length ? focus.map(f => ({label:f.label.replace(': most common classified focus', ''),value:f.value})) : savedFacts.filter(f => /: (variation in submitted scores|.*group mean)$/.test(f.label)).slice(0,3).map(f => ({label:f.label,value:f.value}));
+      const legacyMixedPattern = 'Two or more lens-level signals share the highest observed count, so the coherent read does not identify one unique dominant shared pattern. Use the lens summaries and contradictions to define a bounded validation question rather than forcing one causal diagnosis.';
+      // Prefer an already-compact complete summary. If no shorter engine unit
+      // exists, retain the complete saved summary; 420 is not a truncation cap.
+      const wholeFinding = summary && summary.length <= 420 ? summary : m.primaryPattern === legacyMixedPattern ? 'Several patterns appear across the diagnostics; none stands out as the single shared explanation. Review the findings for each diagnostic before deciding what to test.' : firstStr(m.primaryPattern, obj(m.source?.diagnosis).body, summary, 'Review the recorded findings in the full report.');
+      findingContent = '<div class="mr-overview-scoreline"><div class="mr-overview-score"><strong>' + esc(strictFinite(score) ? fmt1(score) : 'Unavailable') + '</strong>' + (strictFinite(score) ? '<span>/ 100</span>' : '') + '</div><p>' + esc(scoreBand || scoreLabel) + '</p></div><p class="mr-overview-summary mr-overview-finding">' + esc(wholeFinding) + '</p>' + (facts.length ? '<ul class="mr-overview-findings">' + facts.map(f => '<li><strong>' + esc(f.label) + ':</strong> ' + esc(f.value) + '</li>').join('') + '</ul><p class="mr-overview-note">Recorded patterns in the included responses.</p>' : '');
+      if (compact) findingContent = '<div class="mr-overview-scoreline"><div class="mr-overview-score"><strong>' + esc(strictFinite(score) ? fmt1(score) : 'Unavailable') + '</strong>' + (strictFinite(score) ? '<span>/ 100</span>' : '') + '</div><p>' + esc(scoreBand || scoreLabel) + '</p></div><p class="mr-overview-summary mr-overview-finding">' + esc(compact.headline.text) + '</p><ul class="mr-overview-findings">' + compact.findings.map(unit => '<li>' + esc(unit.text) + '</li>').join('') + '</ul><p class="mr-overview-note">Summary of the full findings below.</p>';
+    }
     const validated = threeBenefitPresentation(m);
     let valueContent = '', valueTitle = 'Time and money', valueTarget = financial || evidence;
-    // Keep the overview on the central case. Low and high remain directly
-    // available in the complete, independently scaled money and time charts.
+    // Read each central-case figure from the validated saved scenario. Keep
+    // cash, avoided expense and retained capacity separate; the full report
+    // retains the gross-time reconciliation, costs and all three case charts.
     if (validated && validated.s.coverage.complete) {
       const {s, input} = validated, totals = s.totals;
-      const baselineMoney = ['spendingReduction', 'spendingAvoidance'].reduce((sum, key) => sum + input[key].items.reduce((n, item) => n + item.baselineMonthlyUnits * item.unitCost * (item.endMonth - item.startMonth + 1), 0), 0);
-      const days = (Date.parse(input.capacity.measurementEnd) - Date.parse(input.capacity.measurementStart)) / 86400000;
-      const baselineHours = input.capacity.activities.reduce((n, item) => n + item.measuredHours * (input.horizonMonths * 365.25 / 12) / days, 0);
-      const flow = (kind, title, baseline, saved, format, note) => {
-        if (!Number.isFinite(baseline) || baseline <= 0 || baseline > 1e14 || !Number.isFinite(52 / baseline) || !strictFinite(saved) || saved < 0 || saved > baseline) return '<p class="mr-overview-note">' + esc(title) + ': the baseline cannot be drawn reliably. Review the saved planning figures.</p>';
-        const share = saved / baseline, released = 52 * share, retained = 52 - released;
-        const color = kind === 'money' ? '#C9A227' : '#187783';
-        const ribbon = (start, end, width, fill) => width <= 0 ? '' : '<path d="M 8 ' + start + ' C 95 ' + start + ' 95 ' + end + ' 182 ' + end + ' L 182 ' + (end + width) + ' C 95 ' + (end + width) + ' 95 ' + (start + width) + ' 8 ' + (start + width) + ' Z" fill="' + fill + '" fill-opacity=".4"/>';
-        return '<div class="mr-overview-flow" data-overview-flow="' + kind + '" data-baseline="' + baseline + '" data-released="' + saved + '"><div class="mr-overview-flow-heading"><span>' + title + '</span><strong>' + esc(format(saved)) + '</strong></div><svg viewBox="0 0 190 72" aria-hidden="true" focusable="false">' + ribbon(6, 2, released, color) + ribbon(6 + released, 14 + released, retained, '#A9D0D4') + '<rect x="2" y="6" width="6" height="52" fill="#09383E"/>' + (released > 0 ? '<rect x="182" y="2" width="6" height="' + released + '" fill="' + color + '"/>' : '') + (retained > 0 ? '<rect x="182" y="' + (14 + released) + '" width="6" height="' + retained + '" fill="#A9D0D4"/>' : '') + '</svg><div class="mr-overview-flow-caption"><span>' + esc(format(baseline)) + ' baseline</span><span>Potential benefit + remaining</span></div><p class="mr-overview-note">' + esc(note) + '</p></div>';
-      };
-      valueContent = '<p class="mr-overview-label">' + (s.kind === 'early_planning_scenario' ? 'Early planning case · central' : 'Central planning case') + ' · ' + fmtWhole(input.horizonMonths) + ' months</p>' + flow('money', 'Spending reduced or avoided', baselineMoney, totals.existingSpendingReduction.central + totals.futureSpendingAvoidance.central, fmtMoney, fmtMoney(totals.existingSpendingReduction.central) + ' lower current spending; ' + fmtMoney(totals.futureSpendingAvoidance.central) + ' future spending avoided. Before costs.') + flow('time', 'Staff time freed', baselineHours, totals.grossPotentialHoursFreed.central, value => fmtWhole(value) + ' hours', fmtWhole(totals.potentialHoursFreed.central) + ' hours remain as staff capacity after time assigned to spending changes. Do not add hours to money.') + '<p class="mr-overview-note">Directional estimates from recorded inputs and planning assumptions, not realized savings.</p>';
+      const metric = (kind, value, label, format) => '<div class="mr-overview-benefit" data-overview-benefit="' + kind + '" data-value="' + value + '"><strong>' + esc(format(value)) + '</strong><span>' + label + '</span></div>';
+      valueContent = '<p class="mr-overview-label">' + (s.kind === 'early_planning_scenario' ? 'Early planning case · central' : 'Central planning case') + ' · ' + fmtWhole(input.horizonMonths) + ' months</p><div class="mr-overview-benefits">' + metric('spending-reduction', totals.existingSpendingReduction.central, 'Cash spending reduced', fmtMoney) + metric('spending-avoidance', totals.futureSpendingAvoidance.central, 'Future costs avoided', fmtMoney) + metric('retained-capacity', totals.potentialHoursFreed.central, 'Staff capacity released', value => fmtWhole(value) + ' hours') + '</div><p class="mr-overview-note">Before costs. Directional planning estimates, not realized savings. ' + esc(fmtWhole(totals.grossPotentialHoursFreed.central) + ' gross hours freed; ' + fmtWhole(totals.potentialHoursFreed.central) + ' retained after time assigned to spending changes.') + ' Do not add hours to money.</p>';
+      if (synthesisQuad) valueContent = valueContent.replace(/<div class="mr-overview-benefits">[^]*?<\/div><\/div>/, buildOverviewSankeys(validated));
     } else if (m.kind === 'run') {
       valueTitle = 'What needs attention'; valueTarget = profile || findings;
-      valueContent = '<p class="mr-overview-summary">' + esc(firstStr(m.centralFinding, m.bottomLine, m.execSummary, 'See which parts of the work need attention.')) + '</p><p>Compare the detailed findings and the responses behind them.</p><p class="mr-overview-note">One person’s responses do not establish organization-wide time or financial savings.</p>';
+      valueContent = '<p class="mr-overview-summary">' + esc(excerpt(firstStr(m.centralFinding, m.bottomLine, m.execSummary, 'See which parts of the work need attention.'))) + '</p><p class="mr-overview-note">Excerpt. One person’s responses do not establish organization-wide time or financial savings.</p>';
     } else {
       valueContent = '<p class="mr-overview-summary">' + (validated ? 'Some benefits have not been estimated.' : 'No complete planning scenario is recorded for this result.') + '</p><p>Review the available evidence and assumptions before estimating time or money.</p>';
     }
     const options = arr(interpretation.action_options).filter(item => typeof obj(item).action === 'string' && item.action.trim());
     const recommendations = renderedAIRecommendations(ai);
     const rows = options.length ? options.slice(0, 3).map(item => ({label: ({limited:'Limited change',moderate:'Moderate change',structural:'Structural change',aggressive:'Extensive change'})[item.intensity] || humanize(item.intensity || 'Change option'), text:item.action})) : recommendations.slice(0, 3).map((item, index) => ({label:'Next step ' + (index + 1), text:item.action}));
-    const actionContent = rows.length ? '<ol class="mr-overview-options">' + rows.map(row => '<li><strong>' + esc(row.label) + '</strong><p>' + esc(row.text) + '</p></li>').join('') + '</ol><p class="mr-overview-note">Open the full guidance for the rationale, prerequisites, risks and measures of success.</p>' : '<p class="mr-overview-summary">' + (ai.status === 'complete' ? 'Review the interpretation before deciding what to change.' : 'The measured findings are available. Additional interpretation is not ready yet.') + '</p><p>Read the findings now and return for the additional guidance.</p>';
+    let actionContent = rows.length ? '<ol class="mr-overview-options"><li><strong>' + esc(rows[0].label) + '</strong><p>' + esc(excerpt(rows[0].text, 200)) + '</p></li></ol><p class="mr-overview-note">' + (options.length ? 'First option excerpt. Compare full alternatives' : 'Guidance excerpt. Read the full rationale') + ', prerequisites, risks and measures of success.</p>' : '<p class="mr-overview-summary">' + (ai.status === 'complete' ? 'Review the interpretation before deciding what to change.' : 'The measured findings are available. Additional interpretation is not ready yet.') + '</p><p class="mr-overview-note">Read the findings now and return for the additional guidance.</p>';
+    if (synthesisQuad && options.length) {
+      const engineOptions = arr(obj(m.source).campaign_action_options);
+      let selectedUnits = false;
+      const optionText = option => {
+        if (compact) return compact.option_summaries.find(unit => unit.option_id === option.option_id).text;
+        const engineOption = engineOptions.find(e => e.id === option.option_id && e.intensity === option.intensity && e.action === option.action);
+        // The engine composes a cross-lens option from standalone imperatives.
+        // Do not apply this extraction to arbitrary model prose or qualifiers.
+        const units = engineOption ? option.action.match(/[^.!?]+[.!?](?:\s+|$)/g)?.map(s => s.trim()) : null;
+        if (units?.length > 1 && units.join(' ') === option.action && units.every(s => /^(Review|Test|Clarify|Follow)\s/.test(s))) { selectedUnits = true; return units[0]; }
+        return option.action;
+      };
+      const labels = {limited:'Limited',moderate:'Moderate',structural:'Structural',aggressive:'Extensive'};
+      const list = options.slice(0,3).map(option => '<li><strong>' + esc(labels[option.intensity] || humanize(option.intensity || 'Option')) + '</strong><p>' + esc(optionText(option)) + '</p></li>').join('');
+      const preferred = obj(interpretation.recommended_option), matched = options.find(option => option.option_id === preferred.option_id);
+      const readiness = obj(obj(m.campaignEvidence).recommendedPath);
+      const allowed = readiness.status === 'satisfied' && matched && readiness.recommendedActionId === matched.option_id && typeof preferred.reason === 'string' && preferred.reason.trim();
+      const rationale = allowed ? '<div class="mr-overview-recommendation"><strong>Recommended: ' + esc((labels[matched.intensity] || 'selected') + ' change') + '</strong><p>' + esc(compact?.preferred?.text || preferred.reason) + '</p></div>' : '';
+      actionContent = '<ol class="mr-overview-options mr-overview-options-compact">' + list + '</ol>' + rationale + '<p class="mr-overview-note">' + (selectedUnits ? 'Selected actions from each option. ' : '') + 'Open the full options for prerequisites, risks and measures of success.</p>';
+    }
     const counts = obj(obj(m.campaignEvidence).counts), people = counts.distinctParticipantsAcrossLenses, population = counts.declaredPopulation;
     const recordedPeople = Number.isSafeInteger(people) && people > 0;
     const populationKnown = Number.isSafeInteger(population) && population >= people;
-    const evidenceContent = m.kind === 'run' ? '<p class="mr-overview-summary">One person’s view of the work</p><dl><div><dt>Diagnostic</dt><dd>' + esc(m.toolLabel) + '</dd></div><div><dt>Perspective</dt><dd>' + esc(firstStr(m.participantMode, 'Recorded in the result')) + '</dd></div><div><dt>Scope</dt><dd>' + esc(firstStr(m.scopeLabel, m.processName, 'See recorded context')) + '</dd></div></dl><p class="mr-overview-note">Use the detailed responses and method to understand what this result supports.</p>' : '<div class="mr-overview-score"><strong>' + esc(recordedPeople ? fmtWhole(people) : 'Unavailable') + '</strong>' + (recordedPeople && populationKnown ? '<span>of ' + fmtWhole(population) + '</span>' : '') + '</div><p class="mr-overview-label">Recorded participants' + (recordedPeople && populationKnown ? ' / declared population' : '') + '</p><p>' + esc(firstStr(m.evidenceDescription, m.evidenceLabel, 'Review participation, scope and source checks.')) + '</p><p class="mr-overview-note">People are counted once across lenses. Participation alone does not establish representative coverage.</p>';
+    let evidenceContent = m.kind === 'run' ? '<p class="mr-overview-summary">One person’s view of the work</p><dl><div><dt>Diagnostic</dt><dd>' + esc(m.toolLabel) + '</dd></div><div><dt>Perspective</dt><dd>' + esc(firstStr(m.participantMode, 'Recorded in the result')) + '</dd></div><div><dt>Scope</dt><dd>' + esc(firstStr(m.scopeLabel, m.processName, 'See recorded context')) + '</dd></div></dl><p class="mr-overview-note">Use the detailed responses and method to understand what this result supports.</p>' : '<div class="mr-overview-stat-summary"><div><div class="mr-overview-score"><strong>' + esc(recordedPeople ? fmtWhole(people) : 'Unavailable') + '</strong>' + (recordedPeople && populationKnown ? '<span>of ' + fmtWhole(population) + '</span>' : '') + '</div><p class="mr-overview-label">Recorded participants' + (recordedPeople && populationKnown ? ' / declared population' : '') + '</p></div><div><p class="mr-overview-summary">' + esc(excerpt(firstStr(m.evidenceDescription, m.evidenceLabel, 'Review participation, scope and source checks.'), 150)) + '</p><p class="mr-overview-note">Coverage excerpt. People are counted once across lenses. Participation alone does not establish representative coverage.</p></div></div>';
+    if (synthesisQuad) {
+      const count = value => Number.isSafeInteger(value) && value > 0 ? fmtWhole(value) : 'Unavailable';
+      const raw = obj(m.source), assessment = obj(raw.evidence_assessment), depthLenses = arr(obj(obj(m.campaignEvidence).depth).lenses);
+      const groupSets = depthLenses.map(lens => arr(lens.requiredGroups).filter(group => {
+        const privacy = obj(group.privacy), minimum = privacy.minimumDisplayedGroupSize;
+        return typeof group.label === 'string' && group.label.trim() && privacy.mayDisplayGroupStatistics === true && Number.isSafeInteger(minimum) && minimum > 0 && Number.isSafeInteger(group.participants) && group.participants >= minimum;
+      }).map(group => ({label:group.label,count:group.participants}))).filter(groups => groups.length);
+      const sameGroups = groupSets.length === depthLenses.length && groupSets.length && groupSets.every(groups => JSON.stringify(groups) === JSON.stringify(groupSets[0]));
+      const perspectiveText = sameGroups ? groupSets[0].map(group => group.count + ' ' + group.label.toLowerCase()).join('; ') + (depthLenses.length > 1 ? ' in each diagnostic.' : '.') : 'See role coverage in the full evidence.';
+      const anchored = obj(assessment.scope).status === 'anchored', aligned = obj(assessment.time_window).status === 'aligned';
+      const scope = firstStr(raw.campaign_scope_label, m.scopeLabel);
+      const coverageText = (scope ? scope + '. ' : '') + (anchored && aligned ? 'Included runs share the declared work scope and measurement period.' : 'Review the recorded scope and measurement period before comparison.');
+      const fact = (value,label) => '<div><strong>' + esc(value) + '</strong><span>' + label + '</span></div>';
+      evidenceContent = '<div class="mr-overview-evidence-stats">' + fact(recordedPeople ? fmtWhole(people) + (populationKnown ? ' of ' + fmtWhole(population) : '') : 'Unavailable', 'participants') + fact(count(counts.selectedRuns), 'selected runs') + fact(count(raw.lens_count), raw.lens_count === 1 ? 'diagnostic' : 'diagnostics') + '</div><dl class="mr-overview-evidence-detail"><div><dt>Perspectives</dt><dd>' + esc(perspectiveText) + '</dd></div><div><dt>Coverage</dt><dd>' + esc(coverageText) + '</dd></div><div><dt>Interpretation</dt><dd>Question wording can vary by role. Compare reported experiences, not answers to identical questions. Participation alone does not establish representative coverage.</dd></div></dl>';
+    }
     const valueLink = validated && validated.s.coverage.complete ? 'Explore low, central and high cases' : financial ? 'Review planning inputs' : 'Explore the evidence';
-    return '<div class="mr-screen-only mr-report-overview" aria-label="Report overview"><p class="mr-overview-intro">Your report at a glance. Select a tile to explore the full findings.</p><div class="mr-overview-grid">' + tile('01', 'Overall findings', findingContent, findings, 'Read the findings', 'findings') + tile('02', valueTitle, valueContent, valueTarget, valueLink, 'value') + tile('03', options.length ? 'Change options' : 'Practical next steps', actionContent, actions || findings, 'Read the full guidance', 'actions') + tile('04', 'Evidence behind the result', evidenceContent, evidence, 'Review coverage and method', 'evidence') + '</div></div>';
+    return '<div id="' + sections[0].id + '-overview" class="mr-screen-only mr-report-overview" aria-label="Report overview"><p class="mr-overview-intro">Your report at a glance. Select a ' + (synthesisQuad ? 'tile' : 'row') + ' to explore the full findings.</p><div class="mr-overview-grid">' + tile('Overall findings', findingContent, findings, 'Read the findings', 'findings') + tile(valueTitle, valueContent, valueTarget, valueLink, 'value') + tile(options.length ? 'Change options' : 'Practical next steps', actionContent, actions || findings, 'Read the full guidance', 'actions') + tile(synthesisQuad ? 'Evidence' : 'Evidence behind the result', evidenceContent, evidence, 'Review coverage and method', 'evidence') + '</div></div>';
   }
 
   function buildScreenReportControls(model, sections) {
@@ -3237,7 +3400,7 @@
     const evidence = find(/mr-run-evidence|mr-evidence-status/);
     const actions = obj(m.aiReport).status === "complete" ? (find(/mr-report-options/) || find(/mr-report-nextsteps/) || find(/mr-ai-interpretation/)) : find(/mr-run-action-board|Evidence-proportionate actions|Conclusion and next step/);
     const method = find(/mr-run-method|mr-meta-method|Method and limits/);
-    const shortcuts = [{ section: sections[0], label: "Back to overview", role: "overview" },
+    const shortcuts = [{ section: sections[0] && {id:sections[0].id + '-overview'}, label: "Back to overview", role: "overview" },
       { section: decisionBrief, label: "Decision brief", role: "financial-summary" },
       { section: profile, label: m.product === "depth" ? "Distribution" : m.product === "cross_lens" ? "Compare lenses" : "Dimensions" },
       { section: evidence, label: "Evidence" }, { section: actions, label: interpretationOnly ? "Interpretation" : "Actions", role: "guidance" }, { section: method, label: "Method & limits" }].filter(item => item.section);
@@ -3279,7 +3442,7 @@
       const back = document.createElement('div');
       back.className = 'mr-screen-only mr-section-back';
       const link = document.createElement('a');
-      link.href = '#' + sections[0].id;
+      link.href = '#' + sections[0].id + '-overview';
       link.dataset.reportLinkRole = 'overview';
       link.textContent = '↑ Back to overview';
       back.append(link);
@@ -3334,7 +3497,7 @@
       const label = classes === "mr-cover" ? "Overview" : heading ? heading[1].replace(/<[^>]+>/g, "").replace(/^\d+\.\s*/, "") : "Report section";
       sections.push({ id, classes, label });
       // Preserve aria-live and any other section attributes in every state.
-      return tag.replace(/\s+id="[^"]*"/, '').replace(/^<section\b/, '<section id="' + id + '"') + (sections.length > 1 ? '<div class="mr-screen-only mr-section-back"><a data-report-link-role="overview" href="#' + sections[0].id + '">↑ Back to overview</a></div>' : '');
+      return tag.replace(/\s+id="[^"]*"/, '').replace(/^<section\b/, '<section id="' + id + '"') + (sections.length > 1 ? '<div class="mr-screen-only mr-section-back"><a data-report-link-role="overview" href="#' + sections[0].id + '-overview">↑ Back to overview</a></div>' : '');
     });
     let guidanceIndex=0;
     const guidanceSections=[];
@@ -3347,14 +3510,24 @@
     if(interpretationIndex>=0)sections.splice(interpretationIndex+1,0,...guidanceSections);
     const { nav, nextMove, overview } = buildScreenReportControls(m, sections);
     const boundary = m.kind === "run" && m.footnote ? '<div class="mr-screen-only mr-screen-boundary"><strong>' + esc(firstStr(m.evidenceBand, "Single-run evidence")) + '</strong><p>' + esc(m.footnote) + '</p></div>' : '';
-    // Insert alongside the score; the existing full interpretation boundary,
-    // method, provenance, and next-decision sections remain in the body.
+    // Eligible Synthesis screens open with the four-tile overview immediately
+    // after their heading/disclosure. Detailed metadata and interpretation
+    // limits follow it; the print-only reading order stays unchanged.
     const coverClose = '</div></section>';
     // The first section is the cover. An exact suffix match keeps insertion
     // safe if a future cover template changes its closing structure.
     const coverEnd = body.indexOf('</section>');
     const cover = coverEnd < 0 ? '' : body.slice(0, coverEnd + '</section>'.length);
-    if (cover.endsWith(coverClose)) body = cover.slice(0, -coverClose.length) + overview + boundary + nextMove + coverClose + body.slice(cover.length);
+    if (cover.endsWith(coverClose)) {
+      const overviewFirst = overview && m.kind === 'meta-synthesis' && !m.comparisonOnly && !m.selfRun && ['depth','cross_lens'].includes(m.product);
+      const opening = /<div class="mr-cover-white"><p class="mr-cover-kicker">Executive Report<\/p>(?:<p class="mr-sample-disclosure">Sample report · Example data<\/p>)?/;
+      if (overviewFirst && opening.test(cover)) {
+        const compactCover = cover.slice(0, -coverClose.length)
+          .replace('class="mr-cover"', 'class="mr-cover" data-overview-first="true"')
+          .replace(opening, start => start + overview);
+        body = compactCover + boundary + nextMove + coverClose + body.slice(cover.length);
+      } else body = cover.slice(0, -coverClose.length) + overview + boundary + nextMove + coverClose + body.slice(cover.length);
+    }
     if (overview) body = body.replace('class="mr-cover-white"', 'class="mr-cover-white mr-has-overview"');
     // SVG definition IDs share the same per-mount namespace as the sections.
     body = body.replace(/id="mr-system-gradient"/g, 'id="' + prefix + '-system-gradient"').replace(/url\(#mr-system-gradient\)/g, 'url(#' + prefix + '-system-gradient)');
@@ -3390,23 +3563,28 @@
       .mr-report .mr-has-overview>.mr-cover-score-row,.mr-report .mr-has-overview>.mr-cover-body,.mr-report .mr-has-overview>.mr-cover-kicker,.mr-report .mr-has-overview>.mr-screen-next{display:none}
       .mr-report .mr-has-overview>.mr-cover-meta{margin-top:0;padding-top:0;border-top:0}
       .mr-overview-intro{color:#53676E;font-size:.88rem!important;margin:20px 0 16px!important}
-      .mr-section-back{display:flex;justify-content:flex-end;margin:0 0 12px}.mr-section-back a{display:inline-flex;align-items:center;min-height:44px;padding:8px 0;color:#187783;font-size:.8rem;text-decoration:none}.mr-section-back a:focus-visible{outline:3px solid #C9A227;outline-offset:3px}
-      .mr-overview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:stretch}
-      .mr-report a.mr-overview-tile{display:flex;flex-direction:column;min-width:0;color:#09383E;text-decoration:none;background:#fff;border:1px solid #CCDCDD;border-radius:9px;overflow:hidden;box-shadow:0 3px 10px #09383E08;transition:box-shadow .16s ease,border-color .16s ease}
-      .mr-report a.mr-overview-tile:hover{color:#09383E;border-color:#187783;box-shadow:0 5px 18px #09383E12}
-      .mr-report a.mr-overview-tile:focus-visible{outline:3px solid #C9A227;outline-offset:4px}
-      .mr-overview-title{display:flex;align-items:center;gap:12px;min-height:58px;padding:15px 20px;background:#187783;color:#fff}
-      .mr-overview-title>span:first-child{font-size:.7rem;letter-spacing:.05em;color:#D5EBED}
-      .mr-report .mr-overview-title h2{flex:1;margin:0!important;font-size:1rem!important;line-height:1.35!important;color:#fff!important;letter-spacing:0!important}
-      .mr-overview-content{padding:22px;flex:1;min-width:0;overflow-wrap:anywhere}
+      .mr-section-back{display:flex;justify-content:flex-end;margin:0 0 12px}.mr-section-back a{display:inline-flex;align-items:center;min-height:44px;padding:8px 16px;border:1px solid #E6C765;border-radius:9px;color:#187783;font-size:.8rem;text-decoration:none}.mr-section-back a:hover{background:#F4F7F8}.mr-section-back a:focus-visible{outline:3px solid #187783;outline-offset:3px}
+      .mr-screen-shortcuts>a[data-report-link-role="overview"]{border:1px solid #E6C765;color:#187783}
+      .mr-report-overview{scroll-margin-top:145px}
+      .mr-overview-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:stretch;padding:18px;background:rgba(36,48,52,.78);border-radius:10px}
+      .mr-report a.mr-overview-tile{display:grid;grid-template-columns:minmax(136px,.9fr) minmax(0,3.2fr) minmax(115px,.85fr);min-width:0;color:#09383E;text-decoration:none;background:#fff;border:1px solid transparent;border-radius:7px;overflow:hidden;transition:box-shadow .16s ease,border-color .16s ease}
+      .mr-report a.mr-overview-tile:hover{color:#09383E;border-color:#A9D0D4;box-shadow:0 3px 12px #09383E26}
+      .mr-report a.mr-overview-tile:focus-visible{outline:3px solid #A9D0D4;outline-offset:3px}
+      .mr-overview-title{display:flex;align-items:center;min-height:96px;padding:20px;background:#187783;color:#fff}
+      .mr-report .mr-overview-title h2{margin:0!important;font-size:1.1rem!important;line-height:1.3!important;color:#fff!important;letter-spacing:0!important;overflow-wrap:anywhere}
+      .mr-overview-content{padding:18px 22px;min-width:0;overflow-wrap:anywhere}
       .mr-report .mr-overview-content p{font-size:.88rem;line-height:1.55;margin:12px 0}
+      .mr-report .mr-overview-content>:first-child{margin-top:0!important}.mr-report .mr-overview-content>:last-child{margin-bottom:0!important}
+      .mr-overview-stat-summary{display:grid;grid-template-columns:minmax(80px,.85fr) minmax(0,2.8fr);gap:18px;align-items:start}
+      .mr-report .mr-overview-stat-summary p:first-child{margin-top:0}.mr-report .mr-overview-stat-summary p:last-child{margin-bottom:0}
       .mr-overview-score{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-      .mr-overview-score>strong{font-size:2.65rem;font-weight:600;line-height:1.12;letter-spacing:-.025em}
+      .mr-overview-score>strong{font-size:2rem;font-weight:600;line-height:1.12;letter-spacing:-.025em;color:#09383E}
       .mr-overview-score>span{color:#53676E;font-size:1rem}
-      .mr-report .mr-overview-label{color:#53676E;font-size:.75rem!important;margin:6px 0 16px!important}
-      .mr-report .mr-overview-summary{font-size:1rem!important;line-height:1.55!important}
-      .mr-report .mr-overview-note{font-size:.75rem!important;line-height:1.5!important;color:#53676E}
-      .mr-overview-link{border-top:1px solid #E3EAEA;padding:14px 22px;color:#187783;font-size:.82rem;font-weight:600;min-height:48px;display:flex;justify-content:space-between;gap:14px;align-items:center}
+      .mr-report .mr-overview-label{color:#53676E;font-size:.75rem!important;margin:6px 0 10px!important}
+      .mr-report .mr-overview-summary{font-size:.9rem!important;line-height:1.5!important}
+      .mr-report .mr-overview-note{font-size:.72rem!important;line-height:1.45!important;color:#53676E;margin:8px 0 0!important}
+      .mr-overview-link{padding:20px 18px 20px 0;color:#187783;font-size:.82rem;font-weight:600;min-height:48px;display:flex;justify-content:flex-end;gap:10px;align-items:center;overflow-wrap:anywhere}
+      .mr-overview-link>span{flex-shrink:0}
       .mr-overview-options{margin:0;padding:0;list-style:none}
       .mr-overview-options>li+li{border-top:1px solid #E3EAEA;margin-top:14px;padding-top:14px}
       .mr-overview-options strong{font-size:.82rem;color:#187783}
@@ -3414,14 +3592,61 @@
       .mr-overview-content dl{margin:20px 0 0;font-size:.85rem}
       .mr-overview-content dl>div{display:grid;grid-template-columns:minmax(80px,1fr) minmax(0,2fr);gap:10px;padding:9px 0;border-top:1px solid #E3EAEA}
       .mr-overview-content dt{color:#53676E}.mr-overview-content dd{margin:0}
-      .mr-overview-flow{border-top:1px solid #E3EAEA;padding-top:12px;margin-top:12px}
-      .mr-overview-flow-heading{display:flex;justify-content:space-between;gap:14px;font-size:.8rem;align-items:baseline;flex-wrap:wrap}
-      .mr-overview-flow-heading strong{font-size:1.1rem;color:#09383E}
-      .mr-overview-flow svg{display:block;width:100%;height:76px;margin:7px 0}
-      .mr-overview-flow-caption{display:flex;justify-content:space-between;gap:18px;font-size:.68rem;color:#53676E}
-      .mr-overview-flow-caption>span{max-width:48%}.mr-overview-flow-caption>span+span{text-align:right}
-      @media(max-width:700px){.mr-overview-grid{grid-template-columns:1fr;gap:16px}.mr-overview-content{padding:18px}.mr-overview-title{padding:14px 18px}.mr-overview-link{padding:14px 18px}.mr-overview-score>strong{font-size:2.3rem}}
+      .mr-overview-benefits{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0 0 10px}
+      .mr-overview-benefit{display:flex;flex-direction:column;gap:6px;min-width:0}
+      .mr-overview-benefit+.mr-overview-benefit{border-left:1px solid #DCE5E8;padding-left:14px}
+      .mr-overview-benefit>strong{color:#09383E;font-size:clamp(1.1rem,1.9vw,1.55rem);line-height:1.2;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+      .mr-overview-benefit>span{color:#53676E;font-size:.76rem;line-height:1.4}
+      @media(max-width:960px){.mr-report a.mr-overview-tile{grid-template-columns:140px minmax(0,1fr)}.mr-overview-title{grid-row:1 / 3}.mr-overview-link{grid-column:2;padding:0 24px 18px;justify-content:flex-start}.mr-overview-content{padding:20px 24px 14px}}
+      @media(max-width:700px){.mr-overview-grid{padding:12px;gap:12px}.mr-report a.mr-overview-tile{grid-template-columns:minmax(0,1fr)}.mr-overview-title{grid-row:auto;min-height:0;padding:16px 18px}.mr-overview-content{padding:18px}.mr-overview-link{grid-column:1;padding:0 18px 18px}.mr-overview-stat-summary{grid-template-columns:minmax(0,1fr);gap:12px}.mr-overview-score>strong{font-size:1.85rem}.mr-overview-benefits{gap:10px}.mr-overview-benefit+.mr-overview-benefit{padding-left:10px}}
+      @media(max-width:480px){.mr-overview-benefits{grid-template-columns:minmax(0,1fr);gap:12px}.mr-overview-benefit+.mr-overview-benefit{border-left:0;border-top:1px solid #DCE5E8;padding:12px 0 0}.mr-overview-benefit>strong{font-size:1.55rem}}
       @media(prefers-reduced-motion:reduce){.mr-report a.mr-overview-tile{transition:none}}
+      .mr-report .mr-cover[data-overview-first="true"]{border:0;border-radius:0;background:transparent;overflow:visible}
+      .mr-report .mr-cover[data-overview-first="true"] .mr-cover-dark{padding:0 0 14px;background:transparent}
+      .mr-report .mr-cover[data-overview-first="true"] .mr-cover-mark,.mr-report .mr-cover[data-overview-first="true"] .mr-cover-stripe{display:none}
+      .mr-report .mr-cover[data-overview-first="true"] .mr-cover-title{color:#09383E!important;font-size:clamp(1.6rem,2.7vw,2.2rem)!important}
+      .mr-report .mr-cover[data-overview-first="true"] .mr-cover-sub{color:#53676E!important;margin-top:8px!important;line-height:1.4!important}
+      .mr-report .mr-cover[data-overview-first="true"] .mr-cover-white{padding:0;background:transparent}
+      .mr-report .mr-cover[data-overview-first="true"] .mr-sample-disclosure{margin:0 0 8px!important}
+      .mr-report .mr-cover[data-overview-first="true"] .mr-overview-intro{margin:0 0 12px!important}
+      .mr-report .mr-cover[data-overview-first="true"] .mr-cover-meta{margin-top:18px;padding-top:14px;border-top:1px solid #DCE5E8}
+      .mr-report .mr-page:has(>.mr-cover[data-overview-first="true"]){max-width:1280px}
+      .mr-cover[data-overview-first="true"] .mr-overview-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:auto;padding:22px;gap:20px;background:rgba(36,48,52,.9)}
+      .mr-report .mr-cover[data-overview-first="true"] a.mr-overview-tile{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr auto}
+      .mr-cover[data-overview-first="true"] .mr-overview-title{grid-row:auto;min-height:0;padding:14px 22px;background:#09383E}
+      .mr-cover[data-overview-first="true"] .mr-overview-content{padding:18px 22px 12px}
+      .mr-cover[data-overview-first="true"] .mr-overview-link{grid-column:1;justify-content:flex-start;padding:12px 22px 18px}
+      .mr-cover[data-overview-first="true"] .mr-overview-stat-summary{grid-template-columns:minmax(80px,.75fr) minmax(0,2.5fr);gap:16px}
+      .mr-overview-scoreline{display:flex;align-items:center;gap:16px;margin-bottom:12px}.mr-overview-scoreline>.mr-overview-score{flex-shrink:0;white-space:nowrap}
+      .mr-report .mr-overview-scoreline>p{margin:0;border-left:1px solid #D9E4E5;padding-left:16px;color:#53676E;font-size:.85rem}
+      .mr-report .mr-overview-finding{font-weight:600;color:#09383E}
+      .mr-overview-findings{margin:12px 0 0;padding-left:18px;font-size:.85rem;line-height:1.45;color:#53676E}
+      .mr-overview-findings>li+li{margin-top:6px}.mr-overview-findings strong{font-weight:600;color:#09383E}
+      .mr-overview-options-compact>li{display:grid;grid-template-columns:84px minmax(0,1fr);gap:10px;align-items:start}
+      .mr-overview-options-compact>li+li{padding-top:8px;margin-top:8px}.mr-report .mr-overview-options-compact p{margin:0;font-size:.85rem;line-height:1.4}
+      .mr-overview-recommendation{margin-top:14px;padding:12px 14px;border-radius:5px;background:#EDF5F5;color:#09383E;font-size:.85rem}
+      .mr-report .mr-overview-recommendation>p{margin:5px 0 0;font-size:.82rem;line-height:1.4}
+      .mr-overview-evidence-stats{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:12px;margin:0 0 12px}
+      .mr-overview-evidence-stats>div{display:flex;flex-direction:column;min-width:0}.mr-overview-evidence-stats>div+div{border-left:1px solid #D9E4E5;padding-left:12px}
+      .mr-overview-evidence-stats strong{font-size:1.65rem;line-height:1.15;font-weight:600;color:#09383E;letter-spacing:-.02em}.mr-overview-evidence-stats span{font-size:.8rem;line-height:1.3;color:#53676E;margin-top:4px}
+      .mr-overview-content dl.mr-overview-evidence-detail{margin:12px 0 0;font-size:.83rem;line-height:1.45}.mr-overview-content dl.mr-overview-evidence-detail>div{grid-template-columns:98px minmax(0,1fr);gap:10px;padding:8px 0}.mr-overview-evidence-detail dt{font-weight:600;color:#09383E}
+      @media(max-width:960px){.mr-overview-options-compact>li{grid-template-columns:72px minmax(0,1fr);gap:8px}.mr-overview-evidence-stats{gap:8px}.mr-overview-evidence-stats strong{font-size:1.35rem}.mr-overview-evidence-stats>div+div{padding-left:8px}.mr-overview-content dl.mr-overview-evidence-detail>div{grid-template-columns:minmax(0,1fr);gap:3px}}
+      .mr-cover[data-overview-first="true"] .mr-overview-benefits{gap:10px}
+      .mr-cover[data-overview-first="true"] .mr-overview-benefit+.mr-overview-benefit{padding-left:10px}
+      .mr-cover[data-overview-first="true"] .mr-overview-benefit>strong{font-size:clamp(1rem,1.7vw,1.55rem);overflow-wrap:normal;word-break:normal}
+      .mr-overview-sankeys{display:grid;gap:8px;margin:2px 0 8px}
+      .mr-overview-sankey-flow{display:grid;grid-template-columns:minmax(0,20fr) minmax(36px,45fr) minmax(0,35fr);align-items:center;gap:6px}
+      .mr-overview-sankey-flow>svg{display:block;width:100%;height:var(--preview-height);overflow:visible}
+      .mr-overview-sankey-source{display:flex;flex-direction:column;gap:2px;min-width:0;color:#53676E;font-size:12px;line-height:1.2}
+      .mr-overview-sankey-source>b{color:#09383E;font-size:13px;font-weight:600}
+      .mr-overview-sankey-source>strong{color:#09383E;font-size:14px;font-weight:600;white-space:nowrap;overflow-wrap:normal}
+      .mr-overview-sankey-outcomes{display:flex;flex-direction:column;gap:2px;min-width:0}
+      .mr-cover[data-overview-first="true"] .mr-overview-sankeys .mr-overview-sankey-outcome{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:6px;border:0;padding:0;min-width:0;line-height:1.15}
+      .mr-cover[data-overview-first="true"] .mr-overview-sankeys .mr-overview-sankey-outcome>span{font-size:12px;line-height:1.15;color:#53676E}
+      .mr-cover[data-overview-first="true"] .mr-overview-sankeys .mr-overview-sankey-outcome>strong{font-size:13px;line-height:1.15;font-weight:600;color:#09383E;overflow-wrap:normal;white-space:nowrap;letter-spacing:0}
+      @media(max-width:1100px){.mr-overview-sankey-flow{grid-template-columns:minmax(80px,22fr) minmax(30px,40fr) minmax(84px,38fr);gap:5px}.mr-cover[data-overview-first="true"] .mr-overview-sankeys .mr-overview-sankey-outcome{flex-direction:column;align-items:flex-start;justify-content:center;gap:1px}.mr-overview-sankey-source>strong{font-size:13px}}
+      @media(max-width:960px){.mr-cover[data-overview-first="true"] .mr-overview-grid{padding:16px;gap:16px}.mr-cover[data-overview-first="true"] .mr-overview-title{padding:14px 16px}.mr-cover[data-overview-first="true"] .mr-overview-content{padding:16px 16px 10px}.mr-cover[data-overview-first="true"] .mr-overview-link{padding:10px 16px 16px}.mr-cover[data-overview-first="true"] .mr-overview-stat-summary{grid-template-columns:minmax(0,1fr);gap:10px}}
+      @media(max-width:700px){.mr-cover[data-overview-first="true"] .mr-overview-grid{grid-template-columns:minmax(0,1fr);grid-auto-rows:auto;padding:12px;gap:12px}.mr-cover[data-overview-first="true"] .mr-overview-benefit>strong{font-size:1.5rem}}
       .mr-report .mr-cover-kicker{margin-bottom:12px!important;font-size:.61rem!important;letter-spacing:.12em}
       .mr-report .mr-cover-score:not(.mr-cover-score-status){font-size:3.6rem;line-height:.95;letter-spacing:-.055em;color:#07343A}
       .mr-report .mr-cover-score-label{color:#087F8C;letter-spacing:.08em;font-size:.7rem}
@@ -3447,8 +3672,8 @@
       .mr-report .mr-run-metrics,.mr-report .mr-evidence-summary{border-color:#DCE5E8;background:#F4F7F8;border-radius:9px}
       .mr-report .mr-run-metric{padding:16px}
       /* Category accents share the brand gold; warning and score-band colors are retained. */
-      .mr-report .mr-run-metric[data-tone="amber"],.mr-report .mr-decision-metric:nth-child(2),.mr-report .mr-action-step[data-tier="behavioral"]{border-top-color:#C9A227}
-      .mr-report .mr-action[data-tier="behavioral"],.mr-report .mr-indicator-tile[data-lens="sc"]{border-left-color:#C9A227}
+      .mr-report .mr-run-metric[data-tone="amber"],.mr-report .mr-decision-metric:nth-child(2),.mr-report .mr-action-step[data-tier="behavioral"]{border-top-color:#E6C765}
+      .mr-report .mr-action[data-tier="behavioral"],.mr-report .mr-indicator-tile[data-lens="sc"]{border-left-color:#E6C765}
       .mr-report .mr-action[data-tier="behavioral"] .mr-action-num{color:#7A6015}
       .mr-report .mr-run-metric-value{font-size:1.25rem;line-height:1.2}
       .mr-report .mr-lens-label{letter-spacing:.08em;color:#526D75}

@@ -1,0 +1,58 @@
+{
+  "version": "homepage-preview-anchor-addendum-20260924.1",
+  "scope": "Desktop-only top alignment and exact source-reader compatibility; not a new artifact or PDF approval.",
+  "prior_commit": "0f0f9f1d1b3971493291e5a7aa092f50ecc3e9ef",
+  "evidence": {
+    "ci_run": 36083921632,
+    "ci_job": 107911531216,
+    "ci_artifact": 10842449166,
+    "actual_local_width": 1121,
+    "gather_preview_top": 130.8359375,
+    "evaluate_preview_top": 108,
+    "cause": "Preview inherited grid center alignment while its height changed."
+  },
+  "files": {
+    "homepage-workspace-demo.css": {
+      "before_sha256": "6d8087bade1838f346192aedc6c01fb7ad77b5eb0cf19a353a214822f774c349",
+      "after_sha256": "07c800a32d5f8069185dcf7568b0b60147e39ac232ed66f5f78ae93fbcc9457c",
+      "replacements": [
+        [
+          1650,
+          1723,
+          "  body.homepage-enterprise .home-workspace-preview { align-self:start; }\n",
+          ""
+        ]
+      ]
+    },
+    "scripts/public_sample_fixture.mjs": {
+      "before_sha256": "977993848c6ef1695c18677844f10a915eadd167833f83d8f5dfdb0646f8136e",
+      "after_sha256": "c9d0dba9bb7704acd578f116b08d6f9286518e9f8530d76c34fd21f052a3cc4c",
+      "replacements": [
+        [
+          439,
+          545,
+          "import {sourceBeforeHomepagePreviewAnchor20260924} from './homepage_preview_anchor_20260924_inverse.mjs';\n",
+          ""
+        ],
+        [
+          38017,
+          38349,
+          "      // The separately reviewed desktop-only anchor addendum reconstructs the\n      // original CSS and this reader exactly; publication pins remain intact.\n      assert.equal(sha(sourceBeforeHomepagePreviewAnchor20260924(filename,fs.readFileSync(path.join(root,filename)))),digest,'reviewed comparison source changed: '+filename);",
+          "      assert.equal(sha(fs.readFileSync(path.join(root,filename))),digest,'reviewed comparison source changed: '+filename);"
+        ]
+      ]
+    }
+  },
+  "unchanged_files": {
+    "sample-data/production-diagnostic-samples.json": "07aadc8baa10c5dc3ef00f6e96fed2c2955ab7ea14f2a487eea8b3283ab5b248",
+    "sample-data/production-sample-release.json": "76eed3830d9ab3a6952b92d015c4f1ed209fe79469eabd42d37245bec358b9c1",
+    "sample-data/reports/operational_systems.pdf": "2f2bfd4acb2d8d15f7c3019012a7f5a1edbfec0f9a661992a140be1f24330212",
+    "sample-data/reports/decision_velocity.pdf": "5ca17936f73c489e63f8756404226dbea58890d8016e850e04bfc8a6afb4e4ee",
+    "sample-data/reports/structural_clarity.pdf": "59bfa791aaec8647491bda7a368f651cd83d66de52beb09495a21903d0b8f6ea",
+    "sample-data/reports/institutional_performance.pdf": "b42be6f8b916cb3388f354652b22c2432f4ea303f18a0772eaab3cc0567c5f0b",
+    "sample-data/reports/depth_synthesis.pdf": "258edeca010c8e7158fedd3803f73f610c6275812019723b9dd0eb8f4f91108e",
+    "sample-data/reports/cross_lens_synthesis.pdf": "e435102979f32e990fe99f3f2f48c4f324693b19206b20dbcd18d3810947e300",
+    "scripts/fixtures/public-copy-clarity-20260924.json": "4d874cc80e9180341deadc0a976e660a87c8fcf34606fc67003605bffe5bfbdb",
+    "scripts/fixtures/homepage-compact-journey-20260924.json": "39e83ffb8abf274cf986711618f24a984c86e0b4ecef114e0c44c3386a757a15"
+  }
+}

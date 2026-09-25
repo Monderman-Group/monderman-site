@@ -6,11 +6,13 @@ import {createHash} from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {fileURLToPath} from 'node:url';
+import {fileURLToPath,pathToFileURL} from 'node:url';
 import {spawnSync} from 'node:child_process';
 
 const args=process.argv.slice(2);
-assert.ok(args.includes('--check'),'Explicit read-only --check required');
+const setupOnly=args.includes('--check-setup');
+assert.ok(args.includes('--check')||setupOnly,'Explicit read-only --check or --check-setup required');
+assert.ok(!(args.includes('--check')&&setupOnly),'Setup-only is not an actual publication sensitivity run');
 const rootAt=args.indexOf('--root');
 const root=path.resolve(rootAt>=0?args[rootAt+1]:fileURLToPath(new URL('../',import.meta.url)));
 const artifactName='sample-data/production-diagnostic-samples.json';
@@ -24,7 +26,16 @@ const sourceNames=[
 // Isolated copies must include those exact bytes for the positive control.
 const pdfNames=['operational_systems','decision_velocity','structural_clarity','institutional_performance','depth_synthesis','cross_lens_synthesis'].map(key=>'sample-data/reports/'+key+'.pdf');
 const overviewSources=['index.html','homepage-workspace-demo.css','sample-report-tile.css','pilot-waitlist.css','canonical-site-shell.css','public-product-design.css'];
-const names=[artifactName,manifestName,adapterName,...sourceNames,...overviewSources,...pdfNames];
+const adapterDependencies=['scripts/public_copy_clarity_inverse.mjs','scripts/promotional_gold_20260924_inverse.mjs','scripts/report_library_20260924_inverse.mjs',
+  'scripts/public_sample_projection_20260924_inverse.mjs','scripts/public_language_pass_20260924_inverse.mjs','scripts/trust_security_center_20260924_inverse.mjs',
+  'scripts/homepage_compact_journey_20260924_inverse.mjs','scripts/public_sample_preview_binding_20260924_inverse.mjs',
+  'scripts/homepage_preview_anchor_20260924_inverse.mjs','scripts/fixtures/homepage-preview-anchor-20260924.json',
+  'scripts/fixtures/public-copy-clarity-20260924.json','scripts/fixtures/report-library-presentation-20260924.json',
+  'scripts/fixtures/public-language-pass-20260924.json','scripts/fixtures/trust-security-center-20260924.json','scripts/fixtures/homepage-compact-journey-20260924.json'];
+const currentPublication=JSON.parse(fs.readFileSync(path.join(root,manifestName))).response_comparison_publication_review;
+const currentSourceNames=Object.keys(currentPublication?.source_files||{});
+for(const name of currentSourceNames)assert.ok(name&&!path.isAbsolute(name)&&!name.split(/[\\/]/).includes('..'),'unsafe reviewed source path');
+const names=[...new Set([artifactName,manifestName,adapterName,...adapterDependencies,...sourceNames,...overviewSources,...currentSourceNames,...pdfNames])];
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const baselineBytes=new Map(names.map(name=>[name,fs.readFileSync(path.join(root,name))]));
 const baselineArtifact=JSON.parse(baselineBytes.get(artifactName));
@@ -33,6 +44,11 @@ const pins=Object.fromEntries([...baselineBytes].map(([name,bytes])=>[name,sha(b
 const keys=['operational_systems','decision_velocity','structural_clarity','institutional_performance','depth_synthesis','cross_lens_synthesis'];
 assert.deepEqual(Object.keys(baselineArtifact.outputs||{}).sort(),[...keys].sort());
 const result=entry=>entry.kind==='diagnostic'&&entry.source?.result?.tool_type?entry.source.result:entry.source;
+const mutateScore=entry=>{
+  const r=result(entry),field=entry.kind==='response_comparison'?'aggregate_score':'score';
+  assert.equal(typeof r[field],'number','Expected the actual product score field');
+  r[field]=r[field]===100?99:r[field]+1;
+};
 const changedHash=value=>{
   assert.match(value,/^[a-f0-9]{64}$/);
   return (value[0]==='0'?'1':'0')+value.slice(1);
@@ -91,7 +107,7 @@ function manifestMutation(label,expected,mutate) {
 const cases=[];
 for(const key of keys) {
   if(!key.endsWith('_synthesis'))cases.push(artifactMutation(key+'-score-drift',a=>{
-    const r=result(a.outputs[key]);assert.equal(typeof r.score,'number');r.score=r.score===100?99:r.score+1;
+    mutateScore(a.outputs[key]);
   }));
   cases.push(artifactMutation(key+'-AI-removed',a=>{assert.ok(result(a.outputs[key]).ai_report);delete result(a.outputs[key]).ai_report;}));
   cases.push(artifactMutation(key+'-AI-stale-time',a=>{
@@ -103,7 +119,7 @@ for(const key of keys) {
   cases.push(artifactMutation(key+'-source-hash-drift',a=>{
     const p=a.outputs[key].provenance;p.public_source_sha256=changedHash(p.public_source_sha256);
   }));
-  cases.push(manifestMutation(key+'-approved-output-pin-drift',key+' provenance differs from the reviewed receipt',m=>{
+  cases.push(manifestMutation(key+'-approved-output-pin-drift',currentPublication?'Response-comparison publication: '+key+' approved_output_sha256 differs':key+' provenance differs from the reviewed receipt',m=>{
     const p=m.outputs[key].provenance;p.approved_output_sha256=changedHash(p.approved_output_sha256);
   }));
 }
@@ -187,11 +203,29 @@ for(const [label,mutate] of [
   ['changed-reviewer',m=>{m.report_overview_presentation_review.reviewed_by='Jason';}],
 ])cases.push(manifestMutation('overview-review-'+label,null,mutate));
 for(const name of overviewSources)cases.push({
-  label:'overview-source-drift-'+path.basename(name),layer:'source-byte-binding',expected:'reviewed overview source changed: '+name,
+  label:'overview-source-drift-'+path.basename(name),layer:'source-byte-binding',expected:currentPublication&&name==='homepage-workspace-demo.css'
+    ?name+': only the exact reviewed homepage-anchor source can be inverted'
+    :'reviewed '+(currentPublication?'comparison':'overview')+' source changed: '+name,
   mutate(directory){fs.appendFileSync(path.join(directory,name),'\n/* sensitivity mutation only */\n');},
 });
 assert.equal(cases.length,91,'Historical mutations plus ten overview review mutations and six additional presentation sources');
 assert.equal(new Set(cases.map(item=>item.label)).size,cases.length);
+if(setupOnly){
+  // Import the actual copied module graph, but do not call the release validator
+  // or pretend the currently unapproved public baseline has been accepted.
+  const directory=prepare('import-setup'),child=spawnSync(process.execPath,['--input-type=module','--eval',
+    'await import('+JSON.stringify(pathToFileURL(path.join(directory,adapterName)).href)+')'],
+    {cwd:directory,env:{PATH:process.env.PATH||'',TZ:'UTC',LANG:'C.UTF-8'},encoding:'utf8',timeout:20000,maxBuffer:1024*1024});
+  assert.ifError(child.error);assert.equal(child.status,0,'Copied validator imports must resolve: '+child.stderr);
+  for(const entry of [{kind:'diagnostic',source:{result:{tool_type:'MOCK',score:50}}},{kind:'response_comparison',source:{aggregate_score:100}}]){
+    const old=JSON.stringify(entry);mutateScore(entry);assert.notEqual(JSON.stringify(entry),old);
+    assert.equal(result(entry)[entry.kind==='response_comparison'?'aggregate_score':'score'],entry.kind==='response_comparison'?99:51);
+  }
+  for(const [name,pin]of Object.entries(pins))assert.equal(sha(fs.readFileSync(path.join(root,name))),pin,'source changed during setup check: '+name);
+  console.log(JSON.stringify({setupPassed:true,publicationValidated:false,sensitivityRun:false,mutationInventory:cases.length,
+    copiedDependencies:adapterDependencies.length,sourceFilesUnchanged:true,temporaryRoot:output,providerCalls:0,networkRequests:0}));
+  process.exit(0);
+}
 try {
   const baseline=run(prepare('baseline'));
   receipt.baseline={exitStatus:baseline.status};

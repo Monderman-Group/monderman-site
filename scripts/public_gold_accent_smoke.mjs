@@ -17,7 +17,7 @@ const heroSelector = ':is(.hero .hero-actions, .ps-hero .ps-hero-actions) > a.bt
 const heroPages = ['index.html', 'platform-services.html', 'why-monderman.html', 'pilot.html', 'decision-velocity-article.html', 'structural-clarity-article.html', 'operational-systems-article.html', 'institutional-performance-article.html'];
 const secondaryPages = ['plan-signal.html', 'plan-pattern.html', 'diagnostics.html', 'from-tokens-to-outcomes.html'];
 const pages = [...heroPages, ...secondaryPages, 'Monderman_Platform_Brief.html'];
-const gold = 'rgb(201, 162, 39)', lightGold = 'rgb(230, 199, 101)', goldInk = 'rgb(122, 96, 21)', deep = 'rgb(4, 24, 27)', teal = 'rgb(12, 110, 120)';
+const gold = 'rgb(230, 199, 101)', lightGold = 'rgb(230, 199, 101)', goldInk = 'rgb(122, 96, 21)', deep = 'rgb(4, 24, 27)', teal = 'rgb(12, 110, 120)';
 const seaGlass = 'rgb(169, 208, 212)', seaGlassHover = 'rgb(196, 225, 227)';
 const rows = [], errors = [];
 let checks = 0, screenshots = 0;
@@ -108,7 +108,7 @@ for (const [engine, type] of [['chromium', chromium], ['webkit', webkit]]) {
             const box = el.getBoundingClientRect(), style = getComputedStyle(el);
             return box.width > 0 && box.height > 0 && box.top < innerHeight && box.bottom > 0
               && style.visibility !== 'hidden' && Number(style.opacity) > 0
-              && ['rgb(169, 208, 212)', 'rgb(196, 225, 227)', 'rgb(201, 162, 39)', 'rgb(12, 110, 120)'].includes(style.backgroundColor);
+              && ['rgb(169, 208, 212)', 'rgb(196, 225, 227)', 'rgb(230, 199, 101)', 'rgb(12, 110, 120)'].includes(style.backgroundColor);
           }).length);
           equal(filledHeaderActions + (outlined ? 0 : 1), 1, label + ': header and hero retain exactly one filled invitation');
           ok(minimumContrast(initial) >= 4.5, label + ': invitation text contrast across backing colors');

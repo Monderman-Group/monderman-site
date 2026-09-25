@@ -1,9 +1,32 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { chromium, webkit } from 'playwright';
+import {sourceBeforeTrustSecurityCenter20260924} from './trust_security_center_20260924_inverse.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
+const trustSectionIds = ['access-controls', 'data-processing', 'ai-processing', 'chat',
+  'privacy-and-retention', 'providers', 'administrative-device-protection', 'documents-and-contact'];
+const trustSource = fs.readFileSync(path.join(root, 'security.html'), 'utf8');
+const sectionLabels = html => [...html.matchAll(/<section\b[^>]*\bclass="section"[^>]*>/g)]
+  .map(match => match[0].match(/aria-labelledby="([^"]+)"/)?.[1]);
+// Retain the exact historical edition (also eight sections). The previous
+// shared >8 assertion did not match that HTML. The reviewed Trust Center now
+// has eight named sections; privacy pages retain their original >8 check.
+const historicalTrustSource = sourceBeforeTrustSecurityCenter20260924('security.html', trustSource);
+assert.equal(sectionLabels(historicalTrustSource).length, 8, 'Historical security section coverage remains protected');
+const assertTrustSections = ids => assert.deepEqual(ids, trustSectionIds, 'Exact ordered current Trust Center sections');
+assertTrustSections(sectionLabels(trustSource));
+const invalidTrustSections = [trustSectionIds.slice(1), [...trustSectionIds, 'unreviewed-topic'],
+  [trustSectionIds[1], ...trustSectionIds.slice(1)], [...trustSectionIds].reverse()];
+for (const invalid of invalidTrustSections) assert.throws(() => assertTrustSections(invalid));
+assert.throws(() => sourceBeforeTrustSecurityCenter20260924('security.html', trustSource.replace('id="providers"', 'id="missing-providers"')),
+  'The exact Trust inverse rejects unrelated source changes');
+if (process.argv.includes('--deterministic-only')) {
+  console.log(JSON.stringify({status:'PASS',currentTrustSections:trustSectionIds,historicalSectionCount:sectionLabels(historicalTrustSource).length,negativeCases:5,browserCoverage:'NOT_RUN'}));
+  process.exit(0);
+}
+
+const { chromium, webkit } = await import('playwright');
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
 const origin = new URL(base).origin;
 const privacyPages = fs.readdirSync(root).filter(file => /^privacy(?:-.*)?\.html$/.test(file));
@@ -60,12 +83,19 @@ for (const [engineName, engine] of [['chromium', chromium], ['webkit', webkit]])
           width: innerWidth,
           heroX: document.querySelector('.hero h1').getBoundingClientRect().left,
           sections: [...document.querySelectorAll(':is(body, main) > .section')].map(el => ({
+            id: el.getAttribute('aria-labelledby'),
+            headingId: el.querySelector('h2')?.id,
             left: el.getBoundingClientRect().left,
             right: el.getBoundingClientRect().right,
             h2X: el.querySelector('h2')?.getBoundingClientRect().left,
           })),
         }));
-        check(geometry.sections.length > 8, `${at(file)}: legal section coverage disappeared`);
+        if (file === 'security.html') {
+          assertTrustSections(geometry.sections.map(section => section.id));
+          check(geometry.sections.every(section => section.headingId === section.id), `${at(file)}: Trust section label does not name its heading`);
+        } else {
+          check(geometry.sections.length > 8, `${at(file)}: legal section coverage disappeared`);
+        }
         for (const [index, section] of geometry.sections.entries()) {
           check(Math.abs(section.left) <= 1 && Math.abs(section.right - geometry.width) <= 1,
             `${at(file)}: section ${index + 1} is not full width (${section.left}..${section.right})`);

@@ -16,7 +16,7 @@ for (const token of [
   "history.replaceState",
   "Open your Workspace",
   "Manage billing",
-  "First operating sequence",
+  "Getting started",
   "Your invoice is delivered two ways",
   "billing contact entered at Checkout"
 ]) {

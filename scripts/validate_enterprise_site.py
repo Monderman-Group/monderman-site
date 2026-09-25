@@ -171,7 +171,8 @@ def main() -> int:
         "Solutions",
         "Research Library",
         "Pricing",
-        "Trust and Security",
+        "Trust &amp; Security Center",
+        'href="security.html#providers"',
         "monderman-lockup__period",
     ):
         if token not in canonical_shell:
@@ -183,7 +184,7 @@ def main() -> int:
         "Request an invitation",
         "Activate your invitation",
         "Four diagnostics for how your organization works.",
-        "Measure once to see the condition. Return to learn whether it changed.",
+        "Compare results on the same basis.",
     ):
         if token not in index:
             errors.append(f"index.html: enterprise narrative token {token!r} missing")

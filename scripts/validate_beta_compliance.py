@@ -24,6 +24,66 @@ def assert_no_drafting_markers(text, label):
         if match:
             raise AssertionError(f"{label} contains unresolved drafting marker: {match.group(0)}")
 
+PROVIDER_REFERENCES = {
+    "Supabase": "https://supabase.com/security",
+    "Render": "https://render.com/docs/ddos-protection",
+    "Anthropic": "https://trust.anthropic.com/",
+    "Resend": "https://resend.com/legal/subprocessors",
+    "Stripe": "https://stripe.com/legal/dpa",
+    "Google": "https://safety.google/safety/",
+    "Cloudflare": "https://www.cloudflare.com/trust-hub/",
+}
+
+def assert_provider_inventory(center, legacy):
+    # The current inventory is canonical; historical legal links still resolve
+    # through the compatibility page. This changes no legal or approval pins.
+    sections = re.findall(r'<section\b[^>]*aria-labelledby="providers"[^>]*>[\s\S]*?</section>', center)
+    if len(sections) != 1:
+        raise AssertionError("canonical provider inventory must have one providers section")
+    inventory = sections[0]
+    require(inventory, [
+        '<h2 id="providers">', "Public-site and browser infrastructure",
+        "This inventory describes current providers, not a separate contract.",
+        "they do not certify Monderman.", "applicable signed organizational data-processing terms",
+    ], "canonical provider inventory")
+    cards = re.findall(r'<article class="trust-provider">[\s\S]*?</article>', inventory)
+    if len(cards) != len(PROVIDER_REFERENCES):
+        raise AssertionError("canonical provider inventory must retain all seven provider cards")
+    for name, url in PROVIDER_REFERENCES.items():
+        matching = [card for card in cards if f'<a href="{url}">{name}</a>' in card]
+        if len(matching) != 1:
+            raise AssertionError(f"canonical provider inventory missing or duplicating provider: {name}")
+        require(matching[0], ['<dt>Purpose</dt>', '<dt>Information received</dt>'], f"provider {name}")
+    require(legacy, ['<link rel="canonical" href="https://www.monderman.com/security.html">'], "legacy provider canonical destination")
+    for anchor in ["providers", "ai-processing", "provider-security"]:
+        if center.count(f'id="{anchor}"') != 1 or legacy.count(f'id="{anchor}"') != 1:
+            raise AssertionError(f"provider anchor must resolve exactly once on each page: {anchor}")
+        legacy_sections = re.findall(r'<section\b[^>]*aria-labelledby="' + anchor + r'"[^>]*>[\s\S]*?</section>', legacy)
+        if len(legacy_sections) != 1 or legacy_sections[0].count(f'href="security.html#{anchor}"') != 1:
+            raise AssertionError(f"legacy provider anchor must link to its exact canonical destination: {anchor}")
+    if re.search(r'<meta[^>]+http-equiv\s*=\s*["\']?refresh', legacy, re.I):
+        raise AssertionError("legacy provider page must preserve anchors, not force a timed redirect")
+    assert_no_drafting_markers(center, "Trust and Security Center")
+    assert_no_drafting_markers(legacy, "Subprocessor compatibility page")
+
+def assert_provider_inventory_negative_controls(center, legacy):
+    mutations = []
+    for name, url in PROVIDER_REFERENCES.items():
+        mutations.append((center.replace(f'<a href="{url}">{name}</a>', f'<a href="{url}">Missing provider</a>'), legacy))
+    for anchor in ["providers", "ai-processing", "provider-security"]:
+        mutations.append((center, legacy.replace(f'href="security.html#{anchor}"', 'href="security.html#wrong-section"')))
+        mutations.append((center, legacy.replace(f'id="{anchor}"', f'id="retired-{anchor}"')))
+    mutations.append((center, legacy.replace('href="https://www.monderman.com/security.html"', 'href="https://www.monderman.com/subprocessors.html"')))
+    mutations.append((center, legacy.replace('</head>', '<meta http-equiv="refresh" content="0;url=security.html"></head>')))
+    for changed_center, changed_legacy in mutations:
+        if (changed_center, changed_legacy) == (center, legacy):
+            raise AssertionError("provider negative control must change the reviewed source")
+        try:
+            assert_provider_inventory(changed_center, changed_legacy)
+        except AssertionError:
+            continue
+        raise AssertionError("provider inventory admitted a missing provider or invalid legacy destination")
+
 def validate():
     assignment = (ROOT / "assignment-mode.js").read_text(errors="ignore")
     require(assignment, [
@@ -152,11 +212,9 @@ def validate():
         raise AssertionError("campaign-admin U.S. access warning must appear before the send control")
 
     subprocessors = (ROOT / "subprocessors.html").read_text(errors="ignore")
-    require(subprocessors, [
-        "Supabase", "Render", "Anthropic", "Resend", "Stripe", "Google", "Cloudflare",
-        "Factual inventory, not a contract.", "Public-site and browser infrastructure"
-    ], "subprocessor page")
-    assert_no_drafting_markers(subprocessors, "Subprocessor page")
+    security = (ROOT / "security.html").read_text(errors="ignore")
+    assert_provider_inventory(security, subprocessors)
+    assert_provider_inventory_negative_controls(security, subprocessors)
 
     for sitemap in ["sitemap.xml", "sitemap.txt"]:
         if "subprocessors.html" not in (ROOT / sitemap).read_text(errors="ignore"):

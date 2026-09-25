@@ -24,6 +24,11 @@ async function verifyAIScreenRefresh(browser) {
   const {artifact}=readPublicSampleFixture();
   const fixtures = Object.entries(artifact.outputs).map(([name,entry])=>({name,source:entry.source,kind:entry.kind==='diagnostic'?'run':'synthesis'}));
   assert.equal(fixtures.length,6);
+  // Public lens examples are now comparisons. Retain each individual-report
+  // refresh path independently using the existing deterministic test fixture.
+  const individual=JSON.parse(fs.readFileSync(new URL('../test-fixtures/authenticated-report-engine-runs.json',import.meta.url),'utf8'));
+  for(const [name,source]of Object.entries(individual.outputs))fixtures.push({name:'historical-individual-'+name,source,kind:'run'});
+  assert.equal(fixtures.length,10);
   const lifecycle = await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
   const errors = [], rows = [];
   lifecycle.on('pageerror',error=>errors.push(error.message));
@@ -127,7 +132,7 @@ const browser = await chromium.launch({headless:true});
 if (aiRefreshOnly) {
   await verifyAIScreenRefresh(browser);
   await browser.close();
-  console.log('REPORT_SCREEN_AI_REFRESH_PASS all6 pending/complete/attention/rejected, stableTargets, isolatedMounts, unchangedModelAndBody, focus, printControls; network blocked');
+  console.log('REPORT_SCREEN_AI_REFRESH_PASS six public products plus four separate historical individual fixtures: pending/complete/attention/rejected, stableTargets, isolatedMounts, unchangedModelAndBody, focus, printControls; network blocked');
   process.exit(0);
 }
 const page = await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
@@ -136,7 +141,9 @@ await page.goto(base+'/sample-report.html',{waitUntil:'networkidle'});
 await page.locator('body.production-samples-ready').waitFor();
 assert.equal(await page.locator('.sample-library-method').getAttribute('open'),null);
 await page.locator('.sample-library-method summary').click();
-assert.ok((await page.locator('.sample-library-method').innerText()).includes('A combined score appears only when the inputs meet Monderman’s comparison requirements'));
+const readingGuide=(await page.locator('.sample-library-method').innerText()).replace(/\s+/g,' ');
+assert.ok(readingGuide.includes('These examples are not yet eligible for Depth Synthesis and do not present organizational savings.'));
+assert.ok(readingGuide.includes('Depth Synthesis examines responses to one diagnostic once the campaign meets its evidence requirements.'));
 await page.locator('.sample-library-method summary').click();
 for(const key of ['os','dv','sc','ip','synthesis','depth']) {
   await page.locator(`[data-target="${key}"]`).click();
@@ -158,7 +165,7 @@ for(const key of ['os','dv','sc','ip','synthesis','depth']) {
   assert.equal(surface.methodHeadingTop,'0px',key+' section heading doubles its parent spacing');
   assert.ok(surface.methodPadding>=18,key+' method panel has no inner horizontal spacing');
   assert.equal(surface.methodBackground,'rgb(244, 247, 248)',key+' method panel uses a legacy paper surface');
-  assert.ok(surface.categories.length && surface.categories.every(color=>color==='rgb(201, 162, 39)'),key+' category accents must use the approved gold');
+  assert.ok(surface.categories.length && surface.categories.every(color=>color==='rgb(230, 199, 101)'),key+' category accents must use the approved gold');
   const destinations=await shell.locator('.mr-screen-shortcuts a').evaluateAll(links=>links.map(link=>({text:link.textContent,id:link.hash.slice(1),exists:!!document.getElementById(link.hash.slice(1))})));
   assert.ok(destinations.length>=4 && destinations.every(link=>link.exists),key+' missing navigation target');
   const legacyNext=shell.locator('.mr-screen-next a');
@@ -279,6 +286,32 @@ const invariants=await page.evaluate(async ({legacySources,legacyNoteHtml})=>{
     MondermanReport.render(wrapper,model);
     const prefix=wrapper.querySelector('section[id]').id.replace(/-section-\d+$/,'');
     const printed=wrapper.querySelector('.mr-page').cloneNode(true);
+    // Eligible synthesis screens move the overview ahead of cover metadata.
+    // Validate only that exact screen marker before comparing the entire body.
+    const overviewFirst=model.kind==='meta-synthesis'&&!model.comparisonOnly&&!model.selfRun&&['depth','cross_lens'].includes(model.product);
+    const normalizeOverviewFirst=root=>{
+      const marked=root.querySelectorAll('[data-overview-first]');
+      if(marked.length!==(overviewFirst?1:0))throw new Error('Unexpected overview-first marker count');
+      if(overviewFirst){
+        const cover=root.querySelector('section.mr-cover');
+        if(marked[0]!==cover||cover.getAttribute('data-overview-first')!=='true')throw new Error('Changed overview-first cover marker');
+        cover.removeAttribute('data-overview-first');
+      }
+    };
+    const overviewMarkerNegativeControls=[];
+    const markerMutations=overviewFirst?[
+      ['missing marker',root=>root.querySelector('[data-overview-first]').removeAttribute('data-overview-first')],
+      ['wrong value',root=>root.querySelector('[data-overview-first]').setAttribute('data-overview-first','false')],
+      ['wrong placement',root=>{root.querySelector('[data-overview-first]').removeAttribute('data-overview-first');root.querySelector('.mr-cover-white').setAttribute('data-overview-first','true');}],
+      ['duplicate marker',root=>root.querySelector('.mr-cover-white').setAttribute('data-overview-first','true')],
+    ]:[['ineligible marker',root=>root.querySelector('.mr-cover').setAttribute('data-overview-first','true')]];
+    for(const [name,mutate]of markerMutations){
+      const changed=printed.cloneNode(true);mutate(changed);let rejected=false;
+      try{normalizeOverviewFirst(changed);}catch{rejected=true;}
+      if(!rejected)throw new Error('Overview marker guard accepted '+name);
+      overviewMarkerNegativeControls.push(name);
+    }
+    normalizeOverviewFirst(printed);
     const overviewCovers=printed.querySelectorAll('.mr-cover-white.mr-has-overview');
     if(overviewCovers.length!==1)throw new Error('One exact screen-overview cover modifier required');
     overviewCovers[0].classList.remove('mr-has-overview');
@@ -357,10 +390,12 @@ const invariants=await page.evaluate(async ({legacySources,legacyNoteHtml})=>{
     const ids=[...wrapper.querySelectorAll('[id]'),...another.querySelectorAll('[id]')].map(node=>node.id);
     const unique=ids.length===new Set(ids).size;
     wrapper.remove();another.remove();
-    return {product:model.filenameBase,fixture,intact,mutated,unique,planningGroups,negativeControls,legacyTablesPreserved,legacyNegativeControls,threeBenefitGroups,threeBenefitNegativeControls};
+    return {product:model.filenameBase,fixture,intact,mutated,unique,overviewFirst,overviewMarkerNegativeControls,planningGroups,negativeControls,legacyTablesPreserved,legacyNegativeControls,threeBenefitGroups,threeBenefitNegativeControls};
   });
 },{legacySources,legacyNoteHtml:LEGACY_PLANNING_NOTE_HTML});
 assert.ok(invariants.every(row=>row.intact&&!row.mutated&&row.unique),JSON.stringify(invariants));
+assert.equal(invariants.filter(row=>row.overviewFirst).length,4,'Both current and historical synthesis covers must exercise overview-first preservation');
+assert.ok(invariants.every(row=>row.overviewMarkerNegativeControls.length===(row.overviewFirst?4:1)),'Missing overview-marker preservation negative control');
 assert.equal(invariants.filter(row=>row.fixture==='current').length,6,'All six current publications must retain their complete report bodies');
 assert.equal(invariants.filter(row=>row.fixture==='historical-v1'&&row.planningGroups===0&&row.legacyTablesPreserved).length,2,'Both historical synthesis products must preserve complete saved tables without the retired chart');
 assert.ok(invariants.every(row=>row.planningGroups===0),'Retired v1 controls reappeared');

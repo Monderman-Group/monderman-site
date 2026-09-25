@@ -22,8 +22,13 @@ const {artifact}=readPublicSampleFixture();
 const expectedArtifact = artifact.artifact_sha256;
 const generationEngineCommits=Object.fromEntries(Object.entries(artifact.outputs).map(([key,entry])=>[key,entry.provenance.engine_commit]));
 const expected = Object.fromEntries(Object.entries({os:'operational_systems',dv:'decision_velocity',sc:'structural_clarity',ip:'institutional_performance'}).map(([tab,key])=>{
-  const result=publicResult(artifact.outputs[key]);
-  return [tab,{source:key,score:String(result.score),dimensions:Object.keys(result.dimensions).length,result,engineCommit:artifact.outputs[key].provenance.engine_commit}];
+  const entry=artifact.outputs[key],result=publicResult(entry);
+  assert(entry.kind==='response_comparison'&&result.report_kind==='response_comparison',key+' must be the reviewed response comparison');
+  assert(result.source_groups.length===1&&result.source_groups[0].tool_type===key,key+' comparison lens differs');
+  assert(result.participant_count===15&&result.submitted_run_count===15,key+' included participant count differs');
+  assert(result.campaign_evidence.depth.status==='in_progress'&&!result.recommended_path_available,key+' must remain below Synthesis readiness');
+  assert(!result.financial_scenario,key+' comparison cannot acquire a financial scenario');
+  return [tab,{source:key,score:String(result.aggregate_score),result,engineCommit:entry.provenance.engine_commit}];
 }));
 
 function assert(value, message) {
@@ -43,7 +48,7 @@ async function assertPromotionalBoundary(shell,key) {
   const entry=artifact.outputs[key];
   const paired=await shell.evaluate((_node,entry)=>{
     const report=window.MondermanReport;
-    const model=entry.kind==='synthesis'?report.fromSynthesis(entry.source):report.fromRun(entry.source);
+    const model=entry.kind==='diagnostic'?report.fromRun(entry.source):report.fromSynthesis(entry.source);
     const doc=new DOMParser().parseFromString(report.buildReportHtml(model),'text/html');
     return {method:doc.querySelectorAll('.mr-run-method,.mr-meta-method').length,fictionalDisclosure:doc.querySelectorAll('.mr-sample-disclosure').length};
   },entry);
@@ -79,6 +84,23 @@ await page.context().route(/^https:\/\/www\.monderman\.com\/(55|65|75)font\.woff
 
 await page.goto(`${base}/sample-report.html#os`, { waitUntil: 'networkidle', timeout: 90000 });
 await page.locator('body.production-samples-ready').waitFor({ state: 'attached', timeout: 30000 });
+// The current public comparisons do not replace individual-report coverage.
+// These four historical deterministic engine inputs are separate test data;
+// report_presentation_smoke also exercises their full responsive/print layout.
+const individualFixture=JSON.parse(fs.readFileSync(new URL('../test-fixtures/authenticated-report-engine-runs.json',import.meta.url),'utf8'));
+const individualChecks=await page.evaluate(fixture=>Object.entries(fixture.outputs).map(([key,source])=>{
+  const model=MondermanReport.fromRun(source),doc=new DOMParser().parseFromString(MondermanReport.buildReportHtml(model),'text/html');
+  return {key,kind:model.kind,score:doc.querySelector('.mr-run-score-stamp strong')?.textContent.trim(),dimensions:doc.querySelectorAll('.mr-dimension-row').length,
+    notes:doc.querySelectorAll('.mr-run-evidence .mr-evidence-quote').length,expectedNotes:model.participantEvidence.length,
+    method:doc.querySelectorAll('.mr-run-method').length,sampleMarkers:doc.querySelectorAll('.mr-sample-disclosure').length};
+}),individualFixture);
+assert(individualChecks.length===4,'Separate individual fixture inventory changed');
+for(const row of individualChecks){
+  const source=individualFixture.outputs[row.key].result;
+  assert(row.kind==='run'&&row.score===String(source.score),row.key+' individual score path differs');
+  assert(row.dimensions===Object.keys(source.dimensions).length,row.key+' individual dimension profile differs');
+  assert(row.notes===row.expectedNotes&&row.method===1&&row.sampleMarkers===0,row.key+' individual evidence/method boundary differs');
+}
 assert(await page.locator('.report-shell select[aria-label="Jump to report section"]').count() === 6, 'all six generated reports require an accessible section navigator');
 assert(await page.locator('main').count() === 1, 'sample library must expose exactly one main landmark');
 assert(await page.locator('h1:visible').count() === 1, 'active sample must expose exactly one visible h1');
@@ -105,29 +127,32 @@ for (const [key, contract] of Object.entries(expected)) {
   assert(await report.getAttribute('data-engine-commit') === contract.engineCommit, `${key} original generation revision mismatch`);
   assert(await report.getAttribute('data-artifact-sha256') === expectedArtifact, `${key} artifact digest mismatch`);
   assert(await report.getAttribute('data-source-key') === contract.source, `${key} source identity mismatch`);
-  assert((await shell.locator('.mr-run-score-stamp strong').innerText()).trim() === contract.score, `${key} generated score mismatch`);
-  assert(await shell.locator('.mr-dimension-row').count() === contract.dimensions, `${key} generated dimension count mismatch`);
-  assert(await shell.locator('.mr-run-remedy').count() === 0, `${key} duplicates fallback advice after accepted AI`);
+  assert((await shell.locator('.mr-cover-score').innerText()).trim() === contract.score, `${key} included-response median mismatch`);
+  assert((await shell.locator('.mr-cover-score-label').innerText()).trim() === contract.result.score_label, `${key} median label mismatch`);
+  assert(await shell.locator('.mr-depth-distribution-panel').isVisible(), `${key} saved score distribution missing`);
+  assert(await shell.locator('.mr-run-score-stamp,.mr-dimension-row,.mr-run-remedy,.mr-recommended-path,.mr-report-options').count() === 0, `${key} comparison became an individual report or recommended change path`);
   assert(await shell.locator('.mr-ai-action').count() === contract.result.ai_report.report.interpretation.recommendations.filter(a=>a.action?.trim()).length, `${key} is missing accepted AI actions`);
   assert(await shell.locator('.cover').count() === 0, `${key} legacy hand-authored report remains in the live DOM`);
-  const executiveRead = shell.locator('.mr-run-decision');
+  const executiveRead = shell.locator('.mr-depth-system-read');
   assert(await executiveRead.isVisible(), `${key} executive headline block is not visible`);
-  assert((await executiveRead.textContent()).includes('Decision summary'), `${key} executive decision brief label is missing`);
   const text = await shell.textContent();
   for (const token of [
-    'Decision summary', 'Dimension profile', key==='sc'?'Clarity indicator distribution':'Where the measured issue appears',
-    'Measured priorities', key==='sc'?'Review order and clarity indicators':'Priority order and measured severity',
-    'What this may mean', 'What this result is based on',
-    'Interpretation and next steps', 'How this report was produced', 'Interpretation boundary',
+    'Response comparison', 'Included responses only', 'Agreement, divergence, and coverage',
+    'Results by participant perspective', 'Evidence in this run',
+    'Interpretation and next steps', 'Method and limits', 'Interpretation boundary',
   ]) assert(text.includes(token), `${key} missing production-equivalent content: ${token}`);
-  assert(await shell.locator('.mr-exposure-flow,.mr-exposure-range,.mr-financial-scenario').count()===0,`${key} individual report displays a recovery or financial scenario`);
-  assert(!text.includes('How the time and cost estimate is built'),`${key} individual report retains the retired recovery section`);
+  assert(await shell.locator('.mr-exposure-flow,.mr-exposure-range,.mr-financial-scenario,.mr-benefit-assumptions').count()===0,`${key} comparison displays a recovery estimate or financial scenario`);
+  assert(!text.includes('How the time and cost estimate is built'),`${key} comparison retains the retired recovery section`);
   await assertPromotionalBoundary(shell,contract.source);
-  const notes=contract.result.participant_evidence||[];
-  assert(notes.length>0,`${key} approved example participant observations are missing`);
-  const evidence=await shell.locator('.mr-run-evidence').textContent();
-  for(const note of notes)assert(typeof note.text==='string'&&note.text.trim()&&evidence.includes(note.text),`${key} saved participant observation is missing or rewritten`);
-  assert(!text.includes('No written participant notes are included.'),`${key} falsely says the saved observations are absent`);
+  const notes=contract.result.experiential_records||[],selection=contract.result.experiential_selection;
+  assert(notes.length===12&&selection.available===15&&selection.incorporated===12&&selection.exhaustive===false,`${key} bounded observation selection differs`);
+  const quoted=(contract.result.ai_report.report.interpretation.observations||[]).filter(row=>row.experiential_block).map(row=>row.experiential_block);
+  const blocks=shell.locator('.mr-experience-evidence');
+  assert(await blocks.count()===quoted.length,`${key} authored attributed-account count differs`);
+  for(const [index,note]of quoted.entries()){
+    assert((await blocks.nth(index).locator('blockquote').textContent())==='“'+note.text+'”',`${key} authored participant account was rewritten`);
+    assert((await blocks.nth(index).locator('.mr-experience-scope').textContent())==='Scope: '+note.scope_label,`${key} account scope differs`);
+  }
   for (const stale of ['Competing readings', 'What would update this read', 'Sample Depth Synthesis Report']) {
     assert(!text.includes(stale), `${key} still renders outdated content: ${stale}`);
   }
@@ -231,7 +256,7 @@ await page.locator('#tab-os').click();
 await page.screenshot({ path: path.join(out, 'os-390px.png'), fullPage: true });
 
 await emulateMediaAndSettle(page, 'print');
-assert(await page.locator('#report-os .mr-report').isVisible(), 'Diagnostic report disappears in print media');
+assert(await page.locator('#report-os .mr-report').isVisible(), 'Response comparison disappears in print media');
 assert(await page.locator('#report-os .psr-toolbar').isVisible() === false, 'interactive toolbar remains visible in print media');
 await emulateMediaAndSettle(page, 'screen');
 
@@ -241,7 +266,8 @@ fs.writeFileSync(path.join(out, 'result.json'), JSON.stringify({
   assembly_engine_commit: artifact.engine_commit,
   generation_engine_commits: generationEngineCommits,
   artifact_sha256: expectedArtifact,
-  diagnostic_products: 4,
+  response_comparison_products: 4,
+  separate_historical_individual_checks: individualChecks,
   synthesis_products: 2,
   responsive_widths: sampleViewports.map(viewport => viewport.width),
   console_errors: errors,

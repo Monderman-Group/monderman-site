@@ -1,7 +1,45 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
+
+// The exact reviewed copy delta retired the four measurement-loop cards, not
+// the three proof cards or four diagnostic cards exercised below. Preserve the
+// historical bytes and independently check the current section's complete DOM.
+const homepageSource = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+const historicalHomepage = sourceBeforePublicCopyClarity('index.html', homepageSource);
+const classElements = (html, name) => [...html.matchAll(/<[a-z][^>]*\bclass="([^"]*)"[^>]*>/gi)]
+  .filter(match => match[1].split(/\s+/).includes(name)).length;
+assert.equal(classElements(historicalHomepage, 'loop-flow'), 1);
+assert.equal(classElements(historicalHomepage, 'loop-step'), 4);
+const measurementSection = homepageSource.match(/<section class="measurement-loop" aria-labelledby="measurement-loop-title">[\s\S]*?<\/section>/)?.[0];
+assert.ok(measurementSection, 'The current labelled measurement section remains');
+function assertCurrentMeasurementMarkup(html) {
+  assert.equal(classElements(html, 'loop-flow'), 0, 'The retired flow is not current DOM');
+  assert.equal(classElements(html, 'loop-step'), 0, 'The retired cards are not current DOM');
+  assert.match(html, /<h2 id="measurement-loop-title">Compare results on the same basis\.<\/h2>/);
+  assert.match(html, /<a href="Monderman_Platform_Brief\.html#slide-6">See how Synthesis works &rarr;<\/a>/);
+}
+assertCurrentMeasurementMarkup(measurementSection);
+assert.equal(classElements(homepageSource, 'proof-card'), 3);
+assert.equal(classElements(homepageSource, 'approach-card'), 4);
+const invalidMeasurements = [
+  measurementSection.replace('</section>', '<div class="loop-flow"></div></section>'),
+  measurementSection.replace('</section>', '<article class="loop-step"></article></section>'),
+  measurementSection.replace('Compare results on the same basis.', 'Missing reviewed heading'),
+  measurementSection.replace('Monderman_Platform_Brief.html#slide-6', 'missing.html'),
+];
+for (const invalid of invalidMeasurements) {
+  assert.notEqual(invalid, measurementSection);
+  assert.throws(() => assertCurrentMeasurementMarkup(invalid));
+}
+assert.throws(() => sourceBeforePublicCopyClarity('index.html', homepageSource.replace(measurementSection, invalidMeasurements[0])),
+  'The historical inverse must not accept an unrelated or restored current section');
+if (process.argv.includes('--deterministic-only')) {
+  console.log(JSON.stringify({status:'PASS',historicalLoopCards:4,currentLoopCards:0,proofCards:3,diagnosticCards:4,negativeCases:5,browserCoverage:'NOT_RUN'}));
+  process.exit(0);
+}
 
 const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
-
 const base = process.env.SITE_BASE || 'http://127.0.0.1:4175';
 const browsers = [['chromium', chromium], ['webkit', webkit]]
   .filter(([name]) => !process.env.CARD_RHYTHM_BROWSER || process.env.CARD_RHYTHM_BROWSER === name);
@@ -94,7 +132,7 @@ for (const [browserName, browserType] of browsers) {
       assert.equal(await clones.count(),32,`${browserName}/${width}: carousel clone setup is incomplete`);
       assert.ok(await clones.evaluateAll(cards=>cards.every(card=>card.inert&&card.getAttribute('aria-hidden')==='true')),`${browserName}/${width}: repeated carousel items entered the accessibility tree`);
 
-      const result = await page.evaluate(() => {
+      const result = await page.evaluate(expectedMeasurement => {
         const rect = (element) => {
           const box = element.getBoundingClientRect();
           return { left: box.left, right: box.right, top: box.top, bottom: box.bottom, width: box.width, height: box.height };
@@ -143,35 +181,29 @@ for (const [browserName, browserType] of browsers) {
             headTop: headBox.top - cardBox.top,
           };
         });
-        const loop = [...document.querySelectorAll('.loop-step')].map((card) => {
-          const cardBox = rect(card);
-          const numberBox = rect(card.querySelector('.loop-step-no'));
-          const style = getComputedStyle(card);
-          return {
-            padding: [style.paddingTop, style.paddingRight, style.paddingBottom, style.paddingLeft].map(px),
-            numberLeft: numberBox.left - cardBox.left,
-            numberTop: numberBox.top - cardBox.top,
-            borderRight: style.borderRightWidth,
-            borderBottom: style.borderBottomWidth,
-          };
-        });
+        const expected = document.createElement('template');
+        expected.innerHTML = expectedMeasurement;
+        const normalized = element => element?.outerHTML.replace(/\s+/g, ' ').trim();
         return {
           width: innerWidth,
           overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
           proofColumns: getComputedStyle(proofGrid).gridTemplateColumns.split(' ').length,
           approachColumns: getComputedStyle(document.querySelector('.approach-grid')).gridTemplateColumns.split(' ').length,
-          loopColumns: getComputedStyle(document.querySelector('.loop-flow')).gridTemplateColumns.split(' ').length,
+          retiredLoopElements: document.querySelectorAll('.loop-flow, .loop-step').length,
+          measurementSections: document.querySelectorAll('.measurement-loop').length,
+          exactMeasurementMarkup: normalized(document.querySelector('.measurement-loop')) === normalized(expected.content.firstElementChild),
           proof,
           approach,
-          loop,
         };
-      });
+      }, measurementSection);
 
       const label = `${browserName}/${width}`;
       assert.ok(result.overflow <= 1, `${label}: homepage overflows by ${result.overflow}px`);
       assert.equal(result.proof.length, 3, `${label}: expected three proof cards`);
       assert.equal(result.approach.length, 4, `${label}: expected four diagnostic cards`);
-      assert.equal(result.loop.length, 4, `${label}: expected four measurement-loop cards`);
+      assert.equal(result.retiredLoopElements, 0, `${label}: retired measurement-loop cards returned`);
+      assert.equal(result.measurementSections, 1, `${label}: expected one current measurement section`);
+      assert.equal(result.exactMeasurementMarkup, true, `${label}: current measurement copy, scope or Synthesis link changed`);
 
       for (const [index, card] of result.approach.entries()) {
         assert.equal(card.markerPosition, 'static', `${label}/diagnostic-${index + 1}: marker is corner-positioned`);
@@ -221,28 +253,6 @@ for (const [browserName, browserType] of browsers) {
           } else {
             assert.ok(card.ctaTop >= card.bodyBottom + 15, `${label}/proof-${index + 1}: phone CTA spacing collapsed`);
           }
-        }
-      }
-
-      if (width <= 1120) {
-        assert.equal(result.loopColumns, 1, `${label}: measurement loop should be one column`);
-        for (const [index, card] of result.loop.entries()) {
-          assert.deepEqual(card.padding, [22, 22, 22, 22], `${label}/loop-${index + 1}: sibling padding differs`);
-          assert.ok(closeTo(card.numberLeft, 22) && closeTo(card.numberTop, 22),
-            `${label}/loop-${index + 1}: number is not aligned to the card inset`);
-          assert.equal(card.borderRight, '0px', `${label}/loop-${index + 1}: one-column card retained a side divider`);
-          assert.equal(card.borderBottom, index === 3 ? '0px' : '1px',
-            `${label}/loop-${index + 1}: one-column dividers are inconsistent`);
-        }
-      } else {
-        assert.equal(result.loopColumns, 4, `${label}: measurement loop should be four columns`);
-        for (const [index, card] of result.loop.entries()) {
-          assert.deepEqual(card.padding, [22, 22, 22, 22], `${label}/loop-${index + 1}: desktop sibling padding differs`);
-          assert.ok(closeTo(card.numberLeft, 22) && closeTo(card.numberTop, 22),
-            `${label}/loop-${index + 1}: desktop number is not aligned to the card inset`);
-          assert.equal(card.borderRight, index === 3 ? '0px' : '1px',
-            `${label}/loop-${index + 1}: four-column dividers are inconsistent`);
-          assert.equal(card.borderBottom, '0px', `${label}/loop-${index + 1}: desktop card retained a bottom divider`);
         }
       }
 

@@ -8,6 +8,8 @@ import {createHash} from 'node:crypto';
 import {chromium,webkit} from 'playwright';
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 import {APPROVED_INTERFACE_PINS} from './invited_evaluation_source_contract.mjs';
+import {sourceBeforeHomepageCompactJourney20260924} from './homepage_compact_journey_20260924_inverse.mjs';
+import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 const {artifact}=readPublicSampleFixture({root});
@@ -68,7 +70,7 @@ eq(read('homepage-workspace-demo.css').split(staticPreviewRule).length-1,1,'Exis
 const stableGeometryRule='.hwd-app * { transition-property:color,background-color,border-color !important; animation:none !important; }';
 eq(read('homepage-workspace-demo.css').split(stableGeometryRule).length-1,1,'Only the local preview suppresses geometry transitions; button/link color transitions remain');
 check(read('index.html').includes('animation: heroFadeUp 900ms cubic-bezier(0.22,1,0.36,1) forwards;'),'Other hero entrance motion remains');
-eq(sha(read('homepage-workspace-demo.js')),APPROVED_INTERFACE_PINS['homepage-workspace-demo.js'],'Only the exact reviewed five-journey runtime is allowed; existing four-step navigation remains exercised below');
+eq(sha(sourceBeforeHomepageCompactJourney20260924('homepage-workspace-demo.js',read('homepage-workspace-demo.js'))),APPROVED_INTERFACE_PINS['homepage-workspace-demo.js'],'The exact compact-journey delta reconstructs the historical runtime; current four-step navigation remains exercised below');
 const priorShell=execFileSync('git',['show','f91fb07fde754dea57360ddbddc9bf742d6e6702:canonical-site-shell.js'],{cwd:root,encoding:'utf8'});
 const approvedShell=priorShell.replace('tagline.textContent = "See the work clearly. Make the next move count.";','if (!tagline.textContent.trim()) tagline.textContent = "Less bureaucracy. Better performance.";')
   .replace('    document.querySelectorAll(".mond-footer .mf-copy").forEach((copy) => {\n      copy.textContent = "Monderman provides repeatable organizational diagnostics for ownership, decisions, handoffs, and administrative work.";\n    });\n','');
@@ -88,11 +90,12 @@ for(const candidate of [
   assert.notEqual(candidate,approvedFloatingShell,'Header-state negative actually mutates the approved source');
   assert.throws(()=>assertApprovedShell(candidate),'Restored proxies or unrelated navigation changes must fail');checks++;
 }
-check(read('index.html').includes('homepage-workspace-demo.css?v=20260923.samples1'),'Source preview stylesheet has the reviewed sample-discovery cache ID');
-check(read('scripts/inject-public-shell.mjs').includes('"homepage-workspace-demo.css": "20260923.samples1"'),'Build refreshes the reviewed sample-discovery stylesheet cache ID');
+check(read('index.html').includes('homepage-workspace-demo.css?v=20260924.compact1'),'Source preview stylesheet has the current compact-journey cache ID');
+check(read('scripts/inject-public-shell.mjs').includes('"homepage-workspace-demo.css": "20260924.compact1"'),'Build refreshes the current compact-journey stylesheet cache ID');
 execFileSync(process.execPath,['scripts/refresh_public_sample_previews.mjs','--check'],{cwd:root,stdio:'pipe'});
-check(read('scripts/templates/home-workspace-preview.html').split('{{journeyOptions}}').length===2,'One generated Gather-choice region contains the source-backed lens summaries');
-check(!read('scripts/templates/home-workspace-preview.html').includes('{{lensCards}}'),'Compacted Gather choices do not duplicate the old evidence cards');
+check(read('scripts/templates/home-workspace-preview.html').split('{{compactRoles}}').length===2,'One generated Gather region retains privacy-permitted role counts');
+check(read('scripts/templates/home-workspace-preview.html').split('{{compactLenses}}').length===2,'One generated Gather region identifies the four source diagnostics');
+check(!read('scripts/templates/home-workspace-preview.html').includes('{{journeyOptions}}'),'The approved single-example journey does not retain obsolete analysis choices');
 // Exercise the actual browser predicates offline; geometry alone cannot admit
 // an unselected panel, unfinished animation, transparent header or missing text.
 function predicateFixture(){
@@ -172,7 +175,7 @@ const sampleLinkStyle='    .content .score-block p,\n'+
   '      text-decoration: underline;\n'+
   '      text-underline-offset: 0.18em;\n'+
   '    }\n\n';
-function assertArticleLayout(html,prior){
+function assertArticleLayout(html,prior,file){
   // The reviewed annual-release pages intentionally replaced invented example
   // scores with links to real saved samples. Pin that approved structure while
   // retaining the exact accessibility-region and table-style checks above.
@@ -181,7 +184,10 @@ function assertArticleLayout(html,prior){
   assert.match(priorEntry,/^signin\.html\?next=[a-z-]+\.html$/,'Historical article entry is the exact diagnostic sign-in target');
   const invitationEntry='<a class="btn btn-primary" href="pilot.html">';
   assert.equal(articleMain(html).split(invitationEntry).length-1,1,'Exactly one article-body invitation entry replaces the retired public run CTA');
-  const restoredMain=articleMain(html).replace(invitationEntry,`<a class="btn btn-primary" href="${priorEntry}">`);
+  // Restore the exact reviewed copy layers only for historical structure;
+  // the current prose, accessibility, styles and negative checks stay above/below.
+  const historicalLayoutSource=sourceBeforePublicCopyClarity(file,html);
+  const restoredMain=articleMain(historicalLayoutSource).replace(invitationEntry,`<a class="btn btn-primary" href="${priorEntry}">`);
   assert.deepEqual(textless(restoredMain),textless(articleMain(prior)),
     'Body tags, classes and links match the approved saved-sample article layout');
   assert.equal(html.split(sampleLinkStyle).length-1,1,'Exactly one scoped saved-sample link contrast fix');
@@ -200,8 +206,8 @@ for(const [name,description,article]of descriptions){
   const html=read(article),main=articleMain(html);
   assertArticleScope(html);checks++;
   for(const phrase of ['the participant’s selected perspective, recorded strengths and concerns','A single run does not establish organization-wide conditions or change over time.',
-    singleRunFinancialBoundary,'Saved example report','Actual output from realistic example responses',
-    'shows its actual score, recorded answers and report text.','they are not customer results.',
+    singleRunFinancialBoundary,'Multi-participant example','Actual output from realistic example responses',
+    'compares responses from several people.','realistic example responses, not customer results.',
     'Recorded findings','Reported strengths','Next step'])
     check(main.includes(phrase),article+': truthful report scope '+phrase);
   const sampleKey={Structural:'sc',Decision:'dv',Operational:'os',Institutional:'ip'}[name.split(' ')[0]];
@@ -209,7 +215,7 @@ for(const [name,description,article]of descriptions){
   check(!/Example score|Example band|class="score-num"/.test(main),article+': no invented score in the article illustration');
   check(html.includes('records one participant’s perspective on'),article+': matching social/search description');
   const prior=execFileSync('git',['show',`${approvedPresentationBase}:${article}`],{cwd:root,encoding:'utf8'});
-  assertArticleLayout(html,prior);checks++;
+  assertArticleLayout(html,prior,article);checks++;
   // The earlier approved canonical-copy edit also renamed the mobile table's
   // generated label. Restore only that exact text when proving layout parity.
   eq(html.split('content: "Business focus"').length-1,1,article+': mobile table label');
@@ -239,7 +245,7 @@ for(const [name,description,article]of descriptions){
   ];
   for(const [index,bad]of badLayouts.entries()){
     assert.notEqual(bad,html,'Each article-layout negative must mutate the source');
-    assert.throws(()=>assertArticleLayout(bad,prior),article+': unrelated markup/CSS or altered approved wrapper must fail: '+index);checks++;
+    assert.throws(()=>assertArticleLayout(bad,prior,article),article+': unrelated markup/CSS or altered approved wrapper must fail: '+index);checks++;
   }
   for(const bad of ['Approximate recoverable value','Benchmark position','Trajectory signal','Reclaimed capacity','clock speed of reality']){
     assert.throws(()=>assertArticleScope(html.replace('</main>',`<p>${bad}</p></main>`)),/No superseded whole-article/);checks++;
@@ -303,7 +309,7 @@ check(read('index.html').includes('Use measured activity records and documented 
 const scenarioSlide=read('Monderman_Platform_Brief.html').match(/<section[^>]*id="slide-8"[\s\S]*?<\/section>/)?.[0];
 for(const phrase of ['Separate operational scenarios from diagnostic scores.','No diagnostic score or participant percentage supplies a financial factor.','Cash avoided minus cash costs','not forecasts, confidence intervals, or guarantees.'])check(scenarioSlide?.includes(phrase),'Brief financial boundary: '+phrase);
 check(!/\$411,840|5,280 hrs|Diagnostic result \+ disclosed sizing inputs/.test(scenarioSlide),'Old score-derived numerical graphic removed, not relabeled');
-check(read('sample-report.html').includes('Learn how the evidence and separate operational scenarios should be interpreted:'),'Sample introduction uses current method');
+check(read('sample-report.html').includes('Explore four response comparisons and two Synthesis reports.')&&read('sample-report.html').includes('href="diagnostics.html#methodology-and-sources"'),'Sample introduction identifies the current multi-participant library and links to its method');
 for(const file of ['index.html','site-shell/footer.html','Monderman_Platform_Brief.html'])
   check(read(file).includes('href="diagnostics.html#methodology-and-sources"'),file+' methods link');
 
@@ -372,7 +378,7 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
         check(await page.locator('.lens-matrix').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'Comparison table fits');
         const figure=page.locator('.output-figure');await figure.scrollIntoViewIfNeeded();
         eq(await figure.locator('.output-metrics .metric strong').allTextContents(),['Perspective','Reported strengths','Next step'],'No outdated financial/comparison cards');
-        check(await figure.locator('.figure-note').textContent().then(text=>text.includes('shows its actual score, recorded answers and report text.')&&text.includes('they are not customer results.')),'Actual sample provenance remains visible');
+        check(await figure.locator('.figure-note').textContent().then(text=>text.includes('compares responses from several people.')&&text.includes('realistic example responses, not customer results.')),'Multi-participant sample provenance remains visible without changing the single-run guide');
         check(await figure.evaluate(el=>el.scrollWidth<=el.clientWidth+1),'Report card fits');
         eq(await figure.locator('.score-num').count(),0,'No invented score in the article figure');
         const sampleKey={Structural:'sc',Decision:'dv',Operational:'os',Institutional:'ip'}[descriptions.find(row=>row[2]===file)[0].split(' ')[0]];
@@ -410,18 +416,46 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
       }
       if(file==='index.html'){
         const journeyGroups=['structural_clarity','decision_velocity','operational_systems','institutional_performance'].map(lens=>previewGroups.find(group=>group.tool_type===lens));
-        const depthChoices=page.locator('#hwd-panel-measure .hwd-journey-tile[data-demo-group]');
-        eq(await depthChoices.locator(':scope > span > strong').allTextContents(),journeyGroups.map(group=>group.tool_label),'Gather choices show all four canonical diagnostics in journey order');
-        eq(await depthChoices.locator('[data-demo-lens]').allTextContents(),journeyGroups.map(group=>group.median_score.toLocaleString('en-US',{maximumFractionDigits:0})+' / 100'),'Gather choices show exact approved within-lens summaries, not a fabricated new report');
-        eq(await depthChoices.evaluateAll(nodes=>nodes.map(node=>({lens:node.dataset.demoGroup,participants:node.dataset.participants}))),journeyGroups.map(group=>({lens:group.tool_type,participants:String(group.participants)})),'Gather choice metadata retains exact lens and distinct-participant totals');
-        eq(await page.locator('.hwd-diagnostic').count(),0,'Gather choices replace rather than duplicate the old passive cards');
-        eq(await page.locator('input[name="hwd-journey"]').evaluateAll(nodes=>nodes.map(node=>node.value)),journeyGroups.map(group=>group.tool_type).concat('cross_lens_synthesis'),'Four Depth journeys and one separate Cross-Lens journey');
+        eq(await page.locator('.hwd-compact-lenses span').allTextContents(),journeyGroups.map(group=>group.tool_label),'Gather identifies all four canonical source diagnostics');
+        const roles=artifact.outputs.cross_lens_synthesis.source.campaign_evidence.depth.lenses[0].requiredGroups;
+        eq(await page.locator('.hwd-compact-roles strong').allTextContents(),roles.map(group=>String(group.participants)),'Gather uses distinct source role counts, never sums across diagnostics');
+        eq(await page.locator('.hwd-compact-roles span').allTextContents(),roles.map(group=>group.label),'Role labels remain source-owned');
+        eq(await page.locator('input[name="hwd-journey"],.hwd-journey-choice,.hwd-choose').count(),0,'The compact four-step journey has no obsolete five-analysis selector');
+        eq(await page.locator('.hwd-compact-tile h3').allTextContents(),['Overall findings','Time and money','Change options','Evidence'],'Evaluate retains the approved compact overview');
         for(const id of ['measure','analysis','actions','return','measure']){
           await page.locator('#hwd-tab-'+id).click();await settledPaint(page,settledPreviewState,id);
           check(await page.locator('#hwd-panel-'+id).isVisible(),'Preview still navigates: '+id);
+          check(await page.locator('.hwd-sample-link').isVisible(),'Direct sample CTA is visible in every step');
+          eq(await page.locator('.hwd-sample-link').getAttribute('href'),'sample-report.html#synthesis','Every step opens the actual Cross-Lens sample');
+          const journeyGeometry=await page.locator('.home-workspace-preview').evaluate(el=>{
+            const box=node=>{if(!node)return null;const r=node.getBoundingClientRect(),s=getComputedStyle(node);return {width:r.width,height:r.height,fontFamily:s.fontFamily,fontSize:s.fontSize,lineHeight:s.lineHeight,padding:s.padding,margin:s.margin};};
+            const panel=el.querySelector('.hwd-panel:not([hidden])');
+            return {viewport:{width:innerWidth,height:innerHeight,devicePixelRatio},selectedPanel:panel?.id,
+              fontsStatus:document.fonts.status,neueHaasAvailable:document.fonts.check('12px "Neue Haas Grotesk"'),
+              disclosureOpen:el.querySelector('.home-preview-method')?.open,preview:box(el),app:box(el.querySelector('[data-workspace-demo]')),
+              label:box(el.querySelector('.home-preview-label')),topbar:box(el.querySelector('.hwd-topbar')),tabs:box(el.querySelector('.hwd-tabs')),
+              panel:box(panel),heading:box(panel?.querySelector('h2')),quad:box(panel?.querySelector('.hwd-compact-quad')),
+              footer:box(el.querySelector('.hwd-footer')),disclosure:box(el.querySelector('.home-preview-method'))};
+          });
+          // The reviewed height target is the app card. The outer label and
+          // closed disclosure add 60.5px in the source-bound CUA measurements.
+          // CI Chromium's reviewed complete paint wraps one extra line:
+          // 569.797px versus macOS 555.63px. Allow 20px over the 560px target.
+          const desktopFontWrapAllowance=20;
+          const appLimit=width===1440?560+desktopFontWrapAllowance:700,wrapperLimit=appLimit+64;
+          const wrapperOverhead=journeyGeometry.preview.height-journeyGeometry.app.height;
+          const diagnostic={browser:name,width,step:id,desktopFontWrapAllowance,appLimit,wrapperLimit,wrapperOverhead,...journeyGeometry};
+          console.log(JSON.stringify({check:'compact-journey-height',...diagnostic}));
+          if(journeyGeometry.app.height>appLimit||journeyGeometry.preview.height>wrapperLimit||wrapperOverhead>64){
+            const failureScreenshot=`${name}-${width}-${id}-journey-height-failure.png`;
+            await page.locator('.home-workspace-preview').screenshot({path:path.join(out,failureScreenshot)});screenshots.push(failureScreenshot);
+          }
+          check(journeyGeometry.disclosureOpen===false,'Height is measured with the evidence disclosure closed');
+          check(journeyGeometry.app.height<=appLimit,'Journey app remains within the approved compact height target: '+JSON.stringify(diagnostic));
+          check(wrapperOverhead>=0&&wrapperOverhead<=64,'Outer label and closed disclosure stay within their reviewed height allowance: '+JSON.stringify(diagnostic));
+          check(journeyGeometry.preview.height<=wrapperLimit,'Complete preview stays within the app target plus bounded wrapper: '+JSON.stringify(diagnostic));
+          check(await page.locator('[data-workspace-demo]').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'Every current step fits the preview width');
         }
-        eq(await depthChoices.count(),4,'All four Depth choices remain present after navigating back to Gather');
-        check(await depthChoices.evaluateAll(nodes=>nodes.every(node=>{const rect=node.getBoundingClientRect();return rect.width>0&&rect.height>0&&node.scrollWidth<=node.clientWidth+1&&[...node.querySelectorAll('strong,small,.hwd-journey-facts,[data-demo-lens]')].every(text=>text.scrollWidth<=text.clientWidth+1);})), 'Canonical choice labels and exact evidence values are visible and do not overflow');
         if(width===390||width===1440){const fileName=`${name}-${width}-homepage.png`;await page.screenshot({path:path.join(out,fileName)});screenshots.push(fileName);}
       }
       if(file==='diagnostics.html'){

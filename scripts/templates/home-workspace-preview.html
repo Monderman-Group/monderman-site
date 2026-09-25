@@ -1,6 +1,6 @@
 <aside class="home-workspace-preview" aria-label="Explore an illustrative organizational evaluation" data-sample-id="cross_lens_synthesis" data-artifact-sha256="{{artifactSha}}">
-  <div class="home-preview-label"><span>From organizational evidence to a business case</span><span>Illustrative example</span></div>
-  <div class="hwd-app" data-workspace-demo data-demo-selected-journey="cross_lens_synthesis" data-demo-journey-type="cross">
+  <div class="home-preview-label"><span>See what the report tells you.</span><span>Illustrative example</span></div>
+  <div class="hwd-app hwd-compact" data-workspace-demo data-demo-selected-journey="cross_lens_synthesis" data-demo-journey-type="cross">
     <div class="hwd-topbar"><span class="hwd-brand">Monderman<span>.</span></span><span class="hwd-workspace-name">Supplier onboarding</span><span class="hwd-sample-chip">Workspace preview</span></div>
     <div class="hwd-tabs" role="tablist" aria-label="Explore the organizational evaluation">
       <button id="hwd-tab-measure" type="button" role="tab" aria-controls="hwd-panel-measure" aria-selected="true" tabindex="0"><span>01</span>Gather</button>
@@ -10,35 +10,34 @@
     </div>
     <div class="hwd-panels" id="hwd-panels">
       <section class="hwd-panel" id="hwd-panel-measure" role="tabpanel" aria-labelledby="hwd-tab-measure" tabindex="0">
-        <div class="hwd-page-heading"><div><p class="hwd-eyebrow">Gather organizational evidence</p><h2>Choose an analysis to explore.</h2></div></div>
-        <fieldset class="hwd-journey-choice" hidden><legend>Analysis examples</legend><div class="hwd-journey-options">{{journeyOptions}}</div></fieldset>
-        <p class="hwd-description" data-demo-copy="gatherDescription">Ask the people doing, managing and overseeing supplier onboarding about responsibilities, decisions, processes and performance.</p>
-        <p class="hwd-participation-note" data-demo-participation>The same {{participants}} people completed all {{lensCount}} diagnostics: {{runCount}} runs, not {{runCount}} people.</p>
-        <div class="hwd-next"><span data-demo-copy="gatherNext">Check participation and compatibility before combining evidence across diagnostics.</span><button type="button" data-demo-next="analysis">Evaluate the evidence <span aria-hidden="true">&rarr;</span></button></div>
+        <p class="hwd-eyebrow">One scope. Different perspectives.</p><h2>Hear from the people who know the work.</h2>
+        <div class="hwd-compact-participation"><div class="hwd-compact-score"><strong>{{participants}}</strong><span>of {{population}} participants</span></div><p>The same people across {{lensCount}} diagnostics:<br>{{runCount}} selected runs, not {{runCount}} people.</p><div class="hwd-compact-roles">{{compactRoles}}</div></div>
+        <div class="hwd-compact-lenses">{{compactLenses}}</div>
+        <div class="hwd-next"><span>Check participation and compatibility.</span><button type="button" data-demo-next="analysis">Evaluate the evidence <span aria-hidden="true">&rarr;</span></button></div>
       </section>
       <section class="hwd-panel" id="hwd-panel-analysis" role="tabpanel" aria-labelledby="hwd-tab-analysis" tabindex="0" hidden>
-        <div class="hwd-page-heading"><div><p class="hwd-eyebrow" data-demo-product-label>Cross-Lens Synthesis</p><h2 data-demo-copy="evaluateTitle">See which changes could release capacity.</h2></div><button class="hwd-choose" type="button" data-demo-next="measure" hidden>Choose an analysis</button></div>
-        <p class="hwd-description" data-demo-copy="evaluateDescription">Compare the four diagnostics together, then test a business case using separate operating records.</p>
-        {{evaluationPanels}}
-        <div class="hwd-next"><span data-demo-copy="evaluateNext">The planning case covers group evidence and operating inputs, not one person's run.</span><button type="button" data-demo-next="actions">Plan the change <span aria-hidden="true">&rarr;</span></button></div>
+        <p class="hwd-eyebrow">Cross-Lens Synthesis</p><h2>Read the findings together.</h2>
+        <div class="hwd-compact-quad" aria-label="Abbreviated report overview">
+          <section class="hwd-compact-tile"><h3>Overall findings</h3><div><div class="hwd-compact-score"><strong data-demo-composite>{{composite}}</strong><span>/ 100</span></div><p class="hwd-compact-band">{{conditionBand}}</p><p>{{compactFinding}}</p></div></section>
+          <section class="hwd-compact-tile"><h3>Time and money</h3><div><dl class="hwd-compact-values">{{compactFinancials}}</dl><p class="hwd-compact-limit">Central · {{horizonMonths}} months · before costs</p></div></section>
+          <section class="hwd-compact-tile"><h3>Change options</h3><div><p>{{compactAction}}</p><p class="hwd-compact-limit">One action from {{optionCount}} saved options.</p></div></section>
+          <section class="hwd-compact-tile"><h3>Evidence</h3><div><div class="hwd-compact-score"><strong>{{participants}}</strong><span>of {{population}} participants</span></div><p>{{runCount}} selected runs<br>{{lensCount}} diagnostics</p><p class="hwd-compact-limit">People counted once.</p></div></section>
+        </div>
+        <p class="hwd-compact-boundary">Capacity is not cash savings. Planning inputs are separate from scores.</p>
       </section>
       <section class="hwd-panel" id="hwd-panel-actions" role="tabpanel" aria-labelledby="hwd-tab-actions" tabindex="0" hidden>
-        <div class="hwd-page-heading"><div><p class="hwd-eyebrow" data-demo-product-label>Cross-Lens Synthesis</p><h2>Turn the finding into a clear change.</h2></div><button class="hwd-choose" type="button" data-demo-next="measure" hidden>Choose an analysis</button></div>
-        <p class="hwd-description">Choose an action, assign an owner and decide what will show whether it worked.</p>
-        <div class="hwd-action-card"><div class="hwd-action-meta"><span>Illustrative action plan</span><span class="hwd-status">Proposed</span></div><h3 data-demo-copy="actionTitle">Fix ownership and review steps together.</h3><ol class="hwd-action-steps"><li data-demo-copy="actionOne">Name the person responsible for each supplier exception and the decision it needs.</li><li data-demo-copy="actionTwo">Use one completeness checklist before review, while keeping required checks.</li><li data-demo-copy="actionThree">Track exception handling and repeated reviews separately so benefits are not counted twice.</li></ol><div class="hwd-action-owner"><span>Proposed owner</span><strong data-demo-copy="actionOwner">Operations director</strong></div><div class="hwd-action-measure"><strong>Check after the next intake period</strong><p data-demo-copy="actionMeasure">Hours spent on each activity, decision waiting time and supplier files completed correctly.</p></div></div>
-        <div class="hwd-plan-flow"><span>Agree the change</span><span aria-hidden="true">&rarr;</span><span>Assign an owner</span><span aria-hidden="true">&rarr;</span><span>Check actual results</span></div>
-        <div class="hwd-next"><span>A proposed change to test, not a completed improvement.</span><button type="button" data-demo-next="return">Compare later results <span aria-hidden="true">&rarr;</span></button></div>
+        <p class="hwd-eyebrow">A proposed change, not a completed improvement</p><h2>Choose a change to test.</h2>
+        <div class="hwd-compact-action"><p class="hwd-compact-action-label">One action from the saved moderate option</p><h3>{{compactAction}}</h3><dl><div><dt>Before starting</dt><dd>{{compactPrerequisite}}</dd></div><div><dt>Owner</dt><dd>To be agreed before the test.</dd></div><div><dt>How to assess it</dt><dd>{{compactSuccess}}</dd></div></dl></div>
+        <div class="hwd-next"><span>Full alternatives and risks in the report.</span><button type="button" data-demo-next="return">Compare later results <span aria-hidden="true">&rarr;</span></button></div>
       </section>
       <section class="hwd-panel" id="hwd-panel-return" role="tabpanel" aria-labelledby="hwd-tab-return" tabindex="0" hidden>
-        <div class="hwd-page-heading"><div><p class="hwd-eyebrow" data-demo-product-label>Cross-Lens Synthesis</p><h2 data-demo-copy="compareTitle">Check the improvement across all four diagnostics.</h2></div><button class="hwd-choose" type="button" data-demo-next="measure" hidden>Choose an analysis</button></div>
-        <p class="hwd-description" data-demo-copy="compareDescription">Repeat compatible campaigns for the same work. Compare the findings and actual operating records with the original plan.</p>
-        <div class="hwd-baseline-grid"><div class="hwd-baseline"><span data-demo-baseline-label>Saved campaign</span><strong data-demo-baseline-value>{{runCount}}</strong><p data-demo-baseline-context>runs from {{participants}} participants across {{lensCount}} diagnostics</p><span class="hwd-baseline-state">Findings and assumptions retained</span></div><div class="hwd-baseline is-pending"><span>Later comparison</span><strong aria-label="No later result">&middot;&middot;&middot;</strong><p>Actual operating results</p><span class="hwd-baseline-state">No later result in this sample</span></div></div>
-        <div class="hwd-return-note"><span class="hwd-check" aria-hidden="true">&#10003;</span><p>Keep the scope and measures comparable. Check what changed, including the time and cost of implementation.</p></div>
-        <div class="hwd-next"><span>From a proposed improvement to evidence you can review.</span><a href="sample-report.html#synthesis" data-demo-report-link>Read the Cross-Lens example <span aria-hidden="true">&rarr;</span></a></div>
+        <p class="hwd-eyebrow">Return to the same basis</p><h2>Compare later results.</h2>
+        <div class="hwd-compact-comparison"><div><h3>Saved baseline</h3><div class="hwd-compact-score"><strong>{{composite}}</strong><span>/ 100</span></div><p>Cross-Lens Composite Score<br>{{participants}} participants · {{runCount}} selected runs</p></div><div><h3>Later comparison</h3><strong class="hwd-compact-pending">Not yet recorded</strong><p>No later result in this sample.</p></div></div>
+        <p class="hwd-compact-compare-note">Repeat with compatible scope and measures. Check the findings against actual work, including implementation time and costs.</p>
+        <div class="hwd-next"><span></span><button type="button" data-demo-next="measure">Back to Gather <span aria-hidden="true">&rarr;</span></button></div>
       </section>
     </div>
-    <div class="hwd-footer"><span><i aria-hidden="true"></i>Illustrative organizational evaluation</span><a class="hwd-sample-link" href="sample-report.html">View sample reports <span aria-hidden="true">&rarr;</span></a></div>
+    <div class="hwd-footer"><span><i aria-hidden="true"></i>Example, not customer results</span><a class="hwd-sample-link" href="sample-report.html#synthesis">Open sample report <span aria-hidden="true">&rarr;</span></a></div>
   </div>
-  <p class="home-preview-caption">Combine organizational evidence, evaluate a practical opportunity and track the result.</p>
-  <details class="home-preview-method"><summary>See assumptions and low / high scenarios</summary>{{financialAssumptions}}</details>
+  <details class="home-preview-method"><summary>Evidence limits and planning assumptions</summary><p>Reported conditions are not proven causes. Role-specific questions remain distinct. This overview shows one complete action from the moderate option; the full report retains all options, prerequisites and risks.</p>{{compactFinancialAssumptions}}</details>
 </aside>

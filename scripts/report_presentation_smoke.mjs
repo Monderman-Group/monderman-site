@@ -2,17 +2,44 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {readPublicSampleFixture,publicResult} from './public_sample_fixture.mjs';
 
-const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
-
 const base = process.env.REPORT_BASE || 'http://127.0.0.1:8080';
 const out = process.env.REPORT_OUT || '/tmp/report-presentation-smoke';
 // Current publication coverage requires the reviewed six-output artifact.
 // Assembly identity must not replace an entry's original generation identity.
 const {artifact}=readPublicSampleFixture();
-fs.mkdirSync(out, { recursive: true });
 const crossSource=publicResult(artifact.outputs.cross_lens_synthesis), depthSource=publicResult(artifact.outputs.depth_synthesis);
 const crossScore=String(crossSource.cross_diagnostic_score??crossSource.aggregate_score), depthScore=String(depthSource.aggregate_score);
 
+// Sample-shell correction only: no renderer, report text, PDF or saved-data
+// normalization. The browser checks below independently exercise its geometry.
+const desktopShellCss = `  @media(min-width:1081px){
+    :is(#report-synthesis,#report-depth) .psr-doc-shell { grid-template-columns:minmax(0,1fr); }
+    :is(#report-synthesis,#report-depth) .psr-toc { position:static; }
+    :is(#report-synthesis,#report-depth) .mr-screen-contents { display:block; }
+  }`;
+function assertDesktopShellSource(css) {
+  assert(css.split(desktopShellCss).length===2,'Exactly one scoped desktop Synthesis shell correction is required');
+  assert(!css.replace(desktopShellCss,'').includes(':is(#report-synthesis,#report-depth)'), 'No additional Synthesis-only shell overrides are permitted');
+}
+const sampleCss=fs.readFileSync(new URL('../sample-report-production.css',import.meta.url),'utf8');
+assertDesktopShellSource(sampleCss);
+let shellNegativeControls=0;
+for(const changed of [
+  sampleCss.replace('min-width:1081px','min-width:1080px'),
+  sampleCss.replace('grid-template-columns:minmax(0,1fr); }','grid-template-columns:minmax(0,1fr) 240px; }'),
+  sampleCss.replace('.psr-toc { position:static; }','.psr-toc { display:none; }'),
+  sampleCss.replace('.mr-screen-contents { display:block; }','.mr-screen-contents { display:none; }'),
+  sampleCss.replaceAll(':is(#report-synthesis,#report-depth) ',''),
+]) {
+  let rejected=false;try{assertDesktopShellSource(changed);}catch{rejected=true;}
+  assert(rejected,'Sample shell guard accepted a changed scope, column, retained contents or native menu');shellNegativeControls++;
+}
+if(process.argv.includes('--sample-shell-only')) {
+  console.log(JSON.stringify({status:'PASS',sourceChecks:1,negativeControls:shellNegativeControls,publicProducts:Object.keys(artifact.outputs).length,browserCoverage:'NOT_RUN',providerCalls:0}));
+  process.exit(0);
+}
+const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
+fs.mkdirSync(out, { recursive: true });
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 1100 }, deviceScaleFactor: 1 });
 const errors = [];
@@ -79,6 +106,33 @@ async function assertNoHorizontalOverflow(target, label) {
     documentWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
   }));
   assert(geometry.documentWidth <= geometry.viewport + 1, `${label} overflows horizontally: ${geometry.documentWidth}px document in ${geometry.viewport}px viewport`);
+}
+
+async function assertDesktopSynthesisShell(shell,label) {
+  for(const width of [1440,1121]) {
+    await page.setViewportSize({width,height:1100});
+    await page.evaluate(async()=>{await document.fonts.ready;await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));});
+    const geometry=await shell.evaluate(root=>{
+      const frame=root.querySelector('.psr-doc-shell'),main=root.querySelector('.psr-main'),rail=root.querySelector('.psr-toc');
+      const style=getComputedStyle(frame),frameRect=frame.getBoundingClientRect(),mainRect=main.getBoundingClientRect(),railRect=rail.getBoundingClientRect();
+      const cards=[...root.querySelectorAll('.mr-overview-tile')].map(node=>{const r=node.getBoundingClientRect();return {left:r.left,top:r.top,right:r.right,bottom:r.bottom};});
+      const remaining=[...root.querySelectorAll('.mr-overview-sankey-outcome>span')].filter(node=>node.textContent.trim()==='Remaining').map(node=>{const range=document.createRange();range.selectNodeContents(node);return range.getClientRects().length;});
+      const contents=root.querySelector('.mr-screen-contents');
+      return {columns:style.gridTemplateColumns.split(/\s+/).length,mainLeft:mainRect.left,mainRight:mainRect.right,
+        frameLeft:frameRect.left+parseFloat(style.borderLeftWidth)+parseFloat(style.paddingLeft),frameRight:frameRect.right-parseFloat(style.borderRightWidth)-parseFloat(style.paddingRight),
+        mainBottom:mainRect.bottom,railTop:railRect.top,railPosition:getComputedStyle(rail).position,railLinks:rail.querySelectorAll('a').length,
+        menuDisplay:getComputedStyle(contents).display,menuLinkCount:contents.querySelectorAll('a').length,menuLinks:[...contents.querySelectorAll('a')].every(link=>root.contains(document.getElementById(link.hash.slice(1)))),cards,remaining};
+    });
+    assert(geometry.columns===1&&Math.abs(geometry.mainLeft-geometry.frameLeft)<=1&&Math.abs(geometry.mainRight-geometry.frameRight)<=1,label+' report does not fill its desktop shell at '+width+': '+JSON.stringify(geometry));
+    assert(geometry.railPosition==='static'&&geometry.railTop>=geometry.mainBottom-1&&geometry.railLinks>=10,label+' complete contents must remain below the report');
+    assert(geometry.menuDisplay!=='none'&&geometry.menuLinkCount>=10&&geometry.menuLinks,label+' native full section menu is unavailable');
+    const [a,b,c,d]=geometry.cards;
+    assert(geometry.cards.length===4&&Math.abs(a.top-b.top)<=1&&Math.abs(c.top-d.top)<=1&&b.left>a.left&&d.left>c.left&&c.top>=Math.max(a.bottom,b.bottom),label+' approved desktop 2×2 overview changed');
+    assert(geometry.remaining.length===2&&geometry.remaining.every(lines=>lines===1),label+' Remaining chart labels split at '+width);
+    await assertNoHorizontalOverflow(page,label+' desktop shell '+width);
+  }
+  await page.setViewportSize({width:1440,height:1100});
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
 }
 
 async function assertAuthoredSections(shell,source,label) {
@@ -172,30 +226,34 @@ async function assertFinancialReadingOrder(shell,source,measuredSelector,label) 
   },measuredSelector),label+' must begin financial brief, AI interpretation, then measured section in that exact order');
 }
 
-// The four Diagnostic samples must be the live projection of the locked
-// production-engine artifact, not the legacy hand-authored report markup.
-const diagnostics = Object.fromEntries(Object.entries({os:'operational_systems',dv:'decision_velocity',sc:'structural_clarity',ip:'institutional_performance'}).map(([tab,key])=>{
+// The four lens samples are descriptive comparisons. Independent individual
+// report coverage below continues to use the authenticated engine fixture.
+const comparisons = Object.fromEntries(Object.entries({os:'operational_systems',dv:'decision_velocity',sc:'structural_clarity',ip:'institutional_performance'}).map(([tab,key])=>{
   const entry=artifact.outputs[key],source=publicResult(entry);
-  return [tab,{score:String(source.score),dimensions:Object.keys(source.dimensions).length,source,engineCommit:entry.provenance.engine_commit}];
+  assert(entry.kind==='response_comparison'&&source.report_kind==='response_comparison',key+' must be the reviewed response comparison');
+  assert(source.source_groups.length===1&&source.source_groups[0].tool_type===key,key+' comparison lens differs');
+  assert(source.participant_count===15&&source.submitted_run_count===15,key+' comparison participant count differs');
+  assert(source.campaign_evidence.depth.status==='in_progress'&&source.recommended_path_available===false,key+' must remain below Synthesis readiness');
+  assert(!source.financial_scenario,key+' comparison must not acquire a financial scenario');
+  return [tab,{score:String(source.aggregate_score),source,engineCommit:entry.provenance.engine_commit}];
 }));
-for (const [key, expected] of Object.entries(diagnostics)) {
+for (const [key, expected] of Object.entries(comparisons)) {
   const shell = await openTab(key);
   const report = shell.locator('.psr-wrap');
   assert(await report.getAttribute('data-engine-commit') === expected.engineCommit, `${key} original generation revision mismatch`);
   assert(await report.getAttribute('data-artifact-sha256') === artifact.artifact_sha256, `${key} artifact digest mismatch`);
-  assert((await shell.locator('.mr-run-score-stamp strong').textContent()).trim() === expected.score, `${key} score mismatch`);
-  assert(await shell.locator('.mr-dimension-row').count() === expected.dimensions, `${key} dimension profile mismatch`);
-  assert(await shell.locator('.mr-run-remedy').count() === 0, `${key} completed AI duplicates fallback remedy paths`);
+  assert((await shell.locator('.mr-cover-score').textContent()).trim() === expected.score, `${key} included-response median mismatch`);
+  assert((await shell.locator('.mr-cover-score-label').textContent()).trim() === expected.source.score_label, `${key} median label mismatch`);
+  assert(await shell.locator('.mr-depth-distribution-panel').isVisible(), `${key} score distribution missing`);
+  assert(await shell.locator('.mr-run-score-stamp,.mr-dimension-row,.mr-run-remedy,.mr-recommended-path,.mr-report-options').count() === 0, `${key} comparison became an individual report or recommended change path`);
   await assertAuthoredSections(shell,expected.source,key);
-  assert(await shell.locator('.mr-exposure-flow').count()===0,`${key} single-run modeled exposure returned`);
+  assert(await shell.locator('.mr-exposure-flow,.mr-exposure-range,.mr-financial-scenario,.mr-benefit-assumptions').count()===0,`${key} comparison displays a recovery estimate or financial scenario`);
   assert(await shell.locator('.cover').count() === 0, `${key} legacy sample remains in the live DOM`);
   const text = await shell.textContent();
-  for (const token of ['Decision summary','Dimension profile',key==='sc'?'Clarity indicator distribution':'Where the measured issue appears','Evidence in this run',key==='sc'?'Review order and clarity indicators':'Priority order and measured severity','Method and limits','Interpretation boundary','Interpretation and next steps']) {
+  for (const token of ['Response comparison','Included responses only','Agreement, divergence, and coverage','Results by participant perspective','Evidence in this run','Method and limits','Interpretation boundary','Interpretation and next steps']) {
     assert(text.includes(token), `${key} production-contract section missing: ${token}`);
   }
-  const sectionNotes=await page.evaluate(source=>window.MondermanReport.fromRun(source).participantEvidence,expected.source);
-  assert(await shell.locator('.mr-run-evidence .mr-evidence-quote').count()===sectionNotes.length,`${key} saved note-section count differs`);
-  assert(await shell.locator('.mr-run-evidence .mr-evidence-empty').count()===(sectionNotes.length?0:1),`${key} note-section empty state differs from displayed source`);
+  assert(expected.source.experiential_records.length===12&&expected.source.experiential_selection.available===15&&expected.source.experiential_selection.exhaustive===false,`${key} selected-observation disclosure differs`);
   for (const action of expected.source.ai_report.report.interpretation.recommendations.filter(row=>row.action?.trim())) {
     assert(text.includes(action.action), `${key} accepted next step differs from source`);
   }
@@ -205,6 +263,7 @@ for (const [key, expected] of Object.entries(diagnostics)) {
 // Cross-Lens: verify not just presence but hierarchy, typography, evidence-map
 // integration, source-backed visual density, and de-duplication.
 const cross = await openTab('synthesis');
+await assertDesktopSynthesisShell(cross,'Cross-Lens');
 assert(await cross.locator('.mr-cover').isVisible(), 'Cross-Lens source-aligned report cover not visible');
 assert((await cross.locator('.mr-cover-score').textContent()).trim() === crossScore, 'Cross-Lens cover differs from current saved score');
 assert((await cross.locator('.mr-cover-score-label').textContent()).trim() === 'Cross-Lens Composite Score', 'Cross-Lens cover is not showing the certified score label');
@@ -285,6 +344,7 @@ await scenarioGraphic.screenshot({ path: path.join(out, 'cross-lens-operational-
 // Depth: preserve the same typography, opening-boundary integration, and
 // substantive distribution visualization.
 const depth = await openTab('depth');
+await assertDesktopSynthesisShell(depth,'Depth');
 assert(await depth.locator('.mr-cover').isVisible(), 'Depth source-aligned report cover not visible');
 assert((await depth.locator('.mr-cover-score').textContent()).trim() === depthScore, 'Depth cover differs from current saved score');
 assert(depthSource.score_type === 'within_lens_median', 'Depth must preserve its within-diagnostic median basis');
@@ -511,7 +571,7 @@ fs.writeFileSync(path.join(out, 'result.json'), JSON.stringify({
   crossChartFont,
   depthChartFont,
   boundaryStyle,
-  diagnosticTabs:4,
+  responseComparisonTabs:4,
   synthesisTabs:2,
   authenticatedRunChecks,
   synthesisResponsiveChecks,

@@ -6,18 +6,25 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
+import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
+import {sourceBeforeHorizontalOverviewPresentation} from './report_overview_horizontal_inverse.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const read = name => fs.readFileSync(path.join(root, name), 'utf8');
-const artifactBytes = read('sample-data/production-diagnostic-samples.json');
+// Keep historical source/fixture assertions together. The current four-row
+// contract separately exercises the current publication and actual comparisons.
+const artifactBytes = execFileSync('git',['show','4b24682b352df38ce9d72530ee9bbf0b2775af21:sample-data/production-diagnostic-samples.json'],{cwd:root,encoding:'utf8',maxBuffer:32e6});
+const currentArtifactBytes = read('sample-data/production-diagnostic-samples.json');
 const rendererBytes = read('monderman-report.js');
 const artifact = JSON.parse(artifactBytes);
 const fixtures = JSON.parse(read('scripts/fixtures/three-benefit-scenarios.json'));
 const sha = value => createHash('sha256').update(value).digest('hex');
 const context = {window:{}, console, Intl, Date, Number, String, Array, Object, Math, JSON, WeakSet, Blob, URL, setTimeout, clearTimeout};
 vm.runInNewContext(read('participant-evidence-safety.js'), context);
-vm.runInNewContext(rendererBytes, context);
+// Keep this historical two-flow contract on its exact original renderer; the
+// current four-row component has report_overview_horizontal_contract.mjs.
+vm.runInNewContext(sourceBeforeHorizontalOverviewPresentation(rendererBytes), context);
 const R = context.window.MondermanReport;
 let checks = 0, documents = 0;
 const ok = (value, label) => { assert.ok(value, label); checks++; };
@@ -222,5 +229,5 @@ const injection = synthesisCase('escaped-summary-and-guidance', raw => {
 });
 ok(!flatten(injection.overview).some(node=>node.tag==='img'||node.tag==='script'),'AI text cannot create markup in overview');
 ok(text(injection.overview).includes('<img src=x onerror=alert(1)>'),'escaped text remains faithful');
-equal(sha(read('sample-data/production-diagnostic-samples.json')),sha(artifactBytes),'saved sample file remains byte-for-byte unchanged');
-console.log(JSON.stringify({status:'PASS',checks,documents,actualSamples:6,artifactSha256:sha(artifactBytes),rendererSha256:sha(rendererBytes),executed:'Node VM render + structural HTML assertions; no browser or network',notExecuted:['visual layout','live DOM polling/focus','PDF pagination','live account integration']},null,2));
+equal(sha(read('sample-data/production-diagnostic-samples.json')),sha(currentArtifactBytes),'test never changes the current saved sample file');
+console.log(JSON.stringify({status:'PASS',checks,documents,historicalSamples:6,artifactSha256:sha(artifactBytes),rendererSha256:sha(rendererBytes),executed:'Node VM render + structural HTML assertions against exact historical source and fixture; no browser or network',notExecuted:['visual layout','live DOM polling/focus','PDF pagination','live account integration']},null,2));

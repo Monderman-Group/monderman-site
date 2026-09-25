@@ -575,10 +575,7 @@
       <h2 class="ps-h2">AI assists with language. Versioned rules determine the score.</h2>
       <p class="ps-sub">A generative model can produce different language from the same prompt. That variation can be useful when drafting text. It is not appropriate for the calculation behind a score that an executive may compare over time.</p>
       <p class="ps-sub">Deterministic AI Infrastructure (DAII) separates scoring from model assistance. Proprietary, versioned rules turn structured answers into a score. When enabled, a language model helps explain a completed Diagnostic or Synthesis result using selected evidence. It does not calculate or set the score. Generated interpretation can contain errors and requires review. The current Diagnostic uses guided questions; interview mode is not available.</p>
-      <p class="ps-sub">In this context, &#8220;deterministic&#8221; means that the scoring rules are stable within a stated version. It does not mean that every organization receives the same result.</p>
-      <p class="ps-sub"><strong>Structured answers are the scoring inputs.</strong> Different answer sets can produce different scores, whether they come from another participant or a later compatible run.</p>
-      <p class="ps-sub"><strong>The engine does not.</strong> The arithmetic that turns answers into a number is fixed. It does not learn from prior runs, drift with usage, or vary by who is asking. Within a fixed instrument/scorer version, give it the same answers to the same questions and it returns the same number.</p>
-      <p class="ps-sub"><strong>The instruments can be refined deliberately.</strong> A revision may add, remove, or change questions or scoring rules. The platform records that change as a new version. Results from unlike versions should not be treated as directly comparable unless documented compatibility rules permit it; otherwise, the later run establishes a new baseline.</p>
+      <p class="ps-sub"><strong>The scoring rules stay fixed within each version.</strong> That is what &#8220;deterministic&#8221; means here. The rules do not learn from prior runs, change with usage, or vary by who is asking. Different structured answers can produce different scores, whether they come from another participant or a later compatible run.</p>
       <figure class="daii-fig">
         <svg viewBox="0 0 720 318" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A deterministic engine returns the same score for the same answers and a different score for different answers; a raw model drifts on identical answers">
   <defs>
@@ -623,21 +620,21 @@
   <text x="634" y="245" text-anchor="middle" font-family="Inter,'Neue Haas Grotesk',Helvetica,Arial,sans-serif" font-size="21" font-weight="700" fill="#9A9892">58</text>
   <text x="408" y="282" font-family="'Neue Haas Grotesk',Helvetica,Arial,sans-serif" font-size="12.5" fill="#9A9892">Drifts run to run</text>
 </svg>
-        <figcaption>Consistent, not constant. Run the same answers three times and the deterministic engine returns the same score, while a raw model may vary. Change the answers and the score can change with them: 67 reflects this response set, not the engine&#8217;s only possible result.</figcaption>
+        <figcaption>Illustration: the first response set scores 67; a different response set scores 41. The lower row shows how asking a language model to invent the score could produce varying numbers.</figcaption>
       </figure>
     </div>
   </section>
 
   <section class="ps-section tight">
     <div class="ps-wrap">
-      <span class="ps-section-label">Why the separation matters</span>
-      <h2 class="ps-h2">Repeat the calculation without handing it to a language model.</h2>
-      <p class="ps-sub">Within the same instrument and scorer version, identical structured answers produce the same score. Time, labor-cost, and recoverable-capacity scenarios are modeled separately from customer-provided inputs. A later compatible run can show whether the responses changed; it does not, by itself, explain the cause or establish an audited financial return.</p>
+      <span class="ps-section-label">Using the result</span>
+      <h2 class="ps-h2">Compare compatible results. Keep financial estimates separate.</h2>
+      <p class="ps-sub">A later compatible run can show whether the responses changed; it does not, by itself, explain the cause or establish an audited financial return. Time, labor-cost, and recoverable-capacity scenarios use separate customer-provided inputs.</p>
+      <p class="ps-sub"><strong>Instrument revisions are recorded as new versions.</strong> A revision may add, remove, or change questions or scoring rules. Results from unlike versions should not be treated as directly comparable unless documented compatibility rules permit it; otherwise, the later run establishes a new baseline.</p>
       <div class="daii-props">
-        <div class="p"><h4>Reproducible</h4><span>Within the same instrument/scorer version, the same answers to the same questions produce the same score on every run. Nothing in the scoring path is probabilistic.</span></div>
-        <div class="p"><h4>Versioned</h4><span>When an instrument or scorer changes, the platform records a new version. Like-for-like comparisons require compatible versions.</span></div>
-        <div class="p"><h4>Limited AI role</h4><span>When enabled, the language model receives selected evidence to help explain a finished result. It never sets the score. Automated checks do not guarantee accurate interpretation.</span></div>
-        <div class="p"><h4>Separate estimates</h4><span>When required context is available, time and cost scenarios use customer-provided inputs and remain separate from the score.</span></div>
+        <div class="p"><h4>Check compatibility</h4><span>Use the saved instrument and scorer versions to determine whether two results can be compared.</span></div>
+        <div class="p"><h4>Review the explanation</h4><span>Check the AI-assisted interpretation against the selected evidence. Automated checks do not guarantee accurate interpretation.</span></div>
+        <div class="p"><h4>Inspect the assumptions</h4><span>Review the operational inputs behind time and cost scenarios before using them to plan a change.</span></div>
       </div>
     </div>
   </section>

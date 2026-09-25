@@ -4,6 +4,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
+import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 
 export const OVERVIEW_SITE_PRIOR_COMMIT='31c87d9944d58cd58a48e389a680e0e909536329';
 export const OVERVIEW_SITE_REVIEWED_COMMIT='bd5948aa32bb738c10eef2f9261d5d580bdc91e2';
@@ -26,6 +27,9 @@ assert.equal(delta.reviewed_commit,OVERVIEW_SITE_REVIEWED_COMMIT);
 assert.deepEqual(Object.keys(delta.files),OVERVIEW_SITE_FILES,'Finite reviewed site filename whitelist');
 
 export function sourceBeforeOverviewSiteCompatibility(file,source){
+  // The shared wrapper restores gold, the separate library presentation and
+  // then the immutable copy edition, exactly once and in that order.
+  source=sourceBeforePublicCopyClarity(file,source);
   if(!OVERVIEW_SITE_FILES.includes(file))return source;
   const entry=delta.files[file];
   assert.equal(sha(source),entry.current_sha256,file+': only the exact reviewed current source can be inverted');

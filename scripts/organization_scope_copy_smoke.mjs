@@ -8,6 +8,7 @@ import {createHash} from 'node:crypto';
 import {assertInvitedEvaluationSourceContract,EVALUATION_BASELINE} from './invited_evaluation_source_contract.mjs';
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 import {sourceBeforeOverviewSiteCompatibility} from './report_overview_site_compatibility_inverse.mjs';
+import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const baseline = '80bf58384c641f1614280a34532bfcd8ec03d951';
@@ -67,7 +68,10 @@ check(pilotOptions(read('pilot.html')).includes('value="13-plus"'), 'Pilot form 
 const numbers = html => publicText(html).match(/\$?\b\d[\d,]*(?:\.\d+)?%?/g) || [];
 const withoutEntryForm=html=>html.replace(/<div class="pl-form">[\s\S]*?<\/div>\s*<style>/,'<style>');
 for (const file of ['plan-signal.html','plan-pattern.html','plan-enterprise.html']) {
-  equal(numbers(withoutEntryForm(read(file))),numbers(withoutEntryForm(currentPrior(file))),file+': paid prices, terms, seats and allowances unchanged outside replaced invitation entry');
+  // The September 24 copy pass removes a duplicated allowance sentence only.
+  // Restore its separately pinned bytes for this historical occurrence-count
+  // check; pricing_public_copy_smoke still validates the actual current offer.
+  equal(numbers(withoutEntryForm(sourceBeforePublicCopyClarity(file,read(file)))),numbers(withoutEntryForm(currentPrior(file))),file+': paid prices, terms, seats and allowances unchanged outside replaced invitation entry');
 }
 const pricingCards=html=>html.match(/<div class="ps-tiers">[\s\S]*?<div class="ps-free">/)?.[0];
 check(Boolean(pricingCards(read('platform-services.html'))),'Paid pricing cards exist');
@@ -126,7 +130,7 @@ for (const [label, mutation] of [
   ['unrelated executable addition', acceptedSample.replace('</body>', '<script>window.unapprovedBehavior = true;</script></body>')],
 ]) {
   check(mutation !== acceptedSample, label + ': negative control changes the sample page');
-  assert.throws(() => assertScripts('sample-report.html', mutation), /executable scripts match the exact approved baseline|only the exact reviewed current source can be inverted/); checks++;
+  assert.throws(() => assertScripts('sample-report.html', mutation), /executable scripts match the exact approved baseline|only the exact reviewed current source can be inverted|only the exact reviewed public-language source can be inverted|only the exact reviewed current source can restore projection cache compatibility/); checks++;
 }
 
 const currentProtection=assertInvitedEvaluationSourceContract(root);
@@ -146,7 +150,7 @@ const template = 'scripts/templates/home-workspace-preview.html';
 const oldPreview = 'Choose a diagnostic for a team, unit, or decision path.';
 const newPreview = 'Choose a diagnostic for a defined part of your organization.';
 equal(historicalCopy(template).split(newPreview).length - 1,1,'Historical copy release had one organization-scope preview sentence');
-check(read(template).includes('Gather organizational evidence')&&read(template).includes('organizational evaluation')&&read(template).includes('Repeat compatible campaigns for the same work.'),'Compacted five-journey preview retains organizational scope and comparable campaign follow-up');
+check(read(template).includes('One scope. Different perspectives.')&&read(template).includes('organizational evaluation')&&read(template).includes('Repeat with compatible scope and measures.'),'Approved compact four-step preview retains organizational scope and comparable follow-up');
 equal(historicalCopy(template).replace(newPreview, oldPreview), prior(template), 'Only approved preview-template copy differs from baseline');
 const digest = value => createHash('sha256').update(value).digest('hex');
 const manifest = JSON.parse(historicalCopy('sample-data/production-sample-release.json'));

@@ -26,7 +26,13 @@ const scenario=()=>({version:'operational-planning-scenario-20260913.1',kind:'sy
  activities:[{label:'Example work',potentialHoursFreed:range(626,3496,5342)}],
  method:{usesDiagnosticScores:false,isConfidenceInterval:false,measurementDays:28},
  totals:{potentialHoursFreed:range(626,3496,5342),netCapacityAndCashValue:range(-15037.68,295989.11,498777.97),capacityValue:range(64962.32,364989.11,556777.97),netCashEffect:range(-56000,-51000,-46000),totalImplementationAndSubscriptionCost:range(58000,69000,80000)}});
-const ai=()=>({status:'complete',report:{interpretation:{recommendations:[{action:'SYNTHETIC TEST: inspect an authorized example.'}]}}});
+const mockActions=()=>[
+ {id:'campaign_limited',intensity:'limited',action:'SYNTHETIC TEST: inspect an authorized example.',prerequisite:'MOCK permission recorded.',success_check:'MOCK comparison recorded.'},
+ {id:'campaign_moderate',intensity:'moderate',action:'SYNTHETIC TEST: test an authorized process change.',prerequisite:'MOCK permission recorded.',success_check:'MOCK comparison recorded.'},
+ {id:'campaign_structural',intensity:'structural',action:'SYNTHETIC TEST: examine an authorized work scope.',prerequisite:'MOCK permission recorded.',success_check:'MOCK comparison recorded.'},
+];
+const ai=()=>({status:'complete',report:{interpretation:{recommendations:[{action:'SYNTHETIC TEST: inspect an authorized example.'}],
+ action_options:mockActions().map(({id,...row})=>({...row,option_id:id}))}}});
 const lensFixtures=[
  ['structural_clarity','Structural Clarity',52,[49,74],[49,52,74]],
  ['decision_velocity','Decision Velocity',62,[61,77],[61,62,77]],
@@ -36,19 +42,25 @@ const lensFixtures=[
 function fixture(){
  const groups=lensFixtures.map(([tool_type,tool_label,median_score,bounds])=>({tool_type,tool_label,submitted_runs:27,participants:27,median_score,score_iqr:[...bounds],score_range:[...bounds],participant_mode_counts:{operational:9,managerial:9,senior_leader:9}}));
  const reads=lensFixtures.map(([tool_type,,median,iqr,segments])=>({tool_type,n:27,score:{median,iqr:[...iqr]},consensus:{read:'divided'},segments:['operational','managerial','senior_leader'].map((participant_mode,index)=>({participant_mode,n:9,median_score:segments[index]}))}));
+ const requiredGroups=['operational','managerial','senior_leader'].map((id,index)=>({id,label:['People doing the work','Managers','Senior leaders'][index],participants:9,privacy:{mayDisplayGroupStatistics:true,minimumDisplayedGroupSize:5}}));
+ const compact={score_status:'published',cross_diagnostic_score:58,aggregate_score:58,condition_band:'Mixed observed condition',
+  primary_pattern:'Two or more lens-level signals share the highest observed count, so the coherent read does not identify one unique dominant shared pattern. Use the lens summaries and contradictions to define a bounded validation question rather than forcing one causal diagnosis.',
+  campaign_action_options:mockActions(),campaign_evidence:{counts:{distinctParticipantsAcrossLenses:27,selectedRuns:108,declaredPopulation:30},
+   depth:{lenses:groups.map(g=>({tool_type:g.tool_type,requiredGroups:structuredClone(requiredGroups)}))}}};
  return {contract:'monderman-public-product-samples/v3',synthetic:true,artifact_sha256:'b'.repeat(64),outputs:{
- cross_lens_synthesis:seal({kind:'synthesis',provenance:{synthetic:true},source:{synthesis_product:'cross_lens_synthesis',submitted_run_count:108,participant_count:27,source_groups:structuredClone(groups),sample_reads:structuredClone(reads),financial_scenario:scenario(),ai_report:ai()}}),
+ cross_lens_synthesis:seal({kind:'synthesis',provenance:{synthetic:true},source:{...compact,synthesis_product:'cross_lens_synthesis',submitted_run_count:108,participant_count:27,source_groups:structuredClone(groups),sample_reads:structuredClone(reads),financial_scenario:scenario(),ai_report:ai()}}),
  decision_velocity:seal({kind:'diagnostic',provenance:{synthetic:true},source:{tool_type:'decision_velocity',process_name:'Example process',business_unit:'Example team',score:72,score_band:'Compounding',burden_breakdown:{approval:26,coordination:null,escalation:42},ai_report:ai()}}),
  depth_synthesis:seal({kind:'synthesis',provenance:{synthetic:true,submitted_run_count:27},source:{synthesis_product:'depth_synthesis',submitted_run_count:27,
   source_groups:[structuredClone(groups[0])],sample_reads:[structuredClone(reads[0])],financial_scenario:scenario(),ai_report:ai()}})}};}
 const build=a=>buildPublicSamplePreviewSections(a,template);
 const base=fixture(),before=JSON.stringify(base),sections=build(base);eq(JSON.stringify(base),before);
-ok(sections.hero.includes('data-demo-hours>3,496'));
-ok(sections.hero.includes('data-demo-capacity>$364,989'));
-ok(sections.hero.includes('data-demo-cost>$69,000'));
+ok(sections.hero.includes('data-demo-hours data-exact-value="3496" title="Capacity for other work: 3496">3,496 h'));
+ok(sections.hero.includes('3,496 hours / $364,989 capacity value'));
+ok(sections.hero.includes('Central · 12 months · before costs'));
+ok(sections.hero.includes('<dd data-demo-spending-reduction>Not estimated</dd>')&&sections.hero.includes('<dd data-demo-spending-avoidance>Not estimated</dd>'));
 ok(sections.hero.includes('Illustrative example'));
 ok(sections.hero.includes('Low case')&&sections.hero.includes('-$15,038'));
-ok(sections.hero.includes('not diagnostic scores'));
+ok(sections.hero.includes('Planning inputs are separate from scores.')&&sections.hero.includes('Capacity is not cash savings.'));
 ok(!sections.hero.includes('data-demo-score'));
 for(const place of ['home','brief']){
  ok(sections[place].includes('data-promo-capacity>About $365,000'));
@@ -69,15 +81,19 @@ oldMoney.outputs.depth_synthesis.source.pathway_exposure={status:'available',rec
 Object.values(oldMoney.outputs).forEach(seal);eq(build(oldMoney),sections);
 const absent=fixture();delete absent.outputs.depth_synthesis.source.financial_scenario;seal(absent.outputs.depth_synthesis);const fallback=build(absent);
 ok(fallback.home.includes('data-promo-median>52 / 100'));ok(!/data-promo-capacity|data-promo-net-cash|\$/.test(fallback.home));
-ok(!fallback.hero.includes('data-demo-financial-case="structural_clarity"'));
-eq([...fallback.hero.matchAll(/data-demo-financial-case="([^"]+)"/g)].map(match=>match[1]),['cross_lens_synthesis']);
+eq(fallback.hero,sections.hero); // The compact hero uses only the separate Cross-Lens case.
+eq([...fallback.hero.matchAll(/data-demo-assumptions-for="([^"]+)"/g)].map(match=>match[1]),['cross_lens_synthesis']);
 const hostile=fixture();hostile.outputs.cross_lens_synthesis.source.source_groups.find(group=>group.tool_type==='decision_velocity').tool_label='<img src=x onerror=alert(1)>';
-hostile.outputs.depth_synthesis.source.ai_report.report.interpretation.recommendations[0].action='<script>unsafe()</script>&';
+hostile.outputs.depth_synthesis.source.ai_report.report.interpretation.action_options[0].action='<script>unsafe()</script>&';
 Object.values(hostile.outputs).forEach(seal);const escaped=build(hostile);ok(escaped.hero.includes('&lt;img'));ok(escaped.home.includes('&lt;script&gt;'));ok(!escaped.home.includes('<script>unsafe'));
+// The obsolete individual diagnostic is not a data source for either synthesis
+// preview. Unknown/changed diagnostic burden values cannot change the output.
 for(const mutate of [
  a=>{a.outputs.decision_velocity.source.burden_breakdown.escalation=null;a.outputs.decision_velocity.source.burden_breakdown.approval=null;},
  a=>{a.outputs.decision_velocity.source.burden_breakdown.escalation='42';},
  a=>{a.outputs.decision_velocity.source.burden_breakdown.escalation=101;},
+]){const a=fixture();mutate(a);Object.values(a.outputs).forEach(seal);eq(build(a),sections);}
+for(const mutate of [
  a=>{a.outputs.depth_synthesis.source.financial_scenario.version='old';},
  a=>{a.outputs.depth_synthesis.source.financial_scenario.method.usesDiagnosticScores=true;},
  a=>{a.outputs.depth_synthesis.source.financial_scenario.method.isConfidenceInterval=true;},
@@ -95,7 +111,8 @@ for(const mutate of [
 ]){const a=fixture();mutate(a);Object.values(a.outputs).forEach(seal);assert.throws(()=>build(a));checks++;}
 const changed=fixture();changed.outputs.depth_synthesis.source.financial_scenario.totals.capacityValue.high++;
 assert.throws(()=>build(changed),/reviewed projection/);checks++;
-// Real publication entry point still refuses v2 before any asset change.
+// Real publication entry point still refuses an incomplete approval/source
+// mirror before any asset change.
 const isolated=fs.mkdtempSync(path.join(os.tmpdir(),'sample-preview-generator-MOCK-'));
 fs.mkdirSync(path.join(isolated,'sample-data'));for(const n of protectedFiles.filter(n=>n.startsWith('sample-data/')))fs.copyFileSync(path.join(root,n),path.join(isolated,n));
 for(const n of ['index.html','Monderman_Platform_Brief.html'])fs.writeFileSync(path.join(isolated,n),'UNCHANGED_SENTINEL');
@@ -105,9 +122,14 @@ for(const n of ['index.html','Monderman_Platform_Brief.html'])eq(fs.readFileSync
 let display=sections,calculatorFixture=false;
 if(option('--prepared')){
  assert.ok(path.isAbsolute(option('--prepared')));
- const prepared=JSON.parse(fs.readFileSync(option('--prepared'))),a={contract:'monderman-public-product-samples/v3',synthetic:true,artifact_sha256:'c'.repeat(64),outputs:{}};
+ const prepared=JSON.parse(fs.readFileSync(option('--prepared'))),a=fixture();
  eq(prepared.publicDraft.status,'dry_not_for_publication');
- for(const key of ['decision_velocity','depth_synthesis','cross_lens_synthesis']){const e=structuredClone(prepared.publicDraft.outputs[key]);e.source.ai_report=ai();a.outputs[key]=seal(e);}
+ // Test only the calculator's financial attachment in the complete MOCK
+ // display source. This does not invent an accepted AI report for a draft.
+ for(const key of ['depth_synthesis','cross_lens_synthesis']){
+  a.outputs[key].source.financial_scenario=structuredClone(prepared.publicDraft.outputs[key].source.financial_scenario);
+  seal(a.outputs[key]);
+ }
  display=build(a);calculatorFixture=true;
  ok(display.home.includes('data-promo-capacity'));ok(display.home.includes('data-promo-net-cash'));ok(!display.hero.includes('data-demo-recovery'));
 }

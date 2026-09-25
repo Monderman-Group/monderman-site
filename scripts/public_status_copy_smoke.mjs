@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
+import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 const baseline='81f06cbe6974d5e7d1a276ce762e5a4b4699162e';
@@ -34,7 +35,7 @@ for(const [file,pairs]of Object.entries(substitutions)){
     check(expected.split(before).length===2,file+': one exact approved status-copy substitution');
     expected=expected.replace(before,()=>after);
   }
-  check(read(file)===expected,file+': every other byte, including scripts, styles, links and prices, remains unchanged');
+  check(sourceBeforePublicCopyClarity(file,read(file))===expected,file+': historical status-only delta remains exact before the independently checked September 24 copy edits');
 }
 
 const decode=text=>text.replace(/&#x([\da-f]+);/gi,(_,number)=>String.fromCodePoint(parseInt(number,16)))

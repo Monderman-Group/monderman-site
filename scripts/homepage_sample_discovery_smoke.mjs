@@ -24,8 +24,8 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
       const direct=page.locator('.hwd-footer .hwd-sample-link');
       for(const link of [hero,direct]){
         assert.equal(await link.isVisible(),true,name+'/'+width+': sample link is visible on first load');
-        assert.equal(await link.getAttribute('href'),'sample-report.html');
-        assert.match(await link.innerText(),/^View sample reports/);
+        assert.equal(await link.getAttribute('href'),link===direct?'sample-report.html#synthesis':'sample-report.html');
+        assert.match(await link.innerText(),link===direct?/^Open sample report/:/^View sample reports/);
         const box=await link.boundingBox();assert.ok(box.height>=44,'Sample link has a usable touch target');
       }
       assert.equal(await hero.evaluate(el=>el.previousElementSibling?.classList.contains('hero-actions')),true,'Hero sample access immediately follows the invitation buttons');
@@ -39,7 +39,7 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
       const primary=await page.locator('.hero-actions .btn-accent').evaluate(el=>({background:getComputedStyle(el).backgroundColor,color:getComputedStyle(el).color}));
       assert.deepEqual(primary,{background:'rgb(169, 208, 212)',color:'rgb(4, 24, 27)'});
       const secondary=await page.locator('.hero-actions .btn-secondary').evaluate(el=>getComputedStyle(el).borderTopColor);
-      assert.equal(secondary,'rgb(201, 162, 39)');
+      assert.equal(secondary,'rgb(230, 199, 101)');
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth+1),'No horizontal overflow');
       // Establish keyboard modality after the journey mouse clicks. Native
       // :focus-visible intentionally does not show a ring in mouse modality.

@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
+import {sourceBeforeTrustSecurityCenter20260924} from './trust_security_center_20260924_inverse.mjs';
 const root=new URL('../',import.meta.url),read=name=>fs.readFileSync(new URL(name,root),'utf8');
 const sha=value=>createHash('sha256').update(value).digest('hex');
 const version='2026-09-12-ai-source-evidence-v2',archive='privacy-'+version+'.html';
@@ -52,10 +53,45 @@ equal(sha(content(read('terms-2026-09-15-annual-plans.html'))),'2dea883f1452b015
 equal(sha(content(read('terms.html'))),manifest.terms_content_sha256,'Invited evaluation Terms content is pinned');
 equal(read('terms.html'),read('terms-'+currentVersion+'.html'),'Current Terms have an exact new archive');
 equal(sha(manifest.acceptance_copy),'2bef99a3fe3aa7efe1f70e2655a25167e7e6513b2ecd5305b63d3863a6e84775','acceptance copy unchanged');
-for(const file of ['security.html','subprocessors.html','pilot.html','pattern-trial.html']){
+const sourceDisclosurePhrases=['Synthesis of your own saved runs','September 12 notice','request-size checks'];
+function sourceDisclosureCopy(text,label){
+  for(const phrase of sourceDisclosurePhrases)assert(text.toLowerCase().includes(phrase.toLowerCase()),label+': '+phrase);
+  assert(!text.includes('Synthesis uses aggregate results and a bounded selection'));
+}
+for(const file of ['security.html','pilot.html','pattern-trial.html']){
   const text=read(file);
-  for(const phrase of ['Synthesis of your own saved runs','September 12 notice','request-size checks']){assert(text.toLowerCase().includes(phrase.toLowerCase()),file+': '+phrase);checks++;}
-  assert(!text.includes('Synthesis uses aggregate results and a bounded selection'));checks++;
+  sourceDisclosureCopy(text,file);checks+=4;
+}
+const center=read('security.html'),legacy=read('subprocessors.html');
+// Only historical copy is restored. Current canonical disclosures and exact
+// legacy destinations remain independently required below.
+sourceDisclosureCopy(sourceBeforeTrustSecurityCenter20260924('subprocessors.html',legacy),'historical subprocessors.html');checks+=4;
+function canonicalPrivacyRoute(current,old){
+  assert.equal((current.match(/<section\b[^>]*aria-labelledby="ai-processing"[^>]*>/g)||[]).length,1);
+  const aiSection=current.match(/<section\b[^>]*aria-labelledby="ai-processing"[^>]*>[\s\S]*?<\/section>/)?.[0];
+  sourceDisclosureCopy(aiSection||'','canonical AI processing section');
+  assert.equal((old.match(/<link rel="canonical" href="https:\/\/www\.monderman\.com\/security\.html">/g)||[]).length,1);
+  for(const anchor of ['providers','ai-processing','provider-security']){
+    assert.equal(current.split('id="'+anchor+'"').length-1,1);
+    assert.equal(old.split('id="'+anchor+'"').length-1,1);
+    const sections=old.match(new RegExp('<section\\b[^>]*aria-labelledby="'+anchor+'"[^>]*>[\\s\\S]*?<\\/section>','g'))||[];
+    assert.equal(sections.length,1);
+    assert.equal(sections[0].split('href="security.html#'+anchor+'"').length-1,1);
+  }
+  assert.doesNotMatch(old,/<meta[^>]+http-equiv\s*=\s*["']?refresh/i);
+}
+canonicalPrivacyRoute(center,legacy);checks++;
+const routeMutations=sourceDisclosurePhrases.map(phrase=>[center.replace(phrase,'[removed source disclosure]'),legacy]);
+for(const anchor of ['providers','ai-processing','provider-security']){
+  routeMutations.push([center,legacy.replace('href="security.html#'+anchor+'"','href="security.html#wrong-section"')]);
+  routeMutations.push([center,legacy.replace('id="'+anchor+'"','id="retired-'+anchor+'"')]);
+  routeMutations.push([center.replace('id="'+anchor+'"','id="retired-'+anchor+'"'),legacy]);
+}
+routeMutations.push([center,legacy.replace('href="https://www.monderman.com/security.html"','href="https://www.monderman.com/subprocessors.html"')]);
+routeMutations.push([center,legacy.replace('</head>','<meta http-equiv="refresh" content="0;url=security.html"></head>')]);
+for(const [changedCenter,changedLegacy]of routeMutations){
+  assert.notDeepEqual([changedCenter,changedLegacy],[center,legacy],'Each canonical privacy mutation changes source');
+  assert.throws(()=>canonicalPrivacyRoute(changedCenter,changedLegacy));negatives++;
 }
 for(const tool of ['decision-velocity','structural-clarity','operational-systems','institutional-performance']){
   const source=read(tool+'.html');

@@ -21,22 +21,22 @@ const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
 const shellRelease = "20260913.32";
 // Refresh changed runtime assets without invalidating unchanged brand assets.
 const assetReleases = Object.freeze({
-  "monderman-report.js": "20260923.overview1",
-  "sample-report-tile.css": "20260923.gold1",
-  "pilot-waitlist.css": "20260923.gold1",
+  "monderman-report.js": "20260924.overview2",
+  "sample-report-tile.css": "20260924.gold1",
+  "pilot-waitlist.css": "20260924.gold1",
   "assignment-mode.js": "20260923.salary1",
   "assignment-draft.js": "20260923.salary1",
   "employer-salary-import.js": "20260923.1",
   "employer-salary-settings.js": "20260923.2",
   "monderman-depth-lure-tile.css": "20260920.gold2",
-  "sample-report-production.js": "20260915.annual1",
-  "public-sample-model.js": "20260915.annual1",
+  "sample-report-production.js": "20260924.comparisons1",
+  "public-sample-model.js": "20260924.projection8",
   "canonical-site-shell.js": "20260916.floating-support1",
-  "canonical-site-shell.css": "20260923.gold1",
+  "canonical-site-shell.css": "20260924.gold1",
   "connect-widget.js": "20260917.widget-visible1",
   "assistant.js": "20260919.invited1",
   "workspace-assistant.js": "20260915.consistency1",
-  "public-product-design.css": "20260923.gold1",
+  "public-product-design.css": "20260924.gold1",
   "workspace-product-design.css": "20260915.consistency1",
   "report-screen-experience.css": "20260921.gold1",
   "diagnostic-intake.css": "20260915.consistency1",
@@ -46,8 +46,8 @@ const assetReleases = Object.freeze({
   "campaign-analysis.css": "20260919.benefits1",
   "workspace-synthesis-readiness.js": "20260919.ready1",
   "workspace-synthesis-readiness.css": "20260919.ready1",
-  "homepage-workspace-demo.css": "20260923.samples1",
-  "homepage-workspace-demo.js": "20260920.gather1",
+  "homepage-workspace-demo.css": "20260924.compact1",
+  "homepage-workspace-demo.js": "20260924.compact1",
   "workspace-access-gate.js": "20260919.invited1",
   "workspace-evaluation.js": "20260919.invited1",
   "feedback-widget.js": "20260919.invited1",
@@ -144,7 +144,7 @@ for (const entry of await readdir(publishDirectory, { withFileTypes: true })) {
   // receives the same shell release without modifying protected source pages.
   let versionedHtml = html
     .replace(canonicalCssPattern, `canonical-site-shell.css?v=${assetReleases["canonical-site-shell.css"]}`)
-    .replace(enterpriseCssPattern, "enterprise-site.css?v=20260920.gold3");
+    .replace(enterpriseCssPattern, "enterprise-site.css?v=20260924.gold1");
   versionedHtml = versionScript(versionedHtml, "canonical-site-shell.js");
   versionedHtml = versionScript(versionedHtml, "assistant.js");
   versionedHtml = versionScript(versionedHtml, "workspace-assistant.js");
