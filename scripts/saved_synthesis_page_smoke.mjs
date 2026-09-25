@@ -14,8 +14,8 @@ const out=process.env.SAVED_SYNTHESIS_OUT||fs.mkdtempSync('/tmp/saved-synthesis-
 if(process.env.SAVED_SYNTHESIS_OUT)fs.mkdirSync(out,{recursive:false,mode:0o700});
 const pageSource=fs.readFileSync(path.join(root,'cross-tool-synthesis.html'),'utf8');
 const rendererSource=fs.readFileSync(path.join(root,'monderman-report.js'),'utf8');
-assert.match(rendererSource,/RENDERER_VERSION = "diagnostic-renderer-report-overview-20260924\.1"/);
-assert.match(pageSource,/monderman-report\.js\?v=20260924\.overview2/);
+assert.match(rendererSource,/RENDERER_VERSION = "diagnostic-renderer-change-wording-20260925\.1"/);
+assert.match(pageSource,/monderman-report\.js\?v=20260925\.changewording1/);
 // Preserve the exact historical identifiers after the reviewed, hash-pinned
 // presentation inverse; the browser still executes the current candidate.
 assert.match(sourceBeforeOverviewPresentation(rendererSource),/RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260914\.43"/);

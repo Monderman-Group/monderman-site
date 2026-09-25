@@ -8,12 +8,17 @@ import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {reportHtmlAfterReviewedPresentation} from './report_three_benefit_presentation_inverse.mjs';
 import {withoutReportOverview} from './report_overview_test_normalizer.mjs';
+import {sourceBeforeChangeWording20260925} from './change_wording_20260925_inverse.mjs';
 const root=path.resolve(import.meta.dirname,'..'),prior='b06b72083442f03f7a1e2cadeb5239e4f0449515';
 const read=f=>fs.readFileSync(path.join(root,f),'utf8'),sha=s=>createHash('sha256').update(s).digest('hex');
 const source=read('monderman-report.js'),fixtureBytes=read('scripts/fixtures/three-benefit-scenarios.json'),fixtures=JSON.parse(fixtureBytes);
 const historic=JSON.parse(execFileSync('git',['show',prior+':sample-data/production-diagnostic-samples.json'],{cwd:root,encoding:'utf8',maxBuffer:32e6}));
 const load=text=>{const c={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};vm.runInNewContext(read('participant-evidence-safety.js'),c);vm.runInNewContext(text,c);return c.window.MondermanReport;};
 const report=load(source),old=load(execFileSync('git',['show',prior+':monderman-report.js'],{cwd:root,encoding:'utf8',maxBuffer:4e6}));
+// Preserve the older exact HTML assertion after the finite source-copy inverse.
+// Current rendering still owns every financial and browser check below; the
+// independent wording contract binds its complete executable source and output.
+const beforeWording=load(sourceBeforeChangeWording20260925('monderman-report.js',source));
 let checks=0;const ok=(v,m)=>{assert.ok(v,m);checks++;},eq=(a,b,m)=>{assert.deepEqual(a,b,m);checks++;};
 const levels=['low','central','high'],keys=['spendingReduction','spendingAvoidance','staffCapacity'];
 // The independent burden contract uses complete valid saved scenarios. It
@@ -21,7 +26,7 @@ const levels=['low','central','high'],keys=['spendingReduction','spendingAvoidan
 const burdenChecks=JSON.parse(execFileSync(process.execPath,[path.join(root,'scripts/report_burden_flow_smoke.mjs')],{cwd:root,encoding:'utf8'}));
 eq(burdenChecks.status,'PASS','Independent baseline and released-value contract');
 const build=(scenario,assessment)=>{const raw=structuredClone(historic.outputs.depth_synthesis.source);delete raw.financial_scenario;if(scenario){raw.financial_scenario=structuredClone(scenario);raw.campaign_evidence.scopeId=scenario.scope.scopeId;}if(assessment)raw.financial_benefit_assessment=structuredClone(assessment);const before=JSON.stringify(raw),model=report.fromSynthesis(raw),html=report.buildReportHtml(model);eq(JSON.stringify(raw),before,'Renderer does not mutate saved data');return {model,html,raw};};
-for(const [key,entry]of Object.entries(historic.outputs)){const a=entry.kind==='diagnostic'?report.fromRun(entry.source):report.fromSynthesis(entry.source),b=entry.kind==='diagnostic'?old.fromRun(entry.source):old.fromSynthesis(entry.source),html=report.buildReportHtml(a);eq(withoutReportOverview(html),reportHtmlAfterReviewedPresentation(old.buildReportHtml(b)),'Historical HTML differs only by screen overview, exact legacy-chart retirement and gold accents: '+key);ok(!/data-(?:planning|sankey)-node="subscriptionCost"/.test(html),'No subscription node in reopened historical report: '+key);ok(html.includes('.mr-run-metric[data-tone="amber"]{border-top-color:#E6C765}'),'Category accents use gold for print: '+key);ok(html.includes('.mr-report .mr-action[data-tier="behavioral"] .mr-action-num{color:#7A6015}'),'Gold category text has a dark readable variant: '+key);}
+for(const [key,entry]of Object.entries(historic.outputs)){const a=entry.kind==='diagnostic'?report.fromRun(entry.source):report.fromSynthesis(entry.source),b=entry.kind==='diagnostic'?old.fromRun(entry.source):old.fromSynthesis(entry.source),historicalModel=entry.kind==='diagnostic'?beforeWording.fromRun(entry.source):beforeWording.fromSynthesis(entry.source),html=report.buildReportHtml(a);eq(withoutReportOverview(beforeWording.buildReportHtml(historicalModel)),reportHtmlAfterReviewedPresentation(old.buildReportHtml(b)),'Historical HTML differs only by screen overview, exact legacy-chart retirement and gold accents: '+key);ok(!/data-(?:planning|sankey)-node="subscriptionCost"/.test(html),'No subscription node in reopened historical report: '+key);ok(html.includes('.mr-run-metric[data-tone="amber"]{border-top-color:#E6C765}'),'Category accents use gold for print: '+key);ok(html.includes('.mr-report .mr-action[data-tier="behavioral"] .mr-action-num{color:#7A6015}'),'Gold category text has a dark readable variant: '+key);}
 const cases=Object.fromEntries(Object.entries(fixtures.cases).map(([key,s])=>[key,{...build(s),s}]));
 const samplePath=process.env.REPORT_THREE_BENEFIT_SAMPLES||path.join(root,'sample-data/production-diagnostic-samples.json'),sampleBytes=fs.readFileSync(samplePath,'utf8'),samples=JSON.parse(sampleBytes),publicKeys=[];
 for(const key of ['depth_synthesis','cross_lens_synthesis'])if(samples.outputs[key].source.financial_scenario?.version==='operational-planning-scenario-20260919.2'){

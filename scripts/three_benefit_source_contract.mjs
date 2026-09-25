@@ -29,7 +29,9 @@ export function assertThreeBenefitSourceContract(root=path.resolve(import.meta.d
   assert.equal(currentForm.split(visibleRejection).length,2,'Exactly one reviewed report-rejection visibility correction');
   assert.equal(currentForm.replace(block,originalForm.match(block)[0]).replace(visibleRejection,()=>priorBuild),originalForm,'All campaign behavior outside financial form and report-error visibility unchanged');
   const artifact=JSON.parse(read('sample-data/production-diagnostic-samples.json')),original=JSON.parse(before('sample-data/production-diagnostic-samples.json'));
-  const manifest=JSON.parse(read('sample-data/production-sample-release.json'));
+  // Publication assertions and current PDF bindings require the complete current
+  // receipt, not the historical source edition restored by the read wrapper.
+  const manifest=JSON.parse(fs.readFileSync(path.join(root,'sample-data/production-sample-release.json'),'utf8'));
   let historicalArtifact=artifact;
   const comparisons=Boolean(manifest.response_comparison_publication_review);
   if(comparisons){

@@ -9,6 +9,7 @@ import {buildPublicSamplePreviewSections} from './refresh_public_sample_previews
 import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 import {sourceBeforeHomepageCompactJourney20260924} from './homepage_compact_journey_20260924_inverse.mjs';
+import {sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
 
 export const HOMEPAGE_DISCOVERY_BASELINE='31c87d9944d58cd58a48e389a680e0e909536329';
 export const PREVIEW_FOOTER_BEFORE='<div class="hwd-footer"><span><i aria-hidden="true"></i>Illustrative organizational evaluation</span><span>Evidence. Action. Follow-up.</span></div>';
@@ -26,7 +27,7 @@ export function assertHomepageSampleDiscovery(root=path.resolve(import.meta.dirn
   const prior=file=>execFileSync('git',['show',HOMEPAGE_DISCOVERY_BASELINE+':'+file],{cwd:root,encoding:'utf8',maxBuffer:16e6});
   const html=read('index.html'),css=read('homepage-workspace-demo.css');
   const template=read('scripts/templates/home-workspace-preview.html');
-  assert.equal(homepagePreviewBeforeDiscoverability(sourceBeforeHomepageCompactJourney20260924('scripts/templates/home-workspace-preview.html',template)),prior('scripts/templates/home-workspace-preview.html'),'The historical template changes only the permanent sample link after exact compact-journey inversion');
+  assert.equal(homepagePreviewBeforeDiscoverability(sourceBeforeHomepageCompactJourney20260924('scripts/templates/home-workspace-preview.html',sourceAtChangeWordingBaseline('scripts/templates/home-workspace-preview.html',template))),prior('scripts/templates/home-workspace-preview.html'),'The historical template changes only the permanent sample link after exact wording and compact-journey inversion');
   assert.match(html,/<div class="hero-actions">\s*<a class="btn btn-accent" href="pilot\.html\?source=homepage">Request an invitation<\/a>\s*<a class="btn btn-secondary" href="pattern-trial\.html">Activate your invitation<\/a>\s*<\/div>\s*<a class="hero-enterprise-link hero-sample-link" href="sample-report\.html">View sample reports <span aria-hidden="true">&rarr;<\/span><\/a>\s*<p class="hero-access-note">/,'Sample access immediately follows both unchanged invitation CTAs');
   assert.equal((html.match(/class="hero-enterprise-link hero-sample-link"/g)||[]).length,1);
   const preview=html.match(/<aside class="home-workspace-preview"[\s\S]*?<\/aside>/)?.[0];
