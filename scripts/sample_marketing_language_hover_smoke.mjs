@@ -141,7 +141,7 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
       equal(await metric.getAttribute('data-exact-value'),String(values.central),'Underlying exact value: '+attribute);
     }
     equal(await page.locator('[data-demo-financial-case]').count(),0,'Superseded expanded cases are not duplicated in the compact preview');
-    equal(await page.locator('.hwd-compact-lenses span').allTextContents(),cross.source_groups.map(group=>group.tool_label),'All four canonical diagnostic names remain visible');
+    equal(await page.locator('.hwd-compact-lenses span').allTextContents(),['structural_clarity','decision_velocity','operational_systems','institutional_performance'].map(tool=>cross.source_groups.find(group=>group.tool_type===tool).tool_label),'All four canonical diagnostic names remain visible in the approved order');
     equal(await page.locator('.hwd-compact-boundary').textContent(),'Capacity is not cash savings. Planning inputs are separate from scores.');
     equal(await page.locator('.hwd-sample-link').getAttribute('href'),'sample-report.html#synthesis','Full report remains one click away');
     equal(await page.locator('.hwd-sample-link').locator('xpath=ancestor::*[@role="tabpanel"]').count(),0,'Report link is independent of selected step');
