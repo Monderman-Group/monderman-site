@@ -9,6 +9,7 @@ import {chromium,webkit} from 'playwright';
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 import {APPROVED_INTERFACE_PINS} from './invited_evaluation_source_contract.mjs';
 import {sourceBeforeHomepageCompactJourney20260924} from './homepage_compact_journey_20260924_inverse.mjs';
+import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 const {artifact}=readPublicSampleFixture({root});
@@ -174,7 +175,7 @@ const sampleLinkStyle='    .content .score-block p,\n'+
   '      text-decoration: underline;\n'+
   '      text-underline-offset: 0.18em;\n'+
   '    }\n\n';
-function assertArticleLayout(html,prior){
+function assertArticleLayout(html,prior,file){
   // The reviewed annual-release pages intentionally replaced invented example
   // scores with links to real saved samples. Pin that approved structure while
   // retaining the exact accessibility-region and table-style checks above.
@@ -183,7 +184,10 @@ function assertArticleLayout(html,prior){
   assert.match(priorEntry,/^signin\.html\?next=[a-z-]+\.html$/,'Historical article entry is the exact diagnostic sign-in target');
   const invitationEntry='<a class="btn btn-primary" href="pilot.html">';
   assert.equal(articleMain(html).split(invitationEntry).length-1,1,'Exactly one article-body invitation entry replaces the retired public run CTA');
-  const restoredMain=articleMain(html).replace(invitationEntry,`<a class="btn btn-primary" href="${priorEntry}">`);
+  // Restore the exact reviewed copy layers only for historical structure;
+  // the current prose, accessibility, styles and negative checks stay above/below.
+  const historicalLayoutSource=sourceBeforePublicCopyClarity(file,html);
+  const restoredMain=articleMain(historicalLayoutSource).replace(invitationEntry,`<a class="btn btn-primary" href="${priorEntry}">`);
   assert.deepEqual(textless(restoredMain),textless(articleMain(prior)),
     'Body tags, classes and links match the approved saved-sample article layout');
   assert.equal(html.split(sampleLinkStyle).length-1,1,'Exactly one scoped saved-sample link contrast fix');
@@ -211,7 +215,7 @@ for(const [name,description,article]of descriptions){
   check(!/Example score|Example band|class="score-num"/.test(main),article+': no invented score in the article illustration');
   check(html.includes('records one participant’s perspective on'),article+': matching social/search description');
   const prior=execFileSync('git',['show',`${approvedPresentationBase}:${article}`],{cwd:root,encoding:'utf8'});
-  assertArticleLayout(html,prior);checks++;
+  assertArticleLayout(html,prior,article);checks++;
   // The earlier approved canonical-copy edit also renamed the mobile table's
   // generated label. Restore only that exact text when proving layout parity.
   eq(html.split('content: "Business focus"').length-1,1,article+': mobile table label');
@@ -241,7 +245,7 @@ for(const [name,description,article]of descriptions){
   ];
   for(const [index,bad]of badLayouts.entries()){
     assert.notEqual(bad,html,'Each article-layout negative must mutate the source');
-    assert.throws(()=>assertArticleLayout(bad,prior),article+': unrelated markup/CSS or altered approved wrapper must fail: '+index);checks++;
+    assert.throws(()=>assertArticleLayout(bad,prior,article),article+': unrelated markup/CSS or altered approved wrapper must fail: '+index);checks++;
   }
   for(const bad of ['Approximate recoverable value','Benchmark position','Trajectory signal','Reclaimed capacity','clock speed of reality']){
     assert.throws(()=>assertArticleScope(html.replace('</main>',`<p>${bad}</p></main>`)),/No superseded whole-article/);checks++;
