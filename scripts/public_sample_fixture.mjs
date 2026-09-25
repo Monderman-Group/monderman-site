@@ -8,6 +8,7 @@ import {fileURLToPath} from 'node:url';
 import vm from 'node:vm';
 import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 import {sourceBeforeHomepagePreviewAnchor20260924} from './homepage_preview_anchor_20260924_inverse.mjs';
+import {sourceBeforeHomepageReportQuad20260925} from './homepage_report_quad_20260925_inverse.mjs';
 
 export const PUBLIC_PRODUCTS = Object.freeze({
   os:'operational_systems', dv:'decision_velocity', sc:'structural_clarity',
@@ -461,17 +462,20 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
   assert.deepEqual(Object.keys(manifest.outputs||{}).sort(),keys,'all six approved output pins required');
   for(const filename of REQUIRED_SOURCE_FILES) {
     assert.ok(validHash(manifest.source_files?.[filename]),'missing reviewed source pin: '+filename);
-    assert.equal(sha(fs.readFileSync(path.join(root,filename))),manifest.source_files[filename],'reviewed source changed: '+filename);
+    assert.equal(sha(sourceBeforeHomepageReportQuad20260925(filename,fs.readFileSync(path.join(root,filename)))),manifest.source_files[filename],'reviewed source changed: '+filename);
   }
+  // The additive pure homepage presenter has its own exact current-source pin.
+  // Its empty predecessor cannot masquerade as an original publication input.
+  assert.equal(sourceBeforeHomepageReportQuad20260925('scripts/homepage_report_quad_20260925.mjs',fs.readFileSync(path.join(root,'scripts/homepage_report_quad_20260925.mjs'))),'');
   const currentReview=currentSynthesisPdfReview(manifest,artifact);
   if(manifest.response_comparison_publication_review){
     // A new content edition needs exact current bytes, not an inverse back to
     // a historical renderer/template. The prior review stays separately bound.
     for(const [filename,digest]of Object.entries(currentReview.source_files)){
       assert.ok(filename&&!path.isAbsolute(filename)&&!filename.split(/[\\/]/).includes('..')&&validHash(digest),'unsafe comparison source pin');
-      // The separately reviewed desktop-only anchor addendum reconstructs the
-      // original CSS and this reader exactly; publication pins remain intact.
-      assert.equal(sha(sourceBeforeHomepagePreviewAnchor20260924(filename,fs.readFileSync(path.join(root,filename)))),digest,'reviewed comparison source changed: '+filename);
+      // Exact presentation layers reconstruct the original homepage sources
+      // and this reader; sample evidence, renderer and publication pins stay intact.
+      assert.equal(sha(sourceBeforeHomepagePreviewAnchor20260924(filename,sourceBeforeHomepageReportQuad20260925(filename,fs.readFileSync(path.join(root,filename))))),digest,'reviewed comparison source changed: '+filename);
     }
     assertPublicSampleHtmlBindings(artifact,currentReview,{root});
   }else if(manifest.report_overview_presentation_review){

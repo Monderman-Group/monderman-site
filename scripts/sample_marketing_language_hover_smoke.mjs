@@ -6,6 +6,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 const {chromium,webkit}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
+import {buildPublicSamplePreviewSections} from './refresh_public_sample_previews.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 const origin='http://127.0.0.1:49876';
@@ -21,11 +22,10 @@ const sourceHashes=Object.fromEntries(tracked.map(file=>[file,sha(fs.readFileSyn
 const disclosure='These reports use realistic example responses to demonstrate Monderman’s analysis and reporting.';
 const money=value=>value.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
 const scenario=artifact.outputs.depth_synthesis.source.financial_scenario;
-const threeBenefit=scenario.version==='operational-planning-scenario-20260919.2';
+assert.equal(scenario.version,'operational-planning-scenario-20260919.2');
 assert.equal(scenario.method.usesDiagnosticScores,false);
 assert.equal(scenario.method.isConfidenceInterval,false);
-const range=key=>money(scenario.totals[key].low)+' to '+money(scenario.totals[key].high);
-const roundedMoney=value=>money(Math.abs(value)>=10000?Math.round(value/1000)*1000:value);
+const generatedHome=buildPublicSamplePreviewSections(artifact,fs.readFileSync(path.join(root,'scripts/templates/home-workspace-preview.html'),'utf8')).home;
 const cross=artifact.outputs.cross_lens_synthesis.source;
 const crossScenario=cross.financial_scenario;
 const whole=value=>Math.round(value).toLocaleString('en-US');
@@ -126,7 +126,7 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     equal(await page.locator('.home-output-copy>p:not(.home-output-eyebrow)').textContent(),'Explore diagnostic findings, participant experience, and practical next steps. Team-level examples also show time and cost scenarios built from stated operating assumptions.');
     equal((await page.locator('.home-output-copy>a').textContent()).trim(),'Explore sample reports →');
     equal(await page.locator('.home-output-copy>a').getAttribute('href'),'sample-report.html');
-    equal(await page.locator('#sample-output .hero-report-link').getAttribute('href'),'sample-report.html#depth');
+    equal(await page.locator('#sample-output .hrq-footer>a').getAttribute('href'),'sample-report.html#depth');
     equal(await page.locator('[data-demo-score]').count(),0,'No single-run score relabeled as organizational money');
     equal(await page.locator('[data-demo-recovery]').count(),0,'No score-derived recovery figure');
     const financial=page.locator('.hwd-compact-values'),totals=crossScenario.totals;
@@ -145,32 +145,34 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     equal(await page.locator('.hwd-compact-boundary').textContent(),'Capacity is not cash savings. Planning inputs are separate from scores.');
     equal(await page.locator('.hwd-sample-link').getAttribute('href'),'sample-report.html#synthesis','Full report remains one click away');
     equal(await page.locator('.hwd-sample-link').locator('xpath=ancestor::*[@role="tabpanel"]').count(),0,'Report link is independent of selected step');
-    equal(await page.locator('[data-promo-capacity]').textContent(),'About '+roundedMoney(scenario.totals.capacityValue.central));
-    equal(await page.locator('.md-scenario-cases dt').allTextContents(),['Low','Central','High']);
-    equal(await page.locator('.md-scenario-cases dd').allTextContents(),['low','central','high'].map(k=>roundedMoney(scenario.totals.capacityValue[k])));
-    if(threeBenefit){
-      equal(await page.locator('[data-promo-spending-reduction]').textContent(),money(scenario.totals.existingSpendingReduction.central));
-      equal(await page.locator('[data-promo-spending-avoidance]').textContent(),money(scenario.totals.futureSpendingAvoidance.central));
-      equal(await page.locator('[data-promo-net-cash]').textContent(),money(scenario.totals.netCashEffect.central));
-      equal(await page.locator('[data-promo-total-cost]').textContent(),money(scenario.totals.totalImplementationAndSubscriptionCost.central));
-      equal(await page.locator('.md-opportunity>p').allTextContents(),['Staff capacity value, not cash savings.','Each case uses different assumptions. Exact values are in the report.']);
-      check((await page.locator('.md-basis').textContent()).includes('Capacity excludes hours counted as spending benefits.'),'No double-counted capacity');
-      const assumptions=await page.locator('[data-demo-assumptions-for="cross_lens_synthesis"]').textContent();
-      equal(await page.locator('[data-demo-assumptions-for]').count(),1,'Assumptions match the single compact journey');
-      for(const level of ['low','central','high'])check(assumptions.includes(money(crossScenario.totals.existingSpendingReduction[level])+' lower spending; '+money(crossScenario.totals.futureSpendingAvoidance[level])+' avoided future spending; '+money(crossScenario.totals.capacityValue[level])+' retained capacity.'),'Every named saved Cross-Lens case remains discoverable');
-      check(assumptions.includes('Combined value after all costs, central case: '+money(crossScenario.totals.netKnownBenefitSubtotal.central)),'Saved net planning value retained');
-      check(assumptions.includes('not a measured bank-balance change'),'Cash baseline versus measured savings is explicit');
-    }else{
-      equal(await page.locator('[data-promo-net-cash]').textContent(),range('netCashEffect'));
-      equal(await page.locator('[data-promo-total-cost]').textContent(),range('totalImplementationAndSubscriptionCost'));
-      equal(await page.locator('.md-opportunity>p').allTextContents(),[
-        'Potential staff capacity value, not cash savings.',
-        'Rounded planning scenarios. See the assumptions and exact values in the report.'
-      ],'Capacity is not cash and rounded cases retain their assumption reference');
-      check((await page.locator('.md-basis').textContent()).includes(scenario.inputs.measuredPeople+' people over '+scenario.method.measurementDays+' measured days'),'Separate operational measurement basis retained');
-      check((await page.locator('.home-preview-method').textContent()).includes('The low case shows '+money(crossScenario.totals.netCapacityAndCashValue.low)),'Saved low-case outcome remains discoverable');
-      check((await page.locator('.home-preview-method').textContent()).includes('central net cash effect is '+money(crossScenario.totals.netCashEffect.central)),'Cash and capacity are not conflated');
+    const quad=page.locator('[data-home-report-quad]');
+    equal(await quad.count(),1,'One current Depth overview replaces the older financial tile');
+    check(await quad.isVisible(),'Depth preview remains available at this viewport');
+    equal(await quad.getAttribute('data-artifact-sha256'),artifact.artifact_sha256,'Depth preview retains current source identity');
+    equal(await quad.locator('.hrq-tile').evaluateAll(nodes=>nodes.map(node=>node.dataset.quadSection)),['findings','money','change','evidence'],'Four separate report roles');
+    equal(await quad.locator('.hrq-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.trim().split(/\s+/).length),width<=600?1:2,'Preview uses two readable columns on larger screens and one on phones');
+    if(width>=834)check((await quad.boundingBox()).width>580,'New report preview is not constrained to the retired narrow tile width');
+    equal(await quad.locator('a').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href'))),Array(4).fill('sample-report.html#depth'),'Three section links and footer retain supported Depth routing');
+    equal(await quad.locator('[data-promo-score]').textContent(),String(artifact.outputs.depth_synthesis.source.source_groups[0].median_score),'Recorded Depth score retained');
+    equal(await quad.locator('.hrq-case').textContent(),'Central planning case · '+scenario.inputs.horizonMonths+' months','Case and period stay visible');
+    equal(await quad.locator('.hrq-chart-note').textContent(),'Rounded. Before costs. Planning estimates.','Financial boundaries remain adjacent to graphics');
+    equal(await quad.locator('.mr-overview-sankey').evaluateAll(nodes=>nodes.map(node=>node.dataset.previewKind)),['money','time'],'Dollars and hours retain separate chart scales');
+    check(await page.evaluate(expected=>{
+      const parsed=new DOMParser().parseFromString(expected,'text/html');
+      return document.querySelector('[data-home-report-quad] .mr-overview-sankeys').outerHTML===parsed.querySelector('.mr-overview-sankeys').outerHTML;
+    },generatedHome),'Browser charts preserve exact source-generated renderer markup');
+    for(const kind of ['money','time']){
+      const chart=quad.locator('[data-preview-kind="'+kind+'"]');
+      equal(await chart.getAttribute('data-preview-case'),'central','Only central '+kind+' case in the overview');
+      const svg=chart.locator('svg');equal(await svg.getAttribute('role'),'img',kind+' accessible graphic');
+      check((await svg.getAttribute('aria-label')).includes('baseline.'),kind+' full numeric context stays accessible');
     }
+    await contained(page,'[data-home-report-quad]',key+' Depth preview');
+    const assumptions=await page.locator('[data-demo-assumptions-for="cross_lens_synthesis"]').textContent();
+    equal(await page.locator('[data-demo-assumptions-for]').count(),1,'Assumptions match the single compact journey');
+    for(const level of ['low','central','high'])check(assumptions.includes(money(crossScenario.totals.existingSpendingReduction[level])+' lower spending; '+money(crossScenario.totals.futureSpendingAvoidance[level])+' avoided future spending; '+money(crossScenario.totals.capacityValue[level])+' retained capacity.'),'Every named saved Cross-Lens case remains discoverable');
+    check(assumptions.includes('Combined value after all costs, central case: '+money(crossScenario.totals.netKnownBenefitSubtotal.central)),'Saved net planning value retained');
+    check(assumptions.includes('not a measured bank-balance change'),'Cash baseline versus measured savings is explicit');
     check(!/fictional|generated sample|illustrative interface/i.test(await page.locator('.home-workspace-preview').textContent()),'Repeated preview caveats removed');
     const heroStates=await buttonStates(page,'.hero-actions .btn-accent',key+'-home-cta',{normal:'rgb(169, 208, 212)',hover:'rgb(196, 225, 227)',text:'rgb(4, 24, 27)'});
     const panels=[];

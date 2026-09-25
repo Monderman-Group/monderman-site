@@ -12,6 +12,7 @@ import {sourceBeforeTrustSecurityCenter20260924} from './trust_security_center_2
 import {sourceBeforeHomepageCompactJourney20260924} from './homepage_compact_journey_20260924_inverse.mjs';
 import {sourceBeforePublicSampleProjectionCache20260924} from './public_sample_projection_20260924_inverse.mjs';
 import {sourceBeforePublicSamplePreviewBinding20260924} from './public_sample_preview_binding_20260924_inverse.mjs';
+import {sourceBeforeHomepageReportQuad20260925} from './homepage_report_quad_20260925_inverse.mjs';
 import {sourceBeforeHorizontalOverviewPresentation} from './report_overview_horizontal_inverse.mjs';
 import {PUBLIC_PRODUCTS,readPublicSampleFixture} from './public_sample_fixture.mjs';
 import {sampleDesktopShellPatch,sourceBeforeSampleDesktopShell} from './sample_desktop_shell_20260924_inverse.mjs';
@@ -58,11 +59,11 @@ for(const file of PUBLIC_COPY_FILES){
   equal(sourceBeforePublicCopyClarity(file,source),before,file+': full historical recovery');
   for(const mutation of [source+'\n',source.replace('</body>','<script>unapproved()</script></body>')]){
     check(mutation!==source,file+': negative control changes source');
-    assert.throws(()=>sourceBeforePublicCopyClarity(file,mutation),/only the exact reviewed (?:current|public-language|trust-center|compact-homepage) source/);checks++;
+    assert.throws(()=>sourceBeforePublicCopyClarity(file,mutation),/only the exact reviewed (?:current|public-language|trust-center|compact-homepage|homepage-report-quad) source/);checks++;
   }
   // Independently remove only the newer, exactly pinned presentation layers.
   // The original copy review still has to preserve executable bytes itself.
-  const previewEdition=sourceBeforePublicSamplePreviewBinding20260924(file,source);
+  const previewEdition=sourceBeforePublicSamplePreviewBinding20260924(file,sourceBeforeHomepageReportQuad20260925(file,source));
   const copyEdition=sourceBeforeReportLibrary20260924(file,sourceBeforePromotionalGold20260924(file,sourceBeforePublicLanguagePass20260924(file,sourceBeforeTrustSecurityCenter20260924(file,sourceBeforeHomepageCompactJourney20260924(file,sourceBeforePublicSampleProjectionCache20260924(file,previewEdition))))));
   equal(blocks(copyEdition,'style'),blocks(before,'style'),file+': copy-only edition has no CSS changes');
   let scripts=blocks(copyEdition,'script').join('\n');

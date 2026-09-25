@@ -11,10 +11,11 @@ import {HOMEPAGE_COMPACT_FILES,HOMEPAGE_COMPACT_FIXTURE_SHA256,homepageCompactDe
 import {sourceBeforePublicSampleProjectionCache20260924} from './public_sample_projection_20260924_inverse.mjs';
 import {sourceBeforePublicSamplePreviewBinding20260924,PREVIEW_CURRENT_ARTIFACT_FILE_SHA256} from './public_sample_preview_binding_20260924_inverse.mjs';
 import {sourceBeforeHomepagePreviewAnchor20260924} from './homepage_preview_anchor_20260924_inverse.mjs';
+import {sourceBeforeHomepageReportQuad20260925} from './homepage_report_quad_20260925_inverse.mjs';
 // The later single model-cache substitution has its own exact-byte contract;
 // restore it before testing this unchanged compact-homepage edition.
 const root=path.resolve(import.meta.dirname,'..'),raw=f=>fs.readFileSync(path.join(root,f),'utf8');
-const read=f=>sourceBeforePublicSampleProjectionCache20260924(f,sourceBeforePublicSamplePreviewBinding20260924(f,sourceBeforeHomepagePreviewAnchor20260924(f,raw(f))));
+const read=f=>sourceBeforePublicSampleProjectionCache20260924(f,sourceBeforePublicSamplePreviewBinding20260924(f,sourceBeforeHomepagePreviewAnchor20260924(f,sourceBeforeHomepageReportQuad20260925(f,raw(f)))));
 const sha=v=>createHash('sha256').update(v).digest('hex');
 let checks=0,negativeControls=0;
 const eq=(a,b,label)=>{assert.deepEqual(a,b,label);checks++;},ok=(v,label)=>{assert.ok(v,label);checks++;};
@@ -41,7 +42,7 @@ const template=read('scripts/templates/home-workspace-preview.html'),html=raw('i
 const sections=buildPublicSamplePreviewSections(artifact,template),priorSections=buildPublicSamplePreviewSections(artifact,before['scripts/templates/home-workspace-preview.html']);
 const journey=/<aside class="home-workspace-preview"[\s\S]*?<\/aside>/;
 eq(html.match(journey)?.[0],sections.hero,'Current homepage is exactly generated from saved source');
-eq(sections.home,priorSections.home,'Lower homepage Depth card unchanged');eq(sections.brief,priorSections.brief,'Platform Brief card unchanged');
+eq(html.match(/<aside class="hero-report-proof has-sample-depth-tile"[\s\S]*?<\/aside>/)?.[0],sections.home,'Current lower homepage presentation is exactly generated');eq(sections.brief,priorSections.brief,'Platform Brief card unchanged');
 eq(read('index.html').replace(journey,'JOURNEY').replaceAll('homepage-workspace-demo.css?v=20260924.compact1','homepage-workspace-demo.css?v=20260924.gold1').replaceAll('homepage-workspace-demo.js?v=20260924.compact1','homepage-workspace-demo.js?v=20260919.journey3'),before['index.html'].replace(journey,'JOURNEY'),'All unrelated homepage bytes preserved');
 eq(read('scripts/inject-public-shell.mjs'),before['scripts/inject-public-shell.mjs'].replace('"homepage-workspace-demo.css": "20260924.gold1"','"homepage-workspace-demo.css": "20260924.compact1"').replace('"homepage-workspace-demo.js": "20260920.gather1"','"homepage-workspace-demo.js": "20260924.compact1"'),'Only two injector cache entries changed');
 ok(css.startsWith(before['homepage-workspace-demo.css']),'All prior page hierarchy, semantic palette and CSS retained');

@@ -293,6 +293,7 @@ lure_tile_css=(r/'monderman-depth-lure-tile.css').read_text(errors='ignore') if 
 for script,args in [
  ('scripts/public_sample_fixture.mjs',['--check','--root',str(r.resolve())]),
  ('scripts/refresh_public_sample_previews.mjs',['--check']),
+ ('scripts/homepage_report_quad_20260925_contract.mjs',[]),
 ]:
  try:
   subprocess.run(['node',script,*args],cwd=r,check=True,capture_output=True,text=True)
@@ -315,18 +316,32 @@ tile_required=[
  'data-promo-spending-reduction','data-promo-spending-avoidance',
  'Capacity excludes hours counted as spending benefits.',
 ]
+homepage_quad_required=[
+ 'class="hero-report-proof has-sample-depth-tile"', 'data-home-report-quad',
+ 'data-sample-id="depth_synthesis"', 'data-promo-score',
+ 'class="hrq-grid"', 'data-quad-section="findings"', 'data-quad-section="money"',
+ 'data-quad-section="change"', 'data-quad-section="evidence"',
+ 'Overall findings', 'Time and money', 'Change options', 'Evidence',
+ 'href="sample-report.html#depth"', 'Depth Synthesis',
+ 'class="mr-overview-sankeys"', 'data-preview-kind="money"', 'data-preview-kind="time"',
+ 'Rounded. Before costs. Planning estimates.', 'Sample report · Example data',
+]
 for name,text in [('index.html',idx),('Monderman_Platform_Brief.html',brief)]:
  for asset in ['sample-report-tile.css','monderman-depth-lure-tile.css']:
   if not re.search(re.escape(asset)+r'\?v=[^"\s]+',text):e.append(name+': versioned sample stylesheet '+asset)
- for token in tile_required:
+ for token in (homepage_quad_required if name=='index.html' else tile_required):
   if token not in text:e.append(name+': generated-output sample tile '+token)
  tile_matches=list(re.finditer(r'<aside class="hero-report-proof has-sample-depth-tile".*?</aside>',text,re.I|re.S))
  if len(tile_matches)!=1:
   e.append(name+': generated-output sample tile boundary must occur exactly once')
  else:
   tile=tile_matches[0].group(0)
-  for label in ['Low','Central','High']:
-   if '<dt>'+label+'</dt>' not in tile:e.append(name+': generated sample tile missing scenario label '+label)
+  if name=='Monderman_Platform_Brief.html':
+   for label in ['Low','Central','High']:
+    if '<dt>'+label+'</dt>' not in tile:e.append(name+': generated sample tile missing scenario label '+label)
+  else:
+   if tile.count('class="hrq-tile"')!=4:e.append(name+': report preview must contain exactly four sections')
+   if tile.count('data-preview-kind=')!=2:e.append(name+': report preview must contain exactly two source-rendered charts')
   # The approved sample separates capacity, cash and total costs. Never restore
   # the retired score-derived financial values or their old display hooks.
   if re.search(r'(?:Estimated|Modeled) annual recovery opportunity|Median annual (?:labor-cost|time) exposure|median of submitted (?:estimates|recovery scenarios)|Fictional inputs',tile,re.I):

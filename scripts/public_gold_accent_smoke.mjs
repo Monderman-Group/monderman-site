@@ -181,15 +181,30 @@ for (const [engine, type] of [['chromium', chromium], ['webkit', webkit]]) {
           await screenshot(page.locator('.hero'), `${engine}-${width}-home-hero.png`);
         }
         if (file === 'platform-services.html') await screenshot(page.locator('.ps-hero'), `${engine}-${width}-pricing-hero.png`);
-        if (['index.html', 'Monderman_Platform_Brief.html'].includes(file)) {
+        if (file === 'index.html') {
+          const tile = page.locator('[data-home-report-quad]');
+          equal(await tile.count(), 1, label + ': one current report preview');
+          equal(await tile.locator('.hrq-tile').count(), 4, label + ': four distinct report sections');
+          const figures = tile.locator('[data-promo-score], .mr-overview-sankey-source strong, .mr-overview-sankey-outcome strong');
+          equal(await figures.count(), 9, label + ': score and separate money/time values');
+          equal(await figures.evaluateAll(els => [...new Set(els.map(el => getComputedStyle(el).color))]), ['rgb(9, 56, 62)'], label + ': report figures use dark teal');
+          const value = await colors(tile.locator('[data-promo-score]'));
+          ok(contrast(value.color, value.background) >= 4.5, label + ': report score contrast');
+          equal((await colors(tile.locator('.hrq-wordmark>span'))).color, gold, label + ': gold remains a small brand accent');
+          equal(await tile.locator('.mr-overview-sankey').count(), 2, label + ': money and time remain separate');
+          ok(await tile.isVisible(), label + ': report preview is visible');
+          await screenshot(tile, `${engine}-${width}-home-report-tile.png`);
+          rows.push({engine, width, file, reportValueContrast: contrast(value.color, value.background), reportTileVisible: true});
+        }
+        if (file === 'Monderman_Platform_Brief.html') {
           const tile = page.locator('#monderman-depth-lure-composite');
           equal(await tile.locator('.md-opportunity > strong').count(), 1, label + ': only one primary value');
           const value = await colors(tile.locator('.md-opportunity > strong'));
-          equal(value.color, goldInk, label + ': primary report value is gold ink');
+          equal(value.color, 'rgb(7, 53, 58)', label + ': primary report value uses dark teal');
           ok(contrast(value.color, value.background) >= 4.5, label + ': primary report value contrast');
-          equal(await tile.locator('strong, dd').evaluateAll((els, ink) => els.filter(el => getComputedStyle(el).color === ink).length, goldInk), 1, label + ': exactly one gold report value');
+          equal(await tile.locator('strong, dd').evaluateAll((els, ink) => els.filter(el => getComputedStyle(el).color === ink).length, goldInk), 0, label + ': no mustard report values');
           equal((await colors(tile.locator('.md-opportunity'))).leftBorder, teal, label + ': report frame remains teal');
-          if (await tile.isVisible()) await screenshot(tile, `${engine}-${width}-${file === 'index.html' ? 'home' : 'brief'}-report-tile.png`);
+          if (await tile.isVisible()) await screenshot(tile, `${engine}-${width}-brief-report-tile.png`);
           rows.push({engine, width, file, reportValueContrast: contrast(value.color, value.background), reportTileVisible: await tile.isVisible()});
         }
         await page.close();

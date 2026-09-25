@@ -1,12 +1,15 @@
-// Pure v2 preview/calculator and isolated browser checks. This deliberately
-// grants no publication approval and never writes current public assets.
+// Historical v2 preview/calculator and isolated browser checks. The exact
+// pre-quad generator retains these expanded-case assertions; current hero and
+// Brief parity are independently required on every synthetic calculator case.
+// No publication approval is granted and no current public asset is written.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {pathToFileURL} from 'node:url';
-import {buildPublicSamplePreviewSections,refreshPublicSamplePreviews} from './refresh_public_sample_previews.mjs';
+import {buildPublicSamplePreviewSections as buildCurrentPublicSamplePreviewSections,refreshPublicSamplePreviews} from './refresh_public_sample_previews.mjs';
 import {evidenceDigest} from './public_sample_fixture.mjs';
+import {sourceBeforeHomepageReportQuad20260925} from './homepage_report_quad_20260925_inverse.mjs';
 
 const root=path.resolve(import.meta.dirname,'..'),args=process.argv.slice(2);
 const deterministicOnly=args.includes('--deterministic-only'),candidateArgs=args.filter(arg=>arg!=='--deterministic-only');
@@ -19,6 +22,14 @@ const artifactBase=JSON.parse(fs.readFileSync(path.join(root,'sample-data/produc
 const out=fs.mkdtempSync('/tmp/monderman-three-benefit-preview-');
 const protectedFiles=['index.html','Monderman_Platform_Brief.html','scripts/templates/home-workspace-preview.html','sample-data/production-diagnostic-samples.json','sample-data/production-sample-release.json'];
 const hash=value=>createHash('sha256').update(value).digest('hex');
+const generatorUrl=new URL('./refresh_public_sample_previews.mjs',import.meta.url);
+const currentGenerator=fs.readFileSync(generatorUrl,'utf8');
+const historicalGenerator=sourceBeforeHomepageReportQuad20260925('scripts/refresh_public_sample_previews.mjs',currentGenerator);
+// Resolve only this exactly pinned historical module's relative dependencies
+// and import.meta URL so it can execute from an in-memory test module.
+const executableHistorical=historicalGenerator.replace(/from '(\.[^']+)'/g,(_,specifier)=>'from '+JSON.stringify(new URL(specifier,generatorUrl).href)).replaceAll('import.meta.url',JSON.stringify(generatorUrl.href));
+const {buildPublicSamplePreviewSections}=await import('data:text/javascript;base64,'+Buffer.from(executableHistorical).toString('base64'));
+const sourceBytes={currentGeneratorSha256:hash(currentGenerator),historicalGeneratorSha256:hash(historicalGenerator)};
 const pins=Object.fromEntries(protectedFiles.map(file=>[file,hash(fs.readFileSync(path.join(root,file)))]));
 const clone=value=>structuredClone(value),levels=['low','central','high'];
 let checks=0;const ok=(value,message)=>{assert.ok(value,message);checks++;},eq=(a,b,message)=>{assert.deepEqual(a,b,message);checks++;};
@@ -40,7 +51,12 @@ function fixture(key='complete'){
  }
  return artifact;
 }
-const render=artifact=>buildPublicSamplePreviewSections(artifact,template);
+const render=artifact=>{
+ const historical=buildPublicSamplePreviewSections(artifact,template),current=buildCurrentPublicSamplePreviewSections(artifact,template);
+ eq(current.hero,historical.hero,'Current hero is unchanged for each calculator fixture');
+ eq(current.brief,historical.brief,'Current Brief is unchanged for each calculator fixture');
+ return historical;
+};
 const money=value=>value.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
 const complete=fixture(),before=JSON.stringify(complete),sections=render(complete);eq(JSON.stringify(complete),before,'Pure preview retains source inputs');
 for(const [place,html]of Object.entries(sections)){
@@ -104,7 +120,7 @@ const candidate=candidateArgs.length?JSON.parse(fs.readFileSync(candidateArgs[1]
 ok(display.hero.includes('Low case: net existing-spending effect after cash costs '+money(candidate.outputs.cross_lens_synthesis.source.financial_scenario.totals.netExistingCashEffect.low)),'Low existing-spend cash result stays visible separately from avoided future spending');
 if(deterministicOnly){
  for(const [file,pin]of Object.entries(pins))eq(hash(fs.readFileSync(path.join(root,file))),pin,'Public source unchanged: '+file);
- console.log(JSON.stringify({status:'PASS_MOCK_DETERMINISTIC_ONLY',checks,browserStates:[],browserCoverage:'NOT_RUN',candidate:candidateArgs[1]||null,fixtureSha256:hash(fixtureBytes),actualCalculator:modulePath?hash(fs.readFileSync(modulePath)):null,publicAssetWrites:0,providerCalls:0,publicationApproval:false}));
+ console.log(JSON.stringify({status:'PASS_MOCK_DETERMINISTIC_ONLY',checks,browserStates:[],browserCoverage:'NOT_RUN',historicalExpandedDepthPreview:true,currentHeroAndBriefParity:true,sourceBytes,candidate:candidateArgs[1]||null,fixtureSha256:hash(fixtureBytes),actualCalculator:modulePath?hash(fs.readFileSync(modulePath)):null,publicAssetWrites:0,providerCalls:0,publicationApproval:false}));
  process.exit(0);
 }
 const {chromium,webkit}=await import('playwright'),browserStates=[],screenshots=[],browserErrors=[];
@@ -134,5 +150,5 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
  }}finally{await browser.close();}
 }
 eq(browserErrors,[],'No browser errors');for(const [file,pin]of Object.entries(pins))eq(hash(fs.readFileSync(path.join(root,file))),pin,'Public source unchanged: '+file);
-const receipt={status:'PASS_MOCK_PREVIEW_ONLY',checks,browserStates,screenshots,output:out,actualCalculator:modulePath?hash(fs.readFileSync(modulePath)):null,fixtureSha256:hash(fixtureBytes),fixtureCalculatorSha256:fixtureCases.calculatorSha256,candidate:candidateArgs[1]||null,source:hash(fs.readFileSync(new URL('./refresh_public_sample_previews.mjs',import.meta.url))),tileStyles:hash(fs.readFileSync(path.join(root,'monderman-depth-lure-tile.css'))),publicAssetWrites:0,providerCalls:0,publicationApproval:false};
+const receipt={status:'PASS_MOCK_PREVIEW_ONLY',checks,browserStates,screenshots,output:out,historicalExpandedDepthPreview:true,currentHeroAndBriefParity:true,sourceBytes,actualCalculator:modulePath?hash(fs.readFileSync(modulePath)):null,fixtureSha256:hash(fixtureBytes),fixtureCalculatorSha256:fixtureCases.calculatorSha256,candidate:candidateArgs[1]||null,source:hash(fs.readFileSync(new URL('./refresh_public_sample_previews.mjs',import.meta.url))),tileStyles:hash(fs.readFileSync(path.join(root,'monderman-depth-lure-tile.css'))),publicAssetWrites:0,providerCalls:0,publicationApproval:false};
 fs.writeFileSync(path.join(out,'RECEIPT.json'),JSON.stringify(receipt,null,2)+'\n');console.log(JSON.stringify(receipt));

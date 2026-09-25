@@ -7,7 +7,9 @@ import {createHash} from 'node:crypto';
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 import {HOMEPAGE_PREVIEW_ANCHOR_FILES,HOMEPAGE_PREVIEW_ANCHOR_FIXTURE_SHA256,homepagePreviewAnchorDelta,sourceBeforeHomepagePreviewAnchor20260924} from './homepage_preview_anchor_20260924_inverse.mjs';
-const root=path.resolve(import.meta.dirname,'..'),read=file=>fs.readFileSync(path.join(root,file),'utf8');
+import {sourceBeforeHomepageReportQuad20260925} from './homepage_report_quad_20260925_inverse.mjs';
+const root=path.resolve(import.meta.dirname,'..'),raw=file=>fs.readFileSync(path.join(root,file),'utf8');
+const read=file=>sourceBeforeHomepageReportQuad20260925(file,raw(file));
 const sha=value=>createHash('sha256').update(value).digest('hex');
 let checks=0,negativeControls=0;
 const eq=(actual,expected,label)=>{assert.deepEqual(actual,expected,label);checks++;};
@@ -43,7 +45,7 @@ for(const file of ['index.html','monderman-report.js','sample-data/production-sa
   const value=Buffer.from('No transformation allowed');
   eq(sourceBeforeHomepagePreviewAnchor20260924(file,value),value,file+': outside finite addendum scope');
 }
-assert.doesNotThrow(()=>sourceBeforePublicCopyClarity('homepage-workspace-demo.css',read('homepage-workspace-demo.css')));checks++;
+assert.doesNotThrow(()=>sourceBeforePublicCopyClarity('homepage-workspace-demo.css',raw('homepage-workspace-demo.css')));checks++;
 const fixture=readPublicSampleFixture({root});
 eq(fixture.entries.length,6,'All six actual samples pass the unchanged publication predicates and HTML/PDF bindings');
 const browserTest=read('scripts/homepage_workspace_demo_smoke.mjs');
