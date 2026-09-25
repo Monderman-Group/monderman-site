@@ -950,7 +950,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   </footer>
   <script src="participant-evidence-safety.js?v=20260905-report-quarantine"></script>
   <script src="monderman-viz.js?v=20260914-native-review2"></script>
-  <script src="monderman-report.js?v=20260924.overview2"></script>
+  <script src="monderman-report.js?v=20260925.changewording1"></script>
   <script src="assignment-mode.js"></script>
   <script src="assignment-draft.js"></script>
   <script src="self-diagnostic-draft.js"></script>
@@ -4534,11 +4534,11 @@ if (note) note.textContent = result?.trajectory?.note || "Single-run directional
   */
   function buildConcentrationNarrative(pattern) {
   if (pattern.isConcentrated) {
-  return `The composition is concentrated rather than distributed. ${escapeHtml(pattern.dominant.label)} carries ${pattern.dominantPct}% of the visible burden in this run. That identifies a bounded first test; it does not predict the result of changing it.`;
+  return `The composition is concentrated rather than distributed. ${escapeHtml(pattern.dominant.label)} carries ${pattern.dominantPct}% of the visible burden in this run. Use this finding to decide what to change first; it does not predict the result of changing it.`;
   } else if (pattern.isDistributed) {
-  return `The composition is distributed rather than concentrated. No single source carries more than ${pattern.dominantPct}% of the visible burden. Test more than one source and compare repeated measurements; this run does not establish that structural redesign is required.`;
+  return `The composition is distributed rather than concentrated. No single source carries more than ${pattern.dominantPct}% of the visible burden. Consider changes to more than one source and compare repeated measurements; this run does not establish that structural redesign is required.`;
   } else if (pattern.hasSignal) {
-  return `The composition shows ${escapeHtml(pattern.dominant.label.toLowerCase())} as the largest visible clarity constraint at ${pattern.dominantPct}% of the total, with the remaining burden distributed across other dimensions. Use it as a first test and remeasure the full profile.`;
+  return `The composition shows ${escapeHtml(pattern.dominant.label.toLowerCase())} as the largest visible clarity constraint at ${pattern.dominantPct}% of the total, with the remaining burden distributed across other dimensions. Use it to decide what to change, then remeasure the full profile.`;
   } else {
   return "The composition signal is too low in this run to identify a dominant source. The run cannot distinguish between light burden and insufficient input depth; broader participant coverage can test that uncertainty.";
   }
@@ -5027,9 +5027,9 @@ const concentrationProse = (() => {
   const secondVal = Math.round(dims[entries[1].key]);
   const gap = secondVal - weakestVal;
   if (gap >= 12) {
-    return `The clarity profile is concentrated rather than distributed. ${weakest.label.charAt(0).toUpperCase() + weakest.label.slice(1)} scores ${weakestVal}, below the next-weakest dimension at ${secondVal}. This identifies a bounded first test; it does not predict a change in overall legibility.`;
+    return `The clarity profile is concentrated rather than distributed. ${weakest.label.charAt(0).toUpperCase() + weakest.label.slice(1)} scores ${weakestVal}, below the next-weakest dimension at ${secondVal}. Use this finding to decide what to change first; it does not predict a change in overall legibility.`;
   }
-  return `The clarity profile is distributed rather than concentrated. The weakest dimensions cluster closely together (${weakestVal}–${secondVal}). Test more than one dimension and compare repeated measurements; this run does not establish that broader redesign is required.`;
+  return `The clarity profile is distributed rather than concentrated. The weakest dimensions cluster closely together (${weakestVal}–${secondVal}). Consider changes in more than one area and compare repeated measurements; this run does not establish that broader redesign is required.`;
 })();
 const scDimDefs = [
   { key: "role_clarity", label: "Role clarity" },
@@ -5207,7 +5207,7 @@ const updateReadItems = [
 const readingHtml = competingReadings.map((item) => '<div class="mini-card"><b>' + safe(item.label || "Reading") + '</b><p>' + safeWords(item.interpretation || item, 44) + '</p><p class="muted">Signal test: ' + safeWords(item.what_would_distinguish_it || "Additional cross-role evidence would clarify this reading.", 50) + '</p></div>').join("");
 const updateHtml = updateReadItems.map((item) => '<p style="margin:0 0 8px">• ' + safeWords(item, 42) + '</p>').join("");
 const decisionReviewPage = '<section class="page">' + footer(decisionReviewPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>Other possible explanations</h2><p>This section names plausible interpretations of the same signal and identifies evidence that could support, weaken, or reframe each one.</p><div class="card-row" style="grid-template-columns:1fr;gap:12px">' + readingHtml + '</div></div></section>'
-+ '<section class="page">' + footer(updateReadPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>What would update this read</h2><p>The current read rests on a single run from a single perspective. The items below identify evidence to collect before choosing an intervention test.</p><div class="panel bench" style="margin-top:18px">' + updateHtml + '</div></div></section>';
++ '<section class="page">' + footer(updateReadPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>What would update this read</h2><p>The current read rests on a single run from a single perspective. The items below identify evidence to collect before deciding what to change.</p><div class="panel bench" style="margin-top:18px">' + updateHtml + '</div></div></section>';
 const firstTwoActions = actions.slice(0, 2).length ? actions.slice(0, 2) : [
 "Reduce the heaviest visible burden first.",
 "Run the diagnostic again after the first real change."
@@ -5448,12 +5448,12 @@ return `<!doctype html>
   ${footer(3)}
   <div class="content">
     <p class="eyebrow">Where clarity is breaking down</p><h2>Clarity dimension breakdown</h2>
-    <p>The clarity dimension view shows where structural legibility is weakest across the five dimensions Monderman records: role clarity, decision rights clarity, handoff integrity, accountability clarity, and governance proportionality. Lower scores identify less-readable reported conditions; they do not establish resulting behavior.</p><p class="muted">The distribution helps select bounded tests. A concentrated pattern identifies one first test; a distributed pattern supports testing more than one dimension. Neither predicts the result of intervention.</p>
+    <p>The clarity dimension view shows where structural legibility is weakest across the five dimensions Monderman records: role clarity, decision rights clarity, handoff integrity, accountability clarity, and governance proportionality. Lower scores identify less-readable reported conditions; they do not establish resulting behavior.</p><p class="muted">The distribution helps you decide what to change. A concentrated pattern points to one area to consider first; a distributed pattern points to several areas. Neither predicts the result of a change.</p>
     <div class="panel" style="padding:16px">${scDimBars}</div>
     <h3 style="margin-top:24px">What the clarity profile tells us</h3>
     <p>${safeWords(concentrationProse, 76)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(compositionQuestion)}</p></div>
-    <div class="card-row"><div class="mini-card"><b>Concentrated constraint</b><p>One clarity dimension dominates this run and can be used as a bounded first test.</p></div><div class="mini-card"><b>Distributed constraint</b><p>No single dimension dominates; test multiple dimensions and remeasure.</p></div></div>
+    <div class="card-row"><div class="mini-card"><b>Concentrated constraint</b><p>One clarity dimension dominates this run. Use it to decide what to change first.</p></div><div class="mini-card"><b>Distributed constraint</b><p>No single dimension dominates. Consider changes in several areas and remeasure.</p></div></div>
   </div>
 </section>
 

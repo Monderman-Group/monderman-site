@@ -14,6 +14,14 @@ assert.equal(boundaryOnFinalPage(['The answ ers show  how assumptions apply.'],'
 assert.equal(boundaryOnFinalPage(['The answers show how','assumptions apply.'],'The answers show how assumptions apply.'),false);
 assert.equal(boundaryOnFinalPage(['The answers show how assumptions apply.','Other text.'],'The answers show how assumptions apply.'),false);
 assert.equal(boundaryOnFinalPage(['Anything.'],''),false);
+const governanceHeading='What the result supports and what it does not';
+const governancePages=pages=>pages.filter(text=>compact(text).includes(compact(governanceHeading)));
+// PDF glyph extraction can split “What” into “W hat”. Keep the full heading
+// on one page; do not join pages or tolerate missing/changed heading words.
+assert.equal(governancePages(['W hat the result supports and what it does not']).length,1);
+assert.equal(governancePages(['What the result supports and','what it does not']).length,0);
+assert.equal(governancePages(['What the result supports']).length,0);
+assert.equal(governancePages([governanceHeading,governanceHeading]).length,2);
 const root=path.resolve(import.meta.dirname,'..');
 const out=path.resolve(process.env.REPORT_FULL_PAGINATION_OUT||'/tmp/report-presentation-smoke/full-pagination');
 fs.mkdirSync(out,{recursive:true});
@@ -65,8 +73,8 @@ try{
   assert.equal(scenario.length,0,'Individual reports must not retain the retired recovery section');
   assert.equal(await page.locator('.mr-financial-scenario,.mr-exposure-flow,.mr-exposure-range').count(),0,'Individual reports must not display financial projections');
   assert.match(pages.join('\n'),/One run does not establish organizational savings or recoverable time/,'Single-run financial boundary is missing');
-  const governance=pages.filter(t=>t.includes('What the result supports and what it does not'));
-  assert.equal(governance.length,1);assert.ok(governance[0].replace(/\s/g,'').includes('DESIGNREFERENCE(NOTAPEERBENCHMARK)'),'Governance heading orphaned');
+  const governance=governancePages(pages);
+  assert.equal(governance.length,1);assert.ok(compact(governance[0]).includes('DESIGNREFERENCE(NOTAPEERBENCHMARK)'),'Governance heading orphaned');
   assert.doesNotMatch(pages.join('\n'),/Save \/ Print PDF|Close report|\{\{F\d/);
   if(item.run.ai_report){assert.match(pages.join('\n'),/Interpretation and next steps/);assert.equal(await page.locator('.mr-ai-interpretation').count(),1);}
   fs.writeFileSync(path.join(dir,'pages.json'),JSON.stringify(pages,null,2));

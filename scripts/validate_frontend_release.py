@@ -294,6 +294,7 @@ for script,args in [
  ('scripts/public_sample_fixture.mjs',['--check','--root',str(r.resolve())]),
  ('scripts/refresh_public_sample_previews.mjs',['--check']),
  ('scripts/homepage_report_quad_20260925_contract.mjs',[]),
+ ('scripts/change_wording_20260925_contract.mjs',[]),
 ]:
  try:
   subprocess.run(['node',script,*args],cwd=r,check=True,capture_output=True,text=True)

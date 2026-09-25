@@ -93,7 +93,7 @@ req(re.search(r'sample-data/production-diagnostic-samples\.json\?v=[^"\s]+', pro
 req('data-engine-commit' in production_renderer and 'data-artifact-sha256' in production_renderer, 'visible sample provenance missing')
 for token in ['MondermanPublicSamples.model(entry, artifact)','Report.render(stage, model)','Report.downloadHtml(model)','Report.downloadJson(source','Report.downloadPdf(model)']:
     req(token in production_renderer, f'public Diagnostic sample bypasses the certified engine bridge: {token}')
-for token in ['Decision summary','Dimension profile','Time and cost scenario','How to interpret the result','Evidence in this run','What to test next','Method and limits','Next decision','Interpretation boundary']:
+for token in ['Decision summary','Dimension profile','Time and cost scenario','How to interpret the result','Evidence in this run','Decide what to change','Method and limits','Next decision','Interpretation boundary']:
     req(token in report, f'authenticated Diagnostic presentation missing: {token}')
 req('No additional written participant notes are displayed in this section.' in report, 'empty or quarantined written-note state is not explicit')
 req('The measured results reflect the structured answers supplied for this run.' in report, 'structured answers must remain distinct from absent written notes')

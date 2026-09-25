@@ -141,7 +141,7 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
    assert.match(await app.locator('.hwd-compact-tile').nth(3).textContent(),new RegExp(cross.participant_count+'of '+counts.declaredPopulation+' participants'));
    assert.match(await app.locator('.hwd-compact-boundary').textContent(),/Capacity is not cash savings\. Planning inputs are separate from scores\./);
    assert.equal(await app.locator('.hwd-compact-action h3').textContent(),action);
-   assert.deepEqual(await app.locator('.hwd-compact-action dd').allTextContents(),[option.prerequisite,'To be agreed before the test.',option.success_check]);
+   assert.deepEqual(await app.locator('.hwd-compact-action dd').allTextContents(),[option.prerequisite,'To be agreed before the change.',option.success_check]);
    assert.match(await app.locator('#hwd-panel-return').textContent(),/Not yet recorded.*No later result in this sample/s);
    assert.doesNotMatch((await app.locator('#hwd-panel-actions,#hwd-panel-return').allTextContents()).join(' '),/achieved savings|saved \d|Operations director/i);
    const anchors=()=>app.evaluate(el=>Object.fromEntries(['.hwd-topbar','.hwd-tabs'].map(selector=>[selector,el.querySelector(selector).getBoundingClientRect().top+scrollY])));

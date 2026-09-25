@@ -80,7 +80,10 @@ try{
     const pdf=path.join(out,`${id}.pdf`);await page.pdf({path:pdf,format:'Letter',preferCSSPageSize:true,printBackground:true});
     const p=spawnSync(process.env.PDF_PYTHON||'python3',['-c','import sys,json;from pypdf import PdfReader;print(json.dumps([p.extract_text() or "" for p in PdfReader(sys.argv[1]).pages]))',pdf],{encoding:'utf8'});assert.equal(p.status,0,p.stderr);const pages=JSON.parse(p.stdout),text=pages.join('\n'),norm=t=>t.replace(/\s+/g,'');
     assert.ok(norm(text).includes(norm(expected)));assert.ok(!text.includes('Explore actions')&&!text.includes('Review interpretation'),'screen-only CTA leaked into PDF');
-    if(!hasAction)assert.doesNotMatch(text,/Suggested next steps|Changes to test|selected and prioritized reviewed explanations and next steps/);
+    if(!hasAction){
+      assert.equal(await page.locator('.mr-ai-interpretation h3').filter({hasText:/^(?:Suggested next steps|Decide what to change)$/}).count(),0,'Facts-only interpretation must not contain an action-section heading');
+      assert.doesNotMatch(text,/Suggested next steps|selected and prioritized reviewed explanations and next steps/);
+    }
     fs.writeFileSync(path.join(out,`${id}-pages.json`),JSON.stringify(pages,null,2));checks.pdfs.push({id,pages:pages.length});
   }
   await page.setContent('<!doctype html><html><head></head><body><div id="primary"></div><div id="peer"></div></body></html>');

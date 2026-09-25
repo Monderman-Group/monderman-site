@@ -7,9 +7,10 @@ import path from 'node:path';
 import vm from 'node:vm';
 import {createHash} from 'node:crypto';
 import {sourceBeforeHorizontalOverviewPresentation,restoreHorizontalOverviewDetailPresentation,PRIOR_HORIZONTAL_OVERVIEW_SHA256} from './report_overview_horizontal_inverse.mjs';
+import {sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
-const read = name => fs.readFileSync(path.join(root, name), 'utf8');
+const read = name => sourceAtChangeWordingBaseline(name,fs.readFileSync(path.join(root, name), 'utf8'));
 const source = read('monderman-report.js');
 const sampleBytes = read('sample-data/production-diagnostic-samples.json');
 const artifact = JSON.parse(sampleBytes);

@@ -49,7 +49,7 @@ for(const [i,key]of keys.entries()){
 }
 const freeze=x=>{if(x&&typeof x==='object'){Object.values(x).forEach(freeze);Object.freeze(x);}return x;};
 freeze(artifact);freeze(individualEntries);const before=JSON.stringify(artifact);let checks=0;const ok=fn=>{fn();checks++;};
-ok(()=>assert.equal(Report.rendererVersion,'diagnostic-renderer-report-overview-20260924.1'));
+ok(()=>assert.equal(Report.rendererVersion,'diagnostic-renderer-change-wording-20260925.1'));
 ok(()=>assert.equal(Public.validate(artifact),artifact)); // shape only, not a release/approval validator
 for(const [key,entry]of [...Object.entries(artifact.outputs),...Object.entries(individualEntries)]){
   const p=entry.provenance,report=publicResult(entry).ai_report.report;

@@ -8,6 +8,7 @@ import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 import {HOMEPAGE_PREVIEW_ANCHOR_FILES,HOMEPAGE_PREVIEW_ANCHOR_FIXTURE_SHA256,homepagePreviewAnchorDelta,sourceBeforeHomepagePreviewAnchor20260924} from './homepage_preview_anchor_20260924_inverse.mjs';
 import {sourceBeforeHomepageReportQuad20260925} from './homepage_report_quad_20260925_inverse.mjs';
+import {sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
 const root=path.resolve(import.meta.dirname,'..'),raw=file=>fs.readFileSync(path.join(root,file),'utf8');
 const read=file=>sourceBeforeHomepageReportQuad20260925(file,raw(file));
 const sha=value=>createHash('sha256').update(value).digest('hex');
@@ -40,7 +41,7 @@ const oldAssertion="      assert.equal(sha(fs.readFileSync(path.join(root,filena
 const newAssertion="      // The separately reviewed desktop-only anchor addendum reconstructs the\n      // original CSS and this reader exactly; publication pins remain intact.\n      assert.equal(sha(sourceBeforeHomepagePreviewAnchor20260924(filename,fs.readFileSync(path.join(root,filename)))),digest,'reviewed comparison source changed: '+filename);";
 eq(read('scripts/public_sample_fixture.mjs'),before['scripts/public_sample_fixture.mjs'].replace("import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';\n",value=>value+readerImport).replace(oldAssertion,newAssertion),'Reader changes only its import and exact presentation compatibility call');
 for(const [file,digest]of Object.entries(homepagePreviewAnchorDelta.unchanged_files))
-  eq(sha(fs.readFileSync(path.join(root,file))),digest,file+': publication asset or historical fixture remains byte-identical');
+  eq(sha(sourceAtChangeWordingBaseline(file,fs.readFileSync(path.join(root,file)))),digest,file+': publication asset or historical fixture remains byte-identical');
 for(const file of ['index.html','monderman-report.js','sample-data/production-sample-release.json','workspace.html','__proto__']){
   const value=Buffer.from('No transformation allowed');
   eq(sourceBeforeHomepagePreviewAnchor20260924(file,value),value,file+': outside finite addendum scope');

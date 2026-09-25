@@ -38,7 +38,7 @@ for(const [file,entry]of Object.entries(previewBindingDelta)){
   if(file==='index.html'){
     const hero=[...current.matchAll(/<aside class="home-workspace-preview"[\s\S]*?<\/aside>/g)];
     eq(hero.length,1,'One homepage journey');
-    eq(hero[0][0],sections.hero,'Exact pure generated homepage journey');
+    eq(displayed.match(/<aside class="home-workspace-preview"[\s\S]*?<\/aside>/)?.[0],sections.hero,'Exact pure generated homepage journey');
   }
   assert.doesNotThrow(()=>sourceBeforePublicCopyClarity(file,displayed));checks++;
   for(const mutated of [current+'\n',current.replace(currentAttr,priorAttr),current.replace(currentAttr,''),current.replace(/href="/,'href="UNREVIEWED-')])

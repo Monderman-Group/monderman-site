@@ -63,7 +63,7 @@ async function verifyAIScreenRefresh(browser) {
       },fixture);
       assert.ok(initial.aiId && initial.allSectionsIncludesAI,fixture.name+' pending AI is missing its stable navigation target');
       assert.equal(initial.liveAttribute,'polite');
-      assert.equal(initial.pendingNextStep,'Review the suggested changes and their evidence before choosing a test.',fixture.name+' must not present a category label as a task');
+      assert.equal(initial.pendingNextStep,'Review the suggested changes and their evidence before deciding what to change.',fixture.name+' must not present a category label as a task');
       assert.ok(initial.noStale && initial.unique && initial.unmutated,JSON.stringify({name:fixture.name,...initial}));
       await lifecycle.clock.fastForward(15000);
       const unchanged = await lifecycle.evaluate(()=>{const x=screenRefresh;return {calls:x.calls(),navSame:x.nav===x.host.querySelector('.mr-screen-nav'),contentsSame:x.contents===x.host.querySelector('.mr-screen-contents'),open:x.contents.open,focus:document.activeElement===x.summary,bodySame:x.bodySnapshot()===x.bodyBefore};});

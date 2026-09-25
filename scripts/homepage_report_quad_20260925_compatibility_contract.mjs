@@ -7,8 +7,9 @@ import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {HOMEPAGE_REPORT_QUAD_FILES,HOMEPAGE_REPORT_QUAD_FIXTURE_SHA256,homepageReportQuadDelta,sourceBeforeHomepageReportQuad20260925} from './homepage_report_quad_20260925_inverse.mjs';
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
+import {sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
 
-const root=path.resolve(import.meta.dirname,'..'),read=file=>fs.readFileSync(path.join(root,file));
+const root=path.resolve(import.meta.dirname,'..'),read=file=>Buffer.from(sourceAtChangeWordingBaseline(file,fs.readFileSync(path.join(root,file))));
 const sha=value=>createHash('sha256').update(value).digest('hex');
 let checks=0,negativeControls=0;
 const equal=(actual,expected,label)=>{assert.deepEqual(actual,expected,label);checks++;};

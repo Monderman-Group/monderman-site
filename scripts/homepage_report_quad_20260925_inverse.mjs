@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
+import {sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 export const HOMEPAGE_REPORT_QUAD_FIXTURE_SHA256='2d2db7ce4416dfb4af93d18f46134babb4361cabf85cdf49c67ebac031aecf24';
 export const HOMEPAGE_REPORT_QUAD_FILES=Object.freeze([
@@ -16,6 +17,7 @@ export const homepageReportQuadDelta=JSON.parse(bytes);
 assert.deepEqual(Object.keys(homepageReportQuadDelta.files),HOMEPAGE_REPORT_QUAD_FILES,'Finite homepage presentation and source-reader scope');
 export function sourceBeforeHomepageReportQuad20260925(file,source){
   if(!HOMEPAGE_REPORT_QUAD_FILES.includes(file))return source;
+  source=sourceAtChangeWordingBaseline(file,source);
   const entry=homepageReportQuadDelta.files[file];
   assert.equal(sha(source),entry.after_sha256,file+': only the exact reviewed homepage-report-quad source can be inverted');
   let restored=String(source);
