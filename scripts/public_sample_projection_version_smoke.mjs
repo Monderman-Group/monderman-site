@@ -10,6 +10,7 @@ import {sourceBeforeHomepageCompactJourney20260924,homepageCompactDelta,HOMEPAGE
 import {sourceBeforePublicCopyClarity,PUBLIC_COPY_FIXTURE_SHA256} from './public_copy_clarity_inverse.mjs';
 import {reportLibraryDelta,REPORT_LIBRARY_FIXTURE_SHA256} from './report_library_20260924_inverse.mjs';
 import {sourceBeforeHomepageReportQuad20260925} from './homepage_report_quad_20260925_inverse.mjs';
+import {sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
 const source=fs.readFileSync(new URL('../public-sample-model.js',import.meta.url),'utf8');
 const scope={window:{}};vm.runInNewContext(source,scope);
 const adapter=scope.window.MondermanPublicSamples;
@@ -72,7 +73,7 @@ for(const changed of [source+'\n',source.replace(currentVersion,currentVersion+'
 const unrelated=Buffer.from('unchanged');assert.equal(sourceBeforePublicSampleProjection20260924('unrelated.js',unrelated),unrelated);checks++;
 assert.deepEqual(PROJECTION_CACHE_FILES,['sample-report.html','scripts/inject-public-shell.mjs']);checks++;
 for(const file of PROJECTION_CACHE_FILES){
-  const raw=fs.readFileSync(new URL('../'+file,import.meta.url),'utf8'),current=sourceBeforeHomepageReportQuad20260925(file,raw),entry=projectionCacheDelta[file];
+  const raw=fs.readFileSync(new URL('../'+file,import.meta.url),'utf8'),current=sourceBeforeHomepageReportQuad20260925(file,sourceAtChangeWordingBaseline(file,raw)),entry=projectionCacheDelta[file];
   assert.equal(sha(current),entry.after_sha256);checks++;
   const prior=sourceBeforePublicSampleProjectionCache20260924(file,current);
   assert.equal(sha(prior),entry.before_sha256);checks++;

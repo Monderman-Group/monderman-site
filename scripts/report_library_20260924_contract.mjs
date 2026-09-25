@@ -13,12 +13,13 @@ import {sourceBeforeHomepageCompactJourney20260924} from './homepage_compact_jou
 import {sourceBeforePublicSampleProjectionCache20260924} from './public_sample_projection_20260924_inverse.mjs';
 import {sourceBeforePublicSamplePreviewBinding20260924} from './public_sample_preview_binding_20260924_inverse.mjs';
 import {sourceBeforeHomepageReportQuad20260925} from './homepage_report_quad_20260925_inverse.mjs';
+import {sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
 const root = path.resolve(import.meta.dirname, '..'), sha = value => createHash('sha256').update(value).digest('hex');
 let checks = 0;
 const equal = (a,b,label) => {assert.deepEqual(a,b,label); checks++;};
 const reject = (callback,label) => {assert.throws(callback, undefined, label); checks++;};
 for (const file of REPORT_LIBRARY_FILES) {
-  const source = fs.readFileSync(path.join(root,file),'utf8');
+  const source = sourceAtChangeWordingBaseline(file,fs.readFileSync(path.join(root,file),'utf8'));
   const original = execFileSync('git',['show',PUBLIC_COPY_BASELINE+':'+file],{cwd:root,encoding:'utf8',maxBuffer:32e6});
   let postCopy = original;
   for (const [start,,current,prior] of publicCopyDelta.files[file]?.replacements || []) {

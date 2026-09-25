@@ -4,10 +4,11 @@
 // The separate overview contract validates the four tiles and their targets.
 import assert from 'node:assert/strict';
 import {HORIZONTAL_OVERVIEW_VERSION,restoreHorizontalOverviewDetailPresentation} from './report_overview_horizontal_inverse.mjs';
+import {CHANGE_WORDING_VERSION} from './change_wording_20260925_inverse.mjs';
 
 export function withoutReportOverview(html,{preserveVersion=false}={}) {
-  const edition=html.includes('<meta name="monderman-renderer-version" content="'+HORIZONTAL_OVERVIEW_VERSION+'" />')?HORIZONTAL_OVERVIEW_VERSION:'diagnostic-renderer-report-overview-20260923.1';
-  if(edition===HORIZONTAL_OVERVIEW_VERSION){
+  const edition=html.includes('<meta name="monderman-renderer-version" content="'+CHANGE_WORDING_VERSION+'" />')?CHANGE_WORDING_VERSION:html.includes('<meta name="monderman-renderer-version" content="'+HORIZONTAL_OVERVIEW_VERSION+'" />')?HORIZONTAL_OVERVIEW_VERSION:'diagnostic-renderer-report-overview-20260923.1';
+  if([CHANGE_WORDING_VERSION,HORIZONTAL_OVERVIEW_VERSION].includes(edition)){
     html=restoreHorizontalOverviewDetailPresentation(html);
     // The separately reviewed immediate jump prevents taps landing on a moving
     // neighboring tile. Reverse only this exact handler for old HTML baselines.

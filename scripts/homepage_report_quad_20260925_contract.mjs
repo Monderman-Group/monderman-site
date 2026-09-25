@@ -8,6 +8,7 @@ import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {buildPublicSamplePreviewSections} from './refresh_public_sample_previews.mjs';
 import {evidenceDigest} from './public_sample_fixture.mjs';
+import {sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 const baseline='6bd52d91d2557902f4b090686f244ea91843eb51';
@@ -54,7 +55,7 @@ eq(briefAsides[0][0],sections.brief,'Brief markup remains generated exactly from
 eq(brief,prior('Monderman_Platform_Brief.html').toString(),'Entire Platform Brief is unchanged');
 const hero=/<aside class="home-workspace-preview"[^]*?<\/aside>/;
 eq(index.match(hero)?.[0],sections.hero,'Upper homepage journey retains exact source binding');
-eq(index.match(hero)?.[0],prior('index.html').toString().match(hero)?.[0],'Upper homepage journey is unchanged');
+eq(sourceAtChangeWordingBaseline('index.html',index).match(hero)?.[0],prior('index.html').toString().match(hero)?.[0],'Upper homepage journey retains its original bytes outside the exact wording edition');
 eq(JSON.stringify(artifact),artifactBefore,'Pure preview generation leaves source data untouched');
 
 const asides=all(tree,node=>node.tag==='aside'),grids=classes(tree,'hrq-grid'),tiles=classes(tree,'hrq-tile');
@@ -143,6 +144,6 @@ ok(!fallback.home.includes('mr-overview-sankey'),'Missing planning values never 
 ok(fallback.home.includes('data-promo-median>52 / 100'),'Fallback keeps available recorded score');
 
 const protectedPaths=execFileSync('git',['ls-tree','-r','--name-only',baseline,'--','sample-data','sample-report.html','sample-report-production.css','sample-report-production.js','public-sample-model.js','monderman-report.js','participant-evidence-safety.js','scripts/templates/home-workspace-preview.html'],{cwd:root,encoding:'utf8'}).trim().split('\n').filter(Boolean);
-for(const file of protectedPaths)eq(sha(fs.readFileSync(path.join(root,file))),sha(prior(file)),file+': report and evidence asset unchanged');
+for(const file of protectedPaths)eq(sha(sourceAtChangeWordingBaseline(file,fs.readFileSync(path.join(root,file)))),sha(prior(file)),file+': report and evidence asset unchanged outside exact wording edition');
 eq(read('sample-data/production-diagnostic-samples.json'),artifactBytes,'Public artifact remains byte-identical during checks');
 console.log(JSON.stringify({status:'PASS',checks,negativeControls,protectedFiles:protectedPaths.length,baseline,artifactSha256:sha(artifactBytes),networkCalls:0,providerCalls:0,artifactWrites:0,browserVerification:false,publicationApprovalClaimed:false},null,2));

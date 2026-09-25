@@ -2,6 +2,7 @@
 // Restore the frozen preceding renderer without changing historical pins.
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
+import {CHANGE_WORDING_VERSION,sourceBeforeChangeWording20260925} from './change_wording_20260925_inverse.mjs';
 const sha = value => createHash('sha256').update(value).digest('hex');
 export const COMPARISON_PRINT_SHA256 = '00a8b906e10ee3b048a5554fa0d6142ffd2fd85346daf2d56f8c0fdaf47596e1';
 export const PRIOR_COMPARISON_PRINT_SHA256 = '420b126a6d6d47be3fb32e78483c649f13f670ced90597fc3058aa7a93040b6a';
@@ -13,6 +14,7 @@ const replacements = [
   [coverNow, coverPrior]
 ];
 export function sourceBeforeComparisonPrint20260924(source) {
+  if(source.includes(CHANGE_WORDING_VERSION))source=sourceBeforeChangeWording20260925('monderman-report.js',source);
   if (!source.includes(coverNow) && !source.includes('X(Math.max(mean,med))+12')) return source;
   assert.equal(sha(source), COMPARISON_PRINT_SHA256, 'Only the exact reviewed cover/segment-label presentation can be inverted');
   for (const [now, prior] of replacements) {

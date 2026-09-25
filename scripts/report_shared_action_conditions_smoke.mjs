@@ -35,7 +35,7 @@ add('html-escaping',a=>a.forEach(x=>{x.prerequisite='<img id="condition-injectio
 add('long',a=>a.forEach(x=>{x.prerequisite='MOCK long condition. '.repeat(150);x.risk='MOCK long risk. '.repeat(120);}),['prerequisite','risk']);
 add('legacy',()=>{},[],{legacy:true});
 let assertions=0;const equal=(a,b,message)=>{assert.deepEqual(a,b,message);assertions++;};
-equal(Report.rendererVersion,'diagnostic-renderer-report-overview-20260924.1');
+equal(Report.rendererVersion,'diagnostic-renderer-change-wording-20260925.1');
 for(const row of cases){const before=JSON.stringify(row.value);row.html=Report.buildReportHtml(Report.fromRun(row.value));equal(JSON.stringify(row.value),before,'Saved input unchanged');}
 // Exact rendered .30 baselines independently captured from committed SITE
 // a91f72d97691779281615b0630f6454b0cdd2c7e. No historical Git checkout is needed in CI.
@@ -61,7 +61,7 @@ for(const mutant of [
   legacyHtml.replace('MOCK distinct success check 1.','Unreviewed success check.')
 ]){assert.throws(()=>assertLegacyOutput(mutant));assertions++;}
 const withOptions=cases[0].value.ai_report,optionMarkup=html=>html.match(/<div class="mr-report-options">([\s\S]*?)<\/div><p class="mr-not-yet">/)[1];
-equal(sha(optionMarkup(Report.buildAIInterpretation(withOptions))),'3aaa1e8e0ed0ab6bb167c1c09df84788c4c1d75e221c421c65de0a8bdea2ed91','Action options byte-identical');
+equal(sha(optionMarkup(Report.buildAIInterpretation(withOptions)).replaceAll('<dt>How to judge the change</dt>','<dt>How to judge the test</dt>')),'3aaa1e8e0ed0ab6bb167c1c09df84788c4c1d75e221c421c65de0a8bdea2ed91','Action options byte-identical outside exact condition-label wording');
 if(process.argv.includes('--deterministic-only')){console.log(JSON.stringify({passed:true,assertions,scope:'VM preconditions only; browser checks not run',providerCalls:0,networkCalls:0}));process.exit(0);}
 const receipt={mockOnly:true,rendererSha256:sourceHash,layouts:[],screens:[],errors:[],providerCalls:0,pdfs:0,passed:false};
 for(const [name,engine]of [['chromium',chromium],['webkit',webkit]]){

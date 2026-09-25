@@ -8,6 +8,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {spawnSync} from 'node:child_process';
+import {CHANGE_WORDING_FILES} from './change_wording_20260925_inverse.mjs';
 
 const args=process.argv.slice(2);
 const setupOnly=args.includes('--check-setup');
@@ -27,6 +28,7 @@ const sourceNames=[
 const pdfNames=['operational_systems','decision_velocity','structural_clarity','institutional_performance','depth_synthesis','cross_lens_synthesis'].map(key=>'sample-data/reports/'+key+'.pdf');
 const overviewSources=['index.html','homepage-workspace-demo.css','sample-report-tile.css','pilot-waitlist.css','canonical-site-shell.css','public-product-design.css'];
 const adapterDependencies=['scripts/public_copy_clarity_inverse.mjs','scripts/promotional_gold_20260924_inverse.mjs','scripts/report_library_20260924_inverse.mjs',
+  'scripts/change_wording_20260925_inverse.mjs','scripts/fixtures/change-wording-20260925.json',
   'scripts/public_sample_projection_20260924_inverse.mjs','scripts/public_language_pass_20260924_inverse.mjs','scripts/trust_security_center_20260924_inverse.mjs',
   'scripts/homepage_compact_journey_20260924_inverse.mjs','scripts/public_sample_preview_binding_20260924_inverse.mjs',
   'scripts/homepage_preview_anchor_20260924_inverse.mjs','scripts/fixtures/homepage-preview-anchor-20260924.json',
@@ -179,7 +181,7 @@ for(const name of sourceNames) {
     m.source_files[name]=changedHash(m.source_files[name]);
   }));
   cases.push({
-    label:'source-byte-drift-'+path.basename(name),layer:'source-byte-binding',expected:name==='scripts/refresh_public_sample_previews.mjs'
+    label:'source-byte-drift-'+path.basename(name),layer:'source-byte-binding',expected:CHANGE_WORDING_FILES.includes(name)?name+': only the exact reviewed current source can be inverted (change wording)':name==='scripts/refresh_public_sample_previews.mjs'
       ?name+': only the exact reviewed homepage-report-quad source can be inverted':'reviewed source changed: '+name,
     mutate(directory) {
       const suffix=name.endsWith('.html')?'\n<!-- sensitivity mutation only -->\n':'\n// sensitivity mutation only\n';
@@ -205,12 +207,30 @@ for(const [label,mutate] of [
   ['changed-reviewer',m=>{m.report_overview_presentation_review.reviewed_by='Jason';}],
 ])cases.push(manifestMutation('overview-review-'+label,null,mutate));
 for(const name of overviewSources)cases.push({
-  label:'overview-source-drift-'+path.basename(name),layer:'source-byte-binding',expected:currentPublication&&['index.html','homepage-workspace-demo.css'].includes(name)
+  label:'overview-source-drift-'+path.basename(name),layer:'source-byte-binding',expected:CHANGE_WORDING_FILES.includes(name)?name+': only the exact reviewed current source can be inverted (change wording)':currentPublication&&['index.html','homepage-workspace-demo.css'].includes(name)
     ?name+': only the exact reviewed homepage-report-quad source can be inverted'
     :'reviewed '+(currentPublication?'comparison':'overview')+' source changed: '+name,
   mutate(directory){fs.appendFileSync(path.join(directory,name),'\n/* sensitivity mutation only */\n');},
 });
 assert.equal(cases.length,91,'Historical mutations plus ten overview review mutations and six additional presentation sources');
+for(const [label,mutate]of [
+  ['missing',m=>{delete m.change_wording_presentation_review;}],
+  ['wrong-version',m=>{m.change_wording_presentation_review.version='unreviewed';}],
+  ['pending',m=>{m.change_wording_presentation_review.status='pending';}],
+  ['wrong-renderer',m=>{m.change_wording_presentation_review.renderer_sha256='0'.repeat(64);}],
+  ['wrong-renderer-edition',m=>{m.change_wording_presentation_review.renderer_version='unreviewed';}],
+  ['wrong-artifact',m=>{m.change_wording_presentation_review.artifact_file_sha256='0'.repeat(64);}],
+  ['provider-call',m=>{m.change_wording_presentation_review.provider_calls=1;}],
+  ['wrong-history',m=>{m.change_wording_presentation_review.prior_review.sha256='0'.repeat(64);}],
+  ['pending-visual-review',m=>{m.change_wording_presentation_review.visual_review='pending';}],
+  ['missing-pdf',m=>{delete m.change_wording_presentation_review.pdf_outputs.depth_synthesis;}],
+  ['wrong-pdf',m=>{m.change_wording_presentation_review.pdf_outputs.depth_synthesis.sha256='0'.repeat(64);}],
+  ['wrong-html',m=>{m.change_wording_presentation_review.pdf_outputs.depth_synthesis.html_sha256='0'.repeat(64);}],
+  ['wrong-path',m=>{m.change_wording_presentation_review.pdf_outputs.depth_synthesis.path='other.pdf';}],
+  ['missing-pages',m=>{delete m.change_wording_presentation_review.pdf_outputs.depth_synthesis.pages;}],
+])cases.push(manifestMutation('change-wording-review-'+label,null,mutate));
+for(const name of pdfNames)cases.push({label:'change-wording-pdf-drift-'+path.basename(name),layer:'pdf-byte-binding',expected:'financial PDF bytes differ from the reviewed revision',mutate(directory){fs.appendFileSync(path.join(directory,name),'\nUNAPPROVED');}});
+assert.equal(cases.length,111,'Original 91 checks plus fourteen additive wording-review and six PDF mutation controls');
 assert.equal(new Set(cases.map(item=>item.label)).size,cases.length);
 if(setupOnly){
   // Import the actual copied module graph, but do not call the release validator

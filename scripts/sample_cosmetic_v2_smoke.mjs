@@ -8,6 +8,7 @@ import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 import {assertInvitedEvaluationSourceContract,EVALUATION_BASELINE} from './invited_evaluation_source_contract.mjs';
 import {sourceBeforeOverviewSiteCompatibility} from './report_overview_site_compatibility_inverse.mjs';
 import {sourceBeforeHomepageReportQuad20260925} from './homepage_report_quad_20260925_inverse.mjs';
+import {sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
 const {chromium,webkit}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 const root=path.resolve(import.meta.dirname,'..'),built=path.join(root,'.render-public');
 const base=EVALUATION_BASELINE,origin='http://cosmetic.test';
@@ -36,7 +37,7 @@ equal(release.financial_publication_update.status,'reviewed');
 equal(release.financial_publication_update.calculation_review,'passed');
 equal(release.financial_publication_update.visual_review,'passed');
 const updatedPins=['monderman-report.js','scripts/refresh_public_sample_previews.mjs','scripts/templates/home-workspace-preview.html'];
-for(const file of updatedPins)equal(release.source_files[file],sha(sourceBeforeHomepageReportQuad20260925(file,read(file))),file+' original reviewed source pin after exact presentation inversion');
+for(const file of updatedPins)equal(release.source_files[file],sha(sourceBeforeHomepageReportQuad20260925(file,sourceAtChangeWordingBaseline(file,read(file)))),file+' original reviewed source pin after exact presentation inversion');
 const sourceFiles=[...new Set([...runtimeChanges,...protectedFiles,releaseFile,'scripts/inject-public-shell.mjs',...updatedPins])];
 const frozen=Object.fromEntries(sourceFiles.map(f=>[f,sha(read(f))]));
 const oldSearch=JSON.parse(original('public-search-index.json')),newSearch=JSON.parse(read('public-search-index.json'));
@@ -48,7 +49,7 @@ for(const [page,css,version]of [['index.html','homepage-workspace-demo.css','202
   equal(sha(fs.readFileSync(path.join(built,css))),sha(read(css)));
 }
 const sampleHtml=fs.readFileSync(path.join(built,'sample-report.html'),'utf8');
-for(const [file,version]of [['monderman-report.js','20260924.overview2'],['sample-report-production.js','20260924.comparisons1'],['public-sample-model.js','20260924.projection8']]){
+for(const [file,version]of [['monderman-report.js','20260925.changewording1'],['sample-report-production.js','20260924.comparisons1'],['public-sample-model.js','20260924.projection8']]){
   check(sampleHtml.includes(file+'?v='+version),'Reviewed runtime cache: '+file);
   equal(sha(fs.readFileSync(path.join(built,file))),sha(read(file)),'Built bytes equal reviewed source: '+file);
 }

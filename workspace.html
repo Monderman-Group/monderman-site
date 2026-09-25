@@ -480,7 +480,7 @@ body{transition:background-color .25s ease,color .25s ease}
             <div class="recfoot"><a class="ws-btn sm" id="wsRecBoardLink" href="workspace-actions.html">Review in Action Plans →</a></div>
           </div>
         </article>
-        <div class="ws-product-empty" id="wsNextEmpty"><strong>Start with a measured baseline</strong><p>Run a Diagnostic for one process or area of work. Use its findings to choose a first change to test.</p><a class="ws-link" href="workspace-diagnostics.html#launch">Choose a Diagnostic →</a></div>
+        <div class="ws-product-empty" id="wsNextEmpty"><strong>Start with a measured baseline</strong><p>Run a Diagnostic for one process or area of work. Use its findings to decide what to change.</p><a class="ws-link" href="workspace-diagnostics.html#launch">Choose a Diagnostic →</a></div>
         <div class="ws-action-shortcuts">
           <a href="workspace-diagnostics.html#campaigns"><b>Campaigns →</b><span>Invite participants and review responses</span></a>
           <a href="workspace-actions.html"><b>Action Plans →</b><span>Assign owners and link remeasurement</span></a>
@@ -829,7 +829,7 @@ body{transition:background-color .25s ease,color .25s ease}
         {done:state.runs.length>0,title:'Baseline recorded',detail:state.runs.length>0?`${state.runs.length} saved Diagnostic read${state.runs.length===1?'':'s'}.`:'Run the first Diagnostic before intervening.',href:'workspace-diagnostics.html#launch'},
         {done:synthesisCount>0,title:'Evidence synthesized',detail:synthesisCount>0?`${synthesisCount} saved Synthesis${synthesisCount===1?'':'es'}.`:'Review Analysis and build the appropriate Synthesis.',href:'workspace-analysis.html#synthesis'},
         {done:planCount>0,title:'Action Plan established',detail:planCount>0?`${planCount} Action Plan${planCount===1?'':'s'} in the Workspace.`:'Translate measured priorities into owned work.',href:'workspace-actions.html'},
-        {done:(remeasureRuns+remeasureSyntheses)>0,title:'Remeasurement linked',detail:(remeasureRuns+remeasureSyntheses)>0?'At least one action is tied to later evidence.':'Link later evidence to the action it tests.',href:'workspace-actions.html'}
+        {done:(remeasureRuns+remeasureSyntheses)>0,title:'Remeasurement linked',detail:(remeasureRuns+remeasureSyntheses)>0?'At least one action is tied to later evidence.':'Link later evidence to the change it helps evaluate.',href:'workspace-actions.html'}
       ];
       const completed=steps.filter(step=>step.done).length;
       meta.textContent=completed===steps.length?'The initial operating loop is fully established.':`${completed} of ${steps.length} measurable setup milestones complete.`;

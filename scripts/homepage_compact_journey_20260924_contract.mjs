@@ -12,10 +12,11 @@ import {sourceBeforePublicSampleProjectionCache20260924} from './public_sample_p
 import {sourceBeforePublicSamplePreviewBinding20260924,PREVIEW_CURRENT_ARTIFACT_FILE_SHA256} from './public_sample_preview_binding_20260924_inverse.mjs';
 import {sourceBeforeHomepagePreviewAnchor20260924} from './homepage_preview_anchor_20260924_inverse.mjs';
 import {sourceBeforeHomepageReportQuad20260925} from './homepage_report_quad_20260925_inverse.mjs';
+import {sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
 // The later single model-cache substitution has its own exact-byte contract;
 // restore it before testing this unchanged compact-homepage edition.
 const root=path.resolve(import.meta.dirname,'..'),raw=f=>fs.readFileSync(path.join(root,f),'utf8');
-const read=f=>sourceBeforePublicSampleProjectionCache20260924(f,sourceBeforePublicSamplePreviewBinding20260924(f,sourceBeforeHomepagePreviewAnchor20260924(f,sourceBeforeHomepageReportQuad20260925(f,raw(f)))));
+const read=f=>sourceBeforePublicSampleProjectionCache20260924(f,sourceBeforePublicSamplePreviewBinding20260924(f,sourceBeforeHomepagePreviewAnchor20260924(f,sourceBeforeHomepageReportQuad20260925(f,sourceAtChangeWordingBaseline(f,raw(f))))));
 const sha=v=>createHash('sha256').update(v).digest('hex');
 let checks=0,negativeControls=0;
 const eq=(a,b,label)=>{assert.deepEqual(a,b,label);checks++;},ok=(v,label)=>{assert.ok(v,label);checks++;};
@@ -38,7 +39,7 @@ if(preparation)assert.ok(path.isAbsolute(preparation),'Private preparation path 
 const artifactBytes=preparation?fs.readFileSync(preparation):raw('sample-data/production-diagnostic-samples.json');
 if(preparation)eq(sha(artifactBytes),PREVIEW_CURRENT_ARTIFACT_FILE_SHA256,'Only the exact prospective artifact may exercise preparation');
 const artifact=JSON.parse(artifactBytes),source=artifact.outputs.cross_lens_synthesis.source;
-const template=read('scripts/templates/home-workspace-preview.html'),html=raw('index.html'),css=read('homepage-workspace-demo.css'),runtime=read('homepage-workspace-demo.js');
+const template=raw('scripts/templates/home-workspace-preview.html'),html=raw('index.html'),css=read('homepage-workspace-demo.css'),runtime=read('homepage-workspace-demo.js');
 const sections=buildPublicSamplePreviewSections(artifact,template),priorSections=buildPublicSamplePreviewSections(artifact,before['scripts/templates/home-workspace-preview.html']);
 const journey=/<aside class="home-workspace-preview"[\s\S]*?<\/aside>/;
 eq(html.match(journey)?.[0],sections.hero,'Current homepage is exactly generated from saved source');

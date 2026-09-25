@@ -963,7 +963,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   <script src="assignment-draft.js"></script>
   <script src="self-diagnostic-draft.js"></script>
   <script src="dv-journey-recovery.js"></script>
-  <script src="monderman-report.js?v=20260924.overview2"></script>
+  <script src="monderman-report.js?v=20260925.changewording1"></script>
   <script src="dv-result-dialog.js?v=20260908-journey1"></script>
   <script src="interview-mode.js"></script>
   <script>
@@ -3804,7 +3804,7 @@ if (!hasMeasuredDecisionTiming(result)) return {
 return Number(result?.score) >= 83 ? {
   burdenRead: "The submitted answers produce a stronger-range Decision Velocity score. Save this result for comparison with a later run. It does not establish that performance will continue.",
   sourceRead: "A stronger-range score is not evidence that any one decision step requires redesign.",
-  diagnosisRead: "A stronger-range score does not establish that the controls are necessary or effective. Any proposed change needs a specific reason and a bounded test."
+  diagnosisRead: "A stronger-range score does not establish that the controls are necessary or effective. Any proposed change needs a specific reason, limited scope and a clear way to measure its effects."
 } : harmonized.diagnosisReads;
 }
 
@@ -4675,11 +4675,11 @@ if (note) note.textContent = result?.trajectory?.note || "Directional signal";
   */
   function buildConcentrationNarrative(pattern) {
   if (pattern.isConcentrated) {
-  return `The composition is concentrated rather than distributed. ${escapeHtml(pattern.dominant.label)} carries ${pattern.dominantPct}% of the visible burden in this run. That identifies a bounded first test; it does not predict the result of changing it.`;
+  return `The composition is concentrated rather than distributed. ${escapeHtml(pattern.dominant.label)} carries ${pattern.dominantPct}% of the visible burden in this run. Use this finding to decide what to change first; it does not predict the result of changing it.`;
   } else if (pattern.isDistributed) {
-  return `The composition is distributed rather than concentrated. No single source carries more than ${pattern.dominantPct}% of the visible burden. Test more than one source and compare repeated measurements; this run does not establish that path redesign is required.`;
+  return `The composition is distributed rather than concentrated. No single source carries more than ${pattern.dominantPct}% of the visible burden. Consider changes to more than one source and compare repeated measurements; this run does not establish that path redesign is required.`;
   } else if (pattern.hasSignal) {
-  return `The composition shows ${escapeHtml(pattern.dominant.label.toLowerCase())} as the largest visible burden source at ${pattern.dominantPct}% of the total, with the remaining burden distributed across other dimensions. Use it as a first test and remeasure the full profile.`;
+  return `The composition shows ${escapeHtml(pattern.dominant.label.toLowerCase())} as the largest visible burden source at ${pattern.dominantPct}% of the total, with the remaining burden distributed across other dimensions. Use it to decide what to change, then remeasure the full profile.`;
   } else {
   return "The composition signal is too low in this run to identify a dominant source. The run cannot distinguish between light burden and insufficient input depth; broader participant coverage can test that uncertainty.";
   }
@@ -5051,7 +5051,7 @@ function buildLeadershipQuestion(result = {}, payload = {}, section = "executive
 if (section === "experience") return "Does the documented process still describe the process people actually use?";
 if (section === "composition") return "Which supplied burden indicator should be checked against a specific example from the work first?";
 if (section === "quadrant") return "What direct evidence would help explain the reported governance and responsiveness indicators?";
-if (section === "remedy") return "What requirement does the control serve, and what evidence would justify a small test?";
+if (section === "remedy") return "What requirement does the control serve, and what evidence would justify a small change?";
 return "What should be checked before deciding whether any change is needed?";
 }
 
@@ -5239,7 +5239,7 @@ const updateReadItems = rawUpdateReadItems.filter((item) => !currentPerspectiveP
 const readingHtml = competingReadings.map((item) => '<div class="mini-card"><b>' + safe(item.label || "Reading") + '</b><p>' + safeWords(item.interpretation || item, 44) + '</p><p class="muted">Signal test: ' + safeWords(item.what_would_distinguish_it || "Additional cross-role evidence would clarify this reading.", 50) + '</p></div>').join("");
 const updateHtml = updateReadItems.map((item) => '<p style="margin:0 0 8px">• ' + safeWords(item, 42) + '</p>').join("");
 const decisionReviewPage = '<section class="page">' + footer(decisionReviewPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>Other possible explanations</h2><p>This section names plausible interpretations of the same signal and identifies evidence that could support, weaken, or reframe each one.</p><div class="card-row" style="grid-template-columns:1fr;gap:12px">' + readingHtml + '</div></div></section>'
-+ '<section class="page">' + footer(updateReadPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>What would update this read</h2><p>The current read rests on a single run from a single perspective. The items below identify evidence to collect before choosing an intervention test.</p><div class="panel bench" style="margin-top:18px">' + updateHtml + '</div></div></section>';
++ '<section class="page">' + footer(updateReadPageNumber) + '<div class="content"><p class="eyebrow">Analytical review</p><h2>What would update this read</h2><p>The current read rests on a single run from a single perspective. The items below identify evidence to collect before deciding what to change.</p><div class="panel bench" style="margin-top:18px">' + updateHtml + '</div></div></section>';
 const firstTwoActions = actions.slice(0, 2).length ? actions.slice(0, 2) : [
 "Reduce the heaviest visible burden first.",
 "Run the diagnostic again after the first real change."
@@ -5481,13 +5481,13 @@ return `<!doctype html>
   ${footer(3)}
   <div class="content">
     <p class="eyebrow">What the answers indicate</p><h2>Burden indicator distribution</h2>
-    <p>The composition view shows how the measured drag is distributed across approval density, coordination burden, handoff burden, escalation dependence, rework friction, and key-person brittleness. Dimensions with no material contribution to this run may be omitted from the chart below for clarity.</p><p class="muted">The distribution supports bounded testing. A concentrated pattern identifies one first test; a distributed pattern supports testing more than one dimension. Neither predicts the result of intervention.</p>
+    <p>The composition view shows how the measured drag is distributed across approval density, coordination burden, handoff burden, escalation dependence, rework friction, and key-person brittleness. Dimensions with no material contribution to this run may be omitted from the chart below for clarity.</p><p class="muted">The distribution helps you decide what to change. A concentrated pattern points to one area to consider first; a distributed pattern points to several areas. Neither predicts the result of a change.</p>
     <div class="panel donut-panel"><div class="donut-wrap"><svg width="150" height="150" viewBox="0 0 200 200">${donutPaths}</svg><div class="donut-center"><div><small>DOMINANT</small><b>${dominantPct}%</b></div></div></div><div>${segmentLegend}</div></div>
     <h3 style="margin-top:18px">Measured condition dimensions</h3><div class="panel">${dimensionRows}</div>
     <h3 style="margin-top:24px">What the composition tells us</h3>
     <p>${safeWords(concentrationProse, 76)}</p>
     <div class="leadership-question"><b>Leadership question</b><p>${safe(compositionQuestion)}</p></div>
-    <div class="card-row"><div class="mini-card"><b>Concentrated indicators</b><p>One supplied burden indicator has a larger share. Check it against a specific example from the work before considering a change.</p></div><div class="mini-card"><b>Distributed indicators</b><p>No single supplied burden indicator dominates. Compare examples before selecting a test.</p></div></div>
+    <div class="card-row"><div class="mini-card"><b>Concentrated indicators</b><p>One supplied burden indicator has a larger share. Check it against a specific example from the work before considering a change.</p></div><div class="mini-card"><b>Distributed indicators</b><p>No single supplied burden indicator dominates. Compare examples before deciding what to change.</p></div></div>
   </div>
 </section>
 

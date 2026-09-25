@@ -39,7 +39,7 @@ for (const [key, contract] of Object.entries(expected)) {
   const required = [
     "Dimension profile", "What the result supports and what it does not",
     "What this result is based on", "Priorities and options", "How this report was produced",
-    "Turn the result into a small, measurable test", "How to compare later",
+    "Decide what to change", "How to compare later",
   ];
   for (const token of required) assert.match(html, new RegExp(token), `${key} missing ${token}`);
   assert.match(html, /One run does not establish organizational savings or recoverable time/, `${key} single-run financial boundary missing`);

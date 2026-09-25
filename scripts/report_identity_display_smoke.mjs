@@ -9,6 +9,7 @@ import {restoreFinancialPresentationStyles} from './report_financial_presentatio
 import {sourceBeforeRenderer42,restoreRenderer42PrintSpacing} from './report_focus_label_smoke.mjs';
 import {reportHtmlAfterReviewedPresentation} from './report_three_benefit_presentation_inverse.mjs';
 import {withoutReportOverview} from './report_overview_test_normalizer.mjs';
+import {sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
 const sha=v=>createHash('sha256').update(v).digest('hex');
 const canonical=x=>Array.isArray(x)?x.map(canonical):x&&typeof x==='object'?Object.fromEntries(Object.keys(x).sort().map(k=>[k,canonical(x[k])])):x;
 const DELTA=[
@@ -44,7 +45,7 @@ export function sourceBeforeRenderer41(source){
  assert.equal(sha(source),'24d109f68941e62a40bfcfd1c33e17f2c7481d713b9e464a471dd1073cefa2cf');return source;
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
- const root=path.resolve(import.meta.dirname,'..'),source=fs.readFileSync(root+'/monderman-report.js','utf8'),prior=sourceBeforeRenderer41(source);
+ const root=path.resolve(import.meta.dirname,'..'),source=sourceAtChangeWordingBaseline('monderman-report.js',fs.readFileSync(root+'/monderman-report.js','utf8')),prior=sourceBeforeRenderer41(source);
  let checks=0;const eq=(a,b,m)=>{assert.deepEqual(a,b,m);checks++;};
  const load=s=>{const c={window:{}};vm.runInNewContext(fs.readFileSync(root+'/participant-evidence-safety.js','utf8'),c);vm.runInNewContext(s,c);return c.window.MondermanReport;};
  const R=load(source),old=load(prior),freeze=x=>{if(x&&typeof x==='object'){Object.freeze(x);Object.values(x).forEach(freeze);}return x;};

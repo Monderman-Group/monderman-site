@@ -1,0 +1,626 @@
+{
+  "version": "change-wording-compatibility-20260925.1",
+  "prior_commit": "4ca0253f3a5ce45607b32577e74c28f97f2cf934",
+  "files": {
+    "monderman-report.js": {
+      "before_sha256": "00a8b906e10ee3b048a5554fa0d6142ffd2fd85346daf2d56f8c0fdaf47596e1",
+      "after_sha256": "45bf9ebdd9f70d33ce4f027e0688c9ed1199e0777ee033db58b2aebd65efd374",
+      "before_bytes": 400253,
+      "after_bytes": 400274,
+      "replacements": [
+        [
+          1562,
+          1638,
+          "  const RENDERER_VERSION = \"diagnostic-renderer-change-wording-20260925.1\";\n",
+          "  const RENDERER_VERSION = \"diagnostic-renderer-report-overview-20260924.1\";\n"
+        ],
+        [
+          33908,
+          34035,
+          "      subtitle: \"What this run measured, what the result may mean, what remains uncertain, and how to decide what to change.\",\n",
+          "      subtitle: \"What this run measured, what the result may mean, what remains uncertain, and what to test next.\",\n"
+        ],
+        [
+          36262,
+          36778,
+          "      footnote: \"This report is based on one participant's answers for the stated scope. \" + (toolType === \"structural_clarity\" ? \"It identifies dimensions to compare and checks to consider; a comparison alone does not establish a need for change. \" : \"It suggests issues to investigate and changes to consider. \") + \"It does not show how common these conditions are, prove their causes or predict performance. Organizational time and money estimates require separate operational measurements beyond a single run.\",\n",
+          "      footnote: \"This report is based on one participant's answers for the stated scope. \" + (toolType === \"structural_clarity\" ? \"It identifies dimensions to compare and checks to consider; a comparison alone does not establish a need for change. \" : \"It suggests issues to investigate and changes to test. \") + \"It does not show how common these conditions are, prove their causes or predict performance. Organizational time and money estimates require separate operational measurements beyond a single run.\",\n"
+        ],
+        [
+          41884,
+          42045,
+          "        (actionText ? '<div><div class=\"mr-lens-label\">Decide what to change</div><h3>' + esc(actionLabel) + '</h3><p>' + esc(actionText) + '</p></div>' : '') +\n",
+          "        (actionText ? '<div><div class=\"mr-lens-label\">First thing to test</div><h3>' + esc(actionLabel) + '</h3><p>' + esc(actionText) + '</p></div>' : '') +\n"
+        ],
+        [
+          70249,
+          70749,
+          "        (firstAction.text ? '<div><div class=\"mr-lens-label\">First evidence-proportionate move</div><h3>' + esc(firstStr(firstAction.label, \"Decide what to change\")) + '</h3><p>' + esc(firstAction.text) + '</p></div>' : '') +\n        '<div><div class=\"mr-lens-label\">From findings to action</div><strong>Check the work behind the result</strong><p>Use the reported patterns to decide what to change. Any financial scenario requires separate operational records and explicit assumptions.</p></div>' +\n",
+          "        (firstAction.text ? '<div><div class=\"mr-lens-label\">First evidence-proportionate move</div><h3>' + esc(firstStr(firstAction.label, \"First thing to test\")) + '</h3><p>' + esc(firstAction.text) + '</p></div>' : '') +\n        '<div><div class=\"mr-lens-label\">From findings to action</div><strong>Check the work behind the result</strong><p>Use the reported patterns to choose a bounded test. Any financial scenario requires separate operational records and explicit assumptions.</p></div>' +\n"
+        ],
+        [
+          164328,
+          164499,
+          "        (m.firstMove && obj(m.aiReport).status !== 'complete' ? '<div><div class=\"mr-lens-label\">Decide what to change</div><p>' + esc(m.firstMove) + '</p></div>' : '') +\n",
+          "        (m.firstMove && obj(m.aiReport).status !== 'complete' ? '<div><div class=\"mr-lens-label\">First thing to test</div><p>' + esc(m.firstMove) + '</p></div>' : '') +\n"
+        ],
+        [
+          176672,
+          176742,
+          "    const vertical = isClarity ? \"Review earlier\" : \"Review earlier\";\n",
+          "    const vertical = isClarity ? \"Review earlier\" : \"Test earlier\";\n"
+        ],
+        [
+          176842,
+          177181,
+          "    const note = isClarity ? \"Horizontal position shows distance from the top of the clarity scale. Vertical position follows the suggested review order, not urgency or a separate risk score.\" : \"Horizontal position shows measured severity. Vertical position follows the report's suggested review order; it is not a separate risk score.\";\n",
+          "    const note = isClarity ? \"Horizontal position shows distance from the top of the clarity scale. Vertical position follows the suggested review order, not urgency or a separate risk score.\" : \"Horizontal position shows measured severity. Vertical position follows the report's suggested testing order; it is not a separate risk score.\";\n"
+        ],
+        [
+          181440,
+          181680,
+          "    return '<section class=\"mr-section mr-run-action-board\"><div class=\"mr-priority-intro\"><div class=\"mr-section-index\">0' + n + ' · ' + (monitoring ? \"What to monitor\" : \"Decide what to change\") + '</div><h2>' + actionHeading + '</h2>' +\n",
+          "    return '<section class=\"mr-section mr-run-action-board\"><div class=\"mr-priority-intro\"><div class=\"mr-section-index\">0' + n + ' · ' + (monitoring ? \"What to monitor\" : \"What to test next\") + '</div><h2>' + actionHeading + '</h2>' +\n"
+        ],
+        [
+          186688,
+          186921,
+          "    return '<section class=\"mr-section mr-leadership-close\"><div class=\"mr-section-index\">0' + n + ' · Next decision</div><h2>' + (monitoring ? 'Check routine work and plan the next comparison' : 'Decide what to change') + '</h2>' +\n",
+          "    return '<section class=\"mr-section mr-leadership-close\"><div class=\"mr-section-index\">0' + n + ' · Next decision</div><h2>' + (monitoring ? 'Check routine work and plan the next comparison' : 'Turn the result into a small, measurable test') + '</h2>' +\n"
+        ],
+        [
+          187381,
+          187584,
+          "        '<li><strong>Make the first change.</strong><span>' + esc(firstAction || \"Select the smallest suggested change supported by the evidence without adding new operating burden.\") + '</span></li>' +\n",
+          "        '<li><strong>Run the first test.</strong><span>' + esc(firstAction || \"Select the smallest returned action that can test the diagnosis without adding new operating burden.\") + '</span></li>' +\n"
+        ],
+        [
+          204208,
+          204359,
+          "      (actions ? '<h3>'+(reviewedSelection?'Suggested next steps':'Decide what to change')+'</h3><div class=\"mr-ai-actions\">'+actions+'</div>' : '') +\n",
+          "      (actions ? '<h3>'+(reviewedSelection?'Suggested next steps':'Changes to test')+'</h3><div class=\"mr-ai-actions\">'+actions+'</div>' : '') +\n"
+        ],
+        [
+          225200,
+          225335,
+          "    const conditionRows=[['Before trying it','prerequisite'],['Risk to consider','risk'],['How to judge the change','success_check']];\n",
+          "    const conditionRows=[['Before trying it','prerequisite'],['Risk to consider','risk'],['How to judge the test','success_check']];\n"
+        ],
+        [
+          347600,
+          348008,
+          "      const wholeFinding = summary && summary.length <= 420 ? summary : m.primaryPattern === legacyMixedPattern ? 'Several patterns appear across the diagnostics; none stands out as the single shared explanation. Review the findings for each diagnostic before deciding what to change.' : firstStr(m.primaryPattern, obj(m.source?.diagnosis).body, summary, 'Review the recorded findings in the full report.');\n",
+          "      const wholeFinding = summary && summary.length <= 420 ? summary : m.primaryPattern === legacyMixedPattern ? 'Several patterns appear across the diagnostics; none stands out as the single shared explanation. Review the findings for each diagnostic before deciding what to test.' : firstStr(m.primaryPattern, obj(m.source?.diagnosis).body, summary, 'Review the recorded findings in the full report.');\n"
+        ],
+        [
+          362584,
+          362988,
+          "      (firstAction ? '<p>' + esc(firstAction) + '</p>' : interpretationOnly ? '<p>Review the interpretation and its limits.</p>' : '<p>Review the suggested changes and their evidence before deciding what to change.</p>') + '</div>' + link(actions, (interpretationOnly ? 'Review interpretation' : 'Explore actions') + ' <span aria-hidden=\"true\">→</span>', 'mr-screen-action', 'guidance') + '</div>' : '';\n",
+          "      (firstAction ? '<p>' + esc(firstAction) + '</p>' : interpretationOnly ? '<p>Review the interpretation and its limits.</p>' : '<p>Review the suggested changes and their evidence before choosing a test.</p>') + '</div>' + link(actions, (interpretationOnly ? 'Review interpretation' : 'Explore actions') + ' <span aria-hidden=\"true\">→</span>', 'mr-screen-action', 'guidance') + '</div>' : '';\n"
+        ]
+      ]
+    },
+    "sample-report.html": {
+      "before_sha256": "a0f6b6743346bde4650b11f0f3200680c8cac756c154422090dbd549d92814cb",
+      "after_sha256": "8a85450ffcb7be461faa40ee4bafdaa62d905e99891d950af5309fd593f99e8e",
+      "before_bytes": 79161,
+      "after_bytes": 79205,
+      "replacements": [
+        [
+          61555,
+          62033,
+          "        <div class=\"sample-library-flow\" aria-label=\"Explore each result in three steps\"><div><span>01</span><strong>Understand the finding</strong><p>See the score, scope, and reported condition.</p></div><div><span>02</span><strong>Inspect the evidence</strong><p>See the supporting answers and how results vary.</p></div><div><span>03</span><strong>Decide what to change</strong><p>Review the suggested actions and choose the next step for your organization.</p></div></div>\n",
+          "        <div class=\"sample-library-flow\" aria-label=\"Explore each result in three steps\"><div><span>01</span><strong>Understand the finding</strong><p>See the score, scope, and reported condition.</p></div><div><span>02</span><strong>Inspect the evidence</strong><p>See the supporting answers and how results vary.</p></div><div><span>03</span><strong>Choose a test</strong><p>Review the suggested actions before deciding.</p></div></div>\n"
+        ],
+        [
+          71182,
+          71252,
+          "<script src=\"monderman-report.js?v=20260925.changewording1\"></script>\n",
+          "<script src=\"monderman-report.js?v=20260924.overview2\"></script>\n"
+        ]
+      ]
+    },
+    "index.html": {
+      "before_sha256": "3a792f4ca66c4a81b2a576c3092c34b6eacfdf27f294e1dd8964b9cf3e2d8dee",
+      "after_sha256": "48909378ac4fa6d30c4af7b55a254a5bef10c61306bc1eff43c95769cd732535",
+      "before_bytes": 144166,
+      "after_bytes": 144166,
+      "replacements": [
+        [
+          83643,
+          84382,
+          "        <p class=\"hwd-eyebrow\">A proposed change, not a completed improvement</p><h2>Decide what to change.</h2>\n        <div class=\"hwd-compact-action\"><p class=\"hwd-compact-action-label\">One action from the saved moderate option</p><h3>Test a revised approval or escalation route for a defined class of decisions.</h3><dl><div><dt>Before starting</dt><dd>Confirm the reported problem in work records, agree the change with affected roles and retain required controls.</dd></div><div><dt>Owner</dt><dd>To be agreed before the change.</dd></div><div><dt>How to assess it</dt><dd>Agree an observable measure before the change, review unintended effects and repeat the same diagnostic on a comparable scope and period.</dd></div></dl></div>\n",
+          "        <p class=\"hwd-eyebrow\">A proposed change, not a completed improvement</p><h2>Choose a change to test.</h2>\n        <div class=\"hwd-compact-action\"><p class=\"hwd-compact-action-label\">One action from the saved moderate option</p><h3>Test a revised approval or escalation route for a defined class of decisions.</h3><dl><div><dt>Before starting</dt><dd>Confirm the reported problem in work records, agree the change with affected roles and retain required controls.</dd></div><div><dt>Owner</dt><dd>To be agreed before the test.</dd></div><div><dt>How to assess it</dt><dd>Agree an observable measure before the change, review unintended effects and repeat the same diagnostic on a comparable scope and period.</dd></div></dl></div>\n"
+        ]
+      ]
+    },
+    "scripts/templates/home-workspace-preview.html": {
+      "before_sha256": "5eca04837ba0bc7d2fc4ea2b0caa3b4c39dc569cf98df46d8fe240a238a2f3aa",
+      "after_sha256": "1a53e04465b954dc52c862a5a10f3fc9db0a43588df455e3b1e4b984107d6079",
+      "before_bytes": 6135,
+      "after_bytes": 6135,
+      "replacements": [
+        [
+          3859,
+          4330,
+          "        <p class=\"hwd-eyebrow\">A proposed change, not a completed improvement</p><h2>Decide what to change.</h2>\n        <div class=\"hwd-compact-action\"><p class=\"hwd-compact-action-label\">One action from the saved moderate option</p><h3>{{compactAction}}</h3><dl><div><dt>Before starting</dt><dd>{{compactPrerequisite}}</dd></div><div><dt>Owner</dt><dd>To be agreed before the change.</dd></div><div><dt>How to assess it</dt><dd>{{compactSuccess}}</dd></div></dl></div>\n",
+          "        <p class=\"hwd-eyebrow\">A proposed change, not a completed improvement</p><h2>Choose a change to test.</h2>\n        <div class=\"hwd-compact-action\"><p class=\"hwd-compact-action-label\">One action from the saved moderate option</p><h3>{{compactAction}}</h3><dl><div><dt>Before starting</dt><dd>{{compactPrerequisite}}</dd></div><div><dt>Owner</dt><dd>To be agreed before the test.</dd></div><div><dt>How to assess it</dt><dd>{{compactSuccess}}</dd></div></dl></div>\n"
+        ]
+      ]
+    },
+    "scripts/refresh_public_sample_previews.mjs": {
+      "before_sha256": "31b9aa4ca4342e9526efba92338afb26bfe589800a43b9873038f0536498c53e",
+      "after_sha256": "c7166214d613a687b8f8292e4b5b2670aa400613aeb278f41a021d4ed0a91902",
+      "before_bytes": 40781,
+      "after_bytes": 40782,
+      "replacements": [
+        [
+          23625,
+          23885,
+          " const content=g.tool_type==='structural_clarity'&&scCase?scCase.body:'<p class=\"hwd-depth-next\">Use these differences to choose what to examine together. Check the scale of a proposed change with operating records before estimating its financial value.</p>';\n",
+          " const content=g.tool_type==='structural_clarity'&&scCase?scCase.body:'<p class=\"hwd-depth-next\">Use these differences to choose what to examine together. Test the scale of a proposed change with operating records before estimating its financial value.</p>';\n"
+        ]
+      ]
+    },
+    "workspace.html": {
+      "before_sha256": "aa48697ccf7e9faa8e58d11cfef7176265805192651ba17f7e6dbce7bcc8bbb4",
+      "after_sha256": "3546e288eca03efcdb56bd8c749ce919639f72eaca9d40d20f53650eedfb62b4",
+      "before_bytes": 62409,
+      "after_bytes": 62410,
+      "replacements": [
+        [
+          32404,
+          32697,
+          "        <div class=\"ws-product-empty\" id=\"wsNextEmpty\"><strong>Start with a measured baseline</strong><p>Run a Diagnostic for one process or area of work. Use its findings to decide what to change.</p><a class=\"ws-link\" href=\"workspace-diagnostics.html#launch\">Choose a Diagnostic →</a></div>\n",
+          "        <div class=\"ws-product-empty\" id=\"wsNextEmpty\"><strong>Start with a measured baseline</strong><p>Run a Diagnostic for one process or area of work. Use its findings to choose a first change to test.</p><a class=\"ws-link\" href=\"workspace-diagnostics.html#launch\">Choose a Diagnostic →</a></div>\n"
+        ],
+        [
+          58433,
+          58692,
+          "        {done:(remeasureRuns+remeasureSyntheses)>0,title:'Remeasurement linked',detail:(remeasureRuns+remeasureSyntheses)>0?'At least one action is tied to later evidence.':'Link later evidence to the change it helps evaluate.',href:'workspace-actions.html'}\n",
+          "        {done:(remeasureRuns+remeasureSyntheses)>0,title:'Remeasurement linked',detail:(remeasureRuns+remeasureSyntheses)>0?'At least one action is tied to later evidence.':'Link later evidence to the action it tests.',href:'workspace-actions.html'}\n"
+        ]
+      ]
+    },
+    "pattern-trial.html": {
+      "before_sha256": "57503e661a3b67940d594f8bd32426981714e7a7178ec91f42cfed550d3b5cf2",
+      "after_sha256": "b12786e53ae7b22b13c1e396e2f46bbf899acec45912b51b0c1cc922addef8e2",
+      "before_bytes": 26279,
+      "after_bytes": 26277,
+      "replacements": [
+        [
+          7482,
+          7844,
+          "      <p>Use the 60 days to collect a meaningful baseline, compare views across your organization and decide what to change. Your Workspace shows when the evidence supports Synthesis. Paid plans have their own published annual allowances. <a href=\"pilot.html#evaluation-plan\" target=\"_blank\" rel=\"noopener\">Read the evaluation plan (opens in a new tab).</a></p>\n",
+          "      <p>Use the 60 days to collect a meaningful baseline, compare views across your organization and test a practical change. Your Workspace shows when the evidence supports Synthesis. Paid plans have their own published annual allowances. <a href=\"pilot.html#evaluation-plan\" target=\"_blank\" rel=\"noopener\">Read the evaluation plan (opens in a new tab).</a></p>\n"
+        ]
+      ]
+    },
+    "decision-velocity-article.html": {
+      "before_sha256": "b14a6c79cbeb16cff24875aae771c4dc8daf60b095e7253209895a3c8fcbb42e",
+      "after_sha256": "199d3406053e4d4ea445bee56c25502781bb55b5cf16bf1081c414ffda0293f6",
+      "before_bytes": 50286,
+      "after_bytes": 50283,
+      "replacements": [
+        [
+          39731,
+          39931,
+          "            Use the report to choose a specific question to investigate, not to remove approvals automatically. Measure the effects of any change; the report does not promise a shorter decision time.\n",
+          "            Use the report to choose a specific question to investigate, not to remove approvals automatically. A proposed improvement needs testing; the report does not promise a shorter decision time.\n"
+        ]
+      ]
+    },
+    "decision-velocity.html": {
+      "before_sha256": "f612ba51aa0e374e22e2bd68f9dbc639f84efee1df26b68d41620499bc55d47a",
+      "after_sha256": "574f5a249b08ca123762b95638e4d1a799ed0b7f096819af3d277ceb5141a04e",
+      "before_bytes": 451039,
+      "after_bytes": 451116,
+      "replacements": [
+        [
+          124541,
+          124613,
+          "  <script src=\"monderman-report.js?v=20260925.changewording1\"></script>\n",
+          "  <script src=\"monderman-report.js?v=20260924.overview2\"></script>\n"
+        ],
+        [
+          263684,
+          263890,
+          "  diagnosisRead: \"A stronger-range score does not establish that the controls are necessary or effective. Any proposed change needs a specific reason, limited scope and a clear way to measure its effects.\"\n",
+          "  diagnosisRead: \"A stronger-range score does not establish that the controls are necessary or effective. Any proposed change needs a specific reason and a bounded test.\"\n"
+        ],
+        [
+          303820,
+          304090,
+          "  return `The composition is concentrated rather than distributed. ${escapeHtml(pattern.dominant.label)} carries ${pattern.dominantPct}% of the visible burden in this run. Use this finding to decide what to change first; it does not predict the result of changing it.`;\n",
+          "  return `The composition is concentrated rather than distributed. ${escapeHtml(pattern.dominant.label)} carries ${pattern.dominantPct}% of the visible burden in this run. That identifies a bounded first test; it does not predict the result of changing it.`;\n"
+        ],
+        [
+          304128,
+          304415,
+          "  return `The composition is distributed rather than concentrated. No single source carries more than ${pattern.dominantPct}% of the visible burden. Consider changes to more than one source and compare repeated measurements; this run does not establish that path redesign is required.`;\n",
+          "  return `The composition is distributed rather than concentrated. No single source carries more than ${pattern.dominantPct}% of the visible burden. Test more than one source and compare repeated measurements; this run does not establish that path redesign is required.`;\n"
+        ],
+        [
+          304449,
+          304742,
+          "  return `The composition shows ${escapeHtml(pattern.dominant.label.toLowerCase())} as the largest visible burden source at ${pattern.dominantPct}% of the total, with the remaining burden distributed across other dimensions. Use it to decide what to change, then remeasure the full profile.`;\n",
+          "  return `The composition shows ${escapeHtml(pattern.dominant.label.toLowerCase())} as the largest visible burden source at ${pattern.dominantPct}% of the total, with the remaining burden distributed across other dimensions. Use it as a first test and remeasure the full profile.`;\n"
+        ],
+        [
+          320268,
+          320393,
+          "if (section === \"remedy\") return \"What requirement does the control serve, and what evidence would justify a small change?\";\n",
+          "if (section === \"remedy\") return \"What requirement does the control serve, and what evidence would justify a small test?\";\n"
+        ],
+        [
+          335420,
+          335819,
+          "+ '<section class=\"page\">' + footer(updateReadPageNumber) + '<div class=\"content\"><p class=\"eyebrow\">Analytical review</p><h2>What would update this read</h2><p>The current read rests on a single run from a single perspective. The items below identify evidence to collect before deciding what to change.</p><div class=\"panel bench\" style=\"margin-top:18px\">' + updateHtml + '</div></div></section>';\n",
+          "+ '<section class=\"page\">' + footer(updateReadPageNumber) + '<div class=\"content\"><p class=\"eyebrow\">Analytical review</p><h2>What would update this read</h2><p>The current read rests on a single run from a single perspective. The items below identify evidence to collect before choosing an intervention test.</p><div class=\"panel bench\" style=\"margin-top:18px\">' + updateHtml + '</div></div></section>';\n"
+        ],
+        [
+          358522,
+          359048,
+          "    <p>The composition view shows how the measured drag is distributed across approval density, coordination burden, handoff burden, escalation dependence, rework friction, and key-person brittleness. Dimensions with no material contribution to this run may be omitted from the chart below for clarity.</p><p class=\"muted\">The distribution helps you decide what to change. A concentrated pattern points to one area to consider first; a distributed pattern points to several areas. Neither predicts the result of a change.</p>\n",
+          "    <p>The composition view shows how the measured drag is distributed across approval density, coordination burden, handoff burden, escalation dependence, rework friction, and key-person brittleness. Dimensions with no material contribution to this run may be omitted from the chart below for clarity.</p><p class=\"muted\">The distribution supports bounded testing. A concentrated pattern identifies one first test; a distributed pattern supports testing more than one dimension. Neither predicts the result of intervention.</p>\n"
+        ],
+        [
+          359634,
+          360021,
+          "    <div class=\"card-row\"><div class=\"mini-card\"><b>Concentrated indicators</b><p>One supplied burden indicator has a larger share. Check it against a specific example from the work before considering a change.</p></div><div class=\"mini-card\"><b>Distributed indicators</b><p>No single supplied burden indicator dominates. Compare examples before deciding what to change.</p></div></div>\n",
+          "    <div class=\"card-row\"><div class=\"mini-card\"><b>Concentrated indicators</b><p>One supplied burden indicator has a larger share. Check it against a specific example from the work before considering a change.</p></div><div class=\"mini-card\"><b>Distributed indicators</b><p>No single supplied burden indicator dominates. Compare examples before selecting a test.</p></div></div>\n"
+        ]
+      ]
+    },
+    "structural-clarity.html": {
+      "before_sha256": "b1372701bb96b68f41d8d6f8afd0789b4fa04fec51cf94400b72b320228c57dd",
+      "after_sha256": "2d36d81f8ccc3e2c650efbc03db3f0f2aa6a03a81d143454306efd6547c50a42",
+      "before_bytes": 437464,
+      "after_bytes": 437524,
+      "replacements": [
+        [
+          123517,
+          123589,
+          "  <script src=\"monderman-report.js?v=20260925.changewording1\"></script>\n",
+          "  <script src=\"monderman-report.js?v=20260924.overview2\"></script>\n"
+        ],
+        [
+          293319,
+          293589,
+          "  return `The composition is concentrated rather than distributed. ${escapeHtml(pattern.dominant.label)} carries ${pattern.dominantPct}% of the visible burden in this run. Use this finding to decide what to change first; it does not predict the result of changing it.`;\n",
+          "  return `The composition is concentrated rather than distributed. ${escapeHtml(pattern.dominant.label)} carries ${pattern.dominantPct}% of the visible burden in this run. That identifies a bounded first test; it does not predict the result of changing it.`;\n"
+        ],
+        [
+          293627,
+          293920,
+          "  return `The composition is distributed rather than concentrated. No single source carries more than ${pattern.dominantPct}% of the visible burden. Consider changes to more than one source and compare repeated measurements; this run does not establish that structural redesign is required.`;\n",
+          "  return `The composition is distributed rather than concentrated. No single source carries more than ${pattern.dominantPct}% of the visible burden. Test more than one source and compare repeated measurements; this run does not establish that structural redesign is required.`;\n"
+        ],
+        [
+          293954,
+          294252,
+          "  return `The composition shows ${escapeHtml(pattern.dominant.label.toLowerCase())} as the largest visible clarity constraint at ${pattern.dominantPct}% of the total, with the remaining burden distributed across other dimensions. Use it to decide what to change, then remeasure the full profile.`;\n",
+          "  return `The composition shows ${escapeHtml(pattern.dominant.label.toLowerCase())} as the largest visible clarity constraint at ${pattern.dominantPct}% of the total, with the remaining burden distributed across other dimensions. Use it as a first test and remeasure the full profile.`;\n"
+        ],
+        [
+          317833,
+          318147,
+          "    return `The clarity profile is concentrated rather than distributed. ${weakest.label.charAt(0).toUpperCase() + weakest.label.slice(1)} scores ${weakestVal}, below the next-weakest dimension at ${secondVal}. Use this finding to decide what to change first; it does not predict a change in overall legibility.`;\n",
+          "    return `The clarity profile is concentrated rather than distributed. ${weakest.label.charAt(0).toUpperCase() + weakest.label.slice(1)} scores ${weakestVal}, below the next-weakest dimension at ${secondVal}. This identifies a bounded first test; it does not predict a change in overall legibility.`;\n"
+        ],
+        [
+          318151,
+          318439,
+          "  return `The clarity profile is distributed rather than concentrated. The weakest dimensions cluster closely together (${weakestVal}–${secondVal}). Consider changes in more than one area and compare repeated measurements; this run does not establish that broader redesign is required.`;\n",
+          "  return `The clarity profile is distributed rather than concentrated. The weakest dimensions cluster closely together (${weakestVal}–${secondVal}). Test more than one dimension and compare repeated measurements; this run does not establish that broader redesign is required.`;\n"
+        ],
+        [
+          332947,
+          333346,
+          "+ '<section class=\"page\">' + footer(updateReadPageNumber) + '<div class=\"content\"><p class=\"eyebrow\">Analytical review</p><h2>What would update this read</h2><p>The current read rests on a single run from a single perspective. The items below identify evidence to collect before deciding what to change.</p><div class=\"panel bench\" style=\"margin-top:18px\">' + updateHtml + '</div></div></section>';\n",
+          "+ '<section class=\"page\">' + footer(updateReadPageNumber) + '<div class=\"content\"><p class=\"eyebrow\">Analytical review</p><h2>What would update this read</h2><p>The current read rests on a single run from a single perspective. The items below identify evidence to collect before choosing an intervention test.</p><div class=\"panel bench\" style=\"margin-top:18px\">' + updateHtml + '</div></div></section>';\n"
+        ],
+        [
+          356025,
+          356586,
+          "    <p>The clarity dimension view shows where structural legibility is weakest across the five dimensions Monderman records: role clarity, decision rights clarity, handoff integrity, accountability clarity, and governance proportionality. Lower scores identify less-readable reported conditions; they do not establish resulting behavior.</p><p class=\"muted\">The distribution helps you decide what to change. A concentrated pattern points to one area to consider first; a distributed pattern points to several areas. Neither predicts the result of a change.</p>\n",
+          "    <p>The clarity dimension view shows where structural legibility is weakest across the five dimensions Monderman records: role clarity, decision rights clarity, handoff integrity, accountability clarity, and governance proportionality. Lower scores identify less-readable reported conditions; they do not establish resulting behavior.</p><p class=\"muted\">The distribution helps select bounded tests. A concentrated pattern identifies one first test; a distributed pattern supports testing more than one dimension. Neither predicts the result of intervention.</p>\n"
+        ],
+        [
+          356873,
+          357196,
+          "    <div class=\"card-row\"><div class=\"mini-card\"><b>Concentrated constraint</b><p>One clarity dimension dominates this run. Use it to decide what to change first.</p></div><div class=\"mini-card\"><b>Distributed constraint</b><p>No single dimension dominates. Consider changes in several areas and remeasure.</p></div></div>\n",
+          "    <div class=\"card-row\"><div class=\"mini-card\"><b>Concentrated constraint</b><p>One clarity dimension dominates this run and can be used as a bounded first test.</p></div><div class=\"mini-card\"><b>Distributed constraint</b><p>No single dimension dominates; test multiple dimensions and remeasure.</p></div></div>\n"
+        ]
+      ]
+    },
+    "operational-systems.html": {
+      "before_sha256": "46d3366840c70fc56b2095447bbfe4c604e8f673be7cb5107f896ae5a0ca3cdf",
+      "after_sha256": "757269df435ed3e84b2bbf37aa67a302d61d3c1b2135d7bce326ad520fbf9762",
+      "before_bytes": 433329,
+      "after_bytes": 433361,
+      "replacements": [
+        [
+          117008,
+          117080,
+          "  <script src=\"monderman-report.js?v=20260925.changewording1\"></script>\n",
+          "  <script src=\"monderman-report.js?v=20260924.overview2\"></script>\n"
+        ],
+        [
+          295017,
+          295306,
+          "  return `The composition is concentrated rather than distributed. ${escapeHtml(pattern.dominant.label)} carries ${pattern.dominantPct}% of the visible burden in this run. Use this finding to decide what to change first; a later score difference would not by itself establish causation.`;\n",
+          "  return `The composition is concentrated rather than distributed. ${escapeHtml(pattern.dominant.label)} carries ${pattern.dominantPct}% of the visible burden in this run. That identifies a bounded first test; a later score difference would not by itself establish causation.`;\n"
+        ],
+        [
+          295344,
+          295710,
+          "  return `The composition is distributed rather than concentrated. No single source carries more than ${pattern.dominantPct}% of the visible burden, so no single source explains the condition. That supports examining path-level design and deciding which sources of burden to address and in what order rather than assuming one layer will resolve the whole pattern.`;\n",
+          "  return `The composition is distributed rather than concentrated. No single source carries more than ${pattern.dominantPct}% of the visible burden, so no single source explains the condition. That supports examining path-level design and sequencing several burden tests rather than assuming one layer will resolve the whole pattern.`;\n"
+        ],
+        [
+          295744,
+          296067,
+          "  return `The composition shows ${escapeHtml(pattern.dominant.label.toLowerCase())} as the dominant visible burden source at ${pattern.dominantPct}% of the total, with the remaining burden distributed across the other dimensions. Use it to decide what to change first while monitoring the others for burden displacement.`;\n",
+          "  return `The composition shows ${escapeHtml(pattern.dominant.label.toLowerCase())} as the dominant visible burden source at ${pattern.dominantPct}% of the total, with the remaining burden distributed across the other dimensions. That supports testing the dominant source first while monitoring the others for burden displacement.`;\n"
+        ],
+        [
+          328040,
+          328439,
+          "+ '<section class=\"page\">' + footer(updateReadPageNumber) + '<div class=\"content\"><p class=\"eyebrow\">Analytical review</p><h2>What would update this read</h2><p>The current read rests on a single run from a single perspective. The items below identify evidence to collect before deciding what to change.</p><div class=\"panel bench\" style=\"margin-top:18px\">' + updateHtml + '</div></div></section>';\n",
+          "+ '<section class=\"page\">' + footer(updateReadPageNumber) + '<div class=\"content\"><p class=\"eyebrow\">Analytical review</p><h2>What would update this read</h2><p>The current read rests on a single run from a single perspective. The items below identify evidence to collect before choosing an intervention test.</p><div class=\"panel bench\" style=\"margin-top:18px\">' + updateHtml + '</div></div></section>';\n"
+        ],
+        [
+          351476,
+          351983,
+          "    <p>The composition view shows where the visible burden is coming from across the six dimensions Monderman measures: process density, systems friction, reporting burden, workaround dependence, control load, and administrative upkeep burden.</p><p class=\"muted\">The important signal is not only which dimension is largest. The distribution also matters. A concentrated pattern helps you decide what to change first; a distributed pattern supports examining how burden is embedded across the workflow.</p>\n",
+          "    <p>The composition view shows where the visible burden is coming from across the six dimensions Monderman measures: process density, systems friction, reporting burden, workaround dependence, control load, and administrative upkeep burden.</p><p class=\"muted\">The important signal is not only which dimension is largest. The distribution also matters. A concentrated pattern supports a targeted first test; a distributed pattern supports examining how burden is embedded across the workflow.</p>\n"
+        ],
+        [
+          352791,
+          353132,
+          "    <div class=\"card-row\"><div class=\"mini-card\"><b>Concentrated burden</b><p>One source dominates. Use it to decide what to change first, then measure the effect.</p></div><div class=\"mini-card\"><b>Distributed burden</b><p>No single source dominates. This supports a broader path-level assessment before selecting a remedy.</p></div></div>\n",
+          "    <div class=\"card-row\"><div class=\"mini-card\"><b>Concentrated burden</b><p>One source dominates. This supports a targeted first test whose effect should be measured.</p></div><div class=\"mini-card\"><b>Distributed burden</b><p>No single source dominates. This supports a broader path-level assessment before selecting a remedy.</p></div></div>\n"
+        ]
+      ]
+    },
+    "institutional-performance.html": {
+      "before_sha256": "ce8ccdb6bcc85e034520a6dccb55e7114c47d2ab374d430b600099f2f8842111",
+      "after_sha256": "e16a002ebe66d4580a23d05625e45497b63cfa7b1591217c995a5c370a0b354a",
+      "before_bytes": 423360,
+      "after_bytes": 423422,
+      "replacements": [
+        [
+          123370,
+          123442,
+          "  <script src=\"monderman-report.js?v=20260925.changewording1\"></script>\n",
+          "  <script src=\"monderman-report.js?v=20260924.overview2\"></script>\n"
+        ],
+        [
+          289531,
+          289801,
+          "  return `The composition is concentrated rather than distributed. ${escapeHtml(pattern.dominant.label)} carries ${pattern.dominantPct}% of the visible burden in this run. Use this finding to decide what to change first; it does not predict the result of changing it.`;\n",
+          "  return `The composition is concentrated rather than distributed. ${escapeHtml(pattern.dominant.label)} carries ${pattern.dominantPct}% of the visible burden in this run. That identifies a bounded first test; it does not predict the result of changing it.`;\n"
+        ],
+        [
+          289839,
+          290127,
+          "  return `The composition is distributed rather than concentrated. No single source carries more than ${pattern.dominantPct}% of the visible burden. Consider changes to more than one source and compare repeated measurements; this run does not establish that broad redesign is required.`;\n",
+          "  return `The composition is distributed rather than concentrated. No single source carries more than ${pattern.dominantPct}% of the visible burden. Test more than one source and compare repeated measurements; this run does not establish that broad redesign is required.`;\n"
+        ],
+        [
+          290161,
+          290451,
+          "  return `The composition shows ${escapeHtml(pattern.dominant.label.toLowerCase())} as the largest visible constraint at ${pattern.dominantPct}% of the total, with the remaining burden distributed across other dimensions. Use it to decide what to change, then remeasure the full profile.`;\n",
+          "  return `The composition shows ${escapeHtml(pattern.dominant.label.toLowerCase())} as the largest visible constraint at ${pattern.dominantPct}% of the total, with the remaining burden distributed across other dimensions. Use it as a first test and remeasure the full profile.`;\n"
+        ],
+        [
+          311773,
+          312096,
+          "    return `The condition profile is concentrated rather than distributed. ${weakest.label.charAt(0).toUpperCase() + weakest.label.slice(1)} scores ${weakestVal}, below the next-weakest dimension at ${secondVal}. Use this finding to decide what to change first; it does not predict a change in institutional performance.`;\n",
+          "    return `The condition profile is concentrated rather than distributed. ${weakest.label.charAt(0).toUpperCase() + weakest.label.slice(1)} scores ${weakestVal}, below the next-weakest dimension at ${secondVal}. This identifies a bounded first test; it does not predict a change in institutional performance.`;\n"
+        ],
+        [
+          312100,
+          312392,
+          "  return `The condition profile is distributed rather than concentrated. The weakest dimensions cluster closely together (${weakestVal}–${secondVal}). Consider changes in more than one area and compare repeated measurements; this run does not establish that broader rebuilding is required.`;\n",
+          "  return `The condition profile is distributed rather than concentrated. The weakest dimensions cluster closely together (${weakestVal}–${secondVal}). Test more than one dimension and compare repeated measurements; this run does not establish that broader rebuilding is required.`;\n"
+        ],
+        [
+          327644,
+          328043,
+          "+ '<section class=\"page\">' + footer(updateReadPageNumber) + '<div class=\"content\"><p class=\"eyebrow\">Analytical review</p><h2>What would update this read</h2><p>The current read rests on a single run from a single perspective. The items below identify evidence to collect before deciding what to change.</p><div class=\"panel bench\" style=\"margin-top:18px\">' + updateHtml + '</div></div></section>';\n",
+          "+ '<section class=\"page\">' + footer(updateReadPageNumber) + '<div class=\"content\"><p class=\"eyebrow\">Analytical review</p><h2>What would update this read</h2><p>The current read rests on a single run from a single perspective. The items below identify evidence to collect before choosing an intervention test.</p><div class=\"panel bench\" style=\"margin-top:18px\">' + updateHtml + '</div></div></section>';\n"
+        ],
+        [
+          350481,
+          350990,
+          "    <p>The condition view shows how the current-run scores are distributed across execution coherence, decision reliability, adaptive capacity, institutional confidence, and performance stability. Lower scores identify weaker reported conditions; they do not predict later performance.</p><p class=\"muted\">The distribution helps you decide what to change. A concentrated pattern points to one area to consider first; a distributed pattern points to several areas. Neither predicts the result of a change.</p>\n",
+          "    <p>The condition view shows how the current-run scores are distributed across execution coherence, decision reliability, adaptive capacity, institutional confidence, and performance stability. Lower scores identify weaker reported conditions; they do not predict later performance.</p><p class=\"muted\">The distribution supports bounded testing. A concentrated pattern identifies one first test; a distributed pattern supports testing more than one dimension. Neither predicts the result of intervention.</p>\n"
+        ],
+        [
+          351297,
+          351622,
+          "    <div class=\"card-row\"><div class=\"mini-card\"><b>Concentrated constraint</b><p>One condition dimension dominates this run. Use it to decide what to change first.</p></div><div class=\"mini-card\"><b>Distributed constraint</b><p>No single dimension dominates. Consider changes in several areas and remeasure.</p></div></div>\n",
+          "    <div class=\"card-row\"><div class=\"mini-card\"><b>Concentrated constraint</b><p>One condition dimension dominates this run and can be used as a bounded first test.</p></div><div class=\"mini-card\"><b>Distributed constraint</b><p>No single dimension dominates; test multiple dimensions and remeasure.</p></div></div>\n"
+        ]
+      ]
+    },
+    "workspace-diagnostics.html": {
+      "before_sha256": "609d321ababc8972a4ae2866ff13bd910a7552f7fb15ff5a6b49334dd5f248d4",
+      "after_sha256": "9bd0381a2f76411b27283fab92a4a33258eeaf40fd88ca5bf26b455168a93816",
+      "before_bytes": 129851,
+      "after_bytes": 129856,
+      "replacements": [
+        [
+          55498,
+          55570,
+          "  <script src=\"monderman-report.js?v=20260925.changewording1\"></script>\n",
+          "  <script src=\"monderman-report.js?v=20260924.overview2\"></script>\n"
+        ]
+      ]
+    },
+    "workspace-analysis.html": {
+      "before_sha256": "e7e8022764f267b64a7e42a46fc9b4437c5bc96cc8018728c8df26d416bf8025",
+      "after_sha256": "b028256e7e067f44315480017729d470ab00afccc1cc6650ad51471de2da6c4d",
+      "before_bytes": 91980,
+      "after_bytes": 91985,
+      "replacements": [
+        [
+          40415,
+          40487,
+          "  <script src=\"monderman-report.js?v=20260925.changewording1\"></script>\n",
+          "  <script src=\"monderman-report.js?v=20260924.overview2\"></script>\n"
+        ]
+      ]
+    },
+    "workspace-actions.html": {
+      "before_sha256": "415204882c1a6f5ba8fa7255e16f5007e333b4a256033ef7cb38caff3433eeeb",
+      "after_sha256": "495480a616fed03f5b764d820fd401468103a58f72416137d01c5273440144c1",
+      "before_bytes": 71649,
+      "after_bytes": 71654,
+      "replacements": [
+        [
+          40035,
+          40107,
+          "  <script src=\"monderman-report.js?v=20260925.changewording1\"></script>\n",
+          "  <script src=\"monderman-report.js?v=20260924.overview2\"></script>\n"
+        ]
+      ]
+    },
+    "cross-tool-synthesis.html": {
+      "before_sha256": "652caad0770b7a205578c4effb6f53bc7cca6fb5aae6403b846286f3fb3b9ab4",
+      "after_sha256": "52d4cf07ae366bf2cfb59bd50b04ad43a383f2e1eded8e633a9107ff98a2e894",
+      "before_bytes": 13546,
+      "after_bytes": 13551,
+      "replacements": [
+        [
+          7773,
+          7845,
+          "  <script src=\"monderman-report.js?v=20260925.changewording1\"></script>\n",
+          "  <script src=\"monderman-report.js?v=20260924.overview2\"></script>\n"
+        ]
+      ]
+    },
+    "scripts/inject-public-shell.mjs": {
+      "before_sha256": "316911badf38bf9d47b9922448b4a9cc1dbb747c763f9c38741f6f525eec2fe9",
+      "after_sha256": "bdb960529424b653e8bd11ae9ab87134aff3ede8b8350a23586adaf2f9b7417c",
+      "before_bytes": 10270,
+      "after_bytes": 10275,
+      "replacements": [
+        [
+          1425,
+          1477,
+          "  \"monderman-report.js\": \"20260925.changewording1\",\n",
+          "  \"monderman-report.js\": \"20260924.overview2\",\n"
+        ]
+      ]
+    },
+    "scripts/public_sample_fixture.mjs": {
+      "before_sha256": "5ed21d27f3b2d9e702b2cbd4012657a48d7b120cda59303da9d3e4274f6ddd6a",
+      "after_sha256": "2f130165bbeaf0eb451a8e524559c1e4134826c4a363cfb966130a2dd0f895d8",
+      "before_bytes": 47339,
+      "after_bytes": 50121,
+      "replacements": [
+        [
+          645,
+          753,
+          "import {CHANGE_WORDING_VERSION,sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';\n",
+          ""
+        ],
+        [
+          5443,
+          5606,
+          "    const raw=fs.readFileSync(path.join(root,file));\n    const bytes=review.renderer_version===CHANGE_WORDING_VERSION?raw:sourceAtChangeWordingBaseline(file,raw);\n",
+          "    const bytes=fs.readFileSync(path.join(root,file));\n"
+        ],
+        [
+          10559,
+          12723,
+          "  const wording=manifest.change_wording_presentation_review;\n  if(wording){\n    const historical={...manifest};delete historical.change_wording_presentation_review;\n    const previous=currentSynthesisPdfReview(historical,artifact);\n    const label='Change-wording presentation: ';\n    assert.equal(wording.version,'change-wording-presentation-20260925.1',label+'version');\n    assert.equal(wording.status,'reviewed',label+'status');\n    assert.equal(wording.reviewed_by,'Codex',label+'reviewer');assert.ok(validTime(wording.reviewed_at),label+'review time');\n    assert.equal(wording.scope,'copy_only',label+'scope');assert.equal(wording.provider_calls,0,label+'no new AI generation');\n    assert.equal(wording.fidelity_review,'passed',label+'fidelity review');assert.equal(wording.visual_review,'passed',label+'visual review');\n    assert.equal(wording.artifact_file_sha256,manifest.artifact_file_sha256,label+'saved artifact bytes');\n    assert.equal(wording.artifact_sha256,manifest.artifact_sha256,label+'saved artifact identity');\n    assert.deepEqual(wording.prior_review,{field:'response_comparison_publication_review',sha256:evidenceDigest(previous)},label+'original publication review');\n    assert.equal(wording.renderer_version,CHANGE_WORDING_VERSION,label+'display edition');\n    assert.ok(validHash(wording.renderer_sha256),label+'renderer digest');\n    assert.equal(wording.source_files?.['monderman-report.js'],wording.renderer_sha256,label+'renderer binding');\n    assert.deepEqual(Object.keys(wording.source_files||{}).sort(),['monderman-report.js','participant-evidence-safety.js','public-sample-model.js'].sort(),label+'finite renderer sources');\n    assert.deepEqual(Object.keys(wording.pdf_outputs||{}).sort(),Object.values(PUBLIC_PRODUCTS).sort(),label+'all six PDF exports');\n    for(const [key,pin]of Object.entries(wording.pdf_outputs)){\n      assert.equal(pin.path,'sample-data/reports/'+key+'.pdf',label+key+' PDF path');\n      assert.ok(validHash(pin.sha256)&&validHash(pin.html_sha256),label+key+' PDF/HTML digests');\n      assert.ok(Number.isSafeInteger(pin.pages)&&pin.pages>0,label+key+' page count');\n    }\n    return wording;\n  }\n",
+          ""
+        ],
+        [
+          39851,
+          40075,
+          "    assert.equal(sha(sourceBeforeHomepageReportQuad20260925(filename,sourceAtChangeWordingBaseline(filename,fs.readFileSync(path.join(root,filename))))),manifest.source_files[filename],'reviewed source changed: '+filename);\n",
+          "    assert.equal(sha(sourceBeforeHomepageReportQuad20260925(filename,fs.readFileSync(path.join(root,filename)))),manifest.source_files[filename],'reviewed source changed: '+filename);\n"
+        ],
+        [
+          40487,
+          40671,
+          "  const historicalManifest={...manifest};delete historicalManifest.change_wording_presentation_review;\n  const historicalReview=currentSynthesisPdfReview(historicalManifest,artifact);\n",
+          ""
+        ],
+        [
+          40885,
+          40967,
+          "    for(const [filename,digest]of Object.entries(historicalReview.source_files)){\n",
+          "    for(const [filename,digest]of Object.entries(currentReview.source_files)){\n"
+        ],
+        [
+          41276,
+          41540,
+          "      assert.equal(sha(sourceBeforeHomepagePreviewAnchor20260924(filename,sourceBeforeHomepageReportQuad20260925(filename,sourceAtChangeWordingBaseline(filename,fs.readFileSync(path.join(root,filename)))))),digest,'reviewed comparison source changed: '+filename);\n",
+          "      assert.equal(sha(sourceBeforeHomepagePreviewAnchor20260924(filename,sourceBeforeHomepageReportQuad20260925(filename,fs.readFileSync(path.join(root,filename))))),digest,'reviewed comparison source changed: '+filename);\n"
+        ],
+        [
+          41546,
+          41730,
+          "    assertPublicSampleHtmlBindings(artifact,historicalReview,{root});\n    if(manifest.change_wording_presentation_review)assertPublicSampleHtmlBindings(artifact,currentReview,{root});\n",
+          "    assertPublicSampleHtmlBindings(artifact,currentReview,{root});\n"
+        ],
+        [
+          48092,
+          48273,
+          "  assert.equal(Report.rendererVersion,CHANGE_WORDING_VERSION);\n  assert.equal(Report.rendererVersion,currentSynthesisPdfReview(fixture.manifest,fixture.artifact).renderer_version);\n",
+          "  assert.equal(Report.rendererVersion,'diagnostic-renderer-report-overview-20260924.1');\n  assert.equal(Report.rendererVersion,fixture.manifest.renderer_version);\n"
+        ]
+      ]
+    }
+  },
+  "publication_files": {
+    "sample-data/production-sample-release.json": {
+      "before_sha256": "76eed3830d9ab3a6952b92d015c4f1ed209fe79469eabd42d37245bec358b9c1",
+      "after_sha256": "a2586c3b66b871000fdd2b1780802fd6bde0d1246dd651c7df88dff9239af12f",
+      "before_bytes": 84592,
+      "after_bytes": 87591
+    },
+    "sample-data/reports/operational_systems.pdf": {
+      "before_sha256": "2f2bfd4acb2d8d15f7c3019012a7f5a1edbfec0f9a661992a140be1f24330212",
+      "after_sha256": "ad2fe5a494357922b59ea3437cb7423903e3885e8d8b1ecba0d653f2bdf8c793",
+      "before_bytes": 460135,
+      "after_bytes": 460341
+    },
+    "sample-data/reports/decision_velocity.pdf": {
+      "before_sha256": "5ca17936f73c489e63f8756404226dbea58890d8016e850e04bfc8a6afb4e4ee",
+      "after_sha256": "9976411e3d8392fd11fe87c349a04e30501460afbd13b7c1ef9bba219ef47ddf",
+      "before_bytes": 466003,
+      "after_bytes": 466203
+    },
+    "sample-data/reports/structural_clarity.pdf": {
+      "before_sha256": "59bfa791aaec8647491bda7a368f651cd83d66de52beb09495a21903d0b8f6ea",
+      "after_sha256": "b3efa08cb30e90ef8bb777cb5e03c94026a07389542430f2354565285829fe4b",
+      "before_bytes": 456969,
+      "after_bytes": 457170
+    },
+    "sample-data/reports/institutional_performance.pdf": {
+      "before_sha256": "b42be6f8b916cb3388f354652b22c2432f4ea303f18a0772eaab3cc0567c5f0b",
+      "after_sha256": "e12cfb82d65027a7451f67cfba232cd05031135fd8edb894fc824406de65fbde",
+      "before_bytes": 461945,
+      "after_bytes": 462152
+    },
+    "sample-data/reports/depth_synthesis.pdf": {
+      "before_sha256": "258edeca010c8e7158fedd3803f73f610c6275812019723b9dd0eb8f4f91108e",
+      "after_sha256": "08b8a67dd4dd69b0f6feec4f7c0a50cc9a98d0c1e9d975ad2f8cd2fd6684ceb6",
+      "before_bytes": 779581,
+      "after_bytes": 779804
+    },
+    "sample-data/reports/cross_lens_synthesis.pdf": {
+      "before_sha256": "e435102979f32e990fe99f3f2f48c4f324693b19206b20dbcd18d3810947e300",
+      "after_sha256": "df2eb5d7592e24764f1622ba26f36ca8f9fb7444c868cee30fd6a852c3aa24e3",
+      "before_bytes": 1160257,
+      "after_bytes": 1160289
+    }
+  }
+}

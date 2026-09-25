@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-report-overview-20260924.1";
+  const RENDERER_VERSION = "diagnostic-renderer-change-wording-20260925.1";
   // The measured-report adapter stays at r43; financial reading order and
   // summary presentation have their own explicit, independently tested edition.
   const FINANCIAL_PRESENTATION_VERSION = "financial-presentation-20260915.1";
@@ -593,7 +593,7 @@
       product: "diagnostic",
       mastline: "Monderman. " + (toolLabel || "Diagnostic"),
       title: (toolLabel || "Diagnostic") + ": Executive Report",
-      subtitle: "What this run measured, what the result may mean, what remains uncertain, and what to test next.",
+      subtitle: "What this run measured, what the result may mean, what remains uncertain, and how to decide what to change.",
       meta: [
         { label: "Recorded", value: recordedDate(r.generated_at,r.completed_at,r.created_at,envelope.created_at,provenance.generated_at) },
         { label: "Instrument", value: toolLabel || "Unavailable" }
@@ -647,7 +647,7 @@
       financialLegacyView: obj(r.financial_legacy_view),
       kvs: kvs,
       sections: sections,
-      footnote: "This report is based on one participant's answers for the stated scope. " + (toolType === "structural_clarity" ? "It identifies dimensions to compare and checks to consider; a comparison alone does not establish a need for change. " : "It suggests issues to investigate and changes to test. ") + "It does not show how common these conditions are, prove their causes or predict performance. Organizational time and money estimates require separate operational measurements beyond a single run.",
+      footnote: "This report is based on one participant's answers for the stated scope. " + (toolType === "structural_clarity" ? "It identifies dimensions to compare and checks to consider; a comparison alone does not establish a need for change. " : "It suggests issues to investigate and changes to consider. ") + "It does not show how common these conditions are, prove their causes or predict performance. Organizational time and money estimates require separate operational measurements beyond a single run.",
       filenameBase: slug(toolType || "diagnostic"),
       source: obj(envelope.result).tool_type ? envelope : r
     };
@@ -725,7 +725,7 @@
       '<div class="mr-decision-frame">' + metrics + '</div>' +
       '<div class="mr-decision-story">' +
         (finding ? '<div><div class="mr-lens-label">What the evidence says</div><p>' + esc(finding) + '</p></div>' : '') +
-        (actionText ? '<div><div class="mr-lens-label">First thing to test</div><h3>' + esc(actionLabel) + '</h3><p>' + esc(actionText) + '</p></div>' : '') +
+        (actionText ? '<div><div class="mr-lens-label">Decide what to change</div><h3>' + esc(actionLabel) + '</h3><p>' + esc(actionText) + '</p></div>' : '') +
       '</div></section>';
   }
 
@@ -1027,8 +1027,8 @@
         runMetric(lowestLabels.length > 1 ? "Joint lowest mean" : "Lowest mean", lowestLabels.join(", ") || "Unavailable", lowestLabels.length ? fmt1(lowest) + " mean" : "", "amber") +
         runMetric("Observed spread", strictFinite(spread) ? fmt1(spread) + " pts" : "Unavailable", m.evidenceLabel, "ink") +
       '</div><div class="mr-system-decision">' +
-        (firstAction.text ? '<div><div class="mr-lens-label">First evidence-proportionate move</div><h3>' + esc(firstStr(firstAction.label, "First thing to test")) + '</h3><p>' + esc(firstAction.text) + '</p></div>' : '') +
-        '<div><div class="mr-lens-label">From findings to action</div><strong>Check the work behind the result</strong><p>Use the reported patterns to choose a bounded test. Any financial scenario requires separate operational records and explicit assumptions.</p></div>' +
+        (firstAction.text ? '<div><div class="mr-lens-label">First evidence-proportionate move</div><h3>' + esc(firstStr(firstAction.label, "Decide what to change")) + '</h3><p>' + esc(firstAction.text) + '</p></div>' : '') +
+        '<div><div class="mr-lens-label">From findings to action</div><strong>Check the work behind the result</strong><p>Use the reported patterns to decide what to change. Any financial scenario requires separate operational records and explicit assumptions.</p></div>' +
       '</div></section>';
   }
 
@@ -1750,7 +1750,7 @@
       '</div>' +
       '<div class="mr-run-decision-story' + (m.firstMove && obj(m.aiReport).status !== 'complete' ? '' : ' is-single') + '">' +
         '<div><div class="mr-lens-label">What this may mean</div><p>' + esc(m.bottomLine) + '</p></div>' +
-        (m.firstMove && obj(m.aiReport).status !== 'complete' ? '<div><div class="mr-lens-label">First thing to test</div><p>' + esc(m.firstMove) + '</p></div>' : '') +
+        (m.firstMove && obj(m.aiReport).status !== 'complete' ? '<div><div class="mr-lens-label">Decide what to change</div><p>' + esc(m.firstMove) + '</p></div>' : '') +
       '</div></section>';
   }
 
@@ -1866,9 +1866,9 @@
       return '<div class="mr-priority-point' + (x > 50 ? ' mr-priority-label-left' : '') + '" style="left:' + x.toFixed(2) + '%;top:' + y + '%" data-rank="' + (index + 1) + '"><span>' + (index + 1) + '</span><div><strong>' + esc(firstStr(row.focus, row.label, "Measured focus")) + '</strong><small>' + esc(priorityReviewLabel(row.priority)) + ' · ' + esc(fmt1(severity)) + '</small></div></div>';
     }).join("");
     const heading = isClarity ? "Review order and clarity indicators" : "Priority order and measured severity";
-    const vertical = isClarity ? "Review earlier" : "Test earlier";
+    const vertical = isClarity ? "Review earlier" : "Review earlier";
     const horizontal = isClarity ? "Distance from scale maximum →" : "Greater measured severity →";
-    const note = isClarity ? "Horizontal position shows distance from the top of the clarity scale. Vertical position follows the suggested review order, not urgency or a separate risk score." : "Horizontal position shows measured severity. Vertical position follows the report's suggested testing order; it is not a separate risk score.";
+    const note = isClarity ? "Horizontal position shows distance from the top of the clarity scale. Vertical position follows the suggested review order, not urgency or a separate risk score." : "Horizontal position shows measured severity. Vertical position follows the report's suggested review order; it is not a separate risk score.";
     return '<div class="mr-priority-matrix"><div class="mr-viz-title">' + heading + '</div><div class="mr-priority-plot" role="img" aria-label="' + esc(heading) + '"><span class="mr-priority-axis-y">' + vertical + '</span><span class="mr-priority-axis-x">' + horizontal + '</span><i class="mr-priority-grid-x"></i><i class="mr-priority-grid-y"></i>' + points + '</div><p class="mr-copy">' + esc(note) + '</p></div>';
   }
 
@@ -1896,7 +1896,7 @@
     if (obj(m.aiReport).status === "complete") return ladder.length ? '<section class="mr-section mr-run-action-board"><div class="mr-priority-intro"><div class="mr-section-index">0' + n + ' · ' + aiHeading + '</div><h2>' + aiHeading + '</h2>' + renderPriorityMatrix(m) + '</div>' + ladderHtml + '</section>' : '';
     const actionHeading = nextStepsOnly ? 'Priorities and next steps' : monitoring ? "Monitoring priorities and options" : "Priorities and options";
     const actionNote = nextStepsOnly ? 'This individual run supports checks and small next steps. Broader action alternatives require a defined campaign that meets its evidence checks. The original score remains unchanged.' : monitoring ? "The list orders dimensions for monitoring. A rank is not proof of a defect; any change needs supporting evidence. The options do not change the score or predict an outcome." : "The priority list ranks measured issues. The options describe different scopes of change and do not correspond one-to-one with that list. None changes the score or predicts an outcome.";
-    return '<section class="mr-section mr-run-action-board"><div class="mr-priority-intro"><div class="mr-section-index">0' + n + ' · ' + (monitoring ? "What to monitor" : "What to test next") + '</div><h2>' + actionHeading + '</h2>' +
+    return '<section class="mr-section mr-run-action-board"><div class="mr-priority-intro"><div class="mr-section-index">0' + n + ' · ' + (monitoring ? "What to monitor" : "Decide what to change") + '</div><h2>' + actionHeading + '</h2>' +
       '<p class="mr-lede">' + actionNote + '</p>' + renderPriorityMatrix(m) + '</div>' + ladderHtml +
       (actions.length ? '<div class="mr-run-actions"><div class="mr-lens-label">Suggested order</div><ol>' + actions.map((action) => '<li>' + esc(action) + '</li>').join("") + '</ol></div>' : '') + remediesHtml + '</section>';
   }
@@ -1952,10 +1952,10 @@
       "What observable result will count as improvement, and what would show that burden was only displaced?",
       "Which owner will preserve the same scope and inputs for like-for-like remeasurement?"
     ];
-    return '<section class="mr-section mr-leadership-close"><div class="mr-section-index">0' + n + ' · Next decision</div><h2>' + (monitoring ? 'Check routine work and plan the next comparison' : 'Turn the result into a small, measurable test') + '</h2>' +
+    return '<section class="mr-section mr-leadership-close"><div class="mr-section-index">0' + n + ' · Next decision</div><h2>' + (monitoring ? 'Check routine work and plan the next comparison' : 'Decide what to change') + '</h2>' +
       '<div class="mr-leadership-close-grid"><div class="mr-leadership-sequence"><div class="mr-lens-label">Sequence</div><ol>' +
         '<li><strong>' + (monitoring ? 'Confirm the review owner.' : 'Assign ownership.') + '</strong><span>' + (monitoring ? 'Ask the person responsible for this structure to coordinate the review.' : 'Name one accountable owner for ' + esc(firstStr(m.primarySignal, "the primary measured constraint")) + '.') + '</span></li>' +
-        '<li><strong>Run the first test.</strong><span>' + esc(firstAction || "Select the smallest returned action that can test the diagnosis without adding new operating burden.") + '</span></li>' +
+        '<li><strong>Make the first change.</strong><span>' + esc(firstAction || "Select the smallest suggested change supported by the evidence without adding new operating burden.") + '</span></li>' +
         '<li><strong>Watch the measured indicators.</strong><span>' + esc(indicators.length ? indicators.join(" · ") : "The score, primary dimension, burden estimate, and any returned watch items") + '</span></li>' +
         '<li><strong>Repeat under comparable conditions.</strong><span>Repeat the same Diagnostic with the same scope and comparable inputs; compare the score, dimensions and recorded answers before attributing improvement.</span></li>' +
       '</ol></div><div class="mr-ownership-questions"><div class="mr-lens-label">Questions to answer before acting</div>' + questions.map((question, index) => '<div><span>0' + (index + 1) + '</span><p>' + esc(question) + '</p></div>').join("") + '</div></div>' +
@@ -2149,7 +2149,7 @@
       '<p>'+esc(interpretation.summary)+'</p>' +
       (reviewedSelection?buildAIRecordedContext(report):'') +
       paragraphs(interpretation.observations,reviewedSelection?'Selected responses and results':'What the responses suggest') + paragraphs(interpretation.hypotheses,'Possible explanations to investigate') +
-      (actions ? '<h3>'+(reviewedSelection?'Suggested next steps':'Changes to test')+'</h3><div class="mr-ai-actions">'+actions+'</div>' : '') +
+      (actions ? '<h3>'+(reviewedSelection?'Suggested next steps':'Decide what to change')+'</h3><div class="mr-ai-actions">'+actions+'</div>' : '') +
       paragraphs(arr(report.limitations).concat(arr(interpretation.limitations)),'Limits of this interpretation') +
       (firstStr(obj(report.benchmark).explanation) ? '<h3>Sector comparison</h3><p>'+esc(report.benchmark.explanation)+'</p>' : '') +
       (sources.length ? '<div class="mr-ai-sources' + (sources.reduce((total, source) => total + [source.title, source.publisher, source.reviewed].reduce((n, value) => n + String(value || '').length, 0), 0) <= 1200 ? ' mr-ai-sources-bounded' : '') + '"><h3>External practice sources</h3><ul>'+sources.map(source=>'<li><a href="'+esc(source.url)+'" target="_blank" rel="noopener noreferrer">'+esc(source.title)+'</a>. '+esc(source.publisher)+'. Reviewed '+esc(source.reviewed)+'. Practice guidance, not a Monderman peer benchmark.</li>').join('')+'</ul></div>' : '') +
@@ -2385,7 +2385,7 @@
       const printedSupport=(supporting.match(/<p class="mr-print-support">([\s\S]*?)<\/p>/)||[])[1]||'';
       return '<article class="mr-finding'+(boundedPrint(text+printedSupport)?' mr-finding-bounded':'')+'">'+((questionBlocks&&sourceBlock(obj(item)))||'<p>'+esc(text)+'</p>')+supporting+'</article>';
     }).join('')+'</div>':'';
-    const conditionRows=[['Before trying it','prerequisite'],['Risk to consider','risk'],['How to judge the test','success_check']];
+    const conditionRows=[['Before trying it','prerequisite'],['Risk to consider','risk'],['How to judge the change','success_check']];
     const conditionList=rows=>'<dl class="mr-action-conditions'+(rows.length===1?' mr-action-conditions-single':rows.length===2?' mr-action-conditions-two':'')+'">'+rows.map(([label,value])=>'<div class="mr-ai-definition"><dt>'+label+'</dt><dd>'+esc(value)+'</dd></div>').join('')+'</dl>';
     const actionCard=(item,index,option=false,shared={})=>{
       const action=obj(item),labels={limited:'Limited change',moderate:'Moderate change',structural:'Structural change'};
@@ -3322,7 +3322,7 @@
       const legacyMixedPattern = 'Two or more lens-level signals share the highest observed count, so the coherent read does not identify one unique dominant shared pattern. Use the lens summaries and contradictions to define a bounded validation question rather than forcing one causal diagnosis.';
       // Prefer an already-compact complete summary. If no shorter engine unit
       // exists, retain the complete saved summary; 420 is not a truncation cap.
-      const wholeFinding = summary && summary.length <= 420 ? summary : m.primaryPattern === legacyMixedPattern ? 'Several patterns appear across the diagnostics; none stands out as the single shared explanation. Review the findings for each diagnostic before deciding what to test.' : firstStr(m.primaryPattern, obj(m.source?.diagnosis).body, summary, 'Review the recorded findings in the full report.');
+      const wholeFinding = summary && summary.length <= 420 ? summary : m.primaryPattern === legacyMixedPattern ? 'Several patterns appear across the diagnostics; none stands out as the single shared explanation. Review the findings for each diagnostic before deciding what to change.' : firstStr(m.primaryPattern, obj(m.source?.diagnosis).body, summary, 'Review the recorded findings in the full report.');
       findingContent = '<div class="mr-overview-scoreline"><div class="mr-overview-score"><strong>' + esc(strictFinite(score) ? fmt1(score) : 'Unavailable') + '</strong>' + (strictFinite(score) ? '<span>/ 100</span>' : '') + '</div><p>' + esc(scoreBand || scoreLabel) + '</p></div><p class="mr-overview-summary mr-overview-finding">' + esc(wholeFinding) + '</p>' + (facts.length ? '<ul class="mr-overview-findings">' + facts.map(f => '<li><strong>' + esc(f.label) + ':</strong> ' + esc(f.value) + '</li>').join('') + '</ul><p class="mr-overview-note">Recorded patterns in the included responses.</p>' : '');
       if (compact) findingContent = '<div class="mr-overview-scoreline"><div class="mr-overview-score"><strong>' + esc(strictFinite(score) ? fmt1(score) : 'Unavailable') + '</strong>' + (strictFinite(score) ? '<span>/ 100</span>' : '') + '</div><p>' + esc(scoreBand || scoreLabel) + '</p></div><p class="mr-overview-summary mr-overview-finding">' + esc(compact.headline.text) + '</p><ul class="mr-overview-findings">' + compact.findings.map(unit => '<li>' + esc(unit.text) + '</li>').join('') + '</ul><p class="mr-overview-note">Summary of the full findings below.</p>';
     }
@@ -3413,7 +3413,7 @@
       // Keep the full guidance below instead of presenting its title as a task.
       : "";
     const nextMove = actions ? '<div class="mr-screen-only mr-screen-next"><div><span>Next step</span>' +
-      (firstAction ? '<p>' + esc(firstAction) + '</p>' : interpretationOnly ? '<p>Review the interpretation and its limits.</p>' : '<p>Review the suggested changes and their evidence before choosing a test.</p>') + '</div>' + link(actions, (interpretationOnly ? 'Review interpretation' : 'Explore actions') + ' <span aria-hidden="true">→</span>', 'mr-screen-action', 'guidance') + '</div>' : '';
+      (firstAction ? '<p>' + esc(firstAction) + '</p>' : interpretationOnly ? '<p>Review the interpretation and its limits.</p>' : '<p>Review the suggested changes and their evidence before deciding what to change.</p>') + '</div>' + link(actions, (interpretationOnly ? 'Review interpretation' : 'Explore actions') + ' <span aria-hidden="true">→</span>', 'mr-screen-action', 'guidance') + '</div>' : '';
     return { nav, nextMove, overview: buildReportOverview(m, sections) };
   }
 
