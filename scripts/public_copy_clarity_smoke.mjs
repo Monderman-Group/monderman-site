@@ -14,6 +14,7 @@ import {sourceBeforePublicSampleProjectionCache20260924} from './public_sample_p
 import {sourceBeforePublicSamplePreviewBinding20260924} from './public_sample_preview_binding_20260924_inverse.mjs';
 import {sourceBeforeHorizontalOverviewPresentation} from './report_overview_horizontal_inverse.mjs';
 import {PUBLIC_PRODUCTS,readPublicSampleFixture} from './public_sample_fixture.mjs';
+import {sampleDesktopShellPatch,sourceBeforeSampleDesktopShell} from './sample_desktop_shell_20260924_inverse.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
@@ -22,6 +23,24 @@ let checks=0;
 const equal=(a,b,label)=>{assert.deepEqual(a,b,label);checks++;};
 const check=(condition,label)=>{assert.ok(condition,label);checks++;};
 const blocks=(html,tag)=>[...html.matchAll(new RegExp('<'+tag+'\\b[^>]*>[\\s\\S]*?<\\/'+tag+'>','gi'))].map(m=>m[0]);
+// This later, separately reviewed desktop shell correction is not part of the
+// historical copy-only release. Restore only its exact seven added lines; the
+// protected-file loop below still compares the complete original CSS bytes.
+equal(Buffer.byteLength(sampleDesktopShellPatch),430,'Exact desktop shell addition is 430 bytes');
+equal(sampleDesktopShellPatch.split('\n').length-1,7,'Exact desktop shell addition is seven lines');
+const sampleDesktopCss=read('sample-report-production.css');
+equal(sourceBeforeSampleDesktopShell('sample-report-production.css',sampleDesktopCss),prior('sample-report-production.css'),'Desktop shell correction preserves every original CSS byte');
+for(const mutant of [sampleDesktopCss+'\n',sampleDesktopCss.replace('min-width:1081px','min-width:1080px'),
+  sampleDesktopCss.replace('.psr-toc { position:static; }','.psr-toc { display:none; }'),
+  sampleDesktopCss.replace('.mr-screen-contents { display:block; }','.mr-screen-contents { display:none; }'),
+  sampleDesktopCss.replaceAll(':is(#report-synthesis,#report-depth) ',''),
+  sampleDesktopCss.replace(sampleDesktopShellPatch,''),sampleDesktopCss+sampleDesktopShellPatch]) {
+  assert.throws(()=>sourceBeforeSampleDesktopShell('sample-report-production.css',mutant),/Only the exact reviewed sample desktop CSS/);checks++;
+}
+for(const file of ['monderman-report.js','sample-report.html','__proto__']) {
+  const outside=Buffer.from('Outside this one-file scope');
+  equal(sourceBeforeSampleDesktopShell(file,outside),outside,'Desktop shell inverse leaves '+file+' untouched');
+}
 const approvedScriptText={
   'workspace.html':[['Each result keeps its own pathway, unit, date, and perspective.','Each result keeps its own work context, organizational unit, date and participant perspective.']],
   'workspace-diagnostics.html':[['Add a pathway label.','Add a campaign name.']],
@@ -70,6 +89,7 @@ for(const file of protectedFiles.filter(file=>!file.startsWith('sample-data/')))
   const current=fs.readFileSync(path.join(root,file));
   const restored=file==='monderman-report.js'
     ?sourceBeforeHorizontalOverviewPresentation(String(current))
+    :file==='sample-report-production.css'?sourceBeforeSampleDesktopShell(file,current)
     :sourceBeforePublicCopyClarity(file,current);
   equal(Buffer.from(restored),execFileSync('git',['show',PUBLIC_COPY_BASELINE+':'+file],{cwd:root,maxBuffer:32e6}),file+': exact approved presentation delta or unchanged protected bytes');
 }
