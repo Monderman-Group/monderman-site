@@ -39,6 +39,31 @@ const research=read('research.html').toString(),oldResearch=prior('research.html
 const section=(source,label)=>source.match(new RegExp('<section class="'+label+'"[^>]*>[\\s\\S]*?<\\/section>'))?.[0];
 eq(section(research,'book-feature'),section(oldResearch,'book-feature'),'Entire book entry remains unchanged');
 eq(section(research,'series" aria-labelledby="ai-institutions-title'),section(oldResearch,'series" aria-labelledby="ai-institutions-title'),'Entire AI series remains unchanged');
+const pullquoteText='“The goal is to make change safer and cheaper, so it can happen when it is needed.”';
+const pullquoteAttribution='Jason Adamson, <cite>Fast to Cut, Slow to Build</cite>';
+const pullquotePattern=/<figure class="series-pullquote"[^>]*>[\s\S]*?<\/figure>/g;
+const pullquoteContract=source=>{
+  const governance=section(source,'series" aria-labelledby="governance-performance-title')??'';
+  const figure=captures(governance,pullquotePattern)[0];
+  const content=figure?.match(/^<figure class="series-pullquote"[^>]*>\s*<blockquote>\s*<p>([\s\S]*?)<\/p>\s*<\/blockquote>\s*<figcaption>([\s\S]*?)<\/figcaption>\s*<\/figure>$/);
+  const head=governance.match(/<div class="series-head">[\s\S]*?<p class="series-deck">[\s\S]*?<\/p>\s*<\/div>/);
+  const grid=governance.indexOf('<div class="series-grid">');
+  return {
+    figures:captures(source,pullquotePattern).length,
+    text:content?.[1].trim(),
+    attribution:content?.[2].replace(/\s+/g,' ').trim(),
+    immediatelyBetweenHeadAndGrid:!!head&&grid>head.index&&governance.slice(head.index+head[0].length,grid).trim()===figure,
+  };
+};
+const expectedPullquote={figures:1,text:pullquoteText,attribution:pullquoteAttribution,immediatelyBetweenHeadAndGrid:true};
+eq(pullquoteContract(research),expectedPullquote,'Governance series has the exact selected quote and citation immediately above its articles');
+const pullquote=captures(research,pullquotePattern)[0];
+for(const [label,mutant]of [
+  ['missing quote',research.replace(pullquote,'')],
+  ['altered quote',research.replace(pullquoteText,pullquoteText.replace('safer and cheaper','faster and cheaper'))],
+  ['altered citation',research.replace(pullquote,pullquote.replace(pullquoteAttribution,'Jason Adamson, <cite>Nothing Stays Tuned</cite>'))],
+  ['misplaced quote',research.replace(pullquote,'').replace('<div class="series-grid">','<div class="series-grid">'+pullquote)],
+])reject(()=>assert.deepEqual(pullquoteContract(mutant),expectedPullquote),'Governance pull quote contract rejects '+label);
 const libraryStart='<section class="library">';
 eq(research.slice(research.indexOf(libraryStart)),oldResearch.slice(oldResearch.indexOf(libraryStart)),'Every later article, essay, footer and search script remains unchanged');
 const primary=[...research.matchAll(/class="(?:series-action|paper-action) publication-primary-link" href="([^"]+)"/g)].map(match=>match[1]);

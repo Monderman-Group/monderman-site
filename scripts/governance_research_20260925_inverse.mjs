@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import {createHash} from 'node:crypto';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 export const GOVERNANCE_RESEARCH_BASELINE='dc9e9aba04c24896e7f00349e39d73117d129e9f';
-export const GOVERNANCE_RESEARCH_FIXTURE_SHA256='da488a6892594347a00f14831b3b0d6b71c347eb26f7b82214d110b2f298514f';
+export const GOVERNANCE_RESEARCH_FIXTURE_SHA256='6c3a1a09b5d30713e4ee5daef153b93018e1b48282b0c34b9f532d7b5948c6fb';
 export const GOVERNANCE_RESEARCH_FILES=Object.freeze(['index.html','research.html','the-unmeasured-layer.html']);
 const bytes=fs.readFileSync(new URL('./fixtures/governance-research-20260925.json',import.meta.url));
 assert.equal(sha(bytes),GOVERNANCE_RESEARCH_FIXTURE_SHA256,'Exact governance research publication fixture');
