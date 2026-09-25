@@ -2,17 +2,44 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {readPublicSampleFixture,publicResult} from './public_sample_fixture.mjs';
 
-const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
-
 const base = process.env.REPORT_BASE || 'http://127.0.0.1:8080';
 const out = process.env.REPORT_OUT || '/tmp/report-presentation-smoke';
 // Current publication coverage requires the reviewed six-output artifact.
 // Assembly identity must not replace an entry's original generation identity.
 const {artifact}=readPublicSampleFixture();
-fs.mkdirSync(out, { recursive: true });
 const crossSource=publicResult(artifact.outputs.cross_lens_synthesis), depthSource=publicResult(artifact.outputs.depth_synthesis);
 const crossScore=String(crossSource.cross_diagnostic_score??crossSource.aggregate_score), depthScore=String(depthSource.aggregate_score);
 
+// Sample-shell correction only: no renderer, report text, PDF or saved-data
+// normalization. The browser checks below independently exercise its geometry.
+const desktopShellCss = `  @media(min-width:1081px){
+    :is(#report-synthesis,#report-depth) .psr-doc-shell { grid-template-columns:minmax(0,1fr); }
+    :is(#report-synthesis,#report-depth) .psr-toc { position:static; }
+    :is(#report-synthesis,#report-depth) .mr-screen-contents { display:block; }
+  }`;
+function assertDesktopShellSource(css) {
+  assert(css.split(desktopShellCss).length===2,'Exactly one scoped desktop Synthesis shell correction is required');
+  assert(!css.replace(desktopShellCss,'').includes(':is(#report-synthesis,#report-depth)'), 'No additional Synthesis-only shell overrides are permitted');
+}
+const sampleCss=fs.readFileSync(new URL('../sample-report-production.css',import.meta.url),'utf8');
+assertDesktopShellSource(sampleCss);
+let shellNegativeControls=0;
+for(const changed of [
+  sampleCss.replace('min-width:1081px','min-width:1080px'),
+  sampleCss.replace('grid-template-columns:minmax(0,1fr); }','grid-template-columns:minmax(0,1fr) 240px; }'),
+  sampleCss.replace('.psr-toc { position:static; }','.psr-toc { display:none; }'),
+  sampleCss.replace('.mr-screen-contents { display:block; }','.mr-screen-contents { display:none; }'),
+  sampleCss.replaceAll(':is(#report-synthesis,#report-depth) ',''),
+]) {
+  let rejected=false;try{assertDesktopShellSource(changed);}catch{rejected=true;}
+  assert(rejected,'Sample shell guard accepted a changed scope, column, retained contents or native menu');shellNegativeControls++;
+}
+if(process.argv.includes('--sample-shell-only')) {
+  console.log(JSON.stringify({status:'PASS',sourceChecks:1,negativeControls:shellNegativeControls,publicProducts:Object.keys(artifact.outputs).length,browserCoverage:'NOT_RUN',providerCalls:0}));
+  process.exit(0);
+}
+const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
+fs.mkdirSync(out, { recursive: true });
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 1100 }, deviceScaleFactor: 1 });
 const errors = [];
@@ -79,6 +106,33 @@ async function assertNoHorizontalOverflow(target, label) {
     documentWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
   }));
   assert(geometry.documentWidth <= geometry.viewport + 1, `${label} overflows horizontally: ${geometry.documentWidth}px document in ${geometry.viewport}px viewport`);
+}
+
+async function assertDesktopSynthesisShell(shell,label) {
+  for(const width of [1440,1121]) {
+    await page.setViewportSize({width,height:1100});
+    await page.evaluate(async()=>{await document.fonts.ready;await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));});
+    const geometry=await shell.evaluate(root=>{
+      const frame=root.querySelector('.psr-doc-shell'),main=root.querySelector('.psr-main'),rail=root.querySelector('.psr-toc');
+      const style=getComputedStyle(frame),frameRect=frame.getBoundingClientRect(),mainRect=main.getBoundingClientRect(),railRect=rail.getBoundingClientRect();
+      const cards=[...root.querySelectorAll('.mr-overview-tile')].map(node=>{const r=node.getBoundingClientRect();return {left:r.left,top:r.top,right:r.right,bottom:r.bottom};});
+      const remaining=[...root.querySelectorAll('.mr-overview-sankey-outcome>span')].filter(node=>node.textContent.trim()==='Remaining').map(node=>{const range=document.createRange();range.selectNodeContents(node);return range.getClientRects().length;});
+      const contents=root.querySelector('.mr-screen-contents');
+      return {columns:style.gridTemplateColumns.split(/\s+/).length,mainLeft:mainRect.left,mainRight:mainRect.right,
+        frameLeft:frameRect.left+parseFloat(style.borderLeftWidth)+parseFloat(style.paddingLeft),frameRight:frameRect.right-parseFloat(style.borderRightWidth)-parseFloat(style.paddingRight),
+        mainBottom:mainRect.bottom,railTop:railRect.top,railPosition:getComputedStyle(rail).position,railLinks:rail.querySelectorAll('a').length,
+        menuDisplay:getComputedStyle(contents).display,menuLinkCount:contents.querySelectorAll('a').length,menuLinks:[...contents.querySelectorAll('a')].every(link=>root.contains(document.getElementById(link.hash.slice(1)))),cards,remaining};
+    });
+    assert(geometry.columns===1&&Math.abs(geometry.mainLeft-geometry.frameLeft)<=1&&Math.abs(geometry.mainRight-geometry.frameRight)<=1,label+' report does not fill its desktop shell at '+width+': '+JSON.stringify(geometry));
+    assert(geometry.railPosition==='static'&&geometry.railTop>=geometry.mainBottom-1&&geometry.railLinks>=10,label+' complete contents must remain below the report');
+    assert(geometry.menuDisplay!=='none'&&geometry.menuLinkCount>=10&&geometry.menuLinks,label+' native full section menu is unavailable');
+    const [a,b,c,d]=geometry.cards;
+    assert(geometry.cards.length===4&&Math.abs(a.top-b.top)<=1&&Math.abs(c.top-d.top)<=1&&b.left>a.left&&d.left>c.left&&c.top>=Math.max(a.bottom,b.bottom),label+' approved desktop 2×2 overview changed');
+    assert(geometry.remaining.length===2&&geometry.remaining.every(lines=>lines===1),label+' Remaining chart labels split at '+width);
+    await assertNoHorizontalOverflow(page,label+' desktop shell '+width);
+  }
+  await page.setViewportSize({width:1440,height:1100});
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
 }
 
 async function assertAuthoredSections(shell,source,label) {
@@ -209,6 +263,7 @@ for (const [key, expected] of Object.entries(comparisons)) {
 // Cross-Lens: verify not just presence but hierarchy, typography, evidence-map
 // integration, source-backed visual density, and de-duplication.
 const cross = await openTab('synthesis');
+await assertDesktopSynthesisShell(cross,'Cross-Lens');
 assert(await cross.locator('.mr-cover').isVisible(), 'Cross-Lens source-aligned report cover not visible');
 assert((await cross.locator('.mr-cover-score').textContent()).trim() === crossScore, 'Cross-Lens cover differs from current saved score');
 assert((await cross.locator('.mr-cover-score-label').textContent()).trim() === 'Cross-Lens Composite Score', 'Cross-Lens cover is not showing the certified score label');
@@ -289,6 +344,7 @@ await scenarioGraphic.screenshot({ path: path.join(out, 'cross-lens-operational-
 // Depth: preserve the same typography, opening-boundary integration, and
 // substantive distribution visualization.
 const depth = await openTab('depth');
+await assertDesktopSynthesisShell(depth,'Depth');
 assert(await depth.locator('.mr-cover').isVisible(), 'Depth source-aligned report cover not visible');
 assert((await depth.locator('.mr-cover-score').textContent()).trim() === depthScore, 'Depth cover differs from current saved score');
 assert(depthSource.score_type === 'within_lens_median', 'Depth must preserve its within-diagnostic median basis');
