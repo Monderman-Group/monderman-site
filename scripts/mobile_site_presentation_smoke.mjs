@@ -495,8 +495,17 @@ try {
       }
 
       if (pageName === 'index.html') {
-        const tile = page.locator('.hero-report-proof.has-sample-depth-tile');
-        if (await tile.isVisible()) failures.push(`${pageName}/${viewport.name}: large sample report tile remains in the compact hero`);
+        if (await page.locator('.hero .hero-report-proof.has-sample-depth-tile').count()) failures.push(`${pageName}/${viewport.name}: lower sample report preview returned to the compact hero`);
+        const tile = page.locator('#sample-output [data-home-report-quad]');
+        if (await tile.count() !== 1 || !(await tile.isVisible())) failures.push(`${pageName}/${viewport.name}: lower sample report preview is missing or hidden`);
+        else {
+          const bounds = await tile.evaluate(el => {
+            const box = el.getBoundingClientRect();
+            return {left: box.left, right: box.right, width: box.width, scroll: el.scrollWidth, client: el.clientWidth, columns: getComputedStyle(el.querySelector('.hrq-grid')).gridTemplateColumns.trim().split(/\s+/).length};
+          });
+          if (bounds.left < -1 || bounds.right > viewport.width + 1 || bounds.scroll > bounds.client + 1) failures.push(`${pageName}/${viewport.name}: lower report preview escapes the viewport (${JSON.stringify(bounds)})`);
+          if (bounds.columns !== (viewport.width <= 600 ? 1 : 2)) failures.push(`${pageName}/${viewport.name}: lower report preview has the wrong responsive column count`);
+        }
         const routeField = page.locator('.hero-route-field');
         if (await routeField.count() !== 0) failures.push(`${pageName}/${viewport.name}: retired decorative route field returned`);
       }

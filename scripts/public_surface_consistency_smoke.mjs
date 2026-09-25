@@ -191,7 +191,8 @@ for (const [engineName, engine] of [['chromium', chromium], ['webkit', webkit]])
       }));
       check(contrast(pilot.color, pilot.background) >= 4.5, `${at('pilot.html')}: submit label contrast is too low`);
       await visit(page, 'index.html');
-      await noWarm(page, '.md-opportunity', ['borderLeftColor'], at('index.html'));
+      await noWarm(page, '[data-home-report-quad] .hrq-tile', ['borderLeftColor'], at('index.html'));
+      await noWarm(page, '[data-home-report-quad] [data-promo-score], [data-home-report-quad] .mr-overview-sankey-outcome strong', ['color'], at('index.html'));
 
       await visit(page, 'Monderman_Platform_Brief.html');
       await noWarm(page, '.md-opportunity', ['borderLeftColor'], at('Monderman_Platform_Brief.html'));

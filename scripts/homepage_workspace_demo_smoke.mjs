@@ -198,7 +198,8 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
    await app.locator('#hwd-tab-analysis').click();await page.reload({waitUntil:'load'});await assertStep(page,'measure','Reload resets Gather');
    const cta=await page.locator('.hero-actions .btn-accent').evaluate(el=>({bg:getComputedStyle(el).backgroundColor,color:getComputedStyle(el).color}));
    assert.deepEqual(cta,{bg:'rgb(169, 208, 212)',color:'rgb(4, 24, 27)'},'Primary invite hierarchy unchanged');
-   assert.equal(await page.locator('#sample-output .hero-report-link').getAttribute('href'),'sample-report.html#depth','Lower actual Depth report unchanged');
+   assert.equal(await page.locator('#sample-output [data-home-report-quad] .hrq-footer>a').getAttribute('href'),'sample-report.html#depth','Lower Depth preview retains its full-report route');
+   assert.deepEqual(await page.locator('#sample-output [data-home-report-quad] .hrq-tile').evaluateAll(nodes=>nodes.map(node=>node.dataset.quadSection)),['findings','money','change','evidence'],'Lower report preview keeps all four summary roles');
    if(width===1440)for(const resizedWidth of [390,834,1440]){
     await page.setViewportSize({width:resizedWidth,height:1000});
     for(const step of stepIds){await app.locator('#hwd-tab-'+step).click();await settle(page);await assertStep(page,step,'Live resize');

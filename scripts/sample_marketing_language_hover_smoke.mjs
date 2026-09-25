@@ -123,7 +123,7 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     equal(await page.locator('.home-preview-label span').allTextContents(),['See what the report tells you.','Illustrative example']);
     equal(await page.locator('.home-preview-caption').count(),0,'Compact journey has no redundant caption');
     equal((await page.locator('#home-output-title').innerText()).replace(/\s+/g,' '),'See the findings. Understand the opportunity.');
-    equal(await page.locator('.home-output-copy>p:not(.home-output-eyebrow)').textContent(),'Explore diagnostic findings, participant experience, and practical next steps. Team-level examples also show time and cost scenarios built from stated operating assumptions.');
+    equal(await page.locator('.home-output-copy>p:not(.home-output-eyebrow)').textContent(),'Explore what participants reported, the changes worth considering, and the potential time and spending benefits.');
     equal((await page.locator('.home-output-copy>a').textContent()).trim(),'Explore sample reports →');
     equal(await page.locator('.home-output-copy>a').getAttribute('href'),'sample-report.html');
     equal(await page.locator('#sample-output .hrq-footer>a').getAttribute('href'),'sample-report.html#depth');
@@ -151,7 +151,11 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     equal(await quad.getAttribute('data-artifact-sha256'),artifact.artifact_sha256,'Depth preview retains current source identity');
     equal(await quad.locator('.hrq-tile').evaluateAll(nodes=>nodes.map(node=>node.dataset.quadSection)),['findings','money','change','evidence'],'Four separate report roles');
     equal(await quad.locator('.hrq-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.trim().split(/\s+/).length),width<=600?1:2,'Preview uses two readable columns on larger screens and one on phones');
-    if(width>=834)check((await quad.boundingBox()).width>580,'New report preview is not constrained to the retired narrow tile width');
+    if(width>=834){
+      const previewBox=await quad.boundingBox();
+      check(previewBox.width>580,'New report preview is not constrained to the retired narrow tile width');
+      check(previewBox.height<=680,'Two-column report preview retains the approved compact height');
+    }
     equal(await quad.locator('a').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href'))),Array(4).fill('sample-report.html#depth'),'Three section links and footer retain supported Depth routing');
     equal(await quad.locator('[data-promo-score]').textContent(),String(artifact.outputs.depth_synthesis.source.source_groups[0].median_score),'Recorded Depth score retained');
     equal(await quad.locator('.hrq-case').textContent(),'Central planning case · '+scenario.inputs.horizonMonths+' months','Case and period stay visible');
