@@ -286,6 +286,32 @@ const invariants=await page.evaluate(async ({legacySources,legacyNoteHtml})=>{
     MondermanReport.render(wrapper,model);
     const prefix=wrapper.querySelector('section[id]').id.replace(/-section-\d+$/,'');
     const printed=wrapper.querySelector('.mr-page').cloneNode(true);
+    // Eligible synthesis screens move the overview ahead of cover metadata.
+    // Validate only that exact screen marker before comparing the entire body.
+    const overviewFirst=model.kind==='meta-synthesis'&&!model.comparisonOnly&&!model.selfRun&&['depth','cross_lens'].includes(model.product);
+    const normalizeOverviewFirst=root=>{
+      const marked=root.querySelectorAll('[data-overview-first]');
+      if(marked.length!==(overviewFirst?1:0))throw new Error('Unexpected overview-first marker count');
+      if(overviewFirst){
+        const cover=root.querySelector('section.mr-cover');
+        if(marked[0]!==cover||cover.getAttribute('data-overview-first')!=='true')throw new Error('Changed overview-first cover marker');
+        cover.removeAttribute('data-overview-first');
+      }
+    };
+    const overviewMarkerNegativeControls=[];
+    const markerMutations=overviewFirst?[
+      ['missing marker',root=>root.querySelector('[data-overview-first]').removeAttribute('data-overview-first')],
+      ['wrong value',root=>root.querySelector('[data-overview-first]').setAttribute('data-overview-first','false')],
+      ['wrong placement',root=>{root.querySelector('[data-overview-first]').removeAttribute('data-overview-first');root.querySelector('.mr-cover-white').setAttribute('data-overview-first','true');}],
+      ['duplicate marker',root=>root.querySelector('.mr-cover-white').setAttribute('data-overview-first','true')],
+    ]:[['ineligible marker',root=>root.querySelector('.mr-cover').setAttribute('data-overview-first','true')]];
+    for(const [name,mutate]of markerMutations){
+      const changed=printed.cloneNode(true);mutate(changed);let rejected=false;
+      try{normalizeOverviewFirst(changed);}catch{rejected=true;}
+      if(!rejected)throw new Error('Overview marker guard accepted '+name);
+      overviewMarkerNegativeControls.push(name);
+    }
+    normalizeOverviewFirst(printed);
     const overviewCovers=printed.querySelectorAll('.mr-cover-white.mr-has-overview');
     if(overviewCovers.length!==1)throw new Error('One exact screen-overview cover modifier required');
     overviewCovers[0].classList.remove('mr-has-overview');
@@ -364,10 +390,12 @@ const invariants=await page.evaluate(async ({legacySources,legacyNoteHtml})=>{
     const ids=[...wrapper.querySelectorAll('[id]'),...another.querySelectorAll('[id]')].map(node=>node.id);
     const unique=ids.length===new Set(ids).size;
     wrapper.remove();another.remove();
-    return {product:model.filenameBase,fixture,intact,mutated,unique,planningGroups,negativeControls,legacyTablesPreserved,legacyNegativeControls,threeBenefitGroups,threeBenefitNegativeControls};
+    return {product:model.filenameBase,fixture,intact,mutated,unique,overviewFirst,overviewMarkerNegativeControls,planningGroups,negativeControls,legacyTablesPreserved,legacyNegativeControls,threeBenefitGroups,threeBenefitNegativeControls};
   });
 },{legacySources,legacyNoteHtml:LEGACY_PLANNING_NOTE_HTML});
 assert.ok(invariants.every(row=>row.intact&&!row.mutated&&row.unique),JSON.stringify(invariants));
+assert.equal(invariants.filter(row=>row.overviewFirst).length,4,'Both current and historical synthesis covers must exercise overview-first preservation');
+assert.ok(invariants.every(row=>row.overviewMarkerNegativeControls.length===(row.overviewFirst?4:1)),'Missing overview-marker preservation negative control');
 assert.equal(invariants.filter(row=>row.fixture==='current').length,6,'All six current publications must retain their complete report bodies');
 assert.equal(invariants.filter(row=>row.fixture==='historical-v1'&&row.planningGroups===0&&row.legacyTablesPreserved).length,2,'Both historical synthesis products must preserve complete saved tables without the retired chart');
 assert.ok(invariants.every(row=>row.planningGroups===0),'Retired v1 controls reappeared');
