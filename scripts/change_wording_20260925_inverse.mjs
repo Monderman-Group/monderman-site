@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
+import {sourceAtGovernanceResearchBaseline} from './governance_research_20260925_inverse.mjs';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 export const CHANGE_WORDING_BASELINE='4ca0253f3a5ce45607b32577e74c28f97f2cf934';
 export const CHANGE_WORDING_VERSION='diagnostic-renderer-change-wording-20260925.1';
@@ -29,6 +30,7 @@ export function sourceBeforeChangeWording20260925(file,source){
 // Older independent contracts sometimes pass the exact preceding edition to
 // another historical layer. Only that pinned byte identity may bypass inversion.
 export function sourceAtChangeWordingBaseline(file,source){
+  source=sourceAtGovernanceResearchBaseline(file,source);
   const publication=changeWordingDelta.publication_files?.[file];
   if(publication){
     if(sha(source)===publication.before_sha256)return source;

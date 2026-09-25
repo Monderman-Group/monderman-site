@@ -52,6 +52,7 @@ PAGES = {
     "the-drift-problem.html": "Research",
     "the-unmeasured-layer.html": "Research",
     "nothing-stays-tuned.html": "Research",
+    "fast-to-cut-slow-to-build.html": "Research",
     "we-gave-bureaucracy-the-fastest-tools.html": "Research",
     "accumulated-drag-department-of-war.html": "Research",
     "built-to-please.html": "Research",
