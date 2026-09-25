@@ -10,6 +10,7 @@ import {sourceBeforeTrustSecurityCenter20260924} from './trust_security_center_2
 import {sourceBeforeHomepageCompactJourney20260924} from './homepage_compact_journey_20260924_inverse.mjs';
 import {sourceBeforePublicSampleProjectionCache20260924} from './public_sample_projection_20260924_inverse.mjs';
 import {sourceBeforePublicSamplePreviewBinding20260924} from './public_sample_preview_binding_20260924_inverse.mjs';
+import {sourceBeforeHomepagePreviewAnchor20260924} from './homepage_preview_anchor_20260924_inverse.mjs';
 
 export const PUBLIC_COPY_BASELINE='dd80e27f4ee63f9ac0b2385010ab2d4f92a61cb2';
 export const PUBLIC_COPY_FIXTURE_SHA256='4d874cc80e9180341deadc0a976e660a87c8fcf34606fc67003605bffe5bfbdb';
@@ -21,6 +22,7 @@ assert.equal(publicCopyDelta.baseline,PUBLIC_COPY_BASELINE);
 export const PUBLIC_COPY_FILES=Object.freeze(Object.keys(publicCopyDelta.files));
 
 export function sourceBeforePublicCopyClarity(file,source){
+  source=sourceBeforeHomepagePreviewAnchor20260924(file,source);
   source=sourceBeforePublicSamplePreviewBinding20260924(file,source);
   source=sourceBeforePublicSampleProjectionCache20260924(file,source);
   source=sourceBeforeHomepageCompactJourney20260924(file,source);

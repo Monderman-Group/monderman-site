@@ -29,6 +29,7 @@ const overviewSources=['index.html','homepage-workspace-demo.css','sample-report
 const adapterDependencies=['scripts/public_copy_clarity_inverse.mjs','scripts/promotional_gold_20260924_inverse.mjs','scripts/report_library_20260924_inverse.mjs',
   'scripts/public_sample_projection_20260924_inverse.mjs','scripts/public_language_pass_20260924_inverse.mjs','scripts/trust_security_center_20260924_inverse.mjs',
   'scripts/homepage_compact_journey_20260924_inverse.mjs','scripts/public_sample_preview_binding_20260924_inverse.mjs',
+  'scripts/homepage_preview_anchor_20260924_inverse.mjs','scripts/fixtures/homepage-preview-anchor-20260924.json',
   'scripts/fixtures/public-copy-clarity-20260924.json','scripts/fixtures/report-library-presentation-20260924.json',
   'scripts/fixtures/public-language-pass-20260924.json','scripts/fixtures/trust-security-center-20260924.json','scripts/fixtures/homepage-compact-journey-20260924.json'];
 const currentPublication=JSON.parse(fs.readFileSync(path.join(root,manifestName))).response_comparison_publication_review;
@@ -202,7 +203,9 @@ for(const [label,mutate] of [
   ['changed-reviewer',m=>{m.report_overview_presentation_review.reviewed_by='Jason';}],
 ])cases.push(manifestMutation('overview-review-'+label,null,mutate));
 for(const name of overviewSources)cases.push({
-  label:'overview-source-drift-'+path.basename(name),layer:'source-byte-binding',expected:'reviewed '+(currentPublication?'comparison':'overview')+' source changed: '+name,
+  label:'overview-source-drift-'+path.basename(name),layer:'source-byte-binding',expected:currentPublication&&name==='homepage-workspace-demo.css'
+    ?name+': only the exact reviewed homepage-anchor source can be inverted'
+    :'reviewed '+(currentPublication?'comparison':'overview')+' source changed: '+name,
   mutate(directory){fs.appendFileSync(path.join(directory,name),'\n/* sensitivity mutation only */\n');},
 });
 assert.equal(cases.length,91,'Historical mutations plus ten overview review mutations and six additional presentation sources');

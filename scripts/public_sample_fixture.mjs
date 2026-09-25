@@ -7,6 +7,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import vm from 'node:vm';
 import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
+import {sourceBeforeHomepagePreviewAnchor20260924} from './homepage_preview_anchor_20260924_inverse.mjs';
 
 export const PUBLIC_PRODUCTS = Object.freeze({
   os:'operational_systems', dv:'decision_velocity', sc:'structural_clarity',
@@ -468,7 +469,9 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
     // a historical renderer/template. The prior review stays separately bound.
     for(const [filename,digest]of Object.entries(currentReview.source_files)){
       assert.ok(filename&&!path.isAbsolute(filename)&&!filename.split(/[\\/]/).includes('..')&&validHash(digest),'unsafe comparison source pin');
-      assert.equal(sha(fs.readFileSync(path.join(root,filename))),digest,'reviewed comparison source changed: '+filename);
+      // The separately reviewed desktop-only anchor addendum reconstructs the
+      // original CSS and this reader exactly; publication pins remain intact.
+      assert.equal(sha(sourceBeforeHomepagePreviewAnchor20260924(filename,fs.readFileSync(path.join(root,filename)))),digest,'reviewed comparison source changed: '+filename);
     }
     assertPublicSampleHtmlBindings(artifact,currentReview,{root});
   }else if(manifest.report_overview_presentation_review){
