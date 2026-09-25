@@ -8,8 +8,9 @@ import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {CHANGE_WORDING_BASELINE,CHANGE_WORDING_FILES,CHANGE_WORDING_VERSION,CHANGE_WORDING_FIXTURE_SHA256,changeWordingDelta,sourceBeforeChangeWording20260925,sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
 import {readPublicSampleFixture,currentSynthesisPdfReview,evidenceDigest} from './public_sample_fixture.mjs';
+import {sourceAtGovernanceResearchBaseline} from './governance_research_20260925_inverse.mjs';
 
-const root=path.resolve(import.meta.dirname,'..'),read=file=>fs.readFileSync(path.join(root,file));
+const root=path.resolve(import.meta.dirname,'..'),read=file=>Buffer.from(sourceAtGovernanceResearchBaseline(file,fs.readFileSync(path.join(root,file))));
 const prior=file=>execFileSync('git',['show',CHANGE_WORDING_BASELINE+':'+file],{cwd:root,maxBuffer:32e6});
 const sha=value=>createHash('sha256').update(value).digest('hex');
 let checks=0,negativeControls=0,documents=0;

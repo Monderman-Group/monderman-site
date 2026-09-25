@@ -181,19 +181,34 @@ for token in [
  if token not in idx:e.append('homepage research carousel no-script phone guard '+token)
 
 research=(r/'research.html').read_text(errors='ignore')
-for token in ['We Gave Bureaucracy the Fastest Tools in History. It Got Slower.','The Unmeasured Layer','AI and Institutions','Three papers, one story.','Part 1','Part 2','Part 3','18 items · Updated September 2026','HTML + PDF · 8 documents']:
+for token in ['We Gave Bureaucracy the Fastest Tools in History. It Got Slower.','The Unmeasured Layer','Governance and Performance','Fast to Cut, Slow to Build','AI and Institutions','Three papers, one story.','Part 1','Part 2','Part 3','19 items · Updated September 2026','HTML + PDF · 8 documents']:
  if token not in research:e.append('research series contract '+token)
-if research.count('<article class="series-card">')!=3:e.append('research series card count')
+if research.count('<article class="series-card">')!=6:e.append('research two-series card count')
 book_pos=research.find('<section class="book-feature">')
-series_pos=research.find('<section class="series"')
+governance_pos=research.find('<section class="series" aria-labelledby="governance-performance-title">')
+series_pos=research.find('<section class="series" aria-labelledby="ai-institutions-title">')
 library_pos=research.find('<section class="library">')
-if not (0<=book_pos<series_pos<library_pos):e.append('research Book/series/library order')
+if not (0<=book_pos<governance_pos<series_pos<library_pos):e.append('research Book/Governance/AI/library order')
+book_end=research.find('</section>',book_pos)+len('</section>')
+if research[book_end:governance_pos].strip():e.append('research Governance series must directly follow the book')
 commentary_pos=research.find('id="bureaucracy-tools-title"')
 unmeasured_pos=research.find('id="unmeasured-layer-title"')
 tuned_pos=research.find('id="nothing-stays-tuned-title"')
-if not (book_pos<tuned_pos<commentary_pos):e.append('Nothing Stays Tuned must be the top research article')
-if 'aria-label="Nothing Stays Tuned pull quote"' not in research:e.append('Nothing Stays Tuned research pull quote missing')
-if not (0<=commentary_pos<unmeasured_pos<series_pos):e.append('research commentary/Unmeasured Layer/AI order')
+if not (governance_pos<unmeasured_pos<tuned_pos<commentary_pos<series_pos):e.append('research Governance parts/commentary/AI order')
+governance=research[governance_pos:research.find('</section>',governance_pos)]
+governance_parts=[
+ ('The Unmeasured Layer','the-unmeasured-layer.html','Monderman_Insight_The_Unmeasured_Layer_2026-09-02.pdf'),
+ ('Nothing Stays Tuned','nothing-stays-tuned.html','Monderman_Perspective_Nothing_Stays_Tuned_2026-09-07.pdf'),
+ ('Fast to Cut, Slow to Build','fast-to-cut-slow-to-build.html','Monderman_Insight_Fast_to_Cut_Slow_to_Build_2026-09-25.pdf'),
+]
+governance_cards=re.findall(r'<article class="series-card">(.*?)</article>',governance,re.S)
+if len(governance_cards)!=3:e.append('research Governance must contain exactly three parts')
+for part,(title,html_name,pdf_name) in enumerate(governance_parts,1):
+ card=governance_cards[part-1] if len(governance_cards)>=part else ''
+ for token in [f'<span class="series-chip">Part {part}</span>',title,f'href="{html_name}"',f'href="{pdf_name}']:
+  if token not in card:e.append(f'research Governance Part {part} '+token)
+ if research.count(f'publication-primary-link" href="{html_name}"')!=1:e.append('research duplicate Governance article '+html_name)
+ if not (r/pdf_name).exists():e.append('research Governance PDF missing '+pdf_name)
 series_quote='Fluency becomes evidence, outside checking becomes overhead, and agreement begins to look like truth.'
 series_quote_pos=research.find(series_quote)
 if not (series_pos<series_quote_pos<library_pos):e.append('research series pull quote placement')
@@ -212,8 +227,8 @@ for forbidden in ['.paper-card.category-insight {','.paper-card.category-brief {
  if forbidden in research:e.append('research page presentation must remain canonical '+forbidden)
 research_primary_hrefs=re.findall(r'class="(?:series-action|paper-action) publication-primary-link" href="([^"]+)"',research)
 research_secondary_hrefs=re.findall(r'class="(?:series-action|paper-action) publication-secondary-link" href="([^"]+)"',research)
-if len(research_primary_hrefs)!=17:e.append('research full-card HTML link count')
-if len(research_secondary_hrefs)!=15:e.append('research independent secondary link count')
+if len(research_primary_hrefs)!=18:e.append('research full-card HTML link count')
+if len(research_secondary_hrefs)!=16:e.append('research independent secondary link count')
 for href in research_primary_hrefs:
  clean_href=href.split('?',1)[0]
  if not clean_href.endswith('.html'):e.append('research primary route is not HTML '+href)
@@ -222,6 +237,7 @@ for token in ['.publication-primary-link::after {','inset: 0;','z-index: 2;','.p
  if token not in research:e.append('research full-card interaction '+token)
 
 publication_editions={
+ 'fast-to-cut-slow-to-build.html':('Monderman_Insight_Fast_to_Cut_Slow_to_Build_2026-09-25.pdf',0),
  'nothing-stays-tuned.html':('Monderman_Perspective_Nothing_Stays_Tuned_2026-09-07.pdf',0),
  'merit-after-the-machine.html':('Monderman_Insight_Merit_After_the_Machine_2026-09-02.pdf',4),
  'every-node-for-itself.html':('Monderman_Insight_Every_Node_for_Itself_2026-09-02.pdf',3),
@@ -252,13 +268,20 @@ for name,(pdf_name,figure_count) in publication_editions.items():
   '<script src="assistant.js?v=20260828-footer-dock4" defer></script>',
   '<script src="contact-transport.js?v=20260903-contact1" defer></script>',
   '<script src="connect-widget.js?v=20260903-contact1" defer></script>',
-  f'href="{pdf_name}?',
+  f'href="{pdf_name}"' if name=='fast-to-cut-slow-to-build.html' else f'href="{pdf_name}?',
  ]:
   if token not in t:e.append(name+': complete web-edition contract '+token)
  if t.count('<figure>')!=figure_count:e.append(name+': figure count')
  if len(re.findall(r'<li(?:\s|>)',t))<3:e.append(name+': reference count')
  if name not in site or name not in sitemap_text:e.append(name+': sitemap coverage')
  if f'"url":"{name}"' not in search_index:e.append(name+': search coverage')
+legacy_unmeasured=r/'Monderman_Insight_The_Unmeasured_Layer.pdf'
+dated_unmeasured=r/'Monderman_Insight_The_Unmeasured_Layer_2026-09-02.pdf'
+if not dated_unmeasured.exists() or dated_unmeasured.read_bytes()!=legacy_unmeasured.read_bytes():
+ e.append('Unmeasured Layer dated alias must preserve the existing edition byte for byte')
+for name in ['index.html','research.html','the-unmeasured-layer.html']:
+ if 'href="Monderman_Insight_The_Unmeasured_Layer.pdf' in (r/name).read_text(errors='ignore'):
+  e.append(name+': undated Unmeasured Layer download link remains')
 for name in ['we-gave-bureaucracy-the-fastest-tools.html','the-unmeasured-layer.html']:
  t=(r/name).read_text(errors='ignore')
  for script in ['assistant.js?v=20260828-footer-dock4','contact-transport.js?v=20260903-contact1','connect-widget.js?v=20260903-contact1']:

@@ -1180,11 +1180,11 @@
   <meta name="twitter:image:alt" content="Monderman">
   <link rel="stylesheet" href="enterprise-site.css?v=20260915.consistency1">
   <style>
-    /* Research page correction: one rail, disciplined scale, and compact rhythm. */
+    /* Research page: one rail, consistent scale, and room between entries. */
     body.research-page {
       --research-gutter: clamp(20px, 4vw, 56px);
       --research-rail: calc(1320px - var(--research-gutter) - var(--research-gutter));
-      --research-section-space: clamp(40px, 4.2vw, 56px);
+      --research-section-space: clamp(48px, 4.8vw, 64px);
     }
 
     body.research-page > .hero {
@@ -1281,7 +1281,7 @@
     }
 
     body.research-page .latest-insight {
-      padding-top: 34px;
+      padding-top: 42px;
     }
 
     body.research-page .latest-insight-divider {
@@ -1289,7 +1289,7 @@
     }
 
     body.research-page .latest-insight-divider + .latest-insight {
-      padding-top: 24px;
+      padding-top: 32px;
     }
 
     body.research-page .latest-insight-divider + .series,
@@ -1298,8 +1298,8 @@
     }
 
     body.research-page .series-head {
-      padding: 30px 24px 24px;
-      gap: 24px;
+      padding: 34px 28px 30px;
+      gap: 28px;
     }
 
     body.research-page .series-title,
@@ -1309,19 +1309,73 @@
       letter-spacing: -.045em;
     }
 
+    body.research-page .series-grid {
+      gap: 20px;
+      padding: 24px;
+    }
+
+    body.research-page .series-pullquote {
+      margin: 0;
+      padding: 24px 28px 0;
+      color: var(--teal);
+    }
+
+    body.research-page .series-pullquote blockquote {
+      margin: 0;
+      max-width: 58ch;
+      font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+      line-height: 1.45;
+      font-weight: 500;
+    }
+
+    body.research-page .series-pullquote blockquote p {
+      margin: 0;
+    }
+
+    body.research-page .series-pullquote figcaption {
+      margin-top: 10px;
+      font-size: .8rem;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
     body.research-page .series-card {
       min-height: 300px;
-      padding: 24px 24px 22px;
+      padding: 24px;
+      border: 1px solid var(--card-line);
+      grid-template-rows: auto auto minmax(0, 1fr) auto;
+      align-content: stretch;
+    }
+
+    body.research-page .series-card-top {
+      flex-wrap: wrap;
+      row-gap: 10px;
+    }
+
+    body.research-page .series-chip {
+      flex-shrink: 0;
+    }
+
+    body.research-page .series-format {
+      line-height: 1.4;
     }
 
     body.research-page .series-card-title {
-      margin-top: 18px;
+      margin-top: 22px;
+      max-width: none;
       font-size: 1.4rem;
+      line-height: 1.15;
     }
 
     body.research-page .series-card-foot {
-      margin-top: 20px;
-      padding-top: 16px;
+      margin-top: 24px;
+      padding-top: 20px;
+      flex-wrap: wrap;
+      gap: 14px 18px;
+    }
+
+    body.research-page .series-actions {
+      justify-content: flex-start;
     }
 
     body.research-page .library:not(.latest-insight) {
@@ -1330,8 +1384,14 @@
 
     body.research-page .paper-card {
       min-height: 212px;
-      padding: 22px 20px 20px;
+      padding: 28px 24px;
+      gap: 16px;
       border-radius: 0;
+    }
+
+    body.research-page .research-grid,
+    body.research-page .essay-grid {
+      row-gap: 20px;
     }
 
     @media (min-width: 1041px) {
@@ -1344,7 +1404,7 @@
     body.research-page .paper-card.wide > div:first-child {
       display: grid;
       align-content: start;
-      gap: 9px;
+      gap: 14px;
     }
 
     body.research-page .paper-card.wide,
@@ -1362,7 +1422,7 @@
     }
 
     body.research-page .divider-quote {
-      padding-top: 20px;
+      padding-top: 28px;
       border-block: 0;
     }
 
@@ -1385,7 +1445,7 @@
 
     body.research-page .essay-card {
       min-height: 196px;
-      padding: 22px 20px 20px;
+      padding: 28px 24px;
     }
 
     body.research-page .essay-card:last-child:nth-child(odd) {
@@ -1408,7 +1468,14 @@
     }
 
     body.research-page .band-head {
-      padding-bottom: 16px;
+      padding-bottom: 20px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 1040px) {
+      body.research-page .series-card {
+        min-height: 0;
+      }
     }
 
     /* Progressive enhancement: content is visible unless this page script marks it pending. */
@@ -1550,7 +1617,7 @@
       body.research-page .latest-insight-divider + .series,
       body.research-page .library:not(.latest-insight),
       body.research-page .cta-band {
-        padding-top: 36px;
+        padding-top: 44px;
       }
 
       body.research-page .latest-insight-divider,
@@ -1559,16 +1626,42 @@
       }
 
       body.research-page .latest-insight-divider + .latest-insight {
-        padding-top: 20px;
+        padding-top: 28px;
       }
 
       body.research-page .book-feature-main,
       body.research-page .book-feature-side,
       body.research-page .series-head,
+      body.research-page .series-pullquote,
       body.research-page .series-card,
       body.research-page .cta-inner {
         padding-left: 20px;
         padding-right: 20px;
+      }
+
+      body.research-page .series-card {
+        min-height: 0;
+        padding-block: 28px;
+      }
+
+      body.research-page .series-grid {
+        gap: 16px;
+        padding: 16px;
+      }
+
+      body.research-page .paper-card,
+      body.research-page .essay-card {
+        padding: 26px 20px;
+      }
+
+      body.research-page .band-head {
+        align-items: start;
+        gap: 16px;
+      }
+
+      body.research-page .band-head .left,
+      body.research-page .band-head .right {
+        line-height: 1.4;
       }
 
       body.research-page .book-feature-cover {
@@ -1709,7 +1802,7 @@
           <button type="button" class="filter-chip" data-q="Enterprise">Enterprise</button>
           <button type="button" class="filter-chip" data-q="Decision Design">Decision Design</button>
         </div>
-        <p class="library-stamp">18 items · Updated September 2026</p>
+        <p class="library-stamp">19 items · Updated September 2026</p>
       </div>
     </div>
   </section>
@@ -1751,34 +1844,66 @@
       </div>
     </div>
   </section>
-  <section class="library latest-insight" aria-labelledby="nothing-stays-tuned-title">
-    <div class="library-inner">
-      <div class="band-head">
-        <div class="left">Latest research</div>
-        <div class="right">Perspective · HTML + PDF</div>
+  <section class="series" aria-labelledby="governance-performance-title">
+    <div class="series-inner">
+      <div class="series-head">
+        <div>
+          <p class="series-kicker">Monderman Research Series</p>
+          <h2 class="series-title" id="governance-performance-title">Governance and Performance</h2>
+        </div>
+        <p class="series-deck">Three papers on how organizations change over time: what their reports leave out, how they drift, and why they stay fast at cutting but slow at building.</p>
       </div>
-      <div class="research-grid">
-        <article class="paper-card wide">
-          <div>
-            <div class="paper-top"><span>Institutional Performance</span><span>Perspective · HTML + PDF</span></div>
-            <h2 class="paper-title" id="nothing-stays-tuned-title">Nothing Stays Tuned</h2>
-            <p class="paper-body"><span class="paper-subtitle">Everything drifts. The craft is seeing which kind, and deciding on purpose.</span>How institutional commitments drift, why seeing the gap is only the beginning, and what it takes to decide deliberately whether to correct, revise, or retire them.</p>
+      <figure class="series-pullquote">
+        <blockquote><p>“The goal is to make change safer and cheaper, so it can happen when it is needed.”</p></blockquote>
+        <figcaption>Jason Adamson, <cite>Fast to Cut, Slow to Build</cite></figcaption>
+      </figure>
+      <div class="series-grid">
+        <article class="series-card">
+          <div class="series-card-top">
+            <span class="series-chip">Part 1</span>
+            <span class="series-format">Insight · HTML + PDF</span>
           </div>
-          <div class="paper-foot">
-            <div class="paper-stats"><span>September 2026</span><span>8 pp</span><span>~12 min</span></div>
-            <div class="paper-actions">
-              <a class="paper-action publication-primary-link" href="nothing-stays-tuned.html">Read article →</a>
-              <a class="paper-action publication-secondary-link" href="Monderman_Perspective_Nothing_Stays_Tuned_2026-09-07.pdf?v=20260907-tuned1" target="_blank" rel="noopener noreferrer">Download PDF →</a>
+          <h3 class="series-card-title" id="unmeasured-layer-title">The Unmeasured Layer</h3>
+          <p class="series-card-desc">Why the conditions that slow an organization down rarely appear together in the reports leaders read.</p>
+          <div class="series-card-foot">
+            <div class="series-stats"><span>August 2026</span><span>11 pages · ~15 min</span></div>
+            <div class="series-actions">
+              <a class="series-action publication-primary-link" href="the-unmeasured-layer.html">Read article →</a>
+              <a class="series-action publication-secondary-link" href="Monderman_Insight_The_Unmeasured_Layer_2026-09-02.pdf" target="_blank" rel="noopener noreferrer">PDF →</a>
+            </div>
+          </div>
+        </article>
+        <article class="series-card">
+          <div class="series-card-top">
+            <span class="series-chip">Part 2</span>
+            <span class="series-format">Perspective · HTML + PDF</span>
+          </div>
+          <h3 class="series-card-title" id="nothing-stays-tuned-title">Nothing Stays Tuned</h3>
+          <p class="series-card-desc">Why everything drifts, and how to tell which kinds of drift need attention.</p>
+          <div class="series-card-foot">
+            <div class="series-stats"><span>September 2026</span><span>8 pages · ~12 min</span></div>
+            <div class="series-actions">
+              <a class="series-action publication-primary-link" href="nothing-stays-tuned.html">Read article →</a>
+              <a class="series-action publication-secondary-link" href="Monderman_Perspective_Nothing_Stays_Tuned_2026-09-07.pdf?v=20260907-tuned1" target="_blank" rel="noopener noreferrer">PDF →</a>
+            </div>
+          </div>
+        </article>
+        <article class="series-card">
+          <div class="series-card-top">
+            <span class="series-chip">Part 3</span>
+            <span class="series-format">Insight · HTML + PDF</span>
+          </div>
+          <h3 class="series-card-title">Fast to Cut, Slow to Build</h3>
+          <p class="series-card-desc">Why big companies can cut in weeks but struggle to move money toward what comes next, and five practices that help.</p>
+          <div class="series-card-foot">
+            <div class="series-stats"><span>September 2026</span><span>10 pages · ~20 min</span></div>
+            <div class="series-actions">
+              <a class="series-action publication-primary-link" href="fast-to-cut-slow-to-build.html">Read article →</a>
+              <a class="series-action publication-secondary-link" href="Monderman_Insight_Fast_to_Cut_Slow_to_Build_2026-09-25.pdf" target="_blank" rel="noopener noreferrer">PDF →</a>
             </div>
           </div>
         </article>
       </div>
-    </div>
-  </section>
-  <section class="divider-quote latest-insight-divider" aria-label="Nothing Stays Tuned pull quote">
-    <div class="divider-quote-inner">
-      <div class="divider-label">Nothing Stays Tuned</div>
-      <blockquote>“A rule is written after something goes wrong and never read again once the thing has stopped going wrong.”</blockquote>
     </div>
   </section>
   <section class="library latest-insight" aria-labelledby="bureaucracy-tools-title">
@@ -1805,32 +1930,6 @@
     <div class="divider-quote-inner">
       <div class="divider-label">Fastest Tools</div>
       <blockquote>“The threat is not that our institutions will fail. The threat is that they will keep working exactly as designed, at the speed they were designed for, with better and better tools, in a world that has stopped waiting.”</blockquote>
-    </div>
-  </section>
-  <section class="library latest-insight" aria-labelledby="unmeasured-layer-title">
-    <div class="library-inner">
-      <div class="research-grid">
-        <article class="paper-card wide">
-          <div>
-            <div class="paper-top"><span>Institutional Performance</span><span>Insight · HTML + PDF</span></div>
-            <h2 class="paper-title" id="unmeasured-layer-title">The Unmeasured Layer</h2>
-            <p class="paper-body"><span class="paper-subtitle">Administrative Reality and the Risk Standard Reporting Misses</span>Organizations often track performance without maintaining one view of how ownership, decisions, administrative systems, and operating capacity work together.</p>
-          </div>
-          <div class="paper-foot">
-            <div class="paper-stats"><span>September 2026</span><span>11 pp</span><span>~15 min</span></div>
-            <div class="paper-actions">
-              <a class="paper-action publication-primary-link" href="the-unmeasured-layer.html">Read article →</a>
-              <a class="paper-action publication-secondary-link" href="Monderman_Insight_The_Unmeasured_Layer.pdf?v=20260906-publication2" target="_blank" rel="noopener noreferrer">Download PDF →</a>
-            </div>
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
-  <section class="divider-quote latest-insight-divider" aria-label="The Unmeasured Layer pull quote">
-    <div class="divider-quote-inner">
-      <div class="divider-label">The Unmeasured Layer</div>
-      <blockquote>“Results run on accumulated capacity, so reported performance holds while the structure beneath it erodes.”</blockquote>
     </div>
   </section>
   <section class="series" aria-labelledby="ai-institutions-title">

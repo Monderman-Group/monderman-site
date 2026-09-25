@@ -124,6 +124,12 @@ on:
       - 'Monderman_Platform_Brief.html'
       - 'sample-report-tile.css'
       - 'research.html'
+      - 'fast-to-cut-slow-to-build.html'
+      - 'pdf-src/fast-to-cut-slow-to-build.json'
+      - 'scripts/build_fast_to_cut.py'
+      - 'scripts/validate_fast_to_cut.py'
+      - 'scripts/governance_research_20260925_*.mjs'
+      - 'scripts/fixtures/governance-research-20260925.json'
       - 'assistant.js'
       - 'contact-transport.js'
       - 'connect-widget.js'
@@ -325,6 +331,12 @@ on:
       - 'Monderman_Platform_Brief.html'
       - 'sample-report-tile.css'
       - 'research.html'
+      - 'fast-to-cut-slow-to-build.html'
+      - 'pdf-src/fast-to-cut-slow-to-build.json'
+      - 'scripts/build_fast_to_cut.py'
+      - 'scripts/validate_fast_to_cut.py'
+      - 'scripts/governance_research_20260925_*.mjs'
+      - 'scripts/fixtures/governance-research-20260925.json'
       - 'assistant.js'
       - 'contact-transport.js'
       - 'connect-widget.js'
@@ -412,7 +424,7 @@ concurrency:
 jobs:
   certify:
     runs-on: ubuntu-24.04
-    # Preserve the full report/PDF and 83-page responsive sweeps; the expanded
+    # Preserve the full report/PDF and 84-page responsive sweeps; the expanded
     # suite exceeded 35 minutes on the hosted runner without an assertion failure.
     timeout-minutes: 50
     steps:
@@ -501,6 +513,8 @@ jobs:
           python scripts/validate_meta_synthesis_frontend.py
           python scripts/validate_pdf_house_style.py
           python scripts/validate_publication_suite.py
+          python scripts/validate_fast_to_cut.py
+          node scripts/governance_research_20260925_contract.mjs
           python scripts/publication_copy_regression.py
           python scripts/validate_production_cosmetic_certification.py
           python scripts/certification_guard_sensitivity_smoke.py
