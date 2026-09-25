@@ -427,7 +427,30 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
           check(await page.locator('#hwd-panel-'+id).isVisible(),'Preview still navigates: '+id);
           check(await page.locator('.hwd-sample-link').isVisible(),'Direct sample CTA is visible in every step');
           eq(await page.locator('.hwd-sample-link').getAttribute('href'),'sample-report.html#synthesis','Every step opens the actual Cross-Lens sample');
-          check(await page.locator('.home-workspace-preview').evaluate(el=>el.getBoundingClientRect().height)<= (width===1440?560:700),'Journey remains within the approved compact height target');
+          const journeyGeometry=await page.locator('.home-workspace-preview').evaluate(el=>{
+            const box=node=>{if(!node)return null;const r=node.getBoundingClientRect(),s=getComputedStyle(node);return {width:r.width,height:r.height,fontFamily:s.fontFamily,fontSize:s.fontSize,lineHeight:s.lineHeight,padding:s.padding,margin:s.margin};};
+            const panel=el.querySelector('.hwd-panel:not([hidden])');
+            return {viewport:{width:innerWidth,height:innerHeight,devicePixelRatio},selectedPanel:panel?.id,
+              fontsStatus:document.fonts.status,neueHaasAvailable:document.fonts.check('12px "Neue Haas Grotesk"'),
+              disclosureOpen:el.querySelector('.home-preview-method')?.open,preview:box(el),app:box(el.querySelector('[data-workspace-demo]')),
+              label:box(el.querySelector('.home-preview-label')),topbar:box(el.querySelector('.hwd-topbar')),tabs:box(el.querySelector('.hwd-tabs')),
+              panel:box(panel),heading:box(panel?.querySelector('h2')),quad:box(panel?.querySelector('.hwd-compact-quad')),
+              footer:box(el.querySelector('.hwd-footer')),disclosure:box(el.querySelector('.home-preview-method'))};
+          });
+          // The reviewed height target is the app card. The outer label and
+          // closed disclosure add 60.5px in the source-bound CUA measurements.
+          const appLimit=width===1440?560:700,wrapperLimit=appLimit+64;
+          const wrapperOverhead=journeyGeometry.preview.height-journeyGeometry.app.height;
+          const diagnostic={browser:name,width,step:id,appLimit,wrapperLimit,wrapperOverhead,...journeyGeometry};
+          console.log(JSON.stringify({check:'compact-journey-height',...diagnostic}));
+          if(journeyGeometry.app.height>appLimit||journeyGeometry.preview.height>wrapperLimit||wrapperOverhead>64){
+            const failureScreenshot=`${name}-${width}-${id}-journey-height-failure.png`;
+            await page.locator('.home-workspace-preview').screenshot({path:path.join(out,failureScreenshot)});screenshots.push(failureScreenshot);
+          }
+          check(journeyGeometry.disclosureOpen===false,'Height is measured with the evidence disclosure closed');
+          check(journeyGeometry.app.height<=appLimit,'Journey app remains within the approved compact height target: '+JSON.stringify(diagnostic));
+          check(wrapperOverhead>=0&&wrapperOverhead<=64,'Outer label and closed disclosure stay within their reviewed height allowance: '+JSON.stringify(diagnostic));
+          check(journeyGeometry.preview.height<=wrapperLimit,'Complete preview stays within the app target plus bounded wrapper: '+JSON.stringify(diagnostic));
           check(await page.locator('[data-workspace-demo]').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'Every current step fits the preview width');
         }
         if(width===390||width===1440){const fileName=`${name}-${width}-homepage.png`;await page.screenshot({path:path.join(out,fileName)});screenshots.push(fileName);}

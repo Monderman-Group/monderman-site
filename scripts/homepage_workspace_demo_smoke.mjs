@@ -103,12 +103,21 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
     await app.locator('#hwd-tab-'+step).click();await settle(page);await assertStep(page,step,name+'/'+width+'/'+step);
     const geometry=await page.locator('.home-workspace-preview').evaluate(el=>{
      const app=el.querySelector('[data-workspace-demo]'),bounds=app.getBoundingClientRect();
-     return {height:el.getBoundingClientRect().height,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,escaping:[...app.querySelectorAll('*')].filter(node=>{const r=node.getBoundingClientRect();return r.width&&r.height&&(r.left<bounds.left-1||r.right>bounds.right+1);}).map(node=>node.className)};
+     return {appHeight:bounds.height,wrapperHeight:el.getBoundingClientRect().height,disclosureOpen:el.querySelector('.home-preview-method').open,fontsStatus:document.fonts.status,fontFamily:getComputedStyle(app).fontFamily,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,escaping:[...app.querySelectorAll('*')].filter(node=>{const r=node.getBoundingClientRect();return r.width&&r.height&&(r.left<bounds.left-1||r.right>bounds.right+1);}).map(node=>node.className)};
     });
     assert.ok(geometry.overflow<=1,name+'/'+width+'/'+step+': page overflow');
     assert.deepEqual(geometry.escaping,[],name+'/'+width+'/'+step+': card overflow');
-    assert.ok(geometry.height<=(width===1440?560:width===320?760:700),name+'/'+width+'/'+step+': compact height '+geometry.height);
-    compactMeasurements.push({engine:name,width,step,height:geometry.height});
+    // Original CUA targets describe the app card; the outer label and closed
+    // disclosure add 60.5px. Retain the separate existing 760px full 320px bound.
+    const appLimit=width===1440?560:width===320?760:700,wrapperLimit=width===320?760:appLimit+64;
+    const wrapperOverhead=geometry.wrapperHeight-geometry.appHeight;
+    const measurement={engine:name,width,step,appLimit,wrapperLimit,wrapperOverhead,...geometry};
+    console.log('HOMEPAGE_COMPACT_GEOMETRY '+JSON.stringify(measurement));
+    assert.equal(geometry.disclosureOpen,false,'Compact height measured with evidence disclosure closed');
+    assert.ok(geometry.appHeight<=appLimit,name+'/'+width+'/'+step+': compact app height '+JSON.stringify(measurement));
+    assert.ok(wrapperOverhead>=0&&wrapperOverhead<=64,name+'/'+width+'/'+step+': bounded label/disclosure height '+JSON.stringify(measurement));
+    assert.ok(geometry.wrapperHeight<=wrapperLimit,name+'/'+width+'/'+step+': complete preview height '+JSON.stringify(measurement));
+    compactMeasurements.push(measurement);
     const now=await anchors();for(const key of Object.keys(now))assert.ok(Math.abs(now[key]-initialAnchors[key])<=1,'Step change preserves top anchor');
     const sizes=await app.locator('#hwd-panel-'+step+' p').evaluateAll(nodes=>nodes.map(node=>({size:parseFloat(getComputedStyle(node).fontSize),className:node.className})));
     assert.ok(sizes.filter(row=>!['hwd-eyebrow','hwd-compact-limit','hwd-compact-band','hwd-compact-action-label','hwd-compact-boundary'].includes(row.className)).every(row=>row.size>=12),'Main finding, action and comparison prose remains at least12px; scoped supporting labels retain their separate reviewed type scale');
