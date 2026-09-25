@@ -20,7 +20,9 @@ assert.match(pageSource,/monderman-report\.js\?v=20260924\.overview2/);
 // presentation inverse; the browser still executes the current candidate.
 assert.match(sourceBeforeOverviewPresentation(rendererSource),/RENDERER_VERSION = "diagnostic-renderer-evidence-reading-20260914\.43"/);
 assert.match(sourceBeforeOverviewSiteCompatibility('cross-tool-synthesis.html',pageSource),/monderman-report\.js\?v=20260915\.financial1/);
-if(process.argv.includes('--deterministic-only')){console.log(JSON.stringify({passed:true,checks:4,scope:'Current and historical source preconditions only; browser checks not run',providerCalls:0,networkCalls:0}));process.exit(0);}
+const campaignMethod='The report distinguishes what the answers describe from how strong the supporting evidence is. Any score withheld from the report stays withheld in every export.';
+assert.ok(pageSource.includes(campaignMethod),'Approved condition/evidence distinction and export withholding remain explicit');
+if(process.argv.includes('--deterministic-only')){console.log(JSON.stringify({passed:true,checks:5,scope:'Current and historical source preconditions only; browser checks not run',providerCalls:0,networkCalls:0}));process.exit(0);}
 const ORG='22222222-2222-4222-8222-222222222222',ID='33333333-3333-4333-8333-333333333333';
 const SOURCE_IDS=['44444444-4444-4444-8444-444444444444','55555555-5555-4555-8555-555555555555'];
 function fixture({personal,depth,published}){
@@ -62,7 +64,7 @@ for(const name of ['fromSynthesis','render','openReport','downloadHtml','downloa
  window.MondermanReport[name]=function(...args){const before=JSON.stringify(args);const value=original.apply(this,args);
  window.__savedPageCalls.push({name,args:JSON.parse(before),unchanged:before===JSON.stringify(args)});return value;};
 }`;
-let checks=4;const results=[],errors=[],unexpected=[];
+let checks=5;const results=[],errors=[],unexpected=[];
 const eq=(a,b,label)=>{assert.deepEqual(a,b,label);checks++;};
 try{for(const [engineName,engine]of Object.entries({chromium,webkit})){
   const browser=await engine.launch();
@@ -99,7 +101,7 @@ try{for(const [engineName,engine]of Object.entries({chromium,webkit})){
         eq(method,'Scores and supporting answers are preserved from your selected runs. The report explains what can be compared and which conclusions the evidence supports.');
         eq(dek,variant.depth?(variant.published?'Compare your selected runs from one Diagnostic and review the median of their scores.':'Compare your saved runs from one Diagnostic, with each result kept separate.'):'Compare your own saved runs across Diagnostics, with each lens kept separate.');
       }else{
-        eq(method,'The report preserves the API’s distinction between condition and evidence strength. A withheld composite remains withheld in every export.');
+        eq(method,campaignMethod);
         eq(dek,variant.depth?'A same-Diagnostic Synthesis reporting the Median Diagnostic Score, distribution, participant-perspective evidence, and limits of the observed set.':'A multi-Diagnostic Synthesis that keeps each lens visible and publishes a Cross-Lens Composite Score only when the evidence meets the coherence requirements.');
       }
       const calls=await page.evaluate(()=>window.__savedPageCalls);

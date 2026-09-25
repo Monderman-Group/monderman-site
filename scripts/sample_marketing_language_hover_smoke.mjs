@@ -33,14 +33,14 @@ const rows=[],screenshots=[];let checks=0,blockedRemoteRequests=0;
 const check=(value,message)=>{assert.ok(value,message);checks++;};
 const equal=(a,b,message)=>{assert.deepEqual(a,b,message);checks++;};
 const guideRequirements=[
-  'An individual report explains one participant’s result',
-  'A single run does not estimate organizational exposure, recovery or ROI',
-  'those responses do not become several independent participants',
-  'compares eligible included responses to the same diagnostic within a defined scope',
-  'keeping each result visible',
-  'A combined score appears only when the inputs meet Monderman’s comparison requirements',
-  'Separate cost scenarios require operational measurements, change and adoption assumptions, and explicit costs',
-  'capacity value is not cash savings',
+  'One run produces an individual report',
+  'each compares responses from 15 people in an organization with 30 eligible participants',
+  'These examples are not yet eligible for Depth Synthesis and do not present organizational savings',
+  'examines responses to one diagnostic once the campaign meets its evidence requirements',
+  'brings eligible results from multiple diagnostics together, keeping differences visible',
+  'One person is counted once within each lens and once across the campaign, even if they complete all four diagnostics',
+  'include separate operating records and change assumptions to estimate time, spending and capacity benefits',
+  'Staff capacity is time available for other work, not automatically cash savings',
 ];
 function assertReadingGuide(value){
   const text=value.replace(/\s+/g,' ');
@@ -120,8 +120,8 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     });
     const key=engine+'-'+width;
     await page.goto(origin+'/index.html',{waitUntil:'load'});await page.evaluate(()=>document.fonts.ready);
-    equal(await page.locator('.home-preview-label span').allTextContents(),['From organizational evidence to a business case','Illustrative example']);
-    equal(await page.locator('.home-preview-caption').textContent(),'Combine organizational evidence, evaluate a practical opportunity and track the result.');
+    equal(await page.locator('.home-preview-label span').allTextContents(),['See what the report tells you.','Illustrative example']);
+    equal(await page.locator('.home-preview-caption').count(),0,'Compact journey has no redundant caption');
     equal((await page.locator('#home-output-title').innerText()).replace(/\s+/g,' '),'See the findings. Understand the opportunity.');
     equal(await page.locator('.home-output-copy>p:not(.home-output-eyebrow)').textContent(),'Explore diagnostic findings, participant experience, and practical next steps. Team-level examples also show time and cost scenarios built from stated operating assumptions.');
     equal((await page.locator('.home-output-copy>a').textContent()).trim(),'Explore sample reports →');
@@ -129,21 +129,22 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     equal(await page.locator('#sample-output .hero-report-link').getAttribute('href'),'sample-report.html#depth');
     equal(await page.locator('[data-demo-score]').count(),0,'No single-run score relabeled as organizational money');
     equal(await page.locator('[data-demo-recovery]').count(),0,'No score-derived recovery figure');
-    for(const [journey,source]of [['structural_clarity',artifact.outputs.depth_synthesis.source],['cross_lens_synthesis',cross]]){
-      const financial=page.locator('[data-demo-financial-case="'+journey+'"]'),totals=source.financial_scenario.totals;
-      equal(await financial.count(),1,'One case from its own accepted report: '+journey);
-      equal(await financial.locator('[data-demo-hours]').textContent(),whole(totals.potentialHoursFreed.central));
-      equal(await financial.locator('[data-demo-capacity]').textContent(),money(totals.capacityValue.central));
-      equal(await financial.locator('[data-demo-cost]').textContent(),money(totals.totalImplementationAndSubscriptionCost.central));
-      if(source.financial_scenario.version==='operational-planning-scenario-20260919.2'){
-        equal(await financial.locator('[data-demo-spending-reduction]').textContent(),money(totals.existingSpendingReduction.central));
-        equal(await financial.locator('[data-demo-spending-avoidance]').textContent(),money(totals.futureSpendingAvoidance.central));
-        equal(await financial.locator('[data-demo-coverage]').textContent(),'All three benefit categories have been assessed.');
-        equal(await financial.locator('.hwd-financial-note').last().textContent(),'Capacity is not cash savings. Hours assigned to spending benefits are excluded from retained capacity. These estimates use operating records and assumptions, not diagnostic scores.');
-      }else equal(await financial.locator('.hwd-financial-note').textContent(),'Capacity value is not cash savings. These estimates use operational inputs and change assumptions, not diagnostic scores.');
+    const financial=page.locator('.hwd-compact-values'),totals=crossScenario.totals;
+    equal(await financial.count(),1,'Compact journey uses one accepted Cross-Lens planning case');
+    for(const [attribute,values,format]of [
+      ['data-demo-hours',totals.potentialHoursFreed,value=>whole(value)+' h'],
+      ['data-demo-spending-reduction',totals.existingSpendingReduction,money],
+      ['data-demo-spending-avoidance',totals.futureSpendingAvoidance,money],
+    ]){
+      const metric=financial.locator('['+attribute+']');
+      equal(await metric.textContent(),format(values.central),'Exact rounded central display: '+attribute);
+      equal(await metric.getAttribute('data-exact-value'),String(values.central),'Underlying exact value: '+attribute);
     }
-    equal(await page.locator('[data-demo-financial-case]').count(),2,'No financial case invented for the other three Depth previews');
-    for(const group of cross.source_groups)equal(await page.locator('[data-demo-lens="'+group.tool_type+'"]').textContent(),whole(group.median_score)+' / 100','Exact per-lens median');
+    equal(await page.locator('[data-demo-financial-case]').count(),0,'Superseded expanded cases are not duplicated in the compact preview');
+    equal(await page.locator('.hwd-compact-lenses span').allTextContents(),cross.source_groups.map(group=>group.tool_label),'All four canonical diagnostic names remain visible');
+    equal(await page.locator('.hwd-compact-boundary').textContent(),'Capacity is not cash savings. Planning inputs are separate from scores.');
+    equal(await page.locator('.hwd-sample-link').getAttribute('href'),'sample-report.html#synthesis','Full report remains one click away');
+    equal(await page.locator('.hwd-sample-link').locator('xpath=ancestor::*[@role="tabpanel"]').count(),0,'Report link is independent of selected step');
     equal(await page.locator('[data-promo-capacity]').textContent(),'About '+roundedMoney(scenario.totals.capacityValue.central));
     equal(await page.locator('.md-scenario-cases dt').allTextContents(),['Low','Central','High']);
     equal(await page.locator('.md-scenario-cases dd').allTextContents(),['low','central','high'].map(k=>roundedMoney(scenario.totals.capacityValue[k])));
@@ -154,9 +155,10 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
       equal(await page.locator('[data-promo-total-cost]').textContent(),money(scenario.totals.totalImplementationAndSubscriptionCost.central));
       equal(await page.locator('.md-opportunity>p').allTextContents(),['Staff capacity value, not cash savings.','Each case uses different assumptions. Exact values are in the report.']);
       check((await page.locator('.md-basis').textContent()).includes('Capacity excludes hours counted as spending benefits.'),'No double-counted capacity');
-      const assumptions=await page.locator('[data-demo-assumptions-for="structural_clarity"]').textContent();
-      for(const level of ['low','central','high'])check(assumptions.includes(money(scenario.totals.existingSpendingReduction[level])+' lower spending; '+money(scenario.totals.futureSpendingAvoidance[level])+' avoided future spending; '+money(scenario.totals.capacityValue[level])+' retained capacity.'),'Every named saved case remains discoverable');
-      check(assumptions.includes('Combined value after all costs, central case: '+money(scenario.totals.netKnownBenefitSubtotal.central)),'Saved net planning value retained');
+      const assumptions=await page.locator('[data-demo-assumptions-for="cross_lens_synthesis"]').textContent();
+      equal(await page.locator('[data-demo-assumptions-for]').count(),1,'Assumptions match the single compact journey');
+      for(const level of ['low','central','high'])check(assumptions.includes(money(crossScenario.totals.existingSpendingReduction[level])+' lower spending; '+money(crossScenario.totals.futureSpendingAvoidance[level])+' avoided future spending; '+money(crossScenario.totals.capacityValue[level])+' retained capacity.'),'Every named saved Cross-Lens case remains discoverable');
+      check(assumptions.includes('Combined value after all costs, central case: '+money(crossScenario.totals.netKnownBenefitSubtotal.central)),'Saved net planning value retained');
       check(assumptions.includes('not a measured bank-balance change'),'Cash baseline versus measured savings is explicit');
     }else{
       equal(await page.locator('[data-promo-net-cash]').textContent(),range('netCashEffect'));
@@ -178,9 +180,12 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     }
     await page.locator('#hwd-tab-measure').focus();await page.keyboard.press('ArrowLeft');equal(await page.evaluate(()=>document.activeElement.id),'hwd-tab-return');
     await page.keyboard.press('Home');equal(await page.evaluate(()=>document.activeElement.id),'hwd-tab-measure');
-    for(const name of ['analysis','actions','return']){await page.locator('[data-demo-next="'+name+'"]').click();equal(await page.evaluate(()=>document.activeElement.id),'hwd-tab-'+name);}
-    await page.locator('#hwd-tab-analysis').click();await shot(page.locator('.home-workspace-preview'),key+'-workspace.png');
-    const nextStates=await linkStates(page,'[data-demo-next="actions"]',key+' preview next step');
+    await page.locator('[data-demo-next="analysis"]').click();equal(await page.evaluate(()=>document.activeElement.id),'hwd-tab-analysis');
+    await shot(page.locator('.home-workspace-preview'),key+'-workspace.png');
+    await page.locator('#hwd-tab-actions').click();
+    const nextStates=await linkStates(page,'[data-demo-next="return"]',key+' preview next step');
+    await page.locator('[data-demo-next="return"]').click();equal(await page.evaluate(()=>document.activeElement.id),'hwd-tab-return');
+    await page.locator('[data-demo-next="measure"]').click();equal(await page.evaluate(()=>document.activeElement.id),'hwd-tab-measure');
     const outputLinkStates=await linkStates(page,'.home-output-copy>a',key+' sample report link');
     await shot(page.locator('#sample-output'),key+'-sample-tile.png');
     const homeErrors=[...errors];equal(homeErrors,[],key+' homepage script errors');errors.length=0;
@@ -208,17 +213,18 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     // Intercept downloads only to check toolbar wiring against the exact
     // reviewed source/model. This does not claim a downloaded PDF was inspected.
     const mounted=await page.evaluate(artifact=>{
-      const entry=artifact.outputs.operational_systems,model=MondermanReport.fromRun(entry.source);
-      model.sampleProvenance={synthetic:true,...entry.provenance};
+      const entry=artifact.outputs.operational_systems,model=MondermanPublicSamples.model(entry,artifact);
       const calls=[];window.__marketingUI={calls,model};
       MondermanReport.downloadPdf=value=>calls.push({kind:'pdf',same:value===model});
       MondermanReport.downloadHtml=value=>calls.push({kind:'html',same:value===model});
       MondermanReport.downloadJson=value=>calls.push({kind:'json',same:value===entry.source});
       MondermanSampleReportShell.mount({shell:document.getElementById('report-os'),model,source:entry.source,
         sourceKey:'operational_systems',toolbarLabel:'Local display check',provenance:'Exact reviewed source; local toolbar-wiring check only.'});
-      return {sourceScore:entry.source.score,modelScore:model.score};
+      return {sourceScore:entry.source.aggregate_score,modelScore:model.score,comparisonOnly:model.comparisonOnly,reads:model.reads};
     },artifact);
     equal(mounted.sourceScore,mounted.modelScore,'Read-only fixture score preserved');
+    equal(mounted.comparisonOnly,true,'Toolbar uses the actual below-threshold response-comparison model');
+    equal(mounted.reads,15,'Toolbar retains all15 included participant responses');
     const pdfStates=await buttonStates(page,'#report-os [data-action="print"]',key+'-pdf',{normal:'rgb(12, 110, 120)',hover:'rgb(10, 91, 99)',text:'rgb(255, 255, 255)'});
     equal(await page.locator('#report-os [data-action="print"]').textContent(),'Download PDF');
     await page.locator('#report-os [data-action="read"]').click();

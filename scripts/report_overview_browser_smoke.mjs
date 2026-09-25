@@ -55,7 +55,7 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]]){
         ok(await page.locator(target).count()===1,tag+' unique target');
         const styles=await tile.evaluate(node=>({background:getComputedStyle(node).backgroundColor,band:getComputedStyle(node.querySelector('.mr-overview-title')).backgroundColor,height:node.getBoundingClientRect().height}));
         eq(styles.background,'rgb(255, 255, 255)',tag+' white tile');
-        eq(styles.band,'rgb(24, 119, 131)',tag+' teal header');
+        eq(styles.band,key.endsWith('_synthesis')?'rgb(9, 56, 62)':'rgb(24, 119, 131)',tag+' approved Synthesis quad or ordinary-report teal header');
         ok(styles.height>=44,tag+' touch target');
         await tile.focus();
         eq(await tile.evaluate(node=>getComputedStyle(node).outlineStyle),'solid',tag+' visible keyboard focus');

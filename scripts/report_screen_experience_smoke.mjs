@@ -141,7 +141,9 @@ await page.goto(base+'/sample-report.html',{waitUntil:'networkidle'});
 await page.locator('body.production-samples-ready').waitFor();
 assert.equal(await page.locator('.sample-library-method').getAttribute('open'),null);
 await page.locator('.sample-library-method summary').click();
-assert.ok((await page.locator('.sample-library-method').innerText()).includes('A combined score appears only when the inputs meet Monderman’s comparison requirements'));
+const readingGuide=(await page.locator('.sample-library-method').innerText()).replace(/\s+/g,' ');
+assert.ok(readingGuide.includes('These examples are not yet eligible for Depth Synthesis and do not present organizational savings.'));
+assert.ok(readingGuide.includes('Depth Synthesis examines responses to one diagnostic once the campaign meets its evidence requirements.'));
 await page.locator('.sample-library-method summary').click();
 for(const key of ['os','dv','sc','ip','synthesis','depth']) {
   await page.locator(`[data-target="${key}"]`).click();
@@ -163,7 +165,7 @@ for(const key of ['os','dv','sc','ip','synthesis','depth']) {
   assert.equal(surface.methodHeadingTop,'0px',key+' section heading doubles its parent spacing');
   assert.ok(surface.methodPadding>=18,key+' method panel has no inner horizontal spacing');
   assert.equal(surface.methodBackground,'rgb(244, 247, 248)',key+' method panel uses a legacy paper surface');
-  assert.ok(surface.categories.length && surface.categories.every(color=>color==='rgb(201, 162, 39)'),key+' category accents must use the approved gold');
+  assert.ok(surface.categories.length && surface.categories.every(color=>color==='rgb(230, 199, 101)'),key+' category accents must use the approved gold');
   const destinations=await shell.locator('.mr-screen-shortcuts a').evaluateAll(links=>links.map(link=>({text:link.textContent,id:link.hash.slice(1),exists:!!document.getElementById(link.hash.slice(1))})));
   assert.ok(destinations.length>=4 && destinations.every(link=>link.exists),key+' missing navigation target');
   const legacyNext=shell.locator('.mr-screen-next a');
