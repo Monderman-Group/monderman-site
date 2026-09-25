@@ -30,10 +30,13 @@ for (const file of (await fs.readdir(root)).filter(f => f.endsWith('.html'))) {
 }
 const evaluationArchives = ['terms-2026-09-19-invited-evaluation.html', 'privacy-2026-09-19-invited-evaluation.html', 'terms-2026-09-19-invitation-access.html', 'privacy-2026-09-19-invitation-access.html'];
 assert.deepEqual(pages.filter(p => evaluationArchives.includes(p.file)).map(p => p.file).sort(), [...evaluationArchives].sort());
-assert.equal(pages.filter(p => !evaluationArchives.includes(p.file)).length, 65, 'Pre-evaluation footer inventory remains intact');
-assert.equal(pages.filter(p => p.shell && !evaluationArchives.includes(p.file)).length, 61, 'Pre-evaluation canonical shell inventory remains intact');
-assert.equal(pages.length, 69);
-assert.equal(pages.filter(p => p.shell).length, 65);
+const newPublications = ['fast-to-cut-slow-to-build.html'];
+assert.deepEqual(pages.filter(p => newPublications.includes(p.file) && p.shell).map(p => p.file), newPublications, 'New publication uses the canonical footer and shell');
+const previousPages = pages.filter(p => !newPublications.includes(p.file));
+assert.equal(previousPages.filter(p => !evaluationArchives.includes(p.file)).length, 65, 'Pre-evaluation footer inventory remains intact');
+assert.equal(previousPages.filter(p => p.shell && !evaluationArchives.includes(p.file)).length, 61, 'Pre-evaluation canonical shell inventory remains intact');
+assert.equal(pages.length, 70);
+assert.equal(pages.filter(p => p.shell).length, 66);
 // Only pinned public rendering/auth SDK bytes are supplied. Customer-service
 // requests remain blocked, and no forms or diagnostics are submitted.
 for (const [url, dependency] of dependencies) {
