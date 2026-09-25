@@ -90,8 +90,8 @@ for(const candidate of [
   assert.notEqual(candidate,approvedFloatingShell,'Header-state negative actually mutates the approved source');
   assert.throws(()=>assertApprovedShell(candidate),'Restored proxies or unrelated navigation changes must fail');checks++;
 }
-check(read('index.html').includes('homepage-workspace-demo.css?v=20260924.compact1'),'Source preview stylesheet has the current compact-journey cache ID');
-check(read('scripts/inject-public-shell.mjs').includes('"homepage-workspace-demo.css": "20260924.compact1"'),'Build refreshes the current compact-journey stylesheet cache ID');
+check(read('index.html').includes('homepage-workspace-demo.css?v=20260925.reportquad1'),'Source preview stylesheet has the current report-quad cache ID');
+check(read('scripts/inject-public-shell.mjs').includes('"homepage-workspace-demo.css": "20260925.reportquad1"'),'Build refreshes the current report-quad stylesheet cache ID');
 execFileSync(process.execPath,['scripts/refresh_public_sample_previews.mjs','--check'],{cwd:root,stdio:'pipe'});
 check(read('scripts/templates/home-workspace-preview.html').split('{{compactRoles}}').length===2,'One generated Gather region retains privacy-permitted role counts');
 check(read('scripts/templates/home-workspace-preview.html').split('{{compactLenses}}').length===2,'One generated Gather region identifies the four source diagnostics');

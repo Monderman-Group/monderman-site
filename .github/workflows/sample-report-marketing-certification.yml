@@ -74,6 +74,11 @@ on:
       - 'scripts/public_sample_fixture.mjs'
       - 'scripts/public_sample_manifest_sensitivity_smoke.mjs'
       - 'scripts/refresh_public_sample_previews.mjs'
+      - 'scripts/homepage_report_quad_20260925.mjs'
+      - 'scripts/homepage_report_quad_20260925_inverse.mjs'
+      - 'scripts/homepage_report_quad_20260925_contract.mjs'
+      - 'scripts/homepage_report_quad_20260925_compatibility_contract.mjs'
+      - 'scripts/fixtures/homepage-report-quad-20260925.json'
       - 'scripts/public_sample_preview_data_smoke.mjs'
       - 'scripts/public_sample_projection_version_smoke.mjs'
       - 'scripts/public_sample_projection_20260924_inverse.mjs'
@@ -270,6 +275,11 @@ on:
       - 'scripts/public_sample_fixture.mjs'
       - 'scripts/public_sample_manifest_sensitivity_smoke.mjs'
       - 'scripts/refresh_public_sample_previews.mjs'
+      - 'scripts/homepage_report_quad_20260925.mjs'
+      - 'scripts/homepage_report_quad_20260925_inverse.mjs'
+      - 'scripts/homepage_report_quad_20260925_contract.mjs'
+      - 'scripts/homepage_report_quad_20260925_compatibility_contract.mjs'
+      - 'scripts/fixtures/homepage-report-quad-20260925.json'
       - 'scripts/public_sample_preview_data_smoke.mjs'
       - 'scripts/public_sample_projection_version_smoke.mjs'
       - 'scripts/public_sample_projection_20260924_inverse.mjs'
@@ -434,6 +444,8 @@ jobs:
           node scripts/public_sample_projection_version_smoke.mjs
           node scripts/public_sample_fixture.mjs --check
           node scripts/homepage_preview_anchor_20260924_contract.mjs
+          node scripts/homepage_report_quad_20260925_compatibility_contract.mjs
+          node scripts/homepage_report_quad_20260925_contract.mjs
           ecosystem_artifact_sha="$(node -e 'const r=require("./sample-data/production-sample-release.json"); if(r.contract!=="monderman-public-sample-release/v1"||r.status!=="reviewed"||!/^[a-f0-9]{64}$/.test(r.artifact_file_sha256))throw Error("reviewed_artifact_pin_required"); process.stdout.write(r.artifact_file_sha256)')"
           python scripts/validate_six_product_ecosystem_test.py --artifact sample-data/production-diagnostic-samples.json --sha256 "$ecosystem_artifact_sha"
           node scripts/public_sample_manifest_sensitivity_smoke.mjs --check

@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {readPublicSampleFixture,evidenceDigest} from './public_sample_fixture.mjs';
+import {buildHomepageReportQuad} from './homepage_report_quad_20260925.mjs';
 
 // Extract only the engine's saved score distribution. The caller first checks
 // the full publication manifest; this additional boundary rejects missing,
@@ -263,6 +264,10 @@ assert.ok(!/\{\{/.test(hero));
 function depthCard(place) {
   const heading=place==='brief'?'h3':'h2';
   const {group,median:med,iqr:range,spreadLabel:spread}=depthPreviewEvidence(artifact.outputs.depth_synthesis);
+  if(place==='home'&&depth.financial_scenario?.version==='operational-planning-scenario-20260919.2'&&depth.financial_scenario.coverage?.complete&&['spendingReduction','spendingAvoidance','staffCapacity'].every(key=>depth.financial_scenario.benefits?.[key]?.status==='estimated')&&depth.campaign_evidence&&depth.financial_benefit_assessment){
+    threeBenefitPreview(depth.financial_scenario);
+    return buildHomepageReportQuad({entry:artifact.outputs.depth_synthesis,artifactSha:artifact.artifact_sha256,median:med,featuredAction:featuredAction(depth)});
+  }
   let opportunity='<div class="md-opportunity"><span>Recorded Structural Clarity score</span><strong data-promo-median>'+whole(med)+' / 100</strong><p>Median of these submitted scores, not an organizational financial estimate.</p></div>',economics='',basis='These submitted scores describe the recorded campaign scope. They do not establish organizational savings or cause. Full evidence in the report.';
   const s=depth.financial_scenario;
   if(s!==null&&s!==undefined){

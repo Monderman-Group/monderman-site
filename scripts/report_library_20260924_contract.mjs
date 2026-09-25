@@ -12,6 +12,7 @@ import {sourceBeforePublicLanguagePass20260924} from './public_language_pass_202
 import {sourceBeforeHomepageCompactJourney20260924} from './homepage_compact_journey_20260924_inverse.mjs';
 import {sourceBeforePublicSampleProjectionCache20260924} from './public_sample_projection_20260924_inverse.mjs';
 import {sourceBeforePublicSamplePreviewBinding20260924} from './public_sample_preview_binding_20260924_inverse.mjs';
+import {sourceBeforeHomepageReportQuad20260925} from './homepage_report_quad_20260925_inverse.mjs';
 const root = path.resolve(import.meta.dirname, '..'), sha = value => createHash('sha256').update(value).digest('hex');
 let checks = 0;
 const equal = (a,b,label) => {assert.deepEqual(a,b,label); checks++;};
@@ -25,7 +26,7 @@ for (const file of REPORT_LIBRARY_FILES) {
     postCopy = postCopy.slice(0,start)+current+postCopy.slice(start+prior.length);
   }
   equal(sha(postCopy),reportLibraryDelta.files[file].before_sha256,file+': library delta begins after the original approved copy');
-  const beforeCompact = sourceBeforeHomepageCompactJourney20260924(file,sourceBeforePublicSampleProjectionCache20260924(file,sourceBeforePublicSamplePreviewBinding20260924(file,source)));
+  const beforeCompact = sourceBeforeHomepageCompactJourney20260924(file,sourceBeforePublicSampleProjectionCache20260924(file,sourceBeforePublicSamplePreviewBinding20260924(file,sourceBeforeHomepageReportQuad20260925(file,source))));
   const beforeLanguage = sourceBeforePublicLanguagePass20260924(file,beforeCompact);
   const beforeGold = sourceBeforePromotionalGold20260924(file,beforeLanguage);
   if (beforeLanguage !== beforeCompact) reject(()=>sourceBeforeReportLibrary20260924(file,sourceBeforePromotionalGold20260924(file,beforeCompact)),file+': skipping the newer language layer remains a hard failure');

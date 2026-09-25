@@ -2,12 +2,15 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
+import {buildPublicSamplePreviewSections} from './refresh_public_sample_previews.mjs';
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
 const out = process.env.TILE_OUT || '/tmp/sample-tile-smoke';
 fs.mkdirSync(out, { recursive: true });
 const {artifact}=readPublicSampleFixture();
+const root=path.resolve(import.meta.dirname,'..');
+const generatedHomepage=buildPublicSamplePreviewSections(artifact,fs.readFileSync(path.join(root,'scripts/templates/home-workspace-preview.html'),'utf8')).home;
 const source=artifact.outputs.depth_synthesis.source,scenario=source.financial_scenario;
 const interpretation=source.ai_report.report.interpretation;
 const limitedOptions=(interpretation.action_options||[]).filter(option=>option.intensity==='limited'&&option.action?.trim());
@@ -58,6 +61,41 @@ try {
           return true;
         }, await tile.elementHandle());
       }
+      if (placement.name === 'homepage') {
+        const label=`${placement.name}/${viewport.name}`;
+        assert.equal(await tile.isVisible(),true,label+': lower report preview must remain visible');
+        assert.equal(await tile.getAttribute('data-artifact-sha256'),artifact.artifact_sha256,label+': current source identity');
+        assert.equal(await tile.getAttribute('data-home-report-quad'),'',label+': current homepage presentation');
+        assert.deepEqual(await tile.locator('.hrq-tile').evaluateAll(nodes=>nodes.map(node=>node.dataset.quadSection)),['findings','money','change','evidence'],label+': four report roles');
+        assert.deepEqual(await tile.locator('a').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href'))),Array(4).fill('sample-report.html#depth'),label+': every report link resolves to the Depth tab');
+        assert.equal(await tile.locator('[data-promo-score]').textContent(),String(source.source_groups[0].median_score),label+': recorded score');
+        assert.equal(await tile.locator('[data-quad-section="change"] .hrq-lead').textContent(),limitedOptions[0].action,label+': accepted bounded change');
+        assert.equal(await tile.locator('.hrq-chart-note').textContent(),'Rounded. Before costs. Planning estimates.',label+': graphic qualification');
+        assert.deepEqual(await tile.locator('.mr-overview-sankey').evaluateAll(nodes=>nodes.map(node=>node.dataset.previewKind)),['money','time'],label+': separate money and time diagrams');
+        assert.equal(await page.evaluate(expected=>{
+          const parsed=new DOMParser().parseFromString(expected,'text/html');
+          return document.querySelector('[data-home-report-quad] .mr-overview-sankeys').outerHTML===parsed.querySelector('.mr-overview-sankeys').outerHTML;
+        },generatedHomepage),true,label+': exact source-rendered charts');
+        const geometry=await tile.evaluate(el=>{
+          const box=el.getBoundingClientRect(),band=el.closest('#sample-output'),grid=el.querySelector('.hrq-grid');
+          const textNodes=[...el.querySelectorAll('h3,p,li,a,.mr-overview-sankey-source,.mr-overview-sankey-outcome')];
+          const escaping=textNodes.filter(node=>{const r=node.getBoundingClientRect();return r.width&&r.height&&(r.left<box.left-1||r.right>box.right+1||r.top<box.top-1||r.bottom>box.bottom+1);}).map(node=>node.className||node.tagName);
+          return {width:box.width,height:box.height,left:box.left,right:box.right,bottom:box.bottom,bandBottom:band?.getBoundingClientRect().bottom,inOutputBand:Boolean(band),inHero:Boolean(el.closest('.hero')),columns:getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/).length,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,documentWidth:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth),viewportWidth:document.documentElement.clientWidth,escaping};
+        });
+        assert.equal(geometry.inOutputBand,true,label+': dedicated output section');
+        assert.equal(geometry.inHero,false,label+': report stays outside the opening hero');
+        assert.equal(geometry.columns,viewport.width<=600?1:2,label+': responsive report grid');
+        assert(geometry.width>0&&geometry.width<=760.5,label+': approved report width');
+        assert(geometry.left>=-1&&geometry.right<=geometry.viewportWidth+1,label+': report stays within viewport');
+        assert(geometry.scrollWidth<=geometry.clientWidth+1&&geometry.documentWidth<=geometry.viewportWidth+1,label+': no horizontal overflow');
+        assert(geometry.bottom<=geometry.bandBottom+1,label+': report stays within output section');
+        assert.deepEqual(geometry.escaping,[],label+': all report summaries and chart labels stay within the frame');
+        if(viewport.width===1440){assert(geometry.width>580,label+': wide preview does not inherit the retired card width');assert(geometry.height<=680,label+': approved compact two-column height');}
+        await tile.screenshot({path:path.join(out,`${placement.name}-${viewport.name}.png`)});
+        await page.close();
+        continue;
+      }
+      // The Platform Brief retains its original single linked sample card.
       assert.equal(await tile.locator('.hero-report-link').getAttribute('href'), 'sample-report.html#depth', `${placement.name}/${viewport.name}: whole-card sample route changed`);
       assert.equal(await tile.getAttribute('data-artifact-sha256'),artifact.artifact_sha256);
 
