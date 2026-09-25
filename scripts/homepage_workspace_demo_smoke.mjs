@@ -25,6 +25,31 @@ const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const files=['homepage-workspace-demo.js','homepage-workspace-demo.css','scripts/homepage_workspace_demo_smoke.mjs','scripts/refresh_public_sample_previews.mjs','scripts/templates/home-workspace-preview.html'];
 const hashes=Object.fromEntries(files.map(file=>[file,sha(fs.readFileSync(path.join(root,file)))]));
 assert.doesNotMatch(fs.readFileSync(path.join(root,'homepage-workspace-demo.js'),'utf8'),/\b(?:fetch|XMLHttpRequest|sendBeacon|localStorage|sessionStorage)\b/,'Journey remains local-only');
+// readPublicSampleFixture pins index.html; compare the entire rendered current
+// disclosure as well as its independently source-derived amounts below.
+const expectedAssumptionsMarkup=fs.readFileSync(path.join(root,'index.html'),'utf8').match(/(<div data-demo-assumptions-for="cross_lens_synthesis">[\s\S]*?<\/div>)<\/details>/)?.[1];
+assert.ok(expectedAssumptionsMarkup,'One pinned Cross-Lens assumptions block is required');
+const disclosurePhrases=[
+ 'not a measured bank-balance change',
+ 'Low, central and high are input cases, not probability bounds.',
+ 'Retained capacity can fall as more hours fund spending benefits.',
+ 'Gross capacity is spread evenly across planning months; the full report reconciles its allocation.',
+ 'Costs include internal staff time.',
+];
+function assertAssumptionsText(text){
+ for(const level of ['low','central','high'])assert.ok(text.includes(money(scenario.totals.existingSpendingReduction[level])+' lower spending; '+money(scenario.totals.futureSpendingAvoidance[level])+' avoided future spending; '+money(scenario.totals.capacityValue[level])+' retained capacity.'),'All saved benefit cases retained: '+level);
+ assert.ok(text.includes('Combined value after all costs, central case: '+money(scenario.totals.netKnownBenefitSubtotal.central)));
+ for(const phrase of disclosurePhrases)assert.ok(text.includes(phrase),'Current financial disclosure retained: '+phrase);
+}
+assertAssumptionsText(expectedAssumptionsMarkup);
+const badAssumptions=[...disclosurePhrases.map(phrase=>expectedAssumptionsMarkup.replace(phrase,'[removed disclosure]')),
+ expectedAssumptionsMarkup.replace(money(scenario.totals.existingSpendingReduction.low)+' lower spending','[wrong amount] lower spending'),
+ expectedAssumptionsMarkup.replace('Combined value after all costs, central case: '+money(scenario.totals.netKnownBenefitSubtotal.central),'Combined value after all costs, central case: [wrong amount]')];
+for(const bad of badAssumptions){assert.notEqual(bad,expectedAssumptionsMarkup);assert.throws(()=>assertAssumptionsText(bad));}
+if(process.argv.includes('--deterministic-only')){
+ console.log(JSON.stringify({status:'PASS',scope:'pinned source disclosure and financial cases only',negativeCases:badAssumptions.length,browserCoverage:'NOT_RUN',providerCalls:0}));
+ process.exit(0);
+}
 for(const file of files.slice(0,2)){
  const response=await fetch(base+'/'+file);assert.equal(response.status,200);
  assert.equal(sha(Buffer.from(await response.arrayBuffer())),hashes[file],'Exact reviewed asset served: '+file);
@@ -131,10 +156,9 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
    const assumptions=page.locator('.home-preview-method');await assumptions.locator('summary').click();
    const detail=page.locator('[data-demo-assumptions-for="cross_lens_synthesis"]');
    assert.equal(await detail.isVisible(),true);assert.equal(await page.locator('[data-demo-assumptions-for]').count(),1,'No borrowed second financial case');
-   const text=await detail.textContent();
-   for(const level of ['low','central','high'])assert.ok(text.includes(money(scenario.totals.existingSpendingReduction[level])+' lower spending; '+money(scenario.totals.futureSpendingAvoidance[level])+' avoided future spending; '+money(scenario.totals.capacityValue[level])+' retained capacity.'),'All saved benefit cases retained: '+level);
-   assert.ok(text.includes('Combined value after all costs, central case: '+money(scenario.totals.netKnownBenefitSubtotal.central)));
-   assert.match(text,/not a measured bank-balance change/);assert.match(text,/subscription/i);
+   const expectedAssumptionsDom=await page.evaluate(html=>new DOMParser().parseFromString(html,'text/html').querySelector('[data-demo-assumptions-for="cross_lens_synthesis"]').outerHTML,expectedAssumptionsMarkup);
+   assert.equal(await detail.evaluate(el=>el.outerHTML),expectedAssumptionsDom,'Every generated assumption remains exact in the rendered disclosure');
+   assertAssumptionsText(await detail.textContent());
    await assumptions.locator('summary').click();
    await app.locator('#hwd-tab-measure').focus();await page.keyboard.press('ArrowLeft');await assertStep(page,'return','keyboard wrap left');
    await page.keyboard.press('ArrowRight');await assertStep(page,'measure','keyboard wrap right');

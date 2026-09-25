@@ -82,7 +82,7 @@ try {
       const legacy = main?.querySelector(':scope > .differentiators-compact');
       const measurementLoop = main?.querySelector(':scope > .measurement-loop');
       const visibleSecondReadHeadings = [...document.querySelectorAll('h2')].filter((heading) => {
-        if (heading.textContent.trim() !== 'Measure once to see the condition. Return to learn whether it changed.') return false;
+        if (heading.textContent.trim() !== 'Compare results on the same basis.') return false;
         const section = heading.closest('section');
         return section && getComputedStyle(section).display !== 'none';
       });
