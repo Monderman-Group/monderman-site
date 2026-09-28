@@ -7,7 +7,7 @@ const sha=value=>createHash('sha256').update(value).digest('hex');
 // The published main commit and local preparation commit share this exact tree.
 // Pin content identity, not the local-only preparation commit's history.
 export const HOMEPAGE_REPORT_FIRST_BASELINE='907ebdb3ae8267f1d1c5a82313684ca45f68b78c';
-export const HOMEPAGE_REPORT_FIRST_FIXTURE_SHA256='38d02ccd7a0a8263cc6003f7ea249f71854d0c56f101c7a9e2ed5034c2361fc5';
+export const HOMEPAGE_REPORT_FIRST_FIXTURE_SHA256='c0a087f0701a1efece74e6bc0fe25e12fe0fcc568fdb03a160dd3279fed6b32c';
 export const HOMEPAGE_REPORT_FIRST_FILES=Object.freeze(['index.html','homepage-workspace-demo.css','scripts/homepage_report_quad_20260925.mjs','scripts/templates/home-workspace-preview.html','scripts/inject-public-shell.mjs']);
 const bytes=fs.readFileSync(new URL('./fixtures/homepage-report-first-20260927.json',import.meta.url));
 assert.equal(sha(bytes),HOMEPAGE_REPORT_FIRST_FIXTURE_SHA256,'Exact report-first presentation fixture');
