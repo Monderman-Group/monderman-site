@@ -46,7 +46,7 @@ const assetReleases = Object.freeze({
   "campaign-analysis.css": "20260919.benefits1",
   "workspace-synthesis-readiness.js": "20260919.ready1",
   "workspace-synthesis-readiness.css": "20260919.ready1",
-  "homepage-workspace-demo.css": "20260925.reportquad1",
+  "homepage-workspace-demo.css": "20260927-report-first-v1",
   "homepage-workspace-demo.js": "20260924.compact1",
   "workspace-access-gate.js": "20260919.invited1",
   "workspace-evaluation.js": "20260919.invited1",

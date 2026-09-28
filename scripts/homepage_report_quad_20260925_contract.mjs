@@ -49,13 +49,13 @@ const sections=buildPublicSamplePreviewSections(artifact,template),home=sections
 const index=read('index.html'),brief=read('Monderman_Platform_Brief.html');
 const depthAside=/<aside class="hero-report-proof has-sample-depth-tile"[^]*?<\/aside>/g;
 const homeAsides=[...index.matchAll(depthAside)],briefAsides=[...brief.matchAll(depthAside)];
-eq(homeAsides.length,1,'One lower homepage sample');eq(briefAsides.length,1,'One Platform Brief sample');
+eq(homeAsides.length,1,'One homepage sample');eq(briefAsides.length,1,'One Platform Brief sample');
 eq(homeAsides[0][0],home,'Homepage markup is generated exactly from current saved source');
 eq(briefAsides[0][0],sections.brief,'Brief markup remains generated exactly from current saved source');
 eq(brief,prior('Monderman_Platform_Brief.html').toString(),'Entire Platform Brief is unchanged');
 const hero=/<aside class="home-workspace-preview"[^]*?<\/aside>/;
-eq(index.match(hero)?.[0],sections.hero,'Upper homepage journey retains exact source binding');
-eq(sourceAtChangeWordingBaseline('index.html',index).match(hero)?.[0],prior('index.html').toString().match(hero)?.[0],'Upper homepage journey retains its original bytes outside the exact wording edition');
+eq(index.match(hero)?.[0],sections.hero,'Relocated homepage journey retains exact source binding');
+eq(sourceAtChangeWordingBaseline('index.html',index).match(hero)?.[0],prior('index.html').toString().match(hero)?.[0],'Homepage journey retains its original bytes outside exact presentation editions');
 eq(JSON.stringify(artifact),artifactBefore,'Pure preview generation leaves source data untouched');
 
 const asides=all(tree,node=>node.tag==='aside'),grids=classes(tree,'hrq-grid'),tiles=classes(tree,'hrq-tile');
@@ -90,7 +90,7 @@ const renderer=context.window.MondermanReport;
 const report=renderer.buildReportHtml(renderer.fromSynthesis(source)),reportTree=parse(report);
 const fullCharts=classes(reportTree,'mr-overview-sankeys'),homeCharts=classes(tree,'mr-overview-sankeys');
 eq(fullCharts.length,1,'Current shared report has one compact chart pair');eq(homeCharts.length,1,'Homepage has one compact chart pair');
-eq(home.slice(homeCharts[0].start,homeCharts[0].end),report.slice(fullCharts[0].start,fullCharts[0].end),'Homepage reuses exact current renderer chart markup');
+eq(home.slice(homeCharts[0].start,homeCharts[0].end),report.slice(fullCharts[0].start,fullCharts[0].end).replace('>Current saved<','>Potential spending reduction<').replaceAll('Current savings','Potential spending reduction'),'Homepage reuses exact current renderer chart markup except the explicit prospective-spending labels');
 eq(classes(byRole.money,'mr-overview-sankeys').length,1,'Charts stay in the time-and-money tile');
 const charts=classes(homeCharts[0],'mr-overview-sankey');
 eq(charts.map(node=>node.attrs['data-preview-kind']),['money','time'],'Cash and time have separate diagrams');
