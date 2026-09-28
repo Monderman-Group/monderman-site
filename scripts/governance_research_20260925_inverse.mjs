@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
 import {sourceAtHomepageReportFirstBaseline} from './homepage_report_first_20260927_inverse.mjs';
+import {sourceAtTrenchesResearchBaseline} from './trenches_research_20260928_inverse.mjs';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 export const GOVERNANCE_RESEARCH_BASELINE='dc9e9aba04c24896e7f00349e39d73117d129e9f';
 export const GOVERNANCE_RESEARCH_FIXTURE_SHA256='6c3a1a09b5d30713e4ee5daef153b93018e1b48282b0c34b9f532d7b5948c6fb';
@@ -29,6 +30,7 @@ export function sourceBeforeGovernanceResearch20260925(file,source){
 // Only the exact new identity is transformed; all other bytes continue to the
 // unchanged historical assertions, which must independently recognize them.
 export function sourceAtGovernanceResearchBaseline(file,source){
+  source=sourceAtTrenchesResearchBaseline(file,source);
   source=sourceAtHomepageReportFirstBaseline(file,source);
   const entry=Object.hasOwn(governanceResearchDelta.files,file)?governanceResearchDelta.files[file]:null;
   return entry&&sha(source)===entry.after_sha256?sourceBeforeGovernanceResearch20260925(file,source):source;
