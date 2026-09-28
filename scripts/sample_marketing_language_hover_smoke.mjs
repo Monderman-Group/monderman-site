@@ -120,13 +120,14 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     });
     const key=engine+'-'+width;
     await page.goto(origin+'/index.html',{waitUntil:'load'});await page.evaluate(()=>document.fonts.ready);
-    equal(await page.locator('.home-preview-label span').allTextContents(),['See what the report tells you.','Illustrative example']);
+    equal(await page.locator('.home-preview-label span').allTextContents(),['See how Monderman works.','Illustrative example']);
     equal(await page.locator('.home-preview-caption').count(),0,'Compact journey has no redundant caption');
-    equal((await page.locator('#home-output-title').innerText()).replace(/\s+/g,' '),'See the findings. Understand the opportunity.');
-    equal(await page.locator('.home-output-copy>p:not(.home-output-eyebrow)').textContent(),'Explore what participants reported, the changes worth considering, and the potential time and spending benefits.');
+    equal((await page.locator('#home-output-title').innerText()).replace(/\s+/g,' '),'From understanding the problem to deciding what to change.');
+    equal(await page.locator('.home-output-copy>p:not(.home-output-eyebrow)').textContent(),'Gather perspectives from across your organization. Bring the results together to identify priorities, compare practical changes and estimate their potential value. Return later to see what has changed.');
     equal((await page.locator('.home-output-copy>a').textContent()).trim(),'Explore sample reports →');
     equal(await page.locator('.home-output-copy>a').getAttribute('href'),'sample-report.html');
-    equal(await page.locator('#sample-output .hrq-footer>a').getAttribute('href'),'sample-report.html#depth');
+    equal(await page.locator('.hero [data-home-report-quad] .hrq-footer>a').getAttribute('href'),'sample-report.html#depth');
+    equal(await page.locator('#sample-output [data-workspace-demo]').count(),1,'Product journey remains below the hero');
     equal(await page.locator('[data-demo-score]').count(),0,'No single-run score relabeled as organizational money');
     equal(await page.locator('[data-demo-recovery]').count(),0,'No score-derived recovery figure');
     const financial=page.locator('.hwd-compact-values'),totals=crossScenario.totals;
@@ -154,7 +155,7 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     if(width>=834){
       const previewBox=await quad.boundingBox();
       check(previewBox.width>580,'New report preview is not constrained to the retired narrow tile width');
-      check(previewBox.height<=680,'Two-column report preview retains the approved compact height');
+      check(previewBox.height<=680,'Two-column report preview retains the approved compact height: '+JSON.stringify({width:previewBox.width,height:previewBox.height,viewport:width}));
     }
     equal(await quad.locator('a').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href'))),Array(4).fill('sample-report.html#depth'),'Three section links and footer retain supported Depth routing');
     equal(await quad.locator('[data-promo-score]').textContent(),String(artifact.outputs.depth_synthesis.source.source_groups[0].median_score),'Recorded Depth score retained');

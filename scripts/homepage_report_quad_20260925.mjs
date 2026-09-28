@@ -41,7 +41,9 @@ export function buildHomepageReportQuad({entry,artifactSha,median,featuredAction
   // role-specific statement, not generalized to every participant or customer.
   assert.ok(s.ai_report.report.interpretation.summary.includes('recorded answers from people doing the work said that, when they need something from another team, ownership is “Often unclear: I ask two or three people first”'));
   assert.ok(s.campaign_scope_label.startsWith('Supplier onboarding'));
-  const charts=homepageReportSankeys(s);
+  // Label the sample as potential value, never as an improvement already achieved.
+  // All chart amounts and geometry still come directly from the report renderer.
+  const charts=homepageReportSankeys(s).replace('>Current saved<','>Potential spending reduction<').replaceAll('Current savings','Potential spending reduction');
   assert.equal((charts.match(/data-preview-kind=/g)||[]).length,2,'Complete approved preview requires money and time charts');
   const full='sample-report.html#depth';
   const link=label=>'<a href="'+full+'">'+label+' <span aria-hidden="true">&rarr;</span></a>';

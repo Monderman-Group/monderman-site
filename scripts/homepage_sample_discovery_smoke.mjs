@@ -12,7 +12,7 @@ let states=0;
 for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
   const browser=await type.launch({headless:true});
   try{
-    for(const width of [390,768,1440])for(const javaScriptEnabled of [false,true]){
+    for(const width of [320,390,768,834,1440])for(const javaScriptEnabled of [false,true]){
       const page=await browser.newPage({viewport:{width,height:1000},javaScriptEnabled});
       // The public-page auth decoration is outside this navigation test.
       // Match the established homepage test's signed-out, memory-only fixture.
@@ -20,8 +20,29 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
       await page.route('**/*',route=>new URL(route.request().url()).origin===new URL(base).origin?route.continue():route.abort());
       const failures=[];page.on('pageerror',error=>failures.push(error.message));
       await page.goto(base+'/index.html',{waitUntil:'load'});
+      await page.evaluate(()=>document.fonts.ready);
       const hero=page.locator('.hero-sample-link');
       const direct=page.locator('.hwd-footer .hwd-sample-link');
+      const report=page.locator('.hero [data-home-report-quad]');
+      assert.equal(await report.count(),1,'One report quad is in the hero');
+      assert.equal(await report.isVisible(),true,name+'/'+width+': report quad is not hidden by legacy hero CSS');
+      assert.equal(await page.locator('.hero [data-workspace-demo]').count(),0,'Interactive journey is not in the hero');
+      assert.equal(await page.locator('#sample-output [data-workspace-demo]').count(),1,'Interactive journey is in the lower section');
+      assert.equal(await report.locator('[data-preview-kind]').count(),2,'Money and time charts are both present');
+      for(const chart of await report.locator('[data-preview-kind]').all())assert.equal(await chart.isVisible(),true,'Each hero chart is visible');
+      const reportLink=report.locator('.hrq-footer>a');
+      assert.equal(await reportLink.getAttribute('href'),'sample-report.html#depth');
+      assert.ok((await reportLink.boundingBox()).height>=44,'Hero report link is a usable touch target');
+      const geometry=await report.evaluate(el=>{
+        const outer=el.getBoundingClientRect();
+        const escaping=[...el.querySelectorAll('*')].filter(node=>{const r=node.getBoundingClientRect();return r.width&&r.height&&(r.left<outer.left-1||r.right>outer.right+1);}).map(node=>node.className?.baseVal??node.className);
+        const tiles=[...el.querySelectorAll('.hrq-tile')].map(node=>{const r=node.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom};});
+        const overlaps=tiles.flatMap((a,i)=>tiles.slice(i+1).filter(b=>Math.min(a.right,b.right)-Math.max(a.left,b.left)>1&&Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>1));
+        return {height:outer.height,cardWidth:outer.width,escaping,overlaps:overlaps.length};
+      });
+      assert.deepEqual(geometry.escaping,[],name+'/'+width+': hero report contents stay inside the card');
+      assert.equal(geometry.overlaps,0,name+'/'+width+': report tiles do not overlap');
+      console.log('HOMEPAGE_REPORT_FIRST_GEOMETRY '+JSON.stringify({browser:name,width,javaScriptEnabled,...geometry}));
       for(const link of [hero,direct]){
         assert.equal(await link.isVisible(),true,name+'/'+width+': sample link is visible on first load');
         assert.equal(await link.getAttribute('href'),link===direct?'sample-report.html#synthesis':'sample-report.html');
@@ -55,6 +76,6 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
 }
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const sourceFiles=Object.fromEntries(['index.html','homepage-workspace-demo.css','scripts/templates/home-workspace-preview.html'].map(file=>[file,sha(fs.readFileSync(new URL('../'+file,import.meta.url)))]));
-const receipt={passed:true,states,browsers:2,widths:[390,768,1440],withAndWithoutJavaScript:true,source_files:sourceFiles};
+const receipt={passed:true,states,browsers:2,widths:[320,390,768,834,1440],withAndWithoutJavaScript:true,source_files:sourceFiles};
 fs.writeFileSync(path.join(out,'RECEIPT.json'),JSON.stringify(receipt,null,2)+'\n');
 console.log('HOMEPAGE_SAMPLE_DISCOVERY_SMOKE '+JSON.stringify({...receipt,out}));

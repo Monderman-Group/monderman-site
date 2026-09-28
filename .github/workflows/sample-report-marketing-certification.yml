@@ -74,6 +74,9 @@ on:
       - 'scripts/public_sample_fixture.mjs'
       - 'scripts/public_sample_manifest_sensitivity_smoke.mjs'
       - 'scripts/refresh_public_sample_previews.mjs'
+      - 'scripts/homepage_report_first_20260927_contract.mjs'
+      - 'scripts/homepage_report_first_20260927_inverse.mjs'
+      - 'scripts/fixtures/homepage-report-first-20260927.json'
       - 'scripts/homepage_report_quad_20260925.mjs'
       - 'scripts/homepage_report_quad_20260925_inverse.mjs'
       - 'scripts/homepage_report_quad_20260925_contract.mjs'
@@ -281,6 +284,9 @@ on:
       - 'scripts/public_sample_fixture.mjs'
       - 'scripts/public_sample_manifest_sensitivity_smoke.mjs'
       - 'scripts/refresh_public_sample_previews.mjs'
+      - 'scripts/homepage_report_first_20260927_contract.mjs'
+      - 'scripts/homepage_report_first_20260927_inverse.mjs'
+      - 'scripts/fixtures/homepage-report-first-20260927.json'
       - 'scripts/homepage_report_quad_20260925.mjs'
       - 'scripts/homepage_report_quad_20260925_inverse.mjs'
       - 'scripts/homepage_report_quad_20260925_contract.mjs'
@@ -448,6 +454,7 @@ jobs:
 
       - name: Static report contracts
         run: |
+          node scripts/homepage_report_first_20260927_contract.mjs
           node --check monderman-report.js
           node --check sample-report-production.js
           node --check public-sample-model.js

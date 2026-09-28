@@ -63,7 +63,7 @@ try {
       }
       if (placement.name === 'homepage') {
         const label=`${placement.name}/${viewport.name}`;
-        assert.equal(await tile.isVisible(),true,label+': lower report preview must remain visible');
+        assert.equal(await tile.isVisible(),true,label+': hero report preview must remain visible');
         assert.equal(await tile.getAttribute('data-artifact-sha256'),artifact.artifact_sha256,label+': current source identity');
         assert.equal(await tile.getAttribute('data-home-report-quad'),'',label+': current homepage presentation');
         assert.deepEqual(await tile.locator('.hrq-tile').evaluateAll(nodes=>nodes.map(node=>node.dataset.quadSection)),['findings','money','change','evidence'],label+': four report roles');
@@ -77,20 +77,20 @@ try {
           return document.querySelector('[data-home-report-quad] .mr-overview-sankeys').outerHTML===parsed.querySelector('.mr-overview-sankeys').outerHTML;
         },generatedHomepage),true,label+': exact source-rendered charts');
         const geometry=await tile.evaluate(el=>{
-          const box=el.getBoundingClientRect(),band=el.closest('#sample-output'),grid=el.querySelector('.hrq-grid');
+          const box=el.getBoundingClientRect(),hero=el.closest('.hero'),grid=el.querySelector('.hrq-grid');
           const textNodes=[...el.querySelectorAll('h3,p,li,a,.mr-overview-sankey-source,.mr-overview-sankey-outcome')];
           const escaping=textNodes.filter(node=>{const r=node.getBoundingClientRect();return r.width&&r.height&&(r.left<box.left-1||r.right>box.right+1||r.top<box.top-1||r.bottom>box.bottom+1);}).map(node=>node.className||node.tagName);
-          return {width:box.width,height:box.height,left:box.left,right:box.right,bottom:box.bottom,bandBottom:band?.getBoundingClientRect().bottom,inOutputBand:Boolean(band),inHero:Boolean(el.closest('.hero')),columns:getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/).length,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,documentWidth:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth),viewportWidth:document.documentElement.clientWidth,escaping};
+          return {width:box.width,height:box.height,left:box.left,right:box.right,bottom:box.bottom,heroBottom:hero?.getBoundingClientRect().bottom,inOutputBand:Boolean(el.closest('#sample-output')),inHero:Boolean(hero),columns:getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/).length,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,documentWidth:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth),viewportWidth:document.documentElement.clientWidth,escaping};
         });
-        assert.equal(geometry.inOutputBand,true,label+': dedicated output section');
-        assert.equal(geometry.inHero,false,label+': report stays outside the opening hero');
+        assert.equal(geometry.inOutputBand,false,label+': lower section is reserved for the product journey');
+        assert.equal(geometry.inHero,true,label+': report leads the opening hero');
         assert.equal(geometry.columns,viewport.width<=600?1:2,label+': responsive report grid');
         assert(geometry.width>0&&geometry.width<=760.5,label+': approved report width');
         assert(geometry.left>=-1&&geometry.right<=geometry.viewportWidth+1,label+': report stays within viewport');
         assert(geometry.scrollWidth<=geometry.clientWidth+1&&geometry.documentWidth<=geometry.viewportWidth+1,label+': no horizontal overflow');
-        assert(geometry.bottom<=geometry.bandBottom+1,label+': report stays within output section');
+        assert(geometry.bottom<=geometry.heroBottom+1,label+': report stays within the hero');
         assert.deepEqual(geometry.escaping,[],label+': all report summaries and chart labels stay within the frame');
-        if(viewport.width===1440){assert(geometry.width>580,label+': wide preview does not inherit the retired card width');assert(geometry.height<=680,label+': approved compact two-column height');}
+        if(viewport.width===1440){assert(geometry.width>580,label+': wide preview does not inherit the retired card width');assert(geometry.height<=680,label+': approved compact two-column height '+JSON.stringify({width:geometry.width,height:geometry.height}));}
         await tile.screenshot({path:path.join(out,`${placement.name}-${viewport.name}.png`)});
         await page.close();
         continue;
