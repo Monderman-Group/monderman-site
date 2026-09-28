@@ -24,9 +24,9 @@ const immutableLegalPages = new Set(pages.filter((name) => /^(?:terms|privacy)-\
 
 // September 19 adds evaluation and invitation-access editions without removing history.
 // Preserve every previous legal edition in the full viewport sweep.
-assert.equal(pages.length, 84, 'rendered root-page inventory includes the Governance article');
-assert.equal(canonicalPages.length, 66, 'canonical header + footer inventory includes the Governance article');
-assert.equal(footerPages.length, 70, 'footer inventory includes the Governance article');
+assert.equal(pages.length, 85, 'rendered root-page inventory includes both new Governance articles');
+assert.equal(canonicalPages.length, 67, 'canonical header + footer inventory includes both new Governance articles');
+assert.equal(footerPages.length, 71, 'footer inventory includes both new Governance articles');
 for (const legalEdition of ['terms-2026-09-08-beta.html', 'privacy-2026-09-08-beta.html', 'terms-2026-09-09-beta.html', 'privacy-2026-09-09-beta.html', 'privacy-2026-09-10-beta.html']) {
   assert.ok(canonicalPages.includes(legalEdition), `${legalEdition}: archived legal page missing from canonical sweep`);
 }

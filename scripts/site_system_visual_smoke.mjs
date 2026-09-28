@@ -49,12 +49,13 @@ const heroPages = [
   ['the-drift-problem.html', '.hero', '.hero h1', 'publication'],
   ['the-unmeasured-layer.html', '.article-hero', '.article-hero h1', 'publication'],
   ['transformation-behind-schedule.html', '.hero', '.hero h1', 'standard'],
+  ['trenches-not-silos.html', '.article-hero', '.article-hero h1', 'publication'],
   ['we-gave-bureaucracy-the-fastest-tools.html', '.article-hero', '.article-hero h1', 'publication-long'],
   ['when-bureaucracy-became-the-obstacle.html', '.article-hero', '.article-hero h1', 'publication'],
   ['why-monderman.html', '.hero', '.hero h1', 'standard'],
 ];
 
-assert.equal(heroPages.length, 43, 'hero manifest changed unexpectedly');
+assert.equal(heroPages.length, 44, 'hero manifest changed unexpectedly');
 const legalPresentationExclusions = new Set(['privacy.html', 'terms.html']);
 const heroClassTokens = new Set(['hero', 'ps-hero', 'article-hero', 'pl-top']);
 function hasPageHero(pageName) {
@@ -130,12 +131,13 @@ const pagesWithLocalOpeningAction = new Set([
   'the-culture-trap-brief.html',
   'the-drift-problem.html',
   'the-unmeasured-layer.html',
+  'trenches-not-silos.html',
   'we-gave-bureaucracy-the-fastest-tools.html',
   'when-bureaucracy-became-the-obstacle.html',
   'why-monderman.html',
 ]);
 
-assert.equal(pagesWithLocalOpeningAction.size, 31, 'opening-action manifest changed unexpectedly');
+assert.equal(pagesWithLocalOpeningAction.size, 32, 'opening-action manifest changed unexpectedly');
 
 function expectedGutter(width) {
   if (width <= 640) return 20;

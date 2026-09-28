@@ -131,6 +131,13 @@ on:
       - 'pdf-src/fast-to-cut-slow-to-build.json'
       - 'scripts/build_fast_to_cut.py'
       - 'scripts/validate_fast_to_cut.py'
+      - 'trenches-not-silos.html'
+      - 'pdf-src/trenches-not-silos.json'
+      - 'scripts/build_trenches_not_silos.py'
+      - 'scripts/render_publication_body.cjs'
+      - 'trenches-publication.css'
+      - 'scripts/validate_trenches_not_silos.py'
+      - 'scripts/trenches_research_20260928_*.mjs'
       - 'scripts/governance_research_20260925_*.mjs'
       - 'scripts/fixtures/governance-research-20260925.json'
       - 'assistant.js'
@@ -341,6 +348,13 @@ on:
       - 'pdf-src/fast-to-cut-slow-to-build.json'
       - 'scripts/build_fast_to_cut.py'
       - 'scripts/validate_fast_to_cut.py'
+      - 'trenches-not-silos.html'
+      - 'pdf-src/trenches-not-silos.json'
+      - 'scripts/build_trenches_not_silos.py'
+      - 'scripts/render_publication_body.cjs'
+      - 'trenches-publication.css'
+      - 'scripts/validate_trenches_not_silos.py'
+      - 'scripts/trenches_research_20260928_*.mjs'
       - 'scripts/governance_research_20260925_*.mjs'
       - 'scripts/fixtures/governance-research-20260925.json'
       - 'assistant.js'
@@ -521,6 +535,8 @@ jobs:
           python scripts/validate_pdf_house_style.py
           python scripts/validate_publication_suite.py
           python scripts/validate_fast_to_cut.py
+          python scripts/validate_trenches_not_silos.py
+          node scripts/trenches_research_20260928_contract.mjs
           node scripts/governance_research_20260925_contract.mjs
           python scripts/publication_copy_regression.py
           python scripts/validate_production_cosmetic_certification.py

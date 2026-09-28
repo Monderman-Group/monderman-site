@@ -30,6 +30,7 @@ const overviewSources=['index.html','homepage-workspace-demo.css','sample-report
 const adapterDependencies=['scripts/public_copy_clarity_inverse.mjs','scripts/promotional_gold_20260924_inverse.mjs','scripts/report_library_20260924_inverse.mjs',
   'scripts/change_wording_20260925_inverse.mjs','scripts/fixtures/change-wording-20260925.json',
   'scripts/governance_research_20260925_inverse.mjs','scripts/fixtures/governance-research-20260925.json',
+  'scripts/trenches_research_20260928_inverse.mjs',
   'scripts/homepage_report_first_20260927_inverse.mjs','scripts/fixtures/homepage-report-first-20260927.json',
   'scripts/public_sample_projection_20260924_inverse.mjs','scripts/public_language_pass_20260924_inverse.mjs','scripts/trust_security_center_20260924_inverse.mjs',
   'scripts/homepage_compact_journey_20260924_inverse.mjs','scripts/public_sample_preview_binding_20260924_inverse.mjs',
