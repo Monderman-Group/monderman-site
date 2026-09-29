@@ -31,6 +31,7 @@ const adapterDependencies=['scripts/public_copy_clarity_inverse.mjs','scripts/pr
   'scripts/change_wording_20260925_inverse.mjs','scripts/fixtures/change-wording-20260925.json',
   'scripts/governance_research_20260925_inverse.mjs','scripts/fixtures/governance-research-20260925.json',
   'scripts/trenches_research_20260928_inverse.mjs',
+  'scripts/single_lens_overview_20260929_inverse.mjs','scripts/fixtures/single-lens-overview-20260929.json',
   'scripts/homepage_report_first_20260927_inverse.mjs','scripts/fixtures/homepage-report-first-20260927.json',
   'scripts/public_sample_projection_20260924_inverse.mjs','scripts/public_language_pass_20260924_inverse.mjs','scripts/trust_security_center_20260924_inverse.mjs',
   'scripts/homepage_compact_journey_20260924_inverse.mjs','scripts/public_sample_preview_binding_20260924_inverse.mjs',
@@ -184,7 +185,7 @@ for(const name of sourceNames) {
     m.source_files[name]=changedHash(m.source_files[name]);
   }));
   cases.push({
-    label:'source-byte-drift-'+path.basename(name),layer:'source-byte-binding',expected:CHANGE_WORDING_FILES.includes(name)?name+': only the exact reviewed current source can be inverted (change wording)':name==='scripts/refresh_public_sample_previews.mjs'
+    label:'source-byte-drift-'+path.basename(name),layer:'source-byte-binding',expected:name==='monderman-report.js'?name+': Only the exact reviewed single-lens source can be inverted':CHANGE_WORDING_FILES.includes(name)?name+': only the exact reviewed current source can be inverted (change wording)':name==='scripts/refresh_public_sample_previews.mjs'
       ?name+': only the exact reviewed homepage-report-quad source can be inverted':'reviewed source changed: '+name,
     mutate(directory) {
       const suffix=name.endsWith('.html')?'\n<!-- sensitivity mutation only -->\n':'\n// sensitivity mutation only\n';
@@ -234,6 +235,20 @@ for(const [label,mutate]of [
 ])cases.push(manifestMutation('change-wording-review-'+label,null,mutate));
 for(const name of pdfNames)cases.push({label:'change-wording-pdf-drift-'+path.basename(name),layer:'pdf-byte-binding',expected:'financial PDF bytes differ from the reviewed revision',mutate(directory){fs.appendFileSync(path.join(directory,name),'\nUNAPPROVED');}});
 assert.equal(cases.length,111,'Original 91 checks plus fourteen additive wording-review and six PDF mutation controls');
+if(baselineManifest.single_lens_overview_presentation_review)for(const [label,mutate]of [
+  ['missing',m=>{delete m.single_lens_overview_presentation_review;}],
+  ['pending',m=>{m.single_lens_overview_presentation_review.status='pending';}],
+  ['wrong-renderer',m=>{m.single_lens_overview_presentation_review.renderer_sha256='0'.repeat(64);}],
+  ['wrong-history',m=>{m.single_lens_overview_presentation_review.prior_review.sha256='0'.repeat(64);}],
+  ['wrong-current-html',m=>{m.single_lens_overview_presentation_review.pdf_outputs.decision_velocity.html_sha256='0'.repeat(64);}],
+  ['wrong-current-pdf',m=>{m.single_lens_overview_presentation_review.pdf_outputs.decision_velocity.sha256='0'.repeat(64);}],
+  ['wrong-retained-pdf',m=>{m.single_lens_overview_presentation_review.pdf_outputs.depth_synthesis.sha256='0'.repeat(64);}],
+  ['wrong-retained-renderer',m=>{m.single_lens_overview_presentation_review.retained_pdf_sources.renderer_sha256='0'.repeat(64);}],
+  ['wrong-retained-products',m=>{m.single_lens_overview_presentation_review.retained_pdf_products=['depth_synthesis'];}],
+  ['unreviewed-visuals',m=>{m.single_lens_overview_presentation_review.visual_review='pending';}],
+  ['missing-browser-receipt',m=>{delete m.single_lens_overview_presentation_review.verification_receipts.browser;}],
+  ['provider-call',m=>{m.single_lens_overview_presentation_review.provider_calls=1;}]
+])cases.push(manifestMutation('single-lens-review-'+label,null,mutate));
 assert.equal(new Set(cases.map(item=>item.label)).size,cases.length);
 if(setupOnly){
   // Import the actual copied module graph, but do not call the release validator

@@ -105,7 +105,7 @@ eq(read('sample-data/production-diagnostic-samples.json'),artifactBytes,'Renderi
 const oldFixtures=execFileSync('git',['ls-tree','-r','--name-only',CHANGE_WORDING_BASELINE,'--','scripts/fixtures'],{cwd:root,encoding:'utf8'}).trim().split('\n').filter(Boolean);
 for(const file of oldFixtures)eq(sha(read(file)),sha(prior(file)),file+': historical fixture remains byte-identical');
 
-const fixture=readPublicSampleFixture({root}),manifest=fixture.manifest,review=currentSynthesisPdfReview(manifest,artifact);
+const fixture=readPublicSampleFixture({root}),manifest=JSON.parse(read('sample-data/production-sample-release.json')),review=currentSynthesisPdfReview(manifest,artifact);
 eq(review.version,'change-wording-presentation-20260925.1','Current PDFs have a separate appended wording review');
 const historical=structuredClone(manifest);delete historical.change_wording_presentation_review;
 eq(historical,JSON.parse(prior('sample-data/production-sample-release.json')),'Every earlier release field and approval preserved exactly');

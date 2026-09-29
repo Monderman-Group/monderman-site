@@ -49,7 +49,7 @@ for(const [page,css,version]of [['index.html','homepage-workspace-demo.css','202
   equal(sha(fs.readFileSync(path.join(built,css))),sha(read(css)));
 }
 const sampleHtml=fs.readFileSync(path.join(built,'sample-report.html'),'utf8');
-for(const [file,version]of [['monderman-report.js','20260925.changewording1'],['sample-report-production.js','20260924.comparisons1'],['public-sample-model.js','20260924.projection8']]){
+for(const [file,version]of [['monderman-report.js','20260929.singlelens1'],['sample-report-production.js','20260924.comparisons1'],['public-sample-model.js','20260924.projection8']]){
   check(sampleHtml.includes(file+'?v='+version),'Reviewed runtime cache: '+file);
   equal(sha(fs.readFileSync(path.join(built,file))),sha(read(file)),'Built bytes equal reviewed source: '+file);
 }

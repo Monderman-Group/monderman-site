@@ -6,6 +6,7 @@ import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {sourceAtGovernanceResearchBaseline} from './governance_research_20260925_inverse.mjs';
+import {sourceAtSingleLensOverviewBaseline} from './single_lens_overview_20260929_inverse.mjs';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 export const CHANGE_WORDING_BASELINE='4ca0253f3a5ce45607b32577e74c28f97f2cf934';
 export const CHANGE_WORDING_VERSION='diagnostic-renderer-change-wording-20260925.1';
@@ -16,6 +17,7 @@ export const changeWordingDelta=JSON.parse(bytes);
 assert.equal(changeWordingDelta.prior_commit,CHANGE_WORDING_BASELINE);
 export const CHANGE_WORDING_FILES=Object.freeze(Object.keys(changeWordingDelta.files));
 export function sourceBeforeChangeWording20260925(file,source){
+  source=sourceAtSingleLensOverviewBaseline(file,source);
   if(!CHANGE_WORDING_FILES.includes(file))return source;
   const entry=changeWordingDelta.files[file];
   assert.equal(sha(source),entry.after_sha256,file+': only the exact reviewed current source can be inverted (change wording)');

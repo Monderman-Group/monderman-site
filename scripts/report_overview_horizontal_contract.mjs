@@ -8,9 +8,10 @@ import vm from 'node:vm';
 import {createHash} from 'node:crypto';
 import {sourceBeforeHorizontalOverviewPresentation,restoreHorizontalOverviewDetailPresentation,PRIOR_HORIZONTAL_OVERVIEW_SHA256} from './report_overview_horizontal_inverse.mjs';
 import {sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
+import {sourceBeforeSingleLensOverview20260929} from './single_lens_overview_20260929_inverse.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
-const read = name => sourceAtChangeWordingBaseline(name,fs.readFileSync(path.join(root, name), 'utf8'));
+const read = name => name === 'monderman-report.js' ? fs.readFileSync(path.join(root, name), 'utf8') : sourceAtChangeWordingBaseline(name,fs.readFileSync(path.join(root, name), 'utf8'));
 const source = read('monderman-report.js');
 const sampleBytes = read('sample-data/production-diagnostic-samples.json');
 const artifact = JSON.parse(sampleBytes);
@@ -24,6 +25,10 @@ const priorContext = {...context, window:{}};
 vm.runInNewContext(read('participant-evidence-safety.js'), priorContext);
 vm.runInNewContext(priorSource, priorContext);
 const prior = priorContext.window.MondermanReport;
+const baselineContext = {...context, window:{}};
+vm.runInNewContext(read('participant-evidence-safety.js'), baselineContext);
+vm.runInNewContext(sourceBeforeSingleLensOverview20260929('monderman-report.js',source), baselineContext);
+const baseline = baselineContext.window.MondermanReport;
 let checks = 0, documents = 0;
 const ok = (value, label) => { assert.ok(value, label); checks++; };
 const equal = (value, expected, label) => { assert.deepEqual(value, expected, label); checks++; };
@@ -37,7 +42,7 @@ const text = node => normalize(node.content.map(part => typeof part === 'string'
 const isQuad = model => model.kind === 'meta-synthesis' && !model.comparisonOnly && !model.selfRun && ['depth','cross_lens'].includes(model.product);
 const firstString = (...values) => values.find(value => typeof value === 'string' && value.trim()) || '';
 const legacyMixedPattern = 'Two or more lens-level signals share the highest observed count, so the coherent read does not identify one unique dominant shared pattern. Use the lens summaries and contradictions to define a bounded validation question rather than forcing one causal diagnosis.';
-const plainMixedPattern = 'Several patterns appear across the diagnostics; none stands out as the single shared explanation. Review the findings for each diagnostic before deciding what to test.';
+const plainMixedPattern = 'Several patterns appear across the diagnostics; none stands out as the single shared explanation. Review the findings for each diagnostic before deciding what to change.';
 // This structural reader handles renderer-owned escaped HTML, not arbitrary
 // websites; it ignores script/style bodies and never executes rendered markup.
 function parse(html) {
@@ -72,8 +77,8 @@ function checkModel(label, model) {
   const nodes = flatten(page), ids = nodes.filter(node => node.attrs.id).map(node => node.attrs.id), idSet = new Set(ids), cover = all(page, 'mr-cover')[0];
   equal(ids.length, idSet.size, label + ': target IDs are unique');
   equal(overview.attrs.id, cover.attrs.id + '-overview', label + ': overview has a unique destination distinct from the cover');
-  const overviewFirst = model.kind === 'meta-synthesis' && !model.comparisonOnly && !model.selfRun && ['depth','cross_lens'].includes(model.product);
-  equal(cover.attrs['data-overview-first'], overviewFirst ? 'true' : undefined, label + ': compact opening is limited to eligible Depth/Cross-Lens reports');
+  const overviewFirst = ['run','meta-synthesis'].includes(model.kind);
+  equal(cover.attrs['data-overview-first'], overviewFirst ? 'true' : undefined, label + ': all known report kinds share the compact tile opening');
   const white = all(cover, 'mr-cover-white')[0];
   if (overviewFirst) {
     equal(text(all(rows[3], 'mr-overview-title')[0]), 'Evidence', label + ': fourth quad title matches the user reference');
@@ -103,14 +108,29 @@ function checkModel(label, model) {
     equal(back[0].children[0].attrs.href, '#' + overview.attrs.id, label + ': return restores overview target');
   }
   equal(normalize(printText(page)), normalize(printText(parse(R.buildReportBody(model)))), label + ': full report print text retained in order');
-  const priorIdentity = model.kind === 'run' ? prior.fromRun(model.source) : prior.fromSynthesis(model.source);
-  const priorModel = {...model, title:priorIdentity.title, filenameBase:priorIdentity.filenameBase, ...(model.kind !== 'run' ? {briefing:{...model.briefing, paragraphs:priorIdentity.briefing.paragraphs}} : {})};
-  equal(restoreHorizontalOverviewDetailPresentation(R.buildReportBody(model)).replaceAll(R.rendererVersion, prior.rendererVersion), prior.buildReportBody(priorModel), label + ': prior full report bytes preserved except exact approved gold, title and display version');
+  let currentBody=R.buildReportBody(model), baselineBody=baseline.buildReportBody(model);
+  const availability=/<section class="mr-section mr-financial-brief mr-financial-availability" data-financial-state="(?:campaign-data-needed|planning-inputs-needed|planning-review-needed)">[^]*?<\/section>/g;
+  const notices=currentBody.match(availability)||[];
+  ok(notices.length<=1,label+': at most one financial availability explanation');
+  if(notices.length){
+    currentBody=currentBody.replace(availability,'');
+    const previous=baselineBody.match(/<section class="mr-section mr-financial-brief mr-three-benefit">[^]*?<\/section>/g)||[];
+    ok(previous.length<=1,label+': at most one preceding empty assessment');
+    if(previous.length){
+      ok(previous[0].includes('No missing category is treated as zero. Review the saved inputs before using a financial estimate.'),label+': only the obsolete empty-assessment text may be replaced');
+      baselineBody=baselineBody.replace(previous[0],'');
+    }
+  }
+  if(model.selfRun){
+    equal((currentBody.match(/class="mr-section mr-self-run-views"/g)||[]).length,1,label+': one recorded-views navigation target');
+    currentBody=currentBody.replace('class="mr-section mr-self-run-views"','class="mr-section"');
+  }
+  equal(currentBody,baselineBody,label+': full report bytes retained outside the financial availability section and exact self-run target class');
   const previews = all(overview,'mr-overview-sankey');
   equal(flatten(overview).filter(node => node.tag === 'svg').length, previews.length, label + ': only genuine compact planning previews add overview SVGs');
   equal(all(rows[1],'mr-overview-sankey').length, previews.length, label + ': previews stay within Time and money');
-  if (!overviewFirst) equal(previews.length,0,label + ': other report types retain their prior overview');
-  if (overviewFirst) checkQuadContent(label,{overview,rows},model);
+  if (!isQuad(model)) equal(previews.length,0,label + ': non-Synthesis reports add no new financial diagrams');
+  if (isQuad(model)) checkQuadContent(label,{overview,rows},model);
   documents++;
   return {html, overview, rows, benefits:all(rows[1], 'mr-overview-benefit')};
 }
@@ -180,7 +200,7 @@ for (const [name, entry] of Object.entries(artifact.outputs)) {
   for (const [variant, current] of [['saved-report', model], ['public-sample', context.window.MondermanPublicSamples.model(entry, artifact)]]) {
     const label = name + '/' + variant, result = checkModel(label, current);
     const summary = text(all(result.rows[0], 'mr-overview-summary')[0]);
-    if (!isQuad(current)) {
+    if (!isQuad(current) && !current.comparisonOnly) {
       ok(summary.length <= 181, label + ': summary excerpt is bounded');
       ok(normalize(current.aiReport.report.interpretation.summary).startsWith(summary.replace(/…$/, '')), label + ': summary is an exact source prefix, not new interpretation');
       ok(text(result.rows[0]).includes('Excerpt; read the full findings and limits before acting.'), label + ': excerpt and evidence qualification stay visible');
@@ -190,7 +210,10 @@ for (const [name, entry] of Object.entries(artifact.outputs)) {
     const actions = (interpretation.action_options?.length ? interpretation.action_options : interpretation.recommendations).filter(item => item.action?.trim());
     if (actions.length) {
       const list = all(result.rows[2], 'mr-overview-options')[0];
-      if (!isQuad(current)||!interpretation.action_options?.length) {
+      if (!interpretation.action_options?.length) {
+        equal(list.children.length,Math.min(actions.length,2),label+': up to two complete saved next steps in overview');
+        list.children.forEach((row,index)=>equal(text(row.children.find(node=>node.tag==='p')),normalize(actions[index].action),label+': next step preserves its entire saved action'));
+      } else if (!isQuad(current)) {
         equal(list.children.length, 1, label + ': only one source action excerpt in overview');
         const excerpt = text(list.children[0].children.find(node => node.tag === 'p'));
         ok(excerpt.length <= 201 && normalize(actions[0].action).startsWith(excerpt.replace(/…$/, '')), label + ': action excerpt bounded and source-faithful');
@@ -201,12 +224,14 @@ for (const [name, entry] of Object.entries(artifact.outputs)) {
     else if (entry.kind === 'response_comparison') {
       equal(current.comparisonOnly, true, label + ': actual sample remains a descriptive comparison');
       equal(result.benefits.length, 0, label + ': comparison without financial inputs cannot display organizational benefits');
-      ok(text(result.rows[1]).includes('No complete planning scenario is recorded'), label + ': missing financial evidence remains explicit');
+      ok(text(result.rows[1]).includes('Financial estimates become available with enough campaign data for Depth Synthesis or Cross-Lens Synthesis.'), label + ': missing financial evidence has an eligibility explanation');
+      ok(text(result.rows[1]).includes('See how estimates become available'), label + ': financial link explains its destination');
+      equal(summary,normalize(current.aiReport.report.interpretation.summary),label+': response comparison retains its full saved finding');
       equal(Object.keys(current.financialScenario).length, 0, label + ': no financial scenario is invented');
       equal(interpretation.action_options.length, 0, label + ': no organizational change options are invented');
       const counts = current.campaignEvidence.counts;
-      ok(text(result.rows[3]).includes(counts.distinctParticipantsAcrossLenses + 'of ' + counts.declaredPopulation), label + ': distinct participant count and declared population remain visible');
-    } else {equal(result.benefits.length, 0, label + ': individual report cannot display organizational benefits'); ok(text(result.rows[1]).includes('One person’s responses'), label + ': individual boundary retained');}
+      ok(text(result.rows[3]).includes(counts.distinctParticipantsAcrossLenses + ' of ' + counts.declaredPopulation), label + ': distinct participant count and declared population remain visible');
+    } else {equal(result.benefits.length, 0, label + ': individual report cannot display organizational benefits'); ok(text(result.rows[1]).includes('Depth Synthesis or Cross-Lens Synthesis'), label + ': individual report explains the campaign evidence requirement');}
   }
   equal(JSON.stringify(raw), before, name + ': saved input unchanged');
   for (const status of ['pending','processing','attention_required','rejected','']) {
@@ -318,9 +343,9 @@ if (comparisonArg >= 0) {
 const cssStart = source.indexOf('      .mr-overview-grid{'), cssEnd = source.indexOf('      .mr-report .mr-cover-kicker{', cssStart), overviewCss = source.slice(cssStart, cssEnd);
 equal(sha(priorSource), PRIOR_HORIZONTAL_OVERVIEW_SHA256, 'exact inverse restores complete original renderer');
 for (const mutation of [source + '\n', source.replace('limit = 180', 'limit = 999'), source.replace('spendingReduction:\'#E6C765\'', 'spendingReduction:\'#ff0000\'')]) {
-  assert.throws(() => sourceBeforeHorizontalOverviewPresentation(mutation), /Only the exact (?:approved horizontal renderer|reviewed executive overview renderer|reviewed cover\/segment-label presentation)/); checks++;
+  assert.throws(() => sourceBeforeHorizontalOverviewPresentation(mutation), /[Oo]nly the exact (?:approved horizontal renderer|reviewed executive overview renderer|reviewed cover\/segment-label presentation|reviewed single-lens source)/); checks++;
 }
-ok(/\.mr-overview-grid\{[^}]*grid-template-columns:minmax\(0,1fr\)/.test(overviewCss), 'other report types retain their existing one-column overview');
+ok(/\.mr-overview-grid\{[^}]*grid-template-columns:minmax\(0,1fr\)/.test(overviewCss), 'generic fallback grid remains bounded');
 ok(/background:rgba\(36,48,52,\.78\)/.test(overviewCss), 'rows sit on translucent charcoal backing');
 ok(/\.mr-report a\.mr-overview-tile\{[^}]*background:#fff/.test(overviewCss), 'row content uses white');
 ok(/\.mr-overview-title\{[^}]*background:#187783/.test(overviewCss), 'title bands use teal');

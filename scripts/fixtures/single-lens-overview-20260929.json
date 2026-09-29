@@ -1,0 +1,292 @@
+{
+  "version": "diagnostic-renderer-single-lens-overview-20260929.1",
+  "baseline": "61de1fbb0737a5b2af8cb4059bddae81226f95a2",
+  "files": {
+    "monderman-report.js": {
+      "before_sha256": "45bf9ebdd9f70d33ce4f027e0688c9ed1199e0777ee033db58b2aebd65efd374",
+      "after_sha256": "219e680e280c68bf0daeb86c4266da5dc306cf31af29efab6d1eebc81327cd65",
+      "replacements": [
+        [
+          1562,
+          1644,
+          "  const RENDERER_VERSION = \"diagnostic-renderer-single-lens-overview-20260929.1\";\n",
+          "  const RENDERER_VERSION = \"diagnostic-renderer-change-wording-20260925.1\";\n"
+        ],
+        [
+          115978,
+          118808,
+          "  function financialAvailability(m) {\n    // Explain the next available product step without turning absent inputs\n    // into zero or changing the saved scenario/readiness calculation. A valid\n    // separately entered early planning scenario is rendered before this copy.\n    const priorScenario = financialScenarioPresentation(m);\n    if (priorScenario) return {\n      state: 'planning-scenario-available',\n      summary: priorScenario.s.kind === 'early_planning_scenario' ? 'An early planning scenario is available for this result.' : 'Financial estimates are available in the saved planning scenario.',\n      detail: 'Review the potential time released, financial values, costs and the assumptions behind them in the full planning scenario.',\n      next: priorScenario.s.kind === 'early_planning_scenario' ? 'This early scenario does not unlock Depth Synthesis or Cross-Lens Synthesis.' : 'Compare the Low, Central and High planning cases below.',\n      link: 'Explore the saved planning scenario'\n    };\n    if (m.kind !== 'run' && !m.selfRun && Object.keys(obj(m.financialScenario)).length) return {\n      state: 'planning-review-needed',\n      summary: 'The saved financial scenario needs review before its estimates can be displayed.',\n      detail: 'Review the scenario and its working-time, pay and spending inputs in Workspace Analysis, then save a corrected planning scenario.',\n      next: 'The diagnostic findings remain available below.',\n      link: 'Review the next step for estimates'\n    };\n    if (m.kind === 'run' || m.comparisonOnly || m.selfRun) return {\n      state: 'campaign-data-needed',\n      summary: 'Financial estimates become available with enough campaign data for Depth Synthesis or Cross-Lens Synthesis.',\n      detail: 'Each analysis must meet its participation and coverage requirements. Estimates also need the relevant working-time, pay and spending inputs.',\n      next: 'Continue gathering responses and check readiness in Workspace Analysis.',\n      link: 'See how estimates become available'\n    };\n    return {\n      state: 'planning-inputs-needed',\n      summary: 'Financial estimates have not been prepared for this saved result.',\n      detail: 'Review or add the working-time, pay and spending inputs in Workspace Analysis, then save a planning scenario to compare Low, Central and High cases.',\n      next: 'The diagnostic findings remain available below.',\n      link: 'Review the next step for estimates'\n    };\n  }\n\n  function renderFinancialAvailability(m) {\n    const message = financialAvailability(m);\n    return '<section class=\"mr-section mr-financial-brief mr-financial-availability\" data-financial-state=\"' + message.state + '\"><h2>Financial benefit assessment</h2><p>' + message.summary + '</p><p>' + message.detail + '</p><p>' + message.next + '</p></section>';\n  }\n\n",
+          ""
+        ],
+        [
+          118952,
+          119009,
+          "    if(!validated)return renderFinancialAvailability(m);\n",
+          "    if(!validated)return '<section class=\"mr-section mr-financial-brief mr-three-benefit\">'+THREE_BENEFIT_CSS+'<h2>Financial benefit assessment</h2><p>The three benefit categories have not been estimated with complete, reconciled inputs for this scope.</p><div class=\"mr-benefit-cards\">'+THREE_BENEFIT_KEYS.map(key=>'<article class=\"mr-benefit-card\"><h4>'+THREE_BENEFIT_LABELS[key]+'</h4><strong>Not estimated</strong><p>'+({spendingReduction:'Enter current expense units, rates, months and the proposed change.',spendingAvoidance:'Enter documented planned expense units, rates, months and the proposed change.',staffCapacity:'Enter measured activity hours, labor rates, time-reduction and adoption assumptions.'}[key])+'</p></article>').join('')+'</div><p>No missing category is treated as zero. Review the saved inputs before using a financial estimate.</p></section>';\n"
+        ],
+        [
+          132032,
+          132090,
+          "    if (m.selfRun) return renderFinancialAvailability(m);\n",
+          ""
+        ],
+        [
+          132394,
+          132451,
+          "    if(!validated)return renderFinancialAvailability(m);\n",
+          "    if(!validated)return '';\n"
+        ],
+        [
+          192080,
+          192308,
+          "    return '<section class=\"mr-section mr-self-run-views\"><h2>Your recorded views</h2><p>'+esc(firstStr(m.coverBody,m.primaryPattern))+'</p><p>'+esc(m.runCountNote)+'</p><div class=\"mr-lens-grid\">'+summaries+'</div></section>'+\n",
+          "    return '<section class=\"mr-section\"><h2>Your recorded views</h2><p>'+esc(firstStr(m.coverBody,m.primaryPattern))+'</p><p>'+esc(m.runCountNote)+'</p><div class=\"mr-lens-grid\">'+summaries+'</div></section>'+\n"
+        ],
+        [
+          240806,
+          240948,
+          "      return coverBlock + compatibilityBlock + financialNotice + renderFinancialAvailability(m) + aiBlock + renderRunReport(m) + sampleBlock;\n",
+          "      return coverBlock + compatibilityBlock + financialNotice + aiBlock + renderRunReport(m) + sampleBlock;\n"
+        ],
+        [
+          345818,
+          346004,
+          "    const findings = find(/mr-run-headline|mr-system-read|mr-depth-system-read|mr-ai-interpretation|mr-self-run-views/) || sections[1];\n    const financial = find(/mr-financial-brief/);\n",
+          "    const findings = find(/mr-run-headline|mr-system-read|mr-depth-system-read|mr-ai-interpretation/) || sections[1];\n    const financial = find(/mr-financial-brief/), profile = find(/mr-run-dimensions|mr-system-read|mr-depth-system-read/);\n"
+        ],
+        [
+          348407,
+          348452,
+          "    if (synthesisQuad || m.comparisonOnly) {\n",
+          "    if (synthesisQuad) {\n"
+        ],
+        [
+          349723,
+          350153,
+          "      const wholeFinding = summary && (m.comparisonOnly || summary.length <= 420) ? summary : m.primaryPattern === legacyMixedPattern ? 'Several patterns appear across the diagnostics; none stands out as the single shared explanation. Review the findings for each diagnostic before deciding what to change.' : firstStr(m.primaryPattern, obj(m.source?.diagnosis).body, summary, 'Review the recorded findings in the full report.');\n",
+          "      const wholeFinding = summary && summary.length <= 420 ? summary : m.primaryPattern === legacyMixedPattern ? 'Several patterns appear across the diagnostics; none stands out as the single shared explanation. Review the findings for each diagnostic before deciding what to change.' : firstStr(m.primaryPattern, obj(m.source?.diagnosis).body, summary, 'Review the recorded findings in the full report.');\n"
+        ],
+        [
+          353122,
+          353408,
+          "    } else if (!validated) {\n      const message = financialAvailability(m);\n      valueContent = '<p class=\"mr-overview-summary\" data-financial-state=\"' + message.state + '\">' + message.summary + '</p><p>' + message.detail + '</p><p class=\"mr-overview-note\">' + message.next + '</p>';\n",
+          "    } else if (m.kind === 'run') {\n      valueTitle = 'What needs attention'; valueTarget = profile || findings;\n      valueContent = '<p class=\"mr-overview-summary\">' + esc(excerpt(firstStr(m.centralFinding, m.bottomLine, m.execSummary, 'See which parts of the work need attention.'))) + '</p><p class=\"mr-overview-note\">Excerpt. One person’s responses do not establish organization-wide time or financial savings.</p>';\n"
+        ],
+        [
+          354963,
+          355324,
+          "    if (!options.length && recommendations.length) {\n      actionContent = '<ol class=\"mr-overview-options\">' + rows.slice(0, 2).map(row => '<li><strong>' + esc(row.label) + '</strong><p>' + esc(row.text) + '</p></li>').join('') + '</ol><p class=\"mr-overview-note\">Read the full guidance for rationale, prerequisites, risks and measures of success.</p>';\n    }\n",
+          ""
+        ],
+        [
+          359049,
+          359102,
+          "    if (m.kind === 'meta-synthesis' && !m.selfRun) {\n",
+          "    if (synthesisQuad) {\n"
+        ],
+        [
+          361540,
+          362374,
+          "    const valueLink = validated && validated.s.coverage.complete ? 'Explore low, central and high cases' : !validated ? financialAvailability(m).link : 'Review planning inputs';\n    return '<div id=\"' + sections[0].id + '-overview\" class=\"mr-screen-only mr-report-overview\" aria-label=\"Report overview\"><p class=\"mr-overview-intro\">Your report at a glance. Select a tile to explore the full findings.</p><div class=\"mr-overview-grid\">' + tile('Overall findings', findingContent, findings, 'Read the findings', 'findings') + tile(valueTitle, valueContent, valueTarget, valueLink, 'value') + tile(options.length ? 'Change options' : 'Practical next steps', actionContent, actions || findings, 'Read the full guidance', 'actions') + tile('Evidence', evidenceContent, evidence, 'Review coverage and method', 'evidence') + '</div></div>';\n",
+          "    const valueLink = validated && validated.s.coverage.complete ? 'Explore low, central and high cases' : financial ? 'Review planning inputs' : 'Explore the evidence';\n    return '<div id=\"' + sections[0].id + '-overview\" class=\"mr-screen-only mr-report-overview\" aria-label=\"Report overview\"><p class=\"mr-overview-intro\">Your report at a glance. Select a ' + (synthesisQuad ? 'tile' : 'row') + ' to explore the full findings.</p><div class=\"mr-overview-grid\">' + tile('Overall findings', findingContent, findings, 'Read the findings', 'findings') + tile(valueTitle, valueContent, valueTarget, valueLink, 'value') + tile(options.length ? 'Change options' : 'Practical next steps', actionContent, actions || findings, 'Read the full guidance', 'actions') + tile(synthesisQuad ? 'Evidence' : 'Evidence behind the result', evidenceContent, evidence, 'Review coverage and method', 'evidence') + '</div></div>';\n"
+        ],
+        [
+          371520,
+          371610,
+          "    // All diagnostic and comparison screens open with the four-tile overview immediately\n",
+          "    // Eligible Synthesis screens open with the four-tile overview immediately\n"
+        ],
+        [
+          372119,
+          372203,
+          "      const overviewFirst = overview && ['run', 'meta-synthesis'].includes(m.kind);\n",
+          "      const overviewFirst = overview && m.kind === 'meta-synthesis' && !m.comparisonOnly && !m.selfRun && ['depth','cross_lens'].includes(m.product);\n"
+        ]
+      ]
+    },
+    "cross-tool-synthesis.html": {
+      "before_sha256": "52d4cf07ae366bf2cfb59bd50b04ad43a383f2e1eded8e633a9107ff98a2e894",
+      "after_sha256": "026b37e8751dbe6cf66cff3363854131dfa9f2c465cb811e9cb6a7dee364e978",
+      "replacements": [
+        [
+          7773,
+          7842,
+          "  <script src=\"monderman-report.js?v=20260929.singlelens1\"></script>\n",
+          "  <script src=\"monderman-report.js?v=20260925.changewording1\"></script>\n"
+        ]
+      ]
+    },
+    "decision-velocity.html": {
+      "before_sha256": "574f5a249b08ca123762b95638e4d1a799ed0b7f096819af3d277ceb5141a04e",
+      "after_sha256": "562a3e2642edf6364c5eda7764c35a48132d2218b1a64fe869f6c2a17735a0c3",
+      "replacements": [
+        [
+          124541,
+          124610,
+          "  <script src=\"monderman-report.js?v=20260929.singlelens1\"></script>\n",
+          "  <script src=\"monderman-report.js?v=20260925.changewording1\"></script>\n"
+        ]
+      ]
+    },
+    "institutional-performance.html": {
+      "before_sha256": "e16a002ebe66d4580a23d05625e45497b63cfa7b1591217c995a5c370a0b354a",
+      "after_sha256": "376c1052fb2bef2a77f4051da9b8beb90272e3b19e25306078ebfdbfd2be3283",
+      "replacements": [
+        [
+          123370,
+          123439,
+          "  <script src=\"monderman-report.js?v=20260929.singlelens1\"></script>\n",
+          "  <script src=\"monderman-report.js?v=20260925.changewording1\"></script>\n"
+        ]
+      ]
+    },
+    "operational-systems.html": {
+      "before_sha256": "757269df435ed3e84b2bbf37aa67a302d61d3c1b2135d7bce326ad520fbf9762",
+      "after_sha256": "60ea660d21fd8b03485550245f4998df20c71d6cad6a7d109e89784d093d2604",
+      "replacements": [
+        [
+          117008,
+          117077,
+          "  <script src=\"monderman-report.js?v=20260929.singlelens1\"></script>\n",
+          "  <script src=\"monderman-report.js?v=20260925.changewording1\"></script>\n"
+        ]
+      ]
+    },
+    "sample-report.html": {
+      "before_sha256": "8a85450ffcb7be461faa40ee4bafdaa62d905e99891d950af5309fd593f99e8e",
+      "after_sha256": "27b17608f5561fa7e9b45f44a022ad29165d53afebd8e2b2c37969875d211a2e",
+      "replacements": [
+        [
+          71182,
+          71249,
+          "<script src=\"monderman-report.js?v=20260929.singlelens1\"></script>\n",
+          "<script src=\"monderman-report.js?v=20260925.changewording1\"></script>\n"
+        ]
+      ]
+    },
+    "structural-clarity.html": {
+      "before_sha256": "2d36d81f8ccc3e2c650efbc03db3f0f2aa6a03a81d143454306efd6547c50a42",
+      "after_sha256": "8d6e121784516dd096d89c51f985cfad4cb8659fc091b8f3d7e0508a0efb9520",
+      "replacements": [
+        [
+          123517,
+          123586,
+          "  <script src=\"monderman-report.js?v=20260929.singlelens1\"></script>\n",
+          "  <script src=\"monderman-report.js?v=20260925.changewording1\"></script>\n"
+        ]
+      ]
+    },
+    "workspace-actions.html": {
+      "before_sha256": "495480a616fed03f5b764d820fd401468103a58f72416137d01c5273440144c1",
+      "after_sha256": "cbb241cca48e02629888c1d1905cfa11d3e7645e92fd7e2136445bcf051effaf",
+      "replacements": [
+        [
+          40035,
+          40104,
+          "  <script src=\"monderman-report.js?v=20260929.singlelens1\"></script>\n",
+          "  <script src=\"monderman-report.js?v=20260925.changewording1\"></script>\n"
+        ]
+      ]
+    },
+    "workspace-analysis.html": {
+      "before_sha256": "b028256e7e067f44315480017729d470ab00afccc1cc6650ad51471de2da6c4d",
+      "after_sha256": "bd9d63cc77eb20ae9e1e9550c7507826ddc2d0f15f3fea69c7c34c5de2cc3d7e",
+      "replacements": [
+        [
+          40415,
+          40484,
+          "  <script src=\"monderman-report.js?v=20260929.singlelens1\"></script>\n",
+          "  <script src=\"monderman-report.js?v=20260925.changewording1\"></script>\n"
+        ]
+      ]
+    },
+    "workspace-diagnostics.html": {
+      "before_sha256": "9bd0381a2f76411b27283fab92a4a33258eeaf40fd88ca5bf26b455168a93816",
+      "after_sha256": "b2f16e8f3716276b42a8e4ca73f487c01a1c6620fc6c112f4cd916658287d5c8",
+      "replacements": [
+        [
+          55498,
+          55567,
+          "  <script src=\"monderman-report.js?v=20260929.singlelens1\"></script>\n",
+          "  <script src=\"monderman-report.js?v=20260925.changewording1\"></script>\n"
+        ]
+      ]
+    },
+    "scripts/inject-public-shell.mjs": {
+      "before_sha256": "aeec1739a42a61ed5ea4678b945db43e6db0448e9aa1e940c341e960ee11a719",
+      "after_sha256": "2e9b4a3a701a6ee03d49ef126f0ec3d66b930e4c653da10ca44bf2ece042b9e1",
+      "replacements": [
+        [
+          1425,
+          1474,
+          "  \"monderman-report.js\": \"20260929.singlelens1\",\n",
+          "  \"monderman-report.js\": \"20260925.changewording1\",\n"
+        ]
+      ]
+    },
+    "scripts/public_sample_fixture.mjs": {
+      "before_sha256": "2f130165bbeaf0eb451a8e524559c1e4134826c4a363cfb966130a2dd0f895d8",
+      "after_sha256": "ee43e13aec00154f42c2edaeb9ed504364a63824e6560a33f7eed5907e8bb8f1",
+      "replacements": [
+        [
+          753,
+          878,
+          "import {SINGLE_LENS_OVERVIEW_VERSION,sourceAtSingleLensOverviewBaseline} from './single_lens_overview_20260929_inverse.mjs';\n",
+          ""
+        ],
+        [
+          5339,
+          6394,
+          "  const load=edition=>{\n    const context={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};\n    for(const file of ['participant-evidence-safety.js','monderman-report.js','public-sample-model.js']){\n      const raw=fs.readFileSync(path.join(root,file));\n      const bytes=edition.renderer_version===SINGLE_LENS_OVERVIEW_VERSION?raw:edition.renderer_version===CHANGE_WORDING_VERSION?sourceAtSingleLensOverviewBaseline(file,raw):sourceAtChangeWordingBaseline(file,raw);\n      assert.ok(validHash(edition.source_files?.[file]),'HTML binding source pin missing: '+file);\n      assert.equal(sha(bytes),edition.source_files[file],'HTML binding source changed: '+file);\n      vm.runInNewContext(bytes.toString(),context,{filename:file});\n    }\n    assert.equal(context.window.MondermanReport.rendererVersion,edition.renderer_version,'HTML binding source edition differs');\n    return context;\n  };\n  const context=load(review),retained=review.retained_pdf_sources?load(review.retained_pdf_sources):null;\n",
+          "  const context={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};\n  for(const file of ['participant-evidence-safety.js','monderman-report.js','public-sample-model.js']){\n    const raw=fs.readFileSync(path.join(root,file));\n    const bytes=review.renderer_version===CHANGE_WORDING_VERSION?raw:sourceAtChangeWordingBaseline(file,raw);\n    assert.ok(validHash(review.source_files?.[file]),'HTML binding source pin missing: '+file);\n    assert.equal(sha(bytes),review.source_files[file],'HTML binding source changed: '+file);\n    vm.runInNewContext(bytes.toString(),context,{filename:file});\n  }\n"
+        ],
+        [
+          6982,
+          7198,
+          "    const renderer=retained&&review.retained_pdf_products.includes(key)?retained.window:context.window;\n    const html=renderer.MondermanReport.buildReportHtml(renderer.MondermanPublicSamples.model(entry,artifact));\n",
+          "    const html=Report.buildReportHtml(Public.model(entry,artifact));\n"
+        ],
+        [
+          11235,
+          14364,
+          "  const singleLens=manifest.single_lens_overview_presentation_review;\n  if(singleLens){\n    const historical={...manifest};delete historical.single_lens_overview_presentation_review;\n    const previous=currentSynthesisPdfReview(historical,artifact),label='Single-lens overview presentation: ';\n    const refreshed=['operational_systems','decision_velocity','structural_clarity','institutional_performance'];\n    const retained=['depth_synthesis','cross_lens_synthesis'];\n    assert.equal(singleLens.version,'single-lens-overview-presentation-20260929.1',label+'version');\n    assert.equal(singleLens.status,'reviewed',label+'status');\n    assert.equal(singleLens.reviewed_by,'Codex',label+'reviewer');assert.ok(validTime(singleLens.reviewed_at),label+'review time');\n    assert.equal(singleLens.scope,'presentation_only',label+'scope');assert.equal(singleLens.provider_calls,0,label+'no AI generation');\n    assert.equal(singleLens.fidelity_review,'passed',label+'fidelity review');assert.equal(singleLens.visual_review,'passed',label+'visual review');\n    assert.equal(singleLens.artifact_file_sha256,manifest.artifact_file_sha256,label+'saved artifact bytes');\n    assert.equal(singleLens.artifact_sha256,manifest.artifact_sha256,label+'saved artifact identity');\n    assert.deepEqual(singleLens.prior_review,{field:'change_wording_presentation_review',sha256:evidenceDigest(previous)},label+'complete preceding publication review');\n    assert.equal(singleLens.renderer_version,SINGLE_LENS_OVERVIEW_VERSION,label+'current screen edition');\n    assert.ok(validHash(singleLens.renderer_sha256),label+'renderer digest');\n    assert.equal(singleLens.source_files?.['monderman-report.js'],singleLens.renderer_sha256,label+'current renderer binding');\n    assert.deepEqual(Object.keys(singleLens.source_files||{}).sort(),['monderman-report.js','participant-evidence-safety.js','public-sample-model.js'].sort(),label+'finite renderer sources');\n    assert.deepEqual(singleLens.refreshed_pdf_products,refreshed,label+'four refreshed comparison PDFs');\n    assert.deepEqual(singleLens.retained_pdf_products,retained,label+'two retained Synthesis PDFs');\n    assert.deepEqual(singleLens.retained_pdf_sources,{renderer_version:previous.renderer_version,renderer_sha256:previous.renderer_sha256,source_files:previous.source_files},label+'original retained-PDF renderer binding');\n    assert.deepEqual(Object.keys(singleLens.pdf_outputs||{}).sort(),Object.values(PUBLIC_PRODUCTS).sort(),label+'six PDF bindings');\n    for(const [key,pin]of Object.entries(singleLens.pdf_outputs)){\n      assert.equal(pin.path,'sample-data/reports/'+key+'.pdf',label+key+' PDF path');\n      assert.ok(validHash(pin.sha256)&&validHash(pin.html_sha256),label+key+' PDF/HTML digests');\n      assert.ok(Number.isSafeInteger(pin.pages)&&pin.pages>0,label+key+' page count');\n      if(retained.includes(key))assert.deepEqual(pin,previous.pdf_outputs[key],label+key+' unchanged PDF record');\n    }\n    for(const kind of ['browser','pdf'])assert.ok(validHash(singleLens.verification_receipts?.[kind]),label+kind+' verification receipt');\n    return singleLens;\n  }\n",
+          ""
+        ],
+        [
+          44292,
+          44462,
+          "  const historicalManifest={...manifest};delete historicalManifest.single_lens_overview_presentation_review;delete historicalManifest.change_wording_presentation_review;\n",
+          "  const historicalManifest={...manifest};delete historicalManifest.change_wording_presentation_review;\n"
+        ],
+        [
+          51964,
+          52065,
+          "  assert.ok([CHANGE_WORDING_VERSION,SINGLE_LENS_OVERVIEW_VERSION].includes(Report.rendererVersion));\n",
+          "  assert.equal(Report.rendererVersion,CHANGE_WORDING_VERSION);\n"
+        ]
+      ]
+    }
+  },
+  "publication_files": {
+    "sample-data/production-sample-release.json": {
+      "before_sha256": "a2586c3b66b871000fdd2b1780802fd6bde0d1246dd651c7df88dff9239af12f",
+      "after_sha256": "15f6f3bcc0ddb1bf97549114bb0effdc1e591a039d25923ea77759f6ce83a4b5"
+    },
+    "sample-data/reports/operational_systems.pdf": {
+      "before_sha256": "ad2fe5a494357922b59ea3437cb7423903e3885e8d8b1ecba0d653f2bdf8c793",
+      "after_sha256": "45a5e3accf8a10a4ce8118cffb79f801b22e1570310604175f7dd5519d7fe178"
+    },
+    "sample-data/reports/decision_velocity.pdf": {
+      "before_sha256": "9976411e3d8392fd11fe87c349a04e30501460afbd13b7c1ef9bba219ef47ddf",
+      "after_sha256": "921f24d14408dc06961c0f98ebe1c31e17a522e60b8498d8a6dbd3fea7382a54"
+    },
+    "sample-data/reports/structural_clarity.pdf": {
+      "before_sha256": "b3efa08cb30e90ef8bb777cb5e03c94026a07389542430f2354565285829fe4b",
+      "after_sha256": "3afe49bb55e07d823e76c4a4f245440ed69e12a476757a215574ce925e9e87d2"
+    },
+    "sample-data/reports/institutional_performance.pdf": {
+      "before_sha256": "e12cfb82d65027a7451f67cfba232cd05031135fd8edb894fc824406de65fbde",
+      "after_sha256": "81952df67348920f94246479ac1a8187b0af54bb562886d2d5fa7b4d1bfb5b65"
+    }
+  }
+}

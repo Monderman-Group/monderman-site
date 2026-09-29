@@ -21,6 +21,10 @@ on:
       - 'scripts/report_overview_contract.mjs'
       - 'scripts/report_unified_sankey_contract.mjs'
       - 'scripts/report_overview_browser_smoke.mjs'
+      - 'scripts/single_lens_overview_contract.mjs'
+      - 'scripts/single_lens_overview_browser.mjs'
+      - 'scripts/single_lens_overview_20260929_inverse.mjs'
+      - 'scripts/fixtures/single-lens-overview-20260929.json'
       - 'scripts/report_overview_test_normalizer.mjs'
       - 'scripts/report_overview_presentation_inverse.mjs'
       - 'scripts/fixtures/report-overview-reviewed-delta.json'
@@ -238,6 +242,10 @@ on:
       - 'scripts/report_overview_contract.mjs'
       - 'scripts/report_unified_sankey_contract.mjs'
       - 'scripts/report_overview_browser_smoke.mjs'
+      - 'scripts/single_lens_overview_contract.mjs'
+      - 'scripts/single_lens_overview_browser.mjs'
+      - 'scripts/single_lens_overview_20260929_inverse.mjs'
+      - 'scripts/fixtures/single-lens-overview-20260929.json'
       - 'scripts/report_overview_test_normalizer.mjs'
       - 'scripts/report_overview_presentation_inverse.mjs'
       - 'scripts/fixtures/report-overview-reviewed-delta.json'
@@ -484,6 +492,7 @@ jobs:
           node scripts/public_sample_manifest_sensitivity_smoke.mjs --check
           node scripts/refresh_public_sample_previews.mjs --check
           node scripts/report_overview_contract.mjs
+          node scripts/single_lens_overview_contract.mjs
           node scripts/report_overview_site_compatibility_smoke.mjs
           node scripts/report_unified_sankey_contract.mjs
           node scripts/homepage_sample_discovery_contract.mjs
@@ -589,7 +598,9 @@ jobs:
         run: node scripts/report_cross_lens_phone_smoke.mjs
 
       - name: Verify overview navigation and case controls in Chromium and WebKit with and without scripts
-        run: node scripts/report_overview_browser_smoke.mjs /tmp/report-presentation-smoke/report-overview
+        run: |
+          node scripts/report_overview_browser_smoke.mjs /tmp/report-presentation-smoke/report-overview
+          node scripts/single_lens_overview_browser.mjs /tmp/report-presentation-smoke/single-lens-overview
 
       - name: Verify unified money and time flows with maximum-input and print fixtures
         env:
