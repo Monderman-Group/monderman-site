@@ -37,7 +37,8 @@ for(const fixture of fixtures){
     assert.match(cover(html),/Review the interpretation and its limits\./);assert.doesNotMatch(cover(html),/suggested changes|Explore actions/);
     assert.doesNotMatch(html,/<article class="mr-card mr-ai-action/);assert.ok(html.includes(historicalAttribution));assert.doesNotMatch(html,/Claude selected and prioritized reviewed explanations and next steps/);
     assert.doesNotMatch(html,/<h3>Sector comparison<\/h3>|Interpretation version: \s*\.|Prepared: \s*\.|Evidence reference: \s*\./,'Absent saved metadata must not create empty report sections');
-    assert.equal((nav(html).match(/<a\b/g)||[]).length,5);cases++;
+    assert.equal((nav(html).match(/<a\b/g)||[]).length,6);
+    assert.match(nav(html),/data-report-link-role="financial-summary"[^>]*>Decision brief<\/a>/,'Financial availability remains reachable beside the interpretation');cases++;
   }
   for(const recommendations of [[action],[{action:' '},null,action]]){
     const {html}=render(fixture,state(recommendations));
@@ -63,7 +64,8 @@ try{
   const factual=render(fixtures.find(f=>f.kind==='synthesis'),state([])),withAction=render(fixtures[0],state([action]));
   for(const width of [390,768,1440]){
     await page.setViewportSize({width,height:1000});await page.setContent(factual.html);await page.evaluate(async()=>{await document.fonts.ready;});
-    assert.equal(await page.locator('.mr-screen-shortcuts a').count(),5);assert.equal(await page.locator('.mr-screen-shortcuts a').filter({hasText:/^Interpretation$/}).count(),1);
+    assert.equal(await page.locator('.mr-screen-shortcuts a').count(),6);assert.equal(await page.locator('.mr-screen-shortcuts a').filter({hasText:/^Interpretation$/}).count(),1);
+    assert.equal(await page.locator('.mr-screen-shortcuts [data-report-link-role="financial-summary"]').count(),1,'Financial availability keeps its own shortcut');
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
     assert.equal(await page.locator('.mr-screen-next a').isVisible(),false,'Overview replaces the legacy cover control');
     const overview=page.locator('.mr-overview-tile[data-report-link-role="overview-actions"]');

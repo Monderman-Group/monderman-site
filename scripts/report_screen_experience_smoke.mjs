@@ -286,9 +286,9 @@ const invariants=await page.evaluate(async ({legacySources,legacyNoteHtml})=>{
     MondermanReport.render(wrapper,model);
     const prefix=wrapper.querySelector('section[id]').id.replace(/-section-\d+$/,'');
     const printed=wrapper.querySelector('.mr-page').cloneNode(true);
-    // Eligible synthesis screens move the overview ahead of cover metadata.
+    // Every diagnostic and comparison screen moves the overview ahead of cover metadata.
     // Validate only that exact screen marker before comparing the entire body.
-    const overviewFirst=model.kind==='meta-synthesis'&&!model.comparisonOnly&&!model.selfRun&&['depth','cross_lens'].includes(model.product);
+    const overviewFirst=['run','meta-synthesis'].includes(model.kind);
     const normalizeOverviewFirst=root=>{
       const marked=root.querySelectorAll('[data-overview-first]');
       if(marked.length!==(overviewFirst?1:0))throw new Error('Unexpected overview-first marker count');
@@ -394,7 +394,7 @@ const invariants=await page.evaluate(async ({legacySources,legacyNoteHtml})=>{
   });
 },{legacySources,legacyNoteHtml:LEGACY_PLANNING_NOTE_HTML});
 assert.ok(invariants.every(row=>row.intact&&!row.mutated&&row.unique),JSON.stringify(invariants));
-assert.equal(invariants.filter(row=>row.overviewFirst).length,4,'Both current and historical synthesis covers must exercise overview-first preservation');
+assert.equal(invariants.filter(row=>row.overviewFirst).length,8,'All six current reports and both historical synthesis covers exercise overview-first preservation');
 assert.ok(invariants.every(row=>row.overviewMarkerNegativeControls.length===(row.overviewFirst?4:1)),'Missing overview-marker preservation negative control');
 assert.equal(invariants.filter(row=>row.fixture==='current').length,6,'All six current publications must retain their complete report bodies');
 assert.equal(invariants.filter(row=>row.fixture==='historical-v1'&&row.planningGroups===0&&row.legacyTablesPreserved).length,2,'Both historical synthesis products must preserve complete saved tables without the retired chart');
