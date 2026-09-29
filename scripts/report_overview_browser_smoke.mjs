@@ -55,7 +55,9 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]]){
         ok(geometry[1].x>geometry[0].x&&Math.abs(geometry[0].width-geometry[1].width)<1,tag+' desktop tiles have two equal columns');
       }else ok(geometry.every((r,i)=>!i||r.y>geometry[i-1].y&&Math.abs(r.x-geometry[0].x)<1),tag+' phone tiles form one column');
       if(artifact.outputs[key].kind==='response_comparison'){
-        eq(await page.locator('[data-report-link-role="overview-value"] .mr-overview-link').innerText(),'See how estimates become available →',tag+' financial link explains eligibility');
+        // Browser/font differences can wrap the decorative arrow at 320px.
+        // Compare the complete wording while geometry checks enforce fit.
+        eq((await page.locator('[data-report-link-role="overview-value"] .mr-overview-link').innerText()).replace(/\s+/g,' ').trim(),'See how estimates become available →',tag+' financial link explains eligibility');
         ok((await page.locator('.mr-financial-availability').innerText()).includes('Depth Synthesis or Cross-Lens Synthesis'),tag+' financial detail explains the next analysis step');
       }
       ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),tag+' no overflow');
