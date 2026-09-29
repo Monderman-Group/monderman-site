@@ -48,6 +48,18 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]]){
       ok(clearance.cover>=clearance.navigation,tag+' initial overview clears navigation');
       if(javaScriptEnabled)await page.screenshot({path:path.join(out,tag+'-initial-viewport.png')});
       eq(await page.locator('.mr-overview-tile:visible').count(),4,tag+' four overview tiles');
+      eq(await page.locator('.mr-cover').getAttribute('data-overview-first'),'true',tag+' every known report opens with tiles');
+      const geometry=await page.locator('.mr-overview-tile').evaluateAll(nodes=>nodes.map(node=>{const r=node.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width};}));
+      if(width>700){
+        eq(geometry[0].y,geometry[1].y,tag+' first two tiles share a row');
+        ok(geometry[1].x>geometry[0].x&&Math.abs(geometry[0].width-geometry[1].width)<1,tag+' desktop tiles have two equal columns');
+      }else ok(geometry.every((r,i)=>!i||r.y>geometry[i-1].y&&Math.abs(r.x-geometry[0].x)<1),tag+' phone tiles form one column');
+      if(artifact.outputs[key].kind==='response_comparison'){
+        // Browser/font differences can wrap the decorative arrow at 320px.
+        // Compare the complete wording while geometry checks enforce fit.
+        eq((await page.locator('[data-report-link-role="overview-value"] .mr-overview-link').innerText()).replace(/\s+/g,' ').trim(),'See how estimates become available →',tag+' financial link explains eligibility');
+        ok((await page.locator('.mr-financial-availability').innerText()).includes('Depth Synthesis or Cross-Lens Synthesis'),tag+' financial detail explains the next analysis step');
+      }
       ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),tag+' no overflow');
       const tiles=page.locator('.mr-overview-tile');
       for(let index=0;index<4;index++){
@@ -55,7 +67,7 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]]){
         ok(await page.locator(target).count()===1,tag+' unique target');
         const styles=await tile.evaluate(node=>({background:getComputedStyle(node).backgroundColor,band:getComputedStyle(node.querySelector('.mr-overview-title')).backgroundColor,height:node.getBoundingClientRect().height}));
         eq(styles.background,'rgb(255, 255, 255)',tag+' white tile');
-        eq(styles.band,key.endsWith('_synthesis')?'rgb(9, 56, 62)':'rgb(24, 119, 131)',tag+' approved Synthesis quad or ordinary-report teal header');
+        eq(styles.band,'rgb(9, 56, 62)',tag+' all report tiles use the same dark teal header');
         ok(styles.height>=44,tag+' touch target');
         await tile.focus();
         eq(await tile.evaluate(node=>getComputedStyle(node).outlineStyle),'solid',tag+' visible keyboard focus');
@@ -109,6 +121,7 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]]){
       const qualification=score_status==='published'?'Your selected scores only':'No combined score';
       ok(!(await page.locator('body').textContent()).includes('Strong observed condition'),'Self-run page never exposes organizational band');
       ok((await page.locator('[data-report-link-role="overview-findings"] .mr-overview-label').innerText()).includes(qualification),'Visible overview follows self-run policy');
+      eq(await page.locator('.mr-cover').getAttribute('data-overview-first'),'true','Self-run uses the shared tile opening');
       ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Self-run overview has no overflow');
       await page.screenshot({path:path.join(out,`${engine}-${width}-self-run-${score_status}.png`)});
       await page.emulateMedia({media:'print'});

@@ -10,6 +10,7 @@ import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 import {sourceBeforeHomepagePreviewAnchor20260924} from './homepage_preview_anchor_20260924_inverse.mjs';
 import {sourceBeforeHomepageReportQuad20260925} from './homepage_report_quad_20260925_inverse.mjs';
 import {CHANGE_WORDING_VERSION,sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
+import {SINGLE_LENS_OVERVIEW_VERSION,sourceAtSingleLensOverviewBaseline} from './single_lens_overview_20260929_inverse.mjs';
 
 export const PUBLIC_PRODUCTS = Object.freeze({
   os:'operational_systems', dv:'decision_velocity', sc:'structural_clarity',
@@ -72,14 +73,19 @@ export function assertPublicSampleHtmlBindings(artifact,review,{root=DEFAULT_ROO
   const keys=Object.values(PUBLIC_PRODUCTS).sort();
   assert.deepEqual(Object.keys(artifact.outputs||{}).sort(),keys,'HTML binding requires exactly six sample products');
   assert.deepEqual(Object.keys(review.pdf_outputs||{}).sort(),keys,'HTML binding requires all six reviewed digests');
-  const context={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};
-  for(const file of ['participant-evidence-safety.js','monderman-report.js','public-sample-model.js']){
-    const raw=fs.readFileSync(path.join(root,file));
-    const bytes=review.renderer_version===CHANGE_WORDING_VERSION?raw:sourceAtChangeWordingBaseline(file,raw);
-    assert.ok(validHash(review.source_files?.[file]),'HTML binding source pin missing: '+file);
-    assert.equal(sha(bytes),review.source_files[file],'HTML binding source changed: '+file);
-    vm.runInNewContext(bytes.toString(),context,{filename:file});
-  }
+  const load=edition=>{
+    const context={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};
+    for(const file of ['participant-evidence-safety.js','monderman-report.js','public-sample-model.js']){
+      const raw=fs.readFileSync(path.join(root,file));
+      const bytes=edition.renderer_version===SINGLE_LENS_OVERVIEW_VERSION?raw:edition.renderer_version===CHANGE_WORDING_VERSION?sourceAtSingleLensOverviewBaseline(file,raw):sourceAtChangeWordingBaseline(file,raw);
+      assert.ok(validHash(edition.source_files?.[file]),'HTML binding source pin missing: '+file);
+      assert.equal(sha(bytes),edition.source_files[file],'HTML binding source changed: '+file);
+      vm.runInNewContext(bytes.toString(),context,{filename:file});
+    }
+    assert.equal(context.window.MondermanReport.rendererVersion,edition.renderer_version,'HTML binding source edition differs');
+    return context;
+  };
+  const context=load(review),retained=review.retained_pdf_sources?load(review.retained_pdf_sources):null;
   const Report=context.window.MondermanReport,Public=context.window.MondermanPublicSamples;
   assert.equal(Report.rendererVersion,review.renderer_version,'HTML binding renderer edition differs');
   assert.equal(review.source_files['monderman-report.js'],review.renderer_sha256,'HTML binding renderer digest differs');
@@ -88,7 +94,8 @@ export function assertPublicSampleHtmlBindings(artifact,review,{root=DEFAULT_ROO
   for(const [key,entry]of Object.entries(artifact.outputs)){
     const expected=review.pdf_outputs[key].html_sha256;
     assert.ok(validHash(expected),key+' reviewed HTML digest missing');
-    const html=Report.buildReportHtml(Public.model(entry,artifact));
+    const renderer=retained&&review.retained_pdf_products.includes(key)?retained.window:context.window;
+    const html=renderer.MondermanReport.buildReportHtml(renderer.MondermanPublicSamples.model(entry,artifact));
     digests[key]=sha(html);
     assert.equal(digests[key],expected,key+' regenerated reviewed HTML changed');
   }
@@ -143,6 +150,37 @@ export function assertFinancialSamplePdfBinding(update,key,pdfBytes){
 }
 
 export function currentSynthesisPdfReview(manifest,artifact=null){
+  const singleLens=manifest.single_lens_overview_presentation_review;
+  if(singleLens){
+    const historical={...manifest};delete historical.single_lens_overview_presentation_review;
+    const previous=currentSynthesisPdfReview(historical,artifact),label='Single-lens overview presentation: ';
+    const refreshed=['operational_systems','decision_velocity','structural_clarity','institutional_performance'];
+    const retained=['depth_synthesis','cross_lens_synthesis'];
+    assert.equal(singleLens.version,'single-lens-overview-presentation-20260929.1',label+'version');
+    assert.equal(singleLens.status,'reviewed',label+'status');
+    assert.equal(singleLens.reviewed_by,'Codex',label+'reviewer');assert.ok(validTime(singleLens.reviewed_at),label+'review time');
+    assert.equal(singleLens.scope,'presentation_only',label+'scope');assert.equal(singleLens.provider_calls,0,label+'no AI generation');
+    assert.equal(singleLens.fidelity_review,'passed',label+'fidelity review');assert.equal(singleLens.visual_review,'passed',label+'visual review');
+    assert.equal(singleLens.artifact_file_sha256,manifest.artifact_file_sha256,label+'saved artifact bytes');
+    assert.equal(singleLens.artifact_sha256,manifest.artifact_sha256,label+'saved artifact identity');
+    assert.deepEqual(singleLens.prior_review,{field:'change_wording_presentation_review',sha256:evidenceDigest(previous)},label+'complete preceding publication review');
+    assert.equal(singleLens.renderer_version,SINGLE_LENS_OVERVIEW_VERSION,label+'current screen edition');
+    assert.ok(validHash(singleLens.renderer_sha256),label+'renderer digest');
+    assert.equal(singleLens.source_files?.['monderman-report.js'],singleLens.renderer_sha256,label+'current renderer binding');
+    assert.deepEqual(Object.keys(singleLens.source_files||{}).sort(),['monderman-report.js','participant-evidence-safety.js','public-sample-model.js'].sort(),label+'finite renderer sources');
+    assert.deepEqual(singleLens.refreshed_pdf_products,refreshed,label+'four refreshed comparison PDFs');
+    assert.deepEqual(singleLens.retained_pdf_products,retained,label+'two retained Synthesis PDFs');
+    assert.deepEqual(singleLens.retained_pdf_sources,{renderer_version:previous.renderer_version,renderer_sha256:previous.renderer_sha256,source_files:previous.source_files},label+'original retained-PDF renderer binding');
+    assert.deepEqual(Object.keys(singleLens.pdf_outputs||{}).sort(),Object.values(PUBLIC_PRODUCTS).sort(),label+'six PDF bindings');
+    for(const [key,pin]of Object.entries(singleLens.pdf_outputs)){
+      assert.equal(pin.path,'sample-data/reports/'+key+'.pdf',label+key+' PDF path');
+      assert.ok(validHash(pin.sha256)&&validHash(pin.html_sha256),label+key+' PDF/HTML digests');
+      assert.ok(Number.isSafeInteger(pin.pages)&&pin.pages>0,label+key+' page count');
+      if(retained.includes(key))assert.deepEqual(pin,previous.pdf_outputs[key],label+key+' unchanged PDF record');
+    }
+    for(const kind of ['browser','pdf'])assert.ok(validHash(singleLens.verification_receipts?.[kind]),label+kind+' verification receipt');
+    return singleLens;
+  }
   const wording=manifest.change_wording_presentation_review;
   if(wording){
     const historical={...manifest};delete historical.change_wording_presentation_review;
@@ -495,7 +533,7 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
   // Its empty predecessor cannot masquerade as an original publication input.
   assert.equal(sourceBeforeHomepageReportQuad20260925('scripts/homepage_report_quad_20260925.mjs',fs.readFileSync(path.join(root,'scripts/homepage_report_quad_20260925.mjs'))),'');
   const currentReview=currentSynthesisPdfReview(manifest,artifact);
-  const historicalManifest={...manifest};delete historicalManifest.change_wording_presentation_review;
+  const historicalManifest={...manifest};delete historicalManifest.single_lens_overview_presentation_review;delete historicalManifest.change_wording_presentation_review;
   const historicalReview=currentSynthesisPdfReview(historicalManifest,artifact);
   if(manifest.response_comparison_publication_review){
     // A new content edition needs exact current bytes, not an inverse back to
@@ -589,7 +627,7 @@ export function createPublicSampleModels(options={}) {
   vm.runInContext(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8'),context,{filename:'monderman-report.js'});
   vm.runInContext(fs.readFileSync(path.join(root,'public-sample-model.js'),'utf8'),context,{filename:'public-sample-model.js'});
   const Report=context.window.MondermanReport,Public=context.window.MondermanPublicSamples;
-  assert.equal(Report.rendererVersion,CHANGE_WORDING_VERSION);
+  assert.ok([CHANGE_WORDING_VERSION,SINGLE_LENS_OVERVIEW_VERSION].includes(Report.rendererVersion));
   assert.equal(Report.rendererVersion,currentSynthesisPdfReview(fixture.manifest,fixture.artifact).renderer_version);
   Public.validate(fixture.artifact);
   const models={};

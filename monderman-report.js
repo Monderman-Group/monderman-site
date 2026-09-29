@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-change-wording-20260925.1";
+  const RENDERER_VERSION = "diagnostic-renderer-single-lens-overview-20260929.1";
   // The measured-report adapter stays at r43; financial reading order and
   // summary presentation have their own explicit, independently tested edition.
   const FINANCIAL_PRESENTATION_VERSION = "financial-presentation-20260915.1";
@@ -1376,10 +1376,50 @@
     return '<figure class="mr-benefit-chart" data-flow-version="20260923.1">'+style+'<h4>'+humanize(level)+' case: money and staff time</h4><p class="mr-benefit-chart-note">Two views of the proposed change, before costs. The baseline covers entered activities and expenses, not all organizational work or spending. Costs and net value are shown separately.</p>'+panels.join('')+notes.map(note=>'<p class="mr-benefit-chart-note">'+esc(note)+'</p>').join('')+'<figcaption class="mr-benefit-chart-note">Directional estimates based on collected self-reported sample data, recorded operational inputs and stated assumptions. Each diagram uses one unit and a fixed scale across Low, Central and High. Translucent ribbons reconcile minor rounding differences; the tables retain the saved values. Staff time is not automatically cash savings. Full item-by-item sources and assumptions follow in the report.</figcaption></figure>';
   }
 
+  function financialAvailability(m) {
+    // Explain the next available product step without turning absent inputs
+    // into zero or changing the saved scenario/readiness calculation. A valid
+    // separately entered early planning scenario is rendered before this copy.
+    const priorScenario = financialScenarioPresentation(m);
+    if (priorScenario) return {
+      state: 'planning-scenario-available',
+      summary: priorScenario.s.kind === 'early_planning_scenario' ? 'An early planning scenario is available for this result.' : 'Financial estimates are available in the saved planning scenario.',
+      detail: 'Review the potential time released, financial values, costs and the assumptions behind them in the full planning scenario.',
+      next: priorScenario.s.kind === 'early_planning_scenario' ? 'This early scenario does not unlock Depth Synthesis or Cross-Lens Synthesis.' : 'Compare the Low, Central and High planning cases below.',
+      link: 'Explore the saved planning scenario'
+    };
+    if (m.kind !== 'run' && !m.selfRun && Object.keys(obj(m.financialScenario)).length) return {
+      state: 'planning-review-needed',
+      summary: 'The saved financial scenario needs review before its estimates can be displayed.',
+      detail: 'Review the scenario and its working-time, pay and spending inputs in Workspace Analysis, then save a corrected planning scenario.',
+      next: 'The diagnostic findings remain available below.',
+      link: 'Review the next step for estimates'
+    };
+    if (m.kind === 'run' || m.comparisonOnly || m.selfRun) return {
+      state: 'campaign-data-needed',
+      summary: 'Financial estimates become available with enough campaign data for Depth Synthesis or Cross-Lens Synthesis.',
+      detail: 'Each analysis must meet its participation and coverage requirements. Estimates also need the relevant working-time, pay and spending inputs.',
+      next: 'Continue gathering responses and check readiness in Workspace Analysis.',
+      link: 'See how estimates become available'
+    };
+    return {
+      state: 'planning-inputs-needed',
+      summary: 'Financial estimates have not been prepared for this saved result.',
+      detail: 'Review or add the working-time, pay and spending inputs in Workspace Analysis, then save a planning scenario to compare Low, Central and High cases.',
+      next: 'The diagnostic findings remain available below.',
+      link: 'Review the next step for estimates'
+    };
+  }
+
+  function renderFinancialAvailability(m) {
+    const message = financialAvailability(m);
+    return '<section class="mr-section mr-financial-brief mr-financial-availability" data-financial-state="' + message.state + '"><h2>Financial benefit assessment</h2><p>' + message.summary + '</p><p>' + message.detail + '</p><p>' + message.next + '</p></section>';
+  }
+
   function renderThreeBenefitBrief(m) {
     if(m.kind!=='meta-synthesis'||m.selfRun)return '';
     const validated=threeBenefitPresentation(m);
-    if(!validated)return '<section class="mr-section mr-financial-brief mr-three-benefit">'+THREE_BENEFIT_CSS+'<h2>Financial benefit assessment</h2><p>The three benefit categories have not been estimated with complete, reconciled inputs for this scope.</p><div class="mr-benefit-cards">'+THREE_BENEFIT_KEYS.map(key=>'<article class="mr-benefit-card"><h4>'+THREE_BENEFIT_LABELS[key]+'</h4><strong>Not estimated</strong><p>'+({spendingReduction:'Enter current expense units, rates, months and the proposed change.',spendingAvoidance:'Enter documented planned expense units, rates, months and the proposed change.',staffCapacity:'Enter measured activity hours, labor rates, time-reduction and adoption assumptions.'}[key])+'</p></article>').join('')+'</div><p>No missing category is treated as zero. Review the saved inputs before using a financial estimate.</p></section>';
+    if(!validated)return renderFinancialAvailability(m);
     const {s,input}=validated,t=s.totals,complete=s.coverage.complete;
     const panels=THREE_BENEFIT_CASES.map(level=>{
       const cards=THREE_BENEFIT_KEYS.map(key=>{const b=s.benefits[key];return '<article class="mr-benefit-card" data-benefit="'+key+'" data-status="'+b.status+'"><h4>'+THREE_BENEFIT_LABELS[key]+'</h4><strong'+(b.amount!==null?' data-saved-value="'+b.amount[level]+'"':'')+'>'+esc(b.amount===null?'Not estimated':threeBenefitHeadlineMoney(b.amount[level]))+'</strong><small>'+esc(b.status==='none_identified'?'Reviewed: none identified':b.status==='not_estimated'?'Inputs still needed':key==='staffCapacity'?b.hours[level].toLocaleString('en-US',{maximumFractionDigits:0})+' retained hours; not cash savings':'Potential change against the stated spending baseline')+'</small><p>'+esc(b.basis)+'</p></article>';}).join('');
@@ -1433,9 +1473,10 @@
   }
 
   function renderFinancialDecisionBrief(m) {
+    if (m.selfRun) return renderFinancialAvailability(m);
     if (obj(m.financialScenario).version === 'operational-planning-scenario-20260919.2' || (!obj(m.financialScenario).version && obj(m.financialBenefitAssessment).version === 'three-benefit-assessment-20260919.1')) return renderThreeBenefitBrief(m);
     const validated=financialScenarioPresentation(m);
-    if(!validated)return '';
+    if(!validated)return renderFinancialAvailability(m);
     const {s,input}=validated,t=s.totals;
     // Rounded display only. Preserve small nonzero amounts and the exact saved
     // calculation in the detailed tables, export payload and source record.
@@ -1981,7 +2022,7 @@
   function renderSelfRunReport(m) {
     const groups=arr(m.sourceGroups), actions=arr(m.actions).map(textItem).filter(Boolean);
     const summaries=groups.map(group=>{const publish=group.n===1||(m.product==='depth'&&m.scorePublished);return '<article class="mr-card"><h3>'+esc(group.toolLabel)+'</h3><dl><div><dt>Your saved runs</dt><dd>'+esc(fmtWhole(group.n))+'</dd></div><div><dt>'+(group.n===1?'Saved diagnostic score':'Median of your selected scores')+'</dt><dd>'+esc(publish&&strictFinite(group.median)?fmt1(group.median):'Not shown: compatible measurements are required')+'</dd></div></dl><p>Open the original reports for their measured detail.</p></article>';}).join('');
-    return '<section class="mr-section"><h2>Your recorded views</h2><p>'+esc(firstStr(m.coverBody,m.primaryPattern))+'</p><p>'+esc(m.runCountNote)+'</p><div class="mr-lens-grid">'+summaries+'</div></section>'+
+    return '<section class="mr-section mr-self-run-views"><h2>Your recorded views</h2><p>'+esc(firstStr(m.coverBody,m.primaryPattern))+'</p><p>'+esc(m.runCountNote)+'</p><div class="mr-lens-grid">'+summaries+'</div></section>'+
       (actions.length&&obj(m.aiReport).status!=='complete'?'<section class="mr-section"><h2>Checks to consider next</h2><ol>'+actions.map(action=>'<li>'+esc(action)+'</li>').join('')+'</ol></section>':'')+
       '<section class="mr-section"><h2>How to use this comparison</h2><p>Review each original report before interpreting a difference. Compare scores only when the diagnostic version, operating scope, perspective and measurement window are compatible. A difference between your answers is not evidence of disagreement between people or a measured organizational trend.</p><p>'+esc(firstStr(m.evidenceDescription,m.scoreBasis))+'</p><p>A campaign collects responses from invited participants for a defined scope. Recorded identities do not independently prove unique physical people. Separate readiness checks determine when Depth Synthesis, Cross-Lens Synthesis and broader action alternatives are available.</p></section>';
   }
@@ -2515,7 +2556,7 @@
       const financialNotice = legacy.status === 'updated_interpretation_required'
         ? '<aside class="mr-compatibility-notice mr-financial-legacy-notice"><div class="mr-compatibility-mark"></div><div><p class="mr-compatibility-label">Earlier interpretation withheld</p><p>' + esc(firstStr(legacy.explanation,'The earlier interpretation requires an update under the current financial policy. Original stored data, scores and recorded answers are unchanged.')) + '</p></div></aside>'
         : '';
-      return coverBlock + compatibilityBlock + financialNotice + aiBlock + renderRunReport(m) + sampleBlock;
+      return coverBlock + compatibilityBlock + financialNotice + renderFinancialAvailability(m) + aiBlock + renderRunReport(m) + sampleBlock;
     }
 
     const kvs = arr(m.kvs).map((x) => '<div class="k">' + esc(x.k) + "</div><div>" + esc(x.v) + "</div>").join("");
@@ -3292,8 +3333,8 @@
     const synthesisQuad = m.kind === 'meta-synthesis' && !m.comparisonOnly && !m.selfRun && ['depth','cross_lens'].includes(m.product);
     const ai = obj(m.aiReport), interpretation = ai.status === 'complete' ? obj(obj(ai.report).interpretation) : {};
     const compact = synthesisQuad && ai.status === 'complete' ? reviewedExecutiveOverview(obj(ai.report), interpretation, m) : null;
-    const findings = find(/mr-run-headline|mr-system-read|mr-depth-system-read|mr-ai-interpretation/) || sections[1];
-    const financial = find(/mr-financial-brief/), profile = find(/mr-run-dimensions|mr-system-read|mr-depth-system-read/);
+    const findings = find(/mr-run-headline|mr-system-read|mr-depth-system-read|mr-ai-interpretation|mr-self-run-views/) || sections[1];
+    const financial = find(/mr-financial-brief/);
     const actions = ai.status === 'complete' ? (find(/mr-report-options/) || find(/mr-report-nextsteps/) || find(/mr-ai-interpretation/)) : find(/mr-run-action-board/);
     const evidence = find(/mr-run-evidence|mr-evidence-status|mr-run-method|mr-meta-method/) || sections[sections.length - 1];
     if (!sections[0] || !findings || !evidence) return '';
@@ -3312,7 +3353,7 @@
     const scoreLabel = m.kind === 'run' ? 'Diagnostic score' : firstStr(m.scoreLabel, 'Condition score');
     const scoreBand = m.kind === 'run' || m.selfRun ? firstStr(m.headlineBand) : firstStr(m.conditionBand);
     let findingContent = '<div class="mr-overview-stat-summary"><div><div class="mr-overview-score"><strong>' + esc(strictFinite(score) ? fmt1(score) : 'Unavailable') + '</strong>' + (strictFinite(score) ? '<span>/ 100</span>' : '') + '</div><p class="mr-overview-label">' + esc(scoreLabel) + (scoreBand ? ' · ' + esc(scoreBand) : '') + '</p></div><div><p class="mr-overview-summary">' + esc(excerpt(summary || 'Review the recorded findings in the full report.')) + '</p><p class="mr-overview-note">' + (m.kind === 'run' ? 'One person’s responses.' : m.selfRun ? 'Your selected runs only.' : 'Included responses only.') + ' Excerpt; read the full findings and limits before acting.</p></div></div>';
-    if (synthesisQuad) {
+    if (synthesisQuad || m.comparisonOnly) {
       // These are complete saved units, not an inferred cause or a shortened
       // model sentence with its qualifying clause removed. Longer/unfamiliar
       // records may grow the card rather than silently lose their meaning.
@@ -3322,7 +3363,7 @@
       const legacyMixedPattern = 'Two or more lens-level signals share the highest observed count, so the coherent read does not identify one unique dominant shared pattern. Use the lens summaries and contradictions to define a bounded validation question rather than forcing one causal diagnosis.';
       // Prefer an already-compact complete summary. If no shorter engine unit
       // exists, retain the complete saved summary; 420 is not a truncation cap.
-      const wholeFinding = summary && summary.length <= 420 ? summary : m.primaryPattern === legacyMixedPattern ? 'Several patterns appear across the diagnostics; none stands out as the single shared explanation. Review the findings for each diagnostic before deciding what to change.' : firstStr(m.primaryPattern, obj(m.source?.diagnosis).body, summary, 'Review the recorded findings in the full report.');
+      const wholeFinding = summary && (m.comparisonOnly || summary.length <= 420) ? summary : m.primaryPattern === legacyMixedPattern ? 'Several patterns appear across the diagnostics; none stands out as the single shared explanation. Review the findings for each diagnostic before deciding what to change.' : firstStr(m.primaryPattern, obj(m.source?.diagnosis).body, summary, 'Review the recorded findings in the full report.');
       findingContent = '<div class="mr-overview-scoreline"><div class="mr-overview-score"><strong>' + esc(strictFinite(score) ? fmt1(score) : 'Unavailable') + '</strong>' + (strictFinite(score) ? '<span>/ 100</span>' : '') + '</div><p>' + esc(scoreBand || scoreLabel) + '</p></div><p class="mr-overview-summary mr-overview-finding">' + esc(wholeFinding) + '</p>' + (facts.length ? '<ul class="mr-overview-findings">' + facts.map(f => '<li><strong>' + esc(f.label) + ':</strong> ' + esc(f.value) + '</li>').join('') + '</ul><p class="mr-overview-note">Recorded patterns in the included responses.</p>' : '');
       if (compact) findingContent = '<div class="mr-overview-scoreline"><div class="mr-overview-score"><strong>' + esc(strictFinite(score) ? fmt1(score) : 'Unavailable') + '</strong>' + (strictFinite(score) ? '<span>/ 100</span>' : '') + '</div><p>' + esc(scoreBand || scoreLabel) + '</p></div><p class="mr-overview-summary mr-overview-finding">' + esc(compact.headline.text) + '</p><ul class="mr-overview-findings">' + compact.findings.map(unit => '<li>' + esc(unit.text) + '</li>').join('') + '</ul><p class="mr-overview-note">Summary of the full findings below.</p>';
     }
@@ -3336,9 +3377,9 @@
       const metric = (kind, value, label, format) => '<div class="mr-overview-benefit" data-overview-benefit="' + kind + '" data-value="' + value + '"><strong>' + esc(format(value)) + '</strong><span>' + label + '</span></div>';
       valueContent = '<p class="mr-overview-label">' + (s.kind === 'early_planning_scenario' ? 'Early planning case · central' : 'Central planning case') + ' · ' + fmtWhole(input.horizonMonths) + ' months</p><div class="mr-overview-benefits">' + metric('spending-reduction', totals.existingSpendingReduction.central, 'Cash spending reduced', fmtMoney) + metric('spending-avoidance', totals.futureSpendingAvoidance.central, 'Future costs avoided', fmtMoney) + metric('retained-capacity', totals.potentialHoursFreed.central, 'Staff capacity released', value => fmtWhole(value) + ' hours') + '</div><p class="mr-overview-note">Before costs. Directional planning estimates, not realized savings. ' + esc(fmtWhole(totals.grossPotentialHoursFreed.central) + ' gross hours freed; ' + fmtWhole(totals.potentialHoursFreed.central) + ' retained after time assigned to spending changes.') + ' Do not add hours to money.</p>';
       if (synthesisQuad) valueContent = valueContent.replace(/<div class="mr-overview-benefits">[^]*?<\/div><\/div>/, buildOverviewSankeys(validated));
-    } else if (m.kind === 'run') {
-      valueTitle = 'What needs attention'; valueTarget = profile || findings;
-      valueContent = '<p class="mr-overview-summary">' + esc(excerpt(firstStr(m.centralFinding, m.bottomLine, m.execSummary, 'See which parts of the work need attention.'))) + '</p><p class="mr-overview-note">Excerpt. One person’s responses do not establish organization-wide time or financial savings.</p>';
+    } else if (!validated) {
+      const message = financialAvailability(m);
+      valueContent = '<p class="mr-overview-summary" data-financial-state="' + message.state + '">' + message.summary + '</p><p>' + message.detail + '</p><p class="mr-overview-note">' + message.next + '</p>';
     } else {
       valueContent = '<p class="mr-overview-summary">' + (validated ? 'Some benefits have not been estimated.' : 'No complete planning scenario is recorded for this result.') + '</p><p>Review the available evidence and assumptions before estimating time or money.</p>';
     }
@@ -3346,6 +3387,9 @@
     const recommendations = renderedAIRecommendations(ai);
     const rows = options.length ? options.slice(0, 3).map(item => ({label: ({limited:'Limited change',moderate:'Moderate change',structural:'Structural change',aggressive:'Extensive change'})[item.intensity] || humanize(item.intensity || 'Change option'), text:item.action})) : recommendations.slice(0, 3).map((item, index) => ({label:'Next step ' + (index + 1), text:item.action}));
     let actionContent = rows.length ? '<ol class="mr-overview-options"><li><strong>' + esc(rows[0].label) + '</strong><p>' + esc(excerpt(rows[0].text, 200)) + '</p></li></ol><p class="mr-overview-note">' + (options.length ? 'First option excerpt. Compare full alternatives' : 'Guidance excerpt. Read the full rationale') + ', prerequisites, risks and measures of success.</p>' : '<p class="mr-overview-summary">' + (ai.status === 'complete' ? 'Review the interpretation before deciding what to change.' : 'The measured findings are available. Additional interpretation is not ready yet.') + '</p><p class="mr-overview-note">Read the findings now and return for the additional guidance.</p>';
+    if (!options.length && recommendations.length) {
+      actionContent = '<ol class="mr-overview-options">' + rows.slice(0, 2).map(row => '<li><strong>' + esc(row.label) + '</strong><p>' + esc(row.text) + '</p></li>').join('') + '</ol><p class="mr-overview-note">Read the full guidance for rationale, prerequisites, risks and measures of success.</p>';
+    }
     if (synthesisQuad && options.length) {
       const engineOptions = arr(obj(m.source).campaign_action_options);
       let selectedUnits = false;
@@ -3370,7 +3414,7 @@
     const recordedPeople = Number.isSafeInteger(people) && people > 0;
     const populationKnown = Number.isSafeInteger(population) && population >= people;
     let evidenceContent = m.kind === 'run' ? '<p class="mr-overview-summary">One person’s view of the work</p><dl><div><dt>Diagnostic</dt><dd>' + esc(m.toolLabel) + '</dd></div><div><dt>Perspective</dt><dd>' + esc(firstStr(m.participantMode, 'Recorded in the result')) + '</dd></div><div><dt>Scope</dt><dd>' + esc(firstStr(m.scopeLabel, m.processName, 'See recorded context')) + '</dd></div></dl><p class="mr-overview-note">Use the detailed responses and method to understand what this result supports.</p>' : '<div class="mr-overview-stat-summary"><div><div class="mr-overview-score"><strong>' + esc(recordedPeople ? fmtWhole(people) : 'Unavailable') + '</strong>' + (recordedPeople && populationKnown ? '<span>of ' + fmtWhole(population) + '</span>' : '') + '</div><p class="mr-overview-label">Recorded participants' + (recordedPeople && populationKnown ? ' / declared population' : '') + '</p></div><div><p class="mr-overview-summary">' + esc(excerpt(firstStr(m.evidenceDescription, m.evidenceLabel, 'Review participation, scope and source checks.'), 150)) + '</p><p class="mr-overview-note">Coverage excerpt. People are counted once across lenses. Participation alone does not establish representative coverage.</p></div></div>';
-    if (synthesisQuad) {
+    if (m.kind === 'meta-synthesis' && !m.selfRun) {
       const count = value => Number.isSafeInteger(value) && value > 0 ? fmtWhole(value) : 'Unavailable';
       const raw = obj(m.source), assessment = obj(raw.evidence_assessment), depthLenses = arr(obj(obj(m.campaignEvidence).depth).lenses);
       const groupSets = depthLenses.map(lens => arr(lens.requiredGroups).filter(group => {
@@ -3385,8 +3429,8 @@
       const fact = (value,label) => '<div><strong>' + esc(value) + '</strong><span>' + label + '</span></div>';
       evidenceContent = '<div class="mr-overview-evidence-stats">' + fact(recordedPeople ? fmtWhole(people) + (populationKnown ? ' of ' + fmtWhole(population) : '') : 'Unavailable', 'participants') + fact(count(counts.selectedRuns), 'selected runs') + fact(count(raw.lens_count), raw.lens_count === 1 ? 'diagnostic' : 'diagnostics') + '</div><dl class="mr-overview-evidence-detail"><div><dt>Perspectives</dt><dd>' + esc(perspectiveText) + '</dd></div><div><dt>Coverage</dt><dd>' + esc(coverageText) + '</dd></div><div><dt>Interpretation</dt><dd>Question wording can vary by role. Compare reported experiences, not answers to identical questions. Participation alone does not establish representative coverage.</dd></div></dl>';
     }
-    const valueLink = validated && validated.s.coverage.complete ? 'Explore low, central and high cases' : financial ? 'Review planning inputs' : 'Explore the evidence';
-    return '<div id="' + sections[0].id + '-overview" class="mr-screen-only mr-report-overview" aria-label="Report overview"><p class="mr-overview-intro">Your report at a glance. Select a ' + (synthesisQuad ? 'tile' : 'row') + ' to explore the full findings.</p><div class="mr-overview-grid">' + tile('Overall findings', findingContent, findings, 'Read the findings', 'findings') + tile(valueTitle, valueContent, valueTarget, valueLink, 'value') + tile(options.length ? 'Change options' : 'Practical next steps', actionContent, actions || findings, 'Read the full guidance', 'actions') + tile(synthesisQuad ? 'Evidence' : 'Evidence behind the result', evidenceContent, evidence, 'Review coverage and method', 'evidence') + '</div></div>';
+    const valueLink = validated && validated.s.coverage.complete ? 'Explore low, central and high cases' : !validated ? financialAvailability(m).link : 'Review planning inputs';
+    return '<div id="' + sections[0].id + '-overview" class="mr-screen-only mr-report-overview" aria-label="Report overview"><p class="mr-overview-intro">Your report at a glance. Select a tile to explore the full findings.</p><div class="mr-overview-grid">' + tile('Overall findings', findingContent, findings, 'Read the findings', 'findings') + tile(valueTitle, valueContent, valueTarget, valueLink, 'value') + tile(options.length ? 'Change options' : 'Practical next steps', actionContent, actions || findings, 'Read the full guidance', 'actions') + tile('Evidence', evidenceContent, evidence, 'Review coverage and method', 'evidence') + '</div></div>';
   }
 
   function buildScreenReportControls(model, sections) {
@@ -3510,7 +3554,7 @@
     if(interpretationIndex>=0)sections.splice(interpretationIndex+1,0,...guidanceSections);
     const { nav, nextMove, overview } = buildScreenReportControls(m, sections);
     const boundary = m.kind === "run" && m.footnote ? '<div class="mr-screen-only mr-screen-boundary"><strong>' + esc(firstStr(m.evidenceBand, "Single-run evidence")) + '</strong><p>' + esc(m.footnote) + '</p></div>' : '';
-    // Eligible Synthesis screens open with the four-tile overview immediately
+    // All diagnostic and comparison screens open with the four-tile overview immediately
     // after their heading/disclosure. Detailed metadata and interpretation
     // limits follow it; the print-only reading order stays unchanged.
     const coverClose = '</div></section>';
@@ -3519,7 +3563,7 @@
     const coverEnd = body.indexOf('</section>');
     const cover = coverEnd < 0 ? '' : body.slice(0, coverEnd + '</section>'.length);
     if (cover.endsWith(coverClose)) {
-      const overviewFirst = overview && m.kind === 'meta-synthesis' && !m.comparisonOnly && !m.selfRun && ['depth','cross_lens'].includes(m.product);
+      const overviewFirst = overview && ['run', 'meta-synthesis'].includes(m.kind);
       const opening = /<div class="mr-cover-white"><p class="mr-cover-kicker">Executive Report<\/p>(?:<p class="mr-sample-disclosure">Sample report · Example data<\/p>)?/;
       if (overviewFirst && opening.test(cover)) {
         const compactCover = cover.slice(0, -coverClose.length)

@@ -431,7 +431,12 @@ for (const [key, html] of Object.entries(authenticatedRunHtml)) {
   const runPage = await browser.newPage({ viewport: { width:1440, height:1100 } });
   await loadStandalone(runPage, html);
   assert(await runPage.locator('.mr-run-decision').isVisible(), `${key} authenticated executive brief missing`);
-  assert(await runPage.locator('.mr-run-decision').evaluate(el => el === document.querySelector('.mr-section')), `${key} executive brief is not first`);
+  assert(await runPage.locator('.mr-section.mr-financial-availability').count() === 1, `${key} must contain one financial-availability explanation`);
+  assert(await runPage.locator('.mr-financial-availability').getAttribute('data-financial-state') === 'campaign-data-needed', `${key} individual report must explain campaign requirements for financial estimates`);
+  assert(await runPage.locator('.mr-run-decision').evaluate(el => {
+    const [financial, firstMeasuredResult] = document.querySelectorAll('.mr-section');
+    return financial.matches('.mr-financial-availability') && firstMeasuredResult === el;
+  }), `${key} financial explanation must precede the executive brief as the first measured-result section`);
   assert(await runPage.locator('.mr-dimension-row').count() === runDimensions[key], `${key} authenticated dimension profile mismatch`);
   assert(await runPage.locator('.mr-constraint-view').isVisible(), `${key} constraint concentration visual missing`);
   assert(await runPage.locator('.mr-exposure-flow').count()===0, `${key} historical single-run modeled exposure must remain undisplayed`);
