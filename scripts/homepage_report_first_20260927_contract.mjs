@@ -9,7 +9,8 @@ import {HOMEPAGE_REPORT_FIRST_BASELINE,HOMEPAGE_REPORT_FIRST_FILES,reportFirstDe
 import {buildPublicSamplePreviewSections} from './refresh_public_sample_previews.mjs';
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 import {sourceAtSingleLensOverviewBaseline} from './single_lens_overview_20260929_inverse.mjs';
-const root=path.resolve(import.meta.dirname,'..'),read=file=>sourceAtSingleLensOverviewBaseline(file,fs.readFileSync(path.join(root,file)));
+import {sourceAtTrenchesHomepageCarouselBaseline} from './trenches_homepage_carousel_20260929_inverse.mjs';
+const root=path.resolve(import.meta.dirname,'..'),read=file=>sourceAtSingleLensOverviewBaseline(file,sourceAtTrenchesHomepageCarouselBaseline(file,fs.readFileSync(path.join(root,file))));
 const prior=file=>execFileSync('git',['show',HOMEPAGE_REPORT_FIRST_BASELINE+':'+file],{cwd:root,maxBuffer:32e6});
 const sha=value=>createHash('sha256').update(value).digest('hex');
 let checks=0,negativeControls=0;

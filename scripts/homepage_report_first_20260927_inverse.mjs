@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
+import {sourceAtTrenchesHomepageCarouselBaseline} from './trenches_homepage_carousel_20260929_inverse.mjs';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 // The published main commit and local preparation commit share this exact tree.
 // Pin content identity, not the local-only preparation commit's history.
@@ -31,6 +32,7 @@ export function sourceBeforeHomepageReportFirst20260927(file,source){
 // Only the exact newly reviewed identity is stripped. Other bytes still reach
 // the pre-existing independent digest assertions and cannot bypass them.
 export function sourceAtHomepageReportFirstBaseline(file,source){
+ source=sourceAtTrenchesHomepageCarouselBaseline(file,source);
  const entry=Object.hasOwn(reportFirstDelta.files,file)?reportFirstDelta.files[file]:null;
  return entry&&sha(source)===entry.after_sha256?sourceBeforeHomepageReportFirst20260927(file,source):source;
 }
