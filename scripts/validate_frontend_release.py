@@ -117,11 +117,11 @@ if not latest_match:
  e.append('homepage research carousel boundary missing')
 else:
  latest=latest_match.group(1)
- if len(re.findall(r'<article class="latest-card category-(?:research|insight|brief|perspective)"',latest))!=16:e.append('homepage research carousel card count')
- if latest.count('latest-card-image latest-card-image--placeholder')!=16:e.append('homepage research carousel canonical cover count')
- if latest.count('placeholder-cover-type')!=16:e.append('homepage research carousel category label count')
- if latest.count('latest-card-link')!=16:e.append('homepage research carousel full-card link count')
- if latest.count('latest-card-secondary-link')!=14:e.append('homepage research carousel PDF action count')
+ if len(re.findall(r'<article class="latest-card category-(?:research|insight|brief|perspective)"',latest))!=17:e.append('homepage research carousel card count')
+ if latest.count('latest-card-image latest-card-image--placeholder')!=17:e.append('homepage research carousel canonical cover count')
+ if latest.count('placeholder-cover-type')!=17:e.append('homepage research carousel category label count')
+ if latest.count('latest-card-link')!=17:e.append('homepage research carousel full-card link count')
+ if latest.count('latest-card-secondary-link')!=15:e.append('homepage research carousel PDF action count')
  for href in re.findall(r'class="latest-card-link" href="([^"]+)"',latest):
   clean_href=href.split('?',1)[0]
   if not clean_href.endswith('.html'):e.append('homepage carousel primary route is not HTML '+href)
@@ -147,7 +147,10 @@ else:
   e.append('homepage series carousel reading order')
  for part in ['Series, Part 1','Series, Part 2','Series, Part 3']:
   if latest.count(part)!=1:e.append('homepage series carousel chip '+part)
- for category,expected in [('insight',7),('brief',5),('perspective',4)]:
+ if not latest_titles or latest_titles[0][0]!='Trenches, Not Silos':e.append('Trenches, Not Silos must lead the homepage carousel')
+ for token in ['Governance and Performance · Part 4','The Bill for Dividing a Company','href="trenches-not-silos.html"','href="Monderman_Insight_Trenches_Not_Silos_2026-09-28.pdf"']:
+  if token not in latest:e.append('homepage Trenches, Not Silos card '+token)
+ for category,expected in [('insight',8),('brief',5),('perspective',4)]:
   count=latest.count(f'data-category="{category}"')
   if count!=expected:e.append(f'homepage {category} category count {count}, expected {expected}')
  if 'data-category="research"' in latest:e.append('homepage current work falsely classified as Research')
