@@ -12,6 +12,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -26,6 +28,7 @@ jobs:
       - name: Verify restored floating controls and shared footer on every public page
         run: |
           MONDERMAN_QUESTIONNAIRE_RELEASE=current RENDER_GIT_COMMIT="${{ github.sha }}" bash scripts/render-static-build.sh
+          node scripts/footer_membership_smoke.mjs
           node scripts/footer_support_smoke.mjs
           FOOTER_FULL_SCRIPTS=1 FOOTER_TEST_OUTPUT=output/full-script-support node scripts/footer_support_smoke.mjs
       - name: Keep floating controls visible and fixed through animations and late content
@@ -45,6 +48,7 @@ jobs:
           name: floating-widget-evidence-${{ github.sha }}
           path: |
             output/floating-support/results.json
+            output/acmp-footer
             output/full-script-support/results.json
             /tmp/floating-widget-motion
           if-no-files-found: warn

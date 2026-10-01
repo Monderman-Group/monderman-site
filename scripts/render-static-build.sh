@@ -47,6 +47,7 @@ cp -- \
   assets/brand/monderman-map-cream.svg \
   assets/brand/monderman-mark-v2-small.svg \
   assets/brand/monderman-social-card.png \
+  assets/brand/acmp-member-badge.png \
   "$publish_dir/assets/brand/"
 find assets/research -maxdepth 1 -type f -name '*.png' ! -name 'after-the-first-lap-social.png' -exec cp -- {} "$publish_dir/assets/research/" \;
 
