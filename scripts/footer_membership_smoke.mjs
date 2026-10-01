@@ -105,6 +105,24 @@ for (const [engineName, engine] of Object.entries({chromium, webkit})) {
           // macOS WebKit uses Option+Tab to include links in keyboard traversal.
           await page.keyboard.press(engineName === 'webkit' && process.platform === 'darwin' ? 'Alt+Tab' : 'Tab');
           ok(await link.evaluate(node => node === document.activeElement), label + ': reachable in normal keyboard order');
+          try {
+            await page.waitForFunction(() => {
+              const node = document.querySelector('.mf-membership');
+              if (!node || node !== document.activeElement || !node.matches(':focus-visible')) return false;
+              const style = getComputedStyle(node);
+              return style.outlineStyle !== 'none' && parseFloat(style.outlineWidth) >= 2;
+            }, null, {timeout:5000, polling:'raf'});
+          } catch {
+            const focus = await link.evaluate(node => {
+              const style = getComputedStyle(node);
+              return {active:node === document.activeElement, focusVisible:node.matches(':focus-visible'),
+                outline:style.outline, outlineWidth:style.outlineWidth, outlineStyle:style.outlineStyle,
+                outlineOffset:style.outlineOffset, transitionProperty:style.transitionProperty, transitionDuration:style.transitionDuration,
+                documentHasFocus:document.hasFocus(), visibilityState:document.visibilityState, readyState:document.readyState,
+                membershipStylesheets:[...document.styleSheets].filter(sheet => sheet.href?.includes('footer-membership.css')).map(sheet => ({href:sheet.href, disabled:sheet.disabled}))};
+            });
+            throw new Error(label + ': visible keyboard focus did not settle within 5s: ' + JSON.stringify(focus));
+          }
           ok(await link.evaluate(node => { const style = getComputedStyle(node); return style.outlineStyle !== 'none' && parseFloat(style.outlineWidth) >= 2; }), label + ': visible keyboard focus');
           await link.click({trial:true});
           const geometry = await link.evaluate(node => {
