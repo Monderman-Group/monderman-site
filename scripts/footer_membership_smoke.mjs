@@ -102,7 +102,8 @@ for (const [engineName, engine] of Object.entries({chromium, webkit})) {
           for (const token of ['noopener', 'noreferrer']) ok((await link.getAttribute('rel')).split(/\s+/).includes(token), label + ': external link ' + token);
           eq(await link.getAttribute('aria-label'), 'Verify ACMP membership on Credly (opens in a new tab)', label + ': accessible verification link');
           await page.locator('.mf-nav a').last().focus();
-          await page.keyboard.press('Tab');
+          // macOS WebKit uses Option+Tab to include links in keyboard traversal.
+          await page.keyboard.press(engineName === 'webkit' && process.platform === 'darwin' ? 'Alt+Tab' : 'Tab');
           ok(await link.evaluate(node => node === document.activeElement), label + ': reachable in normal keyboard order');
           ok(await link.evaluate(node => { const style = getComputedStyle(node); return style.outlineStyle !== 'none' && parseFloat(style.outlineWidth) >= 2; }), label + ': visible keyboard focus');
           await link.click({trial:true});
