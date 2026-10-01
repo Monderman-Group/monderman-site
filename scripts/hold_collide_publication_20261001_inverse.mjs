@@ -1,6 +1,7 @@
 // Exact Part 5 publication compatibility; historical approvals retain their pins.
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
+import {sourceAtResearchPrintPaginationBaseline} from './research_print_pagination_20261001_inverse.mjs';
 const sha = value => createHash('sha256').update(value).digest('hex');
 export const HOLD_COLLIDE_PUBLICATION_BASELINE = 'b9f95c67b3f526a229439058d16916c114a21e27';
 export const HOLD_COLLIDE_PUBLICATION_FILES = Object.freeze(['index.html', 'research.html']);
@@ -58,6 +59,7 @@ export function sourceBeforeHoldCollidePublication20261001(file, source) {
 
 // Unknown bytes reach the original historical assertions without rewriting.
 export function sourceAtHoldCollidePublicationBaseline(file, source) {
+  source = sourceAtResearchPrintPaginationBaseline(file, source);
   const entry = Object.hasOwn(holdCollidePublicationDelta, file) ? holdCollidePublicationDelta[file] : null;
   return entry && sha(source) === entry.after_sha256
     ? sourceBeforeHoldCollidePublication20261001(file, source)

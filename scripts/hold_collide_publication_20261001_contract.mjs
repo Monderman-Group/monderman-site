@@ -12,9 +12,10 @@ import {
   sourceAtHoldCollidePublicationBaseline,
 } from './hold_collide_publication_20261001_inverse.mjs';
 import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
+import {RESEARCH_PRINT_BASELINE, RESEARCH_PRINT_STYLE, sourceBeforeResearchPrintPagination20261001, sourceAtResearchPrintPaginationBaseline} from './research_print_pagination_20261001_inverse.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
-const read = file => fs.readFileSync(path.join(root, file));
+const read = file => sourceAtResearchPrintPaginationBaseline(file, fs.readFileSync(path.join(root, file)));
 const prior = file => execFileSync('git', ['show', HOLD_COLLIDE_PUBLICATION_BASELINE + ':' + file], {cwd: root, maxBuffer: 32e6});
 const sha = value => createHash('sha256').update(value).digest('hex');
 let checks = 0, negativeControls = 0;
@@ -31,6 +32,26 @@ const slug = 'hold-collide-come-apart.html';
 const pdf = 'Monderman_Insight_Hold_Collide_Come_Apart_2026-10-01.pdf';
 const social = 'assets/research/hold-collide-come-apart-social.png';
 const description = 'How divisions hold in parallel, collide over shared ground, or grow apart, and why each pattern calls for a different response.';
+
+const rawResearch = fs.readFileSync(path.join(root, 'research.html'), 'utf8');
+const priorPrintSource = execFileSync('git', ['show', RESEARCH_PRINT_BASELINE + ':research.html'], {cwd: root, encoding: 'utf8'});
+eq(rawResearch.split(RESEARCH_PRINT_STYLE).length - 1, 1, 'One exact print-restricted style keeps the final quote and essays together');
+eq(sourceBeforeResearchPrintPagination20261001('research.html', rawResearch), priorPrintSource, 'Print change preserves every preceding screen/style/script/content byte');
+eq(sourceAtResearchPrintPaginationBaseline('research.html', Buffer.from(rawResearch)), Buffer.from(priorPrintSource), 'Print normalization preserves Buffer type');
+for (const mutant of [rawResearch + '\n', priorPrintSource,
+  rawResearch.replace('id="research-print-flow-20261001" media="print"', 'id="research-print-flow-20261001"'),
+  rawResearch.replace('id="research-print-flow-20261001" media="print"', 'id="research-print-flow-20261001" media="screen"'),
+  rawResearch.replace('break-after: avoid;', 'break-after: auto;'),
+  rawResearch.replace(RESEARCH_PRINT_STYLE, RESEARCH_PRINT_STYLE + RESEARCH_PRINT_STYLE),
+]) {
+  reject(() => sourceBeforeResearchPrintPagination20261001('research.html', mutant), 'Print inverse rejects changed rules, media, unrelated source, and double inversion');
+  eq(sourceAtResearchPrintPaginationBaseline('research.html', mutant), mutant, 'Print adapter does not repair unknown bytes');
+}
+for (const file of ['index.html', 'monderman-report.js', '__proto__']) {
+  const bytes = Buffer.from('Outside the Research print scope');
+  eq(sourceBeforeResearchPrintPagination20261001(file, bytes), bytes, 'Print inverse leaves unrelated source untouched');
+  eq(sourceAtResearchPrintPaginationBaseline(file, bytes), bytes, 'Print adapter leaves unrelated source untouched');
+}
 
 eq(Object.keys(holdCollidePublicationDelta), HOLD_COLLIDE_PUBLICATION_FILES, 'Compatibility is confined to the two publication listings');
 for (const file of HOLD_COLLIDE_PUBLICATION_FILES) {
