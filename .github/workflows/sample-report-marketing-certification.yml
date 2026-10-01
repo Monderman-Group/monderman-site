@@ -142,6 +142,16 @@ on:
       - 'trenches-publication.css'
       - 'scripts/validate_trenches_not_silos.py'
       - 'scripts/trenches_research_20260928_*.mjs'
+      - 'hold-collide-come-apart.html'
+      - 'Monderman_Insight_Hold_Collide_Come_Apart_2026-10-01.pdf'
+      - 'pdf-src/hold-collide-come-apart.json'
+      - 'pdf-src/hold-collide-figures.json'
+      - 'scripts/build_hold_collide_come_apart.py'
+      - 'scripts/validate_hold_collide_publication.py'
+      - 'scripts/hold_collide_browser_smoke.mjs'
+      - 'scripts/hold_collide_publication_20261001_*.mjs'
+      - 'hold-collide-publication.css'
+      - 'assets/research/hold-collide-come-apart*'
       - 'scripts/governance_research_20260925_*.mjs'
       - 'scripts/fixtures/governance-research-20260925.json'
       - 'assistant.js'
@@ -363,6 +373,16 @@ on:
       - 'trenches-publication.css'
       - 'scripts/validate_trenches_not_silos.py'
       - 'scripts/trenches_research_20260928_*.mjs'
+      - 'hold-collide-come-apart.html'
+      - 'Monderman_Insight_Hold_Collide_Come_Apart_2026-10-01.pdf'
+      - 'pdf-src/hold-collide-come-apart.json'
+      - 'pdf-src/hold-collide-figures.json'
+      - 'scripts/build_hold_collide_come_apart.py'
+      - 'scripts/validate_hold_collide_publication.py'
+      - 'scripts/hold_collide_browser_smoke.mjs'
+      - 'scripts/hold_collide_publication_20261001_*.mjs'
+      - 'hold-collide-publication.css'
+      - 'assets/research/hold-collide-come-apart*'
       - 'scripts/governance_research_20260925_*.mjs'
       - 'scripts/fixtures/governance-research-20260925.json'
       - 'assistant.js'
@@ -545,6 +565,9 @@ jobs:
           python scripts/validate_publication_suite.py
           python scripts/validate_fast_to_cut.py
           python scripts/validate_trenches_not_silos.py
+          python scripts/validate_hold_collide_publication.py
+          node scripts/hold_collide_publication_20261001_contract.mjs
+          node scripts/trenches_homepage_carousel_20260929_contract.mjs
           node scripts/trenches_research_20260928_contract.mjs
           node scripts/governance_research_20260925_contract.mjs
           python scripts/publication_copy_regression.py
@@ -665,6 +688,11 @@ jobs:
         env:
           SITE_BASE: http://127.0.0.1:8080
         run: node scripts/homepage_card_rhythm_smoke.mjs
+
+      - name: Verify Governance Part 5 publication and discovery
+        env:
+          SITE_BASE_URL: http://127.0.0.1:8080
+        run: node scripts/hold_collide_browser_smoke.mjs
 
       - name: Verify the product walkthrough and Workspace states
         env:

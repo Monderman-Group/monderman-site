@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
+import {sourceAtHoldCollidePublicationBaseline} from './hold_collide_publication_20261001_inverse.mjs';
 import {
   TRENCHES_RESEARCH_BASELINE,
   trenchesResearchReplacements,
@@ -12,7 +13,7 @@ import {
 
 const root = path.resolve(import.meta.dirname, '..');
 const file = 'research.html';
-const current = fs.readFileSync(path.join(root, file), 'utf8');
+const current = sourceAtHoldCollidePublicationBaseline(file, fs.readFileSync(path.join(root, file), 'utf8'));
 const before = execFileSync('git', ['show', TRENCHES_RESEARCH_BASELINE + ':' + file], {cwd: root, encoding: 'utf8'});
 let checks = 0;
 let negativeControls = 0;
