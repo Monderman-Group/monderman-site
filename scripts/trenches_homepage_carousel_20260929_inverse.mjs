@@ -1,6 +1,7 @@
 // Exact one-card compatibility. Historical homepage and report pins stay fixed.
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
+import {sourceAtHoldCollidePublicationBaseline} from './hold_collide_publication_20261001_inverse.mjs';
 const sha = value => createHash('sha256').update(value).digest('hex');
 export const TRENCHES_HOMEPAGE_BASELINE = 'f581afe6a1c7f970a8f9cd641210bd6f65fe295e';
 export const TRENCHES_HOMEPAGE_BEFORE_SHA256 = '5a37088d97f5da133bb9116f830d66f890c12841e8aa0ca7c8be7729dbba98e2';
@@ -39,6 +40,7 @@ export function sourceBeforeTrenchesHomepageCarousel20260929(file, source) {
 
 // Unrecognized bytes continue unchanged to the existing historical assertions.
 export function sourceAtTrenchesHomepageCarouselBaseline(file, source) {
+  if (file === 'index.html') source = sourceAtHoldCollidePublicationBaseline(file, source);
   return file === 'index.html' && sha(source) === TRENCHES_HOMEPAGE_AFTER_SHA256
     ? sourceBeforeTrenchesHomepageCarousel20260929(file, source)
     : source;

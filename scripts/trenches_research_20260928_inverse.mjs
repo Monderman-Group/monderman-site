@@ -1,6 +1,7 @@
 // Exact fourth-part compatibility. Existing publication/report pins stay fixed.
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
+import {sourceAtHoldCollidePublicationBaseline} from './hold_collide_publication_20261001_inverse.mjs';
 const sha = value => createHash('sha256').update(value).digest('hex');
 export const TRENCHES_RESEARCH_BASELINE = '8fb6699835b04e37c3305da08681daa3095c4f24';
 const beforeSha256 = 'a7e71ad1a48d215ce31a635cea44a56d8c1386fb70dc9244a6adae8a90fa1f59';
@@ -52,6 +53,7 @@ export function sourceBeforeTrenchesResearch20260928(file, source) {
 
 // Other identities reach the unchanged historical assertions without rewriting.
 export function sourceAtTrenchesResearchBaseline(file, source) {
+  if (file === 'research.html') source = sourceAtHoldCollidePublicationBaseline(file, source);
   return file === 'research.html' && sha(source) === afterSha256
     ? sourceBeforeTrenchesResearch20260928(file, source)
     : source;

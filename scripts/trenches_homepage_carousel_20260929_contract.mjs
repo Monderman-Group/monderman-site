@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
+import {sourceAtHoldCollidePublicationBaseline} from './hold_collide_publication_20261001_inverse.mjs';
 import {
   TRENCHES_HOMEPAGE_BASELINE,
   TRENCHES_HOMEPAGE_BEFORE_SHA256,
@@ -15,7 +16,7 @@ import {
 import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
-const read = file => fs.readFileSync(path.join(root, file));
+const read = file => sourceAtHoldCollidePublicationBaseline(file, fs.readFileSync(path.join(root, file)));
 const prior = file => execFileSync('git', ['show', TRENCHES_HOMEPAGE_BASELINE + ':' + file], {cwd: root, maxBuffer: 32e6});
 const sha = value => createHash('sha256').update(value).digest('hex');
 const current = read('index.html').toString(), before = prior('index.html').toString();

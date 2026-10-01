@@ -1,0 +1,20 @@
+/* Part 5 figure layouts. The surrounding publication shell remains shared. */
+.hold-figure .trench-panels-5 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.hold-figure .trench-panels-5 .trench-panel:last-child { grid-column:1 / -1; }
+.hold-figure sup,.article-body sup { line-height:0; }
+.article-body sup a { text-decoration:none; padding:0 2px; }
+.hold-figure .trench-panel p { overflow-wrap:break-word; }
+.hold-angle { width:100%; display:block; margin:0 0 24px; font-family:inherit; font-size:16px; }
+.hold-cost { margin-top:16px; font-size:.85rem; color:#556268; }
+.hold-cost svg { width:100%; height:22px; display:block; margin-top:8px; }
+@media screen and (max-width:640px) {
+  .hold-figure .trench-panels-5 { grid-template-columns:1fr; }
+}
+@media print {
+  p[data-source-paragraph="28"] { break-inside:avoid; }
+  .hold-figure .trench-panels-5 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .hold-figure-5 .trench-panel p { font-size:8.1pt; line-height:11pt; }
+  .hold-figure-5 .trench-panel { padding:8pt; }
+  .hold-figure-5 .trench-figure-box { padding:11pt; }
+  .article-body sup { font-size:.7em; }
+}

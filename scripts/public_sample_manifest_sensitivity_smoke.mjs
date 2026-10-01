@@ -34,6 +34,8 @@ const adapterDependencies=['scripts/public_copy_clarity_inverse.mjs','scripts/pr
   'scripts/single_lens_overview_20260929_inverse.mjs','scripts/fixtures/single-lens-overview-20260929.json',
   'scripts/homepage_report_first_20260927_inverse.mjs','scripts/fixtures/homepage-report-first-20260927.json',
   'scripts/trenches_homepage_carousel_20260929_inverse.mjs',
+  'scripts/hold_collide_publication_20261001_inverse.mjs',
+  'scripts/research_print_pagination_20261001_inverse.mjs',
   'scripts/public_sample_projection_20260924_inverse.mjs','scripts/public_language_pass_20260924_inverse.mjs','scripts/trust_security_center_20260924_inverse.mjs',
   'scripts/homepage_compact_journey_20260924_inverse.mjs','scripts/public_sample_preview_binding_20260924_inverse.mjs',
   'scripts/homepage_preview_anchor_20260924_inverse.mjs','scripts/fixtures/homepage-preview-anchor-20260924.json',
