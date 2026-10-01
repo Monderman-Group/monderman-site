@@ -1,0 +1,42 @@
+/* Individual professional membership, separate from company security claims.
+   Keep the issuer's artwork unchanged and leave room for the footer M motif. */
+.mond-footer .mf-membership{
+  position:relative;
+  z-index:2;
+  display:flex;
+  align-items:center;
+  width:fit-content;
+  max-width:calc(100% - 104px);
+  margin:20px 0 0;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:rgba(255,255,255,.8);
+  font:inherit;
+  font-size:.84rem;
+  line-height:1.5;
+  letter-spacing:normal;
+  text-transform:none;
+  text-decoration:none;
+}
+.mond-footer .mf-membership img{
+  display:block;
+  flex:0 0 96px;
+  width:96px;
+  height:96px;
+  max-width:none;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  object-fit:contain;
+  filter:none;
+  opacity:1;
+  background:transparent;
+  box-shadow:none;
+}
+.mond-footer .mf-membership:focus-visible{outline:2px solid #A9D0D4;outline-offset:5px}
+@media(max-width:640px){
+  .mond-footer .mf-membership{max-width:calc(100% - 100px);margin-top:16px}
+  .mond-footer .mf-membership img{flex-basis:88px;width:88px;height:88px}
+}
