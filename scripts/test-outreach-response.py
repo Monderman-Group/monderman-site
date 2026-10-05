@@ -2,7 +2,7 @@
 import asyncio, json, re, subprocess, tempfile
 from pathlib import Path
 from urllib.parse import urlparse
-from playwright.async_api import async_playwright
+from playwright.async_api import async_playwright, expect
 
 ROOT=Path(__file__).resolve().parents[1]
 BASE='https://www.monderman.com/'
@@ -152,10 +152,10 @@ async def main():
         await page.wait_for_timeout(400)
         assert len(optout_calls(calls))==0
         await page.locator('#confirm').click()
-        await page.wait_for_function("document.getElementById('status').textContent.includes('try again')")
+        await expect(page.locator('#status')).to_contain_text('try again')
         assert not await page.locator('#confirm').is_disabled()
         await page.locator('#confirm').click()
-        await page.wait_for_function("document.getElementById('heading').textContent==='Your preference is saved.'")
+        await expect(page.locator('#heading')).to_have_text('Your preference is saved.')
         assert len(optout_calls(calls))==2 and not activation_calls(calls)
         assert '#' not in page.url
         assert not errors,errors
