@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="referrer" content="no-referrer" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign in | Monderman</title>
 <link rel="canonical" href="https://www.monderman.com/signin.html"/>
@@ -219,6 +220,9 @@
   <script src="dv-journey-recovery.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
 <script type="module">
+    // Recipient-bound outreach context; never activates an account or evaluation.
+    import { loadOutreachInvitation, clearOutreachInvitation, outreachEmailMatches, outreachSignInUrl, outreachErrorMessage } from './outreach-invitation.js';
+    const outreachContext = await loadOutreachInvitation({forSignIn:true});
     const { createClient } = window.supabase;
 
     // ---- Supabase (same project as the workspace) ----
@@ -340,6 +344,11 @@
       sampleLine: document.querySelector(".sample-line"),
       footnote: document.querySelector(".signin-footnote"),
     };
+    if(outreachContext?.invitation){
+      ui.emailInput.value=outreachContext.invitation.email;
+      ui.heading.textContent="Continue to your 60-day evaluation.";
+      ui.sub.textContent="Invitation for "+outreachContext.invitation.recipientName+" at "+outreachContext.invitation.organizationName+". Use "+outreachContext.invitation.email+" to sign in or create your invited account. The evaluation starts only after you confirm activation on the next page.";
+    }
     if (invitationMode) {
       document.querySelector(".signin-kicker").textContent = "Workspace invitation";
       ui.heading.textContent = "Accept your Monderman workspace invitation";
@@ -360,6 +369,7 @@
       ui.google.disabled = locked;
       ui.emailSubmit.disabled = locked;
     }
+    if(outreachContext?.invitation && storedOtpContext?.email?.toLowerCase()!==outreachContext.invitation.email.toLowerCase()){ storedOtpContext=null; try{sessionStorage.removeItem(OTP_STORAGE_KEY);}catch{} }
     let pendingEmail = storedOtpContext?.email || "";
     function savePendingOtp(email){
       pendingEmail = email;
@@ -481,6 +491,15 @@
     }
     async function continueAfterAuth(session){
       if (forwarded || acceptanceCheckStarted || !session?.user) return;
+      if(outreachContext?.error){
+        clearPendingOtp(); revealForm(); lockButtons(true);
+        setStatus(outreachErrorMessage(outreachContext),"error"); return;
+      }
+      if(!outreachEmailMatches(outreachContext,session)){
+        clearPendingOtp(); revealForm(); lockButtons(true);
+        setStatus("This invitation is for "+outreachContext.invitation.email+". Sign out below and continue with that address. Nothing has been activated.","error");
+        ui.invitationRecovery.classList.add("show"); return;
+      }
       acceptanceCheckStarted = true;
       clearPendingOtp();
       pendingSession = session;
@@ -543,6 +562,8 @@
       clearPendingOtp();
       ui.invitationRecovery.classList.remove("show");
       ui.invitationRecovery.disabled = false;
+      lockButtons(false);
+      if(outreachContext?.invitation) ui.emailInput.value=outreachContext.invitation.email;
       setStatus("Signed out. Continue with the email address that received the invitation.", "info");
       revealForm();
       ui.emailInput.focus();
@@ -822,7 +843,8 @@
     });
 
     // ---- Boot ----
-    checkExistingSession();
+    if(outreachContext?.error){ clearPendingOtp(); revealForm(); lockButtons(true); setStatus(outreachErrorMessage(outreachContext),"error"); }
+    else checkExistingSession();
   </script>
 </body>
 </html>
