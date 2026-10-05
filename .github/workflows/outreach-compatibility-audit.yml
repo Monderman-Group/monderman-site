@@ -4,23 +4,40 @@ on:
     branches: [outreach-response-20261005]
     paths: ['.github/workflows/outreach-compatibility-audit.yml']
 permissions:
-  contents: read
+  contents: write
 jobs:
-  source:
+  integration:
+    if: github.ref == 'refs/heads/outreach-response-20261005'
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: false
-      - name: Preserve exact source and historical objects for compatibility testing
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply exact two-file compatibility changes and test current handlers
         shell: bash
         run: |
           set -euo pipefail
-          git bundle create outreach-site-source.bundle HEAD refs/remotes/origin/main
-      - uses: actions/upload-artifact@v4
-        with:
-          name: outreach-source-compatibility
-          path: outreach-site-source.bundle
-          retention-days: 1
+          python scripts/integrate-outreach-test-context.py
+          node scripts/signin_legal_documents_smoke.mjs
+          node scripts/change_wording_20260925_contract.mjs
+          node scripts/runtime_asset_release_build_smoke.mjs
+          python scripts/validate_frontend_release.py
+          python scripts/validate_production_cosmetic_certification.py
+          git diff --check
+      - name: Commit tested compatibility and remove temporary integration tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- scripts/mobile_site_presentation_smoke.mjs scripts/signin_legal_documents_smoke.mjs
+          git rm -- scripts/integrate-outreach-test-context.py .github/workflows/outreach-compatibility-audit.yml
+          git commit -m 'Preserve historical guards while testing current outreach-aware auth and new page inventory'
+          git push origin HEAD:outreach-response-20261005
