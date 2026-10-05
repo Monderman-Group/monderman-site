@@ -1,0 +1,62 @@
+name: Outreach response regression
+on:
+  push:
+    branches: [outreach-response-20261005]
+  pull_request:
+    paths:
+      - 'outreach-invitation.js'
+      - 'email-preferences.*'
+      - 'pattern-trial.html'
+      - 'signin.html'
+      - 'scripts/*outreach*'
+      - '.github/workflows/outreach-response.yml'
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'push' && github.ref || github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply narrowly reviewed integration
+        if: github.event_name == 'push' && github.ref == 'refs/heads/outreach-response-20261005'
+        run: node scripts/apply-outreach-integration.mjs
+      - name: Install isolated browser test dependency
+        run: |
+          python -m pip install playwright==1.55.0
+          python -m playwright install --with-deps chromium
+      - name: Test with all identity and API requests mocked
+        run: python scripts/test-outreach-response.py | tee outreach-browser-results.json
+      - name: Commit only the tested integration
+        if: github.event_name == 'push' && github.ref == 'refs/heads/outreach-response-20261005'
+        run: |
+          if ! git diff --quiet -- signin.html pattern-trial.html; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add -- signin.html pattern-trial.html
+            git commit -m 'Integrate tested recipient-bound prefill into existing auth and trial gates'
+            git push origin HEAD:outreach-response-20261005
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: outreach-site-review
+          path: |
+            outreach-browser-results.json
+            signin.html
+            pattern-trial.html
+            outreach-invitation.js
+            email-preferences.html
+            email-preferences.js
+            scripts/test-outreach-response.py
+          retention-days: 7
