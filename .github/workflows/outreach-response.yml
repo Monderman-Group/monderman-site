@@ -29,6 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
@@ -36,6 +37,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Verify exact compatibility and reject unknown page changes
+        run: node scripts/outreach_response_compatibility_smoke.mjs
       - name: Install isolated browser test dependency
         run: |
           python -m pip install playwright==1.55.0
