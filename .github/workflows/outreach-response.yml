@@ -1,0 +1,64 @@
+name: Outreach response regression
+on:
+  push:
+    branches: [main, outreach-response-20261005]
+    paths:
+      - 'outreach-invitation.js'
+      - 'email-preferences.*'
+      - 'pattern-trial.html'
+      - 'signin.html'
+      - 'scripts/*outreach*'
+      - '.github/workflows/outreach-response.yml'
+  pull_request:
+    paths:
+      - 'outreach-invitation.js'
+      - 'email-preferences.*'
+      - 'pattern-trial.html'
+      - 'signin.html'
+      - 'scripts/*outreach*'
+      - '.github/workflows/outreach-response.yml'
+permissions:
+  contents: read
+defaults:
+  run:
+    shell: bash
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact compatibility and reject unknown page changes
+        run: node scripts/outreach_response_compatibility_smoke.mjs
+      - name: Install isolated browser test dependency
+        run: |
+          python -m pip install playwright==1.55.0
+          python -m playwright install --with-deps chromium
+      - name: Test with all identity and API requests mocked
+        run: |
+          set -euo pipefail
+          python scripts/test-outreach-response.py > outreach-browser-results.json
+          python -c 'import json; d=json.load(open("outreach-browser-results.json")); assert d["ok"] is True and len(d["checks"]) == 9'
+          cat outreach-browser-results.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: outreach-site-review
+          path: |
+            outreach-browser-results.json
+            signin.html
+            pattern-trial.html
+            outreach-invitation.js
+            email-preferences.html
+            email-preferences.js
+            scripts/test-outreach-response.py
+          retention-days: 7

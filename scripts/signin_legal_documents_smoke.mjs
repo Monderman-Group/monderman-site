@@ -7,6 +7,11 @@ import {createHash} from 'node:crypto';
 import {sourceBeforeSigninSessionRefresh,SIGNIN_SESSION_PRIOR_SHA256} from './signin_session_refresh_inverse.mjs';
 const read = name => fs.readFileSync(new URL('../'+name, import.meta.url), 'utf8');
 const manifest = JSON.parse(read('legal-document-manifest.json'));
+// Execute the current bridge helpers in the isolated VM as well. Only module
+// export/import syntax is adapted; no production handler or assertion is removed.
+const bridgeSource = read('outreach-invitation.js').replace(/^export /gm, '');
+const bridgeImport = "    import { loadOutreachInvitation, clearOutreachInvitation, outreachEmailMatches, outreachSignInUrl, outreachErrorMessage } from './outreach-invitation.js';";
+
 const v1 = '2026-09-11-ai-evidence-v1', v2 = '2026-09-12-ai-source-evidence-v2';
 const currentTerms = '2026-09-19-invitation-access', v3 = currentTerms;
 const docs = (version,termsVersion=currentTerms) => ({ok:true, requiresAcceptance:true, termsVersion, privacyNoticeVersion:version});
@@ -48,12 +53,13 @@ for(const scenario of ['v3','v2','v1','beta','legacy_terms','unknown','decline',
   const calls=[],redirects=[],warnings=[];let forwarded=0,signouts=0;
   const termsVersion=scenario==='legacy_terms'?'2026-09-09-beta':currentTerms;
   const version=scenario==='v1'?v1:scenario==='beta'?'2026-09-10-beta':scenario==='unknown'?'2099-01-01-beta':scenario==='v2'?v2:v3;
-  const ctx=vm.createContext({ui,forwarded:false,nextTarget:'workspace.html',invitationMode:false,API_BASE:'https://mock.invalid',
+  const ctx=vm.createContext({outreachContext:null,ui,forwarded:false,nextTarget:'workspace.html',invitationMode:false,API_BASE:'https://mock.invalid',
     URLSearchParams,clearTimeout(){},clearPendingOtp(){},revealForm(){},setStatus(){},acceptanceContext:()=>({source:'signup'}),
     forwardOn:()=>forwarded++,document:{querySelector:()=>element()},window:{location:{replace:x=>redirects.push(x)}},
     sessionStorage:{removeItem(){}},INVITE_STORAGE_KEY:'mock',AUTH_CONTEXT_STORAGE_KEY:'mock',
     console:{warn:(...x)=>warnings.push(x)},supabase:{auth:{signOut:async()=>{signouts++;return {};},getSession:async()=>({data:{session:{user:{id:'mock-user'},access_token:'mock-token'}}})}},
     fetch:async(url,options={})=>{calls.push({url,options});const failed=options.method==='POST'&&scenario==='acceptance_failed';return {ok:!failed,json:async()=>options.method==='POST'?{ok:!failed}:docs(version,termsVersion)};}});
+  vm.runInContext(bridgeSource,ctx);
   vm.runInContext(signCode,ctx);
   await ctx.continueAfterAuth({user:{id:'mock-user'},access_token:'mock-token'});
   eq(calls.length,1,'link discovery cannot record acceptance');
@@ -85,7 +91,7 @@ async function signInHarness(options={}){
     refreshSession:async()=>{refreshes++;if(options.refresh)return options.refresh(current);current=session('refreshed-token');authEvent('TOKEN_REFRESHED',current);return {data:{session:current}};},
     onAuthStateChange:fn=>{authEvent=fn;},signOut:async()=>{current=null;authEvent('SIGNED_OUT',null);return {};}
   };
-  const ctx=vm.createContext({ui,forwarded:false,nextTarget:'workspace-diagnostics.html#campaigns',invitationMode:true,API_BASE:'https://mock.invalid',
+  const ctx=vm.createContext({outreachContext:null,ui,forwarded:false,nextTarget:'workspace-diagnostics.html#campaigns',invitationMode:true,API_BASE:'https://mock.invalid',
     URLSearchParams,clearTimeout(){},setTimeout(fn){timers.push(fn);},clearPendingOtp(){},revealForm(){},
     setStatus:(...x)=>statuses.push(x),acceptanceContext:()=>({source:'invite',inviteToken:'mock-private-invitation'}),
     forwardOn:()=>{ctx.forwarded=true;redirects.push(ctx.nextTarget);},document:{querySelector:()=>element()},
@@ -98,6 +104,7 @@ async function signInHarness(options={}){
       if(options.fetch){const value=await options.fetch(url,request,calls);if(value)return value;}
       return response(200,request.method==='POST'?{ok:true}:docs(v3));
     }});
+  vm.runInContext(bridgeSource,ctx);
   vm.runInContext(signCode+'\n'+authEvents,ctx);
   const h={ui,calls,redirects,statuses,ctx,
     setSession(value){current=value;},event(event,value){current=value;authEvent(event,value);},
@@ -245,6 +252,8 @@ for(const event of ['SIGNED_OUT','SIGNED_IN'])for(const stage of ['session','sta
 // Execute the complete existing trial module, including initial discovery and
 // its real guarded click handler. All API responses below are explicit mocks.
 const trial=read('pattern-trial.html').match(/<script type="module">([\s\S]*?)<\/script>/)[1];
+assert.equal(trial.split(bridgeImport).length,2,'Exactly one known outreach module import');
+const trialExecutable=trial.replace(bridgeImport,'');
 for(const scenario of ['v3','v2','v1','changed','legacy_terms','terms_changed','unknown','acceptance_failed']){
   const els=new Map(),get=id=>{if(!els.has(id))els.set(id,element());return els.get(id);};
   get('organizationSelect').hidden=true;get('ackStart').disabled=true;
@@ -253,7 +262,7 @@ for(const scenario of ['v3','v2','v1','changed','legacy_terms','terms_changed','
   const initial=scenario==='unknown'?'2099-01-01-beta':scenario==='v1'||scenario==='changed'?v1:scenario==='v2'?v2:v3;
   const client={auth:{getSession:async()=>({data:{session:{user:{id:'mock-user'},access_token:'mock-token'}}})},rpc:async()=>{rpcCalls++;throw Error('unexpected mock RPC');}};
   const ctx=vm.createContext({window:{supabase:{createClient:()=>client}},document:{getElementById:get},
-    location:{search:'',replace:x=>redirects.push(x)},sessionStorage:{getItem:()=>null,setItem(){}},URLSearchParams,Date,
+    location:{search:'',hash:'',replace:x=>redirects.push(x)},sessionStorage:{getItem:()=>null,setItem(){}},URLSearchParams,Date,
     setTimeout(){},fetch:async(url,options={})=>{
       calls.push({url,options});let body;
       if(url.includes('/pattern-pilot-invitation'))body={ok:true,invitation:{recipientName:'MOCK'}};
@@ -263,7 +272,8 @@ for(const scenario of ['v3','v2','v1','changed','legacy_terms','terms_changed','
       else if(url.endsWith('/start-pattern-trial'))body={ok:true};else throw Error('unexpected mock URL');
       return {ok:body.ok,status:body.ok?200:503,json:async()=>body};
     }});
-  await vm.runInContext('(async()=>{'+trial+'})()',ctx);
+  vm.runInContext(bridgeSource,ctx);
+  await vm.runInContext('(async()=>{'+trialExecutable+'})()',ctx);
   eq(calls.filter(x=>x.options.method==='POST').length,0,'trial discovery cannot activate or record');
   eq(get('ackStart').checked,false);await get('startBtn').listeners.click();eq(calls.filter(x=>x.options.method==='POST').length,0);
   if(scenario==='unknown'){eq(get('ackStart').disabled,true);eq(get('startBtn').disabled,true);eq(calls.length,2);continue;}

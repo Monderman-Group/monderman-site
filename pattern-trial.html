@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="referrer" content="no-referrer" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>60-day Monderman evaluation | Monderman</title>
   <meta name="description" content="Activate your invitation to a 60-day Monderman evaluation. Full Pattern tools. No card or automatic renewal." />
@@ -79,6 +80,9 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
   <script type="module">
+    // Recipient-bound outreach context; never activates an account or evaluation.
+    import { loadOutreachInvitation, clearOutreachInvitation, outreachEmailMatches, outreachSignInUrl, outreachErrorMessage } from './outreach-invitation.js';
+    const outreachContext = await loadOutreachInvitation();
     const { createClient } = window.supabase;
     const sb = createClient("https://ptkxrzgmeldalrkfruth.supabase.co", "sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz", { auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"} });
     const API_BASE = "https://monderman-api.onrender.com";
@@ -140,7 +144,23 @@
       syncStart();
     }
     const { data } = await sb.auth.getSession();
-    if(!data?.session){ location.replace("signin.html?next="+encodeURIComponent("pattern-trial.html"+(location.search||""))); }
+    if(outreachContext?.error){
+      unavailableStart(outreachErrorMessage(outreachContext));
+    }
+    else if(!data?.session){ location.replace(outreachSignInUrl("pattern-trial.html"+(location.search||""))); }
+    else if(!outreachEmailMatches(outreachContext,data.session)){
+      denyStart("You are signed in with a different email address. This invitation is for "+outreachContext.invitation.email+". Nothing has been activated.");
+      const switchAccount=document.createElement("button");
+      switchAccount.type="button";
+      switchAccount.textContent="Sign in with the invited email";
+      switchAccount.addEventListener("click",async()=>{
+        switchAccount.disabled=true;
+        const {error}=await sb.auth.signOut({scope:"local"});
+        if(error){switchAccount.disabled=false;show("We could not sign you out. Please try again.");return;}
+        location.replace(outreachSignInUrl("pattern-trial.html"+(location.search||"")));
+      });
+      msg.appendChild(switchAccount);
+    }
     else {
       try{
         const token=data.session.access_token || "";
@@ -182,6 +202,7 @@
           if((count||0)===0){
             createWorkspace=true;
             workspaceBootstrap.hidden=false;
+            if(outreachContext?.invitation) workspaceName.value=outreachContext.invitation.organizationName;
             choice.hidden=true;
             syncStart();
             workspaceName.focus();
@@ -216,6 +237,7 @@
       btn.textContent="Starting your evaluation…"; msg.className="msg";
       try{
         const { data:s } = await sb.auth.getSession();
+        if(!outreachEmailMatches(outreachContext,s?.session)) throw new Error("outreach_email_mismatch");
         const token = s?.session?.access_token || "";
         if(createWorkspace && !organizationId){
           const name=workspaceName.value.trim().replace(/\s+/g," ").slice(0,160);
@@ -245,7 +267,7 @@
         }
         const res = await fetch(API_BASE+"/api/billing/start-pattern-trial", {method:"POST", headers:{"content-type":"application/json","authorization":"Bearer "+(s?.session?.access_token||"")}, body:JSON.stringify({organization_id:activationOrganizationId})});
         const out = await res.json().catch(()=>({}));
-        if(res.ok && out.ok){ show("Pattern is active. Opening your Workspace…","ok"); setTimeout(()=>location.href="workspace.html",700); return; }
+        if(res.ok && out.ok){ clearOutreachInvitation(); show("Pattern is active. Opening your Workspace…","ok"); setTimeout(()=>location.href="workspace.html",700); return; }
         const messages={
           pattern_trial_already_used:"This account identity has already used its free evaluation.",
           pattern_trial_not_eligible:"This Workspace is not eligible for a free evaluation.",
@@ -258,7 +280,9 @@
         };
         show(messages[out.error] || "The free evaluation could not be started. Nothing was charged.");
       }catch(e){
-        show(e?.message==="legal_documents_changed"
+        show(e?.message==="outreach_email_mismatch"
+          ? "Your sign-in changed. Refresh and sign in with the invited email. Nothing has been activated."
+          : e?.message==="legal_documents_changed"
           ? "The Terms or Privacy Notice changed while this page was open. Review the current documents, select the acknowledgement again, and continue."
           : "The free evaluation could not be reached. Nothing was charged. Please try again.");
       }

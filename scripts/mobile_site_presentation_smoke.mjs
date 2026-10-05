@@ -24,13 +24,14 @@ const immutableLegalPages = new Set(pages.filter((name) => /^(?:terms|privacy)-\
 
 // September 19 adds evaluation and invitation-access editions without removing history.
 // Preserve every previous legal edition in the full viewport sweep.
-assert.equal(pages.length, 86, 'rendered root-page inventory includes Governance Part 5');
+assert.equal(pages.length, 87, 'rendered inventory retains every prior page and adds email preferences');
 assert.equal(canonicalPages.length, 68, 'canonical header + footer inventory includes Governance Part 5');
 assert.equal(footerPages.length, 72, 'footer inventory includes Governance Part 5');
 for (const legalEdition of ['terms-2026-09-08-beta.html', 'privacy-2026-09-08-beta.html', 'terms-2026-09-09-beta.html', 'privacy-2026-09-09-beta.html', 'privacy-2026-09-10-beta.html']) {
   assert.ok(canonicalPages.includes(legalEdition), `${legalEdition}: archived legal page missing from canonical sweep`);
 }
-assert.equal(shellFreePages.length, 14, 'functional shell-free page inventory changed unexpectedly');
+assert.equal(shellFreePages.length, 15, 'functional shell-free inventory adds email preferences only');
+assert.ok(shellFreePages.includes('email-preferences.html'), 'opt-out remains a quiet functional surface');
 assert.equal(immutableLegalPages.size, 19, 'immutable legal-page inventory changed unexpectedly');
 assert.ok(immutableLegalPages.has('terms-2026-09-19-invitation-access.html'), 'invitation-access Terms join legal coverage');
 assert.ok(immutableLegalPages.has('privacy-2026-09-19-invitation-access.html'), 'invitation-access Privacy joins legal coverage');
