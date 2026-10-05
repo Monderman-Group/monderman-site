@@ -1,0 +1,54 @@
+name: Outreach live link readiness
+on:
+  push:
+    branches: [outreach-preview-verification-20261005]
+    paths: ['.github/workflows/outreach-live-readiness.yml']
+permissions:
+  contents: read
+defaults:
+  run:
+    shell: bash
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify deployed pages, support script and public response service
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, hashlib, urllib.request, urllib.error
+          from pathlib import Path
+          rows=[]
+          for path,markers in {
+            'pattern-trial.html':['outreach-invitation.js','outreachEmailMatches','ackStart','Start my 60-day Monderman evaluation'],
+            'signin.html':['outreach-invitation.js','outreachContext','ui.emailInput.value=outreachContext.invitation.email'],
+            'outreach-invitation.js':['/functions/v1/outreach-response','credentials: \'omit\'','sessionStorage'],
+            'email-preferences.html':['email-preferences.js','Stop promotional emails'],
+            'email-preferences.js':['confirmed: true','/outreach-response/optout'],
+          }.items():
+            url='https://www.monderman.com/'+path
+            with urllib.request.urlopen(urllib.request.Request(url,headers={'Cache-Control':'no-cache'}),timeout=25) as r:
+              data=r.read(); status=r.status
+            text=data.decode('utf8'); assert status==200,(path,status)
+            for marker in markers: assert marker in text,(path,marker)
+            rows.append({'path':path,'status':status,'sha256':hashlib.sha256(data).hexdigest(),'markers_verified':True})
+          with urllib.request.urlopen('https://www.monderman.com/assets/brand/acmp-member-badge.png',timeout=25) as r:
+            badge=r.read(); assert r.status==200
+          assert hashlib.sha256(badge).hexdigest()=='0967036e795e927c9ef1bdd3c68a6de1283608476bcbf3dac725c6be67425136'
+          endpoint='https://ptkxrzgmeldalrkfruth.supabase.co/functions/v1/outreach-response'
+          with urllib.request.urlopen(endpoint,timeout=25) as r: service=json.load(r); assert r.status==200
+          assert service.get('ok') and service.get('service')=='outreach-response'
+          report={'ok':True,'pages':rows,'badge_exact':True,'service':service,'requests':'GET only','emails_sent':0,'preferences_changed':0,'accounts_created':0,'evaluations_started':0}
+          Path('outreach-live-readiness.json').write_text(json.dumps(report,indent=2))
+          print(json.dumps(report,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: outreach-live-readiness
+          path: outreach-live-readiness.json
+          retention-days: 3
