@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
+import {sourceAtOutreachResponseBaseline} from './outreach_response_20261005_inverse.mjs';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 export const SIGNIN_SESSION_REVIEWED_SHA256='8cf251e2e0534f44bb34fdb4b8b25fd61b82ffead21b5d821e7d076ed9761399';
 export const SIGNIN_SESSION_PRIOR_SHA256='f0240d14bb0b707d64fa2d5f422fb6c82f7d82e91ed0a4774b2f30dd9832bd63';
@@ -14,6 +15,7 @@ assert.equal(delta.priorSha,SIGNIN_SESSION_PRIOR_SHA256);
 assert.equal(delta.replacements.length,8,'Finite reviewed sign-in changes only');
 export function sourceBeforeSigninSessionRefresh(file,source){
   if(file!=='signin.html')return source;
+  source=sourceAtOutreachResponseBaseline(file,source);
   assert.equal(sha(source),SIGNIN_SESSION_REVIEWED_SHA256,'Only the exact reviewed sign-in source may be inverted');
   let restored=String(source);
   for(const [current,prior]of delta.replacements){
