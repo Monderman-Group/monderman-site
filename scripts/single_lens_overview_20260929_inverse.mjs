@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
+import {sourceAtOutreachResponseBaseline} from './outreach_response_20261005_inverse.mjs';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 export const SINGLE_LENS_OVERVIEW_BASELINE='61de1fbb0737a5b2af8cb4059bddae81226f95a2';
 export const SINGLE_LENS_OVERVIEW_VERSION='diagnostic-renderer-single-lens-overview-20260929.1';
@@ -28,6 +29,7 @@ export function sourceBeforeSingleLensOverview20260929(file,source){
   return Buffer.isBuffer(source)?Buffer.from(restored):restored;
 }
 export function sourceAtSingleLensOverviewBaseline(file,source){
+  source=sourceAtOutreachResponseBaseline(file,source);
   const entry=Object.hasOwn(singleLensOverviewDelta.files,file)?singleLensOverviewDelta.files[file]:null;
   if(entry&&(sha(source)===entry.after_sha256||file==='monderman-report.js'&&String(source).includes(SINGLE_LENS_OVERVIEW_VERSION)))return sourceBeforeSingleLensOverview20260929(file,source);
   const publication=singleLensOverviewDelta.publication_files?.[file];
