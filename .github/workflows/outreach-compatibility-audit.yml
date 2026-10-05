@@ -13,6 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: outreach-response-20261005
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
@@ -25,6 +26,7 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/integrate-outreach-test-context.py
+          node scripts/outreach_response_compatibility_smoke.mjs
           node scripts/signin_legal_documents_smoke.mjs
           node scripts/change_wording_20260925_contract.mjs
           node scripts/runtime_asset_release_build_smoke.mjs
@@ -40,4 +42,5 @@ jobs:
           git add -- scripts/mobile_site_presentation_smoke.mjs scripts/signin_legal_documents_smoke.mjs
           git rm -- scripts/integrate-outreach-test-context.py .github/workflows/outreach-compatibility-audit.yml
           git commit -m 'Preserve historical guards while testing current outreach-aware auth and new page inventory'
+          git pull --rebase origin outreach-response-20261005
           git push origin HEAD:outreach-response-20261005
