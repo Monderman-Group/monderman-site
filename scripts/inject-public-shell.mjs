@@ -22,7 +22,7 @@ const shellRelease = "20260913.32";
 // Refresh changed runtime assets without invalidating unchanged brand assets.
 const assetReleases = Object.freeze({
   "evaluation-capacity.js": "20261006.pool1",
-  "pilot-pool.js": "20261006.pool1",
+  "pilot-pool.js": "20261006.pool2",
   "pilot-waitlist.js": "20261006.pool1",
   "monderman-report.js": "20260929.singlelens1",
   "sample-report-tile.css": "20260924.gold1",
