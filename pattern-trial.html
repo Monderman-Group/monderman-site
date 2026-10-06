@@ -79,6 +79,7 @@
   </div></main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
+  <script src="evaluation-capacity.js?v=20261006.pool1"></script>
   <script type="module">
     // Recipient-bound outreach context; never activates an account or evaluation.
     import { loadOutreachInvitation, clearOutreachInvitation, outreachEmailMatches, outreachSignInUrl, outreachErrorMessage } from './outreach-invitation.js';
@@ -91,11 +92,11 @@
     const choice = document.getElementById("workspaceChoice"), organizationSelect = document.getElementById("organizationSelect"), organizationName = document.getElementById("organizationName");
     const pilotInvitation = document.getElementById("pilotInvitation"), pilotInvitationTitle = document.getElementById("pilotInvitationTitle"), pilotInvitationHelp = document.getElementById("pilotInvitationHelp");
     const workspaceBootstrap = document.getElementById("workspaceBootstrap"), workspaceName = document.getElementById("workspaceName");
-    let invitationReady=false, sessionReady=false, createWorkspace=false, organizationId=null, currentDocuments=null, activationInProgress=false;
+    let invitationReady=false, capacityReady=false, sessionReady=false, createWorkspace=false, organizationId=null, currentDocuments=null, activationInProgress=false;
     function show(text, kind="err"){ msg.textContent=text; msg.className="msg "+kind; }
     function workspaceIsReady(){ return sessionReady || (createWorkspace && workspaceName.value.trim().length>=2); }
     function syncStart(){
-      const ready=invitationReady && workspaceIsReady();
+      const ready=invitationReady && capacityReady && workspaceIsReady();
       ack.disabled=!ready || activationInProgress;
       if(!ready) ack.checked=false;
       btn.disabled=activationInProgress || !(ready && ack.checked);
@@ -119,6 +120,23 @@
         pilotInvitationHelp.textContent="Please refresh and try again. This does not mean your invitation is invalid.";
       }
       denyStart(text,false);
+    }
+    function fullPool(){
+      capacityReady=false;
+      ack.checked=false;
+      syncStart();
+      show("The ten-organization evaluation pool is filled. Only Jason Adamson may individually approve an additional organization. Nothing has been activated. ");
+      const requestLink=document.createElement("a");
+      requestLink.href="pilot.html?pool=full#apply";
+      requestLink.textContent="Request individual review";
+      msg.appendChild(requestLink);
+    }
+    async function checkCapacity(token){
+      let capacity;
+      try{ capacity=await window.MondermanEvaluationCapacity.check(token); }
+      catch{ capacityReady=false; throw new Error("evaluation_capacity_unavailable"); }
+      capacityReady=capacity.automaticAdmissionOpen || capacity.existingAdmissionAvailable || capacity.ownerExceptionAvailable;
+      if(!capacityReady){ fullPool(); throw new Error("evaluation_pool_full"); }
     }
     function legalDocumentPath(kind, version){
       // Exact archived editions in legal-document-manifest.json, not a suffix rule.
@@ -178,6 +196,7 @@
           pilotInvitationHelp.textContent=expires ? `This invitation can be activated through ${expires}. The 60-day evaluation begins only when you continue below.` : "The 60-day evaluation begins only when you continue below.";
         }
         if(!invitationReady) throw new Error("pattern_pilot_invitation_required");
+        await checkCapacity(token);
         // Discover current document versions only. Trial acceptance is checked
         // for the selected Workspace below, immediately before activation.
         const legalStatusResponse=await fetch(API_BASE+"/api/legal/acceptance/status?source=signup",{headers:{authorization:"Bearer "+token}});
@@ -224,7 +243,9 @@
           });
         }
       }catch(e){
-        if(e?.message!=="pattern_pilot_invitation_required") unavailableStart(e?.message==="legal_documents_unavailable"
+        if(e?.message!=="pattern_pilot_invitation_required" && e?.message!=="evaluation_pool_full") unavailableStart(e?.message==="evaluation_capacity_unavailable"
+          ? "Evaluation availability is temporarily unavailable. Please refresh and try again. Nothing has been activated."
+          : e?.message==="legal_documents_unavailable"
           ? "We couldn’t load the current terms. Please refresh and try again."
           : "We couldn’t verify this Workspace’s trial eligibility. Please refresh and try again.");
       }
@@ -233,12 +254,18 @@
     workspaceName.addEventListener("input",()=>{ ack.checked=false; syncStart(); });
     btn.addEventListener("click", async()=>{
       if(activationInProgress || !invitationReady || !workspaceIsReady() || !ack.checked) return;
+      if(!capacityReady) return;
       activationInProgress=true; syncStart();
       btn.textContent="Starting your evaluation…"; msg.className="msg";
       try{
         const { data:s } = await sb.auth.getSession();
         if(!outreachEmailMatches(outreachContext,s?.session)) throw new Error("outreach_email_mismatch");
         const token = s?.session?.access_token || "";
+        if(!token) throw new Error("outreach_email_mismatch");
+        // Recheck before creating a Workspace. The subsequent server claim
+        // still decides admission atomically if another organization takes the
+        // final place after this read.
+        await checkCapacity(token);
         if(createWorkspace && !organizationId){
           const name=workspaceName.value.trim().replace(/\s+/g," ").slice(0,160);
           if(name.length<2) throw new Error("workspace_name_required");
@@ -268,6 +295,7 @@
         const res = await fetch(API_BASE+"/api/billing/start-pattern-trial", {method:"POST", headers:{"content-type":"application/json","authorization":"Bearer "+(s?.session?.access_token||"")}, body:JSON.stringify({organization_id:activationOrganizationId})});
         const out = await res.json().catch(()=>({}));
         if(res.ok && out.ok){ clearOutreachInvitation(); show("Pattern is active. Opening your Workspace…","ok"); setTimeout(()=>location.href="workspace.html",700); return; }
+        if(res.status===409 && out.error==="evaluation_pool_full"){ fullPool(); throw new Error("evaluation_pool_full"); }
         const messages={
           pattern_trial_already_used:"This account identity has already used its free evaluation.",
           pattern_trial_not_eligible:"This Workspace is not eligible for a free evaluation.",
@@ -280,7 +308,9 @@
         };
         show(messages[out.error] || "The free evaluation could not be started. Nothing was charged.");
       }catch(e){
-        show(e?.message==="outreach_email_mismatch"
+        if(e?.message!=="evaluation_pool_full") show(e?.message==="evaluation_capacity_unavailable"
+          ? "Evaluation availability is temporarily unavailable. Please refresh and try again. Nothing has been activated."
+          : e?.message==="outreach_email_mismatch"
           ? "Your sign-in changed. Refresh and sign in with the invited email. Nothing has been activated."
           : e?.message==="legal_documents_changed"
           ? "The Terms or Privacy Notice changed while this page was open. Review the current documents, select the acknowledgement again, and continue."

@@ -2,11 +2,12 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
 import {sourceAtOutreachResponseBaseline,sourceBeforeOutreachResponse20261005,OUTREACH_RESPONSE_PAGES} from './outreach_response_20261005_inverse.mjs';
+import {sourceAtEvaluationPoolBaseline} from './single_lens_overview_20260929_inverse.mjs';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 let checks=0;
 assert.deepEqual(Object.keys(OUTREACH_RESPONSE_PAGES),['pattern-trial.html','signin.html']);checks++;
 for(const [file,pin] of Object.entries(OUTREACH_RESPONSE_PAGES)){
-  const source=fs.readFileSync(new URL('../'+file,import.meta.url));
+  const source=sourceAtEvaluationPoolBaseline(file,fs.readFileSync(new URL('../'+file,import.meta.url)));
   assert.equal(sha(source),pin.after);checks++;
   const restored=sourceBeforeOutreachResponse20261005(file,source);
   assert.equal(sha(restored),pin.before);checks++;

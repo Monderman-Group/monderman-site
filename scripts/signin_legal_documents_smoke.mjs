@@ -261,22 +261,25 @@ for(const scenario of ['v3','v2','v1','changed','legacy_terms','terms_changed','
   const termsVersion=['legacy_terms','terms_changed'].includes(scenario)?'2026-09-09-beta':currentTerms;
   const initial=scenario==='unknown'?'2099-01-01-beta':scenario==='v1'||scenario==='changed'?v1:scenario==='v2'?v2:v3;
   const client={auth:{getSession:async()=>({data:{session:{user:{id:'mock-user'},access_token:'mock-token'}}})},rpc:async()=>{rpcCalls++;throw Error('unexpected mock RPC');}};
-  const ctx=vm.createContext({window:{supabase:{createClient:()=>client}},document:{getElementById:get},
+  const ctx=vm.createContext({window:{supabase:{createClient:()=>client},AbortController,setTimeout,clearTimeout},document:{getElementById:get},
     location:{search:'',hash:'',replace:x=>redirects.push(x)},sessionStorage:{getItem:()=>null,setItem(){}},URLSearchParams,Date,
     setTimeout(){},fetch:async(url,options={})=>{
       calls.push({url,options});let body;
       if(url.includes('/pattern-pilot-invitation'))body={ok:true,invitation:{recipientName:'MOCK'}};
+      else if(url.includes('/billing/evaluation-capacity'))body={ok:true,version:"organization-cap-20261005.1",organizationLimit:10,allocatedOrganizations:2,activeOrganizations:2,automaticAdmissionOpen:true,existingAdmissionAvailable:false,ownerExceptionAvailable:false};
       else if(url.includes('/legal/acceptance/status'))body=docs(url.includes('source=trial')&&scenario==='changed'?v3:initial,url.includes('source=trial')&&scenario==='terms_changed'?currentTerms:termsVersion);
       else if(url.includes('/billing/organizations?'))body={ok:true,organizations:[{id:'mock-org',name:'MOCK Workspace'}]};
       else if(url.endsWith('/legal/acceptance'))body={ok:scenario!=='acceptance_failed'};
       else if(url.endsWith('/start-pattern-trial'))body={ok:true};else throw Error('unexpected mock URL');
       return {ok:body.ok,status:body.ok?200:503,json:async()=>body};
     }});
+  ctx.window.fetch=ctx.fetch;
+  vm.runInContext(read('evaluation-capacity.js'),ctx);
   vm.runInContext(bridgeSource,ctx);
   await vm.runInContext('(async()=>{'+trialExecutable+'})()',ctx);
   eq(calls.filter(x=>x.options.method==='POST').length,0,'trial discovery cannot activate or record');
   eq(get('ackStart').checked,false);await get('startBtn').listeners.click();eq(calls.filter(x=>x.options.method==='POST').length,0);
-  if(scenario==='unknown'){eq(get('ackStart').disabled,true);eq(get('startBtn').disabled,true);eq(calls.length,2);continue;}
+  if(scenario==='unknown'){eq(get('ackStart').disabled,true);eq(get('startBtn').disabled,true);eq(calls.length,3);continue;}
   eq(get('trialPrivacyLink').href,'privacy-'+initial+'.html');eq(get('ackStart').disabled,false);
   get('ackStart').checked=true;await get('ackStart').listeners.change();await get('startBtn').listeners.click();
   const posts=calls.filter(x=>x.options.method==='POST');

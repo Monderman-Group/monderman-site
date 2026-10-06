@@ -14,6 +14,7 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
     const page = await context.newPage();
     const pageErrors = [];
     let submitted = null;
+    await page.route("https://monderman-api.onrender.com/api/billing/evaluation-capacity", route => route.fulfill({json:{ok:true,version:"organization-cap-20261005.1",organizationLimit:10,allocatedOrganizations:2,activeOrganizations:2,automaticAdmissionOpen:true,existingAdmissionAvailable:false,ownerExceptionAvailable:false}}));
     page.on("pageerror", (error) => pageErrors.push(error.message));
     await page.route("https://api.monderman.com/api/health", (route) => route.fulfill({ status: 200, contentType: "application/json", body: '{"ok":true}' }));
     await page.route("https://api.monderman.com/api/pilot-waitlist", async (route) => {

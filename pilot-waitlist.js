@@ -8,6 +8,7 @@
   var selectedBase = "";
   var pendingSubmission = null;
   var submitting = false;
+  var submitted = false;
 
   function requestId() {
     if (window.crypto && typeof window.crypto.randomUUID === "function") return window.crypto.randomUUID();
@@ -111,6 +112,7 @@
     form.addEventListener("submit", async function (event) {
       event.preventDefault();
       if (submitting) return;
+      if (submitted || !form.reportValidity()) return;
       submitting = true;
       status.textContent = "";
       status.className = "pilot-form-status";
@@ -118,6 +120,7 @@
       submitButton.textContent = "Submitting...";
       try {
         await submit(form);
+        submitted = true;
         pendingSubmission = null;
         form.hidden = true;
         confirmation.hidden = false;

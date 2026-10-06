@@ -52,6 +52,8 @@ jobs:
           node scripts/site_consistency_copy_smoke.mjs
           node scripts/organization_scope_copy_smoke.mjs
           node scripts/public_status_copy_smoke.mjs
+      - name: Preserve exact prior admission sources and reject unknown changes
+        run: node scripts/evaluation_pool_compatibility_smoke.mjs
       - name: Reject scanner-consumed email authentication regressions
         run: node scripts/signin_email_otp_smoke.mjs
       - run: node scripts/workspace_legal_gate_smoke.mjs

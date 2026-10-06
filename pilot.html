@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
     <title>Request an invitation | Monderman</title>
     <meta name="description" content="Request an invitation to evaluate Monderman free for 60 days. All four diagnostics, campaigns and eligible Synthesis. No credit card or automatic renewal." />
     <link rel="canonical" href="https://www.monderman.com/pilot.html" />
@@ -39,13 +40,14 @@
     <main id="main">
       <section class="hero">
         <div class="wrap">
-          <p class="pilot-status">Available by invitation &middot; Requests welcome</p>
+          <p class="pilot-status" id="pilotPoolStatus" role="status" aria-live="polite">Checking evaluation availability&hellip;</p>
           <p class="eyebrow">60-day free evaluation</p>
-          <h1>Evaluate how your organization works.</h1>
+          <h1 id="pilotPoolTitle">Evaluate how your organization works.</h1>
           <p class="dek">Evaluate Monderman with your organization for 60 days, starting when you activate your invitation. Use all four diagnostics, gather different perspectives and examine practical opportunities to improve. No credit card. No automatic renewal.</p>
+          <p class="dek" id="pilotPoolMessage">The evaluation pool admits ten organizations. Additional organizations require Jason Adamson's individual approval. Submitting a request does not grant access.</p>
           <div class="actions">
             <a class="btn primary pilot-primary" href="#apply">Request an invitation</a>
-            <a class="btn secondary" href="pattern-trial.html">Activate your invitation</a>
+            <a class="btn secondary" href="pattern-trial.html">Already reserved or individually approved? Sign in</a>
           </div>
         </div>
       </section>
@@ -120,7 +122,7 @@
             <p class="section-label">Request access</p>
             <h2>Tell us what you want to examine.</h2>
             <p>Anyone can request an invitation. You can begin with whichever diagnostic fits your organizational question; no prior run is required.</p>
-            <p>Monderman reviews each request and sends invitations directly. An invitation is required to activate access. Sending this form does not create an account or start your 60 days.</p>
+            <p>Monderman reviews each request and sends invitations directly. Once the ten-organization pool is filled, only Jason Adamson may approve each particular additional organization. An invitation is required to activate access. Sending this form does not grant access, create an account or start your 60 days.</p>
           </div>
           <div>
             <form class="pilot-form" id="pilotWaitlistForm">
@@ -139,7 +141,7 @@
             </form>
             <section class="pilot-confirmation" id="pilotConfirmation" hidden tabindex="-1">
               <h2>Your invitation request has been received.</h2>
-              <p>A receipt is being sent to your work email. Monderman will review your requested scope and follow up about an invitation. Your evaluation starts only when you activate access. No Workspace has been created and nothing has been charged.</p>
+              <p>A receipt is being sent to your work email. Monderman will review your requested scope and follow up about an invitation. This request does not grant access. Any admission beyond the ten-organization pool requires Jason Adamson's individual approval. Your evaluation starts only when you activate access. No Workspace has been created and nothing has been charged.</p>
             </section>
           </div>
         </div>
@@ -159,6 +161,8 @@
       </div>
     </footer>
     <script src="first-run-telemetry.js" defer></script>
+    <script src="evaluation-capacity.js?v=20261006.pool1" defer></script>
+    <script src="pilot-pool.js?v=20261006.pool1" defer></script>
     <script src="pilot-waitlist.js" defer></script>
     <script src="assistant.js?v=20260828-footer-dock4" defer></script>
     <script src="contact-transport.js?v=20260903-contact1" defer></script>
