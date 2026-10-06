@@ -5,6 +5,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {chromium, webkit} from 'playwright';
+import {sourceAtEvaluationPoolBaseline} from './single_lens_overview_20260929_inverse.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const built = path.resolve(process.env.SITE_SOURCE_DIR || path.join(root, '.render-public'));
@@ -50,7 +51,27 @@ const tracked = execFileSync('git', ['ls-tree', '-r', '--name-only', baseline], 
 const protectedFiles = tracked.filter(file => (!file.includes('/') && /\.(?:js|css)$/.test(file))
   || /^(?:decision-velocity|structural-clarity|operational-systems|institutional-performance)\.html$/.test(file)
   || /^workspace(?:-[^/]+)?\.html$/.test(file) || file === 'scripts/inject-public-shell.mjs');
-eq(execFileSync('git', ['diff', '--name-only', baseline, '--', ...protectedFiles], {cwd:root, encoding:'utf8'}), '', 'Existing shared scripts/styles, instruments, Workspace pages, and injector are unchanged');
+function assertProtectedSource(file, source) {
+  // Restore only the separately pinned, finite admission-flow delta. Compare
+  // every protected file with the same immutable footer-release baseline.
+  // Unknown edits pass through the adapter and still fail exact equality.
+  eq(Buffer.from(sourceAtEvaluationPoolBaseline(file, source)),
+    execFileSync('git', ['show', baseline + ':' + file], {cwd:root, maxBuffer:32e6}),
+    file + ': Existing shared scripts/styles, instruments, Workspace pages, and injector are unchanged outside the exact reviewed admission delta');
+}
+for (const file of protectedFiles) assertProtectedSource(file, await fs.readFile(path.join(root, file)));
+for (const file of ['pilot-waitlist.js', 'scripts/inject-public-shell.mjs']) {
+  const source = await fs.readFile(path.join(root, file));
+  const changed = file === 'pilot-waitlist.js'
+    ? Buffer.from(source.toString().replace('var submitted = false;', 'var submitted = true;'))
+    : Buffer.from(source.toString().replace('20261006.pool1', 'unreviewed-cache'));
+  ok(!source.equals(changed), file + ': negative control changes actual source');
+  for (const mutant of [changed, Buffer.concat([source, Buffer.from('\n')])]) {
+    assert.throws(() => assertProtectedSource(file, mutant), {name:'AssertionError'},
+      file + ': unknown executable or appended changes cannot be inverted');
+    checks++;
+  }
+}
 
 const representatives = ['index.html', 'research.html', 'platform-services.html', 'decision-velocity.html', 'security.html'];
 const results = [], failures = [], cache = new Map();

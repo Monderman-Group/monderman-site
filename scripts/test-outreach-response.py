@@ -48,6 +48,9 @@ rpc:async()=>{window.__localEffects.push('bootstrap');return {data:{organization
                 await route.fulfill(json={'ok':True,'suppressed':True});return
             raise AssertionError('Unexpected Supabase operation: '+u.path)
         if u.hostname=='monderman-api.onrender.com':
+            if u.path=='/api/billing/evaluation-capacity':
+                assert request.method=='GET'
+                await route.fulfill(json={'ok':True,'version':'organization-cap-20261005.1','organizationLimit':10,'allocatedOrganizations':2,'activeOrganizations':2,'automaticAdmissionOpen':True,'existingAdmissionAvailable':False,'ownerExceptionAvailable':False});return
             if u.path=='/api/billing/pattern-pilot-invitation':
                 await route.fulfill(json={'ok':True,'invitation':INVITE});return
             if u.path=='/api/legal/acceptance/status':

@@ -101,6 +101,10 @@ for (const [browserName, browserType] of [["chromium", chromium], ["webkit", web
       if(request.postData()) entry.body=request.postDataJSON();
       requests.push(entry);
       assert.equal(request.headers().authorization,"Bearer fixture-token",`${browserName}/${scenario}: missing fixture authentication`);
+      if (url.pathname === "/api/billing/evaluation-capacity") {
+        assert.equal(entry.method,"GET","capacity discovery must not allocate a place");
+        return json(route,200,{ok:true,version:"organization-cap-20261005.1",organizationLimit:10,allocatedOrganizations:2,activeOrganizations:2,automaticAdmissionOpen:true,existingAdmissionAvailable:false,ownerExceptionAvailable:false});
+      }
       if (url.pathname === "/api/legal/acceptance/status") {
         const source=url.searchParams.get("source")||"signup", org=url.searchParams.get("organization_id");
         // Match legal-acceptance-route.js: trial status requires a Workspace.

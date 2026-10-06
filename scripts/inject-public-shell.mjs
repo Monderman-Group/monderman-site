@@ -21,6 +21,9 @@ const enterpriseCssPattern = /enterprise-site\.css\?v=[^"']+/g;
 const shellRelease = "20260913.32";
 // Refresh changed runtime assets without invalidating unchanged brand assets.
 const assetReleases = Object.freeze({
+  "evaluation-capacity.js": "20261006.pool1",
+  "pilot-pool.js": "20261006.pool1",
+  "pilot-waitlist.js": "20261006.pool1",
   "monderman-report.js": "20260929.singlelens1",
   "sample-report-tile.css": "20260924.gold1",
   "pilot-waitlist.css": "20260924.gold1",
@@ -67,6 +70,7 @@ const diagnosticPages = new Set([
   "operational-systems.html", "institutional-performance.html",
 ]);
 const refreshedAssets = [
+  "evaluation-capacity.js", "pilot-pool.js",
   "monderman-report.js", "sample-report-production.js", "public-sample-model.js", "workspace-theme.js", "sample-report-production.css",
   "homepage-hero-system.css", "homepage-workspace-demo.css", "homepage-workspace-demo.js", "workspace-access-gate.js", "workspace-evaluation.js", "feedback-widget.js",
   "workspace-product-design.css", "report-screen-experience.css", "report-screen-experience.js",
