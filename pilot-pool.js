@@ -11,10 +11,10 @@
       var capacity = await window.MondermanEvaluationCapacity.check();
       status.dataset.state = capacity.automaticAdmissionOpen ? "open" : "full";
       if (capacity.automaticAdmissionOpen) {
-        status.textContent = "Available by invitation · Requests welcome";
+        status.textContent = "Available by invitation";
         message.textContent = "The evaluation pool admits ten organizations. An invitation and eligibility checks are required; availability is confirmed when you explicitly start your evaluation.";
       } else {
-        status.textContent = "Evaluation pool filled · Requests for individual review welcome";
+        status.textContent = "Evaluation pool filled";
         title.textContent = "The ten-organization evaluation pool is filled.";
         message.textContent = "You can request individual review below. Only Jason Adamson may approve a particular additional organization. Submitting a request does not grant access or start an evaluation.";
       }
