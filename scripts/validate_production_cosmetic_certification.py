@@ -294,11 +294,19 @@ for token in ["This page is not here.", "canonical-site-shell.css", "monderman-m
 require(has_meta(parse_document(not_found), "name", "robots", "noindex, nofollow"), "branded 404 real noindex contract missing")
 
 # 10 and 13: language canon in visible HTML and customer-visible runtime strings.
+approved_brand_statement = "Understand how ownership, decisions, and everyday work operate across your organization—and where to focus improvement."
+approved_brand_statement_counts = {"index.html": 3, "hold-collide-come-apart.html": 1, "trenches-not-silos.html": 1}
 british = re.compile(r"\b(organisation(?:s|'s|’s)?|organisational|colour(?:s)?|behaviour(?:s)?|centre(?:s)?|recognis(?:e|ed|ing)|analys(?:e|ed)|licence(?:s)?|favour(?:s|ed|ing)?|labour|programme(?:s)?|modelling|authorised|summaris(?:e|ed|ing)|prioritis(?:e|ed|ing))\b", re.I)
 for path in html_files:
     parser = VisibleCopy()
     parser.feed(path.read_text(encoding="utf-8"))
-    require(not any("—" in value for value in parser.values), f"{path.name}: visible em dash returned")
+    # The October 7 owner-approved sentence is one exact copy exception.
+    # Changed wording, extra occurrences and all other em dashes still fail.
+    approved_count = sum(value.strip() == approved_brand_statement for value in parser.values)
+    require(approved_count == approved_brand_statement_counts.get(path.name, 0), f"{path.name}: approved brand statement count changed")
+    require(not any("—" in value for value in parser.values if not (
+        path.name in approved_brand_statement_counts and value.strip() == approved_brand_statement
+    )), f"{path.name}: visible em dash returned")
     # Preserve original spelling in this exact attributed publication title.
     # Customer copy and every other reference remain subject to the US-style gate.
     language_values = parser.values

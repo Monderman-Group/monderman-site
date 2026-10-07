@@ -79,6 +79,29 @@ with tempfile.TemporaryDirectory(prefix="monderman-cert-sensitivity-") as temp:
     if baseline.returncode:
         raise AssertionError(f"fixture baseline does not certify\n{baseline.stdout}{baseline.stderr}")
 
+    approved_brand_statement = "Understand how ownership, decisions, and everyday work operate across your organization—and where to focus improvement."
+    expect_rejection(
+        fixture,
+        "unapproved wording in brand punctuation exception",
+        "index.html: visible em dash returned",
+        lambda: rewrite(fixture / "index.html", lambda value: value.replace(approved_brand_statement, approved_brand_statement.replace("improvement.", "improvements."), 1)),
+        ["index.html"],
+    )
+    expect_rejection(
+        fixture,
+        "duplicate approved brand sentence",
+        "index.html: approved brand statement count changed",
+        lambda: rewrite(fixture / "index.html", lambda value: value.replace("</main>", "<p>" + approved_brand_statement + "</p></main>", 1)),
+        ["index.html"],
+    )
+    expect_rejection(
+        fixture,
+        "unrelated visible punctuation on brand page",
+        "index.html: visible em dash returned",
+        lambda: rewrite(fixture / "index.html", lambda value: value.replace("</main>", "<p>Other—copy.</p></main>", 1)),
+        ["index.html"],
+    )
+
     expect_rejection(
         fixture,
         "British spelling in publication body",
