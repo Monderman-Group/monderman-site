@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
+import {sourceAtBrandRefreshBaseline} from './brand_refresh_20261007_inverse.mjs';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 export const SINGLE_LENS_OVERVIEW_BASELINE='61de1fbb0737a5b2af8cb4059bddae81226f95a2';
 export const SINGLE_LENS_OVERVIEW_VERSION='diagnostic-renderer-single-lens-overview-20260929.1';
@@ -40,8 +41,8 @@ export function sourceAtSingleLensOverviewBaseline(file,source){
   return source;
 }
 
-// Keep exact outreach identities in the already-copied compatibility module.
-// Isolated historical sample tests do not acquire a new runtime dependency.
+// Keep exact outreach identities in the compatibility module. Isolated sample
+// tests copy its finite brand helper/fixture alongside the historical modules.
 export const OUTREACH_RESPONSE_BASELINE='2be745c09058756f08e6a1f91cc18dce1f97646e';
 export const OUTREACH_RESPONSE_PAGES=Object.freeze({
   'pattern-trial.html':Object.freeze({
@@ -200,6 +201,7 @@ export function sourceBeforeEvaluationPool20261006(file,source){
   return Buffer.isBuffer(source)?Buffer.from(restored):restored;
 }
 export function sourceAtEvaluationPoolBaseline(file,source){
+  source=sourceAtBrandRefreshBaseline(file,source);
   const entry=Object.hasOwn(EVALUATION_POOL_PAGES,file)?EVALUATION_POOL_PAGES[file]:null;
   return entry&&sha(source)===entry.after?sourceBeforeEvaluationPool20261006(file,source):source;
 }

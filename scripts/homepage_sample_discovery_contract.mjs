@@ -10,6 +10,7 @@ import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 import {sourceBeforeHomepageCompactJourney20260924} from './homepage_compact_journey_20260924_inverse.mjs';
 import {sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
+import {sourceAtBrandRefreshBaseline} from './brand_refresh_20261007_inverse.mjs';
 
 export const HOMEPAGE_DISCOVERY_BASELINE='31c87d9944d58cd58a48e389a680e0e909536329';
 export const PREVIEW_FOOTER_BEFORE='<div class="hwd-footer"><span><i aria-hidden="true"></i>Illustrative organizational evaluation</span><span>Evidence. Action. Follow-up.</span></div>';
@@ -48,7 +49,15 @@ export function assertHomepageSampleDiscovery(root=path.resolve(import.meta.dirn
     assert.equal(sourceBeforePublicCopyClarity(file,read(file)),prior(file),file+': journeys, palette roles, semantic states and generator preserve exact historical bytes outside the separately pinned presentation deltas');
   }
   const inlineScripts=value=>[...value.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(match=>match[1]);
-  assert.deepEqual(inlineScripts(html),inlineScripts(prior('index.html')),'Homepage navigation and embedded behavior are unchanged');
+  const assertEmbeddedBehavior=candidate=>assert.deepEqual(inlineScripts(sourceAtBrandRefreshBaseline('index.html',candidate)),inlineScripts(prior('index.html')),'Homepage navigation and embedded behavior are unchanged after exact approved brand metadata inversion');
+  assertEmbeddedBehavior(html);
+  for(const mutant of [
+    html.replace('"slogan": "Clearer Insight. Stronger Performance."','"slogan": "Unreviewed metadata"'),
+    html+'\n<script>window.unreviewedNavigation = true;</script>',
+  ]){
+    assert.notEqual(mutant,html,'Embedded-behavior negative changes the actual source');
+    assert.throws(()=>assertEmbeddedBehavior(mutant),{name:'AssertionError'},'Unknown metadata or executable changes must fail the complete inline-script comparison');
+  }
   const scoreBand=value=>value.match(/\.hwd-score-band\s*\{[^}]*\}/)?.[0];
   assert.equal(scoreBand(css),scoreBand(prior('homepage-workspace-demo.css')),'Semantic score-band colors are preserved');
   const shared=read('enterprise-site.css');

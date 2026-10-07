@@ -25,6 +25,9 @@ on:
       - 'scripts/single_lens_overview_browser.mjs'
       - 'scripts/single_lens_overview_20260929_inverse.mjs'
       - 'scripts/fixtures/single-lens-overview-20260929.json'
+      - 'scripts/brand_refresh_20261007_inverse.mjs'
+      - 'scripts/brand_refresh_20261007_contract.mjs'
+      - 'scripts/fixtures/brand-refresh-20261007.json'
       - 'scripts/report_overview_test_normalizer.mjs'
       - 'scripts/report_overview_presentation_inverse.mjs'
       - 'scripts/fixtures/report-overview-reviewed-delta.json'
@@ -68,6 +71,8 @@ on:
       - 'run-inclusion-review.js'
       - 'campaign-analysis.css'
       - 'scripts/install_ci_browsers.sh'
+      - 'scripts/ci_ubuntu_apt_scope.sh'
+      - 'scripts/install_ci_pdf_tools.sh'
       - '*.html'
       - 'sample-report.html'
       - 'sample-report-production.js'
@@ -256,6 +261,9 @@ on:
       - 'scripts/single_lens_overview_browser.mjs'
       - 'scripts/single_lens_overview_20260929_inverse.mjs'
       - 'scripts/fixtures/single-lens-overview-20260929.json'
+      - 'scripts/brand_refresh_20261007_inverse.mjs'
+      - 'scripts/brand_refresh_20261007_contract.mjs'
+      - 'scripts/fixtures/brand-refresh-20261007.json'
       - 'scripts/report_overview_test_normalizer.mjs'
       - 'scripts/report_overview_presentation_inverse.mjs'
       - 'scripts/fixtures/report-overview-reviewed-delta.json'
@@ -299,6 +307,8 @@ on:
       - 'run-inclusion-review.js'
       - 'campaign-analysis.css'
       - 'scripts/install_ci_browsers.sh'
+      - 'scripts/ci_ubuntu_apt_scope.sh'
+      - 'scripts/install_ci_pdf_tools.sh'
       - '*.html'
       - 'sample-report.html'
       - 'sample-report-production.js'
@@ -490,9 +500,7 @@ jobs:
 
       - name: Install PDF validation tooling
         run: |
-          sudo apt-get update
-          sudo apt-get install -y poppler-utils
-          python -m pip install --disable-pip-version-check pypdf==6.10.0 pdfplumber==0.11.9 reportlab==4.4.9
+          bash scripts/install_ci_pdf_tools.sh
 
       - name: Static report contracts
         run: |

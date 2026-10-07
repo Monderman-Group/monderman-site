@@ -13,9 +13,10 @@ import {
 } from './hold_collide_publication_20261001_inverse.mjs';
 import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 import {RESEARCH_PRINT_BASELINE, RESEARCH_PRINT_STYLE, sourceBeforeResearchPrintPagination20261001, sourceAtResearchPrintPaginationBaseline} from './research_print_pagination_20261001_inverse.mjs';
+import {sourceAtBrandRefreshBaseline} from './brand_refresh_20261007_inverse.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
-const read = file => sourceAtResearchPrintPaginationBaseline(file, fs.readFileSync(path.join(root, file)));
+const read = file => sourceAtResearchPrintPaginationBaseline(file, sourceAtBrandRefreshBaseline(file, fs.readFileSync(path.join(root, file))));
 const prior = file => execFileSync('git', ['show', HOLD_COLLIDE_PUBLICATION_BASELINE + ':' + file], {cwd: root, maxBuffer: 32e6});
 const sha = value => createHash('sha256').update(value).digest('hex');
 let checks = 0, negativeControls = 0;

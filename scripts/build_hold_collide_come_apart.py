@@ -164,7 +164,7 @@ def build_pdf(data):
     house.article_body = article_body
     house.reference_html = reference_html
     print_source = house.print_html(data).replace('</head>', f'<link rel="stylesheet" href="{(ROOT/"hold-collide-publication.css").as_uri()}"></head>')
-    print_source = print_source.replace('Organizations deliver at the speed of their administrative reality.', 'Less bureaucracy. Better performance.')
+    print_source = print_source.replace('Organizations deliver at the speed of their administrative reality.', 'Clearer Insight. Stronger Performance.')
     source = scratch/'body.html'; source.write_text(print_source)
     subprocess.run([os.environ.get('NODE', 'node'), str(ROOT/'scripts/render_publication_body.cjs'), str(source), str(scratch/'body.pdf')], check=True)
     register_fonts(); rl_config.canvas_basefontname = ROMAN

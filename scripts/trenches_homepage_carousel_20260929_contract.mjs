@@ -14,9 +14,10 @@ import {
   sourceAtTrenchesHomepageCarouselBaseline,
 } from './trenches_homepage_carousel_20260929_inverse.mjs';
 import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
+import {sourceAtBrandRefreshBaseline} from './brand_refresh_20261007_inverse.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
-const read = file => sourceAtHoldCollidePublicationBaseline(file, fs.readFileSync(path.join(root, file)));
+const read = file => sourceAtHoldCollidePublicationBaseline(file, sourceAtBrandRefreshBaseline(file, fs.readFileSync(path.join(root, file))));
 const prior = file => execFileSync('git', ['show', TRENCHES_HOMEPAGE_BASELINE + ':' + file], {cwd: root, maxBuffer: 32e6});
 const sha = value => createHash('sha256').update(value).digest('hex');
 const current = read('index.html').toString(), before = prior('index.html').toString();
