@@ -71,6 +71,8 @@ on:
       - 'run-inclusion-review.js'
       - 'campaign-analysis.css'
       - 'scripts/install_ci_browsers.sh'
+      - 'scripts/ci_ubuntu_apt_scope.sh'
+      - 'scripts/install_ci_pdf_tools.sh'
       - '*.html'
       - 'sample-report.html'
       - 'sample-report-production.js'
@@ -305,6 +307,8 @@ on:
       - 'run-inclusion-review.js'
       - 'campaign-analysis.css'
       - 'scripts/install_ci_browsers.sh'
+      - 'scripts/ci_ubuntu_apt_scope.sh'
+      - 'scripts/install_ci_pdf_tools.sh'
       - '*.html'
       - 'sample-report.html'
       - 'sample-report-production.js'
@@ -496,9 +500,7 @@ jobs:
 
       - name: Install PDF validation tooling
         run: |
-          sudo apt-get update
-          sudo apt-get install -y poppler-utils
-          python -m pip install --disable-pip-version-check pypdf==6.10.0 pdfplumber==0.11.9 reportlab==4.4.9
+          bash scripts/install_ci_pdf_tools.sh
 
       - name: Static report contracts
         run: |
