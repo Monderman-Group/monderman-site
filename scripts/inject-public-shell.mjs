@@ -34,7 +34,7 @@ const assetReleases = Object.freeze({
   "monderman-depth-lure-tile.css": "20260925.deepteal1",
   "sample-report-production.js": "20260924.comparisons1",
   "public-sample-model.js": "20260924.projection8",
-  "canonical-site-shell.js": "20260916.floating-support1",
+  "canonical-site-shell.js": "20261007.insight1",
   "canonical-site-shell.css": "20260924.gold1",
   "connect-widget.js": "20260917.widget-visible1",
   "assistant.js": "20260919.invited1",

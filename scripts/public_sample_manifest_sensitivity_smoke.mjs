@@ -32,6 +32,7 @@ const adapterDependencies=['scripts/public_copy_clarity_inverse.mjs','scripts/pr
   'scripts/governance_research_20260925_inverse.mjs','scripts/fixtures/governance-research-20260925.json',
   'scripts/trenches_research_20260928_inverse.mjs',
   'scripts/single_lens_overview_20260929_inverse.mjs','scripts/fixtures/single-lens-overview-20260929.json',
+  'scripts/brand_refresh_20261007_inverse.mjs','scripts/fixtures/brand-refresh-20261007.json',
   'scripts/homepage_report_first_20260927_inverse.mjs','scripts/fixtures/homepage-report-first-20260927.json',
   'scripts/trenches_homepage_carousel_20260929_inverse.mjs',
   'scripts/hold_collide_publication_20261001_inverse.mjs',

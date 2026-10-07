@@ -10,6 +10,7 @@ import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 import {APPROVED_INTERFACE_PINS} from './invited_evaluation_source_contract.mjs';
 import {sourceBeforeHomepageCompactJourney20260924} from './homepage_compact_journey_20260924_inverse.mjs';
 import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
+import {sourceAtBrandRefreshBaseline} from './brand_refresh_20261007_inverse.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 const {artifact}=readPublicSampleFixture({root});
@@ -81,11 +82,12 @@ const retiredHeaderWidgets=[...approvedShell.matchAll(/      const widgetActions
 eq(retiredHeaderWidgets.length,1,'Exactly one historical header-widget block is identified');
 eq(sha(retiredHeaderWidgets[0][0]),'347c1f4c7067bca1cd54c550498e3d0683e424e162b3fa68219b4ba7c17b1524','Only the reviewed 31-line legacy proxy block may be removed');
 const approvedFloatingShell=approvedShell.replace(retiredHeaderWidgets[0][0],'');
-const assertApprovedShell=candidate=>assert.equal(candidate,approvedFloatingShell,'Only approved footer copy and header-proxy removal differ; all remaining header state logic is unchanged');
+const assertApprovedShell=candidate=>assert.equal(sourceAtBrandRefreshBaseline('canonical-site-shell.js',candidate),approvedFloatingShell,'Only approved footer copy and header-proxy removal differ; all remaining header state logic is unchanged');
 assertApprovedShell(read('canonical-site-shell.js'));checks++;
 for(const candidate of [
   approvedFloatingShell+retiredHeaderWidgets[0][0],
   approvedFloatingShell.replace('const opening = !header.classList.contains("mobile-nav-open");','const opening = true;'),
+  read('canonical-site-shell.js').replace('const opening = !header.classList.contains("mobile-nav-open");','const opening = true;'),
 ]){
   assert.notEqual(candidate,approvedFloatingShell,'Header-state negative actually mutates the approved source');
   assert.throws(()=>assertApprovedShell(candidate),'Restored proxies or unrelated navigation changes must fail');checks++;

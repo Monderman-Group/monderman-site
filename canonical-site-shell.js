@@ -57,7 +57,7 @@
           tagline.className = "mf-tagline";
           footerBrand.insertAdjacentElement("afterend", tagline);
         }
-        if (!tagline.textContent.trim()) tagline.textContent = "Less bureaucracy. Better performance.";
+        if (!tagline.textContent.trim()) tagline.textContent = "Clearer Insight. Stronger Performance.";
       }
     });
     document.querySelectorAll(".mond-footer .mf-inner").forEach((footerInner) => {

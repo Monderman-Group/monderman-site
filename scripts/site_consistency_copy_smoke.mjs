@@ -4,9 +4,9 @@ import path from 'node:path';
 import {assertInvitedEvaluationSourceContract} from './invited_evaluation_source_contract.mjs';
 const root=path.resolve(import.meta.dirname,'..');
 const read=f=>fs.readFileSync(path.join(root,f),'utf8');
-assert.ok(read('index.html').includes('<h1 class="hero-title" id="hero-title">Less bureaucracy. Better performance.</h1>'));
-assert.ok(read('index.html').includes('"slogan": "Less bureaucracy. Better performance."'));
-const brandStatement='Monderman reveals where decisions stall, unnecessary work accumulates and performance falls short. See what needs attention, decide what to change and measure the results.';
+assert.ok(read('index.html').includes('<h1 class="hero-title" id="hero-title">Clearer Insight. Stronger Performance.</h1>'));
+assert.ok(read('index.html').includes('"slogan": "Clearer Insight. Stronger Performance."'));
+const brandStatement='Understand how ownership, decisions, and everyday work operate across your organization—and where to focus improvement.';
 assert.equal(read('index.html').split(brandStatement).length-1,4,'Hero, search/share metadata and structured description use the approved statement');
 assert.ok(read('site-shell/footer.html').includes(`<p class="mf-copy">${brandStatement}</p>`),'Shared footer uses the exact approved statement');
 for(const f of [...fs.readdirSync(root).filter(f=>f.endsWith('.html')),'site-shell/footer.html','public-search-index.json']) {

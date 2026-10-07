@@ -102,7 +102,7 @@ const expectedCopy={
   'accept-invite.html':['Sign in using <b>the email address that received this invitation</b>'],
   'subprocessors.html':['id="ai-processing"','id="provider-security"','security.html#providers','security.html#ai-processing','security.html#provider-security'],
   'security.html':['Protecting the information you share in a diagnostic is a core responsibility.','id="ai-processing"','Earlier permission does not authorize this expanded use','even if no interpretation is generated','not named participants\' individual answer records','model training, fine-tuning, provider feedback','CrowdStrike Falcon Go','not covered by this device subscription','id="administrative-device-protection"','Earlier observations are not automatically made eligible.','not a promise of physical deletion','not a zero-retention arrangement','does not currently claim SOC 2, ISO 27001, FedRAMP','only predefined sector and Diagnostic categories, not customer answers, organization names or Workspace history'],
-  'index.html':['id="measurement-loop-title">Compare results on the same basis.','Less bureaucracy. Better performance.'],
+  'index.html':['id="measurement-loop-title">Compare results on the same basis.','Clearer Insight. Stronger Performance.'],
   'why-monderman.html':['Keep differences in experience visible.'],
   'roi.html':['What the scenario shows','The scoring system calculates the result. AI can help explain it.']
 };

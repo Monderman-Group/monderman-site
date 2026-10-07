@@ -27,7 +27,7 @@ const pilot = fs.readFileSync(path.join(root, "pilot.html"), "utf8");
 for (const term of ["unlimited during your 60 days", "no per-run charges", "Abuse protections", "five analysts and two admins", "id=\"evaluation-plan\"", "Structural Clarity", "Decision Velocity", "Operational Systems", "Institutional Performance"]) assert.ok(pilot.includes(term), term);
 assert.equal((pilot.match(/name="completedDecisionVelocity"/g) || []).length, 0, "Previous public run is not required");
 const home = fs.readFileSync(path.join(root, "index.html"), "utf8");
-assert.match(home, /Less bureaucracy\. Better performance\./);
+assert.match(home, /Clearer Insight\. Stronger Performance\./);
 assert.match(home, /Available by invitation\. Evaluate Monderman free for 60 days\. No credit card\. No automatic renewal\./);
 assert.match(home, /data-sample-id="cross_lens_synthesis"/);
 for (const file of moments) assert.ok(home.includes('href="' + file + '"'));
