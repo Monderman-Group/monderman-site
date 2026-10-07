@@ -52,14 +52,61 @@ sudo -u _apt test -r "$ci_apt_config"
 sudo -u _apt test -x "$ci_apt_dir/empty-sourceparts"
 sudo -u _apt test -x "$ci_apt_dir/lists"
 
-# Normal APT configuration must not override source isolation or network bounds.
+# Retain stricter runner network settings while enforcing source isolation.
 ci_apt_effective=$(sudo env APT_CONFIG="$ci_apt_config" apt-config shell \
   CI_SOURCE Dir::Etc::sourcelist CI_PARTS Dir::Etc::sourceparts CI_LISTS Dir::State::lists \
   CI_HTTP_TIMEOUT Acquire::http::Timeout CI_HTTPS_TIMEOUT Acquire::https::Timeout \
   CI_RETRIES Acquire::Retries CI_UPDATE_ERROR_MODE APT::Update::Error-Mode)
-ci_apt_expected=$(printf "CI_SOURCE='%s'\nCI_PARTS='%s'\nCI_LISTS='%s'\nCI_HTTP_TIMEOUT='20'\nCI_HTTPS_TIMEOUT='20'\nCI_RETRIES='2'\nCI_UPDATE_ERROR_MODE='any'" \
-  "$ci_ubuntu_sources" "$ci_apt_dir/empty-sourceparts" "$ci_apt_dir/lists")
-if [[ "$ci_apt_effective" != "$ci_apt_expected" ]]; then
-  echo 'Effective APT source isolation or network bounds differ from the requested configuration.' >&2
+
+# Parse only the requested assignment format; never execute apt-config output.
+ci_apt_names=(CI_SOURCE CI_PARTS CI_LISTS CI_HTTP_TIMEOUT CI_HTTPS_TIMEOUT CI_RETRIES CI_UPDATE_ERROR_MODE)
+ci_apt_values=()
+ci_apt_index=0
+ci_apt_valid=true
+ci_apt_line_pattern="^([A-Z_]+)='([^']*)'$"
+while IFS= read -r ci_apt_line; do
+  if (( ci_apt_index >= ${#ci_apt_names[@]} )) ||
+    [[ ! "$ci_apt_line" =~ $ci_apt_line_pattern ]] ||
+    [[ "${BASH_REMATCH[1]}" != "${ci_apt_names[$ci_apt_index]}" ]]; then
+    ci_apt_valid=false
+    break
+  fi
+  ci_apt_values[$ci_apt_index]=${BASH_REMATCH[2]}
+  ci_apt_index=$((ci_apt_index + 1))
+done <<< "$ci_apt_effective"
+
+ci_apt_number_in_bounds() {
+  ci_apt_number=$1
+  [[ "$ci_apt_number" =~ ^[0-9]+$ ]] || return 1
+  while [[ "$ci_apt_number" == 0* && ${#ci_apt_number} -gt 1 ]]; do
+    ci_apt_number=${ci_apt_number#0}
+  done
+  [[ ${#ci_apt_number} -le 2 ]] || return 1
+  (( 10#$ci_apt_number >= $2 && 10#$ci_apt_number <= $3 ))
+}
+
+if [[ "$ci_apt_valid" != true ]] || (( ci_apt_index != ${#ci_apt_names[@]} )); then
+  ci_apt_valid=false
+elif [[ "${ci_apt_values[0]}" != "$ci_ubuntu_sources" ||
+  "${ci_apt_values[1]}" != "$ci_apt_dir/empty-sourceparts" ||
+  "${ci_apt_values[2]}" != "$ci_apt_dir/lists" ||
+  "${ci_apt_values[6]}" != any ]] ||
+  ! ci_apt_number_in_bounds "${ci_apt_values[3]}" 1 20 ||
+  ! ci_apt_number_in_bounds "${ci_apt_values[4]}" 1 20 ||
+  ! ci_apt_number_in_bounds "${ci_apt_values[5]}" 0 2; then
+  ci_apt_valid=false
+fi
+if [[ "$ci_apt_valid" != true ]]; then
+  echo 'Effective APT source isolation, update error policy, or network bounds are invalid.' >&2
+  printf 'Checked CI_SOURCE=%s\nChecked CI_PARTS=%s\nChecked CI_LISTS=%s\n' \
+    "$ci_ubuntu_sources" "$ci_apt_dir/empty-sourceparts" "$ci_apt_dir/lists" >&2
+  for ci_apt_index in 3 4 5; do
+    ci_apt_minimum=1
+    ci_apt_maximum=20
+    if (( ci_apt_index == 5 )); then ci_apt_minimum=0; ci_apt_maximum=2; fi
+    if ci_apt_number_in_bounds "${ci_apt_values[$ci_apt_index]:-}" "$ci_apt_minimum" "$ci_apt_maximum"; then
+      printf 'Checked %s=%s\n' "${ci_apt_names[$ci_apt_index]}" "$ci_apt_number" >&2
+    fi
+  done
   exit 1
 fi
