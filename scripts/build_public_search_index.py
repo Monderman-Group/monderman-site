@@ -54,6 +54,7 @@ PAGES = {
     "nothing-stays-tuned.html": "Research",
     "fast-to-cut-slow-to-build.html": "Research",
     "trenches-not-silos.html": "Research",
+    "durable-organization.html": "Research",
     "hold-collide-come-apart.html": "Research",
     "we-gave-bureaucracy-the-fastest-tools.html": "Research",
     "accumulated-drag-department-of-war.html": "Research",

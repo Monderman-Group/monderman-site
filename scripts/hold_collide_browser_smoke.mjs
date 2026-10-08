@@ -24,12 +24,14 @@ for(const [engine,type] of Object.entries({chromium,webkit})){
    ok((await page.request.get(base+'/Monderman_Insight_Hold_Collide_Come_Apart_2026-10-01.pdf')).status()===200,'PDF link 200');
    await page.goto(base+'/research.html');
    const card=page.locator('.series-card').filter({hasText:'Hold, Collide, Come Apart'});
-   ok(await card.count()===1,'One Part 5 card');await card.scrollIntoViewIfNeeded();
+   ok(await card.count()===1,'One Hold Part 6 card');
+   ok(await card.locator('.series-chip').textContent()==='Part 6','Current Hold series label');await card.scrollIntoViewIfNeeded();
    ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Research overflow '+width);
    await page.screenshot({path:output+`/${engine}-${width}-research.png`});
    await card.getByRole('link',{name:'Read article'}).click();ok(page.url().endsWith('/hold-collide-come-apart.html'),'Research article link works');
    await page.goto(base+'/');
-   const first=page.locator('.latest-card').first();ok((await first.innerText()).includes('Hold, Collide, Come Apart'),'Newest carousel card');
+   const first=page.locator('.latest-card:not(.is-carousel-clone)').nth(1);ok((await first.innerText()).includes('Hold, Collide, Come Apart'),'Hold remains second after Durable');
+   ok((await first.locator('.latest-card-kicker').textContent())==='Governance and Performance · Part 6','Homepage current Hold series label');
    await first.scrollIntoViewIfNeeded();await page.screenshot({path:output+`/${engine}-${width}-carousel.png`});
    ok(errors.length===0,engine+' page errors: '+errors.join('; '));
    await page.close();

@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
+import {sourceAtDurablePublicationBaseline} from './durable_organization_publication_20261007_inverse.mjs';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 export const BRAND_REFRESH_BASELINE='d4ce7246e7f2ce15e0ee01ea7f611a2199845e39';
 export const BRAND_REFRESH_VERSION='brand-refresh-20261007.1';
@@ -26,6 +27,7 @@ export function sourceBeforeBrandRefresh20261007(file,source){
   return Buffer.isBuffer(source)?Buffer.from(restored):restored;
 }
 export function sourceAtBrandRefreshBaseline(file,source){
+  source=sourceAtDurablePublicationBaseline(file,source);
   const entry=Object.hasOwn(brandRefreshDelta.files,file)?brandRefreshDelta.files[file]:null;
   // Pass every unfamiliar edit through to the existing historical guards.
   return entry&&sha(source)===entry.after_sha256?sourceBeforeBrandRefresh20261007(file,source):source;

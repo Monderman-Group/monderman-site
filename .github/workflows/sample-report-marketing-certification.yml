@@ -156,6 +156,16 @@ on:
       - 'scripts/hold_collide_browser_smoke.mjs'
       - 'scripts/hold_collide_publication_20261001_*.mjs'
       - 'hold-collide-publication.css'
+      - 'durable-organization.html'
+      - 'Monderman_Insight_The_Durable_Organization_2026-10-07.pdf'
+      - 'assets/research/durable-organization-social.png'
+      - 'pdf-src/the-durable-organization.json'
+      - 'scripts/build_durable_organization.py'
+      - 'scripts/validate_durable_organization_publication.py'
+      - 'scripts/durable_organization_browser_smoke.mjs'
+      - 'scripts/durable_organization_publication_20261007_*.mjs'
+      - 'scripts/durable_publication_20261007_inverse.py'
+      - 'scripts/fixtures/durable-organization-*-20261007.json'
       - 'assets/research/hold-collide-come-apart*'
       - 'scripts/governance_research_20260925_*.mjs'
       - 'scripts/fixtures/governance-research-20260925.json'
@@ -392,6 +402,16 @@ on:
       - 'scripts/hold_collide_browser_smoke.mjs'
       - 'scripts/hold_collide_publication_20261001_*.mjs'
       - 'hold-collide-publication.css'
+      - 'durable-organization.html'
+      - 'Monderman_Insight_The_Durable_Organization_2026-10-07.pdf'
+      - 'assets/research/durable-organization-social.png'
+      - 'pdf-src/the-durable-organization.json'
+      - 'scripts/build_durable_organization.py'
+      - 'scripts/validate_durable_organization_publication.py'
+      - 'scripts/durable_organization_browser_smoke.mjs'
+      - 'scripts/durable_organization_publication_20261007_*.mjs'
+      - 'scripts/durable_publication_20261007_inverse.py'
+      - 'scripts/fixtures/durable-organization-*-20261007.json'
       - 'assets/research/hold-collide-come-apart*'
       - 'scripts/governance_research_20260925_*.mjs'
       - 'scripts/fixtures/governance-research-20260925.json'
@@ -574,6 +594,9 @@ jobs:
           python scripts/validate_fast_to_cut.py
           python scripts/validate_trenches_not_silos.py
           python scripts/validate_hold_collide_publication.py
+          node scripts/durable_organization_publication_20261007_contract.mjs
+          python scripts/validate_durable_organization_publication.py
+          node --check scripts/durable_organization_browser_smoke.mjs
           node scripts/hold_collide_publication_20261001_contract.mjs
           node scripts/trenches_homepage_carousel_20260929_contract.mjs
           node scripts/trenches_research_20260928_contract.mjs
@@ -697,10 +720,12 @@ jobs:
           SITE_BASE: http://127.0.0.1:8080
         run: node scripts/homepage_card_rhythm_smoke.mjs
 
-      - name: Verify Governance Part 5 publication and discovery
+      - name: Verify Governance Parts 5 and 6 publication and discovery
         env:
           SITE_BASE_URL: http://127.0.0.1:8080
-        run: node scripts/hold_collide_browser_smoke.mjs
+        run: |
+          node scripts/hold_collide_browser_smoke.mjs
+          node scripts/durable_organization_browser_smoke.mjs
 
       - name: Verify the product walkthrough and Workspace states
         env:

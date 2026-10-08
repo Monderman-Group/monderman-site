@@ -14,6 +14,7 @@ import {
 import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 import {RESEARCH_PRINT_BASELINE, RESEARCH_PRINT_STYLE, sourceBeforeResearchPrintPagination20261001, sourceAtResearchPrintPaginationBaseline} from './research_print_pagination_20261001_inverse.mjs';
 import {sourceAtBrandRefreshBaseline} from './brand_refresh_20261007_inverse.mjs';
+import {sourceAtDurablePublicationBaseline} from './durable_organization_publication_20261007_inverse.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const read = file => sourceAtResearchPrintPaginationBaseline(file, sourceAtBrandRefreshBaseline(file, fs.readFileSync(path.join(root, file))));
@@ -34,7 +35,7 @@ const pdf = 'Monderman_Insight_Hold_Collide_Come_Apart_2026-10-01.pdf';
 const social = 'assets/research/hold-collide-come-apart-social.png';
 const description = 'How divisions hold in parallel, collide over shared ground, or grow apart, and why each pattern calls for a different response.';
 
-const rawResearch = fs.readFileSync(path.join(root, 'research.html'), 'utf8');
+const rawResearch = sourceAtDurablePublicationBaseline('research.html', fs.readFileSync(path.join(root, 'research.html'), 'utf8'));
 const priorPrintSource = execFileSync('git', ['show', RESEARCH_PRINT_BASELINE + ':research.html'], {cwd: root, encoding: 'utf8'});
 eq(rawResearch.split(RESEARCH_PRINT_STYLE).length - 1, 1, 'One exact print-restricted style keeps the final quote and essays together');
 eq(sourceBeforeResearchPrintPagination20261001('research.html', rawResearch), priorPrintSource, 'Print change preserves every preceding screen/style/script/content byte');

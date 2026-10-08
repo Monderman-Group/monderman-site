@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Bounded content, typography, geometry and link checks for Part 5."""
+"""Retain historical Part 5 content checks through an exact series-only inverse.
+
+The current Part 6 identity and unchanged body streams are independently checked
+by validate_durable_organization_publication.py.
+"""
 from pathlib import Path
 from collections import Counter
 from html.parser import HTMLParser
@@ -10,6 +14,7 @@ import re
 import logging
 import pdfplumber
 from pypdf import PdfReader
+from durable_publication_20261007_inverse import source_at_durable_publication_baseline
 
 ROOT=Path(__file__).resolve().parents[1]
 PDF='Monderman_Insight_Hold_Collide_Come_Apart_2026-10-01.pdf'
@@ -28,7 +33,7 @@ class Text(HTMLParser):
 def validate(source=None):
     data=json.loads((ROOT/'pdf-src/hold-collide-come-apart.json').read_text())
     figures=json.loads((ROOT/'pdf-src/hold-collide-figures.json').read_text())
-    html=(ROOT/SLUG).read_text();text=Text();text.feed(html)
+    html=source_at_durable_publication_baseline(SLUG,(ROOT/SLUG).read_text());text=Text();text.feed(html)
     visible=compact(' '.join(text.text)); checks=[]
     def check(v,label): assert v,label;checks.append(label)
     check(len(data['paragraphs'])==61 and len(data['references'])==9,'61 paragraphs including 5 captions, 9 references')

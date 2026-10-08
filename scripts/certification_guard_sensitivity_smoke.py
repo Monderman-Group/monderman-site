@@ -116,6 +116,49 @@ with tempfile.TemporaryDirectory(prefix="monderman-cert-sensitivity-") as temp:
         ),
         ["nothing-stays-tuned.html"],
     )
+    original_durable_title = '“Organisational Downsizing, Sickness Absence, and Mortality: 10-Town Prospective Cohort Study,”'
+    expect_rejection(
+        fixture,
+        "altered original Durable reference title",
+        "durable-organization.html: original attributed title count changed",
+        lambda: rewrite(fixture / "durable-organization.html", lambda value: value.replace(original_durable_title, original_durable_title.replace("Downsizing", "Programme"))),
+        ["durable-organization.html"],
+    )
+    expect_rejection(
+        fixture,
+        "duplicate Durable attributed-title exemption",
+        "durable-organization.html: original attributed title count changed",
+        lambda: rewrite(fixture / "durable-organization.html", lambda value: value.replace("</main>", "<p>" + original_durable_title + "</p></main>", 1)),
+        ["durable-organization.html"],
+    )
+    expect_rejection(
+        fixture,
+        "British spelling outside Durable reference title",
+        "durable-organization.html: non-US customer spelling returned",
+        lambda: rewrite(fixture / "durable-organization.html", lambda value: value.replace("</main>", "<p>Unapproved modelling.</p></main>", 1)),
+        ["durable-organization.html"],
+    )
+    expect_rejection(
+        fixture,
+        "changed Durable footer brand exception",
+        "durable-organization.html: visible em dash returned",
+        lambda: rewrite(fixture / "durable-organization.html", lambda value: value.replace(approved_brand_statement, approved_brand_statement.replace("improvement.", "improvements."), 1)),
+        ["durable-organization.html"],
+    )
+    expect_rejection(
+        fixture,
+        "duplicate Durable footer brand exception",
+        "durable-organization.html: approved brand statement count changed",
+        lambda: rewrite(fixture / "durable-organization.html", lambda value: value.replace("</main>", "<p>" + approved_brand_statement + "</p></main>", 1)),
+        ["durable-organization.html"],
+    )
+    expect_rejection(
+        fixture,
+        "unrelated Durable visible punctuation",
+        "durable-organization.html: visible em dash returned",
+        lambda: rewrite(fixture / "durable-organization.html", lambda value: value.replace("</main>", "<p>Other—copy.</p></main>", 1)),
+        ["durable-organization.html"],
+    )
     expect_rejection(
         fixture,
         "British spelling outside the exact attributed title",
