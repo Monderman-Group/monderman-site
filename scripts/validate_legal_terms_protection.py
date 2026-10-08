@@ -2,6 +2,7 @@ from pathlib import Path
 import hashlib
 import json
 import re
+from outreach_image_notice_20261008_inverse import source_at_outreach_image_notice_baseline
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -94,7 +95,7 @@ def validate():
     terms = (ROOT / "terms.html").read_text(errors="strict")
     signin = (ROOT / "signin.html").read_text(errors="strict")
     trial = (ROOT / "pattern-trial.html").read_text(errors="strict")
-    privacy = (ROOT / "privacy.html").read_text(errors="strict")
+    privacy = source_at_outreach_image_notice_baseline("privacy.html", (ROOT / "privacy.html").read_text(errors="strict"))
     acknowledged_privacy = (ROOT / f"privacy-{PRIVACY_VERSION}.html").read_text(errors="strict")
     manifest = json.loads((ROOT / "legal-document-manifest.json").read_text(errors="strict"))
     checkout = (ROOT / "checkout.html").read_text(errors="strict")

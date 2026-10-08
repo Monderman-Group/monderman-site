@@ -1,6 +1,7 @@
 // Source and negative-copy checks only. No acceptance, API, browser or account writes.
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
+import {sourceAtOutreachImageNoticeBaseline} from './outreach_image_notice_20261008_inverse.mjs';
 import {createHash} from 'node:crypto';
 import {sourceBeforeTrustSecurityCenter20260924} from './trust_security_center_20260924_inverse.mjs';
 const root=new URL('../',import.meta.url),read=name=>fs.readFileSync(new URL(name,root),'utf8');
@@ -33,7 +34,7 @@ const required=[
 function processingCopy(text){for(const phrase of required)assert(text.includes(phrase),phrase);}
 processingCopy(notice);checks+=required.length;
 for(const phrase of required){assert.throws(()=>processingCopy(notice.replace(phrase,'[removed processing disclosure]')));negatives++;}
-const currentNotice=read('privacy.html');
+const currentNotice=sourceAtOutreachImageNoticeBaseline('privacy.html',read('privacy.html'));
 equal(currentNotice,read(currentArchive),'current alias matches the invited-evaluation edition');
 equal(manifest.required_acknowledgement,{terms_version:currentVersion,privacy_notice_version:currentVersion});
 equal(manifest.privacy_notice_version,currentVersion);equal(manifest.published_privacy_notice_file,currentArchive);

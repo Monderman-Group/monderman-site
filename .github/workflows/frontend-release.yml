@@ -36,6 +36,7 @@ jobs:
         run: python scripts/build_public_search_index.py --check
       - name: Preserve approved copy, allowances and functional boundaries
         run: |
+          node scripts/outreach_image_notice_20261008_contract.mjs
           node scripts/durable_organization_publication_20261007_contract.mjs
           node scripts/brand_refresh_20261007_contract.mjs
           node scripts/hold_collide_publication_20261001_contract.mjs

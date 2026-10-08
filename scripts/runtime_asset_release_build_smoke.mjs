@@ -93,11 +93,11 @@ for(const file of pages){
     eq(after.length,expectedCount,file+': exact existing or explicitly injected asset reference count');
     // The build refreshes the shared support assets without touching dozens of
     // page sources. Report assets retain their established source-key checks.
-    if([...annualAssets,'homepage-workspace-demo.css'].includes(asset)&&! /^(?:terms|privacy)(?:-|\.)/.test(file))for(const match of before)eq(match[3],`?v=${asset==='canonical-site-shell.js'?'20260915.consistency1':runtimeRelease(asset)}`,file+': expected source cache identity; the build normalizes unchanged consumer markup');
+    if([...annualAssets,'homepage-workspace-demo.css'].includes(asset)&&! /^(?:terms|privacy)(?:-|\.)|^outreach-privacy\.html$/.test(file))for(const match of before)eq(match[3],`?v=${asset==='canonical-site-shell.js'?'20260915.consistency1':runtimeRelease(asset)}`,file+': expected source cache identity; the build normalizes unchanged consumer markup');
     for(const match of after){eq(match[3],`?v=${runtimeRelease(asset)}`,file+': current asset URL');references[asset]++;}
   }
 }
-eq(canonicalPages,69);eq(footerPages,73); // Includes all six Governance parts and immutable invitation-access editions.
+eq(canonicalPages,70);eq(footerPages,74); // Includes all six Governance parts and immutable invitation-access editions.
 for(const asset of changed.filter(asset=>asset!=='workspace-evaluation.js'))ok(references[asset]>0,'Actual built pages exercise '+asset);
 eq(references['workspace-evaluation.js'],0,'Evaluation display is loaded only after an authenticated status check');
 ok(fs.readFileSync(path.join(built,'workspace-access-gate.js'),'utf8').includes('evaluationScript.src = "workspace-evaluation.js?v=20260919.invited1"'),'Authenticated loader uses the exact countdown cache identity');
@@ -127,7 +127,7 @@ eq(fs.readdirSync(path.join(built,'sample-data/reports')).sort(),samplePdfs.map(
 for(const file of samplePdfs)eq(sha(fs.readFileSync(path.join(built,file))),hashes[file],'Exact reviewed PDF copy: '+file);
 for(const privatePath of ['scripts','site-shell','.github','docs','pdf-src','test-fixtures','node_modules','output'])ok(!fs.existsSync(path.join(built,privatePath)),'Private path stays excluded: '+privatePath);
 const legalContent=html=>html.split('<!-- CONTENT_START -->')[1].split('<!-- CONTENT_END -->')[0].replace(/^\n+|\n+$/g,'')+'\n';
-for(const file of ['terms.html','terms-2026-09-15-annual-plans.html','terms-2026-09-19-invited-evaluation.html','privacy.html','privacy-2026-09-12-ai-source-evidence-v2.html','privacy-2026-09-19-invited-evaluation.html','terms-2026-09-19-invitation-access.html','privacy-2026-09-19-invitation-access.html']){
+for(const file of ['terms.html','terms-2026-09-15-annual-plans.html','terms-2026-09-19-invited-evaluation.html','privacy.html','outreach-privacy.html','privacy-2026-09-12-ai-source-evidence-v2.html','privacy-2026-09-19-invited-evaluation.html','terms-2026-09-19-invitation-access.html','privacy-2026-09-19-invitation-access.html']){
   eq(legalContent(fs.readFileSync(path.join(built,file),'utf8')),legalContent(read(file).toString()),'Shell injection preserves exact legal content: '+file);
 }
 const inventory=JSON.parse(execFileSync(process.execPath,[path.join(root,'scripts/mobile_site_presentation_smoke.mjs'),'--inventory-only'],{cwd:stage,encoding:'utf8'}));

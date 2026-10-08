@@ -34,6 +34,7 @@ const adapterDependencies=['scripts/public_copy_clarity_inverse.mjs','scripts/pr
   'scripts/single_lens_overview_20260929_inverse.mjs','scripts/fixtures/single-lens-overview-20260929.json',
   'scripts/brand_refresh_20261007_inverse.mjs','scripts/fixtures/brand-refresh-20261007.json',
   'scripts/durable_organization_publication_20261007_inverse.mjs','scripts/fixtures/durable-organization-publication-20261007.json',
+  'scripts/outreach_image_notice_20261008_inverse.mjs','scripts/fixtures/outreach-image-notice-20261008.json',
   'scripts/homepage_report_first_20260927_inverse.mjs','scripts/fixtures/homepage-report-first-20260927.json',
   'scripts/trenches_homepage_carousel_20260929_inverse.mjs',
   'scripts/hold_collide_publication_20261001_inverse.mjs',

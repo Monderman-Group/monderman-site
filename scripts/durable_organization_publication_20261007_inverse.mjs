@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
+import {sourceAtOutreachImageNoticeBaseline} from './outreach_image_notice_20261008_inverse.mjs';
 const sha = value => createHash('sha256').update(value).digest('hex');
 export const DURABLE_PUBLICATION_BASELINE = '74bcf2e86cf7829e2d4aaa5f83ade90b6b6ffaad';
 export const DURABLE_PUBLICATION_VERSION = 'durable-organization-publication-20261007.1';
@@ -26,6 +27,7 @@ export function sourceBeforeDurablePublication20261007(file, source) {
   return Buffer.isBuffer(source) ? Buffer.from(restored) : restored;
 }
 export function sourceAtDurablePublicationBaseline(file, source) {
+  source = sourceAtOutreachImageNoticeBaseline(file, source);
   const entry = Object.hasOwn(durablePublicationDelta.files, file) ? durablePublicationDelta.files[file] : null;
   return entry && sha(source) === entry.after_sha256 ? sourceBeforeDurablePublication20261007(file, source) : source;
 }

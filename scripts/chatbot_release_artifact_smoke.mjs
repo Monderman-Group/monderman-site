@@ -1,5 +1,6 @@
 // Read-only assertions on the generated static artifact.
 import assert from "node:assert/strict";
+import {sourceAtOutreachImageNoticeBaseline} from "./outreach_image_notice_20261008_inverse.mjs";
 import {readFile, readdir} from "node:fs/promises";
 import {createHash} from "node:crypto";
 const root = new URL("../.render-public/", import.meta.url);
@@ -57,13 +58,16 @@ for (const page of ["index.html","privacy.html","security.html","pilot.html"]) {
 for (const page of ["workspace.html","workspace-diagnostics.html","workspace-analysis.html","workspace-actions.html","workspace-settings.html"]) {
   assert.match(await read(page),/src="workspace-assistant\.js\?v=20260915.consistency1"/); checks++;
 }
+const publishedPrivacySource = await readSource("privacy.html");
+assert.equal(markedContent(await read("privacy.html"),"built current Privacy"),markedContent(publishedPrivacySource,"current Privacy source"),"Built current Privacy preserves every reviewed notice-content byte"); checks++;
+const originalPublishedPrivacy = sourceAtOutreachImageNoticeBaseline("privacy.html",publishedPrivacySource);
 for (const [page, hashKey] of [
   ["terms.html","terms_content_sha256"],
   ["privacy-2026-09-19-invitation-access.html","privacy_notice_content_sha256"],
   ["privacy.html","published_privacy_notice_content_sha256"]
 ]) {
-  const content=markedContent(await read(page), page).replace(/^\n+|\n+$/g,"")+"\n";
+  const content=markedContent(page==="privacy.html"?originalPublishedPrivacy:await read(page), page).replace(/^\n+|\n+$/g,"")+"\n";
   assert.equal(hash(content),manifest[hashKey]); checks++;
 }
-assert.equal(markedContent(await read("privacy.html"),"published Privacy"),markedContent(await read(manifest.published_privacy_notice_file),"published archive")); checks++;
+assert.equal(markedContent(originalPublishedPrivacy,"published Privacy"),markedContent(await read(manifest.published_privacy_notice_file),"published archive")); checks++;
 console.log(JSON.stringify({ok:true,checks,archives:recordedArchives.length,scope:"Repository: immutable legal source fingerprints. Build: exact archived legal content, current content hashes, public and Hans cache versions. Full served-artifact bytes require the separate release comparison."}));
