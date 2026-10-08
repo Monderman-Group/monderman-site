@@ -1,5 +1,6 @@
 // Current publication integrity plus exact backward compatibility. Offline only.
 import assert from 'node:assert/strict';
+import {sourceAtOutreachImageNoticeBaseline} from './outreach_image_notice_20261008_inverse.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
@@ -7,7 +8,7 @@ import {execFileSync} from 'node:child_process';
 import {DURABLE_PUBLICATION_BASELINE, DURABLE_PUBLICATION_VERSION, DURABLE_PUBLICATION_FILES,
   durablePublicationDelta, sourceBeforeDurablePublication20261007, sourceAtDurablePublicationBaseline} from './durable_organization_publication_20261007_inverse.mjs';
 const root = path.resolve(import.meta.dirname, '..');
-const read = file => fs.readFileSync(path.join(root, file));
+const read = file => sourceAtOutreachImageNoticeBaseline(file,fs.readFileSync(path.join(root, file)));
 const prior = file => execFileSync('git', ['show', DURABLE_PUBLICATION_BASELINE + ':' + file], {cwd:root, maxBuffer:32e6});
 const sha = value => createHash('sha256').update(value).digest('hex');
 const compact = text => text.replace(/\s/g, '');

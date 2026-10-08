@@ -46,7 +46,7 @@ for (const file of (await fs.readdir(built)).filter(file => file.endsWith('.html
   eq(footers[0][0], footer, file + ': exact current footer partial');
   pages.set(file, html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ''));
 }
-eq(pages.size, 73, 'All public footer pages receive the membership');
+eq(pages.size, 74, 'All public footer pages receive the membership');
 const tracked = execFileSync('git', ['ls-tree', '-r', '--name-only', baseline], {cwd:root, encoding:'utf8'}).trim().split('\n');
 const protectedFiles = tracked.filter(file => (!file.includes('/') && /\.(?:js|css)$/.test(file))
   || /^(?:decision-velocity|structural-clarity|operational-systems|institutional-performance)\.html$/.test(file)

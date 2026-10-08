@@ -1,5 +1,6 @@
 // Current Trust & Security Center contract; local source only, no provider calls.
 import assert from 'node:assert/strict';
+import {sourceAtOutreachImageNoticeBaseline} from './outreach_image_notice_20261008_inverse.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
@@ -102,7 +103,7 @@ for(const [file,html]of [['security.html',center],['subprocessors.html',compatib
 }
 const tracked=execFileSync('git',['ls-files'],{cwd:root,encoding:'utf8'}).trim().split('\n');
 const legal=tracked.filter(file=>/^(?:privacy|terms)(?:-[^/]*)?\.html$/.test(file)||file==='legal-document-manifest.json');
-for(const file of legal)equal(fs.readFileSync(path.join(root,file)),execFileSync('git',['show','HEAD:'+file],{cwd:root}),file+': authoritative legal bytes unchanged');
+for(const file of legal)equal(sourceAtOutreachImageNoticeBaseline(file,fs.readFileSync(path.join(root,file))),sourceAtOutreachImageNoticeBaseline(file,execFileSync('git',['show','HEAD:'+file],{cwd:root})),file+': authoritative legal bytes unchanged outside exact reviewed outreach supplement');
 for(const token of ['Earlier permission does not authorize this expanded use.','This is not a zero-retention arrangement.','id="administrative-device-protection"']){
   assert.throws(()=>validateCenter(center.replace(token,'')),{name:'AssertionError'},'Missing disclosure/legacy anchor must fail');checks++;
 }

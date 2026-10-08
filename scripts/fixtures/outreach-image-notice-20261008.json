@@ -1,0 +1,59 @@
+{
+  "version": "outreach-image-notice-20261008.1",
+  "baseline": "08944880293e9c034470ead88035d48320f7b6fc",
+  "approval_scope": "Separate prospective first-party outreach image-request notice only; existing product legal versions, every archive, website measurement retirement, admissions, identity and customer data unchanged.",
+  "files": {
+    "privacy.html": {
+      "before_sha256": "c71c0cf3fb3d66b58f4aecd1f52c33dabe6a52e24332548bd7763af294fe149d",
+      "after_sha256": "b6425860f43039b0af638a11f3a01f3adffb94a4dc1dcfc7dd885dfdd7b2a7ec",
+      "replacements": [
+        [
+          37631,
+          37639,
+          "website ",
+          ""
+        ],
+        [
+          37892,
+          38313,
+          "    <p>Separately, selected Monderman outreach emails sent from October 8, 2026 may include a first-party measurement image. The dated <a href=\"outreach-privacy.html\">Outreach email privacy supplement</a> explains the limited image-request records and your controls. This does not restart website measurement or change product Terms, Privacy Notice acknowledgements, or permissions for optional written observations.</p>\n",
+          ""
+        ],
+        [
+          39928,
+          39936,
+          "website ",
+          ""
+        ]
+      ]
+    },
+    "scripts/runtime_asset_release_build_smoke.mjs": {
+      "before_sha256": "bfd8acf8d6ead4ffba5adbe35eb3de368f8e5a8b2f7fa9915d23481c197e1ac5",
+      "after_sha256": "4215de4bdf233636873c7f7e117d192c674062163b0a4fc4f36d860c0c33c0ea",
+      "replacements": [
+        [
+          10632,
+          10987,
+          "    if([...annualAssets,'homepage-workspace-demo.css'].includes(asset)&&! /^(?:terms|privacy)(?:-|\\.)|^outreach-privacy\\.html$/.test(file))for(const match of before)eq(match[3],`?v=${asset==='canonical-site-shell.js'?'20260915.consistency1':runtimeRelease(asset)}`,file+': expected source cache identity; the build normalizes unchanged consumer markup');\n",
+          "    if([...annualAssets,'homepage-workspace-demo.css'].includes(asset)&&! /^(?:terms|privacy)(?:-|\\.)/.test(file))for(const match of before)eq(match[3],`?v=${asset==='canonical-site-shell.js'?'20260915.consistency1':runtimeRelease(asset)}`,file+': expected source cache identity; the build normalizes unchanged consumer markup');\n"
+        ],
+        [
+          11115,
+          11236,
+          "eq(canonicalPages,70);eq(footerPages,74); // Includes all six Governance parts and immutable invitation-access editions.\n",
+          "eq(canonicalPages,69);eq(footerPages,73); // Includes all six Governance parts and immutable invitation-access editions.\n"
+        ],
+        [
+          14533,
+          14866,
+          "for(const file of ['terms.html','terms-2026-09-15-annual-plans.html','terms-2026-09-19-invited-evaluation.html','privacy.html','outreach-privacy.html','privacy-2026-09-12-ai-source-evidence-v2.html','privacy-2026-09-19-invited-evaluation.html','terms-2026-09-19-invitation-access.html','privacy-2026-09-19-invitation-access.html']){\n",
+          "for(const file of ['terms.html','terms-2026-09-15-annual-plans.html','terms-2026-09-19-invited-evaluation.html','privacy.html','privacy-2026-09-12-ai-source-evidence-v2.html','privacy-2026-09-19-invited-evaluation.html','terms-2026-09-19-invitation-access.html','privacy-2026-09-19-invitation-access.html']){\n"
+        ]
+      ]
+    }
+  },
+  "supplement": {
+    "file": "outreach-privacy.html",
+    "sha256": "3d967f200bd4b291bbd40c26105ebfa799f9e50fe586ea813c770ff671f3d01c"
+  }
+}
