@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
 const sha=value=>createHash('sha256').update(value).digest('hex');
-export const OUTREACH_IMAGE_NOTICE_FIXTURE_SHA256='7045feb933960e4771fa53aea7a119f8d6d24e2a8267bd957e2d5922b77cee5b';
+export const OUTREACH_IMAGE_NOTICE_FIXTURE_SHA256='f30ea31f0019e47a176d31d40134671b464d0769baeb1a5b8e63841840fcea58';
 const bytes=fs.readFileSync(new URL('./fixtures/outreach-image-notice-20261008.json',import.meta.url));
 assert.equal(sha(bytes),OUTREACH_IMAGE_NOTICE_FIXTURE_SHA256,'Exact reviewed outreach notice fixture');
 export const outreachImageNoticeDelta=JSON.parse(bytes);

@@ -83,14 +83,15 @@ const supplement=read('outreach-privacy.html').toString();
 function noticeChecks(text){
   assert.equal(sha(text),outreachImageNoticeDelta.supplement.sha256,'Exact complete supplement; unfamiliar content rejected');
   for(const phrase of ['Supplement 2026-10-08-outreach-image-v1','Email images are not read receipts.','random, opaque identifier for that message','We privately match that identifier to the intended recipient and sent-email record.','not anonymous data','a bounded count of requests','We do not record IP addresses or user-agent strings in this application measurement record','Normal hosting, gateway and security providers can still receive standard request and network metadata','privacy proxies and security scanners','forwarded email','prove inbox placement or successful delivery','No recorded fetch means unknown','When you opt out or reply','no later than 30 days after the message is sent','We do not extend the window','through bounded cleanup when the image function is used or during a manual review','do not promise that a timed background job','Website tracking stays retired','does not reactivate website measurement','no cookies','device fingerprints','tracking parameters','participant content']){
-    // "no cookies" and participant scope are expressed as complete equivalent sentences.
-    const required=phrase==='no cookies'?'we do not use cookies':phrase==='participant content'?'customer or participant content':phrase;
+    // Application cookie scope and participant scope require complete sentences.
+    const required=phrase==='no cookies'?'Our application measurement does not use cookies':phrase==='participant content'?'customer or participant content':phrase;
     assert.ok(text.includes(required),required);
   }
+  for(const phrase of ['may set security cookies for purposes such as bot protection','We do not use those infrastructure cookies in the application measurement record.'])assert.ok(text.includes(phrase),phrase);
   assert.ok(!/outreach-telemetry|<img[^>]*\.gif|tracking_pixel|fetch\(/i.test(text),'No collection code or pixel in the public supplement');
 }
-noticeChecks(supplement);checks+=29;
-for(const phrase of ['random, opaque identifier for that message','When you opt out or reply','no later than 30 days after the message is sent','Website tracking stays retired'])rejects(()=>noticeChecks(supplement.replace(phrase,'UNREVIEWED')),'Missing disclosure rejected: '+phrase);
+noticeChecks(supplement);checks+=31;
+for(const phrase of ['random, opaque identifier for that message','When you opt out or reply','no later than 30 days after the message is sent','Website tracking stays retired','Our application measurement does not use cookies','may set security cookies for purposes such as bot protection'])rejects(()=>noticeChecks(supplement.replace(phrase,'UNREVIEWED')),'Missing disclosure rejected: '+phrase);
 const scripts=text=>[...text.matchAll(/<script\b[^>]*>[\s\S]*?<\/script>/gi)].map(match=>match[0]);
 eq(scripts(supplement),scripts(before.toString()),'All existing legal-shell scripts preserved; no email-image collection on website');
 const localLinks=[...supplement.matchAll(/href="([^"#]+)"/g)].map(m=>m[1]).filter(url=>!/^https?:|^mailto:/i.test(url));
