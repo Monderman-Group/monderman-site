@@ -20,6 +20,7 @@ const heroPages = [
   ['designing-for-decision-velocity.html', '.hero', '.hero h1', 'publication'],
   ['deterministic-ai-infrastructure.html', '.ps-hero', '.ps-hero h1', 'publication'],
   ['diagnostics.html', '.hero', '.hero h1', 'standard'],
+  ['durable-organization.html', '.article-hero', '.article-hero h1', 'publication'],
   ['every-node-for-itself.html', '.article-hero', '.article-hero h1', 'publication'],
   ['fast-to-cut-slow-to-build.html', '.article-hero', '.article-hero h1', 'publication'],
   ['from-tokens-to-outcomes.html', '.article-hero', '.article-hero h1', 'publication'],
@@ -56,7 +57,7 @@ const heroPages = [
   ['why-monderman.html', '.hero', '.hero h1', 'standard'],
 ];
 
-assert.equal(heroPages.length, 45, 'hero manifest changed unexpectedly');
+assert.equal(heroPages.length, 46, 'hero manifest changed unexpectedly');
 const legalPresentationExclusions = new Set(['privacy.html', 'terms.html']);
 const heroClassTokens = new Set(['hero', 'ps-hero', 'article-hero', 'pl-top']);
 function hasPageHero(pageName) {
@@ -113,6 +114,7 @@ const pagesWithLocalOpeningAction = new Set([
   'designing-for-decision-velocity.html',
   'deterministic-ai-infrastructure.html',
   'diagnostics.html',
+  'durable-organization.html',
   'every-node-for-itself.html',
   'fast-to-cut-slow-to-build.html',
   'from-tokens-to-outcomes.html',
@@ -139,7 +141,7 @@ const pagesWithLocalOpeningAction = new Set([
   'why-monderman.html',
 ]);
 
-assert.equal(pagesWithLocalOpeningAction.size, 33, 'opening-action manifest changed unexpectedly');
+assert.equal(pagesWithLocalOpeningAction.size, 34, 'opening-action manifest changed unexpectedly');
 
 function expectedGutter(width) {
   if (width <= 640) return 20;

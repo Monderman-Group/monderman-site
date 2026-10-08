@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Publish Part 5 from frozen, attributed source text using the house template.
+"""Publish Part 6 from frozen, attributed source text using the house template.
 
 The source DOCX is not modified. Editorial corrections are explicit and recorded
 in the private JSON source, with paragraph numbers from the supplied document.
@@ -72,7 +72,7 @@ def extract(source):
     changes.append(dict(paragraph=84, before=old, after=refs[8]))
     data = dict(title=doc.paragraphs[2].text, subtitle=doc.paragraphs[3].text,
                 standfirst=doc.paragraphs[4].text, author='Jason Adamson', date='October 2026',
-                category='GOVERNANCE AND PERFORMANCE', part=5, paragraphs=paragraphs,
+                category='GOVERNANCE AND PERFORMANCE', part=6, paragraphs=paragraphs,
                 references=refs, biography=doc.paragraphs[85].text,
                 copyright=doc.paragraphs[86].text, read_minutes=25,
                 source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(), corrections=changes)
@@ -136,10 +136,10 @@ def build_html(data, pages):
     head = template[:template.index('<main class="article-main"')]
     for a,b in [(old['title'],data['title']), (old['subtitle'],data['subtitle']), (old['standfirst'],data['standfirst']),
                 ('trenches-not-silos.html',SLUG+'.html'), ('Monderman_Insight_Trenches_Not_Silos_2026-09-28.pdf',FILENAME),
-                ('September 2026','October 2026'), ('Part 4','Part 5'), ('10 pages · 20-minute read',f'{pages} pages · 25-minute read')]:
+                ('September 2026','October 2026'), ('Part 4',f'Part {data["part"]}'), ('10 pages · 20-minute read',f'{pages} pages · 25-minute read')]:
         head = head.replace(a,b)
-    head = head.replace('https://www.monderman.com/assets/brand/monderman-social-card.png?v=20260907-wordmark2', f'https://www.monderman.com/assets/research/{SLUG}-social.png')
-    head = head.replace('content="Monderman">', f'content="{data["title"]} | Governance and Performance · Part 5">')
+    head = head.replace('https://www.monderman.com/assets/brand/monderman-social-card.png?v=20260907-wordmark2', f'https://www.monderman.com/assets/research/{SLUG}-social.png?v=20261007.part6')
+    head = head.replace('content="Monderman">', f'content="{data["title"]} | Governance and Performance · Part {data["part"]}">')
     head = head.replace('</head>', '<link rel="stylesheet" href="hold-collide-publication.css?v=20261001.1">\n</head>')
     head = re.sub(r'<header\b[\s\S]*?</header>', (ROOT/'site-shell/header.html').read_text().strip(), head, count=1)
     body = f'''<main class="article-main" id="main-content">
@@ -151,6 +151,7 @@ def build_html(data, pages):
 <section class="article-further" aria-label="Article links"><p class="article-kicker">Keep reading</p>
 <p><a href="{FILENAME}" target="_blank" rel="noopener noreferrer">Download the PDF →</a></p>
 <p><a href="trenches-not-silos.html">Read Part 4: Trenches, Not Silos →</a></p>
+<p><a href="durable-organization.html">Read Part 5: The Durable Organization →</a></p>
 <p><a href="research.html#governance-performance-title">Read the Governance and Performance series →</a></p></section></main>
 '''
     tail = template[template.index('<footer class="footer mond-footer"'):]
@@ -168,7 +169,7 @@ def build_pdf(data):
     source = scratch/'body.html'; source.write_text(print_source)
     subprocess.run([os.environ.get('NODE', 'node'), str(ROOT/'scripts/render_publication_body.cjs'), str(source), str(scratch/'body.pdf')], check=True)
     register_fonts(); rl_config.canvas_basefontname = ROMAN
-    pub = Publication(FILENAME, data['category']+' · PART 5', data['title'], data['subtitle'], data['standfirst'], data['date'], 0, ())
+    pub = Publication(FILENAME, data['category']+f' · PART {data["part"]}', data['title'], data['subtitle'], data['standfirst'], data['date'], 0, ())
     writer = PdfWriter(); writer.append(PdfReader(BytesIO(make_cover(pub))))
     for page in PdfReader(scratch/'body.pdf').pages:
         stream = BytesIO(); c = canvas.Canvas(stream, pagesize=(612,792))
@@ -186,7 +187,7 @@ def build_pdf(data):
                 if op == b'Tf' and args[0] in defaults: args[0] = roman
             for name in defaults: del fonts[name]
             resources[NameObject('/Font')] = fonts; page[NameObject('/Resources')] = resources; page.replace_contents(content)
-    writer.add_metadata({'/Title':data['title'], '/Author':data['author'], '/Subject':data['subtitle'], '/Keywords':'Governance and Performance, Part 5, organizational structure'})
+    writer.add_metadata({'/Title':data['title'], '/Author':data['author'], '/Subject':data['subtitle'], '/Keywords':f'Governance and Performance, Part {data["part"]}, organizational structure'})
     with (ROOT/FILENAME).open('wb') as out: writer.write(out)
     return len(writer.pages)
 
@@ -198,5 +199,5 @@ if __name__ == '__main__':
     if not args.extract_only:
         pages=build_pdf(data); build_html(data,pages)
         from generate_publication_social_cards import Card, render
-        render(Card(SLUG,'Insight','Governance and Performance · Part 5',data['title'],data['subtitle'],data['date'],('Hold, Collide,','Come Apart')))
+        render(Card(SLUG,'Insight',f'Governance and Performance · Part {data["part"]}',data['title'],data['subtitle'],data['date'],('Hold, Collide,','Come Apart')))
         print(json.dumps(dict(file=FILENAME,pages=pages,paragraphs=len(data['paragraphs']),references=len(data['references']),figures=len(figures()))))

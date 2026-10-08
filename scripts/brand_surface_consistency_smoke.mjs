@@ -11,7 +11,7 @@ const pages = [
   'after-a-reorganization.html', 'after-an-acquisition.html', 'built-to-please.html',
   'compensatory-systems.html', 'connect.html', 'cross-tool-synthesis.html',
   'decision-velocity-article.html', 'decision-velocity.html', 'designing-for-decision-velocity.html',
-  'deterministic-ai-infrastructure.html', 'diagnostics.html', 'every-node-for-itself.html',
+  'deterministic-ai-infrastructure.html', 'diagnostics.html', 'durable-organization.html', 'every-node-for-itself.html',
   'fast-to-cut-slow-to-build.html', 'from-tokens-to-outcomes.html', 'governing-complexity.html', 'hold-collide-come-apart.html', 'index.html',
   'institutional-performance-article.html', 'institutional-performance.html', 'merit-after-the-machine.html',
   'new-in-the-role.html', 'nothing-stays-tuned.html', 'operational-systems-article.html',
@@ -35,8 +35,8 @@ const heroSelector = 'body.canonical-green-shell :is(.hero,.article-hero,.ps-her
 const surfaceSelector = `${heroSelector},footer.mond-footer`;
 const tagline = 'Clearer Insight. Stronger Performance.';
 const printPages = new Set(['index.html', 'Monderman_Platform_Brief.html', 'privacy.html', 'the-culture-trap-brief.html', 'cross-tool-synthesis.html', 'operational-systems.html', 'sample-report.html']);
-assert.equal(pages.length, 73);
-assert.equal(pages.length - footerOnly.size, 67);
+assert.equal(pages.length, 74);
+assert.equal(pages.length - footerOnly.size, 68);
 for (const file of pages) assert(fs.existsSync(path.join(root, file)), `Missing inventoried page ${file}`);
 
 const publishedSurfaces = fs.readdirSync(root).filter(file => file.endsWith('.html')).filter(file => {

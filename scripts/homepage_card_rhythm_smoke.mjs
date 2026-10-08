@@ -52,13 +52,13 @@ async function waitForCarouselReady(page, label, pageErrors, failedScripts) {
     // is not evidence that the inline carousel bootstrap completed successfully.
     await page.waitForFunction(() => {
       if (!document.querySelector('#latestViewport')?.classList.contains('is-ready') ||
-        document.querySelectorAll('#latestTrack>.is-carousel-clone').length !== 36 ||
-        document.querySelectorAll('#latestDots>button').length !== 18 ||
+        document.querySelectorAll('#latestTrack>.is-carousel-clone').length !== 38 ||
+        document.querySelectorAll('#latestDots>button').length !== 19 ||
         document.fonts.status !== 'loaded') return false;
       // WebKit can expose the ready DOM before applying the phone visibility
       // rule to every card. Poll rendered state; do not exempt offscreen items.
       const headings=[...document.querySelectorAll('#latestTrack>.latest-card:not(.is-carousel-clone) .placeholder-cover-title')];
-      return headings.length===18 && headings.every(node=>{
+      return headings.length===19 && headings.every(node=>{
         const box=node.getBoundingClientRect();
         if(!box.width||!box.height) return false;
         for(let ancestor=node;ancestor;ancestor=ancestor.parentElement) {
@@ -122,16 +122,17 @@ for (const [browserName, browserType] of browsers) {
       await waitForCarouselReady(page,`${browserName}/${width}`,pageErrors,failedScripts);
 
       const carouselTitles=await page.evaluate(readCarouselTitles);
-      assert.equal(carouselTitles.length,18,`${browserName}/${width}: original carousel items were lost or cloned into the title audit`);
-      assert.equal(carouselTitles[0].title,'Hold, Collide, Come Apart',`${browserName}/${width}: newest article leads the carousel`);
-      assert.equal(carouselTitles[1].title,'Trenches, Not Silos',`${browserName}/${width}: previous article retains its carousel position`);
+      assert.equal(carouselTitles.length,19,`${browserName}/${width}: original carousel items were lost or cloned into the title audit`);
+      assert.equal(carouselTitles[0].title,'The Durable Organization',`${browserName}/${width}: newest article leads the carousel`);
+      assert.equal(carouselTitles[1].title,'Hold, Collide, Come Apart',`${browserName}/${width}: previous article retains its carousel position`);
+      assert.equal(carouselTitles[2].title,'Trenches, Not Silos',`${browserName}/${width}: all earlier articles retain their relative order`);
       for (const card of carouselTitles) {
         assert.equal(card.headings.length,1,`${browserName}/${width}/${card.title}: duplicate or missing accessible title on screen; runtime=${JSON.stringify({pageErrors,failedScripts})}`);
         assert.ok(card.headings[0].includes('placeholder-cover-title'),`${browserName}/${width}/${card.title}: cover is not the visible title`);
         assert.ok(card.linkNames.every(name=>name?.includes(card.title)),`${browserName}/${width}/${card.title}: link names do not identify their article`);
       }
       const clones=page.locator('#latestTrack>.is-carousel-clone');
-      assert.equal(await clones.count(),36,`${browserName}/${width}: carousel clone setup is incomplete`);
+      assert.equal(await clones.count(),38,`${browserName}/${width}: carousel clone setup is incomplete`);
       assert.ok(await clones.evaluateAll(cards=>cards.every(card=>card.inert&&card.getAttribute('aria-hidden')==='true')),`${browserName}/${width}: repeated carousel items entered the accessibility tree`);
 
       const result = await page.evaluate(expectedMeasurement => {

@@ -97,7 +97,7 @@ for(const file of pages){
     for(const match of after){eq(match[3],`?v=${runtimeRelease(asset)}`,file+': current asset URL');references[asset]++;}
   }
 }
-eq(canonicalPages,68);eq(footerPages,72); // Includes Governance Part 5 and immutable invitation-access editions.
+eq(canonicalPages,69);eq(footerPages,73); // Includes all six Governance parts and immutable invitation-access editions.
 for(const asset of changed.filter(asset=>asset!=='workspace-evaluation.js'))ok(references[asset]>0,'Actual built pages exercise '+asset);
 eq(references['workspace-evaluation.js'],0,'Evaluation display is loaded only after an authenticated status check');
 ok(fs.readFileSync(path.join(built,'workspace-access-gate.js'),'utf8').includes('evaluationScript.src = "workspace-evaluation.js?v=20260919.invited1"'),'Authenticated loader uses the exact countdown cache identity');

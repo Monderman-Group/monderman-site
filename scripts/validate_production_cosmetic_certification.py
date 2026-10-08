@@ -295,7 +295,7 @@ require(has_meta(parse_document(not_found), "name", "robots", "noindex, nofollow
 
 # 10 and 13: language canon in visible HTML and customer-visible runtime strings.
 approved_brand_statement = "Understand how ownership, decisions, and everyday work operate across your organization—and where to focus improvement."
-approved_brand_statement_counts = {"index.html": 3, "hold-collide-come-apart.html": 1, "trenches-not-silos.html": 1}
+approved_brand_statement_counts = {"index.html": 3, "hold-collide-come-apart.html": 1, "trenches-not-silos.html": 1, "durable-organization.html": 1}
 british = re.compile(r"\b(organisation(?:s|'s|’s)?|organisational|colour(?:s)?|behaviour(?:s)?|centre(?:s)?|recognis(?:e|ed|ing)|analys(?:e|ed)|licence(?:s)?|favour(?:s|ed|ing)?|labour|programme(?:s)?|modelling|authorised|summaris(?:e|ed|ing)|prioritis(?:e|ed|ing))\b", re.I)
 for path in html_files:
     parser = VisibleCopy()
@@ -315,6 +315,10 @@ for path in html_files:
             'Jens Rasmussen, “Risk Management in a Dynamic Society: A Modelling Problem,”',
             'Jens Rasmussen, [original publication title]',
         ) for value in language_values]
+    if path.name == "durable-organization.html":
+        original_title = '“Organisational Downsizing, Sickness Absence, and Mortality: 10-Town Prospective Cohort Study,”'
+        require(sum(value.count(original_title) for value in language_values) == 1, "durable-organization.html: original attributed title count changed")
+        language_values = [value.replace(original_title, '[original publication title]') for value in language_values]
     require(not any(british.search(value) for value in language_values), f"{path.name}: non-US customer spelling returned")
 for name in ["assistant.js", "interview-mode.js", "monderman-report.js", "monderman-viz.js", "workspace-assistant.js", "workspace-shell.js"]:
     source = text(name)
