@@ -2,6 +2,7 @@
 import hashlib
 import json
 from pathlib import Path
+from outreach_image_notice_20261008_inverse import source_at_outreach_image_notice_baseline
 
 FIXTURE_SHA256 = '6808405eeb2672179a23c30e7f2b85610e73b1378399a09bbfd7150b6763aa33'
 _bytes = (Path(__file__).resolve().parent / 'fixtures/durable-organization-publication-20261007.json').read_bytes()
@@ -11,6 +12,7 @@ assert _fixture['baseline'] == '74bcf2e86cf7829e2d4aaa5f83ade90b6b6ffaad'
 assert _fixture['version'] == 'durable-organization-publication-20261007.1'
 
 def source_at_durable_publication_baseline(file, source):
+    source = source_at_outreach_image_notice_baseline(file, source)
     entry = _fixture['files'].get(file)
     encoded = source.encode('utf-8') if isinstance(source, str) else source
     if not entry or hashlib.sha256(encoded).hexdigest() != entry['after_sha256']:
