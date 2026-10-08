@@ -81,6 +81,7 @@ PAGES = {
     "security.html": "Company",
     "connect.html": "Company",
     "privacy.html": "Policies",
+    "outreach-privacy.html": "Policies",
     "subprocessors.html": "Policies",
     "terms.html": "Policies",
 }

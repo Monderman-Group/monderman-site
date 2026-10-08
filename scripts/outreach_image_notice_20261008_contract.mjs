@@ -14,7 +14,7 @@ const eq=(a,b,label)=>{assert.deepEqual(a,b,label);checks++;};
 const ok=(value,label)=>{assert.ok(value,label);checks++;};
 const rejects=(fn,label)=>{assert.throws(fn,{name:'AssertionError'},label);checks++;negativeControls++;};
 eq(outreachImageNoticeDelta.baseline,baseline,'Exact deployed pre-notice baseline');
-eq(Object.keys(outreachImageNoticeDelta.files),['privacy.html','scripts/runtime_asset_release_build_smoke.mjs'],'Finite current-alias and truthful build-inventory inverse only');
+eq(Object.keys(outreachImageNoticeDelta.files),['privacy.html','scripts/runtime_asset_release_build_smoke.mjs','scripts/build_public_search_index.py','public-search-index.json'],'Finite current-alias, truthful build inventory and exact generated policy search delta only');
 const current=read('privacy.html'),before=prior('privacy.html'),entry=outreachImageNoticeDelta.files['privacy.html'];
 eq(sha(before),'c71c0cf3fb3d66b58f4aecd1f52c33dabe6a52e24332548bd7763af294fe149d','Original published product notice pin remains fixed');
 eq(sha(current),entry.after_sha256,'Exact reviewed current alias');
@@ -48,8 +48,35 @@ for(const [start,end,now,old]of buildEdits){
   rejects(()=>sourceBeforeOutreachImageNotice20261008(buildFile,mutant),'Changed build-guard exception rejected');
   eq(sourceAtOutreachImageNoticeBaseline(buildFile,mutant),mutant,'Unknown guard changes remain visible');
 }
+const searchBuilder='scripts/build_public_search_index.py',builderNow=read(searchBuilder),builderPrior=prior(searchBuilder);
+const registryLine='    "outreach-privacy.html": "Policies",\n';
+eq(builderNow.toString().split(registryLine).length,2,'Exactly one new policy registry entry');
+eq(builderNow.toString().replace(registryLine,''),builderPrior.toString(),'Every other builder byte unchanged');
+eq(outreachImageNoticeDelta.files[searchBuilder].replacements.length,1,'Exactly one registry insertion');
+eq(sourceBeforeOutreachImageNotice20261008(searchBuilder,builderNow),builderPrior,'Exact historical builder recovered');
+const indexFile='public-search-index.json',indexNow=read(indexFile),indexPrior=prior(indexFile);
+eq(outreachImageNoticeDelta.files[indexFile].replacements.length,2,'Only the current privacy record and one new supplement record');
+eq(sourceBeforeOutreachImageNotice20261008(indexFile,indexNow),indexPrior,'Every preceding generated index byte recovered');
+eq(sourceBeforeOutreachImageNotice20261008(indexFile,indexNow.toString()),indexPrior.toString(),'Generated index inverse retains text type');
+const oldRecords=JSON.parse(indexPrior),newRecords=JSON.parse(indexNow),oldPrivacy=oldRecords.find(r=>r.url==='privacy.html'),newPrivacy=newRecords.find(r=>r.url==='privacy.html');
+eq(oldRecords.length,48,'Exact preceding search inventory');eq(newRecords.length,49,'One additional search record');
+const expectedUrls=oldRecords.map(r=>r.url);expectedUrls.splice(expectedUrls.indexOf('privacy.html')+1,0,'outreach-privacy.html');
+eq(newRecords.map(r=>r.url),expectedUrls,'All preceding record ordering preserved with one adjacent policy addition');
+eq(new Set(newRecords.map(r=>r.url)).size,newRecords.length,'No duplicate indexed pages');
+for(const old of oldRecords.filter(r=>r.url!=='privacy.html'))eq(newRecords.find(r=>r.url===old.url),old,old.url+': complete indexed record unchanged');
+const paragraph=entry.replacements[1][2].replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();
+eq({...newPrivacy,text:newPrivacy.text.replaceAll('website advertising pixels','advertising pixels').replace(paragraph+' ','')},oldPrivacy,'Existing privacy record changes only the three exact approved insertions');
+const newPolicy=newRecords.find(r=>r.url==='outreach-privacy.html');
+eq(newPolicy.category,'Policies','Supplement policy category');eq(newPolicy.title,'Email images are not read receipts.','Truthful indexed supplement title');
+for(const phrase of ['privacy proxies and security scanners','prove inbox placement or successful delivery','No recorded fetch means unknown','no later than 30 days after the message is sent','Website tracking stays retired','through bounded cleanup when the image function is used or during a manual review'])ok(newPolicy.text.includes(phrase),'Search retains actual supplement disclosure: '+phrase);
+for(const [file,now,old]of [[searchBuilder,builderNow,builderPrior],[indexFile,indexNow,indexPrior]]){
+  eq(sourceAtOutreachImageNoticeBaseline(file,old),old,'Historical search source is never double-inverted');
+  const mutant=Buffer.concat([now,Buffer.from('\nUNREVIEWED\n')]);
+  rejects(()=>sourceBeforeOutreachImageNotice20261008(file,mutant),'Unrelated search change rejected');
+  eq(sourceAtOutreachImageNoticeBaseline(file,mutant),mutant,'Unknown search change stays visible to every old guard');
+}
 const tracked=execFileSync('git',['ls-tree','-r','--name-only',baseline],{cwd:root,encoding:'utf8'}).trim().split('\n');
-const protectedFiles=tracked.filter(file=>!file.startsWith('scripts/')&&!file.startsWith('.github/')&&file!=='privacy.html');
+const protectedFiles=tracked.filter(file=>!file.startsWith('scripts/')&&!file.startsWith('.github/')&&!['privacy.html',indexFile].includes(file));
 const immutableFixtures=tracked.filter(file=>file.startsWith('scripts/fixtures/'));
 for(const file of [...protectedFiles,...immutableFixtures])eq(read(file),prior(file),file+': original product, legal, admission, research and report bytes preserved');
 const supplement=read('outreach-privacy.html').toString();
@@ -68,4 +95,4 @@ const scripts=text=>[...text.matchAll(/<script\b[^>]*>[\s\S]*?<\/script>/gi)].ma
 eq(scripts(supplement),scripts(before.toString()),'All existing legal-shell scripts preserved; no email-image collection on website');
 const localLinks=[...supplement.matchAll(/href="([^"#]+)"/g)].map(m=>m[1]).filter(url=>!/^https?:|^mailto:/i.test(url));
 for(const url of localLinks)ok(fs.existsSync(path.join(root,url.split('?')[0])),'Existing local link resolves: '+url);
-console.log(JSON.stringify({ok:true,checks,negativeControls,privacyHunks:3,buildGuardHunks:3,productFiles:2,immutableExistingFiles:protectedFiles.length,immutableHistoricalFixtures:immutableFixtures.length,networkCalls:0,productionWrites:0}));
+console.log(JSON.stringify({ok:true,checks,negativeControls,privacyHunks:3,buildGuardHunks:3,searchRegistryHunks:1,searchIndexHunks:2,unchangedSearchRecords:47,productFiles:3,immutableExistingFiles:protectedFiles.length,immutableHistoricalFixtures:immutableFixtures.length,networkCalls:0,productionWrites:0}));

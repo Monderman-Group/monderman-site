@@ -2,7 +2,7 @@
 import hashlib
 import json
 from pathlib import Path
-FIXTURE_SHA256 = 'efe982180182409bd52dc99b820b173fbaa12c12a343a4dfd3589828a62a0a2f'
+FIXTURE_SHA256 = '7045feb933960e4771fa53aea7a119f8d6d24e2a8267bd957e2d5922b77cee5b'
 _bytes = (Path(__file__).resolve().parent / 'fixtures/outreach-image-notice-20261008.json').read_bytes()
 assert hashlib.sha256(_bytes).hexdigest() == FIXTURE_SHA256, 'Exact approved outreach notice fixture'
 _fixture = json.loads(_bytes)
