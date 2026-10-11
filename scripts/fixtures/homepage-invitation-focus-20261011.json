@@ -1,0 +1,85 @@
+{
+  "version": "homepage-invitation-focus-20261011.1",
+  "baseline": "435fa2c87178de1bc3826f5f0ad1bba9b5f2cf54",
+  "authorization": "Repair the owner-approved visible keyboard focus requirement by restricting the new invitation link to color and border-color transitions. Keep every browser assertion unchanged, preserve the initial candidate fixture and compose exact finite inverses before older guards.",
+  "files": {
+    "index.html": {
+      "before_sha256": "da5b4222d28ba6c0c2df8a72a05061c4409955a2516ef66a43bb239ff6572775",
+      "after_sha256": "77512feb7bbfc507d3153c30ea018623dcd36c4530a7a697214d617fc93adab2",
+      "replacements": [
+        [
+          76769,
+          76809,
+          "transition-property:color,border-color; ",
+          ""
+        ]
+      ]
+    },
+    "scripts/homepage_sample_entry_20261011_contract.mjs": {
+      "before_sha256": "e6efd831444f4aa825660e47fee438dd25e69be62027ca2af3e1cd5e856e2dcc",
+      "after_sha256": "d5304cb8a6fc3fd4b6ae3b2969e61ba79867c240746e1fecca63a15d5b594c94",
+      "replacements": [
+        [
+          338,
+          444,
+          "import {sourceAtHomepageInvitationFocusBaseline} from './homepage_invitation_focus_20261011_inverse.mjs';\n",
+          ""
+        ],
+        [
+          764,
+          845,
+          "sourceAtHomepageInvitationFocusBaseline(file,fs.readFileSync(path.join(root,file)",
+          "fs.readFileSync(path.join(root,file"
+        ]
+      ]
+    },
+    "scripts/homepage_sample_entry_20261011_inverse.mjs": {
+      "before_sha256": "0a18fb3632ad62581d02cb08b6536b49d2470af5ea4a29f82a4cddbcb4f1596f",
+      "after_sha256": "d4b83f78ce83fbf96055b1614a77bdd3d8bf1290fd47d8049b7ae4ba27259a0b",
+      "replacements": [
+        [
+          249,
+          355,
+          "import {sourceAtHomepageInvitationFocusBaseline} from './homepage_invitation_focus_20261011_inverse.mjs';\n",
+          ""
+        ],
+        [
+          1307,
+          1370,
+          "  source=sourceAtHomepageInvitationFocusBaseline(file,source);\n",
+          ""
+        ],
+        [
+          2129,
+          2192,
+          "  source=sourceAtHomepageInvitationFocusBaseline(file,source);\n",
+          ""
+        ]
+      ]
+    },
+    "scripts/homepage_sample_entry_20261011_inverse.py": {
+      "before_sha256": "e73c4498fa843030bc82de04271f4f6b3495fce52cf3ecfe1e79391aba17db0d",
+      "after_sha256": "2899e1e648d1c4fc135b00d203de94ec03513c332d294f4fe72a9dff025718df",
+      "replacements": [
+        [
+          128,
+          228,
+          "from homepage_invitation_focus_20261011_inverse import source_at_homepage_invitation_focus_baseline\n",
+          ""
+        ],
+        [
+          759,
+          831,
+          "    source = source_at_homepage_invitation_focus_baseline(file, source)\n",
+          ""
+        ],
+        [
+          1764,
+          1836,
+          "    source = source_at_homepage_invitation_focus_baseline(file, source)\n",
+          ""
+        ]
+      ]
+    }
+  }
+}

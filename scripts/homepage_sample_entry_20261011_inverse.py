@@ -2,6 +2,7 @@
 import hashlib
 import json
 from pathlib import Path
+from homepage_invitation_focus_20261011_inverse import source_at_homepage_invitation_focus_baseline
 FIXTURE_SHA256 = '08ea78334ab895c29d9bd057aa21194421e2aac7e11aa2a5f8efe3c24d49f253'
 _bytes = (Path(__file__).resolve().parent / 'fixtures/homepage-sample-entry-20261011.json').read_bytes()
 assert hashlib.sha256(_bytes).hexdigest() == FIXTURE_SHA256, 'Exact approved homepage sample-entry fixture'
@@ -10,6 +11,7 @@ assert _fixture['version'] == 'homepage-sample-entry-20261011.1'
 assert _fixture['baseline'] == '1a11487ad9424b5011ec89d6da4aaac2e7d04c7a'
 
 def source_before_homepage_sample_entry_20261011(file, source):
+    source = source_at_homepage_invitation_focus_baseline(file, source)
     entry = _fixture['files'].get(file)
     if entry is None:
         return source
@@ -24,6 +26,7 @@ def source_before_homepage_sample_entry_20261011(file, source):
     return result.decode('utf-8') if isinstance(source, str) else result
 
 def source_at_homepage_sample_entry_baseline(file, source):
+    source = source_at_homepage_invitation_focus_baseline(file, source)
     entry = _fixture['files'].get(file)
     encoded = source.encode('utf-8') if isinstance(source, str) else source
     return source_before_homepage_sample_entry_20261011(file, source) if entry and hashlib.sha256(encoded).hexdigest() == entry['after_sha256'] else source

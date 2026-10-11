@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
+import {sourceAtHomepageInvitationFocusBaseline} from './homepage_invitation_focus_20261011_inverse.mjs';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 export const HOMEPAGE_SAMPLE_ENTRY_BASELINE='1a11487ad9424b5011ec89d6da4aaac2e7d04c7a';
 export const HOMEPAGE_SAMPLE_ENTRY_VERSION='homepage-sample-entry-20261011.1';
@@ -14,6 +15,7 @@ assert.equal(homepageSampleEntryDelta.baseline,HOMEPAGE_SAMPLE_ENTRY_BASELINE);
 assert.equal(homepageSampleEntryDelta.version,HOMEPAGE_SAMPLE_ENTRY_VERSION);
 export const HOMEPAGE_SAMPLE_ENTRY_FILES=Object.freeze(Object.keys(homepageSampleEntryDelta.files));
 export function sourceBeforeHomepageSampleEntry20261011(file,source){
+  source=sourceAtHomepageInvitationFocusBaseline(file,source);
   const entry=Object.hasOwn(homepageSampleEntryDelta.files,file)?homepageSampleEntryDelta.files[file]:null;
   if(!entry)return source;
   assert.equal(sha(source),entry.after_sha256,file+': only exact approved homepage entry bytes may be inverted');
@@ -26,6 +28,7 @@ export function sourceBeforeHomepageSampleEntry20261011(file,source){
   return Buffer.isBuffer(source)?Buffer.from(restored):restored;
 }
 export function sourceAtHomepageSampleEntryBaseline(file,source){
+  source=sourceAtHomepageInvitationFocusBaseline(file,source);
   const entry=Object.hasOwn(homepageSampleEntryDelta.files,file)?homepageSampleEntryDelta.files[file]:null;
   // Unknown metadata, executable, copy or styling edits stay visible to guards.
   return entry&&sha(source)===entry.after_sha256?sourceBeforeHomepageSampleEntry20261011(file,source):source;
