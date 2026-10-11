@@ -59,10 +59,13 @@ for (const [engine, type] of Object.entries({ chromium, webkit })) {
       try {
         const page = await context.newPage();
         await page.goto(`${base}/index.html?utm_source=linkedin&utm_campaign=first-dv-202609&email=PRIVATE_EMAIL`, { waitUntil: 'domcontentloaded' });
-        const pilot = page.locator('.hero-actions .btn-accent'), activation = page.locator('.hero-actions .btn-secondary');
+        const pilot = page.locator('.hero-actions .btn-accent'), sample = page.locator('.hero-actions .btn-secondary'), activation = page.locator('.hero-invitation-link');
         equal((await pilot.textContent()).trim(), 'Request an invitation', `${label}: truthful availability`);
         equal(await pilot.evaluate(node => getComputedStyle(node).color), 'rgb(4, 24, 27)', `${label}: brand action color`);
         equal(await pilot.getAttribute('href'), 'pilot.html?source=homepage', `${label}: pilot link unchanged, no tags`);
+        equal((await sample.textContent()).trim(), 'View sample reports', `${label}: explicit sample access`);
+        equal(await sample.getAttribute('href'), 'sample-report.html', `${label}: sample link has no marketing tags`);
+        equal(await activation.count(), 1, `${label}: invitation activation remains available`);
         equal(await activation.getAttribute('href'), 'pattern-trial.html', `${label}: activation link has no marketing tags`);
         await page.screenshot({ path: path.join(out, `${engine}-${width}-home.png`) });
         await pilot.click(); await page.waitForURL('**/pilot.html?source=homepage');

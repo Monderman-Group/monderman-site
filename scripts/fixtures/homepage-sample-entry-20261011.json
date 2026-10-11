@@ -1,0 +1,163 @@
+{
+  "version": "homepage-sample-entry-20261011.1",
+  "baseline": "1a11487ad9424b5011ec89d6da4aaac2e7d04c7a",
+  "authorization": "Jason Adamson approved hero sample-report button, separate invited-user activation link after unchanged access note, 44px/focus styling, corresponding pinned checks and rebuilt search index. Owner clarified that first-screen viewport bounds apply with JavaScript enabled only; preserve no-script navigation and all prior no-script checks. All previous source and fixture pins remain intact.",
+  "files": {
+    "index.html": {
+      "before_sha256": "1b60c754791bcfe43d36e4d11a1149cef00be5ff541f77c6a48b477110fb884b",
+      "after_sha256": "da5b4222d28ba6c0c2df8a72a05061c4409955a2516ef66a43bb239ff6572775",
+      "replacements": [
+        [
+          76558,
+          77116,
+          "  <style>\n    body.homepage-enterprise .hero-invitation-link { width:fit-content; max-width:100%; min-height:44px; margin-top:8px; gap:7px; padding-block:9px; color:var(--mdm-action-on-dark-bg); font-size:14px; }\n    body.homepage-enterprise .hero-invitation-link:hover,\n    body.homepage-enterprise .hero-invitation-link:focus-visible { color:var(--mdm-action-on-dark-bg-hover); border-color:currentColor; }\n    body.homepage-enterprise .hero-invitation-link:focus-visible { outline:3px solid var(--mdm-focus-ring-on-dark); outline-offset:4px; }\n  </style>\n",
+          ""
+        ],
+        [
+          78619,
+          78658,
+          "sample-report.html\">View sample reports",
+          "pattern-trial.html\">Activate your invitation"
+        ],
+        [
+          78678,
+          78678,
+          "",
+          "<a class=\"hero-enterprise-link hero-sample-link\" href=\"sample-report.html\">View sample reports <span aria-hidden=\"true\">&rarr;</span></a>\n"
+        ],
+        [
+          78810,
+          78974,
+          "<a class=\"hero-enterprise-link hero-invitation-link\" href=\"pattern-trial.html\">Already invited? Activate your invitation <span aria-hidden=\"true\">&rarr;</span></a>\n",
+          ""
+        ]
+      ]
+    },
+    "public-search-index.json": {
+      "before_sha256": "f656a59f171966ac9dc5c8958453b16b8b9d700b1a48be365141324ec9cae7ea",
+      "after_sha256": "05de15c866df2bd7c9eb1af081149979ee106d671115e09308b409e3dd6a766c",
+      "replacements": [
+        [
+          1625,
+          1786,
+          "View sample reports Available by invitation. Evaluate Monderman free for 60 days. No credit card. No automatic renewal. Already invited? Activate your invitation",
+          "Activate your invitation View sample reports Available by invitation. Evaluate Monderman free for 60 days. No credit card. No automatic renewal."
+        ]
+      ]
+    },
+    "scripts/homepage_sample_discovery_contract.mjs": {
+      "before_sha256": "db710769b764b7234c82abf622be781a374749e790ddc761f00973a0344351ca",
+      "after_sha256": "b09199a9167b9c2e36c7c156bb7f2833fa220f294f30a4c585d810d72e6f73dd",
+      "replacements": [
+        [
+          854,
+          952,
+          "import {sourceAtHomepageSampleEntryBaseline} from './homepage_sample_entry_20261011_inverse.mjs';\n",
+          ""
+        ],
+        [
+          2924,
+          3690,
+          "sample-report\\.html\">View sample reports<\\/a>\\s*<\\/div>\\s*<p class=\"hero-access-note\">Available by invitation\\. Evaluate Monderman free for 60 days\\. No credit card\\. No automatic renewal\\.<\\/p>\\s*<a class=\"hero-enterprise-link hero-invitation-link\" href=\"pattern-trial\\.html\">Already invited\\? Activate your invitation <span aria-hidden=\"true\">&rarr;<\\/span><\\/a>/,'The sample button follows the unchanged request button; invitation activation follows the unchanged access note');\n  assert.equal((html.match(/class=\"hero-enterprise-link hero-sample-link\"/g)||[]).length,0,'The redundant standalone hero sample link is removed');\n  assert.equal((html.match(/class=\"hero-enterprise-link hero-invitation-link\"/g)||[]).length,1,'One explicit invited-user entry remains'",
+          "pattern-trial\\.html\">Activate your invitation<\\/a>\\s*<\\/div>\\s*<a class=\"hero-enterprise-link hero-sample-link\" href=\"sample-report\\.html\">View sample reports <span aria-hidden=\"true\">&rarr;<\\/span><\\/a>\\s*<p class=\"hero-access-note\">/,'Sample access immediately follows both unchanged invitation CTAs');\n  assert.equal((html.match(/class=\"hero-enterprise-link hero-sample-link\"/g)||[]).length,1"
+        ],
+        [
+          4239,
+          4365,
+          "  assert.ok(fs.existsSync(path.join(root,'pattern-trial.html')),'Invitation activation still resolves to its existing page');\n",
+          ""
+        ],
+        [
+          4848,
+          4919,
+          "html,/\\.hero-invitation-link\\s*\\{[^}]*min-height:44px/,'Hero invitation",
+          "css,/\\.hero-sample-link\\s*\\{[^}]*min-height:44px/,'Hero sample"
+        ],
+        [
+          5096,
+          5177,
+          "html,/\\.hero-invitation-link:focus-visible\\s*\\{[^}]*outline:3px/,'Hero invitation",
+          "css,/\\.hero-sample-link:focus-visible\\s*\\{[^}]*outline:3px/,'Hero"
+        ],
+        [
+          5351,
+          5502,
+          "html+css,/\\.(?:hero-invitation-link|hwd-sample-link)[^{]*\\{[^}]*(?:display\\s*:\\s*none|visibility\\s*:\\s*hidden|opacity\\s*:\\s*0)/,'Invitation and preview",
+          "css,/\\.(?:hero-sample-link|hwd-sample-link)[^{]*\\{[^}]*(?:display\\s*:\\s*none|visibility\\s*:\\s*hidden|opacity\\s*:\\s*0)/,'Sample"
+        ],
+        [
+          6222,
+          6404,
+          "sourceAtHomepageSampleEntryBaseline('index.html',candidate))),inlineScripts(prior('index.html')),'Homepage navigation and embedded behavior are unchanged after exact approved hero an",
+          "candidate)),inlineScripts(prior('index.html')),'Homepage navigation and embedded behavior are unchanged after exact approve"
+        ]
+      ]
+    },
+    "scripts/homepage_sample_discovery_smoke.mjs": {
+      "before_sha256": "1f102148a1fd09a68f1139cfea7c9312abf3bc6bf0107d71b6f4f32056505bbf",
+      "after_sha256": "cc5e26bdac516185ca10b3f16b17ec267de372fd295b96fd361606a11d7d24e4",
+      "replacements": [
+        [
+          570,
+          707,
+          "let entryStates=0;\nconst entryViewports=[{width:375,height:667},{width:390,height:844},{width:1280,height:720}];\nconst entryGeometry=[];\n",
+          ""
+        ],
+        [
+          1729,
+          1808,
+          "actions .btn-secondary');\n      const invitation=page.locator('.hero-invitation",
+          "sample"
+        ],
+        [
+          4523,
+          5575,
+          "page.locator('.hero-actions > a').count(),2,'The hero has exactly two buttons');\n      assert.equal(await hero.evaluate(el=>el.previousElementSibling?.classList.contains('btn-accent')),true,'The sample button follows the request button');\n      assert.equal(await page.locator('.hero-sample-link').count(),0,'The redundant standalone hero sample link is removed');\n      assert.equal(await invitation.count(),1,'One invitation text link remains');\n      assert.equal(await invitation.getAttribute('href'),'pattern-trial.html','Invitation activation destination stays untagged');\n      assert.equal((await invitation.innerText()).replace(/\\s+/g,' ').trim(),'Already invited? Activate your invitation →','Exact visible invited-user copy, independent of responsive wrapping');\n      assert.equal(await invitation.evaluate(el=>el.previousElementSibling?.classList.contains('hero-access-note')),true,'Invitation activation follows the access note');\n      assert.ok((await invitation.boundingBox()).height>=44,'Invitation text link has a usable touch target",
+          "hero.evaluate(el=>el.previousElementSibling?.classList.contains('hero-actions')),true,'Hero sample access immediately follows the invitation buttons"
+        ],
+        [
+          7243,
+          11982,
+          "    for(const viewport of entryViewports)for(const javaScriptEnabled of [false,true]){\n      const label=name+'/'+viewport.width+'x'+viewport.height+'/'+(javaScriptEnabled?'scripts':'no-scripts');\n      const page=await browser.newPage({viewport,javaScriptEnabled,reducedMotion:'reduce'});\n      await page.addInitScript(()=>{window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}})};});\n      await page.route('**/*',route=>new URL(route.request().url()).origin===new URL(base).origin?route.continue():route.abort());\n      const failures=[];const collect=error=>failures.push(error.message);page.on('pageerror',collect);\n      await page.goto(base+'/index.html',{waitUntil:'load'});\n      await page.evaluate(()=>document.fonts.ready);\n      const buttons=page.locator('.hero-actions > a');\n      assert.equal(await buttons.count(),2,label+': exactly two hero buttons');\n      assert.deepEqual(await buttons.evaluateAll(nodes=>nodes.map(el=>({text:el.textContent.trim(),href:el.getAttribute('href')}))),[\n        {text:'Request an invitation',href:'pilot.html?source=homepage'},\n        {text:'View sample reports',href:'sample-report.html'},\n      ],label+': approved button order and destinations');\n      const boxes=await buttons.evaluateAll(nodes=>nodes.map(el=>{\n        const r=el.getBoundingClientRect(),hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);\n        return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height,unobstructed:hit===el||el.contains(hit)};\n      }));\n      for(const box of boxes){\n        assert.ok(box.width>0&&box.height>=44,label+': button touch target');\n        assert.ok(box.left>=0&&box.right<=viewport.width+1,label+': button fully inside viewport width');\n        if(javaScriptEnabled){\n          assert.ok(box.top>=0&&box.bottom<=viewport.height,label+': button fully visible on first screen');\n          assert.equal(box.unobstructed,true,label+': button center is clickable');\n        }\n      }\n      assert.ok(Math.min(boxes[0].right,boxes[1].right)-Math.max(boxes[0].left,boxes[1].left)<=1||Math.min(boxes[0].bottom,boxes[1].bottom)-Math.max(boxes[0].top,boxes[1].top)<=1,label+': hero buttons do not overlap');\n      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),label+': no horizontal overflow');\n      const invitation=page.locator('.hero-invitation-link');\n      assert.equal(await invitation.count(),1,label+': one activation text link');\n      assert.ok((await invitation.boundingBox()).height>=44,label+': activation touch target');\n      await page.keyboard.press('Tab');await invitation.focus();\n      assert.deepEqual(await invitation.evaluate(el=>({style:getComputedStyle(el).outlineStyle,width:getComputedStyle(el).outlineWidth})),{style:'solid',width:'3px'},label+': activation has a visible keyboard focus outline');\n      assert.deepEqual(failures,[],label+': homepage has no runtime errors');\n      page.off('pageerror',collect);\n      if(javaScriptEnabled){\n        await page.evaluate(()=>{document.activeElement?.blur();scrollTo(0,0);});\n        await page.screenshot({path:path.join(out,name+'-'+viewport.width+'x'+viewport.height+'-hero-entry.png')});\n      }\n      // Follow the real anchors to the local destination pages. Observe the\n      // initial navigation request because activation may then require sign-in;\n      // this test does not authenticate or activate an evaluation.\n      const destinations=[\n        {selector:'.hero-actions .btn-accent',path:'/pilot.html',query:'?source=homepage'},\n        {selector:'.hero-actions .btn-secondary',path:'/sample-report.html',query:''},\n        {selector:'.hero-invitation-link',path:'/pattern-trial.html',query:''},\n      ];\n      for(const destination of destinations){\n        await page.goto(base+'/index.html',{waitUntil:'load'});\n        const [request]=await Promise.all([\n          page.waitForRequest(request=>request.isNavigationRequest()&&new URL(request.url()).pathname===destination.path),\n          page.locator(destination.selector).click(),\n        ]);\n        const url=new URL(request.url());\n        assert.equal(url.origin,new URL(base).origin,label+': navigation stays local');\n        assert.equal(url.pathname,destination.path,label+': clicked anchor reaches its approved destination');\n        assert.equal(url.search,destination.query,label+': no new navigation parameters');\n        assert.equal(url.hash,'',label+': no invitation or tracking capability is added');\n      }\n      entryGeometry.push({browser:name,...viewport,javaScriptEnabled,buttons:boxes});\n      await page.close();entryStates++;\n    }\n",
+          ""
+        ],
+        [
+          12294,
+          12569,
+          "assert.equal(states,20,'All twenty existing browser states remain covered');\nassert.equal(entryStates,12,'All twelve exact-viewport entry states are covered');\nconst receipt={passed:true,states,entryStates,browsers:2,widths:[320,390,768,834,1440],entryViewports,entryGeometry",
+          "const receipt={passed:true,states,browsers:2,widths:[320,390,768,834,1440]"
+        ]
+      ]
+    },
+    "scripts/public_gold_accent_smoke.mjs": {
+      "before_sha256": "cf4902ef05ce1c2f15ee02afbb7133cfc75ce170361afe4ad1cc7c6a05df06c5",
+      "after_sha256": "44e935ae4c343814bd629da807e3cfbfc57293e2e1b82ac867f12a146084633a",
+      "replacements": [
+        [
+          9693,
+          10225,
+          "{\n            equal((await secondary.textContent()).trim(), 'View sample reports', label + ': approved sample-entry copy');\n            equal(await secondary.getAttribute('href'), 'sample-report.html', label + ': sample-entry destination');\n            const activation = page.locator('.hero-invitation-link');\n            equal(await activation.count(), 1, label + ': one invited-user entry');\n            equal(await activation.getAttribute('href'), 'pattern-trial.html', label + ': invitation destination unchanged');\n          }",
+          "equal((await secondary.textContent()).trim(), 'Activate your invitation', label + ': activation copy unchanged');"
+        ]
+      ]
+    },
+    "scripts/pilot_retry_browser_smoke.mjs": {
+      "before_sha256": "16d68b8a18fc0eabdbd687e70619f0bbe576aebf372657dc9b830f1e94ac7541",
+      "after_sha256": "55227235f69e48348e84c56f9e8c575a3586d492d9cf1be432c6043dada650bb",
+      "replacements": [
+        [
+          5687,
+          5790,
+          "sample = page.locator('.hero-actions .btn-secondary'), activation = page.locator('.hero-invitation-link",
+          "activation = page.locator('.hero-actions .btn-secondary"
+        ],
+        [
+          6152,
+          6479,
+          "        equal((await sample.textContent()).trim(), 'View sample reports', `${label}: explicit sample access`);\n        equal(await sample.getAttribute('href'), 'sample-report.html', `${label}: sample link has no marketing tags`);\n        equal(await activation.count(), 1, `${label}: invitation activation remains available`);\n",
+          ""
+        ]
+      ]
+    }
+  }
+}

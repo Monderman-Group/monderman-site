@@ -11,6 +11,7 @@ import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 import {sourceBeforeHomepageCompactJourney20260924} from './homepage_compact_journey_20260924_inverse.mjs';
 import {sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
 import {sourceAtBrandRefreshBaseline} from './brand_refresh_20261007_inverse.mjs';
+import {sourceAtHomepageSampleEntryBaseline} from './homepage_sample_entry_20261011_inverse.mjs';
 
 export const HOMEPAGE_DISCOVERY_BASELINE='31c87d9944d58cd58a48e389a680e0e909536329';
 export const PREVIEW_FOOTER_BEFORE='<div class="hwd-footer"><span><i aria-hidden="true"></i>Illustrative organizational evaluation</span><span>Evidence. Action. Follow-up.</span></div>';
@@ -29,27 +30,29 @@ export function assertHomepageSampleDiscovery(root=path.resolve(import.meta.dirn
   const html=read('index.html'),css=read('homepage-workspace-demo.css');
   const template=read('scripts/templates/home-workspace-preview.html');
   assert.equal(homepagePreviewBeforeDiscoverability(sourceBeforeHomepageCompactJourney20260924('scripts/templates/home-workspace-preview.html',sourceAtChangeWordingBaseline('scripts/templates/home-workspace-preview.html',template))),prior('scripts/templates/home-workspace-preview.html'),'The historical template changes only the permanent sample link after exact wording and compact-journey inversion');
-  assert.match(html,/<div class="hero-actions">\s*<a class="btn btn-accent" href="pilot\.html\?source=homepage">Request an invitation<\/a>\s*<a class="btn btn-secondary" href="pattern-trial\.html">Activate your invitation<\/a>\s*<\/div>\s*<a class="hero-enterprise-link hero-sample-link" href="sample-report\.html">View sample reports <span aria-hidden="true">&rarr;<\/span><\/a>\s*<p class="hero-access-note">/,'Sample access immediately follows both unchanged invitation CTAs');
-  assert.equal((html.match(/class="hero-enterprise-link hero-sample-link"/g)||[]).length,1);
+  assert.match(html,/<div class="hero-actions">\s*<a class="btn btn-accent" href="pilot\.html\?source=homepage">Request an invitation<\/a>\s*<a class="btn btn-secondary" href="sample-report\.html">View sample reports<\/a>\s*<\/div>\s*<p class="hero-access-note">Available by invitation\. Evaluate Monderman free for 60 days\. No credit card\. No automatic renewal\.<\/p>\s*<a class="hero-enterprise-link hero-invitation-link" href="pattern-trial\.html">Already invited\? Activate your invitation <span aria-hidden="true">&rarr;<\/span><\/a>/,'The sample button follows the unchanged request button; invitation activation follows the unchanged access note');
+  assert.equal((html.match(/class="hero-enterprise-link hero-sample-link"/g)||[]).length,0,'The redundant standalone hero sample link is removed');
+  assert.equal((html.match(/class="hero-enterprise-link hero-invitation-link"/g)||[]).length,1,'One explicit invited-user entry remains');
   const preview=html.match(/<aside class="home-workspace-preview"[\s\S]*?<\/aside>/)?.[0];
   assert.ok(preview,'Homepage has its generated preview');
   assert.match(preview,/<\/section>\s*<\/div>\s*<div class="hwd-footer">[\s\S]*class="hwd-sample-link" href="sample-report\.html#synthesis"/,'The direct synthesis link is outside every journey panel');
   assert.equal((preview.match(/class="hwd-sample-link"/g)||[]).length,1);
   assert.ok(fs.existsSync(path.join(root,'sample-report.html')),'Both sample links resolve to the public sample page');
+  assert.ok(fs.existsSync(path.join(root,'pattern-trial.html')),'Invitation activation still resolves to its existing page');
   const artifact=JSON.parse(read('sample-data/production-diagnostic-samples.json'));
   const generated=buildPublicSamplePreviewSections(artifact,template);
   assert.equal(preview,generated.hero,'Displayed preview matches the current saved sample data and current template');
   assert.equal(html.match(/<aside class="hero-report-proof has-sample-depth-tile"[\s\S]*?<\/aside>/)?.[0],generated.home,'Existing lower-page sample tile stays generated and directly linked');
-  assert.match(css,/\.hero-sample-link\s*\{[^}]*min-height:44px/,'Hero sample link has a usable touch target');
+  assert.match(html,/\.hero-invitation-link\s*\{[^}]*min-height:44px/,'Hero invitation link has a usable touch target');
   assert.match(css,/\.hwd-footer \.hwd-sample-link\s*\{[^}]*min-height:44px/,'Preview sample link has a usable touch target');
-  assert.match(css,/\.hero-sample-link:focus-visible\s*\{[^}]*outline:3px/,'Hero link has keyboard focus treatment');
+  assert.match(html,/\.hero-invitation-link:focus-visible\s*\{[^}]*outline:3px/,'Hero invitation link has keyboard focus treatment');
   assert.match(css,/\.hwd-app a:focus-visible[^}]*outline:3px/,'Preview link inherits keyboard focus treatment');
-  assert.doesNotMatch(css,/\.(?:hero-sample-link|hwd-sample-link)[^{]*\{[^}]*(?:display\s*:\s*none|visibility\s*:\s*hidden|opacity\s*:\s*0)/,'Sample links stay available across responsive and motion states');
+  assert.doesNotMatch(html+css,/\.(?:hero-invitation-link|hwd-sample-link)[^{]*\{[^}]*(?:display\s*:\s*none|visibility\s*:\s*hidden|opacity\s*:\s*0)/,'Invitation and preview links stay available across responsive and motion states');
   for(const file of ['homepage-workspace-demo.js','scripts/refresh_public_sample_previews.mjs','enterprise-site.css','assets/brand/brand-foundations-v2.css','monderman-shell.css','dv-result-dialog.css']){
     assert.equal(sourceBeforePublicCopyClarity(file,read(file)),prior(file),file+': journeys, palette roles, semantic states and generator preserve exact historical bytes outside the separately pinned presentation deltas');
   }
   const inlineScripts=value=>[...value.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(match=>match[1]);
-  const assertEmbeddedBehavior=candidate=>assert.deepEqual(inlineScripts(sourceAtBrandRefreshBaseline('index.html',candidate)),inlineScripts(prior('index.html')),'Homepage navigation and embedded behavior are unchanged after exact approved brand metadata inversion');
+  const assertEmbeddedBehavior=candidate=>assert.deepEqual(inlineScripts(sourceAtBrandRefreshBaseline('index.html',sourceAtHomepageSampleEntryBaseline('index.html',candidate))),inlineScripts(prior('index.html')),'Homepage navigation and embedded behavior are unchanged after exact approved hero and brand metadata inversion');
   assertEmbeddedBehavior(html);
   for(const mutant of [
     html.replace('"slogan": "Clearer Insight. Stronger Performance."','"slogan": "Unreviewed metadata"'),

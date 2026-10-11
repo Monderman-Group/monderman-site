@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
+import {sourceAtHomepageSampleEntryBaseline} from './homepage_sample_entry_20261011_inverse.mjs';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 export const OUTREACH_IMAGE_NOTICE_FIXTURE_SHA256='f30ea31f0019e47a176d31d40134671b464d0769baeb1a5b8e63841840fcea58';
 const bytes=fs.readFileSync(new URL('./fixtures/outreach-image-notice-20261008.json',import.meta.url));
@@ -23,6 +24,7 @@ export function sourceBeforeOutreachImageNotice20261008(file,source){
   return Buffer.isBuffer(source)?Buffer.from(restored):restored;
 }
 export function sourceAtOutreachImageNoticeBaseline(file,source){
+  source=sourceAtHomepageSampleEntryBaseline(file,source);
   const entry=Object.hasOwn(outreachImageNoticeDelta.files,file)?outreachImageNoticeDelta.files[file]:null;
   return entry&&sha(source)===entry.after_sha256?sourceBeforeOutreachImageNotice20261008(file,source):source;
 }

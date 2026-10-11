@@ -130,7 +130,13 @@ for (const [engine, type] of [['chromium', chromium], ['webkit', webkit]]) {
           const selector = lightSurface ? '.pl-buy > a.btn-secondary' : ':is(.hero .hero-actions, .ps-hero .ps-hero-actions, .hero .actions, .article-hero .article-actions) > :is(a.btn-secondary, a.btn-hero-secondary, a.btn.secondary, a.article-action:not(.article-action-primary))';
           const secondary = page.locator(selector);
           equal(await secondary.count(), 1, label + ': exactly one secondary opening action');
-          if (file === 'index.html') equal((await secondary.textContent()).trim(), 'Activate your invitation', label + ': activation copy unchanged');
+          if (file === 'index.html') {
+            equal((await secondary.textContent()).trim(), 'View sample reports', label + ': approved sample-entry copy');
+            equal(await secondary.getAttribute('href'), 'sample-report.html', label + ': sample-entry destination');
+            const activation = page.locator('.hero-invitation-link');
+            equal(await activation.count(), 1, label + ': one invited-user entry');
+            equal(await activation.getAttribute('href'), 'pattern-trial.html', label + ': invitation destination unchanged');
+          }
           const initial = await colors(secondary);
           equal(await secondary.evaluate(el => getComputedStyle(el).backgroundColor), 'rgba(0, 0, 0, 0)', label + ': secondary action remains outlined');
           equal(initial.border, gold, label + ': secondary outline uses the shared gold');
