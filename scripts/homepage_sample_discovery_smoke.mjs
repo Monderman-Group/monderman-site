@@ -9,6 +9,9 @@ const base=process.env.SITE_BASE||'http://127.0.0.1:4175';
 const out=process.env.HOMEPAGE_DISCOVERY_OUT||fs.mkdtempSync('/tmp/homepage-discovery-');
 fs.mkdirSync(out,{recursive:true});
 let states=0;
+let entryStates=0;
+const entryViewports=[{width:375,height:667},{width:390,height:844},{width:1280,height:720}];
+const entryGeometry=[];
 for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
   const browser=await type.launch({headless:true});
   try{
@@ -21,7 +24,8 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
       const failures=[];page.on('pageerror',error=>failures.push(error.message));
       await page.goto(base+'/index.html',{waitUntil:'load'});
       await page.evaluate(()=>document.fonts.ready);
-      const hero=page.locator('.hero-sample-link');
+      const hero=page.locator('.hero-actions .btn-secondary');
+      const invitation=page.locator('.hero-invitation-link');
       const direct=page.locator('.hwd-footer .hwd-sample-link');
       const report=page.locator('.hero [data-home-report-quad]');
       assert.equal(await report.count(),1,'One report quad is in the hero');
@@ -49,7 +53,14 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
         assert.match(await link.innerText(),link===direct?/^Open sample report/:/^View sample reports/);
         const box=await link.boundingBox();assert.ok(box.height>=44,'Sample link has a usable touch target');
       }
-      assert.equal(await hero.evaluate(el=>el.previousElementSibling?.classList.contains('hero-actions')),true,'Hero sample access immediately follows the invitation buttons');
+      assert.equal(await page.locator('.hero-actions > a').count(),2,'The hero has exactly two buttons');
+      assert.equal(await hero.evaluate(el=>el.previousElementSibling?.classList.contains('btn-accent')),true,'The sample button follows the request button');
+      assert.equal(await page.locator('.hero-sample-link').count(),0,'The redundant standalone hero sample link is removed');
+      assert.equal(await invitation.count(),1,'One invitation text link remains');
+      assert.equal(await invitation.getAttribute('href'),'pattern-trial.html','Invitation activation destination stays untagged');
+      assert.equal((await invitation.innerText()).replace(/\s+/g,' ').trim(),'Already invited? Activate your invitation →','Exact visible invited-user copy, independent of responsive wrapping');
+      assert.equal(await invitation.evaluate(el=>el.previousElementSibling?.classList.contains('hero-access-note')),true,'Invitation activation follows the access note');
+      assert.ok((await invitation.boundingBox()).height>=44,'Invitation text link has a usable touch target');
       assert.equal(await direct.evaluate(el=>el.closest('[role="tabpanel"]')===null),true,'Preview sample access is independent of the active step');
       if(javaScriptEnabled){
         for(const step of ['measure','analysis','actions','return']){
@@ -72,10 +83,74 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
       assert.deepEqual(failures,[]);
       await page.close();states++;
     }
+    for(const viewport of entryViewports)for(const javaScriptEnabled of [false,true]){
+      const label=name+'/'+viewport.width+'x'+viewport.height+'/'+(javaScriptEnabled?'scripts':'no-scripts');
+      const page=await browser.newPage({viewport,javaScriptEnabled,reducedMotion:'reduce'});
+      await page.addInitScript(()=>{window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}})};});
+      await page.route('**/*',route=>new URL(route.request().url()).origin===new URL(base).origin?route.continue():route.abort());
+      const failures=[];const collect=error=>failures.push(error.message);page.on('pageerror',collect);
+      await page.goto(base+'/index.html',{waitUntil:'load'});
+      await page.evaluate(()=>document.fonts.ready);
+      const buttons=page.locator('.hero-actions > a');
+      assert.equal(await buttons.count(),2,label+': exactly two hero buttons');
+      assert.deepEqual(await buttons.evaluateAll(nodes=>nodes.map(el=>({text:el.textContent.trim(),href:el.getAttribute('href')}))),[
+        {text:'Request an invitation',href:'pilot.html?source=homepage'},
+        {text:'View sample reports',href:'sample-report.html'},
+      ],label+': approved button order and destinations');
+      const boxes=await buttons.evaluateAll(nodes=>nodes.map(el=>{
+        const r=el.getBoundingClientRect(),hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+        return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height,unobstructed:hit===el||el.contains(hit)};
+      }));
+      for(const box of boxes){
+        assert.ok(box.width>0&&box.height>=44,label+': button touch target');
+        assert.ok(box.left>=0&&box.right<=viewport.width+1,label+': button fully inside viewport width');
+        if(javaScriptEnabled){
+          assert.ok(box.top>=0&&box.bottom<=viewport.height,label+': button fully visible on first screen');
+          assert.equal(box.unobstructed,true,label+': button center is clickable');
+        }
+      }
+      assert.ok(Math.min(boxes[0].right,boxes[1].right)-Math.max(boxes[0].left,boxes[1].left)<=1||Math.min(boxes[0].bottom,boxes[1].bottom)-Math.max(boxes[0].top,boxes[1].top)<=1,label+': hero buttons do not overlap');
+      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),label+': no horizontal overflow');
+      const invitation=page.locator('.hero-invitation-link');
+      assert.equal(await invitation.count(),1,label+': one activation text link');
+      assert.ok((await invitation.boundingBox()).height>=44,label+': activation touch target');
+      await page.keyboard.press('Tab');await invitation.focus();
+      assert.deepEqual(await invitation.evaluate(el=>({style:getComputedStyle(el).outlineStyle,width:getComputedStyle(el).outlineWidth})),{style:'solid',width:'3px'},label+': activation has a visible keyboard focus outline');
+      assert.deepEqual(failures,[],label+': homepage has no runtime errors');
+      page.off('pageerror',collect);
+      if(javaScriptEnabled){
+        await page.evaluate(()=>{document.activeElement?.blur();scrollTo(0,0);});
+        await page.screenshot({path:path.join(out,name+'-'+viewport.width+'x'+viewport.height+'-hero-entry.png')});
+      }
+      // Follow the real anchors to the local destination pages. Observe the
+      // initial navigation request because activation may then require sign-in;
+      // this test does not authenticate or activate an evaluation.
+      const destinations=[
+        {selector:'.hero-actions .btn-accent',path:'/pilot.html',query:'?source=homepage'},
+        {selector:'.hero-actions .btn-secondary',path:'/sample-report.html',query:''},
+        {selector:'.hero-invitation-link',path:'/pattern-trial.html',query:''},
+      ];
+      for(const destination of destinations){
+        await page.goto(base+'/index.html',{waitUntil:'load'});
+        const [request]=await Promise.all([
+          page.waitForRequest(request=>request.isNavigationRequest()&&new URL(request.url()).pathname===destination.path),
+          page.locator(destination.selector).click(),
+        ]);
+        const url=new URL(request.url());
+        assert.equal(url.origin,new URL(base).origin,label+': navigation stays local');
+        assert.equal(url.pathname,destination.path,label+': clicked anchor reaches its approved destination');
+        assert.equal(url.search,destination.query,label+': no new navigation parameters');
+        assert.equal(url.hash,'',label+': no invitation or tracking capability is added');
+      }
+      entryGeometry.push({browser:name,...viewport,javaScriptEnabled,buttons:boxes});
+      await page.close();entryStates++;
+    }
   }finally{await browser.close();}
 }
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const sourceFiles=Object.fromEntries(['index.html','homepage-workspace-demo.css','scripts/templates/home-workspace-preview.html'].map(file=>[file,sha(fs.readFileSync(new URL('../'+file,import.meta.url)))]));
-const receipt={passed:true,states,browsers:2,widths:[320,390,768,834,1440],withAndWithoutJavaScript:true,source_files:sourceFiles};
+assert.equal(states,20,'All twenty existing browser states remain covered');
+assert.equal(entryStates,12,'All twelve exact-viewport entry states are covered');
+const receipt={passed:true,states,entryStates,browsers:2,widths:[320,390,768,834,1440],entryViewports,entryGeometry,withAndWithoutJavaScript:true,source_files:sourceFiles};
 fs.writeFileSync(path.join(out,'RECEIPT.json'),JSON.stringify(receipt,null,2)+'\n');
 console.log('HOMEPAGE_SAMPLE_DISCOVERY_SMOKE '+JSON.stringify({...receipt,out}));
