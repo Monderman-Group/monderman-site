@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import re
 import subprocess
+from book_publication_date_20261011_inverse import source_at_book_publication_date_baseline
 from homepage_invitation_focus_20261011_inverse import (
     FIXTURE_SHA256, _fixture,
     source_before_homepage_invitation_focus_20261011,
@@ -11,6 +12,10 @@ from homepage_invitation_focus_20261011_inverse import (
 )
 
 ROOT = Path(__file__).resolve().parents[1]
+
+def read(file):
+    return source_at_book_publication_date_baseline(file, (ROOT / file).read_bytes())
+
 BASELINE = '435fa2c87178de1bc3826f5f0ad1bba9b5f2cf54'
 checks = 0
 negative_controls = 0
@@ -31,7 +36,7 @@ check(_fixture['version'] == 'homepage-invitation-focus-20261011.1', 'Separate f
 check(list(_fixture['files']) == files, 'Only inline repair and three historical adapters')
 for file in files:
     entry = _fixture['files'][file]
-    current, before = (ROOT / file).read_bytes(), prior(file)
+    current, before = read(file), prior(file)
     check(hashlib.sha256(current).hexdigest() == entry['after_sha256'], file + ': current pin')
     check(hashlib.sha256(before).hexdigest() == entry['before_sha256'], file + ': baseline pin')
     for source in (current, current.decode('utf-8')):
@@ -55,17 +60,17 @@ for file in files:
             raise AssertionError(file + ': unknown source or double inversion accepted')
         check(source_at_homepage_invitation_focus_baseline(file, mutant) == mutant, file + ': unfamiliar source stays visible')
 
-html = (ROOT / 'index.html').read_bytes().decode('utf-8')
+html = read('index.html').decode('utf-8')
 declaration = ' transition-property:color,border-color;'
 check(html.count(declaration) == 1, 'Exactly one limited transition-property declaration')
 check(html.replace(declaration, '').encode('utf-8') == prior('index.html'), 'Every other homepage byte unchanged')
 check(re.search(r'body\.homepage-enterprise \.hero-invitation-link \{[^}]* transition-property:color,border-color;[^}]*\}', html) is not None, 'Only invitation-link transition is limited')
 check(re.search(r'\.hero-invitation-link:focus-visible \{ outline:3px solid var\(--mdm-focus-ring-on-dark\); outline-offset:4px; \}', html) is not None, 'Existing outline remains three pixels')
 original_fixture = 'scripts/fixtures/homepage-sample-entry-20261011.json'
-check((ROOT / original_fixture).read_bytes() == prior(original_fixture), 'Reviewed PR sample-entry fixture bytes unchanged')
-check(hashlib.sha256((ROOT / original_fixture).read_bytes()).hexdigest() == '08ea78334ab895c29d9bd057aa21194421e2aac7e11aa2a5f8efe3c24d49f253', 'Original sample-entry fixture pin unchanged')
+check(read(original_fixture) == prior(original_fixture), 'Reviewed PR sample-entry fixture bytes unchanged')
+check(hashlib.sha256(read(original_fixture)).hexdigest() == '08ea78334ab895c29d9bd057aa21194421e2aac7e11aa2a5f8efe3c24d49f253', 'Original sample-entry fixture pin unchanged')
 for file in files[2:]:
-    check('08ea78334ab895c29d9bd057aa21194421e2aac7e11aa2a5f8efe3c24d49f253' in (ROOT / file).read_text(), file + ': original source pin retained')
+    check('08ea78334ab895c29d9bd057aa21194421e2aac7e11aa2a5f8efe3c24d49f253' in read(file).decode('utf-8'), file + ': original source pin retained')
 protected_files = ['public-search-index.json', 'scripts/homepage_sample_discovery_contract.mjs',
     'scripts/homepage_sample_discovery_smoke.mjs', 'scripts/public_gold_accent_smoke.mjs',
     'scripts/pilot_retry_browser_smoke.mjs', 'enterprise-site.css', 'public-product-design.css',
@@ -78,7 +83,7 @@ protected_files = ['public-search-index.json', 'scripts/homepage_sample_discover
     '.github/workflows/pages-protected-deploy.yml']
 historical = subprocess.check_output(['git', 'ls-tree', '-r', '--name-only', BASELINE, '--', 'scripts/fixtures', 'sample-data'], cwd=ROOT, text=True).strip().splitlines()
 for file in protected_files + historical:
-    check((ROOT / file).read_bytes() == prior(file), file + ': original product, legal, evidence and source assertions unchanged')
+    check(read(file) == prior(file), file + ': original product, legal, evidence and source assertions unchanged')
 for file in ['unknown.js', '__proto__', 'workspace.html']:
     source = b'Outside the approved focus delta'
     check(source_before_homepage_invitation_focus_20261011(file, source) == source, file + ': unlisted strict source untouched')

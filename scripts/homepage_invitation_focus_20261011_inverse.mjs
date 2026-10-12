@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
+import {sourceAtBookPublicationDateBaseline} from './book_publication_date_20261011_inverse.mjs';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 export const HOMEPAGE_INVITATION_FOCUS_BASELINE='435fa2c87178de1bc3826f5f0ad1bba9b5f2cf54';
 export const HOMEPAGE_INVITATION_FOCUS_VERSION='homepage-invitation-focus-20261011.1';
@@ -14,6 +15,7 @@ assert.equal(homepageInvitationFocusDelta.baseline,HOMEPAGE_INVITATION_FOCUS_BAS
 assert.equal(homepageInvitationFocusDelta.version,HOMEPAGE_INVITATION_FOCUS_VERSION);
 export const HOMEPAGE_INVITATION_FOCUS_FILES=Object.freeze(Object.keys(homepageInvitationFocusDelta.files));
 export function sourceBeforeHomepageInvitationFocus20261011(file,source){
+  source=sourceAtBookPublicationDateBaseline(file,source);
   const entry=Object.hasOwn(homepageInvitationFocusDelta.files,file)?homepageInvitationFocusDelta.files[file]:null;
   if(!entry)return source;
   assert.equal(sha(source),entry.after_sha256,file+': only exact reviewed invitation-focus source may be inverted');
@@ -26,6 +28,7 @@ export function sourceBeforeHomepageInvitationFocus20261011(file,source){
   return Buffer.isBuffer(source)?Buffer.from(restored):restored;
 }
 export function sourceAtHomepageInvitationFocusBaseline(file,source){
+  source=sourceAtBookPublicationDateBaseline(file,source);
   const entry=Object.hasOwn(homepageInvitationFocusDelta.files,file)?homepageInvitationFocusDelta.files[file]:null;
   return entry&&sha(source)===entry.after_sha256?sourceBeforeHomepageInvitationFocus20261011(file,source):source;
 }
