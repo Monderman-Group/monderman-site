@@ -19,6 +19,68 @@ let checks = 0;
 const check = (value, message) => { checks++; assert.ok(value, message); };
 const equal = (actual, expected, message) => { checks++; assert.deepEqual(actual, expected, message); };
 
+async function momentColors(page) {
+  return page.locator('.first-run-moment').evaluateAll(nodes => nodes.map(node => {
+    const color = value => {
+      const match = value.match(/^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:\s*[,/]\s*([\d.]+))?\s*\)$/);
+      if (!match) throw new Error('Unsupported computed color: ' + value);
+      return [...match.slice(1, 4).map(Number), match[4] === undefined ? 1 : Number(match[4])];
+    };
+    const composite = (front, back) => front.slice(0, 3).map((channel, index) => channel * front[3] + back[index] * (1 - front[3]));
+    const read = element => {
+      const foreground = color(getComputedStyle(element).color), backgrounds = [];
+      for (let ancestor = element; ancestor; ancestor = ancestor.parentElement) {
+        const style = getComputedStyle(ancestor), background = color(style.backgroundColor);
+        if (background[3] > 0) {
+          if (style.backgroundImage !== 'none') throw new Error('Text contrast background includes an image');
+          backgrounds.push(background);
+          if (background[3] === 1) break;
+        }
+      }
+      let background = [255, 255, 255];
+      for (const layer of backgrounds.reverse()) background = composite(layer, background);
+      const renderedForeground = composite(foreground, background);
+      const luminance = rgb => rgb.map(channel => channel / 255).map(channel => channel <= .04045 ? channel / 12.92 : ((channel + .055) / 1.055) ** 2.4).reduce((sum, channel, index) => sum + channel * [.2126, .7152, .0722][index], 0);
+      const a = luminance(renderedForeground), b = luminance(background);
+      return {text: element.textContent.trim(), foreground: getComputedStyle(element).color, renderedBackground: background, contrastRatio: (Math.max(a, b) + .05) / (Math.min(a, b) + .05)};
+    };
+    return {heading: read(node.querySelector('strong')), description: read(node.querySelector('.first-run-moment-copy > span'))};
+  }));
+}
+
+function assertReadableMoments(colors, label) {
+  equal(colors.length, 4, label + ': all four operating moments have contrast evidence');
+  for (const row of colors) {
+    check(Number.isFinite(row.heading.contrastRatio) && row.heading.contrastRatio >= 4.5, label + ': operating moment heading contrast is at least 4.5:1');
+    check(Number.isFinite(row.description.contrastRatio) && row.description.contrastRatio >= 4.5, label + ': operating moment description contrast is at least 4.5:1');
+  }
+}
+
+async function reachableLensTarget(tab, page, label) {
+  // Normal centered scrolling keeps a target away from the existing fixed
+  // launchers. It does not hide widgets or claim every scroll frame is clear.
+  const settle = async () => {
+    const deadline = Date.now() + 3000;
+    let previous, stableSince;
+    while (Date.now() < deadline) {
+      const geometry = JSON.stringify({scroll: await page.evaluate(() => ({x: scrollX, y: scrollY})), box: await tab.boundingBox()});
+      if (geometry !== previous) { previous = geometry; stableSince = Date.now(); }
+      if (Date.now() - stableSince >= 200) return true;
+      await page.waitForTimeout(50);
+    }
+    return false;
+  };
+  // A native fallback fragment can still be smoothly scrolling after its URL
+  // changes. Observe its completion before starting a different normal scroll.
+  check(await settle(), label + ': preceding native scroll settles within the bounded wait');
+  await tab.evaluate(el => el.scrollIntoView({behavior: 'instant', block: 'center'}));
+  check(await settle(), label + ': centered target geometry settles within the bounded wait');
+  const box = await tab.boundingBox(), viewport = page.viewportSize();
+  check(box && Object.values(box).every(Number.isFinite) && box.width >= 44 && box.height >= 44 && box.x >= 0 && box.y >= 0 && box.x + box.width <= viewport.width && box.y + box.height <= viewport.height, label + ': lens target has a full 44px viewport target after ordinary scrolling');
+  check(await tab.evaluate((el, rect) => { const hit = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2); return hit === el || el.contains(hit); }, box), label + ': lens target center is unobstructed with existing widgets present');
+  return box;
+}
+
 async function setup(browser, options) {
   const page = await browser.newPage({viewport: options.viewport, deviceScaleFactor: options.deviceScaleFactor, javaScriptEnabled: options.scripts !== false, reducedMotion: options.reduced ? 'reduce' : 'no-preference', serviceWorkers: 'block'});
   const writes = [], external = [], errors = [];
@@ -59,7 +121,21 @@ for (const [engine, browserType] of [['chromium', chromium], ['webkit', webkit]]
       const label = engine + '/' + options.name;
       if (options.zoom) await page.evaluate(() => document.body.style.zoom = '2');
       if (options.deviceScaleFactor) equal(await page.evaluate(() => ({width: innerWidth, height: innerHeight, deviceScaleFactor: devicePixelRatio})), {width: 720, height: 500, deviceScaleFactor: 2}, label + ': exact browser-zoom-equivalent responsive viewport');
+      const operatingMomentContrast = await momentColors(page);
+      assertReadableMoments(operatingMomentContrast, label);
+      if (options.name === '390-scripts') {
+        const heading = page.locator('.first-run-moment strong').first(), originalStyle = await heading.getAttribute('style');
+        await heading.evaluate(el => el.style.color = '#9CC4C9');
+        const inheritedTeal = await momentColors(page);
+        equal(inheritedTeal[0].heading.foreground, 'rgb(156, 196, 201)', label + ': negative recreates the actual inherited pale teal');
+        checks++; assert.throws(() => assertReadableMoments(inheritedTeal, label + '/old-teal-negative'), /operating moment heading contrast is at least 4.5:1/, label + ': old inherited teal is rejected by the real rendered contrast check');
+        await heading.evaluate((el, original) => original === null ? el.removeAttribute('style') : el.setAttribute('style', original), originalStyle);
+        equal(await momentColors(page), operatingMomentContrast, label + ': negative control restores exact current presentation');
+      }
       const demo = page.locator('[data-lens-demo]'), tabs = demo.locator('[data-lens-choice]');
+      const lensTargetGeometry = [];
+      const widgetModels = await page.locator('#mnd-launcher,.mdn-cn-launch').evaluateAll(nodes => nodes.map(el => ({id: el.id, visible: getComputedStyle(el).visibility === 'visible' && getComputedStyle(el).display !== 'none'})));
+      if (options.scripts) check(widgetModels.length === 2 && widgetModels.every(widget => widget.visible), label + ': unchanged Chat and Connect launcher models remain present');
       equal(await tabs.allTextContents(), titles, label + ': four exact diagnostic names');
       equal(await demo.locator('[data-lens-panel]').count(), 4, label + ': four distinct qualitative panels');
       check((await demo.locator('.mr-demo-heading').innerText()).includes('Not a scored result or customer case'), label + ': visible illustrative boundary');
@@ -68,6 +144,7 @@ for (const [engine, browserType] of [['chromium', chromium], ['webkit', webkit]]
       if (enhanced) {
         equal(await demo.getAttribute('data-enhanced'), '', label + ': enhancement initialized');
         for (let index = 0; index < lenses.length; index++) {
+          lensTargetGeometry.push({lens: lenses[index], box: await reachableLensTarget(tabs.nth(index), page, label + '/' + lenses[index])});
           await tabs.nth(index).click();
           equal(await tabs.nth(index).getAttribute('aria-selected'), 'true', label + ': selected lens ' + lenses[index]);
           equal(await demo.locator('[data-lens-panel]:visible').count(), 1, label + ': only chosen lens is shown');
@@ -98,10 +175,17 @@ for (const [engine, browserType] of [['chromium', chromium], ['webkit', webkit]]
         equal(await demo.getAttribute('data-enhanced'), null, label + ': unenhanced fallback');
         equal(await demo.locator('[data-lens-panel]:visible').count(), 4, label + ': all lens explanations remain available');
         equal(await tabs.first().getAttribute('href'), '#mr-panel-clarity', label + ': native anchor fallback');
+        lensTargetGeometry.push({lens: lenses[0], box: await reachableLensTarget(tabs.first(), page, label + '/' + lenses[0])});
         await tabs.first().click();
         await page.waitForURL(url => url.hash === '#mr-panel-clarity');
         const anchorGeometry = await page.locator('#mr-panel-clarity').evaluate(el => ({top: el.getBoundingClientRect().top, headerBottom: document.querySelector('.header').getBoundingClientRect().bottom}));
         check(anchorGeometry.top >= anchorGeometry.headerBottom, label + ': native anchor heading is not under the header');
+        for (let index = 1; index < lenses.length; index++) {
+          lensTargetGeometry.push({lens: lenses[index], box: await reachableLensTarget(tabs.nth(index), page, label + '/' + lenses[index])});
+          await tabs.nth(index).click();
+          await page.waitForURL(url => url.hash === '#mr-panel-' + lenses[index]);
+          equal(new URL(page.url()).hash, '#mr-panel-' + lenses[index], label + ': each fallback lens is reachable by an ordinary anchor click');
+        }
       }
       const detail = page.locator('#mr-panel-clarity details');
       await detail.locator('summary').focus();
@@ -128,7 +212,12 @@ for (const [engine, browserType] of [['chromium', chromium], ['webkit', webkit]]
       equal(state.writes, [], label + ': zero attempted API calls or writes');
       // Immediate positioning is screenshot bookkeeping, including the tall
       // no-script edition; functional native controls were exercised above.
-      await page.locator('[data-marketing-scenario]').evaluate(el => el.scrollIntoView({behavior: 'instant', block: 'start'}));
+      await demo.locator('.mr-lens-tabs').evaluate(el => el.scrollIntoView({behavior: 'instant', block: 'center'}));
+      for (const tab of await tabs.all()) {
+        const box = await tab.boundingBox();
+        check(box && box.y >= 0 && box.y + box.height <= options.viewport.height, label + ': saved lens frame contains the entire target');
+        check(await tab.evaluate((el, rect) => { const hit = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2); return hit === el || el.contains(hit); }, box), label + ': saved lens frame keeps tab centers clear of fixed launchers');
+      }
       await page.screenshot({path: path.join(out, engine + '-' + options.name + '-scenario.png')});
       if ([390, 1440].includes(options.viewport.width) && !options.zoom && enhanced && !options.reduced) {
         await page.screenshot({path: path.join(out, engine + '-' + options.name + '-full.png'), fullPage: true});
@@ -143,19 +232,21 @@ for (const [engine, browserType] of [['chromium', chromium], ['webkit', webkit]]
       await reportLink.click();
       await page.waitForURL(url => url.origin === origin && url.pathname === '/sample-report.html' && url.hash === '#depth');
       equal(state.writes, [], label + ': report navigation performs no writes');
-      receipts.push({engine, ...options, reportLinkViewportBox, attemptedWrites: state.writes.length, blockedExternalOrigins: [...new Set(state.external)], pageErrors: state.errors});
+      receipts.push({engine, ...options, operatingMomentContrast, lensTargetGeometry, widgetModels, reportLinkViewportBox, attemptedWrites: state.writes.length, blockedExternalOrigins: [...new Set(state.external)], pageErrors: state.errors});
       await page.close();
       console.log('MARKETING_REFRESH_STATE_PASS ' + label);
     }
     for (const viewport of [{width:375,height:667},{width:390,height:844},{width:1280,height:720}]) {
       const state = await setup(browser, {viewport, scripts:true, reduced:true}), {page}=state;
+      const operatingMomentContrast = await momentColors(page);
+      assertReadableMoments(operatingMomentContrast, engine + '/' + viewport.width + 'x' + viewport.height + '-hero');
       const boxes=await page.locator('.hero-actions>a').evaluateAll(nodes=>nodes.map(el=>{const r=el.getBoundingClientRect(),hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,height:r.height,unobstructed:hit===el||el.contains(hit)};}));
       equal(boxes.length,2,'Exactly two approved hero buttons');
       const qualification=await page.locator('.mr-proof-label').boundingBox(),report=await page.locator('.hero [data-home-report-quad]').boundingBox();
       check(qualification.height>0&&qualification.y+qualification.height<=report.y,engine+'/'+viewport.width+': real sample qualification precedes the enlarged report');
       for(const box of boxes)check(box.height>=44&&box.left>=0&&box.right<=viewport.width&&box.top>=0&&box.bottom<=viewport.height&&box.unobstructed,engine+'/'+viewport.width+': both buttons fully visible and usable on first screen');
       await page.screenshot({path:path.join(out,engine+'-'+viewport.width+'x'+viewport.height+'-hero.png')});
-      receipts.push({engine,viewport,heroButtonGeometry:boxes,attemptedWrites:state.writes.length,pageErrors:state.errors});
+      receipts.push({engine,viewport,operatingMomentContrast,heroButtonGeometry:boxes,attemptedWrites:state.writes.length,pageErrors:state.errors});
       equal(state.writes,[],'Hero has no attempted writes');equal(state.errors,[],'Hero has no errors');
       await page.close();
     }
