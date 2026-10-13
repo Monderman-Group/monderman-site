@@ -42,7 +42,7 @@ guard_files = ['scripts/marketing_completion_20261013_inverse.mjs', 'scripts/mar
     'scripts/marketing_completion_20261013_contract.mjs', 'scripts/marketing_completion_20261013_contract.py',
     'scripts/fixtures/marketing-completion-20261013.json']
 check(BASELINE == '561439e7c5aef48db0331bbb993f0a6d9ec4ada1', 'Actual deployed starting revision')
-check(VERSION == 'marketing-completion-20261013.2', 'Separate new approval version')
+check(VERSION == 'marketing-completion-20261013.3', 'Separate new approval version')
 check(delta.get('provisional') is False, 'Incomplete/photo-pending scaffold cannot certify publication')
 check(list(FILES) == expected_files, 'Exact seventeen-file finite existing whitelist')
 check(list(GUARD_FILES) == guard_files, 'Only five new approval modules/fixture')
@@ -187,6 +187,16 @@ expected = expected.replace(anchor, ''.join("      - '" + p + "'\n" for p in tri
 expected = once(expected, static_anchor, new_static + static_anchor)
 anchor = '          MARKETING_REFRESH_OUT=/tmp/report-presentation-smoke/marketing-refresh node scripts/marketing_refresh_browser_smoke.mjs\n'
 expected = once(expected, anchor, anchor + '          MARKETING_COMPLETION_OUT=/tmp/report-presentation-smoke/marketing-completion node scripts/marketing_completion_browser_smoke.mjs\n')
+expected = once(expected, '    timeout-minutes: 50\n', '    # October 13, 2026: retain the full original and 60-state completion checks;\n    # allow bounded browser sweeps, evidence upload and cleanup to finish.\n    timeout-minutes: 60\n')
+expected_certification_budget = expected
+current_certification_budget = read(file).decode()
+def assert_certification_budget(source):
+    assert source == expected_certification_budget, "Only dated60-minute budget addition; all commands/assertions/engines/concurrency unchanged"
+assert_certification_budget(current_certification_budget)
+check(True, "Exact private contingency workflow budget")
+for old_value, new_value in [('    timeout-minutes: 60\n', '    timeout-minutes: 50\n'), ('    timeout-minutes: 60\n', '    timeout-minutes: 61\n'), ('    timeout-minutes: 60\n', '    timeout-minutes: 0\n'), ('  cancel-in-progress: true\n', '  cancel-in-progress: false\n'), ('          MARKETING_COMPLETION_OUT=/tmp/report-presentation-smoke/marketing-completion node scripts/marketing_completion_browser_smoke.mjs\n', ''), ('          MARKETING_REFRESH_OUT=/tmp/report-presentation-smoke/marketing-refresh node scripts/marketing_refresh_browser_smoke.mjs\n', ''), ('    runs-on: ubuntu-24.04\n', '    runs-on: ubuntu-latest\n'), ('      - name: Upload rendered evidence\n', '      - name: Skipped rendered evidence\n')]:
+    check(old_value in current_certification_budget, "Exact contingency negative target")
+    reject(lambda old_value=old_value, new_value=new_value: assert_certification_budget(current_certification_budget.replace(old_value, new_value, 1)), "Changed budget/command/concurrency/platform/evidence rejects")
 check(read(file).decode() == expected, 'Certification exact extra paths/gates/browser; every prior call retained')
 file = 'scripts/render-static-build.sh'
 anchor = "find assets/research -maxdepth 1 -type f -name '*.png' ! -name 'after-the-first-lap-social.png' -exec cp -- {} \"$publish_dir/assets/research/\" \\;\n"

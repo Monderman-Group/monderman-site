@@ -580,7 +580,9 @@ jobs:
     runs-on: ubuntu-24.04
     # Preserve the full report/PDF and 84-page responsive sweeps; the expanded
     # suite exceeded 35 minutes on the hosted runner without an assertion failure.
-    timeout-minutes: 50
+    # October 13, 2026: retain the full original and 60-state completion checks;
+    # allow bounded browser sweeps, evidence upload and cleanup to finish.
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:

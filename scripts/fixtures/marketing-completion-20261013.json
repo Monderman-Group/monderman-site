@@ -1,7 +1,7 @@
 {
   "baseline": "561439e7c5aef48db0331bbb993f0a6d9ec4ada1",
   "baselineTree": "6e000b0f2c357902e402217e6d6d94e8c79d6762",
-  "version": "marketing-completion-20261013.2",
+  "version": "marketing-completion-20261013.3",
   "provisional": false,
   "guardFiles": [
     "scripts/marketing_completion_20261013_inverse.mjs",
@@ -289,7 +289,7 @@
     },
     ".github/workflows/sample-report-marketing-certification.yml": {
       "before_sha256": "81cd7cc3480729b8d3ebbed5616143f2f25b8f18e9c4e533aae12263b357afa1",
-      "after_sha256": "271d35f50cb78ba6a58dea8761c06f4d95862807c5737196dc8ba82883cece80",
+      "after_sha256": "4bc1bd178ae8393bdcaa70246ba531eb0643d52a4b57309a4c1912431c542f21",
       "replacements": [
         [
           1719,
@@ -304,14 +304,20 @@
           ""
         ],
         [
-          29540,
-          29673,
+          27446,
+          27626,
+          "    # October 13, 2026: retain the full original and 60-state completion checks;\n    # allow bounded browser sweeps, evidence upload and cleanup to finish.\n    timeout-minutes: 60\n",
+          "    timeout-minutes: 50\n"
+        ],
+        [
+          29696,
+          29829,
           "          node scripts/marketing_completion_20261013_contract.mjs\n          python scripts/marketing_completion_20261013_contract.py\n",
           ""
         ],
         [
-          40576,
-          40715,
+          40732,
+          40871,
           "          MARKETING_COMPLETION_OUT=/tmp/report-presentation-smoke/marketing-completion node scripts/marketing_completion_browser_smoke.mjs\n",
           ""
         ]
