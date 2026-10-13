@@ -1,11 +1,14 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
+import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
 
 // The exact reviewed copy delta retired the four measurement-loop cards, not
 // the three proof cards or four diagnostic cards exercised below. Preserve the
 // historical bytes and independently check the current section's complete DOM.
 const homepageSource = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+const marketingBaselineHomepage = sourceAtMarketingRefreshBaseline('index.html', homepageSource);
+assert.notEqual(marketingBaselineHomepage, homepageSource, 'Both the exact legacy render and the actual refreshed render are exercised');
 const historicalHomepage = sourceBeforePublicCopyClarity('index.html', homepageSource);
 const classElements = (html, name) => [...html.matchAll(/<[a-z][^>]*\bclass="([^"]*)"[^>]*>/gi)]
   .filter(match => match[1].split(/\s+/).includes(name)).length;
@@ -41,6 +44,8 @@ if (process.argv.includes('--deterministic-only')) {
 
 const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const base = process.env.SITE_BASE || 'http://127.0.0.1:4175';
+const origin = new URL(base).origin;
+assert.ok(['127.0.0.1', 'localhost'].includes(new URL(base).hostname), 'Card layout verification stays on loopback');
 const browsers = [['chromium', chromium], ['webkit', webkit]]
   .filter(([name]) => !process.env.CARD_RHYTHM_BROWSER || process.env.CARD_RHYTHM_BROWSER === name);
 const viewports = [390, 640, 641, 760, 761, 768, 1024, 1120, 1121, 1180, 1181, 1440];
@@ -109,10 +114,20 @@ const readCarouselTitles = () => {
 for (const [browserName, browserType] of browsers) {
   const browser = await browserType.launch({ headless: true });
   try {
+    for (const edition of ['baseline', 'current']) {
     for (const width of viewports) {
       const page = await browser.newPage({ viewport: { width, height: 900 }, reducedMotion: 'reduce' });
       const pageErrors=[];
       const failedScripts=[];
+      const attemptedWrites=[];
+      await page.addInitScript(() => { window.supabase = {createClient: () => ({auth: {getSession: async () => ({data: {session: null}}), onAuthStateChange: () => ({data: {subscription: {unsubscribe() {}}}})}})}; });
+      await page.route('**/*', route => {
+        const request=route.request(), url=new URL(request.url());
+        if(!['GET','HEAD'].includes(request.method())||url.pathname.startsWith('/api/')) { attemptedWrites.push({method:request.method(),path:url.pathname});return route.abort(); }
+        if(url.origin!==origin)return route.abort();
+        if(edition==='baseline'&&url.pathname==='/index.html')return route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:marketingBaselineHomepage});
+        return route.continue();
+      });
       page.on('pageerror',error=>pageErrors.push(error.message));
       page.on('requestfailed',request=>{
         if(request.resourceType()==='script') failedScripts.push({url:request.url(),failure:request.failure()?.errorText});
@@ -155,6 +170,10 @@ for (const [browserName, browserType] of browsers) {
           const style = getComputedStyle(card);
           return {
             display: style.display,
+            left: cardBox.left,
+            right: cardBox.right,
+            top: cardBox.top,
+            bottom: cardBox.bottom,
             height: cardBox.height,
             padding: [style.paddingTop, style.paddingRight, style.paddingBottom, style.paddingLeft].map(px),
             iconLeft: iconBox.left - cardBox.left,
@@ -182,6 +201,14 @@ for (const [browserName, browserType] of browsers) {
             cardTop: cardBox.top,
             headLeft: headBox.left - cardBox.left,
             headTop: headBox.top - cardBox.top,
+            width: cardBox.width,
+            right: cardBox.right,
+            bottom: cardBox.bottom,
+            borderTopWidth: px(getComputedStyle(card).borderTopWidth),
+            background: getComputedStyle(card).backgroundColor,
+            titleSize: px(getComputedStyle(card.querySelector('.card-title')).fontSize),
+            bodySize: px(getComputedStyle(card.querySelector('.card-desc')).fontSize),
+            linkHeight: rect(card.querySelector('.approach-card-link')).height,
           };
         });
         const expected = document.createElement('template');
@@ -191,6 +218,7 @@ for (const [browserName, browserType] of browsers) {
           width: innerWidth,
           overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
           proofColumns: getComputedStyle(proofGrid).gridTemplateColumns.split(' ').length,
+          proofDisplay: getComputedStyle(proofGrid).display,
           approachColumns: getComputedStyle(document.querySelector('.approach-grid')).gridTemplateColumns.split(' ').length,
           retiredLoopElements: document.querySelectorAll('.loop-flow, .loop-step').length,
           measurementSections: document.querySelectorAll('.measurement-loop').length,
@@ -200,7 +228,7 @@ for (const [browserName, browserType] of browsers) {
         };
       }, measurementSection);
 
-      const label = `${browserName}/${width}`;
+      const label = `${browserName}/${edition}/${width}`;
       assert.ok(result.overflow <= 1, `${label}: homepage overflows by ${result.overflow}px`);
       assert.equal(result.proof.length, 3, `${label}: expected three proof cards`);
       assert.equal(result.approach.length, 4, `${label}: expected four diagnostic cards`);
@@ -208,6 +236,7 @@ for (const [browserName, browserType] of browsers) {
       assert.equal(result.measurementSections, 1, `${label}: expected one current measurement section`);
       assert.equal(result.exactMeasurementMarkup, true, `${label}: current measurement copy, scope or Synthesis link changed`);
 
+      if (edition === 'baseline') {
       for (const [index, card] of result.approach.entries()) {
         assert.equal(card.markerPosition, 'static', `${label}/diagnostic-${index + 1}: marker is corner-positioned`);
         assert.ok(card.markerWidth > 100, `${label}/diagnostic-${index + 1}: marker retained the old zero-width bar`);
@@ -259,6 +288,29 @@ for (const [browserName, browserType] of browsers) {
         }
       }
 
+      } else {
+        assert.equal(result.approachColumns, width <= 760 ? 1 : 2, `${label}: open diagnostic entries retain the reviewed responsive columns`);
+        for (const [index,card] of result.approach.entries()) {
+          assert.equal(card.markerContent,'none',`${label}/diagnostic-${index+1}: retired visual numbering is absent`);
+          assert.equal(card.background,'rgba(0, 0, 0, 0)',`${label}/diagnostic-${index+1}: open entry has no boxed surface`);
+          assert.equal(card.borderTopWidth,1,`${label}/diagnostic-${index+1}: editorial divider is present`);
+          assert.ok(closeTo(card.headLeft,0)&&card.headTop>=30,`${label}/diagnostic-${index+1}: heading aligns to the open column`);
+          assert.ok(card.titleSize>=26&&card.bodySize>=16&&card.linkHeight>=44,`${label}/diagnostic-${index+1}: readable text and usable link`);
+          assert.ok(card.cardLeft>=0&&card.right<=width+1&&card.width>0,`${label}/diagnostic-${index+1}: complete column remains in view`);
+        }
+        assert.equal(result.proofDisplay,'block',`${label}: proof resources remain full-width stacked rows`);
+        for (const [index,card] of result.proof.entries()) {
+          assert.equal(card.display,'grid',`${label}/proof-${index+1}: resource row uses the reviewed reading grid`);
+          assert.ok(closeTo(card.iconLeft,0),`${label}/proof-${index+1}: icon aligns to the open rail`);
+          assert.ok(card.titleSize>=19&&card.bodySize>=15&&card.ctaSize>=13,`${label}/proof-${index+1}: readable resource text`);
+          assert.ok(card.left>=0&&card.right<=width+1&&card.ctaBottom<=card.bottom+1,`${label}/proof-${index+1}: complete resource row remains contained`);
+          if(index)assert.ok(card.top>=result.proof[index-1].bottom-1,`${label}: resource rows do not overlap`);
+          if(width<=760)assert.ok(card.ctaTop>=card.bodyBottom+10,`${label}/proof-${index+1}: narrow-screen reading order separates copy and destination`);
+        }
+        await page.locator('.approach-card').first().hover();
+        assert.equal(await page.locator('.approach-card').first().evaluate(card=>getComputedStyle(card,'::before').content),'none',`${label}: hovering does not reintroduce a decorative number`);
+      }
+
       if(width===1440) {
         await page.emulateMedia({media:'print'});
         const printTitles=await page.evaluate(readCarouselTitles);
@@ -267,7 +319,10 @@ for (const [browserName, browserType] of browsers) {
           assert.ok(card.headings[0].includes('latest-card-title--print'),`${browserName}/print/${card.title}: hidden cover did not yield to the print title`);
         }
       }
+      assert.deepEqual(pageErrors,[],`${label}: no page runtime errors`);
+      assert.deepEqual(attemptedWrites,[],`${label}: no API calls or writes`);
       await page.close();
+    }
     }
   } finally {
     await browser.close();

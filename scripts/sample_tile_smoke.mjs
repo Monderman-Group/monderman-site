@@ -1,15 +1,23 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import {createHash} from 'node:crypto';
+import {sourceAtMarketingRefreshBaseline, marketingRefreshDelta} from './marketing_refresh_20261012_inverse.mjs';
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 import {buildPublicSamplePreviewSections} from './refresh_public_sample_previews.mjs';
-const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
 const out = process.env.TILE_OUT || '/tmp/sample-tile-smoke';
 fs.mkdirSync(out, { recursive: true });
 const {artifact}=readPublicSampleFixture();
 const root=path.resolve(import.meta.dirname,'..');
+const homepageBytes=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const baselineHomepage=sourceAtMarketingRefreshBaseline('index.html',homepageBytes);
+assert.notEqual(baselineHomepage,homepageBytes,'The authoritative compact homepage and actual enlarged homepage are both rendered');
+assert.equal(createHash('sha256').update(baselineHomepage).digest('hex'),marketingRefreshDelta.files['index.html'].before_sha256,'Exact approved baseline homepage bytes');
+const localOrigin=new URL(base).origin;
+assert.ok(['127.0.0.1','localhost'].includes(new URL(base).hostname),'Display verification stays on loopback');
 const generatedHomepage=buildPublicSamplePreviewSections(artifact,fs.readFileSync(path.join(root,'scripts/templates/home-workspace-preview.html'),'utf8')).home;
 const source=artifact.outputs.depth_synthesis.source,scenario=source.financial_scenario;
 const interpretation=source.ai_report.report.interpretation;
@@ -25,7 +33,6 @@ const benefits=scenario.benefits;
 const statusLabel=benefit=>({estimated:'Estimate entered',none_identified:'Reviewed: none identified',not_estimated:'Not estimated'})[benefit.status];
 const exceptionalStatus=benefit=>benefit.status==='estimated'?'':' '+statusLabel(benefit)+'.';
 
-const browser = await chromium.launch({ headless: true });
 const placements = [
   { name: 'homepage', route: '/index.html' },
   { name: 'platform-brief', route: '/Monderman_Platform_Brief.html' },
@@ -42,11 +49,33 @@ const viewports = [
   { name: 'desktop', width: 1440, height: 1000 },
 ];
 
+// New geometry is independently bounded; old compact assertions remain below.
+function assertReadablePreview(g,width,label){
+  assert(g.width>0&&g.width<=900.5,label+': enlarged report retains its approved bounded rail');
+  assert(g.height>0&&g.height<=(width<=600?1700:1150),label+': complete enlarged report remains bounded');
+  assert(g.findingLeadFont>=21&&g.contentFont>=14,label+': primary finding and product content remain readable');
+  assert.equal(g.areas,width<=600?'"finding" "money" "change" "evidence"':'"finding finding" "money change" "money evidence"',label+': finding leads the composition');
+  assert.equal(g.exampleLabel,'Sample report · Example data',label+': illustrative source qualification remains visible');
+}
+const goodGeometry={width:750,height:850,findingLeadFont:25,contentFont:14,areas:'"finding finding" "money change" "money evidence"',exampleLabel:'Sample report · Example data'};
+assertReadablePreview(goodGeometry,1440,'Current geometry deterministic control');
+const badGeometry=[{...goodGeometry,width:901},{...goodGeometry,height:1151},{...goodGeometry,findingLeadFont:20},{...goodGeometry,contentFont:13},{...goodGeometry,areas:'"money change"'},{...goodGeometry,exampleLabel:'Customer results'}];
+for(const bad of badGeometry)assert.throws(()=>assertReadablePreview(bad,1440,'Current geometry negative control'));
+let renderStates=0;
+for(const [engine,type] of [['chromium',chromium],['webkit',webkit]]){
+const browser = await type.launch({ headless: true });
 try {
   for (const placement of placements) {
+    for (const edition of placement.name==='homepage'?['baseline','current']:['current']) {
     for (const viewport of viewports) {
       const page = await browser.newPage({ viewport });
-      await page.route('**/*', route => new URL(route.request().url()).origin === new URL(base).origin ? route.continue() : route.abort());
+      await page.route('**/*', route => {
+        const request=route.request(),url=new URL(request.url());
+        if(!['GET','HEAD'].includes(request.method())||url.pathname.startsWith('/api/')||url.origin!==localOrigin)return route.abort();
+        if(placement.name==='homepage'&&edition==='baseline'&&url.pathname==='/index.html')return route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:baselineHomepage});
+        return route.continue();
+      });
+      renderStates++;
       await page.goto(`${base}${placement.route}`, { waitUntil: 'networkidle', timeout: 90000 });
 
       const tile = page.locator('.hero-report-proof.has-sample-depth-tile');
@@ -62,7 +91,7 @@ try {
         }, await tile.elementHandle());
       }
       if (placement.name === 'homepage') {
-        const label=`${placement.name}/${viewport.name}`;
+        const label=`${engine}/${placement.name}/${edition}/${viewport.name}`;
         assert.equal(await tile.isVisible(),true,label+': hero report preview must remain visible');
         assert.equal(await tile.getAttribute('data-artifact-sha256'),artifact.artifact_sha256,label+': current source identity');
         assert.equal(await tile.getAttribute('data-home-report-quad'),'',label+': current homepage presentation');
@@ -80,18 +109,21 @@ try {
           const box=el.getBoundingClientRect(),hero=el.closest('.hero'),grid=el.querySelector('.hrq-grid');
           const textNodes=[...el.querySelectorAll('h3,p,li,a,.mr-overview-sankey-source,.mr-overview-sankey-outcome')];
           const escaping=textNodes.filter(node=>{const r=node.getBoundingClientRect();return r.width&&r.height&&(r.left<box.left-1||r.right>box.right+1||r.top<box.top-1||r.bottom>box.bottom+1);}).map(node=>node.className||node.tagName);
-          return {width:box.width,height:box.height,left:box.left,right:box.right,bottom:box.bottom,heroBottom:hero?.getBoundingClientRect().bottom,inOutputBand:Boolean(el.closest('#sample-output')),inHero:Boolean(hero),columns:getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/).length,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,documentWidth:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth),viewportWidth:document.documentElement.clientWidth,escaping};
+          return {width:box.width,height:box.height,left:box.left,right:box.right,bottom:box.bottom,heroBottom:hero?.getBoundingClientRect().bottom,inOutputBand:Boolean(el.closest('#sample-output')),inHero:Boolean(hero),columns:getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/).length,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,documentWidth:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth),viewportWidth:document.documentElement.clientWidth,escaping,findingLeadFont:parseFloat(getComputedStyle(el.querySelector('[data-quad-section="findings"] .hrq-lead')).fontSize),contentFont:parseFloat(getComputedStyle(el.querySelector('.hrq-content')).fontSize),areas:getComputedStyle(grid).gridTemplateAreas,exampleLabel:document.querySelector('.mr-proof-label')?.textContent.trim()};
         });
         assert.equal(geometry.inOutputBand,false,label+': lower section is reserved for the product journey');
         assert.equal(geometry.inHero,true,label+': report leads the opening hero');
         assert.equal(geometry.columns,viewport.width<=600?1:2,label+': responsive report grid');
+        if(edition==='baseline'){
         assert(geometry.width>0&&geometry.width<=760.5,label+': approved report width');
+        }else assertReadablePreview(geometry,viewport.width,label);
         assert(geometry.left>=-1&&geometry.right<=geometry.viewportWidth+1,label+': report stays within viewport');
         assert(geometry.scrollWidth<=geometry.clientWidth+1&&geometry.documentWidth<=geometry.viewportWidth+1,label+': no horizontal overflow');
         assert(geometry.bottom<=geometry.heroBottom+1,label+': report stays within the hero');
         assert.deepEqual(geometry.escaping,[],label+': all report summaries and chart labels stay within the frame');
-        if(viewport.width===1440){assert(geometry.width>580,label+': wide preview does not inherit the retired card width');assert(geometry.height<=680,label+': approved compact two-column height '+JSON.stringify({width:geometry.width,height:geometry.height}));}
-        await tile.screenshot({path:path.join(out,`${placement.name}-${viewport.name}.png`)});
+        if(viewport.width===1440&&edition==='baseline'){assert(geometry.width>580,label+': wide preview does not inherit the retired card width');assert(geometry.height<=680,label+': approved compact two-column height '+JSON.stringify({width:geometry.width,height:geometry.height}));}
+        if(viewport.width===1440&&edition==='current')assert(geometry.width>580,label+': readable wide preview stays substantial');
+        await tile.screenshot({path:path.join(out,`${engine}-${placement.name}-${edition}-${viewport.name}.png`)});
         await page.close();
         continue;
       }
@@ -174,7 +206,7 @@ try {
       if (intentionallyHidden) {
         assert.equal(geometry.display, 'none', `${placement.name}/${viewport.name}: compact layout still shows the large sample tile`);
         assert.equal(geometry.height, 0, `${placement.name}/${viewport.name}: hidden sample tile still reserves vertical space`);
-        await page.screenshot({ path: path.join(out, `${placement.name}-${viewport.name}.png`), fullPage: false });
+        await page.screenshot({ path: path.join(out, `${engine}-${placement.name}-${edition}-${viewport.name}.png`), fullPage: false });
         await page.close();
         continue;
       }
@@ -226,11 +258,13 @@ try {
         }
       }
 
-      await tile.screenshot({ path: path.join(out, `${placement.name}-${viewport.name}.png`) });
+      await tile.screenshot({ path: path.join(out, `${engine}-${placement.name}-${edition}-${viewport.name}.png`) });
       await page.close();
     }
   }
-  console.log('sample report tile smoke: passed');
+  }
+  console.log(JSON.stringify({status:'PASS',engine,renderStates,editions:['exact-baseline','current'],geometryNegativeControls:badGeometry.length,providerCalls:0,productionWrites:0}));
 } finally {
   await browser.close();
+}
 }

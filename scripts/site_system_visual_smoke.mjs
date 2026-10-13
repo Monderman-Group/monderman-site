@@ -1,9 +1,14 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { chromium, webkit } from 'playwright';
+import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
 const localOrigin = new URL(base).origin;
+assert.ok(['127.0.0.1', 'localhost'].includes(new URL(base).hostname), 'Visual verification remains on loopback');
+const homepageSource = fs.readFileSync('index.html','utf8');
+const marketingBaselineHomepage = sourceAtMarketingRefreshBaseline('index.html',homepageSource);
+assert.notEqual(marketingBaselineHomepage,homepageSource,'The original homepage geometry is verified in addition to the approved new layout');
 
 // This manifest explicitly covers every enterprise-styled public hero. The
 // separately protected legal documents and their dated snapshots intentionally
@@ -199,16 +204,32 @@ const sectionHeadingContracts = new Map([
   }],
 ]);
 
-async function localPage(browser, viewport) {
+async function localPage(browser, viewport, edition='current') {
   const page = await browser.newPage({ viewport, serviceWorkers: 'block' });
+  const attemptedWrites=[];
+  const attemptedApiReads=[];
+  page.marketingAttemptedWrites=attemptedWrites;
+  page.marketingAttemptedApiReads=attemptedApiReads;
   await page.route('**/*', async (route) => {
-    const url = new URL(route.request().url());
+    const request=route.request(),url = new URL(request.url());
+    if(!['GET','HEAD'].includes(request.method())) {
+      attemptedWrites.push({method:request.method(),path:url.pathname});
+      return route.abort();
+    }
+    if(url.pathname.startsWith('/api/')) {
+      attemptedApiReads.push(url.pathname);
+      return route.abort();
+    }
+    if(edition==='baseline'&&url.origin===localOrigin&&url.pathname==='/index.html') {
+      return route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:marketingBaselineHomepage});
+    }
     if (url.origin === localOrigin || url.protocol === 'data:' || url.protocol === 'blob:') {
       await route.continue();
     } else {
       await route.abort();
     }
   });
+  if(edition==='baseline')await page.addInitScript(()=>{window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}})};});
   return page;
 }
 
@@ -216,8 +237,9 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
   const browser = await browserType.launch({ headless: true });
   try {
     for (const viewport of viewports) {
-      for (const [pageName, heroSelector, titleSelector, kind] of heroPages) {
-        const page = await localPage(browser, viewport);
+      const heroStates=heroPages.flatMap(entry=>entry[0]==='index.html'?[ [...entry,'baseline'],[...entry,'current'] ]:[ [...entry,'current'] ]);
+      for (const [pageName, heroSelector, titleSelector, kind, edition] of heroStates) {
+        const page = await localPage(browser, viewport, edition);
         await page.goto(`${base}/${pageName}`, { waitUntil: 'load', timeout: 60000 });
         await page.evaluate(async () => {
           if (document.fonts) await document.fonts.ready;
@@ -254,9 +276,12 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
           };
         }, { heroSelector, titleSelector });
 
-        const label = `${browserName}/${viewport.width}/${pageName}`;
+        const label = `${browserName}/${viewport.width}/${pageName}/${edition}`;
         assert.equal(geometry.missing, false, `${label}: hero or title is missing`);
-        assert.ok(Math.abs(geometry.titleX - expectedRailX(geometry.clientWidth)) <= 2.5,
+        const railX=pageName==='index.html'&&edition==='current'
+          ? Math.max(0,(geometry.clientWidth-1560)/2)+clamp(20,geometry.clientWidth*.04,64)
+          : expectedRailX(geometry.clientWidth);
+        assert.ok(Math.abs(geometry.titleX - railX) <= 2.5,
           `${label}: title is off the common rail (${geometry.titleX}px)`);
         // Shared public heroes cap at 3rem; pricing uses that fixed desktop
         // role. Publication, Brief and plan-cover titles retain their hierarchy.
@@ -338,7 +363,9 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
               clientWidth: document.documentElement.clientWidth,
             };
           });
-          const expected = sectionContract.expectedSize(viewport.width);
+          const expected = pageName==='index.html'&&edition==='current'
+            ? clamp(32,viewport.width*.037,52)
+            : sectionContract.expectedSize(viewport.width);
           assert.ok(Math.abs(sectionHeading.font - expected) <= .35,
             `${label}: representative section heading scale diverged (${sectionHeading.font}px; expected ${expected}px)`);
           assert.ok(['start', 'left'].includes(sectionHeading.align),
@@ -346,6 +373,8 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
           assert.ok(sectionHeading.left >= -1 && sectionHeading.right <= sectionHeading.clientWidth + 1,
             `${label}: representative section heading overflows its viewport`);
         }
+        assert.deepEqual(page.marketingAttemptedWrites,[],`${label}: no API requests or writes`);
+        if(pageName==='index.html')assert.deepEqual(page.marketingAttemptedApiReads,[],`${label}: homepage presentation makes no API read requests`);
 
         await page.close();
       }

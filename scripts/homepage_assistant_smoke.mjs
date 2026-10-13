@@ -1,12 +1,78 @@
 import assert from 'node:assert/strict';
-import { chromium } from 'playwright';
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
+const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
+const origin = new URL(base).origin;
+assert.ok(['127.0.0.1', 'localhost'].includes(new URL(base).hostname), 'Assistant verification remains loopback-only');
+const root = path.resolve(import.meta.dirname, '..');
+const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+const sourceFiles = ['index.html', 'marketing-refresh.css', 'marketing-refresh.js', 'assistant.js', 'connect-widget.js', 'scripts/homepage_assistant_smoke.mjs', 'scripts/inject-public-shell.mjs', 'site-shell/header.html', 'site-shell/footer.html', 'site-shell/widgets.html'];
+const sourceHashes = Object.fromEntries(sourceFiles.map(file => [file, sha(fs.readFileSync(path.join(root, file)))]));
+const rawBaselineHomepage = sourceAtMarketingRefreshBaseline('index.html', fs.readFileSync(path.join(root, 'index.html'), 'utf8'));
+assert.equal(sha(rawBaselineHomepage), 'fc50896dc63825ce7a54bdfff80af41220b635eae8b5a8b76f9c724efd36e874', 'Historical edition is exact reviewed 14e homepage source');
+// Full widget/search checks require the real static-build shell, not raw source.
+// Reproduce it through the unchanged official injector, with no private fixture.
+const baselineDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'homepage-assistant-14e-'));
+let baselineHomepage;
+try {
+  fs.writeFileSync(path.join(baselineDirectory, 'index.html'), rawBaselineHomepage, {mode: 0o600});
+  execFileSync(process.execPath, [path.join(root, 'scripts/inject-public-shell.mjs'), baselineDirectory], {cwd: root, encoding: 'utf8'});
+  baselineHomepage = fs.readFileSync(path.join(baselineDirectory, 'index.html'), 'utf8');
+  assert.equal(sha(baselineHomepage), 'a341d2544606b647ea78ffd35f11b1f000ff08e66407d7332e7a236ccecef278', 'Historical widget edition is exact authoritative 14e built homepage');
+} finally {
+  fs.rmSync(baselineDirectory, {recursive: true, force: true});
+}
+const currentEditorialSequence = ['hero', 'mr-scenario', 'measurement-loop', 'approach', 'first-run-moments', 'proof-band', 'mxidx-band', 'systems-analysis-bridge', 'home-output-band', 'book-band', 'latest', 'connect'];
+const expectedIllustrationLabel = 'Qualitative illustration · Not a scored result or customer case';
+function assertCurrentEditorialSequence(sections, scene) {
+  assert.deepEqual(sections, currentEditorialSequence, 'Current twelve-section sequence includes exactly the approved scenario immediately after hero');
+  assert.deepEqual(scene.domSections, currentEditorialSequence, 'Accessible DOM and rendered editorial sequence agree exactly');
+  assert.equal(scene.count, 1, 'Exactly one direct-main scenario exists, including hidden DOM');
+  assert.equal(scene.visible, true, 'The scenario is actually displayed');
+  assert.equal(scene.label, expectedIllustrationLabel, 'The displayed scenario has the exact qualitative boundary');
+  assert.equal(scene.labelVisible, true, 'The qualitative boundary remains visible');
+  assert.equal(scene.heroLabel, 'Sample report · Example data', 'The hero report remains qualified as example data');
+}
+const validScene = {domSections: currentEditorialSequence, count: 1, visible: true, label: expectedIllustrationLabel, labelVisible: true, heroLabel: 'Sample report · Example data'};
+const invalidSequences = [
+  ['missing scenario', currentEditorialSequence.filter((_, index) => index !== 1)],
+  ['moved scenario', ['hero', 'measurement-loop', 'mr-scenario', ...currentEditorialSequence.slice(3)]],
+  ['duplicated scenario', [...currentEditorialSequence.slice(0, 2), 'mr-scenario', ...currentEditorialSequence.slice(2)]],
+  ['missing old section', currentEditorialSequence.filter(section => section !== 'proof-band')],
+  ['reordered old sections', [...currentEditorialSequence.slice(0, 2), 'approach', 'measurement-loop', ...currentEditorialSequence.slice(4)]],
+  ['unknown added section', [...currentEditorialSequence, 'unapproved-section']],
+];
+for (const [label, sections] of invalidSequences) assert.throws(() => assertCurrentEditorialSequence(sections, validScene), undefined, 'Reject ' + label);
+const invalidScenes = [
+  ['hidden duplicate scenario', {...validScene, count: 2}],
+  ['zero direct-main scenarios', {...validScene, count: 0}],
+  ['wrong accessible DOM order', {...validScene, domSections: ['mr-scenario', 'hero', ...currentEditorialSequence.slice(2)]}],
+  ['hidden scenario', {...validScene, visible: false}],
+  ['missing qualitative boundary', {...validScene, label: ''}],
+  ['false measured-result claim', {...validScene, label: 'Measured customer outcome'}],
+  ['hidden qualitative boundary', {...validScene, labelVisible: false}],
+  ['unqualified hero report', {...validScene, heroLabel: 'Customer result'}],
+];
+for (const [label, scene] of invalidScenes) assert.throws(() => assertCurrentEditorialSequence(currentEditorialSequence, scene), undefined, 'Reject ' + label);
+let edition = 'baseline';
+const receipts = [], unexpectedWrites = [];
+let mockedAssistantPosts = 0;
 const browser = await chromium.launch({ headless: true });
 async function newLocalPage(viewport) {
   const page = await browser.newPage({ viewport });
   await page.route('**/*', route => {
-    const url = new URL(route.request().url());
+    const request = route.request(), url = new URL(request.url());
+    if (!['GET', 'HEAD'].includes(request.method())) {
+      unexpectedWrites.push({method: request.method(), origin: url.origin, path: url.pathname});
+      return route.abort();
+    }
+    if (edition === 'baseline' && url.origin === origin && url.pathname === '/index.html') return route.fulfill({status: 200, contentType: 'text/html', body: baselineHomepage});
     return url.origin === new URL(base).origin || ['data:', 'blob:'].includes(url.protocol)
       ? route.continue() : route.abort();
   });
@@ -61,6 +127,7 @@ async function checkShortViewportPanel(page, selector, viewport) {
 }
 
 try {
+  for (edition of ['baseline', 'current']) {
   for (const viewport of [
     { name: 'mobile', width: 390, height: 844 },
     { name: 'tablet', width: 768, height: 1024 },
@@ -70,6 +137,7 @@ try {
     let assistantRequest = null;
     await page.route('https://monderman-api.onrender.com/api/site-assistant', async route => {
       assistantRequest = route.request();
+      mockedAssistantPosts++;
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ reply: 'Test reply' }) });
     });
     await page.goto(`${base}/index.html`, { waitUntil: 'networkidle', timeout: 90000 });
@@ -104,6 +172,20 @@ try {
     assert.equal(editorial.measurementDisplay, 'block', `${viewport.name}: intended measurement loop is not visible`);
     assert.equal(editorial.measurementBackground, 'rgb(255, 255, 255)', `${viewport.name}: intended second-read section is not white`);
     assert.equal(editorial.visibleSecondReadHeadings, 1, `${viewport.name}: duplicate second-read headings are visible`);
+    if (edition === 'current') {
+      const scenario = page.locator('#main-content > .mr-scenario');
+      const scene = {
+        domSections: await page.locator('#main-content > section').evaluateAll(nodes => nodes.filter(node => getComputedStyle(node).display !== 'none').map(node => node.classList[0])),
+        count: await scenario.count(), visible: await scenario.isVisible(),
+        label: (await scenario.locator('.mr-demo-heading > span').innerText()).replace(/\s+/g, ' ').trim(),
+        labelVisible: await scenario.locator('.mr-demo-heading > span').isVisible(),
+        heroLabel: await page.locator('.mr-proof-label').innerText(),
+      };
+      assertCurrentEditorialSequence(editorial.visibleSections, scene);
+      // Only after proving the complete exact current sequence, project its
+      // single known index1 addition into the unchanged historical assertion.
+      editorial.visibleSections = [editorial.visibleSections[0], ...editorial.visibleSections.slice(2)];
+    }
     assert.deepEqual(editorial.visibleSections, [
       'hero',
       'measurement-loop',
@@ -226,6 +308,7 @@ try {
       await waitForNativeVisibility(page, true);
       await checkFixedAnchors(page, viewport);
     }
+    receipts.push({edition, viewport, homepageFunctionalChecksPassed: true, assistantRequestMocked: true, editorialSections: edition === 'current' ? 12 : 11});
     await page.close();
 
     const fieldPage = await newLocalPage(viewport);
@@ -238,6 +321,7 @@ try {
     await findClearLauncherPosition(fieldPage);
     await checkFixedAnchors(fieldPage, viewport);
     await fieldPage.close();
+    receipts.push({edition, viewport, contactFieldFocusChecksPassed: true});
   }
 
   const assistantFallbackPage = await newLocalPage({ width: 1440, height: 900 });
@@ -248,6 +332,7 @@ try {
   await assistantFallbackPage.locator('.site-search-button').click();
   await assistantFallbackPage.locator('.site-search-overlay.is-open').waitFor({ state: 'visible' });
   await assistantFallbackPage.close();
+  receipts.push({edition, assistantFallbackPassed: true});
 
   const contactFallbackPage = await newLocalPage({ width: 1440, height: 900 });
   await contactFallbackPage.route('**/connect-widget.js*', route => route.abort());
@@ -257,8 +342,20 @@ try {
   await contactFallbackPage.locator('.mond-footer a[href="connect.html"]').click();
   await contactFallbackPage.waitForURL(/\/connect\.html$/, { timeout: 10000 });
   await contactFallbackPage.close();
+  receipts.push({edition, contactFallbackPassed: true});
 
   console.log('homepage assistant smoke: passed');
+  console.log('HOMEPAGE_ASSISTANT_EDITION_PASS ' + edition);
+  }
+  assert.equal(mockedAssistantPosts, 6, 'All six edition/viewport endpoint checks were intercepted locally');
+  assert.deepEqual(unexpectedWrites, [], 'No other write request was attempted or allowed');
+  for (const [file, hash] of Object.entries(sourceHashes)) assert.equal(sha(fs.readFileSync(path.join(root, file))), hash, 'Executed source stayed frozen: ' + file);
+  const receipt = {passed: true, checkedAt: new Date().toISOString(), base, historicalRawSourceSha256: sha(rawBaselineHomepage), historicalBuiltBaselineSha256: sha(baselineHomepage), domOrderEvidence: 'Visible direct-main DOM order and rendered section order; not a separate accessibility-tree audit. Original actual keyboard/focus checks run in both editions.', sourceHashes, editions: 2, homepageFunctionalStates: 6, contactFieldFocusStates: 6, fallbackStates: 4, negativeControls: invalidSequences.length + invalidScenes.length, mockedAssistantPosts, unexpectedWrites, receipts};
+  if (process.env.ASSISTANT_SMOKE_OUT) {
+    fs.mkdirSync(process.env.ASSISTANT_SMOKE_OUT, {recursive: true});
+    fs.writeFileSync(path.join(process.env.ASSISTANT_SMOKE_OUT, 'RECEIPT.json'), JSON.stringify(receipt, null, 2) + '\n', {mode: 0o600});
+  }
+  console.log('HOMEPAGE_ASSISTANT_DUAL_PASS ' + JSON.stringify({editions: 2, homepageStates: 6, fieldStates: 6, fallbacks: 4, negativeControls: receipt.negativeControls, mockedAssistantPosts, unexpectedWrites: 0}));
 } finally {
   await browser.close();
 }

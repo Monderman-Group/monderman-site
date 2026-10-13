@@ -2,6 +2,7 @@
 import hashlib
 import json
 from pathlib import Path
+from marketing_refresh_20261012_inverse import source_at_marketing_refresh_baseline
 FIXTURE_SHA256 = '91affe3977eb904868174828aab1b328292cf10f6ada61e563f4a5882f7a7a64'
 _bytes = (Path(__file__).resolve().parent / 'fixtures/book-publication-date-20261011.json').read_bytes()
 assert hashlib.sha256(_bytes).hexdigest() == FIXTURE_SHA256, 'Exact approved book publication-date fixture'
@@ -10,6 +11,7 @@ assert _fixture['version'] == 'book-publication-date-20261011.1'
 assert _fixture['baseline'] == 'c1574cb534f77f55fc74fd52bc66064ab9bdc464'
 
 def source_before_book_publication_date_20261011(file, source):
+    source = source_at_marketing_refresh_baseline(file, source)
     entry = _fixture['files'].get(file)
     if entry is None:
         return source
@@ -24,6 +26,7 @@ def source_before_book_publication_date_20261011(file, source):
     return result.decode('utf-8') if isinstance(source, str) else result
 
 def source_at_book_publication_date_baseline(file, source):
+    source = source_at_marketing_refresh_baseline(file, source)
     entry = _fixture['files'].get(file)
     encoded = source.encode('utf-8') if isinstance(source, str) else source
     return source_before_book_publication_date_20261011(file, source) if entry and hashlib.sha256(encoded).hexdigest() == entry['after_sha256'] else source

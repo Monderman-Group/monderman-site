@@ -3,11 +3,15 @@ import hashlib
 import json
 from pathlib import Path
 import subprocess
+from marketing_refresh_20261012_inverse import source_at_marketing_refresh_baseline
 from book_publication_date_20261011_inverse import (
     FIXTURE_SHA256, _fixture, source_before_book_publication_date_20261011,
     source_at_book_publication_date_baseline,
 )
 ROOT = Path(__file__).resolve().parents[1]
+
+def read(file):
+    return source_at_marketing_refresh_baseline(file, (ROOT / file).read_bytes())
 BASELINE = 'c1574cb534f77f55fc74fd52bc66064ab9bdc464'
 checks = negative_controls = hunks = 0
 
@@ -29,7 +33,7 @@ check(_fixture['version'] == 'book-publication-date-20261011.1', 'Independent da
 check(list(_fixture['files']) == files, 'Exact finite public/adapter/workflow file whitelist')
 for file in files:
     entry = _fixture['files'][file]
-    current, before = (ROOT / file).read_bytes(), prior(file)
+    current, before = read(file), prior(file)
     check(hashlib.sha256(current).hexdigest() == entry['after_sha256'], file + ': full current pin')
     check(hashlib.sha256(before).hexdigest() == entry['before_sha256'], file + ': deployed source pin')
     for source in (current, current.decode('utf-8')):
@@ -64,8 +68,8 @@ for file, replacements in public_replacements.items():
     for old, new in replacements:
         check(expected.count(old) == 1, file + ': unique dated book copy')
         expected = expected.replace(old, new)
-    check((ROOT / file).read_text() == expected, file + ': only named date/status replacements')
-index = json.loads((ROOT / 'public-search-index.json').read_bytes())
+    check(read(file).decode('utf-8') == expected, file + ': only named date/status replacements')
+index = json.loads(read('public-search-index.json'))
 expected_index = json.loads(prior('public-search-index.json'))
 for row in expected_index:
     if row['url'] in public_replacements:
@@ -81,7 +85,7 @@ immutable_files = historical_fixtures = pdfs = 0
 for file in tracked:
     if file in files:
         continue
-    check((ROOT / file).read_bytes() == prior(file), file + ': all other baseline source/artifact bytes unchanged')
+    check(read(file) == prior(file), file + ': all other baseline source/artifact bytes unchanged')
     immutable_files += 1
     historical_fixtures += int(file.startswith('scripts/fixtures/'))
     pdfs += int(file.endswith('.pdf'))
