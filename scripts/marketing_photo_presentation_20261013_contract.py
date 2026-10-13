@@ -19,6 +19,8 @@ def reject(fn,label):
 assert BASELINE=='5ce8817eed8af622b4c0c8eeeb48b4440e728186' and VERSION=='marketing-photo-presentation-20261013.1'
 check(delta['provisional'] is False,'Provisional cannot certify')
 check(git('rev-parse',BASELINE+'^{tree}').decode().strip()=='4245b8bc1ff3fdcaae738620fc5f7e84224c6f12','ExactM tree')
+expected_files=['index.html', 'public-search-index.json', 'why-monderman.html', 'platform-services.html', 'operational-systems-article.html', 'docs/marketing-completion-20261013.md', 'docs/marketing-photo-register-20261013.json', 'scripts/marketing_completion_20261013_inverse.mjs', 'scripts/marketing_completion_20261013_inverse.py', 'scripts/marketing_completion_20261013_contract.mjs', 'scripts/marketing_completion_20261013_contract.py', 'scripts/marketing_refresh_20261012_contract.mjs', 'scripts/marketing_refresh_20261012_contract.py', 'scripts/public_sample_manifest_sensitivity_smoke.mjs', 'scripts/homepage_assistant_smoke.mjs', 'scripts/marketing_completion_browser_smoke.mjs', '.github/workflows/frontend-release.yml', '.github/workflows/sample-report-marketing-certification.yml', 'scripts/methodology_business_copy_smoke.mjs']
+check(list(FILES)==expected_files,'Only explicit19 product/consumer paths')
 tracked=git('ls-tree','-r','--name-only',BASELINE).decode().splitlines()
 prior=lambda f:git('show',BASELINE+':'+f)
 for file in FILES:
@@ -169,6 +171,20 @@ def assert_call_subsequence(expected,source):
  assert i==len(expected),'Every original non-photo call retained exact and ordered'
 assert_call_subsequence(preserved_browser_calls,browser);checks+=len(preserved_browser_calls)
 assert_call_subsequence(old_assistant_calls,assistant);checks+=len(old_assistant_calls)
+method_file='scripts/methodology_business_copy_smoke.mjs';old_method=prior(method_file).decode();current_method=read(method_file).decode()
+method_import="import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';\n"
+old_method_view="  const restored=html.replace(sampleLinkStyle,'').replace('canonical-site-shell.js?v=20260915.consistency1','canonical-site-shell.js?v=20260915.annual1');"
+new_method_view="  const restored=sourceAtMarketingPhotoPresentationBaseline(file,html).replace(sampleLinkStyle,'').replace('canonical-site-shell.js?v=20260915.consistency1','canonical-site-shell.js?v=20260915.annual1');"
+old_graphics_loop="  for(const tag of ['script','style',...(file==='roi.html'?[]:['svg'])])eq(html.match(new RegExp(`<${tag}\\\\b[^>]*>[\\\\s\\\\S]*?<\\\\/${tag}>`,'g')),\n    prior.match(new RegExp(`<${tag}\\\\b[^>]*>[\\\\s\\\\S]*?<\\\\/${tag}>`,'g')),file+': existing behavior and graphics unchanged');"
+new_graphics_loop="  {\n    const html=sourceAtMarketingPhotoPresentationBaseline(file,read(file)).replace('canonical-site-shell.js?v=20260915.consistency1','canonical-site-shell.js?v=20260915.annual1');\n  for(const tag of ['script','style',...(file==='roi.html'?[]:['svg'])])eq(html.match(new RegExp(`<${tag}\\\\b[^>]*>[\\\\s\\\\S]*?<\\\\/${tag}>`,'g')),\n    prior.match(new RegExp(`<${tag}\\\\b[^>]*>[\\\\s\\\\S]*?<\\\\/${tag}>`,'g')),file+': existing behavior and graphics unchanged');\n  }"
+def method_consumer(source):
+ expected=old_method.replace(method_import,method_import+"import {sourceAtMarketingPhotoPresentationBaseline} from './marketing_photo_presentation_20261013_inverse.mjs';\n",1).replace(old_method_view,new_method_view,1).replace(old_graphics_loop,new_graphics_loop,1)
+ assert source==expected,'Only finite import and historical script/style view; raw prose/current DOM unchanged'
+method_consumer(current_method);checks+=1;assert_call_subsequence(guard_calls(old_method),current_method);checks+=len(guard_calls(old_method))
+for token,replacement in [("sourceAtMarketingPhotoPresentationBaseline(file,html).replace(sampleLinkStyle","html.replace(sampleLinkStyle"),("for(const tag of ['script','style'])assert.deepEqual","for(const tag of ['style'])assert.deepEqual"),("const read=file=>fs.readFileSync(path.join(root,file),'utf8');","const read=file=>sourceAtMarketingPhotoPresentationBaseline(file,fs.readFileSync(path.join(root,file),'utf8'));"),("fs.copyFileSync(path.join(root,entry.name),path.join(build,entry.name));","fs.writeFileSync(path.join(build,entry.name),sourceAtMarketingPhotoPresentationBaseline(entry.name,read(entry.name)));"),("tag+' matches the approved presentation; no unrelated behavior or CSS changes'","'Waived script/style comparison'")]:
+ check(token in current_method,'Actual methodology regression target')
+ reject(lambda t=token,r=replacement:method_consumer(current_method.replace(t,r,1)),'Dropped comparison/global normalization/current DOM projection rejects')
+
 for token,replacement in [('assertSafety(state, options, label);','void state;'),("check(box && Object.values(box).every(Number.isFinite)","check(true || box && Object.values(box).every(Number.isFinite)"),("equal(state.writes, []","equal([], []")]:
  check(token in browser,'Original actual regression target')
  reject(lambda t=token,r=replacement:assert_call_subsequence(preserved_browser_calls,browser.replace(t,r,1)),'Valid skipped/neutralized original safety/geometry rejects')
