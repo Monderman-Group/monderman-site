@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
+import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 export const BOOK_PUBLICATION_DATE_BASELINE='c1574cb534f77f55fc74fd52bc66064ab9bdc464';
 export const BOOK_PUBLICATION_DATE_VERSION='book-publication-date-20261011.1';
@@ -14,6 +15,7 @@ assert.equal(bookPublicationDateDelta.baseline,BOOK_PUBLICATION_DATE_BASELINE);
 assert.equal(bookPublicationDateDelta.version,BOOK_PUBLICATION_DATE_VERSION);
 export const BOOK_PUBLICATION_DATE_FILES=Object.freeze(Object.keys(bookPublicationDateDelta.files));
 export function sourceBeforeBookPublicationDate20261011(file,source){
+  source=sourceAtMarketingRefreshBaseline(file,source);
   const entry=Object.hasOwn(bookPublicationDateDelta.files,file)?bookPublicationDateDelta.files[file]:null;
   if(!entry)return source;
   assert.equal(sha(source),entry.after_sha256,file+': only exact approved book-date source may be inverted');
@@ -26,6 +28,7 @@ export function sourceBeforeBookPublicationDate20261011(file,source){
   return Buffer.isBuffer(source)?Buffer.from(restored):restored;
 }
 export function sourceAtBookPublicationDateBaseline(file,source){
+  source=sourceAtMarketingRefreshBaseline(file,source);
   const entry=Object.hasOwn(bookPublicationDateDelta.files,file)?bookPublicationDateDelta.files[file]:null;
   return entry&&sha(source)===entry.after_sha256?sourceBeforeBookPublicationDate20261011(file,source):source;
 }
