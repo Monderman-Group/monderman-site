@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
+import {sourceAtMarketingCompletionBaseline} from './marketing_completion_20261013_inverse.mjs';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 export const MARKETING_REFRESH_BASELINE='14e57bb9f5537cd7ed5eb581cbc7740541c593b1';
 export const MARKETING_REFRESH_VERSION='marketing-refresh-20261012.1';
@@ -17,6 +18,7 @@ export const MARKETING_REFRESH_FILES=Object.freeze(Object.keys(marketingRefreshD
 export const MARKETING_REFRESH_ADDITIONS=Object.freeze(Object.keys(marketingRefreshDelta.additions));
 function entryFor(file){return typeof file==='string'&&Object.hasOwn(marketingRefreshDelta.files,file)?marketingRefreshDelta.files[file]:null;}
 export function sourceBeforeMarketingRefresh20261012(file,source){
+  source=sourceAtMarketingCompletionBaseline(file,source);
   const entry=entryFor(file);
   if(!entry)return source;
   assert.ok(typeof source==='string'||Buffer.isBuffer(source),file+': source must remain text or bytes');
@@ -30,6 +32,7 @@ export function sourceBeforeMarketingRefresh20261012(file,source){
   return Buffer.isBuffer(source)?Buffer.from(restored):restored;
 }
 export function sourceAtMarketingRefreshBaseline(file,source){
+  source=sourceAtMarketingCompletionBaseline(file,source);
   const entry=entryFor(file);
   if(!entry)return source;
   assert.ok(typeof source==='string'||Buffer.isBuffer(source),file+': source must remain text or bytes');

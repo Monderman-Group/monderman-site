@@ -4,8 +4,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
+import {sourceAtMarketingCompletionBaseline,MARKETING_COMPLETION_ADDITIONS,MARKETING_COMPLETION_GUARD_FILES} from './marketing_completion_20261013_inverse.mjs';
 import {MARKETING_REFRESH_BASELINE,MARKETING_REFRESH_VERSION,MARKETING_REFRESH_FILES,MARKETING_REFRESH_ADDITIONS,marketingRefreshDelta,sourceBeforeMarketingRefresh20261012,sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
-const root=path.resolve(import.meta.dirname,'..'),read=file=>fs.readFileSync(path.join(root,file));
+const root=path.resolve(import.meta.dirname,'..'),read=file=>sourceAtMarketingCompletionBaseline(file,fs.readFileSync(path.join(root,file)));
 const git=(...args)=>execFileSync('git',args,{cwd:root,maxBuffer:64e6});
 const tracked=git('ls-tree','-r','--name-only',MARKETING_REFRESH_BASELINE).toString().trim().split('\n').filter(Boolean);
 const baselineBatch=execFileSync('git',['cat-file','--batch'],{cwd:root,input:tracked.map(file=>MARKETING_REFRESH_BASELINE+':'+file+'\n').join(''),maxBuffer:128e6});
@@ -76,7 +77,7 @@ for(const file of MARKETING_REFRESH_ADDITIONS){
   reject(()=>assertAddition(file,Buffer.concat([bytes,Buffer.from('UNREVIEWED')])),file+': unknown new-file append rejected');
 }
 for(const file of ['marketing-refresh.css','marketing-refresh.js','scripts/marketing_refresh_browser_smoke.mjs'])ok(MARKETING_REFRESH_ADDITIONS.includes(file),file+': required local presentation and browser proof present');
-const known=new Set([...tracked,...MARKETING_REFRESH_ADDITIONS,...guardFiles]);
+const known=new Set([...tracked,...MARKETING_REFRESH_ADDITIONS,...guardFiles,...MARKETING_COMPLETION_ADDITIONS,...MARKETING_COMPLETION_GUARD_FILES]);
 const cached=git('ls-files','--cached').toString().split('\n');
 const paths=[...new Set([...cached,...git('ls-files','--others','--exclude-standard').toString().split('\n')])].filter(file=>file&&fs.existsSync(path.join(root,file))&&!(file==='node_modules'&&!cached.includes(file)&&fs.lstatSync(path.join(root,file)).isSymbolicLink()));
 function assertScope(files){for(const file of files)assert.ok(known.has(file),file+': no unreviewed source/artifact addition');}

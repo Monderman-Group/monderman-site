@@ -32,6 +32,21 @@ on:
       - 'scripts/homepage_sample_entry_20261011_inverse.mjs'
       - 'scripts/homepage_sample_entry_20261011_inverse.py'
       - 'scripts/fixtures/homepage-sample-entry-20261011.json'
+      - 'scripts/marketing_completion_20261013_contract.mjs'
+      - 'scripts/marketing_completion_20261013_contract.py'
+      - 'scripts/marketing_completion_20261013_inverse.mjs'
+      - 'scripts/marketing_completion_20261013_inverse.py'
+      - 'scripts/fixtures/marketing-completion-20261013.json'
+      - 'scripts/marketing_completion_browser_smoke.mjs'
+      - 'marketing-completion.css'
+      - 'marketing-completion.js'
+      - 'assets/marketing/**'
+      - 'docs/marketing-completion-20261013.md'
+      - 'docs/marketing-photo-register-20261013.json'
+      - 'after-a-reorganization.html'
+      - 'after-an-acquisition.html'
+      - 'new-in-the-role.html'
+      - 'transformation-behind-schedule.html'
       - 'scripts/marketing_refresh_20261012_contract.mjs'
       - 'scripts/marketing_refresh_20261012_contract.py'
       - 'scripts/marketing_refresh_20261012_inverse.mjs'
@@ -301,6 +316,21 @@ on:
       - 'scripts/homepage_sample_entry_20261011_inverse.mjs'
       - 'scripts/homepage_sample_entry_20261011_inverse.py'
       - 'scripts/fixtures/homepage-sample-entry-20261011.json'
+      - 'scripts/marketing_completion_20261013_contract.mjs'
+      - 'scripts/marketing_completion_20261013_contract.py'
+      - 'scripts/marketing_completion_20261013_inverse.mjs'
+      - 'scripts/marketing_completion_20261013_inverse.py'
+      - 'scripts/fixtures/marketing-completion-20261013.json'
+      - 'scripts/marketing_completion_browser_smoke.mjs'
+      - 'marketing-completion.css'
+      - 'marketing-completion.js'
+      - 'assets/marketing/**'
+      - 'docs/marketing-completion-20261013.md'
+      - 'docs/marketing-photo-register-20261013.json'
+      - 'after-a-reorganization.html'
+      - 'after-an-acquisition.html'
+      - 'new-in-the-role.html'
+      - 'transformation-behind-schedule.html'
       - 'scripts/marketing_refresh_20261012_contract.mjs'
       - 'scripts/marketing_refresh_20261012_contract.py'
       - 'scripts/marketing_refresh_20261012_inverse.mjs'
@@ -550,7 +580,9 @@ jobs:
     runs-on: ubuntu-24.04
     # Preserve the full report/PDF and 84-page responsive sweeps; the expanded
     # suite exceeded 35 minutes on the hosted runner without an assertion failure.
-    timeout-minutes: 50
+    # October 13, 2026: retain the full original and 60-state completion checks;
+    # allow bounded browser sweeps, evidence upload and cleanup to finish.
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
@@ -589,6 +621,8 @@ jobs:
           node scripts/single_lens_overview_contract.mjs
           node scripts/report_overview_site_compatibility_smoke.mjs
           node scripts/report_unified_sankey_contract.mjs
+          node scripts/marketing_completion_20261013_contract.mjs
+          python scripts/marketing_completion_20261013_contract.py
           node scripts/marketing_refresh_20261012_contract.mjs
           python scripts/marketing_refresh_20261012_contract.py
           node scripts/book_publication_date_20261011_contract.mjs
@@ -787,6 +821,7 @@ jobs:
           WORKSPACE_PRODUCT_OUT: /tmp/report-presentation-smoke/product-workspace
         run: |
           MARKETING_REFRESH_OUT=/tmp/report-presentation-smoke/marketing-refresh node scripts/marketing_refresh_browser_smoke.mjs
+          MARKETING_COMPLETION_OUT=/tmp/report-presentation-smoke/marketing-completion node scripts/marketing_completion_browser_smoke.mjs
           node scripts/homepage_workspace_demo_smoke.mjs
           GOLD_ACCENT_OUT=/tmp/report-presentation-smoke/gold-accents node scripts/public_gold_accent_smoke.mjs
           node scripts/workspace_product_design_smoke.mjs
