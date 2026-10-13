@@ -132,8 +132,11 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
       ];
       for(const destination of destinations){
         await page.goto(base+'/index.html',{waitUntil:'load'});
-        const [request]=await Promise.all([
+        // 2026-10-13: finish each destination load before returning home;
+        // observing its first request alone can leave navigation in flight.
+        const [request,response]=await Promise.all([
           page.waitForRequest(request=>request.isNavigationRequest()&&new URL(request.url()).pathname===destination.path),
+          page.waitForNavigation({waitUntil:'load'}),
           page.locator(destination.selector).click(),
         ]);
         const url=new URL(request.url());
@@ -141,6 +144,10 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
         assert.equal(url.pathname,destination.path,label+': clicked anchor reaches its approved destination');
         assert.equal(url.search,destination.query,label+': no new navigation parameters');
         assert.equal(url.hash,'',label+': no invitation or tracking capability is added');
+        assert.ok(response,label+': clicked anchor completes a document navigation');
+        assert.equal(response.status(),200,label+': completed destination response succeeds');
+        assert.equal(new URL(response.url()).origin,new URL(base).origin,label+': completed destination remains local');
+        assert.equal(await response.finished(),null,label+': destination response finishes successfully');
       }
       entryGeometry.push({browser:name,...viewport,javaScriptEnabled,buttons:boxes});
       await page.close();entryStates++;

@@ -37,14 +37,15 @@ expected_files = ['index.html', 'public-search-index.json',
     'scripts/marketing_refresh_20261012_contract.mjs', 'scripts/marketing_refresh_20261012_contract.py',
     'scripts/public_sample_manifest_sensitivity_smoke.mjs', '.github/workflows/frontend-release.yml',
     '.github/workflows/sample-report-marketing-certification.yml', 'scripts/homepage_assistant_smoke.mjs',
-    'scripts/validate_production_cosmetic_certification.py', 'scripts/certification_guard_sensitivity_smoke.py']
+    'scripts/validate_production_cosmetic_certification.py', 'scripts/certification_guard_sensitivity_smoke.py',
+    'scripts/homepage_sample_discovery_smoke.mjs']
 guard_files = ['scripts/marketing_completion_20261013_inverse.mjs', 'scripts/marketing_completion_20261013_inverse.py',
     'scripts/marketing_completion_20261013_contract.mjs', 'scripts/marketing_completion_20261013_contract.py',
     'scripts/fixtures/marketing-completion-20261013.json']
 check(BASELINE == '561439e7c5aef48db0331bbb993f0a6d9ec4ada1', 'Actual deployed starting revision')
-check(VERSION == 'marketing-completion-20261013.3', 'Separate new approval version')
+check(VERSION == 'marketing-completion-20261013.4', 'Separate new approval version')
 check(delta.get('provisional') is False, 'Incomplete/photo-pending scaffold cannot certify publication')
-check(list(FILES) == expected_files, 'Exact seventeen-file finite existing whitelist')
+check(list(FILES) == expected_files, 'Exact eighteen-file finite existing whitelist')
 check(list(GUARD_FILES) == guard_files, 'Only five new approval modules/fixture')
 check(git('rev-parse', BASELINE + '^{tree}').decode().strip() == delta['baselineTree'], 'Exact deployed Git tree')
 tracked = git('ls-tree', '-r', '--name-only', BASELINE).decode().splitlines()
@@ -316,6 +317,38 @@ for target in [completion_proof, *completion_hooks(assistant_source)]:
     reject(lambda t=target: assert_completion_proof(assistant_source.replace(t, '/* ' + t + ' */')), 'Commented new assistant proof/negative rejects')
 reject(lambda: assert_completion_proof(assistant_source.replace(fixed_projection, fixed_projection.replace('sections[0]', 'sections[1]'))), 'Changed projection position rejects')
 reject(lambda: assert_completion_proof(assistant_source.replace(completion_proof, 'void 0').replace(completion_projection, completion_projection + '\n' + completion_proof)), 'Projection before strict15 proof rejects')
+# Exact navigation-test lifecycle repair; all original guard sites remain executable.
+discovery_file = 'scripts/homepage_sample_discovery_smoke.mjs'
+discovery_before, discovery_source = before[discovery_file].decode(), read(discovery_file).decode()
+original_navigation_block = '        const [request]=await Promise.all([\n          page.waitForRequest(request=>request.isNavigationRequest()&&new URL(request.url()).pathname===destination.path),\n          page.locator(destination.selector).click(),\n        ]);\n'
+completed_navigation_block = "        // 2026-10-13: finish each destination load before returning home;\n        // observing its first request alone can leave navigation in flight.\n        const [request,response]=await Promise.all([\n          page.waitForRequest(request=>request.isNavigationRequest()&&new URL(request.url()).pathname===destination.path),\n          page.waitForNavigation({waitUntil:'load'}),\n          page.locator(destination.selector).click(),\n        ]);\n"
+original_navigation_hash_assertion = "        assert.equal(url.hash,'',label+': no invitation or tracking capability is added');\n"
+completed_navigation_response_assertions = "        assert.ok(response,label+': clicked anchor completes a document navigation');\n        assert.equal(response.status(),200,label+': completed destination response succeeds');\n        assert.equal(new URL(response.url()).origin,new URL(base).origin,label+': completed destination remains local');\n        assert.equal(await response.finished(),null,label+': destination response finishes successfully');\n"
+expected_discovery_source = once(once(discovery_before, original_navigation_block, completed_navigation_block), original_navigation_hash_assertion, original_navigation_hash_assertion + completed_navigation_response_assertions)
+original_discovery_calls = guard_calls(discovery_before)
+def assert_discovery_original_calls(source):
+    calls, cursor = guard_calls(source), 0
+    for call in original_discovery_calls:
+        assert call in calls[cursor:], "Every original discovery guard call retained in order"
+        cursor = calls.index(call, cursor) + 1
+def assert_completed_discovery_source(source):
+    assert_discovery_original_calls(source)
+    assert source == expected_discovery_source, "Only future load before click and four strict response checks; no URL/geometry/deadline/retry changes"
+assert_completed_discovery_source(discovery_source)
+check(True, "Exact stronger navigation lifecycle and all original assertions")
+subprocess.run(['node', '--check', str(ROOT / discovery_file)], cwd=ROOT, check=True, capture_output=True)
+check(True, "Actual JavaScript syntax parser accepts the reviewed source")
+original_discovery_target = next(call for call in original_discovery_calls if discovery_source.count(call) == 1)
+reject(lambda: assert_completed_discovery_source(discovery_source.replace(original_discovery_target, 'void 0', 1)), "Deleted old discovery assertion rejects")
+reject(lambda: assert_completed_discovery_source(discovery_source.replace(original_discovery_target, '/* ' + original_discovery_target + ' */', 1)), "Commented old discovery assertion rejects")
+reject(lambda: assert_completed_discovery_source(discovery_source.replace(original_discovery_target, original_discovery_target.replace('assert.equal(', 'assert.notEqual(', 1), 1)), "Negated original discovery equality rejects")
+reject(lambda: assert_completed_discovery_source(discovery_source.replace("page.waitForNavigation({waitUntil:'load'})", "!page.waitForNavigation({waitUntil:'load'})", 1)), "Negated navigation wait rejects")
+for old_value, new_value in [("          page.waitForNavigation({waitUntil:'load'}),\n", ''), ("          page.waitForNavigation({waitUntil:'load'}),\n", "          /* page.waitForNavigation({waitUntil:'load'}), */\n"), ("page.waitForNavigation({waitUntil:'load'})", "page.waitForNavigation({waitUntil:'commit'})"), ("          page.waitForNavigation({waitUntil:'load'}),\n          page.locator(destination.selector).click(),\n", "          page.locator(destination.selector).click(),\n          page.waitForNavigation({waitUntil:'load'}),\n"), ('        assert.ok(response,', '        assert.ok(!response,'), ('response.status(),200', 'response.status(),503'), ('assert.equal(new URL(response.url()).origin,new URL(base).origin', 'assert.equal(new URL(response.url()).origin,"*"'), ('assert.equal(await response.finished(),null', 'assert.equal(await response.finished(),true'), ('assert.equal(states,20', 'assert.equal(states,19'), ('assert.equal(entryStates,12', 'assert.equal(entryStates,11'), ("{waitUntil:'load'}", "{waitUntil:'load',timeout:60000}")]:
+    check(old_value in discovery_source, "Exact navigation mutation target")
+    reject(lambda old_value=old_value, new_value=new_value: assert_completed_discovery_source(discovery_source.replace(old_value, new_value, 1)), "Missing/negated/reordered wait/response/old count or changed deadline rejects")
+for statement in completed_navigation_response_assertions.rstrip('\n').split('\n'):
+    reject(lambda statement=statement: assert_completed_discovery_source(discovery_source.replace(statement + '\n', '', 1)), "Each new response assertion remains required")
+
 old_search, now_search = json.loads(before['public-search-index.json']), json.loads(read('public-search-index.json'))
 check([r['url'] for r in now_search] == [r['url'] for r in old_search], 'Every search record/order retained')
 for old, now in zip(old_search, now_search):
@@ -474,4 +507,4 @@ if '--built' in sys.argv:
     check(json.loads((publish / '.well-known/monderman-release.json').read_bytes())['revision'] == os.environ.get('RENDER_GIT_COMMIT'), 'Actual built release identity')
 print(json.dumps({'ok': True, 'checks': checks, 'negativeControls': negative_controls, 'finiteFiles': len(expected_files),
     'hunks': hunks, 'immutableFiles': immutable_files, 'oldFixtures': old_fixtures, 'pdfs': pdfs,
-    'photos': len(register['photos']), 'photoAssets': len(photo_assets), 'previousAssistantCalls': len(prior_assistant_calls), 'built': '--built' in sys.argv}))
+    'photos': len(register['photos']), 'photoAssets': len(photo_assets), 'previousAssistantCalls': len(prior_assistant_calls), 'previousDiscoveryCalls': len(original_discovery_calls), 'built': '--built' in sys.argv}))

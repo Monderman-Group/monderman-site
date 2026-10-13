@@ -1,7 +1,7 @@
 {
   "baseline": "561439e7c5aef48db0331bbb993f0a6d9ec4ada1",
   "baselineTree": "6e000b0f2c357902e402217e6d6d94e8c79d6762",
-  "version": "marketing-completion-20261013.3",
+  "version": "marketing-completion-20261013.4",
   "provisional": false,
   "guardFiles": [
     "scripts/marketing_completion_20261013_inverse.mjs",
@@ -379,6 +379,30 @@
           2847,
           4525,
           "    # October 13, 2026: each approved repaired footer still rejects all other copy/count changes.\n    for footer_page in [\"after-a-reorganization.html\", \"after-an-acquisition.html\", \"new-in-the-role.html\", \"transformation-behind-schedule.html\"]:\n        expect_rejection(\n            fixture,\n            footer_page + \": changed canonical footer brand wording\",\n            footer_page + \": visible em dash returned\",\n            lambda: rewrite(fixture / footer_page, lambda value: value.replace(approved_brand_statement, approved_brand_statement.replace(\"improvement.\", \"improvements.\"), 1)),\n            [footer_page],\n        )\n        expect_rejection(\n            fixture,\n            footer_page + \": duplicate canonical footer brand statement\",\n            footer_page + \": approved brand statement count changed\",\n            lambda: rewrite(fixture / footer_page, lambda value: value.replace(\"</main>\", \"<p>\" + approved_brand_statement + \"</p></main>\", 1)),\n            [footer_page],\n        )\n        expect_rejection(\n            fixture,\n            footer_page + \": missing canonical footer brand statement\",\n            footer_page + \": approved brand statement count changed\",\n            lambda: rewrite(fixture / footer_page, lambda value: value.replace(approved_brand_statement, \"\", 1)),\n            [footer_page],\n        )\n        expect_rejection(\n            fixture,\n            footer_page + \": unrelated visible footer punctuation\",\n            footer_page + \": visible em dash returned\",\n            lambda: rewrite(fixture / footer_page, lambda value: value.replace(\"</main>\", \"<p>Other—copy.</p></main>\", 1)),\n            [footer_page],\n        )\n",
+          ""
+        ]
+      ]
+    },
+    "scripts/homepage_sample_discovery_smoke.mjs": {
+      "before_sha256": "cc5e26bdac516185ca10b3f16b17ec267de372fd295b96fd361606a11d7d24e4",
+      "after_sha256": "73057f011b8282daf1aa5899420099b0fad09f5c0749fb286860238c9aedac01",
+      "replacements": [
+        [
+          11186,
+          11391,
+          "        // 2026-10-13: finish each destination load before returning home;\n        // observing its first request alone can leave navigation in flight.\n        const [request,response]=await Promise.all([\n",
+          "        const [request]=await Promise.all([\n"
+        ],
+        [
+          11514,
+          11568,
+          "          page.waitForNavigation({waitUntil:'load'}),\n",
+          ""
+        ],
+        [
+          12057,
+          12466,
+          "        assert.ok(response,label+': clicked anchor completes a document navigation');\n        assert.equal(response.status(),200,label+': completed destination response succeeds');\n        assert.equal(new URL(response.url()).origin,new URL(base).origin,label+': completed destination remains local');\n        assert.equal(await response.finished(),null,label+': destination response finishes successfully');\n",
           ""
         ]
       ]
