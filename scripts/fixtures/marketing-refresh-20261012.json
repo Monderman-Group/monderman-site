@@ -317,6 +317,366 @@
         ]
       ]
     },
+    "scripts/sample_marketing_language_hover_smoke.mjs": {
+      "before_sha256": "74ff5525bca5d97f434d117cbb938284a283875325a9cadc2dbe9703aec46a1d",
+      "after_sha256": "835b91b70aaeb8efbc823de1b9eba83a6e0fff7c39bd7c19327a2e0ad2180fa9",
+      "replacements": [
+        [
+          540,
+          631,
+          "import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';\n",
+          ""
+        ],
+        [
+          683,
+          992,
+          "const homepageSource=fs.readFileSync(path.join(root,'index.html'),'utf8');\nconst marketingBaselineHomepage=sourceAtMarketingRefreshBaseline('index.html',homepageSource);\nassert.notEqual(marketingBaselineHomepage,homepageSource,'The exact prior homepage is rendered alongside the reviewed enlarged homepage');\n",
+          ""
+        ],
+        [
+          1645,
+          1905,
+          "  'sample-report-production.css','sample-report-production.js','scripts/refresh_public_sample_previews.mjs','scripts/templates/home-workspace-preview.html',\n  'marketing-refresh.css','marketing-refresh.js','scripts/sample_marketing_language_hover_smoke.mjs'];\n",
+          "  'sample-report-production.css','sample-report-production.js','scripts/refresh_public_sample_previews.mjs','scripts/templates/home-workspace-preview.html'];\n"
+        ],
+        [
+          4849,
+          6015,
+          "}\nfunction assertEnlargedOverview(geometry){\n  assert.ok(Number.isFinite(geometry.width)&&geometry.width>580&&geometry.width<=900.5,'Reviewed enlarged overview width');\n  assert.ok(Number.isFinite(geometry.height)&&geometry.height>=760&&geometry.height<=1000,'Reviewed enlarged overview height');\n  assert.ok(geometry.findingFont>=21&&geometry.scoreFont>=58,'Dominant finding and score remain readable');\n  assert.equal(geometry.areas,'\"finding finding\" \"money change\" \"money evidence\"','Dominant finding retains the specific approved arrangement');\n  assert.equal(geometry.qualification,'Sample report · Example data','Visible qualification beside enlarged preview');\n}\nconst overviewGeometryFixture={width:764,height:879,findingFont:25.92,scoreFont:68,areas:'\"finding finding\" \"money change\" \"money evidence\"',qualification:'Sample report · Example data'};\nassertEnlargedOverview(overviewGeometryFixture);checks++;\nfor(const mutant of [{width:901},{height:1001},{height:680},{findingFont:20},{scoreFont:57},{areas:'\"finding money\"'},{qualification:'Customer result'}]){\n  assert.throws(()=>assertEnlargedOverview({...overviewGeometryFixture,...mutant}));checks++;\n",
+          ""
+        ],
+        [
+          10931,
+          11017,
+          "  try{for(const edition of ['baseline','current'])for(const width of [390,834,1440]){\n",
+          "  try{for(const width of [390,834,1440]){\n"
+        ],
+        [
+          11351,
+          11549,
+          "      const request=route.request(),url=new URL(request.url());\n      if(!['GET','HEAD'].includes(request.method())||url.pathname.startsWith('/api/')){blockedRemoteRequests++;return route.abort();}\n",
+          "      const url=new URL(route.request().url());\n"
+        ],
+        [
+          11824,
+          11982,
+          "      if(local&&url.pathname==='/index.html'&&edition==='baseline')return route.fulfill({status:200,contentType:'text/html',body:marketingBaselineHomepage});\n",
+          ""
+        ],
+        [
+          12330,
+          12374,
+          "    const key=engine+'-'+edition+'-'+width;\n",
+          "    const key=engine+'-'+width;\n"
+        ],
+        [
+          16433,
+          16465,
+          "      if(edition==='baseline'){\n",
+          ""
+        ],
+        [
+          16649,
+          17230,
+          "      }else{\n        const geometry=await quad.evaluate(el=>({width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height,findingFont:parseFloat(getComputedStyle(el.querySelector('[data-quad-section=\"findings\"] .hrq-lead')).fontSize),scoreFont:parseFloat(getComputedStyle(el.querySelector('[data-quad-section=\"findings\"] .hrq-score strong')).fontSize),areas:getComputedStyle(el.querySelector('.hrq-grid')).gridTemplateAreas,qualification:document.querySelector('.mr-proof-label')?.innerText.trim()}));\n        assertEnlargedOverview(geometry);checks++;\n      }\n",
+          ""
+        ],
+        [
+          26430,
+          26598,
+          "    rows.push({engine,edition,width,heroStates,libraryStates,pdfStates,nextStates,outputLinkStates,libraryLinkStates,panels,localDisplayOnly:true});await page.close();\n",
+          "    rows.push({engine,width,heroStates,libraryStates,pdfStates,nextStates,outputLinkStates,libraryLinkStates,panels,localDisplayOnly:true});await page.close();\n"
+        ]
+      ]
+    },
+    "scripts/homepage_workspace_demo_smoke.mjs": {
+      "before_sha256": "39f8126fff8bd9d3ab7c9d58ecf35c83f67a8968a7e5c3677107c90e24174f4e",
+      "after_sha256": "57b1c8b3c81311305e91352a2872b8178ae18c03af33323a58a22909056edbd7",
+      "replacements": [
+        [
+          355,
+          446,
+          "import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';\n",
+          ""
+        ],
+        [
+          639,
+          1078,
+          "const origin=new URL(base).origin;\nassert.ok(['127.0.0.1','localhost'].includes(new URL(base).hostname),'Journey verification remains on loopback');\nconst homepageSource=fs.readFileSync(path.join(root,'index.html'),'utf8');\nconst marketingBaselineHomepage=sourceAtMarketingRefreshBaseline('index.html',homepageSource);\nassert.notEqual(marketingBaselineHomepage,homepageSource,'Exact legacy and actual enlarged journey are both rendered');\n",
+          ""
+        ],
+        [
+          2134,
+          2405,
+          "const files=['homepage-workspace-demo.js','homepage-workspace-demo.css','scripts/homepage_workspace_demo_smoke.mjs','scripts/refresh_public_sample_previews.mjs','scripts/templates/home-workspace-preview.html','index.html','marketing-refresh.css','marketing-refresh.js'];\n",
+          "const files=['homepage-workspace-demo.js','homepage-workspace-demo.css','scripts/homepage_workspace_demo_smoke.mjs','scripts/refresh_public_sample_previews.mjs','scripts/templates/home-workspace-preview.html'];\n"
+        ],
+        [
+          6459,
+          9073,
+          "const expandedLimits=(width,step)=>{\n const ranges=width<=320?{measure:[850,1050],analysis:[1400,1600],actions:[1050,1250],return:[850,1050]}:\n  width<=390?{measure:[730,900],analysis:[1280,1450],actions:[900,1080],return:[730,900]}:\n  width<=834?{measure:[650,800],analysis:[820,950],actions:[630,800],return:[580,720]}:\n  {measure:[640,790],analysis:[760,900],actions:[600,760],return:[560,710]};\n const [appMinimum,appLimit]=ranges[step],wrapperOverheadLimit=width===320?80:64;return {appMinimum,appLimit,wrapperLimit:appLimit+wrapperOverheadLimit,wrapperOverheadLimit};\n};\nfunction assertExpandedHeight(measurement,label){\n const {width,step,appWidth,clientWidth,appHeight,wrapperHeight,wrapperOverhead,headingSize,bodyMinimum}=measurement;\n const {appMinimum,appLimit,wrapperOverheadLimit}=expandedLimits(width,step);\n assert.ok([appWidth,clientWidth,appHeight,wrapperHeight,wrapperOverhead,headingSize,bodyMinimum].every(Number.isFinite),label+': complete finite enlarged geometry');\n assert.ok(appHeight>=appMinimum&&appHeight<=appLimit,label+': specifically bounded enlarged step height '+JSON.stringify(measurement));\n assert.ok(wrapperOverhead>=48&&wrapperOverhead<=wrapperOverheadLimit&&wrapperHeight<=appLimit+wrapperOverheadLimit,label+': bounded visible label and closed disclosure');\n assert.ok(Math.abs(wrapperHeight-appHeight-wrapperOverhead)<1,label+': complete preview and its supporting height reconcile');\n const gutter=width<=640?20:Math.min(64,Math.max(20,width*.04));\n assert.ok(Math.abs(appWidth-(Math.min(1440,clientWidth)-2*gutter))<=2,label+': enlarged interface fills the exact reviewed reading rail');\n assert.ok(headingSize>=(width<=760?26:30)&&bodyMinimum>=(step==='actions'&&width<=760?14:15),label+': enlarged heading and primary prose remain readable');\n}\nconst expandedGeometryFixture={width:390,step:'analysis',appWidth:350,clientWidth:390,appHeight:1374.3,wrapperHeight:1434.3,wrapperOverhead:60,headingSize:26,bodyMinimum:15};\nassertExpandedHeight(expandedGeometryFixture,'Recorded enlarged phone Evaluate');\nconst badExpandedGeometry=[{appHeight:1451,wrapperHeight:1511},{appHeight:700,wrapperHeight:760},{wrapperOverhead:65},{wrapperOverhead:47},{wrapperHeight:1600},{wrapperHeight:1380},{appWidth:280},{headingSize:25},{bodyMinimum:14},{appHeight:NaN}];\nfor(const bad of badExpandedGeometry)assert.throws(()=>assertExpandedHeight({...expandedGeometryFixture,...bad},'Enlarged geometry negative control'));\nassert.throws(()=>assertExpandedHeight({...expandedGeometryFixture,step:'actions',appHeight:982,wrapperHeight:1042,bodyMinimum:13},'Action prose negative control'));\n",
+          ""
+        ],
+        [
+          10691,
+          10751,
+          "let states=0,resizeStates=0,screenshots=0,noScriptStates=0;\n",
+          "let states=0,resizeStates=0,screenshots=0;\n"
+        ],
+        [
+          10906,
+          10954,
+          "  for(const edition of ['baseline','current']){\n",
+          ""
+        ],
+        [
+          11085,
+          11495,
+          "   await page.route('**/*',route=>{\n    const request=route.request(),url=new URL(request.url());\n    if(url.origin!==origin||!['GET','HEAD'].includes(request.method())||url.pathname.startsWith('/api/'))return route.abort();\n    if(edition==='baseline'&&url.pathname==='/index.html')return route.fulfill({status:200,contentType:'text/html',body:marketingBaselineHomepage});\n    return route.continue();\n   });\n",
+          "   await page.route('**/*',route=>new URL(route.request().url()).origin===new URL(base).origin?route.continue():route.abort());\n"
+        ],
+        [
+          11739,
+          11779,
+          "   await page.close();noScriptStates++;\n",
+          "   await page.close();\n"
+        ],
+        [
+          12332,
+          12715,
+          "    const request=route.request(),url=new URL(request.url());\n    if(!['GET','HEAD'].includes(request.method())||url.pathname.startsWith('/api/'))return route.abort();\n    if(url.origin===origin){\n     if(edition==='baseline'&&url.pathname==='/index.html')return route.fulfill({status:200,contentType:'text/html',body:marketingBaselineHomepage});\n     return route.continue();\n    }\n",
+          "    if(new URL(route.request().url()).origin===new URL(base).origin)return route.continue();\n"
+        ],
+        [
+          16890,
+          18038,
+          "     const prose=[...app.querySelectorAll('.hwd-panel:not([hidden]) p,.hwd-panel:not([hidden]) .hwd-compact-action dd')].filter(p=>!['hwd-eyebrow','hwd-compact-limit','hwd-compact-band','hwd-compact-action-label','hwd-compact-boundary'].includes(p.className));\n     return {appWidth:bounds.width,clientWidth:document.documentElement.clientWidth,headingSize:parseFloat(getComputedStyle(app.querySelector('.hwd-panel:not([hidden]) h2')).fontSize),bodyMinimum:Math.min(...prose.map(p=>parseFloat(getComputedStyle(p).fontSize))),appHeight:bounds.height,wrapperHeight:el.getBoundingClientRect().height,label:component('.home-preview-label'),disclosure:component('.home-preview-method'),summary:component('.home-preview-method summary'),disclosureOpen:el.querySelector('.home-preview-method').open,fontsStatus:document.fonts.status,fontFamily:getComputedStyle(app).fontFamily,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,escaping:[...app.querySelectorAll('*')].filter(node=>{const r=node.getBoundingClientRect();return r.width&&r.height&&(r.left<bounds.left-1||r.right>bounds.right+1);}).map(node=>node.className)};\n",
+          "     return {appHeight:bounds.height,wrapperHeight:el.getBoundingClientRect().height,label:component('.home-preview-label'),disclosure:component('.home-preview-method'),summary:component('.home-preview-method summary'),disclosureOpen:el.querySelector('.home-preview-method').open,fontsStatus:document.fonts.status,fontFamily:getComputedStyle(app).fontFamily,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,escaping:[...app.querySelectorAll('*')].filter(node=>{const r=node.getBoundingClientRect();return r.width&&r.height&&(r.left<bounds.left-1||r.right>bounds.right+1);}).map(node=>node.className)};\n"
+        ],
+        [
+          18583,
+          18670,
+          "    const limits=edition==='baseline'?compactLimits(width):expandedLimits(width,step);\n",
+          "    const limits=compactLimits(width);\n"
+        ],
+        [
+          18739,
+          19174,
+          "    const measurement={engine:name,edition,width,step,desktopFontWrapAllowance,narrowFontWrapAllowance,...limits,wrapperOverhead,...geometry};\n    console.log((edition==='baseline'?'HOMEPAGE_COMPACT_GEOMETRY ':'HOMEPAGE_EXPANDED_GEOMETRY ')+JSON.stringify(measurement));\n    if(out&&width===320){await page.locator('.home-workspace-preview').screenshot({path:path.join(out,name+'-'+edition+'-'+width+'-'+step+'.png')});screenshots++;}\n",
+          "    const measurement={engine:name,width,step,desktopFontWrapAllowance,narrowFontWrapAllowance,...limits,wrapperOverhead,...geometry};\n    console.log('HOMEPAGE_COMPACT_GEOMETRY '+JSON.stringify(measurement));\n    if(out&&width===320){await page.locator('.home-workspace-preview').screenshot({path:path.join(out,name+'-'+width+'-'+step+'.png')});screenshots++;}\n"
+        ],
+        [
+          19446,
+          19476,
+          "    if(edition==='baseline'){\n",
+          ""
+        ],
+        [
+          19538,
+          19619,
+          "    }else{\n     assertExpandedHeight(measurement,name+'/'+width+'/'+step);\n    }\n",
+          ""
+        ],
+        [
+          20450,
+          20633,
+          "    if(out&&[390,834,1440].includes(width)){await page.locator('.home-workspace-preview').screenshot({path:path.join(out,name+'-'+edition+'-'+width+'-'+step+'.png')});screenshots++;}\n",
+          "    if(out&&[390,834,1440].includes(width)){await page.locator('.home-workspace-preview').screenshot({path:path.join(out,name+'-'+width+'-'+step+'.png')});screenshots++;}\n"
+        ],
+        [
+          24505,
+          24509,
+          "  }\n",
+          ""
+        ],
+        [
+          24545,
+          25094,
+          "const receipt={status:'PASS',checkedAt:new Date().toISOString(),base,states,resizeStates,noScriptStates,screenshots,journeys:1,steps:4,widths:6,browsers:2,editions:['baseline','current'],expandedGeometryNegativeCases:badExpandedGeometry.length+1,artifactSha256:artifact.artifact_sha256,hashes,compactMeasurements,checks:'Gather fresh/reload/no-script; four tab keyboard and next actions; persistent exact sample link; actual source counts, metrics and engine action; full financial disclosure; bounded geometry and live resize; no external calls'};\n",
+          "const receipt={status:'PASS',checkedAt:new Date().toISOString(),base,states,resizeStates,screenshots,journeys:1,steps:4,widths:6,browsers:2,artifactSha256:artifact.artifact_sha256,hashes,compactMeasurements,checks:'Gather fresh/reload/no-script; four tab keyboard and next actions; persistent exact sample link; actual source counts, metrics and engine action; full financial disclosure; bounded geometry and live resize; no external calls'};\n"
+        ]
+      ]
+    },
+    "scripts/methodology_business_copy_smoke.mjs": {
+      "before_sha256": "5253c33cbbf171fc14d86aee6a67a7b9273b66f62646822522c61dcfec59e26d",
+      "after_sha256": "81e88b37436186ed6cd0df58d47512c57bac7361e88289efbe212d2422745d57",
+      "replacements": [
+        [
+          765,
+          856,
+          "import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';\n",
+          ""
+        ],
+        [
+          2675,
+          2898,
+          "const hashes=Object.fromEntries([...sourceFiles,...protectedFiles,'marketing-refresh.css','marketing-refresh.js','scripts/methodology_business_copy_smoke.mjs'].map(file=>[file,sha(fs.readFileSync(path.join(root,file)))]));\n",
+          "const hashes=Object.fromEntries([...sourceFiles,...protectedFiles].map(file=>[file,sha(fs.readFileSync(path.join(root,file)))]));\n"
+        ],
+        [
+          3085,
+          8500,
+          "const marketingBaselineHomepage=sourceAtMarketingRefreshBaseline('index.html',read('index.html'));\neq(marketingBaselineHomepage,execFileSync('git',['show','14e57bb9f5537cd7ed5eb581cbc7740541c593b1:index.html'],{cwd:root,encoding:'utf8'}),'The compact homepage is the exact approved marketing baseline, not a weaker substitute');\nassert.notEqual(marketingBaselineHomepage,read('index.html'),'Both exact baseline and refreshed homepage editions are required');checks++;\nconst refreshedJourneyHeightLimits={\n  // Per-step bounds cover the measured enlarged layout and bounded font wrap;\n  // they never replace the legacy 700/580 compact checks below.\n  390:{measure:900,analysis:1500,actions:1100,return:900},\n  834:{measure:800,analysis:1000,actions:800,return:750},\n  1440:{measure:800,analysis:950,actions:750,return:700},\n};\nfunction assertRefreshedJourneyGeometry(geometry,width,id){\n  assert.ok(Object.hasOwn(refreshedJourneyHeightLimits,width)&&Object.hasOwn(refreshedJourneyHeightLimits[width],id),'Known reviewed enlarged-layout viewport and step');\n  assert.equal(geometry.selectedPanel,'hwd-panel-'+id,'Current geometry belongs to the selected panel');\n  assert.equal(geometry.disclosureOpen,false,'Current evidence disclosure stays closed during bounded measurement');\n  assert.equal(geometry.fontsStatus,'loaded','Current font geometry is measured after loaded fonts');\n  for(const key of ['preview','app','panel','heading','footer','disclosure']){\n    const box=geometry[key];assert.ok(box&&Number.isFinite(box.width)&&Number.isFinite(box.height)&&box.width>0&&box.height>0,'Complete finite geometry: '+key);\n  }\n  const limit=refreshedJourneyHeightLimits[width][id],overhead=geometry.preview.height-geometry.app.height;\n  assert.ok(geometry.panel.height>=420&&geometry.app.height>=500&&geometry.app.height<=limit,'Bounded readable enlarged app height');\n  assert.ok(overhead>=0&&overhead<=64&&geometry.preview.height<=limit+64,'Outer label/closed-disclosure height remains bounded');\n  assert.ok(geometry.disclosure.height<=24,'Closed evidence disclosure does not become an expanded reading block');\n  assert.ok(geometry.app.width<=geometry.preview.width+1&&geometry.widthFits&&geometry.contentContained,'Every enlarged step and visible content stays inside its preview');\n  assert.ok(parseFloat(geometry.heading.fontSize)>=(width===390?26:30),'Enlarged selected heading remains readable');\n  assert.ok(Number.isFinite(geometry.eyebrowSize)&&geometry.eyebrowSize>=12,'Selected step caption keeps its distinct readable role');\n  assert.ok(Array.isArray(geometry.paragraphSizes)&&geometry.paragraphSizes.length>0&&geometry.paragraphSizes.every(size=>Number.isFinite(size)&&size>=13)&&geometry.paragraphSizes.some(size=>size>=15),'Selected prose and its smaller qualifiers keep distinct readable sizes');\n  assert.ok(Array.isArray(geometry.actionProseSizes),'Action prose geometry is explicitly collected');\n  if(id==='actions')assert.ok(geometry.actionProseSizes.length===3&&geometry.actionProseSizes.every(size=>Number.isFinite(size)&&size>=(width===390?14:15)),'All three Decide definition paragraphs remain readable at their approved mobile/wider sizes');\n  assert.ok(Array.isArray(geometry.tabSizes)&&geometry.tabSizes.length===4&&geometry.tabSizes.every(size=>Number.isFinite(size)&&size>=13),'All four enlarged journey controls remain readable');\n  assert.ok(Number.isFinite(geometry.sampleLinkSize)&&geometry.sampleLinkSize>=13,'Direct sample destination remains readable');\n}\nlet refreshedGeometryNegativeControls=0;\nconst geometryFixture=()=>({selectedPanel:'hwd-panel-measure',disclosureOpen:false,fontsStatus:'loaded',preview:{width:350,height:660},app:{width:350,height:600},panel:{width:348,height:420},heading:{width:300,height:60,fontSize:'26px'},footer:{width:348,height:48},disclosure:{width:350,height:18},widthFits:true,contentContained:true,eyebrowSize:12,paragraphSizes:[15,15],actionProseSizes:[],tabSizes:[13,13,13,13],sampleLinkSize:13});\nassertRefreshedJourneyGeometry(geometryFixture(),390,'measure');checks++;\nfor(const mutate of [g=>g.selectedPanel='hwd-panel-return',g=>g.disclosureOpen=true,g=>g.fontsStatus='loading',g=>g.app.height=901,g=>g.preview.height=665,g=>g.disclosure.height=25,g=>g.heading.fontSize='25px',g=>g.eyebrowSize=11,g=>g.paragraphSizes=[12,15],g=>g.paragraphSizes=[14],g=>g.paragraphSizes=[],g=>g.tabSizes=[13,13,13,12],g=>g.sampleLinkSize=12,g=>g.widthFits=false,g=>g.contentContained=false,g=>g.app.width=352,g=>g.panel.height=419,g=>g.footer.height=NaN]){\n  const geometry=geometryFixture();mutate(geometry);assert.throws(()=>assertRefreshedJourneyGeometry(geometry,390,'measure'),{name:'AssertionError'},'Malformed, cramped, over-height, open or clipped current layout must fail');checks++;refreshedGeometryNegativeControls++;\n}\nfor(const width of [390,834]){\n  const geometry={...geometryFixture(),selectedPanel:'hwd-panel-actions',heading:{width:300,height:60,fontSize:width===390?'26px':'30px'},actionProseSizes:Array(3).fill(width===390?14:15)};\n  assertRefreshedJourneyGeometry(geometry,width,'actions');checks++;\n  for(const sizes of [[width===390?13:14,15,15],[]]){\n    assert.throws(()=>assertRefreshedJourneyGeometry({...geometry,actionProseSizes:sizes},width,'actions'),{name:'AssertionError'},'Missing or undersized Decide definition prose must fail');checks++;refreshedGeometryNegativeControls++;\n  }\n}\nconst journeyGeometryReceipts=[];\n",
+          ""
+        ],
+        [
+          35767,
+          36148,
+          "const baselineBuild=path.join(out,'baseline-public');fs.mkdirSync(baselineBuild,{mode:0o700});\nfs.writeFileSync(path.join(baselineBuild,'index.html'),marketingBaselineHomepage,{mode:0o600});\nexecFileSync(process.execPath,['scripts/inject-public-shell.mjs',baselineBuild],{cwd:root,stdio:'pipe'});\nconst builtBaselineHomepage=fs.readFileSync(path.join(baselineBuild,'index.html'));\n",
+          ""
+        ],
+        [
+          37678,
+          37713,
+          "    let homepageEdition='current';\n",
+          ""
+        ],
+        [
+          37881,
+          38033,
+          "      if(homepageEdition==='baseline'&&url.pathname==='/index.html'){await route.fulfill({contentType:'text/html',body:builtBaselineHomepage});return;}\n",
+          ""
+        ],
+        [
+          38485,
+          38812,
+          "    const pageEditions=['index.html','diagnostics.html','Monderman_Platform_Brief.html','roi.html',...descriptions.map(row=>row[2])].flatMap(file=>file==='index.html'?[{file,edition:'baseline'},{file,edition:'current'}]:[{file,edition:'current'}]);\n    for(const {file,edition} of pageEditions){\n      homepageEdition=edition;\n",
+          "    for(const file of ['index.html','diagnostics.html','Monderman_Platform_Brief.html','roi.html',...descriptions.map(row=>row[2])]){\n"
+        ],
+        [
+          49758,
+          51067,
+          "              footer:box(el.querySelector('.hwd-footer')),disclosure:box(el.querySelector('.home-preview-method')),\n              widthFits:el.querySelector('[data-workspace-demo]').scrollWidth<=el.querySelector('[data-workspace-demo]').clientWidth+1,\n              eyebrowSize:parseFloat(getComputedStyle(panel.querySelector('.hwd-eyebrow')).fontSize),\n              paragraphSizes:[...panel.querySelectorAll('p:not(.hwd-eyebrow)')].filter(node=>node.getClientRects().length).map(node=>parseFloat(getComputedStyle(node).fontSize)),\n              actionProseSizes:[...panel.querySelectorAll('.hwd-compact-action dd')].filter(node=>node.getClientRects().length).map(node=>parseFloat(getComputedStyle(node).fontSize)),\n              tabSizes:[...el.querySelectorAll('.hwd-tabs button')].map(node=>parseFloat(getComputedStyle(node).fontSize)),\n              sampleLinkSize:parseFloat(getComputedStyle(el.querySelector('.hwd-sample-link')).fontSize),\n              contentContained:[...el.querySelector('[data-workspace-demo]').querySelectorAll('h2,h3,p,a,button,strong,span,dt,dd')].filter(node=>node.getClientRects().length).every(node=>{const r=node.getBoundingClientRect(),outer=el.getBoundingClientRect();return r.left>=outer.left-1&&r.right<=outer.right+1&&r.top>=outer.top-1&&r.bottom<=outer.bottom+1;})};\n",
+          "              footer:box(el.querySelector('.hwd-footer')),disclosure:box(el.querySelector('.home-preview-method'))};\n"
+        ],
+        [
+          51081,
+          51214,
+          "          journeyGeometryReceipts.push({browser:name,width,edition,step:id,...journeyGeometry});\n          if(edition==='baseline'){\n",
+          ""
+        ],
+        [
+          52936,
+          53175,
+          "          }else{\n            console.log(JSON.stringify({check:'refreshed-journey-height',browser:name,width,edition,step:id,...journeyGeometry}));\n            assertRefreshedJourneyGeometry(journeyGeometry,width,id);checks++;\n          }\n",
+          ""
+        ],
+        [
+          53338,
+          53517,
+          "        if(width===390||width===1440){const fileName=`${name}-${width}-${edition}-homepage.png`;await page.screenshot({path:path.join(out,fileName)});screenshots.push(fileName);}\n",
+          "        if(width===390||width===1440){const fileName=`${name}-${width}-homepage.png`;await page.screenshot({path:path.join(out,fileName)});screenshots.push(fileName);}\n"
+        ],
+        [
+          58653,
+          58921,
+          "const receipt={status:'PASS',checks,viewports:[390,834,1440],browsers:['chromium','webkit'],blockedRequests,sourceHashes:hashes,screenshots,homepageEditions:['baseline','current'],journeyGeometryReceipts,refreshedJourneyHeightLimits,refreshedGeometryNegativeControls,\n",
+          "const receipt={status:'PASS',checks,viewports:[390,834,1440],browsers:['chromium','webkit'],blockedRequests,sourceHashes:hashes,screenshots,\n"
+        ]
+      ]
+    },
+    "scripts/sample_tile_smoke.mjs": {
+      "before_sha256": "a6e90327f6df96d9186501326f04ce31322b22ef3179a8da67dda7ef56517422",
+      "after_sha256": "895f6e664e57ffe02dd4a63fd786ce67052ab0978d225d1075ba9a75c47f41b2",
+      "replacements": [
+        [
+          97,
+          251,
+          "import {createHash} from 'node:crypto';\nimport {sourceAtMarketingRefreshBaseline, marketingRefreshDelta} from './marketing_refresh_20261012_inverse.mjs';\n",
+          ""
+        ],
+        [
+          407,
+          497,
+          "const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');\n",
+          "const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');\n"
+        ],
+        [
+          758,
+          1374,
+          "const homepageBytes=fs.readFileSync(path.join(root,'index.html'),'utf8');\nconst baselineHomepage=sourceAtMarketingRefreshBaseline('index.html',homepageBytes);\nassert.notEqual(baselineHomepage,homepageBytes,'The authoritative compact homepage and actual enlarged homepage are both rendered');\nassert.equal(createHash('sha256').update(baselineHomepage).digest('hex'),marketingRefreshDelta.files['index.html'].before_sha256,'Exact approved baseline homepage bytes');\nconst localOrigin=new URL(base).origin;\nassert.ok(['127.0.0.1','localhost'].includes(new URL(base).hostname),'Display verification stays on loopback');\n",
+          ""
+        ],
+        [
+          2783,
+          2783,
+          "",
+          "const browser = await chromium.launch({ headless: true });\n"
+        ],
+        [
+          3422,
+          4924,
+          "// New geometry is independently bounded; old compact assertions remain below.\nfunction assertReadablePreview(g,width,label){\n  assert(g.width>0&&g.width<=900.5,label+': enlarged report retains its approved bounded rail');\n  assert(g.height>0&&g.height<=(width<=600?1700:1150),label+': complete enlarged report remains bounded');\n  assert(g.findingLeadFont>=21&&g.contentFont>=14,label+': primary finding and product content remain readable');\n  assert.equal(g.areas,width<=600?'\"finding\" \"money\" \"change\" \"evidence\"':'\"finding finding\" \"money change\" \"money evidence\"',label+': finding leads the composition');\n  assert.equal(g.exampleLabel,'Sample report · Example data',label+': illustrative source qualification remains visible');\n}\nconst goodGeometry={width:750,height:850,findingLeadFont:25,contentFont:14,areas:'\"finding finding\" \"money change\" \"money evidence\"',exampleLabel:'Sample report · Example data'};\nassertReadablePreview(goodGeometry,1440,'Current geometry deterministic control');\nconst badGeometry=[{...goodGeometry,width:901},{...goodGeometry,height:1151},{...goodGeometry,findingLeadFont:20},{...goodGeometry,contentFont:13},{...goodGeometry,areas:'\"money change\"'},{...goodGeometry,exampleLabel:'Customer results'}];\nfor(const bad of badGeometry)assert.throws(()=>assertReadablePreview(bad,1440,'Current geometry negative control'));\nlet renderStates=0;\nfor(const [engine,type] of [['chromium',chromium],['webkit',webkit]]){\nconst browser = await type.launch({ headless: true });\n",
+          ""
+        ],
+        [
+          4970,
+          5062,
+          "    for (const edition of placement.name==='homepage'?['baseline','current']:['current']) {\n",
+          ""
+        ],
+        [
+          5158,
+          5655,
+          "      await page.route('**/*', route => {\n        const request=route.request(),url=new URL(request.url());\n        if(!['GET','HEAD'].includes(request.method())||url.pathname.startsWith('/api/')||url.origin!==localOrigin)return route.abort();\n        if(placement.name==='homepage'&&edition==='baseline'&&url.pathname==='/index.html')return route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:baselineHomepage});\n        return route.continue();\n      });\n      renderStates++;\n",
+          "      await page.route('**/*', route => new URL(route.request().url()).origin === new URL(base).origin ? route.continue() : route.abort());\n"
+        ],
+        [
+          6341,
+          6420,
+          "        const label=`${engine}/${placement.name}/${edition}/${viewport.name}`;\n",
+          "        const label=`${placement.name}/${viewport.name}`;\n"
+        ],
+        [
+          8690,
+          9513,
+          "          return {width:box.width,height:box.height,left:box.left,right:box.right,bottom:box.bottom,heroBottom:hero?.getBoundingClientRect().bottom,inOutputBand:Boolean(el.closest('#sample-output')),inHero:Boolean(hero),columns:getComputedStyle(grid).gridTemplateColumns.trim().split(/\\s+/).length,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,documentWidth:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth),viewportWidth:document.documentElement.clientWidth,escaping,findingLeadFont:parseFloat(getComputedStyle(el.querySelector('[data-quad-section=\"findings\"] .hrq-lead')).fontSize),contentFont:parseFloat(getComputedStyle(el.querySelector('.hrq-content')).fontSize),areas:getComputedStyle(grid).gridTemplateAreas,exampleLabel:document.querySelector('.mr-proof-label')?.textContent.trim()};\n",
+          "          return {width:box.width,height:box.height,left:box.left,right:box.right,bottom:box.bottom,heroBottom:hero?.getBoundingClientRect().bottom,inOutputBand:Boolean(el.closest('#sample-output')),inHero:Boolean(hero),columns:getComputedStyle(grid).gridTemplateColumns.trim().split(/\\s+/).length,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,documentWidth:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth),viewportWidth:document.documentElement.clientWidth,escaping};\n"
+        ],
+        [
+          9817,
+          9851,
+          "        if(edition==='baseline'){\n",
+          ""
+        ],
+        [
+          9940,
+          10008,
+          "        }else assertReadablePreview(geometry,viewport.width,label);\n",
+          ""
+        ],
+        [
+          10482,
+          11015,
+          "        if(viewport.width===1440&&edition==='baseline'){assert(geometry.width>580,label+': wide preview does not inherit the retired card width');assert(geometry.height<=680,label+': approved compact two-column height '+JSON.stringify({width:geometry.width,height:geometry.height}));}\n        if(viewport.width===1440&&edition==='current')assert(geometry.width>580,label+': readable wide preview stays substantial');\n        await tile.screenshot({path:path.join(out,`${engine}-${placement.name}-${edition}-${viewport.name}.png`)});\n",
+          "        if(viewport.width===1440){assert(geometry.width>580,label+': wide preview does not inherit the retired card width');assert(geometry.height<=680,label+': approved compact two-column height '+JSON.stringify({width:geometry.width,height:geometry.height}));}\n        await tile.screenshot({path:path.join(out,`${placement.name}-${viewport.name}.png`)});\n"
+        ],
+        [
+          15499,
+          15636,
+          "        await page.screenshot({ path: path.join(out, `${engine}-${placement.name}-${edition}-${viewport.name}.png`), fullPage: false });\n",
+          "        await page.screenshot({ path: path.join(out, `${placement.name}-${viewport.name}.png`), fullPage: false });\n"
+        ],
+        [
+          21026,
+          21144,
+          "      await tile.screenshot({ path: path.join(out, `${engine}-${placement.name}-${edition}-${viewport.name}.png`) });\n",
+          "      await tile.screenshot({ path: path.join(out, `${placement.name}-${viewport.name}.png`) });\n"
+        ],
+        [
+          21180,
+          21369,
+          "  }\n  console.log(JSON.stringify({status:'PASS',engine,renderStates,editions:['exact-baseline','current'],geometryNegativeControls:badGeometry.length,providerCalls:0,productionWrites:0}));\n",
+          "  console.log('sample report tile smoke: passed');\n"
+        ],
+        [
+          21408,
+          21410,
+          "}\n",
+          ""
+        ]
+      ]
+    },
     ".github/workflows/frontend-release.yml": {
       "before_sha256": "88ec6643807374732cbee1146817e06e199200194a05a1d86f735a097956c319",
       "after_sha256": "ddfe70d7755a98416b67b97da6558492a48f0ded18ce5d39be99133596339490",
@@ -374,8 +734,8 @@
       "bytes": 13860
     },
     "docs/marketing-refresh-20261012.md": {
-      "sha256": "a66bfd80f349bececc020a2dea48bf8f577dbaabebf22d6eb539fc336aec61d4",
-      "bytes": 5067
+      "sha256": "e78f84f063c6a3f4a6738ab6de729b8a703df207eb903baf63b952b97feb59d6",
+      "bytes": 5063
     }
   },
   "guardFiles": [

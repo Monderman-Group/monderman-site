@@ -7,8 +7,12 @@ import {createHash} from 'node:crypto';
 const {chromium,webkit}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 import {buildPublicSamplePreviewSections} from './refresh_public_sample_previews.mjs';
+import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
+const homepageSource=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const marketingBaselineHomepage=sourceAtMarketingRefreshBaseline('index.html',homepageSource);
+assert.notEqual(marketingBaselineHomepage,homepageSource,'The exact prior homepage is rendered alongside the reviewed enlarged homepage');
 const origin='http://127.0.0.1:49876';
 const arg=process.argv.find(value=>value.startsWith('--output='));
 const out=arg?arg.slice(9):fs.mkdtempSync('/tmp/sample-marketing-hover-');
@@ -17,7 +21,8 @@ const sha=value=>createHash('sha256').update(value).digest('hex');
 const artifactPath=path.join(root,'sample-data/production-diagnostic-samples.json');
 const artifactBytes=fs.readFileSync(artifactPath),{artifact}=readPublicSampleFixture({root});
 const tracked=['index.html','sample-report.html','homepage-workspace-demo.css','homepage-workspace-demo.js',
-  'sample-report-production.css','sample-report-production.js','scripts/refresh_public_sample_previews.mjs','scripts/templates/home-workspace-preview.html'];
+  'sample-report-production.css','sample-report-production.js','scripts/refresh_public_sample_previews.mjs','scripts/templates/home-workspace-preview.html',
+  'marketing-refresh.css','marketing-refresh.js','scripts/sample_marketing_language_hover_smoke.mjs'];
 const sourceHashes=Object.fromEntries(tracked.map(file=>[file,sha(fs.readFileSync(path.join(root,file)))]));
 const disclosure='These reports use realistic example responses to demonstrate Monderman’s analysis and reporting.';
 const money=value=>value.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
@@ -56,6 +61,18 @@ for(const phrase of guideRequirements){
 }
 for(const bad of ['preserve the current','bounded burden','declared coherence controls','fictional']){
   assert.throws(()=>assertReadingGuide(sourceGuide+' '+bad),/Reading guide avoids/);checks++;
+}
+function assertEnlargedOverview(geometry){
+  assert.ok(Number.isFinite(geometry.width)&&geometry.width>580&&geometry.width<=900.5,'Reviewed enlarged overview width');
+  assert.ok(Number.isFinite(geometry.height)&&geometry.height>=760&&geometry.height<=1000,'Reviewed enlarged overview height');
+  assert.ok(geometry.findingFont>=21&&geometry.scoreFont>=58,'Dominant finding and score remain readable');
+  assert.equal(geometry.areas,'"finding finding" "money change" "money evidence"','Dominant finding retains the specific approved arrangement');
+  assert.equal(geometry.qualification,'Sample report · Example data','Visible qualification beside enlarged preview');
+}
+const overviewGeometryFixture={width:764,height:879,findingFont:25.92,scoreFont:68,areas:'"finding finding" "money change" "money evidence"',qualification:'Sample report · Example data'};
+assertEnlargedOverview(overviewGeometryFixture);checks++;
+for(const mutant of [{width:901},{height:1001},{height:680},{findingFont:20},{scoreFont:57},{areas:'"finding money"'},{qualification:'Customer result'}]){
+  assert.throws(()=>assertEnlargedOverview({...overviewGeometryFixture,...mutant}));checks++;
 }
 if(process.argv.includes('--copy-only')){
   for(const [file,hash]of Object.entries(sourceHashes))equal(sha(fs.readFileSync(path.join(root,file))),hash,'Static guide test leaves source unchanged');
@@ -105,20 +122,22 @@ async function contained(page,selector,name){
 }
 for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
   const browser=await type.launch({headless:true});
-  try{for(const width of [390,834,1440]){
+  try{for(const edition of ['baseline','current'])for(const width of [390,834,1440]){
     const page=await browser.newPage({viewport:{width,height:1000},reducedMotion:'reduce'}),errors=[];
     page.on('pageerror',error=>errors.push(error.message));
     await page.addInitScript(()=>{window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:null}})}})};});
     await page.route('**/*',async route=>{
-      const url=new URL(route.request().url());
+      const request=route.request(),url=new URL(request.url());
+      if(!['GET','HEAD'].includes(request.method())||url.pathname.startsWith('/api/')){blockedRemoteRequests++;return route.abort();}
       const local=url.origin===origin;
       const localFont=url.origin==='https://www.monderman.com'&&/^\/(?:55|56|65|66|75|76)font\.woff2?$/.test(url.pathname);
       const candidate=path.resolve(root,'.'+decodeURIComponent(url.pathname==='/'?'/index.html':url.pathname));
+      if(local&&url.pathname==='/index.html'&&edition==='baseline')return route.fulfill({status:200,contentType:'text/html',body:marketingBaselineHomepage});
       if((local||localFont)&&!path.relative(root,candidate).startsWith('..')&&types[path.extname(candidate)]&&fs.existsSync(candidate)&&fs.statSync(candidate).isFile())
         return route.fulfill({status:200,contentType:types[path.extname(candidate)],body:fs.readFileSync(candidate)});
       blockedRemoteRequests++;return route.abort();
     });
-    const key=engine+'-'+width;
+    const key=engine+'-'+edition+'-'+width;
     await page.goto(origin+'/index.html',{waitUntil:'load'});await page.evaluate(()=>document.fonts.ready);
     equal(await page.locator('.home-preview-label span').allTextContents(),['See how Monderman works.','Illustrative example']);
     equal(await page.locator('.home-preview-caption').count(),0,'Compact journey has no redundant caption');
@@ -155,7 +174,12 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     if(width>=834){
       const previewBox=await quad.boundingBox();
       check(previewBox.width>580,'New report preview is not constrained to the retired narrow tile width');
+      if(edition==='baseline'){
       check(previewBox.height<=680,'Two-column report preview retains the approved compact height: '+JSON.stringify({width:previewBox.width,height:previewBox.height,viewport:width}));
+      }else{
+        const geometry=await quad.evaluate(el=>({width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height,findingFont:parseFloat(getComputedStyle(el.querySelector('[data-quad-section="findings"] .hrq-lead')).fontSize),scoreFont:parseFloat(getComputedStyle(el.querySelector('[data-quad-section="findings"] .hrq-score strong')).fontSize),areas:getComputedStyle(el.querySelector('.hrq-grid')).gridTemplateAreas,qualification:document.querySelector('.mr-proof-label')?.innerText.trim()}));
+        assertEnlargedOverview(geometry);checks++;
+      }
     }
     equal(await quad.locator('a').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href'))),Array(4).fill('sample-report.html#depth'),'Three section links and footer retain supported Depth routing');
     equal(await quad.locator('[data-promo-score]').textContent(),String(artifact.outputs.depth_synthesis.source.source_groups[0].median_score),'Recorded Depth score retained');
@@ -242,7 +266,7 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     equal(await page.evaluate(()=>__marketingUI.calls),[{kind:'pdf',same:true},{kind:'html',same:true},{kind:'json',same:true}],'All original download callbacks remain attached to unchanged source/model');
     await contained(page,'#report-os .psr-toolbar',key+' toolbar');await shot(page.locator('#report-os .psr-toolbar'),key+'-toolbar.png');
     equal(errors,[],key+' sample page script errors');
-    rows.push({engine,width,heroStates,libraryStates,pdfStates,nextStates,outputLinkStates,libraryLinkStates,panels,localDisplayOnly:true});await page.close();
+    rows.push({engine,edition,width,heroStates,libraryStates,pdfStates,nextStates,outputLinkStates,libraryLinkStates,panels,localDisplayOnly:true});await page.close();
   }}finally{await browser.close();}
 }
 equal(sha(fs.readFileSync(artifactPath)),sha(artifactBytes),'Actual artifact bytes unchanged');

@@ -11,6 +11,7 @@ import {APPROVED_INTERFACE_PINS} from './invited_evaluation_source_contract.mjs'
 import {sourceBeforeHomepageCompactJourney20260924} from './homepage_compact_journey_20260924_inverse.mjs';
 import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 import {sourceAtBrandRefreshBaseline} from './brand_refresh_20261007_inverse.mjs';
+import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 const {artifact}=readPublicSampleFixture({root});
@@ -34,9 +35,54 @@ const sourceFiles=['index.html','diagnostics.html','workspace-diagnostics.html',
 const protectedFiles=['structural-clarity.html','decision-velocity.html','operational-systems.html','institutional-performance.html',
   'monderman-report.js','public-sample-model.js','sample-report-production.js','sample-data/production-diagnostic-samples.json',
   'homepage-workspace-demo.js','homepage-workspace-demo.css','canonical-site-shell.js','canonical-site-shell.css','scripts/inject-public-shell.mjs'];
-const hashes=Object.fromEntries([...sourceFiles,...protectedFiles].map(file=>[file,sha(fs.readFileSync(path.join(root,file)))]));
+const hashes=Object.fromEntries([...sourceFiles,...protectedFiles,'marketing-refresh.css','marketing-refresh.js','scripts/methodology_business_copy_smoke.mjs'].map(file=>[file,sha(fs.readFileSync(path.join(root,file)))]));
 let checks=0,blockedRequests=0;const check=(value,message)=>{assert.ok(value,message);checks++;};
 const eq=(value,expected,message)=>{assert.deepEqual(value,expected,message);checks++;};
+const marketingBaselineHomepage=sourceAtMarketingRefreshBaseline('index.html',read('index.html'));
+eq(marketingBaselineHomepage,execFileSync('git',['show','14e57bb9f5537cd7ed5eb581cbc7740541c593b1:index.html'],{cwd:root,encoding:'utf8'}),'The compact homepage is the exact approved marketing baseline, not a weaker substitute');
+assert.notEqual(marketingBaselineHomepage,read('index.html'),'Both exact baseline and refreshed homepage editions are required');checks++;
+const refreshedJourneyHeightLimits={
+  // Per-step bounds cover the measured enlarged layout and bounded font wrap;
+  // they never replace the legacy 700/580 compact checks below.
+  390:{measure:900,analysis:1500,actions:1100,return:900},
+  834:{measure:800,analysis:1000,actions:800,return:750},
+  1440:{measure:800,analysis:950,actions:750,return:700},
+};
+function assertRefreshedJourneyGeometry(geometry,width,id){
+  assert.ok(Object.hasOwn(refreshedJourneyHeightLimits,width)&&Object.hasOwn(refreshedJourneyHeightLimits[width],id),'Known reviewed enlarged-layout viewport and step');
+  assert.equal(geometry.selectedPanel,'hwd-panel-'+id,'Current geometry belongs to the selected panel');
+  assert.equal(geometry.disclosureOpen,false,'Current evidence disclosure stays closed during bounded measurement');
+  assert.equal(geometry.fontsStatus,'loaded','Current font geometry is measured after loaded fonts');
+  for(const key of ['preview','app','panel','heading','footer','disclosure']){
+    const box=geometry[key];assert.ok(box&&Number.isFinite(box.width)&&Number.isFinite(box.height)&&box.width>0&&box.height>0,'Complete finite geometry: '+key);
+  }
+  const limit=refreshedJourneyHeightLimits[width][id],overhead=geometry.preview.height-geometry.app.height;
+  assert.ok(geometry.panel.height>=420&&geometry.app.height>=500&&geometry.app.height<=limit,'Bounded readable enlarged app height');
+  assert.ok(overhead>=0&&overhead<=64&&geometry.preview.height<=limit+64,'Outer label/closed-disclosure height remains bounded');
+  assert.ok(geometry.disclosure.height<=24,'Closed evidence disclosure does not become an expanded reading block');
+  assert.ok(geometry.app.width<=geometry.preview.width+1&&geometry.widthFits&&geometry.contentContained,'Every enlarged step and visible content stays inside its preview');
+  assert.ok(parseFloat(geometry.heading.fontSize)>=(width===390?26:30),'Enlarged selected heading remains readable');
+  assert.ok(Number.isFinite(geometry.eyebrowSize)&&geometry.eyebrowSize>=12,'Selected step caption keeps its distinct readable role');
+  assert.ok(Array.isArray(geometry.paragraphSizes)&&geometry.paragraphSizes.length>0&&geometry.paragraphSizes.every(size=>Number.isFinite(size)&&size>=13)&&geometry.paragraphSizes.some(size=>size>=15),'Selected prose and its smaller qualifiers keep distinct readable sizes');
+  assert.ok(Array.isArray(geometry.actionProseSizes),'Action prose geometry is explicitly collected');
+  if(id==='actions')assert.ok(geometry.actionProseSizes.length===3&&geometry.actionProseSizes.every(size=>Number.isFinite(size)&&size>=(width===390?14:15)),'All three Decide definition paragraphs remain readable at their approved mobile/wider sizes');
+  assert.ok(Array.isArray(geometry.tabSizes)&&geometry.tabSizes.length===4&&geometry.tabSizes.every(size=>Number.isFinite(size)&&size>=13),'All four enlarged journey controls remain readable');
+  assert.ok(Number.isFinite(geometry.sampleLinkSize)&&geometry.sampleLinkSize>=13,'Direct sample destination remains readable');
+}
+let refreshedGeometryNegativeControls=0;
+const geometryFixture=()=>({selectedPanel:'hwd-panel-measure',disclosureOpen:false,fontsStatus:'loaded',preview:{width:350,height:660},app:{width:350,height:600},panel:{width:348,height:420},heading:{width:300,height:60,fontSize:'26px'},footer:{width:348,height:48},disclosure:{width:350,height:18},widthFits:true,contentContained:true,eyebrowSize:12,paragraphSizes:[15,15],actionProseSizes:[],tabSizes:[13,13,13,13],sampleLinkSize:13});
+assertRefreshedJourneyGeometry(geometryFixture(),390,'measure');checks++;
+for(const mutate of [g=>g.selectedPanel='hwd-panel-return',g=>g.disclosureOpen=true,g=>g.fontsStatus='loading',g=>g.app.height=901,g=>g.preview.height=665,g=>g.disclosure.height=25,g=>g.heading.fontSize='25px',g=>g.eyebrowSize=11,g=>g.paragraphSizes=[12,15],g=>g.paragraphSizes=[14],g=>g.paragraphSizes=[],g=>g.tabSizes=[13,13,13,12],g=>g.sampleLinkSize=12,g=>g.widthFits=false,g=>g.contentContained=false,g=>g.app.width=352,g=>g.panel.height=419,g=>g.footer.height=NaN]){
+  const geometry=geometryFixture();mutate(geometry);assert.throws(()=>assertRefreshedJourneyGeometry(geometry,390,'measure'),{name:'AssertionError'},'Malformed, cramped, over-height, open or clipped current layout must fail');checks++;refreshedGeometryNegativeControls++;
+}
+for(const width of [390,834]){
+  const geometry={...geometryFixture(),selectedPanel:'hwd-panel-actions',heading:{width:300,height:60,fontSize:width===390?'26px':'30px'},actionProseSizes:Array(3).fill(width===390?14:15)};
+  assertRefreshedJourneyGeometry(geometry,width,'actions');checks++;
+  for(const sizes of [[width===390?13:14,15,15],[]]){
+    assert.throws(()=>assertRefreshedJourneyGeometry({...geometry,actionProseSizes:sizes},width,'actions'),{name:'AssertionError'},'Missing or undersized Decide definition prose must fail');checks++;refreshedGeometryNegativeControls++;
+  }
+}
+const journeyGeometryReceipts=[];
 const settledHeaderState=()=>{
   const header=document.getElementById('siteHeader');
   return Boolean(header&&scrollY>24&&header.classList.contains('scrolled')&&
@@ -319,6 +365,10 @@ for(const file of ['index.html','site-shell/footer.html','Monderman_Platform_Bri
 for(const entry of fs.readdirSync(root,{withFileTypes:true}))if(entry.isFile()&&entry.name.endsWith('.html'))
   fs.copyFileSync(path.join(root,entry.name),path.join(build,entry.name));
 execFileSync(process.execPath,['scripts/inject-public-shell.mjs',build],{cwd:root,stdio:'pipe'});
+const baselineBuild=path.join(out,'baseline-public');fs.mkdirSync(baselineBuild,{mode:0o700});
+fs.writeFileSync(path.join(baselineBuild,'index.html'),marketingBaselineHomepage,{mode:0o600});
+execFileSync(process.execPath,['scripts/inject-public-shell.mjs',baselineBuild],{cwd:root,stdio:'pipe'});
+const builtBaselineHomepage=fs.readFileSync(path.join(baselineBuild,'index.html'));
 for(const file of ['index.html','diagnostics.html','sample-report.html',...protectedFiles.filter(file=>file.endsWith('.html'))]){
   const html=fs.readFileSync(path.join(build,file),'utf8');
   check(/<footer\b[\s\S]*href="diagnostics.html#methodology-and-sources"[\s\S]*<\/footer>/.test(html),file+' built shared-footer link');
@@ -340,15 +390,19 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
   const browser=await type.launch({headless:true});
   try{for(const width of [390,834,1440]){
     const page=await browser.newPage({viewport:{width,height:1000},reducedMotion:'reduce'});
+    let homepageEdition='current';
     await page.route('**/*',async route=>{
       const url=new URL(route.request().url());
       if(url.origin!==origin){blockedRequests++;await route.abort();return;}
+      if(homepageEdition==='baseline'&&url.pathname==='/index.html'){await route.fulfill({contentType:'text/html',body:builtBaselineHomepage});return;}
       const relative=decodeURIComponent(url.pathname).replace(/^\/+/,''),base=relative.endsWith('.html')?build:root;
       const file=path.resolve(base,relative||'index.html');
       if(!file.startsWith(base+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile()){await route.fulfill({status:404,body:''});return;}
       await route.fulfill({contentType:types[path.extname(file)]||'application/octet-stream',body:fs.readFileSync(file)});
     });
-    for(const file of ['index.html','diagnostics.html','Monderman_Platform_Brief.html','roi.html',...descriptions.map(row=>row[2])]){
+    const pageEditions=['index.html','diagnostics.html','Monderman_Platform_Brief.html','roi.html',...descriptions.map(row=>row[2])].flatMap(file=>file==='index.html'?[{file,edition:'baseline'},{file,edition:'current'}]:[{file,edition:'current'}]);
+    for(const {file,edition} of pageEditions){
+      homepageEdition=edition;
       await page.goto(origin+'/'+file,{waitUntil:'load'});await page.evaluate(()=>document.fonts.ready);
       check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${name}/${width}/${file}: no page overflow`);
       check(await page.locator('footer a[href="diagnostics.html#methodology-and-sources"]').count()===1,`${file} footer link rendered`);
@@ -437,8 +491,17 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
               disclosureOpen:el.querySelector('.home-preview-method')?.open,preview:box(el),app:box(el.querySelector('[data-workspace-demo]')),
               label:box(el.querySelector('.home-preview-label')),topbar:box(el.querySelector('.hwd-topbar')),tabs:box(el.querySelector('.hwd-tabs')),
               panel:box(panel),heading:box(panel?.querySelector('h2')),quad:box(panel?.querySelector('.hwd-compact-quad')),
-              footer:box(el.querySelector('.hwd-footer')),disclosure:box(el.querySelector('.home-preview-method'))};
+              footer:box(el.querySelector('.hwd-footer')),disclosure:box(el.querySelector('.home-preview-method')),
+              widthFits:el.querySelector('[data-workspace-demo]').scrollWidth<=el.querySelector('[data-workspace-demo]').clientWidth+1,
+              eyebrowSize:parseFloat(getComputedStyle(panel.querySelector('.hwd-eyebrow')).fontSize),
+              paragraphSizes:[...panel.querySelectorAll('p:not(.hwd-eyebrow)')].filter(node=>node.getClientRects().length).map(node=>parseFloat(getComputedStyle(node).fontSize)),
+              actionProseSizes:[...panel.querySelectorAll('.hwd-compact-action dd')].filter(node=>node.getClientRects().length).map(node=>parseFloat(getComputedStyle(node).fontSize)),
+              tabSizes:[...el.querySelectorAll('.hwd-tabs button')].map(node=>parseFloat(getComputedStyle(node).fontSize)),
+              sampleLinkSize:parseFloat(getComputedStyle(el.querySelector('.hwd-sample-link')).fontSize),
+              contentContained:[...el.querySelector('[data-workspace-demo]').querySelectorAll('h2,h3,p,a,button,strong,span,dt,dd')].filter(node=>node.getClientRects().length).every(node=>{const r=node.getBoundingClientRect(),outer=el.getBoundingClientRect();return r.left>=outer.left-1&&r.right<=outer.right+1&&r.top>=outer.top-1&&r.bottom<=outer.bottom+1;})};
           });
+          journeyGeometryReceipts.push({browser:name,width,edition,step:id,...journeyGeometry});
+          if(edition==='baseline'){
           // The reviewed height target is the app card. The outer label and
           // closed disclosure add 60.5px in the source-bound CUA measurements.
           // CI Chromium's reviewed complete paint wraps one extra line:
@@ -456,9 +519,13 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
           check(journeyGeometry.app.height<=appLimit,'Journey app remains within the approved compact height target: '+JSON.stringify(diagnostic));
           check(wrapperOverhead>=0&&wrapperOverhead<=64,'Outer label and closed disclosure stay within their reviewed height allowance: '+JSON.stringify(diagnostic));
           check(journeyGeometry.preview.height<=wrapperLimit,'Complete preview stays within the app target plus bounded wrapper: '+JSON.stringify(diagnostic));
+          }else{
+            console.log(JSON.stringify({check:'refreshed-journey-height',browser:name,width,edition,step:id,...journeyGeometry}));
+            assertRefreshedJourneyGeometry(journeyGeometry,width,id);checks++;
+          }
           check(await page.locator('[data-workspace-demo]').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'Every current step fits the preview width');
         }
-        if(width===390||width===1440){const fileName=`${name}-${width}-homepage.png`;await page.screenshot({path:path.join(out,fileName)});screenshots.push(fileName);}
+        if(width===390||width===1440){const fileName=`${name}-${width}-${edition}-homepage.png`;await page.screenshot({path:path.join(out,fileName)});screenshots.push(fileName);}
       }
       if(file==='diagnostics.html'){
         const team=page.locator('.dx-team-view-grid');
@@ -512,7 +579,7 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
   }}finally{await browser.close();}
 }
 for(const [file,hash]of Object.entries(hashes))eq(sha(fs.readFileSync(path.join(root,file))),hash,'Source unchanged during checks: '+file);
-const receipt={status:'PASS',checks,viewports:[390,834,1440],browsers:['chromium','webkit'],blockedRequests,sourceHashes:hashes,screenshots,
+const receipt={status:'PASS',checks,viewports:[390,834,1440],browsers:['chromium','webkit'],blockedRequests,sourceHashes:hashes,screenshots,homepageEditions:['baseline','current'],journeyGeometryReceipts,refreshedJourneyHeightLimits,refreshedGeometryNegativeControls,
   proofScope:'Copy, local layout and shared-footer injection only. No authenticated workflow, new sample approval, external validation or deployment.',
   sampleManifestStatus:'Preview descriptor source hash has a separate copy-only review record; saved sample data and historical generation approval are unchanged.'};
 fs.writeFileSync(path.join(out,'RECEIPT.json'),JSON.stringify(receipt,null,2)+'\n',{mode:0o600});

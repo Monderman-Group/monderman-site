@@ -21,7 +21,9 @@ const reject=(fn,label)=>{assert.throws(fn,{name:'AssertionError'},label);checks
 const existing=['index.html','public-search-index.json',
   'scripts/book_publication_date_20261011_inverse.mjs','scripts/book_publication_date_20261011_inverse.py',
   'scripts/book_publication_date_20261011_contract.mjs','scripts/book_publication_date_20261011_contract.py',
-  'scripts/public_sample_manifest_sensitivity_smoke.mjs','scripts/homepage_card_rhythm_smoke.mjs','scripts/site_system_visual_smoke.mjs','.github/workflows/frontend-release.yml',
+  'scripts/public_sample_manifest_sensitivity_smoke.mjs','scripts/homepage_card_rhythm_smoke.mjs','scripts/site_system_visual_smoke.mjs',
+  'scripts/sample_marketing_language_hover_smoke.mjs','scripts/homepage_workspace_demo_smoke.mjs',
+  'scripts/methodology_business_copy_smoke.mjs','scripts/sample_tile_smoke.mjs','.github/workflows/frontend-release.yml',
   '.github/workflows/sample-report-marketing-certification.yml'];
 const guardFiles=['scripts/marketing_refresh_20261012_inverse.mjs','scripts/marketing_refresh_20261012_inverse.py',
   'scripts/marketing_refresh_20261012_contract.mjs','scripts/marketing_refresh_20261012_contract.py','scripts/fixtures/marketing-refresh-20261012.json'];
@@ -176,12 +178,49 @@ file='.github/workflows/frontend-release.yml';expected=replaceExact(prior(file).
 file='.github/workflows/sample-report-marketing-certification.yml';const oldPath="      - 'scripts/book_publication_date_20261011_contract.mjs'\n",pathsAdded=[...guardFiles.slice(2,4),...guardFiles.slice(0,2),guardFiles[4],'scripts/marketing_refresh_browser_smoke.mjs','marketing-refresh.css','marketing-refresh.js','assets/marketing/**'].map(p=>`      - '${p}'\n`).join('');
 expected=replaceExact(prior(file).toString(),oldPath,pathsAdded+oldPath,2);expected=replaceExact(expected,oldCall,calls+oldCall);
 expected=replaceExact(expected,'          node scripts/homepage_workspace_demo_smoke.mjs\n','          MARKETING_REFRESH_OUT=/tmp/report-presentation-smoke/marketing-refresh node scripts/marketing_refresh_browser_smoke.mjs\n          node scripts/homepage_workspace_demo_smoke.mjs\n');eq(read(file).toString(),expected,'Certification adds only exact paths/guards/browser call; all old jobs, timeouts and assertions intact');
-function assertionStatements(source){const lines=source.split('\n'),out=[];for(let i=0;i<lines.length;i++){if(!/^\s*assert\./.test(lines[i]))continue;let statement=lines[i].trim();while(!statement.endsWith(');')&&i+1<lines.length)statement+='\n'+lines[++i].trim();out.push(statement);}return out;}
-for(const file of ['scripts/homepage_card_rhythm_smoke.mjs','scripts/site_system_visual_smoke.mjs']){
-  const original=assertionStatements(prior(file).toString()),current=assertionStatements(read(file).toString());let at=0;
-  for(const statement of original){const expected=file.endsWith('site_system_visual_smoke.mjs')?statement.replace('geometry.titleX - expectedRailX(geometry.clientWidth)','geometry.titleX - railX'):statement;const found=current.indexOf(expected,at);ok(found>=at,file+': each original assertion remains in order');at=found+1;}
-  ok(read(file).toString().includes("edition==='baseline'")||read(file).toString().includes("edition === 'baseline'"),file+': exact original homepage edition remains rendered');
-  ok(read(file).toString().includes('marketingBaselineHomepage')&&read(file).toString().includes('sourceAtMarketingRefreshBaseline'),file+': original rendering derives from the exact approved inverse, never a weaker synthetic fixture');
+function guardCalls(source){
+  const masked=source.split('');let state=null,escaped=false,inClass=false;
+  for(let i=0;i<source.length;i++){const c=source[i],next=source[i+1];
+    if(state){if(c!=='\n')masked[i]=' ';if(state==='line'){if(c==='\n')state=null;}else if(state==='block'){if(c==='*'&&next==='/'){masked[++i]=' ';state=null;}}else if(escaped)escaped=false;else if(c==='\\')escaped=true;else if(state==='regex'){if(c==='[')inClass=true;else if(c===']')inClass=false;else if(c==='/'&&!inClass)state=null;}else if(c===state)state=null;continue;}
+    if(c==='"'||c==="'"||c==='`'){state=c;masked[i]=' ';}else if(c==='/'&&next==='/'){state='line';masked[i]=' ';masked[++i]=' ';}else if(c==='/'&&next==='*'){state='block';masked[i]=' ';masked[++i]=' ';}else if(c==='/'){let previous=i-1;while(previous>=0&&/\s/.test(masked[previous]))previous--;if(previous<0||/[([=:,!&|?{;]/.test(masked[previous])){state='regex';inClass=false;masked[i]=' ';}}
+  }
+  const text=masked.join(''),re=/\b(?:assert(?:\.[A-Za-z]+)?|check|equal|eq|assertCompactHeight|assertAssumptionsText|assertReadingGuide|assertReadablePreview|assertEnlargedOverview|assertExpandedHeight|assertRefreshedJourneyGeometry)\s*\(/g,out=[];let match;
+  while((match=re.exec(text))){let depth=1,end=re.lastIndex;while(end<text.length&&depth){if(text[end]==='(')depth++;else if(text[end]===')')depth--;end++;}assert.equal(depth,0,'Balanced original guard call');out.push(source.slice(match.index,end).split('\n').map(line=>line.trim()).join('\n'));}
+  return out;
+}
+function assertPreservedGuard(file,source){
+  const original=guardCalls(prior(file).toString()),current=guardCalls(source);let at=0;
+  assert.ok(original.length>0,file+': original assertion inventory is nonempty');
+  for(const statement of original){const expected=file.endsWith('site_system_visual_smoke.mjs')?statement.replace('geometry.titleX - expectedRailX(geometry.clientWidth)','geometry.titleX - railX'):statement;const found=current.indexOf(expected,at);assert.ok(found>=at,file+': each original assertion remains in order');at=found+1;}
+  assert.match(source,/\bedition\s*===\s*['"]baseline['"]/,file+': exact original homepage edition remains rendered');
+  assert.match(source,/\bsourceAtMarketingRefreshBaseline\s*\(\s*['"]index\.html['"]\s*,/,file+': original rendering derives from the exact approved homepage inverse, never a weaker synthetic fixture');
+  return original;
+}
+let originalLayoutCalls=0;
+for(const file of ['scripts/homepage_card_rhythm_smoke.mjs','scripts/site_system_visual_smoke.mjs','scripts/sample_marketing_language_hover_smoke.mjs','scripts/homepage_workspace_demo_smoke.mjs','scripts/methodology_business_copy_smoke.mjs','scripts/sample_tile_smoke.mjs']){
+  const source=read(file).toString(),original=assertPreservedGuard(file,source);checks+=original.length+3;originalLayoutCalls+=original.length;
+  const target=original.map(call=>file.endsWith('site_system_visual_smoke.mjs')?call.replace('geometry.titleX - expectedRailX(geometry.clientWidth)','geometry.titleX - railX'):call).find(call=>source.split(call).length===2);
+  ok(Boolean(target),file+': actual original-call mutation target exists');
+  reject(()=>assertPreservedGuard(file,source.replace(target,'void 0')),file+': removal of an original assertion is rejected');
+  reject(()=>assertPreservedGuard(file,source.replace(target,'/* '+target+' */')),file+': a comment cannot stand in for an executed original assertion');
+}
+// These are the actual additional geometry rejection hooks in the four reviewed
+// adapters, rather than comments or a count copied from a browser receipt.
+let geometryNegativeHooks=0;
+for(const [file,helper,count]of [
+  ['scripts/sample_tile_smoke.mjs','assertReadablePreview',1],
+  ['scripts/sample_marketing_language_hover_smoke.mjs','assertEnlargedOverview',1],
+  ['scripts/homepage_workspace_demo_smoke.mjs','assertExpandedHeight',2],
+  ['scripts/methodology_business_copy_smoke.mjs','assertRefreshedJourneyGeometry',2]]){
+  const source=read(file).toString();
+  const negativeHooks=value=>guardCalls(value).filter(call=>call.startsWith('assert.throws(')&&call.includes('()=>'+helper+'('));
+  const requireHooks=value=>assert.equal(negativeHooks(value).length,count,file+': every current geometry rejection hook remains executable');
+  requireHooks(source);checks++;geometryNegativeHooks+=count;
+  for(const hook of negativeHooks(source)){
+    eq(source.split(hook).length-1,1,file+': unique real geometry-hook mutation target');
+    reject(()=>requireHooks(source.replace(hook,'void 0')),file+': removal of a current geometry negative hook rejected');
+    reject(()=>requireHooks(source.replace(hook,'/* '+hook+' */')),file+': commenting out a current geometry negative hook rejected');
+  }
 }
 const index=JSON.parse(read('public-search-index.json')),oldIndex=JSON.parse(prior('public-search-index.json'));
 eq(index.length,oldIndex.length,'Search inventory count unchanged');eq(index.filter(x=>x.url!=='index.html'),oldIndex.filter(x=>x.url!=='index.html'),'Every non-homepage search record unchanged');
@@ -206,4 +245,4 @@ for(const photo of photos.photos){
 }
 ok(photoBytes<=marketingRefreshDelta.assetBudget.photoBytesMax,'Exact two-photo derivative byte budget');
 if(photographyReady)ok((html.match(/Illustrative photography/g)||[]).length>=2,'Visible illustrative-photography boundary for both placements');
-console.log(JSON.stringify({ok:true,checks,negativeControls,files:existing.length,hunks,additions:MARKETING_REFRESH_ADDITIONS.length,immutableFiles,historicalFixtures,pdfs,parityCases:parityCases.length,photoBytes,sourceReady:true,nonImagePublicationReady:true,photographyReady,photographyBlocked,assignmentComplete:photographyReady,networkCalls:0,productionWrites:0,scope:'Exact homepage presentation/qualitative demo; all baseline product/evidence/legal/admission/research bytes and prior checks preserved',photographyBlocker:photographyBlocked?photos.blocker:null}));
+console.log(JSON.stringify({ok:true,checks,negativeControls,files:existing.length,hunks,additions:MARKETING_REFRESH_ADDITIONS.length,immutableFiles,historicalFixtures,pdfs,parityCases:parityCases.length,originalLayoutCalls,geometryNegativeHooks,photoBytes,sourceReady:true,nonImagePublicationReady:true,photographyReady,photographyBlocked,assignmentComplete:photographyReady,networkCalls:0,productionWrites:0,scope:'Exact homepage presentation/qualitative demo; all baseline product/evidence/legal/admission/research bytes and prior checks preserved',photographyBlocker:photographyBlocked?photos.blocker:null}));

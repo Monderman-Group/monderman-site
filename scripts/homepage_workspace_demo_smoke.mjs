@@ -5,9 +5,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
+import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
 const {chromium,webkit}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 const base=process.env.SITE_BASE||'http://127.0.0.1:4175';
 const root=path.resolve(import.meta.dirname,'..');
+const origin=new URL(base).origin;
+assert.ok(['127.0.0.1','localhost'].includes(new URL(base).hostname),'Journey verification remains on loopback');
+const homepageSource=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const marketingBaselineHomepage=sourceAtMarketingRefreshBaseline('index.html',homepageSource);
+assert.notEqual(marketingBaselineHomepage,homepageSource,'Exact legacy and actual enlarged journey are both rendered');
 const {artifact}=readPublicSampleFixture({root});
 const cross=artifact.outputs.cross_lens_synthesis.source,scenario=cross.financial_scenario;
 const counts=cross.campaign_evidence.counts,roles=cross.campaign_evidence.depth.lenses[0].requiredGroups;
@@ -22,7 +28,7 @@ const lensIds=['structural_clarity','decision_velocity','operational_systems','i
 const out=process.env.HOME_DEMO_OUT;
 if(out)fs.mkdirSync(out,{recursive:true});
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
-const files=['homepage-workspace-demo.js','homepage-workspace-demo.css','scripts/homepage_workspace_demo_smoke.mjs','scripts/refresh_public_sample_previews.mjs','scripts/templates/home-workspace-preview.html'];
+const files=['homepage-workspace-demo.js','homepage-workspace-demo.css','scripts/homepage_workspace_demo_smoke.mjs','scripts/refresh_public_sample_previews.mjs','scripts/templates/home-workspace-preview.html','index.html','marketing-refresh.css','marketing-refresh.js'];
 const hashes=Object.fromEntries(files.map(file=>[file,sha(fs.readFileSync(path.join(root,file)))]));
 assert.doesNotMatch(fs.readFileSync(path.join(root,'homepage-workspace-demo.js'),'utf8'),/\b(?:fetch|XMLHttpRequest|sendBeacon|localStorage|sessionStorage)\b/,'Journey remains local-only');
 // readPublicSampleFixture pins index.html; compare the entire rendered current
@@ -68,6 +74,29 @@ assertCompactHeight(boundedMeasurement(320,700,780),'Exact narrow-phone bounds')
 const badGeometry=[boundedMeasurement(320,600,681),boundedMeasurement(320,709,781),
  boundedMeasurement(390,600,665),boundedMeasurement(1440,581,641)];
 for(const bad of badGeometry)assert.throws(()=>assertCompactHeight(bad,'Geometry negative control'));
+const expandedLimits=(width,step)=>{
+ const ranges=width<=320?{measure:[850,1050],analysis:[1400,1600],actions:[1050,1250],return:[850,1050]}:
+  width<=390?{measure:[730,900],analysis:[1280,1450],actions:[900,1080],return:[730,900]}:
+  width<=834?{measure:[650,800],analysis:[820,950],actions:[630,800],return:[580,720]}:
+  {measure:[640,790],analysis:[760,900],actions:[600,760],return:[560,710]};
+ const [appMinimum,appLimit]=ranges[step],wrapperOverheadLimit=width===320?80:64;return {appMinimum,appLimit,wrapperLimit:appLimit+wrapperOverheadLimit,wrapperOverheadLimit};
+};
+function assertExpandedHeight(measurement,label){
+ const {width,step,appWidth,clientWidth,appHeight,wrapperHeight,wrapperOverhead,headingSize,bodyMinimum}=measurement;
+ const {appMinimum,appLimit,wrapperOverheadLimit}=expandedLimits(width,step);
+ assert.ok([appWidth,clientWidth,appHeight,wrapperHeight,wrapperOverhead,headingSize,bodyMinimum].every(Number.isFinite),label+': complete finite enlarged geometry');
+ assert.ok(appHeight>=appMinimum&&appHeight<=appLimit,label+': specifically bounded enlarged step height '+JSON.stringify(measurement));
+ assert.ok(wrapperOverhead>=48&&wrapperOverhead<=wrapperOverheadLimit&&wrapperHeight<=appLimit+wrapperOverheadLimit,label+': bounded visible label and closed disclosure');
+ assert.ok(Math.abs(wrapperHeight-appHeight-wrapperOverhead)<1,label+': complete preview and its supporting height reconcile');
+ const gutter=width<=640?20:Math.min(64,Math.max(20,width*.04));
+ assert.ok(Math.abs(appWidth-(Math.min(1440,clientWidth)-2*gutter))<=2,label+': enlarged interface fills the exact reviewed reading rail');
+ assert.ok(headingSize>=(width<=760?26:30)&&bodyMinimum>=(step==='actions'&&width<=760?14:15),label+': enlarged heading and primary prose remain readable');
+}
+const expandedGeometryFixture={width:390,step:'analysis',appWidth:350,clientWidth:390,appHeight:1374.3,wrapperHeight:1434.3,wrapperOverhead:60,headingSize:26,bodyMinimum:15};
+assertExpandedHeight(expandedGeometryFixture,'Recorded enlarged phone Evaluate');
+const badExpandedGeometry=[{appHeight:1451,wrapperHeight:1511},{appHeight:700,wrapperHeight:760},{wrapperOverhead:65},{wrapperOverhead:47},{wrapperHeight:1600},{wrapperHeight:1380},{appWidth:280},{headingSize:25},{bodyMinimum:14},{appHeight:NaN}];
+for(const bad of badExpandedGeometry)assert.throws(()=>assertExpandedHeight({...expandedGeometryFixture,...bad},'Enlarged geometry negative control'));
+assert.throws(()=>assertExpandedHeight({...expandedGeometryFixture,step:'actions',appHeight:982,wrapperHeight:1042,bodyMinimum:13},'Action prose negative control'));
 if(process.argv.includes('--deterministic-only')){
  console.log(JSON.stringify({status:'PASS',scope:'pinned source disclosure, financial cases and explicit geometry bounds only',negativeCases:badAssumptions.length,geometryNegativeCases:badGeometry.length,browserCoverage:'NOT_RUN',providerCalls:0}));
  process.exit(0);
@@ -88,18 +117,24 @@ async function assertStep(page,id,label){
  assert.equal(await link.getAttribute('href'),'sample-report.html#synthesis',label+': exact actual sample target');
  assert.equal(await link.locator('xpath=ancestor::*[@role="tabpanel"]').count(),0,'Sample link is outside all step panels');
 }
-let states=0,resizeStates=0,screenshots=0;
+let states=0,resizeStates=0,screenshots=0,noScriptStates=0;
 const compactMeasurements=[];
 for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
  const browser=await type.launch({headless:true});
  try{
+  for(const edition of ['baseline','current']){
   for(const width of [390,834,1440]){
    const page=await browser.newPage({viewport:{width,height:1000},javaScriptEnabled:false});
-   await page.route('**/*',route=>new URL(route.request().url()).origin===new URL(base).origin?route.continue():route.abort());
+   await page.route('**/*',route=>{
+    const request=route.request(),url=new URL(request.url());
+    if(url.origin!==origin||!['GET','HEAD'].includes(request.method())||url.pathname.startsWith('/api/'))return route.abort();
+    if(edition==='baseline'&&url.pathname==='/index.html')return route.fulfill({status:200,contentType:'text/html',body:marketingBaselineHomepage});
+    return route.continue();
+   });
    await page.goto(base+'/index.html',{waitUntil:'load'});
    await assertStep(page,'measure',name+'/'+width+'/no-script');
    assert.equal(await page.locator('input[name="hwd-journey"],.hwd-choose').count(),0,'No inactive analysis controls');
-   await page.close();
+   await page.close();noScriptStates++;
   }
   for(const width of [320,390,834,1120,1121,1440]){
    const page=await browser.newPage({viewport:{width,height:1000},reducedMotion:'reduce'});
@@ -109,7 +144,12 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
    await page.addInitScript(()=>{window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:null}})}})};});
    page.on('pageerror',error=>failures.push(error.message));
    await page.route('**/*',route=>{
-    if(new URL(route.request().url()).origin===new URL(base).origin)return route.continue();
+    const request=route.request(),url=new URL(request.url());
+    if(!['GET','HEAD'].includes(request.method())||url.pathname.startsWith('/api/'))return route.abort();
+    if(url.origin===origin){
+     if(edition==='baseline'&&url.pathname==='/index.html')return route.fulfill({status:200,contentType:'text/html',body:marketingBaselineHomepage});
+     return route.continue();
+    }
     remote.push(route.request().url());return route.abort();
    });
    await page.goto(base+'/index.html',{waitUntil:'load'});await page.evaluate(()=>document.fonts.ready);
@@ -151,7 +191,8 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
     const geometry=await page.locator('.home-workspace-preview').evaluate(el=>{
      const app=el.querySelector('[data-workspace-demo]'),bounds=app.getBoundingClientRect();
      const component=selector=>{const node=el.querySelector(selector),box=node.getBoundingClientRect(),style=getComputedStyle(node);return {height:box.height,width:box.width,fontSize:style.fontSize,lineHeight:style.lineHeight,marginTop:style.marginTop,marginBottom:style.marginBottom};};
-     return {appHeight:bounds.height,wrapperHeight:el.getBoundingClientRect().height,label:component('.home-preview-label'),disclosure:component('.home-preview-method'),summary:component('.home-preview-method summary'),disclosureOpen:el.querySelector('.home-preview-method').open,fontsStatus:document.fonts.status,fontFamily:getComputedStyle(app).fontFamily,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,escaping:[...app.querySelectorAll('*')].filter(node=>{const r=node.getBoundingClientRect();return r.width&&r.height&&(r.left<bounds.left-1||r.right>bounds.right+1);}).map(node=>node.className)};
+     const prose=[...app.querySelectorAll('.hwd-panel:not([hidden]) p,.hwd-panel:not([hidden]) .hwd-compact-action dd')].filter(p=>!['hwd-eyebrow','hwd-compact-limit','hwd-compact-band','hwd-compact-action-label','hwd-compact-boundary'].includes(p.className));
+     return {appWidth:bounds.width,clientWidth:document.documentElement.clientWidth,headingSize:parseFloat(getComputedStyle(app.querySelector('.hwd-panel:not([hidden]) h2')).fontSize),bodyMinimum:Math.min(...prose.map(p=>parseFloat(getComputedStyle(p).fontSize))),appHeight:bounds.height,wrapperHeight:el.getBoundingClientRect().height,label:component('.home-preview-label'),disclosure:component('.home-preview-method'),summary:component('.home-preview-method summary'),disclosureOpen:el.querySelector('.home-preview-method').open,fontsStatus:document.fonts.status,fontFamily:getComputedStyle(app).fontFamily,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,escaping:[...app.querySelectorAll('*')].filter(node=>{const r=node.getBoundingClientRect();return r.width&&r.height&&(r.left<bounds.left-1||r.right>bounds.right+1);}).map(node=>node.className)};
     });
     // Original CUA targets describe the app card; the outer label and closed
     // disclosure add60.5px on macOS. Track the full preview separately.
@@ -160,22 +201,26 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
     // At320, CI Gather's wrapper overhead is72px versus macOS60.5px. Permit
     // one additional supporting-label line there only. The reviewed Evaluate
     // paint receives a separate20px allowance over the760px full-preview target.
-    const limits=compactLimits(width);
+    const limits=edition==='baseline'?compactLimits(width):expandedLimits(width,step);
     const wrapperOverhead=geometry.wrapperHeight-geometry.appHeight;
-    const measurement={engine:name,width,step,desktopFontWrapAllowance,narrowFontWrapAllowance,...limits,wrapperOverhead,...geometry};
-    console.log('HOMEPAGE_COMPACT_GEOMETRY '+JSON.stringify(measurement));
-    if(out&&width===320){await page.locator('.home-workspace-preview').screenshot({path:path.join(out,name+'-'+width+'-'+step+'.png')});screenshots++;}
+    const measurement={engine:name,edition,width,step,desktopFontWrapAllowance,narrowFontWrapAllowance,...limits,wrapperOverhead,...geometry};
+    console.log((edition==='baseline'?'HOMEPAGE_COMPACT_GEOMETRY ':'HOMEPAGE_EXPANDED_GEOMETRY ')+JSON.stringify(measurement));
+    if(out&&width===320){await page.locator('.home-workspace-preview').screenshot({path:path.join(out,name+'-'+edition+'-'+width+'-'+step+'.png')});screenshots++;}
     assert.ok(geometry.overflow<=1,name+'/'+width+'/'+step+': page overflow');
     assert.deepEqual(geometry.escaping,[],name+'/'+width+'/'+step+': card overflow');
     assert.equal(geometry.disclosureOpen,false,'Compact height measured with evidence disclosure closed');
+    if(edition==='baseline'){
     assertCompactHeight(measurement,name+'/'+width+'/'+step);
+    }else{
+     assertExpandedHeight(measurement,name+'/'+width+'/'+step);
+    }
     compactMeasurements.push(measurement);
     const now=await anchors();for(const key of Object.keys(now))assert.ok(Math.abs(now[key]-initialAnchors[key])<=1,'Step change preserves top anchor');
     const sizes=await app.locator('#hwd-panel-'+step+' p').evaluateAll(nodes=>nodes.map(node=>({size:parseFloat(getComputedStyle(node).fontSize),className:node.className})));
     assert.ok(sizes.filter(row=>!['hwd-eyebrow','hwd-compact-limit','hwd-compact-band','hwd-compact-action-label','hwd-compact-boundary'].includes(row.className)).every(row=>row.size>=12),'Main finding, action and comparison prose remains at least12px; scoped supporting labels retain their separate reviewed type scale');
     assert.ok((await app.locator('.hwd-sample-link').boundingBox()).height>=44,'Persistent sample target is phone-sized');
     states++;
-    if(out&&[390,834,1440].includes(width)){await page.locator('.home-workspace-preview').screenshot({path:path.join(out,name+'-'+width+'-'+step+'.png')});screenshots++;}
+    if(out&&[390,834,1440].includes(width)){await page.locator('.home-workspace-preview').screenshot({path:path.join(out,name+'-'+edition+'-'+width+'-'+step+'.png')});screenshots++;}
    }
    const assumptions=page.locator('.home-preview-method');await assumptions.locator('summary').click();
    const detail=page.locator('[data-demo-assumptions-for="cross_lens_synthesis"]');
@@ -211,8 +256,9 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
    assert.ok(remote.every(url=>new URL(url).origin!==new URL(base).origin),'Every external request blocked');
    await page.close();console.log('HOMEPAGE_WORKSPACE_DEMO_PROGRESS '+name+'/'+width+' states='+states);
   }
+  }
  }finally{await browser.close();}
 }
-const receipt={status:'PASS',checkedAt:new Date().toISOString(),base,states,resizeStates,screenshots,journeys:1,steps:4,widths:6,browsers:2,artifactSha256:artifact.artifact_sha256,hashes,compactMeasurements,checks:'Gather fresh/reload/no-script; four tab keyboard and next actions; persistent exact sample link; actual source counts, metrics and engine action; full financial disclosure; bounded geometry and live resize; no external calls'};
+const receipt={status:'PASS',checkedAt:new Date().toISOString(),base,states,resizeStates,noScriptStates,screenshots,journeys:1,steps:4,widths:6,browsers:2,editions:['baseline','current'],expandedGeometryNegativeCases:badExpandedGeometry.length+1,artifactSha256:artifact.artifact_sha256,hashes,compactMeasurements,checks:'Gather fresh/reload/no-script; four tab keyboard and next actions; persistent exact sample link; actual source counts, metrics and engine action; full financial disclosure; bounded geometry and live resize; no external calls'};
 if(process.env.HOME_DEMO_RECEIPT)fs.writeFileSync(process.env.HOME_DEMO_RECEIPT,JSON.stringify(receipt,null,2)+'\n');
 console.log('HOMEPAGE_WORKSPACE_DEMO_PASS '+JSON.stringify(receipt));

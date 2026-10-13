@@ -49,14 +49,16 @@ def reject(fn, label):
 existing = ['index.html', 'public-search-index.json',
     'scripts/book_publication_date_20261011_inverse.mjs', 'scripts/book_publication_date_20261011_inverse.py',
     'scripts/book_publication_date_20261011_contract.mjs', 'scripts/book_publication_date_20261011_contract.py',
-    'scripts/public_sample_manifest_sensitivity_smoke.mjs', 'scripts/homepage_card_rhythm_smoke.mjs', 'scripts/site_system_visual_smoke.mjs', '.github/workflows/frontend-release.yml',
+    'scripts/public_sample_manifest_sensitivity_smoke.mjs', 'scripts/homepage_card_rhythm_smoke.mjs', 'scripts/site_system_visual_smoke.mjs',
+    'scripts/sample_marketing_language_hover_smoke.mjs', 'scripts/homepage_workspace_demo_smoke.mjs',
+    'scripts/methodology_business_copy_smoke.mjs', 'scripts/sample_tile_smoke.mjs', '.github/workflows/frontend-release.yml',
     '.github/workflows/sample-report-marketing-certification.yml']
 guards = ['scripts/marketing_refresh_20261012_inverse.mjs', 'scripts/marketing_refresh_20261012_inverse.py',
     'scripts/marketing_refresh_20261012_contract.mjs', 'scripts/marketing_refresh_20261012_contract.py',
     'scripts/fixtures/marketing-refresh-20261012.json']
 check(BASELINE == '14e57bb9f5537cd7ed5eb581cbc7740541c593b1', 'Exact deployed public baseline')
 check(VERSION == 'marketing-refresh-20261012.1', 'Independent approval version')
-check(list(_fixture['files']) == existing, 'Exact eleven existing-file whitelist')
+check(list(_fixture['files']) == existing, 'Exact fifteen existing-file whitelist')
 check(_fixture.get('provisional') is False, 'Only the final reviewed source snapshot can pass this full contract')
 check(_fixture['guardFiles'] == guards, 'Five new guard files only')
 check(git('rev-parse', BASELINE + '^{tree}').decode().strip() == _fixture['baselineTree'], 'Authoritative baseline Git tree')
@@ -243,29 +245,106 @@ check('prefers-reduced-motion' in css, 'Reduced-motion path')
 check(not re.search(r'@import|url\(\s*["\']?https?://', css, re.I), 'No remote CSS import/image')
 check(len(css.encode()) + len(js.encode()) <= _fixture['assetBudget']['cssAndJsBytesMax'], 'New CSS/JS byte budget')
 
-def assertion_statements(source):
-    lines, out, i = source.split('\n'), [], 0
-    while i < len(lines):
-        if re.match(r'^\s*assert\.', lines[i]):
-            statement = lines[i].strip()
-            while not statement.endswith(');') and i + 1 < len(lines):
-                i += 1
-                statement += '\n' + lines[i].strip()
-            out.append(statement)
+def guard_calls(source):
+    masked, state, escaped, in_class, i = list(source), None, False, False, 0
+    while i < len(source):
+        c = source[i]
+        following = source[i + 1] if i + 1 < len(source) else ''
+        if state:
+            if c != '\n':
+                masked[i] = ' '
+            if state == 'line':
+                if c == '\n':
+                    state = None
+            elif state == 'block':
+                if c == '*' and following == '/':
+                    i += 1
+                    masked[i] = ' '
+                    state = None
+            elif escaped:
+                escaped = False
+            elif c == '\\':
+                escaped = True
+            elif state == 'regex':
+                if c == '[':
+                    in_class = True
+                elif c == ']':
+                    in_class = False
+                elif c == '/' and not in_class:
+                    state = None
+            elif c == state:
+                state = None
+        elif c in '\"\'`':
+            state, masked[i] = c, ' '
+        elif c == '/' and following == '/':
+            state, masked[i] = 'line', ' '
+            i += 1
+            masked[i] = ' '
+        elif c == '/' and following == '*':
+            state, masked[i] = 'block', ' '
+            i += 1
+            masked[i] = ' '
+        elif c == '/':
+            previous = i - 1
+            while previous >= 0 and masked[previous].isspace():
+                previous -= 1
+            if previous < 0 or masked[previous] in '([=:,!&|?{;':
+                state, in_class, masked[i] = 'regex', False, ' '
         i += 1
+    text, out = ''.join(masked), []
+    for match in re.finditer(r'\b(?:assert(?:\.[A-Za-z]+)?|check|equal|eq|assertCompactHeight|assertAssumptionsText|assertReadingGuide|assertReadablePreview|assertEnlargedOverview|assertExpandedHeight|assertRefreshedJourneyGeometry)\s*\(', text):
+        depth, end = 1, match.end()
+        while end < len(text) and depth:
+            depth += int(text[end] == '(') - int(text[end] == ')')
+            end += 1
+        assert depth == 0, 'Balanced original guard call'
+        out.append('\n'.join(line.strip() for line in source[match.start():end].split('\n')))
     return out
 
-for file in ['scripts/homepage_card_rhythm_smoke.mjs', 'scripts/site_system_visual_smoke.mjs']:
-    original, current = assertion_statements(prior(file).decode()), assertion_statements(read(file).decode())
+def assert_preserved_guard(file, source):
+    original, current = guard_calls(prior(file).decode()), guard_calls(source)
+    assert original, file + ': original assertion inventory is nonempty'
     at = 0
     for statement in original:
         expected = statement.replace('geometry.titleX - expectedRailX(geometry.clientWidth)', 'geometry.titleX - railX') if file.endswith('site_system_visual_smoke.mjs') else statement
         matches = [i for i in range(at, len(current)) if current[i] == expected]
-        check(bool(matches), file + ': every original assertion remains in order')
+        assert matches, file + ': every original assertion remains in order'
         at = matches[0] + 1
+    assert re.search(r'\bedition\s*===\s*[\"\']baseline[\"\']', source), file + ': original homepage edition still rendered'
+    assert re.search(r'\bsourceAtMarketingRefreshBaseline\s*\(\s*[\"\']index\.html[\"\']\s*,', source), file + ': original render comes from the exact homepage inverse'
+    return original
+
+original_layout_calls = 0
+for file in ['scripts/homepage_card_rhythm_smoke.mjs', 'scripts/site_system_visual_smoke.mjs', 'scripts/sample_marketing_language_hover_smoke.mjs', 'scripts/homepage_workspace_demo_smoke.mjs', 'scripts/methodology_business_copy_smoke.mjs', 'scripts/sample_tile_smoke.mjs']:
     source = read(file).decode()
-    check("edition==='baseline'" in source or "edition === 'baseline'" in source, file + ': original homepage edition still rendered')
-    check('marketingBaselineHomepage' in source and 'sourceAtMarketingRefreshBaseline' in source, file + ': original render comes from the exact inverse')
+    original = assert_preserved_guard(file, source)
+    checks += len(original) + 3
+    original_layout_calls += len(original)
+    candidates = [s.replace('geometry.titleX - expectedRailX(geometry.clientWidth)', 'geometry.titleX - railX') if file.endswith('site_system_visual_smoke.mjs') else s for s in original]
+    target = next((s for s in candidates if source.count(s) == 1), None)
+    check(target is not None, file + ': real original-call mutation target exists')
+    reject(lambda: assert_preserved_guard(file, source.replace(target, 'void 0', 1)), file + ': removed original assertion rejected')
+    reject(lambda: assert_preserved_guard(file, source.replace(target, '/* ' + target + ' */', 1)), file + ': comment cannot replace an actual assertion')
+# Preserve the actual additional rejection hooks, independently of their pins.
+geometry_negative_hooks = 0
+for file, helper, count in [
+    ('scripts/sample_tile_smoke.mjs', 'assertReadablePreview', 1),
+    ('scripts/sample_marketing_language_hover_smoke.mjs', 'assertEnlargedOverview', 1),
+    ('scripts/homepage_workspace_demo_smoke.mjs', 'assertExpandedHeight', 2),
+    ('scripts/methodology_business_copy_smoke.mjs', 'assertRefreshedJourneyGeometry', 2),
+]:
+    source = read(file).decode()
+    def negative_hooks(value):
+        return [call for call in guard_calls(value) if call.startswith('assert.throws(') and '()=>'+helper+'(' in call]
+    def require_hooks(value):
+        assert len(negative_hooks(value)) == count, file + ': every current geometry rejection hook remains executable'
+    require_hooks(source)
+    checks += 1
+    geometry_negative_hooks += count
+    for hook in negative_hooks(source):
+        check(source.count(hook) == 1, file + ': unique current geometry-hook mutation target')
+        reject(lambda: require_hooks(source.replace(hook, 'void 0', 1)), file + ': removed current geometry negative hook rejected')
+        reject(lambda: require_hooks(source.replace(hook, '/* '+hook+' */', 1)), file + ': commented current geometry negative hook rejected')
 index, old_index = json.loads(read('public-search-index.json')), json.loads(prior('public-search-index.json'))
 check(len(index) == len(old_index), 'Search inventory unchanged')
 check([x for x in index if x['url'] != 'index.html'] == [x for x in old_index if x['url'] != 'index.html'], 'All unrelated search records unchanged')
@@ -304,6 +383,6 @@ if photography_ready:
     check(html.count('Illustrative photography') >= 2, 'Both visible photography boundaries')
 print(json.dumps({'ok':True, 'checks':checks, 'negativeControls':negative_controls, 'files':len(existing), 'hunks':hunks,
     'additions':len(additions), 'immutableFiles':immutable_files, 'historicalFixtures':historical_fixtures, 'pdfs':pdfs,
-    'fixtureSha256':FIXTURE_SHA256, 'photoBytes':photo_bytes, 'photographyReady':photography_ready,
+    'fixtureSha256':FIXTURE_SHA256, 'originalLayoutCalls':original_layout_calls, 'geometryNegativeHooks':geometry_negative_hooks, 'photoBytes':photo_bytes, 'photographyReady':photography_ready,
     'sourceReady':True, 'nonImagePublicationReady':True, 'photographyBlocked':photography_blocked, 'assignmentComplete':photography_ready, 'networkCalls':0, 'productionWrites':0,
     'photographyBlocker':photos['blocker'] if photography_blocked else None}))

@@ -6,7 +6,7 @@ The current homepage preserves its headline, invitation and sample destinations,
 
 The report preview is enlarged with an explicit example-data qualifier above it. Repeated equal-weight card treatments become open editorial rows. No authenticated application, diagnostic engine, API contract, email/campaign settings, customer record, billing, identity, access or legal edition is changed.
 
-Existing approval fixtures remain immutable. The new finite approval layer reconstructs every prior source byte, rejects unknown changes, and is tested in JavaScript and Python. The two affected layout smokes preserve their historical assertions in an exact reconstructed baseline and add current-layout checks. Every preexisting release check remains wired; additive source and browser gates supplement them. The temporary whole-repository snapshot workflow is removed.
+Existing approval fixtures remain immutable. The new finite approval layer reconstructs every prior source byte, rejects unknown changes, and is tested in JavaScript and Python. The affected layout smokes preserve their historical assertions in an exact reconstructed baseline and add current-layout checks. Every preexisting release check remains wired; additive source and browser gates supplement them. The temporary whole-repository snapshot workflow is removed.
 
 ## Photography register and publication limitation
 
