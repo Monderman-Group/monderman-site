@@ -24,7 +24,7 @@ const existing=['index.html','public-search-index.json',
   'scripts/public_sample_manifest_sensitivity_smoke.mjs','scripts/homepage_card_rhythm_smoke.mjs','scripts/site_system_visual_smoke.mjs',
   'scripts/sample_marketing_language_hover_smoke.mjs','scripts/homepage_workspace_demo_smoke.mjs',
   'scripts/methodology_business_copy_smoke.mjs','scripts/sample_tile_smoke.mjs','.github/workflows/frontend-release.yml',
-  '.github/workflows/sample-report-marketing-certification.yml'];
+  '.github/workflows/sample-report-marketing-certification.yml','scripts/homepage_assistant_smoke.mjs'];
 const guardFiles=['scripts/marketing_refresh_20261012_inverse.mjs','scripts/marketing_refresh_20261012_inverse.py',
   'scripts/marketing_refresh_20261012_contract.mjs','scripts/marketing_refresh_20261012_contract.py','scripts/fixtures/marketing-refresh-20261012.json'];
 eq(MARKETING_REFRESH_BASELINE,'14e57bb9f5537cd7ed5eb581cbc7740541c593b1','Exact deployed book/homepage baseline');
@@ -184,7 +184,7 @@ function guardCalls(source){
     if(state){if(c!=='\n')masked[i]=' ';if(state==='line'){if(c==='\n')state=null;}else if(state==='block'){if(c==='*'&&next==='/'){masked[++i]=' ';state=null;}}else if(escaped)escaped=false;else if(c==='\\')escaped=true;else if(state==='regex'){if(c==='[')inClass=true;else if(c===']')inClass=false;else if(c==='/'&&!inClass)state=null;}else if(c===state)state=null;continue;}
     if(c==='"'||c==="'"||c==='`'){state=c;masked[i]=' ';}else if(c==='/'&&next==='/'){state='line';masked[i]=' ';masked[++i]=' ';}else if(c==='/'&&next==='*'){state='block';masked[i]=' ';masked[++i]=' ';}else if(c==='/'){let previous=i-1;while(previous>=0&&/\s/.test(masked[previous]))previous--;if(previous<0||/[([=:,!&|?{;]/.test(masked[previous])){state='regex';inClass=false;masked[i]=' ';}}
   }
-  const text=masked.join(''),re=/\b(?:assert(?:\.[A-Za-z]+)?|check|equal|eq|assertCompactHeight|assertAssumptionsText|assertReadingGuide|assertReadablePreview|assertEnlargedOverview|assertExpandedHeight|assertRefreshedJourneyGeometry)\s*\(/g,out=[];let match;
+  const text=masked.join(''),re=/\b(?:assert(?:\.[A-Za-z]+)?|check|equal|eq|assertCompactHeight|assertAssumptionsText|assertReadingGuide|assertReadablePreview|assertEnlargedOverview|assertExpandedHeight|assertRefreshedJourneyGeometry|assertCurrentEditorialSequence)\s*\(/g,out=[];let match;
   while((match=re.exec(text))){let depth=1,end=re.lastIndex;while(end<text.length&&depth){if(text[end]==='(')depth++;else if(text[end]===')')depth--;end++;}assert.equal(depth,0,'Balanced original guard call');out.push(source.slice(match.index,end).split('\n').map(line=>line.trim()).join('\n'));}
   return out;
 }
@@ -197,7 +197,7 @@ function assertPreservedGuard(file,source){
   return original;
 }
 let originalLayoutCalls=0;
-for(const file of ['scripts/homepage_card_rhythm_smoke.mjs','scripts/site_system_visual_smoke.mjs','scripts/sample_marketing_language_hover_smoke.mjs','scripts/homepage_workspace_demo_smoke.mjs','scripts/methodology_business_copy_smoke.mjs','scripts/sample_tile_smoke.mjs']){
+for(const file of ['scripts/homepage_card_rhythm_smoke.mjs','scripts/site_system_visual_smoke.mjs','scripts/sample_marketing_language_hover_smoke.mjs','scripts/homepage_workspace_demo_smoke.mjs','scripts/methodology_business_copy_smoke.mjs','scripts/sample_tile_smoke.mjs','scripts/homepage_assistant_smoke.mjs']){
   const source=read(file).toString(),original=assertPreservedGuard(file,source);checks+=original.length+3;originalLayoutCalls+=original.length;
   const target=original.map(call=>file.endsWith('site_system_visual_smoke.mjs')?call.replace('geometry.titleX - expectedRailX(geometry.clientWidth)','geometry.titleX - railX'):call).find(call=>source.split(call).length===2);
   ok(Boolean(target),file+': actual original-call mutation target exists');
@@ -222,6 +222,28 @@ for(const [file,helper,count]of [
     reject(()=>requireHooks(source.replace(hook,'/* '+hook+' */')),file+': commenting out a current geometry negative hook rejected');
   }
 }
+// Keep the assistant's current editorial proof separate from geometry checks.
+// Its exact twelve-section proof must run before the one known addition is
+// projected into the verbatim eleven-section historical assertion.
+const assistantFile='scripts/homepage_assistant_smoke.mjs',assistantSource=read(assistantFile).toString();
+const assistantProof='assertCurrentEditorialSequence(editorial.visibleSections, scene)';
+const assistantProjection='editorial.visibleSections = [editorial.visibleSections[0], ...editorial.visibleSections.slice(2)];';
+const editorialHooks=value=>guardCalls(value).filter(call=>call.startsWith('assert.throws(')&&/\(\)\s*=>\s*assertCurrentEditorialSequence\(/.test(call));
+function requireAssistantEditorialProof(source){
+  assert.ok(guardCalls(source).includes(assistantProof),'Assistant live current sequence proof remains an executed call');
+  assert.ok(source.indexOf(assistantProof)<source.indexOf(assistantProjection)&&source.indexOf(assistantProjection)>=0,'Assistant exact current proof precedes its finite index1 projection');
+  assert.ok(source.includes("for (edition of ['baseline', 'current'])"),'Both exact historical and current assistant editions execute');
+  assert.equal(editorialHooks(source).length,2,'Both actual editorial rejection loops remain executable');
+}
+requireAssistantEditorialProof(assistantSource);checks+=4;
+const editorialNegativeHooks=editorialHooks(assistantSource).length;
+for(const target of [assistantProof,...editorialHooks(assistantSource)]){
+  eq(assistantSource.split(target).length-1,1,'Unique assistant editorial proof/rejection mutation target');
+  reject(()=>requireAssistantEditorialProof(assistantSource.replace(target,'void 0')),'Removed assistant editorial proof/rejection hook rejected');
+  reject(()=>requireAssistantEditorialProof(assistantSource.replace(target,'/* '+target+' */')),'Commented assistant editorial proof/rejection hook rejected');
+}
+reject(()=>requireAssistantEditorialProof(assistantSource.replace("for (edition of ['baseline', 'current'])","for (edition of ['current'])")),'Omitting the exact historical assistant execution is rejected');
+reject(()=>requireAssistantEditorialProof(assistantSource.replace(assistantProof,'void 0').replace(assistantProjection,assistantProjection+'\n'+assistantProof)),'Moving the finite projection before the current proof is rejected');
 const index=JSON.parse(read('public-search-index.json')),oldIndex=JSON.parse(prior('public-search-index.json'));
 eq(index.length,oldIndex.length,'Search inventory count unchanged');eq(index.filter(x=>x.url!=='index.html'),oldIndex.filter(x=>x.url!=='index.html'),'Every non-homepage search record unchanged');
 const currentHome=index.filter(x=>x.url==='index.html'),oldHome=oldIndex.filter(x=>x.url==='index.html');eq(currentHome.length,1,'One updated homepage search record');
@@ -245,4 +267,4 @@ for(const photo of photos.photos){
 }
 ok(photoBytes<=marketingRefreshDelta.assetBudget.photoBytesMax,'Exact two-photo derivative byte budget');
 if(photographyReady)ok((html.match(/Illustrative photography/g)||[]).length>=2,'Visible illustrative-photography boundary for both placements');
-console.log(JSON.stringify({ok:true,checks,negativeControls,files:existing.length,hunks,additions:MARKETING_REFRESH_ADDITIONS.length,immutableFiles,historicalFixtures,pdfs,parityCases:parityCases.length,originalLayoutCalls,geometryNegativeHooks,photoBytes,sourceReady:true,nonImagePublicationReady:true,photographyReady,photographyBlocked,assignmentComplete:photographyReady,networkCalls:0,productionWrites:0,scope:'Exact homepage presentation/qualitative demo; all baseline product/evidence/legal/admission/research bytes and prior checks preserved',photographyBlocker:photographyBlocked?photos.blocker:null}));
+console.log(JSON.stringify({ok:true,checks,negativeControls,files:existing.length,hunks,additions:MARKETING_REFRESH_ADDITIONS.length,immutableFiles,historicalFixtures,pdfs,parityCases:parityCases.length,originalLayoutCalls,geometryNegativeHooks,editorialNegativeHooks,photoBytes,sourceReady:true,nonImagePublicationReady:true,photographyReady,photographyBlocked,assignmentComplete:photographyReady,networkCalls:0,productionWrites:0,scope:'Exact homepage presentation/qualitative demo; all baseline product/evidence/legal/admission/research bytes and prior checks preserved',photographyBlocker:photographyBlocked?photos.blocker:null}));

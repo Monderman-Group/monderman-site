@@ -718,6 +718,78 @@
           ""
         ]
       ]
+    },
+    "scripts/homepage_assistant_smoke.mjs": {
+      "before_sha256": "f79e962f91e7fbf0dd11a5b70a961fc04e87629235a21a6c8bf8976fe63e95d3",
+      "after_sha256": "e67943b0cfc5ab4cf4adf26808b903f842bbb1e31a987889ec54b3f83e7ad54a",
+      "replacements": [
+        [
+          41,
+          385,
+          "import fs from 'node:fs';\nimport path from 'node:path';\nimport os from 'node:os';\nimport {execFileSync} from 'node:child_process';\nimport {createHash} from 'node:crypto';\nimport {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';\nconst { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');\n",
+          "import { chromium } from 'playwright';\n"
+        ],
+        [
+          449,
+          5347,
+          "const origin = new URL(base).origin;\nassert.ok(['127.0.0.1', 'localhost'].includes(new URL(base).hostname), 'Assistant verification remains loopback-only');\nconst root = path.resolve(import.meta.dirname, '..');\nconst sha = bytes => createHash('sha256').update(bytes).digest('hex');\nconst sourceFiles = ['index.html', 'marketing-refresh.css', 'marketing-refresh.js', 'assistant.js', 'connect-widget.js', 'scripts/homepage_assistant_smoke.mjs', 'scripts/inject-public-shell.mjs', 'site-shell/header.html', 'site-shell/footer.html', 'site-shell/widgets.html'];\nconst sourceHashes = Object.fromEntries(sourceFiles.map(file => [file, sha(fs.readFileSync(path.join(root, file)))]));\nconst rawBaselineHomepage = sourceAtMarketingRefreshBaseline('index.html', fs.readFileSync(path.join(root, 'index.html'), 'utf8'));\nassert.equal(sha(rawBaselineHomepage), 'fc50896dc63825ce7a54bdfff80af41220b635eae8b5a8b76f9c724efd36e874', 'Historical edition is exact reviewed 14e homepage source');\n// Full widget/search checks require the real static-build shell, not raw source.\n// Reproduce it through the unchanged official injector, with no private fixture.\nconst baselineDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'homepage-assistant-14e-'));\nlet baselineHomepage;\ntry {\n  fs.writeFileSync(path.join(baselineDirectory, 'index.html'), rawBaselineHomepage, {mode: 0o600});\n  execFileSync(process.execPath, [path.join(root, 'scripts/inject-public-shell.mjs'), baselineDirectory], {cwd: root, encoding: 'utf8'});\n  baselineHomepage = fs.readFileSync(path.join(baselineDirectory, 'index.html'), 'utf8');\n  assert.equal(sha(baselineHomepage), 'a341d2544606b647ea78ffd35f11b1f000ff08e66407d7332e7a236ccecef278', 'Historical widget edition is exact authoritative 14e built homepage');\n} finally {\n  fs.rmSync(baselineDirectory, {recursive: true, force: true});\n}\nconst currentEditorialSequence = ['hero', 'mr-scenario', 'measurement-loop', 'approach', 'first-run-moments', 'proof-band', 'mxidx-band', 'systems-analysis-bridge', 'home-output-band', 'book-band', 'latest', 'connect'];\nconst expectedIllustrationLabel = 'Qualitative illustration · Not a scored result or customer case';\nfunction assertCurrentEditorialSequence(sections, scene) {\n  assert.deepEqual(sections, currentEditorialSequence, 'Current twelve-section sequence includes exactly the approved scenario immediately after hero');\n  assert.deepEqual(scene.domSections, currentEditorialSequence, 'Accessible DOM and rendered editorial sequence agree exactly');\n  assert.equal(scene.count, 1, 'Exactly one direct-main scenario exists, including hidden DOM');\n  assert.equal(scene.visible, true, 'The scenario is actually displayed');\n  assert.equal(scene.label, expectedIllustrationLabel, 'The displayed scenario has the exact qualitative boundary');\n  assert.equal(scene.labelVisible, true, 'The qualitative boundary remains visible');\n  assert.equal(scene.heroLabel, 'Sample report · Example data', 'The hero report remains qualified as example data');\n}\nconst validScene = {domSections: currentEditorialSequence, count: 1, visible: true, label: expectedIllustrationLabel, labelVisible: true, heroLabel: 'Sample report · Example data'};\nconst invalidSequences = [\n  ['missing scenario', currentEditorialSequence.filter((_, index) => index !== 1)],\n  ['moved scenario', ['hero', 'measurement-loop', 'mr-scenario', ...currentEditorialSequence.slice(3)]],\n  ['duplicated scenario', [...currentEditorialSequence.slice(0, 2), 'mr-scenario', ...currentEditorialSequence.slice(2)]],\n  ['missing old section', currentEditorialSequence.filter(section => section !== 'proof-band')],\n  ['reordered old sections', [...currentEditorialSequence.slice(0, 2), 'approach', 'measurement-loop', ...currentEditorialSequence.slice(4)]],\n  ['unknown added section', [...currentEditorialSequence, 'unapproved-section']],\n];\nfor (const [label, sections] of invalidSequences) assert.throws(() => assertCurrentEditorialSequence(sections, validScene), undefined, 'Reject ' + label);\nconst invalidScenes = [\n  ['hidden duplicate scenario', {...validScene, count: 2}],\n  ['zero direct-main scenarios', {...validScene, count: 0}],\n  ['wrong accessible DOM order', {...validScene, domSections: ['mr-scenario', 'hero', ...currentEditorialSequence.slice(2)]}],\n  ['hidden scenario', {...validScene, visible: false}],\n  ['missing qualitative boundary', {...validScene, label: ''}],\n  ['false measured-result claim', {...validScene, label: 'Measured customer outcome'}],\n  ['hidden qualitative boundary', {...validScene, labelVisible: false}],\n  ['unqualified hero report', {...validScene, heroLabel: 'Customer result'}],\n];\nfor (const [label, scene] of invalidScenes) assert.throws(() => assertCurrentEditorialSequence(currentEditorialSequence, scene), undefined, 'Reject ' + label);\nlet edition = 'baseline';\nconst receipts = [], unexpectedWrites = [];\nlet mockedAssistantPosts = 0;\n",
+          ""
+        ],
+        [
+          5536,
+          5967,
+          "    const request = route.request(), url = new URL(request.url());\n    if (!['GET', 'HEAD'].includes(request.method())) {\n      unexpectedWrites.push({method: request.method(), origin: url.origin, path: url.pathname});\n      return route.abort();\n    }\n    if (edition === 'baseline' && url.origin === origin && url.pathname === '/index.html') return route.fulfill({status: 200, contentType: 'text/html', body: baselineHomepage});\n",
+          "    const url = new URL(route.request().url());\n"
+        ],
+        [
+          9035,
+          9080,
+          "  for (edition of ['baseline', 'current']) {\n",
+          ""
+        ],
+        [
+          9481,
+          9511,
+          "      mockedAssistantPosts++;\n",
+          ""
+        ],
+        [
+          11892,
+          12888,
+          "    if (edition === 'current') {\n      const scenario = page.locator('#main-content > .mr-scenario');\n      const scene = {\n        domSections: await page.locator('#main-content > section').evaluateAll(nodes => nodes.filter(node => getComputedStyle(node).display !== 'none').map(node => node.classList[0])),\n        count: await scenario.count(), visible: await scenario.isVisible(),\n        label: (await scenario.locator('.mr-demo-heading > span').innerText()).replace(/\\s+/g, ' ').trim(),\n        labelVisible: await scenario.locator('.mr-demo-heading > span').isVisible(),\n        heroLabel: await page.locator('.mr-proof-label').innerText(),\n      };\n      assertCurrentEditorialSequence(editorial.visibleSections, scene);\n      // Only after proving the complete exact current sequence, project its\n      // single known index1 addition into the unchanged historical assertion.\n      editorial.visibleSections = [editorial.visibleSections[0], ...editorial.visibleSections.slice(2)];\n    }\n",
+          ""
+        ],
+        [
+          20751,
+          20911,
+          "    receipts.push({edition, viewport, homepageFunctionalChecksPassed: true, assistantRequestMocked: true, editorialSections: edition === 'current' ? 12 : 11});\n",
+          ""
+        ],
+        [
+          21541,
+          21618,
+          "    receipts.push({edition, viewport, contactFieldFocusChecksPassed: true});\n",
+          ""
+        ],
+        [
+          22405,
+          22464,
+          "  receipts.push({edition, assistantFallbackPassed: true});\n",
+          ""
+        ],
+        [
+          23230,
+          23287,
+          "  receipts.push({edition, contactFallbackPassed: true});\n",
+          ""
+        ],
+        [
+          23339,
+          24825,
+          "  console.log('HOMEPAGE_ASSISTANT_EDITION_PASS ' + edition);\n  }\n  assert.equal(mockedAssistantPosts, 6, 'All six edition/viewport endpoint checks were intercepted locally');\n  assert.deepEqual(unexpectedWrites, [], 'No other write request was attempted or allowed');\n  for (const [file, hash] of Object.entries(sourceHashes)) assert.equal(sha(fs.readFileSync(path.join(root, file))), hash, 'Executed source stayed frozen: ' + file);\n  const receipt = {passed: true, checkedAt: new Date().toISOString(), base, historicalRawSourceSha256: sha(rawBaselineHomepage), historicalBuiltBaselineSha256: sha(baselineHomepage), domOrderEvidence: 'Visible direct-main DOM order and rendered section order; not a separate accessibility-tree audit. Original actual keyboard/focus checks run in both editions.', sourceHashes, editions: 2, homepageFunctionalStates: 6, contactFieldFocusStates: 6, fallbackStates: 4, negativeControls: invalidSequences.length + invalidScenes.length, mockedAssistantPosts, unexpectedWrites, receipts};\n  if (process.env.ASSISTANT_SMOKE_OUT) {\n    fs.mkdirSync(process.env.ASSISTANT_SMOKE_OUT, {recursive: true});\n    fs.writeFileSync(path.join(process.env.ASSISTANT_SMOKE_OUT, 'RECEIPT.json'), JSON.stringify(receipt, null, 2) + '\\n', {mode: 0o600});\n  }\n  console.log('HOMEPAGE_ASSISTANT_DUAL_PASS ' + JSON.stringify({editions: 2, homepageStates: 6, fieldStates: 6, fallbacks: 4, negativeControls: receipt.negativeControls, mockedAssistantPosts, unexpectedWrites: 0}));\n",
+          ""
+        ]
+      ]
     }
   },
   "additions": {

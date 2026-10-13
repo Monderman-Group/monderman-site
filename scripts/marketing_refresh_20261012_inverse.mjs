@@ -6,7 +6,7 @@ import {createHash} from 'node:crypto';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 export const MARKETING_REFRESH_BASELINE='14e57bb9f5537cd7ed5eb581cbc7740541c593b1';
 export const MARKETING_REFRESH_VERSION='marketing-refresh-20261012.1';
-export const MARKETING_REFRESH_FIXTURE_SHA256='720608f700036a3150d1d831f8a6c4fc6e904a88a97b765ed4dca0d83c052d1e';
+export const MARKETING_REFRESH_FIXTURE_SHA256='f4fa302eda9c9ee7091682ff4f972a956895716170230d2bad5a01a3d940f29c';
 const bytes=fs.readFileSync(new URL('./fixtures/marketing-refresh-20261012.json',import.meta.url));
 assert.equal(sha(bytes),MARKETING_REFRESH_FIXTURE_SHA256,'Exact independently reviewed marketing refresh fixture');
 export const marketingRefreshDelta=JSON.parse(bytes);

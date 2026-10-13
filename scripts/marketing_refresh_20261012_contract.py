@@ -52,13 +52,13 @@ existing = ['index.html', 'public-search-index.json',
     'scripts/public_sample_manifest_sensitivity_smoke.mjs', 'scripts/homepage_card_rhythm_smoke.mjs', 'scripts/site_system_visual_smoke.mjs',
     'scripts/sample_marketing_language_hover_smoke.mjs', 'scripts/homepage_workspace_demo_smoke.mjs',
     'scripts/methodology_business_copy_smoke.mjs', 'scripts/sample_tile_smoke.mjs', '.github/workflows/frontend-release.yml',
-    '.github/workflows/sample-report-marketing-certification.yml']
+    '.github/workflows/sample-report-marketing-certification.yml', 'scripts/homepage_assistant_smoke.mjs']
 guards = ['scripts/marketing_refresh_20261012_inverse.mjs', 'scripts/marketing_refresh_20261012_inverse.py',
     'scripts/marketing_refresh_20261012_contract.mjs', 'scripts/marketing_refresh_20261012_contract.py',
     'scripts/fixtures/marketing-refresh-20261012.json']
 check(BASELINE == '14e57bb9f5537cd7ed5eb581cbc7740541c593b1', 'Exact deployed public baseline')
 check(VERSION == 'marketing-refresh-20261012.1', 'Independent approval version')
-check(list(_fixture['files']) == existing, 'Exact fifteen existing-file whitelist')
+check(list(_fixture['files']) == existing, 'Exact sixteen existing-file whitelist')
 check(_fixture.get('provisional') is False, 'Only the final reviewed source snapshot can pass this full contract')
 check(_fixture['guardFiles'] == guards, 'Five new guard files only')
 check(git('rev-parse', BASELINE + '^{tree}').decode().strip() == _fixture['baselineTree'], 'Authoritative baseline Git tree')
@@ -292,7 +292,7 @@ def guard_calls(source):
                 state, in_class, masked[i] = 'regex', False, ' '
         i += 1
     text, out = ''.join(masked), []
-    for match in re.finditer(r'\b(?:assert(?:\.[A-Za-z]+)?|check|equal|eq|assertCompactHeight|assertAssumptionsText|assertReadingGuide|assertReadablePreview|assertEnlargedOverview|assertExpandedHeight|assertRefreshedJourneyGeometry)\s*\(', text):
+    for match in re.finditer(r'\b(?:assert(?:\.[A-Za-z]+)?|check|equal|eq|assertCompactHeight|assertAssumptionsText|assertReadingGuide|assertReadablePreview|assertEnlargedOverview|assertExpandedHeight|assertRefreshedJourneyGeometry|assertCurrentEditorialSequence)\s*\(', text):
         depth, end = 1, match.end()
         while end < len(text) and depth:
             depth += int(text[end] == '(') - int(text[end] == ')')
@@ -315,7 +315,7 @@ def assert_preserved_guard(file, source):
     return original
 
 original_layout_calls = 0
-for file in ['scripts/homepage_card_rhythm_smoke.mjs', 'scripts/site_system_visual_smoke.mjs', 'scripts/sample_marketing_language_hover_smoke.mjs', 'scripts/homepage_workspace_demo_smoke.mjs', 'scripts/methodology_business_copy_smoke.mjs', 'scripts/sample_tile_smoke.mjs']:
+for file in ['scripts/homepage_card_rhythm_smoke.mjs', 'scripts/site_system_visual_smoke.mjs', 'scripts/sample_marketing_language_hover_smoke.mjs', 'scripts/homepage_workspace_demo_smoke.mjs', 'scripts/methodology_business_copy_smoke.mjs', 'scripts/sample_tile_smoke.mjs', 'scripts/homepage_assistant_smoke.mjs']:
     source = read(file).decode()
     original = assert_preserved_guard(file, source)
     checks += len(original) + 3
@@ -345,6 +345,27 @@ for file, helper, count in [
         check(source.count(hook) == 1, file + ': unique current geometry-hook mutation target')
         reject(lambda: require_hooks(source.replace(hook, 'void 0', 1)), file + ': removed current geometry negative hook rejected')
         reject(lambda: require_hooks(source.replace(hook, '/* '+hook+' */', 1)), file + ': commented current geometry negative hook rejected')
+# Editorial rejection hooks are separate from the unchanged geometry inventory.
+assistant_file = 'scripts/homepage_assistant_smoke.mjs'
+assistant_source = read(assistant_file).decode()
+assistant_proof = 'assertCurrentEditorialSequence(editorial.visibleSections, scene)'
+assistant_projection = 'editorial.visibleSections = [editorial.visibleSections[0], ...editorial.visibleSections.slice(2)];'
+def editorial_hooks(value):
+    return [call for call in guard_calls(value) if call.startswith('assert.throws(') and re.search(r'\(\)\s*=>\s*assertCurrentEditorialSequence\(', call)]
+def require_assistant_editorial_proof(source):
+    assert assistant_proof in guard_calls(source), 'Assistant live current sequence proof remains an executed call'
+    assert source.find(assistant_projection) >= 0 and source.find(assistant_proof) < source.find(assistant_projection), 'Assistant exact proof precedes its finite index1 projection'
+    assert "for (edition of ['baseline', 'current'])" in source, 'Both exact historical and current assistant editions execute'
+    assert len(editorial_hooks(source)) == 2, 'Both actual editorial rejection loops remain executable'
+require_assistant_editorial_proof(assistant_source)
+checks += 4
+editorial_negative_hooks = len(editorial_hooks(assistant_source))
+for target in [assistant_proof, *editorial_hooks(assistant_source)]:
+    check(assistant_source.count(target) == 1, 'Unique assistant editorial proof/rejection mutation target')
+    reject(lambda: require_assistant_editorial_proof(assistant_source.replace(target, 'void 0', 1)), 'Removed assistant editorial proof/rejection hook rejected')
+    reject(lambda: require_assistant_editorial_proof(assistant_source.replace(target, '/* '+target+' */', 1)), 'Commented assistant editorial proof/rejection hook rejected')
+reject(lambda: require_assistant_editorial_proof(assistant_source.replace("for (edition of ['baseline', 'current'])", "for (edition of ['current'])", 1)), 'Omitting exact historical assistant execution is rejected')
+reject(lambda: require_assistant_editorial_proof(assistant_source.replace(assistant_proof, 'void 0', 1).replace(assistant_projection, assistant_projection+'\n'+assistant_proof, 1)), 'Moving the finite projection before current proof is rejected')
 index, old_index = json.loads(read('public-search-index.json')), json.loads(prior('public-search-index.json'))
 check(len(index) == len(old_index), 'Search inventory unchanged')
 check([x for x in index if x['url'] != 'index.html'] == [x for x in old_index if x['url'] != 'index.html'], 'All unrelated search records unchanged')
@@ -383,6 +404,6 @@ if photography_ready:
     check(html.count('Illustrative photography') >= 2, 'Both visible photography boundaries')
 print(json.dumps({'ok':True, 'checks':checks, 'negativeControls':negative_controls, 'files':len(existing), 'hunks':hunks,
     'additions':len(additions), 'immutableFiles':immutable_files, 'historicalFixtures':historical_fixtures, 'pdfs':pdfs,
-    'fixtureSha256':FIXTURE_SHA256, 'originalLayoutCalls':original_layout_calls, 'geometryNegativeHooks':geometry_negative_hooks, 'photoBytes':photo_bytes, 'photographyReady':photography_ready,
+    'fixtureSha256':FIXTURE_SHA256, 'originalLayoutCalls':original_layout_calls, 'geometryNegativeHooks':geometry_negative_hooks, 'editorialNegativeHooks':editorial_negative_hooks, 'photoBytes':photo_bytes, 'photographyReady':photography_ready,
     'sourceReady':True, 'nonImagePublicationReady':True, 'photographyBlocked':photography_blocked, 'assignmentComplete':photography_ready, 'networkCalls':0, 'productionWrites':0,
     'photographyBlocker':photos['blocker'] if photography_blocked else None}))

@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 BASELINE = '14e57bb9f5537cd7ed5eb581cbc7740541c593b1'
 VERSION = 'marketing-refresh-20261012.1'
-FIXTURE_SHA256 = '720608f700036a3150d1d831f8a6c4fc6e904a88a97b765ed4dca0d83c052d1e'
+FIXTURE_SHA256 = 'f4fa302eda9c9ee7091682ff4f972a956895716170230d2bad5a01a3d940f29c'
 _bytes = (Path(__file__).resolve().parent / 'fixtures/marketing-refresh-20261012.json').read_bytes()
 assert hashlib.sha256(_bytes).hexdigest() == FIXTURE_SHA256, 'Exact independently reviewed marketing refresh fixture'
 _fixture = json.loads(_bytes)
