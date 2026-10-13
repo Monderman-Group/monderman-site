@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
-import {chromium, webkit} from 'playwright';
+const {chromium, webkit} = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
 const origin = new URL(base).origin;
@@ -20,7 +20,7 @@ const check = (value, message) => { checks++; assert.ok(value, message); };
 const equal = (actual, expected, message) => { checks++; assert.deepEqual(actual, expected, message); };
 
 async function setup(browser, options) {
-  const page = await browser.newPage({viewport: options.viewport, javaScriptEnabled: options.scripts !== false, reducedMotion: options.reduced ? 'reduce' : 'no-preference', serviceWorkers: 'block'});
+  const page = await browser.newPage({viewport: options.viewport, deviceScaleFactor: options.deviceScaleFactor, javaScriptEnabled: options.scripts !== false, reducedMotion: options.reduced ? 'reduce' : 'no-preference', serviceWorkers: 'block'});
   const writes = [], external = [], errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.addInitScript(() => { window.supabase = {createClient: () => ({auth: {getSession: async () => ({data: {session: null}}), onAuthStateChange: () => ({data: {subscription: {unsubscribe() {}}}})}})}; });
@@ -51,10 +51,14 @@ for (const [engine, browserType] of [['chromium', chromium], ['webkit', webkit]]
     cases.push({name: '390-observer-unavailable', viewport: {width: 390, height: 844}, scripts: true, observerUnavailable: true});
     cases.push({name: '390-observer-failure', viewport: {width: 390, height: 844}, scripts: true, observerFailure: true});
     cases.push({name: '1440-200-percent', viewport: {width: 1440, height: 1000}, scripts: true, zoom: true});
+    // A 720x500 CSS viewport at DPR2 represents the responsive reflow of a
+    // 1440x1000 physical viewport at 200%, separately from the CSS zoom stress.
+    cases.push({name: '720-browser-200-percent-reflow', viewport: {width: 720, height: 500}, deviceScaleFactor: 2, scripts: true});
     for (const options of cases) {
       const state = await setup(browser, options), {page} = state;
       const label = engine + '/' + options.name;
       if (options.zoom) await page.evaluate(() => document.body.style.zoom = '2');
+      if (options.deviceScaleFactor) equal(await page.evaluate(() => ({width: innerWidth, height: innerHeight, deviceScaleFactor: devicePixelRatio})), {width: 720, height: 500, deviceScaleFactor: 2}, label + ': exact browser-zoom-equivalent responsive viewport');
       const demo = page.locator('[data-lens-demo]'), tabs = demo.locator('[data-lens-choice]');
       equal(await tabs.allTextContents(), titles, label + ': four exact diagnostic names');
       equal(await demo.locator('[data-lens-panel]').count(), 4, label + ': four distinct qualitative panels');
@@ -131,11 +135,15 @@ for (const [engine, browserType] of [['chromium', chromium], ['webkit', webkit]]
       }
       const reportLink = page.locator('.hero [data-home-report-quad] .hrq-footer > a');
       await reportLink.evaluate(el => el.scrollIntoView({behavior: 'instant', block: 'center'}));
-      check(await reportLink.evaluate(el => { const r = el.getBoundingClientRect(), hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return hit === el || el.contains(hit); }), label + ': full report footer link is unobstructed');
+      // Browser viewport quads avoid old WebKit's inconsistent DOM rects under
+      // CSS zoom while retaining an exact, unforced physical hit test.
+      const reportLinkViewportBox = await reportLink.boundingBox();
+      check(reportLinkViewportBox && Object.values(reportLinkViewportBox).every(Number.isFinite) && reportLinkViewportBox.width > 0 && reportLinkViewportBox.height > 0 && reportLinkViewportBox.x >= 0 && reportLinkViewportBox.y >= 0 && reportLinkViewportBox.x + reportLinkViewportBox.width <= options.viewport.width && reportLinkViewportBox.y + reportLinkViewportBox.height <= options.viewport.height, label + ': full report footer link has positive finite geometry entirely within the viewport');
+      check(await reportLink.evaluate((el, box) => { const hit = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2); return hit === el || el.contains(hit); }, reportLinkViewportBox), label + ': full report footer link is unobstructed');
       await reportLink.click();
       await page.waitForURL(url => url.origin === origin && url.pathname === '/sample-report.html' && url.hash === '#depth');
       equal(state.writes, [], label + ': report navigation performs no writes');
-      receipts.push({engine, ...options, attemptedWrites: state.writes.length, blockedExternalOrigins: [...new Set(state.external)], pageErrors: state.errors});
+      receipts.push({engine, ...options, reportLinkViewportBox, attemptedWrites: state.writes.length, blockedExternalOrigins: [...new Set(state.external)], pageErrors: state.errors});
       await page.close();
       console.log('MARKETING_REFRESH_STATE_PASS ' + label);
     }
