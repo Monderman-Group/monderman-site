@@ -43,7 +43,7 @@ guard_files = ['scripts/marketing_completion_20261013_inverse.mjs', 'scripts/mar
     'scripts/marketing_completion_20261013_contract.mjs', 'scripts/marketing_completion_20261013_contract.py',
     'scripts/fixtures/marketing-completion-20261013.json']
 check(BASELINE == '561439e7c5aef48db0331bbb993f0a6d9ec4ada1', 'Actual deployed starting revision')
-check(VERSION == 'marketing-completion-20261013.4', 'Separate new approval version')
+check(VERSION == 'marketing-completion-20261013.5', 'Separate new approval version')
 check(delta.get('provisional') is False, 'Incomplete/photo-pending scaffold cannot certify publication')
 check(list(FILES) == expected_files, 'Exact eighteen-file finite existing whitelist')
 check(list(GUARD_FILES) == guard_files, 'Only five new approval modules/fixture')
@@ -413,6 +413,15 @@ check(sum('src="marketing-completion.js' in s for s in scripts(html)) == 1, 'Exa
 js, css = read('marketing-completion.js').decode(), read('marketing-completion.css').decode()
 check(not re.search(r'\b(?:fetch|XMLHttpRequest|WebSocket|EventSource)\s*\(|sendBeacon\s*\(|localStorage|sessionStorage|document\.cookie|supabase|stripe', js, re.I), 'Presentation has no network/storage/identity/payment/tracking calls')
 check(not re.search(r'@import\b|@font-face\b|https?://', css, re.I), 'No remote stylesheet/new font body')
+# October 13, 2026: one scoped physical pixel preserves the original strict44px touch assertion.
+hero_touch_margin_block = "/* Keep a real pixel of margin above the hero sample link's 44px touch minimum. */\nbody.homepage-enterprise.marketing-refresh .hero [data-home-report-quad] .hrq-footer > a { min-height: 45px; }\n"
+def assert_hero_touch_margin(source):
+    assert source.count(hero_touch_margin_block) == 1, 'Exactly one approved homepage hero touch-margin rule'
+    assert sha(source.replace(hero_touch_margin_block, '', 1).encode()) == '34a023e0c6c5771f3ec6b243f82b3b9026ad3ede3fe1d6b4b0187e3f0ac8927e', 'Removing only the reviewed rule restores every publishedV4 CSS byte'
+assert_hero_touch_margin(css)
+checks += 2
+for mutant in [css.replace(hero_touch_margin_block, '', 1), css.replace(hero_touch_margin_block, hero_touch_margin_block * 2, 1), *[css.replace(hero_touch_margin_block, hero_touch_margin_block.replace('45px', value), 1) for value in ['43px', '44px', '46px']], css.replace(hero_touch_margin_block, hero_touch_margin_block.replace(' .hero [data-home-report-quad]', ''), 1), css.replace(hero_touch_margin_block, hero_touch_margin_block.replace('min-height: 45px;', 'min-height: 45px; display: none;'), 1), css.replace(hero_touch_margin_block, '@media (min-width: 1440px) {\n' + hero_touch_margin_block + '}\n', 1), css.replace(hero_touch_margin_block, hero_touch_margin_block.replace('min-height: 45px;', 'min-height: 45px; transform: scale(.99);'), 1), css + 'body { color: red; }\n']:
+    reject(lambda mutant=mutant: assert_hero_touch_margin(mutant), 'Deleted, duplicate, altered, broadened, conditional, hidden, scaled or unrelated CSS rejects')
 check('@media (max-width: 820px)' in css, 'Source sizes match actual responsive photo breakpoint')
 check(sum(len(read(f)) for f in ['marketing-refresh.css', 'marketing-refresh.js', 'marketing-completion.css', 'marketing-completion.js']) <= 64 * 1024, 'Combined local presentation CSS/JS64KiB bound')
 photo_assets = [f for f in ADDITIONS if f.startswith('assets/marketing/')]
