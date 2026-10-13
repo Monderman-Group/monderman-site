@@ -1,7 +1,7 @@
 {
   "baseline": "561439e7c5aef48db0331bbb993f0a6d9ec4ada1",
   "baselineTree": "6e000b0f2c357902e402217e6d6d94e8c79d6762",
-  "version": "marketing-completion-20261013.1",
+  "version": "marketing-completion-20261013.2",
   "provisional": false,
   "guardFiles": [
     "scripts/marketing_completion_20261013_inverse.mjs",
@@ -350,6 +350,30 @@
           30849,
           "  const receipt = {passed: true, checkedAt: new Date().toISOString(), base, historicalRawSourceSha256: sha(rawBaselineHomepage), historicalBuiltBaselineSha256: sha(baselineHomepage), domOrderEvidence: 'Visible direct-main DOM order and rendered section order; not a separate accessibility-tree audit. Original actual keyboard/focus checks run in both editions.', sourceHashes, editions: 2, homepageFunctionalStates: 6, contactFieldFocusStates: 6, fallbackStates: 4, negativeControls: invalidSequences.length + invalidScenes.length, completionNegativeControls: completionSequenceNegatives.length + completionPhotoNegatives.length, completionPhotoSections: 3, mockedAssistantPosts, unexpectedWrites, receipts};\n",
           "  const receipt = {passed: true, checkedAt: new Date().toISOString(), base, historicalRawSourceSha256: sha(rawBaselineHomepage), historicalBuiltBaselineSha256: sha(baselineHomepage), domOrderEvidence: 'Visible direct-main DOM order and rendered section order; not a separate accessibility-tree audit. Original actual keyboard/focus checks run in both editions.', sourceHashes, editions: 2, homepageFunctionalStates: 6, contactFieldFocusStates: 6, fallbackStates: 4, negativeControls: invalidSequences.length + invalidScenes.length, mockedAssistantPosts, unexpectedWrites, receipts};\n"
+        ]
+      ]
+    },
+    "scripts/validate_production_cosmetic_certification.py": {
+      "before_sha256": "58c5abdb7b20b18d7330da7c3d738aef08e0b264cc44eff8859b9e134d2e013d",
+      "after_sha256": "0a9671754b59ef9b2b24cfb64cecca8517e347c047882cd172e4b8e57c5df3e7",
+      "replacements": [
+        [
+          14699,
+          15082,
+          "# October 13, 2026: these four repaired use-case pages contain the approved canonical footer once.\napproved_brand_statement_counts = {\"index.html\": 3, \"hold-collide-come-apart.html\": 1, \"trenches-not-silos.html\": 1, \"durable-organization.html\": 1, \"after-a-reorganization.html\": 1, \"after-an-acquisition.html\": 1, \"new-in-the-role.html\": 1, \"transformation-behind-schedule.html\": 1}\n",
+          "approved_brand_statement_counts = {\"index.html\": 3, \"hold-collide-come-apart.html\": 1, \"trenches-not-silos.html\": 1, \"durable-organization.html\": 1}\n"
+        ]
+      ]
+    },
+    "scripts/certification_guard_sensitivity_smoke.py": {
+      "before_sha256": "0664f63a2677560c13ac5b4549e5c9a6c622fdd700fe31bdb7e9ab630c8740ff",
+      "after_sha256": "96bf40e08e114c4cd3f27a07ee6053f7faea428b53f101c2170bdec0418807e3",
+      "replacements": [
+        [
+          2847,
+          4525,
+          "    # October 13, 2026: each approved repaired footer still rejects all other copy/count changes.\n    for footer_page in [\"after-a-reorganization.html\", \"after-an-acquisition.html\", \"new-in-the-role.html\", \"transformation-behind-schedule.html\"]:\n        expect_rejection(\n            fixture,\n            footer_page + \": changed canonical footer brand wording\",\n            footer_page + \": visible em dash returned\",\n            lambda: rewrite(fixture / footer_page, lambda value: value.replace(approved_brand_statement, approved_brand_statement.replace(\"improvement.\", \"improvements.\"), 1)),\n            [footer_page],\n        )\n        expect_rejection(\n            fixture,\n            footer_page + \": duplicate canonical footer brand statement\",\n            footer_page + \": approved brand statement count changed\",\n            lambda: rewrite(fixture / footer_page, lambda value: value.replace(\"</main>\", \"<p>\" + approved_brand_statement + \"</p></main>\", 1)),\n            [footer_page],\n        )\n        expect_rejection(\n            fixture,\n            footer_page + \": missing canonical footer brand statement\",\n            footer_page + \": approved brand statement count changed\",\n            lambda: rewrite(fixture / footer_page, lambda value: value.replace(approved_brand_statement, \"\", 1)),\n            [footer_page],\n        )\n        expect_rejection(\n            fixture,\n            footer_page + \": unrelated visible footer punctuation\",\n            footer_page + \": visible em dash returned\",\n            lambda: rewrite(fixture / footer_page, lambda value: value.replace(\"</main>\", \"<p>Other—copy.</p></main>\", 1)),\n            [footer_page],\n        )\n",
+          ""
         ]
       ]
     }

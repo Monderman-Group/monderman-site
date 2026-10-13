@@ -3,8 +3,8 @@ import hashlib
 import json
 from pathlib import Path
 BASELINE = '561439e7c5aef48db0331bbb993f0a6d9ec4ada1'
-VERSION = 'marketing-completion-20261013.1'
-FIXTURE_SHA256 = 'c78b7a1b8088987e4b9261a35c1e2ef1952500077c5b8f0ae9b32a8c845579d3'
+VERSION = 'marketing-completion-20261013.2'
+FIXTURE_SHA256 = 'c4b9886a66c6626941eca56e07d18aa0983f9bb8ebc71a31e061fd188d530025'
 _bytes = (Path(__file__).resolve().parent / 'fixtures/marketing-completion-20261013.json').read_bytes()
 assert hashlib.sha256(_bytes).hexdigest() == FIXTURE_SHA256, 'Exact independently reviewed completion fixture'
 _fixture = json.loads(_bytes)

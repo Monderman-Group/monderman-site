@@ -36,14 +36,15 @@ expected_files = ['index.html', 'public-search-index.json',
     'scripts/render-static-build.sh', 'scripts/marketing_refresh_20261012_inverse.mjs', 'scripts/marketing_refresh_20261012_inverse.py',
     'scripts/marketing_refresh_20261012_contract.mjs', 'scripts/marketing_refresh_20261012_contract.py',
     'scripts/public_sample_manifest_sensitivity_smoke.mjs', '.github/workflows/frontend-release.yml',
-    '.github/workflows/sample-report-marketing-certification.yml', 'scripts/homepage_assistant_smoke.mjs']
+    '.github/workflows/sample-report-marketing-certification.yml', 'scripts/homepage_assistant_smoke.mjs',
+    'scripts/validate_production_cosmetic_certification.py', 'scripts/certification_guard_sensitivity_smoke.py']
 guard_files = ['scripts/marketing_completion_20261013_inverse.mjs', 'scripts/marketing_completion_20261013_inverse.py',
     'scripts/marketing_completion_20261013_contract.mjs', 'scripts/marketing_completion_20261013_contract.py',
     'scripts/fixtures/marketing-completion-20261013.json']
 check(BASELINE == '561439e7c5aef48db0331bbb993f0a6d9ec4ada1', 'Actual deployed starting revision')
-check(VERSION == 'marketing-completion-20261013.1', 'Separate new approval version')
+check(VERSION == 'marketing-completion-20261013.2', 'Separate new approval version')
 check(delta.get('provisional') is False, 'Incomplete/photo-pending scaffold cannot certify publication')
-check(list(FILES) == expected_files, 'Exact fifteen-file finite existing whitelist')
+check(list(FILES) == expected_files, 'Exact seventeen-file finite existing whitelist')
 check(list(GUARD_FILES) == guard_files, 'Only five new approval modules/fixture')
 check(git('rev-parse', BASELINE + '^{tree}').decode().strip() == delta['baselineTree'], 'Exact deployed Git tree')
 tracked = git('ls-tree', '-r', '--name-only', BASELINE).decode().splitlines()
@@ -192,6 +193,28 @@ anchor = "find assets/research -maxdepth 1 -type f -name '*.png' ! -name 'after-
 block = "\n# Only reviewed public photographic derivatives; originals and private licensing evidence stay out.\nmkdir -p \"$publish_dir/assets/marketing\"\nfind assets/marketing -maxdepth 1 -type f \\( -name '*.avif' -o -name '*.webp' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.png' \\) -exec cp -- {} \"$publish_dir/assets/marketing/\" \\;\n"
 expected = once(before[file].decode(), anchor, anchor + block)
 check(read(file).decode() == expected, 'Build only image derivative copy; all private/identity guards preserved')
+# Exact four-footer consumer amendment; preserve all prior rules and mutation cases.
+original_brand_count_line = 'approved_brand_statement_counts = {"index.html": 3, "hold-collide-come-apart.html": 1, "trenches-not-silos.html": 1, "durable-organization.html": 1}\n'
+repaired_footer_brand_count_line = '# October 13, 2026: these four repaired use-case pages contain the approved canonical footer once.\napproved_brand_statement_counts = {"index.html": 3, "hold-collide-come-apart.html": 1, "trenches-not-silos.html": 1, "durable-organization.html": 1, "after-a-reorganization.html": 1, "after-an-acquisition.html": 1, "new-in-the-role.html": 1, "transformation-behind-schedule.html": 1}\n'
+footer_sensitivity_anchor = '    approved_brand_statement = "Understand how ownership, decisions, and everyday work operate across your organization—and where to focus improvement."\n'
+footer_sensitivity_cases = '    # October 13, 2026: each approved repaired footer still rejects all other copy/count changes.\n    for footer_page in ["after-a-reorganization.html", "after-an-acquisition.html", "new-in-the-role.html", "transformation-behind-schedule.html"]:\n        expect_rejection(\n            fixture,\n            footer_page + ": changed canonical footer brand wording",\n            footer_page + ": visible em dash returned",\n            lambda: rewrite(fixture / footer_page, lambda value: value.replace(approved_brand_statement, approved_brand_statement.replace("improvement.", "improvements."), 1)),\n            [footer_page],\n        )\n        expect_rejection(\n            fixture,\n            footer_page + ": duplicate canonical footer brand statement",\n            footer_page + ": approved brand statement count changed",\n            lambda: rewrite(fixture / footer_page, lambda value: value.replace("</main>", "<p>" + approved_brand_statement + "</p></main>", 1)),\n            [footer_page],\n        )\n        expect_rejection(\n            fixture,\n            footer_page + ": missing canonical footer brand statement",\n            footer_page + ": approved brand statement count changed",\n            lambda: rewrite(fixture / footer_page, lambda value: value.replace(approved_brand_statement, "", 1)),\n            [footer_page],\n        )\n        expect_rejection(\n            fixture,\n            footer_page + ": unrelated visible footer punctuation",\n            footer_page + ": visible em dash returned",\n            lambda: rewrite(fixture / footer_page, lambda value: value.replace("</main>", "<p>Other—copy.</p></main>", 1)),\n            [footer_page],\n        )\n'
+expected_cosmetic_validator = once(before['scripts/validate_production_cosmetic_certification.py'].decode(), original_brand_count_line, repaired_footer_brand_count_line)
+expected_cosmetic_sensitivity = once(before['scripts/certification_guard_sensitivity_smoke.py'].decode(), footer_sensitivity_anchor, footer_sensitivity_anchor + footer_sensitivity_cases)
+def assert_current_cosmetic_consumers(validator, sensitivity):
+    assert validator == expected_cosmetic_validator, "Only four exact1-count footer entries/comment; all prior literals/counts/assertions/rules retained"
+    assert sensitivity == expected_cosmetic_sensitivity, "Exactly16 additive real mutations; all original mutations/calls retained"
+cosmetic_validator, cosmetic_sensitivity = read('scripts/validate_production_cosmetic_certification.py').decode(), read('scripts/certification_guard_sensitivity_smoke.py').decode()
+assert_current_cosmetic_consumers(cosmetic_validator, cosmetic_sensitivity)
+check(True, "Exact current cosmetic consumer additions")
+for footer in footer_pages:
+    reject(lambda footer=footer: assert_current_cosmetic_consumers(cosmetic_validator.replace(json.dumps(footer) + ": 1", json.dumps(footer) + ": 2", 1), cosmetic_sensitivity), "Wrong explicit footer count rejects")
+for old_value, new_value in [('"index.html": 3', '"index.html": 4'), ('"durable-organization.html": 1', '"durable-organization.html": 0'), ('approved_count == approved_brand_statement_counts.get(path.name, 0)', 'True'), ('require(not any("—" in value', 'require(any("—" in value'), ('organization—and where', 'organization—and everywhere'), ('"after-a-reorganization.html": 1', '"after-a-reorganization.html": 1, "unapproved.html": 1')]:
+    check(old_value in cosmetic_validator, "Exact consumer negative target")
+    reject(lambda old_value=old_value, new_value=new_value: assert_current_cosmetic_consumers(cosmetic_validator.replace(old_value, new_value, 1), cosmetic_sensitivity), "Changed original allowance/count/literal/assertion or added page rejects")
+footer_loop = '    for footer_page in ["after-a-reorganization.html", "after-an-acquisition.html", "new-in-the-role.html", "transformation-behind-schedule.html"]:\n'
+for mutant in [cosmetic_sensitivity.replace(footer_loop, '    for footer_page in []:\n', 1), cosmetic_sensitivity.replace(footer_loop, footer_loop + '        continue\n', 1), cosmetic_sensitivity.replace('footer_page + ": missing canonical footer brand statement"', 'footer_page + ": missing test skipped"', 1), cosmetic_sensitivity.replace('approved_brand_statement.replace("improvement.", "improvements.")', 'approved_brand_statement', 1)]:
+    reject(lambda mutant=mutant: assert_current_cosmetic_consumers(cosmetic_validator, mutant), "Added mutation skip/neutralization rejects")
+
 def guard_calls(source):
     masked, state, escaped, in_class, i = list(source), None, False, False, 0
     while i < len(source):

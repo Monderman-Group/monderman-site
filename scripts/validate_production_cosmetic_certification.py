@@ -295,7 +295,8 @@ require(has_meta(parse_document(not_found), "name", "robots", "noindex, nofollow
 
 # 10 and 13: language canon in visible HTML and customer-visible runtime strings.
 approved_brand_statement = "Understand how ownership, decisions, and everyday work operate across your organization—and where to focus improvement."
-approved_brand_statement_counts = {"index.html": 3, "hold-collide-come-apart.html": 1, "trenches-not-silos.html": 1, "durable-organization.html": 1}
+# October 13, 2026: these four repaired use-case pages contain the approved canonical footer once.
+approved_brand_statement_counts = {"index.html": 3, "hold-collide-come-apart.html": 1, "trenches-not-silos.html": 1, "durable-organization.html": 1, "after-a-reorganization.html": 1, "after-an-acquisition.html": 1, "new-in-the-role.html": 1, "transformation-behind-schedule.html": 1}
 british = re.compile(r"\b(organisation(?:s|'s|’s)?|organisational|colour(?:s)?|behaviour(?:s)?|centre(?:s)?|recognis(?:e|ed|ing)|analys(?:e|ed)|licence(?:s)?|favour(?:s|ed|ing)?|labour|programme(?:s)?|modelling|authorised|summaris(?:e|ed|ing)|prioritis(?:e|ed|ing))\b", re.I)
 for path in html_files:
     parser = VisibleCopy()

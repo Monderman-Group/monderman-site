@@ -80,6 +80,36 @@ with tempfile.TemporaryDirectory(prefix="monderman-cert-sensitivity-") as temp:
         raise AssertionError(f"fixture baseline does not certify\n{baseline.stdout}{baseline.stderr}")
 
     approved_brand_statement = "Understand how ownership, decisions, and everyday work operate across your organization—and where to focus improvement."
+    # October 13, 2026: each approved repaired footer still rejects all other copy/count changes.
+    for footer_page in ["after-a-reorganization.html", "after-an-acquisition.html", "new-in-the-role.html", "transformation-behind-schedule.html"]:
+        expect_rejection(
+            fixture,
+            footer_page + ": changed canonical footer brand wording",
+            footer_page + ": visible em dash returned",
+            lambda: rewrite(fixture / footer_page, lambda value: value.replace(approved_brand_statement, approved_brand_statement.replace("improvement.", "improvements."), 1)),
+            [footer_page],
+        )
+        expect_rejection(
+            fixture,
+            footer_page + ": duplicate canonical footer brand statement",
+            footer_page + ": approved brand statement count changed",
+            lambda: rewrite(fixture / footer_page, lambda value: value.replace("</main>", "<p>" + approved_brand_statement + "</p></main>", 1)),
+            [footer_page],
+        )
+        expect_rejection(
+            fixture,
+            footer_page + ": missing canonical footer brand statement",
+            footer_page + ": approved brand statement count changed",
+            lambda: rewrite(fixture / footer_page, lambda value: value.replace(approved_brand_statement, "", 1)),
+            [footer_page],
+        )
+        expect_rejection(
+            fixture,
+            footer_page + ": unrelated visible footer punctuation",
+            footer_page + ": visible em dash returned",
+            lambda: rewrite(fixture / footer_page, lambda value: value.replace("</main>", "<p>Other—copy.</p></main>", 1)),
+            [footer_page],
+        )
     expect_rejection(
         fixture,
         "unapproved wording in brand punctuation exception",
