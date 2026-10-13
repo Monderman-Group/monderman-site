@@ -32,6 +32,17 @@ on:
       - 'scripts/homepage_sample_entry_20261011_inverse.mjs'
       - 'scripts/homepage_sample_entry_20261011_inverse.py'
       - 'scripts/fixtures/homepage-sample-entry-20261011.json'
+      - 'scripts/marketing_photo_presentation_20261013_contract.mjs'
+      - 'scripts/marketing_photo_presentation_20261013_contract.py'
+      - 'scripts/marketing_photo_presentation_20261013_inverse.mjs'
+      - 'scripts/marketing_photo_presentation_20261013_inverse.py'
+      - 'scripts/fixtures/marketing-photo-presentation-20261013.json'
+      - 'scripts/marketing_photo_presentation_20261013_browser.mjs'
+      - 'marketing-photo-presentation.css'
+      - 'marketing-photo-presentation.js'
+      - 'why-monderman.html'
+      - 'platform-services.html'
+      - 'operational-systems-article.html'
       - 'scripts/marketing_completion_20261013_contract.mjs'
       - 'scripts/marketing_completion_20261013_contract.py'
       - 'scripts/marketing_completion_20261013_inverse.mjs'
@@ -316,6 +327,17 @@ on:
       - 'scripts/homepage_sample_entry_20261011_inverse.mjs'
       - 'scripts/homepage_sample_entry_20261011_inverse.py'
       - 'scripts/fixtures/homepage-sample-entry-20261011.json'
+      - 'scripts/marketing_photo_presentation_20261013_contract.mjs'
+      - 'scripts/marketing_photo_presentation_20261013_contract.py'
+      - 'scripts/marketing_photo_presentation_20261013_inverse.mjs'
+      - 'scripts/marketing_photo_presentation_20261013_inverse.py'
+      - 'scripts/fixtures/marketing-photo-presentation-20261013.json'
+      - 'scripts/marketing_photo_presentation_20261013_browser.mjs'
+      - 'marketing-photo-presentation.css'
+      - 'marketing-photo-presentation.js'
+      - 'why-monderman.html'
+      - 'platform-services.html'
+      - 'operational-systems-article.html'
       - 'scripts/marketing_completion_20261013_contract.mjs'
       - 'scripts/marketing_completion_20261013_contract.py'
       - 'scripts/marketing_completion_20261013_inverse.mjs'
@@ -621,6 +643,8 @@ jobs:
           node scripts/single_lens_overview_contract.mjs
           node scripts/report_overview_site_compatibility_smoke.mjs
           node scripts/report_unified_sankey_contract.mjs
+          node scripts/marketing_photo_presentation_20261013_contract.mjs
+          python scripts/marketing_photo_presentation_20261013_contract.py
           node scripts/marketing_completion_20261013_contract.mjs
           python scripts/marketing_completion_20261013_contract.py
           node scripts/marketing_refresh_20261012_contract.mjs
@@ -822,6 +846,7 @@ jobs:
         run: |
           MARKETING_REFRESH_OUT=/tmp/report-presentation-smoke/marketing-refresh node scripts/marketing_refresh_browser_smoke.mjs
           MARKETING_COMPLETION_OUT=/tmp/report-presentation-smoke/marketing-completion node scripts/marketing_completion_browser_smoke.mjs
+          MARKETING_PHOTO_PRESENTATION_OUT=/tmp/report-presentation-smoke/photo-presentation node scripts/marketing_photo_presentation_20261013_browser.mjs
           node scripts/homepage_workspace_demo_smoke.mjs
           GOLD_ACCENT_OUT=/tmp/report-presentation-smoke/gold-accents node scripts/public_gold_accent_smoke.mjs
           node scripts/workspace_product_design_smoke.mjs

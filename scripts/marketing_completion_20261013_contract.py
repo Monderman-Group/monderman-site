@@ -11,7 +11,8 @@ from marketing_completion_20261013_inverse import (
     source_at_marketing_completion_baseline as conditional,
 )
 ROOT = Path(__file__).resolve().parents[1]
-read = lambda file: (ROOT / file).read_bytes()
+from marketing_photo_presentation_20261013_inverse import source_at_marketing_photo_presentation_baseline, photo_names_at_marketing_photo_presentation_baseline, ADDITIONS as PHOTO_PRESENTATION_ADDITIONS, GUARD_FILES as PHOTO_PRESENTATION_GUARD_FILES
+read = lambda file: source_at_marketing_photo_presentation_baseline(file, (ROOT / file).read_bytes())
 sha = lambda data: hashlib.sha256(data).hexdigest()
 git = lambda *args: subprocess.check_output(['git', *args], cwd=ROOT)
 checks = negative_controls = hunks = immutable_files = old_fixtures = pdfs = 0
@@ -112,7 +113,7 @@ for file in ADDITIONS:
     checks += 2
     check(strict(file, data) == data and conditional(file, data) == data, file + ': addition never erased')
     reject(lambda f=file, b=data: assert_addition(f, b + b'UNREVIEWED'), file + ': altered addition rejected')
-known = set(tracked + list(ADDITIONS) + guard_files)
+known = set(tracked + list(ADDITIONS) + guard_files + list(PHOTO_PRESENTATION_ADDITIONS) + list(PHOTO_PRESENTATION_GUARD_FILES))
 cached = git('ls-files', '--cached').decode().splitlines()
 paths = set(cached + git('ls-files', '--others', '--exclude-standard').decode().splitlines())
 paths = {f for f in paths if (ROOT / f).exists() and not (f == 'node_modules' and f not in cached and (ROOT / f).is_symlink())}
@@ -429,7 +430,7 @@ check(len(photo_assets) >= 3, 'Three separately pinned photographic derivatives'
 expected_photo_names = sorted(Path(f).name for f in photo_assets)
 def assert_photo_directory(names):
     assert sorted(names) == expected_photo_names, 'Only exact approved derivatives in directory, including ignored files'
-assert_photo_directory(p.name for p in (ROOT / 'assets/marketing').iterdir())
+assert_photo_directory(photo_names_at_marketing_photo_presentation_baseline(p.name for p in (ROOT / 'assets/marketing').iterdir()))
 checks += 1
 reject(lambda: assert_photo_directory(expected_photo_names + ['iStock-original.jpg']), 'Ignored/untracked stock original cannot enter the build directory')
 reject(lambda: assert_photo_directory(expected_photo_names[1:]), 'Missing derivative rejects')
