@@ -13,6 +13,7 @@ assert.ok(['127.0.0.1', 'localhost'].includes(new URL(base).hostname), 'Assistan
 const root = path.resolve(import.meta.dirname, '..');
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
 const sourceFiles = ['index.html', 'marketing-refresh.css', 'marketing-refresh.js', 'assistant.js', 'connect-widget.js', 'scripts/homepage_assistant_smoke.mjs', 'scripts/inject-public-shell.mjs', 'site-shell/header.html', 'site-shell/footer.html', 'site-shell/widgets.html'];
+sourceFiles.push('marketing-completion.css','marketing-completion.js','docs/marketing-photo-register-20261013.json');
 const sourceHashes = Object.fromEntries(sourceFiles.map(file => [file, sha(fs.readFileSync(path.join(root, file)))]));
 const rawBaselineHomepage = sourceAtMarketingRefreshBaseline('index.html', fs.readFileSync(path.join(root, 'index.html'), 'utf8'));
 assert.equal(sha(rawBaselineHomepage), 'fc50896dc63825ce7a54bdfff80af41220b635eae8b5a8b76f9c724efd36e874', 'Historical edition is exact reviewed 14e homepage source');
@@ -60,6 +61,50 @@ const invalidScenes = [
   ['unqualified hero report', {...validScene, heroLabel: 'Customer result'}],
 ];
 for (const [label, scene] of invalidScenes) assert.throws(() => assertCurrentEditorialSequence(currentEditorialSequence, scene), undefined, 'Reject ' + label);
+// The completion edition adds only the three approved photo sections. Prove
+// its whole rendered and visible-DOM sequence before any historical projection.
+const completionEditorialSequence = ['hero', 'mc-human-section', 'mr-scenario', 'measurement-loop', 'approach', 'first-run-moments', 'proof-band', 'mxidx-band', 'systems-analysis-bridge', 'mc-human-section', 'home-output-band', 'mc-human-section', 'book-band', 'latest', 'connect'];
+const completionPhotoRecords = [
+  {position: 1, headingId: 'mc-work-title', stockId: '501653292', source: 'assets/marketing/work-discussion-960.jpg', caption: 'Illustrative photography · Models shown'},
+  {position: 9, headingId: 'mc-perspectives-title', stockId: '488892667', source: 'assets/marketing/shared-work-review-960.jpg', caption: 'Illustrative photography · Models shown. The pictured diagram is not a Monderman report.'},
+  {position: 11, headingId: 'mc-judgment-title', stockId: '524156476', source: 'assets/marketing/team-perspectives-960.jpg', caption: 'Illustrative photography · Models shown'},
+];
+function assertCompletionEditorialSequence(sections, photos) {
+  assert.deepEqual(sections, completionEditorialSequence, 'Exact fifteen rendered sections, with approved photos at1/9/11');
+  assert.deepEqual(photos.domSections, completionEditorialSequence, 'Exact visible-DOM and rendered sequence agree');
+  assert.equal(photos.count, 3, 'Exactly three direct-main photo sections, including hidden DOM');
+  assert.equal(photos.figureCount, 3, 'Exactly three photographic figures, including hidden DOM');
+  assert.equal(photos.entries.length, 3, 'Exactly three observed photo records');
+  for (let index = 0; index < completionPhotoRecords.length; index++) {
+    const expected = completionPhotoRecords[index], actual = photos.entries[index];
+    for (const key of ['position', 'headingId', 'stockId', 'source', 'caption']) assert.equal(actual[key], expected[key], 'Exact approved photo ' + key);
+    for (const key of ['visible', 'captionVisible', 'imageVisible']) assert.equal(actual[key], true, 'Displayed approved photo ' + key);
+  }
+}
+function projectApprovedCompletionSections(sections) {
+  return [sections[0], ...sections.slice(2, 9), sections[10], ...sections.slice(12)];
+}
+const validCompletionPhotos = {domSections: completionEditorialSequence, count: 3, figureCount: 3, entries: completionPhotoRecords.map(p => ({...p, visible: true, captionVisible: true, imageVisible: true}))};
+const completionSequenceNegatives = [
+  completionEditorialSequence.filter((_, index) => index !== 1),
+  [...completionEditorialSequence.slice(0, 2), 'mc-human-section', ...completionEditorialSequence.slice(2)],
+  ['hero', 'mr-scenario', 'mc-human-section', ...completionEditorialSequence.slice(3)],
+  [...completionEditorialSequence.slice(0, 6), 'unapproved-section', ...completionEditorialSequence.slice(6)],
+  [...completionEditorialSequence.slice(0, 12), 'latest', 'book-band', 'connect'],
+];
+for (const sections of completionSequenceNegatives) assert.throws(() => assertCompletionEditorialSequence(sections, validCompletionPhotos), undefined, 'Unknown/missing/moved/duplicate sections reject before projection');
+const completionPhotoNegatives = [
+  photos => photos.count = 4, photos => photos.figureCount = 4,
+  photos => photos.domSections = ['mc-human-section', ...completionEditorialSequence.slice(1)],
+  photos => photos.entries.pop(), photos => photos.entries[0].position = 2,
+  photos => photos.entries[0].stockId = 'UNAPPROVED', photos => photos.entries[0].source = 'unapproved.jpg',
+  photos => photos.entries[0].headingId = 'wrong-heading', photos => photos.entries[0].caption = 'Actual customer',
+  photos => photos.entries[0].visible = false, photos => photos.entries[0].imageVisible = false,
+  photos => photos.entries[0].captionVisible = false,
+];
+for (const mutate of completionPhotoNegatives) { const mutant = structuredClone(validCompletionPhotos); mutate(mutant); assert.throws(() => assertCompletionEditorialSequence(completionEditorialSequence, mutant), undefined, 'Hidden/unknown/moved/unqualified photographic content rejects'); }
+assertCompletionEditorialSequence(completionEditorialSequence, validCompletionPhotos);
+assert.deepEqual(projectApprovedCompletionSections(completionEditorialSequence), currentEditorialSequence, 'Only the three fixed approved positions project into the unchanged twelve-section proof');
 let edition = 'baseline';
 const receipts = [], unexpectedWrites = [];
 let mockedAssistantPosts = 0;
@@ -181,6 +226,28 @@ try {
         labelVisible: await scenario.locator('.mr-demo-heading > span').isVisible(),
         heroLabel: await page.locator('.mr-proof-label').innerText(),
       };
+      const completionPhotos = await page.locator('#main-content').evaluate(main => {
+        const sections = [...main.querySelectorAll(':scope > section')];
+        const photoSections = [...main.querySelectorAll(':scope > section[data-marketing-human]')];
+        const shown = node => {
+          if (!node) return false;
+          const rect = node.getBoundingClientRect(), style = getComputedStyle(node);
+          return rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility === 'visible' && Number(style.opacity) >= .99;
+        };
+        return {
+          domSections: sections.filter(shown).map(node => node.classList[0]),
+          count: photoSections.length, figureCount: main.querySelectorAll('[data-marketing-photo]').length,
+          entries: photoSections.map(section => {
+            const figure = section.querySelector('[data-marketing-photo]'), image = figure?.querySelector('img'), caption = figure?.querySelector('figcaption');
+            return {position: sections.indexOf(section), headingId: section.getAttribute('aria-labelledby'), stockId: image?.getAttribute('data-stock-id'), source: image?.getAttribute('src'), caption: caption?.textContent.replace(/\s+/g, ' ').trim(), visible: shown(section) && shown(figure), captionVisible: shown(caption), imageVisible: shown(image)};
+          }),
+        };
+      });
+      assertCompletionEditorialSequence(editorial.visibleSections, completionPhotos);
+      // Only after the complete exact15 and all three images/captions are
+      // proved, restore the fixed12 positions for the original proof below.
+      editorial.visibleSections = projectApprovedCompletionSections(editorial.visibleSections);
+      scene.domSections = projectApprovedCompletionSections(scene.domSections);
       assertCurrentEditorialSequence(editorial.visibleSections, scene);
       // Only after proving the complete exact current sequence, project its
       // single known index1 addition into the unchanged historical assertion.
@@ -308,7 +375,7 @@ try {
       await waitForNativeVisibility(page, true);
       await checkFixedAnchors(page, viewport);
     }
-    receipts.push({edition, viewport, homepageFunctionalChecksPassed: true, assistantRequestMocked: true, editorialSections: edition === 'current' ? 12 : 11});
+    receipts.push({edition, viewport, homepageFunctionalChecksPassed: true, assistantRequestMocked: true, editorialSections: edition === 'current' ? 15 : 11, historicalProjectedEditorialSections: edition === 'current' ? 12 : 11});
     await page.close();
 
     const fieldPage = await newLocalPage(viewport);
@@ -350,7 +417,7 @@ try {
   assert.equal(mockedAssistantPosts, 6, 'All six edition/viewport endpoint checks were intercepted locally');
   assert.deepEqual(unexpectedWrites, [], 'No other write request was attempted or allowed');
   for (const [file, hash] of Object.entries(sourceHashes)) assert.equal(sha(fs.readFileSync(path.join(root, file))), hash, 'Executed source stayed frozen: ' + file);
-  const receipt = {passed: true, checkedAt: new Date().toISOString(), base, historicalRawSourceSha256: sha(rawBaselineHomepage), historicalBuiltBaselineSha256: sha(baselineHomepage), domOrderEvidence: 'Visible direct-main DOM order and rendered section order; not a separate accessibility-tree audit. Original actual keyboard/focus checks run in both editions.', sourceHashes, editions: 2, homepageFunctionalStates: 6, contactFieldFocusStates: 6, fallbackStates: 4, negativeControls: invalidSequences.length + invalidScenes.length, mockedAssistantPosts, unexpectedWrites, receipts};
+  const receipt = {passed: true, checkedAt: new Date().toISOString(), base, historicalRawSourceSha256: sha(rawBaselineHomepage), historicalBuiltBaselineSha256: sha(baselineHomepage), domOrderEvidence: 'Visible direct-main DOM order and rendered section order; not a separate accessibility-tree audit. Original actual keyboard/focus checks run in both editions.', sourceHashes, editions: 2, homepageFunctionalStates: 6, contactFieldFocusStates: 6, fallbackStates: 4, negativeControls: invalidSequences.length + invalidScenes.length, completionNegativeControls: completionSequenceNegatives.length + completionPhotoNegatives.length, completionPhotoSections: 3, mockedAssistantPosts, unexpectedWrites, receipts};
   if (process.env.ASSISTANT_SMOKE_OUT) {
     fs.mkdirSync(process.env.ASSISTANT_SMOKE_OUT, {recursive: true});
     fs.writeFileSync(path.join(process.env.ASSISTANT_SMOKE_OUT, 'RECEIPT.json'), JSON.stringify(receipt, null, 2) + '\n', {mode: 0o600});

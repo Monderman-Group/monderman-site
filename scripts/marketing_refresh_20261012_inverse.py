@@ -2,6 +2,7 @@
 import hashlib
 import json
 from pathlib import Path
+from marketing_completion_20261013_inverse import source_at_marketing_completion_baseline
 BASELINE = '14e57bb9f5537cd7ed5eb581cbc7740541c593b1'
 VERSION = 'marketing-refresh-20261012.1'
 FIXTURE_SHA256 = 'fd9eebf062c33eeac2e692c5f173dfbc7cfb2752e300749d61b2d789904aff8e'
@@ -13,6 +14,7 @@ assert _fixture['version'] == VERSION
 assert _fixture['baselineTree'] == '42d78704e37603bf19f5a1c5ddc0d7897e7119d8'
 
 def source_before_marketing_refresh_20261012(file, source):
+    source = source_at_marketing_completion_baseline(file, source)
     entry = _fixture['files'].get(file) if isinstance(file, str) else None
     if entry is None:
         return source
@@ -28,6 +30,7 @@ def source_before_marketing_refresh_20261012(file, source):
     return result.decode('utf-8') if isinstance(source, str) else result
 
 def source_at_marketing_refresh_baseline(file, source):
+    source = source_at_marketing_completion_baseline(file, source)
     entry = _fixture['files'].get(file) if isinstance(file, str) else None
     if entry is None:
         return source

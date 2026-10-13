@@ -39,6 +39,7 @@ const adapterDependencies=['scripts/public_copy_clarity_inverse.mjs','scripts/pr
   'scripts/homepage_invitation_focus_20261011_inverse.mjs','scripts/fixtures/homepage-invitation-focus-20261011.json',
   'scripts/book_publication_date_20261011_inverse.mjs','scripts/fixtures/book-publication-date-20261011.json',
   'scripts/marketing_refresh_20261012_inverse.mjs','scripts/fixtures/marketing-refresh-20261012.json',
+  'scripts/marketing_completion_20261013_inverse.mjs','scripts/fixtures/marketing-completion-20261013.json',
   'scripts/homepage_report_first_20260927_inverse.mjs','scripts/fixtures/homepage-report-first-20260927.json',
   'scripts/trenches_homepage_carousel_20260929_inverse.mjs',
   'scripts/hold_collide_publication_20261001_inverse.mjs',

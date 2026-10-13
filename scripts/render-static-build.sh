@@ -51,6 +51,10 @@ cp -- \
   "$publish_dir/assets/brand/"
 find assets/research -maxdepth 1 -type f -name '*.png' ! -name 'after-the-first-lap-social.png' -exec cp -- {} "$publish_dir/assets/research/" \;
 
+# Only reviewed public photographic derivatives; originals and private licensing evidence stay out.
+mkdir -p "$publish_dir/assets/marketing"
+find assets/marketing -maxdepth 1 -type f \( -name '*.avif' -o -name '*.webp' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.png' \) -exec cp -- {} "$publish_dir/assets/marketing/" \;
+
 stale_pdfs=(
   "Monderman_Brief_Accumulated_Drag_Department_of_War.pdf"
   "Monderman_Insight_Every_Node_for_Itself_Aug2026.pdf"
