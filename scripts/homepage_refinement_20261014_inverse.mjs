@@ -6,7 +6,7 @@ import {createHash} from 'node:crypto';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 export const HOMEPAGE_REFINEMENT_BASELINE='94cabdfe6fdd6b15e13ed15af2f6f2398e806fa9';
 export const HOMEPAGE_REFINEMENT_VERSION='homepage-refinement-20261014.1';
-export const HOMEPAGE_REFINEMENT_FIXTURE_SHA256='09d0b16c15f7c408eadaf8d9b43321949ca14ae4f7411422efe62e3c64b01698';
+export const HOMEPAGE_REFINEMENT_FIXTURE_SHA256='62064c4bbb3aaacddc0fe98f0897f0f3a944afff6e6a588450f88c1096a5bbc1';
 const bytes=fs.readFileSync(new URL('./fixtures/homepage-refinement-20261014.json',import.meta.url));
 assert.equal(sha(bytes),HOMEPAGE_REFINEMENT_FIXTURE_SHA256,'Exact reviewed homepage refinement fixture');
 export const homepageRefinementDelta=JSON.parse(bytes);
