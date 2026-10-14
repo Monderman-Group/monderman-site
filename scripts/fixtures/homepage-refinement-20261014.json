@@ -632,6 +632,168 @@
         ]
       ]
     },
+    "scripts/public_sample_preview_binding_20260924_contract.mjs": {
+      "before_sha256": "5061a78cae215ee9e3f91deac5b2b148eff49541ef9c2ddf2e6a60388946d06d",
+      "after_sha256": "102f318b19962be687a4ffa3f79255625146b665f460348683166f225515af3d",
+      "before_bytes": 4846,
+      "after_bytes": 4982,
+      "replacements": [
+        [
+          551,
+          646,
+          "sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014_inverse.mjs';\nimport {",
+          ""
+        ],
+        [
+          2406,
+          2456,
+          "sourceAtHomepageRefinementBaseline(file,read(file)",
+          "read(file"
+        ]
+      ]
+    },
+    "scripts/homepage_report_quad_20260925_contract.mjs": {
+      "before_sha256": "5c5410e5ab90812f8f175f6be50b84c9043540b4bbebd59c6011aa1774d08d84",
+      "after_sha256": "80f21056a2840d553cedf6b2990ee4ecd33af0ba1c8430fd3c33c49445f8f490",
+      "before_bytes": 14418,
+      "after_bytes": 14562,
+      "replacements": [
+        [
+          589,
+          684,
+          "_inverse.mjs';\nimport {sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014",
+          ""
+        ],
+        [
+          3472,
+          3506,
+          "sourceAtHomepageRefinementBaseline",
+          "read"
+        ],
+        [
+          3519,
+          3538,
+          ",read('index.html')",
+          ""
+        ]
+      ]
+    },
+    "scripts/refresh_public_sample_previews.mjs": {
+      "before_sha256": "c7166214d613a687b8f8292e4b5b2670aa400613aeb278f41a021d4ed0a91902",
+      "after_sha256": "4f64047a66ff9fa5c7ba5a09f677a4c28254373db1d4640a76869b19290dd524",
+      "before_bytes": 40782,
+      "after_bytes": 41077,
+      "replacements": [
+        [
+          293,
+          388,
+          ".mjs';\nimport {sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014_inverse",
+          ""
+        ],
+        [
+          39944,
+          39947,
+          "raw",
+          "original"
+        ],
+        [
+          39980,
+          40185,
+          ";\n // Exact native-layout compatibility applies only to the read-only check. Generation retains its original raw input/write behavior.\n const original=check?sourceAtHomepageRefinementBaseline(file,raw):raw",
+          ""
+        ]
+      ]
+    },
+    "scripts/homepage_sample_discovery_contract.mjs": {
+      "before_sha256": "b09199a9167b9c2e36c7c156bb7f2833fa220f294f30a4c585d810d72e6f73dd",
+      "after_sha256": "e57bfdf869aa8d2ed0d11489f7e8481534f6285acefe4958eebe13d5655c5e8b",
+      "before_bytes": 8602,
+      "after_bytes": 8787,
+      "replacements": [
+        [
+          937,
+          1032,
+          "_inverse.mjs';\nimport {sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014",
+          ""
+        ],
+        [
+          4737,
+          4823,
+          "{\n  const html=sourceAtHomepageRefinementBaseline('index.html',read('index.html'));\n  ",
+          ""
+        ],
+        [
+          5013,
+          5017,
+          "\n  }",
+          ""
+        ]
+      ]
+    },
+    "scripts/marketing_completion_browser_smoke.mjs": {
+      "before_sha256": "cecf6c70196918a51e91722becfe3094c6762b727a7d1f5a134e15a8dfd73ca5",
+      "after_sha256": "3810aa4fbe61e39b866efe426f65eb3eef2470fa83fc9de03b02ec6d26ee723b",
+      "before_bytes": 30416,
+      "after_bytes": 31194,
+      "replacements": [
+        [
+          182,
+          311,
+          "s';\nimport {isCurrentHomepageRefinementSource,sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014_inverse.mj",
+          ""
+        ],
+        [
+          1534,
+          2121,
+          "// The native refined edition executes every raw current functional case below.\n// Only the preceding historical identity assertion receives its exact94cab view.\nconst nativeRefinedEdition = isCurrentHomepageRefinementSource(source);\nassert.ok(!source.includes('homepage-refinement.js?v=20261014.1') || nativeRefinedEdition, 'Only exact frozen native refinement selects the third current edition');\n{\n  const sourceHashes = nativeRefinedEdition ? {...sourceHashesForIdentity(), 'index.html': hash(sourceAtHomepageRefinementBaseline('index.html', source))} : sourceHashesForIdentity();\n  ",
+          ""
+        ],
+        [
+          2313,
+          2375,
+          "\n}\nfunction sourceHashesForIdentity() { return sourceHashes; }",
+          ""
+        ]
+      ]
+    },
+    "scripts/marketing_refresh_browser_smoke.mjs": {
+      "before_sha256": "5442ea91799c1bd87bfd30e198715dc5052a38868c35ff4b037a43687a4f4420",
+      "after_sha256": "eed63c01e9d323749f16597956a2d5785fd93299a03418ed654a93243bcd6816",
+      "before_bytes": 22494,
+      "after_bytes": 24187,
+      "replacements": [
+        [
+          134,
+          228,
+          "';\nimport {isCurrentHomepageRefinementSource} from './homepage_refinement_20261014_inverse.mjs",
+          ""
+        ],
+        [
+          969,
+          1303,
+          "rawHomepageSource=fs.readFileSync(path.join(root,'index.html'),'utf8');\nconst nativeRefinedEdition=isCurrentHomepageRefinementSource(rawHomepageSource);\nassert.ok(!rawHomepageSource.includes('homepage-refinement.js?v=20261014.1')||nativeRefinedEdition,'Only exact approved native refinement selects current capture stability');\nconst ",
+          ""
+        ],
+        [
+          6066,
+          6936,
+          ";\n}\n\n// Observe actual native anchor/focus scrolling; no retry or forced positioning.\n// Historical editions retain their original immediate screenshot bookkeeping.\nasync function savedLensFrameSettles(page,group,tabs) {\n  const deadline=Date.now()+3000;let prior,stableSince;\n  while(Date.now()<deadline){\n    const boxes=[];for(const tab of await tabs.all())boxes.push(await tab.boundingBox());\n    const frame={scroll:await page.evaluate(()=>({x:scrollX,y:scrollY})),group:await group.boundingBox(),boxes};\n    if(!frame.group||boxes.length!==4||[frame.group,...boxes].some(b=>!b||!Object.values(b).every(Number.isFinite)||b.width<=0||b.height<=0))return false;\n    const current=JSON.stringify(frame);\n    if(current!==prior){prior=current;stableSince=Date.now();}\n    if(Date.now()-stableSince>=200)return true;\n    await page.waitForTimeout(50);\n  }\n  return false",
+          ""
+        ],
+        [
+          18869,
+          19064,
+          "if(nativeRefinedEdition)check(await savedLensFrameSettles(page,demo.locator('.mr-lens-tabs'),tabs),label+': preceding native scroll and all four capture targets settle within existing3s');\n      ",
+          ""
+        ],
+        [
+          19172,
+          19372,
+          ");\n      if(nativeRefinedEdition)check(await savedLensFrameSettles(page,demo.locator('.mr-lens-tabs'),tabs),label+': centered capture group and all four targets stay stable for200ms within existing3s'",
+          ""
+        ]
+      ]
+    },
     ".github/workflows/frontend-release.yml": {
       "before_sha256": "fb7550c760a6239f4ec880d13983aa60cf84a780b99f474fdc894e6f27f9e098",
       "after_sha256": "7179d4b4d55cc7e47f99f549dad6dde1cc6f4031ff1a8b3cf3f66fe66acda282",

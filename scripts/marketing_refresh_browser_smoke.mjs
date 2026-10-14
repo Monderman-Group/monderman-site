@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
+import {isCurrentHomepageRefinementSource} from './homepage_refinement_20261014_inverse.mjs';
 const {chromium, webkit} = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
@@ -11,6 +12,9 @@ const root = path.resolve(import.meta.dirname, '..');
 const out = process.env.MARKETING_REFRESH_OUT || fs.mkdtempSync('/tmp/marketing-refresh-');
 fs.mkdirSync(out, {recursive: true});
 const sourceHashes = Object.fromEntries(['index.html', 'marketing-refresh.css', 'marketing-refresh.js', 'scripts/marketing_refresh_browser_smoke.mjs'].map(file => [file, createHash('sha256').update(fs.readFileSync(path.join(root, file))).digest('hex')]));
+const rawHomepageSource=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const nativeRefinedEdition=isCurrentHomepageRefinementSource(rawHomepageSource);
+assert.ok(!rawHomepageSource.includes('homepage-refinement.js?v=20261014.1')||nativeRefinedEdition,'Only exact approved native refinement selects current capture stability');
 const lenses = ['clarity', 'velocity', 'systems', 'performance'];
 const titles = ['Structural Clarity', 'Decision Velocity', 'Operational Systems', 'Institutional Performance'];
 const articlePaths = ['structural-clarity-article.html', 'decision-velocity-article.html', 'operational-systems-article.html', 'institutional-performance-article.html'];
@@ -79,6 +83,22 @@ async function reachableLensTarget(tab, page, label) {
   check(box && Object.values(box).every(Number.isFinite) && box.width >= 44 && box.height >= 44 && box.x >= 0 && box.y >= 0 && box.x + box.width <= viewport.width && box.y + box.height <= viewport.height, label + ': lens target has a full 44px viewport target after ordinary scrolling');
   check(await tab.evaluate((el, rect) => { const hit = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2); return hit === el || el.contains(hit); }, box), label + ': lens target center is unobstructed with existing widgets present');
   return box;
+}
+
+// Observe actual native anchor/focus scrolling; no retry or forced positioning.
+// Historical editions retain their original immediate screenshot bookkeeping.
+async function savedLensFrameSettles(page,group,tabs) {
+  const deadline=Date.now()+3000;let prior,stableSince;
+  while(Date.now()<deadline){
+    const boxes=[];for(const tab of await tabs.all())boxes.push(await tab.boundingBox());
+    const frame={scroll:await page.evaluate(()=>({x:scrollX,y:scrollY})),group:await group.boundingBox(),boxes};
+    if(!frame.group||boxes.length!==4||[frame.group,...boxes].some(b=>!b||!Object.values(b).every(Number.isFinite)||b.width<=0||b.height<=0))return false;
+    const current=JSON.stringify(frame);
+    if(current!==prior){prior=current;stableSince=Date.now();}
+    if(Date.now()-stableSince>=200)return true;
+    await page.waitForTimeout(50);
+  }
+  return false;
 }
 
 async function setup(browser, options) {
@@ -212,7 +232,9 @@ for (const [engine, browserType] of [['chromium', chromium], ['webkit', webkit]]
       equal(state.writes, [], label + ': zero attempted API calls or writes');
       // Immediate positioning is screenshot bookkeeping, including the tall
       // no-script edition; functional native controls were exercised above.
+      if(nativeRefinedEdition)check(await savedLensFrameSettles(page,demo.locator('.mr-lens-tabs'),tabs),label+': preceding native scroll and all four capture targets settle within existing3s');
       await demo.locator('.mr-lens-tabs').evaluate(el => el.scrollIntoView({behavior: 'instant', block: 'center'}));
+      if(nativeRefinedEdition)check(await savedLensFrameSettles(page,demo.locator('.mr-lens-tabs'),tabs),label+': centered capture group and all four targets stay stable for200ms within existing3s');
       for (const tab of await tabs.all()) {
         const box = await tab.boundingBox();
         check(box && box.y >= 0 && box.y + box.height <= options.viewport.height, label + ': saved lens frame contains the entire target');

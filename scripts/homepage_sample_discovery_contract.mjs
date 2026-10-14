@@ -12,6 +12,7 @@ import {sourceBeforeHomepageCompactJourney20260924} from './homepage_compact_jou
 import {sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
 import {sourceAtBrandRefreshBaseline} from './brand_refresh_20261007_inverse.mjs';
 import {sourceAtHomepageSampleEntryBaseline} from './homepage_sample_entry_20261011_inverse.mjs';
+import {sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014_inverse.mjs';
 
 export const HOMEPAGE_DISCOVERY_BASELINE='31c87d9944d58cd58a48e389a680e0e909536329';
 export const PREVIEW_FOOTER_BEFORE='<div class="hwd-footer"><span><i aria-hidden="true"></i>Illustrative organizational evaluation</span><span>Evidence. Action. Follow-up.</span></div>';
@@ -42,7 +43,10 @@ export function assertHomepageSampleDiscovery(root=path.resolve(import.meta.dirn
   const artifact=JSON.parse(read('sample-data/production-diagnostic-samples.json'));
   const generated=buildPublicSamplePreviewSections(artifact,template);
   assert.equal(preview,generated.hero,'Displayed preview matches the current saved sample data and current template');
+  {
+  const html=sourceAtHomepageRefinementBaseline('index.html',read('index.html'));
   assert.equal(html.match(/<aside class="hero-report-proof has-sample-depth-tile"[\s\S]*?<\/aside>/)?.[0],generated.home,'Existing lower-page sample tile stays generated and directly linked');
+  }
   assert.match(html,/\.hero-invitation-link\s*\{[^}]*min-height:44px/,'Hero invitation link has a usable touch target');
   assert.match(css,/\.hwd-footer \.hwd-sample-link\s*\{[^}]*min-height:44px/,'Preview sample link has a usable touch target');
   assert.match(html,/\.hero-invitation-link:focus-visible\s*\{[^}]*outline:3px/,'Hero invitation link has keyboard focus treatment');

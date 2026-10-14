@@ -7,6 +7,7 @@ import {buildPublicSamplePreviewSections} from './refresh_public_sample_previews
 import {evidenceDigest} from './public_sample_fixture.mjs';
 import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 import {sourceBeforeHomepageReportQuad20260925} from './homepage_report_quad_20260925_inverse.mjs';
+import {sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014_inverse.mjs';
 import {previewBindingDelta,sourceBeforePublicSamplePreviewBinding20260924,PREVIEW_PRIOR_ARTIFACT_DIGEST,
   PREVIEW_CURRENT_ARTIFACT_DIGEST,PREVIEW_CURRENT_ARTIFACT_FILE_SHA256} from './public_sample_preview_binding_20260924_inverse.mjs';
 const root=path.resolve(import.meta.dirname,'..'),sha=v=>createHash('sha256').update(v).digest('hex');
@@ -27,7 +28,7 @@ const before=JSON.stringify(artifact),sections=buildPublicSamplePreviewSections(
 const currentAttr='data-artifact-sha256="'+PREVIEW_CURRENT_ARTIFACT_DIGEST+'"';
 const priorAttr='data-artifact-sha256="'+PREVIEW_PRIOR_ARTIFACT_DIGEST+'"';
 for(const [file,entry]of Object.entries(previewBindingDelta)){
-  const displayed=read(file).toString(),current=sourceBeforeHomepageReportQuad20260925(file,displayed),prior=sourceBeforePublicSamplePreviewBinding20260924(file,current);
+  const displayed=sourceAtHomepageRefinementBaseline(file,read(file)).toString(),current=sourceBeforeHomepageReportQuad20260925(file,displayed),prior=sourceBeforePublicSamplePreviewBinding20260924(file,current);
   eq(sha(current),entry.after_sha256,file+': exact new source');
   eq(sha(prior),entry.before_sha256,file+': exact prior source');
   eq(current.split(currentAttr).length-1,entry.count,file+': exact attribute count');

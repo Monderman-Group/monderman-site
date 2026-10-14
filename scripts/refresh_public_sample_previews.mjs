@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {readPublicSampleFixture,evidenceDigest} from './public_sample_fixture.mjs';
 import {buildHomepageReportQuad} from './homepage_report_quad_20260925.mjs';
+import {sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014_inverse.mjs';
 
 // Extract only the engine's saved score distribution. The caller first checks
 // the full publication manifest; this additional boundary rejects missing,
@@ -333,7 +334,9 @@ const {artifact}=readPublicSampleFixture({root});
 const template=fs.readFileSync(path.join(root,'scripts/templates/home-workspace-preview.html'),'utf8');
 const sections=buildPublicSamplePreviewSections(artifact,template);
 for(const [file,place] of [['index.html','home'],['Monderman_Platform_Brief.html','brief']]) {
- const filename=path.join(root,file), original=fs.readFileSync(filename,'utf8');
+ const filename=path.join(root,file), raw=fs.readFileSync(filename,'utf8');
+ // Exact native-layout compatibility applies only to the read-only check. Generation retains its original raw input/write behavior.
+ const original=check?sourceAtHomepageRefinementBaseline(file,raw):raw;
  let next=original;
  if(place==='home') next=replaceOne(next,/<aside class="home-workspace-preview"[\s\S]*?<\/aside>/,sections.hero,'Homepage tour');
  next=replaceOne(next,/<aside class="hero-report-proof has-sample-depth-tile"[\s\S]*?<\/aside>/,sections[place],'Depth preview');
