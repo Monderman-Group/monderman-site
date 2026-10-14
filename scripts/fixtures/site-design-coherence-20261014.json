@@ -148,9 +148,9 @@
     },
     "homepage-refinement.css": {
       "before_sha256": "95f463d1ed79134d021e5cb735ca60371fdbca7719e5706c2298a807a8cbabf9",
-      "after_sha256": "3221c17dc04c86ad9a722b59c3b95188f9e9fb1ef7900441b08e4d184e477c52",
+      "after_sha256": "055d116b55befb50dcd03b86c57197b94e2e324495c23613001e1f7b1c6a707a",
       "before_bytes": 5661,
-      "after_bytes": 5783,
+      "after_bytes": 5904,
       "replacements": [
         [
           554,
@@ -199,6 +199,12 @@
           3602,
           "var(--mond-radius-control, 7px)",
           "2px"
+        ],
+        [
+          4734,
+          4855,
+          "ero .hero-access-note { box-sizing: border-box; padding-right: 132px; }\n  body.homepage-enterprise.homepage-refinement .h",
+          ""
         ]
       ]
     },
@@ -1034,2467 +1040,2485 @@
     },
     "scripts/mobile_site_presentation_smoke.mjs": {
       "before_sha256": "6b3191d025d9ed9b8105edbac912d5a3903a9ca279a474aec8564db57032d3be",
-      "after_sha256": "bae40b58ade0cfa3de10a9a2cf39068c5b286189261d3c36082439514063e058",
+      "after_sha256": "ace7fbcbd448a9a833cd889f157bdb057a745bbf322d5c77eff34b2a61985152",
       "before_bytes": 62279,
-      "after_bytes": 66163,
+      "after_bytes": 67170,
       "replacements": [
         [
-          191,
-          282,
+          94,
+          134,
+          "';\nimport {createHash} from 'node:crypto",
+          ""
+        ],
+        [
+          231,
+          322,
           "import {isCurrentSiteDesignCoherence} from './site_design_coherence_20261014_inverse.mjs';\n",
           ""
         ],
         [
-          934,
-          1001,
-          ");\nconst currentSiteDesignCoherence = isCurrentSiteDesignCoherence(",
+          976,
+          1746,
+          "\nconst currentSiteDesignCoherence = isCurrentSiteDesignCoherence();\n// The opt-out page deliberately remains the exact quiet functional M169 edition.\nfunction assertQuietPreferencesTypography(source, snapshot) {\n  assert.equal(Buffer.byteLength(source), 2737, 'Exact original quiet preference source size');\n  assert.equal(createHash('sha256').update(source).digest('hex'), 'dfbda546df97a666905976e6db9cf8a9b04c754792af3e0dc59dfa8e8a6e3ddc', 'Exact original quiet preference source bytes');\n  assert.deepEqual(snapshot.headingTags, ['H1'], 'One visible original quiet preference heading');\n  assert.deepEqual(snapshot.headingFonts.map(f => f.split(',').map(name => name.trim())), [['Arial', 'Helvetica', 'sans-serif']], 'Exact original quiet functional type family');\n}\n",
           ""
         ],
         [
-          28435,
-          29524,
+          29178,
+          30267,
           "\n      if (currentSiteDesignCoherence) {\n        const design = await page.evaluate(() => {\n          const selectors='.card,.panel,.diff-card,.approach-card,.paper-card,.latest-card,.series-card,.essay-card,.research-card,.proof-card,.loop-step,.first-run-moment,.systems-analysis-card,.mxidx-cell,.connect-choice-card,.connect-panel,.side-card,.confirmation-card,.expectation-card,.privacy-box,.wm-credo-item,.wm-rigor-cell,.wm-threeway-cell,.wm-cta-panel,.ps-tier,.ps-roi-card,.ps-free,.ps-faq-item,.mxps-card,.dx-card,.moment-card,.pl-card,.pl-why-panel,.pl-why-cell,.pl-advisory-box,.instrument-card,.measure-card,.scale-card,.pillar,.start-step,.layer,.smv-node,.econ-block,.hero-report-page,.hrp-story-card,.hrp-finding-block,.sidebar-card,.signal-card,.trench-panel,.trench-figure-box,.md-tile,.hrq-tile,.hwd-app,.hwd-compact-tile';\n          const tiles=[...document.querySelectorAll('body.canonical-green-shell '+selectors.split(',').join(',body.canonical-green-shell '))].filter(e=>{const c=getComputedStyle(e),r=e.getBoundingClientRect();return r.width>0&&r.height>0&&c.display",
           "      if ("
         ],
         [
-          29525,
-          29546,
+          30268,
+          30289,
           "=='none'&&c.visibilit",
           "geometr"
         ],
         [
-          29547,
-          30677,
-          "==='visible'&&!(c.backgroundColor==='rgba(0, 0, 0, 0)'&&[c.borderTopWidth,c.borderRightWidth,c.borderBottomWidth,c.borderLeftWidth].every(v=>parseFloat(v)===0));}).map(e=>({selector:e.id||e.className,radii:[getComputedStyle(e).borderTopLeftRadius,getComputedStyle(e).borderTopRightRadius,getComputedStyle(e).borderBottomRightRadius,getComputedStyle(e).borderBottomLeftRadius]}));\n          const images=[...document.querySelectorAll('[data-site-photo] img,[data-marketing-photo] img')].map(e=>({id:e.dataset.stockId,fit:getComputedStyle(e).objectFit,width:e.getBoundingClientRect().width,height:e.getBoundingClientRect().height,pictureRadius:parseFloat(getComputedStyle(e.closest('picture')).borderTopLeftRadius),caption:e.closest('figure').querySelectorAll('figcaption').length,alt:e.alt}));\n          const f=document.querySelector('.mond-footer');let footerLoose=[];if(f){for(let n=f.nextSibling;n;n=n.nextSibling)if(n.nodeType===Node.TEXT_NODE&&n.textContent.trim())footerLoose.push(n.textContent.trim());}\n          return {tiles,images,footerLoose,headingFonts:[...document.querySelectorAll('h1,h2,h3,h4')].filter(e=>e.check",
+          30290,
+          31419,
+          "==='visible'&&!(c.backgroundColor==='rgba(0, 0, 0, 0)'&&[c.borderTopWidth,c.borderRightWidth,c.borderBottomWidth,c.borderLeftWidth].every(v=>parseFloat(v)===0));}).map(e=>({selector:e.id||e.className,radii:[getComputedStyle(e).borderTopLeftRadius,getComputedStyle(e).borderTopRightRadius,getComputedStyle(e).borderBottomRightRadius,getComputedStyle(e).borderBottomLeftRadius]}));\n          const images=[...document.querySelectorAll('[data-site-photo] img,[data-marketing-photo] img')].map(e=>({id:e.dataset.stockId,fit:getComputedStyle(e).objectFit,width:e.getBoundingClientRect().width,height:e.getBoundingClientRect().height,pictureRadius:parseFloat(getComputedStyle(e.closest('picture')).borderTopLeftRadius),caption:e.closest('figure').querySelectorAll('figcaption').length,alt:e.alt}));\n          const f=document.querySelector('.mond-footer');let footerLoose=[];if(f){for(let n=f.nextSibling;n;n=n.nextSibling)if(n.nodeType===Node.TEXT_NODE&&n.textContent.trim())footerLoose.push(n.textContent.trim());}\n          return {tiles,images,footerLoose,headingTags:[...document.querySelectorAll('h1,h2,h3,h4')].filter(e=>e.check",
           ".has"
         ],
         [
-          30679,
-          30827,
-          "sibility()).map(e=>getComputedStyle(e).fontFamily)};\n        });\n        for(const tile of design.tiles) if(!tile.radii.every(v=>parseFloat(v)===16)",
+          31421,
+          31677,
+          "sibility()).map(e=>e.tagName),headingFonts:[...document.querySelectorAll('h1,h2,h3,h4')].filter(e=>e.checkVisibility()).map(e=>getComputedStyle(e).fontFamily)};\n        });\n        for(const tile of design.tiles) if(!tile.radii.every(v=>parseFloat(v)===16)",
           "ewportMeta"
         ],
         [
-          30874,
-          30906,
+          31724,
+          31756,
           "semantic tile is not consistentl",
           "viewport metadata missing`);\n      if (geometr"
         ],
         [
-          30907,
-          30915,
+          31757,
+          31765,
           " rounded",
           ".documentWidth > geometry.viewportWidth + "
         ],
         [
-          30916,
-          30917,
+          31766,
+          31767,
           "6",
           ") failures.push(`${pageName}/${viewport.name}: page overflows horizontally (${geometry.documentWidth}px > ${geometry.viewportWidth}px)`);\n      if (geometry.clipped.length) failures.push(`${pageName}/${viewport.name}: visible content is clipped"
         ],
         [
-          30936,
-          30940,
+          31786,
+          31790,
           "tile",
           "geometry.clipped.slice(0, 5)"
         ],
         [
-          30953,
-          30976,
+          31803,
+          31826,
           "  if(design.footerLoose",
           "if (geometry.pathologicalImages"
         ],
         [
-          31030,
-          31065,
+          31880,
+          31915,
           "stray text outside canonical footer",
           "image ignores its responsive crop"
         ],
         [
-          31084,
-          31102,
-          "design.footerLoose",
-          "geometry.pathologicalImages"
+          31934,
+          32042,
+          "design.footerLoose)})`);\n        if(pageName==='email-preferences.html') {\n          assertQuietPreferencesT",
+          "geometr"
         ],
         [
-          31109,
-          31146,
-          "        if(design.headingFonts.some(f",
-          "\n      if (geometry.footer) {\n        const { footer, inner, top, bottom, copyright, motif, rule } = geometry.footer;\n        const signature = [footer.height, inner.left, inner.width, top.height, bottom.height, motif.width]\n          .map((value) "
+          32043,
+          32097,
+          "pography(sourceByPage.get(pageName), design);\n        ",
+          ".pathologicalImages)"
         ],
         [
-          31148,
-          31148,
+          32098,
+          32103,
+          " else",
+          ")`);\n\n      if (geometry.footer)"
+        ],
+        [
+          32114,
+          32143,
+          "if(design.headingFonts.some(f",
+          "const { footer, inner, top, bottom, copyright, motif, rule } = geometry.footer;\n        const signature = [footer.height, inner.left, inner.width, top.height, bottom.height, motif.width]\n          .map((value) "
+        ],
+        [
+          32145,
+          32145,
           "",
           " Math.round(value * 10) / 10)\n          .join('|');\n        if ("
         ],
         [
-          31150,
-          31182,
+          32147,
+          32179,
           ".includes('Neue Haas Grotesk')))",
           "ooterSignatures.has(viewport.name)) footerSignatures.set(viewport.name, signature);\n        if (footerSignatures.get(viewport.name) !== signature) {\n         "
         ],
         [
-          31228,
-          31237,
+          32225,
+          32234,
           "heading t",
           "footer geometr"
         ],
         [
-          31238,
-          31246,
+          32235,
+          32243,
           "pography",
           ""
         ],
         [
-          31261,
-          31307,
-          "shared family`);\n        const expectedPhotos=",
+          32258,
+          32314,
+          "shared family`);\n        }\n        const expectedPhotos=",
           "the shared shell ($"
         ],
         [
-          31308,
-          31504,
+          32315,
+          32511,
           "'index.html':['501653292','524156476'],'why-monderman.html':['511990984'],'platform-services.html':['541113838'],'Monderman_Platform_Brief.html':['488892667'],'operational-systems-article.html':[]",
           "signature"
         ],
         [
-          31505,
-          31529,
+          32512,
+          32536,
           ";\n        if(Object.hasO",
           " vs ${footerSignatures.get(vie"
         ],
         [
-          31530,
-          31595,
+          32537,
+          32602,
           "n(expectedPhotos,pageName)) assert.deepEqual(design.images.map(i=",
           "port.name)})`);\n        }\n        if (Math.abs(footer.left) "
         ],
         [
-          31596,
-          31627,
+          32603,
+          32634,
           "i.id),expectedPhotos[pageName],",
           " 1 || Math.abs(footer.right - geometry.viewportWidth) > 1) {\n          failures.push("
         ],
         [
-          31658,
-          31934,
+          32665,
+          32941,
           "actual current photo mapping`);\n        for(const image of design.images){assert.equal(image.fit,'contain',`${pageName}/${viewport.name}: photograph remains uncropped`);assert.ok(image.width>0&&image.height>0&&image.pictureRadius>=18,`${pageName}/${viewport.name}: actual visi",
           "footer is not full-"
         ],
         [
-          31937,
-          32575,
+          32944,
+          33582,
           " proportional rounded photo frame`);assert.equal(image.caption,0,`${pageName}/${viewport.name}: no Models caption`);assert.ok(image.alt.trim(),`${pageName}/${viewport.name}: neutral accessible photo description`);}\n      }\n\n      if (!geometry.hasViewportMeta) failures.push(`${pageName}/${viewport.name}: viewport metadata missing`);\n      if (geometry.documentWidth > geometry.viewportWidth + 1) failures.push(`${pageName}/${viewport.name}: page overflows horizontally (${geometry.documentWidth}px > ${geometry.viewportWidth}px)`);\n      if (geometry.clipped.length) failures.push(`${pageName}/${viewport.name}: visible content is clipp",
           ""
         ],
         [
-          32596,
-          32624,
+          33603,
+          33631,
           "geometry.clipped.slice(0, 5)",
           "footer"
         ],
         [
-          32637,
-          32676,
+          33644,
+          33683,
           "if (geometry.pathologicalImages.length)",
           "  }\n        if (motif.left < footer.left - 1 || motif.right > footer.right + 1 || motif.top < footer.top - 1 || motif.bottom > footer.bottom + 1) {\n         "
         ],
         [
-          32722,
-          32755,
+          33729,
+          33762,
           "image ignores its responsive crop",
           "footer motif is clipped"
         ],
         [
-          32774,
-          32836,
+          33781,
+          33843,
           "geometry.pathologicalImages)})`);\n\n      if (geometry.footer) ",
           ""
         ],
         [
-          32837,
-          32853,
+          33844,
+          33860,
           "\n        const {",
           ""
         ],
         [
-          32862,
-          32904,
+          33869,
+          33911,
           "inner, top, bottom, copyright, motif, rule",
           "motif"
         ],
         [
-          32906,
-          32924,
+          33913,
+          33931,
           " = geometry.footer",
           ")})`)"
         ],
         [
-          32934,
-          33049,
+          33941,
+          34056,
           "const signature = [footer.height, inner.left, inner.width, top.height, bottom.height, motif.width]\n          .map((",
           "}\n        const o"
         ],
         [
-          33050,
-          33122,
+          34057,
+          34129,
           "alue) => Math.round(value * 10) / 10)\n          .join('|');\n        if (",
           "erlaps = "
         ],
         [
-          33123,
-          33205,
+          34130,
+          34212,
           "footerSignatures.has(viewport.name)) footerSignatures.set(viewport.name, signature",
           "(copyright.right <= motif.left || motif.right <= copyright.left || copyright.bottom <= motif.top || motif.bottom <= copyright.top"
         ],
         [
-          33220,
-          33241,
+          34227,
+          34248,
           "footerSignatures.get(",
           "o"
         ],
         [
-          33242,
-          33282,
+          34249,
+          34289,
           "iewport.name) !== signature) {\n         ",
           "erlaps)"
         ],
         [
-          33335,
-          33346,
+          34342,
+          34353,
           "geometry di",
           "motif o"
         ],
         [
-          33349,
-          33517,
+          34356,
+          34524,
           "ges from the shared shell (${signature} vs ${footerSignatures.get(viewport.name)})`);\n        }\n        if (Math.abs(footer.left) > 1 || Math.abs(footer.right - geometr",
           "laps the cop"
         ],
         [
-          33518,
-          33620,
+          34525,
+          34627,
           ".viewportWidth) > 1) {\n          failures.push(`${pageName}/${viewport.name}: footer is not full-bleed",
           "right"
         ],
         [
-          33639,
-          33646,
+          34646,
+          34653,
           "footer)",
           "{ copyright, motif "
         ],
         [
-          33648,
-          33660,
+          34655,
+          34667,
           "`);\n        ",
           ""
         ],
         [
-          33661,
-          33700,
+          34668,
+          34707,
           "\n        if (motif.left < footer.left -",
           ")`);\n        if (Math.abs(rule.left) >"
         ],
         [
-          33706,
-          33749,
+          34713,
+          34756,
           "motif.right > footer.right + 1 || motif.top",
           "rule.width"
         ],
         [
-          33752,
-          33802,
+          34759,
+          34809,
           "footer.top - 1 || motif.bottom > footer.bottom + 1",
           "geometry.viewportWidth * .45"
         ],
         [
-          33868,
-          33884,
+          34875,
+          34891,
           "motif is clipped",
           "rule is too short or does not reach the viewport edge"
         ],
         [
-          33903,
-          33919,
+          34910,
+          34926,
           "{ footer, motif ",
           "rule)"
         ],
         [
-          33921,
-          33923,
+          34928,
+          34930,
           "})",
           ""
         ],
         [
-          33951,
-          33952,
+          34958,
+          34959,
           "o",
           "expectedGap = "
         ],
         [
-          33953,
-          33979,
+          34960,
+          34986,
           "erlaps = !(copyright.right",
           "iewport.width"
         ],
         [
-          33983,
-          34108,
+          34990,
+          35115,
           "motif.left || motif.right <= copyright.left || copyright.bottom <= motif.top || motif.bottom <= copyright.top);\n        if (o",
           "640 ? 26 : "
         ],
         [
-          34109,
-          34116,
+          35116,
+          35123,
           "erlaps)",
           "iewport.width <= 960 ? 54 : 90;\n        if (Math.abs((motif.left - rule.right) - expectedGap) > 1) {\n         "
         ],
         [
-          34169,
-          34176,
+          35176,
+          35183,
           "motif o",
           "rule-to-motif gap is inconsistent (${motif.left - rule.right}px "
         ],
         [
-          34177,
-          34191,
+          35184,
+          35198,
           "erlaps the cop",
           "s ${expectedGap}px)`);\n        }\n      }\n\n      if (geometr"
         ],
         [
-          34192,
-          34197,
+          35199,
+          35204,
           "right",
           ".header) {\n        const { header, inner, brand, nav, main, position, backgroundColor, backgroundImage } = geometry.header;\n        const signature = [header.height, inner.left, inner.width, inner.height, brand.left, brand.width]\n          .map((value) => Math.round(value * 10) / 10);\n        if (!headerSignatures.has(viewport.name)) headerSignatures.set(viewport.name, signature);\n        if (headerSignatures.get(viewport.name).some((value, index) => Math.abs(value - signature[index]) > 1)) {\n          failures.push(`${pageName}/${viewport.name}: header geometry diverges from the shared shell (${signature.join('|')} vs ${headerSignatures.get(viewport.name).join('|')})`);\n        }\n        if (Math.abs(header.left) > 1 || Math.abs(header.right - geometry.viewportWidth) > 1 || header.height < 70) {\n          failures.push(`${pageName}/${viewport.name}: no-script header is not full-width or has collapsed"
         ],
         [
-          34216,
-          34235,
+          35223,
+          35242,
           "{ copyright, motif ",
           "header)"
         ],
         [
-          34237,
-          34239,
+          35244,
+          35246,
           "})",
           ""
         ],
         [
-          34251,
-          34278,
+          35258,
+          35285,
           "if (Math.abs(rule.left) > 1",
           "}\n        if (canonicalPages.includes(pageName)\n            && (!nav"
         ],
         [
-          34282,
-          34304,
+          35289,
+          35311,
           "rule.width < geometry.",
           "na"
         ],
         [
-          34305,
-          34307,
+          35312,
+          35314,
           "ie",
           ".display === 'none' || nav."
         ],
         [
-          34308,
-          34323,
+          35315,
+          35330,
           "portWidth * .45",
           "idth <= 0 || nav.left < inner.left - 1 || nav.right > inner.right + 1)"
         ],
         [
-          34382,
-          34429,
+          35389,
+          35436,
           "footer rule is too short or does not reach the ",
           "primary na"
         ],
         [
-          34431,
-          34432,
+          35438,
+          35439,
           "e",
           "gation disappears or escapes its frame "
         ],
         [
-          34433,
-          34441,
+          35440,
+          35448,
           "port edg",
           "hen scripts are unavailabl"
         ],
         [
-          34461,
-          34510,
+          35468,
+          35517,
           "rule)})`);\n        }\n        const expectedGap = ",
           "{ inner, na"
         ],
         [
-          34511,
-          34570,
+          35518,
+          35577,
           "iewport.width <= 640 ? 26 : viewport.width <= 960 ? 54 : 90",
           " })})`)"
         ],
         [
-          34580,
-          34622,
+          35587,
+          35629,
           "if (Math.abs((motif.left - rule.right) - e",
           "}\n        if (canonicalPages.includes(pageName)\n            && (position === 'fi"
         ],
         [
-          34623,
-          34635,
+          35630,
+          35642,
           "pectedGap) >",
           "ed' || (main && main.top < header.bottom -"
         ],
         [
-          34637,
-          34637,
+          35644,
+          35644,
           "",
           "))"
         ],
         [
-          34696,
-          34707,
+          35703,
+          35714,
           "footer rule",
           "no"
         ],
         [
-          34708,
-          34767,
+          35715,
+          35774,
           "to-motif gap is inconsistent (${motif.left - rule.right}px ",
           "script na"
         ],
         [
-          34768,
-          34870,
+          35775,
+          35877,
           "s ${expectedGap}px)`);\n        }\n      }\n\n      if (geometry.header) {\n        const { header, inner, ",
           "igation o"
         ],
         [
-          34871,
-          35742,
+          35878,
+          36749,
           "rand, nav, main, position, backgroundColor, backgroundImage } = geometry.header;\n        const signature = [header.height, inner.left, inner.width, inner.height, brand.left, brand.width]\n          .map((value) => Math.round(value * 10) / 10);\n        if (!headerSignatures.has(viewport.name)) headerSignatures.set(viewport.name, signature);\n        if (headerSignatures.get(viewport.name).some((value, index) => Math.abs(value - signature[index]) > 1)) {\n          failures.push(`${pageName}/${viewport.name}: header geometry diverges from the shared shell (${signature.join('|')} vs ${headerSignatures.get(viewport.name).join('|')})`);\n        }\n        if (Math.abs(header.left) > 1 || Math.abs(header.right - geometry.viewportWidth) > 1 || header.height < 70) {\n          failures.push(`${pageName}/${viewport.name}: no-script header is not full-width or has collapsed",
           "scures document content"
         ],
         [
-          35761,
-          35767,
+          36768,
+          36774,
           "header",
           "{ header, main, position }"
         ],
         [
-          35846,
-          35846,
+          36853,
+          36853,
           "",
           "backgroundColor "
         ],
         [
-          35847,
-          35850,
+          36854,
+          36857,
           "nav",
           "== 'rgb(9, 57, 62)'"
         ],
         [
-          35854,
-          35954,
+          36861,
+          36961,
           "nav.display === 'none' || nav.width <= 0 || nav.left < inner.left - 1 || nav.right > inner.right + 1",
           "backgroundImage !== 'none'"
         ],
         [
-          36014,
-          36021,
+          37021,
+          37028,
           "primary",
           "no-script"
         ],
         [
-          36033,
-          36092,
+          37040,
+          37099,
           "disappears or escapes its frame when scripts are unavailabl",
           "lacks an opaque high-contrast surfac"
         ],
         [
-          36114,
-          36118,
+          37121,
+          37125,
           "inne",
           "backgroundColo"
         ],
         [
-          36121,
-          36124,
+          37128,
+          37131,
           "nav",
           "backgroundImage"
         ],
         [
-          36149,
-          36178,
+          37156,
+          37185,
           "  if (canonicalPages.includes",
           "}\n\n      if "
         ],
         [
-          36187,
-          36200,
+          37194,
+          37207,
           ")\n           ",
           " === 'about.html'"
         ],
         [
-          36204,
-          36246,
+          37211,
+          37253,
           "(position === 'fixed' || (main && main.top",
           "viewport.width"
         ],
         [
-          36248,
-          36268,
+          37255,
+          37275,
           " header.bottom - 1))",
           "= 430"
         ],
         [
-          36280,
-          36281,
+          37287,
+          37288,
           " ",
           "const portraits = await page.locator('.founder-photo').evaluateAll((images) => images.map((image) => {\n          const box = image.getBoundingClientRect();\n          return { width: box.width, height: box.height };\n        }));\n        if (portraits.length !== 2)"
         ],
         [
-          36327,
-          36349,
+          37334,
+          37356,
           "no-script navigation o",
           "expected "
         ],
         [
-          36350,
-          36372,
+          37357,
+          37379,
           "scures document conten",
           "oth senior-team portraits`);\n        for (const [index, portrait] of portraits.entries()) {\n          if (portrait.width > 168.5) failures.push(`${pageName}/${viewport.name}: portrait ${index + 1} remains oversized (${portrait.width}px)`);\n          if (Math.abs(portrait.width - portrait.height) > 1) failures.push(`${pageName}/${viewport.name}: portrait ${index + 1} is not square (${portrait.width}x${portrait.height})`);\n        }\n      }\n\n      if (pageName === 'index.html') {\n        if (await page.locator('.hero [data-workspace-demo]').count()) failures.push(`${pageName}/${viewport.name}: product journey returned to the report-led hero`);\n        if (await page.locator('#sample-output [data-workspace-demo]').count() !== 1) failures.push(`${pageName}/${viewport.name}: lower product journey is missing`);\n        const tile = page.locator('.hero [data-home-report-quad]');\n        if (await tile.count() !== 1 || !(await tile.isVisible())) failures.push(`${pageName}/${viewport.name}: hero sample report preview is missing or hidden`);\n        else {\n          if (currentHomepageRefinement) await expandRefinedMobileHeroForOriginalChecks(tile);\n          const bounds = await tile.evaluate((el, gridSelector) => {\n            const box = el.getBoundingClientRect();\n            return {left: box.left, right: box.right, width: box.width, scroll: el.scrollWidth, client: el.clientWidth, columns: getComputedStyle(el.querySelector(gridSelector)).gridTemplateColumns.trim().split(/\\s+/).length};\n          }, currentHomepageRefinement ? '.hf-extra-grid' : '.hrq-grid');\n          if (bounds.left < -1 || bounds.right > viewport.width + 1 || bounds.scroll > bounds.client + 1) failures.push(`${pageName}/${viewport.name}: hero report preview escapes the viewpor"
         ],
         [
-          36392,
-          36497,
+          37399,
+          37504,
           "{ header, main, position })})`);\n        }\n        if (canonicalPages.includes(pageName)\n            && (",
           ""
         ],
         [
-          36498,
-          36520,
+          37505,
+          37527,
           "ackgroundColor !== 'rg",
           "ounds)})`);\n          if ("
         ],
         [
-          36521,
-          36552,
+          37528,
+          37559,
           "(9, 57, 62)' || backgroundImage",
           "ounds.columns"
         ],
         [
-          36557,
-          36577,
+          37564,
+          37584,
           "'none')) {\n         ",
           "(viewport.width <= 600 ? 1 : 2))"
         ],
         [
-          36623,
-          36635,
+          37630,
+          37642,
           "no-script na",
           "hero report pre"
         ],
         [
-          36637,
-          36664,
+          37644,
+          37671,
           "gation lacks an opaque high",
           "ew has the wrong responsive column count`);\n          if (currentHomepageRefinement) await restoreRefinedMobileHero(tile);\n        }\n        const routeField = page.locator('.hero"
         ],
         [
-          36665,
-          36680,
+          37672,
+          37687,
           "contrast surfac",
           "route-field');\n        if (await routeField.count() !== 0) failures.push(`${pageName}/${viewport.name}: retired decorative route field returned`);\n      }\n\n      if (viewport.name === 'iphone' && evidencePages.has(pageName)) {\n        await page.screenshot({\n          path: path.join(out, `${pageName.replace('.html', '')}-${viewport.name}.png`),\n          fullPage: pageName === 'about.html',\n        });\n      }\n\n      await page.close();\n    }\n  }\n\n  // Exercise presentation-only runtime behavior on a bounded local subset.\n  // Every non-local request is blocked, and no form submit or product action is\n  // triggered. This catches injected-widget and progressive-layout defects that\n  // a JavaScript-disabled geometry sweep cannot see.\n  const runtimePage = await browser.newPage({ viewport: { width: 390, height: 844 } });\n  await runtimePage.route('**/*', async (route) => {\n    const url = new URL(route.request().url());\n    if (url.origin === localOrigin || url.protocol === 'data:' || url.protocol === 'blob:') {\n      await route.continue();\n    } else {\n      await route.abort();\n    }\n  });\n\n  await runtimePage.goto(`${base}/index.html`, { waitUntil: 'load', timeout: 30000 });\n  await runtimePage.locator('#mnd-launcher').waitFor({ state: 'attached' });\n  await runtimePage.locator('.mdn-cn-launch').waitFor({ state: 'attached' });\n\n  await checkFloatingSupport(runtimePage, 'runtime utilities/390');\n  let runtimeClearScrollY = 0;\n  for (let top = 0; top <= 1800; top += 120) {\n    await runtimePage.evaluate(top => window.scrollTo({top,behavior:'instant'}), top);\n    await runtimePage.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));\n    if (await runtimePage.locator('#mnd-launcher,.mdn-cn-launch').evaluateAll(nodes => nodes.every(node => getComputedStyle(node).visibility === 'visible'))) {\n      runtimeClearScrollY = await runtimePage.evaluate(() => scrollY);\n      break;\n    }\n  }\n  assert.ok(await runtimePage.locator('#mnd-launcher,.mdn-cn-launch').evaluateAll(nodes => nodes.every(node => getComputedStyle(node).visibility === 'visible')), 'runtime utilities: controls remain available above the footer');\n\n  await runtimePage.locator('#mnd-launcher').click();\n  await runtimePage.locator('#mnd-panel.mnd-open').waitFor({ state: 'visible' });\n  const assistantState = await runtimePage.evaluate(() => {\n    const panel = document.querySelector('#mnd-panel');\n    const connect = document.querySelector('.mdn-cn-launch');\n    const box = panel.getBoundingClientRect();\n    return {\n      left: box.left,\n      right: box.right,\n      width: box.width,\n      viewportWidth: document.documentElement.clientWidth,\n      connectVisible: getComputedStyle(connect).display !== 'none' && getComputedStyle(connect).visibility === 'visible',\n    };\n  });\n  if (assistantState.left < -1 || assistantState.right > assistantState.viewportWidth + 1 || assistantState.width < assistantState.viewportWidth - 2) {\n    failures.push(`runtime utilities: assistant panel is clipped on phon"
         ],
         [
-          36700,
-          36735,
+          37707,
+          37742,
           "{ backgroundColor, backgroundImage ",
           "assistantState)"
         ],
         [
-          36737,
-          36739,
+          37744,
+          37746,
           "})",
           ""
         ],
         [
-          36745,
-          36751,
+          37752,
+          37758,
           "      ",
           ""
         ],
         [
-          36755,
-          36787,
+          37762,
+          37794,
           "    }\n\n      if (pageName === 'a",
           "if (assistantState.connectVisi"
         ],
         [
-          36788,
-          36797,
+          37795,
+          37804,
           "out.html'",
           "le) failures.push('runtime utilities: Connect launcher remains visible over the open assistant');\n\n  await runtimePage.locator('#mnd-close').click();\n  if (!await runtimePage.locator('#mnd-launcher').evaluate((node) => document.activeElement === node"
         ],
         [
-          36801,
-          36976,
+          37808,
+          37983,
           "viewport.width <= 430) {\n        const portraits = await page.locator('.founder-photo').evaluateAll((images) => images.map((image) => {\n          const box = image.getBounding",
           "get"
         ],
         [
-          36977,
-          38364,
+          37984,
+          39371,
           "lientRect();\n          return { width: box.width, height: box.height };\n        }));\n        if (portraits.length !== 2) failures.push(`${pageName}/${viewport.name}: expected both senior-team portraits`);\n        for (const [index, portrait] of portraits.entries()) {\n          if (portrait.width > 168.5) failures.push(`${pageName}/${viewport.name}: portrait ${index + 1} remains oversized (${portrait.width}px)`);\n          if (Math.abs(portrait.width - portrait.height) > 1) failures.push(`${pageName}/${viewport.name}: portrait ${index + 1} is not square (${portrait.width}x${portrait.height})`);\n        }\n      }\n\n      if (pageName === 'index.html') {\n        if (await page.locator('.hero [data-workspace-demo]').count()) failures.push(`${pageName}/${viewport.name}: product journey returned to the report-led hero`);\n        if (await page.locator('#sample-output [data-workspace-demo]').count() !== 1) failures.push(`${pageName}/${viewport.name}: lower product journey is missing`);\n        const tile = page.locator('.hero [data-home-report-quad]');\n        if (await tile.count() !== 1 || !(await tile.isVisible())) failures.push(`${pageName}/${viewport.name}: hero sample report preview is missing or hidden`);\n        else {\n          if (currentHomepageRefinement) await expandRefinedMobileHeroForOriginalChecks(tile);\n          const bounds = await tile.evaluate((el, gri",
           "ompute"
         ],
         [
-          38366,
-          38573,
+          39373,
+          39580,
           "elector) => {\n            const box = el.getBoundingClientRect();\n            return {left: box.left, right: box.right, width: box.width, scroll: el.scrollWidth, client: el.clientWidth, columns: getComputedS",
           ""
         ],
         [
-          38578,
-          38580,
+          39585,
+          39587,
           "el",
           "node).visibility === 'visible')) {\n    failures.push('runtime utilities: assistant close does not return visible focus to its native launcher');\n  }\n  await runtimePage.locator('.mdn-cn-launch').click();\n  await runtimePage.locator('#mdn-cn-panel.mdn-cn-open').waitFor({ state: 'visible' });\n  const connectState = await runtimePage.evaluate(() => {\n    const panel = document"
         ],
         [
-          38595,
-          38599,
+          39602,
+          39606,
           "grid",
           "'#mdn-cn-panel');\n    const assistant = document.query"
         ],
         [
-          38607,
-          38622,
+          39614,
+          39629,
           ")).gridTemplate",
           "('#mnd-launcher');\n    const box = panel.getBounding"
         ],
         [
-          38623,
-          38656,
+          39630,
+          39663,
           "olumns.trim().split(/\\s+/).length",
           "lientRect();\n    return {\n      left: box.left,\n      right: box.right,\n      viewportWidth: document.documentElement.clientWidth,\n      assistantVisible: getComputedStyle(assistant).display !== 'none' && getComputedStyle(assistant).visibility === 'visible',\n    "
         ],
         [
-          38661,
-          38669,
+          39668,
+          39676,
           "        ",
           ""
         ],
         [
-          38670,
-          38730,
+          39677,
+          39737,
           ", currentHomepageRefinement ? '.hf-extra-grid' : '.hrq-grid'",
           ""
         ],
         [
-          38735,
-          38753,
+          39742,
+          39760,
           "        if (bounds",
           "if (connectState"
         ],
         [
-          38767,
-          38773,
+          39774,
+          39780,
           "bounds",
           "connectState"
         ],
         [
-          38782,
-          38782,
+          39789,
+          39789,
           "",
           "connectState."
         ],
         [
-          38790,
-          38792,
+          39797,
+          39799,
           ".w",
           "W"
         ],
         [
-          38800,
-          38855,
+          39807,
+          39862,
           " || bounds.scroll > bounds.client + 1) failures.push(`$",
           ") "
         ],
         [
-          38856,
-          38882,
+          39863,
+          39889,
           "pageName}/${viewport.name}",
           "\n    failures.push(`runtime utilities"
         ],
         [
-          38884,
-          38924,
+          39891,
+          39931,
           "hero report preview escapes the viewport",
           "Connect panel is clipped on phone"
         ],
         [
-          38943,
-          39966,
+          39950,
+          40973,
           "bounds)})`);\n          if (bounds.columns !== (viewport.width <= 600 ? 1 : 2)) failures.push(`${pageName}/${viewport.name}: hero report preview has the wrong responsive column count`);\n          if (currentHomepageRefinement) await restoreRefinedMobileHero(tile);\n        }\n        const routeField = page.locator('.hero-route-field');\n        if (await routeField.count() !== 0) failures.push(`${pageName}/${viewport.name}: retired decorative route field returned`);\n      }\n\n      if (viewport.name === 'iphone' && evidencePages.has(pageName)) {\n        await page.screenshot({\n          path: path.join(out, `${pageName.replace('.html', '')}-${viewport.name}.png`),\n          fullPage: pageName === 'about.html',\n        });\n      }\n\n      await page.close();\n    }\n  }\n\n  // Exercise presentation-only runtime behavior on a bounded local subset.\n  // Every non-local request is blocked, and no form submit or product action is\n  // triggered. This catches injected-widget and progressive-layout defects that\n  // a Java",
           "connect"
         ],
         [
-          39967,
-          40091,
+          40974,
+          41098,
           "cript-disabled geometry sweep cannot see.\n  const runtimePage = await browser.newPage({ viewport: { width: 390, height: 844 ",
           "tate)"
         ],
         [
-          40092,
-          40094,
+          41099,
+          41101,
           " }",
           ")`"
         ],
         [
-          40099,
-          40171,
+          41106,
+          41178,
           "await runtimePage.route('**/*', async (route) => {\n    const url = new U",
           "}\n  const connect"
         ],
         [
-          40172,
-          40196,
+          41179,
+          41203,
           "L(route.request().url())",
           "ightGutter = connectState.viewportWidth - connectState.right"
         ],
         [
-          40200,
-          40232,
+          41207,
+          41239,
           "  if (url.origin === localOrigin",
           "if (Math.abs(connectState.left - connectRightGutter) > 1\n     "
         ],
         [
-          40236,
-          40260,
+          41243,
+          41267,
           "url.protocol === 'data:'",
           "connectState.left < 7"
         ],
         [
-          40264,
-          40639,
+          41271,
+          41646,
           "url.protocol === 'blob:') {\n      await route.continue();\n    } else {\n      await route.abort();\n    }\n  });\n\n  await runtimePage.goto(`${base}/index.html`, { waitUntil: 'load', timeout: 30000 });\n  await runtimePage.locator('#mnd-launcher').waitFor({ state: 'attached' });\n  await runtimePage.locator('.mdn-cn-launch').waitFor({ state: 'attached' });\n\n  await checkFloating",
           "connect"
         ],
         [
-          40640,
-          40800,
+          41647,
+          41807,
           "upport(runtimePage, 'runtime utilities/390');\n  let runtimeClearScrollY = 0;\n  for (let top = 0; top <= 1800; top += 120) {\n    await runtimePage.evaluate(top =",
           "tate.left "
         ],
         [
-          40802,
-          42124,
+          41809,
+          43131,
           "window.scrollTo({top,behavior:'instant'}), top);\n    await runtimePage.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));\n    if (await runtimePage.locator('#mnd-launcher,.mdn-cn-launch').evaluateAll(nodes => nodes.every(node => getComputedStyle(node).visibility === 'visible'))) {\n      runtimeClearScrollY = await runtimePage.evaluate(() => scrollY);\n      break;\n    }\n  }\n  assert.ok(await runtimePage.locator('#mnd-launcher,.mdn-cn-launch').evaluateAll(nodes => nodes.every(node => getComputedStyle(node).visibility === 'visible')), 'runtime utilities: controls remain available above the footer');\n\n  await runtimePage.locator('#mnd-launcher').click();\n  await runtimePage.locator('#mnd-panel.mnd-open').waitFor({ state: 'visible' });\n  const assistantState = await runtimePage.evaluate(() => {\n    const panel = document.querySelector('#mnd-panel');\n    const connect = document.querySelector('.mdn-cn-launch');\n    const box = panel.getBoundingClientRect();\n    return {\n      left: box.left,\n      right: box.right,\n      width: box.width,\n      viewportWidth: document.documentElement.clientWidth,\n      connectVisible: getComputedStyle(connect).display !== 'none' && getComputedStyle(connect).visibility === 'visible',\n    };\n  });\n  if (assistantState.left < -",
           ""
         ],
         [
-          42125,
-          42183,
+          43132,
+          43190,
           " || assistantState.right > assistantState.viewportWidth + ",
           ""
         ],
         [
-          42184,
-          42243,
+          43191,
+          43250,
           " || assistantState.width < assistantState.viewportWidth - 2",
           ""
         ],
         [
-          42285,
-          42320,
+          43292,
+          43327,
           "assistant panel is clipped on phone",
           "Connect panel phone gutters are not equal and compact"
         ],
         [
-          42339,
-          42347,
+          43346,
+          43354,
           "assistan",
           "connec"
         ],
         [
-          42370,
-          42378,
+          43377,
+          43385,
           "assistan",
           "connec"
         ],
         [
-          42385,
-          42391,
+          43392,
+          43398,
           "connec",
           "assistan"
         ],
         [
-          42435,
-          42441,
+          43442,
+          43448,
           "Connec",
           "assistan"
         ],
         [
-          42482,
-          42491,
+          43489,
+          43498,
           "assistant",
           "Connect panel"
         ],
         [
-          42495,
-          42496,
+          43502,
+          43503,
           "\n",
           ""
         ],
         [
-          42525,
-          42529,
+          43532,
+          43536,
           "#mnd",
           ".mdn"
         ],
         [
-          42531,
-          42585,
+          43538,
+          43592,
           "lose').click();\n  if (!await runtimePage.locator('#mnd",
           "n"
         ],
         [
-          42586,
-          42594,
+          43593,
+          43601,
           "launcher",
           "close').click();\n  if (!await runtimePage.locator('.mdn-cn-launch"
         ],
         [
-          42741,
-          42749,
+          43748,
+          43756,
           "assistan",
           "Connec"
         ],
         [
-          42837,
-          42947,
+          43844,
+          43954,
           "locator('.mdn-cn-launch').click();\n  await runtimePage.locator('#mdn-cn-panel.mdn-cn-open').waitFor({ state: '",
           "e"
         ],
         [
-          42948,
-          43003,
+          43955,
+          44010,
           "isible' });\n  const connectState = await runtimePage.ev",
           ""
         ],
         [
-          43016,
-          43016,
+          44023,
+          44023,
           "",
           "window.scrollTo("
         ],
         [
-          43017,
-          43035,
+          44024,
+          44042,
           "\n    const panel =",
           " top: scrollY +"
         ],
         [
-          43060,
-          43064,
+          44067,
+          44071,
           "#mdn",
           ".mond"
         ],
         [
-          43065,
-          43067,
+          44072,
+          44074,
           "cn",
           "footer').getBoundingClientRect().top "
         ],
         [
-          43068,
-          43074,
+          44075,
+          44081,
           "panel'",
           " (innerHeight - 40), behavior: 'instant' })"
         ],
         [
-          43079,
-          43096,
+          44086,
+          44103,
           "  const assistant",
           "await runtimePage.waitForFunction(() => {\n    const footerTop"
         ],
         [
-          43123,
-          43125,
+          44130,
+          44132,
           "#m",
           ".mo"
         ],
         [
-          43128,
-          43161,
+          44135,
+          44168,
           "launcher');\n    const box = panel",
           "footer')"
         ],
         [
-          43185,
-          43185,
+          44192,
+          44192,
           "",
           ".top"
         ],
         [
-          43198,
-          43375,
+          44205,
+          44382,
           "{\n      left: box.left,\n      right: box.right,\n      viewportWidth: document.documentElement.clientWidth,\n      assistantVisible: getComputedStyle(assistant).display !== 'none'",
           "footerTop < innerHeight"
         ],
         [
-          43379,
-          43392,
+          44386,
+          44399,
           "getComputedSt",
           "[...document.quer"
         ],
         [
-          43393,
-          43431,
+          44400,
+          44438,
           "le(assistant).visibility === 'visible'",
           "SelectorAll('#mnd-launcher"
         ],
         [
-          43432,
-          43436,
+          44439,
+          44443,
           "\n   ",
           ".mdn-cn-launch')].every(node => getComputedStyle(node).visibility === 'hidden' && getComputedStyle(node).pointerEvents === 'none');\n  });\n  await checkFloatingSupport(runtimePage, 'runtime utilities/390/footer-entry');\n  await runtimePage.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));\n  await runtimePage.waitForFunction(() => [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')]\n    .every((node) => getComputedStyle(node).visibility === 'hidden'));\n  const footerUtilityState = await runtimePage.evaluate(() => {\n    const headerBottom = document.querySelector('#siteHeader').getBoundingClientRect().bottom;\n    return [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].map((node) => {\n      const box = node.getBoundingClientRect();\n      const style = getComputedStyle(node);\n      return { top: box.top, bottom: box.bottom, headerBottom, visibility: style.visibility, pointerEvents: style.pointerEvents"
         ],
         [
-          43442,
-          43442,
+          44449,
+          44449,
           "",
           "  "
         ],
         [
-          43448,
-          43459,
+          44455,
+          44466,
           "if (connect",
           "});\n  if (footerUtility"
         ],
         [
-          43465,
-          43474,
+          44472,
+          44481,
           "left < -1",
           "some((item) => item.visibility !== 'hidden'"
         ],
         [
-          43478,
-          43512,
+          44485,
+          44519,
           "connectState.right > connectState.",
           "item.pointerE"
         ],
         [
-          43513,
-          43529,
+          44520,
+          44536,
           "iewportWidth + 1",
           "ents !== 'none')"
         ],
         [
-          43571,
-          43604,
+          44578,
+          44611,
           "Connect panel is clipped on phone",
           "launchers remain interactive over the phone footer"
         ],
         [
-          43623,
-          43630,
+          44630,
+          44637,
           "connect",
           "footerUtility"
         ],
         [
-          43648,
-          43691,
+          44655,
+          44698,
           "const connectRightGutter = connectState.vie",
           "a"
         ],
         [
-          43692,
-          43702,
+          44699,
+          44709,
           "portWidth ",
           "ait runtimePage.locator('.mond"
         ],
         [
-          43703,
-          43722,
+          44710,
+          44729,
           " connectState.right",
           "footer a[href=\"connect.html\"]').click({ trial: true })"
         ],
         [
-          43726,
-          43779,
+          44733,
+          44786,
           "if (Math.abs(connectState.left - connectRightGutter) ",
           "await runtimePage.evaluate(top ="
         ],
         [
-          43781,
-          43799,
+          44788,
+          44806,
           "1\n      || connect",
           "window.scrollTo({ top, behavior: 'instant' }), runtimeClear"
         ],
         [
-          43800,
-          43835,
+          44807,
+          44842,
           "tate.left < 7 || connectState.left ",
           "crollY);\n  await runtimePage.evaluate(() ="
         ],
         [
-          43836,
-          43836,
+          44843,
+          44843,
           "",
           " new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));\n  assert.ok(await runtimePage.locator('#mnd-launcher,.mdn-cn-launch').evaluateAll(nodes => nodes.every(node => getComputedStyle(node).visibility === 'visible')), 'runtime utilities: controls return within two frames after leaving the footer');\n  await checkFloatingSupport(runtimePage, 'runtime utilities/390/footer-restored');\n  await runtimePage.close();\n\n  for (const width of [768,"
         ],
         [
-          43839,
-          43839,
+          44846,
+          44846,
           "",
           "80, 1181, 1440]"
         ],
         [
-          43847,
-          43879,
+          44854,
+          44886,
           "failures.push(`runtime utilities",
           "const utilityPage = await browser.newPage({ viewport"
         ],
         [
-          43881,
-          43917,
+          44888,
+          44924,
           "Connect panel phone gutters are not ",
           "{ width, height: 1024 } });\n    await utilityPage.route('**/*', async (route) => {\n      const url = new URL(route.r"
         ],
         [
-          43920,
-          43934,
+          44927,
+          44941,
           "al and compact",
           "est().url());\n      if (url.origin === localOrigin || url.protocol === 'data:' || url.protocol === 'blob:') await route.continue();\n      else await route.abort();\n    });\n    await navigateToStableDocument(utilityPage, `${base}/index.html`);\n    await utilityPage.locator('.mdn-cn-launch').waitFor({ state: 'attached' });\n    await utilityPage.locator('#mnd-launcher').waitFor({ state: 'attached' });\n    await checkFloatingSupport(utilityPage, `runtime utilities/${width}`);\n    const utilityGeometry = await utilityPage.evaluate(() => {\n      const box = (selector) => {\n        const node = document.querySelector(selector);\n        const rect = node.getBoundingClientRect();\n        const label = node.querySelector('span')?.getBoundingClientRect();\n        return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height, labelWidth: label?.width || 0, display: getComputedStyle(node).display };\n      };\n      return { contact: box('.mdn-cn-launch'), assistant: box('#mnd-launcher') };\n    });\n    if (utilityGeometry.contact.display === 'none'\n        || utilityGeometry.assistant.display === 'none') {\n      failures.push(`runtime utilities/${width}: native floating controls are missing"
         ],
         [
-          43953,
-          44284,
+          44960,
+          45291,
           "connectState)})`);\n  }\n  if (connectState.assistantVisible) failures.push('runtime utilities: assistant launcher remains visible over the open Connect panel');\n  await runtimePage.locator('.mdn-cn-close').click();\n  if (!await runtimePage.locator('.mdn-cn-launch').evaluate((node) => document.activeElement === node && getComputedS",
           "utili"
         ],
         [
-          44286,
-          44304,
+          45293,
+          45311,
           "le(node).visibilit",
           "Geometr"
         ],
         [
-          44305,
-          44434,
+          45312,
+          45441,
           " === 'visible')) {\n    failures.push('runtime utilities: Connect close does not return visible focus to its native launcher');\n  ",
           ")"
         ],
         [
-          44435,
-          44615,
+          45442,
+          45622,
           "\n  await runtimePage.evaluate(() => window.scrollTo({ top: scrollY + document.querySelector('.mond-footer').getBoundingClientRect().top - (innerHeight - 40), behavior: 'instant' })",
           ")`"
         ],
         [
-          44620,
-          44967,
+          45627,
+          45974,
           "await runtimePage.waitForFunction(() => {\n    const footerTop = document.querySelector('.mond-footer').getBoundingClientRect().top;\n    return footerTop < innerHeight && [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].every(node => getComputedStyle(node).visibility === 'hidden' && getComputedStyle(node).pointerEvents === 'none');\n",
           ""
         ],
         [
-          44970,
-          44973,
+          45977,
+          45980,
           ");\n",
           "\n  "
         ],
         [
-          44981,
-          45049,
+          45988,
+          46056,
           "checkFloatingSupport(runtimePage, 'runtime utilities/390/footer-entr",
           "utilit"
         ],
         [
-          45050,
-          45069,
+          46057,
+          46076,
           "');\n  await runtime",
           ""
         ],
         [
-          45074,
-          45173,
+          46081,
+          46180,
           "evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' })",
           "close("
         ],
         [
-          45178,
-          45821,
+          46185,
+          46828,
           "await runtimePage.waitForFunction(() => [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')]\n    .every((node) => getComputedStyle(node).visibility === 'hidden'));\n  const footerUtilityState = await runtimePage.evaluate(() => {\n    const headerBottom = document.querySelector('#siteHeader').getBoundingClientRect().bottom;\n    return [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].map((node) => {\n      const box = node.getBoundingClientRect();\n      const style = getComputedStyle(node);\n      return { top: box.top, bottom: box.bottom, headerBottom, visibility: style.visibility, pointerEvents: style.pointerEvents ",
           ""
         ],
         [
-          45822,
-          45883,
+          46829,
+          46890,
           ";\n    });\n  });\n  if (footerUtilityState.some((item) => item.",
           "\n\n  // Exercise the complete canonical na"
         ],
         [
-          45885,
-          45892,
+          46892,
+          46899,
           "sibilit",
           "gation on ever"
         ],
         [
-          45894,
-          45906,
+          46901,
+          46913,
           "!== 'hidden'",
           "page, rather than\n  // inferring mobile usability from identical markup alone. Chromium covers\n  // compact phone through landscape tablet; WebKit repeats the iPhone and\n  // iPad widths that prompted this repair.\n  async function sweepResponsiveHeaders(browserType, engineName, responsiveViewports) {\n    const engine = await browserType.launch({ headless: true });\n    try {\n      for (const viewport of responsiveViewports) {\n        for (const pageName of canonicalPages) {\n          const page = await engine.newPage({ viewport });\n          await page.route('**/*', async (route) => {\n            const url = new URL(route.request().url());\n            if (url.origin === localOrigin"
         ],
         [
-          45910,
-          45980,
+          46917,
+          46987,
           "item.pointerEvents !== 'none')) {\n    failures.push(`runtime utilities",
           "url.protocol === 'data"
         ],
         [
-          45981,
-          46008,
+          46988,
+          47015,
           " launchers remain interacti",
           "' || url.protocol === 'blob:') await route.continue();\n            else await route.abort();\n          });\n          await na"
         ],
         [
-          46009,
-          46012,
+          47016,
+          47019,
           "e o",
           "igateToStableDocument(page, `${base}/${pageName}`);\n          await page.locator('.site-menu-button').waitFor({ state: '"
         ],
         [
-          46013,
-          46032,
+          47020,
+          47039,
           "er the phone footer",
           "isible' }).catch(error => { throw new Error(`${engineName}/${viewport.width}/${pageName}: mobile menu unavailable: ${error.message}`); });\n\n          const closed = await page.evaluate(() => {\n            const box = (selector) => {\n              const rect = document.querySelector(selector).getBoundingClientRect();\n              return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height };\n            };\n            return {\n              header: box('#siteHeader'),\n              brand: box('#siteHeader .brand'),\n              menu: box('#siteHeader .site-menu-button'),\n              navDisplay: getComputedStyle(document.querySelector('#siteHeader .nav')).display,\n              assistantDisplay: getComputedStyle(document.querySelector('#mnd-launcher')).display,\n              contactDisplay: getComputedStyle(document.querySelector('.mdn-cn-launch')).display,\n              documentWidth: document.documentElement.scrollWidth,\n              viewportWidth: document.documentElement.clientWidth,\n            };\n          });\n          const label = `${pageName}/${engineName}/${viewport.width}`;\n          if (Math.abs(closed.header.height - 70) > 1 || Math.abs(closed.header.left) > 1 || Math.abs(closed.header.right - viewport.width) > 1) {\n            failures.push(`${label}: closed header left the shared 70px frame"
         ],
         [
-          46051,
-          46069,
+          47058,
+          47076,
           "footerUtilityState",
           "closed.header"
         ],
         [
-          46078,
-          46078,
+          47085,
+          47085,
           "",
           "        "
         ],
         [
-          46082,
-          46230,
+          47089,
+          47237,
           "await runtimePage.locator('.mond-footer a[href=\"connect.html\"]').click({ trial: true });\n  await runtimePage.evaluate(top => window.scrollTo({ top, ",
           "        if (Math.a"
         ],
         [
-          46231,
-          46535,
+          47238,
+          47542,
           "ehavior: 'instant' }), runtimeClearScrollY);\n  await runtimePage.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));\n  assert.ok(await runtimePage.locator('#mnd-launcher,.mdn-cn-launch').evaluateAll(nodes => nodes.every(node => getComputedStyle(node).visi",
           "s(closed."
         ],
         [
-          46536,
-          46712,
+          47543,
+          47719,
           "ility === 'visible')), 'runtime utilities: controls return within two frames after leaving the footer');\n  await checkFloatingSupport(runtimePage, 'runtime utilities/390/footer",
           "rand.left "
         ],
         [
-          46713,
-          46881,
+          47720,
+          47888,
           "restored');\n  await runtimePage.close();\n\n  for (const width of [768, 1180, 1181, 1440]) {\n    const utilityPage = await browser.newPage({ viewport: { width, height: 10",
           " "
         ],
         [
-          46882,
-          46941,
+          47889,
+          47948,
           "4 } });\n    await utilityPage.route('**/*', async (route) =",
           "0) "
         ],
         [
-          46943,
-          47031,
+          47950,
+          48038,
           "{\n      const url = new URL(route.request().url());\n      if (url.origin === localOrigin",
           "1"
         ],
         [
-          47035,
-          47081,
+          48042,
+          48088,
           "url.protocol === 'data:' || url.protocol === '",
           "Math.a"
         ],
         [
-          47082,
-          47165,
+          48089,
+          48172,
           "lob:') await route.continue();\n      else await route.abort();\n    });\n    await na",
           "s(closed.menu.right - ("
         ],
         [
-          47167,
-          47201,
+          48174,
+          48208,
           "gateToStableDocument(utilityPage, ",
           "ewport.width - 20)) > 1) {\n            failures.push("
         ],
         [
-          47204,
-          47204,
+          48211,
+          48211,
           "",
           "la"
         ],
         [
-          47205,
-          48194,
+          48212,
+          49201,
           "ase}/index.html`);\n    await utilityPage.locator('.mdn-cn-launch').waitFor({ state: 'attached' });\n    await utilityPage.locator('#mnd-launcher').waitFor({ state: 'attached' });\n    await checkFloatingSupport(utilityPage, `runtime utilities/${width}`);\n    const utilityGeometry = await utilityPage.evaluate(() => {\n      const box = (selector) => {\n        const node = document.querySelector(selector);\n        const rect = node.getBoundingClientRect();\n        const label = node.querySelector('span')?.getBoundingClientRect();\n        return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height, labelWidth: label?.width || 0, display: getComputedStyle(node).display };\n      };\n      return { contact: box('.mdn-cn-launch'), assistant: box('#mnd-launcher') };\n    });\n    if (utilityGeometry.contact.display === 'none'\n        || utilityGeometry.assistant.display === 'none') {\n      failures.push(`runtime utilities/${width",
           "el"
         ],
         [
-          48197,
-          48233,
+          49204,
+          49240,
           "native floating controls are missing",
           "closed header side insets are unbalanced"
         ],
         [
-          48252,
-          48673,
+          49259,
+          49680,
           "utilityGeometry)})`);\n    }\n    await utilityPage.close();\n  }\n\n  // Exercise the complete canonical navigation on every page, rather than\n  // inferring mobile usability from identical markup alone. Chromium covers\n  // compact phone through landscape tablet; WebKit repeats the iPhone and\n  // iPad widths that prompted this repair.\n  async function sweepResponsiveHeaders(browserType, engineName, responsiveViewports) ",
           ""
         ],
         [
-          48674,
-          48699,
+          49681,
+          49706,
           "\n    const engine = await",
           ""
         ],
         [
-          48702,
-          48729,
+          49709,
+          49736,
           "owserType.launch({ headless",
           "and"
         ],
         [
-          48731,
-          48943,
+          49738,
+          49950,
           "true });\n    try {\n      for (const viewport of responsiveViewports) {\n        for (const pageName of canonicalPages) {\n          const page = await engine.newPage({ viewport });\n          await page.route('**/*'",
           "closed.brand"
         ],
         [
-          48945,
-          49017,
+          49952,
+          50024,
           "async (route) => {\n            const url = new URL(route.request().url()",
           "menu: closed.menu })})`"
         ],
         [
-          49030,
-          49062,
+          50037,
+          50069,
           "  if (url.origin === localOrigin",
           "}\n          if (Math.abs((closed.brand.top + closed.brand.bottom) / 2 - 35) > 1"
         ],
         [
-          49066,
-          49112,
+          50073,
+          50119,
           "url.protocol === 'data:' || url.protocol === '",
           "Math.a"
         ],
         [
-          49113,
-          49115,
+          50120,
+          50122,
           "lo",
           "s((closed.menu.top + closed.menu."
         ],
         [
-          49116,
-          49243,
+          50123,
+          50250,
           ":') await route.continue();\n            else await route.abort();\n          });\n          await navigateToStableDocument(page, ",
           "ottom) / 2 - 35) > 1) {\n            failures.push("
         ],
         [
-          49246,
-          49246,
+          50253,
+          50253,
           "",
           "la"
         ],
         [
-          49247,
-          49250,
+          50254,
+          50257,
           "ase",
           "el"
         ],
         [
-          49251,
-          49332,
+          50258,
+          50339,
           "/${pageName}`);\n          await page.locator('.site-menu-button').waitFor({ state",
           ""
         ],
         [
-          49334,
-          49335,
+          50341,
+          50342,
           "'",
           "closed header controls are not "
         ],
         [
-          49336,
-          49343,
+          50343,
+          50350,
           "isible'",
           "ertically centered`);\n         "
         ],
         [
-          49345,
-          49368,
+          50352,
+          50375,
           ").catch(error => { thro",
           "\n          if (closed.menu."
         ],
         [
-          49369,
-          49371,
+          50376,
+          50378,
           " n",
           "idth < 44 || closed.menu.height < 44 || closed.navDisplay !== 'none' || closed.documentWidth > closed.vi"
         ],
         [
-          49373,
-          49379,
+          50380,
+          50386,
           " Error",
           "portWidth + 1) {\n            failures.push"
         ],
         [
-          49383,
-          49423,
+          50390,
+          50430,
           "engineName}/${viewport.width}/${pageName",
           "label"
         ],
         [
-          49426,
-          49439,
+          50433,
+          50446,
           "mobile menu u",
           "closed "
         ],
         [
-          49442,
-          49692,
+          50449,
+          50699,
           "ailable: ${error.message}`); });\n\n          const closed = await page.evaluate(() => {\n            const box = (selector) => {\n              const rect = document.querySelector(selector).getBoundingClientRect();\n              return { left: rect.left",
           "igation is clipped"
         ],
         [
-          49694,
-          49851,
+          50701,
+          50858,
           "right: rect.right, top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height };\n            };\n            return {\n              header: bo",
           "e"
         ],
         [
-          49852,
-          49867,
+          50859,
+          50874,
           "('#siteHeader')",
           "posed"
         ],
         [
-          49868,
-          50726,
+          50875,
+          51733,
           "\n              brand: box('#siteHeader .brand'),\n              menu: box('#siteHeader .site-menu-button'),\n              navDisplay: getComputedStyle(document.querySelector('#siteHeader .nav')).display,\n              assistantDisplay: getComputedStyle(document.querySelector('#mnd-launcher')).display,\n              contactDisplay: getComputedStyle(document.querySelector('.mdn-cn-launch')).display,\n              documentWidth: document.documentElement.scrollWidth,\n              viewportWidth: document.documentElement.clientWidth,\n            };\n          });\n          const label = `${pageName}/${engineName}/${viewport.width}`;\n          if (Math.abs(closed.header.height - 70) > 1 || Math.abs(closed.header.left) > 1 || Math.abs(closed.header.right - viewport.width) > 1) {\n            failures.push(`${label}: closed header left the shared 70px frame",
           " or undersized"
         ],
         [
-          50751,
-          50758,
+          51758,
+          51765,
           ".header",
           ""
         ],
         [
-          50791,
-          50827,
+          51798,
+          51834,
           "Math.abs(closed.brand.left - 20) > 1",
           "closed.assistantDisplay === 'none'"
         ],
         [
-          50831,
-          50886,
+          51838,
+          51893,
           "Math.abs(closed.menu.right - (viewport.width - 20)) > 1",
           "closed.contactDisplay === 'none'"
         ],
         [
-          50927,
-          50967,
+          51934,
+          51974,
           "closed header side insets are unbalanced",
           "native floating support controls are missing"
         ],
         [
-          50986,
-          51027,
+          51993,
+          52034,
           "{ brand: closed.brand, menu: closed.menu ",
           "closed)"
         ],
         [
-          51029,
-          51031,
+          52036,
+          52038,
           "})",
           ""
         ],
         [
-          51047,
-          51115,
+          52054,
+          52122,
           "          if (Math.abs((closed.brand.top + closed.brand.bottom) / 2 ",
           "\n          await page.locator('.site"
         ],
         [
-          51116,
-          51121,
+          52123,
+          52128,
           " 35) ",
           "menu-button').click();\n          const opened = await page.evaluate(() ="
         ],
         [
-          51123,
-          51124,
+          52130,
+          52131,
           "1",
           "{\n            const rect = (selector) => {\n              const box = document.querySelector(selector).getBoundingClientRect();\n              return { left: box.left, right: box.right, top: box.top, bottom: box.bottom, width: box.width, height: box.height };\n            };\n            const header = document.querySelector('#siteHeader');\n            const nav = document.querySelector('#siteHeader .nav');\n            const search = document.querySelector('#siteHeader .site-search-button');\n            const entry = document.querySelector('#siteHeader .site-entry-link');\n            const support = [...document.querySelectorAll('#siteHeader .site-widget-action')].map((node) => {\n              const box = node.getBoundingClientRect();\n              return { left: box.left, right: box.right, top: box.top, bottom: box.bottom, width: box.width, height: box.height };\n            });\n            return {\n              header: rect('#siteHeader'),\n              nav: rect('#siteHeader .nav'),\n              search: rect('#siteHeader .site-search-button'),\n              entry: rect('#siteHeader .site-entry-link'),\n              navDisplay: getComputedStyle(nav).display,\n              overflowY: getComputedStyle(header).overflowY,\n              headerClientHeight: header.clientHeight,\n              headerScrollHeight: header.scrollHeight,\n              expanded: document.querySelector('.site-menu-button').getAttribute('aria-expanded'),\n              searchLabel: document.querySelector('.site-search-label')?.textContent?.trim(),\n              support,\n              documentWidth: document.documentElement.scrollWidth,\n              viewportWidth: document.documentElement.clientWidth,\n            };\n          });\n          if (opened.navDisplay !== 'flex'"
         ],
         [
-          51128,
-          51185,
+          52135,
+          52192,
           "Math.abs((closed.menu.top + closed.menu.bottom) / 2 - 35)",
           "opened.expanded !== 'true' || opened.header.height"
         ],
         [
-          51188,
-          51188,
+          52195,
+          52195,
           "",
           "viewport.height + "
         ],
         [
-          51189,
-          51189,
+          52196,
+          52196,
           "",
           " || opened.overflowY !== 'auto'"
         ],
         [
-          51230,
-          51261,
+          52237,
+          52268,
           "closed header controls are not ",
           "open na"
         ],
         [
-          51262,
-          51372,
+          52269,
+          52379,
           "ertically centered`);\n          }\n          if (closed.menu.width < 44 || closed.menu.height < 44 || closed.na",
           "igation is not a "
         ],
         [
-          51373,
-          51426,
+          52380,
+          52433,
           "Display !== 'none' || closed.documentWidth > closed.v",
           ""
         ],
         [
-          51433,
-          51477,
+          52440,
+          52484,
           "Width + 1) {\n            failures.push(`${la",
           "-"
         ],
         [
-          51478,
-          51535,
+          52485,
+          52542,
           "el}: closed navigation is clipped, exposed, or undersized",
           "ounded scroll region"
         ],
         [
-          51554,
-          51558,
+          52561,
+          52565,
           "clos",
           "open"
         ],
         [
-          51593,
-          51627,
+          52600,
+          52634,
           "closed.assistantDisplay === 'none'",
           "Math.abs(opened.nav.left - 20) > 1"
         ],
         [
-          51631,
-          51663,
+          52638,
+          52670,
           "closed.contactDisplay === 'none'",
           "Math.abs(opened.nav.right - (viewport.width - 20)) > 1"
         ],
         [
-          51704,
-          51708,
+          52711,
+          52715,
           "nati",
           "open na"
         ],
         [
-          51709,
-          51748,
+          52716,
+          52755,
           "e floating support controls are missing",
           "igation rails are unbalanced"
         ],
         [
-          51767,
-          51889,
+          52774,
+          52896,
           "closed)})`);\n          }\n\n          await page.locator('.site-menu-button').click();\n          const opened = await page.e",
           "opened.na"
         ],
         [
-          51890,
-          52158,
+          52897,
+          53165,
           "aluate(() => {\n            const rect = (selector) => {\n              const box = document.querySelector(selector).getBoundingClientRect();\n              return { left: box.left, right: box.right, top: box.top, bottom: box.bottom, width: box.width, height: box.height ",
           ")"
         ],
         [
-          52159,
-          52159,
+          53166,
+          53166,
           "",
           ")`)"
         ],
         [
-          52171,
-          52173,
+          53178,
+          53180,
           "  ",
           ""
         ],
         [
-          52174,
-          52386,
+          53181,
+          53393,
           ";\n            const header = document.querySelector('#siteHeader');\n            const nav = document.querySelector('#siteHeader .nav');\n            const search = document.querySelector('#siteHeader .site-search-",
           "\n          if (Math.a"
         ],
         [
-          52387,
-          52555,
+          53394,
+          53562,
           "utton');\n            const entry = document.querySelector('#siteHeader .site-entry-link');\n            const support = [...document.querySelectorAll('#siteHeader .site-",
           "s(opened.search."
         ],
         [
-          52558,
-          52561,
+          53565,
+          53568,
           "get",
           "th "
         ],
         [
-          52562,
-          52869,
+          53569,
+          53876,
           "action')].map((node) => {\n              const box = node.getBoundingClientRect();\n              return { left: box.left, right: box.right, top: box.top, bottom: box.bottom, width: box.width, height: box.height };\n            });\n            return {\n              header: rect('#siteHeader'),\n              ",
           " opened."
         ],
         [
-          52872,
-          53100,
+          53879,
+          54107,
           ": rect('#siteHeader .nav'),\n              search: rect('#siteHeader .site-search-button'),\n              entry: rect('#siteHeader .site-entry-link'),\n              navDisplay: getComputedStyle(nav).display,\n              overflo",
           "."
         ],
         [
-          53101,
-          53671,
+          54108,
+          54678,
           "Y: getComputedStyle(header).overflowY,\n              headerClientHeight: header.clientHeight,\n              headerScrollHeight: header.scrollHeight,\n              expanded: document.querySelector('.site-menu-button').getAttribute('aria-expanded'),\n              searchLabel: document.querySelector('.site-search-label')?.textContent?.trim(),\n              support,\n              documentWidth: document.documentElement.scrollWidth,\n              viewportWidth: document.documentElement.clientWidth,\n            };\n          });\n          if (opened.navDisplay !== 'flex'",
           "idth) > 1"
         ],
         [
-          53675,
-          53701,
+          54682,
+          54708,
           "opened.expanded !== 'true'",
           "Math.abs(opened.entry.width - opened.nav.width) > 1"
         ],
         [
-          53712,
-          53747,
+          54719,
+          54754,
           "header.height > viewport.height + 1",
           "search.height < 44"
         ],
         [
-          53758,
-          53767,
+          54765,
+          54774,
           "overflowY",
           "entry.height < 44 || opened.searchLabel"
         ],
         [
-          53773,
-          53777,
+          54780,
+          54784,
           "auto",
           "Search"
         ],
         [
-          53819,
-          53853,
+          54826,
+          54860,
           "open navigation is not a viewport-",
           "Search and primary action are not "
         ],
         [
-          53854,
-          53874,
+          54861,
+          54881,
           "ounded scroll region",
           "alanced full-width touch rows"
         ],
         [
-          53932,
-          53960,
+          54939,
+          54967,
           "Math.abs(opened.nav.left - 2",
           "opened.support.length !== "
         ],
         [
-          53961,
-          54024,
+          54968,
+          55031,
           ") > 1 || Math.abs(opened.nav.right - (viewport.width - 20)) > 1",
           ""
         ],
         [
-          54065,
-          54101,
+          55072,
+          55108,
           "open navigation rails are unbalanced",
           "support controls remain in the compact menu"
         ],
         [
-          54127,
-          54130,
+          55134,
+          55137,
           "nav",
           "support"
         ],
         [
-          54163,
-          54211,
+          55170,
+          55218,
           "Math.abs(opened.search.width - opened.nav.width)",
           "opened.documentWidth"
         ],
         [
-          54214,
-          54258,
+          55221,
+          55265,
           "1 || Math.abs(opened.entry.width - opened.na",
           "opened."
         ],
         [
-          54259,
-          54260,
+          55266,
+          55267,
           ".",
           "ie"
         ],
         [
-          54261,
-          54268,
+          55268,
+          55275,
           "idth) >",
           "portWidth +"
         ],
         [
-          54270,
-          54377,
+          55277,
+          55384,
           " || opened.search.height < 44 || opened.entry.height < 44 || opened.searchLabel !== 'Search') {\n           ",
           ")"
         ],
         [
-          54403,
-          54451,
+          55410,
+          55458,
           "Search and primary action are not balanced full-",
           "opening the navigation creates horizontal overflo"
         ],
         [
-          54452,
-          54465,
+          55459,
+          55472,
           "idth touch ro",
           "`);\n\n          // Escape belongs to the open search dialog, not its underlying menu.\n          // Closing both left focus on a hidden Search button on compact screens.\n          a"
         ],
         [
-          54466,
-          54466,
+          55473,
+          55473,
           "",
           "ait page.locator('.site-search-button').click();\n          await page.locator('.site-search-input').focus();\n          await page.keyboard.press('Shift+Tab');\n          if (!await page.locator('.site-search-close').evaluate(node => node === document.activeElement)) failures.push(`${label}: reverse Tab escaped the empty search dialog`);\n          await page.keyboard.press('Tab');\n          if (!await page.locator('.site-search-input').evaluate(node => node === document.activeElement)) failures.push(`${label}: forward Tab escaped the empty search dialog`);\n          await page.keyboard.press('Escape');\n          if (!await page.locator('.site-search-button').evaluate(node => node === document.activeElement && node.getClientRects().length > 0)) failures.push(`${label}: search dismissal did not restore visible trigger focus`);\n\n          await page.locator('#siteHeader .nav-parent').first().scrollIntoViewIfNeeded();\n          await page.locator('#siteHeader .nav-parent').first().click();\n          const submenu = await page.evaluate(() => {\n            const header = document.querySelector('#siteHeader');\n            const dropdown = document.querySelector('#siteHeader .nav-menu.is-open .nav-dropdown');\n            const box = dropdown?.getBoundingClientRect();\n            return {\n              openMenus: document.querySelectorAll('#siteHeader .nav-menu.is-open').length,\n              parentExpanded: document.querySelector('#siteHeader .nav-parent')?.getAttribute('aria-expanded'),\n              display: dropdown ? getComputedStyle(dropdown).display : 'missing',\n              left: box?.left,\n              right: box?.right,\n              headerClientHeight: header.clientHeight,\n              headerScrollHeight: header.scrollHeight,\n            };\n          });\n          if (submenu.openMenus !== 1 || submenu.parentExpanded !== 'true' || submenu.display !== 'grid' || submenu.left < 19 || submenu.right > viewport.width - 19) {\n            failures.push(`${label}: submenu is missing, clipped, or permits competing open menu"
         ],
         [
-          54486,
-          54492,
+          55493,
+          55499,
           "opened",
           "submenu"
         ],
         [
-          54511,
-          54546,
+          55518,
+          55553,
           "          if (opened.support.length",
           "\n          await page.keyboard.press('Escape');\n          const closedByKeyboard = await page.locator('.site-menu-button').getAttribute('aria-expanded');\n          if (closedByKeyboard"
         ],
         [
-          54551,
-          54567,
+          55558,
+          55574,
           "0) {\n           ",
           "'false')"
         ],
         [
-          54593,
-          54636,
+          55600,
+          55643,
           "support controls remain in the compact menu",
           "Escape did not close the mobile navigation`);\n          await checkFloatingSupport(page, label);\n          await page.close();\n        }\n      }\n    } finally {\n      await engine.close();\n    }\n  }\n\n  await sweepResponsiveHeaders(chromium, 'chromium', [\n    { width: 320, height: 700 },\n    { width: 390, height: 844 },\n    { width: 768, height: 1024 },\n    { width: 1024, height: 768 },\n  ]);\n  await sweepResponsiveHeaders(webkit, 'webkit', [\n    { width: 390, height: 844 },\n    { width: 768, height: 1024 },\n  ]);\n\n  // The fixed mobile shell must expose its navigation above page content, and\n  // short use-case heroes must begin below that shell rather than beneath it.\n  for (const pageName of [\n    'new-in-the-role.html',\n    'after-an-acquisition.html',\n    'transformation-behind-schedule.html',\n    'after-a-reorganization.html',\n  ]) {\n    const page = await browser.newPage({ viewport: { width: 390, height: 844 } });\n    await page.route('**/*', async (route) => {\n      const url = new URL(route.request().url());\n      if (url.origin === localOrigin || url.protocol === 'data:' || url.protocol === 'blob:') await route.continue();\n      else await route.abort();\n    });\n    await page.goto(`${base}/${pageName}`, { waitUntil: 'load', timeout: 30000 });\n    const resting = await page.evaluate(() => ({\n      headerBottom: document.querySelector('#siteHeader').getBoundingClientRect().bottom,\n      eyebrowTop: document.querySelector('main .hero .eyebrow').getBoundingClientRect().top,\n    }));\n    if (resting.eyebrowTop < resting.headerBottom + 20) {\n      failures.push(`${pageName}/iphone: hero begins beneath the fixed header"
         ],
         [
-          54655,
-          54669,
+          55662,
+          55676,
           "opened.support",
           "resting"
         ],
         [
-          54680,
-          54686,
+          55687,
+          55693,
           "      ",
           ""
         ],
         [
-          54692,
-          54735,
+          55699,
+          55742,
           "      if (opened.documentWidth > opened.vie",
           "a"
         ],
         [
-          54736,
-          54748,
+          55743,
+          55755,
           "portWidth + ",
           "ait page.locator('.site-menu-button').click();\n    const opened = await page.evaluate(() => {\n      const headerBox = document.querySelector('#siteHeader').getBoundingClientRect();\n      const navBox = document.querySelector('#siteHeader .nav').getBoundingClientRect();\n      const hit = document.elementFromPoint(\n        Math.max("
         ],
         [
-          54749,
-          54750,
+          55756,
+          55757,
           ")",
           ", Math.min(navBox.left + 24, innerWidth - 1)),\n        Math.max(1, Math.min(navBox.top + 24, innerHeight - 1)),\n      );\n      return {\n        headerBottom: headerBox.bottom,\n        navBottom: navBox.bottom,\n        navDisplay: getComputedStyle(document.querySelector('#siteHeader .nav')).display,\n        navReceivesPointer: Boolean(hit?.closest('#siteHeader .nav')),\n      };\n    });\n    if (opened.navDisplay !== 'flex' || opened.navBottom > opened.headerBottom + 1 || !opened.navReceivesPointer) {\n     "
         ],
         [
-          54768,
-          55922,
+          55775,
+          56929,
           "label}: opening the navigation creates horizontal overflow`);\n\n          // Escape belongs to the open search dialog, not its underlying menu.\n          // Closing both left focus on a hidden Search button on compact screens.\n          await page.locator('.site-search-button').click();\n          await page.locator('.site-search-input').focus();\n          await page.keyboard.press('Shift+Tab');\n          if (!await page.locator('.site-search-close').evaluate(node => node === document.activeElement)) failures.push(`${label}: reverse Tab escaped the empty search dialog`);\n          await page.keyboard.press('Tab');\n          if (!await page.locator('.site-search-input').evaluate(node => node === document.activeElement)) failures.push(`${label}: forward Tab escaped the empty search dialog`);\n          await page.keyboard.press('Escape');\n          if (!await page.locator('.site-search-button').evaluate(node => node === document.activeElement && node.getClientRects().length > 0)) failures.push(`${label}: search dismissal did not restore visible trigger focus`);\n\n          await page.locator('#siteHeader .nav-parent').first().scrollIntoViewIf",
           "page"
         ],
         [
-          55923,
-          56777,
+          56930,
+          57784,
           "eeded();\n          await page.locator('#siteHeader .nav-parent').first().click();\n          const submenu = await page.evaluate(() => {\n            const header = document.querySelector('#siteHeader');\n            const dropdown = document.querySelector('#siteHeader .nav-menu.is-open .nav-dropdown');\n            const box = dropdown?.getBoundingClientRect();\n            return {\n              openMenus: document.querySelectorAll('#siteHeader .nav-menu.is-open').length,\n              parentExpanded: document.querySelector('#siteHeader .nav-parent')?.getAttribute('aria-expanded'),\n              display: dropdown ? getComputedStyle(dropdown).display : 'missing',\n              left: box?.left,\n              right: box?.right,\n              headerClientHeight: header.clientHeight,\n              headerScrollHeight: header.scrollHeight,\n            ",
           "ame"
         ],
         [
-          56778,
-          56997,
+          57785,
+          58004,
           ";\n          });\n          if (submenu.openMenus !== 1 || submenu.parentExpanded !== 'true' || submenu.display !== 'grid' || submenu.left < 19 || submenu.right > viewport.width - 19) {\n            failures.push(`${label}",
           "/iphone"
         ],
         [
-          56999,
-          57001,
+          58006,
+          58008,
           "su",
           "expanded mo"
         ],
         [
-          57002,
-          57059,
+          58009,
+          58066,
           "menu is missing, clipped, or permits competing open menus",
           "ile navigation is clipped or obscured"
         ],
         [
-          57078,
-          57085,
+          58085,
+          58092,
           "submenu",
           "opened"
         ],
         [
-          57096,
-          57102,
+          58103,
+          58109,
           "      ",
           ""
         ],
         [
-          57104,
-          57111,
+          58111,
+          58118,
           "\n      ",
           ""
         ],
         [
-          57126,
-          57149,
+          58133,
+          58156,
           "keyboard.press('Escape'",
           "close("
         ],
         [
-          57154,
-          57324,
+          58161,
+          58331,
           "        const closedByKeyboard = await page.locator('.site-menu-button').getAttribute('aria-expanded');\n          if (closedByKeyboard !== 'false') failures.push(`${label",
           ""
         ],
         [
-          57325,
-          57361,
+          58332,
+          58368,
           ": Escape did not close the mobile na",
           "\n\n  for (const "
         ],
         [
-          57363,
-          57384,
+          58370,
+          58391,
           "gation`);\n          a",
           "e"
         ],
         [
-          57385,
-          57579,
+          58392,
+          58586,
           "ait checkFloatingSupport(page, label);\n          await page.close();\n        }\n      }\n    } finally {\n      await engine.close();\n    }\n  }\n\n  await sweepResponsiveHeaders(chromium, 'chromium',",
           "port of"
         ],
         [
-          57581,
-          57586,
+          58588,
+          58593,
           "\n    ",
           ""
         ],
         [
-          57587,
-          57587,
+          58594,
+          58594,
           "",
           " name: 'compact-phone',"
         ],
         [
-          57614,
-          57618,
+          58621,
+          58625,
           "\n   ",
           ""
         ],
         [
-          57620,
-          57620,
+          58627,
+          58627,
           "",
           " name: 'iphone',"
         ],
         [
-          57646,
-          57718,
+          58653,
+          58725,
           ",\n    { width: 768, height: 1024 },\n    { width: 1024, height: 768 },\n  ",
           ""
         ],
         [
-          57720,
-          57776,
+          58727,
+          58783,
           ";\n  await sweepResponsiveHeaders(webkit, 'webkit', [\n   ",
           ""
         ],
         [
-          57778,
-          57864,
+          58785,
+          58871,
           " width: 390, height: 844 },\n    { width: 768, height: 1024 },\n  ]);\n\n  // The fixed mo",
           "\n    const "
         ],
         [
-          57865,
-          58189,
+          58872,
+          59196,
           "ile shell must expose its navigation above page content, and\n  // short use-case heroes must begin below that shell rather than beneath it.\n  for (const pageName of [\n    'new-in-the-role.html',\n    'after-an-acquisition.html',\n    'transformation-behind-schedule.html',\n    'after-a-reorganization.html',\n  ]) {\n    const p",
           "riefP"
         ],
         [
-          58227,
-          58254,
+          59234,
+          59261,
           ": { width: 390, height: 844",
           ""
         ],
         [
-          58256,
-          58258,
+          59263,
+          59265,
           " }",
           ""
         ],
         [
-          58271,
-          58272,
+          59278,
+          59279,
           "p",
           "briefP"
         ],
         [
-          58453,
-          58453,
+          59460,
+          59460,
           "",
           "{\n        "
         ],
         [
-          58483,
-          58513,
+          59490,
+          59520,
           "else await route.abort();\n    ",
           ""
         ],
         [
-          58514,
-          58517,
+          59521,
+          59524,
           ");\n",
           " else {\n    "
         ],
         [
-          58527,
-          58528,
+          59534,
+          59535,
           "p",
           "route.abort();\n      }\n    });\n    await briefP"
         ],
         [
-          58546,
-          58557,
+          59553,
+          59564,
           "${pageName}",
           "Monderman_Platform_Brief.html"
         ],
         [
-          58600,
-          58617,
+          59607,
+          59624,
           "    const resting",
           "\n    const briefLayout"
         ],
         [
-          58626,
-          58627,
+          59633,
+          59634,
           "p",
           "briefP"
         ],
         [
-          58646,
-          58647,
+          59653,
+          59654,
           "(",
           ""
         ],
         [
-          58655,
-          58668,
+          59662,
+          59675,
           "headerBottom:",
           "const progress ="
         ],
         [
-          58693,
-          58756,
+          59700,
+          59763,
           "#siteHeader').getBoundingClientRect().bottom,\n      eyebrowTop:",
           ".progress');\n      const artifact ="
         ],
         [
-          58781,
-          58797,
+          59788,
+          59804,
           "main .hero .eyeb",
           ".artifact-"
         ],
         [
-          58802,
-          58839,
+          59809,
+          59846,
           ".getBoundingClientRect().top,\n    }))",
           ""
         ],
         [
-          58845,
-          58860,
+          59852,
+          59867,
           "if (resting.eye",
           "  const num"
         ],
         [
-          58861,
-          58882,
+          59868,
+          59889,
           "rowTop < resting.head",
           ""
         ],
         [
-          58886,
-          58896,
+          59893,
+          59903,
           "ttom + 20)",
           "x = artifact.querySelector('.artifact-num').getBoundingClientRect();\n      const titleBox = artifact.querySelector('strong').getBoundingClientRect();\n      const descriptionBox = artifact.querySelector('span:last-child').getBoundingClientRect();\n      const evidence = document.querySelector('.evidence-step');\n      const nodeBox = evidence.querySelector('.evidence-node').getBoundingClientRect();\n      const evidenceTitleBox = evidence.querySelector('strong').getBoundingClientRect();\n      const evidenceDescriptionBox = evidence.querySelector('span').getBoundingClientRect();\n      return"
         ],
         [
-          58905,
-          58905,
+          59912,
+          59912,
           "",
           "  progressDisplay: getComputedStyle(progress).display,\n        scrollSnapType: getComputedStyle(document.documentElement).scrollSnapType,\n        artifact: {\n          numberLeft: numberBox.left,\n          numberRight: numberBox.right,\n          titleLeft: titleBox.left,\n          titleWidth: titleBox.width,\n          descriptionLeft: descriptionBox.left,\n          descriptionTop: descriptionBox.top,\n          titleBottom: titleBox.bottom,\n        },\n        evidence: {\n          nodeRight: nodeBox.right,\n          titleLeft: evidenceTitleBox.left,\n          titleWidth: evidenceTitleBox.width,\n          descriptionLeft: evidenceDescriptionBox.left,\n          descriptionWidth: evidenceDescriptionBox.width,\n          descriptionTop: evidenceDescriptionBox.top,\n          titleBottom: evidenceTitleBox.bottom,\n        },\n      };\n    });\n\n    if (briefLayout.progressDisplay !== 'none' || briefLayout.scrollSnapType !== 'none') {\n      "
         ],
         [
-          58920,
-          58920,
+          59927,
+          59927,
           "",
           "Platform Brief/"
         ],
         [
-          58922,
-          58927,
+          59929,
+          59934,
           "pageN",
           "viewport.n"
         ],
         [
-          58931,
-          58938,
+          59938,
+          59945,
           "/iphone",
           ""
         ],
         [
-          58940,
-          58945,
+          59947,
+          59952,
           "hero ",
           ""
         ],
         [
-          58946,
-          58976,
+          59953,
+          59983,
           "egins beneath the fixed header",
           "roken phone slide rail or snapping remains"
         ],
         [
-          58995,
-          59050,
+          60002,
+          60057,
           "resting)})`);\n    }\n    await page.locator('.site-menu-",
           ""
         ],
         [
-          59051,
-          59152,
+          60058,
+          60159,
           "utton').click();\n    const opened = await page.evaluate(() => {\n      const headerBox = document.quer",
           "riefLa"
         ],
         [
-          59153,
-          59731,
+          60160,
+          60738,
           "Selector('#siteHeader').getBoundingClientRect();\n      const navBox = document.querySelector('#siteHeader .nav').getBoundingClientRect();\n      const hit = document.elementFromPoint(\n        Math.max(1, Math.min(navBox.left + 24, innerWidth - 1)),\n        Math.max(1, Math.min(navBox.top + 24, innerHeight - 1)),\n      );\n      return {\n        headerBottom: headerBox.bottom,\n        navBottom: navBox.bottom,\n        navDisplay: getComputedStyle(document.querySelector('#siteHeader .nav')).display,\n        navReceivesPointer: Boolean(hit?.closest('#siteHeader .nav')),\n      ",
           "out)"
         ],
         [
-          59732,
-          59732,
+          60739,
+          60739,
           "",
           ")`)"
         ],
         [
-          59739,
-          59765,
+          60746,
+          60772,
           ");\n    if (opened.navDispl",
           "\n    if (briefL"
         ],
         [
-          59767,
-          59778,
+          60774,
+          60785,
           " !== 'flex'",
           "out.artifact.titleLeft <= briefLayout.artifact.numberRight"
         ],
         [
-          59782,
-          59824,
+          60789,
+          60831,
           "opened.navBottom > opened.headerBottom + 1",
           "briefLayout.artifact.titleWidth < 200"
         ],
         [
-          59828,
-          59828,
+          60835,
+          60835,
           "",
           "briefLayout.artifact.descriptionLeft "
         ],
         [
-          59829,
-          59854,
+          60836,
+          60861,
           "opened.navReceivesPointer",
           "== briefLayout.artifact.titleLeft || briefLayout.artifact.descriptionTop < briefLayout.artifact.titleBottom"
         ],
         [
-          59879,
-          59879,
+          60886,
+          60886,
           "",
           "Platform Brief/"
         ],
         [
-          59881,
-          59917,
+          60888,
+          60924,
           "pageName}/iphone: expanded mobile na",
           ""
         ],
         [
-          59919,
-          59946,
+          60926,
+          60953,
           "gation is clipped or obscur",
           "ewport.name}: artifact hierarchy is mis-gridd"
         ],
         [
-          59967,
-          60151,
+          60974,
+          61158,
           "opened)})`);\n    }\n    await page.close();\n  }\n\n  for (const viewport of [{ name: 'compact-phone', width: 320, height: 700 }, { name: 'iphone', width: 390, height: 844 }]) {\n    const ",
           ""
         ],
         [
-          60156,
-          60277,
+          61163,
+          61284,
           "Page = await browser.newPage({ viewport });\n    await briefPage.route('**/*', async (route) => {\n      const url = new UR",
           ""
         ],
         [
-          60278,
-          60300,
+          61285,
+          61307,
           "(route.request().url()",
           "ayout.artifact)})`"
         ],
         [
-          60307,
-          60339,
+          61314,
+          61346,
           "  if (url.origin === localOrigin",
           "}\n    if (briefLayout.evidence.titleLeft <= briefLayout.evidence.nodeRight"
         ],
         [
-          60343,
-          60367,
+          61350,
+          61374,
           "url.protocol === 'data:'",
           "briefLayout.evidence.titleWidth < 190"
         ],
         [
-          60371,
-          60389,
+          61378,
+          61396,
           "url.protocol === '",
           ""
         ],
         [
-          60390,
-          60609,
+          61397,
+          61616,
           "lob:') {\n        await route.continue();\n      } else {\n        await route.abort();\n      }\n    });\n    await briefPage.goto(`${base}/Monderman_Platform_Brief.html`, { waitUntil: 'load', timeout: 30000 });\n\n    const b",
           ""
         ],
         [
-          60619,
-          60637,
+          61626,
+          61644,
           " = await briefPage",
           ""
         ],
         [
-          60640,
-          61575,
+          61647,
+          62582,
           "aluate(() => {\n      const progress = document.querySelector('.progress');\n      const artifact = document.querySelector('.artifact-row');\n      const numberBox = artifact.querySelector('.artifact-num').getBoundingClientRect();\n      const titleBox = artifact.querySelector('strong').getBoundingClientRect();\n      const descriptionBox = artifact.querySelector('span:last-child').getBoundingClientRect();\n      const evidence = document.querySelector('.evidence-step');\n      const nodeBox = evidence.querySelector('.evidence-node').getBoundingClientRect();\n      const evidenceTitleBox = evidence.querySelector('strong').getBoundingClientRect();\n      const evidenceDescriptionBox = evidence.querySelector('span').getBoundingClientRect();\n      return {\n        progressDisplay: getComputedStyle(progress).display,\n        scrollSnapType: getComputedStyle(document.documentElement).scrollSnapType,\n        artifact: {\n          number",
           "idence.description"
         ],
         [
-          61579,
-          62282,
+          62586,
+          63289,
           ": numberBox.left,\n          numberRight: numberBox.right,\n          titleLeft: titleBox.left,\n          titleWidth: titleBox.width,\n          descriptionLeft: descriptionBox.left,\n          descriptionTop: descriptionBox.top,\n          titleBottom: titleBox.bottom,\n        },\n        evidence: {\n          nodeRight: nodeBox.right,\n          titleLeft: evidenceTitleBox.left,\n          titleWidth: evidenceTitleBox.width,\n          descriptionLeft: evidenceDescriptionBox.left,\n          descriptionWidth: evidenceDescriptionBox.width,\n          descriptionTop: evidenceDescriptionBox.top,\n          titleBottom: evidenceTitleBox.bottom,\n        },\n      };\n    });\n\n    if (briefLayout.progressDisplay",
           ""
         ],
         [
-          62287,
-          62293,
+          63294,
+          63300,
           "'none'",
           "briefLayout.evidence.titleLeft"
         ],
         [
-          62309,
-          62320,
+          63316,
+          63327,
           "scrollSnapT",
           "evidence.descriptionWidth < 190 || briefLa"
         ],
         [
-          62321,
-          62334,
+          63328,
+          63341,
           "pe !== 'none'",
           "out.evidence.descriptionTop < briefLayout.evidence.titleBottom"
         ],
         [
-          62392,
-          62435,
+          63399,
+          63442,
           "broken phone slide rail or snapping remains",
           "evidence hierarchy is mis-gridded"
         ],
         [
-          62465,
-          62465,
+          63472,
+          63472,
           "",
           ".evidence"
         ],
         [
-          62482,
-          62486,
+          63489,
+          63493,
           "if (",
           "await "
         ],
         [
-          62491,
-          62519,
+          63498,
+          63526,
           "Layout.artifact.titleLeft <=",
           "Page.close();\n  }\n\n  for (const width of [640, 641, 680, 681]) {\n    const"
         ],
         [
-          62525,
-          62544,
+          63532,
+          63551,
           "Layout.artifact.num",
           "Page = await "
         ],
         [
-          62545,
-          62547,
+          63552,
+          63554,
           "er",
           "rowser.newPage({ viewport: { width, height: 844 } });\n    await briefPage.route('**/*', async (route) => {\n      const url = new U"
         ],
         [
-          62548,
-          62552,
+          63555,
+          63559,
           "ight",
           "L(route.request().url());\n      if (url.origin === localOrigin"
         ],
         [
-          62556,
-          62593,
+          63563,
+          63600,
           "briefLayout.artifact.titleWidth < 200",
           "url.protocol === 'data:'"
         ],
         [
-          62597,
-          62597,
+          63604,
+          63604,
           "",
           "url.protocol === '"
         ],
         [
-          62598,
-          62638,
+          63605,
+          63645,
           "riefLayout.artifact.descriptionLeft !== ",
           "lo"
         ],
         [
-          62639,
-          62645,
+          63646,
+          63652,
           "riefLa",
           ":') {\n        await route.continue();\n      } else {\n        await route.abort();\n      }\n    });\n    await briefPage.goto(`${base}/Monderman_Platform_Brief.html`, { waitUntil: 'load', timeout: 30000 });\n    const rows = await briefPage.evaluate(() => ({\n      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,\n      items: [...document.quer"
         ],
         [
-          62646,
-          62664,
+          63653,
+          63671,
           "out.artifact.title",
           "SelectorAll('.artifact-row')].map((row) => {\n        const rowBox = row.getBoundingClientRect();\n        const numberBox = row.querySelector('.artifact-num').getBoundingClientRect();\n        const titleBox = row.querySelector('strong').getBoundingClientRect();\n        const descriptionBox = row.querySelector('span:last-child').getBoundingClientRect();\n        return {\n          columns: getComputedStyle(row).gridTemplateColumns.trim().split(/\\s+/).length,\n          number"
         ],
         [
-          62668,
-          62668,
+          63675,
+          63675,
           "",
           ": numberBox.left - rowBox.left,\n          numberRight: numberBox.right - rowBox.left,\n          titleLeft: titleBox.left - rowBox.left,\n          titleRight: titleBox.right - rowBox.left,\n          titleWidth: titleBox.width,\n          titleBottom: titleBox.bottom - rowBox.top,\n          descriptionLeft: descriptionBox.left - rowBox.left,\n          descriptionTop: descriptionBox.top - rowBox.top,\n        };\n      }),\n    }));\n    if (rows.overflow > 1"
         ],
         [
-          62672,
-          62742,
+          63679,
+          63749,
           "briefLayout.artifact.descriptionTop < briefLayout.artifact.titleBottom",
           "rows.items.length !== 5"
         ],
         [
-          62784,
-          62787,
+          63791,
+          63794,
           "vie",
           ""
         ],
         [
-          62788,
-          62797,
+          63795,
+          63804,
           "port.name",
           "idth"
         ],
         [
-          62798,
-          62798,
+          63805,
+          63805,
           "",
           "px"
         ],
         [
-          62809,
-          62833,
+          63816,
+          63840,
           "hierarchy is mis-gridded",
           "seam has overflow or missing rows"
         ],
         [
-          62852,
-          62872,
+          63859,
+          63879,
           "briefLayout.artifact",
           "rows"
         ],
         [
-          62889,
-          62923,
+          63896,
+          63930,
           "if (briefLayout.evidence.titleLeft",
           "rows.items.forEach((row, index) => {\n      if (width"
         ],
         [
-          62927,
-          62957,
+          63934,
+          63964,
           "briefLayout.evidence.nodeRight",
           "680) {\n        if (row.columns !== 2"
         ],
         [
-          62961,
-          62961,
+          63968,
+          63968,
           "",
           "row.num"
         ],
         [
-          62962,
-          62966,
+          63969,
+          63973,
           "rief",
           "er"
         ],
         [
-          62967,
-          62994,
+          63974,
+          64001,
           "ayout.evidence.titleWidth <",
           "eft >"
         ],
         [
-          62996,
-          62998,
+          64003,
+          64005,
           "90",
           ""
         ],
         [
-          63002,
-          63007,
+          64009,
+          64014,
           "brief",
           "row.title"
         ],
         [
-          63008,
-          63043,
+          64015,
+          64050,
           "ayout.evidence.descriptionLeft !== ",
           "eft <= row.num"
         ],
         [
-          63044,
-          63072,
+          64051,
+          64079,
           "riefLayout.evidence.titleLef",
           "erRigh"
         ],
         [
-          63077,
-          63109,
+          64084,
+          64116,
           "briefLayout.evidence.description",
           "row.title"
         ],
         [
-          63117,
-          63119,
+          64124,
+          64126,
           "19",
           "20"
         ],
         [
-          63124,
-          63124,
+          64131,
+          64131,
           "",
           "Math.a"
         ],
         [
-          63125,
-          63129,
+          64132,
+          64136,
           "rief",
           "s(row.description"
         ],
         [
-          63130,
-          63167,
+          64137,
+          64174,
           "ayout.evidence.descriptionTop < brief",
           "eft - row.title"
         ],
         [
-          63168,
-          63182,
+          64175,
+          64189,
           "ayout.evidence",
           "eft) > 1 || row.descriptionTop < row"
         ],
         [
-          63198,
-          63198,
+          64205,
+          64205,
           "",
           "    "
         ],
         [
-          63236,
-          63239,
+          64243,
+          64246,
           "vie",
           ""
         ],
         [
-          63240,
-          63249,
+          64247,
+          64256,
           "port.name",
           "idth}px/row-${index + 1"
         ],
         [
-          63252,
-          63277,
+          64259,
+          64284,
           "evidence hierarchy is mis",
           "two"
         ],
         [
-          63278,
-          63283,
+          64285,
+          64290,
           "gridd",
           "column artifact hierarchy fail"
         ],
         [
-          63304,
-          63342,
+          64311,
+          64349,
           "briefLayout.evidence)})`);\n    }\n    a",
           "ro"
         ],
         [
-          63343,
-          63368,
+          64350,
+          64375,
           "ait briefPage.close();\n  ",
           ")"
         ],
         [
-          63369,
-          63497,
+          64376,
+          64504,
           "\n\n  for (const width of [640, 641, 680, 681]) {\n    const briefPage = await browser.newPage({ viewport: { width, height: 844 } }",
           ")`"
         ],
         [
-          63504,
-          63505,
+          64511,
+          64512,
           "a",
           "    }\n      } else if (ro"
         ],
         [
-          63506,
-          63639,
+          64513,
+          64646,
           "ait briefPage.route('**/*', async (route) => {\n      const url = new URL(route.request().url());\n      if (url.origin === localOrigin",
           ".columns !== 3"
         ],
         [
-          63643,
-          63667,
+          64650,
+          64674,
           "url.protocol === 'data:'",
           "row.numberLeft > 1"
         ],
         [
-          63671,
-          63708,
+          64678,
+          64715,
           "url.protocol === 'blob:') {\n        a",
           "ro"
         ],
         [
-          63709,
-          64548,
+          64716,
+          65555,
           "ait route.continue();\n      } else {\n        await route.abort();\n      }\n    });\n    await briefPage.goto(`${base}/Monderman_Platform_Brief.html`, { waitUntil: 'load', timeout: 30000 });\n    const rows = await briefPage.evaluate(() => ({\n      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,\n      items: [...document.querySelectorAll('.artifact-row')].map((row) => {\n        const rowBox = row.getBoundingClientRect();\n        const numberBox = row.querySelector('.artifact-num').getBoundingClientRect();\n        const titleBox = row.querySelector('strong').getBoundingClientRect();\n        const descriptionBox = row.querySelector('span:last-child').getBoundingClientRect();\n        return {\n          columns: getComputedStyle(row).gridTemplateColumns.trim().split(/\\s+/).length,\n          number",
           ".title"
         ],
         [
-          64552,
-          64570,
+          65559,
+          65577,
           ": numberBox.left -",
           " <="
         ],
         [
-          64574,
-          64594,
+          65581,
+          65601,
           "Box.left,\n          ",
           "."
         ],
         [
-          64605,
-          65007,
+          65612,
+          66014,
           ": numberBox.right - rowBox.left,\n          titleLeft: titleBox.left - rowBox.left,\n          titleRight: titleBox.right - rowBox.left,\n          titleWidth: titleBox.width,\n          titleBottom: titleBox.bottom - rowBox.top,\n          descriptionLeft: descriptionBox.left - rowBox.left,\n          descriptionTop: descriptionBox.top - rowBox.top,\n        };\n      }),\n    }));\n    if (rows.overflow > 1",
           ""
         ],
         [
-          65014,
-          65034,
+          66021,
+          66041,
           "s.items.length !== 5",
           ".descriptionLeft <= row.titleLeft"
         ],
         [
-          65038,
-          65038,
+          66045,
+          66045,
           "",
           "  "
         ],
         [
-          65084,
-          65110,
+          66091,
+          66117,
           ": artifact seam has overfl",
           "/r"
         ],
         [
-          65112,
-          65128,
+          66119,
+          66135,
           " or missing rows",
           "-${index + 1}: desktop artifact hierarchy failed"
         ],
         [
-          65150,
-          65841,
+          66157,
+          66848,
           "s)})`);\n    }\n    rows.items.forEach((row, index) => {\n      if (width <= 680) {\n        if (row.columns !== 2 || row.numberLeft > 1 || row.titleLeft <= row.numberRight || row.titleWidth < 200 || Math.abs(row.descriptionLeft - row.titleLeft) > 1 || row.descriptionTop < row.titleBottom) {\n          failures.push(`Platform Brief/${width}px/row-${index + 1}: two-column artifact hierarchy failed (${JSON.stringify(row)})`);\n        }\n      } else if (row.columns !== 3 || row.numberLeft > 1 || row.titleLeft <= row.numberRight || row.descriptionLeft <= row.titleLeft) {\n        failures.push(`Platform Brief/${width}px/row-${index + 1}: desktop artifact hierarchy failed (${JSON.stringify(row",
           ""
         ]
@@ -3688,9 +3712,9 @@
     },
     "homepage-refinement.css": {
       "before_sha256": "95f463d1ed79134d021e5cb735ca60371fdbca7719e5706c2298a807a8cbabf9",
-      "after_sha256": "3221c17dc04c86ad9a722b59c3b95188f9e9fb1ef7900441b08e4d184e477c52",
+      "after_sha256": "055d116b55befb50dcd03b86c57197b94e2e324495c23613001e1f7b1c6a707a",
       "before_bytes": 5661,
-      "after_bytes": 5783,
+      "after_bytes": 5904,
       "replacements": [
         [
           554,
@@ -3739,6 +3763,12 @@
           3602,
           "var(--mond-radius-control, 7px)",
           "2px"
+        ],
+        [
+          4734,
+          4855,
+          "ero .hero-access-note { box-sizing: border-box; padding-right: 132px; }\n  body.homepage-enterprise.homepage-refinement .h",
+          ""
         ]
       ]
     },
@@ -7843,7 +7873,7 @@
     {
       "path": ".well-known/monderman-release.json",
       "bytes": 56,
-      "sha256": "3d5fb6615cb0b87e60422677f33aa5ce87cf0ceae1b593919ea27f195cbcee67"
+      "sha256": "c5e478adb8e47aa9e94498bdb80f02ac09dec6c7f7e74129fa1b22367cb49826"
     },
     {
       "path": "404.html",
@@ -8842,8 +8872,8 @@
     },
     {
       "path": "homepage-refinement.css",
-      "bytes": 5783,
-      "sha256": "3221c17dc04c86ad9a722b59c3b95188f9e9fb1ef7900441b08e4d184e477c52"
+      "bytes": 5904,
+      "sha256": "055d116b55befb50dcd03b86c57197b94e2e324495c23613001e1f7b1c6a707a"
     },
     {
       "path": "homepage-refinement.js",
