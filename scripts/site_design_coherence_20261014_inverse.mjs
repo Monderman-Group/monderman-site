@@ -6,7 +6,7 @@ import {createHash} from 'node:crypto';
 const sha=b=>createHash('sha256').update(b).digest('hex');
 export const SITE_DESIGN_COHERENCE_BASELINE='16935688e0b4c6e177c81bdcaefb5727894d7a11';
 export const SITE_DESIGN_COHERENCE_VERSION='site-design-coherence-20261014.1';
-export const SITE_DESIGN_COHERENCE_FIXTURE_SHA256='96d22ade3cb08db280be7ad0a11d14d1c6e93d02eec4ce4fe9ca1fa3dda23bc5';
+export const SITE_DESIGN_COHERENCE_FIXTURE_SHA256='fb12e8fa98963502f8b9d46a3ad2839d8b18d3cc7ffc180c1518c09bba1d463c';
 const bytes=fs.readFileSync(new URL('./fixtures/site-design-coherence-20261014.json',import.meta.url));
 assert.equal(sha(bytes),SITE_DESIGN_COHERENCE_FIXTURE_SHA256,'Exact separately reviewed design fixture');
 export const siteDesignCoherenceDelta=JSON.parse(bytes);

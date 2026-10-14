@@ -10,6 +10,7 @@ import {buildPublicSamplePreviewSections} from './refresh_public_sample_previews
 import {evidenceDigest} from './public_sample_fixture.mjs';
 import {sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
 import {sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014_inverse.mjs';
+import {sourceAtSiteDesignCoherenceBaseline} from './site_design_coherence_20261014_inverse.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 const baseline='6bd52d91d2557902f4b090686f244ea91843eb51';
@@ -47,7 +48,7 @@ function parse(html){
 const artifactBytes=read('sample-data/production-diagnostic-samples.json'),artifact=JSON.parse(artifactBytes);
 const artifactBefore=JSON.stringify(artifact),template=read('scripts/templates/home-workspace-preview.html');
 const sections=buildPublicSamplePreviewSections(artifact,template),home=sections.home,tree=parse(home);
-const index=sourceAtHomepageRefinementBaseline('index.html',read('index.html')),brief=read('Monderman_Platform_Brief.html');
+const index=sourceAtHomepageRefinementBaseline('index.html',read('index.html')),brief=sourceAtSiteDesignCoherenceBaseline('Monderman_Platform_Brief.html',read('Monderman_Platform_Brief.html'));
 const depthAside=/<aside class="hero-report-proof has-sample-depth-tile"[^]*?<\/aside>/g;
 const homeAsides=[...index.matchAll(depthAside)],briefAsides=[...brief.matchAll(depthAside)];
 eq(homeAsides.length,1,'One homepage sample');eq(briefAsides.length,1,'One Platform Brief sample');
