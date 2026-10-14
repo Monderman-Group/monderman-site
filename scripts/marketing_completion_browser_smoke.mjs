@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
+import {isCurrentHomepageRefinementSource,sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014_inverse.mjs';
 const {chromium, webkit} = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
 const origin = new URL(base).origin;
@@ -16,7 +17,15 @@ const source = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const photoRegister = JSON.parse(fs.readFileSync(path.join(root, 'docs/marketing-photo-register-20261013.json'), 'utf8'));
 // Two exact source editions: all functional/safety cases run; only owner-directed photo presentation differs.
 const historicalPhotoEdition = sourceHashes['index.html'] === 'a6de2201743448c6072a4efeeac8c5b9c3a10c333189bfc5e608861a9969c475';
-assert.ok(historicalPhotoEdition || sourceHashes['index.html'] === '80364877594f6cf9e13cfe14bdfe2702838a2422680e902abc9bf613dff8c24d', 'Only exact merged-M or frozen owner-five-photo source');
+// The native refined edition executes every raw current functional case below.
+// Only the preceding historical identity assertion receives its exact94cab view.
+const nativeRefinedEdition = isCurrentHomepageRefinementSource(source);
+assert.ok(!source.includes('homepage-refinement.js?v=20261014.1') || nativeRefinedEdition, 'Only exact frozen native refinement selects the third current edition');
+{
+  const sourceHashes = nativeRefinedEdition ? {...sourceHashesForIdentity(), 'index.html': hash(sourceAtHomepageRefinementBaseline('index.html', source))} : sourceHashesForIdentity();
+  assert.ok(historicalPhotoEdition || sourceHashes['index.html'] === '80364877594f6cf9e13cfe14bdfe2702838a2422680e902abc9bf613dff8c24d', 'Only exact merged-M or frozen owner-five-photo source');
+}
+function sourceHashesForIdentity() { return sourceHashes; }
 const photoEdition = historicalPhotoEdition ? {name: 'merged-M', ids: ['501653292','488892667','524156476'], derivativeCount: 12, captioned: true} : {name: 'owner-five-photo', ids: ['501653292','524156476'], derivativeCount: 20, captioned: false};
 assert.equal(photoRegister.photos.length, historicalPhotoEdition ? 3 : 5, 'Exact actual site-wide registry cardinality');
 assert.deepEqual(photoRegister.photos.map(photo => String(photo.id)), historicalPhotoEdition ? ['501653292','488892667','524156476'] : ['501653292','488892667','524156476','541113838','511990984'], 'Only the five owner-approved identities and truthful historical edition');

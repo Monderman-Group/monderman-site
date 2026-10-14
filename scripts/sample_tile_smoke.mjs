@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {sourceAtMarketingRefreshBaseline, marketingRefreshDelta} from './marketing_refresh_20261012_inverse.mjs';
+import {isCurrentHomepageRefinementSource,sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014_inverse.mjs';
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 import {buildPublicSamplePreviewSections} from './refresh_public_sample_previews.mjs';
 const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
@@ -13,6 +14,9 @@ fs.mkdirSync(out, { recursive: true });
 const {artifact}=readPublicSampleFixture();
 const root=path.resolve(import.meta.dirname,'..');
 const homepageBytes=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const currentRefinement=isCurrentHomepageRefinementSource(homepageBytes);
+assert.ok(!homepageBytes.includes('homepage-refinement.js?v=20261014.1')||currentRefinement,'Only exact approved refined source selects current native geometry');
+const priorRefinementHomepage=sourceAtHomepageRefinementBaseline('index.html',homepageBytes);
 const baselineHomepage=sourceAtMarketingRefreshBaseline('index.html',homepageBytes);
 assert.notEqual(baselineHomepage,homepageBytes,'The authoritative compact homepage and actual enlarged homepage are both rendered');
 assert.equal(createHash('sha256').update(baselineHomepage).digest('hex'),marketingRefreshDelta.files['index.html'].before_sha256,'Exact approved baseline homepage bytes');
@@ -61,18 +65,47 @@ const goodGeometry={width:750,height:850,findingLeadFont:25,contentFont:14,areas
 assertReadablePreview(goodGeometry,1440,'Current geometry deterministic control');
 const badGeometry=[{...goodGeometry,width:901},{...goodGeometry,height:1151},{...goodGeometry,findingLeadFont:20},{...goodGeometry,contentFont:13},{...goodGeometry,areas:'"money change"'},{...goodGeometry,exampleLabel:'Customer results'}];
 for(const bad of badGeometry)assert.throws(()=>assertReadablePreview(bad,1440,'Current geometry negative control'));
+function assertNativeRefinedPreview(g,width,label){
+  assert(Number.isFinite(g.width)&&g.width>0&&g.width<=640.5,label+': native current report bounded640px');
+  assert(Number.isFinite(g.height)&&g.height>0&&g.height<=(width<=600?2000:1500),label+': all four expanded current report roles stay bounded');
+  assert.equal(g.findingLeadFont,19,label+': current finding remains readable at the approved19px');
+  assert(g.contentFont>=14,label+': current supporting report text remains readable');
+  assert.equal(g.extraColumns,width<=600?1:2,label+': native additional panels use responsive columns');
+  assert.equal(g.extraAreas,width<=600?'"money" "change" "evidence"':'"money change" "evidence evidence"',label+': native expanded roles retain exact arrangement');
+  assert.equal(g.exampleLabel,'Sample report · Example data',label+': current qualification stays visible');
+}
+const currentNativeFixture={width:566,height:892,findingLeadFont:19,contentFont:14,extraColumns:2,extraAreas:'"money change" "evidence evidence"',exampleLabel:'Sample report · Example data'};
+assertNativeRefinedPreview(currentNativeFixture,1440,'Native current positive control');
+for(const m of [{width:641},{height:1501},{findingLeadFont:18},{contentFont:13},{extraColumns:1},{extraAreas:'"money"'},{exampleLabel:'Customer result'}])assert.throws(()=>assertNativeRefinedPreview({...currentNativeFixture,...m},1440,'Native current negative control'));
+async function expandRefinedHeroForOriginalChecks(page,enabled,label){
+  if(!enabled)return;
+  const report=page.locator('.hero [data-home-report-quad]'),details=report.locator('.hf-hero-details'),toggle=details.locator(':scope > summary');
+  assert.equal(await details.count(),1,label+': exact native preview disclosure');
+  assert.equal(await details.evaluate(el=>el.open),false,label+': initial compact state without deferred hiding');
+  assert.equal(await report.locator('.hrq-tile:visible').count(),1,label+': default exposes finding only');
+  assert.equal(await report.locator('.hrq-tile:visible').getAttribute('data-quad-section'),'findings',label+': exact visible default section');
+  assert.equal(await report.locator('.hrq-footer>a').getAttribute('href'),'sample-report.html#depth',label+': original full-report destination stays available');
+  assert.equal(await toggle.isVisible(),true,label+': native summary works with or without scripts');
+  assert.ok((await toggle.boundingBox()).height>=44,label+': native expansion is a usable touch target');
+  await toggle.click();
+  await page.waitForFunction(()=>document.querySelector('.hero .hf-hero-details').open);
+  assert.equal(await report.locator('.hrq-tile:visible').count(),4,label+': native expansion restores all four original sections');
+  assert.equal(await details.locator('.hf-extra-grid > .hrq-tile').count(),3,label+': exact three additional native report roles');
+}
+
 let renderStates=0;
 for(const [engine,type] of [['chromium',chromium],['webkit',webkit]]){
 const browser = await type.launch({ headless: true });
 try {
   for (const placement of placements) {
-    for (const edition of placement.name==='homepage'?['baseline','current']:['current']) {
+    for (const edition of placement.name==='homepage'?(currentRefinement?['baseline','prior-current','current']:['baseline','current']):['current']) {
     for (const viewport of viewports) {
       const page = await browser.newPage({ viewport });
       await page.route('**/*', route => {
         const request=route.request(),url=new URL(request.url());
         if(!['GET','HEAD'].includes(request.method())||url.pathname.startsWith('/api/')||url.origin!==localOrigin)return route.abort();
         if(placement.name==='homepage'&&edition==='baseline'&&url.pathname==='/index.html')return route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:baselineHomepage});
+        if(placement.name==='homepage'&&edition==='prior-current'&&url.pathname==='/index.html')return route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:priorRefinementHomepage});
         return route.continue();
       });
       renderStates++;
@@ -91,6 +124,7 @@ try {
         }, await tile.elementHandle());
       }
       if (placement.name === 'homepage') {
+        await expandRefinedHeroForOriginalChecks(page,currentRefinement&&edition==='current',engine+'/'+edition+'/'+viewport.name);
         const label=`${engine}/${placement.name}/${edition}/${viewport.name}`;
         assert.equal(await tile.isVisible(),true,label+': hero report preview must remain visible');
         assert.equal(await tile.getAttribute('data-artifact-sha256'),artifact.artifact_sha256,label+': current source identity');
@@ -113,16 +147,26 @@ try {
         });
         assert.equal(geometry.inOutputBand,false,label+': lower section is reserved for the product journey');
         assert.equal(geometry.inHero,true,label+': report leads the opening hero');
+        if(currentRefinement&&edition==='current'){
+          const extra=await tile.locator('.hf-extra-grid').evaluate(el=>({columns:getComputedStyle(el).gridTemplateColumns.trim().split(/\s+/).length,areas:getComputedStyle(el).gridTemplateAreas}));
+          geometry.extraColumns=extra.columns;geometry.extraAreas=extra.areas;
+          assertNativeRefinedPreview(geometry,viewport.width,label);
+        }else{
         assert.equal(geometry.columns,viewport.width<=600?1:2,label+': responsive report grid');
+        }
         if(edition==='baseline'){
         assert(geometry.width>0&&geometry.width<=760.5,label+': approved report width');
-        }else assertReadablePreview(geometry,viewport.width,label);
+        }else if(!(currentRefinement&&edition==='current'))assertReadablePreview(geometry,viewport.width,label);
         assert(geometry.left>=-1&&geometry.right<=geometry.viewportWidth+1,label+': report stays within viewport');
         assert(geometry.scrollWidth<=geometry.clientWidth+1&&geometry.documentWidth<=geometry.viewportWidth+1,label+': no horizontal overflow');
         assert(geometry.bottom<=geometry.heroBottom+1,label+': report stays within the hero');
         assert.deepEqual(geometry.escaping,[],label+': all report summaries and chart labels stay within the frame');
         if(viewport.width===1440&&edition==='baseline'){assert(geometry.width>580,label+': wide preview does not inherit the retired card width');assert(geometry.height<=680,label+': approved compact two-column height '+JSON.stringify({width:geometry.width,height:geometry.height}));}
+        if(edition==='prior-current'){const edition='current';
         if(viewport.width===1440&&edition==='current')assert(geometry.width>580,label+': readable wide preview stays substantial');
+        }else if(!(currentRefinement&&edition==='current')){
+        if(viewport.width===1440&&edition==='current')assert(geometry.width>580,label+': readable wide preview stays substantial');
+        }else if(viewport.width===1440)assert(geometry.width>=500,label+': current native full report retains its approved readable narrow plan');
         await tile.screenshot({path:path.join(out,`${engine}-${placement.name}-${edition}-${viewport.name}.png`)});
         await page.close();
         continue;
@@ -263,7 +307,7 @@ try {
     }
   }
   }
-  console.log(JSON.stringify({status:'PASS',engine,renderStates,editions:['exact-baseline','current'],geometryNegativeControls:badGeometry.length,providerCalls:0,productionWrites:0}));
+  console.log(JSON.stringify({status:'PASS',engine,renderStates,editions:currentRefinement?['exact-baseline','exact94cab','current']:['exact-baseline','current'],geometryNegativeControls:badGeometry.length+7,providerCalls:0,productionWrites:0}));
 } finally {
   await browser.close();
 }

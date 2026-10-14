@@ -32,6 +32,14 @@ on:
       - 'scripts/homepage_sample_entry_20261011_inverse.mjs'
       - 'scripts/homepage_sample_entry_20261011_inverse.py'
       - 'scripts/fixtures/homepage-sample-entry-20261011.json'
+      - 'scripts/homepage_refinement_20261014_contract.mjs'
+      - 'scripts/homepage_refinement_20261014_contract.py'
+      - 'scripts/homepage_refinement_20261014_inverse.mjs'
+      - 'scripts/homepage_refinement_20261014_inverse.py'
+      - 'scripts/fixtures/homepage-refinement-20261014.json'
+      - 'scripts/homepage_refinement_20261014_browser.mjs'
+      - 'homepage-refinement.css'
+      - 'homepage-refinement.js'
       - 'scripts/marketing_photo_presentation_20261013_contract.mjs'
       - 'scripts/marketing_photo_presentation_20261013_contract.py'
       - 'scripts/marketing_photo_presentation_20261013_inverse.mjs'
@@ -327,6 +335,14 @@ on:
       - 'scripts/homepage_sample_entry_20261011_inverse.mjs'
       - 'scripts/homepage_sample_entry_20261011_inverse.py'
       - 'scripts/fixtures/homepage-sample-entry-20261011.json'
+      - 'scripts/homepage_refinement_20261014_contract.mjs'
+      - 'scripts/homepage_refinement_20261014_contract.py'
+      - 'scripts/homepage_refinement_20261014_inverse.mjs'
+      - 'scripts/homepage_refinement_20261014_inverse.py'
+      - 'scripts/fixtures/homepage-refinement-20261014.json'
+      - 'scripts/homepage_refinement_20261014_browser.mjs'
+      - 'homepage-refinement.css'
+      - 'homepage-refinement.js'
       - 'scripts/marketing_photo_presentation_20261013_contract.mjs'
       - 'scripts/marketing_photo_presentation_20261013_contract.py'
       - 'scripts/marketing_photo_presentation_20261013_inverse.mjs'
@@ -643,6 +659,8 @@ jobs:
           node scripts/single_lens_overview_contract.mjs
           node scripts/report_overview_site_compatibility_smoke.mjs
           node scripts/report_unified_sankey_contract.mjs
+          node scripts/homepage_refinement_20261014_contract.mjs
+          python scripts/homepage_refinement_20261014_contract.py
           node scripts/marketing_photo_presentation_20261013_contract.mjs
           python scripts/marketing_photo_presentation_20261013_contract.py
           node scripts/marketing_completion_20261013_contract.mjs
@@ -847,6 +865,7 @@ jobs:
           MARKETING_REFRESH_OUT=/tmp/report-presentation-smoke/marketing-refresh node scripts/marketing_refresh_browser_smoke.mjs
           MARKETING_COMPLETION_OUT=/tmp/report-presentation-smoke/marketing-completion node scripts/marketing_completion_browser_smoke.mjs
           MARKETING_PHOTO_PRESENTATION_OUT=/tmp/report-presentation-smoke/photo-presentation node scripts/marketing_photo_presentation_20261013_browser.mjs
+          HOMEPAGE_REFINEMENT_OUT=/tmp/report-presentation-smoke/homepage-refinement node scripts/homepage_refinement_20261014_browser.mjs
           node scripts/homepage_workspace_demo_smoke.mjs
           GOLD_ACCENT_OUT=/tmp/report-presentation-smoke/gold-accents node scripts/public_gold_accent_smoke.mjs
           node scripts/workspace_product_design_smoke.mjs

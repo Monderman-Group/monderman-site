@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
+import {sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014_inverse.mjs';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 export const PHOTO_PRESENTATION_BASELINE='5ce8817eed8af622b4c0c8eeeb48b4440e728186';
 export const PHOTO_PRESENTATION_VERSION='marketing-photo-presentation-20261013.1';
@@ -17,6 +18,7 @@ export const PHOTO_PRESENTATION_ADDITIONS=Object.freeze(Object.keys(photoPresent
 export const PHOTO_PRESENTATION_GUARD_FILES=Object.freeze([...photoPresentationDelta.guardFiles]);
 const entryFor=file=>typeof file==='string'&&Object.hasOwn(photoPresentationDelta.files,file)?photoPresentationDelta.files[file]:null;
 export function sourceBeforeMarketingPhotoPresentation20261013(file,source){
+ source=sourceAtHomepageRefinementBaseline(file,source);
  const entry=entryFor(file);if(!entry)return source;
  assert.ok(typeof source==='string'||Buffer.isBuffer(source),file+': text/bytes type remains exact');
  assert.equal(sha(source),entry.after_sha256,file+': only exact complete owner-reviewed current bytes');
@@ -26,6 +28,7 @@ export function sourceBeforeMarketingPhotoPresentation20261013(file,source){
  return Buffer.isBuffer(source)?Buffer.from(restored):restored;
 }
 export function sourceAtMarketingPhotoPresentationBaseline(file,source){
+ source=sourceAtHomepageRefinementBaseline(file,source);
  const entry=entryFor(file);if(!entry)return source;
  assert.ok(typeof source==='string'||Buffer.isBuffer(source),file+': text/bytes type remains exact');
  return sha(source)===entry.after_sha256?sourceBeforeMarketingPhotoPresentation20261013(file,source):source;

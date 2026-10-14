@@ -2,6 +2,7 @@
 import hashlib
 import json
 from pathlib import Path
+from homepage_refinement_20261014_inverse import source_at_homepage_refinement_baseline
 BASELINE = '5ce8817eed8af622b4c0c8eeeb48b4440e728186'
 VERSION = 'marketing-photo-presentation-20261013.1'
 FIXTURE_SHA256 = 'cae6092b9338a499bb1a192be855b0bda4ba4399d0f39983ff2e70780a32636d'
@@ -15,6 +16,7 @@ FILES = tuple(_fixture['files'])
 ADDITIONS = tuple(_fixture['additions'])
 GUARD_FILES = tuple(_fixture['guardFiles'])
 def source_before_marketing_photo_presentation_20261013(file, source):
+    source = source_at_homepage_refinement_baseline(file, source)
     entry = _fixture['files'].get(file) if isinstance(file, str) else None
     if entry is None:
         return source
@@ -30,6 +32,7 @@ def source_before_marketing_photo_presentation_20261013(file, source):
     return result.decode('utf-8') if isinstance(source, str) else result
 
 def source_at_marketing_photo_presentation_baseline(file, source):
+    source = source_at_homepage_refinement_baseline(file, source)
     entry = _fixture['files'].get(file) if isinstance(file, str) else None
     if entry is None:
         return source
