@@ -5,7 +5,8 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {MARKETING_COMPLETION_BASELINE,MARKETING_COMPLETION_VERSION,MARKETING_COMPLETION_FILES,MARKETING_COMPLETION_ADDITIONS,MARKETING_COMPLETION_GUARD_FILES,marketingCompletionDelta as delta,sourceBeforeMarketingCompletion20261013 as strict,sourceAtMarketingCompletionBaseline as conditional} from './marketing_completion_20261013_inverse.mjs';
-const root=path.resolve(import.meta.dirname,'..'),read=file=>fs.readFileSync(path.join(root,file));
+import {sourceAtMarketingPhotoPresentationBaseline,photoNamesAtMarketingPhotoPresentationBaseline,PHOTO_PRESENTATION_ADDITIONS,PHOTO_PRESENTATION_GUARD_FILES} from './marketing_photo_presentation_20261013_inverse.mjs';
+const root=path.resolve(import.meta.dirname,'..'),read=file=>sourceAtMarketingPhotoPresentationBaseline(file,fs.readFileSync(path.join(root,file)));
 const git=(...args)=>execFileSync('git',args,{cwd:root,maxBuffer:128e6});
 const sha=value=>createHash('sha256').update(value).digest('hex');
 let checks=0,negativeControls=0,hunks=0,immutableFiles=0,oldFixtures=0,pdfs=0;
@@ -45,7 +46,7 @@ const requiredNew=['marketing-completion.css','marketing-completion.js','scripts
 for(const file of requiredNew)ok(MARKETING_COMPLETION_ADDITIONS.includes(file),file+': required independently visible addition');
 function assertAddition(file,bytes){assert.equal(sha(bytes),delta.additions[file].sha256);assert.equal(bytes.length,delta.additions[file].bytes);}
 for(const file of MARKETING_COMPLETION_ADDITIONS){ok(!tracked.includes(file)&&!guardFiles.includes(file),file+': genuinely new file');ok(requiredNew.includes(file)||/^assets\/marketing\/[A-Za-z0-9._-]+\.(?:avif|webp|jpe?g|png)$/i.test(file),file+': only explicit public presentation/derivative/summary');const bytes=read(file);assertAddition(file,bytes);checks+=2;eq(strict(file,bytes),bytes,file+': additions never erased');eq(conditional(file,bytes),bytes,file+': additions remain visible');reject(()=>assertAddition(file,Buffer.concat([bytes,Buffer.from('UNREVIEWED')])),file+': altered addition rejected');}
-const cached=git('ls-files','--cached').toString().split('\n'),known=new Set([...tracked,...MARKETING_COMPLETION_ADDITIONS,...guardFiles]);
+const cached=git('ls-files','--cached').toString().split('\n'),known=new Set([...tracked,...MARKETING_COMPLETION_ADDITIONS,...guardFiles,...PHOTO_PRESENTATION_ADDITIONS,...PHOTO_PRESENTATION_GUARD_FILES]);
 const paths=[...new Set([...cached,...git('ls-files','--others','--exclude-standard').toString().split('\n')])].filter(f=>f&&fs.existsSync(path.join(root,f))&&!(f==='node_modules'&&!cached.includes(f)&&fs.lstatSync(path.join(root,f)).isSymbolicLink()));
 const scope=list=>{for(const f of list)assert.ok(known.has(f),f+': unlisted source/addition rejected');};scope(paths);checks+=paths.length;reject(()=>scope([...paths,'unexpected-publication.js']),'Unknown publication rejected');reject(()=>scope([...paths,'node_modules']),'No runtime exemption for a file named node_modules');
 ok(!paths.some(f=>/marketing-source\.tgz|marketing-review-source\.zip|(?:^|\/)(?:AGENTS\.md|\.env(?:\.|$))/.test(f)),'No archive/private instructions/credential file added');
@@ -169,7 +170,7 @@ ok(read('marketing-refresh.css').length+read('marketing-refresh.js').length+Buff
 const photoAssets=MARKETING_COMPLETION_ADDITIONS.filter(f=>f.startsWith('assets/marketing/'));ok(photoAssets.length>=3,'At least three separately pinned public photographic derivatives');
 const expectedPhotoNames=photoAssets.map(f=>path.basename(f)).sort();
 const assertPhotoDirectory=names=>assert.deepEqual([...names].sort(),expectedPhotoNames,'Only exact public display derivatives in photo directory, including ignored files');
-assertPhotoDirectory(fs.readdirSync(path.join(root,'assets/marketing')));checks++;
+assertPhotoDirectory(photoNamesAtMarketingPhotoPresentationBaseline(fs.readdirSync(path.join(root,'assets/marketing'))));checks++;
 reject(()=>assertPhotoDirectory([...expectedPhotoNames,'iStock-original.jpg']),'An ignored or untracked stock original cannot enter the build directory');
 reject(()=>assertPhotoDirectory(expectedPhotoNames.slice(1)),'A missing public derivative rejects');
 const register=JSON.parse(read('docs/marketing-photo-register-20261013.json'));

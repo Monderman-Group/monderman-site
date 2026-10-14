@@ -14,9 +14,15 @@ const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const sourceHashes = Object.fromEntries(['index.html', 'marketing-completion.css', 'marketing-completion.js', 'scripts/marketing_completion_browser_smoke.mjs'].map(file => [file, hash(fs.readFileSync(path.join(root, file)))]));
 const source = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const photoRegister = JSON.parse(fs.readFileSync(path.join(root, 'docs/marketing-photo-register-20261013.json'), 'utf8'));
+// Two exact source editions: all functional/safety cases run; only owner-directed photo presentation differs.
+const historicalPhotoEdition = sourceHashes['index.html'] === 'a6de2201743448c6072a4efeeac8c5b9c3a10c333189bfc5e608861a9969c475';
+assert.ok(historicalPhotoEdition || sourceHashes['index.html'] === '80364877594f6cf9e13cfe14bdfe2702838a2422680e902abc9bf613dff8c24d', 'Only exact merged-M or frozen owner-five-photo source');
+const photoEdition = historicalPhotoEdition ? {name: 'merged-M', ids: ['501653292','488892667','524156476'], derivativeCount: 12, captioned: true} : {name: 'owner-five-photo', ids: ['501653292','524156476'], derivativeCount: 20, captioned: false};
+assert.equal(photoRegister.photos.length, historicalPhotoEdition ? 3 : 5, 'Exact actual site-wide registry cardinality');
+assert.deepEqual(photoRegister.photos.map(photo => String(photo.id)), historicalPhotoEdition ? ['501653292','488892667','524156476'] : ['501653292','488892667','524156476','541113838','511990984'], 'Only the five owner-approved identities and truthful historical edition');
 const approvedDerivatives = new Map(photoRegister.photos.flatMap(photo => photo.derivatives.map(derivative => ['/' + derivative.path, derivative])));
 equalDerivativeInventory();
-function equalDerivativeInventory() { assert.equal(approvedDerivatives.size, 12, 'Exactly twelve owner-approved photographic derivatives'); }
+function equalDerivativeInventory() { assert.equal(approvedDerivatives.size, photoEdition.derivativeCount, 'Exact edition-specific owner-approved photographic derivatives'); }
 for (const file of ['marketing-completion.css', 'marketing-completion.js']) {
   const response = await fetch(base + '/' + file);
   assert.equal(response.status, 200, file + ': actual built runtime available');
@@ -108,7 +114,7 @@ for (const [engine, type] of [['chromium', chromium], ['webkit', webkit]]) {
       const label = engine + '/' + options.name;
       const state = await setup(browser, options), {page, context} = state;
       try {
-        equal(await page.locator('[data-marketing-photo]').count(), 3, label + ': three approved group photographs');
+        equal(await page.locator('[data-marketing-photo]').count(), photoEdition.ids.length, label + ': exact approved homepage photograph count');
         equal(await page.locator('.mr-proof-label').innerText(), 'Sample report · Example data', label + ': sample qualification retained');
         if (options.hero) {
           for (const [text, href] of [['Request an invitation', 'pilot.html?source=homepage'], ['View sample reports', 'sample-report.html']]) {
@@ -120,8 +126,9 @@ for (const [engine, type] of [['chromium', chromium], ['webkit', webkit]]) {
         }
         const photos = page.locator('[data-marketing-photo]');
         const expectedRatio = [];
-        for (let n = 0; n < 3; n++) {
+        for (let n = 0; n < photoEdition.ids.length; n++) {
           const figure = photos.nth(n), img = figure.locator('img');
+          equal(await img.getAttribute('data-stock-id'), photoEdition.ids[n], label + ': exact approved homepage identity and placement');
           await figure.evaluate(el => el.scrollIntoView({block: 'center', behavior: 'instant'}));
           if (options.failPhotos) {
             await page.waitForFunction(n => document.querySelectorAll('[data-marketing-photo]')[n].hasAttribute('data-photo-unavailable'), n);
@@ -158,13 +165,14 @@ for (const [engine, type] of [['chromium', chromium], ['webkit', webkit]]) {
           check(dims.width > 0 && dims.height > 0 && !!dims.alt, label + ': intrinsic dimensions and accessible scene description');
           equal(dims.fit, 'contain', label + ': whole photograph, no cover crop');
           check(picture && Math.abs(picture.width / picture.height - dims.width / dims.height) < .005, label + ': each native photo ratio and fallback space retained');
-          check(normalize(await figure.locator('figcaption').innerText()).startsWith('Illustrative photography'), label + ': no customer endorsement implied');
+          if (photoEdition.captioned) check(normalize(await figure.locator('figcaption').innerText()).startsWith('Illustrative photography'), label + ': no customer endorsement implied');
+          else { equal(await figure.locator('figcaption').count(), 0, label + ': owner-directed clean photographic framing has no caption'); check(!/Illustrative photography|Models shown/.test(await figure.innerText()), label + ': no visible stock-model label'); }
           expectedRatio.push({...dims, source: dims.src, picture});
         }
-        equal(new Set(expectedRatio.map(photo => photo.source)).size, 3, label + ': three distinct group images');
+        equal(new Set(expectedRatio.map(photo => photo.source)).size, photoEdition.ids.length, label + ': exact distinct homepage images');
         if (options.scripts !== false && !options.failScript && !options.failStyles && !options.reduced && !options.observerMissing && !options.observerThrows && !options.animateMissing && !options.animateThrows) {
           const photoDurations = await photos.evaluateAll(nodes => nodes.map(node => Number(node.dataset.mcMotionDuration)));
-          equal(photoDurations, [450, 450, 450], label + ': all photo entrances measured in350–550ms interval');
+          equal(photoDurations, photoEdition.ids.map(() => 450), label + ': all photo entrances measured in350–550ms interval');
           const tab = page.locator('[data-lens-choice="velocity"]');
           await target(page, tab, label + '/lens');
           await tab.click();
@@ -245,7 +253,7 @@ for (const [engine, type] of [['chromium', chromium], ['webkit', webkit]]) {
       await late.page.waitForTimeout(2750);
       equal(await last.getAttribute('data-mc-motion-duration'), null, engine + ': offscreen photo not prematurely completed by old fallback');
       await last.evaluate(el => el.scrollIntoView({block: 'center', behavior: 'instant'}));
-      await late.page.waitForFunction(() => document.querySelectorAll('[data-marketing-photo]')[2].dataset.mcMotionState === 'running');
+      await late.page.waitForFunction(index => document.querySelectorAll('[data-marketing-photo]')[index].dataset.mcMotionState === 'running', photoEdition.ids.length - 1);
       check(await last.evaluate(el => getComputedStyle(el).transform !== 'none'), engine + ': late entrance has actual rendered transform');
       await settled(late.page, '[data-marketing-photo]');
       equal(await last.getAttribute('data-mc-motion-duration'), '450', engine + ': late entrance450ms');
@@ -257,7 +265,7 @@ for (const [engine, type] of [['chromium', chromium], ['webkit', webkit]]) {
     try {
       await printed.page.emulateMedia({media: 'print'});
       await printed.page.waitForFunction(() => [...document.querySelectorAll('[data-marketing-photo] img')].every(image => image.complete && image.naturalWidth > 0), null, {timeout: 10000});
-      equal(await printed.page.locator('[data-marketing-photo] img').evaluateAll(images => images.map(image => image.loading)), ['eager', 'eager', 'eager'], engine + ': print alone loads all three lazy photographs');
+      equal(await printed.page.locator('[data-marketing-photo] img').evaluateAll(images => images.map(image => image.loading)), photoEdition.ids.map(() => 'eager'), engine + ': print alone loads every approved homepage lazy photograph');
       for (const image of await printed.page.locator('[data-marketing-photo] img').all()) {
         await image.evaluate(image => image.decode());
         const url = await image.evaluate(image => image.currentSrc);
@@ -266,7 +274,8 @@ for (const [engine, type] of [['chromium', chromium], ['webkit', webkit]]) {
         equal(await response.finished(), null, engine + ': print photo response complete');
         equal(hash(await response.body()), hash(fs.readFileSync(path.join(root, new URL(url).pathname))), engine + ': print photo bytes match approved derivative');
       }
-      equal(await printed.page.locator('[data-marketing-photo] figcaption').count(), 3, engine + ': all three captions retained in print');
+      if (photoEdition.captioned) equal(await printed.page.locator('[data-marketing-photo] figcaption').count(), 3, engine + ': all three captions retained in print');
+      else equal(await printed.page.locator('[data-marketing-photo] figcaption').count(), 0, engine + ': no stock caption reappears in print');
       for (const photo of await printed.page.locator('[data-marketing-photo]').all()) check(await photo.isVisible(), engine + ': every print photograph remains visible');
       assertSafety(printed, {}, engine + '/fresh-print');
       receipts.push({engine, state: 'fresh-print-lazy-photos', passed: true});
@@ -302,6 +311,6 @@ for (const [engine, type] of [['chromium', chromium], ['webkit', webkit]]) {
   } finally { await browser.close(); }
 }
 for (const [file, expected] of Object.entries(sourceHashes)) equal(hash(fs.readFileSync(path.join(root, file))), expected, file + ': source stayed frozen throughout run');
-const result = {ok: true, checks, states: receipts.length, sourceHashes, receipts, performedWrites: 0, scope: 'Loopback-only genuine SDK; immutable product preview inspected without cloning, API, authentication, submission or customer change'};
+const result = {ok: true, checks, states: receipts.length, photoEdition: photoEdition.name, homepagePhotoIds: photoEdition.ids, sitePhotoCount: photoRegister.photos.length, sourceHashes, receipts, performedWrites: 0, scope: 'Loopback-only genuine SDK; immutable product preview inspected without cloning, API, authentication, submission or customer change'};
 fs.writeFileSync(path.join(out, 'RECEIPT.json'), JSON.stringify(result, null, 2) + '\n', {mode: 0o600});
 console.log('MARKETING_COMPLETION_BROWSER_PASS ' + JSON.stringify({checks, states: receipts.length, performedWrites: 0, out}));

@@ -105,6 +105,33 @@ const completionPhotoNegatives = [
 for (const mutate of completionPhotoNegatives) { const mutant = structuredClone(validCompletionPhotos); mutate(mutant); assert.throws(() => assertCompletionEditorialSequence(completionEditorialSequence, mutant), undefined, 'Hidden/unknown/moved/unqualified photographic content rejects'); }
 assertCompletionEditorialSequence(completionEditorialSequence, validCompletionPhotos);
 assert.deepEqual(projectApprovedCompletionSections(completionEditorialSequence), currentEditorialSequence, 'Only the three fixed approved positions project into the unchanged twelve-section proof');
+
+// Owner-directed current edition: prove the exact two-photo sequence before fixed-position projection.
+const fivePhotoEditorialSequence = ['hero','mc-human-section','mr-scenario','measurement-loop','approach','first-run-moments','proof-band','mxidx-band','systems-analysis-bridge','mp-perspective-note','home-output-band','mc-human-section','book-band','latest','connect'];
+const fivePhotoHomepageRecords = [
+  {position: 1, headingId: 'mc-work-title', stockId: '501653292', source: 'assets/marketing/work-discussion-960.jpg'},
+  {position: 11, headingId: 'mc-judgment-title', stockId: '524156476', source: 'assets/marketing/team-perspectives-960.jpg'},
+];
+function assertFivePhotoEditorialSequence(sections, photos) {
+  assert.deepEqual(sections, fivePhotoEditorialSequence, 'Exact owner-directed fifteen rendered sections');
+  assert.deepEqual(photos.domSections, fivePhotoEditorialSequence, 'Actual current DOM and visible sequence agree');
+  assert.equal(photos.count, 2, 'Exactly two homepage photo sections including hidden DOM');
+  assert.equal(photos.figureCount, 2, 'Exactly two homepage figures including hidden DOM');
+  assert.equal(photos.entries.length, 2, 'Exactly two observed current records');
+  for (let n = 0; n < fivePhotoHomepageRecords.length; n++) {
+    for (const key of ['position','headingId','stockId','source']) assert.equal(photos.entries[n][key], fivePhotoHomepageRecords[n][key], 'Exact current photo ' + key);
+    for (const key of ['visible','imageVisible']) assert.equal(photos.entries[n][key], true, 'Visible current photo ' + key);
+    assert.equal(photos.entries[n].caption, undefined, 'No caption node or hidden caption text');
+    assert.equal(photos.entries[n].captionVisible, false, 'No visible stock-model caption');
+  }
+}
+const validFivePhotoRecords = {domSections: fivePhotoEditorialSequence, count: 2, figureCount: 2, entries: fivePhotoHomepageRecords.map(p => ({...p, visible: true, imageVisible: true, caption: undefined, captionVisible: false}))};
+for (const sequence of [fivePhotoEditorialSequence.slice(1), [...fivePhotoEditorialSequence,'mc-human-section'], ['hero','mr-scenario','mc-human-section',...fivePhotoEditorialSequence.slice(3)]]) assert.throws(() => assertFivePhotoEditorialSequence(sequence,validFivePhotoRecords), undefined, 'Missing/moved/duplicate current section rejects');
+for (const mutate of [p => p.count = 3, p => p.figureCount = 3, p => p.entries.pop(), p => p.entries[0].position = 2, p => p.entries[0].stockId = 'UNAPPROVED', p => p.entries[0].source = 'unknown.jpg', p => p.entries[0].visible = false, p => p.entries[0].imageVisible = false, p => p.entries[0].caption = 'Models shown', p => p.entries[0].captionVisible = true]) { const mutant = structuredClone(validFivePhotoRecords); mutate(mutant); assert.throws(() => assertFivePhotoEditorialSequence(fivePhotoEditorialSequence,mutant), undefined, 'Unknown/hidden/current caption or identity rejects'); }
+assertFivePhotoEditorialSequence(fivePhotoEditorialSequence,validFivePhotoRecords);
+function projectFivePhotoSections(sections) { return [sections[0], ...sections.slice(2, 9), sections[10], ...sections.slice(12)]; }
+assert.deepEqual(projectFivePhotoSections(fivePhotoEditorialSequence),currentEditorialSequence,'Only exact current positions1/9/11 project after complete proof');
+const currentFivePhotoSource = sha(fs.readFileSync(path.join(root,'index.html'))) === '80364877594f6cf9e13cfe14bdfe2702838a2422680e902abc9bf613dff8c24d';
 let edition = 'baseline';
 const receipts = [], unexpectedWrites = [];
 let mockedAssistantPosts = 0;
@@ -243,11 +270,17 @@ try {
           }),
         };
       });
+      if (currentFivePhotoSource) {
+        assertFivePhotoEditorialSequence(editorial.visibleSections, completionPhotos);
+        editorial.visibleSections = projectFivePhotoSections(editorial.visibleSections);
+        scene.domSections = projectFivePhotoSections(scene.domSections);
+      } else {
       assertCompletionEditorialSequence(editorial.visibleSections, completionPhotos);
       // Only after the complete exact15 and all three images/captions are
       // proved, restore the fixed12 positions for the original proof below.
       editorial.visibleSections = projectApprovedCompletionSections(editorial.visibleSections);
       scene.domSections = projectApprovedCompletionSections(scene.domSections);
+      }
       assertCurrentEditorialSequence(editorial.visibleSections, scene);
       // Only after proving the complete exact current sequence, project its
       // single known index1 addition into the unchanged historical assertion.
@@ -417,7 +450,7 @@ try {
   assert.equal(mockedAssistantPosts, 6, 'All six edition/viewport endpoint checks were intercepted locally');
   assert.deepEqual(unexpectedWrites, [], 'No other write request was attempted or allowed');
   for (const [file, hash] of Object.entries(sourceHashes)) assert.equal(sha(fs.readFileSync(path.join(root, file))), hash, 'Executed source stayed frozen: ' + file);
-  const receipt = {passed: true, checkedAt: new Date().toISOString(), base, historicalRawSourceSha256: sha(rawBaselineHomepage), historicalBuiltBaselineSha256: sha(baselineHomepage), domOrderEvidence: 'Visible direct-main DOM order and rendered section order; not a separate accessibility-tree audit. Original actual keyboard/focus checks run in both editions.', sourceHashes, editions: 2, homepageFunctionalStates: 6, contactFieldFocusStates: 6, fallbackStates: 4, negativeControls: invalidSequences.length + invalidScenes.length, completionNegativeControls: completionSequenceNegatives.length + completionPhotoNegatives.length, completionPhotoSections: 3, mockedAssistantPosts, unexpectedWrites, receipts};
+  const receipt = {passed: true, checkedAt: new Date().toISOString(), base, historicalRawSourceSha256: sha(rawBaselineHomepage), historicalBuiltBaselineSha256: sha(baselineHomepage), domOrderEvidence: 'Visible direct-main DOM order and rendered section order; not a separate accessibility-tree audit. Original actual keyboard/focus checks run in both editions.', sourceHashes, editions: 2, homepageFunctionalStates: 6, contactFieldFocusStates: 6, fallbackStates: 4, negativeControls: invalidSequences.length + invalidScenes.length, completionNegativeControls: completionSequenceNegatives.length + completionPhotoNegatives.length, completionPhotoSections: currentFivePhotoSource ? 2 : 3, mockedAssistantPosts, unexpectedWrites, receipts};
   if (process.env.ASSISTANT_SMOKE_OUT) {
     fs.mkdirSync(process.env.ASSISTANT_SMOKE_OUT, {recursive: true});
     fs.writeFileSync(path.join(process.env.ASSISTANT_SMOKE_OUT, 'RECEIPT.json'), JSON.stringify(receipt, null, 2) + '\n', {mode: 0o600});

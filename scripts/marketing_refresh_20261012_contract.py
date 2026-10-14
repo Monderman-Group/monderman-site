@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import re
 import subprocess
+from marketing_photo_presentation_20261013_inverse import ADDITIONS as PHOTO_PRESENTATION_ADDITIONS, GUARD_FILES as PHOTO_PRESENTATION_GUARD_FILES
 from marketing_completion_20261013_inverse import source_at_marketing_completion_baseline, ADDITIONS as COMPLETION_ADDITIONS, GUARD_FILES as COMPLETION_GUARD_FILES
 from marketing_refresh_20261012_inverse import (
     BASELINE, VERSION, FIXTURE_SHA256, _fixture,
@@ -112,7 +113,7 @@ for file in additions:
     reject(lambda f=file, v=value: assert_addition(f, v + b'UNREVIEWED'), file + ': mutated addition rejected')
 for file in ['marketing-refresh.css', 'marketing-refresh.js', 'scripts/marketing_refresh_browser_smoke.mjs']:
     check(file in additions, file + ': required local presentation/browser proof')
-known = set(tracked + list(additions) + guards + list(COMPLETION_ADDITIONS) + list(COMPLETION_GUARD_FILES))
+known = set(tracked + list(additions) + guards + list(COMPLETION_ADDITIONS) + list(COMPLETION_GUARD_FILES) + list(PHOTO_PRESENTATION_ADDITIONS) + list(PHOTO_PRESENTATION_GUARD_FILES))
 cached = git('ls-files', '--cached').decode().splitlines()
 paths = set(cached + git('ls-files', '--others', '--exclude-standard').decode().splitlines())
 paths = {p for p in paths if (ROOT / p).exists() and not (p == 'node_modules' and p not in cached and (ROOT / p).is_symlink())}

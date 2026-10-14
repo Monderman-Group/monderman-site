@@ -12,6 +12,7 @@ import {sourceBeforeHomepageCompactJourney20260924} from './homepage_compact_jou
 import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 import {sourceAtBrandRefreshBaseline} from './brand_refresh_20261007_inverse.mjs';
 import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
+import {sourceAtMarketingPhotoPresentationBaseline} from './marketing_photo_presentation_20261013_inverse.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 const {artifact}=readPublicSampleFixture({root});
@@ -240,7 +241,7 @@ function assertArticleLayout(html,prior,file){
     'Body tags, classes and links match the approved saved-sample article layout');
   assert.equal(html.split(sampleLinkStyle).length-1,1,'Exactly one scoped saved-sample link contrast fix');
   assert.equal(html.split('canonical-site-shell.js?v=20260915.consistency1').length-1,1,'Exactly one current shared shell reference');
-  const restored=html.replace(sampleLinkStyle,'').replace('canonical-site-shell.js?v=20260915.consistency1','canonical-site-shell.js?v=20260915.annual1');
+  const restored=sourceAtMarketingPhotoPresentationBaseline(file,html).replace(sampleLinkStyle,'').replace('canonical-site-shell.js?v=20260915.consistency1','canonical-site-shell.js?v=20260915.annual1');
   for(const tag of ['script','style'])assert.deepEqual(restored.match(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`,'g')),
     prior.match(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`,'g')),
     tag+' matches the approved presentation; no unrelated behavior or CSS changes');
@@ -310,8 +311,11 @@ for(const [name,description,article]of descriptions){
 for(const file of sourceFiles)check(!/What sits beneath performance\?|How much weight is it carrying\?/i.test(read(file)),file+' no superseded metaphor label');
 for(const file of ['roi.html','platform-services.html','plan-signal.html','plan-pattern.html']){
   const html=read(file).replace('canonical-site-shell.js?v=20260915.consistency1','canonical-site-shell.js?v=20260915.annual1'),prior=execFileSync('git',['show',`${approvedPresentationBase}:${file}`],{cwd:root,encoding:'utf8'});
+  {
+    const html=sourceAtMarketingPhotoPresentationBaseline(file,read(file)).replace('canonical-site-shell.js?v=20260915.consistency1','canonical-site-shell.js?v=20260915.annual1');
   for(const tag of ['script','style',...(file==='roi.html'?[]:['svg'])])eq(html.match(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`,'g')),
     prior.match(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`,'g')),file+': existing behavior and graphics unchanged');
+  }
   eq(html.match(/<(?:input|select|option|button)\b[^>]*>/g),prior.match(/<(?:input|select|option|button)\b[^>]*>/g),file+': calculator and plan controls unchanged');
   check(!html.includes('How Diagnostic results inform a directional ROI scenario'),file+': no old result-to-ROI link');
 }
