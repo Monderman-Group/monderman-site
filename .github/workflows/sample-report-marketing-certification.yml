@@ -756,6 +756,8 @@ jobs:
         run: |
           npm install --no-save --package-lock=false playwright@1.55.0
           bash scripts/install_ci_browsers.sh
+      - name: Prepare genuine candidate build for early source-bound browser checks
+        run: RENDER_GIT_COMMIT="$GITHUB_SHA" bash scripts/render-static-build.sh
       - name: Verify source attribution in screen and print markup without PDFs
         run: |
           node scripts/report_source_attribution_smoke.mjs

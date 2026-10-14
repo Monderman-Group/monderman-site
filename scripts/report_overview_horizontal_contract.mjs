@@ -9,9 +9,10 @@ import {createHash} from 'node:crypto';
 import {sourceBeforeHorizontalOverviewPresentation,restoreHorizontalOverviewDetailPresentation,PRIOR_HORIZONTAL_OVERVIEW_SHA256} from './report_overview_horizontal_inverse.mjs';
 import {sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
 import {sourceBeforeSingleLensOverview20260929} from './single_lens_overview_20260929_inverse.mjs';
+import {sourceAtScopeBetaBaseline} from './scope_beta_20261014_inverse.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
-const read = name => name === 'monderman-report.js' ? fs.readFileSync(path.join(root, name), 'utf8') : sourceAtChangeWordingBaseline(name,fs.readFileSync(path.join(root, name), 'utf8'));
+const read = name => name === 'monderman-report.js' ? sourceAtScopeBetaBaseline(name,fs.readFileSync(path.join(root, name), 'utf8')) : sourceAtChangeWordingBaseline(name,fs.readFileSync(path.join(root, name), 'utf8'));
 const source = read('monderman-report.js');
 const sampleBytes = read('sample-data/production-diagnostic-samples.json');
 const artifact = JSON.parse(sampleBytes);

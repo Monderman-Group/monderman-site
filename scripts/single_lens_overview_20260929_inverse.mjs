@@ -17,6 +17,7 @@ assert.equal(singleLensOverviewDelta.baseline,SINGLE_LENS_OVERVIEW_BASELINE);
 assert.equal(singleLensOverviewDelta.version,SINGLE_LENS_OVERVIEW_VERSION);
 export const SINGLE_LENS_OVERVIEW_FILES=Object.freeze(Object.keys(singleLensOverviewDelta.files));
 export function sourceBeforeSingleLensOverview20260929(file,source){
+  if(file==='monderman-report.js')source=sourceAtBrandRefreshBaseline(file,source);
   const entry=Object.hasOwn(singleLensOverviewDelta.files,file)?singleLensOverviewDelta.files[file]:null;
   if(!entry)return source;
   assert.equal(sha(source),entry.after_sha256,file+': Only the exact reviewed single-lens source can be inverted');

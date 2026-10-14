@@ -6,9 +6,12 @@ import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {chromium, webkit} from 'playwright';
 import {sourceAtEvaluationPoolBaseline} from './single_lens_overview_20260929_inverse.mjs';
+import {isCurrentScopeBeta, assertScopeBetaBuiltEdition} from './scope_beta_20261014_inverse.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const built = path.resolve(process.env.SITE_SOURCE_DIR || path.join(root, '.render-public'));
+const currentScope = isCurrentScopeBeta();
+if (currentScope) assertScopeBetaBuiltEdition(built);
 const output = path.resolve(process.env.FOOTER_MEMBERSHIP_OUTPUT || 'output/acmp-footer');
 const baseline = 'e9efd479cc4b19e9753aeb814fb30f280f8171a9';
 const credential = 'https://www.credly.com/badges/36d80452-ae21-4208-b5c6-f1bcf45fb23a';
@@ -19,6 +22,7 @@ const sha = bytes => createHash('sha256').update(bytes).digest('hex');
 const footerPattern = /<footer\b(?=[^>]*\bclass=["'][^"']*\bmond-footer\b[^"']*["'])[^>]*>[\s\S]*?<\/footer>/g;
 const footer = (await fs.readFile(path.join(root, 'site-shell/footer.html'), 'utf8')).trim();
 const pages = new Map();
+const scopePages = new Map();
 let checks = 0;
 const eq = (actual, expected, label) => { assert.deepEqual(actual, expected, label); checks++; };
 const ok = (value, label) => { assert.ok(value, label); checks++; };
@@ -44,9 +48,12 @@ for (const file of (await fs.readdir(built)).filter(file => file.endsWith('.html
   if (!footers.length) continue;
   eq(footers.length, 1, file + ': exactly one shared footer');
   eq(footers[0][0], footer, file + ': exact current footer partial');
-  pages.set(file, html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ''));
+  const target = currentScope && file === 'scope.html' ? scopePages : pages;
+  target.set(file, html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ''));
 }
+eq([...scopePages.keys()], currentScope ? ['scope.html'] : [], 'Only the whole-source and whole-build approved Scope addition is separate');
 eq(pages.size, 74, 'All public footer pages receive the membership');
+const browserPages = new Map([...pages, ...scopePages]);
 const tracked = execFileSync('git', ['ls-tree', '-r', '--name-only', baseline], {cwd:root, encoding:'utf8'}).trim().split('\n');
 const protectedFiles = tracked.filter(file => (!file.includes('/') && /\.(?:js|css)$/.test(file))
   || /^(?:decision-velocity|structural-clarity|operational-systems|institutional-performance)\.html$/.test(file)
@@ -82,6 +89,7 @@ for (const [engineName, engine] of Object.entries({chromium, webkit})) {
   const browser = await engine.launch({headless:true});
   try {
     const queue = representatives.flatMap(file => [320, 390, 768, 1440].map(width => ({file, width})));
+    for (const file of scopePages.keys()) queue.push(...[320, 390, 768, 1440].map(width => ({file, width})));
     if (process.env.FOOTER_MEMBERSHIP_ALL_PAGES === '1') for (const file of pages.keys()) {
       if (!representatives.includes(file)) queue.push({file, width:390});
     }
@@ -97,7 +105,7 @@ for (const [engineName, engine] of Object.entries({chromium, webkit})) {
           if (url.origin !== origin || request.method() !== 'GET' || request.resourceType() === 'script') {
             blockedRequests++; return route.abort();
           }
-          if (url.pathname === '/' + file) return route.fulfill({contentType:'text/html', body:pages.get(file)});
+          if (url.pathname === '/' + file) return route.fulfill({contentType:'text/html', body:browserPages.get(file)});
           const target = path.resolve(built, '.' + decodeURIComponent(url.pathname));
           if (!target.startsWith(built + path.sep)) { blockedRequests++; return route.abort(); }
           try {
@@ -110,6 +118,10 @@ for (const [engineName, engine] of Object.entries({chromium, webkit})) {
           // The legacy instrument loader normally disappears through page JavaScript.
           await page.addStyleTag({content:'#pageLoader{display:none!important}'});
           await page.evaluate(() => document.fonts.ready);
+          if (scopePages.has(file)) {
+            eq(await page.locator('.mond-footer a[href="scope.html"]').innerText(), 'Monderman Scope', label + ': actual current Scope footer product identity');
+            eq(await page.locator('.mond-footer a[href="scope.html"]').getAttribute('href'), 'scope.html', label + ': actual current Scope footer destination');
+          }
           const link = page.locator('.mf-membership');
           await link.scrollIntoViewIfNeeded();
           await page.waitForFunction(() => {
@@ -176,7 +188,7 @@ for (const [engineName, engine] of Object.entries({chromium, webkit})) {
     }));
   } finally { await browser.close(); }
 }
-const receipt = {status:failures.length ? 'FAIL' : 'PASS', checks, footerPages:pages.size, browserCases:results.length, baseline, protectedFiles:protectedFiles.length,
+const receipt = {status:failures.length ? 'FAIL' : 'PASS', checks, footerPages:pages.size, scopeFooterPages:scopePages.size, browserCases:results.length, baseline, protectedFiles:protectedFiles.length,
   badgeSha256, originalChecked, failures, results, providerCalls:0, published:false};
 await fs.writeFile(path.join(output, 'results.json'), JSON.stringify(receipt, null, 2) + '\n');
 console.log(JSON.stringify({status:receipt.status, checks, footerPages:pages.size, browserCases:results.length, failures, output}));

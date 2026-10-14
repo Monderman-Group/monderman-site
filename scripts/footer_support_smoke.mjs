@@ -6,19 +6,23 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { chromium, webkit } from 'playwright';
+import {isCurrentScopeBeta, assertScopeBetaBuiltEdition} from './scope_beta_20261014_inverse.mjs';
 const root = path.resolve(process.env.SITE_SOURCE_DIR || '.render-public');
+const currentScope = isCurrentScopeBeta();
+if (currentScope) assertScopeBetaBuiltEdition(root);
 const output = path.resolve(process.env.FOOTER_TEST_OUTPUT || 'output/floating-support');
 const fullScripts = process.env.FOOTER_FULL_SCRIPTS === '1';
 const dependencies = new Map();
 await fs.mkdir(output, { recursive: true });
 const pages = [];
+const scopePages = [];
 for (const file of (await fs.readdir(root)).filter(f => f.endsWith('.html'))) {
   const source = await fs.readFile(path.join(root, file), 'utf8');
   if (!/<footer\b[^>]*\bmond-footer\b/.test(source)) continue;
   const shell = /<body\b[^>]*\bcanonical-green-shell\b/.test(source);
   const html = fullScripts ? source : source.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '').replace('</body>',
     (shell ? '<script src="/assistant.js"></script><script src="/connect-widget.js"></script><script src="/canonical-site-shell.js"></script><script src="/first-run-telemetry.js"></script>' : '') + '</body>');
-  pages.push({ file, shell, html });
+  (currentScope && file === 'scope.html' ? scopePages : pages).push({ file, shell, html });
   if (fullScripts && shell) for (const [tag] of source.matchAll(/<script\b[^>]*>/gi)) {
     const url = tag.match(/\bsrc=["'](https:\/\/cdn\.jsdelivr\.net\/[^"']+)["']/)?.[1];
     const integrity = tag.match(/\bintegrity=["'](sha(?:256|384|512)-[^"']+)["']/)?.[1];
@@ -28,6 +32,9 @@ for (const file of (await fs.readdir(root)).filter(f => f.endsWith('.html'))) {
     }
   }
 }
+assert.deepEqual(scopePages.map(p => p.file), currentScope ? ['scope.html'] : [], 'Only the whole-source and whole-build approved Scope addition is separate');
+if (currentScope) assert.equal(scopePages[0].shell, true, 'Actual Scope addition retains the canonical shell');
+const browserPages = [...pages, ...scopePages];
 const evaluationArchives = ['terms-2026-09-19-invited-evaluation.html', 'privacy-2026-09-19-invited-evaluation.html', 'terms-2026-09-19-invitation-access.html', 'privacy-2026-09-19-invitation-access.html'];
 assert.deepEqual(pages.filter(p => evaluationArchives.includes(p.file)).map(p => p.file).sort(), [...evaluationArchives].sort());
 const newPublications = ['durable-organization.html', 'fast-to-cut-slow-to-build.html', 'hold-collide-come-apart.html', 'trenches-not-silos.html'];
@@ -55,7 +62,7 @@ const shots = new Set(['index.html', 'research.html', 'platform-services.html', 
 for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
   const browser = await engine.launch({ headless: true });
   try {
-    const queue = pages.filter(p => (!fullScripts || p.shell) && (!process.env.FOOTER_PAGE || p.file === process.env.FOOTER_PAGE)).flatMap(p => [390, 768, 1440].map(width => ({ ...p, width })));
+    const queue = browserPages.filter(p => (!fullScripts || p.shell) && (!process.env.FOOTER_PAGE || p.file === process.env.FOOTER_PAGE)).flatMap(p => [390, 768, 1440].map(width => ({ ...p, width })));
     queue.push({ ...pages.find(p => p.file === 'index.html'), width: 320 });
     for (const file of ['index.html','decision-velocity.html'])
       if ((!fullScripts || file === 'index.html') && (!process.env.FOOTER_PAGE || process.env.FOOTER_PAGE === file))
@@ -131,6 +138,10 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
           await page.goto('http://127.0.0.1/' + file, { waitUntil:'networkidle' });
           await page.evaluate(() => document.fonts.ready);
           assert.deepEqual(errors, [], label + ': support script errors');
+          if (scopePages.some(p => p.file === file)) {
+            assert.equal(await page.locator('.mond-footer a[href="scope.html"]').innerText(), 'Monderman Scope', label + ': actual current Scope footer product identity');
+            assert.equal(await page.locator('.mond-footer a[href="scope.html"]').getAttribute('href'), 'scope.html', label + ': actual current Scope footer destination');
+          }
           assert.equal(await page.locator('.mf-device-protection').innerText(), 'Administrative device protection: CrowdStrike Falcon');
           assert.equal(await page.locator('.mf-device-protection a').getAttribute('href'), 'security.html#administrative-device-protection');
           assert.ok(await page.locator('.mf-device-protection a').evaluate(n => {
@@ -222,6 +233,6 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
     }));
   } finally { await browser.close(); }
 }
-await fs.writeFile(path.join(output,'results.json'),JSON.stringify({passed:failures.length===0,fullScripts,publicDependencies:dependencies.size,pages:pages.length,cases:results.length,failures,results},null,2));
+await fs.writeFile(path.join(output,'results.json'),JSON.stringify({passed:failures.length===0,fullScripts,publicDependencies:dependencies.size,pages:pages.length,scopePages:scopePages.length,cases:results.length,failures,results},null,2));
 console.log(JSON.stringify({passed:failures.length===0,cases:results.length,failures}));
 assert.equal(failures.length,0,'Floating widget / footer regression checks');

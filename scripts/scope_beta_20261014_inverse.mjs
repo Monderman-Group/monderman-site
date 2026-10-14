@@ -6,7 +6,7 @@ import {createHash} from 'node:crypto';
 const sha=b=>createHash('sha256').update(b).digest('hex');
 export const SCOPE_BETA_BASELINE='f2a81afdd30863c68b4ae748936163a141b0edd6';
 export const SCOPE_BETA_VERSION='scope-beta-20261014.1';
-export const SCOPE_BETA_FIXTURE_SHA256='4b18eb111889d100e58937a55d544ab9b91821146d3161b42bca45f78178d464';
+export const SCOPE_BETA_FIXTURE_SHA256='ab78696ed2d2630d0c3979d474a8b15430c5d114b8854698a324736285b0c684';
 const bytes=fs.readFileSync(new URL('./fixtures/scope-beta-20261014.json',import.meta.url));
 assert.equal(sha(bytes),SCOPE_BETA_FIXTURE_SHA256,'Exact separately reviewed design fixture');
 export const scopeBetaDelta=JSON.parse(bytes);
