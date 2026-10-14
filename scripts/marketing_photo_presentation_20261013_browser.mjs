@@ -165,6 +165,38 @@ function negativeGeometryProof(snapshot, expected, options) {
   }
 }
 
+function collectWhyRails() {
+  const hero = document.querySelector('.hero h1').getBoundingClientRect();
+  return {
+    heroX: hero.left,
+    sectorX: document.querySelector('.wm-sector-label').getBoundingClientRect().left,
+    sections: [...document.querySelectorAll('.section-with-bar')].map(section => {
+      const heading = section.querySelector('h2').getBoundingClientRect(), label = section.querySelector('.section-bar').getBoundingClientRect();
+      return {id: section.id, headingX: heading.left, labelX: label.left, headingTop: heading.top, labelBottom: label.bottom};
+    }),
+  };
+}
+function assertWhyRails(snapshot, label) {
+  check(Number.isFinite(snapshot.heroX) && Number.isFinite(snapshot.sectorX), label + ': finite real hero and sector rails');
+  check(Math.abs(snapshot.sectorX - snapshot.heroX) <= 1, label + ': sector stays on the hero rail');
+  equal(snapshot.sections.map(section => section.id), ['condition', 'difference', 'rigor', 'commitments', 'fit', 'next-step'], label + ': all six exact narrative sections remain in order');
+  for (const section of snapshot.sections) {
+    check([section.headingX, section.labelX, section.headingTop, section.labelBottom].every(Number.isFinite), label + ': finite real section geometry');
+    check(Math.abs(section.headingX - snapshot.heroX) <= 1 && Math.abs(section.labelX - snapshot.heroX) <= 1, label + '/' + section.id + ': heading and section label share the hero rail');
+    check(section.headingTop - section.labelBottom >= 8, label + '/' + section.id + ': label-to-heading clearance remains at least8px');
+  }
+}
+function negativeWhyRailProof(snapshot) {
+  for (const mutate of [
+    row => row.sections[3].headingX += 24, row => row.sections[3].headingX += 48,
+    row => row.sections[3].labelX += 24, row => row.sections[3].labelBottom = row.sections[3].headingTop - 7,
+    row => row.sections[3].headingX = NaN, row => row.sections.pop(),
+  ]) {
+    const invalid = structuredClone(snapshot); mutate(invalid); negativeControls++;
+    assert.throws(() => assertWhyRails(invalid, 'controlled invalid Why rail snapshot'), undefined, 'Actual validation rejects retired inset, label drift, collision or missing geometry');
+  }
+}
+
 try {
   for (const [engine, browserType] of [['chromium', chromium], ['webkit', webkit]]) {
     const browser = await browserType.launch({headless: true});
@@ -204,14 +236,15 @@ try {
             await settleFigure(page, figure, label);
             await Promise.all(state.assetTasks);
             equal(state.assetFailures, [], label + ': no failed actual photographic byte verification');
-            const snapshot = await figure.evaluate(element => {
+            if (route.page === 'why-monderman.html') equal(await figure.evaluate(element => element.matches('#commitments .mp-editorial-grid > figure.mp-photo[data-site-photo]')), true, label + ': exact Why figure owns its photographic panel');
+            const snapshot = await figure.evaluate((element, whyFigure) => {
               const image = element.querySelector('img'), picture = element.querySelector('picture');
               const box = node => { const r = node.getBoundingClientRect(); return [r.x, r.y, r.width, r.height]; };
               let visible = true;
               for (let node = element; node; node = node.parentElement) { const s = getComputedStyle(node); if (s.display === 'none' || s.visibility !== 'visible' || Number(s.opacity) < .99) visible = false; }
               const fallback = element.querySelector('.mp-photo-fallback,.mc-photo-fallback');
-              return {stockId: image.dataset.stockId, captionCount: element.querySelectorAll('figcaption').length, alt: image.alt, box: box(image), picture: box(picture), fit: getComputedStyle(image).objectFit, radius: parseFloat(getComputedStyle(picture).borderTopLeftRadius), panelRadius: parseFloat(getComputedStyle(element.parentElement).borderTopLeftRadius), visible, complete: image.complete, naturalWidth: image.naturalWidth, currentSrc: image.currentSrc, dpr: devicePixelRatio, fallbackVisible: !!fallback && fallback.textContent === 'Photograph unavailable' && fallback.getBoundingClientRect().width > 0};
-            });
+              return {stockId: image.dataset.stockId, captionCount: element.querySelectorAll('figcaption').length, alt: image.alt, box: box(image), picture: box(picture), fit: getComputedStyle(image).objectFit, radius: parseFloat(getComputedStyle(picture).borderTopLeftRadius), panelRadius: parseFloat(getComputedStyle(whyFigure ? element : element.parentElement).borderTopLeftRadius), visible, complete: image.complete, naturalWidth: image.naturalWidth, currentSrc: image.currentSrc, dpr: devicePixelRatio, fallbackVisible: !!fallback && fallback.textContent === 'Photograph unavailable' && fallback.getBoundingClientRect().width > 0};
+            }, route.page === 'why-monderman.html');
             const expectedPhoto = register.photos.find(photo => photo.id === stockId), largest = expectedPhoto.derivatives.find(derivative => derivative.path.endsWith('-1600.webp'));
             const actualPath = snapshot.currentSrc ? new URL(snapshot.currentSrc).pathname : '';
             const resource = derivatives.get(actualPath);
@@ -228,6 +261,23 @@ try {
               imageScreenshots.push(filename);
             }
           }
+          let whyRails;
+          if (route.page === 'why-monderman.html' && !options.print) {
+            whyRails = await page.evaluate(collectWhyRails);
+            assertWhyRails(whyRails, label);
+            if (options.name === '390-ordinary') {
+              negativeWhyRailProof(whyRails);
+              const grid = page.locator('#commitments .mp-editorial-grid'), originalStyle = await grid.getAttribute('style');
+              try {
+                await grid.evaluate(element => { element.style.padding = '24px'; });
+                const retiredInset = await page.evaluate(collectWhyRails); negativeControls++;
+                assert.throws(() => assertWhyRails(retiredInset, label + '/retired rendered inset'), undefined, 'The actual retired24px padded-grid regression rejects');
+              } finally {
+                await grid.evaluate((element, style) => { if (style === null) element.removeAttribute('style'); else element.setAttribute('style', style); }, originalStyle);
+              }
+              assertWhyRails(await page.evaluate(collectWhyRails), label + '/exact restored presentation');
+            }
+          }
           const overflow = await page.evaluate(() => ({scrollWidth: document.documentElement.scrollWidth, viewport: innerWidth}));
           check(overflow.scrollWidth <= overflow.viewport + 1, label + ': no horizontal page overflow');
           if (options.reduced || options.failStyles || options.failScript || options.scripts === false) {
@@ -240,7 +290,7 @@ try {
           equal(state.errors, [], label + ': no unexpected runtime error');
           equal(await page.evaluate(() => window.__photoPresentationUnsafe || []), [], label + ': no form submission or socket attempted');
           equal(state.assetFailures, [], label + ': all observed photographic responses are exact');
-          receipts.push({label,route: route.page,engine,browserVersion: browser.version(),options,photos,assetResponses: state.assetRows,overflow,screenshots: imageScreenshots,performedWrites: 0});
+          receipts.push({label,route: route.page,engine,browserVersion: browser.version(),options,photos,assetResponses: state.assetRows,whyRails,overflow,screenshots: imageScreenshots,performedWrites: 0});
         } catch (error) {
           const failureImage = label.replaceAll('/', '-') + '-FAIL.png';
           await page.screenshot({path: path.join(out, failureImage), fullPage: false}).catch(() => {});

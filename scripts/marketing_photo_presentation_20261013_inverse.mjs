@@ -5,7 +5,7 @@ import {createHash} from 'node:crypto';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 export const PHOTO_PRESENTATION_BASELINE='5ce8817eed8af622b4c0c8eeeb48b4440e728186';
 export const PHOTO_PRESENTATION_VERSION='marketing-photo-presentation-20261013.1';
-export const PHOTO_PRESENTATION_FIXTURE_SHA256='04d4c2fbc21f61b6788cb88b9df5038ab3ca0fa9179d79a645267467dc4e60be';
+export const PHOTO_PRESENTATION_FIXTURE_SHA256='cae6092b9338a499bb1a192be855b0bda4ba4399d0f39983ff2e70780a32636d';
 const bytes=fs.readFileSync(new URL('./fixtures/marketing-photo-presentation-20261013.json',import.meta.url));
 assert.equal(sha(bytes),PHOTO_PRESENTATION_FIXTURE_SHA256,'Exact independently reviewed five-photo fixture');
 export const photoPresentationDelta=JSON.parse(bytes);

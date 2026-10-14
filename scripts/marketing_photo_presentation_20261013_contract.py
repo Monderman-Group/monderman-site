@@ -93,6 +93,14 @@ css=read('marketing-photo-presentation.css').decode();js=read('marketing-photo-p
 check(not re.search(r'@import|@font-face|https?://',css,re.I),'No new remote stylesheet/font')
 check(not re.search(r'\b(?:fetch|XMLHttpRequest|WebSocket|EventSource)\s*\(|sendBeacon|localStorage|sessionStorage|document\.cookie|supabase|stripe',js,re.I),'Only localpresentation no network/storage/API')
 check('border-radius: clamp(18px, 2vw, 28px)' in css and 'object-fit: contain' in css and 'duration: 450' in js and 'prefers-reduced-motion' in js,'Rounded fullcomposition and native450/reduced branch')
+why_css_before=git('show','056eaa22e5e96cd0c0c2fd643ab881c4b71c9072:marketing-photo-presentation.css').decode()
+why_screen_insertion='@media screen {\n  body.canonical-green-shell.photo-presentation.page-why-monderman #commitments .mp-editorial-grid { padding: 0; background: none; box-shadow: none; }\n  body.canonical-green-shell.photo-presentation.page-why-monderman #commitments figure.mp-photo { box-sizing: border-box; padding: 24px; border-radius: 28px; background: linear-gradient(135deg, #EDF3EE, #F5F6F2 62%, #E8F0ED); box-shadow: inset 0 0 0 1px rgba(8,56,62,.06); }\n}\n'
+def why_css_scope(source):
+ assert sha(why_css_before.encode())=='cfd1f86519fb6d445eb64ca48cc7b93c0a014535cfcb8458d8b5348869f05742'
+ assert source==why_css_before.replace('@media print {\n',why_screen_insertion+'@media print {\n',1),'Only exact screen-only Why photo panel repair; all other rules/print bytes unchanged'
+why_css_scope(css);checks+=1
+for replacement in ['',why_screen_insertion.replace('@media screen','@media all'),why_screen_insertion.replace('.page-why-monderman',''),why_screen_insertion.replace('padding: 0','padding: 24px'),why_screen_insertion.replace('background: none','background: red'),why_screen_insertion.replace('figure.mp-photo','h2')]:
+ reject(lambda x=replacement:why_css_scope(css.replace(why_screen_insertion,x,1)),'Deleted/widened/print-impacting/inset/heading-style regression rejects')
 presentation_files=['marketing-refresh.css','marketing-refresh.js','marketing-completion.css','marketing-completion.js','marketing-photo-presentation.css','marketing-photo-presentation.js']
 check(sum(len(read(f)) for f in presentation_files)<=65536,'Sixlocalruntime64KiB')
 for file in ['marketing-completion.css','marketing-completion.js','.github/workflows/pages-protected-deploy.yml']:check(read(file)==prior(file),'Protected oldcontrols/Pages exact')
