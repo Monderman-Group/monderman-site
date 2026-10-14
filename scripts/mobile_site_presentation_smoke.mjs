@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {isCurrentHomepageRefinementSource} from './homepage_refinement_20261014_inverse.mjs';
+import {isCurrentSiteDesignCoherence} from './site_design_coherence_20261014_inverse.mjs';
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
 const out = process.env.MOBILE_OUT || '/tmp/mobile-site-presentation';
@@ -15,6 +16,7 @@ const pages = fs.readdirSync(process.cwd())
 
 const sourceByPage = new Map(pages.map((name) => [name, fs.readFileSync(name, 'utf8')]));
 const currentHomepageRefinement = isCurrentHomepageRefinementSource(sourceByPage.get('index.html'));
+const currentSiteDesignCoherence = isCurrentSiteDesignCoherence();
 async function expandRefinedMobileHeroForOriginalChecks(tile) {
   const details = tile.locator('.hf-hero-details'), summary = details.locator(':scope > summary');
   assert.equal(await details.count(), 1, 'Exact refined hero has one native expansion');
@@ -446,6 +448,23 @@ try {
           } : null,
         };
       });
+
+
+      if (currentSiteDesignCoherence) {
+        const design = await page.evaluate(() => {
+          const selectors='.card,.panel,.diff-card,.approach-card,.paper-card,.latest-card,.series-card,.essay-card,.research-card,.proof-card,.loop-step,.first-run-moment,.systems-analysis-card,.mxidx-cell,.connect-choice-card,.connect-panel,.side-card,.confirmation-card,.expectation-card,.privacy-box,.wm-credo-item,.wm-rigor-cell,.wm-threeway-cell,.wm-cta-panel,.ps-tier,.ps-roi-card,.ps-free,.ps-faq-item,.mxps-card,.dx-card,.moment-card,.pl-card,.pl-why-panel,.pl-why-cell,.pl-advisory-box,.instrument-card,.measure-card,.scale-card,.pillar,.start-step,.layer,.smv-node,.econ-block,.hero-report-page,.hrp-story-card,.hrp-finding-block,.sidebar-card,.signal-card,.trench-panel,.trench-figure-box,.md-tile,.hrq-tile,.hwd-app,.hwd-compact-tile';
+          const tiles=[...document.querySelectorAll('body.canonical-green-shell '+selectors.split(',').join(',body.canonical-green-shell '))].filter(e=>{const c=getComputedStyle(e),r=e.getBoundingClientRect();return r.width>0&&r.height>0&&c.display!=='none'&&c.visibility==='visible'&&!(c.backgroundColor==='rgba(0, 0, 0, 0)'&&[c.borderTopWidth,c.borderRightWidth,c.borderBottomWidth,c.borderLeftWidth].every(v=>parseFloat(v)===0));}).map(e=>({selector:e.id||e.className,radii:[getComputedStyle(e).borderTopLeftRadius,getComputedStyle(e).borderTopRightRadius,getComputedStyle(e).borderBottomRightRadius,getComputedStyle(e).borderBottomLeftRadius]}));
+          const images=[...document.querySelectorAll('[data-site-photo] img,[data-marketing-photo] img')].map(e=>({id:e.dataset.stockId,fit:getComputedStyle(e).objectFit,width:e.getBoundingClientRect().width,height:e.getBoundingClientRect().height,pictureRadius:parseFloat(getComputedStyle(e.closest('picture')).borderTopLeftRadius),caption:e.closest('figure').querySelectorAll('figcaption').length,alt:e.alt}));
+          const f=document.querySelector('.mond-footer');let footerLoose=[];if(f){for(let n=f.nextSibling;n;n=n.nextSibling)if(n.nodeType===Node.TEXT_NODE&&n.textContent.trim())footerLoose.push(n.textContent.trim());}
+          return {tiles,images,footerLoose,headingFonts:[...document.querySelectorAll('h1,h2,h3,h4')].filter(e=>e.checkVisibility()).map(e=>getComputedStyle(e).fontFamily)};
+        });
+        for(const tile of design.tiles) if(!tile.radii.every(v=>parseFloat(v)===16)) failures.push(`${pageName}/${viewport.name}: semantic tile is not consistently rounded16 (${JSON.stringify(tile)})`);
+        if(design.footerLoose.length) failures.push(`${pageName}/${viewport.name}: stray text outside canonical footer (${JSON.stringify(design.footerLoose)})`);
+        if(design.headingFonts.some(f=>!f.includes('Neue Haas Grotesk'))) failures.push(`${pageName}/${viewport.name}: heading typography diverges from shared family`);
+        const expectedPhotos={'index.html':['501653292','524156476'],'why-monderman.html':['511990984'],'platform-services.html':['541113838'],'Monderman_Platform_Brief.html':['488892667'],'operational-systems-article.html':[]};
+        if(Object.hasOwn(expectedPhotos,pageName)) assert.deepEqual(design.images.map(i=>i.id),expectedPhotos[pageName],`${pageName}/${viewport.name}: actual current photo mapping`);
+        for(const image of design.images){assert.equal(image.fit,'contain',`${pageName}/${viewport.name}: photograph remains uncropped`);assert.ok(image.width>0&&image.height>0&&image.pictureRadius>=18,`${pageName}/${viewport.name}: actual visible proportional rounded photo frame`);assert.equal(image.caption,0,`${pageName}/${viewport.name}: no Models caption`);assert.ok(image.alt.trim(),`${pageName}/${viewport.name}: neutral accessible photo description`);}
+      }
 
       if (!geometry.hasViewportMeta) failures.push(`${pageName}/${viewport.name}: viewport metadata missing`);
       if (geometry.documentWidth > geometry.viewportWidth + 1) failures.push(`${pageName}/${viewport.name}: page overflows horizontally (${geometry.documentWidth}px > ${geometry.viewportWidth}px)`);

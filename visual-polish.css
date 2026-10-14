@@ -114,6 +114,21 @@ body{
 .transaction-surface :where(button,.btn,input,select,textarea){border-radius:var(--mond-radius-control)}
 .transaction-surface :where(button,.btn){min-height:48px}
 
+/* One screen-only card radius across public, working and account surfaces.
+   Explicit containers exclude control chips, charts and report print styling. */
+@media screen {
+  :root { --mond-radius-card:16px; }
+  body.workspace-surface :is(.card,.trust,.impact,.lens-card,.launch-card,.ws-card,.ws-list,.ws-rec,.ws-inst,.ws-product-panel,.ws-onboarding,.tile,.ov-box,.bulk-box,.synth-card) {
+    border-radius:var(--mond-radius-card) !important;
+  }
+  body.diagnostic-instrument :is(.card,.question-card,.checkbox-card,.processing-card,.score-panel,.result-card,.diagnosis-card,.viz-card,.economic-card,.reclaim-card,.compact-card,.advisory-card,.export-summary-card,.executive-export-card,.chart-card,.summary-card,.opportunity-tile,.quadrant-box,.signal-tile,.remedy-card) {
+    border-radius:var(--mond-radius-card) !important;
+  }
+  body.transaction-surface :is(.card,.panel,.signin-card,.sc-box) {
+    border-radius:var(--mond-radius-card) !important;
+  }
+}
+
 /* Floating help must clear device safe areas and each other. */
 #mnd-launcher{right:max(20px,env(safe-area-inset-right))!important;bottom:max(20px,env(safe-area-inset-bottom))!important}
 #mnd-panel{right:max(20px,env(safe-area-inset-right))!important}

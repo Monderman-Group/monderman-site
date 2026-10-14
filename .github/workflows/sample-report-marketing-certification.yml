@@ -37,6 +37,8 @@ on:
       - 'scripts/homepage_refinement_20261014_inverse.mjs'
       - 'scripts/homepage_refinement_20261014_inverse.py'
       - 'scripts/fixtures/homepage-refinement-20261014.json'
+      - 'scripts/site_design_coherence_20261014_*'
+      - 'scripts/fixtures/site-design-coherence-20261014.json'
       - 'scripts/homepage_refinement_20261014_browser.mjs'
       - 'homepage-refinement.css'
       - 'homepage-refinement.js'
@@ -340,6 +342,8 @@ on:
       - 'scripts/homepage_refinement_20261014_inverse.mjs'
       - 'scripts/homepage_refinement_20261014_inverse.py'
       - 'scripts/fixtures/homepage-refinement-20261014.json'
+      - 'scripts/site_design_coherence_20261014_*'
+      - 'scripts/fixtures/site-design-coherence-20261014.json'
       - 'scripts/homepage_refinement_20261014_browser.mjs'
       - 'homepage-refinement.css'
       - 'homepage-refinement.js'
@@ -659,6 +663,8 @@ jobs:
           node scripts/single_lens_overview_contract.mjs
           node scripts/report_overview_site_compatibility_smoke.mjs
           node scripts/report_unified_sankey_contract.mjs
+          node scripts/site_design_coherence_20261014_contract.mjs
+          python scripts/site_design_coherence_20261014_contract.py
           node scripts/homepage_refinement_20261014_contract.mjs
           python scripts/homepage_refinement_20261014_contract.py
           node scripts/marketing_photo_presentation_20261013_contract.mjs
@@ -865,9 +871,30 @@ jobs:
           MARKETING_REFRESH_OUT=/tmp/report-presentation-smoke/marketing-refresh node scripts/marketing_refresh_browser_smoke.mjs
           MARKETING_COMPLETION_OUT=/tmp/report-presentation-smoke/marketing-completion node scripts/marketing_completion_browser_smoke.mjs
           MARKETING_PHOTO_PRESENTATION_OUT=/tmp/report-presentation-smoke/photo-presentation node scripts/marketing_photo_presentation_20261013_browser.mjs
+          RENDER_GIT_COMMIT="$GITHUB_SHA" node scripts/site_design_coherence_20261014_contract.mjs --built
+          RENDER_GIT_COMMIT="$GITHUB_SHA" python scripts/site_design_coherence_20261014_contract.py --built
           HOMEPAGE_REFINEMENT_OUT=/tmp/report-presentation-smoke/homepage-refinement node scripts/homepage_refinement_20261014_browser.mjs
+          # The independent workspace and accent suites retain their own full commands,
+          # logs and exit statuses; both finish before this unchanged 60-minute job advances.
+          (
           node scripts/homepage_workspace_demo_smoke.mjs
+          ) >/tmp/report-presentation-smoke/coherence-workspace.log 2>&1 &
+          coherence_workspace_pid=$!
+          (
           GOLD_ACCENT_OUT=/tmp/report-presentation-smoke/gold-accents node scripts/public_gold_accent_smoke.mjs
+          ) >/tmp/report-presentation-smoke/coherence-gold.log 2>&1 &
+          coherence_gold_pid=$!
+          set +e
+          wait "$coherence_workspace_pid"
+          coherence_workspace_status=$?
+          wait "$coherence_gold_pid"
+          coherence_gold_status=$?
+          set -e
+          cat /tmp/report-presentation-smoke/coherence-workspace.log
+          cat /tmp/report-presentation-smoke/coherence-gold.log
+          echo "COHERENCE_PARALLEL_RESULT workspace=$coherence_workspace_status gold=$coherence_gold_status"
+          test "$coherence_workspace_status" -eq 0
+          test "$coherence_gold_status" -eq 0
           node scripts/workspace_product_design_smoke.mjs
           REPORT_OUT=/tmp/report-presentation-smoke/report-screen-experience node scripts/report_screen_experience_smoke.mjs
 

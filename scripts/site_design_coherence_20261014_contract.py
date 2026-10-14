@@ -1,0 +1,138 @@
+"""Independent raw/source/compiled design approval; no provider calls or writes."""
+import hashlib,json,re,subprocess,sys,os
+from pathlib import Path
+from site_design_coherence_20261014_inverse import BASELINE,VERSION,_fixture as delta,FILES,ADDITIONS,GUARD_FILES,source_before_site_design_coherence_20261014 as strict,source_at_site_design_coherence_baseline as conditional,public_source_before_site_design_coherence_20261014 as public_strict,public_source_at_site_design_coherence_baseline as public_conditional,source_paths_at_site_design_coherence_baseline as paths_before,public_paths_at_site_design_coherence_baseline as public_before
+ROOT=Path(__file__).resolve().parents[1];read=lambda f:(ROOT/f).read_bytes();sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda *a:subprocess.check_output(['git',*a],cwd=ROOT)
+checks=negatives=hunks=immutable=fixtures=pdfs=0
+def check(v,l):
+ global checks
+ assert v,l
+ checks+=1
+def reject(fn,l):
+ global checks,negatives
+ try:fn()
+ except AssertionError:checks+=1;negatives+=1
+ else:raise AssertionError(l)
+check(BASELINE=='16935688e0b4c6e177c81bdcaefb5727894d7a11' and VERSION=='site-design-coherence-20261014.1','Actual preceding release/version')
+check(delta['provisional'] is False,'Provisional draft cannot certify')
+check(git('rev-parse',BASELINE+'^{tree}').decode().strip()=='366c71c2dde3a6adbefcc068a88e9ad9e714be90','Actual baseline tree')
+expected=['Monderman_Platform_Brief.html', 'operational-systems-article.html', 'docs/marketing-photo-register-20261013.json', 'enterprise-site.css', 'visual-polish.css', 'homepage-refinement.css', 'marketing-photo-presentation.css', 'scripts/homepage_refinement_20261014_inverse.mjs', 'scripts/homepage_refinement_20261014_inverse.py', 'scripts/homepage_refinement_20261014_contract.mjs', 'scripts/homepage_refinement_20261014_contract.py', 'scripts/marketing_photo_presentation_20261013_contract.mjs', 'scripts/marketing_photo_presentation_20261013_contract.py', 'scripts/public_sample_manifest_sensitivity_smoke.mjs', 'scripts/homepage_refinement_20261014_browser.mjs', 'scripts/marketing_photo_presentation_20261013_browser.mjs', 'scripts/mobile_site_presentation_smoke.mjs', '.github/workflows/frontend-release.yml', '.github/workflows/sample-report-marketing-certification.yml']
+check(list(FILES)==expected and list(ADDITIONS)==[],'Only exact product/consumer whitelist; no new runtime/provider/photo assets')
+check(list(GUARD_FILES)==['scripts/site_design_coherence_20261014_inverse.mjs','scripts/site_design_coherence_20261014_inverse.py','scripts/site_design_coherence_20261014_contract.mjs','scripts/site_design_coherence_20261014_contract.py','scripts/fixtures/site-design-coherence-20261014.json'],'Only five new approval files')
+def map_shape(rows,names):
+ assert len(rows)==322 and len({r['path'] for r in rows})==len(rows) and sorted(r['path'] for r in rows)==sorted(names)
+ for r in rows:assert isinstance(r['path'],str) and not Path(r['path']).is_absolute() and '..' not in r['path'].split('/') and type(r['bytes']) is int and r['bytes']>=0 and re.fullmatch('[a-f0-9]{64}',r['sha256'])
+map_shape(delta['baselinePublicMap'],delta['baselinePublicPaths']);map_shape(delta['currentPublicMap'],delta['currentPublicPaths']);checks+=2
+reject(lambda:map_shape(delta['currentPublicMap']+[delta['currentPublicMap'][0]],delta['currentPublicPaths']),'Duplicated compiled map rejects')
+reject(lambda:map_shape([{**r,'path':'../private.jpg'} if i==0 else r for i,r in enumerate(delta['currentPublicMap'])],delta['currentPublicPaths']),'Unknown/unsafe compiled path rejects')
+
+tracked=git('ls-tree','-r','--name-only',BASELINE).decode().splitlines();check(tracked==delta['baselineSourcePaths'],'Complete baseline source inventory')
+batch=subprocess.check_output(['git','cat-file','--batch'],cwd=ROOT,input=''.join(BASELINE+':'+f+'\n' for f in tracked).encode());old={};at=0
+for f in tracked:
+ end=batch.index(b'\n',at);head=batch[at:end].decode();assert re.fullmatch(r'[a-f0-9]{40} blob \d+',head);n=int(head.split()[2]);at=end+1;old[f]=batch[at:at+n];at+=n;assert batch[at:at+1]==b'\n';at+=1
+check(at==len(batch),'Full authoritative Git blob framing')
+def finite(entries,bytes_for,before_for,inverse,at_baseline):
+ global hunks
+ for f,e in entries.items():
+  b=bytes_for(f);was=before_for(f,e);check(sha(b)==e['after_sha256'] and sha(was)==e['before_sha256'],'Whole current/original pins');check(bool(e['replacements']) and e['before_sha256']!=e['after_sha256'],'Actual finite differences');encoded=b.decode().encode('utf-16-le');end=0
+  for start,stop,now,before in e['replacements']:
+   check(isinstance(start,int) and isinstance(stop,int) and start>=end and stop>=start,'Finite ordered UTF16 hunk');check(encoded[start*2:stop*2].decode('utf-16-le')==now and isinstance(before,str),'Actual literal hunk');end=stop;hunks+=1
+  for s in [b,b.decode()]:
+   wanted=was if isinstance(s,bytes) else was.decode();check(inverse(f,s)==wanted and type(inverse(f,s)) is type(s),'Complete inverse/type');check(at_baseline(f,s)==wanted and at_baseline(f,wanted)==wanted,'Conditional and historic identity')
+  mutants=[b+b'\n',b'!'+b[1:],was,b[1:],b+b'<script>fetch("/api/activate",{method:"POST"})</script>']+[encoded[:a*2].decode('utf-16-le').encode()+b'UNREVIEWED'+encoded[z*2:].decode('utf-16-le').encode() for a,z,_,_ in e['replacements']]
+  for m in mutants:reject(lambda m=m:inverse(f,m),'Unknown/prefix/append/hunk/API/double inverse rejects');check(at_baseline(f,m)==m,'Unknown full bytes stay visible')
+finite(delta['files'],read,lambda f,e:old[f],strict,conditional)
+for f in tracked:
+ if f in FILES:continue
+ check(read(f)==old[f],'Every other actualM source byte '+f);immutable+=1;fixtures+=int(f.startswith('scripts/fixtures/'));pdfs+=int(f.endswith('.pdf'))
+cached=git('ls-files','--cached').decode().splitlines();paths=set(cached+git('ls-files','--others','--exclude-standard').decode().splitlines());paths={p for p in paths if (ROOT/p).exists() and not(p=='node_modules' and p not in cached and (ROOT/p).is_symlink())}
+def scope(rows):assert len(rows)==len(set(rows)) and sorted(rows)==sorted(tracked+list(ADDITIONS)+list(GUARD_FILES))
+scope(paths);checks+=1;check(paths_before(paths)==set(tracked),'Only complete known source set projects')
+for n in ['UNKNOWN.js','.env','assets/marketing/iStock-original.jpg','font-package.zip','.render-public 2']:
+ rows=paths|{n};reject(lambda rows=rows:scope(rows),'Private/unknown additions reject');check(paths_before(rows)==rows,'Unknown paths remain visible')
+rows=list(paths);check(paths_before(rows+[rows[0]])==rows+[rows[0]],'Duplicate paths stay visible')
+for f in ['__proto__','constructor','toString','unknown.js']:
+ for s in ['Unknown 😀','Unknown 😀'.encode()]:check(strict(f,s)==s and type(strict(f,s)) is type(s) and conditional(f,s)==s and public_strict(f,s)==s,'Unlisted identity/type; no prototype aliases')
+def visible(s):return re.sub(r'\s+',' ',re.sub(r'<[^>]+>',' ',re.sub(r'<!--[\s\S]*?-->','',re.sub(r'<(script|style|svg|template)\b[^>]*>[\s\S]*?</\1>','',s,flags=re.I)))).strip()
+for f in ['Monderman_Platform_Brief.html','operational-systems-article.html']:check(visible(read(f).decode())==visible(old[f].decode()),'Every original product/scoring/qualifier/footer word retained')
+photo_ids={'index.html':['501653292','524156476'],'why-monderman.html':['511990984'],'platform-services.html':['541113838'],'Monderman_Platform_Brief.html':['488892667'],'operational-systems-article.html':[]}
+def photo_intent(docs):
+ assert list(docs)==list(photo_ids)
+ for f,ids in photo_ids.items():
+  rows=re.findall(r'<figure\b[^>]*(?:data-marketing-photo|data-site-photo)[^>]*>[\s\S]*?</figure>',docs[f]);assert [re.search(r'data-stock-id="(\d+)"',s).group(1) for s in rows]==ids
+  for s in rows:
+   assert not re.search(r'<figcaption|Models shown|Illustrative photography|Actual customer',s,re.I)
+   assert 'object-fit:contain' in s and re.search(r'aspect-ratio:var\(--m(?:c|p)-photo-ratio\)',s) and re.search(r'width="\d+" height="\d+"',s) and re.search(r'alt="[^\"]+"',s)
+   assert not re.search(r'display\s*:\s*none|visibility\s*:\s*hidden',s)
+ assert 'mp-platform-visual' in docs['Monderman_Platform_Brief.html'] and len(re.findall(r'class="layer (?:one|two|three)"',docs['Monderman_Platform_Brief.html']))==3
+docs={f:read(f).decode() for f in photo_ids};photo_intent(docs);checks+=1
+moved=re.search(r'<figure\b[^>]*data-site-photo[^>]*>[\s\S]*?</figure>',docs['Monderman_Platform_Brief.html']).group()
+for m in ['',moved+moved,moved.replace('488892667','0'),moved.replace('</figure>','<figcaption>Models shown</figcaption></figure>'),moved.replace('object-fit:contain','object-fit:cover'),moved.replace('<figure','<figure style="display:none"')]:reject(lambda m=m:photo_intent({**docs,'Monderman_Platform_Brief.html':docs['Monderman_Platform_Brief.html'].replace(moved,m,1)}),'Missing/duplicate/unknown/labelled/cropped/hidden moved photo rejects')
+reject(lambda:photo_intent({**docs,'operational-systems-article.html':docs['operational-systems-article.html']+moved}),'Old article actually has zero photos')
+register=json.loads(read('docs/marketing-photo-register-20261013.json'));was_register=json.loads(old['docs/marketing-photo-register-20261013.json']);placement=next(p for p in register['photos'] if p['id']=='488892667');check(placement['page']=='Monderman_Platform_Brief.html','Actual rights-register destination');normalized=json.loads(json.dumps(register));old_placement=next(p for p in was_register['photos'] if p['id']=='488892667');next(p for p in normalized['photos'] if p['id']=='488892667').update(page=old_placement['page'],placement=old_placement['placement']);check(normalized==was_register,'Only page/placement changes; all provenance/rights/20 derivatives unchanged')
+assets=[a for p in register['photos'] for a in p['derivatives']];check(len(assets)==20,'Twenty exact optimized derivatives')
+for a in assets:b=read(a['path']);check(sha(b)==a['sha256'] and len(b)==a['bytes'] and len(b)<=200000,'Actual physical approved image hash/size/budget')
+runtime=['marketing-refresh.css','marketing-refresh.js','marketing-completion.css','marketing-completion.js','marketing-photo-presentation.css','marketing-photo-presentation.js','homepage-refinement.css','homepage-refinement.js']
+def budget(sizes):assert all(type(n) is int and n>=0 for n in sizes) and sum(sizes)<=65536
+budget([len(read(f)) for f in runtime]);checks+=1;reject(lambda:budget([len(read(f)) for f in runtime]+[65536]),'64KiB runtime overshoot rejects')
+hf,enterprise,polish,photo_css=[read(f).decode() for f in ['homepage-refinement.css','enterprise-site.css','visual-polish.css','marketing-photo-presentation.css']]
+def corners(a,b,c):
+ assert '.latest-card-image { border-radius: var(--mond-radius-card, 16px) var(--mond-radius-card, 16px) 0 0 !important; }' in a
+ assert ':is(.latest-card, .hrq-tile, .hwd-app, .hwd-compact-tile) { border-radius: var(--mond-radius-card, 16px) !important; }' in a and 'border-radius: var(--mond-radius-control, 7px)' in a
+ assert '.series-card, .essay-card, .research-card, .proof-card, .loop-step' in b and ') { border-radius: var(--mond-radius-card, 16px) !important; }' in b
+ assert '--mond-radius-card:16px' in c or '--mond-radius-card: 16px' in c
+ assert '.instrument-center' not in b[b.rfind('/* Explicit surface families'):]
+corners(hf,enterprise,polish);checks+=1
+radius_only_edits=[('  body.homepage-enterprise.homepage-refinement .hero .hero-report-proof[data-home-report-quad] { max-width: 640px; border-radius: 2px; box-shadow: 0 16px 42px rgba(0,0,0,.16); }', '  body.homepage-enterprise.homepage-refinement .hero .hero-report-proof[data-home-report-quad] { max-width: 640px; border-radius: var(--mond-radius-card, 16px); box-shadow: 0 16px 42px rgba(0,0,0,.16); }'), ('  body.homepage-enterprise.homepage-refinement :is(.latest-card, .latest-card-image, .hrq-tile, .hwd-app, .hwd-compact-tile) { border-radius: 2px !important; }', '  body.homepage-enterprise.homepage-refinement :is(.latest-card, .hrq-tile, .hwd-app, .hwd-compact-tile) { border-radius: var(--mond-radius-card, 16px) !important; }'), ('  body.homepage-enterprise.homepage-refinement .latest-card-image { border-radius: 0 !important; }', '  body.homepage-enterprise.homepage-refinement .latest-card-image { border-radius: var(--mond-radius-card, 16px) var(--mond-radius-card, 16px) 0 0 !important; }'), ('  body.homepage-enterprise.homepage-refinement .hf-workflow-toggle { min-height: 44px; min-width: 170px; padding: 10px 16px; border: 1px solid #0C6E78; border-radius: 2px; background: transparent; color: #08383E; font: 600 14px/1.4 "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif; cursor: pointer; }', '  body.homepage-enterprise.homepage-refinement .hf-workflow-toggle { min-height: 44px; min-width: 170px; padding: 10px 16px; border: 1px solid #0C6E78; border-radius: var(--mond-radius-control, 7px); background: transparent; color: #08383E; font: 600 14px/1.4 "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif; cursor: pointer; }')]
+def radius_only_intent(source):
+ wanted=old['homepage-refinement.css'].decode()
+ for a,b in radius_only_edits:
+  assert wanted.count(a)==1;wanted=wanted.replace(a,b,1)
+ assert source==wanted,'Only four corners change; original sizing/type/native/motion/print CSS exact'
+radius_only_intent(hf);checks+=1
+reject(lambda:radius_only_intent(hf.replace('min-height: 48px','min-height: 20px')),'Original native target cannot weaken')
+reject(lambda:radius_only_intent(hf.replace('font-size: 52px','font-size: 90px')),'Original report scale cannot drift')
+
+for i,a,b in [(0,'var(--mond-radius-card, 16px)','2px'),(0,'var(--mond-radius-control, 7px)','2px'),(1,'.series-card, .essay-card, .research-card, .proof-card, .loop-step','.essay-card, .research-card, .proof-card, .loop-step'),(2,'--mond-radius-card:16px','--mond-radius-card:0px')]:
+ rows=[hf,enterprise,polish];rows[i]=rows[i].replace(a,b);reject(lambda rows=rows:corners(*rows),'Wrong/omitted corner token/family rejects')
+check('body.page-platform-brief .mp-platform-visual .mp-photo { width: 100%; max-width: 430px;' in photo_css and 'body.page-platform-brief .mp-platform-visual .mp-photo { display: none; }' in photo_css,'Current proportional screen and deliberate print-only exclusion')
+for f in tracked:
+ if not f.endswith('.html'):continue
+ s=read(f).decode();pattern=r'<footer\b[^>]*class="[^"]*\bmond-footer\b[^>]*>[\s\S]*?</footer>'
+ if re.findall(pattern,s):check(re.findall(pattern,s)==re.findall(pattern,old[f].decode()),'Every canonical authored footer remains exact')
+ end=s.lower().rfind('</html>')
+ if end>=0:check(not s[end+7:].strip(),'No text after document closure')
+def ordered_calls(before,now):
+ pattern=r'\b(?:assert\.(?:ok|equal|deepEqual|deepStrictEqual|match|throws|strictEqual|notEqual)|eq\(|equal\(|check\(|reject\(|ok\()';a=[l.strip() for l in before.splitlines() if re.search(pattern,l)];b=[l.strip() for l in now.splitlines() if re.search(pattern,l)];at=0
+ for l in a:
+  while at<len(b) and b[at]!=l:at+=1
+  assert at<len(b),'Original ordered assertion retained: '+l[:100];at+=1
+for f in FILES:
+ if f.endswith('_browser.mjs') or f.endswith('_smoke.mjs'):ordered_calls(old[f].decode(),read(f).decode());checks+=1
+for f in ['.github/workflows/frontend-release.yml','.github/workflows/sample-report-marketing-certification.yml']:
+ s=read(f).decode()
+ for line in old[f].decode().splitlines():
+  if re.search(r'node scripts/|python scripts/|timeout-minutes:|cancel-in-progress:',line):check(line in s,'Every original command/budget/concurrency retained')
+ check('node scripts/site_design_coherence_20261014_contract.mjs' in s and 'python scripts/site_design_coherence_20261014_contract.py' in s,'Both current source approvals mandatory')
+check(read('.github/workflows/pages-protected-deploy.yml')==old['.github/workflows/pages-protected-deploy.yml'],'Pages workflow exact')
+
+sequential_pair='          node scripts/homepage_workspace_demo_smoke.mjs\n          GOLD_ACCENT_OUT=/tmp/report-presentation-smoke/gold-accents node scripts/public_gold_accent_smoke.mjs\n'
+parallel_pair='          # The independent workspace and accent suites retain their own full commands,\n          # logs and exit statuses; both finish before this unchanged 60-minute job advances.\n          (\n          node scripts/homepage_workspace_demo_smoke.mjs\n          ) >/tmp/report-presentation-smoke/coherence-workspace.log 2>&1 &\n          coherence_workspace_pid=$!\n          (\n          GOLD_ACCENT_OUT=/tmp/report-presentation-smoke/gold-accents node scripts/public_gold_accent_smoke.mjs\n          ) >/tmp/report-presentation-smoke/coherence-gold.log 2>&1 &\n          coherence_gold_pid=$!\n          set +e\n          wait "$coherence_workspace_pid"\n          coherence_workspace_status=$?\n          wait "$coherence_gold_pid"\n          coherence_gold_status=$?\n          set -e\n          cat /tmp/report-presentation-smoke/coherence-workspace.log\n          cat /tmp/report-presentation-smoke/coherence-gold.log\n          echo "COHERENCE_PARALLEL_RESULT workspace=$coherence_workspace_status gold=$coherence_gold_status"\n          test "$coherence_workspace_status" -eq 0\n          test "$coherence_gold_status" -eq 0\n'
+def parallel_intent(source):
+ assert source.count(parallel_pair)==1 and sequential_pair not in source
+ for t in ['wait "$coherence_workspace_pid"','wait "$coherence_gold_pid"','test "$coherence_workspace_status" -eq 0','test "$coherence_gold_status" -eq 0','cat /tmp/report-presentation-smoke/coherence-workspace.log','cat /tmp/report-presentation-smoke/coherence-gold.log']:assert t in source
+certification=read('.github/workflows/sample-report-marketing-certification.yml').decode();parallel_intent(certification);checks+=1
+for t in ['wait "$coherence_workspace_pid"','wait "$coherence_gold_pid"','test "$coherence_workspace_status" -eq 0','test "$coherence_gold_status" -eq 0']:reject(lambda t=t:parallel_intent(certification.replace(t,'REMOVED')),'Missing independent wait or failure status rejects')
+if '--built' in sys.argv:
+ build=Path(os.environ['SITE_DESIGN_BUILD_ROOT']).resolve() if os.environ.get('SITE_DESIGN_BUILD_ROOT') else ROOT/'.render-public';names=sorted(str(p.relative_to(build)) for p in build.rglob('*') if p.is_file());check(names==delta['currentPublicPaths'],'Complete current unique compiled closure');check(public_before(names)==delta['baselinePublicPaths'],'Known complete public set projects');check(public_before(names+['UNKNOWN'])==names+['UNKNOWN'],'Unknown compiled addition stays visible')
+ bm={r['path']:r for r in delta['baselinePublicMap']}
+ def public_prior(f,e):
+  b=public_strict(f,(build/f).read_bytes());check(sha(b)==bm[f]['sha256'],'Authoritative deployed compiled baseline');return b
+ finite(delta['publicFiles'],lambda f:(build/f).read_bytes(),public_prior,public_strict,public_conditional)
+ for row in delta['currentPublicMap']:
+  if row['path']=='.well-known/monderman-release.json':continue
+  b=(build/row['path']).read_bytes();check(sha(b)==row['sha256'] and len(b)==row['bytes'],'Every compiled full hash/size')
+ for f in runtime:check((build/f).read_bytes()==read(f),'RAW actual source/built runtime equality')
+ for f in photo_ids:photo_intent({**docs,f:(build/f).read_text()});checks+=1
+ check(json.loads((build/'.well-known/monderman-release.json').read_bytes())['revision']==os.environ.get('RENDER_GIT_COMMIT'),'Actual build revision')
+print(json.dumps({'ok':True,'checks':checks,'negativeControls':negatives,'finiteFiles':len(FILES),'hunks':hunks,'immutableFiles':immutable,'historicalFixtures':fixtures,'pdfs':pdfs,'runtimeBytes':sum(len(read(f)) for f in runtime),'publicFiles':len(delta['currentPublicPaths']),'built':'--built' in sys.argv,'networkCalls':0,'productionWrites':0}))

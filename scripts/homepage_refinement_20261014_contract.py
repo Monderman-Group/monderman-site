@@ -1,8 +1,9 @@
 """Independent Python finite refinement/source/intent contract. No network or writes."""
 import hashlib,json,re,subprocess,sys,os
 from pathlib import Path
+from site_design_coherence_20261014_inverse import source_at_site_design_coherence_baseline,source_paths_at_site_design_coherence_baseline,public_paths_at_site_design_coherence_baseline,public_source_at_site_design_coherence_baseline
 from homepage_refinement_20261014_inverse import BASELINE,VERSION,_fixture as delta,FILES,ADDITIONS,GUARD_FILES,source_before_homepage_refinement_20261014 as strict,source_at_homepage_refinement_baseline as conditional,source_paths_at_homepage_refinement_baseline as paths_before,public_paths_at_homepage_refinement_baseline as public_before
-ROOT=Path(__file__).resolve().parents[1];read=lambda f:(ROOT/f).read_bytes();sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda *a:subprocess.check_output(['git',*a],cwd=ROOT)
+ROOT=Path(__file__).resolve().parents[1];read=lambda f:source_at_site_design_coherence_baseline(f,(ROOT/f).read_bytes());sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda *a:subprocess.check_output(['git',*a],cwd=ROOT)
 checks=negatives=hunks=immutable=fixtures=pdfs=0
 def check(v,l):
  global checks
@@ -38,6 +39,7 @@ for f in tracked:
 for f in ADDITIONS:
  b=read(f);check(sha(b)==delta['additions'][f]['sha256'] and len(b)==delta['additions'][f]['bytes'],'Full raw addition pin');check(strict(f,b)==b,'Addition never erased');reject(lambda f=f,b=b: (_ for _ in ()).throw(AssertionError()) if sha(b+b'UNKNOWN')!=delta['additions'][f]['sha256'] else None,'Unknown addition edit rejects')
 cached=git('ls-files','--cached').decode().splitlines();paths=set(cached+git('ls-files','--others','--exclude-standard').decode().splitlines());paths={p for p in paths if (ROOT/p).exists() and not(p=='node_modules' and p not in cached and (ROOT/p).is_symlink())}
+paths=set(source_paths_at_site_design_coherence_baseline(paths))
 def scope(rows):assert len(rows)==len(set(rows)) and sorted(rows)==sorted(tracked+list(ADDITIONS)+list(GUARD_FILES))
 scope(paths);checks+=1;check(paths_before(paths)==set(tracked),'Only exact known source set projects')
 for n in ['UNKNOWN.js','.env','assets/marketing/stock-original.jpg','font-package.zip','.render-public 2']:
@@ -144,8 +146,8 @@ for f in ['.github/workflows/frontend-release.yml','.github/workflows/sample-rep
  check('node scripts/homepage_refinement_20261014_contract.mjs' in current and 'python scripts/homepage_refinement_20261014_contract.py' in current,'Both new guards mandatory')
 check('node scripts/homepage_refinement_20261014_browser.mjs' in read('.github/workflows/sample-report-marketing-certification.yml').decode(),'Actual current browser mandatory')
 if '--built' in sys.argv:
- publish=ROOT/'.render-public';names=sorted(str(p.relative_to(publish)) for p in publish.rglob('*') if p.is_file());check(names==delta['currentPublicPaths'],'Full current build closure');check(public_before(names)==delta['baselinePublicPaths'],'Only exact current build projects');check(public_before(names+['UNKNOWN'])==names+['UNKNOWN'],'Unknown built name visible')
- for f in runtime:check((publish/f).read_bytes()==read(f),'RAW current source and built runtime identity')
+ publish=ROOT/'.render-public';names=public_paths_at_site_design_coherence_baseline(sorted(str(p.relative_to(publish)) for p in publish.rglob('*') if p.is_file()));check(names==delta['currentPublicPaths'],'Full current build closure');check(public_before(names)==delta['baselinePublicPaths'],'Only exact current build projects');check(public_before(names+['UNKNOWN'])==names+['UNKNOWN'],'Unknown built name visible')
+ for f in runtime:check(public_source_at_site_design_coherence_baseline(f,(publish/f).read_bytes())==read(f),'RAW current source and built runtime identity')
  check((publish/'public-search-index.json').read_bytes()==read('public-search-index.json'),'RAW current derived search source/built identity')
  check(control.strip() in (publish/'index.html').read_text() and 'homepage-refinement.js?v=20261014.1' in (publish/'index.html').read_text(),'Actual built native controls/assets')
  check(json.loads((publish/'.well-known/monderman-release.json').read_text())['revision']==os.environ.get('RENDER_GIT_COMMIT'),'Actual local/CI marker')
