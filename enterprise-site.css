@@ -529,7 +529,7 @@ body.canonical-green-shell :is(
   }
 }
 
-/* Cards become quieter, more architectural, and less app-like. */
+/* Shared card material; the screen-only rounded geometry is defined below. */
 body.canonical-green-shell :is(
   .diff-card,
   .approach-card,
@@ -1488,5 +1488,33 @@ body.canonical-green-shell .reveal {
   body.homepage-enterprise .latest-card-text {
     font-size: 11.5px !important;
     line-height: 1.34 !important;
+  }
+}
+
+/* Explicit surface families share one radius on screen. Charts, controls,
+   tables, page bands and the original printed artifacts keep their geometry. */
+@media screen {
+  body.canonical-green-shell :is(
+    .card, .panel, .diff-card, .approach-card, .paper-card, .latest-card,
+    .series-card, .essay-card, .research-card, .proof-card, .loop-step,
+    .first-run-moment, .systems-analysis-card, .mxidx-cell, .connect-choice-card,
+    .connect-panel, .side-card, .confirmation-card, .expectation-card,
+    .privacy-box, .wm-credo-item, .wm-rigor-cell, .wm-threeway-cell,
+    .wm-cta-panel, .ps-tier, .ps-roi-card, .ps-free, .ps-faq-item,
+    .mxps-card, .dx-card, .moment-card, .pl-card, .pl-why-panel,
+    .pl-why-cell, .pl-advisory-box, .instrument-card,
+    .measure-card, .scale-card, .pillar, .start-step, .layer,
+    .smv-node, .econ-block, .hero-report-page, .hrp-story-card,
+    .hrp-finding-block, .sidebar-card, .signal-card, .trench-panel,
+    .trench-figure-box, .md-tile
+  ) { border-radius: var(--mond-radius-card, 16px) !important; }
+  body.canonical-green-shell :is(.latest-card, .paper-card, .series-card) {
+    overflow: hidden;
+  }
+  body.canonical-green-shell .latest-card-image {
+    border-radius: var(--mond-radius-card, 16px) var(--mond-radius-card, 16px) 0 0;
+  }
+  body.homepage-enterprise .hrq-tile > h3 {
+    border-radius: var(--mond-radius-card, 16px) var(--mond-radius-card, 16px) 0 0;
   }
 }

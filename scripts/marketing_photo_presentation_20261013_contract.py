@@ -1,10 +1,11 @@
 """Independent Python raw-current owner photo contract; exact M reconstruction first."""
-import hashlib,json,re,subprocess,sys,os
+import hashlib,json,re,subprocess,sys,os,tempfile,atexit,shutil,importlib.util
 from pathlib import Path
+from site_design_coherence_20261014_inverse import source_at_site_design_coherence_baseline,source_paths_at_site_design_coherence_baseline,public_paths_at_site_design_coherence_baseline,public_source_at_site_design_coherence_baseline
 from homepage_refinement_20261014_inverse import source_at_homepage_refinement_baseline,source_paths_at_homepage_refinement_baseline,public_paths_at_homepage_refinement_baseline
-from marketing_photo_presentation_20261013_inverse import BASELINE,VERSION,_fixture as delta,FILES,ADDITIONS,GUARD_FILES,source_before_marketing_photo_presentation_20261013 as strict,source_at_marketing_photo_presentation_baseline as conditional,photo_names_at_marketing_photo_presentation_baseline as names_before
+from marketing_photo_presentation_20261013_inverse import BASELINE,VERSION,_fixture as delta,FILES,ADDITIONS,GUARD_FILES,source_before_marketing_photo_presentation_20261013 as current_layer_strict,source_at_marketing_photo_presentation_baseline as current_layer_conditional,photo_names_at_marketing_photo_presentation_baseline as names_before
 ROOT=Path(__file__).resolve().parents[1]
-read=lambda f:source_at_homepage_refinement_baseline(f,(ROOT/f).read_bytes())
+read=lambda f:source_at_homepage_refinement_baseline(f,source_at_site_design_coherence_baseline(f,(ROOT/f).read_bytes()))
 sha=lambda b:hashlib.sha256(b).hexdigest()
 git=lambda *a:subprocess.check_output(['git',*a],cwd=ROOT)
 checks=negative_controls=hunks=immutable=fixtures=pdfs=0
@@ -24,6 +25,26 @@ expected_files=['index.html', 'public-search-index.json', 'why-monderman.html', 
 check(list(FILES)==expected_files,'Only explicit19 product/consumer paths')
 tracked=git('ls-tree','-r','--name-only',BASELINE).decode().splitlines()
 prior=lambda f:git('show',BASELINE+':'+f)
+
+# Preserve every old inverse/negative test in complete actualM169 module bytes.
+# The new raw article intentionally equals its pre-photo historical edition.
+historical_dependency_baseline='16935688e0b4c6e177c81bdcaefb5727894d7a11'
+historical_root=Path(tempfile.mkdtemp(prefix='monderman-photo-contract-M169-'))
+atexit.register(lambda:shutil.rmtree(historical_root,ignore_errors=True))
+(historical_root/'scripts/fixtures').mkdir(parents=True)
+for f in ['scripts/homepage_refinement_20261014_inverse.py','scripts/marketing_photo_presentation_20261013_inverse.py','scripts/fixtures/homepage-refinement-20261014.json','scripts/fixtures/marketing-photo-presentation-20261013.json']:
+ b=git('show',historical_dependency_baseline+':'+f)
+ assert source_at_site_design_coherence_baseline(f,(ROOT/f).read_bytes())==b,'Historical dependency complete actualM169 bytes'
+ p=historical_root/f;p.write_bytes(b);p.chmod(0o600)
+hf_name='homepage_refinement_20261014_inverse';saved_hf=sys.modules.get(hf_name)
+try:
+ spec=importlib.util.spec_from_file_location(hf_name,historical_root/'scripts/homepage_refinement_20261014_inverse.py');legacy_hf=importlib.util.module_from_spec(spec);sys.modules[hf_name]=legacy_hf;spec.loader.exec_module(legacy_hf)
+ spec=importlib.util.spec_from_file_location('_historical_photo_M169',historical_root/'scripts/marketing_photo_presentation_20261013_inverse.py');legacy_photo=importlib.util.module_from_spec(spec);spec.loader.exec_module(legacy_photo)
+finally:
+ if saved_hf is None:sys.modules.pop(hf_name,None)
+ else:sys.modules[hf_name]=saved_hf
+strict=legacy_photo.source_before_marketing_photo_presentation_20261013
+conditional=legacy_photo.source_at_marketing_photo_presentation_baseline
 for file in FILES:
  current=read(file);old=prior(file);entry=delta['files'][file]
  check(sha(old)==entry['before_sha256'] and sha(current)==entry['after_sha256'],'Complete before/after source identity')
@@ -228,6 +249,6 @@ if '--built' in sys.argv:
  check(actual==delta['publicInventory'],'Complete actualcanonicalbuildclosure no duplicates/privatefiles')
  for d in derivatives:check((publish/d['path']).read_bytes()==read(d['path']),'Actualbuiltphotographicbytes')
  check(json.loads((publish/'.well-known/monderman-release.json').read_bytes())['revision']==os.environ.get('RENDER_GIT_COMMIT'),'Actualbuildidentity')
- for file in page_ids:photo_documents({**docs,file:(publish/file).read_text()});checks+=1
- for file in presentation_files:check((publish/file).read_bytes()==read(file),'Actualsixruntimebodyidentities')
-print(json.dumps({'ok':True,'checks':checks,'negativeControls':negative_controls,'finiteFiles':len(FILES),'hunks':hunks,'immutableFiles':immutable,'historicalFixtures':fixtures,'pdfs':pdfs,'homepagePhotos':2,'sitePhotos':5,'photoAssets':20,'historicalCompletionFixtureUnchanged':True,'built':'--built' in sys.argv,'networkCalls':0,'productionWrites':0}))
+ for file in page_ids:photo_documents({**docs,file:public_source_at_site_design_coherence_baseline(file,(publish/file).read_text())});checks+=1
+ for file in presentation_files:check(public_source_at_site_design_coherence_baseline(file,(publish/file).read_bytes())==read(file),'Actualsixruntimebodyidentities')
+print(json.dumps({'ok':True,'checks':checks,'negativeControls':negative_controls,'finiteFiles':len(FILES),'hunks':hunks,'immutableFiles':immutable,'historicalFixtures':fixtures,'pdfs':pdfs,'homepagePhotos':2,'sitePhotos':5,'photoAssets':20,'historicalCompletionFixtureUnchanged':True,'historicalDependencyBaseline':historical_dependency_baseline,'built':'--built' in sys.argv,'networkCalls':0,'productionWrites':0}))

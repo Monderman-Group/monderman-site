@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
+import {sourceAtSiteDesignCoherenceBaseline,sourcePathsAtSiteDesignCoherenceBaseline,publicPathsAtSiteDesignCoherenceBaseline,publicSourceAtSiteDesignCoherenceBaseline} from './site_design_coherence_20261014_inverse.mjs';
 const sha=value=>createHash('sha256').update(value).digest('hex');
 export const HOMEPAGE_REFINEMENT_BASELINE='94cabdfe6fdd6b15e13ed15af2f6f2398e806fa9';
 export const HOMEPAGE_REFINEMENT_VERSION='homepage-refinement-20261014.1';
@@ -18,6 +19,7 @@ export const HOMEPAGE_REFINEMENT_ADDITIONS=Object.freeze(Object.keys(homepageRef
 export const HOMEPAGE_REFINEMENT_GUARD_FILES=Object.freeze([...homepageRefinementDelta.guardFiles]);
 const entryFor=file=>typeof file==='string'&&Object.hasOwn(homepageRefinementDelta.files,file)?homepageRefinementDelta.files[file]:null;
 export function sourceBeforeHomepageRefinement20261014(file,source){
+ source=sourceAtSiteDesignCoherenceBaseline(file,source);
  const entry=entryFor(file);if(!entry)return source;
  assert.ok(typeof source==='string'||Buffer.isBuffer(source),'Exact source type');
  assert.equal(sha(source),entry.after_sha256,file+': only exact complete approved bytes');
@@ -30,23 +32,27 @@ export function sourceBeforeHomepageRefinement20261014(file,source){
  return Buffer.isBuffer(source)?Buffer.from(restored):restored;
 }
 export function sourceAtHomepageRefinementBaseline(file,source){
+ source=sourceAtSiteDesignCoherenceBaseline(file,source);
  const entry=entryFor(file);if(!entry)return source;
  assert.ok(typeof source==='string'||Buffer.isBuffer(source),'Exact source type');
  return sha(source)===entry.after_sha256?sourceBeforeHomepageRefinement20261014(file,source):source;
 }
 const root=path.resolve(import.meta.dirname,'..');
 function exactNames(names,current){return names.length===new Set(names).size&&JSON.stringify([...names].sort())===JSON.stringify([...current].sort());}
-function additionsExact(){return HOMEPAGE_REFINEMENT_ADDITIONS.every(file=>{const p=path.join(root,file);if(!fs.existsSync(p)||!fs.statSync(p).isFile())return false;const b=fs.readFileSync(p),e=homepageRefinementDelta.additions[file];return sha(b)===e.sha256&&b.length===e.bytes;});}
+function additionsExact(){return HOMEPAGE_REFINEMENT_ADDITIONS.every(file=>{const p=path.join(root,file);if(!fs.existsSync(p)||!fs.statSync(p).isFile())return false;const b=sourceAtSiteDesignCoherenceBaseline(file,fs.readFileSync(p)),e=homepageRefinementDelta.additions[file];return sha(b)===e.sha256&&b.length===e.bytes;});}
 export function sourcePathsAtHomepageRefinementBaseline(names){
+ names=sourcePathsAtSiteDesignCoherenceBaseline(names);
  assert.ok(Array.isArray(names)&&names.every(n=>typeof n==='string'),'Explicit source path list');
  return homepageRefinementDelta.provisional===false&&exactNames(names,homepageRefinementDelta.currentSourcePaths)&&additionsExact()?[...homepageRefinementDelta.baselineSourcePaths]:names;
 }
 export function publicPathsAtHomepageRefinementBaseline(names){
+ names=publicPathsAtSiteDesignCoherenceBaseline(names);
  assert.ok(Array.isArray(names)&&names.every(n=>typeof n==='string'),'Explicit compiled path list');
  return homepageRefinementDelta.provisional===false&&exactNames(names,homepageRefinementDelta.currentPublicPaths)&&additionsExact()?[...homepageRefinementDelta.baselinePublicPaths]:names;
 }
 
 export function isCurrentHomepageRefinementSource(source){
+ source=sourceAtSiteDesignCoherenceBaseline('index.html',source);
  const entry=entryFor('index.html');
  return homepageRefinementDelta.provisional===false&&!!entry&&(typeof source==='string'||Buffer.isBuffer(source))&&sha(source)===entry.after_sha256&&additionsExact();
 }

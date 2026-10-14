@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
+import {isCurrentSiteDesignCoherence,historicalSiteDesignBrowserBodies,sourceAtSiteDesignCoherenceBaseline} from './site_design_coherence_20261014_inverse.mjs';
 const {chromium, webkit} = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = path.resolve(import.meta.dirname, '..');
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
@@ -17,7 +18,7 @@ const routes = [
   {page: 'platform-services.html', ids: ['541113838'], selector: '[data-site-photo]', copySelector: '.mp-editorial-copy .ps-h2', copy: ['Software support is included. Expert interpretation is separate.']},
   {page: 'operational-systems-article.html', ids: ['488892667'], selector: '[data-site-photo]', copySelector: '.mp-editorial-copy > p:first-child', copy: ['Operational Systems examines unnecessary process work: repeated data entry, reporting, coordination, and the steps people use to complete routine activities.']},
 ];
-const sourceFiles = [...routes.map(route => route.page), 'marketing-photo-presentation.css', 'marketing-photo-presentation.js', 'marketing-refresh.css', 'marketing-refresh.js', 'marketing-completion.css', 'marketing-completion.js', 'docs/marketing-photo-register-20261013.json', 'scripts/marketing_photo_presentation_20261013_browser.mjs'];
+const sourceFiles = [...routes.map(route => route.page), ...(isCurrentSiteDesignCoherence()?['Monderman_Platform_Brief.html']:[]), 'marketing-photo-presentation.css', 'marketing-photo-presentation.js', 'marketing-refresh.css', 'marketing-refresh.js', 'marketing-completion.css', 'marketing-completion.js', 'docs/marketing-photo-register-20261013.json', 'scripts/marketing_photo_presentation_20261013_browser.mjs'];
 const sourceHashes = Object.fromEntries(sourceFiles.map(file => [file, hash(fs.readFileSync(path.join(root, file)))]));
 const publicRoot = fs.existsSync(path.join(root, '.render-public', 'index.html')) ? path.join(root, '.render-public') : root;
 function publicFiles(directory, prefix = '') {
@@ -27,6 +28,7 @@ function publicFiles(directory, prefix = '') {
     return entry.isFile() ? [relative] : [];
   });
 }
+const designHistoricalBodies = historicalSiteDesignBrowserBodies(publicRoot);
 const publicInventory = publicFiles(publicRoot);
 const staticPaths = new Set(publicInventory.map(file => new URL('/' + file, base).pathname));
 const staticQueries = new Map();
@@ -40,7 +42,7 @@ for (const file of publicInventory.filter(file => /\.(?:html|css|js)$/.test(file
     const allowed = staticQueries.get(url.pathname) || new Set(); allowed.add(url.search); staticQueries.set(url.pathname, allowed);
   }
 }
-const register = JSON.parse(fs.readFileSync(path.join(root, 'docs/marketing-photo-register-20261013.json'), 'utf8'));
+const register = JSON.parse(sourceAtSiteDesignCoherenceBaseline('docs/marketing-photo-register-20261013.json',fs.readFileSync(path.join(root, 'docs/marketing-photo-register-20261013.json'), 'utf8')));
 assert.equal(register.schemaVersion, 2, 'Current five-photo register edition');
 assert.deepEqual([...register.approvedAssetPool].sort(), routes.flatMap(route => route.ids).sort(), 'Five exact owner-approved stock identities');
 assert.equal(register.photos.length, 5, 'Five registered photographs, no unapproved additions');
@@ -52,7 +54,7 @@ for (const [pathname, record] of derivatives) {
   assert.equal(hash(bytes), record.sha256, pathname + ': exact registered asset hash');
 }
 const servedHashes = {};
-for (const file of [...routes.map(route => route.page), 'marketing-photo-presentation.css', 'marketing-photo-presentation.js']) {
+for (const file of [...routes.map(route => route.page), ...(isCurrentSiteDesignCoherence()?['Monderman_Platform_Brief.html']:[]), 'marketing-photo-presentation.css', 'marketing-photo-presentation.js']) {
   const response = await fetch(base + '/' + file, {signal: AbortSignal.timeout(15000)});
   assert.equal(response.status, 200, file + ': actual local public resource');
   const actual = Buffer.from(await response.arrayBuffer()), expected = fs.readFileSync(path.join(publicRoot, file));
@@ -60,15 +62,19 @@ for (const file of [...routes.map(route => route.page), 'marketing-photo-present
   if (!file.endsWith('.html')) assert.equal(hash(actual), sourceHashes[file], file + ': built runtime matches source');
   servedHashes[file] = {sha256: hash(actual), bytes: actual.length};
 }
+const actualCurrentServedHashes=structuredClone(servedHashes);
+for(const [pathname,body]of designHistoricalBodies)if(servedHashes[pathname.slice(1)])servedHashes[pathname.slice(1)]={sha256:hash(body),bytes:body.length};
+const historicalServedHashes=servedHashes;
 const sdkURL = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0';
 const sdk = process.env.PUBLIC_SDK_FILE ? fs.readFileSync(process.env.PUBLIC_SDK_FILE) : Buffer.from(await (await fetch(sdkURL, {signal: AbortSignal.timeout(15000)})).arrayBuffer());
 assert.equal(createHash('sha384').update(sdk).digest('base64'), 'fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti', 'Genuine static SDK has the existing exact SRI; no auth stub');
 let checks = 0, negativeControls = 0;
 const check = (condition, label) => { checks++; assert.ok(condition, label); };
 const equal = (actual, expected, label) => { checks++; assert.deepEqual(actual, expected, label); };
-const receipts = [], failures = [];
+const receipts = [], failures = [], actualCurrentReceipts = [];
 
 async function setup(type, options, route) {
+  const servedHashes=options.actualCurrent?actualCurrentServedHashes:historicalServedHashes;
   const context = await type.newContext({viewport: options.viewport, deviceScaleFactor: options.dpr || 1, javaScriptEnabled: options.scripts !== false, reducedMotion: options.reduced ? 'reduce' : 'no-preference', serviceWorkers: 'block'});
   const page = await context.newPage(), forbidden = [], external = [], errors = [], assetRows = [], assetFailures = [], assetTasks = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -105,6 +111,7 @@ async function setup(type, options, route) {
     if (options.failStyles && url.pathname === '/marketing-photo-presentation.css') return interception.abort();
     if (options.failScript && url.pathname === '/marketing-photo-presentation.js') return interception.abort();
     if (options.failPhotos && derivatives.has(url.pathname)) return interception.abort();
+    if (!options.actualCurrent && designHistoricalBodies.has(url.pathname)) return interception.fulfill({status:200,contentType:url.pathname.endsWith('.html')?'text/html':url.pathname.endsWith('.css')?'text/css':url.pathname.endsWith('.json')?'application/json':'application/javascript',body:designHistoricalBodies.get(url.pathname)});
     return interception.continue();
   });
   const response = await page.goto(base + '/' + route.page, {waitUntil: 'load'});
@@ -162,6 +169,41 @@ function negativeGeometryProof(snapshot, expected, options) {
   ]) {
     const invalid = structuredClone(snapshot); mutate(invalid); negativeControls++;
     assert.throws(() => assertPhoto(invalid, expected, options, 'controlled invalid photographic snapshot'), undefined, 'Actual validation rejects incorrect identity/caption/geometry/crop/visibility/resource proof');
+  }
+}
+
+// The unchanged authored16in×9in print sheet is1536×864 CSS pixels.
+function assertPlatformPrintCanvas(snapshot) {
+  assert.deepEqual(snapshot.viewport, {width: 1536, height: 864}, 'Exact original print canvas');
+  assert.equal(snapshot.slides.length, 12, 'Every original print slide remains');
+  assert.equal(new Set(snapshot.slides.map(row => row.id)).size, 12, 'Every printed slide has its original unique identity');
+  const inside = (outer, inner) => inner[0] >= outer[0] - .5 && inner[1] >= outer[1] - .5 && inner[2] <= outer[2] + .5 && inner[3] <= outer[3] + .5;
+  for (const row of snapshot.slides) {
+    assert.ok([...row.box, ...row.inner, row.width, row.height, row.scrollWidth, row.clientWidth, row.scrollHeight, row.clientHeight].every(Number.isFinite), 'Printed dimensions and content geometry are finite');
+    assert.ok(Math.abs(row.width - 1536) <= .5 && Math.abs(row.height - 864) <= .5, 'Every full original16in×9in slide has exact physical dimensions');
+    assert.ok(row.scrollWidth <= row.clientWidth + 1 && row.scrollHeight <= row.clientHeight + 1, 'No printed slide content overflows its full page');
+    assert.ok(inside(row.box, row.inner), 'Every original slide inner content stays within its full print page');
+    for (const layer of row.layers) {
+      assert.ok(layer.visible && layer.box.every(Number.isFinite) && inside(row.box, layer.box), 'Every original printed platform layer remains visible and contained');
+    }
+  }
+}
+function collectPlatformPrintCanvas() {
+  const box = e => {const r = e.getBoundingClientRect(); return [r.left, r.top, r.right, r.bottom];};
+  return {viewport: {width: innerWidth, height: innerHeight}, slides: [...document.querySelectorAll('.deck > .slide')].map(e => ({id: e.id, box: box(e), width: e.getBoundingClientRect().width, height: e.getBoundingClientRect().height, scrollWidth: e.scrollWidth, clientWidth: e.clientWidth, scrollHeight: e.scrollHeight, clientHeight: e.clientHeight, inner: box(e.querySelector('.slide-inner')), layers: [...e.querySelectorAll('.layer-stack .layer')].map(layer => ({visible: layer.checkVisibility(), box: box(layer)}))}))};
+}
+function negativePrintCanvasProof(snapshot) {
+  for (const mutate of [
+    row => row.viewport.width = 1440, row => row.slides.pop(),
+    row => row.slides[0].box[0] = NaN, row => row.slides[0].width = 1534,
+    row => row.slides[0].height = 862, row => row.slides[0].inner[2] = row.slides[0].box[2] + 2,
+    row => row.slides[0].scrollWidth = row.slides[0].clientWidth + 2,
+    row => row.slides[0].scrollHeight = row.slides[0].clientHeight + 2,
+    row => row.slides.find(slide => slide.layers.length).layers[0].visible = false,
+    row => row.slides[1].id = row.slides[0].id,
+  ]) {
+    const invalid = structuredClone(snapshot); mutate(invalid); negativeControls++;
+    assert.throws(() => assertPlatformPrintCanvas(invalid), undefined, 'Actual print validation rejects wrong canvas, missing/duplicate slides, nonfinite/undersized page, clipped content or hidden layer');
   }
 }
 
@@ -298,12 +340,62 @@ try {
           throw error;
         } finally { await context.close(); }
       }
+
+      // Only the relocated current photo is additional. Every original96 historical
+      // engine/state case above remains literal and executable on exactM169 bytes.
+      if (isCurrentSiteDesignCoherence()) for(const options of [
+        {name:'actual-390',viewport:{width:390,height:844}},
+        {name:'actual-1440',viewport:{width:1440,height:1000}},
+        {name:'actual-reduced',viewport:{width:390,height:844},reduced:true},
+        {name:'actual-no-scripts',viewport:{width:390,height:844},scripts:false},
+        {name:'actual-print',viewport:{width:1536,height:864},print:true},
+      ]) {
+        const route={page:'Monderman_Platform_Brief.html',ids:['488892667'],selector:'[data-site-photo]'},label=engine+'/'+route.page+'/'+options.name;
+        const state=await setup(browser,{...options,actualCurrent:true},route),{page,context}=state;
+        try{
+          let printCanvas;
+          const figure=page.locator('#slide-2 .mp-platform-visual [data-site-photo]');
+          equal(await figure.count(),1,label+': one actual overhead photograph in Explore the platform');
+          equal(await page.locator('[data-site-photo] img').getAttribute('data-stock-id'),'488892667',label+': exact approved moved image');
+          equal(await page.locator('figcaption').count(),0,label+': no Models caption');
+          equal(await page.locator('#slide-2 .layer-stack .layer').count(),3,label+': every original platform layer remains');
+          if(!options.print){
+            const layers=await page.locator('#slide-2 .layer-stack .layer').evaluateAll(xs=>xs.map(e=>{const b=e.getBoundingClientRect(),a=e.querySelector('strong').getBoundingClientRect(),d=e.querySelector('span').getBoundingClientRect();return{box:[b.left,b.top,b.right,b.bottom],label:[a.left,a.top,a.right,a.bottom],description:[d.left,d.top,d.right,d.bottom]};}));
+            for(const row of layers){check([...row.box,...row.label,...row.description].every(Number.isFinite),label+': layer text geometry finite');check(row.label[0]>=row.box[0]-1&&row.label[2]<=row.box[2]+1&&row.description[0]>=row.box[0]-1&&row.description[2]<=row.box[2]+1&&row.label[1]>=row.box[1]-1&&row.description[3]<=row.box[3]+1,label+': full layer labels and descriptions contained');check(row.label[2]<=row.description[0]-4||row.description[2]<=row.label[0]-4||row.label[3]<=row.description[1]-4||row.description[3]<=row.label[1]-4,label+': label and description do not touch or overlap');}
+          }
+
+          if(options.print){
+            check(await figure.isHidden(),label+': deliberate new photo is screen-only');
+            equal(await page.locator('#slide-2 .layer-stack .layer').evaluateAll(xs=>xs.filter(x=>x.checkVisibility()).length),3,label+': original printed platform diagram remains complete');
+            printCanvas = await page.evaluate(collectPlatformPrintCanvas);
+            assertPlatformPrintCanvas(printCanvas);checks++;
+            negativePrintCanvasProof(printCanvas);
+          }else{
+            await figure.evaluate(e=>e.scrollIntoView({block:'center',behavior:'instant'}));
+            await page.waitForFunction(()=>{const i=document.querySelector('#slide-2 [data-site-photo] img');return i.complete&&i.naturalWidth>0&&!!i.currentSrc;},null,{timeout:10000});
+            await figure.locator('img').evaluate(i=>i.decode());await settleFigure(page,figure,label);await Promise.all(state.assetTasks);
+            const geometry=await figure.evaluate(e=>{const i=e.querySelector('img'),p=e.querySelector('picture'),r=i.getBoundingClientRect(),b=p.getBoundingClientRect(),c=getComputedStyle(i);return{src:i.currentSrc,fit:c.objectFit,width:r.width,height:r.height,pictureWidth:b.width,pictureHeight:b.height,radius:parseFloat(getComputedStyle(p).borderTopLeftRadius),alt:i.alt,dpr:devicePixelRatio};});
+            const resource=derivatives.get(new URL(geometry.src).pathname);
+            check(resource?.stockId==='488892667',label+': selected derivative belongs to the exact approved image');
+            check(state.assetRows.some(r=>r.path===new URL(geometry.src).pathname&&r.sha256===resource.sha256&&r.bytes===resource.bytes),label+': actual selected derivative response bytes verified');
+            equal(geometry.fit,'contain',label+': no crop');check(geometry.width>0&&geometry.height>0&&geometry.radius>=18,label+': positive rounded visible frame');
+            check(Math.abs(geometry.width/geometry.height-1600/1195)<.005&&Math.abs(geometry.pictureWidth-geometry.width)<=1&&Math.abs(geometry.pictureHeight-geometry.height)<=1,label+': complete reserved proportional composition');
+            check(resource.width+1>=Math.min(1600,geometry.width*geometry.dpr),label+': physical source pixels cover painted width');check(geometry.alt.trim(),label+': descriptive neutral alternative');
+            if(options.reduced||options.scripts===false)equal((await page.evaluate(()=>window.__photoPresentationAnimations||[])).filter(a=>a.photo),[],label+': current relocated photo has static reduced/noJS fallback');
+          }
+          check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),label+': current brief has no overflow');
+          equal(state.forbidden,[],label+': no API/auth/write/socket');equal(state.external,[],label+': no external transport');equal(state.errors,[],label+': no page errors');equal(state.assetFailures,[],label+': no asset verification failure');equal(await page.evaluate(()=>window.__photoPresentationUnsafe||[]),[],label+': no forms');
+          const file=engine+'-'+options.name+'-current-platform.png';await page.screenshot({path:path.join(out,file)});actualCurrentReceipts.push({label,options,printCanvas,assetRows:state.assetRows,screenshot:file,performedWrites:0});
+        }catch(error){const screenshot=label.replaceAll('/','-')+'-FAIL.png';await page.screenshot({path:path.join(out,screenshot)}).catch(()=>{});failures.push({label,error:error.stack,screenshot,forbidden:state.forbidden,external:state.external,pageErrors:state.errors});throw error;}finally{await context.close();}
+      }
+
     } finally { await browser.close(); }
   }
   equal(receipts.length, 96, 'Complete bounded matrix: four routes, twelve states, two engines');
+  if(isCurrentSiteDesignCoherence())equal(actualCurrentReceipts.length,10,'Current relocated photo: five bounded cases in both original engines');
   equal(Object.fromEntries(sourceFiles.map(file => [file, hash(fs.readFileSync(path.join(root, file)))])), sourceHashes, 'All product and browser proof inputs stayed immutable during execution');
   console.log('MARKETING_PHOTO_PRESENTATION_BROWSER_PASS ' + JSON.stringify({checks,states: receipts.length,negativeControls,photoIdentities: 5,routes: 4,performedWrites: 0,out}));
 } finally {
   const screenshotEvidence = fs.readdirSync(out).filter(file => file.endsWith('.png')).map(file => { const bytes = fs.readFileSync(path.join(out, file)); return {file,sha256: hash(bytes),bytes: bytes.length}; });
-  fs.writeFileSync(path.join(out, 'RECEIPT.json'), JSON.stringify({checkedAt: new Date().toISOString(),passed: failures.length === 0 && receipts.length === 96,checks,negativeControls,states: receipts.length,sourceHashes,servedHashes,sdkSha256: hash(sdk),staticPathCount: staticPaths.size,staticQueryAllowlist: Object.fromEntries([...staticQueries].map(([pathname, queries]) => [pathname, [...queries]])),scope: 'Loopback current five-photo presentation only. Print media checks retain complete photo content; existing official pagination tests remain separate. No historical-source skip.',receipts,failures,screenshotEvidence}, null, 2) + '\n');
+  fs.writeFileSync(path.join(out, 'RECEIPT.json'), JSON.stringify({checkedAt: new Date().toISOString(),passed: failures.length === 0 && receipts.length === 96 && (!isCurrentSiteDesignCoherence() || actualCurrentReceipts.length===10),checks,negativeControls,states: receipts.length,sourceHashes,servedHashes,actualCurrentServedHashes,actualCurrentReceipts,sdkSha256: hash(sdk),staticPathCount: staticPaths.size,staticQueryAllowlist: Object.fromEntries([...staticQueries].map(([pathname, queries]) => [pathname, [...queries]])),renderedEdition: designHistoricalBodies.size ? 'ACTUAL_M169_HISTORICAL_PRESERVED' : 'UNCHANGED_PRIOR_SOURCE', historicalCompiledPaths: [...designHistoricalBodies.keys()], scope: 'Loopback exact historical five-photo presentation; actual relocated photo and corner mapping independently tested in the current mobile traversal. Print media checks retain complete photo content; existing official pagination tests remain separate. No historical-source skip.',receipts,failures,screenshotEvidence}, null, 2) + '\n');
 }

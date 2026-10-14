@@ -1,6 +1,7 @@
 """Finite homepage refinement leaf; unknown edits and extra files remain visible."""
 import hashlib,json
 from pathlib import Path
+from site_design_coherence_20261014_inverse import source_at_site_design_coherence_baseline,source_paths_at_site_design_coherence_baseline,public_paths_at_site_design_coherence_baseline,public_source_at_site_design_coherence_baseline
 BASELINE='94cabdfe6fdd6b15e13ed15af2f6f2398e806fa9'
 VERSION='homepage-refinement-20261014.1'
 FIXTURE_SHA256='bd2af72d1ad9363cea3d7091d265fc1ece4ab4cbbbc8a477fa4a88ad31ecbf2c'
@@ -11,6 +12,7 @@ _fixture=json.loads(_bytes)
 assert _fixture['baseline']==BASELINE and _fixture['baselineTree']=='ec0da7e2fd54467f10e78093229931ea26f9ffb1' and _fixture['version']==VERSION
 FILES=tuple(_fixture['files']);ADDITIONS=tuple(_fixture['additions']);GUARD_FILES=tuple(_fixture['guardFiles'])
 def source_before_homepage_refinement_20261014(file,source):
+ source=source_at_site_design_coherence_baseline(file,source)
  entry=_fixture['files'].get(file) if isinstance(file,str) else None
  if entry is None:return source
  assert isinstance(source,(str,bytes))
@@ -25,6 +27,7 @@ def source_before_homepage_refinement_20261014(file,source):
  return result.decode('utf8') if isinstance(source,str) else result
 
 def source_at_homepage_refinement_baseline(file,source):
+ source=source_at_site_design_coherence_baseline(file,source)
  entry=_fixture['files'].get(file) if isinstance(file,str) else None
  if entry is None:return source
  assert isinstance(source,(str,bytes))
@@ -35,7 +38,7 @@ def _additions_exact():
  for file,entry in _fixture['additions'].items():
   p=ROOT/file
   if not p.is_file():return False
-  b=p.read_bytes()
+  b=source_at_site_design_coherence_baseline(file,p.read_bytes())
   if hashlib.sha256(b).hexdigest()!=entry['sha256'] or len(b)!=entry['bytes']:return False
  return True
 
@@ -47,7 +50,7 @@ def _names_at_baseline(names,current,prior):
  return names
 
 def source_paths_at_homepage_refinement_baseline(names):
- return _names_at_baseline(names,_fixture['currentSourcePaths'],_fixture['baselineSourcePaths'])
+ return _names_at_baseline(source_paths_at_site_design_coherence_baseline(names),_fixture['currentSourcePaths'],_fixture['baselineSourcePaths'])
 
 def public_paths_at_homepage_refinement_baseline(names):
- return _names_at_baseline(names,_fixture['currentPublicPaths'],_fixture['baselinePublicPaths'])
+ return _names_at_baseline(public_paths_at_site_design_coherence_baseline(names),_fixture['currentPublicPaths'],_fixture['baselinePublicPaths'])
