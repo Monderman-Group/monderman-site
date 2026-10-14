@@ -861,6 +861,45 @@ jobs:
         run: |
           node scripts/hold_collide_browser_smoke.mjs
           node scripts/durable_organization_browser_smoke.mjs
+          # Preserve the exact36 completed research screenshots outside the frozen source tree.
+          python - <<'PY_RESEARCH_ARTIFACTS'
+          from pathlib import Path
+          import hashlib, json, shutil
+          
+          RESEARCH_SCREENSHOT_NAMES = {'hold-collide-browser': ['chromium-390-hero.png', 'chromium-390-figure.png', 'chromium-390-research.png', 'chromium-390-carousel.png', 'chromium-820-hero.png', 'chromium-820-figure.png', 'chromium-820-research.png', 'chromium-820-carousel.png', 'chromium-1440-hero.png', 'chromium-1440-figure.png', 'chromium-1440-research.png', 'chromium-1440-carousel.png', 'webkit-390-hero.png', 'webkit-390-figure.png', 'webkit-390-research.png', 'webkit-390-carousel.png', 'webkit-820-hero.png', 'webkit-820-figure.png', 'webkit-820-research.png', 'webkit-820-carousel.png', 'webkit-1440-hero.png', 'webkit-1440-figure.png', 'webkit-1440-research.png', 'webkit-1440-carousel.png'], 'durable-organization-browser': ['chromium-390-hero.png', 'chromium-390-figure.png', 'chromium-820-hero.png', 'chromium-820-figure.png', 'chromium-1440-hero.png', 'chromium-1440-figure.png', 'webkit-390-hero.png', 'webkit-390-figure.png', 'webkit-820-hero.png', 'webkit-820-figure.png', 'webkit-1440-hero.png', 'webkit-1440-figure.png']}
+          PNG_SIGNATURE = b'\x89PNG\r\n\x1a\n'
+          
+          def relocate_research_artifacts(source_root, destination_root):
+              assert source_root.is_dir() and not source_root.is_symlink(), 'Original QA output root must be a real directory'
+              assert {p.name for p in source_root.iterdir()} == set(RESEARCH_SCREENSHOT_NAMES), 'Only the two completed research QA directories may exist'
+              assert not destination_root.exists() and not destination_root.is_symlink(), 'Never overwrite an existing artifact destination'
+              assert destination_root.parent.is_dir() and not destination_root.parent.is_symlink(), 'Existing report artifact parent must be a real directory'
+              manifest = []
+              for folder, expected in RESEARCH_SCREENSHOT_NAMES.items():
+                  directory = source_root / folder
+                  assert directory.is_dir() and not directory.is_symlink(), 'Research QA directory must be real'
+                  assert {p.name for p in directory.iterdir()} == set(expected), 'Every exact authored screenshot and no unexpected file must exist'
+                  for name in expected:
+                      image = directory / name
+                      assert image.is_file() and not image.is_symlink(), 'Only regular authored PNG files may move'
+                      data = image.read_bytes()
+                      assert len(data) > 32 and data.startswith(PNG_SIGNATURE) and data[12:16] == b'IHDR', 'Every moved artifact must be a PNG image'
+                      manifest.append({'path': folder + '/' + name, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
+              assert len(manifest) == 36 and len({row['path'] for row in manifest}) == 36, 'Exact36 authored screenshots required'
+              destination_root.mkdir()
+              for folder in RESEARCH_SCREENSHOT_NAMES:
+                  shutil.move(str(source_root / folder), str(destination_root / folder))
+              for row in manifest:
+                  image = destination_root / row['path']
+                  assert image.is_file() and not image.is_symlink(), 'Moved PNG remains a regular file'
+                  data = image.read_bytes()
+                  assert len(data) == row['bytes'] and hashlib.sha256(data).hexdigest() == row['sha256'], 'Every screenshot byte and SHA256 must survive relocation'
+              source_root.rmdir()
+              return manifest
+          
+          manifest = relocate_research_artifacts(Path.cwd() / 'tmp', Path('/tmp/report-presentation-smoke/research-publication-screenshots'))
+          print('COHERENCE_RESEARCH_ARTIFACT_RELOCATION_PASS ' + json.dumps({'files': 36, 'rows': manifest}))
+          PY_RESEARCH_ARTIFACTS
 
       - name: Verify the product walkthrough and Workspace states
         env:

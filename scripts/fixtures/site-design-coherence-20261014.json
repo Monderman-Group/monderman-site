@@ -3540,9 +3540,9 @@
     },
     ".github/workflows/sample-report-marketing-certification.yml": {
       "before_sha256": "0861c38a75c150904dbf5f3c909f7e5df858d53949dd558650090bff8d66f130",
-      "after_sha256": "51481ab9dc8066e16f8745568cc7d375ee9d52535f66388a4e20983087579b68",
+      "after_sha256": "b80084f729a246567ab07e1adcbcf8e4ddf34b4b8b244f74260e000e83c93a21",
       "before_bytes": 48013,
-      "after_bytes": 49538,
+      "after_bytes": 53551,
       "replacements": [
         [
           2033,
@@ -3587,32 +3587,38 @@
           ""
         ],
         [
-          43726,
-          43941,
+          43002,
+          47015,
+          "          # Preserve the exact36 completed research screenshots outside the frozen source tree.\n          python - <<'PY_RESEARCH_ARTIFACTS'\n          from pathlib import Path\n          import hashlib, json, shutil\n          \n          RESEARCH_SCREENSHOT_NAMES = {'hold-collide-browser': ['chromium-390-hero.png', 'chromium-390-figure.png', 'chromium-390-research.png', 'chromium-390-carousel.png', 'chromium-820-hero.png', 'chromium-820-figure.png', 'chromium-820-research.png', 'chromium-820-carousel.png', 'chromium-1440-hero.png', 'chromium-1440-figure.png', 'chromium-1440-research.png', 'chromium-1440-carousel.png', 'webkit-390-hero.png', 'webkit-390-figure.png', 'webkit-390-research.png', 'webkit-390-carousel.png', 'webkit-820-hero.png', 'webkit-820-figure.png', 'webkit-820-research.png', 'webkit-820-carousel.png', 'webkit-1440-hero.png', 'webkit-1440-figure.png', 'webkit-1440-research.png', 'webkit-1440-carousel.png'], 'durable-organization-browser': ['chromium-390-hero.png', 'chromium-390-figure.png', 'chromium-820-hero.png', 'chromium-820-figure.png', 'chromium-1440-hero.png', 'chromium-1440-figure.png', 'webkit-390-hero.png', 'webkit-390-figure.png', 'webkit-820-hero.png', 'webkit-820-figure.png', 'webkit-1440-hero.png', 'webkit-1440-figure.png']}\n          PNG_SIGNATURE = b'\\x89PNG\\r\\n\\x1a\\n'\n          \n          def relocate_research_artifacts(source_root, destination_root):\n              assert source_root.is_dir() and not source_root.is_symlink(), 'Original QA output root must be a real directory'\n              assert {p.name for p in source_root.iterdir()} == set(RESEARCH_SCREENSHOT_NAMES), 'Only the two completed research QA directories may exist'\n              assert not destination_root.exists() and not destination_root.is_symlink(), 'Never overwrite an existing artifact destination'\n              assert destination_root.parent.is_dir() and not destination_root.parent.is_symlink(), 'Existing report artifact parent must be a real directory'\n              manifest = []\n              for folder, expected in RESEARCH_SCREENSHOT_NAMES.items():\n                  directory = source_root / folder\n                  assert directory.is_dir() and not directory.is_symlink(), 'Research QA directory must be real'\n                  assert {p.name for p in directory.iterdir()} == set(expected), 'Every exact authored screenshot and no unexpected file must exist'\n                  for name in expected:\n                      image = directory / name\n                      assert image.is_file() and not image.is_symlink(), 'Only regular authored PNG files may move'\n                      data = image.read_bytes()\n                      assert len(data) > 32 and data.startswith(PNG_SIGNATURE) and data[12:16] == b'IHDR', 'Every moved artifact must be a PNG image'\n                      manifest.append({'path': folder + '/' + name, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})\n              assert len(manifest) == 36 and len({row['path'] for row in manifest}) == 36, 'Exact36 authored screenshots required'\n              destination_root.mkdir()\n              for folder in RESEARCH_SCREENSHOT_NAMES:\n                  shutil.move(str(source_root / folder), str(destination_root / folder))\n              for row in manifest:\n                  image = destination_root / row['path']\n                  assert image.is_file() and not image.is_symlink(), 'Moved PNG remains a regular file'\n                  data = image.read_bytes()\n                  assert len(data) == row['bytes'] and hashlib.sha256(data).hexdigest() == row['sha256'], 'Every screenshot byte and SHA256 must survive relocation'\n              source_root.rmdir()\n              return manifest\n          \n          manifest = relocate_research_artifacts(Path.cwd() / 'tmp', Path('/tmp/report-presentation-smoke/research-publication-screenshots'))\n          print('COHERENCE_RESEARCH_ARTIFACT_RELOCATION_PASS ' + json.dumps({'files': 36, 'rows': manifest}))\n          PY_RESEARCH_ARTIFACTS\n",
+          ""
+        ],
+        [
+          47739,
+          47954,
           "RENDER_GIT_COMMIT=\"$GITHUB_SHA\" node scripts/site_design_coherence_20261014_contract.mjs --built\n          RENDER_GIT_COMMIT=\"$GITHUB_SHA\" python scripts/site_design_coherence_20261014_contract.py --built\n          ",
           ""
         ],
         [
-          44080,
-          44172,
+          48093,
+          48185,
           "# The independent workspace and accent suites retain their own full commands,\n          # lo",
           "node scripts/homepa"
         ],
         [
-          44173,
-          44294,
+          48186,
+          48307,
           "s and exit statuses; both finish before this unchanged 60-minute job advances.\n          (\n          node scripts/homepag",
           ""
         ],
         [
-          44320,
-          44444,
+          48333,
+          48457,
           "\n          ) >/tmp/report-presentation-smoke/coherence-workspace.log 2>&1 &\n          coherence_workspace_pid=$!\n          (",
           ""
         ],
         [
-          44556,
-          45185,
+          48569,
+          49198,
           "\n          ) >/tmp/report-presentation-smoke/coherence-gold.log 2>&1 &\n          coherence_gold_pid=$!\n          set +e\n          wait \"$coherence_workspace_pid\"\n          coherence_workspace_status=$?\n          wait \"$coherence_gold_pid\"\n          coherence_gold_status=$?\n          set -e\n          cat /tmp/report-presentation-smoke/coherence-workspace.log\n          cat /tmp/report-presentation-smoke/coherence-gold.log\n          echo \"COHERENCE_PARALLEL_RESULT workspace=$coherence_workspace_status gold=$coherence_gold_status\"\n          test \"$coherence_workspace_status\" -eq 0\n          test \"$coherence_gold_status\" -eq 0",
           ""
         ]
@@ -7873,7 +7879,7 @@
     {
       "path": ".well-known/monderman-release.json",
       "bytes": 56,
-      "sha256": "c5e478adb8e47aa9e94498bdb80f02ac09dec6c7f7e74129fa1b22367cb49826"
+      "sha256": "b77c3597d6ec9080a1fc85dd5275eb837a31349962962fc0d11400965cc98ffa"
     },
     {
       "path": "404.html",
