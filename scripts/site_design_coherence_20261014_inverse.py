@@ -3,7 +3,7 @@ import hashlib,json
 from pathlib import Path
 BASELINE='16935688e0b4c6e177c81bdcaefb5727894d7a11'
 VERSION='site-design-coherence-20261014.1'
-FIXTURE_SHA256='fb12e8fa98963502f8b9d46a3ad2839d8b18d3cc7ffc180c1518c09bba1d463c'
+FIXTURE_SHA256='81781f20402aed99954d2f189ab047c07bfd78d42bfa37c8568185dd183b724f'
 ROOT=Path(__file__).resolve().parents[1]
 _bytes=(Path(__file__).resolve().parent/'fixtures/site-design-coherence-20261014.json').read_bytes()
 assert hashlib.sha256(_bytes).hexdigest()==FIXTURE_SHA256

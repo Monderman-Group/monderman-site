@@ -172,6 +172,41 @@ function negativeGeometryProof(snapshot, expected, options) {
   }
 }
 
+// The unchanged authored16in×9in print sheet is1536×864 CSS pixels.
+function assertPlatformPrintCanvas(snapshot) {
+  assert.deepEqual(snapshot.viewport, {width: 1536, height: 864}, 'Exact original print canvas');
+  assert.equal(snapshot.slides.length, 12, 'Every original print slide remains');
+  assert.equal(new Set(snapshot.slides.map(row => row.id)).size, 12, 'Every printed slide has its original unique identity');
+  const inside = (outer, inner) => inner[0] >= outer[0] - .5 && inner[1] >= outer[1] - .5 && inner[2] <= outer[2] + .5 && inner[3] <= outer[3] + .5;
+  for (const row of snapshot.slides) {
+    assert.ok([...row.box, ...row.inner, row.width, row.height, row.scrollWidth, row.clientWidth, row.scrollHeight, row.clientHeight].every(Number.isFinite), 'Printed dimensions and content geometry are finite');
+    assert.ok(Math.abs(row.width - 1536) <= .5 && Math.abs(row.height - 864) <= .5, 'Every full original16in×9in slide has exact physical dimensions');
+    assert.ok(row.scrollWidth <= row.clientWidth + 1 && row.scrollHeight <= row.clientHeight + 1, 'No printed slide content overflows its full page');
+    assert.ok(inside(row.box, row.inner), 'Every original slide inner content stays within its full print page');
+    for (const layer of row.layers) {
+      assert.ok(layer.visible && layer.box.every(Number.isFinite) && inside(row.box, layer.box), 'Every original printed platform layer remains visible and contained');
+    }
+  }
+}
+function collectPlatformPrintCanvas() {
+  const box = e => {const r = e.getBoundingClientRect(); return [r.left, r.top, r.right, r.bottom];};
+  return {viewport: {width: innerWidth, height: innerHeight}, slides: [...document.querySelectorAll('.deck > .slide')].map(e => ({id: e.id, box: box(e), width: e.getBoundingClientRect().width, height: e.getBoundingClientRect().height, scrollWidth: e.scrollWidth, clientWidth: e.clientWidth, scrollHeight: e.scrollHeight, clientHeight: e.clientHeight, inner: box(e.querySelector('.slide-inner')), layers: [...e.querySelectorAll('.layer-stack .layer')].map(layer => ({visible: layer.checkVisibility(), box: box(layer)}))}))};
+}
+function negativePrintCanvasProof(snapshot) {
+  for (const mutate of [
+    row => row.viewport.width = 1440, row => row.slides.pop(),
+    row => row.slides[0].box[0] = NaN, row => row.slides[0].width = 1534,
+    row => row.slides[0].height = 862, row => row.slides[0].inner[2] = row.slides[0].box[2] + 2,
+    row => row.slides[0].scrollWidth = row.slides[0].clientWidth + 2,
+    row => row.slides[0].scrollHeight = row.slides[0].clientHeight + 2,
+    row => row.slides.find(slide => slide.layers.length).layers[0].visible = false,
+    row => row.slides[1].id = row.slides[0].id,
+  ]) {
+    const invalid = structuredClone(snapshot); mutate(invalid); negativeControls++;
+    assert.throws(() => assertPlatformPrintCanvas(invalid), undefined, 'Actual print validation rejects wrong canvas, missing/duplicate slides, nonfinite/undersized page, clipped content or hidden layer');
+  }
+}
+
 function collectWhyRails() {
   const hero = document.querySelector('.hero h1').getBoundingClientRect();
   return {
@@ -313,11 +348,12 @@ try {
         {name:'actual-1440',viewport:{width:1440,height:1000}},
         {name:'actual-reduced',viewport:{width:390,height:844},reduced:true},
         {name:'actual-no-scripts',viewport:{width:390,height:844},scripts:false},
-        {name:'actual-print',viewport:{width:1440,height:1000},print:true},
+        {name:'actual-print',viewport:{width:1536,height:864},print:true},
       ]) {
         const route={page:'Monderman_Platform_Brief.html',ids:['488892667'],selector:'[data-site-photo]'},label=engine+'/'+route.page+'/'+options.name;
         const state=await setup(browser,{...options,actualCurrent:true},route),{page,context}=state;
         try{
+          let printCanvas;
           const figure=page.locator('#slide-2 .mp-platform-visual [data-site-photo]');
           equal(await figure.count(),1,label+': one actual overhead photograph in Explore the platform');
           equal(await page.locator('[data-site-photo] img').getAttribute('data-stock-id'),'488892667',label+': exact approved moved image');
@@ -331,6 +367,9 @@ try {
           if(options.print){
             check(await figure.isHidden(),label+': deliberate new photo is screen-only');
             equal(await page.locator('#slide-2 .layer-stack .layer').evaluateAll(xs=>xs.filter(x=>x.checkVisibility()).length),3,label+': original printed platform diagram remains complete');
+            printCanvas = await page.evaluate(collectPlatformPrintCanvas);
+            assertPlatformPrintCanvas(printCanvas);checks++;
+            negativePrintCanvasProof(printCanvas);
           }else{
             await figure.evaluate(e=>e.scrollIntoView({block:'center',behavior:'instant'}));
             await page.waitForFunction(()=>{const i=document.querySelector('#slide-2 [data-site-photo] img');return i.complete&&i.naturalWidth>0&&!!i.currentSrc;},null,{timeout:10000});
@@ -346,7 +385,7 @@ try {
           }
           check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),label+': current brief has no overflow');
           equal(state.forbidden,[],label+': no API/auth/write/socket');equal(state.external,[],label+': no external transport');equal(state.errors,[],label+': no page errors');equal(state.assetFailures,[],label+': no asset verification failure');equal(await page.evaluate(()=>window.__photoPresentationUnsafe||[]),[],label+': no forms');
-          const file=engine+'-'+options.name+'-current-platform.png';await page.screenshot({path:path.join(out,file)});actualCurrentReceipts.push({label,options,assetRows:state.assetRows,screenshot:file,performedWrites:0});
+          const file=engine+'-'+options.name+'-current-platform.png';await page.screenshot({path:path.join(out,file)});actualCurrentReceipts.push({label,options,printCanvas,assetRows:state.assetRows,screenshot:file,performedWrites:0});
         }catch(error){const screenshot=label.replaceAll('/','-')+'-FAIL.png';await page.screenshot({path:path.join(out,screenshot)}).catch(()=>{});failures.push({label,error:error.stack,screenshot,forbidden:state.forbidden,external:state.external,pageErrors:state.errors});throw error;}finally{await context.close();}
       }
 

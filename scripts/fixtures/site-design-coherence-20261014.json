@@ -846,9 +846,9 @@
     },
     "scripts/marketing_photo_presentation_20261013_browser.mjs": {
       "before_sha256": "9d801ea02126e8d75489f83e03a4db503695dd4b6e2d21d1f248df2add36b96c",
-      "after_sha256": "e60b22a846a9f8a84835250d79b58f70fa2e7a587dabebc89baa9aae526fd5b8",
+      "after_sha256": "7d7f2d003e44a716be32b439b9e19f595ff2696cd1ed5cb3037758c02a50ccd9",
       "before_bytes": 26955,
-      "after_bytes": 34523,
+      "after_bytes": 37761,
       "replacements": [
         [
           134,
@@ -923,98 +923,110 @@
           ""
         ],
         [
-          26751,
-          26763,
+          14930,
+          17940,
+          "// The unchanged authored16in\u00d79in print sheet is1536\u00d7864 CSS pixels.\nfunction assertPlatformPrintCanvas(snapshot) {\n  assert.deepEqual(snapshot.viewport, {width: 1536, height: 864}, 'Exact original print canvas');\n  assert.equal(snapshot.slides.length, 12, 'Every original print slide remains');\n  assert.equal(new Set(snapshot.slides.map(row => row.id)).size, 12, 'Every printed slide has its original unique identity');\n  const inside = (outer, inner) => inner[0] >= outer[0] - .5 && inner[1] >= outer[1] - .5 && inner[2] <= outer[2] + .5 && inner[3] <= outer[3] + .5;\n  for (const row of snapshot.slides) {\n    assert.ok([...row.box, ...row.inner, row.width, row.height, row.scrollWidth, row.clientWidth, row.scrollHeight, row.clientHeight].every(Number.isFinite), 'Printed dimensions and content geometry are finite');\n    assert.ok(Math.abs(row.width - 1536) <= .5 && Math.abs(row.height - 864) <= .5, 'Every full original16in\u00d79in slide has exact physical dimensions');\n    assert.ok(row.scrollWidth <= row.clientWidth + 1 && row.scrollHeight <= row.clientHeight + 1, 'No printed slide content overflows its full page');\n    assert.ok(inside(row.box, row.inner), 'Every original slide inner content stays within its full print page');\n    for (const layer of row.layers) {\n      assert.ok(layer.visible && layer.box.every(Number.isFinite) && inside(row.box, layer.box), 'Every original printed platform layer remains visible and contained');\n    }\n  }\n}\nfunction collectPlatformPrintCanvas() {\n  const box = e => {const r = e.getBoundingClientRect(); return [r.left, r.top, r.right, r.bottom];};\n  return {viewport: {width: innerWidth, height: innerHeight}, slides: [...document.querySelectorAll('.deck > .slide')].map(e => ({id: e.id, box: box(e), width: e.getBoundingClientRect().width, height: e.getBoundingClientRect().height, scrollWidth: e.scrollWidth, clientWidth: e.clientWidth, scrollHeight: e.scrollHeight, clientHeight: e.clientHeight, inner: box(e.querySelector('.slide-inner')), layers: [...e.querySelectorAll('.layer-stack .layer')].map(layer => ({visible: layer.checkVisibility(), box: box(layer)}))}))};\n}\nfunction negativePrintCanvasProof(snapshot) {\n  for (const mutate of [\n    row => row.viewport.width = 1440, row => row.slides.pop(),\n    row => row.slides[0].box[0] = NaN, row => row.slides[0].width = 1534,\n    row => row.slides[0].height = 862, row => row.slides[0].inner[2] = row.slides[0].box[2] + 2,\n    row => row.slides[0].scrollWidth = row.slides[0].clientWidth + 2,\n    row => row.slides[0].scrollHeight = row.slides[0].clientHeight + 2,\n    row => row.slides.find(slide => slide.layers.length).layers[0].visible = false,\n    row => row.slides[1].id = row.slides[0].id,\n  ]) {\n    const invalid = structuredClone(snapshot); mutate(invalid); negativeControls++;\n    assert.throws(() => assertPlatformPrintCanvas(invalid), undefined, 'Actual print validation rejects wrong canvas, missing/duplicate slides, nonfinite/undersized page, clipped content or hidden layer');\n  }\n}\n\n",
+          ""
+        ],
+        [
+          29761,
+          29773,
           "\n      // On",
           "    } final"
         ],
         [
-          26766,
-          26823,
+          29776,
+          29833,
           "the relocated current photo is additional. Every original",
           "{ await browser.close(); }\n  }\n  equal(receipts.length, "
         ],
         [
-          26825,
-          26933,
+          29835,
+          29943,
           " historical\n      // engine/state case above remains literal and executable on exactM169 bytes.\n      if (is",
           ", '"
         ],
         [
-          26934,
-          28452,
-          "urrentSiteDesignCoherence()) for(const options of [\n        {name:'actual-390',viewport:{width:390,height:844}},\n        {name:'actual-1440',viewport:{width:1440,height:1000}},\n        {name:'actual-reduced',viewport:{width:390,height:844},reduced:true},\n        {name:'actual-no-scripts',viewport:{width:390,height:844},scripts:false},\n        {name:'actual-print',viewport:{width:1440,height:1000},print:true},\n      ]) {\n        const route={page:'Monderman_Platform_Brief.html',ids:['488892667'],selector:'[data-site-photo]'},label=engine+'/'+route.page+'/'+options.name;\n        const state=await setup(browser,{...options,actualCurrent:true},route),{page,context}=state;\n        try{\n          const figure=page.locator('#slide-2 .mp-platform-visual [data-site-photo]');\n          equal(await figure.count(),1,label+': one actual overhead photograph in Explore the platform');\n          equal(await page.locator('[data-site-photo] img').getAttribute('data-stock-id'),'488892667',label+': exact approved moved image');\n          equal(await page.locator('figcaption').count(),0,label+': no Models caption');\n          equal(await page.locator('#slide-2 .layer-stack .layer').count(),3,label+': every original platform layer remains');\n          if(!options.print){\n            const layers=await page.locator('#slide-2 .layer-stack .layer').evaluateAll(xs=>xs.map(e=>{const b=e.getBoundingClientRect(),a=e.querySelector('strong').getBoundingClientRect(),d=e.querySelector('span').getBoundingClientRect();return{bo",
-          "omplete bounded matri"
+          29944,
+          30475,
+          "urrentSiteDesignCoherence()) for(const options of [\n        {name:'actual-390',viewport:{width:390,height:844}},\n        {name:'actual-1440',viewport:{width:1440,height:1000}},\n        {name:'actual-reduced',viewport:{width:390,height:844},reduced:true},\n        {name:'actual-no-scripts',viewport:{width:390,height:844},scripts:false},\n        {name:'actual-print',viewport:{width:1536,height:864},print:true},\n      ]) {\n        const route={page:'Monderman_Platform_Brief.html',ids:['488892667'],selector:'[data-site-photo]'},la",
+          "omplete "
         ],
         [
-          28454,
-          28598,
+          30476,
+          31488,
+          "el=engine+'/'+route.page+'/'+options.name;\n        const state=await setup(browser,{...options,actualCurrent:true},route),{page,context}=state;\n        try{\n          let printCanvas;\n          const figure=page.locator('#slide-2 .mp-platform-visual [data-site-photo]');\n          equal(await figure.count(),1,label+': one actual overhead photograph in Explore the platform');\n          equal(await page.locator('[data-site-photo] img').getAttribute('data-stock-id'),'488892667',label+': exact approved moved image');\n          equal(await page.locator('figcaption').count(),0,label+': no Models caption');\n          equal(await page.locator('#slide-2 .layer-stack .layer').count(),3,label+': every original platform layer remains');\n          if(!options.print){\n            const layers=await page.locator('#slide-2 .layer-stack .layer').evaluateAll(xs=>xs.map(e=>{const b=e.getBoundingClientRect(),a=e.querySelector('strong').getBoundingClientRect(),d=e.querySelector('span').getBoundingClientRect();return{bo",
+          "ounded matri"
+        ],
+        [
+          31490,
+          31634,
           "[b.left,b.top,b.right,b.bottom],label:[a.left,a.top,a.right,a.bottom],description:[d.left,d.top,d.right,d.bottom]};}));\n            for(const ro",
           " four routes, t"
         ],
         [
-          28599,
-          28663,
+          31635,
+          31699,
           " of layers){check([...row.box,...row.label,...row.description].e",
           "el"
         ],
         [
-          28665,
-          28731,
+          31701,
+          31767,
           "ry(Number.isFinite),label+': layer text geometry finite');check(ro",
           " states, t"
         ],
         [
-          28732,
-          32867,
-          ".label[0]>=row.box[0]-1&&row.label[2]<=row.box[2]+1&&row.description[0]>=row.box[0]-1&&row.description[2]<=row.box[2]+1&&row.label[1]>=row.box[1]-1&&row.description[3]<=row.box[3]+1,label+': full layer labels and descriptions contained');check(row.label[2]<=row.description[0]-4||row.description[2]<=row.label[0]-4||row.label[3]<=row.description[1]-4||row.description[3]<=row.label[1]-4,label+': label and description do not touch or overlap');}\n          }\n\n          if(options.print){\n            check(await figure.isHidden(),label+': deliberate new photo is screen-only');\n            equal(await page.locator('#slide-2 .layer-stack .layer').evaluateAll(xs=>xs.filter(x=>x.checkVisibility()).length),3,label+': original printed platform diagram remains complete');\n          }else{\n            await figure.evaluate(e=>e.scrollIntoView({block:'center',behavior:'instant'}));\n            await page.waitForFunction(()=>{const i=document.querySelector('#slide-2 [data-site-photo] img');return i.complete&&i.naturalWidth>0&&!!i.currentSrc;},null,{timeout:10000});\n            await figure.locator('img').evaluate(i=>i.decode());await settleFigure(page,figure,label);await Promise.all(state.assetTasks);\n            const geometry=await figure.evaluate(e=>{const i=e.querySelector('img'),p=e.querySelector('picture'),r=i.getBoundingClientRect(),b=p.getBoundingClientRect(),c=getComputedStyle(i);return{src:i.currentSrc,fit:c.objectFit,width:r.width,height:r.height,pictureWidth:b.width,pictureHeight:b.height,radius:parseFloat(getComputedStyle(p).borderTopLeftRadius),alt:i.alt,dpr:devicePixelRatio};});\n            const resource=derivatives.get(new URL(geometry.src).pathname);\n            check(resource?.stockId==='488892667',label+': selected derivative belongs to the exact approved image');\n            check(state.assetRows.some(r=>r.path===new URL(geometry.src).pathname&&r.sha256===resource.sha256&&r.bytes===resource.bytes),label+': actual selected derivative response bytes verified');\n            equal(geometry.fit,'contain',label+': no crop');check(geometry.width>0&&geometry.height>0&&geometry.radius>=18,label+': positive rounded visible frame');\n            check(Math.abs(geometry.width/geometry.height-1600/1195)<.005&&Math.abs(geometry.pictureWidth-geometry.width)<=1&&Math.abs(geometry.pictureHeight-geometry.height)<=1,label+': complete reserved proportional composition');\n            check(resource.width+1>=Math.min(1600,geometry.width*geometry.dpr),label+': physical source pixels cover painted width');check(geometry.alt.trim(),label+': descriptive neutral alternative');\n            if(options.reduced||options.scripts===false)equal((await page.evaluate(()=>window.__photoPresentationAnimations||[])).filter(a=>a.photo),[],label+': current relocated photo has static reduced/noJS fallback');\n          }\n          check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),label+': current brief has no overflow');\n          equal(state.forbidden,[],label+': no API/auth/write/socket');equal(state.external,[],label+': no external transport');equal(state.errors,[],label+': no page errors');equal(state.assetFailures,[],label+': no asset verification failure');equal(await page.evaluate(()=>window.__photoPresentationUnsafe||[]),[],label+': no forms');\n          const file=engine+'-'+options.name+'-current-platform.png';await page.screenshot({path:path.join(out,file)});actualCurrentReceipts.push({label,options,assetRows:state.assetRows,screenshot:file,performedWrites:0});\n        }catch(error){const screenshot=label.replaceAll('/','-')+'-FAIL.png';await page.screenshot({path:path.join(out,screenshot)}).catch(()=>{});failures.push({label,error:error.stack,screenshot,forbidden:state.forbidden,external:state.external,pageErrors:state.errors});throw error;}finally{await context.close();}\n      }\n\n    } finally { await browser.close(); }\n  }\n  equal(receipts.length, 96, 'Complete bounded matrix: four routes, twelve states, two engines');\n  if(isCurrentSiteDesignCoherence())equal(actualCurrentReceipts.length,10,'Current relocated photo: five bounded cases in both original",
+          31768,
+          36102,
+          ".label[0]>=row.box[0]-1&&row.label[2]<=row.box[2]+1&&row.description[0]>=row.box[0]-1&&row.description[2]<=row.box[2]+1&&row.label[1]>=row.box[1]-1&&row.description[3]<=row.box[3]+1,label+': full layer labels and descriptions contained');check(row.label[2]<=row.description[0]-4||row.description[2]<=row.label[0]-4||row.label[3]<=row.description[1]-4||row.description[3]<=row.label[1]-4,label+': label and description do not touch or overlap');}\n          }\n\n          if(options.print){\n            check(await figure.isHidden(),label+': deliberate new photo is screen-only');\n            equal(await page.locator('#slide-2 .layer-stack .layer').evaluateAll(xs=>xs.filter(x=>x.checkVisibility()).length),3,label+': original printed platform diagram remains complete');\n            printCanvas = await page.evaluate(collectPlatformPrintCanvas);\n            assertPlatformPrintCanvas(printCanvas);checks++;\n            negativePrintCanvasProof(printCanvas);\n          }else{\n            await figure.evaluate(e=>e.scrollIntoView({block:'center',behavior:'instant'}));\n            await page.waitForFunction(()=>{const i=document.querySelector('#slide-2 [data-site-photo] img');return i.complete&&i.naturalWidth>0&&!!i.currentSrc;},null,{timeout:10000});\n            await figure.locator('img').evaluate(i=>i.decode());await settleFigure(page,figure,label);await Promise.all(state.assetTasks);\n            const geometry=await figure.evaluate(e=>{const i=e.querySelector('img'),p=e.querySelector('picture'),r=i.getBoundingClientRect(),b=p.getBoundingClientRect(),c=getComputedStyle(i);return{src:i.currentSrc,fit:c.objectFit,width:r.width,height:r.height,pictureWidth:b.width,pictureHeight:b.height,radius:parseFloat(getComputedStyle(p).borderTopLeftRadius),alt:i.alt,dpr:devicePixelRatio};});\n            const resource=derivatives.get(new URL(geometry.src).pathname);\n            check(resource?.stockId==='488892667',label+': selected derivative belongs to the exact approved image');\n            check(state.assetRows.some(r=>r.path===new URL(geometry.src).pathname&&r.sha256===resource.sha256&&r.bytes===resource.bytes),label+': actual selected derivative response bytes verified');\n            equal(geometry.fit,'contain',label+': no crop');check(geometry.width>0&&geometry.height>0&&geometry.radius>=18,label+': positive rounded visible frame');\n            check(Math.abs(geometry.width/geometry.height-1600/1195)<.005&&Math.abs(geometry.pictureWidth-geometry.width)<=1&&Math.abs(geometry.pictureHeight-geometry.height)<=1,label+': complete reserved proportional composition');\n            check(resource.width+1>=Math.min(1600,geometry.width*geometry.dpr),label+': physical source pixels cover painted width');check(geometry.alt.trim(),label+': descriptive neutral alternative');\n            if(options.reduced||options.scripts===false)equal((await page.evaluate(()=>window.__photoPresentationAnimations||[])).filter(a=>a.photo),[],label+': current relocated photo has static reduced/noJS fallback');\n          }\n          check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),label+': current brief has no overflow');\n          equal(state.forbidden,[],label+': no API/auth/write/socket');equal(state.external,[],label+': no external transport');equal(state.errors,[],label+': no page errors');equal(state.assetFailures,[],label+': no asset verification failure');equal(await page.evaluate(()=>window.__photoPresentationUnsafe||[]),[],label+': no forms');\n          const file=engine+'-'+options.name+'-current-platform.png';await page.screenshot({path:path.join(out,file)});actualCurrentReceipts.push({label,options,printCanvas,assetRows:state.assetRows,screenshot:file,performedWrites:0});\n        }catch(error){const screenshot=label.replaceAll('/','-')+'-FAIL.png';await page.screenshot({path:path.join(out,screenshot)}).catch(()=>{});failures.push({label,error:error.stack,screenshot,forbidden:state.forbidden,external:state.external,pageErrors:state.errors});throw error;}finally{await context.close();}\n      }\n\n    } finally { await browser.close(); }\n  }\n  equal(receipts.length, 96, 'Complete bounded matrix: four routes, twelve states, two engines');\n  if(isCurrentSiteDesignCoherence())equal(actualCurrentReceipts.length,10,'Current relocated photo: five bounded cases in both original",
           "o"
         ],
         [
-          33639,
-          33713,
+          36874,
+          36948,
           " && (!isCurrentSiteDesignCoherence() || actualCurrentReceipts.length===10)",
           ""
         ],
         [
-          33786,
-          33834,
+          37021,
+          37069,
           "s,actualCurrentServedHashes,actualCurrentReceipt",
           ""
         ],
         [
-          34007,
-          34022,
+          37242,
+          37257,
           "renderedEdition",
           "scope"
         ],
         [
-          34024,
-          34060,
+          37259,
+          37295,
           "designHistoricalBodies.size ? 'ACTUA",
           "'"
         ],
         [
-          34061,
-          34169,
-          "_M169_HISTORICAL_PRESERVED' : 'UNCHANGED_PRIOR_SOURCE', historicalCompiledPaths: [...designHistoricalBodies.",
-          "oopbac"
+          37296,
+          37422,
+          "_M169_HISTORICAL_PRESERVED' : 'UNCHANGED_PRIOR_SOURCE', historicalCompiledPaths: [...designHistoricalBodies.keys()], scope: 'L",
+          ""
         ],
         [
-          34170,
-          34211,
-          "eys()], scope: 'Loopback exact historical",
-          " current"
+          37430,
+          37446,
+          "exact historical",
+          "current"
         ],
         [
-          34235,
-          34290,
+          37470,
+          37525,
           "; actual relocated photo and corner mapping independent",
           " on"
         ],
         [
-          34292,
-          34331,
+          37527,
+          37566,
           " tested in the current mobile traversal",
           ""
         ]
@@ -7831,7 +7843,7 @@
     {
       "path": ".well-known/monderman-release.json",
       "bytes": 56,
-      "sha256": "c688d273d4d46bddfc5fa62b2e7f2543f12bd17113b94d055093e39bb2b032b2"
+      "sha256": "3d5fb6615cb0b87e60422677f33aa5ce87cf0ceae1b593919ea27f195cbcee67"
     },
     {
       "path": "404.html",
