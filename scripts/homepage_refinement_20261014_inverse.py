@@ -3,7 +3,7 @@ import hashlib,json
 from pathlib import Path
 BASELINE='94cabdfe6fdd6b15e13ed15af2f6f2398e806fa9'
 VERSION='homepage-refinement-20261014.1'
-FIXTURE_SHA256='62064c4bbb3aaacddc0fe98f0897f0f3a944afff6e6a588450f88c1096a5bbc1'
+FIXTURE_SHA256='bd2af72d1ad9363cea3d7091d265fc1ece4ab4cbbbc8a477fa4a88ad31ecbf2c'
 ROOT=Path(__file__).resolve().parents[1]
 _bytes=(Path(__file__).resolve().parent/'fixtures/homepage-refinement-20261014.json').read_bytes()
 assert hashlib.sha256(_bytes).hexdigest()==FIXTURE_SHA256

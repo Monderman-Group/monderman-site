@@ -5,6 +5,7 @@ import os from 'node:os';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
+import {sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014_inverse.mjs';
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
@@ -131,7 +132,7 @@ for (const mutate of [p => p.count = 3, p => p.figureCount = 3, p => p.entries.p
 assertFivePhotoEditorialSequence(fivePhotoEditorialSequence,validFivePhotoRecords);
 function projectFivePhotoSections(sections) { return [sections[0], ...sections.slice(2, 9), sections[10], ...sections.slice(12)]; }
 assert.deepEqual(projectFivePhotoSections(fivePhotoEditorialSequence),currentEditorialSequence,'Only exact current positions1/9/11 project after complete proof');
-const currentFivePhotoSource = sha(fs.readFileSync(path.join(root,'index.html'))) === '80364877594f6cf9e13cfe14bdfe2702838a2422680e902abc9bf613dff8c24d';
+const currentFivePhotoSource = sha(sourceAtHomepageRefinementBaseline('index.html',fs.readFileSync(path.join(root,'index.html')))) === '80364877594f6cf9e13cfe14bdfe2702838a2422680e902abc9bf613dff8c24d';
 let edition = 'baseline';
 const receipts = [], unexpectedWrites = [];
 let mockedAssistantPosts = 0;

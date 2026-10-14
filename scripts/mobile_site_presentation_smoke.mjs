@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import {isCurrentHomepageRefinementSource} from './homepage_refinement_20261014_inverse.mjs';
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
 const out = process.env.MOBILE_OUT || '/tmp/mobile-site-presentation';
@@ -13,6 +14,25 @@ const pages = fs.readdirSync(process.cwd())
   .sort();
 
 const sourceByPage = new Map(pages.map((name) => [name, fs.readFileSync(name, 'utf8')]));
+const currentHomepageRefinement = isCurrentHomepageRefinementSource(sourceByPage.get('index.html'));
+async function expandRefinedMobileHeroForOriginalChecks(tile) {
+  const details = tile.locator('.hf-hero-details'), summary = details.locator(':scope > summary');
+  assert.equal(await details.count(), 1, 'Exact refined hero has one native expansion');
+  assert.equal(await details.evaluate(el => el.open), false, 'Refined hero starts compact');
+  const panels = tile.locator('[data-quad-section]');
+  assert.deepEqual(await panels.evaluateAll(xs => xs.filter(el => el.checkVisibility()).map(el => el.dataset.quadSection)), ['findings'], 'Only the original finding is visible before expansion');
+  const touch = await summary.boundingBox();
+  assert.ok(touch && touch.width >= 44 && touch.height >= 44, 'Native expansion is a usable touch target');
+  await summary.click();
+  assert.equal(await details.evaluate(el => el.open), true, 'Real native summary click expands');
+  assert.deepEqual(await panels.evaluateAll(xs => xs.filter(el => el.checkVisibility()).map(el => el.dataset.quadSection)), ['findings','money','change','evidence'], 'All four original report panels are displayed for geometry checks');
+}
+async function restoreRefinedMobileHero(tile) {
+  const details = tile.locator('.hf-hero-details');
+  await details.locator(':scope > summary').click();
+  assert.equal(await details.evaluate(el => el.open), false, 'Real native summary click restores compact state');
+  assert.deepEqual(await tile.locator('[data-quad-section]').evaluateAll(xs => xs.filter(el => el.checkVisibility()).map(el => el.dataset.quadSection)), ['findings'], 'Restored compact preview retains the visible original finding');
+}
 const canonicalPages = pages.filter((name) => {
   const source = sourceByPage.get(name);
   return /<body\b[^>]*\bclass=["'][^"']*\bcanonical-green-shell\b/i.test(source)
@@ -501,12 +521,14 @@ try {
         const tile = page.locator('.hero [data-home-report-quad]');
         if (await tile.count() !== 1 || !(await tile.isVisible())) failures.push(`${pageName}/${viewport.name}: hero sample report preview is missing or hidden`);
         else {
-          const bounds = await tile.evaluate(el => {
+          if (currentHomepageRefinement) await expandRefinedMobileHeroForOriginalChecks(tile);
+          const bounds = await tile.evaluate((el, gridSelector) => {
             const box = el.getBoundingClientRect();
-            return {left: box.left, right: box.right, width: box.width, scroll: el.scrollWidth, client: el.clientWidth, columns: getComputedStyle(el.querySelector('.hrq-grid')).gridTemplateColumns.trim().split(/\s+/).length};
-          });
+            return {left: box.left, right: box.right, width: box.width, scroll: el.scrollWidth, client: el.clientWidth, columns: getComputedStyle(el.querySelector(gridSelector)).gridTemplateColumns.trim().split(/\s+/).length};
+          }, currentHomepageRefinement ? '.hf-extra-grid' : '.hrq-grid');
           if (bounds.left < -1 || bounds.right > viewport.width + 1 || bounds.scroll > bounds.client + 1) failures.push(`${pageName}/${viewport.name}: hero report preview escapes the viewport (${JSON.stringify(bounds)})`);
           if (bounds.columns !== (viewport.width <= 600 ? 1 : 2)) failures.push(`${pageName}/${viewport.name}: hero report preview has the wrong responsive column count`);
+          if (currentHomepageRefinement) await restoreRefinedMobileHero(tile);
         }
         const routeField = page.locator('.hero-route-field');
         if (await routeField.count() !== 0) failures.push(`${pageName}/${viewport.name}: retired decorative route field returned`);

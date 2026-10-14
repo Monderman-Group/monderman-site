@@ -794,6 +794,88 @@
         ]
       ]
     },
+    "scripts/homepage_assistant_smoke.mjs": {
+      "before_sha256": "69cb50d7dccc74ca5bc6d01d53fc9a8c6c4ea3cf5afce605bc92809939dd18d7",
+      "after_sha256": "aad348544174fd65eaee6330ccc4e835a7ce7b972a4913552a302bdec13315fb",
+      "before_bytes": 35169,
+      "after_bytes": 35313,
+      "replacements": [
+        [
+          288,
+          383,
+          "_inverse.mjs';\nimport {sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014",
+          ""
+        ],
+        [
+          13203,
+          13251,
+          "sourceAtHomepageRefinementBaseline('index.html',",
+          ""
+        ],
+        [
+          13294,
+          13295,
+          ")",
+          ""
+        ]
+      ]
+    },
+    "scripts/mobile_site_presentation_smoke.mjs": {
+      "before_sha256": "0ff7e8329a5f56c7a30e58bed8db69e157788ab9b2484a88120a6ddcfd2a44a9",
+      "after_sha256": "6b3191d025d9ed9b8105edbac912d5a3903a9ca279a474aec8564db57032d3be",
+      "before_bytes": 60222,
+      "after_bytes": 62279,
+      "replacements": [
+        [
+          94,
+          188,
+          "';\nimport {isCurrentHomepageRefinementSource} from './homepage_refinement_20261014_inverse.mjs",
+          ""
+        ],
+        [
+          744,
+          2456,
+          "\nconst currentHomepageRefinement = isCurrentHomepageRefinementSource(sourceByPage.get('index.html'));\nasync function expandRefinedMobileHeroForOriginalChecks(tile) {\n  const details = tile.locator('.hf-hero-details'), summary = details.locator(':scope > summary');\n  assert.equal(await details.count(), 1, 'Exact refined hero has one native expansion');\n  assert.equal(await details.evaluate(el => el.open), false, 'Refined hero starts compact');\n  const panels = tile.locator('[data-quad-section]');\n  assert.deepEqual(await panels.evaluateAll(xs => xs.filter(el => el.checkVisibility()).map(el => el.dataset.quadSection)), ['findings'], 'Only the original finding is visible before expansion');\n  const touch = await summary.boundingBox();\n  assert.ok(touch && touch.width >= 44 && touch.height >= 44, 'Native expansion is a usable touch target');\n  await summary.click();\n  assert.equal(await details.evaluate(el => el.open), true, 'Real native summary click expands');\n  assert.deepEqual(await panels.evaluateAll(xs => xs.filter(el => el.checkVisibility()).map(el => el.dataset.quadSection)), ['findings','money','change','evidence'], 'All four original report panels are displayed for geometry checks');\n}\nasync function restoreRefinedMobileHero(tile) {\n  const details = tile.locator('.hf-hero-details');\n  await details.locator(':scope > summary').click();\n  assert.equal(await details.evaluate(el => el.open), false, 'Real native summary click restores compact state');\n  assert.deepEqual(await tile.locator('[data-quad-section]').evaluateAll(xs => xs.filter(el => el.checkVisibility()).map(el => el.dataset.quadSection)), ['findings'], 'Restored compact preview retains the visible original finding');\n}",
+          ""
+        ],
+        [
+          34342,
+          34394,
+          "if (currentHomepageRefinement) await expandRefinedMo",
+          "const "
+        ],
+        [
+          34395,
+          34444,
+          "ileHeroForOriginalChecks(tile);\n          const b",
+          ""
+        ],
+        [
+          34472,
+          34490,
+          "(el, gridSelector)",
+          "el"
+        ],
+        [
+          34711,
+          34835,
+          "gridSelector)).gridTemplateColumns.trim().split(/\\s+/).length};\n          }, currentHomepageRefinement ? '.hf-extra-grid' : ",
+          ""
+        ],
+        [
+          34846,
+          34846,
+          "",
+          ")).gridTemplateColumns.trim().split(/\\s+/).length};\n          }"
+        ],
+        [
+          35252,
+          35331,
+          "  if (currentHomepageRefinement) await restoreRefinedMobileHero(tile);\n        ",
+          ""
+        ]
+      ]
+    },
     ".github/workflows/frontend-release.yml": {
       "before_sha256": "fb7550c760a6239f4ec880d13983aa60cf84a780b99f474fdc894e6f27f9e098",
       "after_sha256": "7179d4b4d55cc7e47f99f549dad6dde1cc6f4031ff1a8b3cf3f66fe66acda282",
