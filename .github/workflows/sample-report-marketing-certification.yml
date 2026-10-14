@@ -37,6 +37,11 @@ on:
       - 'scripts/homepage_refinement_20261014_inverse.mjs'
       - 'scripts/homepage_refinement_20261014_inverse.py'
       - 'scripts/fixtures/homepage-refinement-20261014.json'
+      - 'scripts/scope_beta_20261014_*'
+      - 'scripts/fixtures/scope-beta-20261014.json'
+      - 'scope.html'
+      - 'scope.css'
+      - 'scope-release.json'
       - 'scripts/site_design_coherence_20261014_*'
       - 'scripts/fixtures/site-design-coherence-20261014.json'
       - 'scripts/homepage_refinement_20261014_browser.mjs'
@@ -342,6 +347,11 @@ on:
       - 'scripts/homepage_refinement_20261014_inverse.mjs'
       - 'scripts/homepage_refinement_20261014_inverse.py'
       - 'scripts/fixtures/homepage-refinement-20261014.json'
+      - 'scripts/scope_beta_20261014_*'
+      - 'scripts/fixtures/scope-beta-20261014.json'
+      - 'scope.html'
+      - 'scope.css'
+      - 'scope-release.json'
       - 'scripts/site_design_coherence_20261014_*'
       - 'scripts/fixtures/site-design-coherence-20261014.json'
       - 'scripts/homepage_refinement_20261014_browser.mjs'
@@ -663,6 +673,8 @@ jobs:
           node scripts/single_lens_overview_contract.mjs
           node scripts/report_overview_site_compatibility_smoke.mjs
           node scripts/report_unified_sankey_contract.mjs
+          node scripts/scope_beta_20261014_contract.mjs
+          python scripts/scope_beta_20261014_contract.py
           node scripts/site_design_coherence_20261014_contract.mjs
           python scripts/site_design_coherence_20261014_contract.py
           node scripts/homepage_refinement_20261014_contract.mjs
@@ -923,17 +935,29 @@ jobs:
           GOLD_ACCENT_OUT=/tmp/report-presentation-smoke/gold-accents node scripts/public_gold_accent_smoke.mjs
           ) >/tmp/report-presentation-smoke/coherence-gold.log 2>&1 &
           coherence_gold_pid=$!
+          # The new pure compiled Scope guards and current matrix share only immutable input.
+          (
+          set -e
+          RENDER_GIT_COMMIT="$GITHUB_SHA" node scripts/scope_beta_20261014_contract.mjs --built
+          RENDER_GIT_COMMIT="$GITHUB_SHA" python scripts/scope_beta_20261014_contract.py --built
+          SCOPE_BETA_OUT=/tmp/report-presentation-smoke/scope-beta node scripts/scope_beta_20261014_browser.mjs
+          ) >/tmp/report-presentation-smoke/scope-beta.log 2>&1 &
+          scope_beta_pid=$!
           set +e
           wait "$coherence_workspace_pid"
           coherence_workspace_status=$?
           wait "$coherence_gold_pid"
           coherence_gold_status=$?
+          wait "$scope_beta_pid"
+          scope_beta_status=$?
           set -e
           cat /tmp/report-presentation-smoke/coherence-workspace.log
           cat /tmp/report-presentation-smoke/coherence-gold.log
+          cat /tmp/report-presentation-smoke/scope-beta.log
           echo "COHERENCE_PARALLEL_RESULT workspace=$coherence_workspace_status gold=$coherence_gold_status"
           test "$coherence_workspace_status" -eq 0
           test "$coherence_gold_status" -eq 0
+          test "$scope_beta_status" -eq 0
           node scripts/workspace_product_design_smoke.mjs
           REPORT_OUT=/tmp/report-presentation-smoke/report-screen-experience node scripts/report_screen_experience_smoke.mjs
 

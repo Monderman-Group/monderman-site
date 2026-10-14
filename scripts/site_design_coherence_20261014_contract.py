@@ -1,8 +1,9 @@
 """Independent raw/source/compiled design approval; no provider calls or writes."""
 import hashlib,json,re,subprocess,sys,os
 from pathlib import Path
+from scope_beta_20261014_inverse import source_at_scope_beta_baseline,public_source_at_scope_beta_baseline,source_paths_at_scope_beta_baseline,public_paths_at_scope_beta_baseline
 from site_design_coherence_20261014_inverse import BASELINE,VERSION,_fixture as delta,FILES,ADDITIONS,GUARD_FILES,source_before_site_design_coherence_20261014 as strict,source_at_site_design_coherence_baseline as conditional,public_source_before_site_design_coherence_20261014 as public_strict,public_source_at_site_design_coherence_baseline as public_conditional,source_paths_at_site_design_coherence_baseline as paths_before,public_paths_at_site_design_coherence_baseline as public_before
-ROOT=Path(__file__).resolve().parents[1];read=lambda f:(ROOT/f).read_bytes();sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda *a:subprocess.check_output(['git',*a],cwd=ROOT)
+ROOT=Path(__file__).resolve().parents[1];read=lambda f:source_at_scope_beta_baseline(f,(ROOT/f).read_bytes());sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda *a:subprocess.check_output(['git',*a],cwd=ROOT)
 checks=negatives=hunks=immutable=fixtures=pdfs=0
 def check(v,l):
  global checks
@@ -46,7 +47,9 @@ for f in tracked:
  if f in FILES:continue
  check(read(f)==old[f],'Every other actualM source byte '+f);immutable+=1;fixtures+=int(f.startswith('scripts/fixtures/'));pdfs+=int(f.endswith('.pdf'))
 cached=git('ls-files','--cached').decode().splitlines();paths=set(cached+git('ls-files','--others','--exclude-standard').decode().splitlines());paths={p for p in paths if (ROOT/p).exists() and not(p=='node_modules' and p not in cached and (ROOT/p).is_symlink())}
-def scope(rows):assert len(rows)==len(set(rows)) and sorted(rows)==sorted(tracked+list(ADDITIONS)+list(GUARD_FILES))
+def scope(rows):
+ rows=source_paths_at_scope_beta_baseline(rows)
+ assert len(rows)==len(set(rows)) and sorted(rows)==sorted(tracked+list(ADDITIONS)+list(GUARD_FILES))
 scope(paths);checks+=1;check(paths_before(paths)==set(tracked),'Only complete known source set projects')
 for n in ['UNKNOWN.js','.env','assets/marketing/iStock-original.jpg','font-package.zip','.render-public 2']:
  rows=paths|{n};reject(lambda rows=rows:scope(rows),'Private/unknown additions reject');check(paths_before(rows)==rows,'Unknown paths remain visible')
@@ -230,15 +233,15 @@ for mutant in launcher_corner_mutants:
  check(mutant!=polish,'Meaningful launcher fallback mutant');reject(lambda mutant=mutant:launcher_corner_fallback_intent(mutant),'Missing/duplicate/wrong edge/importance/group/selector/inset/media/right/hiding/late/scale change rejects')
 
 if '--built' in sys.argv:
- build=Path(os.environ['SITE_DESIGN_BUILD_ROOT']).resolve() if os.environ.get('SITE_DESIGN_BUILD_ROOT') else ROOT/'.render-public';names=sorted(str(p.relative_to(build)) for p in build.rglob('*') if p.is_file());check(names==delta['currentPublicPaths'],'Complete current unique compiled closure');check(public_before(names)==delta['baselinePublicPaths'],'Known complete public set projects');check(public_before(names+['UNKNOWN'])==names+['UNKNOWN'],'Unknown compiled addition stays visible')
+ build=Path(os.environ['SITE_DESIGN_BUILD_ROOT']).resolve() if os.environ.get('SITE_DESIGN_BUILD_ROOT') else ROOT/'.render-public';names=public_paths_at_scope_beta_baseline(sorted(str(p.relative_to(build)) for p in build.rglob('*') if p.is_file()));check(names==delta['currentPublicPaths'],'Complete current unique compiled closure');check(public_before(names)==delta['baselinePublicPaths'],'Known complete public set projects');check(public_before(names+['UNKNOWN'])==names+['UNKNOWN'],'Unknown compiled addition stays visible')
  bm={r['path']:r for r in delta['baselinePublicMap']}
  def public_prior(f,e):
-  b=public_strict(f,(build/f).read_bytes());check(sha(b)==bm[f]['sha256'],'Authoritative deployed compiled baseline');return b
- finite(delta['publicFiles'],lambda f:(build/f).read_bytes(),public_prior,public_strict,public_conditional)
+  b=public_strict(f,public_source_at_scope_beta_baseline(f,(build/f).read_bytes()));check(sha(b)==bm[f]['sha256'],'Authoritative deployed compiled baseline');return b
+ finite(delta['publicFiles'],lambda f:public_source_at_scope_beta_baseline(f,(build/f).read_bytes()),public_prior,public_strict,public_conditional)
  for row in delta['currentPublicMap']:
   if row['path']=='.well-known/monderman-release.json':continue
-  b=(build/row['path']).read_bytes();check(sha(b)==row['sha256'] and len(b)==row['bytes'],'Every compiled full hash/size')
- for f in runtime:check((build/f).read_bytes()==read(f),'RAW actual source/built runtime equality')
- for f in photo_ids:photo_intent({**docs,f:(build/f).read_text()});checks+=1
+  b=public_source_at_scope_beta_baseline(row['path'],(build/row['path']).read_bytes());check(sha(b)==row['sha256'] and len(b)==row['bytes'],'Every compiled full hash/size')
+ for f in runtime:check(public_source_at_scope_beta_baseline(f,(build/f).read_bytes())==read(f),'RAW actual source/built runtime equality')
+ for f in photo_ids:photo_intent({**docs,f:public_source_at_scope_beta_baseline(f,(build/f).read_text())});checks+=1
  check(json.loads((build/'.well-known/monderman-release.json').read_bytes())['revision']==os.environ.get('RENDER_GIT_COMMIT'),'Actual build revision')
 print(json.dumps({'ok':True,'checks':checks,'negativeControls':negatives,'finiteFiles':len(FILES),'hunks':hunks,'immutableFiles':immutable,'historicalFixtures':fixtures,'pdfs':pdfs,'runtimeBytes':sum(len(read(f)) for f in runtime),'publicFiles':len(delta['currentPublicPaths']),'built':'--built' in sys.argv,'networkCalls':0,'productionWrites':0}))

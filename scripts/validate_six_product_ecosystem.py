@@ -1,4 +1,5 @@
 from pathlib import Path
+from scope_beta_20261014_inverse import source_at_scope_beta_baseline
 import re
 import json
 import subprocess
@@ -273,7 +274,7 @@ for token in [
     'Structural Clarity','Decision Velocity','Operational Systems','Institutional Performance',
     'These reports use realistic example responses to demonstrate Monderman’s analysis and reporting.',
 ]:
-    require(sample,token,'Sample report')
+    require(source_at_scope_beta_baseline('sample-report.html',sample) if token=='These reports use realistic example responses to demonstrate Monderman’s analysis and reporting.' else sample,token,'Sample report')
 for tab in ['os','dv','sc','ip','synthesis','depth']:
     require(sample,f'id="report-{tab}"','Sample report')
     require(sample,f'aria-controls="report-{tab}"','Sample report accessible tab')

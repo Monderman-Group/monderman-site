@@ -6,26 +6,33 @@ import path from 'node:path';
 import vm from 'node:vm';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
+import {sourceAtScopeBetaBaseline,sourcePathsAtScopeBetaBaseline,isCurrentScopeBeta,scopeBetaDelta} from './scope_beta_20261014_inverse.mjs';
 
 const root=path.resolve(import.meta.dirname,'..'),out=fs.mkdtempSync(path.join(os.tmpdir(),'monderman-runtime-build-'));
 const stage=path.join(out,'source'),built=path.join(stage,'.render-public');
 fs.mkdirSync(stage,{mode:0o700});
-const read=file=>fs.readFileSync(path.join(root,file));
+const scopeSourceNames=[...new Set([...execFileSync('git',['ls-files','--cached'],{cwd:root,encoding:'utf8'}).split('\n'),...execFileSync('git',['ls-files','--others','--exclude-standard'],{cwd:root,encoding:'utf8'}).split('\n')])].filter(file=>file&&fs.existsSync(path.join(root,file))&&!(file==='node_modules'&&fs.lstatSync(path.join(root,file)).isSymbolicLink()));
+const scopeHistorical=isCurrentScopeBeta()&&JSON.stringify(sourcePathsAtScopeBetaBaseline(scopeSourceNames))===JSON.stringify(scopeBetaDelta.baselineSourcePaths);
+const read=file=>scopeHistorical?sourceAtScopeBetaBaseline(file,fs.readFileSync(path.join(root,file))):fs.readFileSync(path.join(root,file));
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 let checks=0;const eq=(a,b,label)=>{assert.deepEqual(a,b,label);checks++;};
 const ok=(value,label)=>{assert.ok(value,label);checks++;};
 const explicit=['CNAME','robots.txt','sitemap.txt','sitemap.xml','legal-document-manifest.json','public-search-index.json',
   'favicon.ico','favicon.svg','favicon-192.png','apple-touch-icon.png','Hero-Image.jpg','founder-jason-adamson.jpg','founder-elizabeth-neiford.jpg'];
-const rootFiles=fs.readdirSync(root,{withFileTypes:true}).filter(row=>row.isFile()
+const rootFiles=(scopeHistorical?scopeBetaDelta.baselineSourcePaths.filter(file=>!file.includes('/')).map(name=>({name,isFile:()=>true})):fs.readdirSync(root,{withFileTypes:true})).filter(row=>row.isFile()
   &&(/\.(?:html|css|js|woff2?|pdf)$/.test(row.name)||explicit.includes(row.name))).map(row=>row.name).sort();
 const samplePdfs=['operational_systems','decision_velocity','structural_clarity','institutional_performance','depth_synthesis','cross_lens_synthesis'].map(name=>'sample-data/reports/'+name+'.pdf');
 const protectedFiles=[...rootFiles,'sample-data/production-diagnostic-samples.json','sample-data/production-sample-release.json',...samplePdfs];
 const hashes=Object.fromEntries(protectedFiles.map(file=>[file,sha(read(file))]));
+if(scopeHistorical){
+  for(const file of [...rootFiles,...scopeBetaDelta.baselineSourcePaths.filter(file=>['assets/','site-shell/','sample-data/','scripts/'].some(prefix=>file.startsWith(prefix)))]){const target=path.join(stage,file);fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,read(file));}
+}else{
 for(const file of rootFiles)fs.copyFileSync(path.join(root,file),path.join(stage,file));
 for(const directory of ['assets','site-shell','sample-data'])fs.cpSync(path.join(root,directory),path.join(stage,directory),{recursive:true});
 fs.mkdirSync(path.join(stage,'scripts'));
 for(const file of ['render-static-build.sh','inject-public-shell.mjs','configure_questionnaire_release.mjs','validate_diagnostic_inline_js.py'])
   fs.copyFileSync(path.join(root,'scripts',file),path.join(stage,'scripts',file));
+}
 const revision=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();
 ok(/^[a-f0-9]{40}$/.test(revision));
 const buildLog=execFileSync('bash',['scripts/render-static-build.sh'],{cwd:stage,encoding:'utf8',
@@ -130,11 +137,11 @@ const legalContent=html=>html.split('<!-- CONTENT_START -->')[1].split('<!-- CON
 for(const file of ['terms.html','terms-2026-09-15-annual-plans.html','terms-2026-09-19-invited-evaluation.html','privacy.html','outreach-privacy.html','privacy-2026-09-12-ai-source-evidence-v2.html','privacy-2026-09-19-invited-evaluation.html','terms-2026-09-19-invitation-access.html','privacy-2026-09-19-invitation-access.html']){
   eq(legalContent(fs.readFileSync(path.join(built,file),'utf8')),legalContent(read(file).toString()),'Shell injection preserves exact legal content: '+file);
 }
-const inventory=JSON.parse(execFileSync(process.execPath,[path.join(root,'scripts/mobile_site_presentation_smoke.mjs'),'--inventory-only'],{cwd:stage,encoding:'utf8'}));
+const inventory=JSON.parse(execFileSync(process.execPath,[path.join(scopeHistorical?stage:root,'scripts/mobile_site_presentation_smoke.mjs'),'--inventory-only'],{cwd:stage,encoding:'utf8'}));
 eq(inventory.canonicalPages,canonicalPages);eq(inventory.footerPages,footerPages);eq(inventory.browserLaunched,false);
 for(const file of protectedFiles)eq(sha(read(file)),hashes[file],'Original source, runtime and sample bytes unchanged: '+file);
 const receipt={status:'PASS',checks,pages:pages.length,canonicalPages,footerPages,references,buildLog,inventory,
-  sourceRevision:revision,sourceBasis:'Current local working-tree bytes; not a committed or publication-approved artifact',
+  sourceRevision:revision,sourceBasis:scopeHistorical?'Exact f2a81afdd30863c68b4ae748936163a141b0edd6 pre-Scope reconstruction; current HEAD marker checks only historical build plumbing, NOT a genuine current build or publication proof':'Current local working-tree bytes; not a committed or publication-approved artifact',historicalSourceRevision:scopeHistorical?scopeBetaDelta.baseline:null,
   questionnaireChannel:'legacy',injectorSha256:sha(read('scripts/inject-public-shell.mjs')),runtimeSha256:Object.fromEntries(changed.map(file=>[file,hashes[file]])),
   protectedSampleSha256:hashes['sample-data/production-diagnostic-samples.json'],protectedManifestSha256:hashes['sample-data/production-sample-release.json'],
   providerCalls:0,networkCalls:0,published:false};

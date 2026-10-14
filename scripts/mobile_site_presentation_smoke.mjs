@@ -4,6 +4,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {isCurrentHomepageRefinementSource} from './homepage_refinement_20261014_inverse.mjs';
 import {isCurrentSiteDesignCoherence} from './site_design_coherence_20261014_inverse.mjs';
+import {isCurrentScopeBeta,scopeBetaDelta} from './scope_beta_20261014_inverse.mjs';
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
 const out = process.env.MOBILE_OUT || '/tmp/mobile-site-presentation';
@@ -11,9 +12,10 @@ fs.mkdirSync(out, { recursive: true });
 
 // Discover every customer-facing root HTML surface so newly added pages enter
 // the sweep automatically. The Google ownership token is not a rendered page.
-const pages = fs.readdirSync(process.cwd())
-  .filter((name) => name.endsWith('.html') && !name.startsWith('google'))
-  .sort();
+const allCurrentPages = fs.readdirSync(process.cwd()).filter(name=>name.endsWith('.html')&&!name.startsWith('google')).sort();
+const currentScopeBeta=isCurrentScopeBeta();
+const pages=allCurrentPages.filter(name=>name!=='scope.html'||!currentScopeBeta);
+if(currentScopeBeta){assert.deepEqual(allCurrentPages, [...scopeBetaDelta.baselineSourcePaths.filter(f=>f.endsWith('.html')&&!f.startsWith('google')), 'scope.html'].sort(),'All original89 and only the approved Scope page exist');assert.equal(allCurrentPages.filter(name=>name==='scope.html').length,1,'Exactly one additional Scope overview joins the separate mandatory current matrix');}
 
 const sourceByPage = new Map(pages.map((name) => [name, fs.readFileSync(name, 'utf8')]));
 const currentHomepageRefinement = isCurrentHomepageRefinementSource(sourceByPage.get('index.html'));

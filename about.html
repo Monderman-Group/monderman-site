@@ -661,6 +661,7 @@
     <div class="header-inner">
       <a href="index.html" class="brand">Monderman.</a>
       <nav class="nav" aria-label="Primary navigation">
+        <a href="scope.html">Scope</a>
         <a href="index.html#approach">Approach</a>
         <a href="https://www.monderman.com/diagnostics.html">Diagnostics</a>
         <a href="research.html" class="is-active">Research</a>
@@ -668,7 +669,7 @@
         <a href="about.html">About</a>
         <a href="platform-services.html">Plans &amp; Pricing</a>
         <a href="connect.html">Connect</a>
-        <a class="workspace-link" href="workspace.html">Sign In</a>
+        <a class="workspace-link" href="workspace.html">Sign in to Scope</a>
       </nav>
     </div>
   </header>
@@ -695,7 +696,7 @@
           Jason Adamson built Monderman after twenty-five years working inside complex organizations. His career as an intelligence analyst included the National Security Agency, CrowdStrike, and U.S. Special Operations Command, where he saw how ownership, approvals, handoffs, and process requirements affect delivery.
         </p>
         <p>
-          He holds an MS in Organization Development from Pepperdine University. He is also the author of <a href="https://www.routledge.com/Governance-Bureaucracy-and-Organization-Stewardship-Drift-and-Administrative-Capacity/Adamson/p/book/9781041403296" target="_blank" rel="noopener noreferrer"><em>Governance, Bureaucracy and Organization: Stewardship, Drift, and Administrative Capacity</em></a> (Routledge, publication date: 21 October 2026, 234 pages). Monderman is designed for private, public, nonprofit, and academic organizations that want a structured way to examine how work and decisions move.
+          He holds an MS in Organization Development from Pepperdine University. He is also the author of <a href="https://www.routledge.com/Governance-Bureaucracy-and-Organization-Stewardship-Drift-and-Administrative-Capacity/Adamson/p/book/9781041403296" target="_blank" rel="noopener noreferrer"><em>Governance, Bureaucracy and Organization: Stewardship, Drift, and Administrative Capacity</em></a> (Routledge, publication date: 21 October 2026, 234 pages). Monderman Scope is designed for private, public, nonprofit, and academic organizations that want a structured way to examine how work and decisions move.
         </p>
         <blockquote class="founder-quote">
           Monderman asks how ownership, decisions, handoffs, and administrative work operate in practice. Those reported conditions can help leaders decide what to investigate next.
@@ -755,6 +756,7 @@
         <nav class="mf-nav" aria-label="Footer navigation">
           <div class="mf-col">
             <p class="mf-col-title">Explore</p>
+            <a href="scope.html">Monderman Scope</a>
             <a href="index.html#approach">Approach</a>
             <a href="diagnostics.html">Diagnostics</a>
             <a href="research.html">Research</a>
@@ -811,8 +813,8 @@
       link.setAttribute("href", "workspace.html");
       try {
         const { data } = await sb.auth.getSession();
-        link.textContent = data?.session?.user ? "Workspace" : "Sign In";
-      } catch (e) { link.textContent = "Sign In"; }
+        link.textContent = data?.session?.user ? "Open Scope" : "Sign in to Scope";
+      } catch (e) { link.textContent = "Sign in to Scope"; }
     })();
   </script>
 

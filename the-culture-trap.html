@@ -20,6 +20,7 @@
     <div class="header-inner">
       <a href="index.html" class="brand">Monderman.</a>
       <nav class="nav" aria-label="Primary navigation">
+        <a href="scope.html">Scope</a>
         <a href="index.html#approach">Approach</a>
         <a href="https://www.monderman.com/diagnostics.html">Diagnostics</a>
         <a href="research.html" class="is-active">Research</a>
@@ -27,7 +28,7 @@
         <a href="about.html">About</a>
         <a href="platform-services.html">Plans &amp; Pricing</a>
         <a href="connect.html">Connect</a>
-        <a class="workspace-link" href="workspace.html">Sign In</a>
+        <a class="workspace-link" href="workspace.html">Sign in to Scope</a>
       </nav>
     </div>
   </header><main>
@@ -55,6 +56,7 @@
         <nav class="mf-nav" aria-label="Footer navigation">
           <div class="mf-col">
             <p class="mf-col-title">Explore</p>
+            <a href="scope.html">Monderman Scope</a>
             <a href="index.html#approach">Approach</a>
             <a href="diagnostics.html">Diagnostics</a>
             <a href="research.html">Research</a>
@@ -86,7 +88,7 @@
     </div>
   </footer><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
 <script>
-(()=>{const h=document.getElementById('siteHeader');const applyHeader=()=>h?.classList.toggle('scrolled',window.scrollY>24);applyHeader();window.addEventListener('scroll',applyHeader,{passive:true});const link=document.querySelector('a.workspace-link');if(!link||!window.supabase?.createClient)return;const sb=window.supabase.createClient('https://ptkxrzgmeldalrkfruth.supabase.co','sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'pkce'}});const apply=async()=>{let signedIn=false;try{const {data}=await sb.auth.getSession();signedIn=!!data?.session?.user}catch(e){}link.textContent=signedIn?'Workspace':'Sign In';link.setAttribute('href',signedIn?'workspace.html':'signin.html?next=workspace.html')};apply();sb.auth.onAuthStateChange(()=>apply())})();
+(()=>{const h=document.getElementById('siteHeader');const applyHeader=()=>h?.classList.toggle('scrolled',window.scrollY>24);applyHeader();window.addEventListener('scroll',applyHeader,{passive:true});const link=document.querySelector('a.workspace-link');if(!link||!window.supabase?.createClient)return;const sb=window.supabase.createClient('https://ptkxrzgmeldalrkfruth.supabase.co','sb_publishable_-4d7OaQvErf0mpdwEJhIoQ_skFiVBhz',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'pkce'}});const apply=async()=>{let signedIn=false;try{const {data}=await sb.auth.getSession();signedIn=!!data?.session?.user}catch(e){}link.textContent=signedIn?'Open Scope':'Sign in to Scope';link.setAttribute('href',signedIn?'workspace.html':'signin.html?next=workspace.html')};apply();sb.auth.onAuthStateChange(()=>apply())})();
 </script>
 <script src="canonical-site-shell.js?v=20260915.consistency1"></script>
 </body></html>

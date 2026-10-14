@@ -4,6 +4,11 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {isCurrentHomepageRefinementSource,sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014_inverse.mjs';
+import {historicalScopeBetaBrowserBodies} from './scope_beta_20261014_inverse.mjs';
+// Every old physical assertion runs on its exact approved f2a edition; the separate Scope matrix certifies current layout.
+const scopeHistoricalBodies=historicalScopeBetaBrowserBodies(decodeURIComponent(new URL('../.render-public/',import.meta.url).pathname));
+const scopeHistoricalResponse=route=>{const u=new URL(route.request().url()),b=scopeHistoricalBodies.get(u.pathname);assert.ok(b,'Exact compiled historical input');return route.fulfill({status:200,contentType:u.pathname.endsWith('.html')?'text/html':u.pathname.endsWith('.css')?'text/css':u.pathname.endsWith('.json')?'application/json':'application/javascript',body:b});};
+if(scopeHistoricalBodies.size)console.log('SCOPE_PRESERVED_PHYSICAL_EDITION f2a81afdd30863c68b4ae748936163a141b0edd6 '+scopeHistoricalBodies.size+' exact compiled bodies');
 const {chromium, webkit} = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
 const origin = new URL(base).origin;
@@ -93,6 +98,7 @@ async function setup(browser, options, pathname = '/index.html') {
     if (options.failScript && url.pathname === '/marketing-completion.js') return route.abort();
     if (options.failStyles && url.pathname === '/marketing-completion.css') return route.abort();
     if (options.failPhotos && photoPaths.includes(url.pathname)) return route.abort();
+    if(scopeHistoricalBodies.has(url.pathname))return scopeHistoricalResponse(route);
     return route.continue();
   });
   const response = await page.goto(base + pathname, {waitUntil: 'load'});

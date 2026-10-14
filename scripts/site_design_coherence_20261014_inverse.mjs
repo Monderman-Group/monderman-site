@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
+import {sourceAtScopeBetaBaseline,publicSourceAtScopeBetaBaseline,sourcePathsAtScopeBetaBaseline,publicPathsAtScopeBetaBaseline,historicalScopeBetaBrowserBodies} from './scope_beta_20261014_inverse.mjs';
 const sha=b=>createHash('sha256').update(b).digest('hex');
 export const SITE_DESIGN_COHERENCE_BASELINE='16935688e0b4c6e177c81bdcaefb5727894d7a11';
 export const SITE_DESIGN_COHERENCE_VERSION='site-design-coherence-20261014.1';
@@ -33,24 +34,24 @@ function atBaseline(entries,file,source){
  assert.ok(typeof source==='string'||Buffer.isBuffer(source),'Exact text/bytes type');
  return sha(source)===e.after_sha256?reverse(entries,file,source):source;
 }
-export const sourceBeforeSiteDesignCoherence20261014=(file,source)=>reverse(siteDesignCoherenceDelta.files,file,source);
-export const sourceAtSiteDesignCoherenceBaseline=(file,source)=>atBaseline(siteDesignCoherenceDelta.files,file,source);
-export const publicSourceBeforeSiteDesignCoherence20261014=(file,source)=>reverse(siteDesignCoherenceDelta.publicFiles,file,source);
-export const publicSourceAtSiteDesignCoherenceBaseline=(file,source)=>atBaseline(siteDesignCoherenceDelta.publicFiles,file,source);
+export const sourceBeforeSiteDesignCoherence20261014=(file,source)=>reverse(siteDesignCoherenceDelta.files,file,sourceAtScopeBetaBaseline(file,source));
+export const sourceAtSiteDesignCoherenceBaseline=(file,source)=>atBaseline(siteDesignCoherenceDelta.files,file,sourceAtScopeBetaBaseline(file,source));
+export const publicSourceBeforeSiteDesignCoherence20261014=(file,source)=>reverse(siteDesignCoherenceDelta.publicFiles,file,publicSourceAtScopeBetaBaseline(file,source));
+export const publicSourceAtSiteDesignCoherenceBaseline=(file,source)=>atBaseline(siteDesignCoherenceDelta.publicFiles,file,publicSourceAtScopeBetaBaseline(file,source));
 const root=path.resolve(import.meta.dirname,'..');
-function additionsExact(){return SITE_DESIGN_COHERENCE_ADDITIONS.every(f=>{const p=path.join(root,f),e=siteDesignCoherenceDelta.additions[f];return fs.existsSync(p)&&fs.statSync(p).isFile()&&fs.statSync(p).size===e.bytes&&sha(fs.readFileSync(p))===e.sha256;});}
+function additionsExact(){return SITE_DESIGN_COHERENCE_ADDITIONS.every(f=>{const p=path.join(root,f),e=siteDesignCoherenceDelta.additions[f];if(!fs.existsSync(p)||!fs.statSync(p).isFile())return false;const b=sourceAtScopeBetaBaseline(f,fs.readFileSync(p));return b.length===e.bytes&&sha(b)===e.sha256;});}
 function namesAtBaseline(names,current,prior){
  assert.ok(Array.isArray(names)&&names.every(f=>typeof f==='string'),'Explicit path list');
  return siteDesignCoherenceDelta.provisional===false&&names.length===new Set(names).size&&JSON.stringify([...names].sort())===JSON.stringify([...current].sort())&&additionsExact()?[...prior]:names;
 }
-export const sourcePathsAtSiteDesignCoherenceBaseline=names=>namesAtBaseline(names,siteDesignCoherenceDelta.currentSourcePaths,siteDesignCoherenceDelta.baselineSourcePaths);
-export const publicPathsAtSiteDesignCoherenceBaseline=names=>namesAtBaseline(names,siteDesignCoherenceDelta.currentPublicPaths,siteDesignCoherenceDelta.baselinePublicPaths);
-export function isCurrentSiteDesignCoherence(){return siteDesignCoherenceDelta.provisional===false&&additionsExact()&&SITE_DESIGN_COHERENCE_FILES.every(f=>{const p=path.join(root,f),e=siteDesignCoherenceDelta.files[f];return fs.existsSync(p)&&sha(fs.readFileSync(p))===e.after_sha256;});}
+export const sourcePathsAtSiteDesignCoherenceBaseline=names=>namesAtBaseline(sourcePathsAtScopeBetaBaseline(names),siteDesignCoherenceDelta.currentSourcePaths,siteDesignCoherenceDelta.baselineSourcePaths);
+export const publicPathsAtSiteDesignCoherenceBaseline=names=>namesAtBaseline(publicPathsAtScopeBetaBaseline(names),siteDesignCoherenceDelta.currentPublicPaths,siteDesignCoherenceDelta.baselinePublicPaths);
+export function isCurrentSiteDesignCoherence(){return siteDesignCoherenceDelta.provisional===false&&additionsExact()&&SITE_DESIGN_COHERENCE_FILES.every(f=>{const p=path.join(root,f),e=siteDesignCoherenceDelta.files[f];return fs.existsSync(p)&&sha(sourceAtScopeBetaBaseline(f,fs.readFileSync(p)))===e.after_sha256;});}
 export function historicalSiteDesignBrowserBodies(publishRoot){
  if(!isCurrentSiteDesignCoherence())return new Map();
- const rows=new Map();for(const f of Object.keys(siteDesignCoherenceDelta.publicFiles)){
+ const rows=historicalScopeBetaBrowserBodies(publishRoot);for(const f of Object.keys(siteDesignCoherenceDelta.publicFiles)){
   if(!/\.(?:html|css|js|json)$/.test(f))continue;
-  const raw=fs.readFileSync(path.join(publishRoot,f));assert.equal(sha(raw),siteDesignCoherenceDelta.publicFiles[f].after_sha256,'Exact current compiled input before historical browser rendering');
+  const raw=publicSourceAtScopeBetaBaseline(f,fs.readFileSync(path.join(publishRoot,f)));assert.equal(sha(raw),siteDesignCoherenceDelta.publicFiles[f].after_sha256,'Exact current compiled input before historical browser rendering');
   rows.set('/'+f,publicSourceBeforeSiteDesignCoherence20261014(f,raw));
  }return rows;
 }

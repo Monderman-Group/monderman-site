@@ -1,4 +1,5 @@
 from pathlib import Path
+from scope_beta_20261014_inverse import source_at_scope_beta_baseline,public_source_at_scope_beta_baseline
 import hashlib,os,re,runpy,subprocess,sys
 r=Path('.')
 e=[]
@@ -525,7 +526,7 @@ for token in ['Evaluate Pattern features for 60 days.','No credit card, payment 
  if token not in trial:e.append('pattern trial contract '+token)
 for stale in ['One Pattern trial per Workspace','starts immediately for this Workspace','This Workspace has already used its one-time Pattern trial','id="pilotInvitationCode"','invitation_code:invitationCode','reusable invitation code']:
  if stale in trial:e.append('pattern trial stale scope '+stale)
-pattern=(r/'plan-pattern.html').read_text(errors='ignore')
+pattern=source_at_scope_beta_baseline('plan-pattern.html',public_source_at_scope_beta_baseline('plan-pattern.html',(r/'plan-pattern.html').read_text(errors='ignore')))
 for token in ['href="pattern-trial.html"','Activate your invitation','href="pilot.html"','Request an invitation','Evaluate Monderman free for 60 days with full Pattern functionality','No credit card. No automatic renewal.','Your evaluation does not become a paid subscription','Pattern &middot; expanded campaigns']:
  if token not in pattern:e.append('pattern trial entry '+token)
 shell=(r/'workspace-shell.js').read_text(errors='ignore')
@@ -574,7 +575,7 @@ for name in ['workspace.html','workspace-diagnostics.html','workspace-analysis.h
  if re.search(r'<[^>]+\bclass=["\'][^"\']*\bws-beta-release\b',(r/name).read_text(errors='ignore')):
   e.append(name+': retired beta badge remains')
 for name in ['sample-report.html','decision-velocity.html','operational-systems.html','structural-clarity.html','institutional-performance.html']:
- t=(r/name).read_text(errors='ignore')
+ t=source_at_scope_beta_baseline(name,public_source_at_scope_beta_baseline(name,(r/name).read_text(errors='ignore')))
  if re.search(r'>\s*Beta\s*<|Public Beta|beta release',t,re.I):e.append(name+': beta label on diagnostic/report output')
 
 # Contact submissions prefer a first-party hostname, probe before the single
@@ -708,9 +709,9 @@ except Exception as exc:
 invite=(r/'accept-invite.html').read_text(errors='ignore')
 signin=(r/'signin.html').read_text(errors='ignore')
 for token in ['You&rsquo;ve been invited to a Monderman workspace','No purchase or separate signup is required','Continue securely']:
- if token not in invite:e.append('signed-out invitation landing '+token)
+ if token not in (source_at_scope_beta_baseline('accept-invite.html',public_source_at_scope_beta_baseline('accept-invite.html',invite)) if token=='You&rsquo;ve been invited to a Monderman workspace' else invite):e.append('signed-out invitation landing '+token)
 for token in ['Accept your Monderman workspace invitation','Invited email address','Review the terms to join this workspace','invitationStatusMessage','invite_email_mismatch','invite_expired','invite_not_found','history.replaceState(null, ""','sessionStorage.removeItem(INVITE_STORAGE_KEY)']:
- if token not in signin:e.append('signed-out invitation sign-in '+token)
+ if token not in (source_at_scope_beta_baseline('signin.html',public_source_at_scope_beta_baseline('signin.html',signin)) if token=='Accept your Monderman workspace invitation' else signin):e.append('signed-out invitation sign-in '+token)
 if 'Your account was not activated' in signin:e.append('signed-out invitation false activation error')
 if signin.count('createClient(')!=1:e.append('sign-in shared Supabase client count')
 

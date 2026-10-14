@@ -2,10 +2,15 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
+import {historicalScopeBetaBrowserBodies} from './scope_beta_20261014_inverse.mjs';
 
 // The exact reviewed copy delta retired the four measurement-loop cards, not
 // the three proof cards or four diagnostic cards exercised below. Preserve the
 // historical bytes and independently check the current section's complete DOM.
+// Every old physical assertion runs on its exact approved f2a edition; the separate Scope matrix certifies current layout.
+const scopeHistoricalBodies=historicalScopeBetaBrowserBodies(decodeURIComponent(new URL('../.render-public/',import.meta.url).pathname));
+const scopeHistoricalResponse=route=>{const u=new URL(route.request().url()),b=scopeHistoricalBodies.get(u.pathname);assert.ok(b,'Exact compiled historical input');return route.fulfill({status:200,contentType:u.pathname.endsWith('.html')?'text/html':u.pathname.endsWith('.css')?'text/css':u.pathname.endsWith('.json')?'application/json':'application/javascript',body:b});};
+if(scopeHistoricalBodies.size)console.log('SCOPE_PRESERVED_PHYSICAL_EDITION f2a81afdd30863c68b4ae748936163a141b0edd6 '+scopeHistoricalBodies.size+' exact compiled bodies');
 const homepageSource = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const marketingBaselineHomepage = sourceAtMarketingRefreshBaseline('index.html', homepageSource);
 assert.notEqual(marketingBaselineHomepage, homepageSource, 'Both the exact legacy render and the actual refreshed render are exercised');
@@ -126,6 +131,7 @@ for (const [browserName, browserType] of browsers) {
         if(!['GET','HEAD'].includes(request.method())||url.pathname.startsWith('/api/')) { attemptedWrites.push({method:request.method(),path:url.pathname});return route.abort(); }
         if(url.origin!==origin)return route.abort();
         if(edition==='baseline'&&url.pathname==='/index.html')return route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:marketingBaselineHomepage});
+        if(scopeHistoricalBodies.has(url.pathname))return scopeHistoricalResponse(route);
         return route.continue();
       });
       page.on('pageerror',error=>pageErrors.push(error.message));
