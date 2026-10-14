@@ -4,10 +4,31 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
+import {isCurrentHomepageRefinementSource} from './homepage_refinement_20261014_inverse.mjs';
 const {chromium,webkit}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 const base=process.env.SITE_BASE||'http://127.0.0.1:4175';
 const out=process.env.HOMEPAGE_DISCOVERY_OUT||fs.mkdtempSync('/tmp/homepage-discovery-');
 fs.mkdirSync(out,{recursive:true});
+const refinementSource=fs.readFileSync(new URL('../index.html',import.meta.url));
+const currentRefinement=isCurrentHomepageRefinementSource(refinementSource);
+assert.ok(!refinementSource.toString().includes('homepage-refinement.js?v=20261014.1')||currentRefinement,'Only exact approved refined edition selects its native expansion checks');
+async function expandRefinedHeroForOriginalChecks(page,enabled,label){
+  if(!enabled)return;
+  const report=page.locator('.hero [data-home-report-quad]'),details=report.locator('.hf-hero-details'),toggle=details.locator(':scope > summary');
+  assert.equal(await details.count(),1,label+': exact native preview disclosure');
+  assert.equal(await details.evaluate(el=>el.open),false,label+': initial compact state without deferred hiding');
+  assert.equal(await report.locator('.hrq-tile:visible').count(),1,label+': default exposes finding only');
+  assert.equal(await report.locator('.hrq-tile:visible').getAttribute('data-quad-section'),'findings',label+': exact visible default section');
+  assert.equal(await report.locator('.hrq-footer>a').getAttribute('href'),'sample-report.html#depth',label+': original full-report destination stays available');
+  assert.equal(await toggle.isVisible(),true,label+': native summary works with or without scripts');
+  assert.ok((await toggle.boundingBox()).height>=44,label+': native expansion is a usable touch target');
+  await toggle.focus();
+  await page.keyboard.press('Space');
+  await page.waitForFunction(()=>document.querySelector('.hero .hf-hero-details').open);
+  assert.equal(await report.locator('.hrq-tile:visible').count(),4,label+': native expansion restores all four original sections');
+  assert.equal(await details.locator('.hf-extra-grid > .hrq-tile').count(),3,label+': exact three additional native report roles');
+}
+
 let states=0;
 let entryStates=0;
 const entryViewports=[{width:375,height:667},{width:390,height:844},{width:1280,height:720}];
@@ -32,6 +53,7 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
       assert.equal(await report.isVisible(),true,name+'/'+width+': report quad is not hidden by legacy hero CSS');
       assert.equal(await page.locator('.hero [data-workspace-demo]').count(),0,'Interactive journey is not in the hero');
       assert.equal(await page.locator('#sample-output [data-workspace-demo]').count(),1,'Interactive journey is in the lower section');
+      await expandRefinedHeroForOriginalChecks(page,currentRefinement,name+'/'+width);
       assert.equal(await report.locator('[data-preview-kind]').count(),2,'Money and time charts are both present');
       for(const chart of await report.locator('[data-preview-kind]').all())assert.equal(await chart.isVisible(),true,'Each hero chart is visible');
       const reportLink=report.locator('.hrq-footer>a');

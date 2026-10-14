@@ -8,10 +8,14 @@ const {chromium,webkit}=await import(process.env.PLAYWRIGHT_MODULE||'playwright'
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 import {buildPublicSamplePreviewSections} from './refresh_public_sample_previews.mjs';
 import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
+import {isCurrentHomepageRefinementSource,sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014_inverse.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 const homepageSource=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const marketingBaselineHomepage=sourceAtMarketingRefreshBaseline('index.html',homepageSource);
+const currentRefinement=isCurrentHomepageRefinementSource(homepageSource);
+assert.ok(!homepageSource.includes('homepage-refinement.js?v=20261014.1')||currentRefinement,'Only exact approved current refinement selects current geometry');
+const priorRefinementHomepage=sourceAtHomepageRefinementBaseline('index.html',homepageSource);
 assert.notEqual(marketingBaselineHomepage,homepageSource,'The exact prior homepage is rendered alongside the reviewed enlarged homepage');
 const origin='http://127.0.0.1:49876';
 const arg=process.argv.find(value=>value.startsWith('--output='));
@@ -69,6 +73,17 @@ function assertEnlargedOverview(geometry){
   assert.equal(geometry.areas,'"finding finding" "money change" "money evidence"','Dominant finding retains the specific approved arrangement');
   assert.equal(geometry.qualification,'Sample report · Example data','Visible qualification beside enlarged preview');
 }
+function assertRefinedOverview(geometry,width){
+  assert.ok(Number.isFinite(geometry.width)&&geometry.width>=500&&geometry.width<=640.5,'Known current compact-plan expanded width');
+  assert.ok(Number.isFinite(geometry.height)&&geometry.height>=700&&geometry.height<=1500,'Known current complete four-panel expanded height');
+  assert.equal(geometry.findingFont,19,'Exact approved current finding type size');
+  assert.equal(geometry.scoreFont,width<=600?46:52,'Exact approved current score type size');
+  assert.equal(geometry.extraAreas,'"money change" "evidence evidence"','Native expanded additional report roles retain their approved arrangement');
+  assert.equal(geometry.qualification,'Sample report · Example data','Current remains explicitly illustrative');
+}
+const refinedGeometryFixture={width:566,height:892,findingFont:19,scoreFont:52,extraAreas:'"money change" "evidence evidence"',qualification:'Sample report · Example data'};
+assertRefinedOverview(refinedGeometryFixture,1280);checks++;
+for(const mutant of [{width:499},{width:641},{height:699},{height:1501},{findingFont:18},{scoreFont:51},{extraAreas:'"finding"'},{qualification:'Customer result'}]){assert.throws(()=>assertRefinedOverview({...refinedGeometryFixture,...mutant},1280));checks++;}
 const overviewGeometryFixture={width:764,height:879,findingFont:25.92,scoreFont:68,areas:'"finding finding" "money change" "money evidence"',qualification:'Sample report · Example data'};
 assertEnlargedOverview(overviewGeometryFixture);checks++;
 for(const mutant of [{width:901},{height:1001},{height:680},{findingFont:20},{scoreFont:57},{areas:'"finding money"'},{qualification:'Customer result'}]){
@@ -82,6 +97,22 @@ if(process.argv.includes('--copy-only')){
 const types={'.html':'text/html','.css':'text/css','.js':'text/javascript','.json':'application/json','.svg':'image/svg+xml',
   '.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.ico':'image/x-icon','.woff':'font/woff','.woff2':'font/woff2'};
 globalThis.fetch=()=>{throw Error('This local-only test does not use network fetch');};
+
+async function expandRefinedHeroForOriginalChecks(page,enabled,label){
+  if(!enabled)return;
+  const report=page.locator('.hero [data-home-report-quad]'),details=report.locator('.hf-hero-details'),toggle=details.locator(':scope > summary');
+  assert.equal(await details.count(),1,label+': exact native preview disclosure');
+  assert.equal(await details.evaluate(el=>el.open),false,label+': initial compact state without deferred hiding');
+  assert.equal(await report.locator('.hrq-tile:visible').count(),1,label+': default exposes finding only');
+  assert.equal(await report.locator('.hrq-tile:visible').getAttribute('data-quad-section'),'findings',label+': exact visible default section');
+  assert.equal(await report.locator('.hrq-footer>a').getAttribute('href'),'sample-report.html#depth',label+': original full-report destination stays available');
+  assert.equal(await toggle.isVisible(),true,label+': native summary works with or without scripts');
+  assert.ok((await toggle.boundingBox()).height>=44,label+': native expansion is a usable touch target');
+  await toggle.click();
+  await page.waitForFunction(()=>document.querySelector('.hero .hf-hero-details').open);
+  assert.equal(await report.locator('.hrq-tile:visible').count(),4,label+': native expansion restores all four original sections');
+  assert.equal(await details.locator('.hf-extra-grid > .hrq-tile').count(),3,label+': exact three additional native report roles');
+}
 
 async function shot(locator,file){await locator.screenshot({path:path.join(out,file)});screenshots.push(file);}
 async function linkStates(page,selector,name){
@@ -122,7 +153,7 @@ async function contained(page,selector,name){
 }
 for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
   const browser=await type.launch({headless:true});
-  try{for(const edition of ['baseline','current'])for(const width of [390,834,1440]){
+  try{for(const edition of (currentRefinement?['baseline','prior-current','current']:['baseline','current']))for(const width of [390,834,1440]){
     const page=await browser.newPage({viewport:{width,height:1000},reducedMotion:'reduce'}),errors=[];
     page.on('pageerror',error=>errors.push(error.message));
     await page.addInitScript(()=>{window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:null}})}})};});
@@ -133,6 +164,7 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
       const localFont=url.origin==='https://www.monderman.com'&&/^\/(?:55|56|65|66|75|76)font\.woff2?$/.test(url.pathname);
       const candidate=path.resolve(root,'.'+decodeURIComponent(url.pathname==='/'?'/index.html':url.pathname));
       if(local&&url.pathname==='/index.html'&&edition==='baseline')return route.fulfill({status:200,contentType:'text/html',body:marketingBaselineHomepage});
+      if(local&&url.pathname==='/index.html'&&edition==='prior-current')return route.fulfill({status:200,contentType:'text/html',body:priorRefinementHomepage});
       if((local||localFont)&&!path.relative(root,candidate).startsWith('..')&&types[path.extname(candidate)]&&fs.existsSync(candidate)&&fs.statSync(candidate).isFile())
         return route.fulfill({status:200,contentType:types[path.extname(candidate)],body:fs.readFileSync(candidate)});
       blockedRemoteRequests++;return route.abort();
@@ -165,20 +197,31 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
     equal(await page.locator('.hwd-compact-boundary').textContent(),'Capacity is not cash savings. Planning inputs are separate from scores.');
     equal(await page.locator('.hwd-sample-link').getAttribute('href'),'sample-report.html#synthesis','Full report remains one click away');
     equal(await page.locator('.hwd-sample-link').locator('xpath=ancestor::*[@role="tabpanel"]').count(),0,'Report link is independent of selected step');
+    await expandRefinedHeroForOriginalChecks(page,currentRefinement&&edition==='current',key);
     const quad=page.locator('[data-home-report-quad]');
     equal(await quad.count(),1,'One current Depth overview replaces the older financial tile');
     check(await quad.isVisible(),'Depth preview remains available at this viewport');
+    if(currentRefinement&&edition==='current')equal(await quad.locator('[data-quad-section="findings"] .hrq-score strong').evaluate(el=>parseFloat(getComputedStyle(el).fontSize)),width<=600?46:52,'Approved current score remains readable at every tested width');
     equal(await quad.getAttribute('data-artifact-sha256'),artifact.artifact_sha256,'Depth preview retains current source identity');
     equal(await quad.locator('.hrq-tile').evaluateAll(nodes=>nodes.map(node=>node.dataset.quadSection)),['findings','money','change','evidence'],'Four separate report roles');
+    if(currentRefinement&&edition==='current')equal(await quad.locator('.hf-extra-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.trim().split(/\s+/).length),width<=600?1:2,'Current native expanded additional panels remain readable in two columns or one on phones');
+    else{
     equal(await quad.locator('.hrq-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.trim().split(/\s+/).length),width<=600?1:2,'Preview uses two readable columns on larger screens and one on phones');
+    }
     if(width>=834){
       const previewBox=await quad.boundingBox();
+      if(currentRefinement&&edition==='current')check(previewBox.width>=500&&previewBox.width<=640.5,'Approved narrower current expanded report remains within its readable640px plan');
+      else{
       check(previewBox.width>580,'New report preview is not constrained to the retired narrow tile width');
+      }
       if(edition==='baseline'){
       check(previewBox.height<=680,'Two-column report preview retains the approved compact height: '+JSON.stringify({width:previewBox.width,height:previewBox.height,viewport:width}));
       }else{
         const geometry=await quad.evaluate(el=>({width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height,findingFont:parseFloat(getComputedStyle(el.querySelector('[data-quad-section="findings"] .hrq-lead')).fontSize),scoreFont:parseFloat(getComputedStyle(el.querySelector('[data-quad-section="findings"] .hrq-score strong')).fontSize),areas:getComputedStyle(el.querySelector('.hrq-grid')).gridTemplateAreas,qualification:document.querySelector('.mr-proof-label')?.innerText.trim()}));
+        if(currentRefinement&&edition==='current'){geometry.extraAreas=await quad.locator('.hf-extra-grid').evaluate(el=>getComputedStyle(el).gridTemplateAreas);assertRefinedOverview(geometry,width);checks++;}
+        else{
         assertEnlargedOverview(geometry);checks++;
+        }
       }
     }
     equal(await quad.locator('a').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href'))),Array(4).fill('sample-report.html#depth'),'Three section links and footer retain supported Depth routing');

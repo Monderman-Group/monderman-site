@@ -1,9 +1,10 @@
 """Independent Python raw-current owner photo contract; exact M reconstruction first."""
 import hashlib,json,re,subprocess,sys,os
 from pathlib import Path
+from homepage_refinement_20261014_inverse import source_at_homepage_refinement_baseline,source_paths_at_homepage_refinement_baseline,public_paths_at_homepage_refinement_baseline
 from marketing_photo_presentation_20261013_inverse import BASELINE,VERSION,_fixture as delta,FILES,ADDITIONS,GUARD_FILES,source_before_marketing_photo_presentation_20261013 as strict,source_at_marketing_photo_presentation_baseline as conditional,photo_names_at_marketing_photo_presentation_baseline as names_before
 ROOT=Path(__file__).resolve().parents[1]
-read=lambda f:(ROOT/f).read_bytes()
+read=lambda f:source_at_homepage_refinement_baseline(f,(ROOT/f).read_bytes())
 sha=lambda b:hashlib.sha256(b).hexdigest()
 git=lambda *a:subprocess.check_output(['git',*a],cwd=ROOT)
 checks=negative_controls=hunks=immutable=fixtures=pdfs=0
@@ -49,6 +50,7 @@ for file in ADDITIONS:
  reject(lambda f=file,b=b:(_ for _ in ()).throw(AssertionError()) if sha(b+b'UNKNOWN')!=delta['additions'][f]['sha256'] else None,'Unknown asset changes reject')
 known=set(tracked)|set(ADDITIONS)|set(GUARD_FILES)
 cached=git('ls-files','--cached').decode().splitlines();paths=set(cached+git('ls-files','--others','--exclude-standard').decode().splitlines());paths={p for p in paths if (ROOT/p).exists() and not(p=='node_modules' and p not in cached and (ROOT/p).is_symlink())}
+paths = source_paths_at_homepage_refinement_baseline(paths)
 def scope(rows):assert set(rows)<=known,'Only explicit currentsource/additions'
 scope(paths);checks+=len(paths)
 for file in ['unknown.js','AGENTS.md','.env','assets/marketing/iStock-original.jpg','font-package.zip']:reject(lambda f=file:scope(paths|{f}),'Unregistered/private addition rejects')
@@ -222,6 +224,7 @@ for file in ['.github/workflows/frontend-release.yml','.github/workflows/sample-
 check('MARKETING_PHOTO_PRESENTATION_OUT=/tmp/report-presentation-smoke/photo-presentation node scripts/marketing_photo_presentation_20261013_browser.mjs' in read('.github/workflows/sample-report-marketing-certification.yml').decode(),'Mandatory actualcurrent five-site browser')
 if '--built' in sys.argv:
  publish=ROOT/'.render-public';actual=sorted(str(p.relative_to(publish)) for p in publish.rglob('*') if p.is_file())
+ actual=public_paths_at_homepage_refinement_baseline(actual)
  check(actual==delta['publicInventory'],'Complete actualcanonicalbuildclosure no duplicates/privatefiles')
  for d in derivatives:check((publish/d['path']).read_bytes()==read(d['path']),'Actualbuiltphotographicbytes')
  check(json.loads((publish/'.well-known/monderman-release.json').read_bytes())['revision']==os.environ.get('RENDER_GIT_COMMIT'),'Actualbuildidentity')

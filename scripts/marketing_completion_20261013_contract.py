@@ -2,6 +2,7 @@
 import hashlib
 import json
 from pathlib import Path
+from homepage_refinement_20261014_inverse import source_paths_at_homepage_refinement_baseline
 import re
 import subprocess
 import sys
@@ -117,6 +118,7 @@ known = set(tracked + list(ADDITIONS) + guard_files + list(PHOTO_PRESENTATION_AD
 cached = git('ls-files', '--cached').decode().splitlines()
 paths = set(cached + git('ls-files', '--others', '--exclude-standard').decode().splitlines())
 paths = {f for f in paths if (ROOT / f).exists() and not (f == 'node_modules' and f not in cached and (ROOT / f).is_symlink())}
+paths = source_paths_at_homepage_refinement_baseline(paths)
 
 def assert_scope(values):
     for file in values:
