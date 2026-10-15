@@ -88,3 +88,25 @@ body.canonical-green-shell.page-scope .scope-release .scope-beta-badge { margin-
   body.canonical-green-shell.page-scope .scope-overview, body.canonical-green-shell.page-scope .scope-card { break-inside: avoid; box-shadow: none; }
   body.canonical-green-shell.page-scope .scope-actions { display: none; }
 }
+
+/* Approved Q²-SODI Workspace entry presentation; readiness stays with the existing page controllers. */
+:is(#sessionCheck,#wsOverlay).q2-entry { box-sizing:border-box; padding:24px; overflow:auto; background:#10282c; color:#FFFFFF; transition:none; }
+:is(#sessionCheck,#wsOverlay).q2-entry .q2-entry-panel { box-sizing:border-box; display:grid; grid-template-rows:auto 1fr auto; gap:0; width:100%; max-width:560px; min-height:430px; padding:26px 30px 22px; border:1px solid #345056; border-radius:16px; background:#10282c; color:#FFFFFF; text-align:center; }
+:is(#sessionCheck,#wsOverlay).q2-entry .q2-entry-top { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px 18px; text-align:left; }
+:is(#sessionCheck,#wsOverlay).q2-entry .q2-entry-company { font-size:18px; font-weight:600; letter-spacing:-.6px; line-height:1.3; }
+:is(#sessionCheck,#wsOverlay).q2-entry .q2-entry-company span { color:#81C8D0; }
+:is(#sessionCheck,#wsOverlay).q2-entry .q2-entry-beta { color:#C8DAD7; font-size:11px; line-height:1.4; letter-spacing:.05em; }
+:is(#sessionCheck,#wsOverlay).q2-entry .q2-entry-center { display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:0; padding:34px 0 38px; }
+:is(#sessionCheck,#wsOverlay).q2-entry .q2-entry-mark { display:block; flex:none; width:84px; height:84px; margin:0 0 23px; overflow:visible; }
+:is(#sessionCheck,#wsOverlay).q2-entry .q2-entry-name { margin:0; color:#FFFFFF; font-size:30px; font-weight:500; line-height:1.1; letter-spacing:-1.1px; }
+:is(#sessionCheck,#wsOverlay).q2-entry .q2-entry-name sup { position:relative; top:2px; margin-left:3px; font-size:10px; line-height:1; vertical-align:top; letter-spacing:0; }
+:is(#sessionCheck,#wsOverlay).q2-entry .q2-entry-workspace { margin:12px 0 27px; color:#C8DAD7; font-size:13px; line-height:1.4; letter-spacing:.14em; text-transform:uppercase; }
+:is(#sessionCheck,#wsOverlay).q2-entry p.q2-entry-status { max-width:38ch; min-height:22px; margin:0; color:#C8DAD7; font-size:14px; line-height:1.55; }
+:is(#sessionCheck,#wsOverlay).q2-entry .q2-entry-footer { color:#C8DAD7; font-size:11px; line-height:1.5; letter-spacing:.02em; }
+:is(#sessionCheck,#wsOverlay).q2-entry .q2-entry-arc { stroke-dasharray:1; stroke-dashoffset:0; animation:q2-entry-draw-20261015 .75s cubic-bezier(.22,.7,.25,1) both; }
+:is(#sessionCheck,#wsOverlay).q2-entry .q2-entry-arc-b { animation-delay:.22s; }
+:is(#sessionCheck,#wsOverlay).q2-entry .q2-entry-arc-c { animation-delay:.44s; }
+@keyframes q2-entry-draw-20261015 { from { stroke-dashoffset:1; } to { stroke-dashoffset:0; } }
+@media (prefers-reduced-motion:reduce) { :is(#sessionCheck,#wsOverlay).q2-entry, :is(#sessionCheck,#wsOverlay).q2-entry * { transition:none !important; } :is(#sessionCheck,#wsOverlay).q2-entry .q2-entry-arc { animation:none !important; stroke-dashoffset:0 !important; } }
+@media (max-width:420px) { :is(#sessionCheck,#wsOverlay).q2-entry { padding:16px; } :is(#sessionCheck,#wsOverlay).q2-entry .q2-entry-panel { padding:22px 20px; min-height:390px; } :is(#sessionCheck,#wsOverlay).q2-entry .q2-entry-name { font-size:28px; } :is(#sessionCheck,#wsOverlay).q2-entry .q2-entry-beta { font-size:10px; } }
+@media (max-height:500px) { :is(#sessionCheck,#wsOverlay).q2-entry .q2-entry-panel { min-height:0; } :is(#sessionCheck,#wsOverlay).q2-entry .q2-entry-center { padding-block:20px; } }

@@ -921,9 +921,85 @@ jobs:
           HOME_DEMO_OUT: /tmp/report-presentation-smoke/product-home
           WORKSPACE_PRODUCT_OUT: /tmp/report-presentation-smoke/product-workspace
         run: |
+          # Only these independent historical suites overlap; immutable source and build inputs stay shared.
+          # The subshell contains job control and its trap, so later existing lanes are unchanged.
+          (
+          set -e
+          set -m
+          historical_joined=0
+          historical_cleanup() {
+            historical_cleanup_status=$?
+            trap - EXIT INT TERM
+            set +e
+            # jobs -pr is restricted to this subshell: at most the two owned lane groups.
+            historical_owned_groups="$(jobs -pr)"
+            for historical_pid in $historical_owned_groups; do
+              kill -TERM -- "-$historical_pid" 2>/dev/null || true
+            done
+            # Allow owned Node signal handlers to close detached browser children.
+            # Keep observing the original groups after a lane's shell leader exits.
+            historical_retained_groups="$historical_owned_groups"
+            historical_cleanup_started=$SECONDS
+            while :; do
+              historical_still_existing_groups=""
+              for historical_pid in $historical_retained_groups; do
+                if kill -0 -- "-$historical_pid" 2>/dev/null; then
+                  historical_still_existing_groups="$historical_still_existing_groups $historical_pid"
+                fi
+              done
+              # An observed-gone group is retired permanently, never rediscovered or re-added.
+              historical_retained_groups="$historical_still_existing_groups"
+              test -n "$historical_retained_groups" || break
+              test "$((SECONDS - historical_cleanup_started))" -lt 2 || break
+              sleep 0.05
+            done
+            # Escalate only still-existing original groups after the bounded cleanup grace.
+            for historical_pid in $historical_retained_groups; do
+              if kill -0 -- "-$historical_pid" 2>/dev/null; then
+                kill -KILL -- "-$historical_pid" 2>/dev/null || true
+              fi
+            done
+            wait
+            if [ "$historical_joined" -ne 1 ]; then
+              test ! -f /tmp/report-presentation-smoke/historical-refresh-photo.log || cat /tmp/report-presentation-smoke/historical-refresh-photo.log
+              test ! -f /tmp/report-presentation-smoke/historical-completion.log || cat /tmp/report-presentation-smoke/historical-completion.log
+              echo "HISTORICAL_PARALLEL_ABORT exit=$historical_cleanup_status"
+            fi
+            exit "$historical_cleanup_status"
+          }
+          trap historical_cleanup EXIT
+          trap 'exit 130' INT
+          trap 'exit 143' TERM
+          (
+          set -e
           MARKETING_REFRESH_OUT=/tmp/report-presentation-smoke/marketing-refresh node scripts/marketing_refresh_browser_smoke.mjs
-          MARKETING_COMPLETION_OUT=/tmp/report-presentation-smoke/marketing-completion node scripts/marketing_completion_browser_smoke.mjs
           MARKETING_PHOTO_PRESENTATION_OUT=/tmp/report-presentation-smoke/photo-presentation node scripts/marketing_photo_presentation_20261013_browser.mjs
+          ) >/tmp/report-presentation-smoke/historical-refresh-photo.log 2>&1 &
+          historical_refresh_photo_pid=$!
+          (
+          set -e
+          MARKETING_COMPLETION_OUT=/tmp/report-presentation-smoke/marketing-completion node scripts/marketing_completion_browser_smoke.mjs
+          ) >/tmp/report-presentation-smoke/historical-completion.log 2>&1 &
+          historical_completion_pid=$!
+          set +e
+          wait "$historical_refresh_photo_pid"
+          historical_refresh_photo_status=$?
+          wait "$historical_completion_pid"
+          historical_completion_status=$?
+          set -e
+          historical_joined=1
+          historical_refresh_photo_log_status=0
+          cat /tmp/report-presentation-smoke/historical-refresh-photo.log || historical_refresh_photo_log_status=$?
+          historical_completion_log_status=0
+          cat /tmp/report-presentation-smoke/historical-completion.log || historical_completion_log_status=$?
+          echo "HISTORICAL_PARALLEL_RESULT refresh_photo=$historical_refresh_photo_status completion=$historical_completion_status"
+          test "$historical_refresh_photo_status" -eq 0
+          test "$historical_completion_status" -eq 0
+          test "$historical_refresh_photo_log_status" -eq 0
+          test "$historical_completion_log_status" -eq 0
+          # Both waits are complete; no early cleanup trap survives this barrier.
+          trap - EXIT INT TERM
+          )
           RENDER_GIT_COMMIT="$GITHUB_SHA" node scripts/site_design_coherence_20261014_contract.mjs --built
           RENDER_GIT_COMMIT="$GITHUB_SHA" python scripts/site_design_coherence_20261014_contract.py --built
           HOMEPAGE_REFINEMENT_OUT=/tmp/report-presentation-smoke/homepage-refinement node scripts/homepage_refinement_20261014_browser.mjs
