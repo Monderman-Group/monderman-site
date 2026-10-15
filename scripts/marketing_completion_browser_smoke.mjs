@@ -4,10 +4,10 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {isCurrentHomepageRefinementSource,sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014_inverse.mjs';
-import {historicalScopeBetaBrowserBodies} from './scope_beta_20261014_inverse.mjs';
+import {historicalScopeBetaBrowserBodies,sourceAtScopeBetaBaseline} from './scope_beta_20261014_inverse.mjs';
 // Every old physical assertion runs on its exact approved f2a edition; the separate Scope matrix certifies current layout.
 const scopeHistoricalBodies=historicalScopeBetaBrowserBodies(decodeURIComponent(new URL('../.render-public/',import.meta.url).pathname));
-const scopeHistoricalResponse=route=>{const u=new URL(route.request().url()),b=scopeHistoricalBodies.get(u.pathname);assert.ok(b,'Exact compiled historical input');return route.fulfill({status:200,contentType:u.pathname.endsWith('.html')?'text/html':u.pathname.endsWith('.css')?'text/css':u.pathname.endsWith('.json')?'application/json':'application/javascript',body:b});};
+const scopeHistoricalResponse=route=>{const u=new URL(route.request().url()),b=scopeHistoricalBodies.get(u.pathname);assert.ok(b,'Exact compiled historical input');return route.fulfill({status:200,contentType:u.pathname.endsWith('.webp')?'image/webp':u.pathname.endsWith('.jpg')?'image/jpeg':u.pathname.endsWith('.html')?'text/html':u.pathname.endsWith('.css')?'text/css':u.pathname.endsWith('.json')?'application/json':'application/javascript',body:b});};
 if(scopeHistoricalBodies.size)console.log('SCOPE_PRESERVED_PHYSICAL_EDITION f2a81afdd30863c68b4ae748936163a141b0edd6 '+scopeHistoricalBodies.size+' exact compiled bodies');
 const {chromium, webkit} = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
@@ -19,7 +19,7 @@ fs.mkdirSync(out, {recursive: true});
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const sourceHashes = Object.fromEntries(['index.html', 'marketing-completion.css', 'marketing-completion.js', 'scripts/marketing_completion_browser_smoke.mjs'].map(file => [file, hash(fs.readFileSync(path.join(root, file)))]));
 const source = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-const photoRegister = JSON.parse(fs.readFileSync(path.join(root, 'docs/marketing-photo-register-20261013.json'), 'utf8'));
+const photoRegister = JSON.parse(sourceAtScopeBetaBaseline('docs/marketing-photo-register-20261013.json',fs.readFileSync(path.join(root, 'docs/marketing-photo-register-20261013.json'), 'utf8')));
 // Two exact source editions: all functional/safety cases run; only owner-directed photo presentation differs.
 const historicalPhotoEdition = sourceHashes['index.html'] === 'a6de2201743448c6072a4efeeac8c5b9c3a10c333189bfc5e608861a9969c475';
 // The native refined edition executes every raw current functional case below.
@@ -167,7 +167,7 @@ for (const [engine, type] of [['chromium', chromium], ['webkit', webkit]]) {
             const imagePath = new URL(dims.src).pathname;
             const registered = approvedDerivatives.get(imagePath);
             check(registered, label + ': loaded image is an exact registered derivative');
-            const expectedBytes = fs.readFileSync(path.join(root, imagePath));
+            const expectedBytes = sourceAtScopeBetaBaseline(imagePath.slice(1),fs.readFileSync(path.join(root, imagePath)));
             equal(hash(imageBytes), hash(expectedBytes), label + ': actual loaded photograph equals approved derivative');
             equal(hash(imageBytes), registered.sha256, label + ': loaded image matches its registered hash and physical width');
             equal(imageBytes.length, registered.bytes, label + ': registered derivative byte length');

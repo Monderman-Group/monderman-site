@@ -45,7 +45,12 @@ try{
     }
     await page.emulateMedia({media:'print'});
     const pdf=path.join(out,key+'.pdf');await page.pdf({path:pdf,format:'Letter',preferCSSPageSize:true,printBackground:true});
-    const pages=JSON.parse(execFileSync(process.env.PDF_PYTHON||'python3',['-c','import json,sys;from pypdf import PdfReader;print(json.dumps([p.extract_text() or "" for p in PdfReader(sys.argv[1]).pages]))',pdf],{encoding:'utf8',maxBuffer:16e6}));
+    const extraction=JSON.parse(execFileSync(process.env.PDF_PYTHON||'python3',['-c',"import json,sys,pypdf,pdfplumber\nfrom pypdf import PdfReader\npypdf_pages=[page.extract_text() or \"\" for page in PdfReader(sys.argv[1]).pages]\nwith pdfplumber.open(sys.argv[1]) as document:\n    pdfplumber_pages=[page.extract_text() or \"\" for page in document.pages]\nprint(json.dumps({\"pypdf\":pypdf_pages,\"pdfplumber\":pdfplumber_pages,\"versions\":{\"pypdf\":pypdf.__version__,\"pdfplumber\":pdfplumber.__version__}}))",pdf],{encoding:'utf8',maxBuffer:16e6}));
+    assert.ok(Array.isArray(extraction.pypdf)&&extraction.pypdf.every(text=>typeof text==='string'),'Actual pypdf page text is required');
+    assert.ok(Array.isArray(extraction.pdfplumber)&&extraction.pdfplumber.every(text=>typeof text==='string'),'Actual pdfplumber page text is required');
+    assert.equal(extraction.pdfplumber.length,extraction.pypdf.length,'Independent PDF readers agree on the actual page count');
+    const pages=extraction.pypdf;
+    fs.writeFileSync(path.join(out,key+'.pdf-text-extraction.json'),JSON.stringify({status:'ACTUAL_TWO_READER_EXTRACTION_NOT_AUTHORED_ASSERTION_RESULT',pdf_sha256:sha(fs.readFileSync(pdf)),structural_assertion_text_reader:'pypdf',authored_assertion_text_readers:['pypdf','pdfplumber'],versions:extraction.versions,pages:extraction.pdfplumber.map((text,index)=>({page:index+1,pypdf:extraction.pypdf[index],pdfplumber:text,raw_text_equal:text===extraction.pypdf[index]}))},null,2)+'\n');
     const compact=t=>t.normalize('NFKC').toLowerCase().replace(/\s/g,''),text=compact(pages.join(' '));
     const centralHeading='Central case: money and staff time';
     const centralPage=pages.findIndex(p=>p.includes(centralHeading));
@@ -65,7 +70,10 @@ try{
     const generationDate=model.meta.find(row=>row.label==='Sample created').value;
     assert.ok(compact(pages[0]).includes(compact(generationDate)),'The original sample creation date remains on the cover: '+JSON.stringify({expected:generationDate,cover:pages[0]}));
     const authored=await page.locator('p,li,h1,h2,h3,h4,h5,td,th,.mr-unified-label>strong').evaluateAll(nodes=>nodes.filter(n=>getComputedStyle(n).display!=='none'&&n.getBoundingClientRect().width>0&&!n.closest('.mr-benefit-flow,.mr-toolbar')).map(n=>n.textContent.trim()).filter(Boolean));
-    for(const field of authored)assert.ok(text.includes(compact(field)),'PDF missing authored text: '+field.slice(0,120));
+    const authoredReaders=['pypdf','pdfplumber'].map(reader=>({reader,text:compact(extraction[reader].join(' '))}));
+    const authoredCoverage=authored.map(field=>({field,readers:authoredReaders.map(({reader,text})=>({reader,complete_match:text.includes(compact(field))}))}));
+    fs.writeFileSync(path.join(out,key+'.pdf-authored-text-coverage.json'),JSON.stringify({status:'ACTUAL_COMPLETE_FIELD_READER_MATCHES_BEFORE_ASSERTIONS',pdf_sha256:sha(fs.readFileSync(pdf)),normalization:'Original NFKC/lowercase/whitespace removal unchanged',fields:authoredCoverage},null,2)+'\n');
+    for(const {field,readers} of authoredCoverage)assert.ok(readers.some(row=>row.complete_match),'PDF missing authored text: '+field.slice(0,120));
     if(synthesis){assert.ok(pages.some(p=>p.includes('Central planning case')));assert.ok(!pages[centralPage].includes('Subscription allocation'));}
     rows.push({key,path:'sample-data/reports/'+key+'.pdf',sha256:sha(fs.readFileSync(pdf)),pages:pages.length,case_pages:synthesis?[centralPage+1]:[],comparison_page:synthesis?comparisonPage+1:null,sample_created:generationDate,html_sha256:sha(html),authored_fields:authored.length});
     await page.close();

@@ -3,6 +3,7 @@ import hashlib
 import json
 import re
 from outreach_image_notice_20261008_inverse import source_at_outreach_image_notice_baseline
+from scope_beta_20261014_inverse import source_before_scope_beta_20261014
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -91,13 +92,83 @@ def sha256(text):
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+
+# Current physical presentation is independently checked before the original legal assertions.
+LEGAL_PRESENTATION_FILES = ['privacy.html', 'privacy-2026-09-12-ai-source-evidence-v2.html', 'privacy-2026-09-19-invited-evaluation.html', 'privacy-2026-09-19-invitation-access.html']
+LEGAL_PRESENTATION_ORIGINAL_HASHES = {'privacy.html': 'b6425860f43039b0af638a11f3a01f3adffb94a4dc1dcfc7dd885dfdd7b2a7ec', 'privacy-2026-09-12-ai-source-evidence-v2.html': '41e4ef0367e55a4bff255934c42ea14b4b4e49a69dca78e4f14357f08bc2e3cc', 'privacy-2026-09-19-invited-evaluation.html': '88a0ad179c9f8d24c478789946d7d5895a7721800022aff238f1a7fc81f26bce', 'privacy-2026-09-19-invitation-access.html': 'c71c0cf3fb3d66b58f4aecd1f52c33dabe6a52e24332548bd7763af294fe149d'}
+
+
+def legal_presentation_historical_read(name, text):
+    if name in LEGAL_PRESENTATION_FILES or name == "legal-document-manifest.json":
+        return source_before_scope_beta_20261014(name, text)
+    return text
+
+
+def validate_legal_presentation_current():
+    raw_manifest = (ROOT / "legal-document-manifest.json").read_text(errors="strict")
+    actual = json.loads(raw_manifest)
+    record = actual.get("presentation_copy") or {}
+    assert set(record) == {"edition", "scope", "original_manifest_sha256", "original_manifest_fields", "files"}
+    assert record["edition"] == "question-set-terminology-20261015.1"
+    assert record["scope"] == "Eight exact visible terminology substitutions only; legal versions, acceptance and permissions unchanged."
+    assert record["original_manifest_sha256"] == "da09807a311fe1084087ee7cc7187178a412916a9d3c2f0d49ae931fd5a69cc0"
+    assert set(record["files"]) == set(LEGAL_PRESENTATION_FILES)
+    original_manifest_source = legal_presentation_historical_read("legal-document-manifest.json", raw_manifest)
+    assert sha256(original_manifest_source) == record["original_manifest_sha256"]
+    original = json.loads(original_manifest_source)
+    original_fields = {key: original[key] for key in ["privacy_notice_content_sha256", "published_privacy_notice_content_sha256"]}
+    original_fields["documents"] = {}
+    for name in LEGAL_PRESENTATION_FILES:
+        text = (ROOT / name).read_text(errors="strict")
+        row = record["files"][name]
+        assert set(row) == {"original_source_sha256", "presented_source_sha256", "original_source_bytes", "presented_source_bytes", "original_marked_content_sha256", "presented_marked_content_sha256", "replacements"}
+        assert sha256(text) == row["presented_source_sha256"] and len(text.encode()) == row["presented_source_bytes"]
+        assert row["original_source_sha256"] == LEGAL_PRESENTATION_ORIGINAL_HASHES[name]
+        assert len(row["replacements"]) == 2
+        encoded = text.encode("utf-16-le")
+        previous_end = 0
+        for a, z, now, old in row["replacements"]:
+            assert type(a) is int and type(z) is int and a >= previous_end and z >= a
+            assert now == "question-set version" and old == "questionnaire version"
+            assert encoded[a * 2:z * 2].decode("utf-16-le") == now
+            previous_end = z
+        for a, z, now, old in reversed(row["replacements"]):
+            assert encoded[a * 2:z * 2].decode("utf-16-le") == now
+            encoded = encoded[:a * 2] + old.encode("utf-16-le") + encoded[z * 2:]
+        restored = encoded.decode("utf-16-le")
+        assert restored == legal_presentation_historical_read(name, text)
+        assert sha256(restored) == row["original_source_sha256"] and len(restored.encode()) == row["original_source_bytes"]
+        assert sha256(content_between_markers(text, name)) == row["presented_marked_content_sha256"]
+        assert sha256(content_between_markers(restored, name)) == row["original_marked_content_sha256"]
+        assert text.count("question-set version") == 2 and not re.search("questionnaire", text, re.I)
+        if name != "privacy.html":
+            version = name[8:-5]
+            original_fields["documents"][version] = {"privacy_notice_file_sha256": original["documents"][version]["privacy_notice_file_sha256"]}
+            assert actual["documents"][version]["privacy_notice_file_sha256"] == row["presented_source_sha256"]
+    assert record["original_manifest_fields"] == original_fields
+    assert actual["file_hash_scope"] == "repository_source_html"
+    assert actual["privacy_notice_content_sha256"] == record["files"]["privacy-2026-09-19-invitation-access.html"]["presented_marked_content_sha256"]
+    assert actual["published_privacy_notice_content_sha256"] == record["files"]["privacy.html"]["presented_marked_content_sha256"]
+    reconstructed = json.loads(json.dumps(actual))
+    del reconstructed["presentation_copy"]
+    for key in ["privacy_notice_content_sha256", "published_privacy_notice_content_sha256"]:
+        reconstructed[key] = original_fields[key]
+    for version, fields in original_fields["documents"].items():
+        reconstructed["documents"][version].update(fields)
+    assert reconstructed == original, "Every legal version, acceptance, permission and unrelated manifest field remains original"
+    return {"edition": record["edition"], "currentPhysicalFiles": 4, "exactPresentationHunks": 8,
+            "historicalManifestSha256": record["original_manifest_sha256"],
+            "originalAssertionsBasis": "Exact original-source inverse, not unchanged presented bytes"}
+
+
 def validate():
+    validate_legal_presentation_current()
     terms = (ROOT / "terms.html").read_text(errors="strict")
     signin = (ROOT / "signin.html").read_text(errors="strict")
     trial = (ROOT / "pattern-trial.html").read_text(errors="strict")
-    privacy = source_at_outreach_image_notice_baseline("privacy.html", (ROOT / "privacy.html").read_text(errors="strict"))
-    acknowledged_privacy = (ROOT / f"privacy-{PRIVACY_VERSION}.html").read_text(errors="strict")
-    manifest = json.loads((ROOT / "legal-document-manifest.json").read_text(errors="strict"))
+    privacy = source_at_outreach_image_notice_baseline("privacy.html", legal_presentation_historical_read("privacy.html", (ROOT / "privacy.html").read_text(errors="strict")))
+    acknowledged_privacy = legal_presentation_historical_read(f"privacy-{PRIVACY_VERSION}.html", (ROOT / f"privacy-{PRIVACY_VERSION}.html").read_text(errors="strict"))
+    manifest = json.loads(legal_presentation_historical_read("legal-document-manifest.json", (ROOT / "legal-document-manifest.json").read_text(errors="strict")))
     checkout = (ROOT / "checkout.html").read_text(errors="strict")
     workspace_gate = (ROOT / "workspace-access-gate.js").read_text(errors="strict")
 
@@ -253,13 +324,13 @@ def validate():
             path = ROOT / files[file_key]
             if not path.is_file() or path.name != files[file_key]:
                 raise AssertionError(f"versioned legal document missing for {version}: {files[file_key]}")
-            if sha256(path.read_text(errors="strict")) != files[hash_key]:
+            if sha256(legal_presentation_historical_read(path.name, path.read_text(errors="strict"))) != files[hash_key]:
                 raise AssertionError(f"versioned legal document hash mismatch for {version}: {files[file_key]}")
-            if f"Version {version}" not in path.read_text(errors="strict"):
+            if f"Version {version}" not in legal_presentation_historical_read(path.name, path.read_text(errors="strict")):
                 raise AssertionError(f"versioned legal document displays the wrong version: {files[file_key]}")
-    if (ROOT / document_manifest[TERMS_VERSION]["terms_file"]).read_text(errors="strict") != terms:
+    if legal_presentation_historical_read(document_manifest[TERMS_VERSION]["terms_file"], (ROOT / document_manifest[TERMS_VERSION]["terms_file"]).read_text(errors="strict")) != terms:
         raise AssertionError("current versioned Terms must exactly match terms.html")
-    if (ROOT / document_manifest[PUBLISHED_PRIVACY_VERSION]["privacy_notice_file"]).read_text(errors="strict") != privacy:
+    if legal_presentation_historical_read(document_manifest[PUBLISHED_PRIVACY_VERSION]["privacy_notice_file"], (ROOT / document_manifest[PUBLISHED_PRIVACY_VERSION]["privacy_notice_file"]).read_text(errors="strict")) != privacy:
         raise AssertionError("published versioned Privacy Notice must exactly match privacy.html")
     if sha256(privacy) != PUBLISHED_PRIVACY_SHA256:
         raise AssertionError("published Privacy Notice must match its separately reviewed fingerprint")
@@ -399,4 +470,4 @@ def validate():
 
 if __name__ == "__main__":
     validate()
-    print("Legal Terms protection checks passed.")
+    print("Legal Terms protection checks passed: current physical presentation plus exact original-source assertions; no acceptance/version change.")

@@ -19,7 +19,7 @@
   "use strict";
   // This identifies the code displaying/exporting the report now, not the
   // renderer that may have displayed a historical run when it was created.
-  const RENDERER_VERSION = "diagnostic-renderer-single-lens-overview-20260929.1";
+  const RENDERER_VERSION = "diagnostic-renderer-sodi-presentation-20261015.1";
   // The measured-report adapter stays at r43; financial reading order and
   // summary presentation have their own explicit, independently tested edition.
   const FINANCIAL_PRESENTATION_VERSION = "financial-presentation-20260915.1";
@@ -88,6 +88,53 @@
       return entry.text || entry.cleaned ? [{...entry, key, label: firstStr(entry.label, "Participant observation")}]: [];
     });
     return safeParticipantEvidence(entries);
+  }
+
+  // Exact approved Monderman-authored display copy only. Unknown text and
+  // participant accounts are never searched, traversed, or rewritten here.
+  const AUTHORED_DIAGNOSTIC_DISPLAY_COPY = Object.freeze({
+  "Results from the Operational perspective: Operational Systems: 9 recorded participants, mean 53, median 53; Decision Velocity: 9 recorded participants, mean 62, median 62; Structural Clarity: 9 recorded participants, mean 49, median 49; Institutional Performance: 9 recorded participants, mean 54, median 54. These are recorded account or invitation identities, not independently verified physical people. This section reports scores only. Campaign status: Campaign readiness checks satisfied.": "Results from the Operational perspective: Structural Clarity: 9 recorded participants, mean 49, median 49; Operational Systems: 9 recorded participants, mean 53, median 53; Decision Velocity: 9 recorded participants, mean 62, median 62; Institutional Performance: 9 recorded participants, mean 54, median 54. These are recorded account or invitation identities, not independently verified physical people. This section reports scores only. Campaign status: Campaign readiness checks satisfied.",
+  "Results from the Managerial perspective: Operational Systems: 9 recorded participants, mean 53, median 53; Decision Velocity: 9 recorded participants, mean 61, median 61; Structural Clarity: 9 recorded participants, mean 52, median 52; Institutional Performance: 9 recorded participants, mean 54, median 54. These are recorded account or invitation identities, not independently verified physical people. This section reports scores only. Campaign status: Campaign readiness checks satisfied.": "Results from the Managerial perspective: Structural Clarity: 9 recorded participants, mean 52, median 52; Operational Systems: 9 recorded participants, mean 53, median 53; Decision Velocity: 9 recorded participants, mean 61, median 61; Institutional Performance: 9 recorded participants, mean 54, median 54. These are recorded account or invitation identities, not independently verified physical people. This section reports scores only. Campaign status: Campaign readiness checks satisfied.",
+  "Results from the Senior Leader perspective: Operational Systems: 9 recorded participants, mean 67, median 67; Decision Velocity: 9 recorded participants, mean 77, median 77; Structural Clarity: 9 recorded participants, mean 74, median 74; Institutional Performance: 9 recorded participants, mean 36, median 36. These are recorded account or invitation identities, not independently verified physical people. This section reports scores only. Campaign status: Campaign readiness checks satisfied.": "Results from the Senior Leader perspective: Structural Clarity: 9 recorded participants, mean 74, median 74; Operational Systems: 9 recorded participants, mean 67, median 67; Decision Velocity: 9 recorded participants, mean 77, median 77; Institutional Performance: 9 recorded participants, mean 36, median 36. These are recorded account or invitation identities, not independently verified physical people. This section reports scores only. Campaign status: Campaign readiness checks satisfied.",
+  "Campaign status: Campaign readiness checks satisfied. This synthesis combines Operational Systems (27), Decision Velocity (27), Structural Clarity (27), Institutional Performance (27) and publishes an equal-lens composite condition of mixed observed condition. Two or more lens-level signals share the highest observed count, so the coherent read does not identify one unique dominant shared pattern. Use the lens summaries and contradictions to define a bounded validation question rather than forcing one causal diagnosis. A combined modeled time and labor-cost estimate is not published: Diagnostic scores, participant counts and medians do not establish organizational exposure, recoverable savings or return on investment. These estimates are withheld. A separate planning scenario requires explicit operational measurements and assumptions.": "Campaign status: Campaign readiness checks satisfied. This synthesis combines Structural Clarity (27), Operational Systems (27), Decision Velocity (27), Institutional Performance (27) and publishes an equal-lens composite condition of mixed observed condition. Two or more lens-level signals share the highest observed count, so the coherent read does not identify one unique dominant shared pattern. Use the lens summaries and contradictions to define a bounded validation question rather than forcing one causal diagnosis. A combined modeled time and labor-cost estimate is not published: Diagnostic scores, participant counts and medians do not establish organizational exposure, recoverable savings or return on investment. These estimates are withheld. A separate planning scenario requires explicit operational measurements and assumptions.",
+  "Write out each saved focus label beneath its own diagnostic, keeping administrative work with Operational Systems, approval and review requirements with Decision Velocity, unclear authority and ownership with Structural Clarity, and consistency and ability to respond to change with Institutional Performance, so that any follow-up review is scoped to one diagnostic at a time. Do not combine the labels into a single statement of the problem.": "Write out each saved focus label beneath its own diagnostic, keeping unclear authority and ownership with Structural Clarity, administrative work with Operational Systems, approval and review requirements with Decision Velocity, and consistency and ability to respond to change with Institutional Performance, so that any follow-up review is scoped to one diagnostic at a time. Do not combine the labels into a single statement of the problem.",
+  "Repeat the same Diagnostic for the same work scope, questionnaire version, and participant selection. Review how the full distribution changed before relying on a change in the average.": "Repeat the same Diagnostic for the same work scope, question-set version, and participant selection. Review how the full distribution changed before relying on a change in the average.",
+  "An authorized review must link operational evidence and unresolved disagreements to this exact evidence snapshot. Questionnaire participation is not proof of cause.": "An authorized review must link operational evidence and unresolved disagreements to this exact evidence snapshot. Diagnostic participation is not proof of cause.",
+  "Comparisons across questionnaire versions can reflect changes in measurement. A withheld composite remains withheld.": "Comparisons across question-set versions can reflect changes in measurement. A withheld composite remains withheld.",
+  "Answer summaries describe only recorded answers to each exact question, perspective, depth and questionnaire version in this campaign. Adaptive nonappearance is not an incomplete run. Withheld detail is not a favorable response. These distributions establish neither population prevalence, causation nor intervention eligibility.": "Answer summaries describe only recorded answers to each exact question, perspective, depth and question-set version in this campaign. Adaptive nonappearance is not an incomplete run. Withheld detail is not a favorable response. These distributions establish neither population prevalence, causation nor intervention eligibility.",
+  "Questionnaire compatibility": "Question-set compatibility",
+  "The submitted runs carry a score range from the lowest to the highest supplied value alongside a saved variation label, and the questionnaire, work scope and time window are recorded as compatible. Those summaries describe the pattern without stating a cause, so a short written judgement keeps any follow-up tied to the saved results for these runs.": "The submitted runs carry a score range from the lowest to the highest supplied value alongside a saved variation label, and the question set, work scope and time window are recorded as compatible. Those summaries describe the pattern without stating a cause, so a short written judgement keeps any follow-up tied to the saved results for these runs.",
+  "The saved means for managers, people doing the work and senior leaders are not identical, and each rests on a small number of submitted runs recorded under compatible questionnaire, work scope and time window details. Presenting them together shows the comparison plainly without treating any group as better placed or assigning a cause.": "The saved means for managers, people doing the work and senior leaders are not identical, and each rests on a small number of submitted runs recorded under compatible question-set, work scope and time window details. Presenting them together shows the comparison plainly without treating any group as better placed or assigning a cause.",
+  "The saved result records 15 distinct included participants against a declared eligible population of 30, with 15 submitted runs in total. Questionnaire compatibility is recorded as Verified, work scope compatibility as Common work scope recorded and time-window compatibility as Aligned time window. Participation of this kind establishes neither representativeness nor validity.": "The saved result records 15 distinct included participants against a declared eligible population of 30, with 15 submitted runs in total. Question-set compatibility is recorded as Verified, work scope compatibility as Common work scope recorded and time-window compatibility as Aligned time window. Participation of this kind establishes neither representativeness nor validity.",
+  "Questionnaire compatibility is Verified, work scope compatibility is Common work scope recorded and the time window is Aligned time window, so the spread can be read as saved; it still explains nothing about the wider organization.": "Question-set compatibility is Verified, work scope compatibility is Common work scope recorded and the time window is Aligned time window, so the spread can be read as saved; it still explains nothing about the wider organization.",
+  "The four diagnostics each carry twenty-seven submitted runs under a verified questionnaire match, a common recorded work scope and an aligned time window, which makes side-by-side reading tempting. Similar wording across labels does not show one shared weakness, and keeping them separate prevents a follow-up review from chasing a merged problem that the saved results do not describe.": "The four diagnostics each carry twenty-seven submitted runs under a verified question-set match, a common recorded work scope and an aligned time window, which makes side-by-side reading tempting. Similar wording across labels does not show one shared weakness, and keeping them separate prevents a follow-up review from chasing a merged problem that the saved results do not describe."
+});
+  function displayAuthoredDiagnosticText(value) {
+    return typeof value === "string" && Object.hasOwn(AUTHORED_DIAGNOSTIC_DISPLAY_COPY, value)
+      ? AUTHORED_DIAGNOSTIC_DISPLAY_COPY[value] : value;
+  }
+  // Presentation order only: preserve each complete row and every saved value.
+  // Subsets, duplicates and unknown diagnostics retain their original order.
+  const SODI_DIAGNOSTIC_ORDER = Object.freeze(["structural_clarity", "operational_systems", "decision_velocity", "institutional_performance"]);
+  const SODI_DIAGNOSTIC_LABELS = Object.freeze(["Structural Clarity", "Operational Systems", "Decision Velocity", "Institutional Performance"]);
+  function displayDiagnosticRows(rows) {
+    const values = arr(rows), keys = values.map(row => obj(row).toolType);
+    if (values.length !== 4 || new Set(keys).size !== 4 || !SODI_DIAGNOSTIC_ORDER.every(key => keys.includes(key))) return values;
+    return SODI_DIAGNOSTIC_ORDER.map(key => values.find(row => row.toolType === key));
+  }
+  function displayDiagnosticLabelRows(rows) {
+    const values = [...arr(rows)], labels = values.map(row => obj(row).label);
+    return values.length === 4 && new Set(labels).size === 4 && SODI_DIAGNOSTIC_LABELS.every(label => labels.includes(label))
+      ? SODI_DIAGNOSTIC_LABELS.map(label => values.find(row => obj(row).label === label)) : values;
+  }
+  function displayDiagnosticKeys(keys) {
+    const values = [...arr(keys)];
+    return values.length === 4 && new Set(values).size === 4 && SODI_DIAGNOSTIC_ORDER.every(key => values.includes(key))
+      ? [...SODI_DIAGNOSTIC_ORDER] : values;
+  }
+  function displayDiagnosticNames(names) {
+    return names.length === 4 && new Set(names).size === 4 && SODI_DIAGNOSTIC_LABELS.every(label => names.includes(label))
+      ? [...SODI_DIAGNOSTIC_LABELS] : [...names].sort();
   }
 
   // ---- canonical report model ----------------------------------------------
@@ -757,7 +804,7 @@
       ),
       evidenceCard("Scope", firstStr(scope.label, humanize(scope.status)), firstStr(scope.statement)),
       evidenceCard("Run-count balance across Diagnostics", firstStr(humanize(balance.status), "Not applicable"), strictFinite(balance.ratio) ? "Largest-to-smallest submitted-run count ratio: " + fmt1(balance.ratio) + ":1" : m.comparisonOnly ? "Not applicable to a one-Diagnostic response comparison." : "Not applicable to one-Diagnostic Depth Synthesis."),
-      evidenceCard("Questionnaire and scoring versions", firstStr(versions.label, humanize(versions.status)), versions.conflicting_lenses?.length ? "Conflicting Diagnostics: " + versions.conflicting_lenses.map(humanize).join(", ") : ""),
+      evidenceCard("Question-set and scoring versions", firstStr(versions.label, humanize(versions.status)), versions.conflicting_lenses?.length ? "Conflicting Diagnostics: " + displayDiagnosticKeys(versions.conflicting_lenses).map(humanize).join(", ") : ""),
       evidenceCard("Identifiers for submitted runs", humanize(identity.status), firstStr(identity.statement)),
       evidenceCard("Measurement window", humanize(timeWindow.status), firstStr(timeWindow.statement)),
       evidenceCard("Representativeness", firstStr(representative.label, humanize(representative.status)), firstStr(representative.statement))
@@ -897,7 +944,7 @@
 
   function renderCrossLensGraphic(m) {
     if (m.product !== "cross_lens" || !arr(m.sourceGroups).length) return "";
-    const groups = arr(m.sourceGroups).filter((lens) => strictFinite(lens.mean));
+    const groups = displayDiagnosticRows(arr(m.sourceGroups)).filter((lens) => strictFinite(lens.mean));
     if (!groups.length) return "";
     const W = 680, labelW = 182, R = 42, plotW = W - labelW - R;
     const rowH = 46, top = 64, H = top + groups.length * rowH + 42;
@@ -943,7 +990,7 @@
   }
 
   function renderCrossLensSystemGraphic(m) {
-    const groups = arr(m.sourceGroups).filter((lens) => strictFinite(lens.mean)).slice(0, 4);
+    const groups = displayDiagnosticRows(arr(m.sourceGroups)).filter((lens) => strictFinite(lens.mean)).slice(0, 4);
     if (!groups.length) return "";
     const positions = [[118, 92], [602, 92], [118, 288], [602, 288]];
     const centerX = 360, centerY = 190;
@@ -989,7 +1036,7 @@
   }
 
   function renderCrossLensInteractionMatrix(m) {
-    const groups = arr(m.sourceGroups).slice(0, 4);
+    const groups = displayDiagnosticRows(arr(m.sourceGroups)).slice(0, 4);
     const signals = arr(m.signals).filter((signal) => arr(signal.tools).length).slice(0, 5);
     if (!groups.length || !signals.length) return "";
     const header = '<div class="mr-interaction-label"></div>' + groups.map((group) => '<div class="mr-interaction-head">' + esc(group.toolLabel.replace(/\s+/g, " ")) + '</div>').join("");
@@ -1015,8 +1062,8 @@
     const lowest = values.length ? Math.min.apply(null, values) : null;
     // Equal means do not establish a single strongest or weakest lens.
     // Keep every joint extreme, independent of the submitted group order.
-    const highestLabels = groups.filter((lens) => Number(lens.mean) === highest).map((lens) => lens.toolLabel).sort();
-    const lowestLabels = groups.filter((lens) => Number(lens.mean) === lowest).map((lens) => lens.toolLabel).sort();
+    const highestLabels = displayDiagnosticNames(groups.filter((lens) => Number(lens.mean) === highest).map((lens) => lens.toolLabel));
+    const lowestLabels = displayDiagnosticNames(groups.filter((lens) => Number(lens.mean) === lowest).map((lens) => lens.toolLabel));
     const spread = values.length ? Math.max.apply(null, values) - Math.min.apply(null, values) : null;
     const exp = obj(m.exposure), firstAction = arr(m.actions)[0] || {};
     return '<section class="mr-section mr-system-read"><div class="mr-section-index">0' + n + ' · Diagnostic comparison</div><h2>' + esc(firstStr(obj(m.diagnosis).name, "Cross-Lens operating pattern")) + '</h2>' +
@@ -1035,7 +1082,7 @@
   function renderLensSummary(m, n) {
     if (!arr(m.sourceGroups).length) return "";
     const isCrossLens = m.product === "cross_lens";
-    const cards = arr(m.sourceGroups).map((lens) => {
+    const cards = displayDiagnosticRows(arr(m.sourceGroups)).map((lens) => {
       return '<div class="mr-lens-card"' + (isCrossLens ? ' role="listitem"' : '') + '><div class="mr-lens-label"' + (isCrossLens ? ' role="heading" aria-level="3"' : '') + '>' + esc(lens.toolLabel) + '</div>' +
         '<div class="mr-contributing-score' + (strictFinite(lens.mean) ? '' : ' is-unavailable') + '">' + esc(fmt1(lens.mean)) + '<span>Mean score</span></div>' +
         '<p class="mr-copy mr-contributing-meta"><span>Median score: ' + esc(fmt1(lens.median)) + '</span><span>Submitted runs: ' + esc(fmtWhole(lens.n)) + '</span></p>' +
@@ -1050,7 +1097,7 @@
 
   function renderCrossLensEvidenceMap(m) {
     if (m.product !== "cross_lens" || !arr(m.sourceGroups).length) return "";
-    const groups = arr(m.sourceGroups).filter((lens) => strictFinite(lens.mean));
+    const groups = displayDiagnosticRows(arr(m.sourceGroups)).filter((lens) => strictFinite(lens.mean));
     const signals = arr(m.signals).slice(0, 4);
     const pattern = firstStr(m.primaryPattern, obj(m.diagnosis).body);
     const lenses = groups.map((lens) =>
@@ -1061,7 +1108,7 @@
     const signalRows = signals.map((signal) =>
       '<div class="mr-map-signal"><div><div class="mr-map-signal-label">' + esc(signal.label) + '</div>' +
       '<p>' + esc(signal.text) + '</p></div>' +
-      (signal.tools.length ? '<div class="mr-map-tools">' + signal.tools.map((tool) => '<span class="mr-pill">' + esc(humanize(tool)) + '</span>').join("") + '</div>' : '') + '</div>'
+      (signal.tools.length ? '<div class="mr-map-tools">' + displayDiagnosticKeys(signal.tools).map((tool) => '<span class="mr-pill">' + esc(humanize(tool)) + '</span>').join("") + '</div>' : '') + '</div>'
     ).join("");
     return '<div class="mr-viz-panel mr-cross-lens-map"><div class="mr-viz-title">Cross-lens evidence map</div>' +
       '<p class="mr-copy">This map shows which submitted Diagnostic evidence participates in recurring signals. It organizes the evidence; it does not assert a causal pathway.</p>' +
@@ -1080,7 +1127,7 @@
     if (signals.length && !crossLensMapped) {
       html += '<h3 style="margin-top:14px">Recurring signals</h3>' + signals.map((signal) =>
         '<div class="mr-card mr-editorial-row mr-signal-row"><h3>' + esc(signal.label) + '</h3><p>' + esc(signal.text) + '</p>' +
-        (signal.tools.length ? '<div>' + signal.tools.map((tool) => '<span class="mr-pill">' + esc(humanize(tool)) + '</span>').join("") + '</div>' : '') +
+        (signal.tools.length ? '<div>' + displayDiagnosticKeys(signal.tools).map((tool) => '<span class="mr-pill">' + esc(humanize(tool)) + '</span>').join("") + '</div>' : '') +
         (signal.limit ? '<p class="mr-copy">' + esc(signal.limit) + '</p>' : '') + '</div>'
       ).join("");
     }
@@ -1696,10 +1743,15 @@
 
   function renderMetaExperience(m, n) {
     const experience = obj(m.experiential);
+    const displayPerspective = (role, value) => {
+      const detail = obj(obj(experience.detail)[role]);
+      return experience.participant_reports_available === false && detail.basis === "segment_statistics_only" && detail.text === value
+        ? displayAuthoredDiagnosticText(value) : value;
+    };
     const entries = [
-      ["Operational", firstStr(experience.operational, experience.operational_staff)],
-      ["Managerial", firstStr(experience.managerial, experience.managers)],
-      ["Senior Leader", firstStr(experience.senior_leader, experience.senior_leaders)]
+      ["Operational", displayPerspective("operational", firstStr(experience.operational, experience.operational_staff))],
+      ["Managerial", displayPerspective("managerial", firstStr(experience.managerial, experience.managers))],
+      ["Senior Leader", displayPerspective("senior_leader", firstStr(experience.senior_leader, experience.senior_leaders))]
     ].filter(([, value]) => value);
     if (!entries.length && !experience.interpretation_limit) return "";
     const heading = experience.participant_reports_available ? "What participants reported" : "Results by participant perspective";
@@ -1714,7 +1766,7 @@
     return '<section class="mr-section"><h2>' + n + '. What to watch next</h2>' + indicators.map((indicator) =>
       '<div class="mr-card mr-editorial-row mr-indicator-row"><div class="mr-lens-label">' + esc(indicator.lens || "Measurement") + '</div><h3 style="margin-top:8px">' + esc(indicator.name) + '</h3>' +
       (indicator.watchFor ? '<p><strong>Watch for:</strong> ' + esc(indicator.watchFor) + '</p>' : '') +
-      (indicator.description ? '<p class="mr-copy">' + esc(indicator.description) + '</p>' : '') + '</div>'
+      (indicator.description ? '<p class="mr-copy">' + esc(displayAuthoredDiagnosticText(indicator.description)) + '</p>' : '') + '</div>'
     ).join("") + '</section>';
   }
 
@@ -1960,7 +2012,7 @@
       ["Participant perspective", m.participantMode], ["Reported answer confidence", displayReportedAnswerConfidence(m.insightDepth, c)],
       ["Change over time", m.trajectoryLabel], ["Calculation method", displayCalculationMethod(model.model_type)],
       ["Calculation version", firstStr(model.version)],
-      ["Questionnaire version", m.questionnaireVersion || "Not recorded"],
+      ["Question-set version", m.questionnaireVersion || "Not recorded"],
       ["Scoring version", displayScoringVersion(m.scorerVersion)],
       ["Report wording version", firstStr(language.generation_version, "Not recorded")],
       ["Current display version", RENDERER_VERSION],
@@ -2020,9 +2072,9 @@
   }
 
   function renderSelfRunReport(m) {
-    const groups=arr(m.sourceGroups), actions=arr(m.actions).map(textItem).filter(Boolean);
+    const groups=displayDiagnosticRows(arr(m.sourceGroups)), actions=arr(m.actions).map(textItem).filter(Boolean);
     const summaries=groups.map(group=>{const publish=group.n===1||(m.product==='depth'&&m.scorePublished);return '<article class="mr-card"><h3>'+esc(group.toolLabel)+'</h3><dl><div><dt>Your saved runs</dt><dd>'+esc(fmtWhole(group.n))+'</dd></div><div><dt>'+(group.n===1?'Saved diagnostic score':'Median of your selected scores')+'</dt><dd>'+esc(publish&&strictFinite(group.median)?fmt1(group.median):'Not shown: compatible measurements are required')+'</dd></div></dl><p>Open the original reports for their measured detail.</p></article>';}).join('');
-    return '<section class="mr-section mr-self-run-views"><h2>Your recorded views</h2><p>'+esc(firstStr(m.coverBody,m.primaryPattern))+'</p><p>'+esc(m.runCountNote)+'</p><div class="mr-lens-grid">'+summaries+'</div></section>'+
+    return '<section class="mr-section mr-self-run-views"><h2>Your recorded views</h2><p>'+esc(displayAuthoredDiagnosticText(firstStr(m.coverBody,m.primaryPattern)))+'</p><p>'+esc(m.runCountNote)+'</p><div class="mr-lens-grid">'+summaries+'</div></section>'+
       (actions.length&&obj(m.aiReport).status!=='complete'?'<section class="mr-section"><h2>Checks to consider next</h2><ol>'+actions.map(action=>'<li>'+esc(action)+'</li>').join('')+'</ol></section>':'')+
       '<section class="mr-section"><h2>How to use this comparison</h2><p>Review each original report before interpreting a difference. Compare scores only when the diagnostic version, operating scope, perspective and measurement window are compatible. A difference between your answers is not evidence of disagreement between people or a measured organizational trend.</p><p>'+esc(firstStr(m.evidenceDescription,m.scoreBasis))+'</p><p>A campaign collects responses from invited participants for a defined scope. Recorded identities do not independently prove unique physical people. Separate readiness checks determine when Depth Synthesis, Cross-Lens Synthesis and broader action alternatives are available.</p></section>';
   }
@@ -2067,10 +2119,11 @@
     // Adapt only this known deterministic no-scenario boilerplate when a
     // valid separate scenario is actually attached. Never rewrite saved prose
     // or imply that a score supplies an estimate; source records stay intact.
-    const coverBody=financial?firstStr(m.coverBody).replace(
+    const displayCoverBody=displayAuthoredDiagnosticText(m.coverBody);
+    const coverBody=financial?firstStr(displayCoverBody).replace(
       'A combined modeled time and labor-cost estimate is not published: Diagnostic scores, participant counts and medians do not establish organizational exposure, recoverable savings or return on investment. These estimates are withheld. A separate planning scenario requires explicit operational measurements and assumptions.',
       'The decision brief that follows includes a separate operational planning scenario, based on recorded activity and stated change assumptions. Diagnostic scores do not calculate its time or financial values.'
-    ):m.coverBody;
+    ):displayCoverBody;
     const meta = arr(m.meta);
     const productLabel = m.selfRun ? (m.comparisonOnly?'Self-run comparison':'Self-run Synthesis') : m.comparisonOnly ? 'Response comparison' : m.product === "depth" ? "Depth Synthesis" : m.product === "cross_lens" ? "Cross-Lens Synthesis" : firstStr(m.mastline).replace(/^Monderman\.?\s*(?:[•·]\s*)?/i, "") || "Diagnostic";
     const defaultScoreLabel = m.product === "depth" ? "Median Diagnostic Score" : m.product === "cross_lens" ? "Cross-Lens Composite Score" : "Diagnostic Score";
@@ -2167,7 +2220,7 @@
     const paragraphs = (items, title) => {
       const rows = arr(items);
       if (!rows.length) return '';
-      const texts = rows.map(item => obj(item).text || item);
+      const texts = rows.map(item => displayAuthoredDiagnosticText(obj(item).text || item));
       const boundedListClass = texts.reduce((total, text) => total + String(text || '').length, 0) <= 1600 ? ' mr-ai-list-bounded' : '';
       return '<div class="mr-ai-list' + boundedListClass + '"><h3>' + title + '</h3><ul>' + texts.map(text =>
         '<li class="mr-ai-evidence-text"><span class="mr-ai-evidence-content' + readingUnitClass(text) + '">' + esc(text) + '</span></li>'
@@ -2177,12 +2230,12 @@
     const actions = renderedAIRecommendations(ai).map((item, index) => {
       const action = obj(item);
       const refs = sources.filter(source => arr(action.source_ids).includes(source.id));
-      const reasons = String(action.reason || '').split(/\n\s*\n/).filter(text => text.trim()).map(text => '<p class="mr-ai-reason' + readingUnitClass(text) + '">' + esc(text) + '</p>').join('');
+      const reasons = String(displayAuthoredDiagnosticText(action.reason) || '').split(/\n\s*\n/).filter(text => text.trim()).map(text => '<p class="mr-ai-reason' + readingUnitClass(text) + '">' + esc(text) + '</p>').join('');
       const actionTextLength = [action.action, action.reason, action.prerequisite, action.risk, action.success_check]
         .reduce((total, value) => total + String(value || '').length, 0) +
         refs.reduce((total, source) => total + String(source.publisher || '').length, 0);
       const boundedActionClass = actionTextLength <= 1300 ? ' mr-ai-action-bounded' : '';
-      return '<article class="mr-card mr-ai-action' + boundedActionClass + '"><h3>' + (index + 1) + '. ' + esc(action.action) + '</h3>' + reasons + '<dl>' +
+      return '<article class="mr-card mr-ai-action' + boundedActionClass + '"><h3>' + (index + 1) + '. ' + esc(displayAuthoredDiagnosticText(action.action)) + '</h3>' + reasons + '<dl>' +
         [['Before trying it',action.prerequisite],['Risk to consider',action.risk],['What to check',action.success_check]].map(row=>'<div class="mr-ai-definition"><dt><strong>'+row[0]+'</strong></dt><dd>'+esc(row[1])+'</dd></div>').join('') + '</dl>' +
         (refs.length ? '<p>Practice references: ' + refs.map(source=>'<a href="'+esc(source.url)+'" target="_blank" rel="noopener noreferrer">'+esc(source.publisher)+'</a>').join('; ') + '.</p>' : '') + '</article>';
     }).join('');
@@ -2305,7 +2358,7 @@
         }
         if(total!==n)return new Map();
       }
-      const attribution=label+' · '+group.depth+'-minute depth · Questionnaire '+group.questionnaire_version
+      const attribution=label+' · '+group.depth+'-minute depth · Question-set '+group.questionnaire_version
         +' · '+n.toLocaleString('en-US')+' recorded answers · '+matching.toLocaleString('en-US')+' matching saved reports';
       // Restore the exact question once in each evidence entry's display label.
       // The saved compact fact and authored prose stay unchanged.
@@ -2352,7 +2405,8 @@
       +block.answers.map(answer=>answer.source_label+': “'+answer.answer+'”').join('\n')
       +(item.interpretation_text?'\n\n'+item.interpretation_text:'');
     if(item.text!==fallback)return null;
-    return '<div class="mr-question-evidence"><p class="mr-question-label">Recorded question</p><p class="mr-question-text">'+esc(block.question)+'</p><p class="mr-reading-context">'+esc(contextText)+'</p>'
+    const displayContextText=lenses[context.tool]+' · '+roles[context.role]+' · '+context.depth+'-minute depth · Question-set '+context.questionnaire_version;
+    return '<div class="mr-question-evidence"><p class="mr-question-label">Recorded question</p><p class="mr-question-text">'+esc(block.question)+'</p><p class="mr-reading-context">'+esc(displayContextText)+'</p>'
       +(subset?'<p class="mr-question-subset">Selected source reports</p>':'')+'<dl>'+block.answers.map(answer=>'<div class="mr-question-answer'+(answer.answer.length<=600?' mr-question-answer-bounded':'')+'"><dt>'+esc(answer.source_label)+'</dt><dd>'+esc(answer.answer)+'</dd></div>').join('')+'</dl></div>'
       +(item.interpretation_text?'<p class="mr-question-interpretation">'+esc(item.interpretation_text)+'</p>':'');
   }
@@ -2405,7 +2459,7 @@
     const evidence=arr(report.evidence).concat(arr(report.experiential_evidence));
     const attributions=sourceEvidenceAttributions(report);
     const attribution=fact=>attributions.has(fact.id)?'<span class="mr-evidence-attribution">'+esc(typeof attributions.get(fact.id)==='string'?attributions.get(fact.id):attributions.get(fact.id).context)+'</span>':'';
-    const evidenceLabel=fact=>firstStr(obj(attributions.get(fact.id)).label,fact.label,fact.role?'Participant observation · '+humanize(fact.role):'Recorded response');
+    const evidenceLabel=fact=>{const label=firstStr(obj(attributions.get(fact.id)).label,fact.label,fact.role?'Participant observation · '+humanize(fact.role):'Recorded response');return fact.provenance==='deterministic_sample_summary'?displayAuthoredDiagnosticText(label):label;};
     const printEvidence=new Map();
     const evidenceText=fact=>typeof fact.value==='number'?(fact.unit==='USD'?'US$':'')+fact.value.toLocaleString('en-US')+(fact.unit==='hours'?' hours':''):firstStr(fact.text,typeof fact.value==='string'?fact.value:'',Array.isArray(fact.value)?fact.value.join('; '):'');
     const support=item=>{
@@ -2422,7 +2476,7 @@
     // to span pages; hidden evidence detail never changes this length bound.
     const boundedPrint=text=>text.length<=1000&&text.split(/\r\n|\r|\n/).length<=8;
     const findings=(items,title,explanation,questionBlocks=false,compact=false)=>arr(items).length?'<div class="mr-evidence-reading'+(compact?' mr-reading-limitations':'')+'"><h3>'+title+'</h3>'+(explanation?'<p class="mr-reading-context">'+explanation+'</p>':'')+arr(items).map(item=>{
-      const text=firstStr(obj(item).text,typeof item==='string'?item:''),supporting=support(obj(item));
+      const text=displayAuthoredDiagnosticText(firstStr(obj(item).text,typeof item==='string'?item:'')),supporting=support(obj(item));
       const printedSupport=(supporting.match(/<p class="mr-print-support">([\s\S]*?)<\/p>/)||[])[1]||'';
       return '<article class="mr-finding'+(boundedPrint(text+printedSupport)?' mr-finding-bounded':'')+'">'+((questionBlocks&&sourceBlock(obj(item)))||'<p>'+esc(text)+'</p>')+supporting+'</article>';
     }).join('')+'</div>':'';
@@ -2434,7 +2488,7 @@
       const rows=conditionRows.filter(([,key])=>action[key]&&!Object.prototype.hasOwnProperty.call(shared,key)).map(([label,key])=>[label,action[key]]);
       // Options retain their original layout and independent conditions.
       const conditions=option?'<dl class="mr-action-conditions">'+rows.map(([label,value])=>'<div class="mr-ai-definition"><dt>'+label+'</dt><dd>'+esc(value)+'</dd></div>').join('')+'</dl>':conditionList(rows);
-      return '<article class="mr-card mr-ai-action'+(bounded?' mr-ai-action-bounded':'')+'"><h3 class="mr-action-heading">'+(option?esc(labels[action.intensity]||'Action option'):'Next step '+(index+1))+'</h3><p class="mr-action-proposal">'+esc(action.action)+'</p><p>'+esc(action.reason)+'</p>'+support(action)+conditions+'</article>';
+      return '<article class="mr-card mr-ai-action'+(bounded?' mr-ai-action-bounded':'')+'"><h3 class="mr-action-heading">'+(option?esc(labels[action.intensity]||'Action option'):'Next step '+(index+1))+'</h3><p class="mr-action-proposal">'+esc(displayAuthoredDiagnosticText(action.action))+'</p><p>'+esc(displayAuthoredDiagnosticText(action.reason))+'</p>'+support(action)+conditions+'</article>';
     };
     const actions=arr(interpretation.recommendations),options=arr(interpretation.action_options),preferred=obj(interpretation.recommended_option),preferredOption=options.find(o=>o.option_id===preferred.option_id);
     // Present a condition once only when it applies verbatim to every next
@@ -3348,7 +3402,7 @@
       if (sentence && sentence.length <= limit) return sentence;
       return (text.slice(0, limit + 1).replace(/\s+\S*$/, '').trimEnd() || text.slice(0, limit)) + '…';
     };
-    const summary = firstStr(interpretation.summary, m.centralFinding, m.execSummary, m.coverBody, m.primaryPattern);
+    const summary = displayAuthoredDiagnosticText(firstStr(interpretation.summary, m.centralFinding, m.execSummary, m.coverBody, m.primaryPattern));
     const score = m.kind === 'run' ? m.score : m.scorePublished ? m.score : null;
     const scoreLabel = m.kind === 'run' ? 'Diagnostic score' : firstStr(m.scoreLabel, 'Condition score');
     const scoreBand = m.kind === 'run' || m.selfRun ? firstStr(m.headlineBand) : firstStr(m.conditionBand);
@@ -3364,7 +3418,7 @@
       // Prefer an already-compact complete summary. If no shorter engine unit
       // exists, retain the complete saved summary; 420 is not a truncation cap.
       const wholeFinding = summary && (m.comparisonOnly || summary.length <= 420) ? summary : m.primaryPattern === legacyMixedPattern ? 'Several patterns appear across the diagnostics; none stands out as the single shared explanation. Review the findings for each diagnostic before deciding what to change.' : firstStr(m.primaryPattern, obj(m.source?.diagnosis).body, summary, 'Review the recorded findings in the full report.');
-      findingContent = '<div class="mr-overview-scoreline"><div class="mr-overview-score"><strong>' + esc(strictFinite(score) ? fmt1(score) : 'Unavailable') + '</strong>' + (strictFinite(score) ? '<span>/ 100</span>' : '') + '</div><p>' + esc(scoreBand || scoreLabel) + '</p></div><p class="mr-overview-summary mr-overview-finding">' + esc(wholeFinding) + '</p>' + (facts.length ? '<ul class="mr-overview-findings">' + facts.map(f => '<li><strong>' + esc(f.label) + ':</strong> ' + esc(f.value) + '</li>').join('') + '</ul><p class="mr-overview-note">Recorded patterns in the included responses.</p>' : '');
+      findingContent = '<div class="mr-overview-scoreline"><div class="mr-overview-score"><strong>' + esc(strictFinite(score) ? fmt1(score) : 'Unavailable') + '</strong>' + (strictFinite(score) ? '<span>/ 100</span>' : '') + '</div><p>' + esc(scoreBand || scoreLabel) + '</p></div><p class="mr-overview-summary mr-overview-finding">' + esc(wholeFinding) + '</p>' + (facts.length ? '<ul class="mr-overview-findings">' + displayDiagnosticLabelRows(facts).map(f => '<li><strong>' + esc(f.label) + ':</strong> ' + esc(f.value) + '</li>').join('') + '</ul><p class="mr-overview-note">Recorded patterns in the included responses.</p>' : '');
       if (compact) findingContent = '<div class="mr-overview-scoreline"><div class="mr-overview-score"><strong>' + esc(strictFinite(score) ? fmt1(score) : 'Unavailable') + '</strong>' + (strictFinite(score) ? '<span>/ 100</span>' : '') + '</div><p>' + esc(scoreBand || scoreLabel) + '</p></div><p class="mr-overview-summary mr-overview-finding">' + esc(compact.headline.text) + '</p><ul class="mr-overview-findings">' + compact.findings.map(unit => '<li>' + esc(unit.text) + '</li>').join('') + '</ul><p class="mr-overview-note">Summary of the full findings below.</p>';
     }
     const validated = threeBenefitPresentation(m);
@@ -3457,7 +3511,7 @@
       // Keep the full guidance below instead of presenting its title as a task.
       : "";
     const nextMove = actions ? '<div class="mr-screen-only mr-screen-next"><div><span>Next step</span>' +
-      (firstAction ? '<p>' + esc(firstAction) + '</p>' : interpretationOnly ? '<p>Review the interpretation and its limits.</p>' : '<p>Review the suggested changes and their evidence before deciding what to change.</p>') + '</div>' + link(actions, (interpretationOnly ? 'Review interpretation' : 'Explore actions') + ' <span aria-hidden="true">→</span>', 'mr-screen-action', 'guidance') + '</div>' : '';
+      (firstAction ? '<p>' + esc(displayAuthoredDiagnosticText(firstAction)) + '</p>' : interpretationOnly ? '<p>Review the interpretation and its limits.</p>' : '<p>Review the suggested changes and their evidence before deciding what to change.</p>') + '</div>' + link(actions, (interpretationOnly ? 'Review interpretation' : 'Explore actions') + ' <span aria-hidden="true">→</span>', 'mr-screen-action', 'guidance') + '</div>' : '';
     return { nav, nextMove, overview: buildReportOverview(m, sections) };
   }
 
@@ -3881,6 +3935,7 @@
   window.MondermanReport = {
     rendererVersion: RENDERER_VERSION,
     financialPresentationVersion: FINANCIAL_PRESENTATION_VERSION,
+    displayAuthoredDiagnosticText: displayAuthoredDiagnosticText,
     fromRun: fromRun,
     fromSynthesis: fromSynthesis,
     buildReportBody: buildReportBody,

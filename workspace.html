@@ -472,8 +472,8 @@ body{transition:background-color .25s ease,color .25s ease}
     <!-- the four Diagnostics -->
     <section class="ws-instruments" id="wsInstruments" aria-label="The four Diagnostics">
       <div class="ws-inst"><div class="name">Structural Clarity</div><div class="val empty">Loading…</div><div class="row"><span class="ws-muted" style="font-size:12.5px">Loading…</span></div></div>
-      <div class="ws-inst"><div class="name">Decision Velocity</div><div class="val empty">Loading…</div></div>
       <div class="ws-inst"><div class="name">Operational Systems</div><div class="val empty">Loading…</div></div>
+      <div class="ws-inst"><div class="name">Decision Velocity</div><div class="val empty">Loading…</div></div>
       <div class="ws-inst"><div class="name">Institutional Performance</div><div class="val empty">Loading…</div></div>
     </section>
 
@@ -540,7 +540,7 @@ body{transition:background-color .25s ease,color .25s ease}
 
     const API_BASE = "https://monderman-api.onrender.com";
     const state = { user:null, membership:null, organization:null, role:"viewer", runs:[], runsError:false };
-    const TOOLS = ["structural_clarity","decision_velocity","operational_systems","institutional_performance"];
+    const TOOLS = ["structural_clarity","operational_systems","decision_velocity","institutional_performance"];
     const PLAN_LABEL = { trial:"Trial", signal:"Signal", pattern:"Pattern", enterprise:"Enterprise", // legacy values kept so an old row still renders a name rather than a blank
                          free:"Trial", baseline:"Signal", advisory:"Pattern" };
     const ADMIN_ROLES = ["owner","admin"];

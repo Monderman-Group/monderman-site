@@ -143,11 +143,11 @@ async function runCase(browser,engine,version,role,depth,kind='matrix'){
     await page.waitForFunction(()=>window.__mondermanTestHooks&&(!document.getElementById('pageLoader')||getComputedStyle(document.getElementById('pageLoader')).visibility==='hidden'));
     if(fresh)await start();else await page.locator('#resumeSavedRunBtn').click();
     if(kind==='denied'){
-      await page.waitForFunction(()=>document.getElementById('questionTitle')?.textContent==='Your saved questionnaire needs verification');
+      await page.waitForFunction(()=>document.getElementById('questionTitle')?.textContent==='Your saved diagnostic needs verification');
       assert.equal(await page.locator('#questionBody .choice,#questionBody input').count(),0);assert.equal(state.starts,0);assert.equal(state.writes,0);return;
     }
     if(kind==='unknown-start'){
-      await page.waitForFunction(()=>document.getElementById('questionTitle')?.textContent==='Your saved questionnaire needs verification');
+      await page.waitForFunction(()=>document.getElementById('questionTitle')?.textContent==='Your saved diagnostic needs verification');
       assert.equal(await page.locator('#questionBody .choice,#questionBody input').count(),0);
       assert.equal(new URL(page.url()).searchParams.get('resume_run'),runId);assert.equal(state.starts,1);
       state.unknown=false;await page.locator('#resumeSavedRunBtn').click();await question(first);
@@ -214,7 +214,7 @@ async function runCase(browser,engine,version,role,depth,kind='matrix'){
     const before=await page.evaluate(()=>Object.fromEntries(Object.keys(sessionStorage).filter(k=>k.startsWith('monderman.selfDiagnosticDraft.')).map(k=>[k,sessionStorage.getItem(k)])));
     await page.goto(base+'/operational-systems.html?resume_run='+otherRun,{waitUntil:'domcontentloaded'});
     await page.locator('#resumeSavedRunBtn').click();
-    await page.waitForFunction(()=>document.getElementById('questionTitle')?.textContent==='Your saved questionnaire needs verification');
+    await page.waitForFunction(()=>document.getElementById('questionTitle')?.textContent==='Your saved diagnostic needs verification');
     const after=await page.evaluate(()=>Object.fromEntries(Object.keys(sessionStorage).filter(k=>k.startsWith('monderman.selfDiagnosticDraft.')).map(k=>[k,sessionStorage.getItem(k)])));
     assert.deepEqual(after,before,'different-run link must not erase the existing draft');
     assert.deepEqual(errors,[]);

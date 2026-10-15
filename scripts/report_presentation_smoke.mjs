@@ -509,7 +509,7 @@ const read=depthSource.sample_reads[0], stats=read.score;
 const compactSynthesisExpected = {
   cross_lens: {
     composite:['Equal-lens Composite',crossScore],stats:[],
-    segments:crossSource.source_groups.map(g=>({label:g.tool_label,count:g.submitted_runs+' submitted runs',stats:[['Mean',fmt(g.mean_score)]]})),
+    segments:['structural_clarity','operational_systems','decision_velocity','institutional_performance'].map(tool=>crossSource.source_groups.find(g=>g.tool_type===tool)).map(g=>({label:g.tool_label,count:g.submitted_runs+' submitted runs',stats:[['Mean',fmt(g.mean_score)]]})),
   },
   depth: {
     composite:[],

@@ -204,7 +204,7 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
     const before=requests.filter(e=>e.path.endsWith(suffix)).length;
     responseVersionOverride={questionnaire_version:questionnaireVersion,configVersion:'unknown-after-accepted-mutation'};
     await action();
-    await page.waitForFunction(()=>document.querySelector('#questionTitle')?.textContent==='Your saved questionnaire needs verification');
+    await page.waitForFunction(()=>document.querySelector('#questionTitle')?.textContent==='Your saved diagnostic needs verification');
     await page.waitForTimeout(400);
     assert.equal(requests.filter(e=>e.path.endsWith(suffix)).length,before+1,suffix+': copy conflict must not auto-retry an accepted mutation');
     assert.equal(await page.locator('#questionBody input,#questionBody textarea,#questionBody .choice').count(),0,suffix+': no incompatible question');
@@ -253,7 +253,7 @@ for (const [browserName,type] of [['chromium',chromium],['webkit',webkit]]) {
       assert.match(await notice.textContent(),/saved answers have not been removed/);
       assert.match(await notice.textContent(),/Refresh to retry/);
     } else {
-      await page.waitForFunction(()=>document.querySelector('#questionTitle')?.textContent==='Your saved questionnaire needs verification');
+      await page.waitForFunction(()=>document.querySelector('#questionTitle')?.textContent==='Your saved diagnostic needs verification');
     }
     assert.equal(await page.locator('#questionBody input,#questionBody textarea,#questionBody .choice').count(),0,label+': no cached questions');
     assert.equal(await draftRecord(),preservedDraft,label+': preserve exact draft');

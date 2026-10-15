@@ -8,7 +8,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {pathToFileURL} from 'node:url';
 import {buildPublicSamplePreviewSections as buildCurrentPublicSamplePreviewSections,refreshPublicSamplePreviews} from './refresh_public_sample_previews.mjs';
-import {evidenceDigest} from './public_sample_fixture.mjs';
+import {evidenceDigest,compactPreviewBeforeSodiDisplayOrder} from './public_sample_fixture.mjs';
 import {sourceBeforeHomepageReportQuad20260925} from './homepage_report_quad_20260925_inverse.mjs';
 
 const root=path.resolve(import.meta.dirname,'..'),args=process.argv.slice(2);
@@ -53,7 +53,7 @@ function fixture(key='complete'){
 }
 const render=artifact=>{
  const historical=buildPublicSamplePreviewSections(artifact,template),current=buildCurrentPublicSamplePreviewSections(artifact,template);
- eq(current.hero,historical.hero,'Current hero is unchanged for each calculator fixture');
+ eq(compactPreviewBeforeSodiDisplayOrder(current.hero),historical.hero,'Current hero retains every other byte for each calculator fixture after the exact SODI strip inverse');
  eq(current.brief,historical.brief,'Current Brief is unchanged for each calculator fixture');
  return historical;
 };

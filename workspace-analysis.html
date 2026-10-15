@@ -555,12 +555,12 @@ body{transition:background-color .25s ease, color .25s ease}
   <link rel="stylesheet" href="campaign-analysis.css?v=20260911-1">
   <link rel="stylesheet" href="workspace-synthesis-readiness.css?v=20260919.ready1">
   <script src="participant-evidence-safety.js?v=20260905-report-quarantine"></script>
-  <script src="monderman-report.js?v=20260929.singlelens1"></script>
+  <script src="monderman-report.js?v=20261015.sodi1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
   <script src="workspace-access-gate.js"></script>
 <script type="module">
     import {createSynthesisRequestStore} from './synthesis-request-state.js?v=20260909-idempotent1';
-    import {mountCampaignAnalysis,campaignSalaryCostRequest} from './campaign-analysis.js?v=20260923.salary1';
+    import {mountCampaignAnalysis,campaignSalaryCostRequest} from './campaign-analysis.js?v=20261015.sodi1';
     import {mountSynthesisReadiness} from './workspace-synthesis-readiness.js?v=20260919.ready1';
     const workspaceAccess = await window.mondermanWorkspaceAccessReady;
     if (!workspaceAccess?.allowed) await new Promise(function () {});
@@ -574,7 +574,7 @@ body{transition:background-color .25s ease, color .25s ease}
     const PLAN_LABEL = { trial:"Trial", signal:"Signal", pattern:"Pattern", enterprise:"Enterprise", // legacy values kept so an old row still renders a name rather than a blank
                          free:"Trial", baseline:"Signal", advisory:"Pattern" };
     const TOOL = { operational_systems:"Operational Systems", decision_velocity:"Decision Velocity", structural_clarity:"Structural Clarity", institutional_performance:"Institutional Performance" };
-    const TOOL_ORDER = ["operational_systems","decision_velocity","structural_clarity","institutional_performance"];
+    const TOOL_ORDER = ["structural_clarity","operational_systems","decision_velocity","institutional_performance"];
     const VANTAGE = { operational:"Operational", managerial:"Managerial", executive:"Senior Leader" };
     const VANTAGE_ORDER = ["operational","managerial","executive"];
 

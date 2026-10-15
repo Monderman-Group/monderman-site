@@ -2,6 +2,7 @@
 // This does not create a Checkout Session, authenticate a person, or certify tax setup.
 import assert from 'node:assert/strict';
 import {sourceAtOutreachImageNoticeBaseline} from './outreach_image_notice_20261008_inverse.mjs';
+import {sourceAtScopeBetaBaseline} from './scope_beta_20261014_inverse.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
@@ -123,7 +124,7 @@ for(const [f,key] of [['structural-clarity','sc'],['decision-velocity','dv'],['o
 for(const f of ['security.html','pilot.html','pattern-trial.html']){
   check(read(f).includes('Anthropic')&&!read(f).includes('Claude '),f+' provider disclosure without model name');
 }
-check(sourceAtOutreachImageNoticeBaseline('privacy.html',read('privacy.html'))===read('privacy-2026-09-19-invitation-access.html'),'current Privacy edition has an exact archive; historical source-evidence edition remains immutable under legal protection tests');
+check(sourceAtOutreachImageNoticeBaseline('privacy.html',read('privacy.html'))===sourceAtScopeBetaBaseline('privacy-2026-09-19-invitation-access.html',read('privacy-2026-09-19-invitation-access.html')),'current Privacy edition has an exact archive; historical source-evidence edition remains immutable under legal protection tests');
 for(const f of ['index.html','research.html','why-monderman.html']){
   const text=read(f).replace(/<style\b[\s\S]*?<\/style>/gi,'').replace(/<script\b[\s\S]*?<\/script>/gi,'').replace(/<[^>]*>/g,' ');
   check(!/peer-reviewed.{0,60}(?:book|Routledge)/i.test(text),f+' authorship not validation');

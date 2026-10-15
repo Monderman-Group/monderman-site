@@ -193,7 +193,7 @@ PUBLICATIONS = (
             Figure(4, 475, 618, "Two evidence cards reporting productivity effects from management-practice research.", "A randomized management-practices trial reported a 17 percent first-year productivity increase and estimated that management practices accounted for roughly one quarter of measured total-factor-productivity gaps."),
             Figure(5, 165, 465, "A two-layer comparison of sentiment measurement and Systems Measurement, with five elements of the operating layer.", "Sentiment measurement reports experience. Systems Measurement examines ownership, authority, handoffs, routing, process load, and performance discipline."),
             Figure(6, 205, 318, "A four-stage measurement loop: measure, locate, act, and re-measure.", "Systems Measurement begins with a baseline and returns to the same system after action."),
-            Figure(6, 405, 562, "Four Monderman measurement cards: Operational Systems, Decision Velocity, Structural Clarity, and Institutional Performance.", "The four measurement lenses examine related organizational structures."),
+            Figure(6, 405, 562, "Four Monderman measurement cards: Structural Clarity, Operational Systems, Decision Velocity, and Institutional Performance.", "The four measurement lenses examine related organizational structures."),
             Figure(7, 221, 339, "A five-part complete-read diagram spanning experience, structure, decision flow, operating load, and remeasurement.", "A complete read keeps both experience and operating structure visible."),
         ),
     ),

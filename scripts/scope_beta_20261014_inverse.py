@@ -2,8 +2,8 @@
 import hashlib,json
 from pathlib import Path
 BASELINE='f2a81afdd30863c68b4ae748936163a141b0edd6'
-VERSION='q2-sodi-20261015.10'
-FIXTURE_SHA256='323763faac9606b8dc4f0912fd251955819a3bf4ebcfe95eaf2217c91b098a7d'
+VERSION='q2-sodi-20261015.16'
+FIXTURE_SHA256='03c262b1182116c63d7a015f5750fc38f24271676f3f92a1701655e5490f053e'
 ROOT=Path(__file__).resolve().parents[1]
 _bytes=(Path(__file__).resolve().parent/'fixtures/scope-beta-20261014.json').read_bytes()
 assert hashlib.sha256(_bytes).hexdigest()==FIXTURE_SHA256
@@ -15,8 +15,31 @@ def _reverse(entries,file,source):
  e=_entry(entries,file)
  if e is None:return source
  assert isinstance(source,(str,bytes))
+ if 'encoding' in e:assert e['encoding']=='base64',file+': known finite binary encoding'
+ if e.get('encoding')=='base64':assert isinstance(source,bytes),file+': finite binary input stays bytes'
  encoded=source.encode('utf8') if isinstance(source,str) else source
  assert hashlib.sha256(encoded).hexdigest()==e['after_sha256'],file+': exact complete approved input'
+ if e.get('encoding')=='base64':
+  import base64,binascii
+  assert type(e['before_bytes']) is int and e['before_bytes']>=0 and type(e['after_bytes']) is int and e['after_bytes']==len(source),file+': finite binary byte sizes'
+  assert isinstance(e['replacements'],list) and e['replacements'],file+': nonempty literal binary hunks'
+  def decode(value):
+   assert isinstance(value,str),file+': literal base64 type'
+   try:b=base64.b64decode(value,validate=True)
+   except (ValueError,binascii.Error) as error:raise AssertionError(file+': invalid literal base64') from error
+   assert base64.b64encode(b).decode()==value,file+': canonical literal base64'
+   return b
+  previous_end=0;rows=[]
+  for row in e['replacements']:
+   assert isinstance(row,list) and len(row)==4,file+': exact binary hunk tuple'
+   start,end,now,prior=row
+   assert type(start) is int and type(end) is int and previous_end<=start<=end<=len(source),file+': finite ordered nonoverlapping byte offsets'
+   current=decode(now);original=decode(prior);assert end-start==len(current) and source[start:end]==current,file+': exact finite binary hunk/length'
+   rows.append((start,end,original));previous_end=end
+  out=source
+  for start,end,prior in reversed(rows):out=out[:start]+prior+out[end:]
+  assert len(out)==e['before_bytes'] and hashlib.sha256(out).hexdigest()==e['before_sha256'],file+': complete actualF2A81 binary restored'
+  return out
  out=encoded.decode('utf8').encode('utf-16-le')
  for start,end,now,old in reversed(e['replacements']):
   assert out[start*2:end*2].decode('utf-16-le')==now,file+': literal finite UTF16 hunk'
@@ -27,6 +50,8 @@ def _at_baseline(entries,file,source):
  e=_entry(entries,file)
  if e is None:return source
  assert isinstance(source,(str,bytes))
+ if 'encoding' in e:assert e['encoding']=='base64',file+': known finite binary encoding'
+ if e.get('encoding')=='base64':assert isinstance(source,bytes),file+': finite binary input stays bytes'
  encoded=source.encode('utf8') if isinstance(source,str) else source
  return _reverse(entries,file,source) if hashlib.sha256(encoded).hexdigest()==e['after_sha256'] else source
 def source_before_scope_beta_20261014(file,source):return _reverse(_fixture['files'],file,source)
