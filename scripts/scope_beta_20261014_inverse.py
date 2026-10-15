@@ -3,7 +3,7 @@ import hashlib,json
 from pathlib import Path
 BASELINE='f2a81afdd30863c68b4ae748936163a141b0edd6'
 VERSION='scope-beta-20261014.1'
-FIXTURE_SHA256='ab78696ed2d2630d0c3979d474a8b15430c5d114b8854698a324736285b0c684'
+FIXTURE_SHA256='9c00d37e70c445fdd7418e8377582e5e23943fe9130788276e9afe282cb25e71'
 ROOT=Path(__file__).resolve().parents[1]
 _bytes=(Path(__file__).resolve().parent/'fixtures/scope-beta-20261014.json').read_bytes()
 assert hashlib.sha256(_bytes).hexdigest()==FIXTURE_SHA256
