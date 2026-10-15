@@ -10,6 +10,7 @@ import {isCurrentScopeBeta, assertScopeBetaBuiltEdition} from './scope_beta_2026
 const root = path.resolve(process.env.SITE_SOURCE_DIR || '.render-public');
 const currentScope = isCurrentScopeBeta();
 if (currentScope) assertScopeBetaBuiltEdition(root);
+const currentProductPages = ['q2-sodi.html', 'scope.html'];
 const output = path.resolve(process.env.FOOTER_TEST_OUTPUT || 'output/floating-support');
 const fullScripts = process.env.FOOTER_FULL_SCRIPTS === '1';
 const dependencies = new Map();
@@ -22,7 +23,7 @@ for (const file of (await fs.readdir(root)).filter(f => f.endsWith('.html'))) {
   const shell = /<body\b[^>]*\bcanonical-green-shell\b/.test(source);
   const html = fullScripts ? source : source.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '').replace('</body>',
     (shell ? '<script src="/assistant.js"></script><script src="/connect-widget.js"></script><script src="/canonical-site-shell.js"></script><script src="/first-run-telemetry.js"></script>' : '') + '</body>');
-  (currentScope && file === 'scope.html' ? scopePages : pages).push({ file, shell, html });
+  (currentScope && currentProductPages.includes(file) ? scopePages : pages).push({ file, shell, html });
   if (fullScripts && shell) for (const [tag] of source.matchAll(/<script\b[^>]*>/gi)) {
     const url = tag.match(/\bsrc=["'](https:\/\/cdn\.jsdelivr\.net\/[^"']+)["']/)?.[1];
     const integrity = tag.match(/\bintegrity=["'](sha(?:256|384|512)-[^"']+)["']/)?.[1];
@@ -32,8 +33,8 @@ for (const file of (await fs.readdir(root)).filter(f => f.endsWith('.html'))) {
     }
   }
 }
-assert.deepEqual(scopePages.map(p => p.file), currentScope ? ['scope.html'] : [], 'Only the whole-source and whole-build approved Scope addition is separate');
-if (currentScope) assert.equal(scopePages[0].shell, true, 'Actual Scope addition retains the canonical shell');
+assert.deepEqual(scopePages.map(p => p.file).sort(), currentScope ? currentProductPages : [], 'Only the whole-source and whole-build approved canonical product page and alias are separate');
+if (currentScope) for (const page of scopePages) assert.equal(page.shell, true, page.file + ': actual product page and retained alias keep the canonical shell');
 const browserPages = [...pages, ...scopePages];
 const evaluationArchives = ['terms-2026-09-19-invited-evaluation.html', 'privacy-2026-09-19-invited-evaluation.html', 'terms-2026-09-19-invitation-access.html', 'privacy-2026-09-19-invitation-access.html'];
 assert.deepEqual(pages.filter(p => evaluationArchives.includes(p.file)).map(p => p.file).sort(), [...evaluationArchives].sort());
@@ -139,8 +140,9 @@ for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
           await page.evaluate(() => document.fonts.ready);
           assert.deepEqual(errors, [], label + ': support script errors');
           if (scopePages.some(p => p.file === file)) {
-            assert.equal(await page.locator('.mond-footer a[href="scope.html"]').innerText(), 'Monderman Scope', label + ': actual current Scope footer product identity');
-            assert.equal(await page.locator('.mond-footer a[href="scope.html"]').getAttribute('href'), 'scope.html', label + ': actual current Scope footer destination');
+            assert.equal(await page.locator('.mond-footer a[href="q2-sodi.html"]').innerText(), 'Q²-SODI', label + ': actual current product footer identity');
+            assert.equal(await page.locator('.mond-footer a[href="q2-sodi.html"]').getAttribute('href'), 'q2-sodi.html', label + ': actual current product footer destination');
+            assert.equal(await page.locator('link[rel="canonical"]').getAttribute('href'), 'https://www.monderman.com/q2-sodi.html', label + ': product page and retained alias identify the canonical product URL');
           }
           assert.equal(await page.locator('.mf-device-protection').innerText(), 'Administrative device protection: CrowdStrike Falcon');
           assert.equal(await page.locator('.mf-device-protection a').getAttribute('href'), 'security.html#administrative-device-protection');

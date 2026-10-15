@@ -12,6 +12,7 @@ const root = path.resolve(import.meta.dirname, '..');
 const built = path.resolve(process.env.SITE_SOURCE_DIR || path.join(root, '.render-public'));
 const currentScope = isCurrentScopeBeta();
 if (currentScope) assertScopeBetaBuiltEdition(built);
+const currentProductPages = ['q2-sodi.html', 'scope.html'];
 const output = path.resolve(process.env.FOOTER_MEMBERSHIP_OUTPUT || 'output/acmp-footer');
 const baseline = 'e9efd479cc4b19e9753aeb814fb30f280f8171a9';
 const credential = 'https://www.credly.com/badges/36d80452-ae21-4208-b5c6-f1bcf45fb23a';
@@ -48,10 +49,10 @@ for (const file of (await fs.readdir(built)).filter(file => file.endsWith('.html
   if (!footers.length) continue;
   eq(footers.length, 1, file + ': exactly one shared footer');
   eq(footers[0][0], footer, file + ': exact current footer partial');
-  const target = currentScope && file === 'scope.html' ? scopePages : pages;
+  const target = currentScope && currentProductPages.includes(file) ? scopePages : pages;
   target.set(file, html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ''));
 }
-eq([...scopePages.keys()], currentScope ? ['scope.html'] : [], 'Only the whole-source and whole-build approved Scope addition is separate');
+eq([...scopePages.keys()], currentScope ? currentProductPages : [], 'Only the whole-source and whole-build approved canonical product page and alias are separate');
 eq(pages.size, 74, 'All public footer pages receive the membership');
 const browserPages = new Map([...pages, ...scopePages]);
 const tracked = execFileSync('git', ['ls-tree', '-r', '--name-only', baseline], {cwd:root, encoding:'utf8'}).trim().split('\n');
@@ -119,8 +120,9 @@ for (const [engineName, engine] of Object.entries({chromium, webkit})) {
           await page.addStyleTag({content:'#pageLoader{display:none!important}'});
           await page.evaluate(() => document.fonts.ready);
           if (scopePages.has(file)) {
-            eq(await page.locator('.mond-footer a[href="scope.html"]').innerText(), 'Monderman Scope', label + ': actual current Scope footer product identity');
-            eq(await page.locator('.mond-footer a[href="scope.html"]').getAttribute('href'), 'scope.html', label + ': actual current Scope footer destination');
+            eq(await page.locator('.mond-footer a[href="q2-sodi.html"]').innerText(), 'Q²-SODI', label + ': actual current product footer identity');
+            eq(await page.locator('.mond-footer a[href="q2-sodi.html"]').getAttribute('href'), 'q2-sodi.html', label + ': actual current product footer destination');
+            eq(await page.locator('link[rel="canonical"]').getAttribute('href'), 'https://www.monderman.com/q2-sodi.html', label + ': product page and retained alias identify the canonical product URL');
           }
           const link = page.locator('.mf-membership');
           await link.scrollIntoViewIfNeeded();

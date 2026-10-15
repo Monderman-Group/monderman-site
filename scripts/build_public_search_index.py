@@ -32,7 +32,7 @@ REQUIRED_DISCLOSURE_PHRASES = (
 
 PAGES = {
     "index.html": "Overview",
-    "scope.html": "Platform",
+    "q2-sodi.html": "Platform",
     "Monderman_Platform_Brief.html": "Platform",
     "diagnostics.html": "Diagnostics",
     "operational-systems-article.html": "Diagnostics",

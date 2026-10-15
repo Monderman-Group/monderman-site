@@ -111,7 +111,7 @@ with tempfile.TemporaryDirectory(prefix="monderman-cert-sensitivity-") as temp:
             [footer_page],
         )
     # October 14, 2026: the new Scope page permits only its one exact canonical footer statement.
-    for footer_page in ["scope.html"]:
+    for footer_page in ["scope.html", "q2-sodi.html"]:
         expect_rejection(
             fixture,
             footer_page + ": changed canonical footer brand wording",

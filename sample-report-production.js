@@ -107,7 +107,7 @@
     shell.innerHTML = '<div class="toc-mobile psr-toc-mobile"><select aria-label="Jump to report section"><option value="">Jump to section…</option></select></div>' +
       '<div class="synthesis-doc-shell psr-doc-shell"><div class="synthesis-report-stage psr-main"><div class="psr-wrap" data-engine-commit="' + esc(engineCommit) +
       '" data-artifact-sha256="' + esc(artifactSha256) + '" data-source-key="' + esc(options.sourceKey) + '">' +
-      '<div class="psr-toolbar" aria-label="Sample report controls"><div><strong>' + esc(options.toolbarLabel || "Monderman Scope report") + '</strong><details class="psr-provenance"><summary>Source details</summary><p>' + esc(options.provenance || "Shared production report renderer") + '</p></details></div>' +
+      '<div class="psr-toolbar" aria-label="Sample report controls"><div><strong>' + esc(options.toolbarLabel || "Q²-SODI report") + '</strong><details class="psr-provenance"><summary>Source details</summary><p>' + esc(options.provenance || "Shared production report renderer") + '</p></details></div>' +
       '<div class="psr-toolbar-actions"><button type="button" data-action="read">Read the report</button>' +
       '<button class="psr-primary" type="button" data-action="print">Download PDF</button><details class="psr-downloads"><summary>Other formats</summary><div><button type="button" data-action="html">Download HTML</button><button type="button" data-action="json">Download JSON</button></div></details></div></div>' +
       '<div class="psr-engine-stage"></div></div></div>' +
@@ -163,7 +163,7 @@
       sourceKey,
       engineCommit: generationCommit,
       artifactSha256: artifact.artifact_sha256,
-      toolbarLabel: "Monderman Scope report",
+      toolbarLabel: "Q²-SODI report",
       provenance,
       tocLabel: sourceKey.replace(/_/g, " ") + " contents",
       tocId: sourceKey.replace(/_/g, "-") + "Toc"
