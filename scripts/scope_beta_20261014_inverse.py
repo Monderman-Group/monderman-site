@@ -1,4 +1,5 @@
 """Finite current design leaf; unknown source and path sets stay visible."""
+from hiring_blind_spot_publication_20261015_inverse import source_at_hiring_publication_baseline, public_source_at_hiring_publication_baseline, source_paths_at_hiring_publication_baseline, public_paths_at_hiring_publication_baseline
 import hashlib,json
 from pathlib import Path
 BASELINE='f2a81afdd30863c68b4ae748936163a141b0edd6'
@@ -29,10 +30,10 @@ def _at_baseline(entries,file,source):
  assert isinstance(source,(str,bytes))
  encoded=source.encode('utf8') if isinstance(source,str) else source
  return _reverse(entries,file,source) if hashlib.sha256(encoded).hexdigest()==e['after_sha256'] else source
-def source_before_scope_beta_20261014(file,source):return _reverse(_fixture['files'],file,source)
-def source_at_scope_beta_baseline(file,source):return _at_baseline(_fixture['files'],file,source)
-def public_source_before_scope_beta_channel_20261014(file,source):return _reverse(_fixture.get('channelVariants',{}),file,source)
-def public_source_at_scope_beta_channel_baseline(file,source):return _at_baseline(_fixture.get('channelVariants',{}),file,source)
+def source_before_scope_beta_20261014(file,source):return _reverse(_fixture['files'],file,source_at_hiring_publication_baseline(file,source))
+def source_at_scope_beta_baseline(file,source):return _at_baseline(_fixture['files'],file,source_at_hiring_publication_baseline(file,source))
+def public_source_before_scope_beta_channel_20261014(file,source):return _reverse(_fixture.get('channelVariants',{}),file,public_source_at_hiring_publication_baseline(file,source))
+def public_source_at_scope_beta_channel_baseline(file,source):return _at_baseline(_fixture.get('channelVariants',{}),file,public_source_at_hiring_publication_baseline(file,source))
 def public_source_before_scope_beta_20261014(file,source):return _reverse(_fixture['publicFiles'],file,public_source_at_scope_beta_channel_baseline(file,source))
 def public_source_at_scope_beta_baseline(file,source):return _at_baseline(_fixture['publicFiles'],file,public_source_at_scope_beta_channel_baseline(file,source))
 def _additions_exact():
@@ -46,5 +47,5 @@ def _names_at_baseline(names,current,prior):
  rows=list(names);assert all(isinstance(f,str) for f in rows)
  if _fixture['provisional'] is False and len(rows)==len(set(rows)) and sorted(rows)==sorted(current) and _additions_exact():return set(prior) if isinstance(names,set) else list(prior)
  return names
-def source_paths_at_scope_beta_baseline(names):return _names_at_baseline(names,_fixture['currentSourcePaths'],_fixture['baselineSourcePaths'])
-def public_paths_at_scope_beta_baseline(names):return _names_at_baseline(names,_fixture['currentPublicPaths'],_fixture['baselinePublicPaths'])
+def source_paths_at_scope_beta_baseline(names):return _names_at_baseline(source_paths_at_hiring_publication_baseline(names),_fixture['currentSourcePaths'],_fixture['baselineSourcePaths'])
+def public_paths_at_scope_beta_baseline(names):return _names_at_baseline(public_paths_at_hiring_publication_baseline(names),_fixture['currentPublicPaths'],_fixture['baselinePublicPaths'])

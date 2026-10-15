@@ -57,6 +57,7 @@ PAGES = {
     "trenches-not-silos.html": "Research",
     "durable-organization.html": "Research",
     "hold-collide-come-apart.html": "Research",
+    "hiring-blind-spot.html": "Research",
     "we-gave-bureaucracy-the-fastest-tools.html": "Research",
     "accumulated-drag-department-of-war.html": "Research",
     "built-to-please.html": "Research",

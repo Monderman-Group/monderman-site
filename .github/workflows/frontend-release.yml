@@ -34,6 +34,8 @@ jobs:
       - run: python scripts/validate_stabilization.py
       - name: Keep public search copy and disclosures current
         run: python scripts/build_public_search_index.py --check
+      - name: Verify the isolated Hiring Blind Spot publication
+        run: python scripts/hiring_blind_spot_publication_20261015_contract.py
       - name: Preserve approved copy, allowances and functional boundaries
         run: |
           node scripts/scope_beta_20261014_contract.mjs
@@ -133,6 +135,7 @@ jobs:
         run: |
           python scripts/optional_measurement_publication_smoke.py
           RENDER_GIT_COMMIT="${{ github.sha }}" bash scripts/render-static-build.sh
+          python scripts/hiring_blind_spot_publication_20261015_contract.py --built
           node scripts/chatbot_release_artifact_smoke.mjs
       - name: Keep modeled currency display ranges consistent and bounded
         run: node scripts/diagnostic_currency_display_smoke.mjs
