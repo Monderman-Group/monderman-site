@@ -24,7 +24,7 @@ copy_root_matches() {
 # source documents, test fixtures, and PDF-production fonts are intentionally not
 # copied into the publish directory.
 copy_root_matches "*.html" "*.css" "*.js" "*.woff" "*.woff2"
-cp -- CNAME robots.txt sitemap.txt sitemap.xml legal-document-manifest.json public-search-index.json "$publish_dir/"
+cp -- CNAME robots.txt sitemap.txt sitemap.xml legal-document-manifest.json public-search-index.json scope-release.json "$publish_dir/"
 cp -- favicon.ico favicon.svg favicon-192.png apple-touch-icon.png "$publish_dir/"
 cp -- Hero-Image.jpg founder-jason-adamson.jpg founder-elizabeth-neiford.jpg "$publish_dir/"
 cp -- sample-data/production-diagnostic-samples.json "$publish_dir/sample-data/"
@@ -48,6 +48,8 @@ cp -- \
   assets/brand/monderman-mark-v2-small.svg \
   assets/brand/monderman-social-card.png \
   assets/brand/acmp-member-badge.png \
+  assets/brand/scope-symbol.svg \
+  assets/brand/scope-symbol-reversed.svg \
   "$publish_dir/assets/brand/"
 find assets/research -maxdepth 1 -type f -name '*.png' ! -name 'after-the-first-lap-social.png' -exec cp -- {} "$publish_dir/assets/research/" \;
 

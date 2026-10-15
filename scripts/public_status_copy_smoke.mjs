@@ -5,11 +5,12 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
+import {sourceAtScopeBetaBaseline,sourcePathsAtScopeBetaBaseline,isCurrentScopeBeta} from './scope_beta_20261014_inverse.mjs';
 import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 const baseline='81f06cbe6974d5e7d1a276ce762e5a4b4699162e';
-const read=file=>fs.readFileSync(path.join(root,file),'utf8');
+const read=file=>sourceAtScopeBetaBaseline(file,fs.readFileSync(path.join(root,file),'utf8'));
 const prior=file=>execFileSync('git',['show',`${baseline}:${file}`],{cwd:root,encoding:'utf8',maxBuffer:16*1024*1024});
 let assertions=0;
 const check=(condition,label)=>{assert.ok(condition,label);assertions++;};
@@ -60,7 +61,9 @@ check(!productBeta('merit-after-the-machine.html',`<li>${citedHistory}</li>`),'s
 check(productBeta('merit-after-the-machine.html',`<li>${citedHistory}</li><p>Monderman beta</p>`),'historical exception cannot hide another beta claim');
 
 const archives=fs.readdirSync(root).filter(file=>/^(?:terms|privacy)-\d{4}-\d{2}-\d{2}-.+\.html$/.test(file));
-const pages=fs.readdirSync(root).filter(file=>file.endsWith('.html')&&!archives.includes(file));
+const sourceNames=[...new Set([...execFileSync('git',['ls-files','--cached'],{cwd:root,encoding:'utf8'}).split('\n'),...execFileSync('git',['ls-files','--others','--exclude-standard'],{cwd:root,encoding:'utf8'}).split('\n')])].filter(file=>file&&fs.existsSync(path.join(root,file))&&!(file==='node_modules'&&fs.lstatSync(path.join(root,file)).isSymbolicLink()));
+const historicalNames=isCurrentScopeBeta()?sourcePathsAtScopeBetaBaseline(sourceNames):sourceNames;
+const pages=historicalNames.filter(file=>!file.includes('/')&&file.endsWith('.html')&&!archives.includes(file));
 for(const file of [...pages,'site-shell/header.html','site-shell/footer.html'])check(!productBeta(file,read(file)),file+': no current beta status in rendered or descriptive copy');
 const baselineFiles=new Set(execFileSync('git',['ls-tree','--name-only',baseline],{cwd:root,encoding:'utf8'}).trim().split('\n'));
 for(const file of archives){

@@ -6,6 +6,12 @@ import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
 import {sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014_inverse.mjs';
+import {sourceAtScopeBetaBaseline} from './scope_beta_20261014_inverse.mjs';
+import {historicalScopeBetaBrowserBodies} from './scope_beta_20261014_inverse.mjs';
+// Every old physical assertion runs on its exact approved f2a edition; the separate Scope matrix certifies current layout.
+const scopeHistoricalBodies=historicalScopeBetaBrowserBodies(decodeURIComponent(new URL('../.render-public/',import.meta.url).pathname));
+const scopeHistoricalResponse=route=>{const u=new URL(route.request().url()),b=scopeHistoricalBodies.get(u.pathname);assert.ok(b,'Exact compiled historical input');return route.fulfill({status:200,contentType:u.pathname.endsWith('.html')?'text/html':u.pathname.endsWith('.css')?'text/css':u.pathname.endsWith('.json')?'application/json':'application/javascript',body:b});};
+if(scopeHistoricalBodies.size)console.log('SCOPE_PRESERVED_PHYSICAL_EDITION f2a81afdd30863c68b4ae748936163a141b0edd6 '+scopeHistoricalBodies.size+' exact compiled bodies');
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
@@ -24,7 +30,10 @@ const baselineDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'homepage-assist
 let baselineHomepage;
 try {
   fs.writeFileSync(path.join(baselineDirectory, 'index.html'), rawBaselineHomepage, {mode: 0o600});
-  execFileSync(process.execPath, [path.join(root, 'scripts/inject-public-shell.mjs'), baselineDirectory], {cwd: root, encoding: 'utf8'});
+  // Reproduce the authoritative historical injector and partials, rather than applying new Scope branding to the old fixture.
+  const historicalSource=path.join(baselineDirectory,'historical-source');fs.mkdirSync(path.join(historicalSource,'scripts'),{recursive:true});fs.mkdirSync(path.join(historicalSource,'site-shell'));
+  for(const file of ['scripts/inject-public-shell.mjs','site-shell/header.html','site-shell/footer.html','site-shell/widgets.html'])fs.writeFileSync(path.join(historicalSource,file),sourceAtScopeBetaBaseline(file,fs.readFileSync(path.join(root,file))),{mode:0o600});
+  execFileSync(process.execPath, [path.join(historicalSource, 'scripts/inject-public-shell.mjs'), baselineDirectory], {cwd: historicalSource, encoding: 'utf8'});
   baselineHomepage = fs.readFileSync(path.join(baselineDirectory, 'index.html'), 'utf8');
   assert.equal(sha(baselineHomepage), 'a341d2544606b647ea78ffd35f11b1f000ff08e66407d7332e7a236ccecef278', 'Historical widget edition is exact authoritative 14e built homepage');
 } finally {
@@ -146,6 +155,7 @@ async function newLocalPage(viewport) {
       return route.abort();
     }
     if (edition === 'baseline' && url.origin === origin && url.pathname === '/index.html') return route.fulfill({status: 200, contentType: 'text/html', body: baselineHomepage});
+    if(url.origin===origin&&scopeHistoricalBodies.has(url.pathname))return scopeHistoricalResponse(route);
     return url.origin === new URL(base).origin || ['data:', 'blob:'].includes(url.protocol)
       ? route.continue() : route.abort();
   });

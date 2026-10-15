@@ -4,8 +4,13 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
+import {historicalScopeBetaBrowserBodies} from './scope_beta_20261014_inverse.mjs';
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
+// Older physical geometry runs on complete exact f2a compiled bytes; current Scope has its independent matrix.
+const scopeHistoricalBodies=historicalScopeBetaBrowserBodies(decodeURIComponent(new URL('../.render-public/',import.meta.url).pathname));
+const scopeHistoricalResponse=route=>{const u=new URL(route.request().url()),b=scopeHistoricalBodies.get(u.pathname);assert.ok(b,'Exact compiled historical input');return route.fulfill({status:200,contentType:u.pathname.endsWith('.html')?'text/html':u.pathname.endsWith('.css')?'text/css':u.pathname.endsWith('.json')?'application/json':'application/javascript',body:b});};
+if(scopeHistoricalBodies.size)console.log('SCOPE_PRESERVED_PHYSICAL_EDITION f2a81afdd30863c68b4ae748936163a141b0edd6 '+scopeHistoricalBodies.size+' exact compiled bodies');
 const {chromium,webkit}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 const base=process.env.SITE_BASE||'http://127.0.0.1:4175';
 const root=path.resolve(import.meta.dirname,'..');
@@ -129,6 +134,7 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
     const request=route.request(),url=new URL(request.url());
     if(url.origin!==origin||!['GET','HEAD'].includes(request.method())||url.pathname.startsWith('/api/'))return route.abort();
     if(edition==='baseline'&&url.pathname==='/index.html')return route.fulfill({status:200,contentType:'text/html',body:marketingBaselineHomepage});
+    if(scopeHistoricalBodies.has(url.pathname))return scopeHistoricalResponse(route);
     return route.continue();
    });
    await page.goto(base+'/index.html',{waitUntil:'load'});
@@ -148,6 +154,7 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
     if(!['GET','HEAD'].includes(request.method())||url.pathname.startsWith('/api/'))return route.abort();
     if(url.origin===origin){
      if(edition==='baseline'&&url.pathname==='/index.html')return route.fulfill({status:200,contentType:'text/html',body:marketingBaselineHomepage});
+    if(scopeHistoricalBodies.has(url.pathname))return scopeHistoricalResponse(route);
      return route.continue();
     }
     remote.push(route.request().url());return route.abort();

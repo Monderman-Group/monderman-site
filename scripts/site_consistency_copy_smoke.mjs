@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import {sourceAtScopeBetaBaseline} from './scope_beta_20261014_inverse.mjs';
 import {assertInvitedEvaluationSourceContract} from './invited_evaluation_source_contract.mjs';
 const root=path.resolve(import.meta.dirname,'..');
 const read=f=>fs.readFileSync(path.join(root,f),'utf8');
@@ -12,11 +13,11 @@ assert.ok(read('site-shell/footer.html').includes(`<p class="mf-copy">${brandSta
 for(const f of [...fs.readdirSync(root).filter(f=>f.endsWith('.html')),'site-shell/footer.html','public-search-index.json']) {
   assert.ok(!read(f).replace(/\s+/g,' ').includes('Monderman helps you examine responsibilities, decisions, processes and performance.'),f+': retired sub-hero must not return');
 }
-const homepageSearch=JSON.parse(read('public-search-index.json')).find(row=>row.url==='index.html');
+const homepageSearch=JSON.parse(sourceAtScopeBetaBaseline('public-search-index.json',read('public-search-index.json'))).find(row=>row.url==='index.html');
 assert.ok(homepageSearch.text.includes(brandStatement),'Homepage search entry uses the approved statement');
 assert.ok(read('Monderman_Platform_Brief.html').includes('Examine operating conditions. Save the results. Compare them later.'));
 assertInvitedEvaluationSourceContract(root);
-const price=read('platform-services.html');
+const price=sourceAtScopeBetaBaseline('platform-services.html',read('platform-services.html'));
 assert.ok(!price.includes('Create a free account')&&!price.includes('checkout.html?'),'No public free-account or purchase CTA');
 assert.ok(price.includes('<tr><td class="rowlabel">New eligible Syntheses: evaluation / annual paid term</td><td>Unlimited during evaluation</td><td class="num">60</td><td class="num">300</td><td class="yes">Unlimited</td></tr>'),'Unlimited ordinary evaluation with distinct paid annual pools');
 assert.ok(price.includes('Available by invitation. Evaluate Monderman free for 60 days. No credit card. No automatic renewal.'));

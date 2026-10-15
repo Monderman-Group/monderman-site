@@ -110,6 +110,36 @@ with tempfile.TemporaryDirectory(prefix="monderman-cert-sensitivity-") as temp:
             lambda: rewrite(fixture / footer_page, lambda value: value.replace("</main>", "<p>Other—copy.</p></main>", 1)),
             [footer_page],
         )
+    # October 14, 2026: the new Scope page permits only its one exact canonical footer statement.
+    for footer_page in ["scope.html", "q2-sodi.html"]:
+        expect_rejection(
+            fixture,
+            footer_page + ": changed canonical footer brand wording",
+            footer_page + ": visible em dash returned",
+            lambda: rewrite(fixture / footer_page, lambda value: value.replace(approved_brand_statement, approved_brand_statement.replace("improvement.", "improvements."), 1)),
+            [footer_page],
+        )
+        expect_rejection(
+            fixture,
+            footer_page + ": duplicate canonical footer brand statement",
+            footer_page + ": approved brand statement count changed",
+            lambda: rewrite(fixture / footer_page, lambda value: value.replace("</main>", "<p>" + approved_brand_statement + "</p></main>", 1)),
+            [footer_page],
+        )
+        expect_rejection(
+            fixture,
+            footer_page + ": missing canonical footer brand statement",
+            footer_page + ": approved brand statement count changed",
+            lambda: rewrite(fixture / footer_page, lambda value: value.replace(approved_brand_statement, "", 1)),
+            [footer_page],
+        )
+        expect_rejection(
+            fixture,
+            footer_page + ": unrelated visible footer punctuation",
+            footer_page + ": visible em dash returned",
+            lambda: rewrite(fixture / footer_page, lambda value: value.replace("</main>", "<p>Other—copy.</p></main>", 1)),
+            [footer_page],
+        )
     expect_rejection(
         fixture,
         "unapproved wording in brand punctuation exception",

@@ -95,6 +95,18 @@
   setupRevealMotion();
   const header = document.getElementById("siteHeader");
   if (header) {
+    const workspaceLink = header.querySelector("a.workspace-link");
+    if (workspaceLink) {
+      const updateProductLabel = () => {
+        const label = workspaceLink.textContent.trim();
+        if (label === "Workspace") workspaceLink.textContent = "Open Q²-SODI";
+        else if (label === "Sign In" || label === "Sign in") workspaceLink.textContent = "Sign in to Q²-SODI";
+      };
+      updateProductLabel();
+      if (typeof MutationObserver === "function") {
+        new MutationObserver(updateProductLabel).observe(workspaceLink, { childList: true, characterData: true, subtree: true });
+      }
+    }
     const nav = header.querySelector(".nav");
     if (nav) {
       const menuButton = document.createElement("button");

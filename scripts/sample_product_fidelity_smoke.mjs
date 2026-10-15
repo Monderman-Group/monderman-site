@@ -1,6 +1,7 @@
 import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
+import {isCurrentScopeBeta} from './scope_beta_20261014_inverse.mjs';
 
 const base = process.env.SAMPLE_BASE || 'http://127.0.0.1:8080';
 const out = process.env.SAMPLE_OUT || '/tmp/sample-product-fidelity-smoke';
@@ -30,7 +31,11 @@ page.on('console', message => {
 
 await page.goto(`${base}/sample-report.html`, { waitUntil:'networkidle', timeout:90000 });
 await page.locator('body.production-samples-ready').waitFor({ state:'attached', timeout:30000 });
+if(isCurrentScopeBeta()){
+  assert((await page.locator('body').textContent()).includes('These reports use realistic example responses to demonstrate Q²-SODI’s analysis and reporting.'), 'representative-output disclosure missing');
+}else{
 assert((await page.locator('body').textContent()).includes('These reports use realistic example responses to demonstrate Monderman’s analysis and reporting.'), 'representative-output disclosure missing');
+}
 
 for (const [key, contract] of Object.entries(diagnostics)) {
   await page.locator(`#tab-${key}`).click();

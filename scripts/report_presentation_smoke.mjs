@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import {isCurrentScopeBeta} from './scope_beta_20261014_inverse.mjs';
 import {readPublicSampleFixture,publicResult} from './public_sample_fixture.mjs';
 
 const base = process.env.REPORT_BASE || 'http://127.0.0.1:8080';
@@ -90,7 +91,11 @@ for (const [where, font] of Object.entries(hostTypography)) {
   assert(!isActualSerif(font), `${where} contaminated by shared report serif CSS: ${font}`);
   assert(/Neue Haas|Helvetica|Arial/i.test(font), `${where} no longer uses Monderman sans typography: ${font}`);
 }
+if(isCurrentScopeBeta()){
+  assert((await page.locator('body').textContent()).includes('These reports use realistic example responses to demonstrate Q²-SODI’s analysis and reporting.'), 'designed representative-output disclosure missing');
+}else{
 assert((await page.locator('body').textContent()).includes('These reports use realistic example responses to demonstrate Monderman’s analysis and reporting.'), 'designed representative-output disclosure missing');
+}
 
 async function openTab(key) {
   await page.locator(`[data-target="${key}"]`).click();

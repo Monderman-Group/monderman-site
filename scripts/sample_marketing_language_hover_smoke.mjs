@@ -4,11 +4,16 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
+// Every old physical assertion runs on its exact approved f2a edition; the separate Scope matrix certifies current layout.
+const scopeHistoricalBodies=historicalScopeBetaBrowserBodies(decodeURIComponent(new URL('../.render-public/',import.meta.url).pathname));
+const scopeHistoricalResponse=route=>{const u=new URL(route.request().url()),b=scopeHistoricalBodies.get(u.pathname);assert.ok(b,'Exact compiled historical input');return route.fulfill({status:200,contentType:u.pathname.endsWith('.html')?'text/html':u.pathname.endsWith('.css')?'text/css':u.pathname.endsWith('.json')?'application/json':'application/javascript',body:b});};
+if(scopeHistoricalBodies.size)console.log('SCOPE_PRESERVED_PHYSICAL_EDITION f2a81afdd30863c68b4ae748936163a141b0edd6 '+scopeHistoricalBodies.size+' exact compiled bodies');
 const {chromium,webkit}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 import {buildPublicSamplePreviewSections} from './refresh_public_sample_previews.mjs';
 import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
 import {isCurrentHomepageRefinementSource,sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014_inverse.mjs';
+import {historicalScopeBetaBrowserBodies} from './scope_beta_20261014_inverse.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 const homepageSource=fs.readFileSync(path.join(root,'index.html'),'utf8');
@@ -165,6 +170,7 @@ for(const [engine,type]of [['chromium',chromium],['webkit',webkit]]){
       const candidate=path.resolve(root,'.'+decodeURIComponent(url.pathname==='/'?'/index.html':url.pathname));
       if(local&&url.pathname==='/index.html'&&edition==='baseline')return route.fulfill({status:200,contentType:'text/html',body:marketingBaselineHomepage});
       if(local&&url.pathname==='/index.html'&&edition==='prior-current')return route.fulfill({status:200,contentType:'text/html',body:priorRefinementHomepage});
+      if(local&&scopeHistoricalBodies.has(url.pathname))return scopeHistoricalResponse(route);
       if((local||localFont)&&!path.relative(root,candidate).startsWith('..')&&types[path.extname(candidate)]&&fs.existsSync(candidate)&&fs.statSync(candidate).isFile())
         return route.fulfill({status:200,contentType:types[path.extname(candidate)],body:fs.readFileSync(candidate)});
       blockedRemoteRequests++;return route.abort();

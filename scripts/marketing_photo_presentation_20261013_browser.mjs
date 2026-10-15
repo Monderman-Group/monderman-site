@@ -31,9 +31,10 @@ function publicFiles(directory, prefix = '') {
 const designHistoricalBodies = historicalSiteDesignBrowserBodies(publicRoot);
 const publicInventory = publicFiles(publicRoot);
 const staticPaths = new Set(publicInventory.map(file => new URL('/' + file, base).pathname));
+function staticQueriesForEdition(historicalBodies) {
 const staticQueries = new Map();
 for (const file of publicInventory.filter(file => /\.(?:html|css|js)$/.test(file))) {
-  const text = fs.readFileSync(path.join(publicRoot, file), 'utf8');
+  const text = historicalBodies.has('/' + file) ? historicalBodies.get('/' + file).toString('utf8') : fs.readFileSync(path.join(publicRoot, file), 'utf8');
   for (const match of text.matchAll(/["'(]((?:\/?[a-zA-Z0-9_.-]+\/)*[a-zA-Z0-9_.-]+\.(?:html|css|js|json|woff2?|svg|png|jpe?g|webp|avif|pdf)\?[^"'()\s<>]+)["')]/g)) {
     const url = new URL(match[1].replaceAll('&amp;', '&'), base + '/' + file);
     if (url.origin !== origin || !staticPaths.has(url.pathname)) continue;
@@ -42,6 +43,11 @@ for (const file of publicInventory.filter(file => /\.(?:html|css|js)$/.test(file
     const allowed = staticQueries.get(url.pathname) || new Set(); allowed.add(url.search); staticQueries.set(url.pathname, allowed);
   }
 }
+  return staticQueries;
+}
+const actualCurrentStaticQueries = staticQueriesForEdition(new Map());
+const staticQueries = staticQueriesForEdition(designHistoricalBodies);
+const historicalStaticQueries = staticQueries;
 const register = JSON.parse(sourceAtSiteDesignCoherenceBaseline('docs/marketing-photo-register-20261013.json',fs.readFileSync(path.join(root, 'docs/marketing-photo-register-20261013.json'), 'utf8')));
 assert.equal(register.schemaVersion, 2, 'Current five-photo register edition');
 assert.deepEqual([...register.approvedAssetPool].sort(), routes.flatMap(route => route.ids).sort(), 'Five exact owner-approved stock identities');
@@ -75,6 +81,7 @@ const receipts = [], failures = [], actualCurrentReceipts = [];
 
 async function setup(type, options, route) {
   const servedHashes=options.actualCurrent?actualCurrentServedHashes:historicalServedHashes;
+  const staticQueries=options.actualCurrent?actualCurrentStaticQueries:historicalStaticQueries;
   const context = await type.newContext({viewport: options.viewport, deviceScaleFactor: options.dpr || 1, javaScriptEnabled: options.scripts !== false, reducedMotion: options.reduced ? 'reduce' : 'no-preference', serviceWorkers: 'block'});
   const page = await context.newPage(), forbidden = [], external = [], errors = [], assetRows = [], assetFailures = [], assetTasks = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -397,5 +404,5 @@ try {
   console.log('MARKETING_PHOTO_PRESENTATION_BROWSER_PASS ' + JSON.stringify({checks,states: receipts.length,negativeControls,photoIdentities: 5,routes: 4,performedWrites: 0,out}));
 } finally {
   const screenshotEvidence = fs.readdirSync(out).filter(file => file.endsWith('.png')).map(file => { const bytes = fs.readFileSync(path.join(out, file)); return {file,sha256: hash(bytes),bytes: bytes.length}; });
-  fs.writeFileSync(path.join(out, 'RECEIPT.json'), JSON.stringify({checkedAt: new Date().toISOString(),passed: failures.length === 0 && receipts.length === 96 && (!isCurrentSiteDesignCoherence() || actualCurrentReceipts.length===10),checks,negativeControls,states: receipts.length,sourceHashes,servedHashes,actualCurrentServedHashes,actualCurrentReceipts,sdkSha256: hash(sdk),staticPathCount: staticPaths.size,staticQueryAllowlist: Object.fromEntries([...staticQueries].map(([pathname, queries]) => [pathname, [...queries]])),renderedEdition: designHistoricalBodies.size ? 'ACTUAL_M169_HISTORICAL_PRESERVED' : 'UNCHANGED_PRIOR_SOURCE', historicalCompiledPaths: [...designHistoricalBodies.keys()], scope: 'Loopback exact historical five-photo presentation; actual relocated photo and corner mapping independently tested in the current mobile traversal. Print media checks retain complete photo content; existing official pagination tests remain separate. No historical-source skip.',receipts,failures,screenshotEvidence}, null, 2) + '\n');
+  fs.writeFileSync(path.join(out, 'RECEIPT.json'), JSON.stringify({checkedAt: new Date().toISOString(),passed: failures.length === 0 && receipts.length === 96 && (!isCurrentSiteDesignCoherence() || actualCurrentReceipts.length===10),checks,negativeControls,states: receipts.length,sourceHashes,servedHashes,actualCurrentServedHashes,actualCurrentReceipts,sdkSha256: hash(sdk),staticPathCount: staticPaths.size,staticQueryAllowlist: Object.fromEntries([...staticQueries].map(([pathname, queries]) => [pathname, [...queries]])),actualCurrentStaticQueryAllowlist: Object.fromEntries([...actualCurrentStaticQueries].map(([pathname, queries]) => [pathname, [...queries]])),renderedEdition: designHistoricalBodies.size ? 'ACTUAL_M169_HISTORICAL_PRESERVED' : 'UNCHANGED_PRIOR_SOURCE', historicalCompiledPaths: [...designHistoricalBodies.keys()], scope: 'Loopback exact historical five-photo presentation; actual relocated photo and corner mapping independently tested in the current mobile traversal. Print media checks retain complete photo content; existing official pagination tests remain separate. No historical-source skip.',receipts,failures,screenshotEvidence}, null, 2) + '\n');
 }

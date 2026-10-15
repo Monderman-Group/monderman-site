@@ -1,6 +1,6 @@
 /* Homepage refinement only; photography keeps its approved full composition. */
 @media screen {
-  body.homepage-enterprise.homepage-refinement { --hf-motion-ready: 1; }
+  body.homepage-enterprise.homepage-refinement { --hf-motion-ready: 1; --mr-space: clamp(48px, 5vw, 76px); }
   body.homepage-enterprise.homepage-refinement .hero > .hero-inner { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   body.homepage-enterprise.homepage-refinement .hero .mr-proof-composition { width: 100%; max-width: 640px; justify-self: end; }
   body.homepage-enterprise.homepage-refinement .hero .hero-report-proof[data-home-report-quad] { max-width: 640px; border-radius: var(--mond-radius-card, 16px); box-shadow: 0 16px 42px rgba(0,0,0,.16); }
@@ -18,9 +18,12 @@
   body.homepage-enterprise.homepage-refinement .hf-hero-details[open] > summary .hf-preview-open-label { display: inline; }
   body.homepage-enterprise.homepage-refinement .hf-hero-details[open] > summary .hf-preview-closed-label { display: none; }
   body.homepage-enterprise.homepage-refinement .hf-extra-grid { display: grid; grid-template-areas: "money change" "evidence evidence"; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-  body.homepage-enterprise.homepage-refinement .mr-scenario-intro h2 { font-size: clamp(28px, 3.2vw, 44px); line-height: 1.1; }
-  body.homepage-enterprise.homepage-refinement :is(.home-output-copy, .mc-human-copy) h2 { font-size: clamp(28px, 3vw, 40px); line-height: 1.12; }
-  body.homepage-enterprise.homepage-refinement .mr-lens-reading h3 { font-size: clamp(27px, 2.6vw, 36px); }
+  body.homepage-enterprise.homepage-refinement .mr-scenario-intro h2 { font-size: clamp(28px, 2.8vw, 40px); line-height: 1.1; }
+  body.homepage-enterprise.homepage-refinement :is(.home-output-copy, .mc-human-copy) h2 { font-size: clamp(28px, 2.7vw, 36px); line-height: 1.12; }
+  body.homepage-enterprise.homepage-refinement .mr-lens-reading h3 { font-size: clamp(27px, 2.4vw, 34px); }
+  body.homepage-enterprise.homepage-refinement :is(#approach-title, #first-run-moments-title, #proof-title, #systems-analysis-title, .mxidx-band h2) { font-size: clamp(30px, 3.3vw, 44px) !important; }
+  body.homepage-enterprise.homepage-refinement .mc-human-section { padding-block: clamp(24px, 3.5vw, 52px); }
+  body.homepage-enterprise.homepage-refinement .mc-human-inner { padding-block: clamp(24px, 3vw, 40px); }
   body.homepage-enterprise.homepage-refinement :is(.latest-card, .hrq-tile, .hwd-app, .hwd-compact-tile) { border-radius: var(--mond-radius-card, 16px) !important; }
   body.homepage-enterprise.homepage-refinement .latest-card-image { border-radius: var(--mond-radius-card, 16px) var(--mond-radius-card, 16px) 0 0 !important; }
   body.homepage-enterprise.homepage-refinement .hf-workflow-controls { display: flex; justify-content: flex-end; min-height: 60px; padding: 8px 0; }
@@ -29,6 +32,15 @@
   body.homepage-enterprise.homepage-refinement .hf-workflow-toggle:focus-visible { outline: 3px solid #0C6E78; outline-offset: 3px; }
   body.homepage-enterprise.homepage-refinement .hf-workflow-toggle:disabled { border-color: #B9CECC; color: #56615F; cursor: default; }
   body.homepage-enterprise.homepage-refinement .mr-scenario-path li .hf-flow-trace { position: absolute; top: -3px; left: 0; width: 100%; height: 4px; margin-top: 0; background: #0C6E78; transform: scaleX(0); transform-origin: left; pointer-events: none; }
+}
+@media screen and (min-width: 821px) {
+  body.homepage-enterprise.homepage-refinement .mc-human-inner { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); }
+  body.homepage-enterprise.homepage-refinement .mc-photo { width: 100%; max-width: 560px; justify-self: start; }
+}
+@media screen and (min-width: 1121px) {
+  body.homepage-enterprise.homepage-refinement .hero > .hero-inner { width: calc(100% - 2 * var(--mr-gutter, 20px)); max-width: var(--mr-rail, 1440px); padding-inline: clamp(24px, 4vw, 56px); grid-template-columns: minmax(0, 560px) minmax(0, 1fr); gap: clamp(32px, 3vw, 44px); }
+  body.homepage-enterprise.homepage-refinement .hero .mr-proof-composition { max-width: 560px; justify-self: start; }
+  body.homepage-enterprise.homepage-refinement .hero h1 { max-width: 100%; }
 }
 @media screen and (max-width: 1120px) {
   body.homepage-enterprise.homepage-refinement .hero > .hero-inner { grid-template-columns: minmax(0, 1fr); }

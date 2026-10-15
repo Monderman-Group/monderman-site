@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { chromium, webkit } from 'playwright';
+import {isCurrentScopeBeta, assertScopeBetaBuiltEdition} from './scope_beta_20261014_inverse.mjs';
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
 const origin = new URL(base).origin;
@@ -29,14 +30,24 @@ const pages = [
   'terms-2026-09-19-invitation-access.html', 'privacy-2026-09-19-invitation-access.html',
 ];
 const footerOnly = new Set(['404.html', 'decision-velocity.html', 'institutional-performance.html', 'operational-systems.html', 'sample-report.html', 'structural-clarity.html']);
-const expectedHeroCount = pages.filter(file => !footerOnly.has(file)).length;
-const expectedFooterCount = pages.filter(file => file !== 'cross-tool-synthesis.html').length;
+let expectedHeroCount = pages.filter(file => !footerOnly.has(file)).length;
+let expectedFooterCount = pages.filter(file => file !== 'cross-tool-synthesis.html').length;
 const heroSelector = 'body.canonical-green-shell :is(.hero,.article-hero,.ps-hero,.pl-top),body.canonical-green-shell>main.deck>.slide.cover,body.page-report>main.shell>.hero';
 const surfaceSelector = `${heroSelector},footer.mond-footer`;
 const tagline = 'Clearer Insight. Stronger Performance.';
 const printPages = new Set(['index.html', 'Monderman_Platform_Brief.html', 'privacy.html', 'outreach-privacy.html', 'the-culture-trap-brief.html', 'cross-tool-synthesis.html', 'operational-systems.html', 'sample-report.html']);
 assert.equal(pages.length, 75);
 assert.equal(pages.length - footerOnly.size, 69);
+// Preserve the original75/69 inventory, then certify both exact current product routes with the same predicates.
+const currentProductPages = isCurrentScopeBeta() ? ['q2-sodi.html', 'scope.html'] : [];
+pages.push(...currentProductPages);
+expectedHeroCount += currentProductPages.length;
+expectedFooterCount += currentProductPages.length;
+if (currentProductPages.length) {
+  assert.equal(pages.length, 77, 'Only the canonical product overview and retained alias join the brand inventory');
+  assert.equal(expectedHeroCount, 71, 'Both approved product routes add one real hero');
+  assert.equal(expectedFooterCount, 76, 'Both approved product routes add one real canonical footer');
+}
 for (const file of pages) assert(fs.existsSync(path.join(root, file)), `Missing inventoried page ${file}`);
 
 const publishedSurfaces = fs.readdirSync(root).filter(file => file.endsWith('.html')).filter(file => {
@@ -53,6 +64,7 @@ if (process.argv.includes('--inventory-only')) {
 }
 
 
+if (currentProductPages.length) assertScopeBetaBuiltEdition(path.join(root, '.render-public'));
 const failures = [];
 let checks = 0;
 function check(condition, message) { checks++; if (!condition) failures.push(message); }

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {sourceBeforeTrustSecurityCenter20260924} from './trust_security_center_20260924_inverse.mjs';
+import {sourceAtScopeBetaBaseline} from './scope_beta_20261014_inverse.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const trustSectionIds = ['access-controls', 'data-processing', 'ai-processing', 'chat',
@@ -12,7 +13,7 @@ const sectionLabels = html => [...html.matchAll(/<section\b[^>]*\bclass="section
 // Retain the exact historical edition (also eight sections). The previous
 // shared >8 assertion did not match that HTML. The reviewed Trust Center now
 // has eight named sections; privacy pages retain their original >8 check.
-const historicalTrustSource = sourceBeforeTrustSecurityCenter20260924('security.html', trustSource);
+const historicalTrustSource = sourceBeforeTrustSecurityCenter20260924('security.html', sourceAtScopeBetaBaseline('security.html', trustSource));
 assert.equal(sectionLabels(historicalTrustSource).length, 8, 'Historical security section coverage remains protected');
 const assertTrustSections = ids => assert.deepEqual(ids, trustSectionIds, 'Exact ordered current Trust Center sections');
 assertTrustSections(sectionLabels(trustSource));

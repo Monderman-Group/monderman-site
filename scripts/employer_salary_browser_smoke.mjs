@@ -273,6 +273,16 @@ async function participantCase(browser,engine,tool,omit){
     for(const definition of active){
       const field=page.locator('#preflightContextMount .field:visible'),id=await field.getAttribute('data-field-id');observed.push(id);
       eq(id,definition.id,'only the cost question is omitted; order stays intact');
+      // Observe the application's new-field autofocus before fill/click can
+      // focus the input themselves while its pending callback still exists.
+      await page.waitForFunction(expectedId=>{
+        const visible=[...document.querySelectorAll('#preflightContextMount .field')].filter(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden');
+        if(visible.length!==1||visible[0].dataset.fieldId!==expectedId)return false;
+        const target=visible[0].querySelector('.opt-choice[aria-checked="true"]')
+          ||visible[0].querySelector('.opt-choice')
+          ||visible[0].querySelector('input:not([hidden]):not([aria-hidden="true"]), textarea:not([hidden]):not([aria-hidden="true"]), select:not(.opt-choice-mirror):not([hidden]):not([aria-hidden="true"])');
+        return !!target&&document.activeElement===target;
+      },definition.id);
       if(id==='processName')for(const width of [390,834,1440]){
         await page.setViewportSize({width,height:1000});
         await layout(page,[engine,tool,omit?'omitted':'manual',width].join('-'),'#preflightContextMount');
@@ -281,7 +291,14 @@ async function participantCase(browser,engine,tool,omit){
         const option=definition.options.find(o=>o.value&&o.value!=='other');
         await field.locator(`[data-val="${option.value}"]`).click();
       }else await field.locator('input,textarea').first().fill(definition.kind==='number'?(id==='hourlyCost'?'91.27':'12'):id==='description'?'':'Synthetic '+id);
-      await page.locator('.preflight-next').focus();await page.keyboard.press('Enter');
+      await page.locator('.preflight-next').focus();
+      ok(await page.locator('.preflight-next').evaluate(el=>document.activeElement===el&&!el.disabled&&!!el.getClientRects().length),'Continue has actual focus and is enabled before native Enter');
+      await page.keyboard.press('Enter');
+      const nextDefinition=active[observed.length];
+      if(nextDefinition)await page.waitForFunction(expectedId=>{
+        const visible=[...document.querySelectorAll('#preflightContextMount .field')].filter(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden');
+        return visible.length===1&&visible[0].dataset.fieldId===expectedId;
+      },nextDefinition.id);
     }
     await page.waitForFunction(()=>document.querySelector('#questionTitle').textContent==='Synthetic non-pay diagnostic question');
     const start=requests.filter(req=>req.path.endsWith('/run/start'));eq(start.length,1,'one start after complete intake');

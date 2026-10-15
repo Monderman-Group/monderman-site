@@ -5,6 +5,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {isCurrentHomepageRefinementSource} from './homepage_refinement_20261014_inverse.mjs';
+import {historicalScopeBetaBrowserBodies} from './scope_beta_20261014_inverse.mjs';
+// Every old physical assertion runs on its exact approved f2a edition; the separate Scope matrix certifies current layout.
+const scopeHistoricalBodies=historicalScopeBetaBrowserBodies(decodeURIComponent(new URL('../.render-public/',import.meta.url).pathname));
+const scopeHistoricalResponse=route=>{const u=new URL(route.request().url()),b=scopeHistoricalBodies.get(u.pathname);assert.ok(b,'Exact compiled historical input');return route.fulfill({status:200,contentType:u.pathname.endsWith('.html')?'text/html':u.pathname.endsWith('.css')?'text/css':u.pathname.endsWith('.json')?'application/json':'application/javascript',body:b});};
+if(scopeHistoricalBodies.size)console.log('SCOPE_PRESERVED_PHYSICAL_EDITION f2a81afdd30863c68b4ae748936163a141b0edd6 '+scopeHistoricalBodies.size+' exact compiled bodies');
 const {chromium,webkit}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 const base=process.env.SITE_BASE||'http://127.0.0.1:4175';
 const out=process.env.HOMEPAGE_DISCOVERY_OUT||fs.mkdtempSync('/tmp/homepage-discovery-');
@@ -41,7 +46,7 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
       // The public-page auth decoration is outside this navigation test.
       // Match the established homepage test's signed-out, memory-only fixture.
       await page.addInitScript(()=>{window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}})};});
-      await page.route('**/*',route=>new URL(route.request().url()).origin===new URL(base).origin?route.continue():route.abort());
+      await page.route('**/*',route=>{const u=new URL(route.request().url());if(u.origin!==new URL(base).origin)return route.abort();return scopeHistoricalBodies.has(u.pathname)?scopeHistoricalResponse(route):route.continue();});
       const failures=[];page.on('pageerror',error=>failures.push(error.message));
       await page.goto(base+'/index.html',{waitUntil:'load'});
       await page.evaluate(()=>document.fonts.ready);
@@ -109,7 +114,7 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
       const label=name+'/'+viewport.width+'x'+viewport.height+'/'+(javaScriptEnabled?'scripts':'no-scripts');
       const page=await browser.newPage({viewport,javaScriptEnabled,reducedMotion:'reduce'});
       await page.addInitScript(()=>{window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}})};});
-      await page.route('**/*',route=>new URL(route.request().url()).origin===new URL(base).origin?route.continue():route.abort());
+      await page.route('**/*',route=>{const u=new URL(route.request().url());if(u.origin!==new URL(base).origin)return route.abort();return scopeHistoricalBodies.has(u.pathname)?scopeHistoricalResponse(route):route.continue();});
       const failures=[];const collect=error=>failures.push(error.message);page.on('pageerror',collect);
       await page.goto(base+'/index.html',{waitUntil:'load'});
       await page.evaluate(()=>document.fonts.ready);

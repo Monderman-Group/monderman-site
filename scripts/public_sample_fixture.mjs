@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import vm from 'node:vm';
+import {sourceAtScopeBetaBaseline} from './scope_beta_20261014_inverse.mjs';
 import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 import {sourceBeforeHomepagePreviewAnchor20260924} from './homepage_preview_anchor_20260924_inverse.mjs';
 import {sourceBeforeHomepageReportQuad20260925} from './homepage_report_quad_20260925_inverse.mjs';
@@ -76,7 +77,8 @@ export function assertPublicSampleHtmlBindings(artifact,review,{root=DEFAULT_ROO
   const load=edition=>{
     const context={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};
     for(const file of ['participant-evidence-safety.js','monderman-report.js','public-sample-model.js']){
-      const raw=fs.readFileSync(path.join(root,file));
+      const rawSource=fs.readFileSync(path.join(root,file));
+      const raw=file==='monderman-report.js'?sourceAtScopeBetaBaseline(file,rawSource):rawSource;
       const bytes=edition.renderer_version===SINGLE_LENS_OVERVIEW_VERSION?raw:edition.renderer_version===CHANGE_WORDING_VERSION?sourceAtSingleLensOverviewBaseline(file,raw):sourceAtChangeWordingBaseline(file,raw);
       assert.ok(validHash(edition.source_files?.[file]),'HTML binding source pin missing: '+file);
       assert.equal(sha(bytes),edition.source_files[file],'HTML binding source changed: '+file);

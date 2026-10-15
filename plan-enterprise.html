@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Enterprise | Monderman</title>
+  <title>Enterprise | Q2-SODI</title>
 <link rel="canonical" href="https://www.monderman.com/plan-enterprise.html"/>
-<meta property="og:title" content="Enterprise | Monderman"/>
+<meta property="og:title" content="Enterprise | Q2-SODI"/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://www.monderman.com/plan-enterprise.html"/>
 <meta property="og:description" content="Enterprise: all four standard Diagnostic Instruments, unlimited participant responses, Syntheses, self-runs, and workspace users, enterprise procurement terms, and separately scoped bespoke Diagnostic or participant-perspective design."/>
@@ -509,12 +509,14 @@
   <meta name="twitter:image" content="https://www.monderman.com/assets/brand/monderman-social-card.png?v=20260907-wordmark2">
   <meta name="twitter:image:alt" content="Monderman">
   <link rel="stylesheet" href="enterprise-site.css?v=20260915.consistency1">
+  <link rel="stylesheet" href="scope.css?v=20261014.1">
 </head>
 <body class="canonical-green-shell">
   <header class="header" id="siteHeader">
     <div class="header-inner">
       <a href="index.html" class="brand">Monderman.</a>
       <nav class="nav" aria-label="Primary navigation">
+        <a href="q2-sodi.html">Q²-SODI</a>
         <a href="index.html#approach">Approach</a>
         <a href="https://www.monderman.com/diagnostics.html">Diagnostics</a>
         <a href="research.html" class="is-active">Research</a>
@@ -522,7 +524,7 @@
         <a href="about.html">About</a>
         <a href="platform-services.html">Plans &amp; Pricing</a>
         <a href="connect.html">Connect</a>
-        <a class="workspace-link" href="workspace.html">Sign In</a>
+        <a class="workspace-link" href="workspace.html">Sign in to Q²-SODI</a>
       </nav>
     </div>
   </header>
@@ -531,8 +533,8 @@
     <div class="pl-top-inner">
       <a href="platform-services.html" class="pl-back">&larr; All tiers &amp; pricing</a>
       <div class="pl-legal-banner">Summary terms only. Please have your legal or contracts team review the full terms before signing: the binding agreement is the order form Monderman provides, not this page.</div>
-      <span class="pl-eyebrow">Enterprise &middot; custom requirements</span>
-      <h1>Adapt Monderman to organization-wide requirements.</h1>
+      <span class="pl-eyebrow">Q²-SODI <span class="scope-beta-badge">Beta</span> &middot; Enterprise &middot; custom requirements</span>
+      <h1>Adapt Q²-SODI to organization-wide requirements.</h1>
       <div class="price"><span class="amt">Custom</span></div>
       <p class="price-alt">scoped to your requirements &middot; invoiced under agreed terms &middot; no per-participant pricing</p>
     </div>
@@ -656,6 +658,7 @@
         <nav class="mf-nav" aria-label="Footer navigation">
           <div class="mf-col">
             <p class="mf-col-title">Explore</p>
+            <a href="q2-sodi.html">Q²-SODI</a>
             <a href="index.html#approach">Approach</a>
             <a href="diagnostics.html">Diagnostics</a>
             <a href="research.html">Research</a>
@@ -702,8 +705,8 @@
       link.setAttribute("href", "workspace.html");
       try {
         const { data } = await sb.auth.getSession();
-        link.textContent = data?.session?.user ? "Workspace" : "Sign In";
-      } catch (e) { link.textContent = "Sign In"; }
+        link.textContent = data?.session?.user ? "Open Q²-SODI" : "Sign in to Q²-SODI";
+      } catch (e) { link.textContent = "Sign in to Q²-SODI"; }
     })();
   </script>
 
@@ -736,7 +739,7 @@
       // Nav pill: "Workspace" when signed in; "Sign In" -> the sign-in page when not.
       const nav = document.querySelector("a.workspace-link");
       if (nav) {
-        nav.textContent = signedIn ? "Workspace" : "Sign In";
+        nav.textContent = signedIn ? "Open Q²-SODI" : "Sign in to Q²-SODI";
         nav.setAttribute("href", signedIn ? "workspace.html" : "signin.html?next=workspace.html");
       }
 

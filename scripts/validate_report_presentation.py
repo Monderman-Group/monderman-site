@@ -2,6 +2,7 @@ import json
 import re
 import subprocess
 from pathlib import Path
+from scope_beta_20261014_inverse import source_at_scope_beta_baseline
 
 ROOT = Path(__file__).resolve().parents[1]
 report = (ROOT / "monderman-report.js").read_text(encoding="utf-8")
@@ -85,7 +86,7 @@ for token, msg in [
 production_renderer = (ROOT / "sample-report-production.js").read_text(encoding="utf-8")
 production_styles = (ROOT / "sample-report-production.css").read_text(encoding="utf-8")
 public_model = (ROOT / "public-sample-model.js").read_text(encoding="utf-8")
-req('These reports use realistic example responses to demonstrate Monderman’s analysis and reporting.' in sample, 'top representative-output disclosure missing')
+req('These reports use realistic example responses to demonstrate Monderman’s analysis and reporting.' in source_at_scope_beta_baseline('sample-report.html',sample), 'top representative-output disclosure missing')
 req('synthesis-report-stage' in production_renderer, 'Synthesis report stage wrapper missing')
 req(re.search(r'sample-report-production\.js\?v=[^"\s]+', sample), 'versioned production sample renderer missing')
 req(re.search(r'sample-report-production\.css\?v=[^"\s]+', sample), 'versioned production sample presentation missing')

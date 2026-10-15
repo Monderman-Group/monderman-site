@@ -2083,7 +2083,7 @@
       evidenceLabel ? '<span class="mr-cover-pill mr-cover-pill-accent">' + esc(evidenceLabel) + (m.selfRun?'':' evidence')+'</span>' : ''
     ].filter(Boolean).join("");
     return '<section class="mr-cover">' +
-      '<div class="mr-cover-dark"><p class="mr-cover-mark">MONDERMAN. ' + esc(productLabel) + '</p><div class="mr-cover-rule"></div>' +
+      '<div class="mr-cover-dark"><p class="mr-cover-mark">MONDERMAN. Q²-SODI<sup style="font-size:.5em;line-height:0;position:relative;top:-.9em;vertical-align:baseline">&trade;</sup> · ' + esc(productLabel) + '</p><div class="mr-cover-rule"></div>' +
       '<h1 class="mr-cover-title">' + esc(m.title) + '</h1><p class="mr-cover-sub">' + esc(m.subtitle) + '</p></div>' +
       '<div class="mr-cover-stripe"></div>' +
       '<div class="mr-cover-white"><p class="mr-cover-kicker">Executive Report</p>' +
@@ -3767,7 +3767,7 @@
       (financialScenarioPresentation(obj(model))?'<meta name="monderman-financial-presentation-version" content="'+FINANCIAL_PRESENTATION_VERSION+'" />':'') +
       (threeBenefitPresentation(obj(model))?'<meta name="monderman-three-benefit-presentation-version" content="three-benefit-presentation-20260919.1" />':'') +
       '<meta name="viewport" content="width=device-width, initial-scale=1.0" />' +
-      "<title>Monderman | Executive Report</title><style>" + REPORT_CSS + AI_CSS + REPORT_READING_CSS + SCREEN_CSS + "</style></head><body>" +
+      "<title>Q2-SODI | Executive Report</title><style>" + REPORT_CSS + AI_CSS + REPORT_READING_CSS + SCREEN_CSS + "</style></head><body>" +
       '<div class="mr-report"><div class="mr-page">' + buildScreenReportBody(model) +
       '<div class="actions"><button class="btn btn-accent" onclick="window.print()">Save / Print PDF</button>' +
       '<button class="btn" onclick="window.close()">Close report</button></div>' +
@@ -3797,8 +3797,8 @@
     if (!reportWindow) return null;
     try {
       reportWindow.opener = null;
-      reportWindow.document.title = "Preparing Monderman report";
-      reportWindow.document.body.innerHTML = '<main style="font:16px/1.5 system-ui,sans-serif;max-width:42rem;margin:12vh auto;padding:2rem;color:#17333a"><p style="letter-spacing:.14em;text-transform:uppercase;font-size:.75rem">Monderman.</p><h1 style="font-size:1.6rem">Preparing report…</h1><p>The saved result is loading securely.</p></main>';
+      reportWindow.document.title = "Preparing Q2-SODI report";
+      reportWindow.document.body.innerHTML = '<main style="font:16px/1.5 system-ui,sans-serif;max-width:42rem;margin:12vh auto;padding:2rem;color:#17333a"><p style="letter-spacing:.14em;text-transform:uppercase;font-size:.75rem">Q²-SODI</p><h1 style="font-size:1.6rem">Preparing report…</h1><p>The saved result is loading securely.</p></main>';
     } catch (_error) {}
     return reportWindow;
   }
