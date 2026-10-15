@@ -1,5 +1,5 @@
 {
-  "version": "q2-sodi-20261015.1",
+  "version": "q2-sodi-20261015.5",
   "baseline": "f2a81afdd30863c68b4ae748936163a141b0edd6",
   "baselineTree": "38b4396e74757fac9f90780e81ca821d41aaa785",
   "provisional": false,
@@ -6078,19 +6078,43 @@
     },
     "scripts/site_system_visual_smoke.mjs": {
       "before_sha256": "b6e7cbf0f33860c8f75ab73a7bff047586114c216f1bcb98afdda938f7eb8058",
-      "after_sha256": "7e5d9c2b3f6e4aae4cb137d42c2fd5c3a11fd2aff332ae38bb0903a5c2e91398",
+      "after_sha256": "f281deb73c295b219947f9983e74e3a8460ca60113024f37b1525a825623b029",
       "before_bytes": 25868,
-      "after_bytes": 26873,
+      "after_bytes": 27645,
       "replacements": [
         [
           205,
-          1098,
-          "import {historicalScopeBetaBrowserBodies} from './scope_beta_20261014_inverse.mjs';\n\n// Every old physical assertion runs on its exact approved f2a edition; the separate Scope matrix certifies current layout.\nconst scopeHistoricalBodies=historicalScopeBetaBrowserBodies(decodeURIComponent(new URL('../.render-public/',import.meta.url).pathname));\nconst scopeHistoricalResponse=route=>{const u=new URL(route.request().url()),b=scopeHistoricalBodies.get(u.pathname);assert.ok(b,'Exact compiled historical input');return route.fulfill({status:200,contentType:u.pathname.endsWith('.html')?'text/html':u.pathname.endsWith('.css')?'text/css':u.pathname.endsWith('.json')?'application/json':'application/javascript',body:b});};\nif(scopeHistoricalBodies.size)console.log('SCOPE_PRESERVED_PHYSICAL_EDITION f2a81afdd30863c68b4ae748936163a141b0edd6 '+scopeHistoricalBodies.size+' exact compiled bodies');",
+          1158,
+          "import {historicalScopeBetaBrowserBodies,isCurrentScopeBeta,scopeBetaDelta,sourceAtScopeBetaBaseline} from './scope_beta_20261014_inverse.mjs';\n\n// Every old physical assertion runs on its exact approved f2a edition; the separate Scope matrix certifies current layout.\nconst scopeHistoricalBodies=historicalScopeBetaBrowserBodies(decodeURIComponent(new URL('../.render-public/',import.meta.url).pathname));\nconst scopeHistoricalResponse=route=>{const u=new URL(route.request().url()),b=scopeHistoricalBodies.get(u.pathname);assert.ok(b,'Exact compiled historical input');return route.fulfill({status:200,contentType:u.pathname.endsWith('.html')?'text/html':u.pathname.endsWith('.css')?'text/css':u.pathname.endsWith('.json')?'application/json':'application/javascript',body:b});};\nif(scopeHistoricalBodies.size)console.log('SCOPE_PRESERVED_PHYSICAL_EDITION f2a81afdd30863c68b4ae748936163a141b0edd6 '+scopeHistoricalBodies.size+' exact compiled bodies');",
           ""
         ],
         [
-          11222,
-          11334,
+          1385,
+          1980,
+          "currentScopeBeta=isCurrentScopeBeta(),currentProductPages=['q2-sodi.html','scope.html'];\nif(currentScopeBeta){const actual=fs.readdirSync('.').filter(f=>f.endsWith('.html')&&!f.startsWith('google')).sort();assert.deepEqual(actual,[...scopeBetaDelta.baselineSourcePaths.filter(f=>!f.includes('/')&&f.endsWith('.html')&&!f.startsWith('google')),...currentProductPages].sort(),'Exact original source inventory plus only the separately certified canonical product page and retained alias');}\nconst inventorySource=(file,source)=>currentScopeBeta?sourceAtScopeBetaBaseline(file,source):source;\nconst ",
+          ""
+        ],
+        [
+          6545,
+          6575,
+          "inventorySource('sitemap.xml',",
+          ""
+        ],
+        [
+          6612,
+          6613,
+          ")",
+          ""
+        ],
+        [
+          6964,
+          7050,
+          "))\n  .filter((pageName) => !currentScopeBeta || !currentProductPages.includes(pageName",
+          ""
+        ],
+        [
+          11994,
+          12106,
           "\n    if(url.origin===localOrigin&&scopeHistoricalBodies.has(url.pathname))return scopeHistoricalResponse(route);",
           ""
         ]
@@ -6130,56 +6154,62 @@
     },
     "scripts/mobile_site_presentation_smoke.mjs": {
       "before_sha256": "ace7fbcbd448a9a833cd889f157bdb057a745bbf322d5c77eff34b2a61985152",
-      "after_sha256": "1b95830e4878aedbd3db451dc458ade746a5ecf665c7d925362e55c698490dd9",
+      "after_sha256": "b11799cb7edf6628f89bb666e7b9c375d0d7897e97da2eacbde61eec00aeea78",
       "before_bytes": 67170,
-      "after_bytes": 67768,
+      "after_bytes": 68747,
       "replacements": [
         [
           322,
-          407,
-          "import {isCurrentScopeBeta,scopeBetaDelta} from './scope_beta_20261014_inverse.mjs';\n",
+          435,
+          "import {isCurrentScopeBeta,scopeBetaDelta,assertScopeBetaBuiltEdition} from './scope_beta_20261014_inverse.mjs';\n",
           ""
         ],
         [
-          747,
-          758,
+          775,
+          786,
           "allCurrentP",
           "p"
         ],
         [
-          794,
-          806,
+          822,
+          834,
           ".filter(name",
           "\n  .filter((name) "
         ],
         [
-          808,
-          808,
+          836,
+          836,
           "",
           " "
         ],
         [
-          830,
-          830,
+          858,
+          858,
           "",
           " "
         ],
         [
-          832,
-          832,
+          860,
+          860,
           "",
           " "
         ],
         [
-          859,
-          859,
+          887,
+          887,
           "",
           "\n  "
         ],
         [
-          867,
-          1382,
-          "\nconst currentScopeBeta=isCurrentScopeBeta();\nconst pages=allCurrentPages.filter(name=>name!=='scope.html'||!currentScopeBeta);\nif(currentScopeBeta){assert.deepEqual(allCurrentPages, [...scopeBetaDelta.baselineSourcePaths.filter(f=>f.endsWith('.html')&&!f.startsWith('google')), 'scope.html'].sort(),'All original89 and only the approved Scope page exist');assert.equal(allCurrentPages.filter(name=>name==='scope.html').length,1,'Exactly one additional Scope overview joins the separate mandatory current matrix');}",
+          895,
+          1570,
+          "\nconst currentScopeBeta=isCurrentScopeBeta();\nconst currentProductPages=['q2-sodi.html','scope.html'];\nconst pages=allCurrentPages.filter(name=>!currentScopeBeta||!currentProductPages.includes(name));\nif(currentScopeBeta){assert.deepEqual(allCurrentPages, [...scopeBetaDelta.baselineSourcePaths.filter(f=>!f.includes('/')&&f.endsWith('.html')&&!f.startsWith('google')), ...currentProductPages].sort(),'All original89 and only the approved canonical product page and retained alias exist');assert.deepEqual(allCurrentPages.filter(name=>currentProductPages.includes(name)),currentProductPages,'Exactly both approved product routes join the separate mandatory current matrix');}",
+          ""
+        ],
+        [
+          8115,
+          8906,
+          "\nif(currentScopeBeta){\n  assertScopeBetaBuiltEdition(publishDirectory);\n  for(const pageName of currentProductPages){\n    const raw=fs.readFileSync(pageName,'utf8'),built=fs.readFileSync(path.join(publishDirectory,pageName),'utf8');\n    assert.ok(/<body\\b[^>]*\\bcanonical-green-shell\\b/.test(raw),pageName+': exact product page is a canonical public surface');\n    assert.equal((raw.match(/<link rel=\"canonical\" href=\"https:\\/\\/www\\.monderman\\.com\\/q2-sodi\\.html\"/g)||[]).length,1,pageName+': one canonical product URL');\n    assert.equal(built.match(headerPattern)?.[0],expectedHeader,pageName+': actual built product header is the canonical partial');\n    assert.equal(built.match(footerPattern)?.[0],expectedFooter,pageName+': actual built product footer is the canonical partial');\n  }\n}",
           ""
         ]
       ]
@@ -6966,9 +6996,9 @@
     },
     "scripts/report_presentation_smoke.mjs": {
       "before_sha256": "77f9149718bc811b0ad712defa2f1760f108ea2c5acfdd4fdd4e8428816029f7",
-      "after_sha256": "c259be6ce3b976e35cd043cc1fa00e99dc6a94f17f211c039452ba57e32a8fac",
+      "after_sha256": "8447465bf83cfbccdfa211f79837209a17f73875f4751ee1469f63f966b44c37",
       "before_bytes": 50300,
-      "after_bytes": 50629,
+      "after_bytes": 50622,
       "replacements": [
         [
           53,
@@ -6983,15 +7013,15 @@
           ""
         ],
         [
-          5833,
-          5839,
-          " Scope",
+          5824,
+          6043,
+          "Q\u00b2-SODI\u2019s analysis and reporting.'), 'designed representative-output disclosure missing');\n}else{\nassert((await page.locator('body').textContent()).includes('These reports use realistic example responses to demonstrate ",
           ""
         ],
         [
-          5922,
-          6145,
-          "\n}else{\nassert((await page.locator('body').textContent()).includes('These reports use realistic example responses to demonstrate Monderman\u2019s analysis and reporting.'), 'designed representative-output disclosure missing');\n}",
+          6135,
+          6137,
+          "\n}",
           ""
         ]
       ]
@@ -7148,9 +7178,9 @@
     },
     "scripts/sample_product_fidelity_smoke.mjs": {
       "before_sha256": "f4c905e1b886d6ec8e8ba5e15e064e24fadf7b7d99d5ef3903fddfffbef91f01",
-      "after_sha256": "07b4c5638da47a915f802ac19ce2fdacf3aaff6b1b14256ec90e05047b6bc0a2",
+      "after_sha256": "fcb951c3573083d24b085fccf4fca06b61d910bb37d6328e1a1821d27632acc5",
       "before_bytes": 6043,
-      "after_bytes": 6363,
+      "after_bytes": 6356,
       "replacements": [
         [
           92,
@@ -7165,15 +7195,15 @@
           ""
         ],
         [
-          1890,
-          1896,
-          " Scope",
+          1881,
+          2091,
+          "Q\u00b2-SODI\u2019s analysis and reporting.'), 'representative-output disclosure missing');\n}else{\nassert((await page.locator('body').textContent()).includes('These reports use realistic example responses to demonstrate ",
           ""
         ],
         [
-          1970,
-          2184,
-          "\n}else{\nassert((await page.locator('body').textContent()).includes('These reports use realistic example responses to demonstrate Monderman\u2019s analysis and reporting.'), 'representative-output disclosure missing');\n}",
+          2174,
+          2176,
+          "\n}",
           ""
         ]
       ]
@@ -7383,6 +7413,108 @@
           37835,
           "actualCurrentStaticQueryAllowlist: Object.fromEntries([...actualCurrentStaticQueries].map(([pathname, queries]) => [pathname, [...queries]])),",
           ""
+        ]
+      ]
+    },
+    "scripts/employer_salary_browser_smoke.mjs": {
+      "before_sha256": "031fef5384bece6d4cf2e2a779133b16a940bf1bb412f63fec44e988cc83b7aa",
+      "after_sha256": "198e85c4af09184060c3a76ba2d51e80f595fb729b9131a0e4292db22d001a32",
+      "before_bytes": 31298,
+      "after_bytes": 32775,
+      "replacements": [
+        [
+          21851,
+          22732,
+          "// Observe the application's new-field autofocus before fill/click can\n      // focus the input themselves while its pending callback still exists.\n      await page.waitForFunction(expectedId=>{\n        const visible=[...document.querySelectorAll('#preflightContextMount .field')].filter(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden');\n        if(visible.length!==1||visible[0].dataset.fieldId!==expectedId)return false;\n        const target=visible[0].querySelector('.opt-choice[aria-checked=\"true\"]')\n          ||visible[0].querySelector('.opt-choice')\n          ||visible[0].querySelector('input:not([hidden]):not([aria-hidden=\"true\"]), textarea:not([hidden]):not([aria-hidden=\"true\"]), select:not(.opt-choice-mirror):not([hidden]):not([aria-hidden=\"true\"])');\n        return !!target&&document.activeElement===target;\n      },definition.id);\n      ",
+          ""
+        ],
+        [
+          23361,
+          23369,
+          "\n      o",
+          "await page."
+        ],
+        [
+          23370,
+          23459,
+          "(await page.locator('.preflight-next').evaluate(el=>document.activeElement===el&&!el.disa",
+          "ey"
+        ],
+        [
+          23460,
+          23551,
+          "led&&!!el.getClientRects().length),'Continue has actual focus and is enabled before native ",
+          "oard.press('"
+        ],
+        [
+          23557,
+          23990,
+          ");\n      await page.keyboard.press('Enter');\n      const nextDefinition=active[observed.length];\n      if(nextDefinition)await page.waitForFunction(expectedId=>{\n        const visible=[...document.querySelectorAll('#preflightContextMount .field')].filter(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden');\n        return visible.length===1&&visible[0].dataset.fieldId===expectedId;\n      },nextDefinition.id",
+          ""
+        ]
+      ]
+    },
+    "scripts/brand_surface_consistency_smoke.mjs": {
+      "before_sha256": "e89e4311894e20e9314728e43364d2aae1b3e912271918bc049d16033f94c048",
+      "after_sha256": "62c8b2d9e636c9770fe48f16db582fe31c8a1b59472316d379a8d0a6e49ab611",
+      "before_bytes": 18420,
+      "after_bytes": 19294,
+      "replacements": [
+        [
+          141,
+          240,
+          "';\nimport {isCurrentScopeBeta, assertScopeBetaBuiltEdition} from './scope_beta_20261014_inverse.mjs",
+          ""
+        ],
+        [
+          2894,
+          2896,
+          "le",
+          "cons"
+        ],
+        [
+          2970,
+          2972,
+          "le",
+          "cons"
+        ],
+        [
+          3669,
+          4352,
+          "\n// Preserve the original75/69 inventory, then certify both exact current product routes with the same predicates.\nconst currentProductPages = isCurrentScopeBeta() ? ['q2-sodi.html', 'scope.html'] : [];\npages.push(...currentProductPages);\nexpectedHeroCount += currentProductPages.length;\nexpectedFooterCount += currentProductPages.length;\nif (currentProductPages.length) {\n  assert.equal(pages.length, 77, 'Only the canonical product overview and retained alias join the brand inventory');\n  assert.equal(expectedHeroCount, 71, 'Both approved product routes add one real hero');\n  assert.equal(expectedFooterCount, 76, 'Both approved product routes add one real canonical footer');\n}",
+          ""
+        ],
+        [
+          5334,
+          5430,
+          "\nif (currentProductPages.length) assertScopeBetaBuiltEdition(path.join(root, '.render-public'));",
+          ""
+        ]
+      ]
+    },
+    "scripts/public_surface_consistency_smoke.mjs": {
+      "before_sha256": "3e843eba6633dac92e5ec2b27ee036c656e397a562b0e08b66245ddcbbdc9009",
+      "after_sha256": "cee363df86b2f713c00df261f879ea6953d27871139f878da4e7be24e81a9b67",
+      "before_bytes": 16007,
+      "after_bytes": 16128,
+      "replacements": [
+        [
+          199,
+          276,
+          "import {sourceAtScopeBetaBaseline} from './scope_beta_20261014_inverse.mjs';\n",
+          ""
+        ],
+        [
+          1074,
+          1081,
+          "sourceA",
+          "trus"
+        ],
+        [
+          1083,
+          1129,
+          "copeBetaBaseline('security.html', trustSource)",
+          "ource"
         ]
       ]
     }
@@ -16953,7 +17085,7 @@
       {
         "path": ".well-known/monderman-release.json",
         "bytes": 56,
-        "sha256": "3a760afb0f33982c6fb7c6e6a75b12a1606c4b8c3762d4947e83fce34dc503c2"
+        "sha256": "b3227c8abe908497eb3a995ce6f5b35ac68d6e6b6b1992d8ada42fe6c4ee2328"
       },
       {
         "path": "404.html",
@@ -18238,7 +18370,7 @@
       {
         "path": "q2-sodi.html",
         "bytes": 19938,
-        "sha256": "373b393d9ffecc33885395717512b4ff46dd04fe5ece0ef7c177053a6a36c8f9"
+        "sha256": "7120c30d3ecfb833fc70b115263bc1cc452de75b3289b85d0729ae7a4fc9a988"
       },
       {
         "path": "quarter-trillion-friction-us-healthcare.html",
@@ -18343,7 +18475,7 @@
       {
         "path": "scope.html",
         "bytes": 19938,
-        "sha256": "373b393d9ffecc33885395717512b4ff46dd04fe5ece0ef7c177053a6a36c8f9"
+        "sha256": "7120c30d3ecfb833fc70b115263bc1cc452de75b3289b85d0729ae7a4fc9a988"
       },
       {
         "path": "security.html",
@@ -18595,7 +18727,7 @@
       {
         "path": ".well-known/monderman-release.json",
         "bytes": 56,
-        "sha256": "3a760afb0f33982c6fb7c6e6a75b12a1606c4b8c3762d4947e83fce34dc503c2"
+        "sha256": "b3227c8abe908497eb3a995ce6f5b35ac68d6e6b6b1992d8ada42fe6c4ee2328"
       },
       {
         "path": "404.html",
@@ -19880,7 +20012,7 @@
       {
         "path": "q2-sodi.html",
         "bytes": 19938,
-        "sha256": "373b393d9ffecc33885395717512b4ff46dd04fe5ece0ef7c177053a6a36c8f9"
+        "sha256": "7120c30d3ecfb833fc70b115263bc1cc452de75b3289b85d0729ae7a4fc9a988"
       },
       {
         "path": "quarter-trillion-friction-us-healthcare.html",
@@ -19985,7 +20117,7 @@
       {
         "path": "scope.html",
         "bytes": 19938,
-        "sha256": "373b393d9ffecc33885395717512b4ff46dd04fe5ece0ef7c177053a6a36c8f9"
+        "sha256": "7120c30d3ecfb833fc70b115263bc1cc452de75b3289b85d0729ae7a4fc9a988"
       },
       {
         "path": "security.html",
@@ -20231,7 +20363,7 @@
   },
   "additions": {
     "scope.html": {
-      "sha256": "4e53ca45ee0b46b18df011634d5096e6a3aafcef0b48467d4a8b5471cb092bf1",
+      "sha256": "52cd0da1ecf7fafaabed5a469ce463c84620d618709c64db271e0484017175c3",
       "bytes": 19807
     },
     "scope.css": {
@@ -20255,7 +20387,7 @@
       "bytes": 1439
     },
     "q2-sodi.html": {
-      "sha256": "4e53ca45ee0b46b18df011634d5096e6a3aafcef0b48467d4a8b5471cb092bf1",
+      "sha256": "52cd0da1ecf7fafaabed5a469ce463c84620d618709c64db271e0484017175c3",
       "bytes": 19807
     }
   },
@@ -20263,7 +20395,7 @@
     "scope.html": {
       "path": "scope.html",
       "bytes": 19938,
-      "sha256": "373b393d9ffecc33885395717512b4ff46dd04fe5ece0ef7c177053a6a36c8f9"
+      "sha256": "7120c30d3ecfb833fc70b115263bc1cc452de75b3289b85d0729ae7a4fc9a988"
     },
     "scope.css": {
       "path": "scope.css",
@@ -20288,7 +20420,7 @@
     "q2-sodi.html": {
       "path": "q2-sodi.html",
       "bytes": 19938,
-      "sha256": "373b393d9ffecc33885395717512b4ff46dd04fe5ece0ef7c177053a6a36c8f9"
+      "sha256": "7120c30d3ecfb833fc70b115263bc1cc452de75b3289b85d0729ae7a4fc9a988"
     }
   },
   "guardFiles": [
@@ -24173,7 +24305,7 @@
     {
       "path": ".well-known/monderman-release.json",
       "bytes": 56,
-      "sha256": "3a760afb0f33982c6fb7c6e6a75b12a1606c4b8c3762d4947e83fce34dc503c2"
+      "sha256": "b3227c8abe908497eb3a995ce6f5b35ac68d6e6b6b1992d8ada42fe6c4ee2328"
     },
     {
       "path": "404.html",
@@ -25458,7 +25590,7 @@
     {
       "path": "q2-sodi.html",
       "bytes": 19938,
-      "sha256": "373b393d9ffecc33885395717512b4ff46dd04fe5ece0ef7c177053a6a36c8f9"
+      "sha256": "7120c30d3ecfb833fc70b115263bc1cc452de75b3289b85d0729ae7a4fc9a988"
     },
     {
       "path": "quarter-trillion-friction-us-healthcare.html",
@@ -25563,7 +25695,7 @@
     {
       "path": "scope.html",
       "bytes": 19938,
-      "sha256": "373b393d9ffecc33885395717512b4ff46dd04fe5ece0ef7c177053a6a36c8f9"
+      "sha256": "7120c30d3ecfb833fc70b115263bc1cc452de75b3289b85d0729ae7a4fc9a988"
     },
     {
       "path": "security.html",

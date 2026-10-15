@@ -32,7 +32,7 @@ page.on('console', message => {
 await page.goto(`${base}/sample-report.html`, { waitUntil:'networkidle', timeout:90000 });
 await page.locator('body.production-samples-ready').waitFor({ state:'attached', timeout:30000 });
 if(isCurrentScopeBeta()){
-  assert((await page.locator('body').textContent()).includes('These reports use realistic example responses to demonstrate Monderman Scope’s analysis and reporting.'), 'representative-output disclosure missing');
+  assert((await page.locator('body').textContent()).includes('These reports use realistic example responses to demonstrate Q²-SODI’s analysis and reporting.'), 'representative-output disclosure missing');
 }else{
 assert((await page.locator('body').textContent()).includes('These reports use realistic example responses to demonstrate Monderman’s analysis and reporting.'), 'representative-output disclosure missing');
 }

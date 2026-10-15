@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { chromium, webkit } from 'playwright';
 import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
-import {historicalScopeBetaBrowserBodies} from './scope_beta_20261014_inverse.mjs';
+import {historicalScopeBetaBrowserBodies,isCurrentScopeBeta,scopeBetaDelta,sourceAtScopeBetaBaseline} from './scope_beta_20261014_inverse.mjs';
 
 // Every old physical assertion runs on its exact approved f2a edition; the separate Scope matrix certifies current layout.
 const scopeHistoricalBodies=historicalScopeBetaBrowserBodies(decodeURIComponent(new URL('../.render-public/',import.meta.url).pathname));
@@ -11,6 +11,9 @@ if(scopeHistoricalBodies.size)console.log('SCOPE_PRESERVED_PHYSICAL_EDITION f2a8
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
 const localOrigin = new URL(base).origin;
 assert.ok(['127.0.0.1', 'localhost'].includes(new URL(base).hostname), 'Visual verification remains on loopback');
+const currentScopeBeta=isCurrentScopeBeta(),currentProductPages=['q2-sodi.html','scope.html'];
+if(currentScopeBeta){const actual=fs.readdirSync('.').filter(f=>f.endsWith('.html')&&!f.startsWith('google')).sort();assert.deepEqual(actual,[...scopeBetaDelta.baselineSourcePaths.filter(f=>!f.includes('/')&&f.endsWith('.html')&&!f.startsWith('google')),...currentProductPages].sort(),'Exact original source inventory plus only the separately certified canonical product page and retained alias');}
+const inventorySource=(file,source)=>currentScopeBeta?sourceAtScopeBetaBaseline(file,source):source;
 const homepageSource = fs.readFileSync('index.html','utf8');
 const marketingBaselineHomepage = sourceAtMarketingRefreshBaseline('index.html',homepageSource);
 assert.notEqual(marketingBaselineHomepage,homepageSource,'The original homepage geometry is verified in addition to the approved new layout');
@@ -77,13 +80,14 @@ function hasPageHero(pageName) {
     match[1].trim().split(/\s+/).some((className) => heroClassTokens.has(className)));
 }
 
-const sitemapHeroPages = [...fs.readFileSync('sitemap.xml', 'utf8').matchAll(/<loc>(.*?)<\/loc>/g)]
+const sitemapHeroPages = [...inventorySource('sitemap.xml',fs.readFileSync('sitemap.xml', 'utf8')).matchAll(/<loc>(.*?)<\/loc>/g)]
   .map((match) => new URL(match[1]).pathname.split('/').pop() || 'index.html')
   .filter((pageName) => fs.existsSync(pageName))
   .filter((pageName) => !legalPresentationExclusions.has(pageName))
   .filter(hasPageHero);
 const repositoryHeroPages = fs.readdirSync('.')
   .filter((pageName) => pageName.endsWith('.html'))
+  .filter((pageName) => !currentScopeBeta || !currentProductPages.includes(pageName))
   .filter((pageName) => !legalPresentationExclusions.has(pageName))
   .filter((pageName) => fs.readFileSync(pageName, 'utf8').includes('enterprise-site.css?'))
   .filter(hasPageHero);

@@ -4,7 +4,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {isCurrentHomepageRefinementSource} from './homepage_refinement_20261014_inverse.mjs';
 import {isCurrentSiteDesignCoherence} from './site_design_coherence_20261014_inverse.mjs';
-import {isCurrentScopeBeta,scopeBetaDelta} from './scope_beta_20261014_inverse.mjs';
+import {isCurrentScopeBeta,scopeBetaDelta,assertScopeBetaBuiltEdition} from './scope_beta_20261014_inverse.mjs';
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
 const out = process.env.MOBILE_OUT || '/tmp/mobile-site-presentation';
@@ -14,8 +14,9 @@ fs.mkdirSync(out, { recursive: true });
 // the sweep automatically. The Google ownership token is not a rendered page.
 const allCurrentPages = fs.readdirSync(process.cwd()).filter(name=>name.endsWith('.html')&&!name.startsWith('google')).sort();
 const currentScopeBeta=isCurrentScopeBeta();
-const pages=allCurrentPages.filter(name=>name!=='scope.html'||!currentScopeBeta);
-if(currentScopeBeta){assert.deepEqual(allCurrentPages, [...scopeBetaDelta.baselineSourcePaths.filter(f=>f.endsWith('.html')&&!f.startsWith('google')), 'scope.html'].sort(),'All original89 and only the approved Scope page exist');assert.equal(allCurrentPages.filter(name=>name==='scope.html').length,1,'Exactly one additional Scope overview joins the separate mandatory current matrix');}
+const currentProductPages=['q2-sodi.html','scope.html'];
+const pages=allCurrentPages.filter(name=>!currentScopeBeta||!currentProductPages.includes(name));
+if(currentScopeBeta){assert.deepEqual(allCurrentPages, [...scopeBetaDelta.baselineSourcePaths.filter(f=>!f.includes('/')&&f.endsWith('.html')&&!f.startsWith('google')), ...currentProductPages].sort(),'All original89 and only the approved canonical product page and retained alias exist');assert.deepEqual(allCurrentPages.filter(name=>currentProductPages.includes(name)),currentProductPages,'Exactly both approved product routes join the separate mandatory current matrix');}
 
 const sourceByPage = new Map(pages.map((name) => [name, fs.readFileSync(name, 'utf8')]));
 const currentHomepageRefinement = isCurrentHomepageRefinementSource(sourceByPage.get('index.html'));
@@ -88,6 +89,16 @@ const headerPattern = /<header\b(?=[^>]*\bid=["']siteHeader["'])[^>]*>[\s\S]*?<\
 const footerPattern = /<footer\b(?=[^>]*\bclass=["'][^"']*\bmond-footer\b[^"']*["'])[^>]*>[\s\S]*?<\/footer>/i;
 const expectedHeader = fs.readFileSync('site-shell/header.html', 'utf8').trim();
 const expectedFooter = fs.readFileSync('site-shell/footer.html', 'utf8').trim();
+if(currentScopeBeta){
+  assertScopeBetaBuiltEdition(publishDirectory);
+  for(const pageName of currentProductPages){
+    const raw=fs.readFileSync(pageName,'utf8'),built=fs.readFileSync(path.join(publishDirectory,pageName),'utf8');
+    assert.ok(/<body\b[^>]*\bcanonical-green-shell\b/.test(raw),pageName+': exact product page is a canonical public surface');
+    assert.equal((raw.match(/<link rel="canonical" href="https:\/\/www\.monderman\.com\/q2-sodi\.html"/g)||[]).length,1,pageName+': one canonical product URL');
+    assert.equal(built.match(headerPattern)?.[0],expectedHeader,pageName+': actual built product header is the canonical partial');
+    assert.equal(built.match(footerPattern)?.[0],expectedFooter,pageName+': actual built product footer is the canonical partial');
+  }
+}
 const injector = fs.readFileSync('scripts/inject-public-shell.mjs', 'utf8');
 const shellRelease = injector.match(/const shellRelease = "([^"]+)";/)?.[1];
 assert.ok(shellRelease, 'shared asset release key must be explicit');
