@@ -41,7 +41,41 @@ ok(footer.includes('href="footer-membership.css?v=20261001.1"'), 'The shared foo
 eq((footer.match(/class="mf-membership"/g) || []).length, 1, 'One individual membership link in the shared footer');
 ok(footer.includes('href="' + credential + '"'), 'Exact public individual credential');
 ok(!/Jason|Adamson|mf-membership-label/i.test(footer), 'Badge-only footer contains no personal name or caption');
-ok(footer.includes('src="' + badgePath + '" width="600" height="600"'), 'Original image dimensions and local asset path');
+const originalBadgeBytes = await fs.readFile(path.join(root, badgePath));
+eq(originalBadgeBytes.length, 62956, 'Exact retained original badge byte count');
+eq(originalBadgeBytes.subarray(0, 8).toString('hex'), '89504e470d0a1a0a', 'Original badge is a PNG');
+eq([originalBadgeBytes.readUInt32BE(16), originalBadgeBytes.readUInt32BE(20)], [600, 600], 'Original PNG dimensions');
+const originalBadgeInline = 'data:image/png;base64,' + originalBadgeBytes.toString('base64');
+const inlineBadgeTag = '<img src="' + originalBadgeInline + '" width="600" height="600" loading="lazy" decoding="async" alt="ACMP Member Badge">';
+function assertOriginalBadgeInline(source) {
+  const images = [...source.matchAll(/<img\b[^>]*>/gi)];
+  assert.equal(images.length, 1, 'Exactly one footer image; no duplicate or unrecognized image URL');
+  assert.equal(images[0][0], inlineBadgeTag, 'Exact original PNG data URI and every unchanged non-src image attribute');
+  const payload = images[0][0].match(/^<img src="data:image\/png;base64,([A-Za-z0-9+/]+={0,2})" width="600" height="600" loading="lazy" decoding="async" alt="ACMP Member Badge">$/)?.[1];
+  assert.ok(payload, 'Exact PNG MIME, canonical base64 alphabet, and original 600 by 600 image tag');
+  const decoded = Buffer.from(payload, 'base64');
+  assert.equal(decoded.toString('base64'), payload, 'Canonical base64 has no ignored or extra data');
+  assert.deepEqual(decoded, originalBadgeBytes, 'Inline PNG decodes to every retained original byte');
+  assert.equal(sha(decoded), badgeSha256, 'Inline PNG matches the independent official image pin');
+  return true;
+}
+ok(assertOriginalBadgeInline(footer), 'Exact original PNG embedded without changing dimensions or image attributes');
+const corruptBadgeBytes = Buffer.from(originalBadgeBytes);
+corruptBadgeBytes[corruptBadgeBytes.length - 1] ^= 1;
+for (const [label, mutant] of [
+  ['ordinary HTTP-relative image URL', footer.replace(originalBadgeInline, badgePath)],
+  ['wrong image MIME', footer.replace('data:image/png;base64,', 'data:image/jpeg;base64,')],
+  ['corrupted canonical base64', footer.replace(originalBadgeInline, 'data:image/png;base64,' + corruptBadgeBytes.toString('base64'))],
+  ['duplicate badge', footer.replace('</footer>', inlineBadgeTag + '</footer>')],
+  ['unrecognized extra image URL', footer.replace('</footer>', '<img src="https://unreviewed.invalid/badge.png"></footer>')],
+  ['unrecognized image srcset', footer.replace(inlineBadgeTag, inlineBadgeTag.replace(' width="600"', ' srcset="https://unreviewed.invalid/badge.png 2x" width="600"'))],
+  ['changed original dimensions', footer.replace(inlineBadgeTag, inlineBadgeTag.replace('width="600"', 'width="599"'))],
+  ['duplicate src attribute', footer.replace(inlineBadgeTag, inlineBadgeTag.replace(' width="600"', ' src="https://unreviewed.invalid/badge.png" width="600"'))],
+]) {
+  ok(mutant !== footer, label + ': actual footer bytes changed');
+  assert.throws(() => assertOriginalBadgeInline(mutant), {name:'AssertionError'}, label + ': rejects');
+  checks++;
+}
 
 for (const file of (await fs.readdir(built)).filter(file => file.endsWith('.html')).sort()) {
   const html = await fs.readFile(path.join(built, file), 'utf8');
@@ -86,21 +120,62 @@ const results = [], failures = [], cache = new Map();
 const contentTypes = {'.css':'text/css', '.svg':'image/svg+xml', '.png':'image/png', '.jpg':'image/jpeg', '.jpeg':'image/jpeg', '.ico':'image/x-icon', '.woff':'font/woff', '.woff2':'font/woff2'};
 const overlaps = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
 const contained = (a, b) => a.left >= b.left - 1 && a.right <= b.right + 1 && a.top >= b.top - 1 && a.bottom <= b.bottom + 1;
+// Each existing async worker owns its own browser; application bytes are unchanged.
+const operationLimit = 30000; // Existing Playwright operation limit; no global/test timeout increase.
+const progressPath = path.join(output, 'worker-progress.jsonl');
+const workerOutcomes = [], caseOutcomes = [], expectedLabels = [], completedLabels = new Set(), startedLabels = new Set();
+let progressTail = Promise.resolve();
+async function boundedCleanup(promise, label) {
+  let timer;
+  try { return await Promise.race([promise, new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(label + ': cleanup exceeded existing 30000ms operation limit')), operationLimit); })]); }
+  finally { clearTimeout(timer); }
+}
+function harnessFailure(label, error, phase) {
+  const record = {label, error:error?.stack || String(error), phase};
+  failures.push(record);
+  console.error(JSON.stringify({kind:'footer-owned-harness-failure', ...record}));
+}
+async function persistProgress(phase, detail = {}) {
+  const record = {at:new Date().toISOString(), phase, ...detail};
+  const write = progressTail.then(async () => {
+    const handle = await fs.open(progressPath, 'a', 0o600);
+    try { await handle.writeFile(JSON.stringify(record) + '\n'); await handle.sync(); }
+    finally { await handle.close(); }
+  });
+  // A progress I/O failure makes the suite FAIL; it must not prevent owned cleanup or hide the original failure.
+  progressTail = write.catch(error => harnessFailure('harness/progress', error, phase));
+  await progressTail;
+}
 for (const [engineName, engine] of Object.entries({chromium, webkit})) {
-  const browser = await engine.launch({headless:true});
-  try {
     const queue = representatives.flatMap(file => [320, 390, 768, 1440].map(width => ({file, width})));
     for (const file of scopePages.keys()) queue.push(...[320, 390, 768, 1440].map(width => ({file, width})));
     if (process.env.FOOTER_MEMBERSHIP_ALL_PAGES === '1') for (const file of pages.keys()) {
       if (!representatives.includes(file)) queue.push({file, width:390});
     }
-    await Promise.all(Array.from({length:4}, async () => {
+  const engineExpected = queue.map(({file, width}) => `${engineName}/${file}/${width}`);
+  expectedLabels.push(...engineExpected);
+  const settled = await Promise.allSettled(Array.from({length:4}, async (_, workerIndex) => {
+    let browser;
+    const worker = {engineName, workerIndex, status:'RUNNING', assigned:0};
+    workerOutcomes.push(worker);
+    await persistProgress('worker-browser-launch', {engineName, workerIndex});
+    try {
+      browser = await engine.launch({headless:true});
+      await persistProgress('worker-browser-ready', {engineName, workerIndex});
       while (queue.length) {
         const {file, width} = queue.shift();
         const label = `${engineName}/${file}/${width}`;
-        const page = await browser.newPage({viewport:{width, height:1024}, reducedMotion:'reduce', serviceWorkers:'block'});
+        worker.assigned++;
+        if (startedLabels.has(label)) harnessFailure(label, new Error('Duplicate case assignment'), 'case-assigned');
+        startedLabels.add(label);
+        let page, context, phase = 'page-create', assertionsPassed = false, cleanupPassed = true;
         let blockedRequests = 0;
         const missingAssets = [];
+        await persistProgress(phase, {engineName, workerIndex, label});
+        try {
+          page = await browser.newPage({viewport:{width, height:1024}, reducedMotion:'reduce', serviceWorkers:'block'});
+          context = page.context();
+          phase = 'route-setup'; await persistProgress(phase, {engineName, workerIndex, label});
         await page.route('**/*', async route => {
           const request = route.request(), url = new URL(request.url());
           if (url.origin !== origin || request.method() !== 'GET' || request.resourceType() === 'script') {
@@ -114,7 +189,7 @@ for (const [engineName, engine] of Object.entries({chromium, webkit})) {
             return route.fulfill({contentType:contentTypes[path.extname(target)] || 'application/octet-stream', body:cache.get(target)});
           } catch { missingAssets.push(url.pathname); return route.fulfill({status:404, body:'Missing local fixture asset'}); }
         });
-        try {
+          phase = 'navigation-load'; await persistProgress(phase, {engineName, workerIndex, label});
           await page.goto(origin + '/' + file, {waitUntil:'load'});
           // The legacy instrument loader normally disappears through page JavaScript.
           await page.addStyleTag({content:'#pageLoader{display:none!important}'});
@@ -125,6 +200,7 @@ for (const [engineName, engine] of Object.entries({chromium, webkit})) {
             eq(await page.locator('link[rel="canonical"]').getAttribute('href'), 'https://www.monderman.com/q2-sodi.html', label + ': product page and retained alias identify the canonical product URL');
           }
           const link = page.locator('.mf-membership');
+          phase = 'badge-decode-and-scroll'; await persistProgress(phase, {engineName, workerIndex, label});
           await link.scrollIntoViewIfNeeded();
           await page.waitForFunction(() => {
             const img = document.querySelector('.mf-membership img');
@@ -136,6 +212,7 @@ for (const [engineName, engine] of Object.entries({chromium, webkit})) {
           eq(await link.getAttribute('target'), '_blank', label + ': external credential opens separately');
           for (const token of ['noopener', 'noreferrer']) ok((await link.getAttribute('rel')).split(/\s+/).includes(token), label + ': external link ' + token);
           eq(await link.getAttribute('aria-label'), 'Verify ACMP membership on Credly (opens in a new tab)', label + ': accessible verification link');
+          phase = 'keyboard-focus'; await persistProgress(phase, {engineName, workerIndex, label});
           await page.locator('.mf-nav a').last().focus();
           // macOS WebKit uses Option+Tab to include links in keyboard traversal.
           await page.keyboard.press(engineName === 'webkit' && process.platform === 'darwin' ? 'Alt+Tab' : 'Tab');
@@ -159,6 +236,7 @@ for (const [engineName, engine] of Object.entries({chromium, webkit})) {
             throw new Error(label + ': visible keyboard focus did not settle within 5s: ' + JSON.stringify(focus));
           }
           ok(await link.evaluate(node => { const style = getComputedStyle(node); return style.outlineStyle !== 'none' && parseFloat(style.outlineWidth) >= 2; }), label + ': visible keyboard focus');
+          phase = 'trial-hit-and-geometry'; await persistProgress(phase, {engineName, workerIndex, label});
           await link.click({trial:true});
           const geometry = await link.evaluate(node => {
             const box = el => { const r = el.getBoundingClientRect(); return {left:r.left, right:r.right, top:r.top, bottom:r.bottom, width:r.width, height:r.height}; };
@@ -180,18 +258,63 @@ for (const [engineName, engine] of Object.entries({chromium, webkit})) {
           eq(geometry.objectFit, 'contain', label + ': entire image remains visible');
           ok(geometry.link.left >= 0 && geometry.link.right <= width + 1, label + ': badge fits the viewport');
           ok(!missingAssets.includes('/' + badgePath) && !missingAssets.includes('/footer-membership.css'), label + ': badge asset and stylesheet load');
+          if (representatives.includes(file)) { phase = 'success-screenshot'; await persistProgress(phase, {engineName, workerIndex, label}); }
           if (representatives.includes(file)) await page.locator('.mond-footer').screenshot({path:path.join(output, `${engineName}-${file}-${width}.png`)});
           results.push({label, passed:true, blockedRequests, missingAssets, geometry});
+          assertionsPassed = true;
+          phase = 'assertions-passed'; await persistProgress(phase, {engineName, workerIndex, label});
         } catch (error) {
           failures.push({label, error:error.message});
-          await page.screenshot({path:path.join(output, `${engineName}-${file}-${width}-FAIL.png`)}).catch(() => {});
-        } finally { await page.close(); }
+          await persistProgress('case-failure-before-screenshot-or-close', {engineName, workerIndex, label, failedPhase:phase, error:error.message, stack:error.stack});
+          if (page) {
+            try {
+              phase = 'failure-screenshot'; await persistProgress(phase, {engineName, workerIndex, label});
+              await page.screenshot({path:path.join(output, `${engineName}-${file}-${width}-FAIL.png`)});
+            } catch (screenshotError) { harnessFailure(label, screenshotError, 'failure-screenshot'); await persistProgress('failure-screenshot-unavailable', {engineName, workerIndex, label, error:screenshotError.stack}); }
+          }
+        } finally {
+          if (page) {
+            phase = 'page-close'; await persistProgress(phase, {engineName, workerIndex, label});
+            try { await boundedCleanup(page.close(), label + ': owned page close'); }
+            catch (error) { cleanupPassed = false; harnessFailure(label, error, phase); await persistProgress('page-close-failure', {engineName, workerIndex, label, error:error.stack}); }
+          }
+          if (context) {
+            phase = 'context-close'; await persistProgress(phase, {engineName, workerIndex, label});
+            try { await boundedCleanup(context.close(), label + ': owned context close'); }
+            catch (error) { cleanupPassed = false; harnessFailure(label, error, phase); await persistProgress('context-close-failure', {engineName, workerIndex, label, error:error.stack}); }
+          }
+          completedLabels.add(label);
+          caseOutcomes.push({label, engineName, workerIndex, assertionsPassed, cleanupPassed, status:assertionsPassed && cleanupPassed ? 'PASS' : 'FAIL'});
+          await persistProgress('case-complete', {engineName, workerIndex, label, assertionsPassed, cleanupPassed});
+        }
       }
-    }));
-  } finally { await browser.close(); }
+      worker.status = 'DRAINED';
+    } catch (error) {
+      worker.status = 'FAIL';worker.error = error.stack;
+      harnessFailure(`${engineName}/worker-${workerIndex}`, error, 'worker-body');
+      await persistProgress('worker-failure-before-close', {engineName, workerIndex, error:error.stack});
+    } finally {
+      if (browser) {
+        await persistProgress('worker-browser-close', {engineName, workerIndex});
+        try { await boundedCleanup(browser.close(), `${engineName}/worker-${workerIndex}: owned browser close`); worker.browserClosed = true; }
+        catch (error) { worker.status = 'FAIL';worker.browserClosed = false;harnessFailure(`${engineName}/worker-${workerIndex}`, error, 'browser-close');await persistProgress('browser-close-failure', {engineName, workerIndex, error:error.stack}); }
+      }
+      await persistProgress('worker-complete', {engineName, workerIndex, status:worker.status, browserClosed:worker.browserClosed ?? null});
+    }
+  }));
+  for (const [workerIndex, result] of settled.entries()) if (result.status === 'rejected') {
+    harnessFailure(`${engineName}/worker-${workerIndex}`, result.reason, 'all-settled-join');
+    await persistProgress('unexpected-worker-rejection', {engineName, workerIndex, error:result.reason?.stack || String(result.reason)});
+  }
+  const missing = engineExpected.filter(label => !completedLabels.has(label));
+  if (queue.length || missing.length) harnessFailure(`${engineName}/incomplete-coverage`, new Error(JSON.stringify({remainingQueue:queue, missing})), 'coverage');
+  await persistProgress('engine-complete-after-all-workers-joined', {engineName, expected:engineExpected.length, completed:engineExpected.length - missing.length, missing, remainingQueue:queue.length});
 }
+await progressTail;
+const missingLabels = expectedLabels.filter(label => !completedLabels.has(label));
+if (missingLabels.length || startedLabels.size !== expectedLabels.length || completedLabels.size !== expectedLabels.length) harnessFailure('harness/incomplete-coverage', new Error(JSON.stringify({expected:expectedLabels.length, started:startedLabels.size, completed:completedLabels.size, missingLabels})), 'final-coverage');
 const receipt = {status:failures.length ? 'FAIL' : 'PASS', checks, footerPages:pages.size, scopeFooterPages:scopePages.size, browserCases:results.length, baseline, protectedFiles:protectedFiles.length,
-  badgeSha256, originalChecked, failures, results, providerCalls:0, published:false};
+  badgeSha256, originalChecked, failures, results, providerCalls:0, published:false, browserOwnership:'one-per-existing-worker', operationLimit, workerOutcomes, caseOutcomes, expectedCaseCount:expectedLabels.length, completedCaseCount:completedLabels.size, missingLabels, incomplete:missingLabels.length > 0 || caseOutcomes.some(row => !row.cleanupPassed) || workerOutcomes.some(worker => worker.browserClosed !== true), progressPath};
 await fs.writeFile(path.join(output, 'results.json'), JSON.stringify(receipt, null, 2) + '\n');
 console.log(JSON.stringify({status:receipt.status, checks, footerPages:pages.size, browserCases:results.length, failures, output}));
 assert.equal(failures.length, 0, 'Individual membership footer regression checks');
