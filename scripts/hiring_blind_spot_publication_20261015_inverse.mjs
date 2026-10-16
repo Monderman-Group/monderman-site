@@ -7,12 +7,12 @@ import {createHash} from 'node:crypto';
 const root = path.resolve(import.meta.dirname, '..');
 const sha = value => createHash('sha256').update(value).digest('hex');
 export const HIRING_PUBLICATION_BASELINE = '76690a65c53794cb1e35f512221e51ddd0c6525b';
-export const HIRING_PUBLICATION_FIXTURE_SHA256 = 'c5dc00dcff8251dcb7923847575a2f6b9406bc7701e8b3c23ffc19bcd4713fd7';
+export const HIRING_PUBLICATION_FIXTURE_SHA256 = '7554155126cae721883f5a2f784116d03687dbb7922ea5bd278d6c10c1f84b59';
 const raw = fs.readFileSync(new URL('./fixtures/hiring-blind-spot-publication-20261015.json', import.meta.url));
 assert.equal(sha(raw), HIRING_PUBLICATION_FIXTURE_SHA256);
 export const hiringPublicationDelta = JSON.parse(raw);
 assert.equal(hiringPublicationDelta.baseline, HIRING_PUBLICATION_BASELINE);
-assert.equal(hiringPublicationDelta.version, 'hiring-blind-spot-publication-20261015.1');
+assert.equal(hiringPublicationDelta.version, 'hiring-blind-spot-publication-20261015.2');
 
 function reverse(entry, source) {
   assert.ok(typeof source === 'string' || Buffer.isBuffer(source));

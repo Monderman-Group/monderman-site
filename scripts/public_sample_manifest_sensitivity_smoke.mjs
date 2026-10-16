@@ -43,6 +43,7 @@ const adapterDependencies=['scripts/public_copy_clarity_inverse.mjs','scripts/pr
   'scripts/marketing_photo_presentation_20261013_inverse.mjs','scripts/fixtures/marketing-photo-presentation-20261013.json',
   'scripts/homepage_refinement_20261014_inverse.mjs','scripts/fixtures/homepage-refinement-20261014.json',
   'scripts/scope_beta_20261014_inverse.mjs','scripts/fixtures/scope-beta-20261014.json',
+  'scripts/hiring_blind_spot_publication_20261015_inverse.mjs','scripts/fixtures/hiring-blind-spot-publication-20261015.json',
   'scripts/site_design_coherence_20261014_inverse.mjs','scripts/fixtures/site-design-coherence-20261014.json',
   'scripts/homepage_report_first_20260927_inverse.mjs','scripts/fixtures/homepage-report-first-20260927.json',
   'scripts/trenches_homepage_carousel_20260929_inverse.mjs',

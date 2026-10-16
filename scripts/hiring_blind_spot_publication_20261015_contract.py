@@ -15,10 +15,10 @@ from hiring_blind_spot_publication_20261015_inverse import (
 )
 
 ROOT = Path(__file__).resolve().parents[1]
-EXPECTED_FILES = ['.github/workflows/frontend-release.yml', 'public-search-index.json', 'research.html', 'scripts/build_public_search_index.py', 'scripts/scope_beta_20261014_contract.mjs', 'scripts/scope_beta_20261014_contract.py', 'scripts/scope_beta_20261014_inverse.mjs', 'scripts/scope_beta_20261014_inverse.py', 'scripts/validate_frontend_release.py', 'sitemap.txt', 'sitemap.xml']
+EXPECTED_FILES = ['.github/workflows/frontend-release.yml', 'public-search-index.json', 'research.html', 'scripts/brand_surface_consistency_smoke.mjs', 'scripts/build_public_search_index.py', 'scripts/certification_guard_sensitivity_smoke.py', 'scripts/footer_membership_smoke.mjs', 'scripts/footer_support_smoke.mjs', 'scripts/mobile_site_presentation_smoke.mjs', 'scripts/public_sample_manifest_sensitivity_smoke.mjs', 'scripts/scope_beta_20261014_contract.mjs', 'scripts/scope_beta_20261014_contract.py', 'scripts/scope_beta_20261014_inverse.mjs', 'scripts/scope_beta_20261014_inverse.py', 'scripts/site_system_visual_smoke.mjs', 'scripts/validate_frontend_release.py', 'scripts/validate_production_cosmetic_certification.py', 'sitemap.txt', 'sitemap.xml']
 EXPECTED_ADDITIONS = ['Monderman_Insight_The_Hiring_Blind_Spot_2026-10-16.pdf', 'assets/research/hiring-blind-spot-social.png', 'hiring-blind-spot.html']
 EXPECTED_GUARDS = ['scripts/fixtures/hiring-blind-spot-publication-20261015.json', 'scripts/hiring_blind_spot_publication_20261015_contract.py', 'scripts/hiring_blind_spot_publication_20261015_inverse.mjs', 'scripts/hiring_blind_spot_publication_20261015_inverse.py']
-HELPER_HASHES = {'scripts/hiring_blind_spot_publication_20261015_inverse.mjs': 'd4ce5ecc292f4d7c762a0ae1c64b4ae310e788d04e4aaa774fa27cc188d7d3ec', 'scripts/hiring_blind_spot_publication_20261015_inverse.py': '645af6d5955dc3ccb186dffc5b6c7a782f76f802acc6186849a66a8f29d0c014'}
+HELPER_HASHES = {'scripts/hiring_blind_spot_publication_20261015_inverse.mjs': '416501d93e41fa263c6d4488d487261ca35ca2e950ad98cc42a2d46e91f556df', 'scripts/hiring_blind_spot_publication_20261015_inverse.py': 'c5d0c7370bb0ae2ef0b45ef1a11fc93dda9c2ea962f37fc46e9904e752b6103e'}
 checks = negatives = 0
 parity = []
 sha = lambda value: hashlib.sha256(value.encode() if isinstance(value, str) else value).hexdigest()
@@ -50,7 +50,7 @@ def pins(entries, current, view, kind):
 
 check(BASELINE == '76690a65c53794cb1e35f512221e51ddd0c6525b', 'Actual independently observed default main')
 check(git('rev-parse', BASELINE + '^{tree}').decode().strip() == 'eac4db37f700e2cbcb5040262cad01e39950609b', 'Exact main tree')
-check(sorted(delta['files']) == EXPECTED_FILES, 'Eleven finite existing paths, including guard adapters')
+check(sorted(delta['files']) == EXPECTED_FILES, 'Nineteen finite existing paths, including guard adapters')
 check(sorted(delta['additions']) == EXPECTED_ADDITIONS and delta['guardFiles'] == EXPECTED_GUARDS, 'Three publication assets and four independent guard files')
 check(not any(name.startswith(('sample-data/', 'pdf-src/')) or 'q2' in name for name in delta['files']), 'No sample, private source, questionnaire or Q2 feature edits')
 for name, digest in HELPER_HASHES.items():

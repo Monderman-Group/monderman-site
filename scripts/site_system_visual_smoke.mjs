@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import path from 'node:path';
+import {createHash} from 'node:crypto';
 import { chromium, webkit } from 'playwright';
 import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
 import {historicalScopeBetaBrowserBodies,isCurrentScopeBeta,scopeBetaDelta,sourceAtScopeBetaBaseline} from './scope_beta_20261014_inverse.mjs';
+import {hiringPublicationDelta} from './hiring_blind_spot_publication_20261015_inverse.mjs';
 
 // Every old physical assertion runs on its exact approved f2a edition; the separate Scope matrix certifies current layout.
 const scopeHistoricalBodies=historicalScopeBetaBrowserBodies(decodeURIComponent(new URL('../.render-public/',import.meta.url).pathname));
@@ -12,7 +15,18 @@ const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
 const localOrigin = new URL(base).origin;
 assert.ok(['127.0.0.1', 'localhost'].includes(new URL(base).hostname), 'Visual verification remains on loopback');
 const currentScopeBeta=isCurrentScopeBeta(),currentProductPages=['q2-sodi.html','scope.html'];
-if(currentScopeBeta){const actual=fs.readdirSync('.').filter(f=>f.endsWith('.html')&&!f.startsWith('google')).sort();assert.deepEqual(actual,[...scopeBetaDelta.baselineSourcePaths.filter(f=>!f.includes('/')&&f.endsWith('.html')&&!f.startsWith('google')),...currentProductPages].sort(),'Exact original source inventory plus only the separately certified canonical product page and retained alias');}
+const hiringArticle='hiring-blind-spot.html',hasHiringArticle=fs.existsSync(hiringArticle);
+if(hasHiringArticle){
+  const source=fs.readFileSync(hiringArticle),approved=hiringPublicationDelta.additions[hiringArticle];
+  assert.equal(source.length,approved.bytes,'Exact approved article source length');
+  assert.equal(createHash('sha256').update(source).digest('hex'),approved.sha256,'Exact approved article source bytes');
+  const buildRoot='.render-public',channel=JSON.parse(fs.readFileSync(path.join(buildRoot,'.well-known/monderman-questionnaire-release.json'),'utf8')).channel,builtApproved=hiringPublicationDelta.publicEditions[channel]?.additions[hiringArticle];
+  assert.ok(builtApproved,'Only a separately pinned publication edition may join the hero sweep');
+  const built=fs.readFileSync(path.join(buildRoot,hiringArticle));
+  assert.equal(built.length,builtApproved.bytes,'Exact approved article compiled length');
+  assert.equal(createHash('sha256').update(built).digest('hex'),builtApproved.sha256,'Exact approved article compiled bytes');
+}
+if(currentScopeBeta){const actual=fs.readdirSync('.').filter(f=>f.endsWith('.html')&&!f.startsWith('google')&&f!==hiringArticle).sort();assert.deepEqual(actual,[...scopeBetaDelta.baselineSourcePaths.filter(f=>!f.includes('/')&&f.endsWith('.html')&&!f.startsWith('google')),...currentProductPages].sort(),'Exact original source inventory plus only the separately certified canonical product page and retained alias beside the exact publication');}
 const inventorySource=(file,source)=>currentScopeBeta?sourceAtScopeBetaBaseline(file,source):source;
 const homepageSource = fs.readFileSync('index.html','utf8');
 const marketingBaselineHomepage = sourceAtMarketingRefreshBaseline('index.html',homepageSource);
@@ -87,6 +101,7 @@ const sitemapHeroPages = [...inventorySource('sitemap.xml',fs.readFileSync('site
   .filter(hasPageHero);
 const repositoryHeroPages = fs.readdirSync('.')
   .filter((pageName) => pageName.endsWith('.html'))
+  .filter((pageName) => pageName !== hiringArticle)
   .filter((pageName) => !currentScopeBeta || !currentProductPages.includes(pageName))
   .filter((pageName) => !legalPresentationExclusions.has(pageName))
   .filter((pageName) => fs.readFileSync(pageName, 'utf8').includes('enterprise-site.css?'))
@@ -102,6 +117,7 @@ assert.deepEqual(
   [...new Set(repositoryHeroPages)].sort(),
   'hero manifest must cover every enterprise-styled hero page in the repository',
 );
+if(hasHiringArticle)heroPages.push([hiringArticle,'.article-hero','.article-hero h1','publication']);
 for (const [pageName] of heroPages) {
   assert.ok(fs.existsSync(pageName), `${pageName}: expected public page is missing`);
   const source = fs.readFileSync(pageName, 'utf8');

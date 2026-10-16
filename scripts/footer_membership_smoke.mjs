@@ -7,6 +7,7 @@ import {execFileSync} from 'node:child_process';
 import {chromium, webkit} from 'playwright';
 import {sourceAtEvaluationPoolBaseline} from './single_lens_overview_20260929_inverse.mjs';
 import {isCurrentScopeBeta, assertScopeBetaBuiltEdition} from './scope_beta_20261014_inverse.mjs';
+import {hiringPublicationDelta} from './hiring_blind_spot_publication_20261015_inverse.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const built = path.resolve(process.env.SITE_SOURCE_DIR || path.join(root, '.render-public'));
@@ -87,7 +88,16 @@ for (const file of (await fs.readdir(built)).filter(file => file.endsWith('.html
   target.set(file, html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ''));
 }
 eq([...scopePages.keys()], currentScope ? currentProductPages : [], 'Only the whole-source and whole-build approved canonical product page and alias are separate');
-eq(pages.size, 74, 'All public footer pages receive the membership');
+const hiringArticle = 'hiring-blind-spot.html';
+if (pages.has(hiringArticle)) {
+  const channel = JSON.parse(await fs.readFile(path.join(built, '.well-known/monderman-questionnaire-release.json'), 'utf8')).channel;
+  const approved = hiringPublicationDelta.publicEditions[channel]?.additions[hiringArticle];
+  ok(!!approved, 'Only a separately pinned publication edition may add a footer page');
+  const bytes = await fs.readFile(path.join(built, hiringArticle));
+  eq(bytes.length, approved.bytes, 'Exact approved article compiled length');
+  eq(sha(bytes), approved.sha256, 'Exact approved article compiled body');
+}
+eq([...pages.keys()].filter(file => file !== hiringArticle).length, 74, 'All original public footer pages receive the membership');
 const browserPages = new Map([...pages, ...scopePages]);
 const tracked = execFileSync('git', ['ls-tree', '-r', '--name-only', baseline], {cwd:root, encoding:'utf8'}).trim().split('\n');
 const protectedFiles = tracked.filter(file => (!file.includes('/') && /\.(?:js|css)$/.test(file))

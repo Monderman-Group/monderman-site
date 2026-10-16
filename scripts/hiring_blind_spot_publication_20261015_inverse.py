@@ -6,11 +6,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = '76690a65c53794cb1e35f512221e51ddd0c6525b'
-FIXTURE_SHA256 = 'c5dc00dcff8251dcb7923847575a2f6b9406bc7701e8b3c23ffc19bcd4713fd7'
+FIXTURE_SHA256 = '7554155126cae721883f5a2f784116d03687dbb7922ea5bd278d6c10c1f84b59'
 _raw = (ROOT / 'scripts/fixtures/hiring-blind-spot-publication-20261015.json').read_bytes()
 assert hashlib.sha256(_raw).hexdigest() == FIXTURE_SHA256
 delta = json.loads(_raw)
-assert delta['baseline'] == BASELINE and delta['version'] == 'hiring-blind-spot-publication-20261015.1'
+assert delta['baseline'] == BASELINE and delta['version'] == 'hiring-blind-spot-publication-20261015.2'
 
 def _sha(value):
     return hashlib.sha256(value.encode() if isinstance(value, str) else value).hexdigest()
