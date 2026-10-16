@@ -16888,9 +16888,9 @@
       {
         "path": ".github/workflows/sample-report-marketing-certification.yml",
         "mode": "100644",
-        "bytes": 58805,
-        "sha256": "ff02489574340b903e7bcad0a4284e748cbc14fe44ba92594c47b3668939f571",
-        "gitBlobSha1": "59ab05e4cc4012e105c624b966f8bf5e1de510cb"
+        "bytes": 62661,
+        "sha256": "959b59c81557afcac0988965a08254bcb79cf4062a5f81c15b524e365463fe1a",
+        "gitBlobSha1": "12de851e7e2799dd41c0a069fd4a4b53d0954da1"
       },
       {
         "path": ".gitignore",
@@ -22466,6 +22466,57 @@
       }
     ],
     "files": {
+      ".github/workflows/sample-report-marketing-certification.yml": {
+        "before_bytes": 58805,
+        "before_sha256": "ff02489574340b903e7bcad0a4284e748cbc14fe44ba92594c47b3668939f571",
+        "after_bytes": 62661,
+        "after_sha256": "959b59c81557afcac0988965a08254bcb79cf4062a5f81c15b524e365463fe1a",
+        "encoding": "utf8",
+        "replacements": [
+          [
+            56515,
+            56515,
+            "",
+            "and "
+          ],
+          [
+            56523,
+            56547,
+            "and full phone presentat",
+            "v"
+          ],
+          [
+            56548,
+            56550,
+            "on",
+            "sual"
+          ],
+          [
+            56625,
+            56690,
+            "  MOBILE_OUT: /tmp/report-presentation-smoke/mobile-site\n        ",
+            ""
+          ],
+          [
+            56694,
+            59327,
+            " |\n          # These unchanged suites only read the frozen source/build and own separate output.\n          # Both complete commands must join successfully before this unchanged 60-minute job advances.\n          (\n          set -e\n          set -m\n          hero_phone_joined=0\n          hero_phone_cleanup() {\n            hero_phone_cleanup_status=$?\n            trap - EXIT INT TERM\n            set +e\n            # jobs -pr is restricted to this subshell: at most the two owned lane groups.\n            hero_phone_owned_groups=\"$(jobs -pr)\"\n            for hero_phone_pid in $hero_phone_owned_groups; do\n              kill -TERM -- \"-$hero_phone_pid\" 2>/dev/null || true\n            done\n            # Allow owned Node signal handlers to close detached browser children.\n            # Keep observing the original groups after a lane's shell leader exits.\n            hero_phone_retained_groups=\"$hero_phone_owned_groups\"\n            hero_phone_cleanup_started=$SECONDS\n            while :; do\n              hero_phone_still_existing_groups=\"\"\n              for hero_phone_pid in $hero_phone_retained_groups; do\n                if kill -0 -- \"-$hero_phone_pid\" 2>/dev/null; then\n                  hero_phone_still_existing_groups=\"$hero_phone_still_existing_groups $hero_phone_pid\"\n                fi\n              done\n              # An observed-gone group is retired permanently, never rediscovered or re-added.\n              hero_phone_retained_groups=\"$hero_phone_still_existing_groups\"\n              test -n \"$hero_phone_retained_groups\" || break\n              test \"$((SECONDS - hero_phone_cleanup_started))\" -lt 2 || break\n              sleep 0.05\n            done\n            # Escalate only still-existing original groups after the bounded cleanup grace.\n            for hero_phone_pid in $hero_phone_retained_groups; do\n              if kill -0 -- \"-$hero_phone_pid\" 2>/dev/null; then\n                kill -KILL -- \"-$hero_phone_pid\" 2>/dev/null || true\n              fi\n            done\n            wait\n            if [ \"$hero_phone_joined\" -ne 1 ]; then\n              test ! -f /tmp/report-presentation-smoke/hero-phone-visual.log || cat /tmp/report-presentation-smoke/hero-phone-visual.log\n              test ! -f /tmp/report-presentation-smoke/hero-phone-mobile.log || cat /tmp/report-presentation-smoke/hero-phone-mobile.log\n              echo \"HERO_PHONE_PARALLEL_ABORT exit=$hero_phone_cleanup_status\"\n            fi\n            exit \"$hero_phone_cleanup_status\"\n          }\n          trap hero_phone_cleanup EXIT\n          trap 'exit 130' INT\n          trap 'exit 143' TERM\n          (\n          set -e\n         ",
+            ""
+          ],
+          [
+            59369,
+            60716,
+            "\n          ) >/tmp/report-presentation-smoke/hero-phone-visual.log 2>&1 &\n          hero_phone_refresh_photo_pid=$!\n          (\n          set -e\n          node scripts/mobile_site_presentation_smoke.mjs\n          ) >/tmp/report-presentation-smoke/hero-phone-mobile.log 2>&1 &\n          hero_phone_completion_pid=$!\n          set +e\n          wait \"$hero_phone_refresh_photo_pid\"\n          hero_phone_refresh_photo_status=$?\n          wait \"$hero_phone_completion_pid\"\n          hero_phone_completion_status=$?\n          set -e\n          hero_phone_joined=1\n          hero_phone_refresh_photo_log_status=0\n          cat /tmp/report-presentation-smoke/hero-phone-visual.log || hero_phone_refresh_photo_log_status=$?\n          hero_phone_completion_log_status=0\n          cat /tmp/report-presentation-smoke/hero-phone-mobile.log || hero_phone_completion_log_status=$?\n          echo \"HERO_PHONE_PARALLEL_RESULT refresh_photo=$hero_phone_refresh_photo_status completion=$hero_phone_completion_status\"\n          test \"$hero_phone_refresh_photo_status\" -eq 0\n          test \"$hero_phone_completion_status\" -eq 0\n          test \"$hero_phone_refresh_photo_log_status\" -eq 0\n          test \"$hero_phone_completion_log_status\" -eq 0\n          # Both waits are complete; no early cleanup trap survives this barrier.\n          trap - EXIT INT TERM\n          )",
+            ""
+          ],
+          [
+            61840,
+            61840,
+            "",
+            "Verify phone presentation across every HTML surface\n        env:\n          MOBILE_OUT: /tmp/report-presentation-smoke/mobile-site\n        run: node scripts/mobile_site_presentation_smoke.mjs\n\n      - name: "
+          ]
+        ]
+      },
       "Monderman_Brief_The_Culture_Trap.pdf": {
         "before_bytes": 112141,
         "before_sha256": "8fda963a40062c3943b51b6244e9a5686626be0d6841ba0bbda983781208b733",

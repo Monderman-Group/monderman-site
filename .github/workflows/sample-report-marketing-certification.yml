@@ -1080,10 +1080,89 @@ jobs:
           COSMETIC_OUT: /tmp/report-presentation-smoke/cosmetic-regression
         run: node scripts/cosmetic_regression_smoke.mjs
 
-      - name: Enforce public hero, footer, and pricing visual contracts
+      - name: Enforce public hero, footer, pricing and full phone presentation contracts
         env:
           SITE_BASE: http://127.0.0.1:8080
-        run: node scripts/site_system_visual_smoke.mjs
+          MOBILE_OUT: /tmp/report-presentation-smoke/mobile-site
+        run: |
+          # These unchanged suites only read the frozen source/build and own separate output.
+          # Both complete commands must join successfully before this unchanged 60-minute job advances.
+          (
+          set -e
+          set -m
+          hero_phone_joined=0
+          hero_phone_cleanup() {
+            hero_phone_cleanup_status=$?
+            trap - EXIT INT TERM
+            set +e
+            # jobs -pr is restricted to this subshell: at most the two owned lane groups.
+            hero_phone_owned_groups="$(jobs -pr)"
+            for hero_phone_pid in $hero_phone_owned_groups; do
+              kill -TERM -- "-$hero_phone_pid" 2>/dev/null || true
+            done
+            # Allow owned Node signal handlers to close detached browser children.
+            # Keep observing the original groups after a lane's shell leader exits.
+            hero_phone_retained_groups="$hero_phone_owned_groups"
+            hero_phone_cleanup_started=$SECONDS
+            while :; do
+              hero_phone_still_existing_groups=""
+              for hero_phone_pid in $hero_phone_retained_groups; do
+                if kill -0 -- "-$hero_phone_pid" 2>/dev/null; then
+                  hero_phone_still_existing_groups="$hero_phone_still_existing_groups $hero_phone_pid"
+                fi
+              done
+              # An observed-gone group is retired permanently, never rediscovered or re-added.
+              hero_phone_retained_groups="$hero_phone_still_existing_groups"
+              test -n "$hero_phone_retained_groups" || break
+              test "$((SECONDS - hero_phone_cleanup_started))" -lt 2 || break
+              sleep 0.05
+            done
+            # Escalate only still-existing original groups after the bounded cleanup grace.
+            for hero_phone_pid in $hero_phone_retained_groups; do
+              if kill -0 -- "-$hero_phone_pid" 2>/dev/null; then
+                kill -KILL -- "-$hero_phone_pid" 2>/dev/null || true
+              fi
+            done
+            wait
+            if [ "$hero_phone_joined" -ne 1 ]; then
+              test ! -f /tmp/report-presentation-smoke/hero-phone-visual.log || cat /tmp/report-presentation-smoke/hero-phone-visual.log
+              test ! -f /tmp/report-presentation-smoke/hero-phone-mobile.log || cat /tmp/report-presentation-smoke/hero-phone-mobile.log
+              echo "HERO_PHONE_PARALLEL_ABORT exit=$hero_phone_cleanup_status"
+            fi
+            exit "$hero_phone_cleanup_status"
+          }
+          trap hero_phone_cleanup EXIT
+          trap 'exit 130' INT
+          trap 'exit 143' TERM
+          (
+          set -e
+          node scripts/site_system_visual_smoke.mjs
+          ) >/tmp/report-presentation-smoke/hero-phone-visual.log 2>&1 &
+          hero_phone_refresh_photo_pid=$!
+          (
+          set -e
+          node scripts/mobile_site_presentation_smoke.mjs
+          ) >/tmp/report-presentation-smoke/hero-phone-mobile.log 2>&1 &
+          hero_phone_completion_pid=$!
+          set +e
+          wait "$hero_phone_refresh_photo_pid"
+          hero_phone_refresh_photo_status=$?
+          wait "$hero_phone_completion_pid"
+          hero_phone_completion_status=$?
+          set -e
+          hero_phone_joined=1
+          hero_phone_refresh_photo_log_status=0
+          cat /tmp/report-presentation-smoke/hero-phone-visual.log || hero_phone_refresh_photo_log_status=$?
+          hero_phone_completion_log_status=0
+          cat /tmp/report-presentation-smoke/hero-phone-mobile.log || hero_phone_completion_log_status=$?
+          echo "HERO_PHONE_PARALLEL_RESULT refresh_photo=$hero_phone_refresh_photo_status completion=$hero_phone_completion_status"
+          test "$hero_phone_refresh_photo_status" -eq 0
+          test "$hero_phone_completion_status" -eq 0
+          test "$hero_phone_refresh_photo_log_status" -eq 0
+          test "$hero_phone_completion_log_status" -eq 0
+          # Both waits are complete; no early cleanup trap survives this barrier.
+          trap - EXIT INT TERM
+          )
 
       - name: Render and verify ordinary-page print pagination
         env:
@@ -1113,11 +1192,6 @@ jobs:
         env:
           TILE_OUT: /tmp/report-presentation-smoke/sample-tiles
         run: node scripts/sample_tile_smoke.mjs
-
-      - name: Verify phone presentation across every HTML surface
-        env:
-          MOBILE_OUT: /tmp/report-presentation-smoke/mobile-site
-        run: node scripts/mobile_site_presentation_smoke.mjs
 
       - name: Render and verify all six sample products
         env:
