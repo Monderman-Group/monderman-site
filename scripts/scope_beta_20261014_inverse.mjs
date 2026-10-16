@@ -1,4 +1,5 @@
 // Exact current design leaf. Unknown edits and additions are never normalized away.
+import {sourceAtHiringPublicationBaseline, publicSourceAtHiringPublicationBaseline, sourcePathsAtHiringPublicationBaseline, publicPathsAtHiringPublicationBaseline} from './hiring_blind_spot_publication_20261015_inverse.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -33,10 +34,10 @@ function atBaseline(entries,file,source){
  assert.ok(typeof source==='string'||Buffer.isBuffer(source),'Exact text/bytes type');
  return sha(source)===e.after_sha256?reverse(entries,file,source):source;
 }
-export const sourceBeforeScopeBeta20261014=(file,source)=>reverse(scopeBetaDelta.files,file,source);
-export const sourceAtScopeBetaBaseline=(file,source)=>atBaseline(scopeBetaDelta.files,file,source);
-export const publicSourceBeforeScopeBetaChannel20261014=(file,source)=>reverse(scopeBetaDelta.channelVariants||{},file,source);
-export const publicSourceAtScopeBetaChannelBaseline=(file,source)=>atBaseline(scopeBetaDelta.channelVariants||{},file,source);
+export const sourceBeforeScopeBeta20261014=(file,source)=>reverse(scopeBetaDelta.files,file,sourceAtHiringPublicationBaseline(file,source));
+export const sourceAtScopeBetaBaseline=(file,source)=>atBaseline(scopeBetaDelta.files,file,sourceAtHiringPublicationBaseline(file,source));
+export const publicSourceBeforeScopeBetaChannel20261014=(file,source)=>reverse(scopeBetaDelta.channelVariants||{},file,publicSourceAtHiringPublicationBaseline(file,source));
+export const publicSourceAtScopeBetaChannelBaseline=(file,source)=>atBaseline(scopeBetaDelta.channelVariants||{},file,publicSourceAtHiringPublicationBaseline(file,source));
 export const publicSourceBeforeScopeBeta20261014=(file,source)=>reverse(scopeBetaDelta.publicFiles,file,publicSourceAtScopeBetaChannelBaseline(file,source));
 export const publicSourceAtScopeBetaBaseline=(file,source)=>atBaseline(scopeBetaDelta.publicFiles,file,publicSourceAtScopeBetaChannelBaseline(file,source));
 const root=path.resolve(import.meta.dirname,'..');
@@ -45,9 +46,9 @@ function namesAtBaseline(names,current,prior){
  assert.ok(Array.isArray(names)&&names.every(f=>typeof f==='string'),'Explicit path list');
  return scopeBetaDelta.provisional===false&&names.length===new Set(names).size&&JSON.stringify([...names].sort())===JSON.stringify([...current].sort())&&additionsExact()?[...prior]:names;
 }
-export const sourcePathsAtScopeBetaBaseline=names=>namesAtBaseline(names,scopeBetaDelta.currentSourcePaths,scopeBetaDelta.baselineSourcePaths);
-export const publicPathsAtScopeBetaBaseline=names=>namesAtBaseline(names,scopeBetaDelta.currentPublicPaths,scopeBetaDelta.baselinePublicPaths);
-export function isCurrentScopeBeta(){return scopeBetaDelta.provisional===false&&additionsExact()&&SCOPE_BETA_FILES.every(f=>{const p=path.join(root,f),e=scopeBetaDelta.files[f];return fs.existsSync(p)&&sha(fs.readFileSync(p))===e.after_sha256;});}
+export const sourcePathsAtScopeBetaBaseline=names=>namesAtBaseline(sourcePathsAtHiringPublicationBaseline(names),scopeBetaDelta.currentSourcePaths,scopeBetaDelta.baselineSourcePaths);
+export const publicPathsAtScopeBetaBaseline=names=>namesAtBaseline(publicPathsAtHiringPublicationBaseline(names),scopeBetaDelta.currentPublicPaths,scopeBetaDelta.baselinePublicPaths);
+export function isCurrentScopeBeta(){return scopeBetaDelta.provisional===false&&additionsExact()&&SCOPE_BETA_FILES.every(f=>{const p=path.join(root,f),e=scopeBetaDelta.files[f];return fs.existsSync(p)&&sha(sourceAtHiringPublicationBaseline(f,fs.readFileSync(p)))===e.after_sha256;});}
 export function historicalScopeBetaBrowserBodies(publishRoot){
  if(!isCurrentScopeBeta())return new Map();
  assertScopeBetaBuiltEdition(publishRoot);
@@ -61,4 +62,4 @@ export function historicalScopeBetaBrowserBodies(publishRoot){
 
 export function assertScopeBetaPublicAdditions(publishRoot){for(const[f,e]of Object.entries(scopeBetaDelta.publicAdditions)){const b=fs.readFileSync(path.join(publishRoot,f));assert.equal(sha(b),e.sha256,'Exact new public addition '+f);assert.equal(b.length,e.bytes,'Exact new public addition length '+f);}}
 
-export function assertScopeBetaBuiltEdition(publishRoot){assert.equal(scopeBetaDelta.provisional,false,'Draft built editions cannot certify');const inventory=(d,prefix='')=>fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>{assert.ok(!e.isSymbolicLink(),'No public symlinks');return e.isDirectory()?inventory(path.join(d,e.name),prefix+e.name+'/'):e.isFile()?[prefix+e.name]:[];});assert.deepEqual(inventory(publishRoot).sort(),scopeBetaDelta.currentPublicPaths,'Exact whole physical compiled closure');const marker=JSON.parse(fs.readFileSync(path.join(publishRoot,'.well-known/monderman-questionnaire-release.json')));assert.ok(Object.hasOwn(scopeBetaDelta.publicEditions,marker.channel),'Known official questionnaire channel');for(const r of scopeBetaDelta.publicEditions[marker.channel]){if(r.path==='.well-known/monderman-release.json')continue;const b=fs.readFileSync(path.join(publishRoot,r.path));assert.equal(sha(b),r.sha256,'Whole single-channel compiled vector '+r.path);assert.equal(b.length,r.bytes,'Whole channel byte length '+r.path);}assert.match(JSON.parse(fs.readFileSync(path.join(publishRoot,'.well-known/monderman-release.json'))).revision,/^[a-f0-9]{40}$/,'Actual source revision marker');return marker.channel;}
+export function assertScopeBetaBuiltEdition(publishRoot){assert.equal(scopeBetaDelta.provisional,false,'Draft built editions cannot certify');const inventory=(d,prefix='')=>fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>{assert.ok(!e.isSymbolicLink(),'No public symlinks');return e.isDirectory()?inventory(path.join(d,e.name),prefix+e.name+'/'):e.isFile()?[prefix+e.name]:[];});assert.deepEqual(publicPathsAtHiringPublicationBaseline(inventory(publishRoot).sort(),publishRoot),scopeBetaDelta.currentPublicPaths,'Exact whole physical compiled closure');const marker=JSON.parse(fs.readFileSync(path.join(publishRoot,'.well-known/monderman-questionnaire-release.json')));assert.ok(Object.hasOwn(scopeBetaDelta.publicEditions,marker.channel),'Known official questionnaire channel');for(const r of scopeBetaDelta.publicEditions[marker.channel]){if(r.path==='.well-known/monderman-release.json')continue;const b=publicSourceAtHiringPublicationBaseline(r.path,fs.readFileSync(path.join(publishRoot,r.path)));assert.equal(sha(b),r.sha256,'Whole single-channel compiled vector '+r.path);assert.equal(b.length,r.bytes,'Whole channel byte length '+r.path);}assert.match(JSON.parse(fs.readFileSync(path.join(publishRoot,'.well-known/monderman-release.json'))).revision,/^[a-f0-9]{40}$/,'Actual source revision marker');return marker.channel;}

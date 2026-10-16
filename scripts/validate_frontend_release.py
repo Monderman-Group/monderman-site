@@ -1,4 +1,5 @@
 from pathlib import Path
+from hiring_blind_spot_publication_20261015_inverse import source_at_hiring_publication_baseline
 from scope_beta_20261014_inverse import source_at_scope_beta_baseline,public_source_at_scope_beta_baseline
 import hashlib,os,re,runpy,subprocess,sys
 r=Path('.')
@@ -190,7 +191,7 @@ for token in [
 ]:
  if token not in idx:e.append('homepage research carousel no-script phone guard '+token)
 
-research=(r/'research.html').read_text(errors='ignore')
+research=source_at_hiring_publication_baseline('research.html',(r/'research.html').read_text(errors='ignore'))
 for token in ['We Gave Bureaucracy the Fastest Tools in History. It Got Slower.','The Unmeasured Layer','Governance and Performance','Fast to Cut, Slow to Build','Trenches, Not Silos','The Durable Organization','Hold, Collide, Come Apart','AI and Institutions','Three papers, one story.','Part 1','Part 2','Part 3','Part 4','Part 5','Part 6','22 items · Updated October 2026','HTML + PDF · 8 documents']:
  if token not in research:e.append('research series contract '+token)
 if research.count('<article class="series-card">')!=9:e.append('research two-series card count')
