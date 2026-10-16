@@ -287,7 +287,7 @@ for (const [engine, type] of [['chromium', chromium], ['webkit', webkit]]) {
         const response = printed.photoResponses.findLast(response => response.url() === url && response.status() === 200);
         check(response, engine + ': print photo has actual200 response');
         equal(await response.finished(), null, engine + ': print photo response complete');
-        equal(hash(await response.body()), hash(fs.readFileSync(path.join(root, new URL(url).pathname))), engine + ': print photo bytes match approved derivative');
+        equal(hash(await response.body()), hash(sourceAtScopeBetaBaseline(new URL(url).pathname.slice(1),fs.readFileSync(path.join(root,new URL(url).pathname)))), engine + ': print photo bytes match approved derivative');
       }
       if (photoEdition.captioned) equal(await printed.page.locator('[data-marketing-photo] figcaption').count(), 3, engine + ': all three captions retained in print');
       else equal(await printed.page.locator('[data-marketing-photo] figcaption').count(), 0, engine + ': no stock caption reappears in print');

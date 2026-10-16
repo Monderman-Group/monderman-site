@@ -20563,9 +20563,9 @@
       {
         "path": "scripts/marketing_completion_browser_smoke.mjs",
         "mode": "100644",
-        "bytes": 32487,
-        "sha256": "1dc1f489b3c3d45139349250bf3a6836c39f48595fac5204ff7cbbbe90c82120",
-        "gitBlobSha1": "3bfa0c7e2cb0719ca83b961ff649e8ef18f75880"
+        "bytes": 32544,
+        "sha256": "d1cc8afa62fc5385b70734350570aabefa445dafadd62a7736741f659976ac84",
+        "gitBlobSha1": "2f6feba5e121f0fc6b56fc2cc62e5ad2d05d94f5"
       },
       {
         "path": "scripts/marketing_photo_presentation_20261013_browser.mjs",
@@ -24186,8 +24186,8 @@
       "scripts/marketing_completion_browser_smoke.mjs": {
         "before_bytes": 32173,
         "before_sha256": "7a9ffc3346f0bdb4a911d08ff7e05bc4e96b9985ec6e76e4c48567945f74662a",
-        "after_bytes": 32487,
-        "after_sha256": "1dc1f489b3c3d45139349250bf3a6836c39f48595fac5204ff7cbbbe90c82120",
+        "after_bytes": 32544,
+        "after_sha256": "d1cc8afa62fc5385b70734350570aabefa445dafadd62a7736741f659976ac84",
         "encoding": "utf8",
         "replacements": [
           [
@@ -24213,6 +24213,12 @@
             16057,
             "            const expectedBytes = sourceAtScopeBetaBaseline(imagePath.slice(1),fs.readFileSync(path.join(root, imagePath)));\n",
             "            const expectedBytes = fs.readFileSync(path.join(root, imagePath));\n"
+          ],
+          [
+            28274,
+            28392,
+            "hash(sourceAtScopeBetaBaseline(new URL(url).pathname.slice(1),fs.readFileSync(path.join(root,new URL(url).pathname))))",
+            "hash(fs.readFileSync(path.join(root, new URL(url).pathname)))"
           ]
         ]
       },
