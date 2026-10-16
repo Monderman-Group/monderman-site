@@ -1,6 +1,22 @@
 /* Homepage refinement only; photography keeps its approved full composition. */
 @media screen {
   body.homepage-enterprise.homepage-refinement { --hf-motion-ready: 1; --mr-space: clamp(48px, 5vw, 76px); }
+  body.homepage-enterprise.homepage-refinement .hero-copy > .hero-enterprise-link {
+    display: block;
+    box-sizing: border-box;
+    width: fit-content;
+    max-width: 100%;
+    min-height: 44px;
+    margin: 0;
+    padding: 9px 0;
+    font-size: 14px;
+    line-height: 1.45;
+    border-bottom: 0;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+  body.homepage-enterprise.homepage-refinement .hero-access-note + .hero-enterprise-link { margin-top: 8px; }
   body.homepage-enterprise.homepage-refinement .hero > .hero-inner { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   body.homepage-enterprise.homepage-refinement .hero .mr-proof-composition { width: 100%; max-width: 640px; justify-self: end; }
   body.homepage-enterprise.homepage-refinement .hero .hero-report-proof[data-home-report-quad] { max-width: 640px; border-radius: var(--mond-radius-card, 16px); box-shadow: 0 16px 42px rgba(0,0,0,.16); }
@@ -48,6 +64,7 @@
 }
 @media screen and (max-width: 600px) {
   body.homepage-enterprise.homepage-refinement .hero .hero-access-note { box-sizing: border-box; padding-right: 132px; }
+  body.homepage-enterprise.homepage-refinement .hero-copy > .hero-enterprise-link { max-width: calc(100% - 132px); }
   body.homepage-enterprise.homepage-refinement .hf-extra-grid { grid-template-areas: "money" "change" "evidence"; grid-template-columns: minmax(0, 1fr); }
   body.homepage-enterprise.homepage-refinement .hero [data-quad-section="findings"] .hrq-content { padding: 16px; gap: 10px; }
   body.homepage-enterprise.homepage-refinement .hero [data-quad-section="findings"] .hrq-score strong { font-size: 46px; }

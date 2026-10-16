@@ -9,7 +9,7 @@ const root = path.resolve(import.meta.dirname, '..');
 const sha = value => createHash('sha256').update(value).digest('hex');
 export const HIRING_PUBLICATION_BASELINE = '76690a65c53794cb1e35f512221e51ddd0c6525b';
 // UNBOUND DATA template: null is a required future whole-fixture pin, never an execution fallback.
-export const HIRING_PUBLICATION_FIXTURE_SHA256 = '2b24eeddb3bfbb551570e2393cbea10183782e2b10ddad89f37c786e059b1bd6';
+export const HIRING_PUBLICATION_FIXTURE_SHA256 = '066e6148a0076769affe5901212d3ea8b03dbb0cf6569f1eb7fae16264a89ec1';
 assert.ok(typeof HIRING_PUBLICATION_FIXTURE_SHA256 === 'string' && /^[a-f0-9]{64}$/.test(HIRING_PUBLICATION_FIXTURE_SHA256), 'Final combined fixture pin is required');
 const raw = fs.readFileSync(new URL('./fixtures/hiring-blind-spot-publication-20261015.json', import.meta.url));
 assert.equal(sha(raw), HIRING_PUBLICATION_FIXTURE_SHA256);
