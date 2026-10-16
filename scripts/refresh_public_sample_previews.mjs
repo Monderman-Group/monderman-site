@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import {readPublicSampleFixture,evidenceDigest} from './public_sample_fixture.mjs';
+import {readPublicSampleFixture,evidenceDigest,compactPreviewBeforeSodiDisplayOrder} from './public_sample_fixture.mjs';
 import {buildHomepageReportQuad} from './homepage_report_quad_20260925.mjs';
 import {sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014_inverse.mjs';
 
@@ -139,7 +139,7 @@ assert.ok(Array.isArray(activities)&&(threeBenefit||activities.length>0));
 const proposals=threeBenefit?[...scenario.inputs.capacity.activities,...scenario.inputs.spendingReduction.items,...scenario.inputs.spendingAvoidance.items]:scenario.inputs.activities;
 assert.ok(Array.isArray(proposals)&&(threeBenefit||proposals.some(a=>typeof a.changeBasis==='string'&&a.changeBasis.trim())));
 const largest=Math.max(...activities.map(a=>number(a.potentialHoursFreed.central)),1);
-const lensOrder=['structural_clarity','decision_velocity','operational_systems','institutional_performance'];
+const lensOrder=['structural_clarity','operational_systems','decision_velocity','institutional_performance'];
 assert.deepEqual(cross.source_groups.map(g=>g.tool_type).sort(),[...lensOrder].sort(),'Journey requires all four reviewed lens groups');
 const groups=lensOrder.map(key=>cross.source_groups.find(g=>g.tool_type===key));
 for(const group of groups){
@@ -338,7 +338,7 @@ for(const [file,place] of [['index.html','home'],['Monderman_Platform_Brief.html
  // Exact native-layout compatibility applies only to the read-only check. Generation retains its original raw input/write behavior.
  const original=check?sourceAtHomepageRefinementBaseline(file,raw):raw;
  let next=original;
- if(place==='home') next=replaceOne(next,/<aside class="home-workspace-preview"[\s\S]*?<\/aside>/,sections.hero,'Homepage tour');
+ if(place==='home') next=replaceOne(next,/<aside class="home-workspace-preview"[\s\S]*?<\/aside>/,check?compactPreviewBeforeSodiDisplayOrder(sections.hero):sections.hero,'Homepage tour');
  next=replaceOne(next,/<aside class="hero-report-proof has-sample-depth-tile"[\s\S]*?<\/aside>/,sections[place],'Depth preview');
  if(check) assert.equal(next,original,file+' previews differ from the approved artifact. Run refresh_public_sample_previews.mjs.');
  else fs.writeFileSync(filename,next);

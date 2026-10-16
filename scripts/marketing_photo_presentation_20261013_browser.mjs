@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {isCurrentSiteDesignCoherence,historicalSiteDesignBrowserBodies,sourceAtSiteDesignCoherenceBaseline} from './site_design_coherence_20261014_inverse.mjs';
+import {sourceAtScopeBetaBaseline} from './scope_beta_20261014_inverse.mjs';
 const {chromium, webkit} = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = path.resolve(import.meta.dirname, '..');
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
@@ -55,7 +56,7 @@ assert.equal(register.photos.length, 5, 'Five registered photographs, no unappro
 const derivatives = new Map(register.photos.flatMap(photo => photo.derivatives.map(derivative => ['/' + derivative.path, {...derivative, stockId: photo.id}])));
 assert.equal(derivatives.size, 20, 'Twenty exact display derivatives');
 for (const [pathname, record] of derivatives) {
-  const bytes = fs.readFileSync(path.join(root, pathname.slice(1)));
+  const bytes = sourceAtScopeBetaBaseline(pathname.slice(1),fs.readFileSync(path.join(root, pathname.slice(1))));
   assert.equal(bytes.length, record.bytes, pathname + ': exact registered byte length');
   assert.equal(hash(bytes), record.sha256, pathname + ': exact registered asset hash');
 }
@@ -118,7 +119,7 @@ async function setup(type, options, route) {
     if (options.failStyles && url.pathname === '/marketing-photo-presentation.css') return interception.abort();
     if (options.failScript && url.pathname === '/marketing-photo-presentation.js') return interception.abort();
     if (options.failPhotos && derivatives.has(url.pathname)) return interception.abort();
-    if (!options.actualCurrent && designHistoricalBodies.has(url.pathname)) return interception.fulfill({status:200,contentType:url.pathname.endsWith('.html')?'text/html':url.pathname.endsWith('.css')?'text/css':url.pathname.endsWith('.json')?'application/json':'application/javascript',body:designHistoricalBodies.get(url.pathname)});
+    if (!options.actualCurrent && designHistoricalBodies.has(url.pathname)) return interception.fulfill({status:200,contentType:url.pathname.endsWith('.pdf')?'application/pdf':url.pathname.endsWith('.png')?'image/png':url.pathname.endsWith('.webp')?'image/webp':url.pathname.endsWith('.jpg')?'image/jpeg':url.pathname.endsWith('.html')?'text/html':url.pathname.endsWith('.css')?'text/css':url.pathname.endsWith('.json')?'application/json':'application/javascript',body:designHistoricalBodies.get(url.pathname)});
     return interception.continue();
   });
   const response = await page.goto(base + '/' + route.page, {waitUntil: 'load'});

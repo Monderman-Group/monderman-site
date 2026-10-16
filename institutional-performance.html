@@ -891,7 +891,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
       </div>
     </section>
 
-        <section class="viz-card" id="basisOfRead" style="margin:6px 0 0;"><h4>How this result was produced</h4><dl id="basisRows" style="display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:10px 0 0;font-size:.92rem;line-height:1.55;"></dl><p class="viz-note" style="margin-top:10px;">The JSON export includes these inputs and versions. The same answers, questionnaire version, and scoring version produce the same score.</p></section>
+        <section class="viz-card" id="basisOfRead" style="margin:6px 0 0;"><h4>How this result was produced</h4><dl id="basisRows" style="display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:10px 0 0;font-size:.92rem;line-height:1.55;"></dl><p class="viz-note" style="margin-top:10px;">The JSON export includes these inputs and versions. The same answers, question-set version, and scoring version produce the same score.</p></section>
     <section class="advisory-card"><div><p class="summary-label" style="margin-bottom:8px;color:var(--accent);">Next step</p><h3 style="margin:0 0 8px;">Bring this into a deeper platform services conversation.</h3><p class="result-copy" style="margin:0;">If the institutional condition appears broader, more persistent, or more costly than a directional instrument can resolve, Monderman can go deeper on execution reliability, institutional confidence, adaptive capacity, and reducing dependence on compensation.</p></div><div class="export-cta-stack"><div class="export-primary-row"><button class="btn btn-accent" id="downloadPdfBtn" type="button">Download Summary (PDF)</button><a class="btn" href="connect.html" target="_blank" rel="noopener noreferrer">Discuss with Monderman Platform Services</a></div><div class="export-inline-row"><button class="action-link" id="downloadReportBtn" type="button">Download Summary (HTML)</button><span aria-hidden="true" style="color:rgba(24,25,28,.18)">|</span><button class="action-link" id="downloadFullReportBtn" type="button">Download Full Report (HTML)</button><span aria-hidden="true" style="color:rgba(24,25,28,.18)">|</span><button class="action-link" id="saveCrossDiagnosticBtn" type="button">Export JSON for Synthesis</button></div><div class="export-utility-row"><button class="utility-btn" id="newRunBtn" type="button">Run another diagnostic</button><span aria-hidden="true" style="color:rgba(24,25,28,.18)">|</span><a class="utility-btn" href="diagnostics.html" target="_blank" rel="noopener noreferrer">Back to diagnostics</a></div><a id="reportDownloadLink" class="hidden-download" download="monderman-institutional-performance-report.html"></a><a id="crossDiagnosticDownloadLink" class="hidden-download" download="monderman-institutional-performance-result.json"></a></div></section>
     <p style="margin:18px 0 0;"><a class="btn" href="workspace-diagnostics.html">Open saved result in Workspace</a></p>
     <section class="results-disclaimer" id="bottomDisclaimer"></section>
@@ -951,7 +951,7 @@ button,input,select,textarea{font:inherit} a{text-decoration:none;color:inherit}
   </footer>
   <script src="participant-evidence-safety.js?v=20260905-report-quarantine"></script>
   <script src="assignment-mode.js"></script>
-  <script src="monderman-report.js?v=20260929.singlelens1"></script>
+  <script src="monderman-report.js?v=20261015.sodi1"></script>
   <script src="assignment-draft.js"></script>
   <script src="self-diagnostic-draft.js"></script>
   <script src="interview-mode.js"></script>
@@ -2830,7 +2830,7 @@ const CONFIDENCE_TEXT_BY_VERSION = Object.freeze({
 // Never infer an old run's wording from the currently deployed page.
 let questionnaireCopyVerifiedRunId = null;
 function questionnaireCopyError() {
-  const error = new Error('The original questionnaire wording for this run could not be verified. Your saved answers have not been removed. Refresh to retry; do not start a new run unless you intend to start over.');
+  const error = new Error('The original question wording for this run could not be verified. Your saved answers have not been removed. Refresh to retry; do not start a new run unless you intend to start over.');
   error.code = 'QUESTIONNAIRE_VERSION_UNAVAILABLE';
   error.status = 409;
   return error;
@@ -2940,7 +2940,7 @@ function installAuthoritativeQuestionnaireHistory(remote, { preserveLocal = true
 function showQuestionnaireVersionUnavailable(error = questionnaireCopyError()) {
   questionnaireCopyVerifiedRunId = null;
   questionBody.replaceChildren();
-  questionTitle.textContent = 'Your saved questionnaire needs verification';
+  questionTitle.textContent = 'Your saved diagnostic needs verification';
   questionCopy.textContent = error.message || questionnaireCopyError().message;
   [backBtn, continueBtn, skipBtn, beginBtn].forEach(button => { if (button) button.disabled = true; });
   showStage(questionStage, {scroll:false});
@@ -5389,7 +5389,7 @@ ${decisionReviewPage}
     <p>${insight.available ? "This evidence rating reflects the diagnostic length and how confident the participant was in the answers. It is not a measure of the wider organization, and it is separate from the evidence ratings used in Depth Synthesis and Cross-Lens Synthesis." : "The evidence rating was unavailable for this run. The rest of the report remains valid."}</p>
     <h3>What would strengthen the next read</h3><div class="method-box">${nextRunBullets.map((item) => `<p>• ${safeWords(item, 42)}</p>`).join("")}</div>
     <h3>What the figures represent</h3><div class="method-box"><p>* Figures marked with an asterisk are directional estimates generated from your inputs, not guaranteed financial outcomes. They are intended to indicate rough order of magnitude so the organization can decide whether the pattern is worth investigating further. They should not be cited externally as audited measurements, and they should not be used as the basis for compensation decisions, performance reviews, or formal financial planning.</p>${buildExposureMethodDisclosure(result?.exposure)}</div>
-    <p class="muted" style="font-size:8.5px;overflow-wrap:anywhere;">Questionnaire version: ${safe(result.questionnaire_version || result.config_version || "Not recorded")}. Scoring version: ${safe(displayScoringVersion(result.scorer_version))}. Report wording version: ${safe(result.report_language?.generation_version || "Not recorded")}.</p>
+    <p class="muted" style="font-size:8.5px;overflow-wrap:anywhere;">Question-set version: ${safe(result.questionnaire_version || result.config_version || "Not recorded")}. Scoring version: ${safe(displayScoringVersion(result.scorer_version))}. Report wording version: ${safe(result.report_language?.generation_version || "Not recorded")}.</p>
   </div>
 </section>
 
@@ -5636,7 +5636,7 @@ function renderBasisOfRead(result, payload) {
     ["Sector", esc(calTxt)],
     ["Inputs used", esc(inputs.length ? inputs.join(" \u00b7 ") : "none beyond the structured answers")],
     ["Diagnostic length and participant perspective", esc(`${depthLabel} \u00b7 ${laneLabel}`)],
-    ["Questionnaire version", `<code style="font-size:.85em">${esc(cfg)}</code>`],
+    ["Question-set version", `<code style="font-size:.85em">${esc(cfg)}</code>`],
     ["Scoring version", `<code style="font-size:.85em">${esc(scorer)}</code>`],
     ["Report wording version", `<code style="font-size:.85em">${esc(result?.report_language?.generation_version || "Not recorded")}</code>`]
   ];
@@ -6280,7 +6280,7 @@ async function restorePinnedQuestionnaireDraft(saved) {
       && String(assignment.config()?.id || assignment.config()?.assignment_id || '') === assignmentId));
   questionnaireCopyVerifiedRunId = null;
   questionBody.replaceChildren();
-  questionTitle.textContent = 'Checking your saved questionnaire';
+  questionTitle.textContent = 'Checking your saved diagnostic';
   questionCopy.textContent = 'Checking the original wording before you continue. Your saved answers are unchanged.';
   [backBtn, continueBtn, skipBtn, beginBtn].forEach(button => { if (button) button.disabled = true; });
   showStage(questionStage, {scroll:false});
@@ -6323,7 +6323,7 @@ async function restorePinnedQuestionnaireDraft(saved) {
       }, 180);
     }
     const notice = document.getElementById('persistenceNotice');
-    if (notice) { notice.textContent = 'Your saved answers and original questionnaire wording were recovered. No new run was started.'; notice.style.display = 'block'; }
+    if (notice) { notice.textContent = 'Your saved answers and original question wording were recovered. No new run was started.'; notice.style.display = 'block'; }
     return true;
   } catch (error) { showQuestionnaireVersionUnavailable(error); return false; }
 }

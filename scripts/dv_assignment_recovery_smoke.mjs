@@ -277,7 +277,7 @@ for (const operation of ['answer','revise']) for (const [label, change] of versi
   assert.equal(env.state.sessionRevision,7,operation+' '+label+' does not accept revision');
   assert.equal(JSON.stringify(env.state.questionHistory),historyBefore,operation+' '+label+' does not replace history');
   assert.equal(env.renders.length,renderCount,operation+' '+label+' does not render a new question');
-  assert.equal(env.elements.questionTitle.textContent,'Your saved questionnaire needs verification');
+  assert.equal(env.elements.questionTitle.textContent,'Your saved diagnostic needs verification');
   assert.equal(env.calls.filter(call=>call.method==='POST').length,1,operation+' '+label+' is not retried as a transient failure');
   assert.ok(env.calls.some(call=>call.url?.endsWith('/'+operation)));
   assert.equal(env.calls.filter(call=>call.url?.endsWith('/start')).length,0);

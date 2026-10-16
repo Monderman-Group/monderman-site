@@ -492,7 +492,7 @@ try {
         } else {
         if(design.headingFonts.some(f=>!f.includes('Neue Haas Grotesk'))) failures.push(`${pageName}/${viewport.name}: heading typography diverges from shared family`);
         }
-        const expectedPhotos={'index.html':['501653292','524156476'],'why-monderman.html':['511990984'],'platform-services.html':['541113838'],'Monderman_Platform_Brief.html':['488892667'],'operational-systems-article.html':[]};
+        const expectedPhotos={'index.html':['2193823408','639637650'],'why-monderman.html':['511990984'],'platform-services.html':['541113838'],'Monderman_Platform_Brief.html':['488892667'],'operational-systems-article.html':[]};
         if(Object.hasOwn(expectedPhotos,pageName)) assert.deepEqual(design.images.map(i=>i.id),expectedPhotos[pageName],`${pageName}/${viewport.name}: actual current photo mapping`);
         for(const image of design.images){assert.equal(image.fit,'contain',`${pageName}/${viewport.name}: photograph remains uncropped`);assert.ok(image.width>0&&image.height>0&&image.pictureRadius>=18,`${pageName}/${viewport.name}: actual visible proportional rounded photo frame`);assert.equal(image.caption,0,`${pageName}/${viewport.name}: no Models caption`);assert.ok(image.alt.trim(),`${pageName}/${viewport.name}: neutral accessible photo description`);}
       }

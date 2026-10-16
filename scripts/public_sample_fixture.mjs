@@ -13,6 +13,19 @@ import {sourceBeforeHomepageReportQuad20260925} from './homepage_report_quad_202
 import {CHANGE_WORDING_VERSION,sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
 import {SINGLE_LENS_OVERVIEW_VERSION,sourceAtSingleLensOverviewBaseline} from './single_lens_overview_20260929_inverse.mjs';
 
+// Exact presentation-only adapter for comparisons against preserved pre-SODI markup.
+// Generation remains current SODI; every caller still compares the complete historical aside.
+export const CURRENT_SODI_COMPACT_DIAGNOSTIC_STRIP="<div class=\"hwd-compact-lenses\"><span>Structural Clarity</span><span>Operational Systems</span><span>Decision Velocity</span><span>Institutional Performance</span></div>";
+export const HISTORICAL_COMPACT_DIAGNOSTIC_STRIP="<div class=\"hwd-compact-lenses\"><span>Structural Clarity</span><span>Decision Velocity</span><span>Operational Systems</span><span>Institutional Performance</span></div>";
+export function compactPreviewBeforeSodiDisplayOrder(source){
+  assert.equal(typeof source,'string','Generated compact preview remains a string');
+  assert.equal(source.split(CURRENT_SODI_COMPACT_DIAGNOSTIC_STRIP).length-1,1,'Exactly one complete current SODI compact diagnostic strip');
+  const strips=[...source.matchAll(/<div class="hwd-compact-lenses"[^>]*>[\s\S]*?<\/div>/g)];
+  assert.equal(strips.length,1,'Exactly one compact diagnostic strip, with no duplicate or mixed order');
+  assert.equal(strips[0][0],CURRENT_SODI_COMPACT_DIAGNOSTIC_STRIP,'Only the complete approved SODI strip can be projected');
+  return source.replace(CURRENT_SODI_COMPACT_DIAGNOSTIC_STRIP,HISTORICAL_COMPACT_DIAGNOSTIC_STRIP);
+}
+
 export const PUBLIC_PRODUCTS = Object.freeze({
   os:'operational_systems', dv:'decision_velocity', sc:'structural_clarity',
   ip:'institutional_performance', depth:'depth_synthesis', synthesis:'cross_lens_synthesis',
@@ -37,6 +50,9 @@ export function assertPublicSampleGenerationProvenance(entry,key) {
   assert.equal(p.report_ai_prompt_version,report.prompt_version,key+' AI prompt provenance mismatch');
   return entry;
 }
+export const SODI_PRESENTATION_VERSION='diagnostic-renderer-sodi-presentation-20261015.1';
+const SODI_PRODUCT_ORDER=Object.freeze(['structural_clarity','operational_systems','decision_velocity','institutional_performance']);
+const SODI_LABEL_ORDER=Object.freeze(['Structural Clarity','Operational Systems','Decision Velocity','Institutional Performance']);
 const DEFAULT_ROOT = fileURLToPath(new URL('../',import.meta.url));
 let comparisonValidator;
 function assertComparisonDisplayBoundary(source,provenance,key){
@@ -78,8 +94,9 @@ export function assertPublicSampleHtmlBindings(artifact,review,{root=DEFAULT_ROO
     const context={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};
     for(const file of ['participant-evidence-safety.js','monderman-report.js','public-sample-model.js']){
       const rawSource=fs.readFileSync(path.join(root,file));
-      const raw=file==='monderman-report.js'?sourceAtScopeBetaBaseline(file,rawSource):rawSource;
-      const bytes=edition.renderer_version===SINGLE_LENS_OVERVIEW_VERSION?raw:edition.renderer_version===CHANGE_WORDING_VERSION?sourceAtSingleLensOverviewBaseline(file,raw):sourceAtChangeWordingBaseline(file,raw);
+      const currentSodi=edition.renderer_version===SODI_PRESENTATION_VERSION;
+      const raw=currentSodi?rawSource:file==='monderman-report.js'?sourceAtScopeBetaBaseline(file,rawSource):rawSource;
+      const bytes=currentSodi?raw:edition.renderer_version===SINGLE_LENS_OVERVIEW_VERSION?raw:edition.renderer_version===CHANGE_WORDING_VERSION?sourceAtSingleLensOverviewBaseline(file,raw):sourceAtChangeWordingBaseline(file,raw);
       assert.ok(validHash(edition.source_files?.[file]),'HTML binding source pin missing: '+file);
       assert.equal(sha(bytes),edition.source_files[file],'HTML binding source changed: '+file);
       vm.runInNewContext(bytes.toString(),context,{filename:file});
@@ -152,6 +169,41 @@ export function assertFinancialSamplePdfBinding(update,key,pdfBytes){
 }
 
 export function currentSynthesisPdfReview(manifest,artifact=null){
+  const sodi=manifest.sodi_presentation_review;
+  if(Object.hasOwn(manifest,'sodi_presentation_review')){
+    const historical={...manifest};delete historical.sodi_presentation_review;
+    assert.ok(plain(historical.single_lens_overview_presentation_review),'SODI presentation: exact preceding review required');
+    const previous=currentSynthesisPdfReview(historical,artifact),label='SODI presentation: ';
+    assert.equal(previous,historical.single_lens_overview_presentation_review,label+'preceding review selection');
+    assert.equal(evidenceDigest(previous),'1035ea6f56e0794a541a4167189247d9ef4d85b9e252497b788ceeb49e0e0c05',label+'unchanged complete preceding review');
+    const products=Object.values(PUBLIC_PRODUCTS).sort();
+    const exactKeys=(value,keys,detail)=>{assert.ok(plain(value),label+detail+' object');assert.deepEqual(Object.keys(value).sort(),[...keys].sort(),label+detail+' closed keys');};
+    exactKeys(sodi,['version','status','reviewed_by','reviewed_at','scope','provider_calls','fidelity_review','visual_review','artifact_file_sha256','artifact_sha256','prior_review','renderer_version','renderer_sha256','source_files','diagnostic_order','display_copy_review','pdf_outputs','text_reader_proof','verification_receipts'],'review');
+    assert.equal(sodi.version,'sodi-presentation-20261015.1',label+'version');
+    assert.equal(sodi.status,'reviewed',label+'status');assert.equal(sodi.reviewed_by,'Codex',label+'reviewer');assert.ok(validTime(sodi.reviewed_at),label+'actual review time');
+    assert.equal(sodi.scope,'display_order_and_authored_copy_only',label+'scope');assert.equal(sodi.provider_calls,0,label+'no generation');
+    assert.equal(sodi.fidelity_review,'passed',label+'fidelity');assert.equal(sodi.visual_review,'passed',label+'visual');
+    assert.equal(sodi.artifact_file_sha256,manifest.artifact_file_sha256,label+'unchanged artifact bytes');assert.equal(sodi.artifact_sha256,manifest.artifact_sha256,label+'unchanged artifact identity');
+    assert.deepEqual(sodi.prior_review,{field:'single_lens_overview_presentation_review',sha256:evidenceDigest(previous)},label+'complete preceding review');
+    assert.equal(sodi.renderer_version,SODI_PRESENTATION_VERSION,label+'display edition');assert.ok(validHash(sodi.renderer_sha256),label+'renderer SHA');
+    exactKeys(sodi.source_files,['monderman-report.js','participant-evidence-safety.js','public-sample-model.js'],'render inputs');
+    for(const hash of Object.values(sodi.source_files))assert.ok(validHash(hash),label+'source SHA');
+    assert.equal(sodi.source_files['monderman-report.js'],sodi.renderer_sha256,label+'renderer binding');
+    assert.deepEqual(sodi.diagnostic_order,{keys:[...SODI_PRODUCT_ORDER],labels:[...SODI_LABEL_ORDER]},label+'four paired diagnostics');
+    exactKeys(sodi.display_copy_review,['language_map_sha256','sodi_narrative_map_sha256','participant_accounts_unchanged'],'display copy');
+    assert.ok(validHash(sodi.display_copy_review.language_map_sha256)&&validHash(sodi.display_copy_review.sodi_narrative_map_sha256),label+'exact closed maps');assert.equal(sodi.display_copy_review.participant_accounts_unchanged,true,label+'participant accounts');
+    exactKeys(sodi.pdf_outputs,products,'six PDF outputs');
+    for(const [key,pin]of Object.entries(sodi.pdf_outputs)){
+      exactKeys(pin,['path','sha256','html_sha256','pages'],key+' PDF');assert.equal(pin.path,'sample-data/reports/'+key+'.pdf',label+key+' path');
+      assert.ok(validHash(pin.sha256)&&validHash(pin.html_sha256),label+key+' PDF/HTML SHA');assert.ok(Number.isSafeInteger(pin.pages)&&pin.pages>0,label+key+' pages');
+    }
+    const proof=sodi.text_reader_proof;exactKeys(proof,['exporter_sha256','pypdf_version','pdfplumber_version','outputs'],'actual text proof');
+    assert.ok(validHash(proof.exporter_sha256),label+'exporter SHA');for(const name of ['pypdf_version','pdfplumber_version'])assert.match(proof[name],/^\d+\.\d+(?:\.\d+)?$/,label+name);
+    exactKeys(proof.outputs,products,'six actual reader proofs');
+    for(const [key,pin]of Object.entries(proof.outputs)){exactKeys(pin,['pages','extraction_sha256','authored_fields_sha256'],key+' text proof');assert.equal(pin.pages,sodi.pdf_outputs[key].pages,label+key+' equal actual pages');assert.ok(validHash(pin.extraction_sha256)&&validHash(pin.authored_fields_sha256),label+key+' actual full-field evidence');}
+    exactKeys(sodi.verification_receipts,['export','fidelity','visual'],'actual verification receipts');for(const hash of Object.values(sodi.verification_receipts))assert.ok(validHash(hash),label+'actual receipt SHA');
+    return sodi;
+  }
   const singleLens=manifest.single_lens_overview_presentation_review;
   if(singleLens){
     const historical={...manifest};delete historical.single_lens_overview_presentation_review;
@@ -535,7 +587,9 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
   // Its empty predecessor cannot masquerade as an original publication input.
   assert.equal(sourceBeforeHomepageReportQuad20260925('scripts/homepage_report_quad_20260925.mjs',fs.readFileSync(path.join(root,'scripts/homepage_report_quad_20260925.mjs'))),'');
   const currentReview=currentSynthesisPdfReview(manifest,artifact);
-  const historicalManifest={...manifest};delete historicalManifest.single_lens_overview_presentation_review;delete historicalManifest.change_wording_presentation_review;
+  const preSodiManifest={...manifest};delete preSodiManifest.sodi_presentation_review;
+  const preSodiReview=currentSynthesisPdfReview(preSodiManifest,artifact);
+  const historicalManifest={...preSodiManifest};delete historicalManifest.single_lens_overview_presentation_review;delete historicalManifest.change_wording_presentation_review;
   const historicalReview=currentSynthesisPdfReview(historicalManifest,artifact);
   if(manifest.response_comparison_publication_review){
     // A new content edition needs exact current bytes, not an inverse back to
@@ -547,7 +601,10 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
       assert.equal(sha(sourceBeforeHomepagePreviewAnchor20260924(filename,sourceBeforeHomepageReportQuad20260925(filename,sourceAtChangeWordingBaseline(filename,fs.readFileSync(path.join(root,filename)))))),digest,'reviewed comparison source changed: '+filename);
     }
     assertPublicSampleHtmlBindings(artifact,historicalReview,{root});
-    if(manifest.change_wording_presentation_review)assertPublicSampleHtmlBindings(artifact,currentReview,{root});
+    if(manifest.sodi_presentation_review){
+      assertPublicSampleHtmlBindings(artifact,preSodiReview,{root});
+      assertPublicSampleHtmlBindings(artifact,currentReview,{root});
+    }else if(manifest.change_wording_presentation_review)assertPublicSampleHtmlBindings(artifact,currentReview,{root});
   }else if(manifest.report_overview_presentation_review){
     const review=currentReview;
     for(const filename of ['monderman-report.js','index.html','homepage-workspace-demo.css','scripts/templates/home-workspace-preview.html','sample-report-tile.css','pilot-waitlist.css','canonical-site-shell.css','public-product-design.css']){
@@ -561,7 +618,9 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
   for(const [tab,key] of Object.entries(PUBLIC_PRODUCTS)) {
     const entry=artifact.outputs[key],pin=manifest.outputs[key],p=entry.provenance,r=publicResult(entry);
     const synthesis=key.endsWith('_synthesis');
-    assertFinancialSamplePdfBinding(currentReview,key,fs.readFileSync(path.join(root,'sample-data/reports/'+key+'.pdf')));
+    const currentPdfBytes=fs.readFileSync(path.join(root,'sample-data/reports/'+key+'.pdf'));
+    if(manifest.sodi_presentation_review)assertFinancialSamplePdfBinding(preSodiReview,key,sourceAtScopeBetaBaseline('sample-data/reports/'+key+'.pdf',currentPdfBytes));
+    assertFinancialSamplePdfBinding(currentReview,key,currentPdfBytes);
     const comparison=!synthesis&&entry.kind==='response_comparison';
     assert.equal(entry.kind,synthesis?'synthesis':comparison?'response_comparison':'diagnostic',key+' kind');
     assert.ok(plain(entry.source)&&plain(p)&&plain(pin),key+' source, provenance and approval required');
@@ -629,7 +688,7 @@ export function createPublicSampleModels(options={}) {
   vm.runInContext(fs.readFileSync(path.join(root,'monderman-report.js'),'utf8'),context,{filename:'monderman-report.js'});
   vm.runInContext(fs.readFileSync(path.join(root,'public-sample-model.js'),'utf8'),context,{filename:'public-sample-model.js'});
   const Report=context.window.MondermanReport,Public=context.window.MondermanPublicSamples;
-  assert.ok([CHANGE_WORDING_VERSION,SINGLE_LENS_OVERVIEW_VERSION].includes(Report.rendererVersion));
+  assert.ok([CHANGE_WORDING_VERSION,SINGLE_LENS_OVERVIEW_VERSION,SODI_PRESENTATION_VERSION].includes(Report.rendererVersion));
   assert.equal(Report.rendererVersion,currentSynthesisPdfReview(fixture.manifest,fixture.artifact).renderer_version);
   Public.validate(fixture.artifact);
   const models={};

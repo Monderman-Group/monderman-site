@@ -7,7 +7,7 @@ const source=fs.readFileSync('monderman-report.js','utf8');
 const sandbox={window:{},console,Intl,Date,Number,String,Array,Object,Math,JSON,WeakSet,Blob,URL,setTimeout,clearTimeout};
 vm.runInNewContext(source,sandbox);
 const report=sandbox.window.MondermanReport;
-assert.equal(report.rendererVersion,'diagnostic-renderer-single-lens-overview-20260929.1');
+assert.equal(report.rendererVersion,'diagnostic-renderer-sodi-presentation-20261015.1');
 const labels=['Structural Clarity','Decision Velocity','Operational Systems','Institutional Performance'];
 const types=['structural_clarity','decision_velocity','operational_systems','institutional_performance'];
 const freeze=value=>{if(value&&typeof value==='object'){Object.freeze(value);Object.values(value).forEach(freeze);}return value;};
@@ -46,12 +46,13 @@ for(const fixture of fixtures)for(const order of permutations([0,1,2,3])){
   for(const [index,expected,direction] of [[1,fixture.high,'highest'],[2,fixture.low,'lowest']]){
     const expectedLabel=expected.length>1?'Joint '+direction+' mean':direction[0].toUpperCase()+direction.slice(1)+' mean';
     assert.equal(metrics[index].label,expectedLabel,fixture.id+': label');
-    assert.equal(metrics[index].value,expected.map(i=>labels[i]).sort().join(', ')||'Unavailable',fixture.id+': complete joint set');
+    const expectedNames=expected.length===4?[labels[0],labels[2],labels[1],labels[3]]:expected.map(i=>labels[i]).sort();
+    assert.equal(metrics[index].value,expectedNames.join(', ')||'Unavailable',fixture.id+': complete joint set in SODI only for all four');
     assert.equal(metrics[index].detail,expected.length?Number(fixture.values[expected[0]])+' mean':'',fixture.id+': mean detail');
   }
   assert.equal(metrics[3].value,fixture.range);deterministicCases++;
 }
-const mutation=source.replace('const highestLabels = groups.filter((lens) => Number(lens.mean) === highest).map((lens) => lens.toolLabel).sort();','const highestLabels = groups.filter((lens) => Number(lens.mean) === highest).slice(0, 1).map((lens) => lens.toolLabel).sort();');
+const mutation=source.replace('const highestLabels = displayDiagnosticNames(groups.filter((lens) => Number(lens.mean) === highest).map((lens) => lens.toolLabel));','const highestLabels = displayDiagnosticNames(groups.filter((lens) => Number(lens.mean) === highest).slice(0, 1).map((lens) => lens.toolLabel));');
 assert.notEqual(source,mutation,'negative first-winner mutation must apply');
 const bad={window:{}};vm.runInNewContext(mutation,bad);
 const badHtml=bad.window.MondermanReport.buildReportHtml(bad.window.MondermanReport.fromSynthesis(raw([70,74,74,69])));
@@ -138,7 +139,7 @@ for(const [engine,type] of Object.entries({chromium,webkit})){
             overflow:document.documentElement.scrollWidth>innerWidth};
         });
         assert.equal(facts.visible,media==='print'||width>600,'phone screen must retain its readable card alternative');
-        assert.deepEqual(facts.cardValues,fixture.values.map(value=>value===null?'Unavailable':String(value)));
+        assert.deepEqual(facts.cardValues,[0,2,1,3].map(index=>fixture.values[index]===null?'Unavailable':String(fixture.values[index])),'SODI cards keep each original diagnostic value');
         assert.equal(facts.labels.length,fixture.values.filter(value=>value!==null).length);
         for(const label of facts.visible?facts.labels:[]){
           assert.ok(label.x>=0&&label.x+label.width<=facts.viewBox,`${engine}/${width}/${fixture.id}/${media}: score label clipped`);

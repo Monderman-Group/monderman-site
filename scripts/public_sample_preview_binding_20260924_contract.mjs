@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {buildPublicSamplePreviewSections} from './refresh_public_sample_previews.mjs';
-import {evidenceDigest} from './public_sample_fixture.mjs';
+import {evidenceDigest,compactPreviewBeforeSodiDisplayOrder} from './public_sample_fixture.mjs';
 import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 import {sourceBeforeHomepageReportQuad20260925} from './homepage_report_quad_20260925_inverse.mjs';
 import {sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014_inverse.mjs';
@@ -39,7 +39,7 @@ for(const [file,entry]of Object.entries(previewBindingDelta)){
   if(file==='index.html'){
     const hero=[...current.matchAll(/<aside class="home-workspace-preview"[\s\S]*?<\/aside>/g)];
     eq(hero.length,1,'One homepage journey');
-    eq(displayed.match(/<aside class="home-workspace-preview"[\s\S]*?<\/aside>/)?.[0],sections.hero,'Exact pure generated homepage journey');
+    eq(displayed.match(/<aside class="home-workspace-preview"[\s\S]*?<\/aside>/)?.[0],compactPreviewBeforeSodiDisplayOrder(sections.hero),'Exact pure generated homepage journey');
   }
   assert.doesNotThrow(()=>sourceBeforePublicCopyClarity(file,displayed));checks++;
   for(const mutated of [current+'\n',current.replace(currentAttr,priorAttr),current.replace(currentAttr,''),current.replace(/href="/,'href="UNREVIEWED-')])

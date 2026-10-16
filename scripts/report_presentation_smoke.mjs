@@ -2,12 +2,26 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {isCurrentScopeBeta} from './scope_beta_20261014_inverse.mjs';
 import {readPublicSampleFixture,publicResult} from './public_sample_fixture.mjs';
+import {currentSynthesisPdfReview,SODI_PRESENTATION_VERSION} from './public_sample_fixture.mjs';
 
 const base = process.env.REPORT_BASE || 'http://127.0.0.1:8080';
 const out = process.env.REPORT_OUT || '/tmp/report-presentation-smoke';
 // Current publication coverage requires the reviewed six-output artifact.
 // Assembly identity must not replace an entry's original generation identity.
 const {artifact}=readPublicSampleFixture();
+const {manifest}=readPublicSampleFixture();
+// Exact independently reviewed whole-string display pairs; saved evidence stays raw.
+const authoredDisplayExpected = Object.freeze({
+  "The submitted runs carry a score range from the lowest to the highest supplied value alongside a saved variation label, and the questionnaire, work scope and time window are recorded as compatible. Those summaries describe the pattern without stating a cause, so a short written judgement keeps any follow-up tied to the saved results for these runs.": "The submitted runs carry a score range from the lowest to the highest supplied value alongside a saved variation label, and the question set, work scope and time window are recorded as compatible. Those summaries describe the pattern without stating a cause, so a short written judgement keeps any follow-up tied to the saved results for these runs.",
+  "The saved means for managers, people doing the work and senior leaders are not identical, and each rests on a small number of submitted runs recorded under compatible questionnaire, work scope and time window details. Presenting them together shows the comparison plainly without treating any group as better placed or assigning a cause.": "The saved means for managers, people doing the work and senior leaders are not identical, and each rests on a small number of submitted runs recorded under compatible question-set, work scope and time window details. Presenting them together shows the comparison plainly without treating any group as better placed or assigning a cause.",
+  "Questionnaire compatibility is Verified, work scope compatibility is Common work scope recorded and the time window is Aligned time window, so the spread can be read as saved; it still explains nothing about the wider organization.": "Question-set compatibility is Verified, work scope compatibility is Common work scope recorded and the time window is Aligned time window, so the spread can be read as saved; it still explains nothing about the wider organization.",
+  "Write out each saved focus label beneath its own diagnostic, keeping administrative work with Operational Systems, approval and review requirements with Decision Velocity, unclear authority and ownership with Structural Clarity, and consistency and ability to respond to change with Institutional Performance, so that any follow-up review is scoped to one diagnostic at a time. Do not combine the labels into a single statement of the problem.": "Write out each saved focus label beneath its own diagnostic, keeping unclear authority and ownership with Structural Clarity, administrative work with Operational Systems, approval and review requirements with Decision Velocity, and consistency and ability to respond to change with Institutional Performance, so that any follow-up review is scoped to one diagnostic at a time. Do not combine the labels into a single statement of the problem.",
+  "The four diagnostics each carry twenty-seven submitted runs under a verified questionnaire match, a common recorded work scope and an aligned time window, which makes side-by-side reading tempting. Similar wording across labels does not show one shared weakness, and keeping them separate prevents a follow-up review from chasing a merged problem that the saved results do not describe.": "The four diagnostics each carry twenty-seven submitted runs under a verified question-set match, a common recorded work scope and an aligned time window, which makes side-by-side reading tempting. Similar wording across labels does not show one shared weakness, and keeping them separate prevents a follow-up review from chasing a merged problem that the saved results do not describe."
+});
+const hasSodiAuthoredDisplay=currentSynthesisPdfReview(manifest,artifact).renderer_version===SODI_PRESENTATION_VERSION;
+function expectedAuthoredDisplayText(value) {
+  return hasSodiAuthoredDisplay&&typeof value==='string'&&Object.hasOwn(authoredDisplayExpected,value)?authoredDisplayExpected[value]:value;
+}
 const crossSource=publicResult(artifact.outputs.cross_lens_synthesis), depthSource=publicResult(artifact.outputs.depth_synthesis);
 const crossScore=String(crossSource.cross_diagnostic_score??crossSource.aggregate_score), depthScore=String(depthSource.aggregate_score);
 
@@ -148,8 +162,8 @@ async function assertAuthoredSections(shell,source,label) {
     assert(await cards.count()===expected.length,label+' '+field+' count differs');
     for(const [index,item]of expected.entries()){
       const card=cards.nth(index);
-      assert((await card.locator('.mr-action-proposal').textContent()).trim()===item.action,label+' '+field+' action differs');
-      assert((await card.textContent()).includes(item.reason),label+' '+field+' reason differs');
+      assert((await card.locator('.mr-action-proposal').textContent()).trim()===expectedAuthoredDisplayText(item.action),label+' '+field+' action differs');
+      assert((await card.textContent()).includes(expectedAuthoredDisplayText(item.reason)),label+' '+field+' reason differs');
     }
   }
   assert(await shell.locator('.mr-ai-action').count()===(interpretation.recommendations||[]).length+(interpretation.action_options||[]).length,label+' extra action cards outside their source sections');
@@ -312,7 +326,7 @@ assert(crossText.includes('Agreements and differences'), 'Cross-Lens agreements/
 await assertAuthoredSections(cross,crossSource,'Cross-Lens');
 const crossActions=crossSource.ai_report.report.interpretation.recommendations.filter(row=>row.action?.trim()).map(row=>row.action);
 assert(await cross.locator('.mr-report-nextsteps .mr-ai-action').count()===crossActions.length, 'Cross-Lens accepted next-step count differs');
-for(const action of crossActions)assert(crossText.includes(action),'Cross-Lens accepted action text differs');
+for(const action of crossActions)assert(crossText.includes(expectedAuthoredDisplayText(action)),'Cross-Lens accepted action text differs');
 assert(!crossText.includes('Source-backed remedy paths'), 'Cross-Lens rendered source remedy prose even though the source-prose contract withholds it');
 assert(crossText.includes('Results by participant perspective'), 'Cross-Lens vantage-evidence layer missing');
 assert(await cross.locator('.mr-remedy-card').count() === 0, 'Cross-Lens rendered remedy cards without eligible source remedy prose');
@@ -509,7 +523,7 @@ const read=depthSource.sample_reads[0], stats=read.score;
 const compactSynthesisExpected = {
   cross_lens: {
     composite:['Equal-lens Composite',crossScore],stats:[],
-    segments:crossSource.source_groups.map(g=>({label:g.tool_label,count:g.submitted_runs+' submitted runs',stats:[['Mean',fmt(g.mean_score)]]})),
+    segments:['structural_clarity','operational_systems','decision_velocity','institutional_performance'].map(tool=>crossSource.source_groups.find(g=>g.tool_type===tool)).map(g=>({label:g.tool_label,count:g.submitted_runs+' submitted runs',stats:[['Mean',fmt(g.mean_score)]]})),
   },
   depth: {
     composite:[],

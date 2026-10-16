@@ -12,6 +12,8 @@ const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const question='Are extra reviewers or additional review requirements added after this process has started?';
 const context={tool:'decision_velocity',role:'managerial',depth:30,questionnaire_version:'1.1.0'};
 const contextText='Decision Velocity · Managers · 30-minute depth · Questionnaire 1.1.0';
+// The saved evidence text stays exact; only its verified display label changes.
+const displayContextText='Decision Velocity · Managers · 30-minute depth · Question-set 1.1.0';
 const explanation='MOCK: The saved answers differ on added review requirements. A recent request can help clarify what each answer describes.';
 function fixture({long=false,subset=false,empty=false}={}){
   const answers=long?[Array.from({length:50},(_,i)=>`MOCK answer sentence ${i+1} checks that long recorded text remains complete.`).join(' '),'Another complete synthetic recorded answer.']:['Rarely','Sometimes'];
@@ -67,7 +69,7 @@ for(const [name,engine]of [['chromium',chromium],['webkit',webkit]]){
         const parsed=spawnSync(process.env.PDF_PYTHON||'python3',['-c','import json,sys;from pypdf import PdfReader;print(json.dumps([p.extract_text() or "" for p in PdfReader(sys.argv[1]).pages]))',file],{encoding:'utf8',maxBuffer:8*1024*1024});
         assert.equal(parsed.status,0,parsed.stderr);const pages=JSON.parse(parsed.stdout),compact=t=>t.replace(/\s+/g,''),all=compact(pages.join('\n'));
         assert.ok(pages.every(p=>p.trim()),'No blank pages');checks++;
-        for(const text of [question,contextText,...answers.flatMap(a=>[a.source_label,a.answer]),explanation]){assert.ok(all.includes(compact(text)),'PDF lost exact question, answer or interpretation');checks++;}
+        for(const text of [question,displayContextText,...answers.flatMap(a=>[a.source_label,a.answer]),explanation]){assert.ok(all.includes(compact(text)),'PDF lost exact question, answer or interpretation');checks++;}
         const registerPage=pages.find(p=>p.includes('Supporting evidence register'));assert.ok(registerPage&&registerPage.includes('1. '+question.slice(0,24)),'Evidence register heading stays with its first entry');checks++;
         equal(await page.locator('.mr-print-evidence>dl').evaluate(node=>getComputedStyle(node).display),kind==='long'?'block':'grid','Long evidence gets the full print width');
         receipt.pdfs.push({kind,path:file,pages:pages.length,sha256:sha(fs.readFileSync(file)),textPreserved:true});

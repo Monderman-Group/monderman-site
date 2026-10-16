@@ -10,6 +10,7 @@ vm.runInNewContext(source,sandbox);
 const report=sandbox.window.MondermanReport;
 const groups=[['structural_clarity','Structural Clarity',59.4,5],['decision_velocity','Decision Velocity',100,3],['operational_systems','Operational Systems',0,2],['institutional_performance','Institutional Performance',93.8,1]]
  .map(([tool_type,tool_label,mean_score,submitted_runs])=>({tool_type,tool_label,mean_score,median_score:mean_score,submitted_runs,score_iqr:[mean_score,mean_score]}));
+const displayGroups=[groups[0],groups[2],groups[1],groups[3]];
 const base={synthesis_product:'cross_lens_synthesis',score_status:'withheld',cross_diagnostic_score:null,condition_band:'Composite withheld',source_groups:groups,submitted_run_count:11,lens_count:4,
  convergence_signals:[{label:'Burden and resilience',text:'Compare the submitted accounts of workload with the available recovery time. These records do not establish a causal relationship.',tools:['operational_systems','institutional_performance']}]};
 const depth={...base,synthesis_product:'depth_synthesis',source_groups:[groups[0]],lens_count:1,sample_reads:[{tool_type:'structural_clarity',tool_label:'Structural Clarity',n:5,
@@ -81,13 +82,13 @@ for(const [engine,type] of Object.entries({chromium,webkit})){
    }
    else{
     assert.equal(measured.pairs.length,4);assert.ok(measured.compactText.includes(item.id==='cross-withheld'?'Composite withheldUnavailable':'Equal-lens Composite63.3'));
-    measured.pairs.forEach((pair,i)=>{assert.equal(Number(pair.value),groups[i].mean_score);assert.equal(pair.meta,`mean · ${groups[i].submitted_runs} runs`);
+    measured.pairs.forEach((pair,i)=>{assert.equal(Number(pair.value),displayGroups[i].mean_score);assert.equal(pair.meta,`mean · ${displayGroups[i].submitted_runs} runs`);
      if(!compactExpected)assert.ok(pair.valueBox.bottom<=pair.metaBox.top,`${name}: value/metadata collision`);});
     if(media==='print'){assert.equal(measured.hubFill,'rgb(8, 56, 62)',`${name}: print hub must be opaque`);assert.equal(measured.signalPrintBreak,'avoid',`${name}: evidence heading can orphan`);assert.ok(measured.interactionBreaks.length>0);for(const value of measured.interactionBreaks)assert.equal(value,'avoid',`${name}: interaction cell can split`);}
    }
    if(media==='print'&&width===656&&measured.interactionGrid){
     const grid=measured.interactionGrid;assert.ok(grid.scrollWidth<=grid.clientWidth+1,`${name}: interaction grid overflow`);
-    assert.deepEqual(grid.headers.map(row=>row.text),groups.map(row=>row.tool_label),`${name}: canonical header labels changed`);
+    assert.deepEqual(grid.headers.map(row=>row.text),displayGroups.map(row=>row.tool_label),`${name}: canonical header labels changed`);
     for(const header of grid.headers){assert.ok(header.cell.left>=grid.box.left-.5&&header.cell.right<=grid.box.right+.5,`${name}: header cell escaped grid: ${header.text}`);assert.ok(header.glyphs.left>=header.cell.left-.5&&header.glyphs.right<=header.cell.right+.5,`${name}: header glyphs escaped cell: ${header.text}`);assert.ok(header.scrollWidth<=header.clientWidth+1,`${name}: header text overflow: ${header.text}`);}
     for(let i=1;i<grid.headers.length;i++)assert.ok(grid.headers[i-1].glyphs.right<=grid.headers[i].glyphs.left+.5,`${name}: sibling header overlap`);
    }

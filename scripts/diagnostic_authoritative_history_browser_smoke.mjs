@@ -120,7 +120,7 @@ async function runCase(browser,engine,tool,version,kind,controller='assignment')
   }else if(controller==='self')await page.locator('#selfDiagnosticDraftResume').click();
   const blocked=['static-mismatch','missing-history'].includes(kind);
   if(blocked){
-   await page.waitForFunction(()=>document.getElementById('questionTitle').textContent==='Your saved questionnaire needs verification');
+   await page.waitForFunction(()=>document.getElementById('questionTitle').textContent==='Your saved diagnostic needs verification');
    assert.equal(await page.evaluate(key=>sessionStorage.getItem(key),f.key),f.raw);
    assert.equal(await page.locator('#questionBody input,#questionBody button,#questionBody textarea').count(),0);
    assert.equal(await page.locator('#beginBtn').isDisabled(),true);

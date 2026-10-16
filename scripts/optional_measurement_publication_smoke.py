@@ -8,7 +8,11 @@ from unittest.mock import patch
 import validate_legal_terms_protection as legal
 
 root = legal.ROOT
-read_text = Path.read_text
+raw_read_text = Path.read_text
+def read_text(path, *args, **kwargs):
+    text = raw_read_text(path, *args, **kwargs)
+    return legal.legal_presentation_historical_read(path.name, text) if path.parent == root else text
+physical_manifest = json.loads(raw_read_text(root / "legal-document-manifest.json"))
 manifest_path = root / "legal-document-manifest.json"
 manifest = json.loads(read_text(manifest_path))
 published_path = root / "privacy.html"
@@ -57,7 +61,7 @@ check(published.count('id="optional-measurement"') == 1, "consent-details destin
 def rejects(label, replacements):
     global mutations
     def altered(path, *args, **kwargs):
-        return replacements.get(path, read_text(path, *args, **kwargs))
+        return replacements.get(path, raw_read_text(path, *args, **kwargs))
     with patch.object(Path, "read_text", altered):
         try:
             legal.validate()
@@ -69,7 +73,7 @@ def rejects(label, replacements):
 
 
 def changed_manifest(**changes):
-    return json.dumps({**manifest, **changes})
+    return json.dumps({**physical_manifest, **changes})
 
 
 rejects("new processing cannot retain the older required acknowledgement", {
@@ -88,14 +92,14 @@ rejects("earlier archived bytes remain immutable", {ack_path: ack + "\n"})
 rejects("earlier optional-publication archive remains immutable", {optional_path: read_text(optional_path) + "\n"})
 rejects("earlier AI evidence v1 archive remains immutable", {v1_path: read_text(v1_path) + "\n"})
 changed_v1 = read_text(v1_path) + "\n"
-v1_documents = json.loads(json.dumps(manifest["documents"]))
+v1_documents = json.loads(json.dumps(physical_manifest["documents"]))
 v1_documents["2026-09-11-ai-evidence-v1"]["privacy_notice_file_sha256"] = hashlib.sha256(changed_v1.encode()).hexdigest()
 rejects("editing the v1 archive and its manifest pin cannot pass", {v1_path: changed_v1, manifest_path: changed_manifest(documents=v1_documents)})
 rejects("v2 publication cannot silently retain the v1 required edition", {
     manifest_path: changed_manifest(required_acknowledgement={"terms_version": "2026-09-15-annual-plans", "privacy_notice_version": "2026-09-11-ai-evidence-v1"})
 })
 changed_ack = ack.replace("This is not a zero-retention arrangement.", "This is a zero-retention arrangement.")
-documents = json.loads(json.dumps(manifest["documents"]))
+documents = json.loads(json.dumps(physical_manifest["documents"]))
 documents["2026-09-10-beta"]["privacy_notice_file_sha256"] = hashlib.sha256(changed_ack.encode()).hexdigest()
 rejects("editing both an old archive and its manifest pin cannot pass", {ack_path: changed_ack, manifest_path: changed_manifest(documents=documents)})
 rejects("published wording cannot restart tracking for prior opt-ins", {published_path: published.replace("Tracking does not resume for browsers that previously opted in.", "Tracking resumes for browsers that previously opted in.")})
@@ -120,4 +124,4 @@ rejects("new AI edition cannot hard-code the old active acknowledgement", {
     archive_path: published.replace("Your account or campaign shows the edition you are asked to acknowledge.", "The account acknowledgement currently refers to the September 10 edition.")
 })
 
-print(json.dumps({"ok": True, "checks": checks, "mutationsRejected": mutations, "requiredPrivacy": legal.PRIVACY_VERSION, "publishedPrivacy": legal.PUBLISHED_PRIVACY_VERSION, "scope": "Offline source and mutation checks, including the prior optional-publication scope; no legal acceptance, customer record, browser choice, or network request changed."}))
+print(json.dumps({"ok": True, "checks": checks, "mutationsRejected": mutations, "requiredPrivacy": legal.PRIVACY_VERSION, "publishedPrivacy": legal.PUBLISHED_PRIVACY_VERSION, "legalPresentation": {"currentPhysicalFiles": 4, "exactPresentationHunks": 8, "historicalAssertions": "Exact original-source view"}, "scope": "Current physical presentation plus original source/mutation assertions on exact finite inverses; no legal acceptance, customer record, browser choice, or network request changed."}))

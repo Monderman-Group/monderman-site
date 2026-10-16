@@ -3,6 +3,7 @@ import hashlib
 import json
 from pathlib import Path
 from homepage_refinement_20261014_inverse import source_paths_at_homepage_refinement_baseline
+from hiring_blind_spot_publication_20261015_inverse import owner_delta
 import re
 import subprocess
 import sys
@@ -129,10 +130,30 @@ checks += len(paths)
 reject(lambda: assert_scope(paths | {'unexpected-publication.js'}), 'Unknown publication rejected')
 reject(lambda: assert_scope(paths | {'node_modules'}), 'No exemption for source file named node_modules')
 check(not any(re.search(r'marketing-source\.tgz|marketing-review-source\.zip|(?:^|/)(?:AGENTS\.md|\.env(?:\.|$))', f) for f in paths), 'No archive/private instructions/credential file')
+# October 15, 2026: formerly unlisted additions are now eight exact upstream finite binaries.
+def reject_finite_binary_string(fn, file, label):
+    global negative_controls
+    try:
+        fn()
+    except AssertionError as error:
+        check(str(error) == file + ': finite binary input stays bytes', label)
+        negative_controls += 1
+    else:
+        raise AssertionError(label)
+
+upstream_binary_identity_files = {file for file, entry in owner_delta['files'].items() if entry.get('encoding') == 'base64'}
+check(sorted(upstream_binary_identity_files.intersection(ADDITIONS)) == ['assets/marketing/team-perspectives-1600.webp', 'assets/marketing/team-perspectives-540.webp', 'assets/marketing/team-perspectives-960.jpg', 'assets/marketing/team-perspectives-960.webp', 'assets/marketing/work-discussion-1600.webp', 'assets/marketing/work-discussion-540.webp', 'assets/marketing/work-discussion-960.jpg', 'assets/marketing/work-discussion-960.webp'], 'Exactly eight upstream finite binary additions require byte input')
+binary_string_cases = 0
 for file in ['unknown.js', '__proto__', 'constructor', 'toString', 'workspace.html', 'pattern-trial.html', *ADDITIONS]:
     for source in ('Unlisted 😀', 'Unlisted 😀'.encode('utf-8')):
-        check(strict(file, source) == source and type(strict(file, source)) is type(source), file + ': unlisted strict identity/type')
-        check(conditional(file, source) == source and type(conditional(file, source)) is type(source), file + ': unlisted conditional identity/type')
+        if file in upstream_binary_identity_files and isinstance(source, str):
+            reject_finite_binary_string(lambda file=file, source=source: strict(file, source), file, file + ': upstream finite binary string rejected by strict chain')
+            reject_finite_binary_string(lambda file=file, source=source: conditional(file, source), file, file + ': upstream finite binary string rejected by conditional chain')
+            binary_string_cases += 1
+        else:
+            check(strict(file, source) == source and type(strict(file, source)) is type(source), file + ': unlisted strict identity/type')
+            check(conditional(file, source) == source and type(conditional(file, source)) is type(source), file + ': unlisted conditional identity/type')
+check(binary_string_cases == 8, 'All eight binary string cases explicitly reject in both inverses; no case skipped')
 footer_pages = expected_files[2:6]
 canonical_footer = read('site-shell/footer.html').decode().rstrip('\n')
 for file in footer_pages:

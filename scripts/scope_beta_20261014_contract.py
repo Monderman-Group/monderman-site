@@ -151,11 +151,11 @@ if '--built' in sys.argv:
   for begin,current,prior in reversed(rows):assert text[begin:begin+len(prior)]==prior;text=text[:begin]+current+text[begin+len(prior):]
   out=text.decode('utf-16-le').encode();assert sha(out)==e['after_sha256'];return out
  finite(delta['channelVariants'],lambda f:forward(f,channel_conditional(f,(build/f).read_bytes())),lambda f,e:channel_conditional(f,(build/f).read_bytes()),channel_strict,channel_conditional)
- for f,e in delta['publicAdditions'].items():b=(build/f).read_bytes();check(sha(b)==e['sha256'] and len(b)==e['bytes'],'Exact approved public addition')
+ for f,e in delta['publicAdditions'].items():b=public_source_at_hiring_publication_baseline(f,(build/f).read_bytes());check(sha(b)==e['sha256'] and len(b)==e['bytes'],'Exact approved public addition')
  for r in delta['publicEditions'][edition]:
   if r['path']=='.well-known/monderman-release.json':continue
   b=public_source_at_hiring_publication_baseline(r['path'],(build/r['path']).read_bytes());check(sha(b)==r['sha256'] and len(b)==r['bytes'],'Every compiled body current exact')
- for f in runtime+['scope.css']:check((build/f).read_bytes()==read(f),'Raw current route runtime/build equality')
+ for f in runtime+['scope.css']:check(public_source_at_hiring_publication_baseline(f,(build/f).read_bytes())==read(f),'Raw current route runtime/build equality')
  release_intent(json.loads((build/'scope-release.json').read_bytes()));checks+=1
  q2_alias_intent((build/'q2-sodi.html').read_text(),(build/'scope.html').read_text());checks+=1
  for file,reversed_symbol in [('assets/brand/scope-symbol.svg',False),('assets/brand/scope-symbol-reversed.svg',True)]:q_symbol_intent((build/file).read_text(),reversed_symbol);checks+=1

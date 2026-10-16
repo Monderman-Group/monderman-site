@@ -41,7 +41,19 @@ for (const [engine,type] of Object.entries({chromium,webkit})) {
       ok(page.url().endsWith('/durable-organization.html'),'Research article link works');
       await page.goto(base+'/');
       await page.waitForSelector('#latestViewport.is-ready');
-      const first = page.locator('.latest-card:not(.is-carousel-clone)').first();
+      // Current Part7 is certified first; original assertions below retain the preceding19 cohort.
+      const currentCards = page.locator('.latest-card:not(.is-carousel-clone)');
+      ok(await currentCards.count()===20,'Every original19 plus the one approved Part7 card');
+      const newest = currentCards.first();
+      ok(await newest.getAttribute('data-publication')==='hiring-blind-spot','New Part7 is first');
+      ok((await newest.innerText()).includes('The Hiring Blind Spot'),'Exact new homepage publication');
+      ok(await newest.locator('.latest-card-kicker').textContent()==='Governance and Performance · Part 7','Exact current Part7 series label');
+      ok(await newest.locator('.latest-card-link').getAttribute('href')==='hiring-blind-spot.html','Exact current Part7 destination');
+      ok(await page.locator('.latest-card:not(.is-carousel-clone)[data-publication="hiring-blind-spot"]').count()===1,'Only one explicit Part7 card');
+      const previousCards = page.locator('.latest-card:not(.is-carousel-clone):not([data-publication="hiring-blind-spot"])');
+      ok(await previousCards.count()===19,'Every original homepage publication remains');
+      ok(JSON.stringify(await previousCards.locator('.latest-card-link').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href'))))===JSON.stringify(["durable-organization.html","hold-collide-come-apart.html","trenches-not-silos.html","nothing-stays-tuned.html","we-gave-bureaucracy-the-fastest-tools.html","the-unmeasured-layer.html","merit-after-the-machine.html","every-node-for-itself.html","built-to-please.html","terminal-fidelity.html","accumulated-drag-department-of-war.html","quarter-trillion-friction-us-healthcare.html","from-tokens-to-outcomes.html","compensatory-systems.html","when-bureaucracy-became-the-obstacle.html","the-culture-trap-brief.html","the-art-of-interior-reasoning.html","governing-complexity.html","designing-for-decision-velocity.html"]),'All original19 destinations and relative order remain');
+      const first = previousCards.first();
       ok((await first.innerText()).includes('The Durable Organization'),'Newest homepage publication');
       ok((await first.locator('.latest-card-kicker').textContent())==='Governance and Performance · Part 5','Current homepage Part 5');
       ok(errors.length===0,engine+' browser errors: '+errors.join('; '));

@@ -103,7 +103,8 @@ for token in [
  if os_page.count(token)<2:e.append('operational-systems.html: start/finalize sizing handoff '+token)
 
 # Surgical regression guards added 2026-08-13.
-idx=(r/'index.html').read_text(errors='ignore')
+current_idx=(r/'index.html').read_text(errors='ignore')
+idx=source_at_hiring_publication_baseline('index.html',current_idx)
 if not re.search(r'<body\b[^>]*class="[^"]*\bcanonical-green-shell\b',idx,re.I):
  e.append('homepage canonical shell scope missing')
 
@@ -119,6 +120,28 @@ if not latest_match:
  e.append('homepage research carousel boundary missing')
 else:
  latest=latest_match.group(1)
+ # The exact outer owner view is separate from the retained native nineteen-card contract.
+ # Unknown complete current bytes are never normalized by the conditional source view.
+ if current_idx!=idx:
+  current_latest_match=re.search(latest_match.re,current_idx)
+  if not current_latest_match:
+   e.append('current owner homepage research carousel boundary missing')
+  else:
+   current_latest=current_latest_match.group(1)
+   current_cards=re.findall(r'<article class="latest-card category-(?:research|insight|brief|perspective)"[^>]*>.*?</article>',current_latest,re.S)
+   prior_cards=re.findall(r'<article class="latest-card category-(?:research|insight|brief|perspective)"[^>]*>.*?</article>',latest,re.S)
+   if len(current_cards)!=20 or len(prior_cards)!=19:e.append('current owner homepage must contain Part7 plus the complete native nineteen-card cohort')
+   if current_cards[1:]!=prior_cards:e.append('current owner homepage changed an existing native card or its relative order')
+   if current_idx.count('data-publication="hiring-blind-spot"')!=1:e.append('current owner homepage requires exactly one Hiring Blind Spot publication marker')
+   first=current_cards[0] if current_cards else ''
+   for token in ['data-publication="hiring-blind-spot"','The Hiring Blind Spot','Series, Part 7','Governance and Performance · Part 7','class="latest-card-link" href="hiring-blind-spot.html"','class="latest-card-secondary-link" href="Monderman_Insight_The_Hiring_Blind_Spot_2026-10-16.pdf"']:
+    if token not in first:e.append('current owner homepage first Part7 card '+token)
+   current_hrefs=re.findall(r'class="latest-card-link" href="([^"]+)"',current_latest)
+   prior_hrefs=re.findall(r'class="latest-card-link" href="([^"]+)"',latest)
+   if current_hrefs!=['hiring-blind-spot.html',*prior_hrefs]:e.append('current owner homepage first article and all native article routes/order')
+   for token,expected in [('latest-card-image latest-card-image--placeholder',20),('placeholder-cover-type',20),('latest-card-link',20),('latest-card-secondary-link',18),('data-category="insight"',11),('data-category="brief"',5),('data-category="perspective"',4)]:
+    if current_latest.count(token)!=expected:e.append('current owner homepage carousel '+token+' count')
+   if '.latest-card .latest-card-link::after {' not in current_idx:e.append('current owner homepage stretched link must be scoped to its own carousel card')
  if len(re.findall(r'<article class="latest-card category-(?:research|insight|brief|perspective)"',latest))!=19:e.append('homepage research carousel card count')
  if latest.count('latest-card-image latest-card-image--placeholder')!=19:e.append('homepage research carousel canonical cover count')
  if latest.count('placeholder-cover-type')!=19:e.append('homepage research carousel category label count')

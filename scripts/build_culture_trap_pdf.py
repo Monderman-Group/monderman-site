@@ -149,7 +149,7 @@ def loop_page(c):
         x=M+i*sw; box(c,x,top-h,sw,h); c.setFillColor(TEAL); c.setFont("Haas-Bold",8); c.drawString(x+11,top-20,n); paragraph(c,head,x+11,top-33,sw-22,H3); paragraph(c,copy,x+11,top-58,sw-22,SMALL)
     y-=h+24; y=paragraph(c,"What Monderman measures",M,y,W-2*M,H3)-12
     y=paragraph(c,"Research on management practices examines monitoring, targets, accountability, and the routines through which work is managed. Monderman's Diagnostics examine related organizational structures.",M,y,W-2*M,BODY)-12
-    gap=9; cw=(W-2*M-gap)/2; ch=72; products=[("Operational Systems","Examines process load and operating friction."),("Decision Velocity","Examines how decisions move."),("Structural Clarity","Examines ownership, authority, and handoffs."),("Institutional Performance","Examines whether structure is converted into sustained performance.")]
+    gap=9; cw=(W-2*M-gap)/2; ch=72; products=[("Structural Clarity","Examines ownership, authority, and handoffs."),("Operational Systems","Examines process load and operating friction."),("Decision Velocity","Examines how decisions move."),("Institutional Performance","Examines whether structure is converted into sustained performance.")]
     for i,(head,copy) in enumerate(products):
         row=i//2; col=i%2; x=M+col*(cw+gap); yy=y-row*(ch+9); box(c,x,yy-ch,cw,ch); c.setFillColor(TEAL); c.rect(x,yy-ch,4,ch,fill=1,stroke=0); paragraph(c,head,x+14,yy-13,cw-26,H3); paragraph(c,copy,x+14,yy-37,cw-26,SMALL)
     y-=2*(ch+9)+5; y=paragraph(c,"Depth Synthesis summarizes eligible runs of one Diagnostic. Cross-Lens Synthesis compares different Diagnostics and publishes a Composite Score only when the evidence is coherent enough to support one.",M,y,W-2*M,BODY)-12

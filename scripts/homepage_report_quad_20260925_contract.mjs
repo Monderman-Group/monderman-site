@@ -7,7 +7,7 @@ import vm from 'node:vm';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {buildPublicSamplePreviewSections} from './refresh_public_sample_previews.mjs';
-import {evidenceDigest} from './public_sample_fixture.mjs';
+import {evidenceDigest,compactPreviewBeforeSodiDisplayOrder} from './public_sample_fixture.mjs';
 import {sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
 import {sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014_inverse.mjs';
 import {sourceAtSiteDesignCoherenceBaseline} from './site_design_coherence_20261014_inverse.mjs';
@@ -56,7 +56,7 @@ eq(homeAsides[0][0],home,'Homepage markup is generated exactly from current save
 eq(briefAsides[0][0],sections.brief,'Brief markup remains generated exactly from current saved source');
 eq(brief,prior('Monderman_Platform_Brief.html').toString(),'Entire Platform Brief is unchanged');
 const hero=/<aside class="home-workspace-preview"[^]*?<\/aside>/;
-eq(index.match(hero)?.[0],sections.hero,'Relocated homepage journey retains exact source binding');
+eq(index.match(hero)?.[0],compactPreviewBeforeSodiDisplayOrder(sections.hero),'Relocated homepage journey retains exact source binding');
 eq(sourceAtChangeWordingBaseline('index.html',index).match(hero)?.[0],prior('index.html').toString().match(hero)?.[0],'Homepage journey retains its original bytes outside exact presentation editions');
 eq(JSON.stringify(artifact),artifactBefore,'Pure preview generation leaves source data untouched');
 

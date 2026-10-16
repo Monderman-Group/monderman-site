@@ -6,7 +6,7 @@ import vm from 'node:vm';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {chromium,webkit} from 'playwright';
-import {readPublicSampleFixture} from './public_sample_fixture.mjs';
+import {readPublicSampleFixture,compactPreviewBeforeSodiDisplayOrder} from './public_sample_fixture.mjs';
 import {APPROVED_INTERFACE_PINS} from './invited_evaluation_source_contract.mjs';
 import {sourceBeforeHomepageCompactJourney20260924} from './homepage_compact_journey_20260924_inverse.mjs';
 import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
@@ -30,6 +30,9 @@ const descriptions=[
   ['Operational Systems','Unnecessary process work','operational-systems-article.html'],
   ['Institutional Performance','Reliable delivery and response to change','institutional-performance-article.html'],
 ];
+// Existing case iteration and canonical row objects stay unchanged; this is current displayed table order only.
+const currentDescriptionDisplayOrder=[descriptions[0],descriptions[2],descriptions[1],descriptions[3]];
+compactPreviewBeforeSodiDisplayOrder(read('index.html')); // Require the exact current SODI strip before rendering the current lane.
 const sourceFiles=['index.html','diagnostics.html','workspace-diagnostics.html','Monderman_Platform_Brief.html',
   'site-shell/footer.html','scripts/templates/home-workspace-preview.html',...descriptions.map(row=>row[2]),
   'roi.html','platform-services.html','plan-signal.html','plan-pattern.html'];
@@ -434,7 +437,7 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
         }
       }
       if(descriptions.some(row=>row[2]===file)){
-        eq(await page.locator('.lens-matrix tbody tr td:nth-child(2)').allTextContents(),descriptions.map(row=>row[1]),'Article comparison labels rendered');
+        eq(await page.locator('.lens-matrix tbody tr td:nth-child(2)').allTextContents(),currentDescriptionDisplayOrder.map(row=>row[1]),'Article comparison labels rendered');
         check(await page.locator('.lens-matrix').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'Comparison table fits');
         const figure=page.locator('.output-figure');await figure.scrollIntoViewIfNeeded();
         eq(await figure.locator('.output-metrics .metric strong').allTextContents(),['Perspective','Reported strengths','Next step'],'No outdated financial/comparison cards');
@@ -475,7 +478,7 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
         const fileName=`${name}-${width}-operational-method.png`;await slide.screenshot({path:path.join(out,fileName)});screenshots.push(fileName);
       }
       if(file==='index.html'){
-        const journeyGroups=['structural_clarity','decision_velocity','operational_systems','institutional_performance'].map(lens=>previewGroups.find(group=>group.tool_type===lens));
+        const journeyGroups=(edition==='baseline'?['structural_clarity','decision_velocity','operational_systems','institutional_performance']:['structural_clarity','operational_systems','decision_velocity','institutional_performance']).map(lens=>previewGroups.find(group=>group.tool_type===lens));
         eq(await page.locator('.hwd-compact-lenses span').allTextContents(),journeyGroups.map(group=>group.tool_label),'Gather identifies all four canonical source diagnostics');
         const roles=artifact.outputs.cross_lens_synthesis.source.campaign_evidence.depth.lenses[0].requiredGroups;
         eq(await page.locator('.hwd-compact-roles strong').allTextContents(),roles.map(group=>String(group.participants)),'Gather uses distinct source role counts, never sums across diagnostics');

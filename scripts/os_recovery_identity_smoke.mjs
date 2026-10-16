@@ -161,7 +161,7 @@ for (const change of ['user', 'organization']) {
   assert.equal(h.counts.installs, 0, `${change}: changed identity must not install history`);
   assert.equal(h.counts.renders, 0, `${change}: changed identity must not render history`);
   assert.equal(h.counts.finalizes, 0); assert.equal(h.store.get(key), before);
-  assert.equal(h.document.getElementById('questionTitle').textContent, 'Your saved questionnaire needs verification');
+  assert.equal(h.document.getElementById('questionTitle').textContent, 'Your saved diagnostic needs verification');
   assert.equal(h.state.recoveryInFlight, false);
   results.push(`${change} changed during draft GET is rejected before display`);
 }

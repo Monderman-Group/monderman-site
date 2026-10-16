@@ -201,7 +201,7 @@ for(const name of sourceNames) {
     m.source_files[name]=changedHash(m.source_files[name]);
   }));
   cases.push({
-    label:'source-byte-drift-'+path.basename(name),layer:'source-byte-binding',expected:name==='monderman-report.js'?name+': Only the exact reviewed single-lens source can be inverted':CHANGE_WORDING_FILES.includes(name)?name+': only the exact reviewed current source can be inverted (change wording)':name==='scripts/refresh_public_sample_previews.mjs'
+    label:'source-byte-drift-'+path.basename(name),layer:'source-byte-binding',expected:name==='monderman-report.js'?name+(Object.hasOwn(baselineManifest,'sodi_presentation_review')?': only the exact reviewed current source can be inverted (change wording)':': Only the exact reviewed single-lens source can be inverted'):CHANGE_WORDING_FILES.includes(name)?name+': only the exact reviewed current source can be inverted (change wording)':name==='scripts/refresh_public_sample_previews.mjs'
       ?name+': only the exact reviewed homepage-report-quad source can be inverted':'reviewed source changed: '+name,
     mutate(directory) {
       const suffix=name.endsWith('.html')?'\n<!-- sensitivity mutation only -->\n':'\n// sensitivity mutation only\n';
@@ -265,6 +265,44 @@ if(baselineManifest.single_lens_overview_presentation_review)for(const [label,mu
   ['missing-browser-receipt',m=>{delete m.single_lens_overview_presentation_review.verification_receipts.browser;}],
   ['provider-call',m=>{m.single_lens_overview_presentation_review.provider_calls=1;}]
 ])cases.push(manifestMutation('single-lens-review-'+label,null,mutate));
+// These additive controls describe only the owner-approved presentation layer.
+// All original cases above still execute with their original mutations.
+if(Object.hasOwn(baselineManifest,'sodi_presentation_review')){
+  const sodiMutations=[
+    ['missing',m=>{delete m.sodi_presentation_review;}],
+    ['null',m=>{m.sodi_presentation_review=null;}],
+    ['false',m=>{m.sodi_presentation_review=false;}],
+    ['empty-string',m=>{m.sodi_presentation_review='';}],
+    ['pending',m=>{m.sodi_presentation_review.status='pending';}],
+    ['fabricated-owner-reviewer',m=>{m.sodi_presentation_review.reviewed_by='Jason';}],
+    ['extra-key',m=>{m.sodi_presentation_review.unreviewed_extension=true;}],
+    ['wrong-renderer',m=>{m.sodi_presentation_review.renderer_sha256='0'.repeat(64);}],
+    ['wrong-edition',m=>{m.sodi_presentation_review.renderer_version='unreviewed';}],
+    ['wrong-source',m=>{m.sodi_presentation_review.source_files['participant-evidence-safety.js']='0'.repeat(64);}],
+    ['wrong-artifact',m=>{m.sodi_presentation_review.artifact_file_sha256='0'.repeat(64);}],
+    ['wrong-history',m=>{m.sodi_presentation_review.prior_review.sha256='0'.repeat(64);}],
+    ['provider-call',m=>{m.sodi_presentation_review.provider_calls=1;}],
+    ['pending-visuals',m=>{m.sodi_presentation_review.visual_review='pending';}],
+    ['pending-fidelity',m=>{m.sodi_presentation_review.fidelity_review='pending';}],
+    ['missing-visual-proof',m=>{delete m.sodi_presentation_review.verification_receipts.visual;}],
+    ['wrong-diagnostic-order',m=>{m.sodi_presentation_review.diagnostic_order.keys.reverse();}],
+    ['wrong-label-order',m=>{m.sodi_presentation_review.diagnostic_order.labels.reverse();}],
+    ['missing-copy-map',m=>{delete m.sodi_presentation_review.display_copy_review.sodi_narrative_map_sha256;}],
+    ['participant-rewrite',m=>{m.sodi_presentation_review.display_copy_review.participant_accounts_unchanged=false;}],
+    ['missing-exporter-proof',m=>{delete m.sodi_presentation_review.text_reader_proof.exporter_sha256;}],
+    ['unknown-parser',m=>{m.sodi_presentation_review.text_reader_proof.pdfplumber_version='unknown';}]
+  ];
+  for(const key of keys)sodiMutations.push(
+    [key+'-missing-pdf',m=>{delete m.sodi_presentation_review.pdf_outputs[key];}],
+    [key+'-wrong-pdf',m=>{m.sodi_presentation_review.pdf_outputs[key].sha256='0'.repeat(64);}],
+    [key+'-wrong-html',m=>{m.sodi_presentation_review.pdf_outputs[key].html_sha256='0'.repeat(64);}],
+    [key+'-wrong-path',m=>{m.sodi_presentation_review.pdf_outputs[key].path='other.pdf';}],
+    [key+'-missing-pages',m=>{delete m.sodi_presentation_review.pdf_outputs[key].pages;}],
+    [key+'-reader-page-mismatch',m=>{m.sodi_presentation_review.text_reader_proof.outputs[key].pages++;}],
+    [key+'-missing-full-field-proof',m=>{delete m.sodi_presentation_review.text_reader_proof.outputs[key].authored_fields_sha256;}]
+  );
+  for(const [label,mutate]of sodiMutations)cases.push(manifestMutation('sodi-presentation-'+label,null,mutate));
+}
 assert.equal(new Set(cases.map(item=>item.label)).size,cases.length);
 if(setupOnly){
   // Import the actual copied module graph, but do not call the release validator
@@ -294,7 +332,7 @@ try {
     const tested=run(prepare(item.label,item.mutate));
     assert.notEqual(tested.status,0,item.label+' unexpectedly passed');
     assert.match(tested.stderr,/AssertionError/,'failure was not a validation assertion: '+item.label);
-    if(item.expected)assert.ok(tested.stderr.includes(item.expected),item.label+' rejected for an unexpected reason');
+    if(item.expected)assert.ok(tested.stderr.includes(item.expected),item.label+' rejected for an unexpected reason: '+tested.stderr);
     assert.doesNotMatch(tested.stderr,/ENOENT|MODULE_NOT_FOUND|SyntaxError|ReferenceError|TypeError/,'harness setup error must not count as rejection');
     rows.push({case:item.label,layer:item.layer,rejected:true,exitStatus:tested.status,expectedGate:item.expected||'manifest generation equality'});
     save();

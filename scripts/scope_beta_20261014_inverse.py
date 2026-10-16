@@ -40,7 +40,7 @@ def _additions_exact():
  for f,e in _fixture['additions'].items():
   p=ROOT/f
   if not p.is_file():return False
-  b=p.read_bytes()
+  b=source_at_hiring_publication_baseline(f,p.read_bytes())
   if len(b)!=e['bytes'] or hashlib.sha256(b).hexdigest()!=e['sha256']:return False
  return True
 def _names_at_baseline(names,current,prior):

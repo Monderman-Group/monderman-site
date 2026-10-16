@@ -121,7 +121,7 @@ const variants=[
 function expectedAttribution(report,id){
   const group=report.campaign_answer_evidence.groups.find(g=>Object.values(g.measures).includes(id));if(!group)return null;
   const get=key=>report.evidence.find(f=>f.id===group.measures[key]).value.toLocaleString('en-US');
-  return group.label+' · '+group.depth+'-minute depth · Questionnaire '+group.questionnaire_version+' · '+get('answered_responses')+' recorded answers · '+group.matching_source_packets.toLocaleString('en-US')+' matching saved reports';
+  return group.label+' · '+group.depth+'-minute depth · Question-set '+group.questionnaire_version+' · '+get('answered_responses')+' recorded answers · '+group.matching_source_packets.toLocaleString('en-US')+' matching saved reports';
 }
 for(const [engineName,engine]of [['chromium',chromium],['webkit',webkit]]){
   const browser=await engine.launch({headless:true});

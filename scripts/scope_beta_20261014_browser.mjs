@@ -13,7 +13,7 @@ const expectedRelease={product:'Monderman Q2-SODI',version:'1.0.0-beta.1',channe
 const displayedProduct='Q²-SODI',canonicalProductPage='q2-sodi.html',productRoutes=[canonicalProductPage,'scope.html'];
 const receipt={status:'IN_PROGRESS',startedAt:new Date().toISOString(),sourceHashes:Object.fromEntries(Object.keys(scopeBetaDelta.files).map(f=>[f,sha(fs.readFileSync(path.join(root,f)))])),states:[],screenshots:[],writes:[],forms:[],blocked:[],errors:[],checks:0};
 const save=()=>fs.writeFileSync(path.join(out,'RECEIPT.json'),JSON.stringify(receipt,null,2)+'\n');save();const check=(v,l)=>{receipt.checks++;assert.ok(v,l);},equal=(a,b,l)=>{receipt.checks++;assert.deepEqual(a,b,l);};
-const lenses=['clarity','velocity','systems','performance'],stages=['Request','Review','Decision','Completion'];
+const lenses=['clarity','systems','velocity','performance'],stages=['Request','Review','Decision','Completion'];
 const approvedPublicPaths=new Set(scopeBetaDelta.currentPublicPaths.map(f=>'/'+f));approvedPublicPaths.add('/');
 const viewports=[{width:375,height:667},{width:390,height:844},{width:800,height:1000},{width:1280,height:720},{width:1440,height:900},{width:1920,height:1080}];
 // Safari Option-Tab includes clickable links; use native engine keys without changing user preferences.

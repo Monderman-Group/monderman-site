@@ -112,7 +112,7 @@ PUBLICATIONS = (
         "INSIGHT",
         "The Unmeasured Layer",
         "Administrative Reality and the Risk Standard Reporting Misses",
-        "An argument for measuring structural clarity, decision velocity, operational systems, and institutional performance as one continuing view.",
+        "An argument for measuring structural clarity, operational systems, decision velocity, and institutional performance as one continuing view.",
         "September 2026", 0, (),
     ),
     Publication(

@@ -1,5 +1,5 @@
 // Exact current design leaf. Unknown edits and additions are never normalized away.
-import {sourceAtHiringPublicationBaseline, publicSourceAtHiringPublicationBaseline, sourcePathsAtHiringPublicationBaseline, publicPathsAtHiringPublicationBaseline} from './hiring_blind_spot_publication_20261015_inverse.mjs';
+import {sourceAtHiringPublicationBaseline, publicSourceAtHiringPublicationBaseline, sourcePathsAtHiringPublicationBaseline, publicPathsAtHiringPublicationBaseline, hiringOwnerDelta} from './hiring_blind_spot_publication_20261015_inverse.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -41,7 +41,7 @@ export const publicSourceAtScopeBetaChannelBaseline=(file,source)=>atBaseline(sc
 export const publicSourceBeforeScopeBeta20261014=(file,source)=>reverse(scopeBetaDelta.publicFiles,file,publicSourceAtScopeBetaChannelBaseline(file,source));
 export const publicSourceAtScopeBetaBaseline=(file,source)=>atBaseline(scopeBetaDelta.publicFiles,file,publicSourceAtScopeBetaChannelBaseline(file,source));
 const root=path.resolve(import.meta.dirname,'..');
-function additionsExact(){return SCOPE_BETA_ADDITIONS.every(f=>{const p=path.join(root,f),e=scopeBetaDelta.additions[f];return fs.existsSync(p)&&fs.statSync(p).isFile()&&fs.statSync(p).size===e.bytes&&sha(fs.readFileSync(p))===e.sha256;});}
+function additionsExact(){return SCOPE_BETA_ADDITIONS.every(f=>{const p=path.join(root,f),e=scopeBetaDelta.additions[f];if(!fs.existsSync(p)||!fs.statSync(p).isFile())return false;const b=sourceAtHiringPublicationBaseline(f,fs.readFileSync(p));return b.length===e.bytes&&sha(b)===e.sha256;});}
 function namesAtBaseline(names,current,prior){
  assert.ok(Array.isArray(names)&&names.every(f=>typeof f==='string'),'Explicit path list');
  return scopeBetaDelta.provisional===false&&names.length===new Set(names).size&&JSON.stringify([...names].sort())===JSON.stringify([...current].sort())&&additionsExact()?[...prior]:names;
@@ -51,15 +51,21 @@ export const publicPathsAtScopeBetaBaseline=names=>namesAtBaseline(publicPathsAt
 export function isCurrentScopeBeta(){return scopeBetaDelta.provisional===false&&additionsExact()&&SCOPE_BETA_FILES.every(f=>{const p=path.join(root,f),e=scopeBetaDelta.files[f];return fs.existsSync(p)&&sha(sourceAtHiringPublicationBaseline(f,fs.readFileSync(p)))===e.after_sha256;});}
 export function historicalScopeBetaBrowserBodies(publishRoot){
  if(!isCurrentScopeBeta())return new Map();
- assertScopeBetaBuiltEdition(publishRoot);
+ const channel=assertScopeBetaBuiltEdition(publishRoot);
  const rows=new Map();for(const f of Object.keys(scopeBetaDelta.publicFiles)){
 
   if(!/\.(?:html|css|js|json)$/.test(f))continue;
   const raw=publicSourceAtScopeBetaChannelBaseline(f,fs.readFileSync(path.join(publishRoot,f)));assert.equal(sha(raw),scopeBetaDelta.publicFiles[f].after_sha256,'Exact current compiled input before historical browser rendering');
   rows.set('/'+f,publicSourceBeforeScopeBeta20261014(f,raw));
+ }
+ // Only exact owner files outside the original historical text map are added.
+ for(const f of Object.keys(hiringOwnerDelta.publicEditions[channel].files)){
+  if(rows.has('/'+f))continue;
+  const raw=fs.readFileSync(path.join(publishRoot,f));
+  rows.set('/'+f,publicSourceAtScopeBetaBaseline(f,raw));
  }return rows;
 }
 
-export function assertScopeBetaPublicAdditions(publishRoot){for(const[f,e]of Object.entries(scopeBetaDelta.publicAdditions)){const b=fs.readFileSync(path.join(publishRoot,f));assert.equal(sha(b),e.sha256,'Exact new public addition '+f);assert.equal(b.length,e.bytes,'Exact new public addition length '+f);}}
+export function assertScopeBetaPublicAdditions(publishRoot){for(const[f,e]of Object.entries(scopeBetaDelta.publicAdditions)){const b=publicSourceAtHiringPublicationBaseline(f,fs.readFileSync(path.join(publishRoot,f)));assert.equal(sha(b),e.sha256,'Exact new public addition '+f);assert.equal(b.length,e.bytes,'Exact new public addition length '+f);}}
 
 export function assertScopeBetaBuiltEdition(publishRoot){assert.equal(scopeBetaDelta.provisional,false,'Draft built editions cannot certify');const inventory=(d,prefix='')=>fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>{assert.ok(!e.isSymbolicLink(),'No public symlinks');return e.isDirectory()?inventory(path.join(d,e.name),prefix+e.name+'/'):e.isFile()?[prefix+e.name]:[];});assert.deepEqual(publicPathsAtHiringPublicationBaseline(inventory(publishRoot).sort(),publishRoot),scopeBetaDelta.currentPublicPaths,'Exact whole physical compiled closure');const marker=JSON.parse(fs.readFileSync(path.join(publishRoot,'.well-known/monderman-questionnaire-release.json')));assert.ok(Object.hasOwn(scopeBetaDelta.publicEditions,marker.channel),'Known official questionnaire channel');for(const r of scopeBetaDelta.publicEditions[marker.channel]){if(r.path==='.well-known/monderman-release.json')continue;const b=publicSourceAtHiringPublicationBaseline(r.path,fs.readFileSync(path.join(publishRoot,r.path)));assert.equal(sha(b),r.sha256,'Whole single-channel compiled vector '+r.path);assert.equal(b.length,r.bytes,'Whole channel byte length '+r.path);}assert.match(JSON.parse(fs.readFileSync(path.join(publishRoot,'.well-known/monderman-release.json'))).revision,/^[a-f0-9]{40}$/,'Actual source revision marker');return marker.channel;}
