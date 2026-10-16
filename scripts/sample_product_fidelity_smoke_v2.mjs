@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {readPublicSampleFixture,publicResult} from './public_sample_fixture.mjs';
+import {currentSynthesisPdfReview,SODI_PRESENTATION_VERSION} from './public_sample_fixture.mjs';
 
 const base = process.env.SAMPLE_BASE || 'http://127.0.0.1:8080';
 const out = process.env.SAMPLE_OUT || '/tmp/sample-product-fidelity-smoke';
@@ -19,6 +20,12 @@ if(!fs.readFileSync('sample-report.html','utf8').includes('src="'+sdkUrl+'" inte
 // A stale or unapproved artifact must fail before browser layout is mistaken
 // for current-output fidelity. Never repin or replace it with mocked prose.
 const {artifact}=readPublicSampleFixture();
+const {manifest}=readPublicSampleFixture();
+const hasSodiAuthoredDisplay=currentSynthesisPdfReview(manifest,artifact).renderer_version===SODI_PRESENTATION_VERSION;
+// One independently reviewed complete Cross-Lens display pair; saved evidence stays raw.
+function expectedCrossActionText(value) {
+  return hasSodiAuthoredDisplay&&value==="Write out each saved focus label beneath its own diagnostic, keeping administrative work with Operational Systems, approval and review requirements with Decision Velocity, unclear authority and ownership with Structural Clarity, and consistency and ability to respond to change with Institutional Performance, so that any follow-up review is scoped to one diagnostic at a time. Do not combine the labels into a single statement of the problem."?"Write out each saved focus label beneath its own diagnostic, keeping unclear authority and ownership with Structural Clarity, administrative work with Operational Systems, approval and review requirements with Decision Velocity, and consistency and ability to respond to change with Institutional Performance, so that any follow-up review is scoped to one diagnostic at a time. Do not combine the labels into a single statement of the problem.":value;
+}
 const expectedArtifact = artifact.artifact_sha256;
 const generationEngineCommits=Object.fromEntries(Object.entries(artifact.outputs).map(([key,entry])=>[key,entry.provenance.engine_commit]));
 const expected = Object.fromEntries(Object.entries({os:'operational_systems',dv:'decision_velocity',sc:'structural_clarity',ip:'institutional_performance'}).map(([tab,key])=>{
@@ -114,7 +121,7 @@ assert(await page.locator('.dx-tab[tabindex="0"]').count() === 1, 'report tabs e
 await page.keyboard.press('End');
 assert(await page.locator('#tab-depth').getAttribute('aria-selected') === 'true', 'End does not activate the final report tab');
 await page.keyboard.press('Home');
-assert(await page.locator('#tab-os').getAttribute('aria-selected') === 'true', 'Home does not activate the first report tab');
+assert(await page.locator('#tab-sc').getAttribute('aria-selected') === 'true', 'Home does not activate the first report tab');
 
 for (const [key, contract] of Object.entries(expected)) {
   await page.locator(`#tab-${key}`).click();
@@ -196,7 +203,7 @@ assert(!crossText.includes('Source-backed remedy paths'), 'Cross-Lens sample ren
 const crossActions=artifact.outputs.cross_lens_synthesis.source.ai_report.report.interpretation.recommendations.filter(row=>row.action?.trim()).map(row=>row.action);
 assert(await cross.locator('.mr-report-nextsteps .mr-ai-action').count()===crossActions.length, 'Cross-Lens accepted next-step count differs');
 assert(await cross.locator('.mr-report-options .mr-ai-action').count()===(artifact.outputs.cross_lens_synthesis.source.ai_report.report.interpretation.action_options||[]).length, 'Cross-Lens accepted alternatives count differs');
-for(const action of crossActions)assert(crossText.includes(action), 'Cross-Lens accepted action text differs');
+for(const action of crossActions)assert(crossText.includes(expectedCrossActionText(action)), 'Cross-Lens accepted action text differs');
 assert(await cross.locator('.mr-action-path .mr-action-step').count()===0, 'Cross-Lens duplicates fallback actions beside accepted AI');
 assert(await cross.locator('.mr-remedy-card').count() === 0, 'Cross-Lens sample rendered remedy cards without eligible source prose');
 await assertPromotionalBoundary(cross,'cross_lens_synthesis');

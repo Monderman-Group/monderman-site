@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = '76690a65c53794cb1e35f512221e51ddd0c6525b'
 # UNBOUND DATA template: None is a mandatory future fixture pin, never an execution fallback.
-FIXTURE_SHA256 = '3051a056703ef1faa1a09ec5bc19fcbf289ef8d4e10b9b3344392376a3aee036'
+FIXTURE_SHA256 = 'e5adce9a0cebe668a32899ce4a7bdbc694e5d4c674a24a32a328b284ae3a3cd3'
 assert isinstance(FIXTURE_SHA256, str) and len(FIXTURE_SHA256) == 64, 'Final combined fixture pin is required'
 _raw = (ROOT / 'scripts/fixtures/hiring-blind-spot-publication-20261015.json').read_bytes()
 assert hashlib.sha256(_raw).hexdigest() == FIXTURE_SHA256

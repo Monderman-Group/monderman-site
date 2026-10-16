@@ -21053,9 +21053,9 @@
       {
         "path": "scripts/report_actual_text_pagination_smoke.mjs",
         "mode": "100644",
-        "bytes": 9091,
-        "sha256": "8f542f91e760d79c258369a0689fd74dbe6697561861c56442cc146a649ffc4a",
-        "gitBlobSha1": "9cdea39122d5b96d18dedef77e33a6bdccf91b6c"
+        "bytes": 9736,
+        "sha256": "3d4442e97a8472afdb76a15ab1ccfe7bb098b527eff80c9177c094a4b0870f99",
+        "gitBlobSha1": "02a8e3c8e4c63b657cb9166adff7414dd33bcf30"
       },
       {
         "path": "scripts/report_ai_action_pagination_smoke.mjs",
@@ -21368,9 +21368,9 @@
       {
         "path": "scripts/report_presentation_smoke.mjs",
         "mode": "100644",
-        "bytes": 50754,
-        "sha256": "697a20e538c8436c97103da20a46845f0bc8cf66bf950662fcdccfd6e2d7154f",
-        "gitBlobSha1": "468251fa84a654b027b4b58d4c7ff3394f977db9"
+        "bytes": 54968,
+        "sha256": "6121283d84d7e59be11982ac8ac4883a0aca5aa55226bbf55b23ab5df52c611d",
+        "gitBlobSha1": "6b1fd0cb1449cefb5098c3bd40f8f358c0d2505e"
       },
       {
         "path": "scripts/report_print_conditions_sources_smoke.mjs",
@@ -21564,9 +21564,9 @@
       {
         "path": "scripts/sample_product_fidelity_smoke_v2.mjs",
         "mode": "100644",
-        "bytes": 20896,
-        "sha256": "aaa128e7e28893dc0617d7256d174611dc1fa1642c2a2ac864e50d4269d9bd19",
-        "gitBlobSha1": "4421157a8a64c5daaa3205bb785cd2bdc6417490"
+        "bytes": 22256,
+        "sha256": "0e01b2cbb0006ec420468a2667b8232fcd62085d20ef6b878058a85188d5ea72",
+        "gitBlobSha1": "570869fc7343c15dffc2c58402a525f430f6f75c"
       },
       {
         "path": "scripts/sample_report_marketing_smoke.mjs",
@@ -24588,6 +24588,39 @@
           ]
         ]
       },
+      "scripts/report_actual_text_pagination_smoke.mjs": {
+        "before_bytes": 9091,
+        "before_sha256": "8f542f91e760d79c258369a0689fd74dbe6697561861c56442cc146a649ffc4a",
+        "after_bytes": 9736,
+        "after_sha256": "3d4442e97a8472afdb76a15ab1ccfe7bb098b527eff80c9177c094a4b0870f99",
+        "encoding": "utf8",
+        "replacements": [
+          [
+            217,
+            333,
+            "import {spawnSync} from 'node:child_process';\nimport {SODI_PRESENTATION_VERSION} from './public_sample_fixture.mjs';",
+            "import {spawnSync} from 'node:child_process';"
+          ],
+          [
+            528,
+            1030,
+            "const compact=text=>String(text).replace(/\\s+/g,'');\n// Exact reviewed display expectation only; the historical source fixture stays raw.\nfunction expectedPaginationText(value,rendererVersion) {\n  return rendererVersion===SODI_PRESENTATION_VERSION&&value===\"Comparisons across questionnaire versions can reflect changes in measurement. A withheld composite remains withheld.\"?\"Comparisons across question-set versions can reflect changes in measurement. A withheld composite remains withheld.\":value;\n}",
+            "const compact=text=>String(text).replace(/\\s+/g,'');"
+          ],
+          [
+            4108,
+            4305,
+            "    await page.setContent('<!doctype html><html><body></body></html>');await page.addScriptTag({content:source});\n    const rendererVersion=await page.evaluate(()=>MondermanReport.rendererVersion);",
+            "    await page.setContent('<!doctype html><html><body></body></html>');await page.addScriptTag({content:source});"
+          ],
+          [
+            9124,
+            9230,
+            "text.includes(compact(expectedPaginationText(paragraph,rendererVersion))),'Saved AI text or caveat absent'",
+            "text.includes(compact(paragraph)),'Saved AI text or caveat absent'"
+          ]
+        ]
+      },
       "scripts/report_campaign_attribution_smoke.mjs": {
         "before_bytes": 20306,
         "before_sha256": "be02285db385b94933e97181d7066bbfc8795255c4eb407ab7ebf81b87c8dcff",
@@ -24711,13 +24744,43 @@
       "scripts/report_presentation_smoke.mjs": {
         "before_bytes": 50622,
         "before_sha256": "8447465bf83cfbccdfa211f79837209a17f73875f4751ee1469f63f966b44c37",
-        "after_bytes": 50754,
-        "after_sha256": "697a20e538c8436c97103da20a46845f0bc8cf66bf950662fcdccfd6e2d7154f",
+        "after_bytes": 54968,
+        "after_sha256": "6121283d84d7e59be11982ac8ac4883a0aca5aa55226bbf55b23ab5df52c611d",
         "encoding": "utf8",
         "replacements": [
           [
-            44780,
-            45059,
+            126,
+            304,
+            "import {readPublicSampleFixture,publicResult} from './public_sample_fixture.mjs';\nimport {currentSynthesisPdfReview,SODI_PRESENTATION_VERSION} from './public_sample_fixture.mjs';",
+            "import {readPublicSampleFixture,publicResult} from './public_sample_fixture.mjs';"
+          ],
+          [
+            597,
+            4670,
+            "const {artifact}=readPublicSampleFixture();\nconst {manifest}=readPublicSampleFixture();\n// Exact independently reviewed whole-string display pairs; saved evidence stays raw.\nconst authoredDisplayExpected = Object.freeze({\n  \"The submitted runs carry a score range from the lowest to the highest supplied value alongside a saved variation label, and the questionnaire, work scope and time window are recorded as compatible. Those summaries describe the pattern without stating a cause, so a short written judgement keeps any follow-up tied to the saved results for these runs.\": \"The submitted runs carry a score range from the lowest to the highest supplied value alongside a saved variation label, and the question set, work scope and time window are recorded as compatible. Those summaries describe the pattern without stating a cause, so a short written judgement keeps any follow-up tied to the saved results for these runs.\",\n  \"The saved means for managers, people doing the work and senior leaders are not identical, and each rests on a small number of submitted runs recorded under compatible questionnaire, work scope and time window details. Presenting them together shows the comparison plainly without treating any group as better placed or assigning a cause.\": \"The saved means for managers, people doing the work and senior leaders are not identical, and each rests on a small number of submitted runs recorded under compatible question-set, work scope and time window details. Presenting them together shows the comparison plainly without treating any group as better placed or assigning a cause.\",\n  \"Questionnaire compatibility is Verified, work scope compatibility is Common work scope recorded and the time window is Aligned time window, so the spread can be read as saved; it still explains nothing about the wider organization.\": \"Question-set compatibility is Verified, work scope compatibility is Common work scope recorded and the time window is Aligned time window, so the spread can be read as saved; it still explains nothing about the wider organization.\",\n  \"Write out each saved focus label beneath its own diagnostic, keeping administrative work with Operational Systems, approval and review requirements with Decision Velocity, unclear authority and ownership with Structural Clarity, and consistency and ability to respond to change with Institutional Performance, so that any follow-up review is scoped to one diagnostic at a time. Do not combine the labels into a single statement of the problem.\": \"Write out each saved focus label beneath its own diagnostic, keeping unclear authority and ownership with Structural Clarity, administrative work with Operational Systems, approval and review requirements with Decision Velocity, and consistency and ability to respond to change with Institutional Performance, so that any follow-up review is scoped to one diagnostic at a time. Do not combine the labels into a single statement of the problem.\",\n  \"The four diagnostics each carry twenty-seven submitted runs under a verified questionnaire match, a common recorded work scope and an aligned time window, which makes side-by-side reading tempting. Similar wording across labels does not show one shared weakness, and keeping them separate prevents a follow-up review from chasing a merged problem that the saved results do not describe.\": \"The four diagnostics each carry twenty-seven submitted runs under a verified question-set match, a common recorded work scope and an aligned time window, which makes side-by-side reading tempting. Similar wording across labels does not show one shared weakness, and keeping them separate prevents a follow-up review from chasing a merged problem that the saved results do not describe.\"\n});\nconst hasSodiAuthoredDisplay=currentSynthesisPdfReview(manifest,artifact).renderer_version===SODI_PRESENTATION_VERSION;\nfunction expectedAuthoredDisplayText(value) {\n  return hasSodiAuthoredDisplay&&typeof value==='string'&&Object.hasOwn(authoredDisplayExpected,value)?authoredDisplayExpected[value]:value;\n}",
+            "const {artifact}=readPublicSampleFixture();"
+          ],
+          [
+            14713,
+            14797,
+            ".trim()===expectedAuthoredDisplayText(item.action),label+' '+field+' action differs'",
+            ".trim()===item.action,label+' '+field+' action differs'"
+          ],
+          [
+            14839,
+            14924,
+            ".includes(expectedAuthoredDisplayText(item.reason)),label+' '+field+' reason differs'",
+            ".includes(item.reason),label+' '+field+' reason differs'"
+          ],
+          [
+            31901,
+            31998,
+            "crossText.includes(expectedAuthoredDisplayText(action)),'Cross-Lens accepted action text differs'",
+            "crossText.includes(action),'Cross-Lens accepted action text differs'"
+          ],
+          [
+            48994,
+            49273,
             "    segments:['structural_clarity','operational_systems','decision_velocity','institutional_performance'].map(tool=>crossSource.source_groups.find(g=>g.tool_type===tool)).map(g=>({label:g.tool_label,count:g.submitted_runs+' submitted runs',stats:[['Mean',fmt(g.mean_score)]]})),\n",
             "    segments:crossSource.source_groups.map(g=>({label:g.tool_label,count:g.submitted_runs+' submitted runs',stats:[['Mean',fmt(g.mean_score)]]})),\n"
           ]
@@ -24828,6 +24891,39 @@
             1106,
             "const scopeHistoricalResponse=route=>{const u=new URL(route.request().url()),b=scopeHistoricalBodies.get(u.pathname);assert.ok(b,'Exact compiled historical input');return route.fulfill({status:200,contentType:u.pathname.endsWith('.pdf')?'application/pdf':u.pathname.endsWith('.png')?'image/png':u.pathname.endsWith('.webp')?'image/webp':u.pathname.endsWith('.jpg')?'image/jpeg':u.pathname.endsWith('.html')?'text/html':u.pathname.endsWith('.css')?'text/css':u.pathname.endsWith('.json')?'application/json':'application/javascript',body:b});};\n",
             "const scopeHistoricalResponse=route=>{const u=new URL(route.request().url()),b=scopeHistoricalBodies.get(u.pathname);assert.ok(b,'Exact compiled historical input');return route.fulfill({status:200,contentType:u.pathname.endsWith('.html')?'text/html':u.pathname.endsWith('.css')?'text/css':u.pathname.endsWith('.json')?'application/json':'application/javascript',body:b});};\n"
+          ]
+        ]
+      },
+      "scripts/sample_product_fidelity_smoke_v2.mjs": {
+        "before_bytes": 20896,
+        "before_sha256": "aaa128e7e28893dc0617d7256d174611dc1fa1642c2a2ac864e50d4269d9bd19",
+        "after_bytes": 22256,
+        "after_sha256": "0e01b2cbb0006ec420468a2667b8232fcd62085d20ef6b878058a85188d5ea72",
+        "encoding": "utf8",
+        "replacements": [
+          [
+            135,
+            313,
+            "import {readPublicSampleFixture,publicResult} from './public_sample_fixture.mjs';\nimport {currentSynthesisPdfReview,SODI_PRESENTATION_VERSION} from './public_sample_fixture.mjs';",
+            "import {readPublicSampleFixture,publicResult} from './public_sample_fixture.mjs';"
+          ],
+          [
+            1296,
+            2577,
+            "const {artifact}=readPublicSampleFixture();\nconst {manifest}=readPublicSampleFixture();\nconst hasSodiAuthoredDisplay=currentSynthesisPdfReview(manifest,artifact).renderer_version===SODI_PRESENTATION_VERSION;\n// One independently reviewed complete Cross-Lens display pair; saved evidence stays raw.\nfunction expectedCrossActionText(value) {\n  return hasSodiAuthoredDisplay&&value===\"Write out each saved focus label beneath its own diagnostic, keeping administrative work with Operational Systems, approval and review requirements with Decision Velocity, unclear authority and ownership with Structural Clarity, and consistency and ability to respond to change with Institutional Performance, so that any follow-up review is scoped to one diagnostic at a time. Do not combine the labels into a single statement of the problem.\"?\"Write out each saved focus label beneath its own diagnostic, keeping unclear authority and ownership with Structural Clarity, administrative work with Operational Systems, approval and review requirements with Decision Velocity, and consistency and ability to respond to change with Institutional Performance, so that any follow-up review is scoped to one diagnostic at a time. Do not combine the labels into a single statement of the problem.\":value;\n}",
+            "const {artifact}=readPublicSampleFixture();"
+          ],
+          [
+            9944,
+            10070,
+            "assert(await page.locator('#tab-sc').getAttribute('aria-selected') === 'true', 'Home does not activate the first report tab');",
+            "assert(await page.locator('#tab-os').getAttribute('aria-selected') === 'true', 'Home does not activate the first report tab');"
+          ],
+          [
+            17196,
+            17290,
+            "crossText.includes(expectedCrossActionText(action)), 'Cross-Lens accepted action text differs'",
+            "crossText.includes(action), 'Cross-Lens accepted action text differs'"
           ]
         ]
       },

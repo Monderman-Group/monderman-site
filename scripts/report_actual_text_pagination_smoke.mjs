@@ -4,10 +4,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {spawnSync} from 'node:child_process';
+import {SODI_PRESENTATION_VERSION} from './public_sample_fixture.mjs';
 const {chromium}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 const root=path.resolve(import.meta.dirname,'..');
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const compact=text=>String(text).replace(/\s+/g,'');
+// Exact reviewed display expectation only; the historical source fixture stays raw.
+function expectedPaginationText(value,rendererVersion) {
+  return rendererVersion===SODI_PRESENTATION_VERSION&&value==="Comparisons across questionnaire versions can reflect changes in measurement. A withheld composite remains withheld."?"Comparisons across question-set versions can reflect changes in measurement. A withheld composite remains withheld.":value;
+}
 function assertAtomic(pages,blocks){
   assert.ok(blocks.length,'Missing expected reading units');
   for(const block of blocks){
@@ -51,6 +56,7 @@ try{
   for(const item of fixture.cases){
     const before=JSON.stringify(item.run),dir=path.join(out,item.id);fs.mkdirSync(dir);
     await page.setContent('<!doctype html><html><body></body></html>');await page.addScriptTag({content:source});
+    const rendererVersion=await page.evaluate(()=>MondermanReport.rendererVersion);
     const html=await page.evaluate(({run,kind})=>MondermanReport.buildReportHtml(kind==='synthesis'?MondermanReport.fromSynthesis(run):MondermanReport.fromRun(run)),item);
     assert.equal(JSON.stringify(item.run),before);assert.doesNotMatch(html,/\[object Object\]|\bundefined\b|\bNaN\b/);
     const result={id:item.id,widths:[]};receipt.cases.push(result);
@@ -92,7 +98,7 @@ try{
     const text=compact(pages.join('\n')),report=item.run.ai_report.report,interpretation=report.interpretation;
     for(const paragraph of [interpretation.summary,...interpretation.observations.map(x=>x.text),...interpretation.hypotheses.map(x=>x.text),...interpretation.recommendations.flatMap(x=>[x.action,x.reason,x.prerequisite,x.risk,x.success_check]),...report.limitations,...interpretation.limitations,report.benchmark.explanation,...report.sources.flatMap(x=>[x.title,x.publisher])]){
       assert.ok(typeof paragraph==='string'&&compact(paragraph),'Empty expected AI text');
-      assert.ok(text.includes(compact(paragraph)),'Saved AI text or caveat absent');
+      assert.ok(text.includes(compact(expectedPaginationText(paragraph,rendererVersion))),'Saved AI text or caveat absent');
     }
     fs.writeFileSync(path.join(dir,'pages.json'),JSON.stringify(pages,null,2));
     await page.emulateMedia({media:'screen'});
