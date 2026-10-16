@@ -43,6 +43,7 @@ const adapterDependencies=['scripts/public_copy_clarity_inverse.mjs','scripts/pr
   'scripts/marketing_photo_presentation_20261013_inverse.mjs','scripts/fixtures/marketing-photo-presentation-20261013.json',
   'scripts/homepage_refinement_20261014_inverse.mjs','scripts/fixtures/homepage-refinement-20261014.json',
   'scripts/scope_beta_20261014_inverse.mjs','scripts/fixtures/scope-beta-20261014.json',
+  'scripts/hiring_blind_spot_publication_20261015_inverse.mjs','scripts/fixtures/hiring-blind-spot-publication-20261015.json',
   'scripts/site_design_coherence_20261014_inverse.mjs','scripts/fixtures/site-design-coherence-20261014.json',
   'scripts/homepage_report_first_20260927_inverse.mjs','scripts/fixtures/homepage-report-first-20260927.json',
   'scripts/trenches_homepage_carousel_20260929_inverse.mjs',
@@ -200,7 +201,7 @@ for(const name of sourceNames) {
     m.source_files[name]=changedHash(m.source_files[name]);
   }));
   cases.push({
-    label:'source-byte-drift-'+path.basename(name),layer:'source-byte-binding',expected:name==='monderman-report.js'?name+': Only the exact reviewed single-lens source can be inverted':CHANGE_WORDING_FILES.includes(name)?name+': only the exact reviewed current source can be inverted (change wording)':name==='scripts/refresh_public_sample_previews.mjs'
+    label:'source-byte-drift-'+path.basename(name),layer:'source-byte-binding',expected:name==='monderman-report.js'?name+(Object.hasOwn(baselineManifest,'sodi_presentation_review')?': only the exact reviewed current source can be inverted (change wording)':': Only the exact reviewed single-lens source can be inverted'):CHANGE_WORDING_FILES.includes(name)?name+': only the exact reviewed current source can be inverted (change wording)':name==='scripts/refresh_public_sample_previews.mjs'
       ?name+': only the exact reviewed homepage-report-quad source can be inverted':'reviewed source changed: '+name,
     mutate(directory) {
       const suffix=name.endsWith('.html')?'\n<!-- sensitivity mutation only -->\n':'\n// sensitivity mutation only\n';
@@ -331,7 +332,7 @@ try {
     const tested=run(prepare(item.label,item.mutate));
     assert.notEqual(tested.status,0,item.label+' unexpectedly passed');
     assert.match(tested.stderr,/AssertionError/,'failure was not a validation assertion: '+item.label);
-    if(item.expected)assert.ok(tested.stderr.includes(item.expected),item.label+' rejected for an unexpected reason');
+    if(item.expected)assert.ok(tested.stderr.includes(item.expected),item.label+' rejected for an unexpected reason: '+tested.stderr);
     assert.doesNotMatch(tested.stderr,/ENOENT|MODULE_NOT_FOUND|SyntaxError|ReferenceError|TypeError/,'harness setup error must not count as rejection');
     rows.push({case:item.label,layer:item.layer,rejected:true,exitStatus:tested.status,expectedGate:item.expected||'manifest generation equality'});
     save();

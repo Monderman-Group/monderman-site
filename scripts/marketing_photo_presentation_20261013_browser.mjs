@@ -119,7 +119,7 @@ async function setup(type, options, route) {
     if (options.failStyles && url.pathname === '/marketing-photo-presentation.css') return interception.abort();
     if (options.failScript && url.pathname === '/marketing-photo-presentation.js') return interception.abort();
     if (options.failPhotos && derivatives.has(url.pathname)) return interception.abort();
-    if (!options.actualCurrent && designHistoricalBodies.has(url.pathname)) return interception.fulfill({status:200,contentType:url.pathname.endsWith('.webp')?'image/webp':url.pathname.endsWith('.jpg')?'image/jpeg':url.pathname.endsWith('.html')?'text/html':url.pathname.endsWith('.css')?'text/css':url.pathname.endsWith('.json')?'application/json':'application/javascript',body:designHistoricalBodies.get(url.pathname)});
+    if (!options.actualCurrent && designHistoricalBodies.has(url.pathname)) return interception.fulfill({status:200,contentType:url.pathname.endsWith('.pdf')?'application/pdf':url.pathname.endsWith('.png')?'image/png':url.pathname.endsWith('.webp')?'image/webp':url.pathname.endsWith('.jpg')?'image/jpeg':url.pathname.endsWith('.html')?'text/html':url.pathname.endsWith('.css')?'text/css':url.pathname.endsWith('.json')?'application/json':'application/javascript',body:designHistoricalBodies.get(url.pathname)});
     return interception.continue();
   });
   const response = await page.goto(base + '/' + route.page, {waitUntil: 'load'});

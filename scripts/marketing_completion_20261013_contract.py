@@ -3,7 +3,7 @@ import hashlib
 import json
 from pathlib import Path
 from homepage_refinement_20261014_inverse import source_paths_at_homepage_refinement_baseline
-from scope_beta_20261014_inverse import _fixture as scope_beta_delta
+from hiring_blind_spot_publication_20261015_inverse import owner_delta
 import re
 import subprocess
 import sys
@@ -141,7 +141,7 @@ def reject_finite_binary_string(fn, file, label):
     else:
         raise AssertionError(label)
 
-upstream_binary_identity_files = {file for file, entry in scope_beta_delta['files'].items() if entry.get('encoding') == 'base64'}
+upstream_binary_identity_files = {file for file, entry in owner_delta['files'].items() if entry.get('encoding') == 'base64'}
 check(sorted(upstream_binary_identity_files.intersection(ADDITIONS)) == ['assets/marketing/team-perspectives-1600.webp', 'assets/marketing/team-perspectives-540.webp', 'assets/marketing/team-perspectives-960.jpg', 'assets/marketing/team-perspectives-960.webp', 'assets/marketing/work-discussion-1600.webp', 'assets/marketing/work-discussion-540.webp', 'assets/marketing/work-discussion-960.jpg', 'assets/marketing/work-discussion-960.webp'], 'Exactly eight upstream finite binary additions require byte input')
 binary_string_cases = 0
 for file in ['unknown.js', '__proto__', 'constructor', 'toString', 'workspace.html', 'pattern-trial.html', *ADDITIONS]:

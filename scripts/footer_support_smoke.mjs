@@ -7,6 +7,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { chromium, webkit } from 'playwright';
 import {isCurrentScopeBeta, assertScopeBetaBuiltEdition} from './scope_beta_20261014_inverse.mjs';
+import {hiringPublicationDelta} from './hiring_blind_spot_publication_20261015_inverse.mjs';
 const root = path.resolve(process.env.SITE_SOURCE_DIR || '.render-public');
 const currentScope = isCurrentScopeBeta();
 if (currentScope) assertScopeBetaBuiltEdition(root);
@@ -36,16 +37,28 @@ for (const file of (await fs.readdir(root)).filter(f => f.endsWith('.html'))) {
 assert.deepEqual(scopePages.map(p => p.file).sort(), currentScope ? currentProductPages : [], 'Only the whole-source and whole-build approved canonical product page and alias are separate');
 if (currentScope) for (const page of scopePages) assert.equal(page.shell, true, page.file + ': actual product page and retained alias keep the canonical shell');
 const browserPages = [...pages, ...scopePages];
+const hiringArticle = 'hiring-blind-spot.html';
+const publicationPages = pages.filter(p => p.file === hiringArticle);
+if (publicationPages.length) {
+  const channel = JSON.parse(await fs.readFile(path.join(root, '.well-known/monderman-questionnaire-release.json'), 'utf8')).channel;
+  const approved = hiringPublicationDelta.publicEditions[channel]?.additions[hiringArticle];
+  assert.ok(approved, 'Only the separately pinned article may join the footer inventory');
+  const bytes = await fs.readFile(path.join(root, hiringArticle));
+  assert.equal(bytes.length, approved.bytes, 'Exact approved article compiled length');
+  assert.equal(createHash('sha256').update(bytes).digest('hex'), approved.sha256, 'Exact approved article compiled bytes');
+  assert.equal(publicationPages[0].shell, true, 'The exact article uses the canonical shell');
+}
+const historicalPages = pages.filter(p => p.file !== hiringArticle);
 const evaluationArchives = ['terms-2026-09-19-invited-evaluation.html', 'privacy-2026-09-19-invited-evaluation.html', 'terms-2026-09-19-invitation-access.html', 'privacy-2026-09-19-invitation-access.html'];
 assert.deepEqual(pages.filter(p => evaluationArchives.includes(p.file)).map(p => p.file).sort(), [...evaluationArchives].sort());
 const newPublications = ['durable-organization.html', 'fast-to-cut-slow-to-build.html', 'hold-collide-come-apart.html', 'trenches-not-silos.html'];
 assert.deepEqual(pages.filter(p => newPublications.includes(p.file) && p.shell).map(p => p.file), newPublications, 'New publication uses the canonical footer and shell');
 assert.equal(pages.filter(p => p.file === 'outreach-privacy.html' && p.shell).length, 1, 'Separate outreach notice uses the canonical footer and shell');
-const previousPages = pages.filter(p => !newPublications.includes(p.file) && p.file !== 'outreach-privacy.html');
+const previousPages = historicalPages.filter(p => !newPublications.includes(p.file) && p.file !== 'outreach-privacy.html');
 assert.equal(previousPages.filter(p => !evaluationArchives.includes(p.file)).length, 65, 'Pre-evaluation footer inventory remains intact');
 assert.equal(previousPages.filter(p => p.shell && !evaluationArchives.includes(p.file)).length, 61, 'Pre-evaluation canonical shell inventory remains intact');
-assert.equal(pages.length, 74);
-assert.equal(pages.filter(p => p.shell).length, 70);
+assert.equal(historicalPages.length, 74);
+assert.equal(historicalPages.filter(p => p.shell).length, 70);
 // Only pinned public rendering/auth SDK bytes are supplied. Customer-service
 // requests remain blocked, and no forms or diagnostics are submitted.
 for (const [url, dependency] of dependencies) {

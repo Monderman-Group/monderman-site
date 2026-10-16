@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import {createHash} from 'node:crypto';
 import { chromium, webkit } from 'playwright';
 import {isCurrentScopeBeta, assertScopeBetaBuiltEdition} from './scope_beta_20261014_inverse.mjs';
+import {hiringPublicationDelta} from './hiring_blind_spot_publication_20261015_inverse.mjs';
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
 const origin = new URL(base).origin;
@@ -49,6 +51,15 @@ if (currentProductPages.length) {
   assert.equal(expectedFooterCount, 76, 'Both approved product routes add one real canonical footer');
 }
 for (const file of pages) assert(fs.existsSync(path.join(root, file)), `Missing inventoried page ${file}`);
+const hiringArticle='hiring-blind-spot.html';
+if(fs.existsSync(path.join(root,hiringArticle))){
+  const bytes=fs.readFileSync(path.join(root,hiringArticle)),approved=hiringPublicationDelta.additions[hiringArticle];
+  assert.equal(bytes.length,approved.bytes,'Exact approved article source length');
+  assert.equal(createHash('sha256').update(bytes).digest('hex'),approved.sha256,'Exact approved article source bytes');
+  pages.push(hiringArticle);
+  expectedHeroCount++;
+  expectedFooterCount++;
+}
 
 const publishedSurfaces = fs.readdirSync(root).filter(file => file.endsWith('.html')).filter(file => {
   const html = fs.readFileSync(path.join(root, file), 'utf8');

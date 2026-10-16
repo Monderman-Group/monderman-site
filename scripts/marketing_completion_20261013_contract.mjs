@@ -5,7 +5,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {sourcePathsAtHomepageRefinementBaseline} from './homepage_refinement_20261014_inverse.mjs';
-import {scopeBetaDelta} from './scope_beta_20261014_inverse.mjs';
+import {hiringOwnerDelta} from './hiring_blind_spot_publication_20261015_inverse.mjs';
 import {MARKETING_COMPLETION_BASELINE,MARKETING_COMPLETION_VERSION,MARKETING_COMPLETION_FILES,MARKETING_COMPLETION_ADDITIONS,MARKETING_COMPLETION_GUARD_FILES,marketingCompletionDelta as delta,sourceBeforeMarketingCompletion20261013 as strict,sourceAtMarketingCompletionBaseline as conditional} from './marketing_completion_20261013_inverse.mjs';
 import {sourceAtMarketingPhotoPresentationBaseline,photoNamesAtMarketingPhotoPresentationBaseline,PHOTO_PRESENTATION_ADDITIONS,PHOTO_PRESENTATION_GUARD_FILES} from './marketing_photo_presentation_20261013_inverse.mjs';
 const root=path.resolve(import.meta.dirname,'..'),read=file=>sourceAtMarketingPhotoPresentationBaseline(file,fs.readFileSync(path.join(root,file)));
@@ -54,7 +54,7 @@ const scope=list=>{for(const f of list)assert.ok(known.has(f),f+': unlisted sour
 ok(!paths.some(f=>/marketing-source\.tgz|marketing-review-source\.zip|(?:^|\/)(?:AGENTS\.md|\.env(?:\.|$))/.test(f)),'No archive/private instructions/credential file added');
 // October 15, 2026: formerly unlisted additions are now eight exact upstream finite binaries.
 function rejectFiniteBinaryString(fn,file,label){assert.throws(fn,{name:'AssertionError',message:file+': finite binary input stays bytes'},label);checks++;negativeControls++;}
-const upstreamBinaryIdentityFiles=new Set(Object.entries(scopeBetaDelta.files).filter(([,entry])=>entry.encoding==='base64').map(([file])=>file));
+const upstreamBinaryIdentityFiles=new Set(Object.entries(hiringOwnerDelta.files).filter(([,entry])=>entry.encoding==='base64').map(([file])=>file));
 eq([...upstreamBinaryIdentityFiles].filter(file=>MARKETING_COMPLETION_ADDITIONS.includes(file)).sort(),["assets/marketing/team-perspectives-1600.webp","assets/marketing/team-perspectives-540.webp","assets/marketing/team-perspectives-960.jpg","assets/marketing/team-perspectives-960.webp","assets/marketing/work-discussion-1600.webp","assets/marketing/work-discussion-540.webp","assets/marketing/work-discussion-960.jpg","assets/marketing/work-discussion-960.webp"],'Exactly eight upstream finite binary additions require byte input');
 for(const file of ['unknown.js','__proto__','constructor','toString','workspace.html','pattern-trial.html',...MARKETING_COMPLETION_ADDITIONS])for(const source of ['Unlisted 😀',Buffer.from('Unlisted 😀')]){
   if(upstreamBinaryIdentityFiles.has(file)&&typeof source==='string'){
