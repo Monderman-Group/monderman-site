@@ -19674,9 +19674,9 @@
       {
         "path": "scripts/cross_browser_public_release_smoke.mjs",
         "mode": "100644",
-        "bytes": 5526,
-        "sha256": "f66dc079486d886d6ba1a43f687cdba751075dd05fb10209798652032b9425b8",
-        "gitBlobSha1": "ff06aaf1268ee1c6e099bb5d37e7c5489f4e2335"
+        "bytes": 5567,
+        "sha256": "af89fd3a09b5bfdad51c47e423953da74569de1eafc2839b7967ff6f151518c1",
+        "gitBlobSha1": "1610c52add8caf857c989101e12dfbca2f2f10a7"
       },
       {
         "path": "scripts/customer_lexicon_repair.py",
@@ -23877,6 +23877,27 @@
             12168,
             "console.log(JSON.stringify({ok:true,checks,archives:recordedArchives.length,legalPresentation:legalPresentationProof,scope:\"Current physical source and built legal presentation are exact; all original archive/content assertions use the finite original-source reconstruction. Public/Hans cache checks retained. Full served bytes require separate release comparison.\"}));\n",
             "console.log(JSON.stringify({ok:true,checks,archives:recordedArchives.length,scope:\"Repository: immutable legal source fingerprints. Build: exact archived legal content, current content hashes, public and Hans cache versions. Full served-artifact bytes require the separate release comparison.\"}));\n"
+          ]
+        ]
+      },
+      "scripts/cross_browser_public_release_smoke.mjs": {
+        "before_bytes": 5526,
+        "before_sha256": "f66dc079486d886d6ba1a43f687cdba751075dd05fb10209798652032b9425b8",
+        "after_bytes": 5567,
+        "after_sha256": "af89fd3a09b5bfdad51c47e423953da74569de1eafc2839b7967ff6f151518c1",
+        "encoding": "utf8",
+        "replacements": [
+          [
+            3382,
+            3514,
+            "  assert(await page.locator('#tab-sc').getAttribute('aria-selected') === 'true', `${browserName}: report tabs do not support Home`);",
+            "  assert(await page.locator('#tab-os').getAttribute('aria-selected') === 'true', `${browserName}: report tabs do not support Home`);"
+          ],
+          [
+            3516,
+            3601,
+            "  await page.locator('#tab-os').click();\n  const report = page.locator('#report-os');",
+            "  const report = page.locator('#report-os');"
           ]
         ]
       },

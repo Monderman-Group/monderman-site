@@ -57,8 +57,9 @@ for (const [browserName, browserType] of [['chromium', chromium], ['webkit', web
   assert(await page.locator('#tab-dv').getAttribute('aria-selected') === 'true', `${browserName}: report tabs do not support ArrowRight`);
   assert(await page.locator('.dx-tab[tabindex="0"]').count() === 1, `${browserName}: report tabs do not use one roving tab stop`);
   await page.keyboard.press('Home');
-  assert(await page.locator('#tab-os').getAttribute('aria-selected') === 'true', `${browserName}: report tabs do not support Home`);
+  assert(await page.locator('#tab-sc').getAttribute('aria-selected') === 'true', `${browserName}: report tabs do not support Home`);
 
+  await page.locator('#tab-os').click();
   const report = page.locator('#report-os');
   await report.locator('.psr-downloads > summary').click();
   assert(await report.locator('.psr-downloads').getAttribute('open') !== null,
