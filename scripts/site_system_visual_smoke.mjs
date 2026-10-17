@@ -110,7 +110,7 @@ assert.deepEqual(
   'hero manifest must cover every enterprise-styled hero page in the repository',
 );
 for(const file of ['hiring-blind-spot.html','posting-has-outgrown-the-job.html'])heroPages.push([file,'.article-hero','.article-hero h1','publication']);
-heroPages.push(['research-topics.html','.research-topics-hero','.research-topics-hero h1','standard']);
+heroPages.push(['research-topics.html','.hero','.research-topics-hero h1','standard']);
 for (const [pageName] of heroPages) {
   assert.ok(fs.existsSync(pageName), `${pageName}: expected public page is missing`);
   const source = fs.readFileSync(pageName, 'utf8');
