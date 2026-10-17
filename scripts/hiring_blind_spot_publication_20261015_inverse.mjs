@@ -1,3 +1,4 @@
+import {sourceAtSeriesBaseline,publicSourceAtSeriesBaseline,sourcePathsAtSeriesBaseline,publicPathsAtSeriesBaseline} from './hiring_work_design_series_20261017_inverse.mjs';
 // Exact article-only transition. Unknown complete bytes and path sets stay visible.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -58,19 +59,20 @@ function ownerView(entries, file, source, strict = false) {
   if (entry.encoding === 'base64') assert.ok(Buffer.isBuffer(source), file + ': finite binary input stays bytes');
   return strict || sha(source) === entry.after_sha256 ? ownerReverse(entry, file, source) : source;
 }
-export const sourceAtOwnerDeltaBaseline = (file, source) => ownerView(hiringOwnerDelta.files, file, source);
-export const sourceBeforeOwnerDelta = (file, source) => ownerView(hiringOwnerDelta.files, file, source, true);
+export const sourceAtOwnerDeltaBaseline = (file, source) => ownerView(hiringOwnerDelta.files, file, sourceAtSeriesBaseline(file, source));
+export const sourceBeforeOwnerDelta = (file, source) => ownerView(hiringOwnerDelta.files, file, sourceAtSeriesBaseline(file, source), true);
 export function publicSourceAtOwnerDeltaBaseline(file, source) {
+  source = publicSourceAtSeriesBaseline(file, source);
   for (const edition of Object.values(hiringOwnerDelta.publicEditions)) {const result = ownerView(edition.files, file, source);if (result !== source) return result;}
   return source;
 }
-export function publicSourceBeforeOwnerDelta(file, source, channel) {assert.ok(Object.hasOwn(hiringOwnerDelta.publicEditions, channel), 'Known exact owner channel');return ownerView(hiringOwnerDelta.publicEditions[channel].files, file, source, true);}
+export function publicSourceBeforeOwnerDelta(file, source, channel) {assert.ok(Object.hasOwn(hiringOwnerDelta.publicEditions, channel), 'Known exact owner channel');return ownerView(hiringOwnerDelta.publicEditions[channel].files, file, publicSourceAtSeriesBaseline(file, source), true);}
 export function ownerSourceExact() {
-  return hiringOwnerDelta.nonGuardSourceRows.every(row => {const p = path.join(root, row.path);if (!fs.existsSync(p) || !fs.lstatSync(p).isFile() || fs.lstatSync(p).isSymbolicLink()) return false;const stat = fs.lstatSync(p), b = fs.readFileSync(p);return b.length === row.bytes && sha(b) === row.sha256 && (stat.mode & 0o111 ? '100755' : '100644') === row.mode && createHash('sha1').update(Buffer.from('blob ' + b.length + '\0')).update(b).digest('hex') === row.gitBlobSha1;});
+  return hiringOwnerDelta.nonGuardSourceRows.every(row => {const p = path.join(root, row.path);if (!fs.existsSync(p) || !fs.lstatSync(p).isFile() || fs.lstatSync(p).isSymbolicLink()) return false;const stat = fs.lstatSync(p), b = sourceAtSeriesBaseline(row.path, fs.readFileSync(p));return b.length === row.bytes && sha(b) === row.sha256 && (stat.mode & 0o111 ? '100755' : '100644') === row.mode && createHash('sha1').update(Buffer.from('blob ' + b.length + '\0')).update(b).digest('hex') === row.gitBlobSha1;});
 }
 export function ownerPublicExact(publishRoot, channel) {
   if (!Object.hasOwn(hiringOwnerDelta.publicEditions, channel)) return false;
-  return hiringOwnerDelta.publicEditions[channel].currentMap.every(row => {const p = path.join(publishRoot, row.path);if (!fs.existsSync(p) || !fs.lstatSync(p).isFile() || fs.lstatSync(p).isSymbolicLink()) return false;const b = fs.readFileSync(p);if (row.path === '.well-known/monderman-release.json') {const marker = JSON.parse(b);return Object.keys(marker).length === 1 && /^[a-f0-9]{40}$/.test(marker.revision);}return b.length === row.bytes && sha(b) === row.sha256;});
+  return hiringOwnerDelta.publicEditions[channel].currentMap.every(row => {const p = path.join(publishRoot, row.path);if (!fs.existsSync(p) || !fs.lstatSync(p).isFile() || fs.lstatSync(p).isSymbolicLink()) return false;const b = publicSourceAtSeriesBaseline(row.path,fs.readFileSync(p));if (row.path === '.well-known/monderman-release.json') {const marker = JSON.parse(b);return Object.keys(marker).length === 1 && /^[a-f0-9]{40}$/.test(marker.revision);}return b.length === row.bytes && sha(b) === row.sha256;});
 }
 
 function reverse(entry, source) {
@@ -103,7 +105,7 @@ function exact(rootPath, entries) {
   return Object.entries(entries).every(([file, entry]) => {
     const filePath = path.join(rootPath, file);
     if (!fs.existsSync(filePath) || !fs.lstatSync(filePath).isFile() || fs.lstatSync(filePath).isSymbolicLink()) return false;
-    const bytes = fs.readFileSync(filePath);
+    const bytes = publicSourceAtSeriesBaseline(file,sourceAtSeriesBaseline(file,fs.readFileSync(filePath)));
     return bytes.length === entry.bytes && sha(bytes) === entry.sha256;
   });
 }
@@ -117,8 +119,9 @@ function paths(names, current, prior, exactMatch) {
   assert.ok(Array.isArray(names) && names.every(name => typeof name === 'string'));
   return names.length === new Set(names).size && JSON.stringify([...names].sort()) === JSON.stringify(current) && exactMatch ? [...prior] : names;
 }
-export const sourcePathsAtHiringPublicationBaseline = names => paths(names, hiringPublicationDelta.currentSourcePaths, hiringPublicationDelta.baselineSourcePaths, sourceExact());
+export const sourcePathsAtHiringPublicationBaseline = names => paths(sourcePathsAtSeriesBaseline(names), hiringPublicationDelta.currentSourcePaths, hiringPublicationDelta.baselineSourcePaths, sourceExact());
 export function publicPathsAtHiringPublicationBaseline(names, publishRoot = process.env.SCOPE_BETA_BUILD_ROOT || process.env.SITE_DESIGN_BUILD_ROOT || path.join(root, '.render-public')) {
+  names = publicPathsAtSeriesBaseline(names,publishRoot);
   const marker = path.join(publishRoot, '.well-known/monderman-questionnaire-release.json');
   if (!fs.existsSync(marker)) return names;
   const channel = JSON.parse(fs.readFileSync(marker)).channel;

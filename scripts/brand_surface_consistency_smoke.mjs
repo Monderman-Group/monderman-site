@@ -1,3 +1,4 @@
+import {seriesPublicationPages,assertSeriesPublicationSurface} from './hiring_work_design_series_20261017_inverse.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -52,14 +53,7 @@ if (currentProductPages.length) {
 }
 for (const file of pages) assert(fs.existsSync(path.join(root, file)), `Missing inventoried page ${file}`);
 const hiringArticle='hiring-blind-spot.html';
-if(fs.existsSync(path.join(root,hiringArticle))){
-  const bytes=fs.readFileSync(path.join(root,hiringArticle)),approved=hiringPublicationDelta.additions[hiringArticle];
-  assert.equal(bytes.length,approved.bytes,'Exact approved article source length');
-  assert.equal(createHash('sha256').update(bytes).digest('hex'),approved.sha256,'Exact approved article source bytes');
-  pages.push(hiringArticle);
-  expectedHeroCount++;
-  expectedFooterCount++;
-}
+for(const file of seriesPublicationPages){assertSeriesPublicationSurface(file,fs.readFileSync(path.join(root,file)));pages.push(file);expectedHeroCount++;expectedFooterCount++;}
 
 const publishedSurfaces = fs.readdirSync(root).filter(file => file.endsWith('.html')).filter(file => {
   const html = fs.readFileSync(path.join(root, file), 'utf8');

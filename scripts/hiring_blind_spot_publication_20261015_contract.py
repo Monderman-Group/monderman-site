@@ -1,4 +1,11 @@
-"""Article-only source and compiled closure, with exact historical projections."""
+"""Preserved article-only assertions on exact recovered1858 historical inputs.
+
+The mandatory post1858 guard first audits every actual current source and
+compiled body, plus all new article/series/topic behavior. The read adapters
+below are exact finite historical views; they are not current-byte fallback.
+"""
+from hiring_work_design_series_20261017_contract import audit_current_release,historical_read,historical_git,historical_public_read,historical_public_names
+audit_current_release()
 import base64
 import hashlib
 import json
@@ -28,8 +35,8 @@ HELPER_HASHES = {'scripts/hiring_blind_spot_publication_20261015_inverse.mjs': '
 checks = negatives = 0
 parity = []
 sha = lambda value: hashlib.sha256(value.encode() if isinstance(value, str) else value).hexdigest()
-raw_read = lambda name: (ROOT / name).read_bytes()
-raw_git = lambda *args: subprocess.check_output(['git', *args], cwd=ROOT)
+raw_read = historical_read
+raw_git = historical_git
 # UNBOUND DATA: these independently reviewed finite constants are mandatory.
 EXPECTED_OWNER_FILES = ['.github/workflows/sample-report-marketing-certification.yml', 'Monderman_Brief_The_Culture_Trap.pdf', 'Monderman_Insight_Merit_After_the_Machine_2026-09-02.pdf', 'Monderman_Insight_The_Unmeasured_Layer.pdf', 'Monderman_Insight_The_Unmeasured_Layer_2026-09-02.pdf', 'Monderman_Platform_Brief.html', 'Terminal_Fidelity.pdf', 'assets/marketing/team-perspectives-1600.webp', 'assets/marketing/team-perspectives-540.webp', 'assets/marketing/team-perspectives-960.jpg', 'assets/marketing/team-perspectives-960.webp', 'assets/marketing/work-discussion-1600.webp', 'assets/marketing/work-discussion-540.webp', 'assets/marketing/work-discussion-960.jpg', 'assets/marketing/work-discussion-960.webp', 'assets/research/the-culture-trap-brief-figure-8.png', 'campaign-analysis.js', 'cross-tool-synthesis.html', 'decision-velocity-article.html', 'decision-velocity.html', 'diagnostics.html', 'docs/marketing-photo-register-20261013.json', 'homepage-refinement.css', 'index.html', 'institutional-performance-article.html', 'institutional-performance.html', 'legal-document-manifest.json', 'merit-after-the-machine.html', 'monderman-report.js', 'operational-systems-article.html', 'operational-systems.html', 'pilot.html', 'plan-pattern.html', 'plan-signal.html', 'privacy-2026-09-12-ai-source-evidence-v2.html', 'privacy-2026-09-19-invitation-access.html', 'privacy-2026-09-19-invited-evaluation.html', 'privacy.html', 'public-search-index.json', 'q2-sodi.html', 'research.html', 'sample-data/production-sample-release.json', 'sample-data/reports/cross_lens_synthesis.pdf', 'sample-data/reports/decision_velocity.pdf', 'sample-data/reports/depth_synthesis.pdf', 'sample-data/reports/institutional_performance.pdf', 'sample-data/reports/operational_systems.pdf', 'sample-data/reports/structural_clarity.pdf', 'sample-report.html', 'scope.html', 'scripts/ai_source_privacy_notice_smoke.mjs', 'scripts/apply_publication_cover_system.py', 'scripts/build_culture_trap_pdf.py', 'scripts/build_publication_html_editions.py', 'scripts/chatbot_release_artifact_smoke.mjs', 'scripts/cross_browser_public_release_smoke.mjs', 'scripts/diagnostic_authoritative_history_browser_smoke.mjs', 'scripts/diagnostic_display_language_smoke.mjs', 'scripts/durable_organization_browser_smoke.mjs', 'scripts/dv_assignment_recovery_smoke.mjs', 'scripts/dv_journey_browser_smoke.mjs', 'scripts/export_synthesis_sample_pdfs.mjs', 'scripts/hold_collide_browser_smoke.mjs', 'scripts/homepage_assistant_smoke.mjs', 'scripts/homepage_card_rhythm_smoke.mjs', 'scripts/homepage_refinement_20261014_browser.mjs', 'scripts/homepage_report_first_20260927_contract.mjs', 'scripts/homepage_report_quad_20260925_contract.mjs', 'scripts/homepage_sample_discovery_smoke.mjs', 'scripts/homepage_workspace_demo_smoke.mjs', 'scripts/inject-public-shell.mjs', 'scripts/marketing_completion_20261013_contract.mjs', 'scripts/marketing_completion_20261013_contract.py', 'scripts/marketing_completion_browser_smoke.mjs', 'scripts/marketing_photo_presentation_20261013_browser.mjs', 'scripts/marketing_refresh_browser_smoke.mjs', 'scripts/methodology_business_copy_smoke.mjs', 'scripts/mobile_site_presentation_smoke.mjs', 'scripts/optional_measurement_publication_smoke.py', 'scripts/os_recovery_identity_smoke.mjs', 'scripts/os_same_session_browser_smoke.mjs', 'scripts/pricing_public_copy_smoke.mjs', 'scripts/public_sample_fixture.mjs', 'scripts/public_sample_manifest_sensitivity_smoke.mjs', 'scripts/public_sample_mixed_origin_smoke.mjs', 'scripts/public_sample_preview_binding_20260924_contract.mjs', 'scripts/public_sample_three_benefit_preview_smoke.mjs', 'scripts/refresh_public_sample_previews.mjs', 'scripts/report_actual_text_pagination_smoke.mjs', 'scripts/report_campaign_attribution_smoke.mjs', 'scripts/report_cross_lens_extrema_smoke.mjs', 'scripts/report_cross_lens_phone_smoke.mjs', 'scripts/report_experiential_blocks_smoke.mjs', 'scripts/report_focus_label_smoke.mjs', 'scripts/report_language_provenance_smoke.mjs', 'scripts/report_presentation_smoke.mjs', 'scripts/report_question_blocks_smoke.mjs', 'scripts/report_shared_action_conditions_smoke.mjs', 'scripts/report_synthesis_chart_smoke.mjs', 'scripts/report_synthesis_display_smoke.mjs', 'scripts/sample_cosmetic_v2_smoke.mjs', 'scripts/sample_marketing_language_hover_smoke.mjs', 'scripts/sample_product_fidelity_smoke_v2.mjs', 'scripts/sample_tile_smoke.mjs', 'scripts/saved_synthesis_page_smoke.mjs', 'scripts/scope_beta_20261014_browser.mjs', 'scripts/scope_beta_20261014_contract.mjs', 'scripts/scope_beta_20261014_contract.py', 'scripts/scope_beta_20261014_inverse.mjs', 'scripts/scope_beta_20261014_inverse.py', 'scripts/site_system_visual_smoke.mjs', 'scripts/validate_frontend_release.py', 'scripts/validate_legal_terms_protection.py', 'security.html', 'structural-clarity-article.html', 'structural-clarity.html', 'terminal-fidelity.html', 'the-culture-trap-brief.html', 'the-culture-trap.html', 'the-unmeasured-layer.html', 'workspace-actions.html', 'workspace-analysis.html', 'workspace-diagnostics.html', 'workspace.html']
 OWNER_HELPER_HASHES = {
@@ -38,8 +45,9 @@ OWNER_HELPER_HASHES = {
 }
 
 def read(name):
-    # Raw owner checks run first; only the four independently pinned bootstrap
-    # roots use their authoritative native bytes for the old publication layer.
+    # The complete post1858 raw-current guard has already run. These preserved
+    # owner assertions use its exact recovered1858 bodies; the original four
+    # bootstrap roots retain their authoritative native owner-baseline bytes.
     if name in EXPECTED_GUARDS:
         return raw_git('show', OWNER_BASELINE + ':' + name)
     return owner_source_view(name, raw_read(name))
@@ -246,7 +254,7 @@ check('run: python scripts/hiring_blind_spot_publication_20261015_contract.py' i
 
 if '--built' in sys.argv:
     build = Path(os.environ.get('HIRING_PUBLICATION_BUILD_ROOT', ROOT / '.render-public')).resolve()
-    built_names = sorted(p.relative_to(build).as_posix() for p in build.rglob('*') if p.is_file())
+    built_names = historical_public_names(sorted(p.relative_to(build).as_posix() for p in build.rglob('*') if p.is_file()),build)
     check(not any(p.is_symlink() for p in build.rglob('*')), 'No compiled symlinks')
     check(built_names == delta['currentPublicPaths'], 'Exact physical publication closure')
     channel = json.loads((build / '.well-known/monderman-questionnaire-release.json').read_bytes())['channel']
@@ -255,15 +263,15 @@ if '--built' in sys.argv:
     check(owner_public_exact(build, channel), 'All331 physical owner compiled rows are exact')
     marker = json.loads((build / '.well-known/monderman-release.json').read_bytes())
     check(marker == {'revision': raw_git('rev-parse', 'HEAD').decode().strip()}, 'Truthful final compiled marker equals actual committed source HEAD')
-    owner_pins(owner_delta['publicEditions'][channel]['files'], lambda name: (build / name).read_bytes(), owner_public_view, lambda name, value: owner_public_before(name, value, channel), 'ownerPublic')
-    pins(edition['files'], lambda name: owner_public_view(name, (build / name).read_bytes()), public_view, 'public')
+    owner_pins(owner_delta['publicEditions'][channel]['files'], lambda name: historical_public_read(build,name), owner_public_view, lambda name, value: owner_public_before(name, value, channel), 'ownerPublic')
+    pins(edition['files'], lambda name: owner_public_view(name, historical_public_read(build,name)), public_view, 'public')
     for name, entry in edition['additions'].items():
-        value = (build / name).read_bytes()
+        value = historical_public_read(build,name)
         check(len(value) == entry['bytes'] and sha(value) == entry['sha256'], 'Approved compiled addition ' + name)
     for row in edition['currentMap']:
         if row['path'] == '.well-known/monderman-release.json':
             continue
-        value = owner_public_view(row['path'], (build / row['path']).read_bytes())
+        value = owner_public_view(row['path'], historical_public_read(build,row['path']))
         check(len(value) == row['bytes'] and sha(value) == row['sha256'], 'Whole compiled body binding ' + row['path'])
     check(public_paths(built_names, build) == delta['baselinePublicPaths'], 'Exact compiled publication inventory projects')
     for mutant in [built_names + ['UNKNOWN.js'], built_names + [built_names[0]], built_names[:-1]]:

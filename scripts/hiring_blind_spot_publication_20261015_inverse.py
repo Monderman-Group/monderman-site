@@ -1,3 +1,4 @@
+from hiring_work_design_series_20261017_inverse import source_at_series_baseline,public_source_at_series_baseline,source_paths_at_series_baseline,public_paths_at_series_baseline
 """Exact article-only transition; unknown bytes and paths remain visible."""
 import hashlib
 import base64
@@ -65,12 +66,13 @@ def _owner_view(entries, file, source, strict=False):
     return _owner_reverse(entry, file, source) if strict or _sha(source) == entry['after_sha256'] else source
 
 def source_at_owner_delta_baseline(file, source):
-    return _owner_view(owner_delta['files'], file, source)
+    return _owner_view(owner_delta['files'], file, source_at_series_baseline(file,source))
 
 def source_before_owner_delta(file, source):
-    return _owner_view(owner_delta['files'], file, source, True)
+    return _owner_view(owner_delta['files'], file, source_at_series_baseline(file,source), True)
 
 def public_source_at_owner_delta_baseline(file, source):
+    source=public_source_at_series_baseline(file,source)
     for edition in owner_delta['publicEditions'].values():
         result = _owner_view(edition['files'], file, source)
         if result != source:
@@ -79,14 +81,14 @@ def public_source_at_owner_delta_baseline(file, source):
 
 def public_source_before_owner_delta(file, source, channel):
     assert channel in owner_delta['publicEditions']
-    return _owner_view(owner_delta['publicEditions'][channel]['files'], file, source, True)
+    return _owner_view(owner_delta['publicEditions'][channel]['files'], file, public_source_at_series_baseline(file,source), True)
 
 def owner_source_exact():
     for row in owner_delta['nonGuardSourceRows']:
         path = ROOT / row['path']
         if not path.is_file() or path.is_symlink():
             return False
-        raw = path.read_bytes()
+        raw = source_at_series_baseline(row['path'],path.read_bytes())
         if len(raw) != row['bytes'] or hashlib.sha256(raw).hexdigest() != row['sha256'] or ('100755' if path.stat().st_mode & 0o111 else '100644') != row['mode'] or hashlib.sha1(b'blob ' + str(len(raw)).encode() + b'\0' + raw).hexdigest() != row['gitBlobSha1']:
             return False
     return True
@@ -98,7 +100,7 @@ def owner_public_exact(root, channel):
         path = root / row['path']
         if not path.is_file() or path.is_symlink():
             return False
-        raw = path.read_bytes()
+        raw = public_source_at_series_baseline(row['path'],path.read_bytes())
         if row['path'] == '.well-known/monderman-release.json':
             marker = json.loads(raw)
             if list(marker) != ['revision'] or not isinstance(marker['revision'], str) or len(marker['revision']) != 40 or any(ch not in '0123456789abcdef' for ch in marker['revision']):
@@ -145,7 +147,7 @@ def _exact(root, entries):
         path = root / file
         if not path.is_file() or path.is_symlink():
             return False
-        value = path.read_bytes()
+        value = public_source_at_series_baseline(file,source_at_series_baseline(file,path.read_bytes()))
         if len(value) != entry['bytes'] or _sha(value) != entry['sha256']:
             return False
     return True
@@ -165,10 +167,11 @@ def _paths(names, current, prior, exact):
     return names
 
 def source_paths_at_hiring_publication_baseline(names):
-    return _paths(names, delta['currentSourcePaths'], delta['baselineSourcePaths'], _source_exact())
+    return _paths(source_paths_at_series_baseline(names), delta['currentSourcePaths'], delta['baselineSourcePaths'], _source_exact())
 
 def public_paths_at_hiring_publication_baseline(names, publish_root=None):
     root = Path(publish_root or os.environ.get('SCOPE_BETA_BUILD_ROOT') or os.environ.get('SITE_DESIGN_BUILD_ROOT') or ROOT / '.render-public')
+    names=public_paths_at_series_baseline(names,root)
     marker = root / '.well-known/monderman-questionnaire-release.json'
     if not marker.is_file():
         return names
