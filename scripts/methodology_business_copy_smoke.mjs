@@ -15,6 +15,8 @@ import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inv
 import {sourceAtMarketingPhotoPresentationBaseline} from './marketing_photo_presentation_20261013_inverse.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
+// Audit every committed current source before inspecting any historical view.
+execFileSync(process.env.PYTHON||'python3',['scripts/hiring_work_design_series_20261017_contract.py'],{cwd:root,stdio:'pipe'});
 const {artifact}=readPublicSampleFixture({root});
 const previewGroups=artifact.outputs.cross_lens_synthesis.source.source_groups;
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
@@ -42,6 +44,7 @@ const protectedFiles=['structural-clarity.html','decision-velocity.html','operat
 const hashes=Object.fromEntries([...sourceFiles,...protectedFiles,'marketing-refresh.css','marketing-refresh.js','scripts/methodology_business_copy_smoke.mjs'].map(file=>[file,sha(fs.readFileSync(path.join(root,file)))]));
 let checks=0,blockedRequests=0;const check=(value,message)=>{assert.ok(value,message);checks++;};
 const eq=(value,expected,message)=>{assert.deepEqual(value,expected,message);checks++;};
+checks++; // The complete current-source audit above returned successfully.
 const marketingBaselineHomepage=sourceAtMarketingRefreshBaseline('index.html',read('index.html'));
 eq(marketingBaselineHomepage,execFileSync('git',['show','14e57bb9f5537cd7ed5eb581cbc7740541c593b1:index.html'],{cwd:root,encoding:'utf8'}),'The compact homepage is the exact approved marketing baseline, not a weaker substitute');
 assert.notEqual(marketingBaselineHomepage,read('index.html'),'Both exact baseline and refreshed homepage editions are required');checks++;
@@ -178,9 +181,44 @@ const articleText=html=>html.replace(/<(?:script|style|svg)\b[^>]*>[\s\S]*?<\/(?
   .replace(/<[^>]*>/g,' ').replace(/\s+/g,' ')
   +[...html.matchAll(/<meta\b[^>]*\bcontent="([^"]*)"/g)].map(row=>row[1]).join(' ');
 const singleRunFinancialBoundary='A single-run score does not establish organizational exposure, recoverable savings or ROI.';
+const articleTopicNavigationPins=Object.freeze({
+  'structural-clarity-article.html':{bytes:1068,sha256:'4dde573a97ecb955f29c2b404553a5ed6014dec205e2e0a288558f1297a84b9e'},
+  'operational-systems-article.html':{bytes:1076,sha256:'95ad999316b5fd838c440c3db122d85b8465879e815123b000c79bf0c6eefdde'},
+  'decision-velocity-article.html':{bytes:1103,sha256:'8c9ae54810e691f9c88912025e9f38185afd17c216020c7542904205430db35a'},
+  'institutional-performance-article.html':{bytes:1100,sha256:'c4e4115ee50d36485f24acf8cdd5d1ed6eaa813ef39c24021df5e1664582adaa'},
+});
+const articleTopicStyle='<link rel="stylesheet" href="research-topics.css?v=20261017.1">\n';
+const articleTopicStart='\n<!-- MONDERMAN RESEARCH TOPICS: START -->\n';
+const articleTopicEnd='\n<!-- MONDERMAN RESEARCH TOPICS: END -->\n';
+function beforeApprovedArticleTopicNavigation(file,html){
+  const label='Exact approved article topic navigation';
+  assert.ok(Object.hasOwn(articleTopicNavigationPins,file),label+': closed four article paths');
+  assert.equal(typeof html,'string',label+': text input');
+  const heads=[...html.matchAll(/<head>[\s\S]*?<\/head>/g)];
+  const mains=[...html.matchAll(/<main class="article">[\s\S]*?<\/main>/g)];
+  assert.equal(heads.length,1,label+': unique head');assert.equal(mains.length,1,label+': unique article main');
+  assert.equal(html.split('<!-- MONDERMAN RESEARCH TOPICS: START -->').length-1,1,label+': one start marker');
+  assert.equal(html.split('<!-- MONDERMAN RESEARCH TOPICS: END -->').length-1,1,label+': one end marker');
+  assert.equal((html.match(/\bclass=["']research-topic-nav["']/g)||[]).length,1,label+': one navigation');
+  const start=html.indexOf(articleTopicStart),end=html.indexOf(articleTopicEnd,start);
+  assert.ok(start>=0&&end>start,label+': literal marked block');
+  const block=html.slice(start,end+articleTopicEnd.length),pin=articleTopicNavigationPins[file];
+  assert.equal(Buffer.byteLength(block),pin.bytes,label+': complete UTF8 length');
+  assert.equal(sha(block),pin.sha256,label+': complete SHA256');
+  assert.ok(start>=mains[0].index&&start+block.length<=mains[0].index+mains[0][0].length,label+': navigation stays inside article main');
+  assert.equal(html.split(articleTopicStyle).length-1,1,label+': one literal topic stylesheet');
+  assert.equal((html.match(/<link\b[^>]*\bhref=["'][^"']*research-topics\.css[^"']*["'][^>]*>/g)||[]).length,1,label+': no stylesheet variants');
+  assert.equal(Buffer.byteLength(articleTopicStyle),64,label+': stylesheet length');
+  assert.equal(sha(articleTopicStyle),'9b7d2c04234d032e79e82e3dabe4e5a22dbfcd8c84a9e9435dad7c79889594e0',label+': stylesheet SHA256');
+  const styleAt=html.indexOf(articleTopicStyle);
+  assert.ok(styleAt>=heads[0].index&&styleAt+articleTopicStyle.length<=heads[0].index+heads[0][0].length,label+': stylesheet stays inside head');
+  // Only these literal owner-navigation insertions are subtracted. Every other
+  // byte, including changed prose, metadata, markup and CSS, survives the view.
+  return html.replace(articleTopicStyle,'').replace(block,'');
+}
 // Permit only this exact negative statement. Deleting "not", adding an
 // affirmative claim afterward, or changing a metadata promise still fails.
-const assertArticleScope=html=>assert.doesNotMatch(articleText(html).replaceAll(singleRunFinancialBoundary,''),obsoleteArticleClaims,'No superseded whole-article financial, comparison or predictive claim');
+const assertArticleScope=(html,file)=>assert.doesNotMatch(articleText(beforeApprovedArticleTopicNavigation(file,html)).replaceAll(singleRunFinancialBoundary,''),obsoleteArticleClaims,'No superseded whole-article financial, comparison or predictive claim');
 const articleBase='19bf82646048ba75799300b73caaca9366d4c387';
 const approvedPresentationBase='373a14499ad29a84014c5c7ad7cfcb389953f295';
 const articleMain=html=>html.match(/<main class="article">[\s\S]*?<\/main>/)?.[0];
@@ -228,6 +266,7 @@ const sampleLinkStyle='    .content .score-block p,\n'+
   '      text-underline-offset: 0.18em;\n'+
   '    }\n\n';
 function assertArticleLayout(html,prior,file){
+  html=beforeApprovedArticleTopicNavigation(file,html);
   // The reviewed annual-release pages intentionally replaced invented example
   // scores with links to real saved samples. Pin that approved structure while
   // retaining the exact accessibility-region and table-style checks above.
@@ -256,7 +295,28 @@ for(const [name,description,article]of descriptions){
   check(table?.includes('<th>Business focus</th>'),article+' comparison header');
   for(const row of descriptions)check(table.includes(`<td>${row[1]}</td>`),article+' comparison: '+row[0]);
   const html=read(article),main=articleMain(html);
-  assertArticleScope(html);checks++;
+  const articleBeforeTopics=beforeApprovedArticleTopicNavigation(article,html);
+  eq(articleBeforeTopics,execFileSync('git',['show',`1858c1bfef88e9407b7cd900fb840f230de8bed7:${article}`],{cwd:root,encoding:'utf8'}),article+': only the exact approved navigation and stylesheet differ from actual1858');
+  const neutral='<p data-topic-view-neutral="true">Neutral source-only control.</p>';
+  eq(beforeApprovedArticleTopicNavigation(article,html.replace('</main>',neutral+'</main>')),articleBeforeTopics.replace('</main>',neutral+'</main>'),article+': unrelated body mutation survives fragment view byte-for-byte');
+  assertArticleScope(html.replace('</main>',neutral+'</main>'),article);checks++;
+  const topicBlock=html.slice(html.indexOf(articleTopicStart),html.indexOf(articleTopicEnd)+articleTopicEnd.length);
+  const badTopicNavigation=[
+    html.replace(topicBlock,''),html.replace(topicBlock,topicBlock+topicBlock),
+    html.replace(topicBlock,topicBlock.replace('research-topic-nav','research-topic-changed')),
+    html.replace(topicBlock,topicBlock.replace('Related articles','Changed related articles')),
+    html.replace(topicBlock,topicBlock.replace('href="research-topics.html','href="unknown.html')),
+    html.replace(topicBlock,'').replace('</main>','</main>'+topicBlock),
+    html.replace(articleTopicStyle,''),html.replace(articleTopicStyle,articleTopicStyle+articleTopicStyle),
+    html.replace(articleTopicStyle,articleTopicStyle.replace('20261017.1','UNKNOWN')),
+    html.replace(articleTopicStyle,'').replace('</main>',articleTopicStyle+'</main>'),
+  ];
+  for(const bad of badTopicNavigation){
+    assert.notEqual(bad,html,'Each owner-navigation negative changes its intended fragment');
+    assert.throws(()=>beforeApprovedArticleTopicNavigation(article,bad),/Exact approved article topic navigation/);checks++;
+  }
+  assert.throws(()=>beforeApprovedArticleTopicNavigation('unknown-article.html',html),/closed four article paths/);checks++;
+  assertArticleScope(html,article);checks++;
   for(const phrase of ['the participant’s selected perspective, recorded strengths and concerns','A single run does not establish organization-wide conditions or change over time.',
     singleRunFinancialBoundary,'Multi-participant example','Actual output from realistic example responses',
     'compares responses from several people.','realistic example responses, not customer results.',
@@ -297,10 +357,13 @@ for(const [name,description,article]of descriptions){
   ];
   for(const [index,bad]of badLayouts.entries()){
     assert.notEqual(bad,html,'Each article-layout negative must mutate the source');
+    assert.doesNotThrow(()=>beforeApprovedArticleTopicNavigation(article,bad),'Every original layout mutant retains valid owner navigation before its own predicate runs');checks++;
     assert.throws(()=>assertArticleLayout(bad,prior,article),article+': unrelated markup/CSS or altered approved wrapper must fail: '+index);checks++;
   }
   for(const bad of ['Approximate recoverable value','Benchmark position','Trajectory signal','Reclaimed capacity','clock speed of reality']){
-    assert.throws(()=>assertArticleScope(html.replace('</main>',`<p>${bad}</p></main>`)),/No superseded whole-article/);checks++;
+    const candidate=html.replace('</main>',`<p>${bad}</p></main>`);
+    assert.doesNotThrow(()=>beforeApprovedArticleTopicNavigation(article,candidate),'Every original appended-claim mutant retains valid owner navigation');checks++;
+    assert.throws(()=>assertArticleScope(candidate,article),/No superseded whole-article/);checks++;
   }
   for(const bad of [
     html.replace(singleRunFinancialBoundary,singleRunFinancialBoundary.replace('does not establish','establishes')),
@@ -308,7 +371,8 @@ for(const [name,description,article]of descriptions){
     html.replace('records one participant’s perspective on','calculates recoverable savings from'),
   ]){
     assert.notEqual(bad,html,'Each financial-language mutation changes the source');
-    assert.throws(()=>assertArticleScope(bad),/No superseded whole-article/);checks++;
+    assert.doesNotThrow(()=>beforeApprovedArticleTopicNavigation(article,bad),'Every original prose/metadata claim mutant retains valid owner navigation');checks++;
+    assert.throws(()=>assertArticleScope(bad,article),/No superseded whole-article/);checks++;
   }
 }
 for(const file of sourceFiles)check(!/What sits beneath performance\?|How much weight is it carrying\?/i.test(read(file)),file+' no superseded metaphor label');
