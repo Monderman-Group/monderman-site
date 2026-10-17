@@ -1,3 +1,4 @@
+import {seriesPublicationPages,assertSeriesPublicationSurface} from './hiring_work_design_series_20261017_inverse.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -17,10 +18,10 @@ const allCurrentPages = fs.readdirSync(process.cwd()).filter(name=>name.endsWith
 const currentScopeBeta=isCurrentScopeBeta();
 const currentProductPages=['q2-sodi.html','scope.html'];
 const hiringArticle='hiring-blind-spot.html';
-const publicationPages=allCurrentPages.filter(name=>name===hiringArticle);
-if(publicationPages.length){const bytes=fs.readFileSync(hiringArticle),approved=hiringPublicationDelta.additions[hiringArticle];assert.equal(bytes.length,approved.bytes,'Exact approved article source length');assert.equal(createHash('sha256').update(bytes).digest('hex'),approved.sha256,'Exact approved article source bytes');}
+const publicationPages=allCurrentPages.filter(name=>seriesPublicationPages.includes(name));
+for(const file of publicationPages)assertSeriesPublicationSurface(file,fs.readFileSync(file));
 const pages=allCurrentPages.filter(name=>!currentScopeBeta||!currentProductPages.includes(name));
-if(currentScopeBeta){assert.deepEqual(allCurrentPages.filter(name=>name!==hiringArticle), [...scopeBetaDelta.baselineSourcePaths.filter(f=>!f.includes('/')&&f.endsWith('.html')&&!f.startsWith('google')), ...currentProductPages].sort(),'All original89 and only the approved canonical product page and retained alias exist beside the exact publication');assert.deepEqual(allCurrentPages.filter(name=>currentProductPages.includes(name)),currentProductPages,'Exactly both approved product routes join the separate mandatory current matrix');}
+if(currentScopeBeta){assert.deepEqual(allCurrentPages.filter(name=>!seriesPublicationPages.includes(name)), [...scopeBetaDelta.baselineSourcePaths.filter(f=>!f.includes('/')&&f.endsWith('.html')&&!f.startsWith('google')), ...currentProductPages].sort(),'All original89 and only the approved canonical product page and retained alias exist beside the exact publication');assert.deepEqual(allCurrentPages.filter(name=>currentProductPages.includes(name)),currentProductPages,'Exactly both approved product routes join the separate mandatory current matrix');}
 
 const sourceByPage = new Map(pages.map((name) => [name, fs.readFileSync(name, 'utf8')]));
 const currentHomepageRefinement = isCurrentHomepageRefinementSource(sourceByPage.get('index.html'));
@@ -62,9 +63,9 @@ const immutableLegalPages = new Set(pages.filter((name) => /^(?:terms|privacy)-\
 
 // September 19 adds evaluation and invitation-access editions without removing history.
 // Preserve every previous legal edition in the full viewport sweep.
-assert.equal(pages.filter(name=>name!==hiringArticle).length, 89, 'rendered historical inventory retains every prior page and adds the separate outreach notice');
-assert.equal(canonicalPages.filter(name=>name!==hiringArticle).length, 70, 'historical canonical header + footer inventory includes all six Governance parts');
-assert.equal(footerPages.filter(name=>name!==hiringArticle).length, 74, 'historical footer inventory includes all six Governance parts');
+assert.equal(pages.filter(name=>!seriesPublicationPages.includes(name)).length, 89, 'rendered historical inventory retains every prior page and adds the separate outreach notice');
+assert.equal(canonicalPages.filter(name=>!seriesPublicationPages.includes(name)).length, 70, 'historical canonical header + footer inventory includes all six Governance parts');
+assert.equal(footerPages.filter(name=>!seriesPublicationPages.includes(name)).length, 74, 'historical footer inventory includes all six Governance parts');
 for (const legalEdition of ['terms-2026-09-08-beta.html', 'privacy-2026-09-08-beta.html', 'terms-2026-09-09-beta.html', 'privacy-2026-09-09-beta.html', 'privacy-2026-09-10-beta.html']) {
   assert.ok(canonicalPages.includes(legalEdition), `${legalEdition}: archived legal page missing from canonical sweep`);
 }
@@ -84,7 +85,7 @@ assert.ok(immutableLegalPages.has('privacy-2026-09-12-ai-source-evidence-v2.html
 // exact shared shell. This rejects accidental Finder-style duplicate files and
 // proves that page-family markup cannot drift at build time.
 const publishDirectory = path.resolve('.render-public');
-if(publicationPages.length){const channel=JSON.parse(fs.readFileSync(path.join(publishDirectory,'.well-known/monderman-questionnaire-release.json'),'utf8')).channel,approved=hiringPublicationDelta.publicEditions[channel]?.additions[hiringArticle];assert.ok(approved,'Only the separately pinned publication edition may add a page');const bytes=fs.readFileSync(path.join(publishDirectory,hiringArticle));assert.equal(bytes.length,approved.bytes,'Exact approved article compiled length');assert.equal(createHash('sha256').update(bytes).digest('hex'),approved.sha256,'Exact approved article compiled bytes');assert.ok(canonicalPages.includes(hiringArticle)&&footerPages.includes(hiringArticle),'The approved article joins the actual canonical and footer browser sweeps');}
+if(publicationPages.length){const channel=JSON.parse(fs.readFileSync(path.join(publishDirectory,'.well-known/monderman-questionnaire-release.json'),'utf8')).channel;for(const file of publicationPages){assertSeriesPublicationSurface(file,fs.readFileSync(path.join(publishDirectory,file)),channel);assert.ok(canonicalPages.includes(file)&&footerPages.includes(file),'Every exact current publication joins the original actual canonical/footer sweep');}}
 const sourceHtmlNames = fs.readdirSync(process.cwd()).filter((name) => name.endsWith('.html')).sort();
 const publishedHtmlNames = fs.readdirSync(publishDirectory).filter((name) => name.endsWith('.html')).sort();
 assert.deepEqual(publishedHtmlNames, sourceHtmlNames, 'published HTML inventory differs from source');

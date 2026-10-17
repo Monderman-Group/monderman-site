@@ -58,6 +58,8 @@ PAGES = {
     "durable-organization.html": "Research",
     "hold-collide-come-apart.html": "Research",
     "hiring-blind-spot.html": "Research",
+    "posting-has-outgrown-the-job.html": "Research",
+    "research-topics.html": "Research",
     "we-gave-bureaucracy-the-fastest-tools.html": "Research",
     "accumulated-drag-department-of-war.html": "Research",
     "built-to-please.html": "Research",

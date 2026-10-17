@@ -1,3 +1,4 @@
+import {seriesPublicationPages,assertSeriesPublicationSurface} from './hiring_work_design_series_20261017_inverse.mjs';
 // Local built-footer check. All page scripts and external/service requests are blocked.
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -89,15 +90,8 @@ for (const file of (await fs.readdir(built)).filter(file => file.endsWith('.html
 }
 eq([...scopePages.keys()], currentScope ? currentProductPages : [], 'Only the whole-source and whole-build approved canonical product page and alias are separate');
 const hiringArticle = 'hiring-blind-spot.html';
-if (pages.has(hiringArticle)) {
-  const channel = JSON.parse(await fs.readFile(path.join(built, '.well-known/monderman-questionnaire-release.json'), 'utf8')).channel;
-  const approved = hiringPublicationDelta.publicEditions[channel]?.additions[hiringArticle];
-  ok(!!approved, 'Only a separately pinned publication edition may add a footer page');
-  const bytes = await fs.readFile(path.join(built, hiringArticle));
-  eq(bytes.length, approved.bytes, 'Exact approved article compiled length');
-  eq(sha(bytes), approved.sha256, 'Exact approved article compiled body');
-}
-eq([...pages.keys()].filter(file => file !== hiringArticle).length, 74, 'All original public footer pages receive the membership');
+{const channel=JSON.parse(await fs.readFile(path.join(built,'.well-known/monderman-questionnaire-release.json'),'utf8')).channel;for(const file of seriesPublicationPages){ok(pages.has(file),'Each exact current publication joins footer coverage');assertSeriesPublicationSurface(file,await fs.readFile(path.join(built,file)),channel);}}
+eq([...pages.keys()].filter(file => !seriesPublicationPages.includes(file)).length, 74, 'All original public footer pages receive the membership');
 const browserPages = new Map([...pages, ...scopePages]);
 const tracked = execFileSync('git', ['ls-tree', '-r', '--name-only', baseline], {cwd:root, encoding:'utf8'}).trim().split('\n');
 const protectedFiles = tracked.filter(file => (!file.includes('/') && /\.(?:js|css)$/.test(file))

@@ -1,3 +1,4 @@
+import {seriesDelta} from './hiring_work_design_series_20261017_inverse.mjs';
 // Exact current design leaf. Unknown edits and additions are never normalized away.
 import {sourceAtHiringPublicationBaseline, publicSourceAtHiringPublicationBaseline, sourcePathsAtHiringPublicationBaseline, publicPathsAtHiringPublicationBaseline, hiringOwnerDelta} from './hiring_blind_spot_publication_20261015_inverse.mjs';
 import assert from 'node:assert/strict';
@@ -63,7 +64,9 @@ export function historicalScopeBetaBrowserBodies(publishRoot){
   if(rows.has('/'+f))continue;
   const raw=fs.readFileSync(path.join(publishRoot,f));
   rows.set('/'+f,publicSourceAtScopeBetaBaseline(f,raw));
- }return rows;
+ }
+ for(const f of Object.keys(seriesDelta.publicEditions[channel].files)){if(rows.has('/'+f))continue;rows.set('/'+f,publicSourceAtScopeBetaBaseline(f,fs.readFileSync(path.join(publishRoot,f))));}
+ return rows;
 }
 
 export function assertScopeBetaPublicAdditions(publishRoot){for(const[f,e]of Object.entries(scopeBetaDelta.publicAdditions)){const b=publicSourceAtHiringPublicationBaseline(f,fs.readFileSync(path.join(publishRoot,f)));assert.equal(sha(b),e.sha256,'Exact new public addition '+f);assert.equal(b.length,e.bytes,'Exact new public addition length '+f);}}

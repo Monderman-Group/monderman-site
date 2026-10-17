@@ -1,4 +1,7 @@
 from pathlib import Path
+from hiring_work_design_series_20261017_contract import audit_current_release
+from hiring_work_design_series_20261017_inverse import source_at_series_baseline
+audit_current_release()
 from hiring_blind_spot_publication_20261015_inverse import source_at_hiring_publication_baseline
 from scope_beta_20261014_inverse import source_at_scope_beta_baseline,public_source_at_scope_beta_baseline
 import hashlib,os,re,runpy,subprocess,sys
@@ -103,7 +106,7 @@ for token in [
  if os_page.count(token)<2:e.append('operational-systems.html: start/finalize sizing handoff '+token)
 
 # Surgical regression guards added 2026-08-13.
-current_idx=(r/'index.html').read_text(errors='ignore')
+current_idx=source_at_series_baseline('index.html',(r/'index.html').read_text(errors='ignore'))
 idx=source_at_hiring_publication_baseline('index.html',current_idx)
 if not re.search(r'<body\b[^>]*class="[^"]*\bcanonical-green-shell\b',idx,re.I):
  e.append('homepage canonical shell scope missing')

@@ -1,3 +1,4 @@
+import {seriesPublicationPages,assertSeriesPublicationSurface} from './hiring_work_design_series_20261017_inverse.mjs';
 // Published HTML/CSS: isolated support fixture by default, or every real page
 // script with FOOTER_FULL_SCRIPTS=1. Only hash-verified public SDKs may load;
 // service requests are blocked. No forms or diagnostics are submitted.
@@ -38,17 +39,9 @@ assert.deepEqual(scopePages.map(p => p.file).sort(), currentScope ? currentProdu
 if (currentScope) for (const page of scopePages) assert.equal(page.shell, true, page.file + ': actual product page and retained alias keep the canonical shell');
 const browserPages = [...pages, ...scopePages];
 const hiringArticle = 'hiring-blind-spot.html';
-const publicationPages = pages.filter(p => p.file === hiringArticle);
-if (publicationPages.length) {
-  const channel = JSON.parse(await fs.readFile(path.join(root, '.well-known/monderman-questionnaire-release.json'), 'utf8')).channel;
-  const approved = hiringPublicationDelta.publicEditions[channel]?.additions[hiringArticle];
-  assert.ok(approved, 'Only the separately pinned article may join the footer inventory');
-  const bytes = await fs.readFile(path.join(root, hiringArticle));
-  assert.equal(bytes.length, approved.bytes, 'Exact approved article compiled length');
-  assert.equal(createHash('sha256').update(bytes).digest('hex'), approved.sha256, 'Exact approved article compiled bytes');
-  assert.equal(publicationPages[0].shell, true, 'The exact article uses the canonical shell');
-}
-const historicalPages = pages.filter(p => p.file !== hiringArticle);
+const publicationPages = pages.filter(p => seriesPublicationPages.includes(p.file));
+if(publicationPages.length){const channel=JSON.parse(await fs.readFile(path.join(root,'.well-known/monderman-questionnaire-release.json'),'utf8')).channel;for(const page of publicationPages){assertSeriesPublicationSurface(page.file,await fs.readFile(path.join(root,page.file)),channel);assert.equal(page.shell,true,'Every exact current publication keeps the canonical shell');}}
+const historicalPages = pages.filter(p => !seriesPublicationPages.includes(p.file));
 const evaluationArchives = ['terms-2026-09-19-invited-evaluation.html', 'privacy-2026-09-19-invited-evaluation.html', 'terms-2026-09-19-invitation-access.html', 'privacy-2026-09-19-invitation-access.html'];
 assert.deepEqual(pages.filter(p => evaluationArchives.includes(p.file)).map(p => p.file).sort(), [...evaluationArchives].sort());
 const newPublications = ['durable-organization.html', 'fast-to-cut-slow-to-build.html', 'hold-collide-come-apart.html', 'trenches-not-silos.html'];
