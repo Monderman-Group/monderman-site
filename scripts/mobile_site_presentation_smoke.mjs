@@ -262,6 +262,114 @@ async function checkRevealMotionDocking() {
             await route.fulfill({ response, body: html });
           });
         }
+        // Natural form motion and initialized-widget geometry are separate
+        // lifetimes. Preserve the original post-load 36 ready-widget samples
+        // below; add 36 earlier natural form samples without forcing motion.
+        await page.addInitScript(() => {
+          const key = '__mondermanEarlyFormRevealCapture';
+          if (Object.prototype.hasOwnProperty.call(window, key)) throw new Error('early form capture already installed');
+          const observation = { documentInit: performance.now(), readyStateAtInit: document.readyState, firstForm: null, firstAssistant: null, firstConnect: null, bothLaunchers: null, earlyCaptureStarted: null, earlyLastFrameSampled: null, earlyCaptureCompleted: null, evidenceFinished: null, documentEvents: [], transitionEvents: [], readinessIntegrityViolations: [] };
+          const frames = [];
+          let resolveFrames, rejectFrames, started = false, complete = false, failure = null;
+          let frameId = null, pauseId = null, deadlineId = null;
+          let domObserverDisconnected = false, listenersRemoved = false;
+          const completed = new Promise((resolve, reject) => { resolveFrames = resolve; rejectFrames = reject; });
+          completed.catch(() => {}); // The owned await still receives rejection.
+          const stopCollectionCallbacks = () => {
+            if (frameId !== null) cancelAnimationFrame(frameId);
+            if (pauseId !== null) clearTimeout(pauseId);
+            if (deadlineId !== null) clearTimeout(deadlineId);
+            frameId = pauseId = deadlineId = null;
+          };
+          const onDocumentEvent = event => {
+            observation.documentEvents.push({ type: event.type, at: performance.now(), readyState: document.readyState });
+            observeMilestones();
+          };
+          const onTransition = event => {
+            if (event.target?.id === 'contactFormShell') observation.transitionEvents.push({ type: event.type, property: event.propertyName, elapsedTime: event.elapsedTime, eventTimeStamp: event.timeStamp, at: performance.now(), readyState: document.readyState, bothLaunchersObserved: observation.bothLaunchers !== null, assistantCount: document.querySelectorAll('#mnd-launcher').length, connectCount: document.querySelectorAll('.mdn-cn-launch').length });
+          };
+          const finishTelemetry = () => {
+            observer.disconnect();
+            domObserverDisconnected = true;
+            for (const type of ['readystatechange', 'DOMContentLoaded']) document.removeEventListener(type, onDocumentEvent);
+            window.removeEventListener('load', onDocumentEvent);
+            for (const type of ['transitionrun', 'transitionstart', 'transitionend', 'transitioncancel']) document.removeEventListener(type, onTransition, true);
+            listenersRemoved = true;
+          };
+          const fail = error => {
+            if (complete) return;
+            failure = String(error);
+            complete = true;
+            stopCollectionCallbacks();
+            finishTelemetry();
+            rejectFrames(error);
+          };
+          const sample = () => {
+            frameId = requestAnimationFrame(() => {
+              frameId = null;
+              pauseId = setTimeout(() => {
+                pauseId = null;
+                try {
+                  observeMilestones();
+                  const snapshot = (() => {
+            const actions = [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].map(node => ({ connect: node.matches('.mdn-cn-launch'), visible: getComputedStyle(node).visibility === 'visible', pointerEvents: getComputedStyle(node).pointerEvents, box: node.getBoundingClientRect().toJSON() }));
+            const boxes = actions.map(action => action.box);
+            const obstacles = [...document.querySelectorAll('a[href],button,input,select,textarea,[role="button"],[contenteditable="true"]')]
+              .filter(node => !node.matches('#mnd-launcher,.mdn-cn-launch') && !node.closest('#siteHeader,.mond-footer,#mnd-panel,#mdn-cn-root') && node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden')
+              .map(node => ({ id: node.id, box: node.getBoundingClientRect().toJSON() }))
+              .filter(({ box }) => box.right > Math.min(...boxes.map(item => item.left)) - 8 && box.left < Math.max(...boxes.map(item => item.right)) + 8
+                && box.bottom > Math.min(...boxes.map(item => item.top)) - 8 && box.top < Math.max(...boxes.map(item => item.bottom)) + 8);
+            return { actions, obstacles, footerTop: document.querySelector('.mond-footer')?.getBoundingClientRect().top ?? null,
+              headerBottom: document.querySelector('#siteHeader')?.getBoundingClientRect().bottom || 0,
+              transform: getComputedStyle(document.querySelector('#contactFormShell')).transform, overlap: actions.every(action => action.visible) && obstacles.length > 0 };
+                  })();
+                  frames.push({ ...snapshot, sampleAt: performance.now(), readyState: document.readyState, bothLaunchersObserved: observation.bothLaunchers !== null, headerPresent: Boolean(document.querySelector('#siteHeader')), footerPresent: Boolean(document.querySelector('.mond-footer')) });
+                  if (frames.length === 36) {
+                    observation.earlyLastFrameSampled = performance.now();
+                    // Keep all 36 original 20ms pauses, including the last.
+                    pauseId = setTimeout(() => {
+                      pauseId = null;
+                      complete = true;
+                      observation.earlyCaptureCompleted = performance.now();
+                      stopCollectionCallbacks();
+                      resolveFrames(frames);
+                    }, 20);
+                  } else pauseId = setTimeout(sample, 20);
+                } catch (error) { fail(error); }
+              }, 0);
+            });
+          };
+          const observeMilestones = () => {
+            const form = document.querySelector('#contactFormShell');
+            const assistantCount = document.querySelectorAll('#mnd-launcher').length;
+            const connectCount = document.querySelectorAll('.mdn-cn-launch').length;
+            if (form && observation.firstForm === null) observation.firstForm = performance.now();
+            if (assistantCount && observation.firstAssistant === null) observation.firstAssistant = performance.now();
+            if (connectCount && observation.firstConnect === null) observation.firstConnect = performance.now();
+            if (assistantCount && connectCount && observation.bothLaunchers === null) observation.bothLaunchers = performance.now();
+            if (assistantCount > 1 || connectCount > 1 || (observation.bothLaunchers !== null && (assistantCount !== 1 || connectCount !== 1))) observation.readinessIntegrityViolations.push({ at: performance.now(), readyState: document.readyState, assistantCount, connectCount });
+            if (started || !form) return;
+            started = true;
+            observation.earlyCaptureStarted = performance.now();
+            observation.readyStateAtEarlyCapture = document.readyState;
+            sample();
+          };
+          const observer = new MutationObserver(observeMilestones);
+          observer.observe(document, { childList: true, subtree: true });
+          for (const type of ['readystatechange', 'DOMContentLoaded']) document.addEventListener(type, onDocumentEvent);
+          window.addEventListener('load', onDocumentEvent);
+          for (const type of ['transitionrun', 'transitionstart', 'transitionend', 'transitioncancel']) document.addEventListener(type, onTransition, true);
+          deadlineId = setTimeout(() => fail(new Error('early natural form capture exceeded original 30000ms operation limit')), 30000);
+          Object.defineProperty(window, key, { value: { completed, finishEvidence: () => {
+            if (!complete || failure || frames.length !== 36) throw new Error('early form evidence closed without all 36 natural samples');
+            observeMilestones();
+            stopCollectionCallbacks();
+            finishTelemetry();
+            observation.evidenceFinished = performance.now();
+            return { ...observation, earlyFrameCount: frames.length, pendingCollectionCallbacks: Boolean(frameId !== null || pauseId !== null || deadlineId !== null), domObserverDisconnected, listenersRemoved };
+          } } });
+          observeMilestones();
+        });
         await page.goto(`${base}/connect.html`, { waitUntil: 'load', timeout: 30000 });
         await page.locator('#mnd-launcher').waitFor({ state: 'attached' });
         await page.locator('.mdn-cn-launch').waitFor({ state: 'attached' });
@@ -284,6 +392,7 @@ async function checkRevealMotionDocking() {
           }));
           await page.waitForTimeout(20);
         }
+        const earlyFrames = await page.evaluate(() => window.__mondermanEarlyFormRevealCapture.completed);
         await page.screenshot({ path: path.join(out, `${engineName}-${order}-reveal-settled.png`) });
         await page.waitForTimeout(300);
         const idleStyleMutations = await page.evaluate(() => new Promise(resolve => {
@@ -293,9 +402,17 @@ async function checkRevealMotionDocking() {
           setTimeout(() => { observer.disconnect(); resolve(count); }, 150);
         }));
         const label = `${engineName}/768/connect.html/${order}/reveal`;
-        evidence.push({ engineName, order, frames, idleStyleMutations, errors });
+        const observation = await page.evaluate(() => window.__mondermanEarlyFormRevealCapture.finishEvidence());
+        evidence.push({ engineName, order, frames, earlyFrames, idleStyleMutations, errors, observation });
         fs.writeFileSync(path.join(out, 'floating-reveal-motion.json'), JSON.stringify({ evidence }, null, 2));
-        if (!frames.some(frame => frame.transform !== 'none' && new RegExp('matrix').test(frame.transform))) failures.push(`${label}: test missed the actual reveal motion`);
+        // Correct the old same-window assumption explicitly: natural motion
+        // belongs to the early form lifetime, not to later ready-widget frames.
+        if (!earlyFrames.some(frame => frame.transform !== 'none' && new RegExp('matrix').test(frame.transform))) failures.push(`${label}: early form window missed the actual reveal motion`);
+        if (new Set(earlyFrames.map(frame => frame.transform)).size < 2) failures.push(`${label}: early natural form samples have no transform progression`);
+        if (frames.length !== 36 || frames.some(frame => frame.actions.length !== 2 || frame.actions.filter(action => action.connect).length !== 1 || frame.actions.filter(action => !action.connect).length !== 1)) failures.push(`${label}: every original ready-widget frame must contain exactly both real launchers`);
+        if (earlyFrames.length !== 36) failures.push(`${label}: all 36 early natural form samples are required`);
+        if (observation.bothLaunchers === null || observation.readinessIntegrityViolations.length) failures.push(`${label}: missing or duplicate widget launchers after readiness (${JSON.stringify(observation.readinessIntegrityViolations)})`);
+        if (observation.pendingCollectionCallbacks || !observation.domObserverDisconnected || !observation.listenersRemoved) failures.push(`${label}: owned early form observer cleanup is incomplete`);
         if (frames.some(frame => frame.actions.some(action => !action.visible)
           && frame.actions.every(action => action.box.bottom + 16 < frame.footerTop && action.box.top >= frame.headerBottom + 16)))
           failures.push(`${label}: floating control disappeared during reveal even though its fixed footer/header corner remained available`);
@@ -304,6 +421,18 @@ async function checkRevealMotionDocking() {
         )))) failures.push(`${label}: visible control moved away from its fixed anchor during reveal`);
         if (frames.some(frame => frame.actions.some(action => !action.visible && action.pointerEvents !== 'none')))
           failures.push(`${label}: hidden control remains interactive during reveal`);
+        const earlyLabel = label + '/early-form';
+        const earlyControlFrames = earlyFrames.filter(frame => frame.actions.length > 0);
+        if (earlyFrames.some(frame => frame.actions.filter(action => action.connect).length > 1 || frame.actions.filter(action => !action.connect).length > 1 || (frame.bothLaunchersObserved && (frame.actions.length !== 2 || frame.actions.filter(action => action.connect).length !== 1 || frame.actions.filter(action => !action.connect).length !== 1)))) failures.push(`${earlyLabel}: missing or duplicate actual controls after readiness`);
+        if (earlyControlFrames.some(frame => !frame.headerPresent || !frame.footerPresent || frame.footerTop === null)) failures.push(`${earlyLabel}: existing controls lack real header/footer geometry`);
+        if (earlyControlFrames.some(frame => frame.actions.some(action => !action.visible)
+          && frame.actions.every(action => action.box.bottom + 16 < frame.footerTop && action.box.top >= frame.headerBottom + 16)))
+          failures.push(`${earlyLabel}: floating control disappeared during reveal even though its fixed footer/header corner remained available`);
+        if (earlyControlFrames.some(frame => frame.actions.some(action => action.visible && (
+          Math.abs(action.box.right - 748) > 1.5 || Math.abs(action.box.bottom - (1004 - (action.connect ? 60 : 0))) > 1.5
+        )))) failures.push(`${earlyLabel}: visible control moved away from its fixed anchor during reveal`);
+        if (earlyControlFrames.some(frame => frame.actions.some(action => !action.visible && action.pointerEvents !== 'none')))
+          failures.push(`${earlyLabel}: hidden control remains interactive during reveal`);
         if (idleStyleMutations !== 0) failures.push(`${label}: docking animation callbacks did not stop after reveal`);
         if (errors.length) failures.push(`${label}: browser errors ${JSON.stringify(errors)}`);
         await checkFloatingSupport(page, label + '/settled');
@@ -317,7 +446,7 @@ if (process.argv.includes('--floating-motion-only')) {
   try {
     await checkRevealMotionDocking();
     assert.deepEqual(failures, [], `floating reveal failures:\n${failures.join('\n')}`);
-    console.log('floating reveal smoke: passed 144 sampled frames across both widget load orders in Chromium and WebKit');
+    console.log('floating reveal smoke: passed 144 original ready-widget and 144 early natural form frames across both widget load orders in Chromium and WebKit');
   } finally { await browser.close(); }
   process.exit(0);
 }

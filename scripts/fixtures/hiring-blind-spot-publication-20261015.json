@@ -16888,9 +16888,9 @@
       {
         "path": ".github/workflows/sample-report-marketing-certification.yml",
         "mode": "100644",
-        "bytes": 58805,
-        "sha256": "ff02489574340b903e7bcad0a4284e748cbc14fe44ba92594c47b3668939f571",
-        "gitBlobSha1": "59ab05e4cc4012e105c624b966f8bf5e1de510cb"
+        "bytes": 62661,
+        "sha256": "959b59c81557afcac0988965a08254bcb79cf4062a5f81c15b524e365463fe1a",
+        "gitBlobSha1": "12de851e7e2799dd41c0a069fd4a4b53d0954da1"
       },
       {
         "path": ".gitignore",
@@ -18652,9 +18652,9 @@
       {
         "path": "homepage-refinement.css",
         "mode": "100644",
-        "bytes": 7154,
-        "sha256": "2d2d7fbd0228ac4ffe91ba630bdb6d319f9aeb0091dd43f35d906bd3f853602f",
-        "gitBlobSha1": "f990c4fb037e2a26580dded3fafe691793150040"
+        "bytes": 7785,
+        "sha256": "61cdca7535a507f6c4629f971fcaf435d9f20d3394d91febd7a5adab31e85369",
+        "gitBlobSha1": "346775b514d2dc722407dc4bcb6a9ace1d58d110"
       },
       {
         "path": "homepage-refinement.js",
@@ -20654,9 +20654,9 @@
       {
         "path": "scripts/mobile_site_presentation_smoke.mjs",
         "mode": "100644",
-        "bytes": 70261,
-        "sha256": "161c91ad22da7768ba7539d561858c03806f93e54a7489fcb6374a9700e101d1",
-        "gitBlobSha1": "4b773d221b381c39aba0a237754ca4c49a39bb90"
+        "bytes": 81920,
+        "sha256": "20ea2dc28153e43e222058d9edaa19eb7bce4483691f137a172260bd932391aa",
+        "gitBlobSha1": "823152f1e3c41c4d31c736c593c242511fadcf81"
       },
       {
         "path": "scripts/mobile_widget_mixed_version_browser_smoke.mjs",
@@ -22466,6 +22466,57 @@
       }
     ],
     "files": {
+      ".github/workflows/sample-report-marketing-certification.yml": {
+        "before_bytes": 58805,
+        "before_sha256": "ff02489574340b903e7bcad0a4284e748cbc14fe44ba92594c47b3668939f571",
+        "after_bytes": 62661,
+        "after_sha256": "959b59c81557afcac0988965a08254bcb79cf4062a5f81c15b524e365463fe1a",
+        "encoding": "utf8",
+        "replacements": [
+          [
+            56515,
+            56515,
+            "",
+            "and "
+          ],
+          [
+            56523,
+            56547,
+            "and full phone presentat",
+            "v"
+          ],
+          [
+            56548,
+            56550,
+            "on",
+            "sual"
+          ],
+          [
+            56625,
+            56690,
+            "  MOBILE_OUT: /tmp/report-presentation-smoke/mobile-site\n        ",
+            ""
+          ],
+          [
+            56694,
+            59327,
+            " |\n          # These unchanged suites only read the frozen source/build and own separate output.\n          # Both complete commands must join successfully before this unchanged 60-minute job advances.\n          (\n          set -e\n          set -m\n          hero_phone_joined=0\n          hero_phone_cleanup() {\n            hero_phone_cleanup_status=$?\n            trap - EXIT INT TERM\n            set +e\n            # jobs -pr is restricted to this subshell: at most the two owned lane groups.\n            hero_phone_owned_groups=\"$(jobs -pr)\"\n            for hero_phone_pid in $hero_phone_owned_groups; do\n              kill -TERM -- \"-$hero_phone_pid\" 2>/dev/null || true\n            done\n            # Allow owned Node signal handlers to close detached browser children.\n            # Keep observing the original groups after a lane's shell leader exits.\n            hero_phone_retained_groups=\"$hero_phone_owned_groups\"\n            hero_phone_cleanup_started=$SECONDS\n            while :; do\n              hero_phone_still_existing_groups=\"\"\n              for hero_phone_pid in $hero_phone_retained_groups; do\n                if kill -0 -- \"-$hero_phone_pid\" 2>/dev/null; then\n                  hero_phone_still_existing_groups=\"$hero_phone_still_existing_groups $hero_phone_pid\"\n                fi\n              done\n              # An observed-gone group is retired permanently, never rediscovered or re-added.\n              hero_phone_retained_groups=\"$hero_phone_still_existing_groups\"\n              test -n \"$hero_phone_retained_groups\" || break\n              test \"$((SECONDS - hero_phone_cleanup_started))\" -lt 2 || break\n              sleep 0.05\n            done\n            # Escalate only still-existing original groups after the bounded cleanup grace.\n            for hero_phone_pid in $hero_phone_retained_groups; do\n              if kill -0 -- \"-$hero_phone_pid\" 2>/dev/null; then\n                kill -KILL -- \"-$hero_phone_pid\" 2>/dev/null || true\n              fi\n            done\n            wait\n            if [ \"$hero_phone_joined\" -ne 1 ]; then\n              test ! -f /tmp/report-presentation-smoke/hero-phone-visual.log || cat /tmp/report-presentation-smoke/hero-phone-visual.log\n              test ! -f /tmp/report-presentation-smoke/hero-phone-mobile.log || cat /tmp/report-presentation-smoke/hero-phone-mobile.log\n              echo \"HERO_PHONE_PARALLEL_ABORT exit=$hero_phone_cleanup_status\"\n            fi\n            exit \"$hero_phone_cleanup_status\"\n          }\n          trap hero_phone_cleanup EXIT\n          trap 'exit 130' INT\n          trap 'exit 143' TERM\n          (\n          set -e\n         ",
+            ""
+          ],
+          [
+            59369,
+            60716,
+            "\n          ) >/tmp/report-presentation-smoke/hero-phone-visual.log 2>&1 &\n          hero_phone_refresh_photo_pid=$!\n          (\n          set -e\n          node scripts/mobile_site_presentation_smoke.mjs\n          ) >/tmp/report-presentation-smoke/hero-phone-mobile.log 2>&1 &\n          hero_phone_completion_pid=$!\n          set +e\n          wait \"$hero_phone_refresh_photo_pid\"\n          hero_phone_refresh_photo_status=$?\n          wait \"$hero_phone_completion_pid\"\n          hero_phone_completion_status=$?\n          set -e\n          hero_phone_joined=1\n          hero_phone_refresh_photo_log_status=0\n          cat /tmp/report-presentation-smoke/hero-phone-visual.log || hero_phone_refresh_photo_log_status=$?\n          hero_phone_completion_log_status=0\n          cat /tmp/report-presentation-smoke/hero-phone-mobile.log || hero_phone_completion_log_status=$?\n          echo \"HERO_PHONE_PARALLEL_RESULT refresh_photo=$hero_phone_refresh_photo_status completion=$hero_phone_completion_status\"\n          test \"$hero_phone_refresh_photo_status\" -eq 0\n          test \"$hero_phone_completion_status\" -eq 0\n          test \"$hero_phone_refresh_photo_log_status\" -eq 0\n          test \"$hero_phone_completion_log_status\" -eq 0\n          # Both waits are complete; no early cleanup trap survives this barrier.\n          trap - EXIT INT TERM\n          )",
+            ""
+          ],
+          [
+            61840,
+            61840,
+            "",
+            "Verify phone presentation across every HTML surface\n        env:\n          MOBILE_OUT: /tmp/report-presentation-smoke/mobile-site\n        run: node scripts/mobile_site_presentation_smoke.mjs\n\n      - name: "
+          ]
+        ]
+      },
       "Monderman_Brief_The_Culture_Trap.pdf": {
         "before_bytes": 112141,
         "before_sha256": "8fda963a40062c3943b51b6244e9a5686626be0d6841ba0bbda983781208b733",
@@ -22980,15 +23031,27 @@
       "homepage-refinement.css": {
         "before_bytes": 7153,
         "before_sha256": "3ada0dbfc6155bd82ba41bb7a175d01a3dbf79e2f7c4eb39f7fd59ab23dde899",
-        "after_bytes": 7154,
-        "after_sha256": "2d2d7fbd0228ac4ffe91ba630bdb6d319f9aeb0091dd43f35d906bd3f853602f",
+        "after_bytes": 7785,
+        "after_sha256": "61cdca7535a507f6c4629f971fcaf435d9f20d3394d91febd7a5adab31e85369",
         "encoding": "utf8",
         "replacements": [
           [
-            5167,
-            5447,
+            206,
+            720,
+            "  body.homepage-enterprise.homepage-refinement .hero-copy > .hero-enterprise-link {\n    display: block;\n    box-sizing: border-box;\n    width: fit-content;\n    max-width: 100%;\n    min-height: 44px;\n    margin: 0;\n    padding: 9px 0;\n    font-size: 14px;\n    line-height: 1.45;\n    border-bottom: 0;\n    text-decoration: underline;\n    text-decoration-thickness: 1px;\n    text-underline-offset: 3px;\n  }\n  body.homepage-enterprise.homepage-refinement .hero-access-note + .hero-enterprise-link { margin-top: 8px; }\n",
+            ""
+          ],
+          [
+            5681,
+            5961,
             "  body.homepage-enterprise.homepage-refinement .hero > .hero-inner { width: calc(100% - 2 * var(--mr-gutter, 20px)); max-width: var(--mr-rail, 1440px); padding-inline: clamp(24px, 4vw, 56px); grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(28px, 4vw, 56px); }\n",
             "  body.homepage-enterprise.homepage-refinement .hero > .hero-inner { width: calc(100% - 2 * var(--mr-gutter, 20px)); max-width: var(--mr-rail, 1440px); padding-inline: clamp(24px, 4vw, 56px); grid-template-columns: minmax(0, 560px) minmax(0, 1fr); gap: clamp(32px, 3vw, 44px); }\n"
+          ],
+          [
+            6570,
+            6687,
+            "  body.homepage-enterprise.homepage-refinement .hero-copy > .hero-enterprise-link { max-width: calc(100% - 132px); }\n",
+            ""
           ]
         ]
       },
@@ -24322,12 +24385,48 @@
         "encoding": "utf8",
         "before_bytes": 70260,
         "before_sha256": "c594c29296ae1fbc30e4ca48c7913ac6a9003de005be712c7dd7199c61ce3657",
-        "after_bytes": 70261,
-        "after_sha256": "161c91ad22da7768ba7539d561858c03806f93e54a7489fcb6374a9700e101d1",
+        "after_bytes": 81920,
+        "after_sha256": "20ea2dc28153e43e222058d9edaa19eb7bce4483691f137a172260bd932391aa",
         "replacements": [
           [
-            35375,
-            35605,
+            20118,
+            28582,
+            "        // Natural form motion and initialized-widget geometry are separate\n        // lifetimes. Preserve the original post-load 36 ready-widget samples\n        // below; add 36 earlier natural form samples without forcing motion.\n        await page.addInitScript(() => {\n          const key = '__mondermanEarlyFormRevealCapture';\n          if (Object.prototype.hasOwnProperty.call(window, key)) throw new Error('early form capture already installed');\n          const observation = { documentInit: performance.now(), readyStateAtInit: document.readyState, firstForm: null, firstAssistant: null, firstConnect: null, bothLaunchers: null, earlyCaptureStarted: null, earlyLastFrameSampled: null, earlyCaptureCompleted: null, evidenceFinished: null, documentEvents: [], transitionEvents: [], readinessIntegrityViolations: [] };\n          const frames = [];\n          let resolveFrames, rejectFrames, started = false, complete = false, failure = null;\n          let frameId = null, pauseId = null, deadlineId = null;\n          let domObserverDisconnected = false, listenersRemoved = false;\n          const completed = new Promise((resolve, reject) => { resolveFrames = resolve; rejectFrames = reject; });\n          completed.catch(() => {}); // The owned await still receives rejection.\n          const stopCollectionCallbacks = () => {\n            if (frameId !== null) cancelAnimationFrame(frameId);\n            if (pauseId !== null) clearTimeout(pauseId);\n            if (deadlineId !== null) clearTimeout(deadlineId);\n            frameId = pauseId = deadlineId = null;\n          };\n          const onDocumentEvent = event => {\n            observation.documentEvents.push({ type: event.type, at: performance.now(), readyState: document.readyState });\n            observeMilestones();\n          };\n          const onTransition = event => {\n            if (event.target?.id === 'contactFormShell') observation.transitionEvents.push({ type: event.type, property: event.propertyName, elapsedTime: event.elapsedTime, eventTimeStamp: event.timeStamp, at: performance.now(), readyState: document.readyState, bothLaunchersObserved: observation.bothLaunchers !== null, assistantCount: document.querySelectorAll('#mnd-launcher').length, connectCount: document.querySelectorAll('.mdn-cn-launch').length });\n          };\n          const finishTelemetry = () => {\n            observer.disconnect();\n            domObserverDisconnected = true;\n            for (const type of ['readystatechange', 'DOMContentLoaded']) document.removeEventListener(type, onDocumentEvent);\n            window.removeEventListener('load', onDocumentEvent);\n            for (const type of ['transitionrun', 'transitionstart', 'transitionend', 'transitioncancel']) document.removeEventListener(type, onTransition, true);\n            listenersRemoved = true;\n          };\n          const fail = error => {\n            if (complete) return;\n            failure = String(error);\n            complete = true;\n            stopCollectionCallbacks();\n            finishTelemetry();\n            rejectFrames(error);\n          };\n          const sample = () => {\n            frameId = requestAnimationFrame(() => {\n              frameId = null;\n              pauseId = setTimeout(() => {\n                pauseId = null;\n                try {\n                  observeMilestones();\n                  const snapshot = (() => {\n            const actions = [...document.querySelectorAll('#mnd-launcher,.mdn-cn-launch')].map(node => ({ connect: node.matches('.mdn-cn-launch'), visible: getComputedStyle(node).visibility === 'visible', pointerEvents: getComputedStyle(node).pointerEvents, box: node.getBoundingClientRect().toJSON() }));\n            const boxes = actions.map(action => action.box);\n            const obstacles = [...document.querySelectorAll('a[href],button,input,select,textarea,[role=\"button\"],[contenteditable=\"true\"]')]\n              .filter(node => !node.matches('#mnd-launcher,.mdn-cn-launch') && !node.closest('#siteHeader,.mond-footer,#mnd-panel,#mdn-cn-root') && node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden')\n              .map(node => ({ id: node.id, box: node.getBoundingClientRect().toJSON() }))\n              .filter(({ box }) => box.right > Math.min(...boxes.map(item => item.left)) - 8 && box.left < Math.max(...boxes.map(item => item.right)) + 8\n                && box.bottom > Math.min(...boxes.map(item => item.top)) - 8 && box.top < Math.max(...boxes.map(item => item.bottom)) + 8);\n            return { actions, obstacles, footerTop: document.querySelector('.mond-footer')?.getBoundingClientRect().top ?? null,\n              headerBottom: document.querySelector('#siteHeader')?.getBoundingClientRect().bottom || 0,\n              transform: getComputedStyle(document.querySelector('#contactFormShell')).transform, overlap: actions.every(action => action.visible) && obstacles.length > 0 };\n                  })();\n                  frames.push({ ...snapshot, sampleAt: performance.now(), readyState: document.readyState, bothLaunchersObserved: observation.bothLaunchers !== null, headerPresent: Boolean(document.querySelector('#siteHeader')), footerPresent: Boolean(document.querySelector('.mond-footer')) });\n                  if (frames.length === 36) {\n                    observation.earlyLastFrameSampled = performance.now();\n                    // Keep all 36 original 20ms pauses, including the last.\n                    pauseId = setTimeout(() => {\n                      pauseId = null;\n                      complete = true;\n                      observation.earlyCaptureCompleted = performance.now();\n                      stopCollectionCallbacks();\n                      resolveFrames(frames);\n                    }, 20);\n                  } else pauseId = setTimeout(sample, 20);\n                } catch (error) { fail(error); }\n              }, 0);\n            });\n          };\n          const observeMilestones = () => {\n            const form = document.querySelector('#contactFormShell');\n            const assistantCount = document.querySelectorAll('#mnd-launcher').length;\n            const connectCount = document.querySelectorAll('.mdn-cn-launch').length;\n            if (form && observation.firstForm === null) observation.firstForm = performance.now();\n            if (assistantCount && observation.firstAssistant === null) observation.firstAssistant = performance.now();\n            if (connectCount && observation.firstConnect === null) observation.firstConnect = performance.now();\n            if (assistantCount && connectCount && observation.bothLaunchers === null) observation.bothLaunchers = performance.now();\n            if (assistantCount > 1 || connectCount > 1 || (observation.bothLaunchers !== null && (assistantCount !== 1 || connectCount !== 1))) observation.readinessIntegrityViolations.push({ at: performance.now(), readyState: document.readyState, assistantCount, connectCount });\n            if (started || !form) return;\n            started = true;\n            observation.earlyCaptureStarted = performance.now();\n            observation.readyStateAtEarlyCapture = document.readyState;\n            sample();\n          };\n          const observer = new MutationObserver(observeMilestones);\n          observer.observe(document, { childList: true, subtree: true });\n          for (const type of ['readystatechange', 'DOMContentLoaded']) document.addEventListener(type, onDocumentEvent);\n          window.addEventListener('load', onDocumentEvent);\n          for (const type of ['transitionrun', 'transitionstart', 'transitionend', 'transitioncancel']) document.addEventListener(type, onTransition, true);\n          deadlineId = setTimeout(() => fail(new Error('early natural form capture exceeded original 30000ms operation limit')), 30000);\n          Object.defineProperty(window, key, { value: { completed, finishEvidence: () => {\n            if (!complete || failure || frames.length !== 36) throw new Error('early form evidence closed without all 36 natural samples');\n            observeMilestones();\n            stopCollectionCallbacks();\n            finishTelemetry();\n            observation.evidenceFinished = performance.now();\n            return { ...observation, earlyFrameCount: frames.length, pendingCollectionCallbacks: Boolean(frameId !== null || pauseId !== null || deadlineId !== null), domObserverDisconnected, listenersRemoved };\n          } } });\n          observeMilestones();\n        });\n",
+            ""
+          ],
+          [
+            30807,
+            30914,
+            "        const earlyFrames = await page.evaluate(() => window.__mondermanEarlyFormRevealCapture.completed);\n",
+            ""
+          ],
+          [
+            31581,
+            31802,
+            "        const observation = await page.evaluate(() => window.__mondermanEarlyFormRevealCapture.finishEvidence());\n        evidence.push({ engineName, order, frames, earlyFrames, idleStyleMutations, errors, observation });",
+            "        evidence.push({ engineName, order, frames, idleStyleMutations, errors });"
+          ],
+          [
+            31915,
+            33296,
+            "        // Correct the old same-window assumption explicitly: natural motion\n        // belongs to the early form lifetime, not to later ready-widget frames.\n        if (!earlyFrames.some(frame => frame.transform !== 'none' && new RegExp('matrix').test(frame.transform))) failures.push(`${label}: early form window missed the actual reveal motion`);\n        if (new Set(earlyFrames.map(frame => frame.transform)).size < 2) failures.push(`${label}: early natural form samples have no transform progression`);\n        if (frames.length !== 36 || frames.some(frame => frame.actions.length !== 2 || frame.actions.filter(action => action.connect).length !== 1 || frame.actions.filter(action => !action.connect).length !== 1)) failures.push(`${label}: every original ready-widget frame must contain exactly both real launchers`);\n        if (earlyFrames.length !== 36) failures.push(`${label}: all 36 early natural form samples are required`);\n        if (observation.bothLaunchers === null || observation.readinessIntegrityViolations.length) failures.push(`${label}: missing or duplicate widget launchers after readiness (${JSON.stringify(observation.readinessIntegrityViolations)})`);\n        if (observation.pendingCollectionCallbacks || !observation.domObserverDisconnected || !observation.listenersRemoved) failures.push(`${label}: owned early form observer cleanup is incomplete`);",
+            "        if (!frames.some(frame => frame.transform !== 'none' && new RegExp('matrix').test(frame.transform))) failures.push(`${label}: test missed the actual reveal motion`);"
+          ],
+          [
+            34163,
+            35862,
+            "        const earlyLabel = label + '/early-form';\n        const earlyControlFrames = earlyFrames.filter(frame => frame.actions.length > 0);\n        if (earlyFrames.some(frame => frame.actions.filter(action => action.connect).length > 1 || frame.actions.filter(action => !action.connect).length > 1 || (frame.bothLaunchersObserved && (frame.actions.length !== 2 || frame.actions.filter(action => action.connect).length !== 1 || frame.actions.filter(action => !action.connect).length !== 1)))) failures.push(`${earlyLabel}: missing or duplicate actual controls after readiness`);\n        if (earlyControlFrames.some(frame => !frame.headerPresent || !frame.footerPresent || frame.footerTop === null)) failures.push(`${earlyLabel}: existing controls lack real header/footer geometry`);\n        if (earlyControlFrames.some(frame => frame.actions.some(action => !action.visible)\n          && frame.actions.every(action => action.box.bottom + 16 < frame.footerTop && action.box.top >= frame.headerBottom + 16)))\n          failures.push(`${earlyLabel}: floating control disappeared during reveal even though its fixed footer/header corner remained available`);\n        if (earlyControlFrames.some(frame => frame.actions.some(action => action.visible && (\n          Math.abs(action.box.right - 748) > 1.5 || Math.abs(action.box.bottom - (1004 - (action.connect ? 60 : 0))) > 1.5\n        )))) failures.push(`${earlyLabel}: visible control moved away from its fixed anchor during reveal`);\n        if (earlyControlFrames.some(frame => frame.actions.some(action => !action.visible && action.pointerEvents !== 'none')))\n          failures.push(`${earlyLabel}: hidden control remains interactive during reveal`);\n",
+            ""
+          ],
+          [
+            36413,
+            36576,
+            "    console.log('floating reveal smoke: passed 144 original ready-widget and 144 early natural form frames across both widget load orders in Chromium and WebKit');",
+            "    console.log('floating reveal smoke: passed 144 sampled frames across both widget load orders in Chromium and WebKit');"
+          ],
+          [
+            47034,
+            47264,
             "        const expectedPhotos={'index.html':['2193823408','639637650'],'why-monderman.html':['511990984'],'platform-services.html':['541113838'],'Monderman_Platform_Brief.html':['488892667'],'operational-systems-article.html':[]};\n",
             "        const expectedPhotos={'index.html':['501653292','524156476'],'why-monderman.html':['511990984'],'platform-services.html':['541113838'],'Monderman_Platform_Brief.html':['488892667'],'operational-systems-article.html':[]};\n"
           ]
@@ -25754,15 +25853,27 @@
           "homepage-refinement.css": {
             "before_bytes": 7153,
             "before_sha256": "3ada0dbfc6155bd82ba41bb7a175d01a3dbf79e2f7c4eb39f7fd59ab23dde899",
-            "after_bytes": 7154,
-            "after_sha256": "2d2d7fbd0228ac4ffe91ba630bdb6d319f9aeb0091dd43f35d906bd3f853602f",
+            "after_bytes": 7785,
+            "after_sha256": "61cdca7535a507f6c4629f971fcaf435d9f20d3394d91febd7a5adab31e85369",
             "encoding": "utf8",
             "replacements": [
               [
-                5167,
-                5447,
+                206,
+                720,
+                "  body.homepage-enterprise.homepage-refinement .hero-copy > .hero-enterprise-link {\n    display: block;\n    box-sizing: border-box;\n    width: fit-content;\n    max-width: 100%;\n    min-height: 44px;\n    margin: 0;\n    padding: 9px 0;\n    font-size: 14px;\n    line-height: 1.45;\n    border-bottom: 0;\n    text-decoration: underline;\n    text-decoration-thickness: 1px;\n    text-underline-offset: 3px;\n  }\n  body.homepage-enterprise.homepage-refinement .hero-access-note + .hero-enterprise-link { margin-top: 8px; }\n",
+                ""
+              ],
+              [
+                5681,
+                5961,
                 "  body.homepage-enterprise.homepage-refinement .hero > .hero-inner { width: calc(100% - 2 * var(--mr-gutter, 20px)); max-width: var(--mr-rail, 1440px); padding-inline: clamp(24px, 4vw, 56px); grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(28px, 4vw, 56px); }\n",
                 "  body.homepage-enterprise.homepage-refinement .hero > .hero-inner { width: calc(100% - 2 * var(--mr-gutter, 20px)); max-width: var(--mr-rail, 1440px); padding-inline: clamp(24px, 4vw, 56px); grid-template-columns: minmax(0, 560px) minmax(0, 1fr); gap: clamp(32px, 3vw, 44px); }\n"
+              ],
+              [
+                6570,
+                6687,
+                "  body.homepage-enterprise.homepage-refinement .hero-copy > .hero-enterprise-link { max-width: calc(100% - 132px); }\n",
+                ""
               ]
             ]
           },
@@ -26817,7 +26928,7 @@
           {
             "path": ".well-known/monderman-release.json",
             "bytes": 56,
-            "sha256": "5b1203ac250d64c1a8da5e1a140cbb5c3503640ea0471336ffdd91cee5e541df"
+            "sha256": "18f897d8575ee1f31c5be6ae12d36d854ab3283139f16b44ea88f9f5b8d911e2"
           },
           {
             "path": "404.html",
@@ -27841,8 +27952,8 @@
           },
           {
             "path": "homepage-refinement.css",
-            "bytes": 7154,
-            "sha256": "2d2d7fbd0228ac4ffe91ba630bdb6d319f9aeb0091dd43f35d906bd3f853602f"
+            "bytes": 7785,
+            "sha256": "61cdca7535a507f6c4629f971fcaf435d9f20d3394d91febd7a5adab31e85369"
           },
           {
             "path": "homepage-refinement.js",
@@ -30123,16 +30234,16 @@
           }
         ],
         "genuinePreCaptureMap": {
-          "path": "/Users/jasonadamson/Desktop/Study2_files_for_Codex/monderman-q2-sodi-beta-20261015-evidence/sodi-order-and-language-20261015/private-research-anchor-clearance-124-20261016/06_ACTUAL_CSS_WIP_CURRENT331_MAP_FULL811_NOT_FINAL_QA.json",
-          "bytes": 272501,
-          "sha256": "9292ec7f7dcdb87a1fc8338ce6f90f6564385169a6799c3068d1c727ef1443b2"
+          "path": "/Users/jasonadamson/Desktop/Study2_files_for_Codex/monderman-hero-links-20261016-evidence/06_PRIVATE_V2_CURRENT_PUBLIC331_MAP.json",
+          "bytes": 56621,
+          "sha256": "40813e3f7b9831150ecd97e2651dfd39c34690f0469034f2a686eca48841ec99"
         },
         "genuinePreCaptureSource": {
-          "revision": "755920fd49ddd0036810bc896656846898281e54",
-          "tree": "6dde2c77373333210b44bd5c3465455038d7d59b",
+          "revision": "3ed37c218148a03fefc0a2c95afc31b2437f90e5",
+          "tree": "bf448349388503f0cd69c7b38819d0fe3aa375f7",
           "sourceCount": 811
         },
-        "markerQualification": "This exact map records the genuine CSS-only WIP official current build from private755920, before final guard composition; its release marker truthfully names755920. The final captured source must build and check its own actual HEAD marker. This WIP map is pre-capture provenance, not final QA, native main, or live evidence."
+        "markerQualification": "This exact map records the genuine final hero-link CSS-only private WIP official current build from private3ed37c218148a03fefc0a2c95afc31b2437f90e5, before final fixture/bootstrap maintenance; its release marker truthfully names3ed37c218148a03fefc0a2c95afc31b2437f90e5. The final captured source must build and check its own actual HEAD marker. This WIP map is pre-capture provenance, not final QA, native main, or live evidence."
       },
       "legacy": {
         "files": {
@@ -30437,15 +30548,27 @@
           "homepage-refinement.css": {
             "before_bytes": 7153,
             "before_sha256": "3ada0dbfc6155bd82ba41bb7a175d01a3dbf79e2f7c4eb39f7fd59ab23dde899",
-            "after_bytes": 7154,
-            "after_sha256": "2d2d7fbd0228ac4ffe91ba630bdb6d319f9aeb0091dd43f35d906bd3f853602f",
+            "after_bytes": 7785,
+            "after_sha256": "61cdca7535a507f6c4629f971fcaf435d9f20d3394d91febd7a5adab31e85369",
             "encoding": "utf8",
             "replacements": [
               [
-                5167,
-                5447,
+                206,
+                720,
+                "  body.homepage-enterprise.homepage-refinement .hero-copy > .hero-enterprise-link {\n    display: block;\n    box-sizing: border-box;\n    width: fit-content;\n    max-width: 100%;\n    min-height: 44px;\n    margin: 0;\n    padding: 9px 0;\n    font-size: 14px;\n    line-height: 1.45;\n    border-bottom: 0;\n    text-decoration: underline;\n    text-decoration-thickness: 1px;\n    text-underline-offset: 3px;\n  }\n  body.homepage-enterprise.homepage-refinement .hero-access-note + .hero-enterprise-link { margin-top: 8px; }\n",
+                ""
+              ],
+              [
+                5681,
+                5961,
                 "  body.homepage-enterprise.homepage-refinement .hero > .hero-inner { width: calc(100% - 2 * var(--mr-gutter, 20px)); max-width: var(--mr-rail, 1440px); padding-inline: clamp(24px, 4vw, 56px); grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(28px, 4vw, 56px); }\n",
                 "  body.homepage-enterprise.homepage-refinement .hero > .hero-inner { width: calc(100% - 2 * var(--mr-gutter, 20px)); max-width: var(--mr-rail, 1440px); padding-inline: clamp(24px, 4vw, 56px); grid-template-columns: minmax(0, 560px) minmax(0, 1fr); gap: clamp(32px, 3vw, 44px); }\n"
+              ],
+              [
+                6570,
+                6687,
+                "  body.homepage-enterprise.homepage-refinement .hero-copy > .hero-enterprise-link { max-width: calc(100% - 132px); }\n",
+                ""
               ]
             ]
           },
@@ -31500,7 +31623,7 @@
           {
             "path": ".well-known/monderman-release.json",
             "bytes": 56,
-            "sha256": "5b1203ac250d64c1a8da5e1a140cbb5c3503640ea0471336ffdd91cee5e541df"
+            "sha256": "18f897d8575ee1f31c5be6ae12d36d854ab3283139f16b44ea88f9f5b8d911e2"
           },
           {
             "path": "404.html",
@@ -32524,8 +32647,8 @@
           },
           {
             "path": "homepage-refinement.css",
-            "bytes": 7154,
-            "sha256": "2d2d7fbd0228ac4ffe91ba630bdb6d319f9aeb0091dd43f35d906bd3f853602f"
+            "bytes": 7785,
+            "sha256": "61cdca7535a507f6c4629f971fcaf435d9f20d3394d91febd7a5adab31e85369"
           },
           {
             "path": "homepage-refinement.js",
@@ -34806,16 +34929,16 @@
           }
         ],
         "genuinePreCaptureMap": {
-          "path": "/Users/jasonadamson/Desktop/Study2_files_for_Codex/monderman-q2-sodi-beta-20261015-evidence/sodi-order-and-language-20261015/private-research-anchor-clearance-124-20261016/06_ACTUAL_CSS_WIP_LEGACY331_MAP_FULL811_NOT_FINAL_QA.json",
-          "bytes": 272496,
-          "sha256": "99f7abd624036f39256ed6d66b484cfa57c038765772f901b88094e55e5fc6cf"
+          "path": "/Users/jasonadamson/Desktop/Study2_files_for_Codex/monderman-hero-links-20261016-evidence/06_PRIVATE_V2_LEGACY_PUBLIC331_MAP.json",
+          "bytes": 56618,
+          "sha256": "3684c9f623307d3e535fc4ec884b24cc73ff51f7a3c5d273a1dc4bd23a8f4e98"
         },
         "genuinePreCaptureSource": {
-          "revision": "755920fd49ddd0036810bc896656846898281e54",
-          "tree": "6dde2c77373333210b44bd5c3465455038d7d59b",
+          "revision": "3ed37c218148a03fefc0a2c95afc31b2437f90e5",
+          "tree": "bf448349388503f0cd69c7b38819d0fe3aa375f7",
           "sourceCount": 811
         },
-        "markerQualification": "This exact map records the genuine CSS-only WIP official legacy build from private755920, before final guard composition; its release marker truthfully names755920. The final captured source must build and check its own actual HEAD marker. This WIP map is pre-capture provenance, not final QA, native main, or live evidence."
+        "markerQualification": "This exact map records the genuine final hero-link CSS-only private WIP official legacy build from private3ed37c218148a03fefc0a2c95afc31b2437f90e5, before final fixture/bootstrap maintenance; its release marker truthfully names3ed37c218148a03fefc0a2c95afc31b2437f90e5. The final captured source must build and check its own actual HEAD marker. This WIP map is pre-capture provenance, not final QA, native main, or live evidence."
       }
     },
     "scope": "Exact owner SODI order and authored language, supplied two photos, report rail, carousel article and finite compatibility adapters over native8431; native267 publication sublayer remains verbatim. The only additional authored surface is the Research governance-performance heading native-fragment fixed-header clearance rule, restored by one exact outer source/public inverse."
