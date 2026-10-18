@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 
 const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 
@@ -88,6 +89,46 @@ async function newLocalPage(browser, options = {}) {
 
 const browserMatrix = [['chromium', chromium], ['webkit', webkit]]
   .filter(([browserName]) => !process.env.COSMETIC_BROWSER || process.env.COSMETIC_BROWSER === browserName);
+
+// Failure-only camera. No additional browser call runs when the original check succeeds.
+async function captureConnectConsentFailure(page, browserName, out, originalError) {
+  const observed = read => { try { return { available: true, value: read() }; } catch (error) { return { available: false, error: String(error) }; } };
+  const key = `connect-consent-${browserName}-1280`;
+  const cameraPath = path.join(out, `connect-consent-failure-${browserName}-1280.png`);
+  const evidencePath = path.join(out, `connect-consent-failure-${browserName}-1280.json`);
+  const evidence = {
+    kind: 'CONNECT_CONSENT_CHECK_FAILURE', browserName, sourceCase: 'connect.html/1280/server-error-and-retry',
+    originalError: observed(() => ({ name: originalError.name, message: originalError.message, stack: originalError.stack })),
+    cachedPageURL: observed(() => page.url()), viewport: observed(() => page.viewportSize()),
+    cameraOptions: { fullPage: false, animations: 'allow', caret: 'initial', timeout: 2000 },
+    camera: { status: 'NOT_STARTED' }, evidencePath,
+    qualification: 'Post-failure camera, not atomic click-time state or cause proof. Native screenshot timeout is2000ms; Playwright internal rendering/cleanup may extend it. No complete backend transport census or filesystem/stdout wall-clock bound is claimed. Prepared log chunks are not delivery or PNG verification proof.',
+  };
+  let pngChunks = [];
+  try {
+    const buffer = await page.screenshot(evidence.cameraOptions);
+    try { fs.writeFileSync(cameraPath, buffer); evidence.camera = { status: 'SAVED', path: cameraPath, bytes: buffer.length }; }
+    catch (error) { evidence.camera = { status: 'SAVE_ERROR', error: String(error), capturedBytes: buffer.length }; }
+    try {
+      const rawByteLimit = 524288, chunkCharacterLimit = 8192;
+      if (buffer.length > rawByteLimit) {
+        evidence.pngLogManifest = { key, status: 'OVERSIZE_ARTIFACT_ONLY', bytes: buffer.length, rawByteLimit, chunkCharacterLimit, chunkCount: 0 };
+      } else {
+        const sha256 = createHash('sha256').update(buffer).digest('hex');
+        const encoded = buffer.toString('base64');
+        for (let offset = 0; offset < encoded.length; offset += chunkCharacterLimit) pngChunks.push(encoded.slice(offset, offset + chunkCharacterLimit));
+        evidence.pngLogManifest = { key, status: 'PREPARED_NOT_DELIVERY_PROOF', bytes: buffer.length, sha256, base64Length: encoded.length, rawByteLimit, chunkCharacterLimit, chunkCount: pngChunks.length };
+      }
+    } catch (error) { pngChunks = []; evidence.pngLogManifest = { key, status: 'HASH_OR_ENCODING_ERROR', error: String(error), chunkCount: 0 }; }
+  } catch (error) { evidence.camera = { status: 'CAMERA_ERROR', error: String(error) }; }
+  try { fs.writeFileSync(evidencePath, JSON.stringify(evidence, null, 2) + '\n'); }
+  catch (error) { evidence.evidenceSaveError = String(error); }
+  console.error('CONNECT_CONSENT_CHECK_FAILURE ' + JSON.stringify(evidence));
+  if (evidence.pngLogManifest) console.error('CONNECT_CONSENT_FAILURE_PNG_MANIFEST ' + JSON.stringify(evidence.pngLogManifest));
+  for (let index = 0; index < pngChunks.length; index++) {
+    console.error('CONNECT_CONSENT_FAILURE_PNG_CHUNK ' + JSON.stringify({ key, index: index + 1, count: pngChunks.length, data: pngChunks[index] }));
+  }
+}
 
 for (const [browserName, browserType] of browserMatrix) {
   let browser = await browserType.launch({ headless: true });
@@ -554,7 +595,12 @@ for (const [browserName, browserType] of browserMatrix) {
       await page.locator('#organization').fill('Monderman test');
       await page.locator('#issueSummary').fill('Verify that the request form reports server errors accurately.');
       await page.locator('#cnNext').click();
-      await page.locator('#privacyConsent').check();
+      try {
+        await page.locator('#privacyConsent').check();
+      } catch (originalError) {
+        try { await captureConnectConsentFailure(page, browserName, out, originalError); }
+        finally { throw originalError; }
+      }
       await page.locator('#submitButton').click();
       await page.locator('#statusNote.is-visible').waitFor({ state: 'visible', timeout: 5000 });
       const errorText = await page.locator('#statusNote').textContent();

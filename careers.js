@@ -9,7 +9,9 @@
   var MAX_PDF = 3 * 1024 * 1024;
   var BASES = ["https://api.monderman.com", "https://monderman-api.onrender.com"];
   var ROLE_IDS = new Set(data.roles.map(function (role) { return role.id; }));
-  var STATES = new Set(data.workStates.map(function (state) { return state.code; }));
+  var WORK_LOCATION_POLICY_VERSION = "careers-work-locations-20261018.1";
+  var WORK_STATES = data.workStates.map(function (state) { return state.code; });
+  var STATES = new Set(WORK_STATES);
   var SITE_KEY = "0x4AAAAAAC8JOwWXoDDTTFef";
   var REJECTION_STATUS = { invalid_fields:400, invalid_pdf:400, consent_required:400, request_id_conflict:409, upload_too_large:413, rate_limited:429, intake_closed:503, intake_unavailable:503, verification_unavailable:503, verification_failed:400 };
   function issue(message, field) { return { message: message, field: field }; }
@@ -17,7 +19,7 @@
     var errors = [];
     if (typeof input.fullName !== "string" || !input.fullName.trim() || input.fullName.trim().length > 120) errors.push(issue("Enter your full name (up to 120 characters).", "fullName"));
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email || "") || input.email.length > 254) errors.push(issue("Enter a valid email address.", "email"));
-    if (!STATES.has(input.workState)) errors.push(issue("Choose your U.S. state or DC.", "workState"));
+    if (!STATES.has(input.workState)) errors.push(issue("Choose an eligible U.S. state where you would perform the work. These positions are not available from the excluded locations listed on this page.", "workState"));
     if (!Array.isArray(input.roleInterest) || input.roleInterest.length < 1 || input.roleInterest.length > 3 || new Set(input.roleInterest).size !== input.roleInterest.length || input.roleInterest.some(function (id) { return !ROLE_IDS.has(id); })) errors.push(issue("Choose one to three listed roles.", "roleInterest"));
     if (input.portfolioUrl) {
       try { var u = new URL(input.portfolioUrl); if (u.protocol !== "https:" || u.username || u.password || input.portfolioUrl.length > 2000) throw new Error(); }
@@ -69,12 +71,19 @@
     }
     return {
       loadConfig: async function () {
+        selectedBase = ""; // Every enablement must revalidate the exact current work-location policy.
         for (var i = 0; i < BASES.length; i += 1) {
           try {
             var found = await jsonRequest(BASES[i] + "/api/careers/config", { method: "GET", headers: { Accept: "application/json" } }, 5000);
             if (found.response.status === 200 && found.result && found.result.ok === true && typeof found.result.intakeEnabled === "boolean") {
-              selectedBase = found.result.intakeEnabled ? BASES[i] : "";
-              return { intakeEnabled: found.result.intakeEnabled };
+              var policyMatches = data.workLocationPolicyId === WORK_LOCATION_POLICY_VERSION
+                && found.result.workLocationPolicyVersion === WORK_LOCATION_POLICY_VERSION
+                && Array.isArray(found.result.allowedWorkStates)
+                && found.result.allowedWorkStates.length === WORK_STATES.length
+                && STATES.size === WORK_STATES.length
+                && found.result.allowedWorkStates.every(function (code, index) { return code === WORK_STATES[index]; });
+              selectedBase = found.result.intakeEnabled && policyMatches ? BASES[i] : "";
+              return { intakeEnabled: found.result.intakeEnabled && policyMatches };
             }
           } catch (_) { /* Read-only reachability fallback is allowed before any upload. */ }
         }
@@ -91,6 +100,7 @@
         }
         var error = new Error(result && result.error || "outcome_unknown");
         error.code = result && result.ok === false && REJECTION_STATUS[result.error] === packet.response.status ? result.error : "outcome_unknown";
+        error.field = result && result.field === "workState" ? "workState" : null;
         error.requestId = requestId; throw error;
       }
     };
@@ -141,7 +151,7 @@
         if (!config.intakeEnabled) return;
         uuid(); // A genuine secure UUID source is required before enabling uploads.
         state.enabled = true; fields.disabled = false; submit.disabled = true;
-        notice.textContent = "We are accepting résumés. Hiring timelines vary by role. Required fields are marked with an asterisk.";
+        notice.textContent = "We are accepting résumés for work performed in eligible U.S. locations. Hiring timelines vary by role. Required fields are marked with an asterisk.";
         verification.textContent = "Complete the human verification before submitting.";
         if (root.turnstile) renderVerification();
         else {
@@ -175,7 +185,7 @@
           announce("We could not confirm whether your submission was saved. Please do not submit again. Contact Jason with the reference below so it can be checked.", "unknown");
         } else {
           var messages = { invalid_fields: "Please check your details and selected roles.", invalid_pdf: "A document could not be accepted as a PDF. Please select a valid PDF.", consent_required: "Please review and confirm both acknowledgements.", request_id_conflict: "This submission reference could not be accepted. Contact Jason with the reference below.", upload_too_large: "Each PDF must be no larger than 3 MiB.", rate_limited: "The service is receiving too many requests. Please wait before submitting again.", intake_closed: "Résumé submissions are temporarily closed. You can contact Jason instead.", intake_unavailable: "The résumé form is temporarily unavailable. You can contact Jason instead.", verification_unavailable: "Human verification is temporarily unavailable. Please try the check later.", verification_failed: "Human verification could not be confirmed. Please complete it again." };
-          announce(messages[error.code] || "The form could not accept your submission. Please contact Jason.", "error");
+          announce(error.code === "invalid_fields" && error.field === "workState" ? "Choose an eligible U.S. state where you would perform the work. We cannot accept applications for work performed in the excluded locations listed on this page." : messages[error.code] || "The form could not accept your submission. Please contact Jason.", "error");
           if (["intake_closed", "intake_unavailable", "request_id_conflict"].includes(error.code)) { state.locked = true; fields.disabled = true; }
         }
         state.token = "";
