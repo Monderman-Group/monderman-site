@@ -82,6 +82,8 @@ PAGES = {
     "plan-enterprise.html": "Plans & services",
     "why-monderman.html": "Company",
     "about.html": "Company",
+    "careers.html": "Company",
+    "careers-privacy.html": "Policies",
     "security.html": "Company",
     "connect.html": "Company",
     "privacy.html": "Policies",

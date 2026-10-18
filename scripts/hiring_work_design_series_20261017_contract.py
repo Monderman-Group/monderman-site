@@ -15,7 +15,7 @@ from hiring_work_design_series_20261017_inverse import (
 )
 BASE=D['baseline']
 GUARDS=['scripts/fixtures/hiring-work-design-series-20261017.json','scripts/hiring_work_design_series_20261017_contract.py','scripts/hiring_work_design_series_20261017_inverse.mjs','scripts/hiring_work_design_series_20261017_inverse.py']
-HELPER_HASHES={'scripts/hiring_work_design_series_20261017_inverse.mjs':'485957fc5e6ee0bc5fbc20e2986a0e235c1f7ba9b3f581b81460dfc6a98a967d','scripts/hiring_work_design_series_20261017_inverse.py':'defbf461f5f0b0669d3b4fba6c77b029c7cc5928421e58290e38192908b7e6f3'}
+HELPER_HASHES={'scripts/hiring_work_design_series_20261017_inverse.mjs':'ca8cfa580cb86b6b726868bc4af6da6f025c0342a692f9d115fd9758b38e391e','scripts/hiring_work_design_series_20261017_inverse.py':'2c28c14c466c114fcf49111ee0152072e9272488ca853e5034ad68be57708bfc'}
 AUDITED=False
 CHECKS=0
 NEGATIVES=0
@@ -128,6 +128,65 @@ def audit_current_release():
  for number,reference in enumerate(data['references'],1):
   match=re.search(r'<li\b[^>]*data-source-reference="'+str(number)+r'"[^>]*>(.*?)</li>',article,re.S)
   check(match is not None and normalize(match.group(1))==normalize(reference),'Every complete source reference is exact '+str(number))
+ # Current careers is checked as an actual future-interest surface before any
+ # historical projection. These are semantic controls, separate from byte pins.
+ role_source=(ROOT/'careers-role-data.js').read_text()
+ role_start=role_source.index('  var data = {')+len('  var data = ')
+ careers_data=json.JSONDecoder().raw_decode(role_source[role_start:])[0]
+ career=(ROOT/'careers.html').read_text();notice=(ROOT/'careers-privacy.html').read_text()
+ career_script=(ROOT/'careers.js').read_text();header=(ROOT/'site-shell/header.html').read_text();footer=(ROOT/'site-shell/footer.html').read_text()
+ def careers_content(html,privacy,roles):
+  rows=roles['roles'];locations=roles['workStates']
+  assert len(rows)==20 and len({a['id'] for a in rows})==20,'Careers20 unique role slots'
+  assert [a['slot'] for a in rows]==list(range(1,21)),'Careers complete ordered20 slots'
+  assert len({re.sub(r' \(position [12]\)$','',a['title']) for a in rows})==17,'Careers17 role types'
+  assert {g:sum(a['group']==g for a in rows) for g in ['product','research','delivery','operations']}=={'product':7,'research':4,'delivery':5,'operations':4},'Careers actual group counts'
+  expected='AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY'.split()
+  assert [a['code'] for a in locations]==expected,'Careers50 states andDC only'
+  assert 'Not currently hiring · Remote, United States' in html and 'not advertising current vacancies' in html,'Careers prominent future status'
+  assert html.count('This is a potential future position, not an active vacancy. Timing, compensation and employment details have not been announced.')==20,'Careers every role remains future only'
+  assert '20 potential positions across 17 types of work.' in html and 'not a promise that every position will open' in html,'Careers no funded opening promise'
+  assert re.findall(r'<details class="career-role"[^>]*data-role-id="([^"]+)"',html)==[a['id'] for a in rows],'Careers visible roles equal authored data'
+  assert re.findall(r'name="roleInterest" value="([^"]+)"',html)==[a['id'] for a in rows],'Careers picker equals all actual roles'
+  assert all(unescape('<strong>'+a['title']+'</strong>') in unescape(html) for a in rows),'Careers every actual title visible'
+  assert 'U.S. state or DC where you would work' in html,'Careers intended work location'
+  assert 'id="career-form-fields" disabled' in html and 'not accepting submissions yet' in html,'Careers defaults closed before config'
+  for name in ['fullName','email','workState','roleInterest','resumePDF','privacyConsent','futureOpportunityAcknowledgement']:
+   assert 'name="'+name+'"' in html,'Careers required field '+name
+  assert 'name="resumePDF" type="file" accept=".pdf,application/pdf" required' in html,'Careers actual required PDF'
+  assert 'Cover letter PDF <span class="career-optional">(optional)' in html and 'Portfolio or professional profile <span class="career-optional">(optional)' in html,'Careers optional materials'
+  assert 'For questions, an accommodation or another way to share your interest' in html and 'href="mailto:jason.adamson@monderman.com"' in html,'Careers accessible monitored alternative'
+  assert 'I have read the <a href="careers-privacy.html"' in html and 'does not guarantee contact or employment' in html,'Careers notice acknowledgement and no guarantee'
+  assert '12 months from submission, without automatic renewal' in privacy and 'up to four years from submission' in privacy,'Careers finite active and restricted retention'
+  assert 'legal obligations or a legal hold' in privacy and 'actual recruitment follows the applicable recruitment retention schedule' in privacy,'Careers mandatory preservation distinction'
+  assert 'Deletion is reviewed and performed manually, including recruiting copies in the owner’s email inbox' in privacy,'Careers mailbox copies covered by manual retention'
+  assert 'does not subscribe you to a marketing campaign' in privacy and 'not used for AI ranking, organizational diagnostics or marketing' in privacy,'Careers purpose limitation'
+  assert 'Applicant acknowledgement emails do not include those attachments' in privacy,'Careers applicant receipt contains no resume'
+  assert 'salary history, citizenship, immigration documents or demographic monitoring information' in privacy,'Careers sensitive initial inquiries deferred'
+  assert not re.search(r'"@type"\s*:\s*"JobPosting"',html),'Careers no false active JobPosting'
+ careers_content(career,notice,careers_data);check(True,'Actual current careers20/17/future/status/notice/retention semantics')
+ for label,mutate in [
+  ('prominent status',lambda h,n,d:(h.replace('Not currently hiring · Remote, United States','Hiring now',1),n,d)),
+  ('individual vacancy',lambda h,n,d:(h.replace('This is a potential future position, not an active vacancy. Timing, compensation and employment details have not been announced.','Open now',1),n,d)),
+  ('unknown jurisdiction',lambda h,n,d:(h,n,{**d,'workStates':d['workStates']+[{'code':'PR','name':'Puerto Rico'}]})),
+  ('duplicate role',lambda h,n,d:(h,n,{**d,'roles':[d['roles'][0],d['roles'][0],*d['roles'][2:]]})),
+  ('missing notice acknowledgement',lambda h,n,d:(h.replace('name="privacyConsent"','name="UNAPPROVED"'),n,d)),
+  ('missing legal preservation',lambda h,n,d:(h,n.replace('legal obligations or a legal hold','unconditional deletion'),d)),
+  ('missing mailbox retention',lambda h,n,d:(h,n.replace('Deletion is reviewed and performed manually, including recruiting copies in the owner’s email inbox','Storage cleanup only'),d)),
+  ('false JobPosting',lambda h,n,d:(h+'<script type="application/ld+json">{"@type":"JobPosting"}</script>',n,d)),
+ ]:
+  try:careers_content(*mutate(career,notice,careers_data))
+  except AssertionError:check(True,'Clearly synthetic careers negative rejects '+label);NEGATIVES+=1
+  else:raise AssertionError('Synthetic careers negative unexpectedly accepted '+label)
+ for name in ['careers.html','careers-privacy.html']:
+  page=(ROOT/name).read_text()
+  for token in ['favicon.svg?v=20260906-enterprise1','favicon.ico?v=20260906-enterprise1','favicon-192.png?v=20260906-enterprise1','apple-touch-icon.png?v=20260906-enterprise1','property="og:image"','name="twitter:card"']:
+   check(token in page,'Current careers canonical metadata '+name+' '+token)
+  for sitemap in ['sitemap.txt','sitemap.xml']:check((ROOT/sitemap).read_text().count('https://www.monderman.com/'+name)==1,'One careers sitemap route '+name)
+  check(sum(a['url']==name for a in json.loads((ROOT/'public-search-index.json').read_text()))==1,'One actual careers search route '+name)
+ check(header.count('href="careers.html"')==1 and footer.count('href="careers.html"')==1 and 'href="careers-privacy.html"' in career,'Current shared Careers destinations and actual form privacy link')
+ check(not re.search(r'localStorage|sessionStorage|indexedDB',career_script),'Careers browser does not retain applicant materials')
+ check('if (error.code === "outcome_unknown")' in career_script and 'Please do not submit again' in career_script,'Careers unknown upload outcome is preserved')
  if '--built' in sys.argv:
   build=Path(os.environ.get('HIRING_PUBLICATION_BUILD_ROOT',ROOT/'.render-public')).resolve();physical=sorted(p.relative_to(build).as_posix() for p in build.rglob('*') if p.is_file())
   check(not any(p.is_symlink() for p in build.rglob('*')),'No compiled symlinks')

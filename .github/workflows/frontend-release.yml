@@ -186,6 +186,8 @@ jobs:
         env:
           SAVED_SYNTHESIS_OUT: ${{ runner.temp }}/saved-synthesis-page
         run: node scripts/saved_synthesis_page_smoke.mjs
+      - name: Verify future-interest careers form with synthetic services only
+        run: node scripts/careers_frontend_smoke.mjs
       - name: Verify the sample PDF button exports only the selected report
         run: node scripts/sample_selected_pdf_route_smoke.mjs --output=${{ runner.temp }}/sample-selected-pdf
       - name: Keep sample report navigation below the settled site header
