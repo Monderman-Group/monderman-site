@@ -159,13 +159,19 @@ for (const [engineName, engine] of Object.entries({chromium, webkit})) {
     }
   const engineExpected = queue.map(({file, width}) => `${engineName}/${file}/${width}`);
   expectedLabels.push(...engineExpected);
-  const settled = await Promise.allSettled(Array.from({length:4}, async (_, workerIndex) => {
+  const ownedWorkers = [];
+  let settled = [], missing = engineExpected;
+  try {
+  settled = await Promise.allSettled(Array.from({length:4}, async (_, workerIndex) => {
     let browser;
     const worker = {engineName, workerIndex, status:'RUNNING', assigned:0};
     workerOutcomes.push(worker);
+    const ownership = {workerIndex, worker, browser:undefined};
+    ownedWorkers.push(ownership);
     await persistProgress('worker-browser-launch', {engineName, workerIndex});
     try {
       browser = await engine.launch({headless:true});
+      ownership.browser = browser;
       await persistProgress('worker-browser-ready', {engineName, workerIndex});
       while (queue.length) {
         const {file, width} = queue.shift();
@@ -298,7 +304,20 @@ for (const [engineName, engine] of Object.entries({chromium, webkit})) {
       worker.status = 'FAIL';worker.error = error.stack;
       harnessFailure(`${engineName}/worker-${workerIndex}`, error, 'worker-body');
       await persistProgress('worker-failure-before-close', {engineName, workerIndex, error:error.stack});
-    } finally {
+    }
+  }));
+  for (const [workerIndex, result] of settled.entries()) if (result.status === 'rejected') {
+    harnessFailure(`${engineName}/worker-${workerIndex}`, result.reason, 'all-settled-join');
+    await persistProgress('unexpected-worker-rejection', {engineName, workerIndex, error:result.reason?.stack || String(result.reason)});
+  }
+  missing = engineExpected.filter(label => !completedLabels.has(label));
+  if (queue.length || missing.length) harnessFailure(`${engineName}/incomplete-coverage`, new Error(JSON.stringify({remainingQueue:queue, missing})), 'coverage');
+  } finally {
+    // Every worker body, including its cases' page/context cleanup, has joined before teardown.
+    // Attempts are serial; a timed-out close stays FAIL/pending while remaining owned browsers are attempted once.
+    const closeSettlements = [];
+    for (const {workerIndex, worker, browser} of ownedWorkers.sort((a, b) => a.workerIndex - b.workerIndex)) {
+      const [result] = await Promise.allSettled([(async () => {
       if (browser) {
         await persistProgress('worker-browser-close', {engineName, workerIndex});
         let browserClosePromise;
@@ -340,14 +359,15 @@ for (const [engineName, engine] of Object.entries({chromium, webkit})) {
         }
       }
       await persistProgress('worker-complete', {engineName, workerIndex, status:worker.status, browserClosed:worker.browserClosed ?? null});
+      })()]);
+      closeSettlements.push({workerIndex, worker, result});
     }
-  }));
-  for (const [workerIndex, result] of settled.entries()) if (result.status === 'rejected') {
-    harnessFailure(`${engineName}/worker-${workerIndex}`, result.reason, 'all-settled-join');
-    await persistProgress('unexpected-worker-rejection', {engineName, workerIndex, error:result.reason?.stack || String(result.reason)});
+    for (const {workerIndex, worker, result} of closeSettlements) if (result.status === 'rejected') {
+      worker.status = 'FAIL';
+      harnessFailure(`${engineName}/worker-${workerIndex}`, result.reason, 'supervisor-close-join');
+      await persistProgress('unexpected-supervisor-close-rejection', {engineName, workerIndex, error:result.reason?.stack || String(result.reason)});
+    }
   }
-  const missing = engineExpected.filter(label => !completedLabels.has(label));
-  if (queue.length || missing.length) harnessFailure(`${engineName}/incomplete-coverage`, new Error(JSON.stringify({remainingQueue:queue, missing})), 'coverage');
   await persistProgress('engine-complete-after-all-workers-joined', {engineName, expected:engineExpected.length, completed:engineExpected.length - missing.length, missing, remainingQueue:queue.length});
 }
 await progressTail;
