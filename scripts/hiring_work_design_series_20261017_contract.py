@@ -15,7 +15,7 @@ from hiring_work_design_series_20261017_inverse import (
 )
 BASE=D['baseline']
 GUARDS=['scripts/fixtures/hiring-work-design-series-20261017.json','scripts/hiring_work_design_series_20261017_contract.py','scripts/hiring_work_design_series_20261017_inverse.mjs','scripts/hiring_work_design_series_20261017_inverse.py']
-HELPER_HASHES={'scripts/hiring_work_design_series_20261017_inverse.mjs':'a6b86b038135408522ecb05733e621219718b4a80e4fe6f33228f79d0c83e5c1','scripts/hiring_work_design_series_20261017_inverse.py':'37d9a6b7a13aff309353a731d1a49d043cf03c60fdace84e783d6dda6a41a928'}
+HELPER_HASHES={'scripts/hiring_work_design_series_20261017_inverse.mjs':'17d4cb306591cf5ef182c03f5c0f02d16dc624261b470121ea96dbe51d870c68','scripts/hiring_work_design_series_20261017_inverse.py':'9aad7a3a2860ad12c0f48eef782e9bf899e2681e65437741cc99934f318758de'}
 AUDITED=False
 CHECKS=0
 NEGATIVES=0
@@ -128,7 +128,7 @@ def audit_current_release():
  for number,reference in enumerate(data['references'],1):
   match=re.search(r'<li\b[^>]*data-source-reference="'+str(number)+r'"[^>]*>(.*?)</li>',article,re.S)
   check(match is not None and normalize(match.group(1))==normalize(reference),'Every complete source reference is exact '+str(number))
- # Current careers is checked as an actual future-interest surface before any
+ # Current careers is checked as an actual résumé-intake surface before any
  # historical projection. These are semantic controls, separate from byte pins.
  role_source=(ROOT/'careers-role-data.js').read_text()
  role_start=role_source.index('  var data = {')+len('  var data = ')
@@ -143,20 +143,20 @@ def audit_current_release():
   assert {g:sum(a['group']==g for a in rows) for g in ['product','research','delivery','operations']}=={'product':7,'research':4,'delivery':5,'operations':4},'Careers actual group counts'
   expected='AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY'.split()
   assert [a['code'] for a in locations]==expected,'Careers50 states andDC only'
-  assert 'Not currently hiring · Remote, United States' in html and 'not advertising current vacancies' in html,'Careers prominent future status'
-  assert html.count('This is a potential future position, not an active vacancy. Timing, compensation and employment details have not been announced.')==20,'Careers every role remains future only'
-  assert '20 potential positions across 17 types of work.' in html and 'not a promise that every position will open' in html,'Careers no funded opening promise'
+  assert 'Accepting résumés · Remote, United States' in html and 'We plan to fill the 20 positions below and are accepting résumés. Hiring timelines will vary by role.' in html,'Careers prominent planned positions and résumé intake'
+  assert html.count('We are accepting résumés for this position. Hiring timelines vary by role. Submitting does not guarantee an interview or employment.')==20,'Careers every position accepts résumés without an interview or employment guarantee'
+  assert '20 positions across 17 types of work.' in html and 'We will discuss each role’s scope, compensation, employment arrangement and timing as recruitment progresses.' in html,'Careers position scope and timing remain role specific'
   assert re.findall(r'<details class="career-role"[^>]*data-role-id="([^"]+)"',html)==[a['id'] for a in rows],'Careers visible roles equal authored data'
   assert re.findall(r'name="roleInterest" value="([^"]+)"',html)==[a['id'] for a in rows],'Careers picker equals all actual roles'
   assert all(unescape('<strong>'+a['title']+'</strong>') in unescape(html) for a in rows),'Careers every actual title visible'
   assert 'U.S. state or DC where you would work' in html,'Careers intended work location'
-  assert 'id="career-form-fields" disabled' in html and 'not accepting submissions yet' in html,'Careers defaults closed before config'
+  assert 'id="career-form-fields" disabled' in html and 'Résumé submissions are temporarily unavailable.' in html,'Careers defaults closed before config'
   for name in ['fullName','email','workState','roleInterest','resumePDF','privacyConsent','futureOpportunityAcknowledgement']:
    assert 'name="'+name+'"' in html,'Careers required field '+name
   assert 'name="resumePDF" type="file" accept=".pdf,application/pdf" required' in html,'Careers actual required PDF'
   assert 'Cover letter PDF <span class="career-optional">(optional)' in html and 'Portfolio or professional profile <span class="career-optional">(optional)' in html,'Careers optional materials'
-  assert 'For questions, an accommodation or another way to share your interest' in html and 'href="mailto:jason.adamson@monderman.com"' in html,'Careers accessible monitored alternative'
-  assert 'I have read the <a href="careers-privacy.html"' in html and 'does not guarantee contact or employment' in html,'Careers notice acknowledgement and no guarantee'
+  assert 'For questions, an accommodation or another way to apply' in html and 'href="mailto:jason.adamson@monderman.com"' in html,'Careers accessible monitored alternative'
+  assert 'I have read the <a href="careers-privacy.html"' in html and 'does not guarantee an interview or employment' in html,'Careers notice acknowledgement and no guarantee'
   assert '12 months from submission, without automatic renewal' in privacy and 'up to four years from submission' in privacy,'Careers finite active and restricted retention'
   assert 'legal obligations or a legal hold' in privacy and 'actual recruitment follows the applicable recruitment retention schedule' in privacy,'Careers mandatory preservation distinction'
   assert 'Deletion is reviewed and performed manually, including recruiting copies in the owner’s email inbox' in privacy,'Careers mailbox copies covered by manual retention'
@@ -164,10 +164,10 @@ def audit_current_release():
   assert 'Applicant acknowledgement emails do not include those attachments' in privacy,'Careers applicant receipt contains no resume'
   assert 'salary history, citizenship, immigration documents or demographic monitoring information' in privacy,'Careers sensitive initial inquiries deferred'
   assert not re.search(r'"@type"\s*:\s*"JobPosting"',html),'Careers no false active JobPosting'
- careers_content(career,notice,careers_data);check(True,'Actual current careers20/17/future/status/notice/retention semantics')
+ careers_content(career,notice,careers_data);check(True,'Actual current careers20/17/positions/intake/notice/retention semantics')
  for label,mutate in [
-  ('prominent status',lambda h,n,d:(h.replace('Not currently hiring · Remote, United States','Hiring now',1),n,d)),
-  ('individual vacancy',lambda h,n,d:(h.replace('This is a potential future position, not an active vacancy. Timing, compensation and employment details have not been announced.','Open now',1),n,d)),
+  ('prominent status',lambda h,n,d:(h.replace('Accepting résumés · Remote, United States','Not currently hiring',1),n,d)),
+  ('individual vacancy',lambda h,n,d:(h.replace('We are accepting résumés for this position. Hiring timelines vary by role. Submitting does not guarantee an interview or employment.','Immediate start guaranteed',1),n,d)),
   ('unknown jurisdiction',lambda h,n,d:(h,n,{**d,'workStates':d['workStates']+[{'code':'PR','name':'Puerto Rico'}]})),
   ('duplicate role',lambda h,n,d:(h,n,{**d,'roles':[d['roles'][0],d['roles'][0],*d['roles'][2:]]})),
   ('missing notice acknowledgement',lambda h,n,d:(h.replace('name="privacyConsent"','name="UNAPPROVED"'),n,d)),

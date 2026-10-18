@@ -1,4 +1,4 @@
-/* Future-interest intake. No account, browser persistence, POST retry or POST-host fallback. */
+/* Résumé intake. No account, browser persistence, POST retry or POST-host fallback. */
 (function (root, factory) {
   var common = typeof module === "object" && module.exports;
   var api = factory(root, common ? require("./careers-role-data.js") : root.MondermanCareerRoles);
@@ -17,7 +17,7 @@
     var errors = [];
     if (typeof input.fullName !== "string" || !input.fullName.trim() || input.fullName.trim().length > 120) errors.push(issue("Enter your full name (up to 120 characters).", "fullName"));
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email || "") || input.email.length > 254) errors.push(issue("Enter a valid email address.", "email"));
-    if (!STATES.has(input.workState)) errors.push(issue("Choose your U.S. state, district or territory.", "workState"));
+    if (!STATES.has(input.workState)) errors.push(issue("Choose your U.S. state or DC.", "workState"));
     if (!Array.isArray(input.roleInterest) || input.roleInterest.length < 1 || input.roleInterest.length > 3 || new Set(input.roleInterest).size !== input.roleInterest.length || input.roleInterest.some(function (id) { return !ROLE_IDS.has(id); })) errors.push(issue("Choose one to three listed roles.", "roleInterest"));
     if (input.portfolioUrl) {
       try { var u = new URL(input.portfolioUrl); if (u.protocol !== "https:" || u.username || u.password || input.portfolioUrl.length > 2000) throw new Error(); }
@@ -25,7 +25,7 @@
     }
     if ((input.coverText || "").length > 5000) errors.push(issue("Keep your message within 5,000 characters.", "coverText"));
     if (input.privacyConsent !== true) errors.push(issue("Read the applicant privacy notice and confirm that you have read it.", "privacyConsent"));
-    if (input.futureOpportunityAcknowledgement !== true) errors.push(issue("Confirm that these are future opportunities, not current vacancies.", "futureOpportunityAcknowledgement"));
+    if (input.futureOpportunityAcknowledgement !== true) errors.push(issue("Confirm that submitting does not guarantee an interview or employment.", "futureOpportunityAcknowledgement"));
     return errors;
   }
   async function validatePdf(file, required, label) {
@@ -118,7 +118,7 @@
       var group = button.dataset.filter, count = 0;
       root.document.querySelectorAll(".career-group").forEach(function (section) { section.hidden = group !== "all" && section.dataset.roleGroup !== group; if (!section.hidden) count += section.querySelectorAll(".career-role").length; });
       filterControls.querySelectorAll("button").forEach(function (control) { control.setAttribute("aria-pressed", String(control === button)); });
-      root.document.getElementById("career-filter-status").textContent = count + " potential positions shown. None are current vacancies.";
+      root.document.getElementById("career-filter-status").textContent = count + " positions shown.";
     });
     root.document.querySelectorAll("[data-select-role]").forEach(function (link) {
       link.addEventListener("click", function () {
@@ -141,7 +141,7 @@
         if (!config.intakeEnabled) return;
         uuid(); // A genuine secure UUID source is required before enabling uploads.
         state.enabled = true; fields.disabled = false; submit.disabled = true;
-        notice.textContent = "The future-interest pool is open. These are not current vacancies. Required fields are marked with an asterisk.";
+        notice.textContent = "We are accepting résumés. Hiring timelines vary by role. Required fields are marked with an asterisk.";
         verification.textContent = "Complete the human verification before submitting.";
         if (root.turnstile) renderVerification();
         else {
@@ -149,7 +149,7 @@
           script.onerror = function () { verification.textContent = "Human verification did not load. Please contact Jason for another way to share your interest."; };
           root.document.head.appendChild(script);
         }
-      } catch (_) { notice.textContent = "The future-interest form is unavailable. You can explore the roles or contact Jason."; }
+      } catch (_) { notice.textContent = "The résumé form is unavailable. You can explore the positions or contact Jason."; }
     }
     form.addEventListener("submit", async function (event) {
       event.preventDefault();
@@ -163,18 +163,18 @@
       if (problems.length) { state.busy = false; submit.disabled = !state.token; announce(problems.map(function (problem) { return problem.message; }).join(" "), "error"); status.focus(); return; }
       form.setAttribute("aria-busy", "true"); state.requestId = uuid();
       reference.hidden = false; reference.textContent = "Submission reference: " + state.requestId;
-      announce("Saving your future-interest details and documents. Please wait.");
+      announce("Submitting your résumé and application. Please wait.");
       try {
         var saved = await transport.submit(multipart(input, state.requestId), state.requestId);
         state.locked = true; fields.disabled = true; form.reset();
         var mail = saved.acknowledgement === "sent" ? "A receipt email has been sent." : saved.acknowledgement === "pending" ? "The receipt email is pending; please do not resubmit." : saved.acknowledgement === "failed" ? "The receipt email could not be sent; please do not resubmit." : "We cannot confirm receipt-email delivery; please do not resubmit.";
-        announce("Your future-interest details and documents have been saved. " + mail + " This is not an application for a current vacancy.", "saved"); status.focus();
+        announce("Your résumé and application have been received. " + mail + " Hiring timelines vary by role.", "saved"); status.focus();
       } catch (error) {
         if (error.code === "outcome_unknown") {
           state.locked = true; fields.disabled = true;
           announce("We could not confirm whether your submission was saved. Please do not submit again. Contact Jason with the reference below so it can be checked.", "unknown");
         } else {
-          var messages = { invalid_fields: "Please check your details and selected roles.", invalid_pdf: "A document could not be accepted as a PDF. Please select a valid PDF.", consent_required: "Please review and confirm both acknowledgements.", request_id_conflict: "This submission reference could not be accepted. Contact Jason with the reference below.", upload_too_large: "Each PDF must be no larger than 3 MiB.", rate_limited: "The service is receiving too many requests. Please wait before submitting again.", intake_closed: "The future-interest pool is currently closed. You can contact Jason instead.", intake_unavailable: "The future-interest form is temporarily unavailable. You can contact Jason instead.", verification_unavailable: "Human verification is temporarily unavailable. Please try the check later.", verification_failed: "Human verification could not be confirmed. Please complete it again." };
+          var messages = { invalid_fields: "Please check your details and selected roles.", invalid_pdf: "A document could not be accepted as a PDF. Please select a valid PDF.", consent_required: "Please review and confirm both acknowledgements.", request_id_conflict: "This submission reference could not be accepted. Contact Jason with the reference below.", upload_too_large: "Each PDF must be no larger than 3 MiB.", rate_limited: "The service is receiving too many requests. Please wait before submitting again.", intake_closed: "Résumé submissions are temporarily closed. You can contact Jason instead.", intake_unavailable: "The résumé form is temporarily unavailable. You can contact Jason instead.", verification_unavailable: "Human verification is temporarily unavailable. Please try the check later.", verification_failed: "Human verification could not be confirmed. Please complete it again." };
           announce(messages[error.code] || "The form could not accept your submission. Please contact Jason.", "error");
           if (["intake_closed", "intake_unavailable", "request_id_conflict"].includes(error.code)) { state.locked = true; fields.disabled = true; }
         }

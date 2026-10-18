@@ -16,6 +16,7 @@ assert.equal(data.workStates.length,51);
 for(const state of ['CA','DC'])assert.ok(data.workStates.some(r=>r.code===state));
 for(const state of ['PR','GU','AA','AE','AP'])assert.ok(!data.workStates.some(r=>r.code===state));
 assert.deepEqual(api.validateFields(valid),[]);
+assert.ok(api.validateFields({...valid,futureOpportunityAcknowledgement:false}).some(e=>e.message==='Confirm that submitting does not guarantee an interview or employment.'));
 for(const patch of [{roleInterest:[]},{roleInterest:['quality-engineer','quality-engineer']},{roleInterest:data.roles.slice(0,4).map(r=>r.id)},{roleInterest:['unknown']},{portfolioUrl:'http://example.invalid'},{portfolioUrl:'https://user:secret@example.invalid'},{privacyConsent:false},{futureOpportunityAcknowledgement:false},{email:'broken'},{workState:'unknown'}])assert.ok(api.validateFields({...valid,...patch}).length,'Invalid candidate rejected locally');
 const pdf=new File(['%PDF-1.7\nSynthetic test fixture, not a real applicant document.\n%%EOF'],'synthetic-resume.pdf',{type:'application/pdf'});
 assert.equal(await api.validatePdf(pdf,true,'Resume'),null);
@@ -39,6 +40,10 @@ calls=[];transport=api.createTransport({fetch:async(url,options)=>{calls.push({u
 await transport.loadConfig();await assert.rejects(()=>transport.submit(multipart,requestId),e=>e.code==='outcome_unknown','Wrong HTTP status never becomes safe rejection');
 const html=fs.readFileSync(path.join(root,'careers.html'),'utf8');
 assert.equal((html.match(/class="career-role"/g)||[]).length,20);assert.ok(!html.includes('"@type":"JobPosting"'));assert.ok(html.includes('id="career-form-fields" disabled'));assert.ok(html.includes('name="resumePDF" type="file"'));assert.ok(!/(localStorage|sessionStorage|indexedDB)/.test(fs.readFileSync(path.join(root,'careers.js'),'utf8')));
+const privacy=fs.readFileSync(path.join(root,'careers-privacy.html'),'utf8');
+assert.ok(html.includes('We plan to fill these positions and are accepting résumés. Hiring timelines will vary by role.'));
+assert.ok(html.includes('20 positions across 17 types of work.'));
+assert.ok(!/(future[- ](?:roles?|interest|opportunities)|not currently hiring|potential (?:future )?positions?)/i.test((html+privacy).replace(/<[^>]+>/g,' ')),'Applicant-facing copy describes planned positions accepting résumés');
 const {chromium}=await import('playwright');
 const browser=await chromium.launch({headless:true});
 let browserPosts=0;const blocked=[];const screenshots=[];
@@ -63,16 +68,17 @@ try{
   });
   await page.goto('http://careers.local.test/careers.html',{waitUntil:'networkidle'});
   assert.equal(await page.locator('.career-role').count(),20);
+  assert.equal(await page.locator('#career-submit').innerText(),'Submit your résumé');
   await page.locator('[data-filter="research"]').click();assert.equal(await page.locator('.career-role:visible').count(),4);assert.equal(await page.locator('[data-filter="research"]').getAttribute('aria-pressed'),'true');await page.locator('[data-filter="all"]').click();
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Actual synthetic UI has no horizontal overflow');
-  if(mode==='closed'){assert.equal(await page.locator('#career-form-fields').evaluate(e=>e.disabled),true);assert.equal(await page.locator('#career-name').isDisabled(),true);assert.equal(posts,0);await context.close();continue;}
+  if(mode==='closed'){assert.equal(await page.locator('#career-form-fields').evaluate(e=>e.disabled),true);assert.equal(await page.locator('#career-name').isDisabled(),true);assert.ok((await page.locator('#career-intake-notice').innerText()).includes('temporarily unavailable'));assert.equal(posts,0);await context.close();continue;}
   await page.locator('#career-submit').waitFor({state:'attached'});await page.waitForFunction(()=>!document.querySelector('#career-submit').disabled);
   await page.locator('#career-name').fill('Synthetic Candidate');await page.locator('#career-email').fill('candidate@example.invalid');await page.locator('#career-state').selectOption('SD');await page.locator('[name="roleInterest"][value="quality-engineer"]').check();
   await page.locator('#career-resume').setInputFiles({name:'synthetic-resume.pdf',mimeType:'application/pdf',buffer:Buffer.from('%PDF-1.7\nSynthetic fixture only\n%%EOF')});await page.locator('[name="privacyConsent"]').check();await page.locator('[name="futureOpportunityAcknowledgement"]').check();
   await page.evaluate(()=>{const f=document.querySelector('#career-interest-form');f.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));f.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));});
   await page.waitForFunction(()=>['saved','unknown'].includes(document.querySelector('#career-form-status').dataset.state));assert.equal(posts,1,'Concurrent submit events create only one upload');
   const text=await page.locator('#career-form-status').innerText();
-  if(mode==='pending'){assert.ok(text.includes('saved'));assert.ok(text.includes('pending'));assert.ok(!text.includes('has been sent'));assert.equal(await page.locator('#career-name').inputValue(),'');}
+  if(mode==='pending'){assert.ok(text.includes('Your résumé and application have been received.'));assert.ok(text.includes('pending'));assert.ok(!text.includes('has been sent'));assert.equal(await page.locator('#career-name').inputValue(),'');}
   else{assert.ok(text.includes('could not confirm'));assert.ok(text.includes('do not submit again'));await page.locator('#career-interest-form').dispatchEvent('submit');assert.equal(posts,1);}
   assert.equal(await page.locator('#career-form-fields').evaluate(e=>e.disabled),true);assert.equal(await page.locator('#career-name').isDisabled(),true);assert.deepEqual(errors,[]);
   if(process.env.CAREERS_FRONTEND_OUT){fs.mkdirSync(process.env.CAREERS_FRONTEND_OUT,{recursive:true});const file=path.join(process.env.CAREERS_FRONTEND_OUT,`${mode}-${width}.png`);await page.screenshot({path:file,fullPage:true});screenshots.push(file);}
