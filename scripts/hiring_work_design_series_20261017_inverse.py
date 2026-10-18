@@ -2,7 +2,7 @@
 import base64, hashlib, json, os, zlib
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-FIXTURE_SHA256='520a0c478219c57b509e2c372bc71e0a46f4e7128aea189346ef9bd688bfebbd'
+FIXTURE_SHA256='a74f69c4b307580a39836675421aadca6cece501dad6cc2ff293470da5b65b65'
 raw=(ROOT/'scripts/fixtures/hiring-work-design-series-20261017.json').read_bytes()
 assert hashlib.sha256(raw).hexdigest()==FIXTURE_SHA256, 'Exact finite post1858 fixture'
 series_delta=json.loads(raw)

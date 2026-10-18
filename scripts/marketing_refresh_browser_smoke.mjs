@@ -257,8 +257,45 @@ for (const [engine, browserType] of [['chromium', chromium], ['webkit', webkit]]
       const reportLinkViewportBox = await reportLink.boundingBox();
       check(reportLinkViewportBox && Object.values(reportLinkViewportBox).every(Number.isFinite) && reportLinkViewportBox.width > 0 && reportLinkViewportBox.height > 0 && reportLinkViewportBox.x >= 0 && reportLinkViewportBox.y >= 0 && reportLinkViewportBox.x + reportLinkViewportBox.width <= options.viewport.width && reportLinkViewportBox.y + reportLinkViewportBox.height <= options.viewport.height, label + ': full report footer link has positive finite geometry entirely within the viewport');
       check(await reportLink.evaluate((el, box) => { const hit = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2); return hit === el || el.contains(hit); }, reportLinkViewportBox), label + ': full report footer link is unobstructed');
-      await reportLink.click();
-      await page.waitForURL(url => url.origin === origin && url.pathname === '/sample-report.html' && url.hash === '#depth');
+      try {
+        await reportLink.click();
+        await page.waitForURL(url => url.origin === origin && url.pathname === '/sample-report.html' && url.hash === '#depth');
+      } catch (originalError) {
+        // Failure evidence only. The successful click/wait path and its deadlines stay unchanged.
+        let failureReadTimer;
+        try {
+          const observed = read => { try { return {available: true, value: read()}; } catch (error) { return {available: false, error: String(error)}; } };
+          const failure = {
+            kind: 'MARKETING_REFRESH_REPORT_NAVIGATION_FAILURE', engine, label, options,
+            originalError: {name: originalError.name, message: originalError.message, stack: originalError.stack},
+            cachedPageURL: observed(() => page.url()),
+            cachedMainFrameURL: observed(() => page.mainFrame().url()),
+            cachedFrameURLs: observed(() => page.frames().map(frame => frame.url())),
+            viewport: observed(() => page.viewportSize()), reportLinkViewportBox,
+            attemptedWrites: state.writes, blockedExternalOrigins: state.external, pageErrors: state.errors,
+          };
+          try {
+            const read = page.evaluate(() => {
+              const describe = element => element ? {tag: element.tagName, id: element.id, className: String(element.className || '').slice(0, 300), text: (element.textContent || '').trim().slice(0, 300)} : null;
+              const links = [...document.querySelectorAll('.hero [data-home-report-quad] .hrq-footer > a')];
+              return {
+                url: location.href, readyState: document.readyState, visibilityState: document.visibilityState,
+                viewport: {width: innerWidth, height: innerHeight, deviceScaleFactor: devicePixelRatio}, scroll: {x: scrollX, y: scrollY},
+                reportLinkCount: links.length,
+                reportLinks: links.slice(0, 8).map(element => {
+                  const box = element.getBoundingClientRect(), style = getComputedStyle(element);
+                  return {href: element.getAttribute('href'), resolvedHref: element.href, target: element.getAttribute('target'), element: describe(element), box: {x: box.x, y: box.y, width: box.width, height: box.height}, centerHit: describe(document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2)), style: {display: style.display, visibility: style.visibility, pointerEvents: style.pointerEvents}};
+                }),
+              };
+            }).then(value => ({status: 'CAPTURED', value}), error => ({status: 'READ_ERROR', error: String(error)}));
+            failure.readOnlyDOM = await Promise.race([read, new Promise(resolve => { failureReadTimer = setTimeout(() => resolve({status: 'UNAVAILABLE_AFTER_2000MS', boundMs: 2000}), 2000); })]);
+          } catch (captureError) { failure.readOnlyDOM = {status: 'CAPTURE_ERROR', error: String(captureError)}; }
+          console.error('MARKETING_REFRESH_REPORT_NAVIGATION_FAILURE ' + JSON.stringify(failure));
+        } catch (captureError) {
+          try { console.error('MARKETING_REFRESH_REPORT_NAVIGATION_EVIDENCE_UNAVAILABLE ' + String(captureError)); } catch {}
+        } finally { clearTimeout(failureReadTimer); }
+        throw originalError;
+      }
       equal(state.writes, [], label + ': report navigation performs no writes');
       receipts.push({engine, ...options, operatingMomentContrast, lensTargetGeometry, widgetModels, reportLinkViewportBox, attemptedWrites: state.writes.length, blockedExternalOrigins: [...new Set(state.external)], pageErrors: state.errors});
       await page.close();
