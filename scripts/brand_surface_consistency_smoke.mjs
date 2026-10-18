@@ -192,6 +192,8 @@ for (const [engineName, engine] of [['chromium', chromium], ['webkit', webkit]])
       let footerCount = 0;
       for (const file of pages) {
         const label = `${engineName}/${width}/${file}`;
+        const pageFailureStart = failures.length;
+        let originalFooterTextColors = [];
         const response = await page.goto(`${base}/${file}`, { waitUntil: 'load' });
         const servedHTML = await response.text();
         await page.evaluate(() => document.fonts.ready);
@@ -244,11 +246,109 @@ for (const [engineName, engine] of [['chromium', chromium], ['webkit', webkit]])
           check((await footer.locator('.mf-tagline').textContent()).replace(/\s+/g, ' ').trim() === tagline, `${label}: approved footer headline is missing`);
           check((await footer.locator('.mf-copy').textContent()).trim().length > 30, `${label}: footer explanation is empty`);
           const textColors = await footer.locator('.mf-tagline,.mf-copy,.mf-col-title,.mf-col a,.mf-copyright').evaluateAll(els => els.map(el => ({ text: el.textContent.trim(), color: getComputedStyle(el).color })));
+          originalFooterTextColors = textColors;
           for (const item of textColors) check(contrastOnBrand(item.color) >= 4.5, `${label}: footer text contrast below4.5:1 for '${item.text.slice(0,42)}' (${contrastOnBrand(item.color).toFixed(2)})`);
         }
         if (file === 'cross-tool-synthesis.html') {
           const textColors = await page.locator('.hero h1,#pageDek').evaluateAll(els => els.map(el => getComputedStyle(el).color));
           check(textColors.length === 2 && textColors.every(color => contrastOnBrand(color) >= 4.5), `${label}: Synthesis hero text lost contrast`);
+        }
+        if (failures.length > pageFailureStart) {
+          // Original measurements above remain the assertion-time evidence. This later read is diagnostic only.
+          const evidence = {kind:'BRAND_SURFACE_PAGE_FAILURE_EVIDENCE', engineName, width, file, label,
+            originalPageFailures:failures.slice(pageFailureStart),
+            originalMeasurements:{heroText, footerTextColors:originalFooterTextColors},
+            qualification:'Raw original measured arrays are retained without re-evaluating contrast predicates. The optional read-only snapshot is later post-assertion state, not proof of the same instant or a native cause.'};
+          let evidenceTimer;
+          try {
+            const read = page.evaluate(({heroSelector}) => {
+              const limits = {stylesheets:64, targets:72, rules:4096, selectorChecks:16384, matchedRules:128, errorExamples:8};
+              const targetNodes = [], seen = new Set();
+              const add = (element, kind) => {
+                if (!element || seen.has(element) || targetNodes.length >= limits.targets) return;
+                seen.add(element);targetNodes.push({element, kind});
+              };
+              add(document.documentElement, 'document-root');add(document.body, 'body');
+              for (const root of document.querySelectorAll(heroSelector)) {
+                add(root, 'hero-root');
+                for (const element of root.querySelectorAll('h1,h2,h3,p,a,span,strong,small,b,label')) add(element, 'hero-text');
+              }
+              for (const root of document.querySelectorAll('footer.mond-footer')) {
+                add(root, 'footer-root');
+                for (const element of root.querySelectorAll('.mf-tagline,.mf-copy,.mf-col-title,.mf-col a,.mf-copyright')) add(element, 'footer-text');
+              }
+              const targets = targetNodes.map(({element, kind}, index) => {
+                try {
+                  const style = getComputedStyle(element), box = element.getBoundingClientRect();
+                  return {index, kind, tag:element.tagName, id:element.id, className:String(element.className || '').slice(0,200),
+                    text:(element.textContent || '').trim().slice(0,160), color:style.color, backgroundColor:style.backgroundColor,
+                    backgroundImage:style.backgroundImage, fontSize:style.fontSize, fontWeight:style.fontWeight,
+                    display:style.display, visibility:style.visibility, opacity:style.opacity,
+                    box:{x:box.x, y:box.y, width:box.width, height:box.height}};
+                } catch (error) { return {index, kind, available:false, error:String(error)}; }
+              });
+              const links = [...document.querySelectorAll('link[rel~="stylesheet"]')].slice(0,limits.stylesheets).map(link => {
+                try { return {authoredHref:link.getAttribute('href'), href:link.href, media:link.media, disabled:link.disabled, sheetAvailable:!!link.sheet}; }
+                catch (error) { return {available:false, error:String(error)}; }
+              });
+              const allSheets = [...document.styleSheets], inventories = [], readable = [];
+              for (const [sheetIndex, sheet] of allSheets.slice(0,limits.stylesheets).entries()) {
+                const record = {sheetIndex, href:sheet.href, disabled:sheet.disabled, ownerTag:sheet.ownerNode?.tagName || null,
+                  ownerMedia:sheet.ownerNode?.getAttribute?.('media') || null};
+                try { const rules = sheet.cssRules;record.cssRulesCount = rules.length;readable.push({sheetIndex,rules}); }
+                catch (error) { record.cssRulesUnavailable = String(error); }
+                inventories.push(record);
+              }
+              const matches = [], matchErrors = [];let visitedRules = 0, selectorChecks = 0, matchErrorCount = 0;
+              const walk = (rules, sheetIndex, ancestry = [], prefix = []) => {
+                for (let index = 0; index < rules.length; index++) {
+                  if (visitedRules >= limits.rules || selectorChecks >= limits.selectorChecks || matches.length >= limits.matchedRules) return;
+                  const rule = rules[index], rulePath = [...prefix,index];visitedRules++;
+                  const condition = {type:rule.type};
+                  if (rule.conditionText) condition.conditionText = String(rule.conditionText).slice(0,300);
+                  if (rule.media) {
+                    condition.media = rule.media.mediaText;
+                    try { condition.matchesMedia = matchMedia(condition.media).matches; }
+                    catch (error) { condition.mediaError = String(error); }
+                  }
+                  if (rule.selectorText && rule.style) {
+                    const declarations = {};
+                    for (const property of ['color','-webkit-text-fill-color','background-color','opacity']) {
+                      const value = rule.style.getPropertyValue(property);
+                      if (value) declarations[property] = {value:value.slice(0,300), priority:rule.style.getPropertyPriority(property)};
+                    }
+                    if (Object.keys(declarations).length) {
+                      const targetIndexes = [];
+                      for (let targetIndex = 0; targetIndex < targetNodes.length && selectorChecks < limits.selectorChecks; targetIndex++) {
+                        selectorChecks++;
+                        try { if (targetNodes[targetIndex].element.matches(rule.selectorText)) targetIndexes.push(targetIndex); }
+                        catch (error) { matchErrorCount++;if (matchErrors.length < limits.errorExamples) matchErrors.push({sheetIndex, rulePath, error:String(error)}); }
+                      }
+                      if (targetIndexes.length) matches.push({sheetIndex, rulePath, selector:String(rule.selectorText).slice(0,1000), declarations, targetIndexes, ancestry});
+                    }
+                  }
+                  try { if (rule.cssRules) walk(rule.cssRules, sheetIndex, [...ancestry,condition], rulePath); }
+                  catch (error) { matchErrorCount++;if (matchErrors.length < limits.errorExamples) matchErrors.push({sheetIndex, rulePath, error:String(error)}); }
+                }
+              };
+              for (const {sheetIndex,rules} of readable) walk(rules,sheetIndex);
+              return {url:location.href, readyState:document.readyState, visibilityState:document.visibilityState,
+                viewport:{width:innerWidth,height:innerHeight,deviceScaleFactor:devicePixelRatio},
+                media:{screen:matchMedia('screen').matches,print:matchMedia('print').matches}, fontStatus:document.fonts?.status || 'unavailable',
+                stylesheetLinks:links, stylesheetInventory:inventories, stylesheetCount:allSheets.length,
+                stylesheetInventoryTruncated:allSheets.length > limits.stylesheets, targets,
+                targetLimitReached:targetNodes.length >= limits.targets, matchedColorDeclarations:matches,
+                cssScan:{limits,visitedRules,selectorChecks,matchedRules:matches.length,matchErrorCount,matchErrorExamples:matchErrors,
+                  ruleLimitReached:visitedRules >= limits.rules,selectorLimitReached:selectorChecks >= limits.selectorChecks,matchedRuleLimitReached:matches.length >= limits.matchedRules},
+                qualification:'Read-only post-assertion snapshot. Matching declarations retain stylesheet/rule order and media ancestry; they are not a computed winning-cascade proof. Imported sheets are not recursively followed; caps and CSS access errors are explicit.'};
+            }, {heroSelector}).then(value => ({status:'CAPTURED',value}), error => ({status:'READ_ERROR',error:String(error)}));
+            evidence.postAssertionReadOnlySnapshot = await Promise.race([read,new Promise(resolve => {
+              evidenceTimer = setTimeout(() => resolve({status:'UNAVAILABLE_AFTER_2000MS',boundMs:2000}),2000);
+            })]);
+          } catch (captureError) { evidence.postAssertionReadOnlySnapshot = {status:'CAPTURE_ERROR',error:String(captureError)}; }
+          finally { clearTimeout(evidenceTimer); }
+          try { console.error(JSON.stringify(evidence)); }
+          catch (logError) { try { console.error('BRAND_SURFACE_FAILURE_EVIDENCE_UNAVAILABLE ' + String(logError)); } catch {} }
         }
         if (width === 1440 && printPages.has(file) && loading.loaded) {
           await page.emulateMedia({ media: 'print' });
