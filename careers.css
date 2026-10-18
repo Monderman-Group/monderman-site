@@ -23,7 +23,7 @@
 .careers-section--paper { background:#fafaf8; border-block:1px solid #e5e9e5; }
 .careers-intro-grid { display:grid; grid-template-columns:.8fr 1.2fr; gap:60px; }
 .careers-page h2 { margin:0 0 24px; font-size:clamp(30px,3.2vw,42px); line-height:1.1; letter-spacing:-.04em; }
-.careers-page p { line-height:1.65; }
+.careers-page main p { line-height:1.65; }
 .careers-intro p { max-width:67ch; margin-top:0; color:#536367; font-size:18px; }
 .careers-eyebrow { margin:0 0 16px; color:#0a5b63; font-size:12px; font-weight:700; letter-spacing:.15em; text-transform:uppercase; }
 .careers-section-deck { max-width:65ch; color:#536367; font-size:18px; }
@@ -71,7 +71,8 @@
 .career-role-option,.career-consent { display:flex; align-items:flex-start; gap:9px; min-width:0; padding-block:6px; color:#34545a; font-size:14px; line-height:1.5; }
 .career-role-option input,.career-consent input { flex:none; width:18px; height:18px; margin:1px 0 0; accent-color:#0a5b63; }
 .career-consent { margin:15px 0; }
-.career-trap { position:absolute; left:-10000px; width:1px; height:1px; overflow:hidden; }
+.career-trap { position:absolute; left:0; top:0; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); clip-path:inset(50%); white-space:nowrap; }
+.career-trap input { position:absolute; left:0; top:0; width:1px; max-width:1px; min-width:0; height:1px; padding:0; border:0; }
 .career-form-status { margin-top:20px; color:#23454a; line-height:1.65; overflow-wrap:anywhere; }
 .career-form-status:empty { display:none; }
 .career-form-status[data-state="error"],.career-form-status[data-state="unknown"] { padding:15px; border-left:3px solid #a53d33; background:#fff3f1; color:#7d3028; }
@@ -81,7 +82,6 @@
 .careers-notice h2 { margin-top:40px; font-size:28px; }
 .careers-notice p { max-width:78ch; color:#465c61; font-size:17px; }
 .careers-notice .career-notice-note { padding:18px; border-left:3px solid #9bbfc2; background:#f0f5f4; font-size:15px; }
-.careers-page .mond-footer { padding-block:36px; }
 @media(max-width:900px) {
   .careers-intro-grid,.careers-interest-grid { grid-template-columns:1fr; gap:25px; }
   .careers-interest-intro { max-width:68ch; }

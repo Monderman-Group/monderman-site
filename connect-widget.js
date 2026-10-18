@@ -77,7 +77,7 @@
         launchers.forEach(function (launcher) {
           setStyle(launcher, "right", "max(" + edge + "px,env(safe-area-inset-right))");
           setStyle(launcher, "left", "auto");
-          setStyle(launcher, "bottom", launcher === connectLauncher && assistantLauncher ? "calc(" + anchor + " + 60px)" : anchor);
+          setStyle(launcher, "bottom", launcher === connectLauncher ? "calc(" + anchor + " + 60px)" : anchor);
         });
         var anchorBoxes = launchers.filter(function (launcher) { return launcher.getClientRects().length; })
           .map(function (launcher) { return launcher.getBoundingClientRect(); });
@@ -310,7 +310,7 @@
       '</div>');
 
     root.appendChild(launch); root.appendChild(panel); document.body.appendChild(root);
-    footerDock.update();
+    footerDock.update(true);
 
     var $ = function (id) { return panel.querySelector('#' + id); };
     var step1 = $('mdncn-step1'), step2 = $('mdncn-step2'), lbl = $('mdncn-steplabel'), status = $('mdncn-status');

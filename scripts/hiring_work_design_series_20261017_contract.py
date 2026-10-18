@@ -15,7 +15,7 @@ from hiring_work_design_series_20261017_inverse import (
 )
 BASE=D['baseline']
 GUARDS=['scripts/fixtures/hiring-work-design-series-20261017.json','scripts/hiring_work_design_series_20261017_contract.py','scripts/hiring_work_design_series_20261017_inverse.mjs','scripts/hiring_work_design_series_20261017_inverse.py']
-HELPER_HASHES={'scripts/hiring_work_design_series_20261017_inverse.mjs':'ca8cfa580cb86b6b726868bc4af6da6f025c0342a692f9d115fd9758b38e391e','scripts/hiring_work_design_series_20261017_inverse.py':'2c28c14c466c114fcf49111ee0152072e9272488ca853e5034ad68be57708bfc'}
+HELPER_HASHES={'scripts/hiring_work_design_series_20261017_inverse.mjs':'3b4a8bffe7f62de3c50199cdd7d47009cfd94ce04728e707f38cfa2dde375020','scripts/hiring_work_design_series_20261017_inverse.py':'a72a551270ec393b133a6010ea9556bd7e91c02997c96e7c4518f5fb6ff4214b'}
 AUDITED=False
 CHECKS=0
 NEGATIVES=0
