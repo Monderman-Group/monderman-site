@@ -194,10 +194,10 @@
     '  position:fixed; right:22px; bottom:148px; width:360px; max-width:calc(100vw - 28px);',
     '  background:var(--cn-surface); border:1px solid var(--cn-line); border-radius:var(--cn-radius);',
     '  box-shadow:var(--cn-shadow); overflow:hidden; display:flex; flex-direction:column;',
-    '  opacity:0; transform:translateY(8px) scale(.99); pointer-events:none;',
+    '  visibility:hidden; opacity:0; transform:translateY(8px) scale(.99); pointer-events:none;',
     '  transition:opacity .18s ease, transform .18s ease;',
     '}',
-    '#mdn-cn-panel.mdn-cn-open{opacity:1; transform:none; pointer-events:auto;}',
+    '#mdn-cn-panel.mdn-cn-open{visibility:visible; opacity:1; transform:none; pointer-events:auto;}',
     '.mdn-cn-head{display:flex; align-items:center; justify-content:space-between; padding:14px 16px 8px; flex:0 0 auto;}',
     '.mdn-cn-title{font-size:14px; font-weight:700; letter-spacing:-.01em; margin:0;}',
     '.mdn-cn-close{appearance:none; width:44px; height:44px; display:grid; place-items:center; border:0; background:transparent; color:var(--cn-muted); cursor:pointer; font-size:18px; line-height:1; padding:0; margin:-8px -10px -8px 0; border-radius:8px;}',
@@ -299,7 +299,7 @@
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
       '<path d="M22 2 11 13"></path><path d="M22 2 15 22l-4-9-9-4 20-7z"></path></svg><span>Connect</span>');
 
-    var panel = el('div', { id: 'mdn-cn-panel', role: 'dialog', 'aria-label': 'Contact Monderman', 'aria-hidden': 'true', inert: '' },
+    var panel = el('div', { id: 'mdn-cn-panel', role: 'dialog', 'aria-label': 'Contact Monderman', 'aria-hidden': 'true', inert: '', style: 'visibility:hidden;pointer-events:none;' },
       '<div class="mdn-cn-head"><p class="mdn-cn-title">Talk to Monderman</p>' +
       '<button class="mdn-cn-close" type="button" aria-label="Close">&times;</button></div>' +
       '<div class="mdn-cn-progress"><span class="mdn-cn-dot is-on" data-dot="1"></span><span class="mdn-cn-dot" data-dot="2"></span><span id="mdncn-steplabel">Step 1 of 2 \u00b7 Start the thread</span></div>' +
@@ -328,6 +328,8 @@
         var openAssistantClose = document.querySelector('#mnd-panel.mnd-open #mnd-close');
         if (openAssistantClose) openAssistantClose.click();
       }
+      panel.style.visibility = open ? 'visible' : 'hidden';
+      panel.style.pointerEvents = open ? 'auto' : 'none';
       panel.classList.toggle('mdn-cn-open', open);
       launch.setAttribute('aria-expanded', String(open));
       panel.toggleAttribute('inert', !open);
