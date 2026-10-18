@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {inflateSync} from 'node:zlib';
-export const SERIES_FIXTURE_SHA256 = 'f5c39156b7e726e155c5fa78627946b00a172f532a9a3a3243d75a74b55f8d79';
+export const SERIES_FIXTURE_SHA256 = '6eb29fd763bb0c50f69d2da236a6479172aa3b1a058a32f535919550f8570a91';
 const root = path.resolve(import.meta.dirname, '..');
 const sha = b => createHash('sha256').update(b).digest('hex');
 const raw = fs.readFileSync(new URL('./fixtures/hiring-work-design-series-20261017.json', import.meta.url));
@@ -13,7 +13,7 @@ export const seriesDelta = JSON.parse(raw);
 assert.equal(seriesDelta.schema, 'hiring-work-design-post1858-v1');
 assert.equal(seriesDelta.baseline, '1858c1bfef88e9407b7cd900fb840f230de8bed7');
 assert.equal(seriesDelta.baselineTree, '52ff88a9b2ee877fa9c8afc75b2a11cf3b112a78');
-export const seriesPublicationPages = Object.freeze(['hiring-blind-spot.html', 'posting-has-outgrown-the-job.html', 'research-topics.html']);
+export const seriesPublicationPages = Object.freeze(['hiring-blind-spot.html', 'posting-has-outgrown-the-job.html', 'research-topics.html', 'careers.html', 'careers-privacy.html']);
 function before(entry, file, value) {
  assert.ok(typeof value === 'string' || Buffer.isBuffer(value), 'Exact text/bytes type');
  const b = Buffer.isBuffer(value) ? value : Buffer.from(value);

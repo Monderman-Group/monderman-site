@@ -100,7 +100,7 @@
         launchers.forEach(function (launcher) {
           setStyle(launcher, "right", "max(" + edge + "px,env(safe-area-inset-right))");
           setStyle(launcher, "left", "auto");
-          setStyle(launcher, "bottom", launcher === connectLauncher && assistantLauncher ? "calc(" + anchor + " + 60px)" : anchor);
+          setStyle(launcher, "bottom", launcher === connectLauncher ? "calc(" + anchor + " + 60px)" : anchor);
         });
         var anchorBoxes = launchers.filter(function (launcher) { return launcher.getClientRects().length; })
           .map(function (launcher) { return launcher.getBoundingClientRect(); });
@@ -254,7 +254,7 @@
     + '<div id="mnd-foot"><textarea id="mnd-input" rows="1" maxlength="2000" aria-describedby="mnd-notice mnd-status" placeholder="Ask about Monderman…" aria-label="Type your question"></textarea><button id="mnd-send">Send</button></div>';
   document.body.appendChild(launcher);
   document.body.appendChild(panel);
-  footerDock.update();
+  footerDock.update(true);
   // On the diagnostic tool pages, the run's own status messages sit bottom-right.
   // Dock the assistant bottom-left there so it never covers them. Detected by the
   // diagnostic's status container (#toastStack), which only those pages have:

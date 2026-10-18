@@ -128,6 +128,7 @@ const contained = (a, b) => a.left >= b.left - 1 && a.right <= b.right + 1 && a.
 const operationLimit = 30000; // Existing Playwright operation limit; no global/test timeout increase.
 const progressPath = path.join(output, 'worker-progress.jsonl');
 const workerOutcomes = [], caseOutcomes = [], expectedLabels = [], completedLabels = new Set(), startedLabels = new Set();
+const browserCloseFailureObservations = [], browserCloseEvidenceErrors = [];
 let progressTail = Promise.resolve();
 async function boundedCleanup(promise, label) {
   let timer;
@@ -300,8 +301,43 @@ for (const [engineName, engine] of Object.entries({chromium, webkit})) {
     } finally {
       if (browser) {
         await persistProgress('worker-browser-close', {engineName, workerIndex});
-        try { await boundedCleanup(browser.close(), `${engineName}/worker-${workerIndex}: owned browser close`); worker.browserClosed = true; }
-        catch (error) { worker.status = 'FAIL';worker.browserClosed = false;harnessFailure(`${engineName}/worker-${workerIndex}`, error, 'browser-close');await persistProgress('browser-close-failure', {engineName, workerIndex, error:error.stack}); }
+        let browserClosePromise;
+        try {
+          browserClosePromise = browser.close();
+          await boundedCleanup(browserClosePromise, `${engineName}/worker-${workerIndex}: owned browser close`);
+          worker.browserClosed = true;
+        } catch (error) {
+          worker.status = 'FAIL';worker.browserClosed = false;
+          // Evidence only after the unchanged close operation has failed. Never wait again or turn this failure into PASS.
+          try {
+            const observation = {engineName, workerIndex, failureRegisteredAt:new Date().toISOString(),
+              failureRegisteredMonotonicNs:process.hrtime.bigint().toString(), settlement:'PENDING_UNRECONCILED',
+              qualification:'Registration and any settlement-observed timestamps follow the original failure; no close-start or actual process-disconnect time was captured.'};
+            browserCloseFailureObservations.push(observation);
+            try {
+              const contexts = browser.contexts();
+              observation.cachedBrowserStateAtFailure = {available:true, isConnected:browser.isConnected(),
+                contextCount:contexts.length, pageCounts:contexts.map(context => context.pages().length)};
+            } catch (captureError) { observation.cachedBrowserStateAtFailure = {available:false, error:String(captureError)}; }
+            const observeSettlement = (settlement, rejection) => {
+              try {
+                observation.settlement = settlement;
+                observation.settlementObservedAt = new Date().toISOString();
+                observation.settlementObservedMonotonicNs = process.hrtime.bigint().toString();
+                if (settlement === 'REJECTION_OBSERVED_AFTER_FAILURE') observation.rejection = rejection?.stack || String(rejection);
+              } catch { observation.observerError = true; }
+            };
+            if (browserClosePromise && typeof browserClosePromise.then === 'function') {
+              browserClosePromise.then(
+                () => observeSettlement('RESOLUTION_OBSERVED_AFTER_FAILURE'),
+                rejection => observeSettlement('REJECTION_OBSERVED_AFTER_FAILURE', rejection));
+            } else observation.settlement = 'UNRECONCILED_NO_CLOSE_PROMISE';
+          } catch (captureError) {
+            try { browserCloseEvidenceErrors.push({engineName, workerIndex, error:String(captureError)}); } catch {}
+          }
+          harnessFailure(`${engineName}/worker-${workerIndex}`, error, 'browser-close');
+          await persistProgress('browser-close-failure', {engineName, workerIndex, error:error.stack});
+        }
       }
       await persistProgress('worker-complete', {engineName, workerIndex, status:worker.status, browserClosed:worker.browserClosed ?? null});
     }
@@ -318,7 +354,57 @@ await progressTail;
 const missingLabels = expectedLabels.filter(label => !completedLabels.has(label));
 if (missingLabels.length || startedLabels.size !== expectedLabels.length || completedLabels.size !== expectedLabels.length) harnessFailure('harness/incomplete-coverage', new Error(JSON.stringify({expected:expectedLabels.length, started:startedLabels.size, completed:completedLabels.size, missingLabels})), 'final-coverage');
 const receipt = {status:failures.length ? 'FAIL' : 'PASS', checks, footerPages:pages.size, scopeFooterPages:scopePages.size, browserCases:results.length, baseline, protectedFiles:protectedFiles.length,
-  badgeSha256, originalChecked, failures, results, providerCalls:0, published:false, browserOwnership:'one-per-existing-worker', operationLimit, workerOutcomes, caseOutcomes, expectedCaseCount:expectedLabels.length, completedCaseCount:completedLabels.size, missingLabels, incomplete:missingLabels.length > 0 || caseOutcomes.some(row => !row.cleanupPassed) || workerOutcomes.some(worker => worker.browserClosed !== true), progressPath};
+  badgeSha256, originalChecked, failures, results, providerCalls:0, published:false, browserOwnership:'one-per-existing-worker', operationLimit, workerOutcomes, caseOutcomes, expectedCaseCount:expectedLabels.length, completedCaseCount:completedLabels.size, missingLabels, incomplete:missingLabels.length > 0 || caseOutcomes.some(row => !row.cleanupPassed) || workerOutcomes.some(worker => worker.browserClosed !== true), progressPath,
+  ...(browserCloseFailureObservations.length || browserCloseEvidenceErrors.length ? {
+    browserCloseFailureObservationSnapshotAt:new Date().toISOString(),
+    browserCloseFailureObservations:browserCloseFailureObservations.map(record => ({...record})), browserCloseEvidenceErrors} : {})};
 await fs.writeFile(path.join(output, 'results.json'), JSON.stringify(receipt, null, 2) + '\n');
 console.log(JSON.stringify({status:receipt.status, checks, footerPages:pages.size, browserCases:results.length, failures, output}));
+if (failures.length) {
+  // Native artifact download may be unavailable. Report the already recorded outcomes and bounded saved lifecycle evidence.
+  const evidence = {kind:'FOOTER_OWNED_FAILURE_EVIDENCE',
+    receipt:{status:receipt.status, checks:receipt.checks, footerPages:receipt.footerPages, scopeFooterPages:receipt.scopeFooterPages,
+      browserCases:receipt.browserCases, operationLimit:receipt.operationLimit, failures:receipt.failures,
+      workerOutcomes:receipt.workerOutcomes, caseOutcomes:receipt.caseOutcomes, expectedCaseCount:receipt.expectedCaseCount,
+      completedCaseCount:receipt.completedCaseCount, missingLabels:receipt.missingLabels, incomplete:receipt.incomplete},
+    progress:{path:progressPath, maxReadBytes:1048576},
+    qualification:'Failure evidence only. Existing errors, browserClosed=false and incomplete/FAIL stay unchanged even if a close promise is later observed settled. No additional close, wait, timer, retry, kill or browser/UI actuation.'};
+  let progressHandle;
+  try {
+    progressHandle = await fs.open(progressPath, 'r');
+    const stat = await progressHandle.stat();
+    if (!Number.isSafeInteger(stat.size) || stat.size < 0) throw new Error('Invalid saved progress size');
+    const offset = Math.max(0, stat.size - evidence.progress.maxReadBytes);
+    const selectedBytes = Math.min(stat.size, evidence.progress.maxReadBytes), buffer = Buffer.alloc(selectedBytes);
+    const {bytesRead} = await progressHandle.read(buffer, 0, selectedBytes, offset);
+    const bytes = buffer.subarray(0, bytesRead), text = bytes.toString('utf8'), parts = text.split('\n');
+    const droppedLeadingFragment = offset > 0, droppedTrailingFragment = !text.endsWith('\n');
+    if (droppedLeadingFragment) parts.shift();
+    parts.pop(); // A trailing empty line or an incomplete trailing fragment is never invented into a record.
+    const records = [], parseErrors = [];
+    for (let index = 0; index < parts.length; index++) {
+      if (!parts[index]) continue;
+      try { records.push(JSON.parse(parts[index])); }
+      catch (parseError) { if (parseErrors.length < 8) parseErrors.push({capturedLine:index + 1, error:String(parseError)}); }
+    }
+    const phases = new Set(['worker-browser-launch','worker-browser-ready','worker-browser-close','worker-failure-before-close',
+      'browser-close-failure','worker-complete','engine-complete-after-all-workers-joined','case-complete',
+      'page-close-failure','context-close-failure','case-failure-before-screenshot-or-close','unexpected-worker-rejection']);
+    Object.assign(evidence.progress, {status:'BOUNDED_SAVED_PROGRESS_READ', fileBytes:stat.size, offset, selectedBytes, bytesRead,
+      capturedBytesSha256:sha(bytes), completeFileRead:offset === 0 && bytesRead === stat.size,
+      droppedLeadingFragment, droppedTrailingFragment, capturedRecords:records.length, parseErrors,
+      selectedLifecycleRecords:records.filter(record => phases.has(record.phase)),
+      qualification:'Byte-bounded filesystem read, not a new operation deadline. Selected records retain their original timestamps. Truncation/short reads/parse errors are explicit; no absent native state is reconstructed.'});
+  } catch (readError) { evidence.progress.status = 'READ_UNAVAILABLE'; evidence.progress.error = String(readError); }
+  finally {
+    if (progressHandle) try { await progressHandle.close(); }
+    catch (closeError) { evidence.progress.handleCloseError = String(closeError); }
+  }
+  // Synchronous final observation only: never await a failed operation again.
+  evidence.closePromiseObservationSnapshotAt = new Date().toISOString();
+  evidence.closePromiseObservations = browserCloseFailureObservations.map(record => ({...record}));
+  evidence.closeEvidenceErrors = browserCloseEvidenceErrors;
+  try { console.log(JSON.stringify(evidence)); }
+  catch (logError) { try { console.error('FOOTER_OWNED_FAILURE_EVIDENCE_UNAVAILABLE ' + String(logError)); } catch {} }
+}
 assert.equal(failures.length, 0, 'Individual membership footer regression checks');
