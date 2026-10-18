@@ -15,7 +15,7 @@ from hiring_work_design_series_20261017_inverse import (
 )
 BASE=D['baseline']
 GUARDS=['scripts/fixtures/hiring-work-design-series-20261017.json','scripts/hiring_work_design_series_20261017_contract.py','scripts/hiring_work_design_series_20261017_inverse.mjs','scripts/hiring_work_design_series_20261017_inverse.py']
-HELPER_HASHES={'scripts/hiring_work_design_series_20261017_inverse.mjs':'a6b86b038135408522ecb05733e621219718b4a80e4fe6f33228f79d0c83e5c1','scripts/hiring_work_design_series_20261017_inverse.py':'37d9a6b7a13aff309353a731d1a49d043cf03c60fdace84e783d6dda6a41a928'}
+HELPER_HASHES={'scripts/hiring_work_design_series_20261017_inverse.mjs':'390fa07ed0056c63d83243047430839df301c457492957f0f0b7c85fd7ce25b0','scripts/hiring_work_design_series_20261017_inverse.py':'866958e147fd90a10e269236bbb5150c6d6f2eb267fbde356cc3b009baa88787'}
 AUDITED=False
 CHECKS=0
 NEGATIVES=0
@@ -128,7 +128,7 @@ def audit_current_release():
  for number,reference in enumerate(data['references'],1):
   match=re.search(r'<li\b[^>]*data-source-reference="'+str(number)+r'"[^>]*>(.*?)</li>',article,re.S)
   check(match is not None and normalize(match.group(1))==normalize(reference),'Every complete source reference is exact '+str(number))
- # Current careers is checked as an actual future-interest surface before any
+ # Current careers is checked as an actual résumé-intake surface before any
  # historical projection. These are semantic controls, separate from byte pins.
  role_source=(ROOT/'careers-role-data.js').read_text()
  role_start=role_source.index('  var data = {')+len('  var data = ')
@@ -141,22 +141,50 @@ def audit_current_release():
   assert [a['slot'] for a in rows]==list(range(1,21)),'Careers complete ordered20 slots'
   assert len({re.sub(r' \(position [12]\)$','',a['title']) for a in rows})==17,'Careers17 role types'
   assert {g:sum(a['group']==g for a in rows) for g in ['product','research','delivery','operations']}=={'product':7,'research':4,'delivery':5,'operations':4},'Careers actual group counts'
-  expected='AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY'.split()
-  assert [a['code'] for a in locations]==expected,'Careers50 states andDC only'
-  assert 'Not currently hiring · Remote, United States' in html and 'not advertising current vacancies' in html,'Careers prominent future status'
-  assert html.count('This is a potential future position, not an active vacancy. Timing, compensation and employment details have not been announced.')==20,'Careers every role remains future only'
-  assert '20 potential positions across 17 types of work.' in html and 'not a promise that every position will open' in html,'Careers no funded opening promise'
+  expected='AL AK AZ AR FL GA ID IN IA KS KY LA MI MS MO MT NE NH NM NC ND OK OR PA SC SD TN TX UT WV WI WY'.split()
+  assert [a['code'] for a in locations]==expected,'Careers owner-authorized32 actual work locations'
+  assert roles['workLocationPolicyId']=='careers-work-locations-20261018.1','Careers explicit work-location policy version'
+  assert re.findall(r'data-work-state="([A-Z]{2})"',html)==expected,'All32 eligible work locations visible without JavaScript'
+  select=re.search(r'<select\b[^>]*name="workState"[^>]*>(.*?)</select>',html,re.S)
+  assert select and re.findall(r'<option value="([A-Z]{2})"',select.group(1))==expected,'Actual form has only the32 eligible work locations'
+  assert 'You must be able to perform the role from an eligible state when employment begins.' in html,'Eligibility concerns place of work'
+  assert 'Your current residence does not prevent you from applying if you can genuinely relocate and perform the role from an eligible state when employment begins.' in html,'Genuine relocation remains possible'
+  excluded=re.search(r'<p id="career-excluded-locations"[^>]*>(.*?)</p>',html,re.S)
+  assert excluded and all(name in excluded.group(1) for name in ['California','Colorado','Connecticut','Delaware','Hawaii','Illinois','Maine','Maryland','Massachusetts','Minnesota','Nevada','New Jersey','New York','Ohio','Rhode Island','Vermont','Virginia','Washington','District of Columbia']),'Excluded work jurisdictions are disclosed before applying'
+  assert 'Accepting résumés · Remote · eligible U.S. work locations' in html and 'We plan to fill the 20 positions below and are accepting résumés. Hiring timelines will vary by role.' in html,'Careers prominent planned positions and résumé intake'
+  assert html.count('We are accepting résumés for this position. Hiring timelines vary by role. Submitting does not guarantee an interview or employment.')==20,'Careers every position accepts résumés without an interview or employment guarantee'
+  assert '20 positions across 17 types of work.' in html and 'We will discuss each role’s scope, employment arrangement and timing as recruitment progresses.' in html,'Careers role-specific recruitment expectations without invented compensation'
   assert re.findall(r'<details class="career-role"[^>]*data-role-id="([^"]+)"',html)==[a['id'] for a in rows],'Careers visible roles equal authored data'
   assert re.findall(r'name="roleInterest" value="([^"]+)"',html)==[a['id'] for a in rows],'Careers picker equals all actual roles'
   assert all(unescape('<strong>'+a['title']+'</strong>') in unescape(html) for a in rows),'Careers every actual title visible'
-  assert 'U.S. state or DC where you would work' in html,'Careers intended work location'
-  assert 'id="career-form-fields" disabled' in html and 'not accepting submissions yet' in html,'Careers defaults closed before config'
+  cards=re.findall(r'<details class="career-role"[^>]*data-role-id="([^"]+)"[^>]*>(.*?)</details>',html,re.S)
+  text=lambda value:unescape(re.sub(r'<[^>]+>','',value))
+  for row,(role_id,card) in zip(rows,cards):
+   assert role_id==row['id'],'Careers expanded card preserves its role identity'
+   description=re.search(r'<p class="career-role-description">(.*?)</p>',card,re.S)
+   assert description and text(description.group(1))==row['description'] and len(row['description'])>=100 and len(re.findall(r'[.!?](?:\s|$)',row['description']))>=2,'Every position has a longer complete role-specific description'
+   bullet_count=0
+   for key,css in [('responsibilities','career-responsibilities'),('qualifications','career-qualifications')]:
+    listing=re.search(r'<ul class="'+css+r'">(.*?)</ul>',card,re.S)
+    assert listing,'Every position separates responsibilities and qualifications'
+    bullets=[text(value) for value in re.findall(r'<li>(.*?)</li>',listing.group(1),re.S)]
+    assert bullets==row[key] and len(bullets)>=2 and all(len(value.strip())>=15 for value in bullets),'All substantive role bullets equal their authored data'
+    bullet_count+=len(bullets)
+   assert 5<=bullet_count<=10,'Every vacancy has five to ten substantive bullets'
+   assert 'Remote · eligible U.S. work locations' in card,'Every position communicates restricted work locations'
+  assert 'U.S. state where you would perform the work' in html,'Careers intended work location'
+  assert 'Monderman, LLC is an equal opportunity employer.' in html and 'any other status protected by applicable law' in html,'Careers equal opportunity policy'
+  assert 'We provide reasonable accommodations in the application process.' in html,'Careers application accommodation policy'
+  for policy in ['You will not be penalized for doing so.','dates of school attendance or graduation','You may include verified work performed on a volunteer basis in your experience history.']:
+   assert policy in html and policy in privacy,'Uniform application-materials instructions and privacy explanation'
+  assert not re.search(r'(potential future position|not an active vacancy|not currently hiring|anywhere in the U\.S\.)',text(html+privacy),re.I),'No obsolete non-vacancy or nationwide-work claim'
+  assert 'id="career-form-fields" disabled' in html and 'Résumé submissions are temporarily unavailable.' in html,'Careers defaults closed before config'
   for name in ['fullName','email','workState','roleInterest','resumePDF','privacyConsent','futureOpportunityAcknowledgement']:
    assert 'name="'+name+'"' in html,'Careers required field '+name
   assert 'name="resumePDF" type="file" accept=".pdf,application/pdf" required' in html,'Careers actual required PDF'
   assert 'Cover letter PDF <span class="career-optional">(optional)' in html and 'Portfolio or professional profile <span class="career-optional">(optional)' in html,'Careers optional materials'
-  assert 'For questions, an accommodation or another way to share your interest' in html and 'href="mailto:jason.adamson@monderman.com"' in html,'Careers accessible monitored alternative'
-  assert 'I have read the <a href="careers-privacy.html"' in html and 'does not guarantee contact or employment' in html,'Careers notice acknowledgement and no guarantee'
+  assert 'For questions, an accommodation or another way to apply' in html and 'href="mailto:jason.adamson@monderman.com"' in html,'Careers accessible monitored alternative'
+  assert 'I have read the <a href="careers-privacy.html"' in html and 'does not guarantee an interview or employment' in html,'Careers notice acknowledgement and no guarantee'
   assert '12 months from submission, without automatic renewal' in privacy and 'up to four years from submission' in privacy,'Careers finite active and restricted retention'
   assert 'legal obligations or a legal hold' in privacy and 'actual recruitment follows the applicable recruitment retention schedule' in privacy,'Careers mandatory preservation distinction'
   assert 'Deletion is reviewed and performed manually, including recruiting copies in the owner’s email inbox' in privacy,'Careers mailbox copies covered by manual retention'
@@ -164,11 +192,16 @@ def audit_current_release():
   assert 'Applicant acknowledgement emails do not include those attachments' in privacy,'Careers applicant receipt contains no resume'
   assert 'salary history, citizenship, immigration documents or demographic monitoring information' in privacy,'Careers sensitive initial inquiries deferred'
   assert not re.search(r'"@type"\s*:\s*"JobPosting"',html),'Careers no false active JobPosting'
- careers_content(career,notice,careers_data);check(True,'Actual current careers20/17/future/status/notice/retention semantics')
+ careers_content(career,notice,careers_data);check(True,'Actual current careers20/17/positions/intake/notice/retention semantics')
  for label,mutate in [
-  ('prominent status',lambda h,n,d:(h.replace('Not currently hiring · Remote, United States','Hiring now',1),n,d)),
-  ('individual vacancy',lambda h,n,d:(h.replace('This is a potential future position, not an active vacancy. Timing, compensation and employment details have not been announced.','Open now',1),n,d)),
+  ('prominent status',lambda h,n,d:(h.replace('Accepting résumés · Remote · eligible U.S. work locations','Not currently hiring',1),n,d)),
+  ('individual vacancy',lambda h,n,d:(h.replace('We are accepting résumés for this position. Hiring timelines vary by role. Submitting does not guarantee an interview or employment.','Immediate start guaranteed',1),n,d)),
   ('unknown jurisdiction',lambda h,n,d:(h,n,{**d,'workStates':d['workStates']+[{'code':'PR','name':'Puerto Rico'}]})),
+  ('excluded jurisdiction',lambda h,n,d:(h,n,{**d,'workStates':d['workStates']+[{'code':'CA','name':'California'}]})),
+  ('missing expanded description',lambda h,n,d:(h.replace('class="career-role-description"','class="UNAPPROVED"',1),n,d)),
+  ('missing vacancy bullets',lambda h,n,d:(h.replace('class="career-responsibilities"','class="UNAPPROVED"',1),n,d)),
+  ('missing equal opportunity policy',lambda h,n,d:(h.replace('Monderman, LLC is an equal opportunity employer.','',1),n,d)),
+  ('missing redaction protection',lambda h,n,d:(h.replace('You will not be penalized for doing so.','',1),n,d)),
   ('duplicate role',lambda h,n,d:(h,n,{**d,'roles':[d['roles'][0],d['roles'][0],*d['roles'][2:]]})),
   ('missing notice acknowledgement',lambda h,n,d:(h.replace('name="privacyConsent"','name="UNAPPROVED"'),n,d)),
   ('missing legal preservation',lambda h,n,d:(h,n.replace('legal obligations or a legal hold','unconditional deletion'),d)),

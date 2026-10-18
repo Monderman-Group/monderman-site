@@ -1,4 +1,4 @@
-/* Careers is a future-interest surface. Shared navigation and branding remain canonical. */
+/* Careers positions and résumé intake. Shared navigation and branding remain canonical. */
 .careers-page { margin:0; background:#fff; color:#18191c; }
 .careers-page *, .careers-page *::before, .careers-page *::after { box-sizing:border-box; }
 .careers-page button,.careers-page input,.careers-page textarea,.careers-page select { font:inherit; }
@@ -46,6 +46,8 @@
 .career-role-detail { max-width:900px; padding:0 62px 28px; }
 .career-role-detail h4 { margin:22px 0 7px; color:#23454a; font-size:15px; }
 .career-role-detail p { margin:0 0 14px; }
+.career-role-detail ul { margin:0 0 18px; padding-left:22px; }
+.career-role-detail li { margin:0 0 8px; line-height:1.65; }
 .career-role-detail .career-role-note { color:#607478; font-size:14px; }
 .career-select-role { display:inline-block; padding-block:6px; font-weight:600; }
 .careers-interest-grid { display:grid; grid-template-columns:minmax(250px,.7fr) minmax(0,1.3fr); gap:60px; align-items:start; }
@@ -115,3 +117,12 @@
   .career-role,.career-role summary { break-inside:avoid; }
   .careers-section { padding-block:24px; }
 }
+
+/* Work-location and application policies remain readable without JavaScript. */
+.career-state-list { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px 24px; margin:24px 0; padding-left:20px; color:#23454a; line-height:1.6; }
+.career-location-note { max-width:90ch; color:#536367; font-size:15px; }
+.careers-equal-opportunity p { max-width:90ch; color:#536367; font-size:17px; }
+.career-application-policy { margin:0 0 24px; padding:16px 18px; border-left:3px solid #0c6e78; background:#edf4f3; color:#23454a; font-size:14px; line-height:1.6; }
+.career-application-policy p { margin:0 0 12px; }
+.career-application-policy p:last-child { margin-bottom:0; }
+@media(max-width:900px) { .career-state-list { grid-template-columns:repeat(2,minmax(0,1fr)); } }

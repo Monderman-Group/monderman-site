@@ -1056,152 +1056,183 @@ jobs:
       - name: Verify generated PDF geometry and remedy pagination
         run: python scripts/validate_generated_pdf_layout.py /tmp/report-presentation-smoke
 
-      - name: Verify full reports with long AI output and legacy reports
+      - name: Join complete report, public visual and phone contracts in three owned lanes
         run: |
-          node scripts/report_full_pagination_smoke.mjs
-          node scripts/report_actual_text_pagination_smoke.mjs
-          node scripts/report_ai_action_pagination_smoke.mjs
-
-      - name: Verify favorable Structural Clarity charts and full report
-        run: |
-          node scripts/sc_favorable_presentation_smoke.mjs
-          SC_BROWSER=webkit node scripts/sc_favorable_presentation_smoke.mjs
-      - name: Verify DV missing-timing page and legacy PDF presentation
-        run: node scripts/dv_timing_presentation_smoke.mjs
-
-      - name: Withhold unpublished Institutional Performance recovery estimates
-        env:
-          REPORT_BASE: http://127.0.0.1:8080
-        run: node scripts/ip_missing_recovery_browser_smoke.mjs
-
-      - name: Reject responsive cosmetic regressions in Chromium and WebKit
-        env:
-          SITE_BASE: http://127.0.0.1:8080
-          COSMETIC_OUT: /tmp/report-presentation-smoke/cosmetic-regression
-        run: node scripts/cosmetic_regression_smoke.mjs
-
-      - name: Enforce public hero, footer, pricing and full phone presentation contracts
-        env:
-          SITE_BASE: http://127.0.0.1:8080
-          MOBILE_OUT: /tmp/report-presentation-smoke/mobile-site
-        run: |
-          # These unchanged suites only read the frozen source/build and own separate output.
-          # Both complete commands must join successfully before this unchanged 60-minute job advances.
+          # Original36->37 has completed; all three lanes read the frozen candidate.
+          # Keep every original38-51 command/env; join all before original52/53.
           (
           set -e
           set -m
-          hero_phone_joined=0
-          hero_phone_cleanup() {
-            hero_phone_cleanup_status=$?
+          report_completion_joined=0
+          report_completion_cleanup() {
+            report_completion_cleanup_status=$?
             trap - EXIT INT TERM
             set +e
-            # jobs -pr is restricted to this subshell: at most the two owned lane groups.
-            hero_phone_owned_groups="$(jobs -pr)"
-            for hero_phone_pid in $hero_phone_owned_groups; do
-              kill -TERM -- "-$hero_phone_pid" 2>/dev/null || true
+            # This subshell owns only the three lane process groups below.
+            report_completion_owned_groups="$(jobs -pr)"
+            for report_completion_pid in $report_completion_owned_groups; do
+              kill -TERM -- "-$report_completion_pid" 2>/dev/null || true
             done
-            # Allow owned Node signal handlers to close detached browser children.
-            # Keep observing the original groups after a lane's shell leader exits.
-            hero_phone_retained_groups="$hero_phone_owned_groups"
-            hero_phone_cleanup_started=$SECONDS
+            # Preserve the existing bounded Node/browser signal-cleanup grace.
+            report_completion_retained_groups="$report_completion_owned_groups"
+            report_completion_cleanup_started=$SECONDS
             while :; do
-              hero_phone_still_existing_groups=""
-              for hero_phone_pid in $hero_phone_retained_groups; do
-                if kill -0 -- "-$hero_phone_pid" 2>/dev/null; then
-                  hero_phone_still_existing_groups="$hero_phone_still_existing_groups $hero_phone_pid"
+              report_completion_still_existing_groups=""
+              for report_completion_pid in $report_completion_retained_groups; do
+                if kill -0 -- "-$report_completion_pid" 2>/dev/null; then
+                  report_completion_still_existing_groups="$report_completion_still_existing_groups $report_completion_pid"
                 fi
               done
-              # An observed-gone group is retired permanently, never rediscovered or re-added.
-              hero_phone_retained_groups="$hero_phone_still_existing_groups"
-              test -n "$hero_phone_retained_groups" || break
-              test "$((SECONDS - hero_phone_cleanup_started))" -lt 2 || break
+              # Once observed gone, an owned group is never rediscovered or re-added.
+              report_completion_retained_groups="$report_completion_still_existing_groups"
+              test -n "$report_completion_retained_groups" || break
+              test "$((SECONDS - report_completion_cleanup_started))" -lt 2 || break
               sleep 0.05
             done
-            # Escalate only still-existing original groups after the bounded cleanup grace.
-            for hero_phone_pid in $hero_phone_retained_groups; do
-              if kill -0 -- "-$hero_phone_pid" 2>/dev/null; then
-                kill -KILL -- "-$hero_phone_pid" 2>/dev/null || true
+            for report_completion_pid in $report_completion_retained_groups; do
+              if kill -0 -- "-$report_completion_pid" 2>/dev/null; then
+                kill -KILL -- "-$report_completion_pid" 2>/dev/null || true
               fi
             done
             wait
-            if [ "$hero_phone_joined" -ne 1 ]; then
+            if [ "$report_completion_joined" -ne 1 ]; then
               test ! -f /tmp/report-presentation-smoke/hero-phone-visual.log || cat /tmp/report-presentation-smoke/hero-phone-visual.log
               test ! -f /tmp/report-presentation-smoke/hero-phone-mobile.log || cat /tmp/report-presentation-smoke/hero-phone-mobile.log
-              echo "HERO_PHONE_PARALLEL_ABORT exit=$hero_phone_cleanup_status"
+              test ! -f /tmp/report-presentation-smoke/report-completion-remaining.log || cat /tmp/report-presentation-smoke/report-completion-remaining.log
+              echo "REPORT_COMPLETION_PARALLEL_ABORT exit=$report_completion_cleanup_status"
             fi
-            exit "$hero_phone_cleanup_status"
+            exit "$report_completion_cleanup_status"
           }
-          trap hero_phone_cleanup EXIT
+          trap report_completion_cleanup EXIT
           trap 'exit 130' INT
           trap 'exit 143' TERM
           (
           set -e
+          export SITE_BASE='http://127.0.0.1:8080'
+          export MOBILE_OUT='/tmp/report-presentation-smoke/mobile-site'
+          # ORIGINAL_UNIT_43_VISUAL_RUN_START
           node scripts/site_system_visual_smoke.mjs
+          # ORIGINAL_UNIT_43_VISUAL_RUN_END
           ) >/tmp/report-presentation-smoke/hero-phone-visual.log 2>&1 &
-          hero_phone_refresh_photo_pid=$!
+          report_completion_visual_pid=$!
           (
           set -e
+          export SITE_BASE='http://127.0.0.1:8080'
+          export MOBILE_OUT='/tmp/report-presentation-smoke/mobile-site'
+          # ORIGINAL_UNIT_43_MOBILE_RUN_START
           node scripts/mobile_site_presentation_smoke.mjs
+          # ORIGINAL_UNIT_43_MOBILE_RUN_END
           ) >/tmp/report-presentation-smoke/hero-phone-mobile.log 2>&1 &
-          hero_phone_completion_pid=$!
-          set +e
-          wait "$hero_phone_refresh_photo_pid"
-          hero_phone_refresh_photo_status=$?
-          wait "$hero_phone_completion_pid"
-          hero_phone_completion_status=$?
+          report_completion_mobile_pid=$!
+          (
           set -e
-          hero_phone_joined=1
-          hero_phone_refresh_photo_log_status=0
-          cat /tmp/report-presentation-smoke/hero-phone-visual.log || hero_phone_refresh_photo_log_status=$?
-          hero_phone_completion_log_status=0
-          cat /tmp/report-presentation-smoke/hero-phone-mobile.log || hero_phone_completion_log_status=$?
-          echo "HERO_PHONE_PARALLEL_RESULT refresh_photo=$hero_phone_refresh_photo_status completion=$hero_phone_completion_status"
-          test "$hero_phone_refresh_photo_status" -eq 0
-          test "$hero_phone_completion_status" -eq 0
-          test "$hero_phone_refresh_photo_log_status" -eq 0
-          test "$hero_phone_completion_log_status" -eq 0
-          # Both waits are complete; no early cleanup trap survives this barrier.
-          trap - EXIT INT TERM
+          (
+          # ORIGINAL_UNIT_38_RUN_START
+          node scripts/report_full_pagination_smoke.mjs
+          node scripts/report_actual_text_pagination_smoke.mjs
+          node scripts/report_ai_action_pagination_smoke.mjs
+          # ORIGINAL_UNIT_38_RUN_END
           )
-
-      - name: Render and verify ordinary-page print pagination
-        env:
-          SITE_BASE: http://127.0.0.1:8080
-          ORDINARY_PRINT_OUT: /tmp/report-presentation-smoke/ordinary-print
-        run: |
+          (
+          # ORIGINAL_UNIT_39_RUN_START
+          node scripts/sc_favorable_presentation_smoke.mjs
+          SC_BROWSER=webkit node scripts/sc_favorable_presentation_smoke.mjs
+          # ORIGINAL_UNIT_39_RUN_END
+          )
+          (
+          # ORIGINAL_UNIT_40_RUN_START
+          node scripts/dv_timing_presentation_smoke.mjs
+          # ORIGINAL_UNIT_40_RUN_END
+          )
+          (
+          export REPORT_BASE='http://127.0.0.1:8080'
+          # ORIGINAL_UNIT_41_RUN_START
+          node scripts/ip_missing_recovery_browser_smoke.mjs
+          # ORIGINAL_UNIT_41_RUN_END
+          )
+          (
+          export SITE_BASE='http://127.0.0.1:8080'
+          export COSMETIC_OUT='/tmp/report-presentation-smoke/cosmetic-regression'
+          # ORIGINAL_UNIT_42_RUN_START
+          node scripts/cosmetic_regression_smoke.mjs
+          # ORIGINAL_UNIT_42_RUN_END
+          )
+          (
+          export SITE_BASE='http://127.0.0.1:8080'
+          export ORDINARY_PRINT_OUT='/tmp/report-presentation-smoke/ordinary-print'
+          # ORIGINAL_UNIT_44_RUN_START
           node scripts/ordinary_page_print_smoke.mjs
           python scripts/validate_ordinary_page_print.py
-
-      - name: Verify homepage assistant launcher
-        run: node scripts/homepage_assistant_smoke.mjs
-
-      - name: Verify free entry and pilot funnel in Chromium and WebKit
-        env:
-          SITE_BASE: http://127.0.0.1:8080
-        run: |
+          # ORIGINAL_UNIT_44_RUN_END
+          )
+          (
+          # ORIGINAL_UNIT_45_RUN_START
+          node scripts/homepage_assistant_smoke.mjs
+          # ORIGINAL_UNIT_45_RUN_END
+          )
+          (
+          export SITE_BASE='http://127.0.0.1:8080'
+          # ORIGINAL_UNIT_46_RUN_START
           node scripts/first_run_browser_smoke.mjs
           node scripts/pilot_waitlist_browser_smoke.mjs
-
-      - name: Verify personalized Pattern pilot acceptance
-        run: node scripts/personalized_pattern_pilot_browser_smoke.mjs
-
-      - name: Verify private Pattern pilot feedback
-        run: node scripts/pilot_feedback_browser_smoke.mjs
-
-      - name: Verify responsive generated-output sample tiles
-        env:
-          TILE_OUT: /tmp/report-presentation-smoke/sample-tiles
-        run: node scripts/sample_tile_smoke.mjs
-
-      - name: Render and verify all six sample products
-        env:
-          SAMPLE_OUT: /tmp/report-presentation-smoke/sample-product-fidelity
-        run: node scripts/sample_product_fidelity_smoke_v2.mjs
-
-      - name: Render and verify standalone PDFs
-        env:
-          REPORT_OUT: /tmp/report-presentation-smoke
-        run: node scripts/report_pdf_smoke.mjs
+          # ORIGINAL_UNIT_46_RUN_END
+          )
+          (
+          # ORIGINAL_UNIT_47_RUN_START
+          node scripts/personalized_pattern_pilot_browser_smoke.mjs
+          # ORIGINAL_UNIT_47_RUN_END
+          )
+          (
+          # ORIGINAL_UNIT_48_RUN_START
+          node scripts/pilot_feedback_browser_smoke.mjs
+          # ORIGINAL_UNIT_48_RUN_END
+          )
+          (
+          export TILE_OUT='/tmp/report-presentation-smoke/sample-tiles'
+          # ORIGINAL_UNIT_49_RUN_START
+          node scripts/sample_tile_smoke.mjs
+          # ORIGINAL_UNIT_49_RUN_END
+          )
+          (
+          export SAMPLE_OUT='/tmp/report-presentation-smoke/sample-product-fidelity'
+          # ORIGINAL_UNIT_50_RUN_START
+          node scripts/sample_product_fidelity_smoke_v2.mjs
+          # ORIGINAL_UNIT_50_RUN_END
+          )
+          (
+          export REPORT_OUT='/tmp/report-presentation-smoke'
+          # ORIGINAL_UNIT_51_RUN_START
+          node scripts/report_pdf_smoke.mjs
+          # ORIGINAL_UNIT_51_RUN_END
+          )
+          ) >/tmp/report-presentation-smoke/report-completion-remaining.log 2>&1 &
+          report_completion_remaining_pid=$!
+          set +e
+          wait "$report_completion_visual_pid"
+          report_completion_visual_status=$?
+          wait "$report_completion_mobile_pid"
+          report_completion_mobile_status=$?
+          wait "$report_completion_remaining_pid"
+          report_completion_remaining_status=$?
+          set -e
+          report_completion_joined=1
+          report_completion_visual_log_status=0
+          cat /tmp/report-presentation-smoke/hero-phone-visual.log || report_completion_visual_log_status=$?
+          report_completion_mobile_log_status=0
+          cat /tmp/report-presentation-smoke/hero-phone-mobile.log || report_completion_mobile_log_status=$?
+          report_completion_remaining_log_status=0
+          cat /tmp/report-presentation-smoke/report-completion-remaining.log || report_completion_remaining_log_status=$?
+          echo "HERO_PHONE_PARALLEL_RESULT refresh_photo=$report_completion_visual_status completion=$report_completion_mobile_status"
+          echo "REPORT_COMPLETION_PARALLEL_RESULT visual=$report_completion_visual_status mobile=$report_completion_mobile_status remaining=$report_completion_remaining_status visual_log=$report_completion_visual_log_status mobile_log=$report_completion_mobile_log_status remaining_log=$report_completion_remaining_log_status"
+          test "$report_completion_visual_status" -eq 0
+          test "$report_completion_mobile_status" -eq 0
+          test "$report_completion_remaining_status" -eq 0
+          test "$report_completion_visual_log_status" -eq 0
+          test "$report_completion_mobile_log_status" -eq 0
+          test "$report_completion_remaining_log_status" -eq 0
+          # All owned lanes and log reads have joined; no trap crosses this barrier.
+          trap - EXIT INT TERM
+          )
 
       - name: Verify Chromium and WebKit public release surfaces
         run: node scripts/cross_browser_public_release_smoke.mjs
