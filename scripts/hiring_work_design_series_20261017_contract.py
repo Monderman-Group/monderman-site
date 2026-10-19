@@ -15,7 +15,7 @@ from hiring_work_design_series_20261017_inverse import (
 )
 BASE=D['baseline']
 GUARDS=['scripts/fixtures/hiring-work-design-series-20261017.json','scripts/hiring_work_design_series_20261017_contract.py','scripts/hiring_work_design_series_20261017_inverse.mjs','scripts/hiring_work_design_series_20261017_inverse.py']
-HELPER_HASHES={'scripts/hiring_work_design_series_20261017_inverse.mjs':'390fa07ed0056c63d83243047430839df301c457492957f0f0b7c85fd7ce25b0','scripts/hiring_work_design_series_20261017_inverse.py':'866958e147fd90a10e269236bbb5150c6d6f2eb267fbde356cc3b009baa88787'}
+HELPER_HASHES={'scripts/hiring_work_design_series_20261017_inverse.mjs':'566fd71de87e3c8352a222336f6d5085e42bea9e3740597329869d3dee84dad1','scripts/hiring_work_design_series_20261017_inverse.py':'587cd27ec22c8391485cced09b96c3f1a96f167b73d7eab32da22baa66a617c4'}
 AUDITED=False
 CHECKS=0
 NEGATIVES=0
@@ -151,9 +151,9 @@ def audit_current_release():
   assert 'Your current residence does not prevent you from applying if you can genuinely relocate and perform the role from an eligible state when employment begins.' in html,'Genuine relocation remains possible'
   excluded=re.search(r'<p id="career-excluded-locations"[^>]*>(.*?)</p>',html,re.S)
   assert excluded and all(name in excluded.group(1) for name in ['California','Colorado','Connecticut','Delaware','Hawaii','Illinois','Maine','Maryland','Massachusetts','Minnesota','Nevada','New Jersey','New York','Ohio','Rhode Island','Vermont','Virginia','Washington','District of Columbia']),'Excluded work jurisdictions are disclosed before applying'
-  assert 'Accepting résumés · Remote · eligible U.S. work locations' in html and 'We plan to fill the 20 positions below and are accepting résumés. Hiring timelines will vary by role.' in html,'Careers prominent planned positions and résumé intake'
-  assert html.count('We are accepting résumés for this position. Hiring timelines vary by role. Submitting does not guarantee an interview or employment.')==20,'Careers every position accepts résumés without an interview or employment guarantee'
-  assert '20 positions across 17 types of work.' in html and 'We will discuss each role’s scope, employment arrangement and timing as recruitment progresses.' in html,'Careers role-specific recruitment expectations without invented compensation'
+  assert 'Accepting résumés · Remote · eligible U.S. work locations' in html and 'Explore the 20 positions below and submit your résumé for the roles that match your skills and experience.' in html,'Careers direct positions invitation and résumé intake'
+  assert html.count('Submit your résumé for this position using the application form below.')==20,'Careers every position has a direct application instruction'
+  assert '20 positions across 17 types of work.' in html and not any(phrase in html+privacy+career_script for phrase in ['We plan to fill','Hiring timelines','as recruitment progresses']),'Careers actual role types without obsolete planned or timing copy'
   assert re.findall(r'<details class="career-role"[^>]*data-role-id="([^"]+)"',html)==[a['id'] for a in rows],'Careers visible roles equal authored data'
   assert re.findall(r'name="roleInterest" value="([^"]+)"',html)==[a['id'] for a in rows],'Careers picker equals all actual roles'
   assert all(unescape('<strong>'+a['title']+'</strong>') in unescape(html) for a in rows),'Careers every actual title visible'
@@ -183,7 +183,7 @@ def audit_current_release():
    assert 'name="'+name+'"' in html,'Careers required field '+name
   assert 'name="resumePDF" type="file" accept=".pdf,application/pdf" required' in html,'Careers actual required PDF'
   assert 'Cover letter PDF <span class="career-optional">(optional)' in html and 'Portfolio or professional profile <span class="career-optional">(optional)' in html,'Careers optional materials'
-  assert 'For questions, an accommodation or another way to apply' in html and 'href="mailto:jason.adamson@monderman.com"' in html,'Careers accessible monitored alternative'
+  assert 'For questions, an accommodation or another way to apply' in html and all('href="mailto:careers@monderman.com"' in page and 'mailto:jason.adamson@monderman.com' not in page for page in [html,privacy]),'Careers and applicant privacy use the monitored Careers alternative'
   assert 'I have read the <a href="careers-privacy.html"' in html and 'does not guarantee an interview or employment' in html,'Careers notice acknowledgement and no guarantee'
   assert '12 months from submission, without automatic renewal' in privacy and 'up to four years from submission' in privacy,'Careers finite active and restricted retention'
   assert 'legal obligations or a legal hold' in privacy and 'actual recruitment follows the applicable recruitment retention schedule' in privacy,'Careers mandatory preservation distinction'
@@ -195,7 +195,7 @@ def audit_current_release():
  careers_content(career,notice,careers_data);check(True,'Actual current careers20/17/positions/intake/notice/retention semantics')
  for label,mutate in [
   ('prominent status',lambda h,n,d:(h.replace('Accepting résumés · Remote · eligible U.S. work locations','Not currently hiring',1),n,d)),
-  ('individual vacancy',lambda h,n,d:(h.replace('We are accepting résumés for this position. Hiring timelines vary by role. Submitting does not guarantee an interview or employment.','Immediate start guaranteed',1),n,d)),
+  ('individual vacancy',lambda h,n,d:(h.replace('Submit your résumé for this position using the application form below.','Immediate start guaranteed',1),n,d)),
   ('unknown jurisdiction',lambda h,n,d:(h,n,{**d,'workStates':d['workStates']+[{'code':'PR','name':'Puerto Rico'}]})),
   ('excluded jurisdiction',lambda h,n,d:(h,n,{**d,'workStates':d['workStates']+[{'code':'CA','name':'California'}]})),
   ('missing expanded description',lambda h,n,d:(h.replace('class="career-role-description"','class="UNAPPROVED"',1),n,d)),

@@ -70,7 +70,7 @@ await rejectedWorkState.loadConfig();await assert.rejects(()=>rejectedWorkState.
 const html=fs.readFileSync(path.join(root,'careers.html'),'utf8');
 assert.equal((html.match(/class="career-role"/g)||[]).length,20);assert.ok(!html.includes('"@type":"JobPosting"'));assert.ok(html.includes('id="career-form-fields" disabled'));assert.ok(html.includes('name="resumePDF" type="file"'));assert.ok(!/(localStorage|sessionStorage|indexedDB)/.test(fs.readFileSync(path.join(root,'careers.js'),'utf8')));
 const privacy=fs.readFileSync(path.join(root,'careers-privacy.html'),'utf8');
-assert.ok(html.includes('We plan to fill these positions and are accepting résumés. Hiring timelines will vary by role.'));
+assert.ok(html.includes('Explore our positions and submit your résumé.'));
 assert.ok(html.includes('20 positions across 17 types of work.'));
 const roleFragments=[...html.matchAll(/<details class="career-role"[^>]*data-role-id="([^"]+)"[^>]*>([\s\S]*?)<\/details>/g)];
 assert.deepEqual(roleFragments.map(match=>match[1]),data.roles.map(role=>role.id));
