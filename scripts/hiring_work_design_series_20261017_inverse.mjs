@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {inflateSync} from 'node:zlib';
-export const SERIES_FIXTURE_SHA256 = '27f6cd5195b81bfcc22fffbac9100e8a22dc522be8b33c31071bca3acbef08b4';
+export const SERIES_FIXTURE_SHA256 = 'c0fcf2c9f87e6562dc43fd30ee033200e78bb7f37bd0fb3e88a67306004bff7a';
 const root = path.resolve(import.meta.dirname, '..');
 const sha = b => createHash('sha256').update(b).digest('hex');
 const raw = fs.readFileSync(new URL('./fixtures/hiring-work-design-series-20261017.json', import.meta.url));
