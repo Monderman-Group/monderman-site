@@ -15,7 +15,7 @@ from hiring_work_design_series_20261017_inverse import (
 )
 BASE=D['baseline']
 GUARDS=['scripts/fixtures/hiring-work-design-series-20261017.json','scripts/hiring_work_design_series_20261017_contract.py','scripts/hiring_work_design_series_20261017_inverse.mjs','scripts/hiring_work_design_series_20261017_inverse.py']
-HELPER_HASHES={'scripts/hiring_work_design_series_20261017_inverse.mjs':'566fd71de87e3c8352a222336f6d5085e42bea9e3740597329869d3dee84dad1','scripts/hiring_work_design_series_20261017_inverse.py':'587cd27ec22c8391485cced09b96c3f1a96f167b73d7eab32da22baa66a617c4'}
+HELPER_HASHES={'scripts/hiring_work_design_series_20261017_inverse.mjs':'26daec458e1fd33a23ca91a6675192e0f6a6bc1b86b6d57050e76a62f5f981d5','scripts/hiring_work_design_series_20261017_inverse.py':'2b91da2e7170d12040b47f89c86af9f0768686a36c0aff225303174d117479de'}
 AUDITED=False
 CHECKS=0
 NEGATIVES=0
@@ -79,6 +79,88 @@ def audit_current_release():
  for unknown in ['__proto__','constructor','UNKNOWN.js','private-api.js']:
   for value in ['Unknown 😀',b'Unknown Unicode']:
    check(source_view(unknown,value)==value and public_view(unknown,value)==value,'Unknown path and type remain visible');NEGATIVES+=1
+ # Certify actual current owned-navigation failure semantics before the exact
+ # historical projection supplies the unchanged old consumer to older guards.
+ navigation_name='scripts/homepage_sample_discovery_smoke.mjs'
+ navigation_source=(ROOT/navigation_name).read_text()
+ navigation_before=source_view(navigation_name,navigation_source)
+ check(sha(navigation_before)=='11872d7c6f2170699ac4c33cb2ee13dd00bdec075baad72b3412c709d1a2be38' and len(navigation_before.encode())==16681,'Owned navigation exact native1858 before body')
+ original_assertions=[line.strip() for line in navigation_before.splitlines() if line.strip().startswith('assert.')]
+ current_assertions=iter(line.strip() for line in navigation_source.splitlines() if line.strip().startswith('assert.'))
+ check(all(any(actual==expected for actual in current_assertions) for expected in original_assertions),'Every original navigation assertion line retained exactly and in order')
+ def owned_navigation_intent(source):
+  first=source.index('async function ownNavigationOperations(')
+  last=source.index("process.once('exit',",first)
+  helper=source[first:last]
+  for token in [
+   'let hasFirstRejection=false,firstRejection,hasObservationFailure=false,firstObservationFailure;',
+   'let promise;try{promise=start();}catch(error){promise=Promise.reject(error);}',
+   'if(!hasFirstRejection){hasFirstRejection=true;firstRejection=error;}',
+   'const settled=await Promise.allSettled(pending);',
+   "emit({status:'all-settled',settled});",
+   'if(hasFirstRejection)throw firstRejection;',
+   'if(hasObservationFailure)throw firstObservationFailure;',
+   'return settled.map(result=>result.value);',
+  ]:assert token in helper,'Owned navigation helper preserves '+token
+  assert helper.index('await Promise.allSettled(pending)')<helper.index("emit({status:'all-settled',settled})")<helper.index('if(hasFirstRejection)throw firstRejection;')<helper.index('if(hasObservationFailure)throw firstObservationFailure;'),'Join precedes exact original-first error propagation and observer failures'
+  original_operations=[
+   "page.waitForRequest(request=>request.isNavigationRequest()&&new URL(request.url()).pathname===destination.path)",
+   "page.waitForNavigation({waitUntil:'load'})",
+   "page.locator(destination.selector).click()",
+  ]
+  assert all(source.count(operation)==1 for operation in original_operations),'Same three actual original browser operations remain once each'
+  assert [source.index(operation) for operation in original_operations]==sorted(source.index(operation) for operation in original_operations),'Original request/navigation/click start order'
+  assert source.count('const [request,response]=await ownNavigationOperations([')==1,'Exactly one owned original destination transaction'
+  for token in [
+   "{selector:'.hero-actions .btn-accent',path:'/pilot.html',query:'?source=homepage'}",
+   "{selector:'.hero-actions .btn-secondary',path:'/sample-report.html',query:''}",
+   "{selector:'.hero-invitation-link',path:'/pattern-trial.html',query:''}",
+   "if(u.origin!==new URL(base).origin)return route.abort();",
+   "[['chromium',chromium],['webkit',webkit]]",
+   'for(const width of [320,390,768,834,1440])for(const javaScriptEnabled of [false,true])',
+   'for(const viewport of entryViewports)for(const javaScriptEnabled of [false,true])',
+   'const entryViewports=[{width:375,height:667},{width:390,height:844},{width:1280,height:720}];',
+   "assert.equal(states,20,'All twenty existing browser states remain covered');",
+   "assert.equal(entryStates,12,'All twelve exact-viewport entry states are covered');",
+   "transaction.allOperationsSettled=true;navigationEvent({kind:'transaction-all-settled'",
+   "navigationArtifact(name+'-FAILURE_BEFORE_CLEANUP.json'",
+   "navigationEvent({kind:'browser-close-start',browser:name,priorFailure:engineFailed});",
+   'if(cleanupFailed&&!engineFailed)throw cleanupError;',
+   'if(engineFailed&&cleanupFailed)console.error(',
+   "assert.equal(navigationTelemetryErrors.length,0,'All navigation and cleanup evidence is durably recorded');",
+  ]:assert token in source,'Actual current original matrix, fence, evidence or cleanup invariant '+token
+  assert source.index("navigationArtifact(name+'-FAILURE_BEFORE_CLEANUP.json'")<source.index("navigationEvent({kind:'browser-close-start'"),'Failure state recorded before browser cleanup'
+  assert not re.search(r'(?:setDefault(?:Navigation)?Timeout\s*\(|\btimeout\s*:|\bforce\s*:\s*true)',source),'No new operation deadline override or forced click'
+ owned_navigation_intent(navigation_source);check(True,'Actual current owned navigation matrix, first-error and cleanup semantics')
+ for label,old,new in [
+  ('missing complete ownership join','await Promise.allSettled(pending)','await Promise.all(pending)'),
+  ('missing first-observed rejection flag','if(!hasFirstRejection){hasFirstRejection=true;firstRejection=error;}','firstRejection=error;'),
+  ('observer masks original rejection','if(hasFirstRejection)throw firstRejection;\n  if(hasObservationFailure)throw firstObservationFailure;','if(hasObservationFailure)throw firstObservationFailure;\n  if(hasFirstRejection)throw firstRejection;'),
+  ('changed original request predicate','request.isNavigationRequest()&&new URL(request.url()).pathname===destination.path','new URL(request.url()).pathname===destination.path'),
+  ('raised click deadline','page.locator(destination.selector).click()','page.locator(destination.selector).click({timeout:60000})'),
+  ('cleanup replaces original failure','if(cleanupFailed&&!engineFailed)throw cleanupError;','if(cleanupFailed)throw cleanupError;'),
+  ('dropped original twelve states',"assert.equal(entryStates,12,'All twelve exact-viewport entry states are covered');",''),
+  ('missing durable-evidence success assertion',"assert.equal(navigationTelemetryErrors.length,0,'All navigation and cleanup evidence is durably recorded');",''),
+ ]:
+  mutant=navigation_source.replace(old,new,1);check(mutant!=navigation_source,'Meaningful clearly fabricated owned-navigation negative '+label)
+  try:owned_navigation_intent(mutant)
+  except (AssertionError,ValueError):check(True,'Clearly fabricated owned-navigation negative rejects '+label);NEGATIVES+=1
+  else:raise AssertionError('Synthetic owned-navigation negative unexpectedly accepted '+label)
+ # Exact reviewed pure Promise controls are embedded to avoid a new source
+ # file or any dependency on local evidence paths in hosted CI. They remain
+ # explicitly fabricated controls, not browser or native-cause proof.
+ navigation_controls_packed='Ly8gQ2xlYXJseSBmYWJyaWNhdGVkIHB1cmUgUHJvbWlzZSBjb250cm9scy4gTm8gYnJvd3Nlci9wcm9kdWN0L25hdGl2ZS9saXZlIGNsYWltLgovLyBQcmVwYXJlZCBvbmx5OyBydW4gYWZ0ZXIgcm9vdCArIGluZGVwZW5kZW50IHJldmlldyBhdXRob3JpemF0aW9uLgppbXBvcnQgYXNzZXJ0IGZyb20gJ25vZGU6YXNzZXJ0L3N0cmljdCc7CmltcG9ydCBmcyBmcm9tICdub2RlOmZzJzsKaW1wb3J0IHtjcmVhdGVIYXNofSBmcm9tICdub2RlOmNyeXB0byc7CmNvbnN0IHNvdXJjZVBhdGg9bmV3IFVSTCgnLi9ob21lcGFnZV9zYW1wbGVfZGlzY292ZXJ5X3Ntb2tlLnYyLlBST1BPU0VEX09OTFkubWpzJyxpbXBvcnQubWV0YS51cmwpOwpjb25zdCBzb3VyY2U9ZnMucmVhZEZpbGVTeW5jKHNvdXJjZVBhdGgsJ3V0ZjgnKTsKY29uc3Qgc2hhPWJ5dGVzPT5jcmVhdGVIYXNoKCdzaGEyNTYnKS51cGRhdGUoYnl0ZXMpLmRpZ2VzdCgnaGV4Jyk7CmFzc2VydC5lcXVhbChzaGEoc291cmNlKSwnYmU5MjE4MTgzOTg4N2YxOGZmMTRlZGVkNjQ1YjQ2Y2EwNGJlMjgwYmRmODM5NWI4MDBkOThhOTM1NTViZDFkMycpOwpjb25zdCBoZWxwZXI9c291cmNlLnNsaWNlKHNvdXJjZS5pbmRleE9mKCdhc3luYyBmdW5jdGlvbiBvd25OYXZpZ2F0aW9uT3BlcmF0aW9ucygnKSxzb3VyY2UuaW5kZXhPZigicHJvY2Vzcy5vbmNlKCdleGl0JywiLHNvdXJjZS5pbmRleE9mKCdhc3luYyBmdW5jdGlvbiBvd25OYXZpZ2F0aW9uT3BlcmF0aW9ucygnKSkpOwphc3NlcnQuZXF1YWwoc2hhKGhlbHBlciksJzNjY2NiY2QxYmQ4NDFhOGRhOTc0OWY5ZTU2YjkyNmIzYjgzNzA4ZjMyZTI2Mzk5MjRkNWZlM2FhN2E4NDg2ZGEnKTsKY29uc3Qge293bk5hdmlnYXRpb25PcGVyYXRpb25zfT1hd2FpdCBpbXBvcnQoJ2RhdGE6dGV4dC9qYXZhc2NyaXB0O2Jhc2U2NCwnK0J1ZmZlci5mcm9tKGhlbHBlcisnXG5leHBvcnQge293bk5hdmlnYXRpb25PcGVyYXRpb25zfTsnKS50b1N0cmluZygnYmFzZTY0JykpOwpjb25zdCByZXN1bHRzPVtdO2xldCBjaGVja3M9MDsKZnVuY3Rpb24gY2hlY2soYWN0dWFsLGV4cGVjdGVkLGxhYmVsKXthc3NlcnQuZGVlcEVxdWFsKGFjdHVhbCxleHBlY3RlZCxsYWJlbCk7Y2hlY2tzKys7fQpmdW5jdGlvbiBzYW1lKGFjdHVhbCxleHBlY3RlZCxsYWJlbCl7YXNzZXJ0LnN0cmljdEVxdWFsKGFjdHVhbCxleHBlY3RlZCxsYWJlbCk7Y2hlY2tzKys7fQpmdW5jdGlvbiBkZWZlcnJlZCgpe2xldCByZXNvbHZlLHJlamVjdDtjb25zdCBwcm9taXNlPW5ldyBQcm9taXNlKCh5ZXMsbm8pPT57cmVzb2x2ZT15ZXM7cmVqZWN0PW5vO30pO3JldHVybntwcm9taXNlLHJlc29sdmUscmVqZWN0fTt9CmNvbnN0IG9wZXJhdGlvbnM9Wyd3YWl0Rm9yUmVxdWVzdCcsJ3dhaXRGb3JOYXZpZ2F0aW9uJywnY2xpY2snXTsKYXN5bmMgZnVuY3Rpb24gZmFicmljYXRlZChuYW1lLHtvcmRlcj1bXSxyZWFzb25zPXt9LHN5bmNJbmRleD0tMSxzeW5jUmVhc29uLG9ic2VydmVyRmFpbHVyZT1udWxsLGV4cGVjdGVkUmVqZWN0aW9uPWZhbHNlLGV4cGVjdGVkUmVhc29ufT17fSl7CiAgY29uc3QgZmFrZT1vcGVyYXRpb25zLm1hcCgoKT0+ZGVmZXJyZWQoKSksY2FsbHM9W10sZXZlbnRzPVtdOwogIGNvbnN0IG93bmVkPW93bk5hdmlnYXRpb25PcGVyYXRpb25zKG9wZXJhdGlvbnMubWFwKChvcGVyYXRpb24saW5kZXgpPT4oe29wZXJhdGlvbixzdGFydDooKT0+e2NhbGxzLnB1c2gob3BlcmF0aW9uKTtpZihpbmRleD09PXN5bmNJbmRleCl0aHJvdyBzeW5jUmVhc29uO3JldHVybiBmYWtlW2luZGV4XS5wcm9taXNlO319KSksZXZlbnQ9PntldmVudHMucHVzaChldmVudCk7aWYob2JzZXJ2ZXJGYWlsdXJlJiZldmVudC5vcGVyYXRpb249PT0nd2FpdEZvclJlcXVlc3QnJiZldmVudC5zdGF0dXM9PT0nc3RhcnRlZCcpdGhyb3cgb2JzZXJ2ZXJGYWlsdXJlO30pOwogIGxldCBzZXR0bGVkT2JzZXJ2ZWQ9ZmFsc2U7CiAgY29uc3Qgb2JzZXJ2ZWQ9b3duZWQudGhlbih2YWx1ZT0+e3NldHRsZWRPYnNlcnZlZD10cnVlO3JldHVybntzdGF0dXM6J2Z1bGZpbGxlZCcsdmFsdWV9O30scmVhc29uPT57c2V0dGxlZE9ic2VydmVkPXRydWU7cmV0dXJue3N0YXR1czoncmVqZWN0ZWQnLHJlYXNvbn07fSk7CiAgLy8gRWFjaCBzdGVwIGlzIGV4cGxpY2l0bHkgb3JkZXJlZCBmYWJyaWNhdGVkIHNldHRsZW1lbnQsIG5ldmVyIGEgYnJvd3NlciByZXRyeS4KICBpZihzeW5jSW5kZXg+PTApYXdhaXQgUHJvbWlzZS5yZXNvbHZlKCk7CiAgZm9yKGNvbnN0IGluZGV4IG9mIG9yZGVyKXtmYWtlW2luZGV4XS5yZWplY3QocmVhc29uc1tpbmRleF0pO2F3YWl0IFByb21pc2UucmVzb2x2ZSgpO30KICBjb25zdCByZWplY3RlZD1uZXcgU2V0KG9yZGVyKTsKICBmb3IobGV0IGluZGV4PTA7aW5kZXg8MztpbmRleCsrKWlmKGluZGV4IT09c3luY0luZGV4JiYhcmVqZWN0ZWQuaGFzKGluZGV4KSlmYWtlW2luZGV4XS5yZXNvbHZlKCdmYWJyaWNhdGVkLXZhbHVlLScraW5kZXgpOwogIGNvbnN0IHJlc3VsdD1hd2FpdCBvYnNlcnZlZDsKICBjaGVjayhjYWxscyxvcGVyYXRpb25zLG5hbWUrJzogYWxsIG9yaWdpbmFsIG9wZXJhdGlvbiBzdGFydHMgcmVtYWluIG9yZGVyZWQgb25jZScpOwogIGNoZWNrKGV2ZW50cy5maWx0ZXIoZXZlbnQ9PmV2ZW50LnN0YXR1cz09PSdzdGFydGVkJykubWFwKGV2ZW50PT5ldmVudC5vcGVyYXRpb24pLG9wZXJhdGlvbnMsbmFtZSsnOiB0aHJlZSBzdGFydHMgb2JzZXJ2ZWQnKTsKICBjaGVjayhldmVudHMuZmlsdGVyKGV2ZW50PT5ldmVudC5zdGF0dXM9PT0nZnVsZmlsbGVkJ3x8ZXZlbnQuc3RhdHVzPT09J3JlamVjdGVkJykubGVuZ3RoLDMsbmFtZSsnOiBhbGwgdGhyZWUgb3BlcmF0aW9ucyBhY3R1YWxseSBzZXR0bGUnKTsKICBjaGVjayhldmVudHMuZmlsdGVyKGV2ZW50PT5ldmVudC5zdGF0dXM9PT0nYWxsLXNldHRsZWQnKS5sZW5ndGgsMSxuYW1lKyc6IG9uZSBjb21wbGV0ZSBvd25lcnNoaXAgam9pbicpOwogIGNoZWNrKGV2ZW50cy5hdCgtMSkuc3RhdHVzLCdhbGwtc2V0dGxlZCcsbmFtZSsnOiBqb2luIHByZWNlZGVzIGZpbmFsIGZ1bGZpbGxtZW50L3JlamVjdGlvbicpOwogIHNhbWUoc2V0dGxlZE9ic2VydmVkLHRydWUsbmFtZSsnOiByZXR1cm5lZCBwcm9taXNlIG5hdHVyYWxseSBqb2luZWQnKTsKICBjaGVjayhyZXN1bHQuc3RhdHVzLGV4cGVjdGVkUmVqZWN0aW9uPydyZWplY3RlZCc6J2Z1bGZpbGxlZCcsbmFtZSsnOiBleHBlY3RlZCBvdXRjb21lJyk7CiAgaWYoZXhwZWN0ZWRSZWplY3Rpb24pc2FtZShyZXN1bHQucmVhc29uLGV4cGVjdGVkUmVhc29uLG5hbWUrJzogY2hyb25vbG9naWNhbCBmaXJzdCByZWFzb24gaWRlbnRpdHkgcHJlc2VydmVkJyk7CiAgZWxzZSBjaGVjayhyZXN1bHQudmFsdWUsWydmYWJyaWNhdGVkLXZhbHVlLTAnLCdmYWJyaWNhdGVkLXZhbHVlLTEnLCdmYWJyaWNhdGVkLXZhbHVlLTInXSxuYW1lKyc6IG9yaWdpbmFsIGZ1bGZpbGxtZW50IHZhbHVlcyByZXRhaW5lZCcpOwogIHJlc3VsdHMucHVzaCh7bmFtZSxwYXNzZWQ6dHJ1ZSxvcGVyYXRpb25TdGFydHM6Y2FsbHMsc3RhdHVzZXM6ZXZlbnRzLm1hcCgoe29wZXJhdGlvbixzdGF0dXN9KT0+KHtvcGVyYXRpb24sc3RhdHVzfSkpLHF1YWxpZmljYXRpb246J0NMRUFSTFlfRkFCUklDQVRFRF9QVVJFX1BST01JU0VfQ09OVFJPTF9OT1RfQlJPV1NFUl9QUk9EVUNUX1FBJ30pOwp9CmF3YWl0IGZhYnJpY2F0ZWQoJ2FsbCB0aHJlZSBmdWxmaWxsZWQnKTsKZm9yKGxldCBpbmRleD0wO2luZGV4PDM7aW5kZXgrKyl7Y29uc3QgZXJyb3I9bmV3IEVycm9yKCdmYWJyaWNhdGVkIGZpcnN0IHJlamVjdGlvbiAnK2luZGV4KTthd2FpdCBmYWJyaWNhdGVkKCdlYWNoIG9wZXJhdGlvbiBmaXJzdCByZWplY3RlZCAnK2luZGV4LHtvcmRlcjpbaW5kZXhdLHJlYXNvbnM6e1tpbmRleF06ZXJyb3J9LGV4cGVjdGVkUmVqZWN0aW9uOnRydWUsZXhwZWN0ZWRSZWFzb246ZXJyb3J9KTt9CnsKIGNvbnN0IGE9bmV3IEVycm9yKCdmYWJyaWNhdGVkIGlucHV0MCBsYXRlcicpLGI9bmV3IEVycm9yKCdmYWJyaWNhdGVkIGlucHV0MSBsYXRlc3QnKSxjPW5ldyBFcnJvcignZmFicmljYXRlZCBpbnB1dDIgZmlyc3QnKTsKIGF3YWl0IGZhYnJpY2F0ZWQoJ2xhdGUgbXVsdGlwbGUgcmVqZWN0aW9ucyByZXRhaW4gdGVtcG9yYWwgZmlyc3QgaW5wdXQyJyx7b3JkZXI6WzIsMCwxXSxyZWFzb25zOnswOmEsMTpiLDI6Y30sZXhwZWN0ZWRSZWplY3Rpb246dHJ1ZSxleHBlY3RlZFJlYXNvbjpjfSk7Cn0KLy8gU2FtZS10dXJuIHJlamVjdGVkIHByb21pc2VzOiBoYW5kbGVyIG9ic2VydmF0aW9uIG9yZGVyLCBub3QgYXJyYXkgc2VhcmNoIG9yZGVyLgp7CiBjb25zdCBhPW5ldyBFcnJvcignZmFicmljYXRlZCBzYW1lLXR1cm4gaW5wdXQwJyksYj1uZXcgRXJyb3IoJ2ZhYnJpY2F0ZWQgc2FtZS10dXJuIGlucHV0MScpLGM9bmV3IEVycm9yKCdmYWJyaWNhdGVkIHNhbWUtdHVybiBpbnB1dDIgZmlyc3QnKTsKIGNvbnN0IGNhbGxzPVtdLGV2ZW50cz1bXSxmYWtlPW9wZXJhdGlvbnMubWFwKCgpPT5kZWZlcnJlZCgpKTsKIGNvbnN0IHA9b3duTmF2aWdhdGlvbk9wZXJhdGlvbnMob3BlcmF0aW9ucy5tYXAoKG9wZXJhdGlvbixpbmRleCk9Pih7b3BlcmF0aW9uLHN0YXJ0OigpPT57Y2FsbHMucHVzaChvcGVyYXRpb24pO3JldHVybiBmYWtlW2luZGV4XS5wcm9taXNlO319KSksZXZlbnQ9PmV2ZW50cy5wdXNoKGV2ZW50KSk7CiBjb25zdCBqb2luZWQ9cC50aGVuKCgpPT4oe3N0YXR1czondW5leHBlY3RlZC1mdWxmaWxsbWVudCd9KSxyZWFzb249Pih7cmVhc29ufSkpOwogZmFrZVsyXS5yZWplY3QoYyk7ZmFrZVswXS5yZWplY3QoYSk7ZmFrZVsxXS5yZWplY3QoYik7CiBjb25zdCByZXN1bHQ9YXdhaXQgam9pbmVkO3NhbWUocmVzdWx0LnJlYXNvbixjLCdzYW1lLXR1cm4gZmlyc3QgcmVqZWN0aW9uIHByZXNlcnZlcyBpbnB1dDIgcmVhc29uJyk7Y2hlY2soY2FsbHMsb3BlcmF0aW9ucywnc2FtZS10dXJuIGFsbCBzdGFydHMgb25jZScpO2NoZWNrKGV2ZW50cy5maWx0ZXIoZT0+ZS5zdGF0dXM9PT0ncmVqZWN0ZWQnKS5tYXAoZT0+ZS5vcGVyYXRpb24pLFsnY2xpY2snLCd3YWl0Rm9yUmVxdWVzdCcsJ3dhaXRGb3JOYXZpZ2F0aW9uJ10sJ3NhbWUtdHVybiBvYnNlcnZlZCBjaHJvbm9sb2dpY2FsIG9yZGVyJyk7Y2hlY2soZXZlbnRzLmF0KC0xKS5zdGF0dXMsJ2FsbC1zZXR0bGVkJywnc2FtZS10dXJuIGFsbCBqb2luZWQnKTsKIHJlc3VsdHMucHVzaCh7bmFtZTonc2FtZS10dXJuIG11bHRpcGxlIHJlamVjdGlvbiBvcmRlciBkaWZmZXJzIGZyb20gaW5wdXQgb3JkZXInLHBhc3NlZDp0cnVlLHF1YWxpZmljYXRpb246J0NMRUFSTFlfRkFCUklDQVRFRF9QVVJFX1BST01JU0VfQ09OVFJPTF9OT1RfQlJPV1NFUl9QUk9EVUNUX1FBJ30pOwp9CmZvcihjb25zdCBbbGFiZWwsdmFsdWVdb2YgW1sndW5kZWZpbmVkJyx1bmRlZmluZWRdLFsnbnVsbCcsbnVsbF0sWyd6ZXJvJywwXSxbJ2ZhbHNlJyxmYWxzZV0sWydlbXB0eSBzdHJpbmcnLCcnXV0pewogY29uc3QgbGF0ZT1uZXcgRXJyb3IoJ2ZhYnJpY2F0ZWQgbGF0ZXIgcmVqZWN0aW9uIG11c3Qgbm90IHJlcGxhY2UgJytsYWJlbCk7CiBhd2FpdCBmYWJyaWNhdGVkKCdmYWxzZXkgZmlyc3QgcmVqZWN0aW9uICcrbGFiZWwse29yZGVyOlsxLDBdLHJlYXNvbnM6ezE6dmFsdWUsMDpsYXRlfSxleHBlY3RlZFJlamVjdGlvbjp0cnVlLGV4cGVjdGVkUmVhc29uOnZhbHVlfSk7Cn0KewogY29uc3QgZmlyc3Q9bmV3IEVycm9yKCdmYWJyaWNhdGVkIHN5bmNocm9ub3VzIHN0YXJ0IHRocm93JyksbGF0ZT1uZXcgRXJyb3IoJ2ZhYnJpY2F0ZWQgbGF0ZXIgYXN5bmMgcmVqZWN0aW9uJyk7CiBhd2FpdCBmYWJyaWNhdGVkKCdzeW5jaHJvbm91cyBzdGFydCB0aHJvdyBzdGlsbCBqb2lucyBzaWJsaW5ncycse3N5bmNJbmRleDoxLHN5bmNSZWFzb246Zmlyc3Qsb3JkZXI6WzBdLHJlYXNvbnM6ezA6bGF0ZX0sZXhwZWN0ZWRSZWplY3Rpb246dHJ1ZSxleHBlY3RlZFJlYXNvbjpmaXJzdH0pOwogYXdhaXQgZmFicmljYXRlZCgnZmFsc2V5IHN5bmNocm9ub3VzIHN0YXJ0IHRocm93IHN0aWxsIGpvaW5zIHNpYmxpbmdzJyx7c3luY0luZGV4OjEsc3luY1JlYXNvbjp1bmRlZmluZWQsb3JkZXI6WzBdLHJlYXNvbnM6ezA6bGF0ZX0sZXhwZWN0ZWRSZWplY3Rpb246dHJ1ZSxleHBlY3RlZFJlYXNvbjp1bmRlZmluZWR9KTsKfQp7CiBjb25zdCBvYnNlcnZlcj1uZXcgRXJyb3IoJ2ZhYnJpY2F0ZWQgb2JzZXJ2ZXIgZmFpbHVyZScpLG9yaWdpbmFsPW5ldyBFcnJvcignZmFicmljYXRlZCBvcmlnaW5hbCBvcGVyYXRpb24gcmVqZWN0aW9uJyk7CiBhd2FpdCBmYWJyaWNhdGVkKCdvYnNlcnZlciBmYWlsdXJlIGZhaWxzIGFmdGVyIGFsbCBvcmlnaW5hbCBvcGVyYXRpb25zIGZ1bGZpbGwnLHtvYnNlcnZlckZhaWx1cmU6b2JzZXJ2ZXIsZXhwZWN0ZWRSZWplY3Rpb246dHJ1ZSxleHBlY3RlZFJlYXNvbjpvYnNlcnZlcn0pOwogYXdhaXQgZmFicmljYXRlZCgnb2JzZXJ2ZXIgZmFpbHVyZSBjYW5ub3QgbWFzayBvcmlnaW5hbCByZWplY3Rpb24nLHtvYnNlcnZlckZhaWx1cmU6b2JzZXJ2ZXIsb3JkZXI6WzFdLHJlYXNvbnM6ezE6b3JpZ2luYWx9LGV4cGVjdGVkUmVqZWN0aW9uOnRydWUsZXhwZWN0ZWRSZWFzb246b3JpZ2luYWx9KTsKfQpjaGVjayhyZXN1bHRzLmxlbmd0aCwxNSwnYWxsIGZpZnRlZW4gY2xlYXJseSBmYWJyaWNhdGVkIG93bmVyc2hpcCBjb250cm9scyByYW4nKTsKY29uc3QgcmVjZWlwdD17c3RhdHVzOidDTEVBUkxZX0ZBQlJJQ0FURURfUFVSRV9PV05FUlNISVBfQ09OVFJPTFNfUEFTU19OT1RfQlJPV1NFUl9QUk9EVUNUX05BVElWRV9PUl9DQVVTQUxfUFJPT0YnLGNvbnRyb2xzOnJlc3VsdHMubGVuZ3RoLGNoZWNrcyxoZWxwZXJTaGEyNTY6c2hhKGhlbHBlcikscHJvcG9zZWRTb3VyY2VTaGEyNTY6c2hhKHNvdXJjZSkscmVzdWx0c307CmNvbnNvbGUubG9nKEpTT04uc3RyaW5naWZ5KHJlY2VpcHQsbnVsbCwyKSk7Cg=='
+ navigation_controls_bytes=base64.b64decode(navigation_controls_packed,validate=True)
+ check(base64.b64encode(navigation_controls_bytes).decode()==navigation_controls_packed and sha(navigation_controls_bytes)=='1ae18f469bca80850fe08d5de6803c5f77161ba71c0e87e07d4ce35012f1b1a9','Whole exact reviewed fifteen fabricated ownership controls')
+ navigation_controls=navigation_controls_bytes.decode()
+ navigation_old_binding="const sourcePath=new URL('./homepage_sample_discovery_smoke.v2.PROPOSED_ONLY.mjs',import.meta.url);"
+ check(navigation_controls.count(navigation_old_binding)==1,'One original fabricated-control source binding')
+ navigation_current_binding='const sourcePath=new URL('+json.dumps((ROOT/navigation_name).as_uri())+');'
+ navigation_program=navigation_controls.replace(navigation_old_binding,navigation_current_binding,1)
+ check(navigation_program.replace(navigation_current_binding,navigation_old_binding,1)==navigation_controls,'Only exact source binding changes in the reviewed pure control program')
+ navigation_result=subprocess.run(['node','--input-type=module','-e',navigation_program],cwd=ROOT,text=True,capture_output=True,check=True)
+ navigation_control_result=json.loads(navigation_result.stdout)
+ check(navigation_control_result['status']=='CLEARLY_FABRICATED_PURE_OWNERSHIP_CONTROLS_PASS_NOT_BROWSER_PRODUCT_NATIVE_OR_CAUSAL_PROOF' and navigation_control_result['controls']==15 and navigation_control_result['checks']==117 and navigation_control_result['helperSha256']=='3cccbcd1bd841a8da9749f9e56b926b3b83708f32e2639924d5fe3aa7a8486da' and navigation_control_result['proposedSourceSha256']=='be92181839887f18ff14eded645b46ca04be280bdf8395b800d98a93555bd1d3','All fifteen clearly fabricated pure ownership controls execute against the actual reviewed consumer; no browser cause claim')
  topics=json.loads((ROOT/'research-topics.json').read_bytes());articles=topics['articles'];topicids={t['id'] for t in topics['topics']}
  check(len(articles)==28 and len({a['path'] for a in articles})==28 and len(topicids)==17,'All28 articles and17 distinct topics')
  authored=[]
@@ -98,6 +180,73 @@ def audit_current_release():
  subprocess.run([sys.executable,'scripts/build_research_topics.py','--check'],cwd=ROOT,check=True)
  subprocess.run([sys.executable,'scripts/build_public_search_index.py','--check'],cwd=ROOT,check=True)
  article=(ROOT/'posting-has-outgrown-the-job.html').read_text();hiring=(ROOT/'hiring-blind-spot.html').read_text();research=(ROOT/'research.html').read_text();home=(ROOT/'index.html').read_text()
+ AI_PARTS=[
+  ('from-tokens-to-outcomes.html','From Tokens to Outcomes','Monderman_Insight_From_Tokens_to_Outcomes_2026-08.pdf?v=20260906-publication2'),
+  ('merit-after-the-machine.html','Merit After the Machine','Monderman_Insight_Merit_After_the_Machine_2026-09-02.pdf?v=20260924-copy'),
+  ('every-node-for-itself.html','Every Node for Itself','Monderman_Insight_Every_Node_for_Itself_2026-09-02.pdf?v=20260906-publication2'),
+  ('built-to-please.html','Built to Please','Monderman_Insight_Built_to_Please_2026-09-02.pdf?v=20260924-copy'),
+ ]
+ def ai_series_content(library,homepage,pages):
+  sections=re.findall(r'<section class="series" aria-labelledby="ai-institutions-title">(.*?)</section>',library,re.S)
+  assert len(sections)==1,'One actual AI and Institutions series'
+  section=sections[0]
+  ai_cards=re.findall(r'<article class="series-card">(.*?)</article>',section,re.S)
+  assert len(ai_cards)==4,'AI series has exactly four parts'
+  assert re.findall(r'class="series-chip">([^<]+)',section)==['Part '+str(n) for n in range(1,5)],'AI series ordered Parts1 through4'
+  assert re.findall(r'<h3 class="series-card-title">([^<]+)</h3>',section)==[r[1] for r in AI_PARTS],'Tokens leads the original three AI articles in reading order'
+  assert 'Four papers on AI economics, the evidence institutions use, independent review, and the risks of systems optimized in part for agreement.' in section,'AI deck includes four papers and their economics scope'
+  additional=re.findall(r'<section class="library">(.*?)</section>',library,re.S)
+  assert len(additional)==1 and 'HTML + PDF · 7 documents' in additional[0],'Additional research accurately declares seven documents'
+  assert len(re.findall(r'<article class="paper-card\b',additional[0]))==7,'Actual Additional research contains seven cards'
+  assert 'from-tokens-to-outcomes.html' not in additional[0] and 'From Tokens to Outcomes' not in additional[0],'Tokens is not duplicated in Additional research'
+  carousel=re.findall(r'<article class="latest-card\b[^>]*>.*?</article>',homepage,re.S)
+  assert len(carousel)==21,'All21 homepage cards remain'
+  for number,((name,title,pdf),card) in enumerate(zip(AI_PARTS,ai_cards),1):
+   assert card.count('class="series-chip">Part '+str(number)+'</span>')==1 and '<h3 class="series-card-title">'+title+'</h3>' in card,'Correct exact AI part/title association'
+   assert card.count('publication-primary-link" href="'+name+'"')==1 and card.count('publication-secondary-link" href="'+pdf+'"')==1,'AI part retains exact original HTML and PDF destinations'
+   assert library.count('publication-primary-link" href="'+name+'"')==1,'One current library listing per AI article'
+   hero=re.search(r'<p class="article-kicker">(.*?)</p>',pages[name],re.S)
+   assert hero and hero.group(1)=='Research insight · AI and Institutions · Part '+str(number),'Article hero has the same series and part'
+   home_cards=[c for c in carousel if 'class="latest-card-link" href="'+name+'"' in c]
+   assert len(home_cards)==1,'One original homepage destination per AI article'
+   home_card=home_cards[0]
+   assert home_card.count('<span class="placeholder-cover-chip">Series, Part '+str(number)+'</span>')==1,'Homepage AI cover shows correct part'
+   assert home_card.count('<p class="latest-card-kicker">AI and Institutions · Part '+str(number)+' · Insight</p>')==1,'Homepage AI kicker shows correct series and part'
+ ai_pages={name:(ROOT/name).read_text() for name,_,_ in AI_PARTS}
+ ai_series_content(research,home,ai_pages);check(True,'Current library, carousel and all four AI article heroes agree on Parts1 through4')
+ ai_section=re.findall(r'<section class="series" aria-labelledby="ai-institutions-title">(.*?)</section>',research,re.S)[0]
+ ai_cards=re.findall(r'<article class="series-card">.*?</article>',ai_section,re.S)
+ for label,mutate in [
+  ('duplicate AI part',lambda r,h,p:(r.replace(ai_section,ai_section.replace('class="series-chip">Part 1</span>','class="series-chip">Part 2</span>',1),1),h,p)),
+  ('wrong first AI article',lambda r,h,p:(r.replace(ai_cards[0],'AI_SYNTHETIC_SWAP_MARKER',1).replace(ai_cards[1],ai_cards[0],1).replace('AI_SYNTHETIC_SWAP_MARKER',ai_cards[1],1),h,p)),
+  ('old three-paper deck',lambda r,h,p:(r.replace('Four papers on AI economics,','Three papers on AI economics,',1),h,p)),
+  ('obsolete additional count',lambda r,h,p:(r.replace('HTML + PDF · 7 documents','HTML + PDF · 8 documents',1),h,p)),
+  ('duplicate additional Tokens destination',lambda r,h,p:(r.replace('<div class="left">Additional research</div>','<div class="left">Additional research</div><a href="from-tokens-to-outcomes.html">From Tokens to Outcomes</a>',1),h,p)),
+  ('changed AI PDF destination',lambda r,h,p:(r.replace(AI_PARTS[0][2],'UNAPPROVED.pdf',1),h,p)),
+  ('wrong home Tokens part',lambda r,h,p:(r,h.replace('AI and Institutions · Part 1 · Insight','AI and Institutions · Part 4 · Insight',1),p)),
+  ('wrong AI article hero part',lambda r,h,p:(r,h,{**p,AI_PARTS[0][0]:p[AI_PARTS[0][0]].replace('AI and Institutions · Part 1','AI and Institutions · Part 2',1)})),
+ ]:
+  changed=mutate(research,home,ai_pages)
+  assert changed!=(research,home,ai_pages),'Synthetic AI negative must change its exact intended input '+label
+  try:ai_series_content(*changed)
+  except AssertionError:check(True,'Clearly synthetic AI series negative rejects '+label);NEGATIVES+=1
+  else:raise AssertionError('Synthetic AI series negative unexpectedly accepted '+label)
+ def prior_ai_carousel_labels(card):
+  # Exact four reviewed presentation-label inverses only. All link, artwork,
+  # title, summary, card position and other bytes remain in the equality below.
+  for number,(name,_,_) in enumerate(AI_PARTS,1):
+   if 'class="latest-card-link" href="'+name+'"' not in card:continue
+   kicker='<p class="latest-card-kicker">AI and Institutions · Part '+str(number)+' · Insight</p>'
+   chip='<span class="placeholder-cover-chip">Series, Part '+str(number)+'</span>'
+   assert card.count(kicker)==1 and card.count(chip)==1,'Only exact reviewed AI card labels invert'
+   prior_kicker='<p class="latest-card-kicker">'+('Enterprise' if number==1 else 'Artificial Intelligence')+' · Insight</p>'
+   result=card.replace(kicker,prior_kicker,1)
+   if number==1:
+    assert result.count(chip+'\n')==1,'Only the new Tokens chip line is removed'
+    result=result.replace(chip+'\n','',1)
+   else:result=result.replace(chip,'<span class="placeholder-cover-chip">Series, Part '+str(number-1)+'</span>',1)
+   return result
+  return card
  check('Hiring and Work Design · Part 1' in hiring and 'Hiring and Work Design · Part 2' in article,'Requested new Part1 and Part2 labels')
  for name in ['posting-has-outgrown-the-job.html','hiring-blind-spot.html']:
   check(home.count('data-publication="'+name[:-5]+'"')==1,'One carousel entry '+name)
@@ -105,7 +254,7 @@ def audit_current_release():
  cards=re.findall(r'<article class="latest-card\b[^>]*>.*?</article>',home,re.S)
  check(len(cards)==21 and 'data-publication="posting-has-outgrown-the-job"' in cards[0] and 'data-publication="hiring-blind-spot"' in cards[1],'21carousel cards with Part2 thenPart1')
  prior_cards=re.findall(r'<article class="latest-card\b[^>]*>.*?</article>',git('show',BASE+':index.html').decode(),re.S)
- check(len(prior_cards)==20 and cards[2:]==prior_cards[1:],'All19 earlier native carousel cards retained byte-for-byte in order')
+ check(len(prior_cards)==20 and [prior_ai_carousel_labels(card) for card in cards[2:]]==prior_cards[1:],'All19 earlier native carousel cards retained byte-for-byte in order after only the exact reviewed four AI presentation-label inverses')
  governance=re.search(r'<section class="series" aria-labelledby="governance-performance-title">(.*?)</section>',research,re.S).group(1)
  series=re.search(r'<section class="series" aria-labelledby="hiring-work-design-title">(.*?)</section>',research,re.S).group(1)
  check(re.findall(r'class="series-chip">([^<]+)',governance)==['Part '+str(n) for n in range(1,7)],'Six unchanged Governance and Performance parts')
