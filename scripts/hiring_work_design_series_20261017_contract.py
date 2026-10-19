@@ -15,7 +15,7 @@ from hiring_work_design_series_20261017_inverse import (
 )
 BASE=D['baseline']
 GUARDS=['scripts/fixtures/hiring-work-design-series-20261017.json','scripts/hiring_work_design_series_20261017_contract.py','scripts/hiring_work_design_series_20261017_inverse.mjs','scripts/hiring_work_design_series_20261017_inverse.py']
-HELPER_HASHES={'scripts/hiring_work_design_series_20261017_inverse.mjs':'566fd71de87e3c8352a222336f6d5085e42bea9e3740597329869d3dee84dad1','scripts/hiring_work_design_series_20261017_inverse.py':'587cd27ec22c8391485cced09b96c3f1a96f167b73d7eab32da22baa66a617c4'}
+HELPER_HASHES={'scripts/hiring_work_design_series_20261017_inverse.mjs':'6636d39f74b80f4e0c05df895a2e26952234f66b7228b7f353a590f9e81a1975','scripts/hiring_work_design_series_20261017_inverse.py':'77ea15a40b5e4e16f7bae2a3c21d1b3a25a0cb5a3d829598f71aebf9a3fd9156'}
 AUDITED=False
 CHECKS=0
 NEGATIVES=0
@@ -98,6 +98,73 @@ def audit_current_release():
  subprocess.run([sys.executable,'scripts/build_research_topics.py','--check'],cwd=ROOT,check=True)
  subprocess.run([sys.executable,'scripts/build_public_search_index.py','--check'],cwd=ROOT,check=True)
  article=(ROOT/'posting-has-outgrown-the-job.html').read_text();hiring=(ROOT/'hiring-blind-spot.html').read_text();research=(ROOT/'research.html').read_text();home=(ROOT/'index.html').read_text()
+ AI_PARTS=[
+  ('from-tokens-to-outcomes.html','From Tokens to Outcomes','Monderman_Insight_From_Tokens_to_Outcomes_2026-08.pdf?v=20260906-publication2'),
+  ('merit-after-the-machine.html','Merit After the Machine','Monderman_Insight_Merit_After_the_Machine_2026-09-02.pdf?v=20260924-copy'),
+  ('every-node-for-itself.html','Every Node for Itself','Monderman_Insight_Every_Node_for_Itself_2026-09-02.pdf?v=20260906-publication2'),
+  ('built-to-please.html','Built to Please','Monderman_Insight_Built_to_Please_2026-09-02.pdf?v=20260924-copy'),
+ ]
+ def ai_series_content(library,homepage,pages):
+  sections=re.findall(r'<section class="series" aria-labelledby="ai-institutions-title">(.*?)</section>',library,re.S)
+  assert len(sections)==1,'One actual AI and Institutions series'
+  section=sections[0]
+  ai_cards=re.findall(r'<article class="series-card">(.*?)</article>',section,re.S)
+  assert len(ai_cards)==4,'AI series has exactly four parts'
+  assert re.findall(r'class="series-chip">([^<]+)',section)==['Part '+str(n) for n in range(1,5)],'AI series ordered Parts1 through4'
+  assert re.findall(r'<h3 class="series-card-title">([^<]+)</h3>',section)==[r[1] for r in AI_PARTS],'Tokens leads the original three AI articles in reading order'
+  assert 'Four papers on AI economics, the evidence institutions use, independent review, and the risks of systems optimized in part for agreement.' in section,'AI deck includes four papers and their economics scope'
+  additional=re.findall(r'<section class="library">(.*?)</section>',library,re.S)
+  assert len(additional)==1 and 'HTML + PDF · 7 documents' in additional[0],'Additional research accurately declares seven documents'
+  assert len(re.findall(r'<article class="paper-card\b',additional[0]))==7,'Actual Additional research contains seven cards'
+  assert 'from-tokens-to-outcomes.html' not in additional[0] and 'From Tokens to Outcomes' not in additional[0],'Tokens is not duplicated in Additional research'
+  carousel=re.findall(r'<article class="latest-card\b[^>]*>.*?</article>',homepage,re.S)
+  assert len(carousel)==21,'All21 homepage cards remain'
+  for number,((name,title,pdf),card) in enumerate(zip(AI_PARTS,ai_cards),1):
+   assert card.count('class="series-chip">Part '+str(number)+'</span>')==1 and '<h3 class="series-card-title">'+title+'</h3>' in card,'Correct exact AI part/title association'
+   assert card.count('publication-primary-link" href="'+name+'"')==1 and card.count('publication-secondary-link" href="'+pdf+'"')==1,'AI part retains exact original HTML and PDF destinations'
+   assert library.count('publication-primary-link" href="'+name+'"')==1,'One current library listing per AI article'
+   hero=re.search(r'<p class="article-kicker">(.*?)</p>',pages[name],re.S)
+   assert hero and hero.group(1)=='Research insight · AI and Institutions · Part '+str(number),'Article hero has the same series and part'
+   home_cards=[c for c in carousel if 'class="latest-card-link" href="'+name+'"' in c]
+   assert len(home_cards)==1,'One original homepage destination per AI article'
+   home_card=home_cards[0]
+   assert home_card.count('<span class="placeholder-cover-chip">Series, Part '+str(number)+'</span>')==1,'Homepage AI cover shows correct part'
+   assert home_card.count('<p class="latest-card-kicker">AI and Institutions · Part '+str(number)+' · Insight</p>')==1,'Homepage AI kicker shows correct series and part'
+ ai_pages={name:(ROOT/name).read_text() for name,_,_ in AI_PARTS}
+ ai_series_content(research,home,ai_pages);check(True,'Current library, carousel and all four AI article heroes agree on Parts1 through4')
+ ai_section=re.findall(r'<section class="series" aria-labelledby="ai-institutions-title">(.*?)</section>',research,re.S)[0]
+ ai_cards=re.findall(r'<article class="series-card">.*?</article>',ai_section,re.S)
+ for label,mutate in [
+  ('duplicate AI part',lambda r,h,p:(r.replace(ai_section,ai_section.replace('class="series-chip">Part 1</span>','class="series-chip">Part 2</span>',1),1),h,p)),
+  ('wrong first AI article',lambda r,h,p:(r.replace(ai_cards[0],'AI_SYNTHETIC_SWAP_MARKER',1).replace(ai_cards[1],ai_cards[0],1).replace('AI_SYNTHETIC_SWAP_MARKER',ai_cards[1],1),h,p)),
+  ('old three-paper deck',lambda r,h,p:(r.replace('Four papers on AI economics,','Three papers on AI economics,',1),h,p)),
+  ('obsolete additional count',lambda r,h,p:(r.replace('HTML + PDF · 7 documents','HTML + PDF · 8 documents',1),h,p)),
+  ('duplicate additional Tokens destination',lambda r,h,p:(r.replace('<div class="left">Additional research</div>','<div class="left">Additional research</div><a href="from-tokens-to-outcomes.html">From Tokens to Outcomes</a>',1),h,p)),
+  ('changed AI PDF destination',lambda r,h,p:(r.replace(AI_PARTS[0][2],'UNAPPROVED.pdf',1),h,p)),
+  ('wrong home Tokens part',lambda r,h,p:(r,h.replace('AI and Institutions · Part 1 · Insight','AI and Institutions · Part 4 · Insight',1),p)),
+  ('wrong AI article hero part',lambda r,h,p:(r,h,{**p,AI_PARTS[0][0]:p[AI_PARTS[0][0]].replace('AI and Institutions · Part 1','AI and Institutions · Part 2',1)})),
+ ]:
+  changed=mutate(research,home,ai_pages)
+  assert changed!=(research,home,ai_pages),'Synthetic AI negative must change its exact intended input '+label
+  try:ai_series_content(*changed)
+  except AssertionError:check(True,'Clearly synthetic AI series negative rejects '+label);NEGATIVES+=1
+  else:raise AssertionError('Synthetic AI series negative unexpectedly accepted '+label)
+ def prior_ai_carousel_labels(card):
+  # Exact four reviewed presentation-label inverses only. All link, artwork,
+  # title, summary, card position and other bytes remain in the equality below.
+  for number,(name,_,_) in enumerate(AI_PARTS,1):
+   if 'class="latest-card-link" href="'+name+'"' not in card:continue
+   kicker='<p class="latest-card-kicker">AI and Institutions · Part '+str(number)+' · Insight</p>'
+   chip='<span class="placeholder-cover-chip">Series, Part '+str(number)+'</span>'
+   assert card.count(kicker)==1 and card.count(chip)==1,'Only exact reviewed AI card labels invert'
+   prior_kicker='<p class="latest-card-kicker">'+('Enterprise' if number==1 else 'Artificial Intelligence')+' · Insight</p>'
+   result=card.replace(kicker,prior_kicker,1)
+   if number==1:
+    assert result.count(chip+'\n')==1,'Only the new Tokens chip line is removed'
+    result=result.replace(chip+'\n','',1)
+   else:result=result.replace(chip,'<span class="placeholder-cover-chip">Series, Part '+str(number-1)+'</span>',1)
+   return result
+  return card
  check('Hiring and Work Design · Part 1' in hiring and 'Hiring and Work Design · Part 2' in article,'Requested new Part1 and Part2 labels')
  for name in ['posting-has-outgrown-the-job.html','hiring-blind-spot.html']:
   check(home.count('data-publication="'+name[:-5]+'"')==1,'One carousel entry '+name)
@@ -105,7 +172,7 @@ def audit_current_release():
  cards=re.findall(r'<article class="latest-card\b[^>]*>.*?</article>',home,re.S)
  check(len(cards)==21 and 'data-publication="posting-has-outgrown-the-job"' in cards[0] and 'data-publication="hiring-blind-spot"' in cards[1],'21carousel cards with Part2 thenPart1')
  prior_cards=re.findall(r'<article class="latest-card\b[^>]*>.*?</article>',git('show',BASE+':index.html').decode(),re.S)
- check(len(prior_cards)==20 and cards[2:]==prior_cards[1:],'All19 earlier native carousel cards retained byte-for-byte in order')
+ check(len(prior_cards)==20 and [prior_ai_carousel_labels(card) for card in cards[2:]]==prior_cards[1:],'All19 earlier native carousel cards retained byte-for-byte in order after only the exact reviewed four AI presentation-label inverses')
  governance=re.search(r'<section class="series" aria-labelledby="governance-performance-title">(.*?)</section>',research,re.S).group(1)
  series=re.search(r'<section class="series" aria-labelledby="hiring-work-design-title">(.*?)</section>',research,re.S).group(1)
  check(re.findall(r'class="series-chip">([^<]+)',governance)==['Part '+str(n) for n in range(1,7)],'Six unchanged Governance and Performance parts')
