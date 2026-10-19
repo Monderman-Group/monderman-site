@@ -15,7 +15,7 @@ from hiring_work_design_series_20261017_inverse import (
 )
 BASE=D['baseline']
 GUARDS=['scripts/fixtures/hiring-work-design-series-20261017.json','scripts/hiring_work_design_series_20261017_contract.py','scripts/hiring_work_design_series_20261017_inverse.mjs','scripts/hiring_work_design_series_20261017_inverse.py']
-HELPER_HASHES={'scripts/hiring_work_design_series_20261017_inverse.mjs':'26daec458e1fd33a23ca91a6675192e0f6a6bc1b86b6d57050e76a62f5f981d5','scripts/hiring_work_design_series_20261017_inverse.py':'2b91da2e7170d12040b47f89c86af9f0768686a36c0aff225303174d117479de'}
+HELPER_HASHES={'scripts/hiring_work_design_series_20261017_inverse.mjs':'52a8d8ec6869e3bd768742d4f7587aac508968914e1699b51c3e8a2c149909fc','scripts/hiring_work_design_series_20261017_inverse.py':'16cb2e321979b95af1239387a61b066e59fde9bb215c8dca052db55da5aaa698'}
 AUDITED=False
 CHECKS=0
 NEGATIVES=0
@@ -231,6 +231,220 @@ def audit_current_release():
   try:ai_series_content(*changed)
   except AssertionError:check(True,'Clearly synthetic AI series negative rejects '+label);NEGATIVES+=1
   else:raise AssertionError('Synthetic AI series negative unexpectedly accepted '+label)
+ # Preserve exact original artwork at the authored HTML delivery boundary.
+ # These seventeen PNGs are not new transformation exceptions. Their unchanged
+ # original file bytes are embedded canonically, then the exact currentD1 page
+ # is recovered by seventeen declared src inverses before any historical view.
+ AI_FIGURE_PAGE_PLAN = {'from-tokens-to-outcomes.html': {'before_bytes': 75936,
+                                   'before_sha256': 'd001b982740da6b18cf951f202d37e6a459036a2ea42408457695758ae50d274',
+                                   'figures': [['assets/research/from-tokens-to-outcomes-figure-6.png',
+                                                52212,
+                                                '2116f89bd88d31f9fb96b800bf74cb354b7f048cd5de2c1778da36b88fb86db3',
+                                                1300,
+                                                237,
+                                                '<img src="assets/research/from-tokens-to-outcomes-figure-6.png" '
+                                                'alt="Three headline measures of the enterprise AI cost shift." '
+                                                'loading="lazy" width="1300">'],
+                                               ['assets/research/from-tokens-to-outcomes-figure-1.png',
+                                                39969,
+                                                '3f7b851858e0b6d5540c434e52458f7c6741c4703c745c692d3ccee54bf098d7',
+                                                1300,
+                                                592,
+                                                '<img src="assets/research/from-tokens-to-outcomes-figure-1.png" '
+                                                'alt="A comparison showing enterprise AI economics shifting from '
+                                                'training-dominant compute in 2024 to inference-dominant compute '
+                                                'in 2026." loading="lazy" width="1300">'],
+                                               ['assets/research/from-tokens-to-outcomes-figure-2.png',
+                                                54901,
+                                                '36845585c9e6fa322fb612d117c69e4b4d85e51786123bce54a6b21ce6f619b8',
+                                                1300,
+                                                555,
+                                                '<img src="assets/research/from-tokens-to-outcomes-figure-2.png" '
+                                                'alt="Two curves showing per-token prices falling while enterprise '
+                                                'AI consumption rises." loading="lazy" width="1300">'],
+                                               ['assets/research/from-tokens-to-outcomes-figure-3.png',
+                                                53896,
+                                                'e302e6aa92715ff3487bbf0bad9723972fc84533b5b08c8d0a16d844d5b18c43',
+                                                1300,
+                                                470,
+                                                '<img src="assets/research/from-tokens-to-outcomes-figure-3.png" '
+                                                'alt="A spectrum of enterprise AI cost-discipline practices from '
+                                                'prompt controls through deterministic architecture." '
+                                                'loading="lazy" width="1300">'],
+                                               ['assets/research/from-tokens-to-outcomes-figure-4.png',
+                                                81398,
+                                                '2f8c3c402393e2a8b4e2ce78bea6ce93bf504d382e65cc14d9978f64eef36828',
+                                                1300,
+                                                690,
+                                                '<img src="assets/research/from-tokens-to-outcomes-figure-4.png" '
+                                                'alt="Three structural tiers in the enterprise AI market: '
+                                                'foundation labs, deterministic infrastructure providers, and '
+                                                'end-user enterprises." loading="lazy" width="1300">'],
+                                               ['assets/research/from-tokens-to-outcomes-figure-5.png',
+                                                57086,
+                                                'd9d8488c4f56fd451c45f8cb8d8a340db8811ff380cc2869c646925bb89ad806',
+                                                1300,
+                                                650,
+                                                '<img src="assets/research/from-tokens-to-outcomes-figure-5.png" '
+                                                'alt="A comparison of cost per workflow under naive and '
+                                                'deterministic AI architectures." loading="lazy" width="1300">']]},
+  'merit-after-the-machine.html': {'before_bytes': 48969,
+                                   'before_sha256': '02d8e11da9cad053e034684a1d92e5fd948d0fc4c12b61d89b9b22d57ca6e0d5',
+                                   'figures': [['assets/research/merit-after-the-machine-figure-4.png',
+                                                69938,
+                                                '7017084efcacff29741c3c701fbf61595eb615245cb8310987697a4387114f23',
+                                                1300,
+                                                350,
+                                                '<img src="assets/research/merit-after-the-machine-figure-4.png" '
+                                                'alt="Three summary cards defining the pair, the evidence, and the '
+                                                'institutional gap." loading="lazy" width="1300">'],
+                                               ['assets/research/merit-after-the-machine-figure-1.png',
+                                                34764,
+                                                'c3049013e094bd2009649347dc0618c1fb04a8263bd3fb7d29f5aad02d3ebd94',
+                                                1300,
+                                                367,
+                                                '<img src="assets/research/merit-after-the-machine-figure-1.png" '
+                                                'alt="A diagram showing how AI weakens the inference from finished '
+                                                'work to intelligence and conscientiousness." loading="lazy" '
+                                                'width="1300">'],
+                                               ['assets/research/merit-after-the-machine-figure-2.png',
+                                                32374,
+                                                '8d485e9a8363b58681a9d7982352cdffe111e57776b69ac29523d2d5358f9179',
+                                                1300,
+                                                373,
+                                                '<img src="assets/research/merit-after-the-machine-figure-2.png" '
+                                                'alt="A timeline tracing the construction of modern merit-sorting '
+                                                'rules from 1770 through the release of ChatGPT in 2022." '
+                                                'loading="lazy" width="1300">'],
+                                               ['assets/research/merit-after-the-machine-figure-3.png',
+                                                26354,
+                                                '837e989e07f631dfebbddfd98adde024445cd750bb091ec045b7c36582133ebc',
+                                                1300,
+                                                445,
+                                                '<img src="assets/research/merit-after-the-machine-figure-3.png" '
+                                                'alt="Two conceptual curves showing familiar evidence weakening '
+                                                'faster than institutional replacement systems are built." '
+                                                'loading="lazy" width="1300">']]},
+  'every-node-for-itself.html': {'before_bytes': 30518,
+                                 'before_sha256': '46cebdc368171830603c6a5aea8192226e050f08787e7b787e00d6e8fd3459d8',
+                                 'figures': [['assets/research/every-node-for-itself-figure-3.png',
+                                              54769,
+                                              '284b0ebc1f3b158bde0db7a24c7097fa47e9a341624bbb828cf328f092efcac8',
+                                              1300,
+                                              325,
+                                              '<img src="assets/research/every-node-for-itself-figure-3.png" '
+                                              'alt="Three summary cards describing the gain, hidden cost, and '
+                                              'decision involved in bringing expert work inside an organization." '
+                                              'loading="lazy" width="1300">'],
+                                             ['assets/research/every-node-for-itself-figure-1.png',
+                                              16146,
+                                              'a1832a9b04a956c8268097149c4509c30f5b7ca9f2c15018e12ea0994ec8ff61',
+                                              1300,
+                                              422,
+                                              '<img src="assets/research/every-node-for-itself-figure-1.png" '
+                                              'alt="A bar chart of cumulative court decisions in Damien '
+                                              'Charlotin&#x27;s public AI hallucination database." loading="lazy" '
+                                              'width="1300">'],
+                                             ['assets/research/every-node-for-itself-figure-2.png',
+                                              49713,
+                                              '71f50bf1d4cbb5c9cd4e7825d6ae9d781e2350e33425918cc38b2ee42fd9721e',
+                                              1300,
+                                              508,
+                                              '<img src="assets/research/every-node-for-itself-figure-2.png" '
+                                              'alt="The same organizational network shown first with AI '
+                                              'strengthening each node and then with nodes severed from outside '
+                                              'checking." loading="lazy" width="1300">']]},
+  'built-to-please.html': {'before_bytes': 47309,
+                           'before_sha256': '6e0221c7d58097e06f6950942808f8fb883021e7a3d6b538a68e37d4bea294aa',
+                           'figures': [['assets/research/built-to-please-figure-4.png',
+                                        68279,
+                                        'bc9f1efd947de4051ae72953cc8e38431cf8debb39bc7aa42c43e3b960fa893c',
+                                        1300,
+                                        275,
+                                        '<img src="assets/research/built-to-please-figure-4.png" alt="Three '
+                                        'summary cards describing the several goals behind consumer AI, the '
+                                        'measured lean toward the asker, and the controls serious users build '
+                                        'around models." loading="lazy" width="1300">'],
+                                       ['assets/research/built-to-please-figure-1.png',
+                                        55760,
+                                        '13bd9d4b3f428cc84e0bda41555472a075bf17da14a541d497619ab769869e68',
+                                        1300,
+                                        370,
+                                        '<img src="assets/research/built-to-please-figure-1.png" alt="A conceptual '
+                                        'diagram showing one AI product window serving several training goals that '
+                                        'may not always agree." loading="lazy" width="1300">'],
+                                       ['assets/research/built-to-please-figure-2.png',
+                                        38191,
+                                        '6e1ad49905462358bf5b0b3736d79c265a3e1fd1e175562b3e3a23d8408e1ab8',
+                                        1300,
+                                        353,
+                                        '<img src="assets/research/built-to-please-figure-2.png" alt="A '
+                                        'paired-prompt test in which the same question is wrapped in opposite '
+                                        'hopes and the answers are compared." loading="lazy" width="1300">'],
+                                       ['assets/research/built-to-please-figure-3.png',
+                                        40597,
+                                        'e7d154160f291c1989a2a3b4bc5bbbcb0e65b5280e33c3cdf977c7d359ec1c29',
+                                        1300,
+                                        513,
+                                        '<img src="assets/research/built-to-please-figure-3.png" alt="A control '
+                                        'architecture placing an AI model inside evidence, verification, and '
+                                        'accountability checks." loading="lazy" width="1300">']]}}
+ def ai_original_figure_bytes(pages,assets):
+  assert set(pages)==set(AI_FIGURE_PAGE_PLAN),'Exactly four approved AI article inputs'
+  expected_assets={row[0] for page in AI_FIGURE_PAGE_PLAN.values() for row in page['figures']}
+  assert set(assets)==expected_assets and len(expected_assets)==17,'Exactly seventeen original figure assets'
+  seen=0
+  for name,page in AI_FIGURE_PAGE_PLAN.items():
+   body=pages[name]
+   assert isinstance(body,bytes),'Complete authored AI HTML bytes'
+   for asset_path,asset_bytes,asset_sha,width,height,prior_tag in page['figures']:
+    asset=assets[asset_path]
+    assert isinstance(asset,bytes) and len(asset)==asset_bytes and sha(asset)==asset_sha,'Exact original PNG source bytes '+asset_path
+    assert asset.startswith(b'\x89PNG\r\n\x1a\n') and asset[12:16]==b'IHDR','Original PNG envelope '+asset_path
+    assert int.from_bytes(asset[16:20],'big')==width and int.from_bytes(asset[20:24],'big')==height,'Original natural PNG dimensions '+asset_path
+    packed=base64.b64encode(asset).decode('ascii')
+    assert base64.b64decode(packed,validate=True)==asset,'Canonical original PNG payload '+asset_path
+    old_src='src="'+asset_path+'"'
+    new_src='src="data:image/png;base64,'+packed+'"'
+    assert prior_tag.count(old_src)==1,'One declared original figure src'
+    current_tag=prior_tag.replace(old_src,new_src,1).encode('utf8')
+    assert body.count(current_tag)==1,'One exact original-byte figure with all original attributes '+asset_path
+    assert old_src.encode() not in body,'No negotiated external figure request '+asset_path
+    body=body.replace(current_tag,prior_tag.encode('utf8'),1);seen+=1
+   assert len(body)==page['before_bytes'] and sha(body)==page['before_sha256'],'Only declared src embeddings differ from exact currentD1 prose/captions/links/attributes '+name
+  assert seen==17,'Every original figure is preserved exactly once'
+ ai_figure_pages={name:(ROOT/name).read_bytes() for name in AI_FIGURE_PAGE_PLAN}
+ ai_figure_assets={row[0]:(ROOT/row[0]).read_bytes() for page in AI_FIGURE_PAGE_PLAN.values() for row in page['figures']}
+ ai_original_figure_bytes(ai_figure_pages,ai_figure_assets);check(True,'All seventeen exact original PNG payloads, dimensions, attributes and whole-page source inverses')
+ # Clearly fabricated pure source mutants. No browser/retry/native-cause claim.
+ first_page=next(iter(AI_FIGURE_PAGE_PLAN));first_figure=AI_FIGURE_PAGE_PLAN[first_page]['figures'][0]
+ first_path,_,_,_,_,first_prior_tag=first_figure
+ first_packed=base64.b64encode(ai_figure_assets[first_path]).decode('ascii')
+ first_uri='data:image/png;base64,'+first_packed
+ first_current_tag=first_prior_tag.replace('src="'+first_path+'"','src="'+first_uri+'"',1).encode()
+ second_figure=AI_FIGURE_PAGE_PLAN[first_page]['figures'][1]
+ second_uri='data:image/png;base64,'+base64.b64encode(ai_figure_assets[second_figure[0]]).decode('ascii')
+ def ai_replace_first(old,new):
+  body=ai_figure_pages[first_page];assert old!=new and body.count(old)==1,'Meaningful exact first-figure source mutation'
+  return {**ai_figure_pages,first_page:body.replace(old,new,1)}
+ for label,mutated_pages,mutated_assets in [
+  ('changed original payload byte',ai_replace_first(first_uri.encode(),('data:image/png;base64,'+('A' if first_packed[0]!='A' else 'B')+first_packed[1:]).encode()),ai_figure_assets),
+  ('external PNG delivery restored',ai_replace_first(first_current_tag,first_prior_tag.encode()),ai_figure_assets),
+  ('missing original figure',ai_replace_first(first_current_tag,b''),ai_figure_assets),
+  ('wrong original figure payload',ai_replace_first(first_uri.encode(),second_uri.encode()),ai_figure_assets),
+  ('duplicate original figure',ai_replace_first(first_current_tag,first_current_tag+first_current_tag),ai_figure_assets),
+  ('truncated PNG payload',ai_replace_first(first_uri.encode(),first_uri[:-4].encode()),ai_figure_assets),
+  ('wrong data MIME',ai_replace_first(first_uri.encode(),first_uri.replace('data:image/png','data:image/jpeg',1).encode()),ai_figure_assets),
+  ('noncanonical base64 whitespace',ai_replace_first(first_uri.encode(),(first_uri+' ').encode()),ai_figure_assets),
+  ('changed original alt text',ai_replace_first(first_current_tag,first_current_tag.replace(b'alt="',b'alt="UNAPPROVED ',1)),ai_figure_assets),
+  ('changed original width',ai_replace_first(first_current_tag,first_current_tag.replace(b'width="1300"',b'width="1299"',1)),ai_figure_assets),
+  ('changed original caption',{**ai_figure_pages,first_page:ai_figure_pages[first_page].replace(b'</figcaption>',b' UNAPPROVED</figcaption>',1)},ai_figure_assets),
+  ('changed original PNG asset bytes',ai_figure_pages,{**ai_figure_assets,first_path:ai_figure_assets[first_path]+b'UNAPPROVED'}),
+ ]:
+  assert mutated_pages!=ai_figure_pages or mutated_assets!=ai_figure_assets,'Clearly fabricated artwork negative changes an actual input '+label
+  try:ai_original_figure_bytes(mutated_pages,mutated_assets)
+  except (AssertionError,ValueError):check(True,'Clearly fabricated original-artwork negative rejects '+label);NEGATIVES+=1
+  else:raise AssertionError('Synthetic original-artwork negative unexpectedly accepted '+label)
  def prior_ai_carousel_labels(card):
   # Exact four reviewed presentation-label inverses only. All link, artwork,
   # title, summary, card position and other bytes remain in the equality below.
