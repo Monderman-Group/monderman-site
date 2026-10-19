@@ -141,8 +141,8 @@
     function renderVerification() {
       if (!state.enabled || !root.turnstile || state.widgetId !== null) return;
       try {
-        state.widgetId = root.turnstile.render("#career-turnstile", { sitekey: SITE_KEY, action: "careers", theme: "light", callback: function (token) { state.token = token; submit.disabled = state.busy || state.locked; verification.textContent = "Human verification complete."; }, "expired-callback": function () { state.token = ""; submit.disabled = true; verification.textContent = "Verification expired. Please complete it again."; }, "error-callback": function () { state.token = ""; submit.disabled = true; verification.textContent = "Human verification is unavailable. Please try the check again or contact Jason."; } });
-      } catch (_) { verification.textContent = "Human verification could not start. Please contact Jason for another way to share your interest."; }
+        state.widgetId = root.turnstile.render("#career-turnstile", { sitekey: SITE_KEY, action: "careers", theme: "light", callback: function (token) { state.token = token; submit.disabled = state.busy || state.locked; verification.textContent = "Human verification complete."; }, "expired-callback": function () { state.token = ""; submit.disabled = true; verification.textContent = "Verification expired. Please complete it again."; }, "error-callback": function () { state.token = ""; submit.disabled = true; verification.textContent = "Human verification is unavailable. Please try the check again or email careers@monderman.com."; } });
+      } catch (_) { verification.textContent = "Human verification could not start. Please email careers@monderman.com for another way to share your interest."; }
     }
     root.mondermanCareersTurnstileReady = renderVerification;
     async function enableIfOpen() {
@@ -151,15 +151,15 @@
         if (!config.intakeEnabled) return;
         uuid(); // A genuine secure UUID source is required before enabling uploads.
         state.enabled = true; fields.disabled = false; submit.disabled = true;
-        notice.textContent = "We are accepting résumés for work performed in eligible U.S. locations. Hiring timelines vary by role. Required fields are marked with an asterisk.";
+        notice.textContent = "Submit your résumé for work performed in eligible U.S. locations. Required fields are marked with an asterisk.";
         verification.textContent = "Complete the human verification before submitting.";
         if (root.turnstile) renderVerification();
         else {
           var script = root.document.createElement("script"); script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?onload=mondermanCareersTurnstileReady&render=explicit"; script.defer = true;
-          script.onerror = function () { verification.textContent = "Human verification did not load. Please contact Jason for another way to share your interest."; };
+          script.onerror = function () { verification.textContent = "Human verification did not load. Please email careers@monderman.com for another way to share your interest."; };
           root.document.head.appendChild(script);
         }
-      } catch (_) { notice.textContent = "The résumé form is unavailable. You can explore the positions or contact Jason."; }
+      } catch (_) { notice.textContent = "The résumé form is unavailable. You can explore the positions or email careers@monderman.com."; }
     }
     form.addEventListener("submit", async function (event) {
       event.preventDefault();
@@ -178,14 +178,14 @@
         var saved = await transport.submit(multipart(input, state.requestId), state.requestId);
         state.locked = true; fields.disabled = true; form.reset();
         var mail = saved.acknowledgement === "sent" ? "A receipt email has been sent." : saved.acknowledgement === "pending" ? "The receipt email is pending; please do not resubmit." : saved.acknowledgement === "failed" ? "The receipt email could not be sent; please do not resubmit." : "We cannot confirm receipt-email delivery; please do not resubmit.";
-        announce("Your résumé and application have been received. " + mail + " Hiring timelines vary by role.", "saved"); status.focus();
+        announce("Your résumé and application have been received. " + mail + " We will review your qualifications against the requirements of your selected positions.", "saved"); status.focus();
       } catch (error) {
         if (error.code === "outcome_unknown") {
           state.locked = true; fields.disabled = true;
-          announce("We could not confirm whether your submission was saved. Please do not submit again. Contact Jason with the reference below so it can be checked.", "unknown");
+          announce("We could not confirm whether your submission was saved. Please do not submit again. Email careers@monderman.com with the reference below so it can be checked.", "unknown");
         } else {
-          var messages = { invalid_fields: "Please check your details and selected roles.", invalid_pdf: "A document could not be accepted as a PDF. Please select a valid PDF.", consent_required: "Please review and confirm both acknowledgements.", request_id_conflict: "This submission reference could not be accepted. Contact Jason with the reference below.", upload_too_large: "Each PDF must be no larger than 3 MiB.", rate_limited: "The service is receiving too many requests. Please wait before submitting again.", intake_closed: "Résumé submissions are temporarily closed. You can contact Jason instead.", intake_unavailable: "The résumé form is temporarily unavailable. You can contact Jason instead.", verification_unavailable: "Human verification is temporarily unavailable. Please try the check later.", verification_failed: "Human verification could not be confirmed. Please complete it again." };
-          announce(error.code === "invalid_fields" && error.field === "workState" ? "Choose an eligible U.S. state where you would perform the work. We cannot accept applications for work performed in the excluded locations listed on this page." : messages[error.code] || "The form could not accept your submission. Please contact Jason.", "error");
+          var messages = { invalid_fields: "Please check your details and selected roles.", invalid_pdf: "A document could not be accepted as a PDF. Please select a valid PDF.", consent_required: "Please review and confirm both acknowledgements.", request_id_conflict: "This submission reference could not be accepted. Email careers@monderman.com with the reference below.", upload_too_large: "Each PDF must be no larger than 3 MiB.", rate_limited: "The service is receiving too many requests. Please wait before submitting again.", intake_closed: "Résumé submissions are temporarily closed. You can email careers@monderman.com instead.", intake_unavailable: "The résumé form is temporarily unavailable. You can email careers@monderman.com instead.", verification_unavailable: "Human verification is temporarily unavailable. Please try the check later.", verification_failed: "Human verification could not be confirmed. Please complete it again." };
+          announce(error.code === "invalid_fields" && error.field === "workState" ? "Choose an eligible U.S. state where you would perform the work. We cannot accept applications for work performed in the excluded locations listed on this page." : messages[error.code] || "The form could not accept your submission. Please email careers@monderman.com.", "error");
           if (["intake_closed", "intake_unavailable", "request_id_conflict"].includes(error.code)) { state.locked = true; fields.disabled = true; }
         }
         state.token = "";
