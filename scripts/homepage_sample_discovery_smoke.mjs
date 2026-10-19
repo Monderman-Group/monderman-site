@@ -34,15 +34,49 @@ async function expandRefinedHeroForOriginalChecks(page,enabled,label){
   assert.equal(await details.locator('.hf-extra-grid > .hrq-tile').count(),3,label+': exact three additional native report roles');
 }
 
+// Own every navigation operation until settlement. Observability does not change
+// the original assertions, inputs, operation deadlines or hosted failure history.
+const navigationEventsPath=path.join(out,'NAVIGATION_EVENTS.jsonl');
+const navigationEventsFd=fs.openSync(navigationEventsPath,'wx',0o600);
+const navigationStarted=process.hrtime.bigint(),navigationTelemetryErrors=[],navigationTransactions=[];
+const navigationError=error=>({name:error?.name,message:error?.message,stack:String(error?.stack||error)});
+function navigationEvent(event){
+  try{fs.writeFileSync(navigationEventsFd,JSON.stringify({atUTC:new Date().toISOString(),elapsedMs:Number(process.hrtime.bigint()-navigationStarted)/1e6,...event})+'\n');fs.fsyncSync(navigationEventsFd);}
+  catch(error){navigationTelemetryErrors.push({phase:'event-persistence',error:navigationError(error)});}
+}
+function navigationArtifact(filename,value){
+  let fd;try{fd=fs.openSync(path.join(out,filename),'wx',0o600);fs.writeFileSync(fd,JSON.stringify(value,null,2)+'\n');fs.fsyncSync(fd);}
+  catch(error){navigationTelemetryErrors.push({phase:filename,error:navigationError(error)});console.error('HOMEPAGE_NAVIGATION_ARTIFACT_ERROR '+JSON.stringify(navigationError(error)));}
+  finally{if(fd!==undefined)try{fs.closeSync(fd);}catch(error){navigationTelemetryErrors.push({phase:filename+'-close',error:navigationError(error)});}}
+}
+function navigationValue(value){if(value===undefined)return{kind:'undefined'};if(value===null)return{kind:'null'};return{kind:value.constructor?.name||typeof value,url:typeof value.url==='function'?value.url():null,status:typeof value.status==='function'?value.status():null};}
+async function ownNavigationOperations(operations,observe){
+  let hasFirstRejection=false,firstRejection,hasObservationFailure=false,firstObservationFailure;
+  const emit=event=>{try{observe(event);}catch(error){if(!hasObservationFailure){hasObservationFailure=true;firstObservationFailure=error;}}};
+  const pending=operations.map(({operation,start})=>{
+    emit({operation,status:'started'});
+    let promise;try{promise=start();}catch(error){promise=Promise.reject(error);}
+    return Promise.resolve(promise).then(value=>{emit({operation,status:'fulfilled',value});return value;},error=>{if(!hasFirstRejection){hasFirstRejection=true;firstRejection=error;}emit({operation,status:'rejected',error});throw error;});
+  });
+  const settled=await Promise.allSettled(pending);
+  emit({status:'all-settled',settled});
+  if(hasFirstRejection)throw firstRejection;
+  if(hasObservationFailure)throw firstObservationFailure;
+  return settled.map(result=>result.value);
+}
+process.once('exit',()=>{try{fs.fsyncSync(navigationEventsFd);fs.closeSync(navigationEventsFd);}catch(error){console.error('HOMEPAGE_NAVIGATION_LOG_CLOSE_ERROR '+JSON.stringify(navigationError(error)));if(!process.exitCode)process.exitCode=1;}});
+
 let states=0;
 let entryStates=0;
 const entryViewports=[{width:375,height:667},{width:390,height:844},{width:1280,height:720}];
 const entryGeometry=[];
 for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
   const browser=await type.launch({headless:true});
+  let activeState={browser:name,phase:'engine-start'},activeDestination=null,activePage=null,engineFailed=false,originalEngineFailure;
   try{
     for(const width of [320,390,768,834,1440])for(const javaScriptEnabled of [false,true]){
-      const page=await browser.newPage({viewport:{width,height:1000},javaScriptEnabled});
+      activeState={browser:name,phase:'geometry',width,height:1000,javaScriptEnabled};activeDestination=null;navigationEvent({kind:'state-start',state:activeState});
+      const page=await browser.newPage({viewport:{width,height:1000},javaScriptEnabled});activePage=page;
       // The public-page auth decoration is outside this navigation test.
       // Match the established homepage test's signed-out, memory-only fixture.
       await page.addInitScript(()=>{window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}})};});
@@ -108,11 +142,12 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
       await page.keyboard.press('Enter');
       await page.waitForURL(url=>url.pathname.endsWith('/sample-report.html'));
       assert.deepEqual(failures,[]);
-      await page.close();states++;
+      await page.close();activePage=null;states++;navigationEvent({kind:'state-completed',state:activeState});
     }
     for(const viewport of entryViewports)for(const javaScriptEnabled of [false,true]){
       const label=name+'/'+viewport.width+'x'+viewport.height+'/'+(javaScriptEnabled?'scripts':'no-scripts');
-      const page=await browser.newPage({viewport,javaScriptEnabled,reducedMotion:'reduce'});
+      activeState={browser:name,phase:'entry',...viewport,javaScriptEnabled,label};activeDestination=null;navigationEvent({kind:'state-start',state:activeState});
+      const page=await browser.newPage({viewport,javaScriptEnabled,reducedMotion:'reduce'});activePage=page;
       await page.addInitScript(()=>{window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}})};});
       await page.route('**/*',route=>{const u=new URL(route.request().url());if(u.origin!==new URL(base).origin)return route.abort();return scopeHistoricalBodies.has(u.pathname)?scopeHistoricalResponse(route):route.continue();});
       const failures=[];const collect=error=>failures.push(error.message);page.on('pageerror',collect);
@@ -158,14 +193,25 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
         {selector:'.hero-invitation-link',path:'/pattern-trial.html',query:''},
       ];
       for(const destination of destinations){
+        activeDestination=destination;navigationEvent({kind:'destination-home-start',state:activeState,destination,currentURL:page.url()});
         await page.goto(base+'/index.html',{waitUntil:'load'});
+        navigationEvent({kind:'destination-home-loaded',state:activeState,destination,currentURL:page.url()});
         // 2026-10-13: finish each destination load before returning home;
         // observing its first request alone can leave navigation in flight.
-        const [request,response]=await Promise.all([
-          page.waitForRequest(request=>request.isNavigationRequest()&&new URL(request.url()).pathname===destination.path),
-          page.waitForNavigation({waitUntil:'load'}),
-          page.locator(destination.selector).click(),
-        ]);
+        const transaction={state:activeState,destination,operations:[],allOperationsSettled:false};navigationTransactions.push(transaction);
+        const [request,response]=await ownNavigationOperations([
+          {operation:'waitForRequest',start:()=>page.waitForRequest(request=>request.isNavigationRequest()&&new URL(request.url()).pathname===destination.path)},
+          {operation:'waitForNavigation',start:()=>page.waitForNavigation({waitUntil:'load'})},
+          {operation:'click',start:()=>page.locator(destination.selector).click()},
+        ],event=>{
+          if(event.status==='all-settled'){transaction.allOperationsSettled=true;navigationEvent({kind:'transaction-all-settled',...transaction,currentURL:page.url()});return;}
+          const operation=event.operation;
+          let record=transaction.operations.find(record=>record.operation===operation);
+          if(event.status==='started'){record={operation,status:'started',startedAtUTC:new Date().toISOString()};transaction.operations.push(record);}
+          else Object.assign(record,{status:event.status,finishedAtUTC:new Date().toISOString(),...(event.status==='fulfilled'?{value:navigationValue(event.value)}:{error:navigationError(event.error)})});
+          navigationEvent({kind:'operation-'+event.status,state:activeState,destination,...record,currentURL:page.url()});
+        });
+        assert.equal(navigationTelemetryErrors.length,0,'Navigation operation evidence is durably recorded');
         const url=new URL(request.url());
         assert.equal(url.origin,new URL(base).origin,label+': navigation stays local');
         assert.equal(url.pathname,destination.path,label+': clicked anchor reaches its approved destination');
@@ -177,14 +223,28 @@ for(const [name,type]of [['chromium',chromium],['webkit',webkit]]){
         assert.equal(await response.finished(),null,label+': destination response finishes successfully');
       }
       entryGeometry.push({browser:name,...viewport,javaScriptEnabled,buttons:boxes});
-      await page.close();entryStates++;
+      await page.close();activePage=null;entryStates++;navigationEvent({kind:'state-completed',state:activeState});
     }
-  }finally{await browser.close();}
+  }catch(error){
+    engineFailed=true;originalEngineFailure=error;
+    navigationEvent({kind:'original-engine-failure-before-cleanup',state:activeState,destination:activeDestination,currentURL:activePage?.url()||null,error:navigationError(error)});
+    navigationArtifact(name+'-FAILURE_BEFORE_CLEANUP.json',{status:'FAILED_BEFORE_BROWSER_CLEANUP',state:activeState,destination:activeDestination,currentURL:activePage?.url()||null,error:navigationError(error),transactions:navigationTransactions,telemetryErrors:navigationTelemetryErrors,qualification:'All owned transaction operations have settled before this artifact. Failure cause is not inferred from the first rejected promise.'});
+    throw error;
+  }finally{
+    navigationEvent({kind:'browser-close-start',browser:name,priorFailure:engineFailed});
+    let cleanupFailed=false,cleanupError;
+    try{await browser.close();navigationEvent({kind:'browser-close-fulfilled',browser:name});}
+    catch(error){cleanupFailed=true;cleanupError=error;navigationEvent({kind:'browser-close-rejected',browser:name,error:navigationError(error)});}
+    navigationArtifact(name+'-CLEANUP_RESULT.json',{browser:name,originalFailure:engineFailed?navigationError(originalEngineFailure):null,cleanupFailure:cleanupFailed?navigationError(cleanupError):null,telemetryErrors:navigationTelemetryErrors});
+    if(cleanupFailed&&!engineFailed)throw cleanupError;
+    if(engineFailed&&cleanupFailed)console.error('HOMEPAGE_BROWSER_CLEANUP_ERROR '+JSON.stringify(navigationError(cleanupError)));
+  }
 }
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const sourceFiles=Object.fromEntries(['index.html','homepage-workspace-demo.css','scripts/templates/home-workspace-preview.html'].map(file=>[file,sha(fs.readFileSync(new URL('../'+file,import.meta.url)))]));
 assert.equal(states,20,'All twenty existing browser states remain covered');
 assert.equal(entryStates,12,'All twelve exact-viewport entry states are covered');
+assert.equal(navigationTelemetryErrors.length,0,'All navigation and cleanup evidence is durably recorded');
 const receipt={passed:true,states,entryStates,browsers:2,widths:[320,390,768,834,1440],entryViewports,entryGeometry,withAndWithoutJavaScript:true,source_files:sourceFiles};
 fs.writeFileSync(path.join(out,'RECEIPT.json'),JSON.stringify(receipt,null,2)+'\n');
 console.log('HOMEPAGE_SAMPLE_DISCOVERY_SMOKE '+JSON.stringify({...receipt,out}));
