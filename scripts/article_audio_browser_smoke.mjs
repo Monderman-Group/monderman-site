@@ -20,23 +20,31 @@ const output=path.resolve(process.env.ARTICLE_AUDIO_OUT||'/tmp/monderman-article
 const sha=b=>createHash('sha256').update(b).digest('hex');let checks=0;const receipts=[],browserBuilds=[];
 const eq=(a,b,label)=>{assert.deepEqual(a,b,label);checks++;};const ok=(v,label)=>{assert.ok(v,label);checks++;};
 const expectedMarker=JSON.parse(fs.readFileSync(path.join(built,'.well-known/monderman-release.json')));
-const maxRecords=500;
-async function setup(browser,{engine,scripts=true,width=390,reduced=false,missingAudio=null}={}){
+const maxRecords=500,blockedAuthorScriptPolicy="script-src 'none'";
+async function setup(browser,{engine,scripts=true,width=390,reduced=false,missingAudio=null,authorScriptsBlocked=false}={}){
  const context=await browser.newContext({viewport:{width,height:900},javaScriptEnabled:scripts,reducedMotion:reduced?'reduce':'no-preference',serviceWorkers:'block'});
- const evidence={engine,writes:[],external:[],apiReads:[],media:[],responses:[],errors:[],overflow:false};
+ const evidence={engine,globalScriptsEnabled:scripts,authorScriptsBlocked,authorPolicies:[],authorPolicyResponses:[],writes:[],external:[],apiReads:[],media:[],responses:[],errors:[],overflow:false};
  const put=(key,value)=>{if(evidence[key].length>=maxRecords)evidence.overflow=true;else evidence[key].push(value);};
- await context.addInitScript(()=>{window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}})};});
+ if(!authorScriptsBlocked)await context.addInitScript(()=>{window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}})};});
  await context.route('**/*',async route=>{
   const q=route.request(),u=new URL(q.url());
   if(!['GET','HEAD'].includes(q.method())){put('writes',{path:u.pathname,method:q.method()});return route.abort();}
   if(u.origin!==origin){put('external',u.origin);return route.abort();}
   if(u.pathname.startsWith('/api/')){put('apiReads',u.pathname);return route.abort();}
+  if(authorScriptsBlocked&&q.isNavigationRequest()&&q.resourceType()==='document'){
+   assert.equal(scripts,true,'Author-blocked mode explicitly keeps global JavaScript enabled');assert.ok(u.pathname.endsWith('.html'),'CSP simulation is local HTML only');
+   const response=await route.fetch({maxRedirects:0,timeout:10000});assert.equal(response.status(),200,'Actual local HTML response');assert.equal(response.url(),q.url(),'No document redirect or external fetch');
+   const bytes=await response.body(),actual=fs.readFileSync(path.join(built,u.pathname.slice(1)));assert.equal(sha(bytes),sha(actual),'CSP changes only headers; complete HTML body is unchanged');
+   put('authorPolicies',{url:q.url(),policy:blockedAuthorScriptPolicy,bodyBytes:bytes.length,bodySha256:sha(bytes),globalScriptsEnabled:true,authorScriptsBlocked:true});
+   return route.fulfill({response,body:bytes,headers:{...response.headers(),'content-security-policy':blockedAuthorScriptPolicy}});
+  }
   if(missingAudio&&u.pathname==='/'+missingAudio)return route.fulfill({status:404,contentType:'text/plain',body:'MOCK missing narration for error presentation only'});
   return route.continue();
  });
  const page=await context.newPage();
  page.on('request',q=>{const u=new URL(q.url());if(u.pathname.startsWith('/assets/audio/'))put('media',{url:q.url(),path:u.pathname,method:q.method(),resourceType:q.resourceType()});});
  page.on('response',r=>{const u=new URL(r.url());if(u.pathname.startsWith('/assets/audio/'))put('responses',{url:r.url(),path:u.pathname,status:r.status(),mime:r.headers()['content-type']||''});});
+ page.on('response',r=>{if(authorScriptsBlocked&&r.request().isNavigationRequest()&&r.request().resourceType()==='document')put('authorPolicyResponses',{url:r.url(),status:r.status(),policy:r.headers()['content-security-policy']??null});});
  page.on('pageerror',e=>put('errors',String(e)));
  return{context,page,evidence};
 }
@@ -137,7 +145,7 @@ async function recordNoJsFailure(test,label,error){
  try{
   await noJsHostDeadline(()=>test.page.screenshot({path:path.join(output,label+'-FAIL.png'),fullPage:false,timeout:2000}),2000,'failure screenshot').catch(()=>{});
   const state=await readNoJsMedia(test.page,2000).catch(()=>null);
-  fs.writeFileSync(path.join(output,label+'-FAIL.json'),JSON.stringify({error:String(error).slice(0,4000),observer:'host-timer-synchronous-inspector',scriptsEnabled:false,state,evidence:test.evidence},null,2)+'\n');
+  fs.writeFileSync(path.join(output,label+'-FAIL.json'),JSON.stringify({error:String(error).slice(0,4000),observer:'host-timer-synchronous-inspector',scriptsEnabled:false,authorScriptsBlocked:false,authorPolicy:null,state,evidence:test.evidence},null,2)+'\n');
  }finally{await test.context.close();}
 }
 async function nativePlay(page,entry,evidence,{scripts=true}={}){
@@ -158,7 +166,7 @@ async function recordJsFailure(test,label,error){
  try{
   await noJsHostDeadline(()=>test.page.screenshot({path:path.join(output,label+'-FAIL.png'),fullPage:false,timeout:2000}),2000,'failure screenshot').catch(()=>{});
   const state=await readNoJsMedia(test.page,2000).catch(()=>null);
-  fs.writeFileSync(path.join(output,label+'-FAIL.json'),JSON.stringify({error:String(error).slice(0,4000),observer:'synchronous-inspector-js-enabled',scriptsEnabled:true,state,evidence:test.evidence},null,2)+'\n');
+  fs.writeFileSync(path.join(output,label+'-FAIL.json'),JSON.stringify({error:String(error).slice(0,4000),observer:'synchronous-inspector-js-enabled',scriptsEnabled:true,authorScriptsBlocked:test.evidence.authorScriptsBlocked,authorPolicy:test.evidence.authorScriptsBlocked?blockedAuthorScriptPolicy:null,state,evidence:test.evidence},null,2)+'\n');
  }finally{await test.context.close();}
 }
 function observeWebKitCensusMedia(page){
@@ -195,6 +203,30 @@ async function recordWebKitCensusFailure(test,entry,error,observer){
   fs.writeFileSync(path.join(output,'webkit-nojs-census-FAIL.json'),JSON.stringify({error:String(error).slice(0,4000),scriptsEnabled:false,localBuildMarker:expectedMarker,channel,browserBuilds,entry:{path:entry.path,audio_path:entry.audio_path,expectedAudioBytes:entry.bytes},passive,state,camera,evidence:test.evidence,qualification:'Passive lifecycle only; no playback, body read or additional GET. Pending sizes are unavailable; API body0 can be a fallback and is not measured physical bytes. Local marker is not a separately fetched served marker.'},null,2)+'\n');
  }finally{observer.stop();await test.context.close();}
 }
+async function globalOffDownload(page,entry,evidence){
+ const limit=10000,start=performance.now(),deadline=start+limit;let bracket;
+ const remaining=()=>{const ms=Math.floor(deadline-performance.now());assert.ok(ms>0,'Global-off user download remains inside the whole10000ms deadline');return ms;};
+ const progress={mode:'global-scripts-off-download-fallback',globalScriptsEnabled:false,authorScriptsBlocked:false,operationLimitMs:limit,status:'PENDING'};
+ evidence.globalOffDownload=progress;
+ try{
+  const proof=await noJsHostDeadline(async()=>{
+   bracket=beginOriginLogWindow();bracket.start.beforeNavigation=false;bracket.start.beforeGesture=true;bracket.start.phase='before-user-download-gesture';remaining();
+   const event=page.waitForEvent('download',{timeout:remaining()});event.catch(()=>{});
+   await page.keyboard.press('Enter');remaining();
+   const download=await event;remaining();eq(download.url(),new URL('/'+entry.audio_path,origin).href,'Actual browser download is the exact recording');
+   const artifact='webkit-global-off-download-'+path.basename(entry.audio_path),saved=path.join(output,artifact);
+   await download.saveAs(saved);remaining();eq(await download.failure(),null,'Actual browser download completed');remaining();
+   const stat=await fs.promises.stat(saved);remaining();ok(stat.isFile(),'Browser saved a regular recording file');eq(stat.size,entry.bytes,'Complete browser-downloaded recording size');
+   const bytes=await fs.promises.readFile(saved);remaining();eq(bytes.length,entry.bytes,'Read complete downloaded bytes');eq(sha(bytes),entry.audio_sha256,'Browser download matches the reviewed full recording SHA');
+   const log=bracket.finish(),requests=originAudioRequests(log);remaining();
+   ok(requests.some(r=>r.method==='GET'&&r.target==='/'+entry.audio_path&&[200,206].includes(r.status)),'Origin logged the actual recording GET and successful HTTP response');
+   ok(requests.every(r=>['GET','HEAD'].includes(r.method)&&r.target==='/'+entry.audio_path&&[200,206].includes(r.status)),'User download window fetched only the intended recording');
+   const state=await readNoJsMedia(page,remaining());remaining();eq(state.paused,true,'Global-off download does not claim inline playback');eq(state.currentTime,0,'Global-off player remains at the beginning');eq(state.error,null,'No invented global-off decode result');
+   return{status:'PASS',mode:'global-scripts-off-download-fallback',globalScriptsEnabled:false,authorScriptsBlocked:false,operationLimitMs:limit,elapsedMs:performance.now()-start,browserDownloadUrl:download.url(),suggestedFilename:download.suggestedFilename(),artifact,bytes:bytes.length,sha256:sha(bytes),originLog:log,originAudioRequests:requests,browserReportedResponses:[...evidence.responses],state,qualification:'A real user-triggered browser Download saved these full bytes. Origin access entries establish GET/status; browser response events are retained as reported and may omit a download-manager response. No inline playback or codec success is claimed in this global-off context.'};
+  },limit,'whole user-triggered browser download');
+  remaining();evidence.globalOffDownload=proof;
+ }catch(error){progress.status='FAIL';progress.error=String(error).slice(0,4000);progress.elapsedMs=performance.now()-start;throw error;}finally{bracket?.close();}
+}
 const nativeBrowsers=[{engine:'chromium',type:chromium,channel:'chrome'},{engine:'webkit',type:webkit,channel:null}];
 for(const{engine,type,channel:browserChannel}of nativeBrowsers){
  eq(browserChannel,engine==='chromium'?'chrome':null,'Chromium must use official Chrome stable; no codec fallback');
@@ -219,10 +251,27 @@ for(const{engine,type,channel:browserChannel}of nativeBrowsers){
     await finish(test.context,test.page,test.evidence,label);
    }catch(error){await test.page.screenshot({path:path.join(output,label+'-FAIL.png'),fullPage:false}).catch(()=>{});fs.writeFileSync(path.join(output,label+'-FAIL.json'),JSON.stringify({error:String(error),state:await audioState(test.page).catch(()=>null),evidence:test.evidence},null,2)+'\n');await test.context.close();throw error;}
   }
-  // Native controls and direct download still work with JavaScript disabled.
-  const entry=representatives[1],plain=await setup(browser,{engine,scripts:false,width:390});
-  try{await arrive(plain.page,entry,plain.evidence);const summary=plain.page.locator('[data-article-audio] > summary');await summary.focus();await plain.page.keyboard.press('Enter');eq((await audioState(plain.page)).open,true,'No-JS disclosure is keyboard operable');await nativePlay(plain.page,entry,plain.evidence,{scripts:false});eq((await audioState(plain.page)).speedDisplay,'none','No-JS avoids a dead speed widget');ok(await plain.page.locator('.mond-article-audio__options a[download]').isVisible(),'No-JS direct download visible');await finish(plain.context,plain.page,plain.evidence,engine+'-nojs-native-playback');}
-  catch(error){try{await recordNoJsFailure(plain,engine+'-nojs-native-playback',error);}finally{throw error;}}
+  const entry=representatives[1];
+  // Chrome: actual native playback with the browser's global JavaScript switch OFF.
+  if(engine==='chromium'){
+   const plain=await setup(browser,{engine,scripts:false,width:390});
+   try{await arrive(plain.page,entry,plain.evidence);const summary=plain.page.locator('[data-article-audio] > summary');await summary.focus();await plain.page.keyboard.press('Enter');eq((await audioState(plain.page)).open,true,'No-JS disclosure is keyboard operable');await nativePlay(plain.page,entry,plain.evidence,{scripts:false});eq((await audioState(plain.page)).speedDisplay,'none','No-JS avoids a dead speed widget');ok(await plain.page.locator('.mond-article-audio__options a[download]').isVisible(),'No-JS direct download visible');await finish(plain.context,plain.page,plain.evidence,engine+'-nojs-native-playback');}
+   catch(error){try{await recordNoJsFailure(plain,engine+'-nojs-native-playback',error);}finally{throw error;}}
+  }else{
+   // WebKit: UA controls need global scripting ON; CSP blocks every author script.
+   const blocked=await setup(browser,{engine,scripts:true,width:390,authorScriptsBlocked:true});
+   try{
+    await arrive(blocked.page,entry,blocked.evidence);eq(blocked.evidence.globalScriptsEnabled,true,'CSP mode is honestly global-script-enabled');eq(blocked.evidence.authorPolicies.length,1,'One actual HTML response receives the policy');eq(blocked.evidence.authorPolicyResponses,[{url:base+'/'+entry.path,status:200,policy:blockedAuthorScriptPolicy}],'Browser observed enforced script-src none on the actual response');
+    const summary=blocked.page.locator('[data-article-audio] > summary');await summary.focus();await blocked.page.keyboard.press('Enter');const state=await audioState(blocked.page);eq(state.open,true,'Author-blocked disclosure is keyboard operable');eq(state.speedHidden,true,'Author-blocked speed enhancement did not attach');eq(state.speedDisplay,'none','Author-blocked custom speed stays hidden');
+    await nativePlay(blocked.page,entry,blocked.evidence,{scripts:true});ok(await blocked.page.locator('.mond-article-audio__options a[download]').isVisible(),'Author-blocked direct download stays visible');await finish(blocked.context,blocked.page,blocked.evidence,engine+'-author-scripts-blocked-native-playback');
+   }catch(error){try{await recordJsFailure(blocked,engine+'-author-scripts-blocked-native-playback',error);}finally{throw error;}}
+   // Separate WebKit context: global scripting OFF, real keyboard download fallback.
+   const fallback=await setup(browser,{engine,scripts:false,width:390});
+   try{
+    await arrive(fallback.page,entry,fallback.evidence);const summary=fallback.page.locator('[data-article-audio] > summary');await summary.focus();await fallback.page.keyboard.press('Enter');const state=await audioState(fallback.page);eq(state.open,true,'Global-off disclosure is keyboard operable');eq(state.paused,true,'Global-off player remains paused');eq(state.currentTime,0,'Global-off player has not auto-started');eq(state.autoplay,false,'Global-off player has no autoplay');eq(state.speedHidden,true,'Global-off speed remains unenhanced');eq(state.speedDisplay,'none','Global-off avoids an inert speed control');
+    const link=fallback.page.locator('.mond-article-audio__options a[download]');ok(await link.isVisible(),'Existing global-off download link is visible');eq(await link.getAttribute('href'),entry.audio_path,'Existing link points to exact recording');await link.focus();await globalOffDownload(fallback.page,entry,fallback.evidence);await finish(fallback.context,fallback.page,fallback.evidence,engine+'-global-off-download-fallback');
+   }catch(error){try{await recordNoJsFailure(fallback,engine+'-global-off-download-fallback',error);}finally{throw error;}}
+  }
   // A targeted404 is a MOCK failure only; every success state above uses real media.
   const broken=await setup(browser,{engine,width:390,missingAudio:entry.audio_path});
   try{
@@ -238,4 +287,4 @@ for(const{engine,type,channel:browserChannel}of nativeBrowsers){
 // Bind the served candidate revision and representative successful response bytes.
 const api=await chromium.launch({headless:true,channel:'chrome'});try{const page=await api.newPage();const marker=await page.request.get(base+'/.well-known/monderman-release.json');eq(marker.status(),200,'Served candidate marker');eq(await marker.json(),expectedMarker,'Served candidate is the actual checked revision');for(const a of representatives){const response=await page.request.get(base+'/'+a.audio_path);eq(response.status(),200,'Actual representative complete audio GET');const b=await response.body();eq(b.length,a.bytes,'Actual served media size');eq(sha(b),a.audio_sha256,'Actual served complete bytes equal reviewed asset');}}finally{await api.close();}
 assert.equal(layer.sourceExact(),true,'Browser tests did not mutate frozen source');assert.equal(layer.publicExact(built,channel),true,'Browser tests did not mutate checked public artifact');
-const result={status:'PASS',checkedAt:new Date().toISOString(),revision:expectedMarker.revision,channel,checks,engines:['chromium','webkit'],browserBuilds,censusPagesPerEngine:29,representativePlaybackStates:12,noJsPlaybackStates:2,mockedMissingAudioStates:2,preGestureArrivalObservation:{rawAttemptCount:arrivalWindows.reduce((n,w)=>n+w.rawAttemptCount,0),deferredNonHttpEventCount:arrivalWindows.reduce((n,w)=>n+w.deferredNonHttpEventCount,0),originAudioRequestCount:arrivalWindows.reduce((n,w)=>n+w.originAudioRequestCount,0),actualHttpMediaResponseCount:arrivalWindows.reduce((n,w)=>n+w.actualHttpResponseCount,0),webkitObservationMs:2000,chromeObservationMs:100,qualification:'Counts cover complete bounded arrival windows before gestures; API status0/reported body0 are synthetic or fallback metrics, not measured physical byte counts.',windows:arrivalWindows},providerCalls:0,actualUserRecordsTouched:false,receipts};fs.writeFileSync(path.join(output,'RECEIPT.json'),JSON.stringify(result,null,2)+'\n');console.log('ARTICLE_AUDIO_BROWSER_PASS '+JSON.stringify({checks,browserBuilds,censusPagesPerEngine:29,representativePlaybackStates:12,noJsPlaybackStates:2,mockedMissingAudioStates:2,output}));
+const result={status:'PASS',checkedAt:new Date().toISOString(),revision:expectedMarker.revision,channel,checks,engines:['chromium','webkit'],browserBuilds,censusPagesPerEngine:29,representativePlaybackStates:12,globalScriptsOffNativePlaybackStates:1,authorScriptsBlockedNativePlaybackStates:1,globalScriptsOffDownloadFallbackStates:1,mockedMissingAudioStates:2,preGestureArrivalObservation:{rawAttemptCount:arrivalWindows.reduce((n,w)=>n+w.rawAttemptCount,0),deferredNonHttpEventCount:arrivalWindows.reduce((n,w)=>n+w.deferredNonHttpEventCount,0),originAudioRequestCount:arrivalWindows.reduce((n,w)=>n+w.originAudioRequestCount,0),actualHttpMediaResponseCount:arrivalWindows.reduce((n,w)=>n+w.actualHttpResponseCount,0),webkitObservationMs:2000,chromeObservationMs:100,qualification:'Counts cover complete bounded arrival windows before gestures; API status0/reported body0 are synthetic or fallback metrics, not measured physical byte counts.',windows:arrivalWindows},providerCalls:0,actualUserRecordsTouched:false,receipts};fs.writeFileSync(path.join(output,'RECEIPT.json'),JSON.stringify(result,null,2)+'\n');console.log('ARTICLE_AUDIO_BROWSER_PASS '+JSON.stringify({checks,browserBuilds,censusPagesPerEngine:29,representativePlaybackStates:12,globalScriptsOffNativePlaybackStates:1,authorScriptsBlockedNativePlaybackStates:1,globalScriptsOffDownloadFallbackStates:1,mockedMissingAudioStates:2,output}));
