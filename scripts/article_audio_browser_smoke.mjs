@@ -3,6 +3,8 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';import path from 'node:path';import{createHash}from'node:crypto';
 import{chromium,webkit}from'playwright';
+import{setTimeout as hostDelay}from'node:timers/promises';
+import{setTimeout as hostSetTimeout,clearTimeout as hostClearTimeout}from'node:timers';
 import{audioLayer}from'./article_audio_20261026_inverse.mjs';
 const root=path.resolve(import.meta.dirname,'..'),layer=audioLayer();
 assert.equal(layer.sourceExact(),true,'Actual closed current narration source');
@@ -47,13 +49,39 @@ async function arrive(page,entry,evidence){
  await page.waitForTimeout(100); // bounded observation of unsolicited media requests
  const s=await audioState(page);eq(s.sections,1,'Exactly one actual player');eq(s.open,false,'Native disclosure starts closed');eq(s.src,entry.audio_path,'Exact article-to-recording mapping');eq(s.type,'audio/mp4','AAC container MIME');eq(s.label,'Listen to '+entry.title,'Actual accessible article name');eq(s.preload,'none','No media preload');eq(s.autoplay,false,'No autoplay');eq(s.controls,true,'Native browser controls remain');eq(s.paused,true,'Starts paused');eq(s.currentTime,0,'Starts at the beginning');eq(s.error,null,'No initial media error');ok(s.canAAC.length>0,'Required AAC-LC capability; unsupported codec fails this lane');eq(evidence.media,[],'No audio GET before a user playback gesture');ok(s.box.height>=44,'Disclosure has at least44px touch target');ok(s.box.x>=-1&&s.box.x+s.box.width<=s.viewport+1,'Compact disclosure stays in viewport');ok(s.summary.includes('Listen')&&s.summary.includes('AI narration'),'Visible discrete Listen/AI label');return s;
 }
-async function nativePlay(page,entry,evidence){
+async function noJsHostDeadline(work,timeout,label){
+ let timer;const expired=new Promise((_,reject)=>{timer=hostSetTimeout(()=>reject(new Error('No-JS '+label+' exceeded '+timeout+'ms host deadline')),timeout);});
+ try{return await Promise.race([work(),expired]);}finally{hostClearTimeout(timer);}
+}
+async function readNoJsMedia(page,timeout){
+ return noJsHostDeadline(()=>page.locator('[data-article-audio] audio').evaluate(a=>({paused:a.paused,currentTime:a.currentTime,duration:Number.isFinite(a.duration)?a.duration:null,error:a.error?{code:a.error.code,message:a.error.message.slice(0,500)}:null,readyState:a.readyState,networkState:a.networkState,currentSrc:a.currentSrc.slice(0,1000),controls:a.controls,preload:a.preload}),undefined,{timeout}),timeout,'media inspection');
+}
+async function waitForNoJsMedia(page,predicate,timeout,label){
+ const deadline=performance.now()+timeout;let last=null;
+ while(performance.now()<deadline){
+  const remaining=Math.max(1,Math.floor(deadline-performance.now()));
+  last=await readNoJsMedia(page,remaining);
+  if(performance.now()>=deadline)break;
+  if(predicate(last))return last;
+  const left=deadline-performance.now();if(left>0)await hostDelay(Math.min(50,left));
+ }
+ throw new Error('No-JS native '+label+' did not meet the real media predicate within '+timeout+'ms: '+JSON.stringify(last));
+}
+async function recordNoJsFailure(test,label,error){
+ try{
+  await noJsHostDeadline(()=>test.page.screenshot({path:path.join(output,label+'-FAIL.png'),fullPage:false,timeout:2000}),2000,'failure screenshot').catch(()=>{});
+  const state=await readNoJsMedia(test.page,2000).catch(()=>null);
+  fs.writeFileSync(path.join(output,label+'-FAIL.json'),JSON.stringify({error:String(error).slice(0,4000),observer:'host-timer-synchronous-inspector',scriptsEnabled:false,state,evidence:test.evidence},null,2)+'\n');
+ }finally{await test.context.close();}
+}
+async function nativePlay(page,entry,evidence,{scripts=true}={}){
  const audio=page.locator('[data-article-audio] audio');
  await audio.focus();await page.keyboard.press('Space');
- await page.waitForFunction(()=>{const a=document.querySelector('[data-article-audio] audio');return a&&!a.paused&&a.currentTime>0.15&&!a.error;},null,{timeout:10000});
+ if(scripts)await page.waitForFunction(()=>{const a=document.querySelector('[data-article-audio] audio');return a&&!a.paused&&a.currentTime>0.15&&!a.error;},null,{timeout:10000});
+ else await waitForNoJsMedia(page,s=>!s.paused&&s.currentTime>0.15&&!s.error,10000,'playback');
  const playing=await audioState(page);ok(playing.currentTime>0.15&&!playing.paused,'Native keyboard playback advances actual media');eq(playing.error,null,'Actual AAC decodes without media error');ok(playing.canAAC.length>0,'Browser advertises AAC support');
  const observed=evidence.media.filter(r=>r.path==='/'+entry.audio_path);ok(observed.length>0,'Actual browser requested this recording');ok(evidence.media.every(r=>r.path==='/'+entry.audio_path&&r.method==='GET'),'No other recording or media write requested');ok(evidence.responses.some(r=>r.path==='/'+entry.audio_path&&[200,206].includes(r.status)&&/^audio\/(?:mp4|x-m4a|aac)(?:;|$)/i.test(r.mime)),'Actual native media response has a supported audio MIME/status');
- await page.keyboard.press('Space');await page.waitForFunction(()=>document.querySelector('[data-article-audio] audio')?.paused,null,{timeout:3000});eq((await audioState(page)).paused,true,'Native keyboard pause works');return playing;
+ await page.keyboard.press('Space');if(scripts)await page.waitForFunction(()=>document.querySelector('[data-article-audio] audio')?.paused,null,{timeout:3000});else await waitForNoJsMedia(page,s=>s.paused,3000,'pause');eq((await audioState(page)).paused,true,'Native keyboard pause works');return playing;
 }
 async function finish(context,page,evidence,label){
  eq(evidence.writes,[],label+': no application writes attempted');eq(evidence.overflow,false,label+': diagnostics bounded without lost records');
@@ -85,7 +113,9 @@ for(const{engine,type,channel:browserChannel}of nativeBrowsers){
    }catch(error){await test.page.screenshot({path:path.join(output,label+'-FAIL.png'),fullPage:false}).catch(()=>{});fs.writeFileSync(path.join(output,label+'-FAIL.json'),JSON.stringify({error:String(error),state:await audioState(test.page).catch(()=>null),evidence:test.evidence},null,2)+'\n');await test.context.close();throw error;}
   }
   // Native controls and direct download still work with JavaScript disabled.
-  const entry=representatives[1],plain=await setup(browser,{scripts:false,width:390});await arrive(plain.page,entry,plain.evidence);const summary=plain.page.locator('[data-article-audio] > summary');await summary.focus();await plain.page.keyboard.press('Enter');eq((await audioState(plain.page)).open,true,'No-JS disclosure is keyboard operable');await nativePlay(plain.page,entry,plain.evidence);eq((await audioState(plain.page)).speedDisplay,'none','No-JS avoids a dead speed widget');ok(await plain.page.locator('.mond-article-audio__options a[download]').isVisible(),'No-JS direct download visible');await finish(plain.context,plain.page,plain.evidence,engine+'-nojs-native-playback');
+  const entry=representatives[1],plain=await setup(browser,{scripts:false,width:390});
+  try{await arrive(plain.page,entry,plain.evidence);const summary=plain.page.locator('[data-article-audio] > summary');await summary.focus();await plain.page.keyboard.press('Enter');eq((await audioState(plain.page)).open,true,'No-JS disclosure is keyboard operable');await nativePlay(plain.page,entry,plain.evidence,{scripts:false});eq((await audioState(plain.page)).speedDisplay,'none','No-JS avoids a dead speed widget');ok(await plain.page.locator('.mond-article-audio__options a[download]').isVisible(),'No-JS direct download visible');await finish(plain.context,plain.page,plain.evidence,engine+'-nojs-native-playback');}
+  catch(error){try{await recordNoJsFailure(plain,engine+'-nojs-native-playback',error);}finally{throw error;}}
   // A targeted404 is a MOCK failure only; every success state above uses real media.
   const broken=await setup(browser,{width:390,missingAudio:entry.audio_path});await arrive(broken.page,entry,broken.evidence);await broken.page.locator('[data-article-audio] > summary').click();const a=broken.page.locator('[data-article-audio] audio');await a.focus();await broken.page.keyboard.press('Space');await broken.page.waitForFunction(()=>document.querySelector('[data-article-audio] audio')?.error,null,{timeout:10000});const error=broken.page.locator('[data-audio-error]');await error.waitFor({state:'visible',timeout:3000});eq(await error.textContent(),'The recording could not load. You can try the download link.','404 yields truthful visible fallback');ok(await broken.page.locator('.mond-article-audio__options a[download]').isVisible(),'404 keeps direct fallback reachable');await finish(broken.context,broken.page,broken.evidence,engine+'-MOCK404-fallback');
  }finally{await browser.close();}
