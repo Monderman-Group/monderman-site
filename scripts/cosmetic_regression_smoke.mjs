@@ -189,6 +189,59 @@ async function captureConnectConsentFailure(page, browserName, out, originalErro
   }
 }
 
+
+// Passive offline evidence for the native Connect submission case. No retries,
+// forced actions, event prevention, state changes, or response changes occur.
+async function observeConnectNativeSubmission(page) {
+  const evidence={requests:[],responses:[],failures:[],pageErrors:[],nativeEvents:[],overflow:0};
+  const add=(key,value)=>{if(evidence[key].length<48)evidence[key].push(value);else evidence.overflow++;};
+  const relevant=url=>/\/api\/(health|connect\/send)$/.test(new URL(url).pathname);
+  page.on('request',request=>{if(relevant(request.url()))add('requests',{url:request.url(),method:request.method(),at:Date.now()});});
+  page.on('response',response=>{if(relevant(response.url()))add('responses',{url:response.url(),status:response.status(),at:Date.now()});});
+  page.on('requestfailed',request=>{if(relevant(request.url()))add('failures',{url:request.url(),failure:request.failure(),at:Date.now()});});
+  page.on('pageerror',error=>add('pageErrors',String(error).slice(0,1000)));
+  page.on('console',message=>{
+    if(!message.text().startsWith('CONNECT_NATIVE_EVENT '))return;
+    try{add('nativeEvents',JSON.parse(message.text().slice('CONNECT_NATIVE_EVENT '.length)));}
+    catch{add('pageErrors','Could not parse bounded passive Connect event');}
+  });
+  await page.addInitScript(()=>{
+    let count=0;
+    const observe=(event,phase)=>{
+      if(count++>=48)return;
+      const button=document.querySelector('#submitButton'),consent=document.querySelector('#privacyConsent');
+      const target=event.target instanceof Element?event.target:null;
+      const hit=typeof event.clientX==='number'?document.elementFromPoint(event.clientX,event.clientY):null;
+      const identity=node=>node?{tag:node.tagName,id:node.id,className:String(node.className).slice(0,150)}:null;
+      const row={type:event.type,phase,time:performance.now(),trusted:event.isTrusted,defaultPrevented:event.defaultPrevented,target:identity(target),hit:identity(hit),x:event.clientX,y:event.clientY,scrollY,active:document.activeElement?.id||'',step1Hidden:document.querySelector('#cnStep1')?.hidden,step2Hidden:document.querySelector('#cnStep2')?.hidden,consent:consent?{checked:consent.checked,valid:consent.validity.valid}:null,submit:button?{disabled:button.disabled,text:button.textContent.trim().slice(0,100),box:button.getBoundingClientRect().toJSON()}:null};
+      if(event.type==='invalid'&&target)row.invalid={id:target.id,message:target.validationMessage.slice(0,256),valueMissing:target.validity.valueMissing,typeMismatch:target.validity.typeMismatch,patternMismatch:target.validity.patternMismatch};
+      console.log('CONNECT_NATIVE_EVENT '+JSON.stringify(row));
+    };
+    for(const type of ['click','submit','invalid','change'])document.addEventListener(type,event=>observe(event,'capture'),{capture:true,passive:true});
+    document.addEventListener('submit',event=>observe(event,'bubble'),{passive:true});
+  });
+  return evidence;
+}
+
+async function captureConnectSubmissionFailure(page,browserName,out,stage,originalError,recorded,requestCount) {
+  const evidence={kind:'CONNECT_NATIVE_SUBMISSION_FAILURE',browserName,stage,requestCount,originalError:{name:originalError.name,message:originalError.message},recorded,qualification:'Bounded passive events/transport and post-failure DOM/camera only; no retry or altered actions. Not atomic click-time cause proof. DOM observation has a2s evidence bound; native screenshot timeout is2s and rendering/cleanup may extend it.'};
+  try{
+    evidence.failureDOM=await boundedPart7Evidence(page.evaluate(()=>{
+      const summary=selector=>{
+        const node=document.querySelector(selector);if(!node)return null;
+        const box=node.getBoundingClientRect(),style=getComputedStyle(node),hit=document.elementFromPoint(box.x+box.width/2,box.y+box.height/2);
+        return{tag:node.tagName,id:node.id,hidden:node.hidden,disabled:node.disabled,checked:node.checked,text:['statusNote','submitButton','confirmationScreen'].includes(node.id)?node.textContent.trim().slice(0,500):undefined,className:String(node.className).slice(0,200),box:box.toJSON(),display:style.display,visibility:style.visibility,opacity:style.opacity,transform:style.transform,hit:hit?{tag:hit.tagName,id:hit.id,className:String(hit.className).slice(0,150)}:null};
+      };
+      return{url:location.href,scrollY,innerWidth,innerHeight,activeElement:{id:document.activeElement?.id,tag:document.activeElement?.tagName},step1:summary('#cnStep1'),step2:summary('#cnStep2'),consent:summary('#privacyConsent'),submit:summary('#submitButton'),status:summary('#statusNote'),confirmation:summary('#confirmationScreen'),invalid:[...document.querySelectorAll('#connectForm :invalid')].slice(0,20).map(node=>({tag:node.tagName,id:node.id,message:node.validationMessage.slice(0,256)})),transport:typeof window.MondermanContactTransport?.submit};
+    }),2000);
+  }catch(error){evidence.domError=String(error);}
+  try{await page.screenshot({path:path.join(out,`connect-submit-failure-${browserName}-1280-${stage}.png`),fullPage:false,animations:'allow',caret:'initial',timeout:2000});evidence.screenshot='SAVED';}
+  catch(error){evidence.screenshotError=String(error);}
+  try{fs.writeFileSync(path.join(out,`connect-submit-failure-${browserName}-1280-${stage}.json`),JSON.stringify(evidence,null,2)+'\n');}
+  catch(error){evidence.saveError=String(error);}
+  console.error('CONNECT_NATIVE_SUBMISSION_FAILURE '+JSON.stringify(evidence));
+}
+
 for (const [browserName, browserType] of browserMatrix) {
   let browser = await browserType.launch({ headless: true });
 
@@ -634,6 +687,7 @@ for (const [browserName, browserType] of browserMatrix) {
     {
       let requestCount = 0;
       const page = await newLocalPage(browser, { viewport: { width: 1280, height: 900 } });
+      const connectSubmissionEvidence=await observeConnectNativeSubmission(page);
       await page.route('https://api.monderman.com/api/health', (route) => route.fulfill({
         status: 200, contentType: 'application/json', body: '{"ok":true}',
       }));
@@ -660,13 +714,23 @@ for (const [browserName, browserType] of browserMatrix) {
         try { await captureConnectConsentFailure(page, browserName, out, originalError); }
         finally { throw originalError; }
       }
+      try {
       await page.locator('#submitButton').click();
       await page.locator('#statusNote.is-visible').waitFor({ state: 'visible', timeout: 5000 });
+      } catch(originalError) {
+        try { await captureConnectSubmissionFailure(page,browserName,out,'first-error',originalError,connectSubmissionEvidence,requestCount); }
+        finally { throw originalError; }
+      }
       const errorText = await page.locator('#statusNote').textContent();
       assert.equal(errorText, 'Too many requests. Please try again shortly, or email connect@monderman.com directly.',
         `${browserName}/connect.html: server response is hidden behind generic error copy`);
+      try {
       await page.locator('#submitButton').click();
       await page.locator('#confirmationScreen.is-visible').waitFor({ state: 'visible', timeout: 5000 });
+      } catch(originalError) {
+        try { await captureConnectSubmissionFailure(page,browserName,out,'retry-confirmation',originalError,connectSubmissionEvidence,requestCount); }
+        finally { throw originalError; }
+      }
       assert.equal(requestCount, 2, `${browserName}/connect.html: retry did not reach the request endpoint`);
       await page.close();
     }
