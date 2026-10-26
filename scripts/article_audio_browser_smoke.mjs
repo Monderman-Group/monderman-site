@@ -1,0 +1,96 @@
+// Early current-only native audio checks. Existing global matrices stay intact.
+// Run in CI against its genuine loopback candidate server, after the raw gate.
+import assert from 'node:assert/strict';
+import fs from 'node:fs';import path from 'node:path';import{createHash}from'node:crypto';
+import{chromium,webkit}from'playwright';
+import{audioLayer}from'./article_audio_20261026_inverse.mjs';
+const root=path.resolve(import.meta.dirname,'..'),layer=audioLayer();
+assert.equal(layer.sourceExact(),true,'Actual closed current narration source');
+const built=path.resolve(process.env.ARTICLE_AUDIO_BUILD_ROOT||path.join(root,'.render-public'));
+const channel=layer.channel(built);assert.equal(channel,'current','Native playback must use the actual current questionnaire edition');assert.equal(layer.publicExact(built,channel),true,'Actual complete current public edition');
+const manifest=JSON.parse(fs.readFileSync(path.join(root,'article-audio-manifest.json')));
+assert.equal(manifest.status,'passed');assert.equal(manifest.articles.length,29);assert.equal(new Set(manifest.articles.map(a=>a.path)).size,29);
+const entries=[...manifest.articles].sort((a,b)=>a.path.localeCompare(b.path));
+const representatives=['divide-and-rule-inside-the-company.html','decision-velocity-article.html','the-culture-trap.html'].map(p=>{const a=entries.find(a=>a.path===p);assert.ok(a);return a;});
+const base=(process.env.SITE_BASE_URL||process.env.SITE_BASE||'http://127.0.0.1:8080').replace(/\/$/,'');
+const origin=new URL(base).origin;assert.ok(['127.0.0.1','localhost','[::1]'].includes(new URL(base).hostname),'CI loopback candidate only');
+const output=path.resolve(process.env.ARTICLE_AUDIO_OUT||'/tmp/monderman-article-audio-smoke');fs.mkdirSync(output,{recursive:true});
+const sha=b=>createHash('sha256').update(b).digest('hex');let checks=0;const receipts=[],browserBuilds=[];
+const eq=(a,b,label)=>{assert.deepEqual(a,b,label);checks++;};const ok=(v,label)=>{assert.ok(v,label);checks++;};
+const expectedMarker=JSON.parse(fs.readFileSync(path.join(built,'.well-known/monderman-release.json')));
+const maxRecords=500;
+async function setup(browser,{scripts=true,width=390,reduced=false,missingAudio=null}={}){
+ const context=await browser.newContext({viewport:{width,height:900},javaScriptEnabled:scripts,reducedMotion:reduced?'reduce':'no-preference',serviceWorkers:'block'});
+ const evidence={writes:[],external:[],apiReads:[],media:[],responses:[],errors:[],overflow:false};
+ const put=(key,value)=>{if(evidence[key].length>=maxRecords)evidence.overflow=true;else evidence[key].push(value);};
+ await context.addInitScript(()=>{window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}})};});
+ await context.route('**/*',async route=>{
+  const q=route.request(),u=new URL(q.url());
+  if(!['GET','HEAD'].includes(q.method())){put('writes',{path:u.pathname,method:q.method()});return route.abort();}
+  if(u.origin!==origin){put('external',u.origin);return route.abort();}
+  if(u.pathname.startsWith('/api/')){put('apiReads',u.pathname);return route.abort();}
+  if(missingAudio&&u.pathname==='/'+missingAudio)return route.fulfill({status:404,contentType:'text/plain',body:'MOCK missing narration for error presentation only'});
+  return route.continue();
+ });
+ const page=await context.newPage();
+ page.on('request',q=>{const u=new URL(q.url());if(u.pathname.startsWith('/assets/audio/'))put('media',{url:q.url(),path:u.pathname,method:q.method(),resourceType:q.resourceType()});});
+ page.on('response',r=>{const u=new URL(r.url());if(u.pathname.startsWith('/assets/audio/'))put('responses',{url:r.url(),path:u.pathname,status:r.status(),mime:r.headers()['content-type']||''});});
+ page.on('pageerror',e=>put('errors',String(e)));
+ return{context,page,evidence};
+}
+async function audioState(page){return page.locator('[data-article-audio]').evaluate(section=>{
+ const audio=section.querySelector('audio'),summary=section.querySelector('summary'),speed=section.querySelector('[data-audio-speed-controls]'),select=section.querySelector('[data-audio-speed]'),box=summary.getBoundingClientRect();
+ return{sections:document.querySelectorAll('[data-article-audio]').length,open:section.open,summary:summary.textContent.replace(/\s+/g,' ').trim(),preload:audio.preload,autoplay:audio.autoplay,controls:audio.controls,paused:audio.paused,currentTime:audio.currentTime,duration:Number.isFinite(audio.duration)?audio.duration:null,error:audio.error?{code:audio.error.code,message:audio.error.message}:null,src:audio.querySelector('source').getAttribute('src'),type:audio.querySelector('source').getAttribute('type'),label:audio.getAttribute('aria-label'),speedHidden:speed.hidden,speedDisplay:getComputedStyle(speed).display,speed:select.value,playbackRate:audio.playbackRate,canAAC:audio.canPlayType('audio/mp4; codecs="mp4a.40.2"'),box:{x:box.x,y:box.y,width:box.width,height:box.height},viewport:document.documentElement.clientWidth,focusTag:document.activeElement?.tagName,disclosureTransition:getComputedStyle(section.querySelector('.mond-article-audio__chevron')).transitionDuration};
+ });}
+async function arrive(page,entry,evidence){
+ await page.goto(base+'/'+entry.path,{waitUntil:'load',timeout:30000});
+ await page.waitForTimeout(100); // bounded observation of unsolicited media requests
+ const s=await audioState(page);eq(s.sections,1,'Exactly one actual player');eq(s.open,false,'Native disclosure starts closed');eq(s.src,entry.audio_path,'Exact article-to-recording mapping');eq(s.type,'audio/mp4','AAC container MIME');eq(s.label,'Listen to '+entry.title,'Actual accessible article name');eq(s.preload,'none','No media preload');eq(s.autoplay,false,'No autoplay');eq(s.controls,true,'Native browser controls remain');eq(s.paused,true,'Starts paused');eq(s.currentTime,0,'Starts at the beginning');eq(s.error,null,'No initial media error');ok(s.canAAC.length>0,'Required AAC-LC capability; unsupported codec fails this lane');eq(evidence.media,[],'No audio GET before a user playback gesture');ok(s.box.height>=44,'Disclosure has at least44px touch target');ok(s.box.x>=-1&&s.box.x+s.box.width<=s.viewport+1,'Compact disclosure stays in viewport');ok(s.summary.includes('Listen')&&s.summary.includes('AI narration'),'Visible discrete Listen/AI label');return s;
+}
+async function nativePlay(page,entry,evidence){
+ const audio=page.locator('[data-article-audio] audio');
+ await audio.focus();await page.keyboard.press('Space');
+ await page.waitForFunction(()=>{const a=document.querySelector('[data-article-audio] audio');return a&&!a.paused&&a.currentTime>0.15&&!a.error;},null,{timeout:10000});
+ const playing=await audioState(page);ok(playing.currentTime>0.15&&!playing.paused,'Native keyboard playback advances actual media');eq(playing.error,null,'Actual AAC decodes without media error');ok(playing.canAAC.length>0,'Browser advertises AAC support');
+ const observed=evidence.media.filter(r=>r.path==='/'+entry.audio_path);ok(observed.length>0,'Actual browser requested this recording');ok(evidence.media.every(r=>r.path==='/'+entry.audio_path&&r.method==='GET'),'No other recording or media write requested');ok(evidence.responses.some(r=>r.path==='/'+entry.audio_path&&[200,206].includes(r.status)&&/^audio\/(?:mp4|x-m4a|aac)(?:;|$)/i.test(r.mime)),'Actual native media response has a supported audio MIME/status');
+ await page.keyboard.press('Space');await page.waitForFunction(()=>document.querySelector('[data-article-audio] audio')?.paused,null,{timeout:3000});eq((await audioState(page)).paused,true,'Native keyboard pause works');return playing;
+}
+async function finish(context,page,evidence,label){
+ eq(evidence.writes,[],label+': no application writes attempted');eq(evidence.overflow,false,label+': diagnostics bounded without lost records');
+ await page.screenshot({path:path.join(output,label+'.png'),fullPage:false});
+ const state=await audioState(page);receipts.push({label,state,evidence});await context.close();
+}
+const nativeBrowsers=[{engine:'chromium',type:chromium,channel:'chrome'},{engine:'webkit',type:webkit,channel:null}];
+for(const{engine,type,channel:browserChannel}of nativeBrowsers){
+ eq(browserChannel,engine==='chromium'?'chrome':null,'Chromium must use official Chrome stable; no codec fallback');
+ const browser=await type.launch({headless:true,...(browserChannel?{channel:browserChannel}:{})});
+ eq(type.name(),engine,'Actual requested browser engine');browserBuilds.push({engine:type.name(),channel:browserChannel||'playwright-webkit',version:browser.version()});
+ try{
+  // All29 current mappings in both engines with JS disabled. No recordings fetched.
+  const census=await setup(browser,{scripts:false,width:390});
+  for(const entry of entries){const s=await arrive(census.page,entry,census.evidence);eq(s.speedHidden,true,'No inert custom speed control without scripts');eq(s.speedDisplay,'none','No-JS speed controls are visually hidden');}
+  eq(census.evidence.media,[],engine+': all29 visits performed without prefetching audio');eq(census.evidence.writes,[],engine+': no-JS census has no writes');eq(census.evidence.overflow,false,engine+': bounded census diagnostics');receipts.push({label:engine+'-all29-nojs-census',pages:entries.map(a=>a.path),evidence:census.evidence});await census.context.close();
+  // A long essay, a guide with authored sidebar, and the custom evidence summary.
+  for(const width of[320,1440])for(const entry of representatives){
+   const label=engine+'-'+width+'-'+path.basename(entry.path,'.html'),test=await setup(browser,{width,reduced:width===320});
+   try{
+    const initial=await arrive(test.page,entry,test.evidence);eq(initial.speedHidden,false,'Script attaches before revealing speed');
+    const summary=test.page.locator('[data-article-audio] > summary');await summary.scrollIntoViewIfNeeded();await summary.focus();await test.page.keyboard.press('Enter');eq((await audioState(test.page)).open,true,'Enter opens native disclosure');await test.page.keyboard.press('Space');eq((await audioState(test.page)).open,false,'Space closes native disclosure');await test.page.keyboard.press('Enter');eq((await audioState(test.page)).open,true,'Enter reopens native disclosure');
+    const played=await nativePlay(test.page,entry,test.evidence);ok(Math.abs(played.duration-entry.duration_seconds)<1,'Decoded browser duration matches reviewed recording');
+    await test.page.locator('[data-article-audio] [data-audio-speed]').selectOption('1.25');eq((await audioState(test.page)).playbackRate,1.25,'Selected speed changes the real native player');
+    const download=test.page.locator('.mond-article-audio__options a[download]');ok(await download.isVisible(),'Direct download remains visible');eq(await download.getAttribute('href'),entry.audio_path,'Direct fallback links to exact recording');
+    await test.page.emulateMedia({media:'print'});eq(await test.page.locator('[data-article-audio]').evaluate(e=>getComputedStyle(e).display),'none','Player is absent from print');await test.page.emulateMedia({media:'screen'});
+    if(width===320)eq((await audioState(test.page)).disclosureTransition,'0s','Reduced motion removes caret animation');
+    await finish(test.context,test.page,test.evidence,label);
+   }catch(error){await test.page.screenshot({path:path.join(output,label+'-FAIL.png'),fullPage:false}).catch(()=>{});fs.writeFileSync(path.join(output,label+'-FAIL.json'),JSON.stringify({error:String(error),state:await audioState(test.page).catch(()=>null),evidence:test.evidence},null,2)+'\n');await test.context.close();throw error;}
+  }
+  // Native controls and direct download still work with JavaScript disabled.
+  const entry=representatives[1],plain=await setup(browser,{scripts:false,width:390});await arrive(plain.page,entry,plain.evidence);const summary=plain.page.locator('[data-article-audio] > summary');await summary.focus();await plain.page.keyboard.press('Enter');eq((await audioState(plain.page)).open,true,'No-JS disclosure is keyboard operable');await nativePlay(plain.page,entry,plain.evidence);eq((await audioState(plain.page)).speedDisplay,'none','No-JS avoids a dead speed widget');ok(await plain.page.locator('.mond-article-audio__options a[download]').isVisible(),'No-JS direct download visible');await finish(plain.context,plain.page,plain.evidence,engine+'-nojs-native-playback');
+  // A targeted404 is a MOCK failure only; every success state above uses real media.
+  const broken=await setup(browser,{width:390,missingAudio:entry.audio_path});await arrive(broken.page,entry,broken.evidence);await broken.page.locator('[data-article-audio] > summary').click();const a=broken.page.locator('[data-article-audio] audio');await a.focus();await broken.page.keyboard.press('Space');await broken.page.waitForFunction(()=>document.querySelector('[data-article-audio] audio')?.error,null,{timeout:10000});const error=broken.page.locator('[data-audio-error]');await error.waitFor({state:'visible',timeout:3000});eq(await error.textContent(),'The recording could not load. You can try the download link.','404 yields truthful visible fallback');ok(await broken.page.locator('.mond-article-audio__options a[download]').isVisible(),'404 keeps direct fallback reachable');await finish(broken.context,broken.page,broken.evidence,engine+'-MOCK404-fallback');
+ }finally{await browser.close();}
+}
+// Bind the served candidate revision and representative successful response bytes.
+const api=await chromium.launch({headless:true,channel:'chrome'});try{const page=await api.newPage();const marker=await page.request.get(base+'/.well-known/monderman-release.json');eq(marker.status(),200,'Served candidate marker');eq(await marker.json(),expectedMarker,'Served candidate is the actual checked revision');for(const a of representatives){const response=await page.request.get(base+'/'+a.audio_path);eq(response.status(),200,'Actual representative complete audio GET');const b=await response.body();eq(b.length,a.bytes,'Actual served media size');eq(sha(b),a.audio_sha256,'Actual served complete bytes equal reviewed asset');}}finally{await api.close();}
+assert.equal(layer.sourceExact(),true,'Browser tests did not mutate frozen source');assert.equal(layer.publicExact(built,channel),true,'Browser tests did not mutate checked public artifact');
+const result={status:'PASS',checkedAt:new Date().toISOString(),revision:expectedMarker.revision,channel,checks,engines:['chromium','webkit'],browserBuilds,censusPagesPerEngine:29,representativePlaybackStates:12,noJsPlaybackStates:2,mockedMissingAudioStates:2,mediaPrefetchRequests:0,providerCalls:0,actualUserRecordsTouched:false,receipts};fs.writeFileSync(path.join(output,'RECEIPT.json'),JSON.stringify(result,null,2)+'\n');console.log('ARTICLE_AUDIO_BROWSER_PASS '+JSON.stringify({checks,browserBuilds,censusPagesPerEngine:29,representativePlaybackStates:12,noJsPlaybackStates:2,mockedMissingAudioStates:2,output}));

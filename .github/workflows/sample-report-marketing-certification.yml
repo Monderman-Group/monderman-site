@@ -3,6 +3,45 @@ name: Sample and Executive Report certification
 on:
   pull_request:
     paths:
+      - 'article-audio-manifest.json'
+      - 'article-audio.css'
+      - 'article-audio.js'
+      - 'assets/audio/accumulated-drag-department-of-war.m4a'
+      - 'assets/audio/built-to-please.m4a'
+      - 'assets/audio/compensatory-systems.m4a'
+      - 'assets/audio/decision-velocity-article.m4a'
+      - 'assets/audio/designing-for-decision-velocity.m4a'
+      - 'assets/audio/divide-and-rule-inside-the-company.m4a'
+      - 'assets/audio/durable-organization.m4a'
+      - 'assets/audio/every-node-for-itself.m4a'
+      - 'assets/audio/fast-to-cut-slow-to-build.m4a'
+      - 'assets/audio/from-tokens-to-outcomes.m4a'
+      - 'assets/audio/governing-complexity.m4a'
+      - 'assets/audio/hiring-blind-spot.m4a'
+      - 'assets/audio/hold-collide-come-apart.m4a'
+      - 'assets/audio/institutional-performance-article.m4a'
+      - 'assets/audio/merit-after-the-machine.m4a'
+      - 'assets/audio/nothing-stays-tuned.m4a'
+      - 'assets/audio/operational-systems-article.m4a'
+      - 'assets/audio/posting-has-outgrown-the-job.m4a'
+      - 'assets/audio/quarter-trillion-friction-us-healthcare.m4a'
+      - 'assets/audio/structural-clarity-article.m4a'
+      - 'assets/audio/terminal-fidelity.m4a'
+      - 'assets/audio/the-art-of-interior-reasoning.m4a'
+      - 'assets/audio/the-culture-trap-brief.m4a'
+      - 'assets/audio/the-culture-trap.m4a'
+      - 'assets/audio/the-drift-problem.m4a'
+      - 'assets/audio/the-unmeasured-layer.m4a'
+      - 'assets/audio/trenches-not-silos.m4a'
+      - 'assets/audio/we-gave-bureaucracy-the-fastest-tools.m4a'
+      - 'assets/audio/when-bureaucracy-became-the-obstacle.m4a'
+      - 'scripts/article_audio_20261026_contract.py'
+      - 'scripts/article_audio_20261026_inverse.mjs'
+      - 'scripts/article_audio_20261026_inverse.py'
+      - 'scripts/article_audio_browser_smoke.mjs'
+      - 'scripts/build_article_audio_fixture.py'
+      - 'scripts/fixtures/article-audio-20261026.json'
+      - 'scripts/inject_article_audio.py'
       - 'scripts/authored_report_experience_smoke.mjs'
       - 'scripts/report_authored_print_smoke.mjs'
       - 'scripts/report_shared_action_conditions_smoke.mjs'
@@ -313,6 +352,45 @@ on:
     branches:
       - main
     paths:
+      - 'article-audio-manifest.json'
+      - 'article-audio.css'
+      - 'article-audio.js'
+      - 'assets/audio/accumulated-drag-department-of-war.m4a'
+      - 'assets/audio/built-to-please.m4a'
+      - 'assets/audio/compensatory-systems.m4a'
+      - 'assets/audio/decision-velocity-article.m4a'
+      - 'assets/audio/designing-for-decision-velocity.m4a'
+      - 'assets/audio/divide-and-rule-inside-the-company.m4a'
+      - 'assets/audio/durable-organization.m4a'
+      - 'assets/audio/every-node-for-itself.m4a'
+      - 'assets/audio/fast-to-cut-slow-to-build.m4a'
+      - 'assets/audio/from-tokens-to-outcomes.m4a'
+      - 'assets/audio/governing-complexity.m4a'
+      - 'assets/audio/hiring-blind-spot.m4a'
+      - 'assets/audio/hold-collide-come-apart.m4a'
+      - 'assets/audio/institutional-performance-article.m4a'
+      - 'assets/audio/merit-after-the-machine.m4a'
+      - 'assets/audio/nothing-stays-tuned.m4a'
+      - 'assets/audio/operational-systems-article.m4a'
+      - 'assets/audio/posting-has-outgrown-the-job.m4a'
+      - 'assets/audio/quarter-trillion-friction-us-healthcare.m4a'
+      - 'assets/audio/structural-clarity-article.m4a'
+      - 'assets/audio/terminal-fidelity.m4a'
+      - 'assets/audio/the-art-of-interior-reasoning.m4a'
+      - 'assets/audio/the-culture-trap-brief.m4a'
+      - 'assets/audio/the-culture-trap.m4a'
+      - 'assets/audio/the-drift-problem.m4a'
+      - 'assets/audio/the-unmeasured-layer.m4a'
+      - 'assets/audio/trenches-not-silos.m4a'
+      - 'assets/audio/we-gave-bureaucracy-the-fastest-tools.m4a'
+      - 'assets/audio/when-bureaucracy-became-the-obstacle.m4a'
+      - 'scripts/article_audio_20261026_contract.py'
+      - 'scripts/article_audio_20261026_inverse.mjs'
+      - 'scripts/article_audio_20261026_inverse.py'
+      - 'scripts/article_audio_browser_smoke.mjs'
+      - 'scripts/build_article_audio_fixture.py'
+      - 'scripts/fixtures/article-audio-20261026.json'
+      - 'scripts/inject_article_audio.py'
       - 'scripts/authored_report_experience_smoke.mjs'
       - 'scripts/report_authored_print_smoke.mjs'
       - 'scripts/report_shared_action_conditions_smoke.mjs'
@@ -628,6 +706,60 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  article-audio-native:
+    name: Article audio native playback (certification)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Admit exact current article audio before historical projections
+        run: python scripts/article_audio_20261026_contract.py
+      - name: Install pinned native-browser test tooling
+        run: |
+          npm install --no-save --package-lock=false --ignore-scripts playwright@1.55.0
+          bash scripts/install_ci_browsers.sh
+      - name: Install official Chrome stable for native AAC playback
+        run: npx --no-install playwright install chrome
+      - name: Verify both genuine questionnaire builds with all29 audio players
+        run: |
+          for audio_channel in legacy current; do
+            MONDERMAN_QUESTIONNAIRE_RELEASE="$audio_channel" RENDER_GIT_COMMIT="$GITHUB_SHA" bash scripts/render-static-build.sh
+            python scripts/article_audio_20261026_contract.py --built .render-public --channel "$audio_channel"
+          done
+      - name: Serve exact candidate for current native playback
+        run: |
+          python3 -m http.server 8086 --bind 127.0.0.1 --directory .render-public >"${{ runner.temp }}/article-audio-http.log" 2>&1 &
+          echo $! >"${{ runner.temp }}/article-audio-http.pid"
+          for audio_attempt in {1..20}; do
+            curl -fsS http://127.0.0.1:8086/.well-known/monderman-release.json >/dev/null && exit 0
+            sleep 1
+          done
+          cat "${{ runner.temp }}/article-audio-http.log"
+          exit 1
+      - name: Verify current native playback, no-JS and no media prefetch
+        env:
+          SITE_BASE_URL: http://127.0.0.1:8086
+          ARTICLE_AUDIO_OUT: ${{ runner.temp }}/article-audio-native
+        run: node scripts/article_audio_browser_smoke.mjs
+      - name: Preserve native audio proof and bounded failure diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: article-audio-${{ github.workflow }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/article-audio-native
+            ${{ runner.temp }}/article-audio-http.log
+          if-no-files-found: ignore
   certify:
     runs-on: ubuntu-24.04
     # Preserve the full report/PDF and 84-page responsive sweeps; the expanded

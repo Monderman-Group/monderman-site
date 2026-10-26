@@ -89,6 +89,7 @@ for private_path in scripts site-shell .github docs pdf-src test-fixtures node_m
 done
 
 node scripts/inject-public-shell.mjs "$publish_dir"
+python3 scripts/inject_article_audio.py "$publish_dir"
 node scripts/configure_questionnaire_release.mjs "$publish_dir"
 # Validate the transformed artifact, including script boundaries after injection.
 python3 scripts/validate_diagnostic_inline_js.py "$publish_dir"

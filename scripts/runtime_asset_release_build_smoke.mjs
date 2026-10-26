@@ -17,7 +17,7 @@ const read=file=>scopeHistorical?sourceAtScopeBetaBaseline(file,fs.readFileSync(
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 let checks=0;const eq=(a,b,label)=>{assert.deepEqual(a,b,label);checks++;};
 const ok=(value,label)=>{assert.ok(value,label);checks++;};
-const explicit=['CNAME','robots.txt','sitemap.txt','sitemap.xml','legal-document-manifest.json','public-search-index.json',
+const explicit=['CNAME','robots.txt','sitemap.txt','sitemap.xml','legal-document-manifest.json','public-search-index.json','article-audio-manifest.json',
   'favicon.ico','favicon.svg','favicon-192.png','apple-touch-icon.png','Hero-Image.jpg','founder-jason-adamson.jpg','founder-elizabeth-neiford.jpg'];
 const rootFiles=(scopeHistorical?scopeBetaDelta.baselineSourcePaths.filter(file=>!file.includes('/')).map(name=>({name,isFile:()=>true})):fs.readdirSync(root,{withFileTypes:true})).filter(row=>row.isFile()
   &&(/\.(?:html|css|js|woff2?|pdf)$/.test(row.name)||explicit.includes(row.name))).map(row=>row.name).sort();
@@ -30,7 +30,7 @@ if(scopeHistorical){
 for(const file of rootFiles)fs.copyFileSync(path.join(root,file),path.join(stage,file));
 for(const directory of ['assets','site-shell','sample-data'])fs.cpSync(path.join(root,directory),path.join(stage,directory),{recursive:true});
 fs.mkdirSync(path.join(stage,'scripts'));
-for(const file of ['render-static-build.sh','inject-public-shell.mjs','configure_questionnaire_release.mjs','validate_diagnostic_inline_js.py'])
+for(const file of ['render-static-build.sh','inject-public-shell.mjs','configure_questionnaire_release.mjs','validate_diagnostic_inline_js.py','inject_article_audio.py'])
   fs.copyFileSync(path.join(root,'scripts',file),path.join(stage,'scripts',file));
 }
 const revision=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();

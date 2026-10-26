@@ -1,6 +1,7 @@
 """Finite authorized Part 7 publication view; unknown bytes stay visible."""
 import base64, hashlib, json, subprocess, zlib
 from pathlib import Path
+from article_audio_20261026_inverse import source_at_audio_baseline,public_source_at_audio_baseline,source_paths_at_audio_baseline,public_paths_at_audio_baseline
 
 ROOT=Path(__file__).resolve().parents[1]
 FIXTURE_SHA256='73b64320951ec620302ebc13fede21ebac1303632859b3ee1f00c3820e544355'
@@ -26,20 +27,23 @@ def _view(entries,file,value):
  assert len(prior)==e['before_bytes'] and sha(prior)==e['before_sha256']
  return prior.decode('utf8') if isinstance(value,str) else prior
 
-def source_at_publication_baseline(file,value):return _view(publication_delta['files'],file,value)
-def public_source_at_publication_baseline(file,value):
+def source_at_publication_baseline(file,value):return _view(publication_delta['files'],file,source_at_audio_baseline(file,value))
+def public_source_at_publication_baseline(file,value,root=None):
+ value=public_source_at_audio_baseline(file,value,root)
  for edition in publication_delta['publicEditions'].values():
   out=_view(edition['files'],file,value)
   if out!=value:return out
  return value
 
 def _names(root):
- return sorted(p.relative_to(root).as_posix() for p in root.rglob('*') if p.is_file())
+ return sorted(public_paths_at_audio_baseline(sorted(p.relative_to(root).as_posix() for p in root.rglob('*') if p.is_file()),root))
 def _row_exact(root,row):
  p=root/row['path']
- return p.is_file() and not p.is_symlink() and len(p.read_bytes())==row['bytes'] and sha(p.read_bytes())==row['sha256'] and ('mode' not in row or ('100755' if p.stat().st_mode&0o111 else '100644')==row['mode'])
+ if not p.is_file() or p.is_symlink():return False
+ b=source_at_audio_baseline(row['path'],p.read_bytes()) if Path(root).resolve()==ROOT.resolve() else public_source_at_audio_baseline(row['path'],p.read_bytes(),root)
+ return len(b)==row['bytes'] and sha(b)==row['sha256'] and ('mode' not in row or ('100755' if p.stat().st_mode&0o111 else '100644')==row['mode'])
 def publication_source_exact():
- names=subprocess.check_output(['git','ls-files','--cached','--others','--exclude-standard'],cwd=ROOT).decode().splitlines()
+ names=source_paths_at_audio_baseline(subprocess.check_output(['git','ls-files','--cached','--others','--exclude-standard'],cwd=ROOT).decode().splitlines())
  return len(names)==len(set(names)) and sorted(names)==publication_delta['currentSourcePaths'] and all(_row_exact(ROOT,r) for r in publication_delta['sourceRows'])
 def publication_public_exact(root,channel):
  root=Path(root)
@@ -58,8 +62,9 @@ def publication_public_exact(root,channel):
 def _paths(names,current,prior,exact):
  rows=list(names)
  return (set(prior) if isinstance(names,set) else list(prior)) if len(rows)==len(set(rows)) and sorted(rows)==current and exact else names
-def source_paths_at_publication_baseline(names):return _paths(names,publication_delta['currentSourcePaths'],publication_delta['baselineSourcePaths'],publication_source_exact())
+def source_paths_at_publication_baseline(names):return _paths(source_paths_at_audio_baseline(names),publication_delta['currentSourcePaths'],publication_delta['baselineSourcePaths'],publication_source_exact())
 def public_paths_at_publication_baseline(names,root):
+ names=public_paths_at_audio_baseline(names,root)
  root=Path(root);marker=root/'.well-known/monderman-questionnaire-release.json'
  if not marker.is_file():return names
  channel=json.loads(marker.read_bytes()).get('channel')
