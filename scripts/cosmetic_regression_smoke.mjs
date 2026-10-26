@@ -749,6 +749,8 @@ for (const [browserName, browserType] of browserMatrix) {
       await page.goto(`${base}/index.html`, { waitUntil: 'load', timeout: 30000 });
       await page.locator('.latest-card:not(.is-carousel-clone)').first()
         .waitFor({ state: 'visible', timeout: 10000 });
+      await page.locator('.latest-card:not(.is-carousel-clone)[data-publication="divide-and-rule-inside-the-company"]')
+        .scrollIntoViewIfNeeded();
       await page.locator('.latest-card:not(.is-carousel-clone)[data-publication="divide-and-rule-inside-the-company"] .latest-card-image img')
         .evaluateAll(images => Promise.all(images.map(image => image.decode())));
       const currentMotif = await page.evaluate(async () => {
