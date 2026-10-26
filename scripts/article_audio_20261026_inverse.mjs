@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';import path from 'node:path';
 import{createHash}from'node:crypto';import{inflateSync}from'node:zlib';import{execFileSync}from'node:child_process';
-export const FIXTURE_SHA256='0f78123429c60435af2424320a6198a669687d311b942a4f7c4d5ddc2eab1297';
+export const FIXTURE_SHA256='26329b0e97d93b9cf6c72c8df2c9000304d35037573075f4c6d2ea2b9e307286';
 export const GUARDS=['scripts/article_audio_20261026_inverse.py','scripts/article_audio_20261026_inverse.mjs','scripts/fixtures/article-audio-20261026.json'];
 const ROOT=path.resolve(import.meta.dirname,'..');
 const sha=b=>createHash('sha256').update(b).digest('hex');

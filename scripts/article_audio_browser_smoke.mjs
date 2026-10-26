@@ -88,6 +88,13 @@ async function finish(context,page,evidence,label){
  await page.screenshot({path:path.join(output,label+'.png'),fullPage:false});
  const state=await audioState(page);receipts.push({label,state,evidence});await context.close();
 }
+async function recordJsFailure(test,label,error){
+ try{
+  await noJsHostDeadline(()=>test.page.screenshot({path:path.join(output,label+'-FAIL.png'),fullPage:false,timeout:2000}),2000,'failure screenshot').catch(()=>{});
+  const state=await readNoJsMedia(test.page,2000).catch(()=>null);
+  fs.writeFileSync(path.join(output,label+'-FAIL.json'),JSON.stringify({error:String(error).slice(0,4000),observer:'synchronous-inspector-js-enabled',scriptsEnabled:true,state,evidence:test.evidence},null,2)+'\n');
+ }finally{await test.context.close();}
+}
 const nativeBrowsers=[{engine:'chromium',type:chromium,channel:'chrome'},{engine:'webkit',type:webkit,channel:null}];
 for(const{engine,type,channel:browserChannel}of nativeBrowsers){
  eq(browserChannel,engine==='chromium'?'chrome':null,'Chromium must use official Chrome stable; no codec fallback');
@@ -117,7 +124,15 @@ for(const{engine,type,channel:browserChannel}of nativeBrowsers){
   try{await arrive(plain.page,entry,plain.evidence);const summary=plain.page.locator('[data-article-audio] > summary');await summary.focus();await plain.page.keyboard.press('Enter');eq((await audioState(plain.page)).open,true,'No-JS disclosure is keyboard operable');await nativePlay(plain.page,entry,plain.evidence,{scripts:false});eq((await audioState(plain.page)).speedDisplay,'none','No-JS avoids a dead speed widget');ok(await plain.page.locator('.mond-article-audio__options a[download]').isVisible(),'No-JS direct download visible');await finish(plain.context,plain.page,plain.evidence,engine+'-nojs-native-playback');}
   catch(error){try{await recordNoJsFailure(plain,engine+'-nojs-native-playback',error);}finally{throw error;}}
   // A targeted404 is a MOCK failure only; every success state above uses real media.
-  const broken=await setup(browser,{width:390,missingAudio:entry.audio_path});await arrive(broken.page,entry,broken.evidence);await broken.page.locator('[data-article-audio] > summary').click();const a=broken.page.locator('[data-article-audio] audio');await a.focus();await broken.page.keyboard.press('Space');await broken.page.waitForFunction(()=>document.querySelector('[data-article-audio] audio')?.error,null,{timeout:10000});const error=broken.page.locator('[data-audio-error]');await error.waitFor({state:'visible',timeout:3000});eq(await error.textContent(),'The recording could not load. You can try the download link.','404 yields truthful visible fallback');ok(await broken.page.locator('.mond-article-audio__options a[download]').isVisible(),'404 keeps direct fallback reachable');await finish(broken.context,broken.page,broken.evidence,engine+'-MOCK404-fallback');
+  const broken=await setup(browser,{width:390,missingAudio:entry.audio_path});
+  try{
+   await arrive(broken.page,entry,broken.evidence);
+   const target404=broken.page.waitForResponse(r=>{const u=new URL(r.url());return u.origin===origin&&u.pathname==='/'+entry.audio_path&&r.request().method()==='GET'&&r.status()===404;},{timeout:10000});target404.catch(()=>{});
+   await broken.page.locator('[data-article-audio] > summary').click();const a=broken.page.locator('[data-article-audio] audio');await a.focus();await broken.page.keyboard.press('Space');
+   await Promise.all([target404,broken.page.waitForFunction(()=>{const a=document.querySelector('[data-article-audio] audio');return a&&(a.error||a.networkState===a.NETWORK_NO_SOURCE);},null,{timeout:10000})]);
+   ok(broken.evidence.responses.some(r=>{const u=new URL(r.url);return u.origin===origin&&r.path==='/'+entry.audio_path&&r.status===404;}),'MOCK404 browser observed the exact target404 response');
+   const error=broken.page.locator('[data-audio-error]');await error.waitFor({state:'visible',timeout:3000});eq(await error.textContent(),'The recording could not load. You can try the download link.','404 yields truthful visible fallback');ok(await broken.page.locator('.mond-article-audio__options a[download]').isVisible(),'404 keeps direct fallback reachable');await finish(broken.context,broken.page,broken.evidence,engine+'-MOCK404-fallback');
+  }catch(error){try{await recordJsFailure(broken,engine+'-MOCK404-fallback',error);}finally{throw error;}}
  }finally{await browser.close();}
 }
 // Bind the served candidate revision and representative successful response bytes.
