@@ -34,6 +34,8 @@ jobs:
       - run: python scripts/validate_stabilization.py
       - name: Keep public search copy and disclosures current
         run: python scripts/build_public_search_index.py --check
+      - name: Verify the exact Divide and Rule publication and series order
+        run: python scripts/divide_rule_publication_20261025_contract.py
       - name: Verify the isolated Hiring Blind Spot publication
         run: python scripts/hiring_blind_spot_publication_20261015_contract.py
       - name: Verify current Hiring and Work Design and every article topic

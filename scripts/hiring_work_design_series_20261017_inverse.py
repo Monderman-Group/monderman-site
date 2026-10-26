@@ -1,6 +1,7 @@
 """Exact post1858 series layer; unknown complete bytes and inventories stay visible."""
 import base64, hashlib, json, os, zlib
 from pathlib import Path
+from divide_rule_publication_20261025_inverse import source_at_publication_baseline,public_source_at_publication_baseline,source_paths_at_publication_baseline,public_paths_at_publication_baseline,publication_source_exact,publication_public_exact
 ROOT=Path(__file__).resolve().parents[1]
 FIXTURE_SHA256='c0fcf2c9f87e6562dc43fd30ee033200e78bb7f37bd0fb3e88a67306004bff7a'
 raw=(ROOT/'scripts/fixtures/hiring-work-design-series-20261017.json').read_bytes()
@@ -24,26 +25,31 @@ def _view(entries,file,value):
  if not isinstance(file,str) or file not in entries:return value
  assert isinstance(value,(str,bytes))
  return _before(entries[file],file,value) if sha(value)==entries[file]['after_sha256'] else value
-def source_at_series_baseline(file,value):return _view(series_delta['files'],file,value)
+def source_at_series_baseline(file,value):return _view(series_delta['files'],file,source_at_publication_baseline(file,value))
 def public_source_at_series_baseline(file,value):
+ value=public_source_at_publication_baseline(file,value)
  for edition in series_delta['publicEditions'].values():
   out=_view(edition['files'],file,value)
   if out!=value:return out
  return value
-def source_before_series(file,value):return _before(series_delta['files'][file],file,value) if file in series_delta['files'] else value
+def source_before_series(file,value):
+ value=source_at_publication_baseline(file,value)
+ return _before(series_delta['files'][file],file,value) if file in series_delta['files'] else value
 def series_source_exact():
+ if not publication_source_exact():return False
  for row in series_delta['nonGuardSourceRows']:
   p=ROOT/row['path']
   if not p.is_file() or p.is_symlink():return False
-  b=p.read_bytes()
+  b=source_at_publication_baseline(row['path'],p.read_bytes())
   if len(b)!=row['bytes'] or sha(b)!=row['sha256'] or ('100755' if p.stat().st_mode&0o111 else '100644')!=row['mode'] or hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()!=row['gitBlobSha1']:return False
  return True
 def series_public_exact(root,channel):
+ if not publication_public_exact(root,channel):return False
  if channel not in series_delta['publicEditions']:return False
  for row in series_delta['publicEditions'][channel]['currentMap']:
   p=Path(root)/row['path']
   if not p.is_file() or p.is_symlink():return False
-  b=p.read_bytes()
+  b=public_source_at_publication_baseline(row['path'],p.read_bytes())
   if row['path']=='.well-known/monderman-release.json':
    marker=json.loads(b)
    if list(marker)!=['revision'] or not isinstance(marker['revision'],str) or len(marker['revision'])!=40 or any(c not in '0123456789abcdef' for c in marker['revision']):return False
@@ -53,9 +59,10 @@ def _paths(names,current,prior,exact):
  rows=list(names)
  assert all(isinstance(f,str) for f in rows)
  return (set(prior) if isinstance(names,set) else list(prior)) if len(rows)==len(set(rows)) and sorted(rows)==current and exact else names
-def source_paths_at_series_baseline(names):return _paths(names,series_delta['currentSourcePaths'],series_delta['baselineSourcePaths'],series_source_exact())
+def source_paths_at_series_baseline(names):return _paths(source_paths_at_publication_baseline(names),series_delta['currentSourcePaths'],series_delta['baselineSourcePaths'],series_source_exact())
 def public_paths_at_series_baseline(names,root=None):
  root=Path(root or os.environ.get('SCOPE_BETA_BUILD_ROOT') or os.environ.get('SITE_DESIGN_BUILD_ROOT') or ROOT/'.render-public')
+ names=public_paths_at_publication_baseline(names,root)
  marker=root/'.well-known/monderman-questionnaire-release.json'
  if not marker.is_file():return names
  channel=json.loads(marker.read_bytes()).get('channel')
