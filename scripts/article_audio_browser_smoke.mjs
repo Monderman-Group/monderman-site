@@ -21,9 +21,9 @@ const sha=b=>createHash('sha256').update(b).digest('hex');let checks=0;const rec
 const eq=(a,b,label)=>{assert.deepEqual(a,b,label);checks++;};const ok=(v,label)=>{assert.ok(v,label);checks++;};
 const expectedMarker=JSON.parse(fs.readFileSync(path.join(built,'.well-known/monderman-release.json')));
 const maxRecords=500,blockedAuthorScriptPolicy="script-src 'none'";
-async function setup(browser,{engine,scripts=true,width=390,reduced=false,missingAudio=null,authorScriptsBlocked=false}={}){
+async function setup(browser,{engine,scripts=true,width=390,reduced=false,missingAudio=null,authorScriptsBlocked=false,missingAudioFixture=null}={}){
  const context=await browser.newContext({viewport:{width,height:900},javaScriptEnabled:scripts,reducedMotion:reduced?'reduce':'no-preference',serviceWorkers:'block'});
- const evidence={engine,globalScriptsEnabled:scripts,authorScriptsBlocked,authorPolicies:[],authorPolicyResponses:[],writes:[],external:[],apiReads:[],media:[],responses:[],errors:[],overflow:false};
+ const evidence={engine,globalScriptsEnabled:scripts,authorScriptsBlocked,authorPolicies:[],authorPolicyResponses:[],html404Fixtures:[],mediaFailures:[],writes:[],external:[],apiReads:[],media:[],responses:[],errors:[],overflow:false};
  const put=(key,value)=>{if(evidence[key].length>=maxRecords)evidence.overflow=true;else evidence[key].push(value);};
  if(!authorScriptsBlocked)await context.addInitScript(()=>{window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}})};});
  await context.route('**/*',async route=>{
@@ -38,6 +38,13 @@ async function setup(browser,{engine,scripts=true,width=390,reduced=false,missin
    put('authorPolicies',{url:q.url(),policy:blockedAuthorScriptPolicy,bodyBytes:bytes.length,bodySha256:sha(bytes),globalScriptsEnabled:true,authorScriptsBlocked:true});
    return route.fulfill({response,body:bytes,headers:{...response.headers(),'content-security-policy':blockedAuthorScriptPolicy}});
   }
+  if(missingAudioFixture&&q.isNavigationRequest()&&q.resourceType()==='document'){
+   assert.equal(engine,'webkit','Origin404 HTML fixture is WebKit only');assert.equal(missingAudio,null,'WebKit does not proxy the media response');assert.equal(authorScriptsBlocked,false,'Existing ordinary author script mode is retained');assert.equal(u.pathname,'/'+missingAudioFixture.documentPath,'Only the exact owned HTML document is a MOCKHTML fixture');
+   const response=await route.fetch({maxRedirects:0,timeout:10000});assert.equal(response.status(),200,'Fetch actual owned HTML');assert.equal(response.url(),q.url(),'No document redirect');assert.match(response.headers()['content-type']??'',/^text\/html(?:;|$)/i,'Preserve actual HTML MIME');
+   const bytes=await response.body(),actual=fs.readFileSync(path.join(built,missingAudioFixture.documentPath));assert.equal(sha(bytes),sha(actual),'Original HTML exactly matches the admitted build');
+   const fixture=missingAudioDocument(bytes,missingAudioFixture),headers={...response.headers(),'content-length':String(fixture.body.length)};for(const name of ['content-encoding','etag','content-md5','last-modified'])delete headers[name];
+   put('html404Fixtures',{...fixture.proof,responseStatus:200,responseContentType:headers['content-type'],responseContentLength:headers['content-length'],removedOriginalEncodingAndValidators:true});return route.fulfill({response,body:fixture.body,headers});
+  }
   if(missingAudio&&u.pathname==='/'+missingAudio)return route.fulfill({status:404,contentType:'text/plain',body:'MOCK missing narration for error presentation only'});
   return route.continue();
  });
@@ -45,6 +52,7 @@ async function setup(browser,{engine,scripts=true,width=390,reduced=false,missin
  page.on('request',q=>{const u=new URL(q.url());if(u.pathname.startsWith('/assets/audio/'))put('media',{url:q.url(),path:u.pathname,method:q.method(),resourceType:q.resourceType()});});
  page.on('response',r=>{const u=new URL(r.url());if(u.pathname.startsWith('/assets/audio/'))put('responses',{url:r.url(),path:u.pathname,status:r.status(),mime:r.headers()['content-type']||''});});
  page.on('response',r=>{if(authorScriptsBlocked&&r.request().isNavigationRequest()&&r.request().resourceType()==='document')put('authorPolicyResponses',{url:r.url(),status:r.status(),policy:r.headers()['content-security-policy']??null});});
+ page.on('requestfailed',q=>{const u=new URL(q.url());if(u.pathname.startsWith('/assets/audio/'))put('mediaFailures',{url:q.url(),path:u.pathname,method:q.method(),resourceType:q.resourceType(),errorText:q.failure()?.errorText??null});});
  page.on('pageerror',e=>put('errors',String(e)));
  return{context,page,evidence};
 }
@@ -227,6 +235,45 @@ async function globalOffDownload(page,entry,evidence){
   remaining();evidence.globalOffDownload=proof;
  }catch(error){progress.status='FAIL';progress.error=String(error).slice(0,4000);progress.elapsedMs=performance.now()-start;throw error;}finally{bracket?.close();}
 }
+function missingAudioDocument(bytes,fixture){
+ for(const baseDir of[built,root])assert.throws(()=>fs.lstatSync(path.join(baseDir,fixture.absentAudioPath)),{code:'ENOENT'},'Deliberate target is wholly absent, including no dangling symlink');
+ const original=bytes.toString('utf8');eq(Buffer.from(original,'utf8'),bytes,'MOCKHTML starts with exact UTF-8 document bytes');eq(original.split(fixture.absentAudioPath).length,1,'Absent target was not already in the document');
+ const changes=[
+  {before:`<source src="${fixture.originalAudioPath}" type="audio/mp4">`,after:`<source src="${fixture.absentAudioPath}" type="audio/mp4">`},
+  {before:`<a href="${fixture.originalAudioPath}" download>Download audio</a>`,after:`<a href="${fixture.absentAudioPath}" download>Download audio</a>`}
+ ];
+ let text=original;
+ for(const row of changes){eq(text.split(row.before).length,2,'One unique exact MOCKHTML attribute target');text=text.replace(row.before,row.after);}
+ let reversed=text;for(const row of [...changes].reverse()){eq(reversed.split(row.after).length,2,'One unique exact inverse attribute target');reversed=reversed.replace(row.after,row.before);}
+ eq(Buffer.from(reversed,'utf8'),bytes,'Exactly two attributes reverse byte-for-byte; hidden unsupported-browser fallback is preserved');
+ eq(text.split(fixture.absentAudioPath).length,3,'Only the two intended attributes use the absent target');
+ const body=Buffer.from(text,'utf8');return{body,proof:{label:'MOCKHTML two-attribute negative fixture; never a published file',document:fixture.documentPath,originalAudioPath:fixture.originalAudioPath,absentAudioPath:fixture.absentAudioPath,attributesChanged:2,originalBytes:bytes.length,fixtureBytes:body.length,originalSha256:sha(bytes),fixtureSha256:sha(body),exactInverseVerified:true,hiddenUnsupportedFallbackUnchanged:true,sourceAndBuildAbsent:true}};
+}
+async function originBackedMissingAudio(test,entry){
+ const start=performance.now(),limit=10000,deadline=start+limit;let bracket;
+ const remaining=()=>{const ms=Math.floor(deadline-performance.now());assert.ok(ms>0,'Whole origin-backed failure observation stays inside10000ms');return ms;};
+ const progress={label:'MOCKHTML fixture with real origin404',status:'PENDING',operationLimitMs:limit,globalScriptsEnabled:true};test.evidence.origin404=progress;
+ try{
+  const proof=await noJsHostDeadline(async()=>{
+   bracket=beginOriginLogWindow();bracket.start.beforeNavigation=false;bracket.start.beforeGesture=true;bracket.start.phase='before-native-missing-recording-gesture';remaining();
+   const nativeFailure=test.page.waitForFunction(()=>{const a=document.querySelector('[data-article-audio] audio');return a&&(a.error||a.networkState===a.NETWORK_NO_SOURCE);},null,{timeout:remaining()});nativeFailure.catch(()=>{});
+   const originFailure=(async()=>{
+    while(performance.now()<deadline){
+     const log=bracket.finish(),requests=originAudioRequests(log);remaining();
+     if(requests.some(r=>r.method==='GET'&&r.target==='/'+entry.audio_path&&r.status===404)){
+      ok(requests.every(r=>r.method==='GET'&&r.target==='/'+entry.audio_path&&r.status===404),'Only the deliberately absent target was requested with real origin404');return{log,requests};
+     }
+     await hostDelay(Math.min(50,remaining()));
+    }
+    throw new Error('Exact target originGET404 was not recorded inside10000ms');
+   })();originFailure.catch(()=>{});
+   await test.page.locator('[data-article-audio] > summary').click({timeout:remaining()});remaining();const audio=test.page.locator('[data-article-audio] audio');await audio.focus({timeout:remaining()});remaining();await test.page.keyboard.press('Tab');remaining();await test.page.keyboard.press('Space');remaining();
+   await Promise.all([nativeFailure,originFailure]);remaining();const log=bracket.finish(),requests=originAudioRequests(log);remaining();ok(requests.some(r=>r.method==='GET'&&r.target==='/'+entry.audio_path&&r.status===404),'Final complete failure window contains the exact originGET404');ok(requests.every(r=>r.method==='GET'&&r.target==='/'+entry.audio_path&&r.status===404),'Complete native-failure window contains only the intended origin404');const state=await readNoJsMedia(test.page,remaining());remaining();
+   return{status:'PASS',label:'MOCKHTML fixture with real stdlib originGET404; no media proxy',operationLimitMs:limit,elapsedMs:performance.now()-start,target:new URL('/'+entry.audio_path,origin).href,originLog:log,originAudioRequests:requests,state,browserReportedResponses:[...test.evidence.responses],browserReportedFailures:[...test.evidence.mediaFailures],qualification:'Origin access entries prove actual HTTP404 independently of browser event reporting. Raw browser status0 remains synthetic0 and is never relabeled404.'};
+  },limit,'whole origin-backed native missing-recording observation');
+  remaining();test.evidence.origin404=proof;
+ }catch(error){progress.status='FAIL';progress.elapsedMs=performance.now()-start;progress.error=String(error).slice(0,4000);if(bracket){try{progress.originLog=bracket.finish();progress.originLogCapturedAfterFailure=true;}catch(captureError){progress.originLogUnavailable=String(captureError).slice(0,1000);}}throw error;}finally{bracket?.close();}
+}
 const nativeBrowsers=[{engine:'chromium',type:chromium,channel:'chrome'},{engine:'webkit',type:webkit,channel:null}];
 for(const{engine,type,channel:browserChannel}of nativeBrowsers){
  eq(browserChannel,engine==='chromium'?'chrome':null,'Chromium must use official Chrome stable; no codec fallback');
@@ -272,7 +319,8 @@ for(const{engine,type,channel:browserChannel}of nativeBrowsers){
     const link=fallback.page.locator('.mond-article-audio__options a[download]');ok(await link.isVisible(),'Existing global-off download link is visible');eq(await link.getAttribute('href'),entry.audio_path,'Existing link points to exact recording');await link.focus();await globalOffDownload(fallback.page,entry,fallback.evidence);await finish(fallback.context,fallback.page,fallback.evidence,engine+'-global-off-download-fallback');
    }catch(error){try{await recordNoJsFailure(fallback,engine+'-global-off-download-fallback',error);}finally{throw error;}}
   }
-  // A targeted404 is a MOCK failure only; every success state above uses real media.
+  // Chrome retains the proxy404; WebKit uses a two-attribute MOCKHTML fixture and real origin404.
+  if(engine==='chromium'){
   const broken=await setup(browser,{engine,width:390,missingAudio:entry.audio_path});
   try{
    await arrive(broken.page,entry,broken.evidence);
@@ -282,6 +330,14 @@ for(const{engine,type,channel:browserChannel}of nativeBrowsers){
    ok(broken.evidence.responses.some(r=>{const u=new URL(r.url);return u.origin===origin&&r.path==='/'+entry.audio_path&&r.status===404;}),'MOCK404 browser observed the exact target404 response');
    const error=broken.page.locator('[data-audio-error]');await error.waitFor({state:'visible',timeout:3000});eq(await error.textContent(),'The recording could not load. You can try the download link.','404 yields truthful visible fallback');ok(await broken.page.locator('.mond-article-audio__options a[download]').isVisible(),'404 keeps direct fallback reachable');await finish(broken.context,broken.page,broken.evidence,engine+'-MOCK404-fallback');
   }catch(error){try{await recordJsFailure(broken,engine+'-MOCK404-fallback',error);}finally{throw error;}}
+  }else{
+   const absentAudioPath='assets/audio/__article-audio-native-404-absent.m4a',fixtureEntry={...entry,audio_path:absentAudioPath};
+   const broken=await setup(browser,{engine,width:390,missingAudioFixture:{documentPath:entry.path,originalAudioPath:entry.audio_path,absentAudioPath}});
+   try{
+    await arrive(broken.page,fixtureEntry,broken.evidence);eq(broken.evidence.html404Fixtures.length,1,'Exactly one MOCKHTML response has the two-attribute fixture');await originBackedMissingAudio(broken,fixtureEntry);
+    const error=broken.page.locator('[data-audio-error]');await error.waitFor({state:'visible',timeout:3000});eq(await error.textContent(),'The recording could not load. You can try the download link.','404 yields truthful visible fallback');ok(await broken.page.locator('.mond-article-audio__options a[download]').isVisible(),'404 keeps direct fallback reachable');await finish(broken.context,broken.page,broken.evidence,engine+'-MOCKHTML-origin404-fallback');
+   }catch(error){try{await recordJsFailure(broken,engine+'-MOCKHTML-origin404-fallback',error);}finally{throw error;}}
+  }
  }finally{await browser.close();}
 }
 // Bind the served candidate revision and representative successful response bytes.
