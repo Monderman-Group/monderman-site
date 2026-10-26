@@ -57,6 +57,7 @@ PAGES = {
     "trenches-not-silos.html": "Research",
     "durable-organization.html": "Research",
     "hold-collide-come-apart.html": "Research",
+    "divide-and-rule-inside-the-company.html": "Research",
     "hiring-blind-spot.html": "Research",
     "posting-has-outgrown-the-job.html": "Research",
     "research-topics.html": "Research",

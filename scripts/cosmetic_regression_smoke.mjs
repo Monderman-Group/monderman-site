@@ -1,8 +1,11 @@
+import {publicationDelta} from './divide_rule_publication_20261025_inverse.mjs';
+import {PART7_IMAGE,assertPart7ImageControls,placeholderCoverBeforePart7} from './divide_rule_publication_20261025_browser_contract.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 
+assertPart7ImageControls();
 const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8765';
@@ -87,6 +90,62 @@ async function newLocalPage(browser, options = {}) {
   return restrictToLocalResources(page);
 }
 
+// The original lazy image must really finish loading before its one decode.
+// This observes native events/state only: no src/loading changes or reloads.
+function waitForOriginalPart7Image(image,expected) {
+  const state=()=>({src:(image.getAttribute('src')||'').slice(0,500),resolvedSrc:String(image.src||'').slice(0,500),currentSrc:String(image.currentSrc||'').slice(0,500),complete:image.complete,naturalWidth:image.naturalWidth,naturalHeight:image.naturalHeight,loading:image.loading,decoding:image.decoding,connected:image.isConnected,documentURL:image.ownerDocument.URL,readyState:image.ownerDocument.readyState,visibilityState:image.ownerDocument.visibilityState});
+  const ready=value=>value.connected&&value.resolvedSrc===expected.url&&value.currentSrc===expected.url&&value.complete&&value.naturalWidth===expected.width&&value.naturalHeight===expected.height;
+  const started=Date.now(),deadline=started+expected.boundMs;
+  return new Promise(resolve=>{
+    const initial=state(),events=[];let timer,done=false;
+    const finish=(loaded,reason)=>{if(done)return;const elapsedMs=Date.now()-started;if(loaded&&Date.now()>=deadline){loaded=false;reason='original image load completed after10s bound';}done=true;clearTimeout(timer);image.removeEventListener('load',loadedEvent);image.removeEventListener('error',errorEvent);resolve({loaded,reason,elapsedMs,initial,events,final:state()});};
+    const loadedEvent=()=>{const observed=state();events.push({type:'load',state:observed});finish(ready(observed),'native load event');};
+    const errorEvent=()=>{events.push({type:'error',state:state()});finish(false,'native image error');};
+    image.addEventListener('load',loadedEvent,{once:true});image.addEventListener('error',errorEvent,{once:true});
+    timer=setTimeout(()=>finish(false,'original image did not load within10s'),Math.max(0,deadline-Date.now()));
+    const observed=state();
+    if(ready(observed))finish(true,'already completely loaded');
+    else if(observed.resolvedSrc!==expected.url||(observed.currentSrc&&observed.currentSrc!==expected.url))finish(false,'unexpected original image source');
+    else if(observed.complete)finish(false,'original image complete without expected natural dimensions');
+  });
+}
+
+function recordPart7ImageResource(page,expectedURL) {
+  const evidence={requests:[],responses:[],failures:[],overflow:0},bodyReads=[];
+  const matches=url=>{const parsed=new URL(url),expected=new URL(expectedURL);return parsed.origin===expected.origin&&parsed.pathname===expected.pathname;};
+  const append=(list,value)=>{if(list.length>=12){evidence.overflow++;return false;}list.push(value);return true;};
+  page.on('request',request=>{if(matches(request.url()))append(evidence.requests,{url:request.url(),method:request.method()});});
+  page.on('requestfailed',request=>{if(matches(request.url()))append(evidence.failures,{url:request.url(),method:request.method(),failure:request.failure()});});
+  page.on('response',response=>{
+    if(!matches(response.url()))return;
+    const row={url:response.url(),method:response.request().method(),status:response.status(),mime:response.headers()['content-type']||'',bodyState:'PENDING'};
+    if(!append(evidence.responses,row))return;
+    bodyReads.push(Promise.resolve().then(()=>response.body()).then(body=>{row.bytes=body.length;row.sha256=createHash('sha256').update(body).digest('hex');row.bodyState='READ';}).catch(error=>{row.bodyState='ERROR';row.bodyError=String(error);}));
+  });
+  return {evidence,bodyReads};
+}
+
+async function boundedPart7Evidence(promise,boundMs) {
+  const started=Date.now();let timer;
+  try{const result=await Promise.race([promise,new Promise(resolve=>{timer=setTimeout(()=>resolve({status:'UNAVAILABLE_WITHIN_BOUND',boundMs}),boundMs);})]);return Date.now()-started>=boundMs?{status:'UNAVAILABLE_WITHIN_BOUND',boundMs,elapsedMs:Date.now()-started}:result;}
+  finally{clearTimeout(timer);}
+}
+
+async function settlePart7ImageResource(recorder) {
+  const reads=[...recorder.bodyReads];
+  return boundedPart7Evidence(Promise.all(reads).then(()=>({status:'READS_SETTLED',reads:reads.length})),2000);
+}
+
+function assertPart7ImageResource(evidence,settled,expectedURL,pin) {
+  assert.equal(settled.status,'READS_SETTLED','Relevant image response bodies finished within the evidence bound');
+  assert.equal(evidence.overflow,0,'Relevant image resource evidence remains bounded');
+  assert.ok(evidence.responses.some(row=>row.url===expectedURL&&row.method==='GET'&&row.status===200&&row.mime.split(';')[0].trim().toLowerCase()==='image/png'&&row.bodyState==='READ'&&row.bytes===pin.bytes&&row.sha256===pin.sha256),'Actual Part7 PNG response is200 image/png with exact approved bytes/SHA256');
+}
+
+const part7ImagePins=Object.values(publicationDelta.publicEditions).map(edition=>edition.currentMap.find(row=>row.path===PART7_IMAGE.src));
+assert.ok(part7ImagePins.every(row=>row&&row.bytes===part7ImagePins[0].bytes&&row.sha256===part7ImagePins[0].sha256),'Both exact compiled editions share the approved Part7 PNG');
+const part7ImagePin=part7ImagePins[0];
+
 const browserMatrix = [['chromium', chromium], ['webkit', webkit]]
   .filter(([browserName]) => !process.env.COSMETIC_BROWSER || process.env.COSMETIC_BROWSER === browserName);
 
@@ -128,6 +187,59 @@ async function captureConnectConsentFailure(page, browserName, out, originalErro
   for (let index = 0; index < pngChunks.length; index++) {
     console.error('CONNECT_CONSENT_FAILURE_PNG_CHUNK ' + JSON.stringify({ key, index: index + 1, count: pngChunks.length, data: pngChunks[index] }));
   }
+}
+
+
+// Passive offline evidence for the native Connect submission case. No retries,
+// forced actions, event prevention, state changes, or response changes occur.
+async function observeConnectNativeSubmission(page) {
+  const evidence={requests:[],responses:[],failures:[],pageErrors:[],nativeEvents:[],overflow:0};
+  const add=(key,value)=>{if(evidence[key].length<48)evidence[key].push(value);else evidence.overflow++;};
+  const relevant=url=>/\/api\/(health|connect\/send)$/.test(new URL(url).pathname);
+  page.on('request',request=>{if(relevant(request.url()))add('requests',{url:request.url(),method:request.method(),at:Date.now()});});
+  page.on('response',response=>{if(relevant(response.url()))add('responses',{url:response.url(),status:response.status(),at:Date.now()});});
+  page.on('requestfailed',request=>{if(relevant(request.url()))add('failures',{url:request.url(),failure:request.failure(),at:Date.now()});});
+  page.on('pageerror',error=>add('pageErrors',String(error).slice(0,1000)));
+  page.on('console',message=>{
+    if(!message.text().startsWith('CONNECT_NATIVE_EVENT '))return;
+    try{add('nativeEvents',JSON.parse(message.text().slice('CONNECT_NATIVE_EVENT '.length)));}
+    catch{add('pageErrors','Could not parse bounded passive Connect event');}
+  });
+  await page.addInitScript(()=>{
+    let count=0;
+    const observe=(event,phase)=>{
+      if(count++>=48)return;
+      const button=document.querySelector('#submitButton'),consent=document.querySelector('#privacyConsent');
+      const target=event.target instanceof Element?event.target:null;
+      const hit=typeof event.clientX==='number'?document.elementFromPoint(event.clientX,event.clientY):null;
+      const identity=node=>node?{tag:node.tagName,id:node.id,className:String(node.className).slice(0,150)}:null;
+      const row={type:event.type,phase,time:performance.now(),trusted:event.isTrusted,defaultPrevented:event.defaultPrevented,target:identity(target),hit:identity(hit),x:event.clientX,y:event.clientY,scrollY,active:document.activeElement?.id||'',step1Hidden:document.querySelector('#cnStep1')?.hidden,step2Hidden:document.querySelector('#cnStep2')?.hidden,consent:consent?{checked:consent.checked,valid:consent.validity.valid}:null,submit:button?{disabled:button.disabled,text:button.textContent.trim().slice(0,100),box:button.getBoundingClientRect().toJSON()}:null};
+      if(event.type==='invalid'&&target)row.invalid={id:target.id,message:target.validationMessage.slice(0,256),valueMissing:target.validity.valueMissing,typeMismatch:target.validity.typeMismatch,patternMismatch:target.validity.patternMismatch};
+      console.log('CONNECT_NATIVE_EVENT '+JSON.stringify(row));
+    };
+    for(const type of ['click','submit','invalid','change'])document.addEventListener(type,event=>observe(event,'capture'),{capture:true,passive:true});
+    document.addEventListener('submit',event=>observe(event,'bubble'),{passive:true});
+  });
+  return evidence;
+}
+
+async function captureConnectSubmissionFailure(page,browserName,out,stage,originalError,recorded,requestCount) {
+  const evidence={kind:'CONNECT_NATIVE_SUBMISSION_FAILURE',browserName,stage,requestCount,originalError:{name:originalError.name,message:originalError.message},recorded,qualification:'Bounded passive events/transport and post-failure DOM/camera only; no retry or altered actions. Not atomic click-time cause proof. DOM observation has a2s evidence bound; native screenshot timeout is2s and rendering/cleanup may extend it.'};
+  try{
+    evidence.failureDOM=await boundedPart7Evidence(page.evaluate(()=>{
+      const summary=selector=>{
+        const node=document.querySelector(selector);if(!node)return null;
+        const box=node.getBoundingClientRect(),style=getComputedStyle(node),hit=document.elementFromPoint(box.x+box.width/2,box.y+box.height/2);
+        return{tag:node.tagName,id:node.id,hidden:node.hidden,disabled:node.disabled,checked:node.checked,text:['statusNote','submitButton','confirmationScreen'].includes(node.id)?node.textContent.trim().slice(0,500):undefined,className:String(node.className).slice(0,200),box:box.toJSON(),display:style.display,visibility:style.visibility,opacity:style.opacity,transform:style.transform,hit:hit?{tag:hit.tagName,id:hit.id,className:String(hit.className).slice(0,150)}:null};
+      };
+      return{url:location.href,scrollY,innerWidth,innerHeight,activeElement:{id:document.activeElement?.id,tag:document.activeElement?.tagName},step1:summary('#cnStep1'),step2:summary('#cnStep2'),consent:summary('#privacyConsent'),submit:summary('#submitButton'),status:summary('#statusNote'),confirmation:summary('#confirmationScreen'),invalid:[...document.querySelectorAll('#connectForm :invalid')].slice(0,20).map(node=>({tag:node.tagName,id:node.id,message:node.validationMessage.slice(0,256)})),transport:typeof window.MondermanContactTransport?.submit};
+    }),2000);
+  }catch(error){evidence.domError=String(error);}
+  try{await page.screenshot({path:path.join(out,`connect-submit-failure-${browserName}-1280-${stage}.png`),fullPage:false,animations:'allow',caret:'initial',timeout:2000});evidence.screenshot='SAVED';}
+  catch(error){evidence.screenshotError=String(error);}
+  try{fs.writeFileSync(path.join(out,`connect-submit-failure-${browserName}-1280-${stage}.json`),JSON.stringify(evidence,null,2)+'\n');}
+  catch(error){evidence.saveError=String(error);}
+  console.error('CONNECT_NATIVE_SUBMISSION_FAILURE '+JSON.stringify(evidence));
 }
 
 for (const [browserName, browserType] of browserMatrix) {
@@ -575,6 +687,7 @@ for (const [browserName, browserType] of browserMatrix) {
     {
       let requestCount = 0;
       const page = await newLocalPage(browser, { viewport: { width: 1280, height: 900 } });
+      const connectSubmissionEvidence=await observeConnectNativeSubmission(page);
       await page.route('https://api.monderman.com/api/health', (route) => route.fulfill({
         status: 200, contentType: 'application/json', body: '{"ok":true}',
       }));
@@ -601,13 +714,23 @@ for (const [browserName, browserType] of browserMatrix) {
         try { await captureConnectConsentFailure(page, browserName, out, originalError); }
         finally { throw originalError; }
       }
+      try {
       await page.locator('#submitButton').click();
       await page.locator('#statusNote.is-visible').waitFor({ state: 'visible', timeout: 5000 });
+      } catch(originalError) {
+        try { await captureConnectSubmissionFailure(page,browserName,out,'first-error',originalError,connectSubmissionEvidence,requestCount); }
+        finally { throw originalError; }
+      }
       const errorText = await page.locator('#statusNote').textContent();
       assert.equal(errorText, 'Too many requests. Please try again shortly, or email connect@monderman.com directly.',
         `${browserName}/connect.html: server response is hidden behind generic error copy`);
+      try {
       await page.locator('#submitButton').click();
       await page.locator('#confirmationScreen.is-visible').waitFor({ state: 'visible', timeout: 5000 });
+      } catch(originalError) {
+        try { await captureConnectSubmissionFailure(page,browserName,out,'retry-confirmation',originalError,connectSubmissionEvidence,requestCount); }
+        finally { throw originalError; }
+      }
       assert.equal(requestCount, 2, `${browserName}/connect.html: retry did not reach the request endpoint`);
       await page.close();
     }
@@ -740,6 +863,9 @@ for (const [browserName, browserType] of browserMatrix) {
       const page = await newLocalPage(browser, { viewport });
       const label = `${browserName}/${viewport.width}/index.html`;
       const italicResponses = new Map();
+      const expectedPart7ImageURL=new URL('/'+PART7_IMAGE.src,localOrigin).href;
+      const part7Resource=recordPart7ImageResource(page,expectedPart7ImageURL);
+      let part7LoadEvidence=null,part7ResourceSettled=null;
       page.on('response', (response) => {
         const name = response.url().split('/').pop()?.split('?')[0];
         if (['56font.woff2', '76font.woff2'].includes(name)) italicResponses.set(name, response.status());
@@ -747,7 +873,28 @@ for (const [browserName, browserType] of browserMatrix) {
       await page.goto(`${base}/index.html`, { waitUntil: 'load', timeout: 30000 });
       await page.locator('.latest-card:not(.is-carousel-clone)').first()
         .waitFor({ state: 'visible', timeout: 10000 });
-      const motif = await page.evaluate(async () => {
+      const part7ImageSelector='.latest-card:not(.is-carousel-clone)[data-publication="divide-and-rule-inside-the-company"] .latest-card-image img';
+      try {
+        await page.locator('.latest-card:not(.is-carousel-clone)[data-publication="divide-and-rule-inside-the-company"]')
+          .scrollIntoViewIfNeeded();
+        const originalImage=page.locator(part7ImageSelector);
+        assert.equal(await originalImage.count(),1,'Exactly one original Part7 image enters native load/decode');
+        part7LoadEvidence=await originalImage.evaluate(waitForOriginalPart7Image,{url:expectedPart7ImageURL,width:PART7_IMAGE.width,height:PART7_IMAGE.height,boundMs:10000});
+        assert.equal(part7LoadEvidence.loaded,true,'Original Part7 image completes its native load with exact source/dimensions');
+        await originalImage.evaluateAll(images => Promise.all(images.map(image => image.decode())));
+        part7ResourceSettled=await settlePart7ImageResource(part7Resource);
+        assertPart7ImageResource(part7Resource.evidence,part7ResourceSettled,expectedPart7ImageURL,part7ImagePin);
+        console.log('ACTUAL_PART7_IMAGE_LOAD_RESOURCE '+JSON.stringify({browserName,width:viewport.width,load:part7LoadEvidence,resource:part7Resource.evidence,resourceReads:part7ResourceSettled}));
+      } catch(originalError) {
+        if(!part7ResourceSettled)part7ResourceSettled=await settlePart7ImageResource(part7Resource);
+        const read=page.locator(part7ImageSelector).evaluateAll(images=>images.map(image=>({src:(image.getAttribute('src')||'').slice(0,500),currentSrc:String(image.currentSrc||'').slice(0,500),complete:image.complete,naturalWidth:image.naturalWidth,naturalHeight:image.naturalHeight,connected:image.isConnected,documentURL:image.ownerDocument.URL,readyState:image.ownerDocument.readyState,visibilityState:image.ownerDocument.visibilityState}))).then(images=>({status:'CAPTURED',images}),error=>({status:'READ_ERROR',error:String(error)}));
+        const freshImage=await boundedPart7Evidence(read,2000);
+        const failure={browserName,width:viewport.width,originalError:{name:originalError.name,message:originalError.message,stack:originalError.stack},load:part7LoadEvidence,freshImage,resource:part7Resource.evidence,resourceReads:part7ResourceSettled};
+        try{fs.writeFileSync(path.join(out,'part7-image-failure-'+browserName+'-'+viewport.width+'.json'),JSON.stringify(failure,null,2)+'\n');}catch(evidenceWriteError){failure.evidenceWriteError=String(evidenceWriteError);}
+        try{console.error('ACTUAL_PART7_IMAGE_LOAD_DECODE_FAILURE '+JSON.stringify(failure));}catch{}
+        throw originalError;
+      }
+      const currentMotif = await page.evaluate(async () => {
         await Promise.all([
           document.fonts.load('italic 400 16px "Neue Haas Grotesk"'),
           document.fonts.load('italic 700 16px "Neue Haas Grotesk"'),
@@ -758,6 +905,19 @@ for (const [browserName, browserType] of browserMatrix) {
           clientWidth: document.documentElement.clientWidth,
           scrollWidth: document.documentElement.scrollWidth,
           cardCount: cards.length,
+          part7ImageCover: {
+            totalCards: cards.length,
+            part7Cards: cards.filter(card => card.getAttribute('data-publication') === 'divide-and-rule-inside-the-company').length,
+            placeholderCards: cards.filter(card => card.querySelector('.latest-card-image--placeholder')).length,
+            images: cards.filter(card => card.getAttribute('data-publication') === 'divide-and-rule-inside-the-company')
+              .flatMap(card => [...card.querySelectorAll('.latest-card-image img')].map(image => {
+                const box = image.getBoundingClientRect(), cover = image.closest('.latest-card-image').getBoundingClientRect();
+                return {src:image.getAttribute('src'),alt:image.getAttribute('alt'),width:Number(image.getAttribute('width')),height:Number(image.getAttribute('height')),
+                  complete:image.complete,naturalWidth:image.naturalWidth,naturalHeight:image.naturalHeight,
+                  top:box.top,bottom:box.bottom,left:box.left,right:box.right,
+                  imageTop:cover.top,imageBottom:cover.bottom,imageLeft:cover.left,imageRight:cover.right};
+              })),
+          },
           visibleMotifCount: motifs.filter((svg) => {
             const box = svg.getBoundingClientRect();
             const style = getComputedStyle(svg);
@@ -783,6 +943,8 @@ for (const [browserName, browserType] of browserMatrix) {
           italic700: document.fonts.check('italic 700 16px "Neue Haas Grotesk"'),
         };
       });
+      console.log('ACTUAL_CURRENT22_PART7_IMAGE_COVER '+JSON.stringify({browserName,width:viewport.width,observation:currentMotif.part7ImageCover}));
+      const motif = placeholderCoverBeforePart7(currentMotif);
       noPageOverflow(motif, `${label}/motif`);
       assert.ok(motif.cardCount >= 3, `${label}: editorial carousel inventory is incomplete`);
       assert.equal(motif.visibleMotifCount, 0, `${label}: an unintentional category motif is visible`);

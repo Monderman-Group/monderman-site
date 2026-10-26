@@ -106,6 +106,23 @@ async function savedLensFrameSettles(page,group,tabs) {
   return false;
 }
 
+// Observe the real report target before one native pointer click. The existing
+// capture bound remains 3s/200ms; this never retries navigation or moves the UI.
+async function savedReportLinkFrameSettles(page,link) {
+  const started=Date.now(),deadline=started+3000,samples=[];let prior,stableSince;
+  while(Date.now()<deadline&&samples.length<61){
+    const scroll=await page.evaluate(()=>({x:scrollX,y:scrollY})),box=await link.boundingBox();
+    const now=Date.now();samples.push({elapsedMs:now-started,scroll,box});
+    if(now>=deadline)return {settled:false,reason:'report target sample exceeded3s',samples};
+    if(!box||!Object.values(box).every(Number.isFinite)||box.width<=0||box.height<=0||!Number.isFinite(scroll.x)||!Number.isFinite(scroll.y))return {settled:false,reason:'invalid target geometry',samples};
+    const current=JSON.stringify({scroll,box});
+    if(current!==prior){prior=current;stableSince=now;}
+    if(now-stableSince>=200)return {settled:true,samples};
+    await page.waitForTimeout(50);
+  }
+  return {settled:false,reason:'report target did not settle within3s',samples};
+}
+
 async function setup(browser, options) {
   const page = await browser.newPage({viewport: options.viewport, deviceScaleFactor: options.deviceScaleFactor, javaScriptEnabled: options.scripts !== false, reducedMotion: options.reduced ? 'reduce' : 'no-preference', serviceWorkers: 'block'});
   const writes = [], external = [], errors = [];
@@ -251,17 +268,40 @@ for (const [engine, browserType] of [['chromium', chromium], ['webkit', webkit]]
         await page.screenshot({path: path.join(out, engine + '-' + options.name + '-full.png'), fullPage: true});
       }
       const reportLink = page.locator('.hero [data-home-report-quad] .hrq-footer > a');
+      const reportClickEvents=[];
+      await page.exposeFunction('__marketingSmokeReportClick',event=>{if(reportClickEvents.length<1)reportClickEvents.push(event);});
+      const reportClickObserver=await page.evaluate(()=>{
+        const report=window.__marketingSmokeReportClick;
+        if(typeof report!=='function')return {installed:false};
+        document.addEventListener('click',event=>{
+          const target=event.target instanceof Element?event.target:null,anchor=target?.closest('a');
+          // Passive, once-only evidence: no preventDefault, focus, scroll or UI write.
+          void report({isTrusted:event.isTrusted,clientX:event.clientX,clientY:event.clientY,
+            target:target?{tag:target.tagName,id:target.id,className:String(target.className||'').slice(0,300),text:(target.textContent||'').trim().slice(0,300)}:null,
+            anchorHref:anchor?.getAttribute('href')??null,anchorURL:anchor?.href??null}).catch(()=>{});
+        },{capture:true,passive:true,once:true});
+        return {installed:true};
+      });
       await reportLink.evaluate(el => el.scrollIntoView({behavior: 'instant', block: 'center'}));
+      const reportLinkCaptureFrame=nativeRefinedEdition?await savedReportLinkFrameSettles(page,reportLink):null;
+      if(nativeRefinedEdition){
+        if(!reportLinkCaptureFrame.settled)console.error('MARKETING_REFRESH_REPORT_TARGET_UNSETTLED '+JSON.stringify({engine,label,options,reportLinkCaptureFrame}));
+        check(reportLinkCaptureFrame.settled,label+': real report target scroll and box stay stable200ms within existing3s');
+      }
+      check(await reportLink.isVisible(),label+': report footer link remains visible before native pointer click');
+      check(await reportLink.isEnabled(),label+': report footer link remains enabled before native pointer click');
       // Browser viewport quads avoid old WebKit's inconsistent DOM rects under
       // CSS zoom while retaining an exact, unforced physical hit test.
       const reportLinkViewportBox = await reportLink.boundingBox();
       check(reportLinkViewportBox && Object.values(reportLinkViewportBox).every(Number.isFinite) && reportLinkViewportBox.width > 0 && reportLinkViewportBox.height > 0 && reportLinkViewportBox.x >= 0 && reportLinkViewportBox.y >= 0 && reportLinkViewportBox.x + reportLinkViewportBox.width <= options.viewport.width && reportLinkViewportBox.y + reportLinkViewportBox.height <= options.viewport.height, label + ': full report footer link has positive finite geometry entirely within the viewport');
       check(await reportLink.evaluate((el, box) => { const hit = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2); return hit === el || el.contains(hit); }, reportLinkViewportBox), label + ': full report footer link is unobstructed');
       try {
-        await reportLink.click();
-        await page.waitForURL(url => url.origin === origin && url.pathname === '/sample-report.html' && url.hash === '#depth');
+        await Promise.all([
+          page.waitForURL(url => url.origin === origin && url.pathname === '/sample-report.html' && url.hash === '#depth'),
+          page.mouse.click(reportLinkViewportBox.x+reportLinkViewportBox.width/2,reportLinkViewportBox.y+reportLinkViewportBox.height/2),
+        ]);
       } catch (originalError) {
-        // Failure evidence only. The successful click/wait path and its deadlines stay unchanged.
+        // Failure evidence only. The exact navigation predicate and original deadlines remain unchanged.
         let failureReadTimer;
         try {
           const observed = read => { try { return {available: true, value: read()}; } catch (error) { return {available: false, error: String(error)}; } };
@@ -271,7 +311,7 @@ for (const [engine, browserType] of [['chromium', chromium], ['webkit', webkit]]
             cachedPageURL: observed(() => page.url()),
             cachedMainFrameURL: observed(() => page.mainFrame().url()),
             cachedFrameURLs: observed(() => page.frames().map(frame => frame.url())),
-            viewport: observed(() => page.viewportSize()), reportLinkViewportBox,
+            viewport: observed(() => page.viewportSize()), reportLinkViewportBox, reportLinkCaptureFrame, reportClickObserver, reportClickEvents,
             attemptedWrites: state.writes, blockedExternalOrigins: state.external, pageErrors: state.errors,
           };
           try {
@@ -297,7 +337,7 @@ for (const [engine, browserType] of [['chromium', chromium], ['webkit', webkit]]
         throw originalError;
       }
       equal(state.writes, [], label + ': report navigation performs no writes');
-      receipts.push({engine, ...options, operatingMomentContrast, lensTargetGeometry, widgetModels, reportLinkViewportBox, attemptedWrites: state.writes.length, blockedExternalOrigins: [...new Set(state.external)], pageErrors: state.errors});
+      receipts.push({engine, ...options, operatingMomentContrast, lensTargetGeometry, widgetModels, reportLinkViewportBox, reportLinkCaptureFrame, reportClickObserver, reportClickEvents, attemptedWrites: state.writes.length, blockedExternalOrigins: [...new Set(state.external)], pageErrors: state.errors});
       await page.close();
       console.log('MARKETING_REFRESH_STATE_PASS ' + label);
     }

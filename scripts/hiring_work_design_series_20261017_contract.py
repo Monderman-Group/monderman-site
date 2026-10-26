@@ -5,6 +5,8 @@ all source modes/blobs, every compiled body, and topic destinations are checked
 here independently; unknown edits or names are never mapped to a baseline.
 """
 import base64, hashlib, json, os, re, subprocess, sys
+from divide_rule_publication_20261025_contract import audit_publication
+from divide_rule_publication_20261025_inverse import publication_read as _publication_read, publication_text as _publication_text, publication_git, public_paths_at_publication_baseline as _publication_public_paths, public_source_at_publication_baseline as _publication_public_view
 from pathlib import Path
 from html.parser import HTMLParser
 from html import unescape
@@ -24,7 +26,7 @@ def check(value,label):
  global CHECKS
  assert value,label
  CHECKS+=1
-def git(*args):return subprocess.check_output(['git',*args],cwd=ROOT)
+def git(*args):return publication_git(*args)
 def _git_rows(revision):
  out=[]
  for line in git('ls-tree','-rl',revision).decode().splitlines():
@@ -42,8 +44,9 @@ class Links(HTMLParser):
 def audit_current_release():
  global AUDITED,NEGATIVES
  if AUDITED:return
+ audit_publication()
  check(D['guardFiles']==GUARDS,'Four explicit independently reviewed bootstrap roots')
- check(sha((ROOT/'scripts/fixtures/hiring-blind-spot-publication-20261015.json').read_bytes())=='52abd075da1ae7474d41fb23f0635d1cbe7ca35c382a15490ffe5cac257919b6','Original combined native-publication and owner fixture remains byte-identical')
+ check(sha(_publication_read('scripts/fixtures/hiring-blind-spot-publication-20261015.json'))=='52abd075da1ae7474d41fb23f0635d1cbe7ca35c382a15490ffe5cac257919b6','Original combined native-publication and owner fixture remains byte-identical')
  check(git('rev-parse',BASE+'^{tree}').decode().strip()==D['baselineTree'],'Actual1858 authoritative tree')
  check(_git_rows(BASE)==D['baselineSourceRows'],'Full prior source path/mode/blob/size closure')
  names=git('ls-files','--cached').decode().splitlines()
@@ -54,16 +57,16 @@ def audit_current_release():
  check(sorted(heads)==sorted(names),'All current source is actually committed')
  for name in names:
   p=ROOT/name;check(p.is_file() and not p.is_symlink(),'Regular current source '+name)
-  b=p.read_bytes();r=heads[name]
+  b=_publication_read(name);r=heads[name]
   check(len(b)==r['bytes'] and ('100755' if p.stat().st_mode&0o111 else '100644')==r['mode'] and hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()==r['gitBlobSha1'],'Physical current body/mode equals committed blob '+name)
  check(series_source_exact(),'Every non-bootstrap source current SHA/bytes/mode/blob exact')
  check(sorted(git('diff','--name-only',BASE,'HEAD').decode().splitlines())==D['changedSourcePaths'],'Closed actual changed source set')
- for file,digest in HELPER_HASHES.items():check(sha((ROOT/file).read_bytes())==digest,'Separately pinned finite implementation '+file)
+ for file,digest in HELPER_HASHES.items():check(sha(_publication_read(file))==digest,'Separately pinned finite implementation '+file)
  check(source_paths_at_series_baseline(names)==D['baselineSourcePaths'],'Exact current complete inventory projects only after raw audit')
  for mutant in [names+['UNKNOWN.js'],names+[names[0]],names[:-1]]:
   check(source_paths_at_series_baseline(mutant)==mutant,'Missing/extra/duplicate source remains visible');NEGATIVES+=1
  for file,entry in D['files'].items():
-  b=(ROOT/file).read_bytes();prior=source_view(file,b)
+  b=_publication_read(file);prior=source_view(file,b)
   check(sha(b)==entry['after_sha256'] and len(b)==entry['after_bytes'],'Exact current finite file '+file)
   check(prior==git('show',BASE+':'+file),'Exact native1858 source recovered '+file)
   check(source_view(file,prior)==prior,'Historical input not inverted twice '+file)
@@ -82,7 +85,7 @@ def audit_current_release():
  # Certify actual current owned-navigation failure semantics before the exact
  # historical projection supplies the unchanged old consumer to older guards.
  navigation_name='scripts/homepage_sample_discovery_smoke.mjs'
- navigation_source=(ROOT/navigation_name).read_text()
+ navigation_source=_publication_text(navigation_name)
  navigation_before=source_view(navigation_name,navigation_source)
  check(sha(navigation_before)=='11872d7c6f2170699ac4c33cb2ee13dd00bdec075baad72b3412c709d1a2be38' and len(navigation_before.encode())==16681,'Owned navigation exact native1858 before body')
  original_assertions=[line.strip() for line in navigation_before.splitlines() if line.strip().startswith('assert.')]
@@ -161,16 +164,16 @@ def audit_current_release():
  navigation_result=subprocess.run(['node','--input-type=module','-e',navigation_program],cwd=ROOT,text=True,capture_output=True,check=True)
  navigation_control_result=json.loads(navigation_result.stdout)
  check(navigation_control_result['status']=='CLEARLY_FABRICATED_PURE_OWNERSHIP_CONTROLS_PASS_NOT_BROWSER_PRODUCT_NATIVE_OR_CAUSAL_PROOF' and navigation_control_result['controls']==15 and navigation_control_result['checks']==117 and navigation_control_result['helperSha256']=='3cccbcd1bd841a8da9749f9e56b926b3b83708f32e2639924d5fe3aa7a8486da' and navigation_control_result['proposedSourceSha256']=='be92181839887f18ff14eded645b46ca04be280bdf8395b800d98a93555bd1d3','All fifteen clearly fabricated pure ownership controls execute against the actual reviewed consumer; no browser cause claim')
- topics=json.loads((ROOT/'research-topics.json').read_bytes());articles=topics['articles'];topicids={t['id'] for t in topics['topics']}
+ topics=json.loads(_publication_read('research-topics.json'));articles=topics['articles'];topicids={t['id'] for t in topics['topics']}
  check(len(articles)==28 and len({a['path'] for a in articles})==28 and len(topicids)==17,'All28 articles and17 distinct topics')
  authored=[]
  for p in ROOT.glob('*.html'):
-  if re.search(r'<meta\b(?=[^>]*property=["\']og:type["\'])(?=[^>]*content=["\']article["\'])',p.read_text(),re.I):authored.append(p.name)
+  if p.name in D['currentSourcePaths'] and re.search(r'<meta\b(?=[^>]*property=["\']og:type["\'])(?=[^>]*content=["\']article["\'])',_publication_text(p.name),re.I):authored.append(p.name)
  check(set(authored)|{'the-culture-trap.html'}=={a['path'] for a in articles},'All27 article-metadata pages plus the existing Culture Trap editorial page have keyword assignments')
- directory=Links();directory.feed((ROOT/'research-topics.html').read_text())
+ directory=Links();directory.feed(_publication_text('research-topics.html'))
  check(topicids<=set(directory.ids),'Every keyword has a static working topic anchor')
  for a in articles:
-  text=(ROOT/a['path']).read_text();links=Links();links.feed(text)
+  text=_publication_text(a['path']);links=Links();links.feed(text)
   check(text.count('<!-- MONDERMAN RESEARCH TOPICS: START -->')==1 and text.count('<!-- MONDERMAN RESEARCH TOPICS: END -->')==1,'One actual topic navigation '+a['path'])
   check(set('research-topics.html#'+x for x in a['topics'])<=set(links.hrefs),'All assigned keyword hyperlinks '+a['path'])
   peers={other['path'] for other in articles if other['path']!=a['path'] and set(a['topics'])&set(other['topics'])}
@@ -179,7 +182,7 @@ def audit_current_release():
   check('href="https://www.monderman.com/'+a['path']+'"' in text,'One canonical article route '+a['path'])
  subprocess.run([sys.executable,'scripts/build_research_topics.py','--check'],cwd=ROOT,check=True)
  subprocess.run([sys.executable,'scripts/build_public_search_index.py','--check'],cwd=ROOT,check=True)
- article=(ROOT/'posting-has-outgrown-the-job.html').read_text();hiring=(ROOT/'hiring-blind-spot.html').read_text();research=(ROOT/'research.html').read_text();home=(ROOT/'index.html').read_text()
+ article=_publication_text('posting-has-outgrown-the-job.html');hiring=_publication_text('hiring-blind-spot.html');research=_publication_text('research.html');home=_publication_text('index.html')
  AI_PARTS=[
   ('from-tokens-to-outcomes.html','From Tokens to Outcomes','Monderman_Insight_From_Tokens_to_Outcomes_2026-08.pdf?v=20260906-publication2'),
   ('merit-after-the-machine.html','Merit After the Machine','Monderman_Insight_Merit_After_the_Machine_2026-09-02.pdf?v=20260924-copy'),
@@ -212,7 +215,7 @@ def audit_current_release():
    home_card=home_cards[0]
    assert home_card.count('<span class="placeholder-cover-chip">Series, Part '+str(number)+'</span>')==1,'Homepage AI cover shows correct part'
    assert home_card.count('<p class="latest-card-kicker">AI and Institutions · Part '+str(number)+' · Insight</p>')==1,'Homepage AI kicker shows correct series and part'
- ai_pages={name:(ROOT/name).read_text() for name,_,_ in AI_PARTS}
+ ai_pages={name:_publication_text(name) for name,_,_ in AI_PARTS}
  ai_series_content(research,home,ai_pages);check(True,'Current library, carousel and all four AI article heroes agree on Parts1 through4')
  ai_section=re.findall(r'<section class="series" aria-labelledby="ai-institutions-title">(.*?)</section>',research,re.S)[0]
  ai_cards=re.findall(r'<article class="series-card">.*?</article>',ai_section,re.S)
@@ -413,8 +416,8 @@ def audit_current_release():
     body=body.replace(current_tag,prior_tag.encode('utf8'),1);seen+=1
    assert len(body)==page['before_bytes'] and sha(body)==page['before_sha256'],'Only declared src embeddings differ from exact currentD1 prose/captions/links/attributes '+name
   assert seen==17,'Every original figure is preserved exactly once'
- ai_figure_pages={name:(ROOT/name).read_bytes() for name in AI_FIGURE_PAGE_PLAN}
- ai_figure_assets={row[0]:(ROOT/row[0]).read_bytes() for page in AI_FIGURE_PAGE_PLAN.values() for row in page['figures']}
+ ai_figure_pages={name:_publication_read(name) for name in AI_FIGURE_PAGE_PLAN}
+ ai_figure_assets={row[0]:_publication_read(row[0]) for page in AI_FIGURE_PAGE_PLAN.values() for row in page['figures']}
  ai_original_figure_bytes(ai_figure_pages,ai_figure_assets);check(True,'All seventeen exact original PNG payloads, dimensions, attributes and whole-page source inverses')
  # Clearly fabricated pure source mutants. No browser/retry/native-cause claim.
  first_page=next(iter(AI_FIGURE_PAGE_PLAN));first_figure=AI_FIGURE_PAGE_PLAN[first_page]['figures'][0]
@@ -464,7 +467,7 @@ def audit_current_release():
  check('Hiring and Work Design · Part 1' in hiring and 'Hiring and Work Design · Part 2' in article,'Requested new Part1 and Part2 labels')
  for name in ['posting-has-outgrown-the-job.html','hiring-blind-spot.html']:
   check(home.count('data-publication="'+name[:-5]+'"')==1,'One carousel entry '+name)
-  for sitemap in ['sitemap.txt','sitemap.xml']:check((ROOT/sitemap).read_text().count('https://www.monderman.com/'+name)==1,'One canonical sitemap entry '+name)
+  for sitemap in ['sitemap.txt','sitemap.xml']:check(_publication_text(sitemap).count('https://www.monderman.com/'+name)==1,'One canonical sitemap entry '+name)
  cards=re.findall(r'<article class="latest-card\b[^>]*>.*?</article>',home,re.S)
  check(len(cards)==21 and 'data-publication="posting-has-outgrown-the-job"' in cards[0] and 'data-publication="hiring-blind-spot"' in cards[1],'21carousel cards with Part2 thenPart1')
  prior_cards=re.findall(r'<article class="latest-card\b[^>]*>.*?</article>',git('show',BASE+':index.html').decode(),re.S)
@@ -477,11 +480,11 @@ def audit_current_release():
  check(research.index('governance-performance-title')<research.index('hiring-work-design-title'),'New series follows Governance and Performance')
  check(series.count('<blockquote')==1 and 'A requirement the work does not need cannot select for the work.' in series,'One source-authored series pull quote')
  check('7 pages' in article and '10-minute read' in article,'New article current PDF and reading metadata')
- artwork=(ROOT/'assets/research/posting-has-outgrown-the-job-figure.png').read_bytes()
+ artwork=_publication_read('assets/research/posting-has-outgrown-the-job-figure.png')
  check('src="data:image/png;base64,'+base64.b64encode(artwork).decode()+'"' in article,'Exact original PNG artwork embedded without negotiated transformation')
  for file in ['Monderman_Insight_The_Posting_Has_Outgrown_the_Job_2026-10-16.pdf','Monderman_Insight_The_Hiring_Blind_Spot_2026-10-16.pdf']:
-  b=(ROOT/file).read_bytes();check(b.startswith(b'%PDF-') and b.rstrip().endswith(b'%%EOF'),'Actual PDF envelope '+file)
- data=json.loads((ROOT/'pdf-src/posting-has-outgrown-the-job.json').read_bytes())
+  b=_publication_read(file);check(b.startswith(b'%PDF-') and b.rstrip().endswith(b'%%EOF'),'Actual PDF envelope '+file)
+ data=json.loads(_publication_read('pdf-src/posting-has-outgrown-the-job.json'))
  check(len(data['paragraphs'])==30 and len(data['references'])==9,'All30 source paragraphs and9 references preserved in curated source')
  for paragraph in data['paragraphs']:
   match=re.search(r'<p\b[^>]*data-source-paragraph="'+str(paragraph['number'])+r'"[^>]*>(.*?)</p>',article,re.S)
@@ -493,11 +496,11 @@ def audit_current_release():
   check(match is not None and normalize(match.group(1))==normalize(reference),'Every complete source reference is exact '+str(number))
  # Current careers is checked as an actual résumé-intake surface before any
  # historical projection. These are semantic controls, separate from byte pins.
- role_source=(ROOT/'careers-role-data.js').read_text()
+ role_source=_publication_text('careers-role-data.js')
  role_start=role_source.index('  var data = {')+len('  var data = ')
  careers_data=json.JSONDecoder().raw_decode(role_source[role_start:])[0]
- career=(ROOT/'careers.html').read_text();notice=(ROOT/'careers-privacy.html').read_text()
- career_script=(ROOT/'careers.js').read_text();header=(ROOT/'site-shell/header.html').read_text();footer=(ROOT/'site-shell/footer.html').read_text()
+ career=_publication_text('careers.html');notice=_publication_text('careers-privacy.html')
+ career_script=_publication_text('careers.js');header=_publication_text('site-shell/header.html');footer=_publication_text('site-shell/footer.html')
  def careers_content(html,privacy,roles):
   rows=roles['roles'];locations=roles['workStates']
   assert len(rows)==20 and len({a['id'] for a in rows})==20,'Careers20 unique role slots'
@@ -575,16 +578,16 @@ def audit_current_release():
   except AssertionError:check(True,'Clearly synthetic careers negative rejects '+label);NEGATIVES+=1
   else:raise AssertionError('Synthetic careers negative unexpectedly accepted '+label)
  for name in ['careers.html','careers-privacy.html']:
-  page=(ROOT/name).read_text()
+  page=_publication_text(name)
   for token in ['favicon.svg?v=20260906-enterprise1','favicon.ico?v=20260906-enterprise1','favicon-192.png?v=20260906-enterprise1','apple-touch-icon.png?v=20260906-enterprise1','property="og:image"','name="twitter:card"']:
    check(token in page,'Current careers canonical metadata '+name+' '+token)
-  for sitemap in ['sitemap.txt','sitemap.xml']:check((ROOT/sitemap).read_text().count('https://www.monderman.com/'+name)==1,'One careers sitemap route '+name)
-  check(sum(a['url']==name for a in json.loads((ROOT/'public-search-index.json').read_text()))==1,'One actual careers search route '+name)
+  for sitemap in ['sitemap.txt','sitemap.xml']:check(_publication_text(sitemap).count('https://www.monderman.com/'+name)==1,'One careers sitemap route '+name)
+  check(sum(a['url']==name for a in json.loads(_publication_text('public-search-index.json')))==1,'One actual careers search route '+name)
  check(header.count('href="careers.html"')==1 and footer.count('href="careers.html"')==1 and 'href="careers-privacy.html"' in career,'Current shared Careers destinations and actual form privacy link')
  check(not re.search(r'localStorage|sessionStorage|indexedDB',career_script),'Careers browser does not retain applicant materials')
  check('if (error.code === "outcome_unknown")' in career_script and 'Please do not submit again' in career_script,'Careers unknown upload outcome is preserved')
  if '--built' in sys.argv:
-  build=Path(os.environ.get('HIRING_PUBLICATION_BUILD_ROOT',ROOT/'.render-public')).resolve();physical=sorted(p.relative_to(build).as_posix() for p in build.rglob('*') if p.is_file())
+  build=Path(os.environ.get('HIRING_PUBLICATION_BUILD_ROOT',ROOT/'.render-public')).resolve();physical=_publication_public_paths(sorted(p.relative_to(build).as_posix() for p in build.rglob('*') if p.is_file()),build)
   check(not any(p.is_symlink() for p in build.rglob('*')),'No compiled symlinks')
   check(physical==D['currentPublicPaths'],'Exact physical current public closure')
   channel=json.loads((build/'.well-known/monderman-questionnaire-release.json').read_bytes())['channel']
@@ -594,7 +597,7 @@ def audit_current_release():
   for mutant in [physical+['UNKNOWN.js'],physical+[physical[0]],physical[:-1]]:
    check(public_paths_at_series_baseline(mutant,build)==mutant,'Unknown/missing/duplicate public paths stay visible');NEGATIVES+=1
   for file,entry in D['publicEditions'][channel]['files'].items():
-   b=(build/file).read_bytes();prior=public_view(file,b);check(sha(prior)==entry['before_sha256'] and len(prior)==entry['before_bytes'],'Exact prior official compiled channel body '+file)
+   b=_publication_public_view(file,(build/file).read_bytes());prior=public_view(file,b);check(sha(prior)==entry['before_sha256'] and len(prior)==entry['before_bytes'],'Exact prior official compiled channel body '+file)
    PARITY.append(['public',file,'bytes',base64.b64encode(b).decode(),sha(prior)])
    for mutant in [b+b'\n',b'UNAPPROVED'+b,b[1:],b+b'<script>fetch("/api/activate",{method:"POST"})</script>']:
     check(public_view(file,mutant)==mutant,'Unknown compiled bytes stay visible '+file);NEGATIVES+=1
@@ -606,7 +609,7 @@ def audit_current_release():
  print(json.dumps(dict(ok=True,checks=CHECKS,negativeControls=NEGATIVES,parityCases=len(PARITY),sourceFiles=len(names),publicFiles=len(D['currentPublicPaths']),articles=28,topics=17,built='--built' in sys.argv,networkCalls=0,productionWrites=0)))
 def historical_read(file):
  audit_current_release()
- return source_view(file,(ROOT/file).read_bytes())
+ return source_view(file,_publication_read(file))
 def historical_public_read(root,file):
  audit_current_release()
  return public_view(file,(Path(root)/file).read_bytes())

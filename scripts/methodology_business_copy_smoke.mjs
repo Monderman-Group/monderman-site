@@ -13,6 +13,7 @@ import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 import {sourceAtBrandRefreshBaseline} from './brand_refresh_20261007_inverse.mjs';
 import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
 import {sourceAtMarketingPhotoPresentationBaseline} from './marketing_photo_presentation_20261013_inverse.mjs';
+import {publicationDelta,sourceAtPublicationBaseline} from './divide_rule_publication_20261025_inverse.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 // Audit every committed current source before inspecting any historical view.
@@ -190,10 +191,36 @@ const articleTopicNavigationPins=Object.freeze({
 const articleTopicStyle='<link rel="stylesheet" href="research-topics.css?v=20261017.1">\n';
 const articleTopicStart='\n<!-- MONDERMAN RESEARCH TOPICS: START -->\n';
 const articleTopicEnd='\n<!-- MONDERMAN RESEARCH TOPICS: END -->\n';
+// The Part 7 publication refreshed related links in this closed article set.
+// Derive its exact fragment pair from the SHA-bound complete source delta, then
+// retain every original topic/style/body predicate below. No unknown block or
+// unrelated source byte is normalized away.
+const articleTopicPublicationViews=new Map(Object.keys(articleTopicNavigationPins).map(file=>{
+  const current=read(file),prior=sourceAtPublicationBaseline(file,current);
+  if(!Object.hasOwn(publicationDelta.files,file))return [file,null];
+  assert.notEqual(prior,current,'Exact current Part 7 article source required');
+  const block=html=>{
+    assert.equal(html.split(articleTopicStart).length-1,1,'One SHA-bound Part 7 navigation start');
+    assert.equal(html.split(articleTopicEnd).length-1,1,'One SHA-bound Part 7 navigation end');
+    const start=html.indexOf(articleTopicStart),end=html.indexOf(articleTopicEnd,start);
+    assert.ok(start>=0&&end>start,'Complete SHA-bound Part 7 navigation fragment');
+    return html.slice(start,end+articleTopicEnd.length);
+  };
+  const currentBlock=block(current),priorBlock=block(prior);
+  assert.equal(current.replace(currentBlock,''),prior.replace(priorBlock,''),'Only approved related-navigation bytes differ');
+  assert.equal(Buffer.byteLength(priorBlock),articleTopicNavigationPins[file].bytes,'Prior complete navigation length preserved');
+  assert.equal(sha(priorBlock),articleTopicNavigationPins[file].sha256,'Prior complete navigation SHA256 preserved');
+  return [file,{current:currentBlock,prior:priorBlock}];
+}));
+function beforeApprovedPart7ArticleTopicNavigation(file,html){
+  const approved=articleTopicPublicationViews.get(file);
+  return approved&&html.includes(approved.current)?html.replace(approved.current,approved.prior):html;
+}
 function beforeApprovedArticleTopicNavigation(file,html){
   const label='Exact approved article topic navigation';
   assert.ok(Object.hasOwn(articleTopicNavigationPins,file),label+': closed four article paths');
   assert.equal(typeof html,'string',label+': text input');
+  html=beforeApprovedPart7ArticleTopicNavigation(file,html);
   const heads=[...html.matchAll(/<head>[\s\S]*?<\/head>/g)];
   const mains=[...html.matchAll(/<main class="article">[\s\S]*?<\/main>/g)];
   assert.equal(heads.length,1,label+': unique head');assert.equal(mains.length,1,label+': unique article main');

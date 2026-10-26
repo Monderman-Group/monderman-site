@@ -45,6 +45,7 @@ const adapterDependencies=['scripts/public_copy_clarity_inverse.mjs','scripts/pr
   'scripts/scope_beta_20261014_inverse.mjs','scripts/fixtures/scope-beta-20261014.json',
   'scripts/hiring_blind_spot_publication_20261015_inverse.mjs','scripts/fixtures/hiring-blind-spot-publication-20261015.json',
   'scripts/hiring_work_design_series_20261017_inverse.mjs','scripts/fixtures/hiring-work-design-series-20261017.json',
+  'scripts/divide_rule_publication_20261025_inverse.mjs','scripts/fixtures/divide-rule-publication-20261025.json',
   'scripts/site_design_coherence_20261014_inverse.mjs','scripts/fixtures/site-design-coherence-20261014.json',
   'scripts/homepage_report_first_20260927_inverse.mjs','scripts/fixtures/homepage-report-first-20260927.json',
   'scripts/trenches_homepage_carousel_20260929_inverse.mjs',
