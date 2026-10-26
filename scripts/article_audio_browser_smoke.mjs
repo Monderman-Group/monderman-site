@@ -142,7 +142,7 @@ async function recordNoJsFailure(test,label,error){
 }
 async function nativePlay(page,entry,evidence,{scripts=true}={}){
  const audio=page.locator('[data-article-audio] audio');
- await audio.focus();await page.keyboard.press('Space');
+ await audio.focus();if(evidence.engine==='webkit')await page.keyboard.press('Tab');await page.keyboard.press('Space');
  if(scripts)await page.waitForFunction(()=>{const a=document.querySelector('[data-article-audio] audio');return a&&!a.paused&&a.currentTime>0.15&&!a.error;},null,{timeout:10000});
  else await waitForNoJsMedia(page,s=>!s.paused&&s.currentTime>0.15&&!s.error,10000,'playback');
  const playing=await audioState(page);ok(playing.currentTime>0.15&&!playing.paused,'Native keyboard playback advances actual media');eq(playing.error,null,'Actual AAC decodes without media error');ok(playing.canAAC.length>0,'Browser advertises AAC support');
@@ -228,7 +228,7 @@ for(const{engine,type,channel:browserChannel}of nativeBrowsers){
   try{
    await arrive(broken.page,entry,broken.evidence);
    const target404=broken.page.waitForResponse(r=>{const u=new URL(r.url());return u.origin===origin&&u.pathname==='/'+entry.audio_path&&r.request().method()==='GET'&&r.status()===404;},{timeout:10000});target404.catch(()=>{});
-   await broken.page.locator('[data-article-audio] > summary').click();const a=broken.page.locator('[data-article-audio] audio');await a.focus();await broken.page.keyboard.press('Space');
+   await broken.page.locator('[data-article-audio] > summary').click();const a=broken.page.locator('[data-article-audio] audio');await a.focus();if(engine==='webkit')await broken.page.keyboard.press('Tab');await broken.page.keyboard.press('Space');
    await Promise.all([target404,broken.page.waitForFunction(()=>{const a=document.querySelector('[data-article-audio] audio');return a&&(a.error||a.networkState===a.NETWORK_NO_SOURCE);},null,{timeout:10000})]);
    ok(broken.evidence.responses.some(r=>{const u=new URL(r.url);return u.origin===origin&&r.path==='/'+entry.audio_path&&r.status===404;}),'MOCK404 browser observed the exact target404 response');
    const error=broken.page.locator('[data-audio-error]');await error.waitFor({state:'visible',timeout:3000});eq(await error.textContent(),'The recording could not load. You can try the download link.','404 yields truthful visible fallback');ok(await broken.page.locator('.mond-article-audio__options a[download]').isVisible(),'404 keeps direct fallback reachable');await finish(broken.context,broken.page,broken.evidence,engine+'-MOCK404-fallback');
