@@ -5,6 +5,7 @@ import {seriesPublicationPages,assertSeriesPublicationSurface} from './hiring_wo
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import os from 'node:os';
 import { createHash } from 'node:crypto';
 import { chromium, webkit } from 'playwright';
 import {isCurrentScopeBeta, assertScopeBetaBuiltEdition} from './scope_beta_20261014_inverse.mjs';
@@ -13,7 +14,7 @@ const root = path.resolve(process.env.SITE_SOURCE_DIR || '.render-public');
 const currentScope = isCurrentScopeBeta();
 if (currentScope) assertScopeBetaBuiltEdition(root);
 const currentProductPages = ['q2-sodi.html', 'scope.html'];
-const output = path.resolve(process.env.FOOTER_TEST_OUTPUT || 'output/floating-support');
+const output = path.resolve(process.env.FOOTER_TEST_OUTPUT || path.join(os.tmpdir(),'monderman-floating-support'));
 const fullScripts = process.env.FOOTER_FULL_SCRIPTS === '1';
 const dependencies = new Map();
 await fs.mkdir(output, { recursive: true });
@@ -40,7 +41,7 @@ if (currentScope) for (const page of scopePages) assert.equal(page.shell, true, 
 const browserPages = [...pages, ...scopePages];
 const hiringArticle = 'hiring-blind-spot.html';
 const publicationPages = pages.filter(p => seriesPublicationPages.includes(p.file));
-if(publicationPages.length){const channel=JSON.parse(await fs.readFile(path.join(root,'.well-known/monderman-questionnaire-release.json'),'utf8')).channel;for(const page of publicationPages){assertSeriesPublicationSurface(page.file,await fs.readFile(path.join(root,page.file)),channel);assert.equal(page.shell,true,'Every exact current publication keeps the canonical shell');}}
+if(publicationPages.length){const channel=JSON.parse(await fs.readFile(path.join(root,'.well-known/monderman-questionnaire-release.json'),'utf8')).channel;for(const page of publicationPages){assertSeriesPublicationSurface(page.file,await fs.readFile(path.join(root,page.file)),channel,root);assert.equal(page.shell,true,'Every exact current publication keeps the canonical shell');}}
 const historicalPages = pages.filter(p => !seriesPublicationPages.includes(p.file));
 const evaluationArchives = ['terms-2026-09-19-invited-evaluation.html', 'privacy-2026-09-19-invited-evaluation.html', 'terms-2026-09-19-invitation-access.html', 'privacy-2026-09-19-invitation-access.html'];
 assert.deepEqual(pages.filter(p => evaluationArchives.includes(p.file)).map(p => p.file).sort(), [...evaluationArchives].sort());

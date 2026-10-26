@@ -17,7 +17,7 @@ const localOrigin = new URL(base).origin;
 assert.ok(['127.0.0.1', 'localhost'].includes(new URL(base).hostname), 'Visual verification remains on loopback');
 const currentScopeBeta=isCurrentScopeBeta(),currentProductPages=['q2-sodi.html','scope.html'];
 const hiringArticle='hiring-blind-spot.html',hasHiringArticle=fs.existsSync(hiringArticle);
-for(const file of seriesPublicationPages){assertSeriesPublicationSurface(file,fs.readFileSync(file));const channel=JSON.parse(fs.readFileSync('.render-public/.well-known/monderman-questionnaire-release.json')).channel;assertSeriesPublicationSurface(file,fs.readFileSync(path.join('.render-public',file)),channel);}
+for(const file of seriesPublicationPages){assertSeriesPublicationSurface(file,fs.readFileSync(file));const channel=JSON.parse(fs.readFileSync('.render-public/.well-known/monderman-questionnaire-release.json')).channel;assertSeriesPublicationSurface(file,fs.readFileSync(path.join('.render-public',file)),channel,path.resolve('.render-public'));}
 if(currentScopeBeta){const actual=fs.readdirSync('.').filter(f=>f.endsWith('.html')&&!f.startsWith('google')&&!seriesPublicationPages.includes(f)).sort();assert.deepEqual(actual,[...scopeBetaDelta.baselineSourcePaths.filter(f=>!f.includes('/')&&f.endsWith('.html')&&!f.startsWith('google')),...currentProductPages].sort(),'Exact original source inventory plus only the separately certified canonical product page and retained alias beside the exact publication');}
 const inventorySource=(file,source)=>currentScopeBeta?sourceAtScopeBetaBaseline(file,source):source;
 const homepageSource = fs.readFileSync('index.html','utf8');

@@ -3,6 +3,7 @@ import {seriesPublicationPages,assertSeriesPublicationSurface} from './hiring_wo
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import os from 'node:os';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {chromium, webkit} from 'playwright';
@@ -15,7 +16,7 @@ const built = path.resolve(process.env.SITE_SOURCE_DIR || path.join(root, '.rend
 const currentScope = isCurrentScopeBeta();
 if (currentScope) assertScopeBetaBuiltEdition(built);
 const currentProductPages = ['q2-sodi.html', 'scope.html'];
-const output = path.resolve(process.env.FOOTER_MEMBERSHIP_OUTPUT || 'output/acmp-footer');
+const output = path.resolve(process.env.FOOTER_MEMBERSHIP_OUTPUT || path.join(os.tmpdir(),'monderman-acmp-footer'));
 const baseline = 'e9efd479cc4b19e9753aeb814fb30f280f8171a9';
 const credential = 'https://www.credly.com/badges/36d80452-ae21-4208-b5c6-f1bcf45fb23a';
 const badgePath = 'assets/brand/acmp-member-badge.png';
@@ -90,7 +91,7 @@ for (const file of (await fs.readdir(built)).filter(file => file.endsWith('.html
 }
 eq([...scopePages.keys()], currentScope ? currentProductPages : [], 'Only the whole-source and whole-build approved canonical product page and alias are separate');
 const hiringArticle = 'hiring-blind-spot.html';
-{const channel=JSON.parse(await fs.readFile(path.join(built,'.well-known/monderman-questionnaire-release.json'),'utf8')).channel;for(const file of seriesPublicationPages){ok(pages.has(file),'Each exact current publication joins footer coverage');assertSeriesPublicationSurface(file,await fs.readFile(path.join(built,file)),channel);}}
+{const channel=JSON.parse(await fs.readFile(path.join(built,'.well-known/monderman-questionnaire-release.json'),'utf8')).channel;for(const file of seriesPublicationPages){ok(pages.has(file),'Each exact current publication joins footer coverage');assertSeriesPublicationSurface(file,await fs.readFile(path.join(built,file)),channel,built);}}
 eq([...pages.keys()].filter(file => !seriesPublicationPages.includes(file)).length, 74, 'All original public footer pages receive the membership');
 const browserPages = new Map([...pages, ...scopePages]);
 const tracked = execFileSync('git', ['ls-tree', '-r', '--name-only', baseline], {cwd:root, encoding:'utf8'}).trim().split('\n');

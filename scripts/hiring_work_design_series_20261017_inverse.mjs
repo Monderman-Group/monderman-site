@@ -1,5 +1,6 @@
 // Exact post-1858 article-series layer. Only complete approved bytes project.
 import {publicationDelta,sourceAtPublicationBaseline,publicSourceAtPublicationBaseline,sourcePathsAtPublicationBaseline,publicPathsAtPublicationBaseline,publicationSourceExact,publicationPublicExact} from './divide_rule_publication_20261025_inverse.mjs';
+import {sourceAtAudioBaseline,publicSourceAtAudioBaseline} from './article_audio_20261026_inverse.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -54,8 +55,9 @@ export function seriesPublicExact(publishRoot, channel) {
 function paths(names,current,prior,exact){assert.ok(Array.isArray(names)&&names.every(f=>typeof f==='string'));return names.length===new Set(names).size&&JSON.stringify([...names].sort())===JSON.stringify(current)&&exact?[...prior]:names;}
 export const sourcePathsAtSeriesBaseline = names => paths(sourcePathsAtPublicationBaseline(names),seriesDelta.currentSourcePaths,seriesDelta.baselineSourcePaths,seriesSourceExact());
 export function publicPathsAtSeriesBaseline(names,publishRoot) {names=publicPathsAtPublicationBaseline(names,publishRoot);const file=path.join(publishRoot,'.well-known/monderman-questionnaire-release.json');if(!fs.existsSync(file))return names;const c=JSON.parse(fs.readFileSync(file)).channel;return paths(names,seriesDelta.currentPublicPaths,seriesDelta.baselinePublicPaths,seriesPublicExact(publishRoot,c));}
-export function assertSeriesPublicationSurface(file, bytes, channel=null) {
+export function assertSeriesPublicationSurface(file, bytes, channel=null, publishRoot=path.join(root,'.render-public')) {
  assert.ok(seriesPublicationPages.includes(file), 'Closed series surface');
+ bytes=channel===null?sourceAtAudioBaseline(file,bytes):publicSourceAtAudioBaseline(file,bytes,publishRoot);
  const rows=channel===null?publicationDelta.sourceRows:publicationDelta.publicEditions[channel]?.currentMap;
  assert.ok(rows,'Known channel');const row=rows.find(r=>r.path===file);assert.ok(row&&rowExact(file,row,bytes),file+': complete current publication surface');return row;
 }
