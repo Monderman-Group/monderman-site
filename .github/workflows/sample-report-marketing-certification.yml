@@ -738,7 +738,23 @@ jobs:
           done
       - name: Serve exact candidate for current native playback
         run: |
-          python3 -m http.server 8086 --bind 127.0.0.1 --directory .render-public >"${{ runner.temp }}/article-audio-http.log" 2>&1 &
+          python3 - >"${{ runner.temp }}/article-audio-http.log" 2>"${{ runner.temp }}/article-audio-http-errors.log" <<'AUDIO_HTTP' &
+          from functools import partial
+          from http import HTTPStatus
+          from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
+          import sys, threading
+          access_lock = threading.Lock()
+          class AccessHandler(SimpleHTTPRequestHandler):
+              def log_request(self, code='-', size='-'):
+                  if isinstance(code, HTTPStatus):
+                      code = code.value
+                  message = ('"%s" %s %s' % (self.requestline, str(code), str(size))).translate(self._control_char_table)
+                  line = '%s - - [%s] %s\n' % (self.address_string(), self.log_date_time_string(), message)
+                  with access_lock:
+                      sys.stdout.write(line)
+                      sys.stdout.flush()
+          ThreadingHTTPServer(('127.0.0.1', 8086), partial(AccessHandler, directory='.render-public')).serve_forever()
+          AUDIO_HTTP
           echo $! >"${{ runner.temp }}/article-audio-http.pid"
           for audio_attempt in {1..20}; do
             curl -fsS http://127.0.0.1:8086/.well-known/monderman-release.json >/dev/null && exit 0
@@ -750,6 +766,7 @@ jobs:
         env:
           SITE_BASE_URL: http://127.0.0.1:8086
           ARTICLE_AUDIO_OUT: ${{ runner.temp }}/article-audio-native
+          ARTICLE_AUDIO_HTTP_LOG: ${{ runner.temp }}/article-audio-http.log
         run: node scripts/article_audio_browser_smoke.mjs
       - name: Preserve native audio proof and bounded failure diagnostics
         if: always()
@@ -759,6 +776,7 @@ jobs:
           path: |
             ${{ runner.temp }}/article-audio-native
             ${{ runner.temp }}/article-audio-http.log
+            ${{ runner.temp }}/article-audio-http-errors.log
           if-no-files-found: ignore
   certify:
     runs-on: ubuntu-24.04
