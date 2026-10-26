@@ -95,6 +95,40 @@ async function recordJsFailure(test,label,error){
   fs.writeFileSync(path.join(output,label+'-FAIL.json'),JSON.stringify({error:String(error).slice(0,4000),observer:'synchronous-inspector-js-enabled',scriptsEnabled:true,state,evidence:test.evidence},null,2)+'\n');
  }finally{await test.context.close();}
 }
+function observeWebKitCensusMedia(page){
+ const installed=performance.now(),requests=new Map();let deadline=Infinity,stopped=false,frozen=null;
+ const data={requests:[],responses:[],finished:[],failed:[],diagnosticErrors:[],overflow:false};
+ const accepts=()=>!stopped&&performance.now()<=deadline;
+ const put=(key,value)=>{if(!accepts())return false;if(data[key].length>=maxRecords){data.overflow=true;return false;}data[key].push(value);return true;};
+ const id=q=>{if(requests.has(q))return requests.get(q);if(requests.size>=maxRecords){data.overflow=true;return null;}const n=requests.size+1;requests.set(q,n);return n;};
+ const audio=q=>new URL(q.url()).pathname.startsWith('/assets/audio/');
+ const stamp=()=>Math.round((performance.now()-installed)*1000)/1000;
+ const guard=fn=>(...args)=>{try{fn(...args);}catch(error){put('diagnosticErrors',String(error).slice(0,1000));}};
+ const onRequest=guard(q=>{if(!audio(q))return;const n=id(q);if(n===null)return;const h=q.headers();put('requests',{id:n,atMs:stamp(),url:q.url().slice(0,1200),method:q.method(),resourceType:q.resourceType(),reportedRange:h.range?.slice(0,200)??null,rangePresentInReportedHeaders:Object.hasOwn(h,'range')});});
+ const onResponse=guard(r=>{const q=r.request();if(!audio(q))return;const n=id(q);if(n===null)return;const h=r.headers();put('responses',{id:n,atMs:stamp(),url:r.url().slice(0,1200),status:r.status(),mime:h['content-type']?.slice(0,200)??null,contentRange:h['content-range']?.slice(0,200)??null,contentLength:h['content-length']?.slice(0,100)??null});});
+ const onFinished=guard(q=>{
+  if(!audio(q)||!accepts())return;const n=id(q);if(n===null)return;
+  const row={id:n,atMs:stamp(),sizes:null,sizeStatus:'pending'};if(!put('finished',row))return;
+  const limit=Math.max(1,Math.min(1000,Math.floor(deadline-performance.now())));
+  noJsHostDeadline(()=>q.sizes(),limit,'passive finished-request sizes').then(s=>{if(accepts()){row.sizes=Object.fromEntries(['requestBodySize','requestHeadersSize','responseBodySize','responseHeadersSize'].map(k=>[k,typeof s[k]==='number'?s[k]:null]));row.sizeStatus='reported';}},error=>{if(accepts()){row.sizeStatus='unavailable';row.sizeError=String(error).slice(0,500);}});
+ });
+ const onFailed=guard(q=>{if(!audio(q))return;const n=id(q);if(n!==null)put('failed',{id:n,atMs:stamp(),url:q.url().slice(0,1200),errorText:q.failure()?.errorText?.slice(0,1000)??null});});
+ page.on('request',onRequest);page.on('response',onResponse);page.on('requestfinished',onFinished);page.on('requestfailed',onFailed);
+ return{
+  beginWindow(){const start=performance.now();deadline=start+2000;data.window={requestedMs:2000,startOffsetMs:start-installed,eventCutoffOffsetMs:deadline-installed};return deadline;},
+  stop(){if(frozen)return frozen;stopped=true;page.off('request',onRequest);page.off('response',onResponse);page.off('requestfinished',onFinished);page.off('requestfailed',onFailed);for(const row of data.finished)if(row.sizeStatus==='pending')row.sizeStatus='unavailable-at-observation-cutoff';if(data.window)data.window.freezeCalledOffsetMs=performance.now()-installed;frozen=structuredClone(data);requests.clear();return frozen;}
+ };
+}
+async function recordWebKitCensusFailure(test,entry,error,observer){
+ try{
+  const end=observer.beginWindow();await hostDelay(Math.max(0,end-performance.now()));
+  const passive=observer.stop(); // Freeze before inspection/screenshot and teardown.
+  const stateWork=noJsHostDeadline(()=>test.page.locator('[data-article-audio] audio').evaluate(a=>({paused:a.paused,currentTime:a.currentTime,duration:Number.isFinite(a.duration)?a.duration:null,networkState:a.networkState,readyState:a.readyState,preload:a.preload,autoplay:a.autoplay,controls:a.controls,elementSrc:a.getAttribute('src')?.slice(0,1000)??null,sourceSrc:a.querySelector('source')?.getAttribute('src')?.slice(0,1000)??null,currentSrc:a.currentSrc.slice(0,1000),error:a.error?{code:a.error.code,message:a.error.message.slice(0,500)}:null}),undefined,{timeout:2000}),2000,'census failure state').then(value=>({available:true,value}),failure=>({available:false,error:String(failure).slice(0,1000)}));
+  const cameraWork=noJsHostDeadline(()=>test.page.screenshot({path:path.join(output,'webkit-nojs-census-FAIL.png'),fullPage:false,timeout:2000}),2000,'census failure screenshot').then(()=>({available:true}),failure=>({available:false,error:String(failure).slice(0,1000)}));
+  const [state,camera]=await Promise.all([stateWork,cameraWork]);
+  fs.writeFileSync(path.join(output,'webkit-nojs-census-FAIL.json'),JSON.stringify({error:String(error).slice(0,4000),scriptsEnabled:false,localBuildMarker:expectedMarker,channel,browserBuilds,entry:{path:entry.path,audio_path:entry.audio_path,expectedAudioBytes:entry.bytes},passive,state,camera,evidence:test.evidence,qualification:'Passive lifecycle only; no playback, body read or additional GET. Pending sizes are unavailable. Local marker is not a separately fetched served marker.'},null,2)+'\n');
+ }finally{observer.stop();await test.context.close();}
+}
 const nativeBrowsers=[{engine:'chromium',type:chromium,channel:'chrome'},{engine:'webkit',type:webkit,channel:null}];
 for(const{engine,type,channel:browserChannel}of nativeBrowsers){
  eq(browserChannel,engine==='chromium'?'chrome':null,'Chromium must use official Chrome stable; no codec fallback');
@@ -102,9 +136,9 @@ for(const{engine,type,channel:browserChannel}of nativeBrowsers){
  eq(type.name(),engine,'Actual requested browser engine');browserBuilds.push({engine:type.name(),channel:browserChannel||'playwright-webkit',version:browser.version()});
  try{
   // All29 current mappings in both engines with JS disabled. No recordings fetched.
-  const census=await setup(browser,{scripts:false,width:390});
-  for(const entry of entries){const s=await arrive(census.page,entry,census.evidence);eq(s.speedHidden,true,'No inert custom speed control without scripts');eq(s.speedDisplay,'none','No-JS speed controls are visually hidden');}
-  eq(census.evidence.media,[],engine+': all29 visits performed without prefetching audio');eq(census.evidence.writes,[],engine+': no-JS census has no writes');eq(census.evidence.overflow,false,engine+': bounded census diagnostics');receipts.push({label:engine+'-all29-nojs-census',pages:entries.map(a=>a.path),evidence:census.evidence});await census.context.close();
+  const census=await setup(browser,{scripts:false,width:390}),passive=engine==='webkit'?observeWebKitCensusMedia(census.page):null;
+  for(const entry of entries){let s;try{s=await arrive(census.page,entry,census.evidence);}catch(error){if(passive){try{await recordWebKitCensusFailure(census,entry,error,passive);}finally{throw error;}}throw error;}eq(s.speedHidden,true,'No inert custom speed control without scripts');eq(s.speedDisplay,'none','No-JS speed controls are visually hidden');}
+  eq(census.evidence.media,[],engine+': all29 visits performed without prefetching audio');eq(census.evidence.writes,[],engine+': no-JS census has no writes');eq(census.evidence.overflow,false,engine+': bounded census diagnostics');receipts.push({label:engine+'-all29-nojs-census',pages:entries.map(a=>a.path),evidence:census.evidence});passive?.stop();await census.context.close();
   // A long essay, a guide with authored sidebar, and the custom evidence summary.
   for(const width of[320,1440])for(const entry of representatives){
    const label=engine+'-'+width+'-'+path.basename(entry.path,'.html'),test=await setup(browser,{width,reduced:width===320});
