@@ -1,4 +1,5 @@
-import {assertPart7ImageControls,placeholderCoverBeforePart7} from './divide_rule_publication_20261025_browser_contract.mjs';
+import {publicationDelta} from './divide_rule_publication_20261025_inverse.mjs';
+import {PART7_IMAGE,assertPart7ImageControls,placeholderCoverBeforePart7} from './divide_rule_publication_20261025_browser_contract.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -88,6 +89,62 @@ async function newLocalPage(browser, options = {}) {
   const page = await browser.newPage({ serviceWorkers: 'block', ...options });
   return restrictToLocalResources(page);
 }
+
+// The original lazy image must really finish loading before its one decode.
+// This observes native events/state only: no src/loading changes or reloads.
+function waitForOriginalPart7Image(image,expected) {
+  const state=()=>({src:(image.getAttribute('src')||'').slice(0,500),resolvedSrc:String(image.src||'').slice(0,500),currentSrc:String(image.currentSrc||'').slice(0,500),complete:image.complete,naturalWidth:image.naturalWidth,naturalHeight:image.naturalHeight,loading:image.loading,decoding:image.decoding,connected:image.isConnected,documentURL:image.ownerDocument.URL,readyState:image.ownerDocument.readyState,visibilityState:image.ownerDocument.visibilityState});
+  const ready=value=>value.connected&&value.resolvedSrc===expected.url&&value.currentSrc===expected.url&&value.complete&&value.naturalWidth===expected.width&&value.naturalHeight===expected.height;
+  const started=Date.now(),deadline=started+expected.boundMs;
+  return new Promise(resolve=>{
+    const initial=state(),events=[];let timer,done=false;
+    const finish=(loaded,reason)=>{if(done)return;const elapsedMs=Date.now()-started;if(loaded&&Date.now()>=deadline){loaded=false;reason='original image load completed after10s bound';}done=true;clearTimeout(timer);image.removeEventListener('load',loadedEvent);image.removeEventListener('error',errorEvent);resolve({loaded,reason,elapsedMs,initial,events,final:state()});};
+    const loadedEvent=()=>{const observed=state();events.push({type:'load',state:observed});finish(ready(observed),'native load event');};
+    const errorEvent=()=>{events.push({type:'error',state:state()});finish(false,'native image error');};
+    image.addEventListener('load',loadedEvent,{once:true});image.addEventListener('error',errorEvent,{once:true});
+    timer=setTimeout(()=>finish(false,'original image did not load within10s'),Math.max(0,deadline-Date.now()));
+    const observed=state();
+    if(ready(observed))finish(true,'already completely loaded');
+    else if(observed.resolvedSrc!==expected.url||(observed.currentSrc&&observed.currentSrc!==expected.url))finish(false,'unexpected original image source');
+    else if(observed.complete)finish(false,'original image complete without expected natural dimensions');
+  });
+}
+
+function recordPart7ImageResource(page,expectedURL) {
+  const evidence={requests:[],responses:[],failures:[],overflow:0},bodyReads=[];
+  const matches=url=>{const parsed=new URL(url),expected=new URL(expectedURL);return parsed.origin===expected.origin&&parsed.pathname===expected.pathname;};
+  const append=(list,value)=>{if(list.length>=12){evidence.overflow++;return false;}list.push(value);return true;};
+  page.on('request',request=>{if(matches(request.url()))append(evidence.requests,{url:request.url(),method:request.method()});});
+  page.on('requestfailed',request=>{if(matches(request.url()))append(evidence.failures,{url:request.url(),method:request.method(),failure:request.failure()});});
+  page.on('response',response=>{
+    if(!matches(response.url()))return;
+    const row={url:response.url(),method:response.request().method(),status:response.status(),mime:response.headers()['content-type']||'',bodyState:'PENDING'};
+    if(!append(evidence.responses,row))return;
+    bodyReads.push(Promise.resolve().then(()=>response.body()).then(body=>{row.bytes=body.length;row.sha256=createHash('sha256').update(body).digest('hex');row.bodyState='READ';}).catch(error=>{row.bodyState='ERROR';row.bodyError=String(error);}));
+  });
+  return {evidence,bodyReads};
+}
+
+async function boundedPart7Evidence(promise,boundMs) {
+  const started=Date.now();let timer;
+  try{const result=await Promise.race([promise,new Promise(resolve=>{timer=setTimeout(()=>resolve({status:'UNAVAILABLE_WITHIN_BOUND',boundMs}),boundMs);})]);return Date.now()-started>=boundMs?{status:'UNAVAILABLE_WITHIN_BOUND',boundMs,elapsedMs:Date.now()-started}:result;}
+  finally{clearTimeout(timer);}
+}
+
+async function settlePart7ImageResource(recorder) {
+  const reads=[...recorder.bodyReads];
+  return boundedPart7Evidence(Promise.all(reads).then(()=>({status:'READS_SETTLED',reads:reads.length})),2000);
+}
+
+function assertPart7ImageResource(evidence,settled,expectedURL,pin) {
+  assert.equal(settled.status,'READS_SETTLED','Relevant image response bodies finished within the evidence bound');
+  assert.equal(evidence.overflow,0,'Relevant image resource evidence remains bounded');
+  assert.ok(evidence.responses.some(row=>row.url===expectedURL&&row.method==='GET'&&row.status===200&&row.mime.split(';')[0].trim().toLowerCase()==='image/png'&&row.bodyState==='READ'&&row.bytes===pin.bytes&&row.sha256===pin.sha256),'Actual Part7 PNG response is200 image/png with exact approved bytes/SHA256');
+}
+
+const part7ImagePins=Object.values(publicationDelta.publicEditions).map(edition=>edition.currentMap.find(row=>row.path===PART7_IMAGE.src));
+assert.ok(part7ImagePins.every(row=>row&&row.bytes===part7ImagePins[0].bytes&&row.sha256===part7ImagePins[0].sha256),'Both exact compiled editions share the approved Part7 PNG');
+const part7ImagePin=part7ImagePins[0];
 
 const browserMatrix = [['chromium', chromium], ['webkit', webkit]]
   .filter(([browserName]) => !process.env.COSMETIC_BROWSER || process.env.COSMETIC_BROWSER === browserName);
@@ -742,6 +799,9 @@ for (const [browserName, browserType] of browserMatrix) {
       const page = await newLocalPage(browser, { viewport });
       const label = `${browserName}/${viewport.width}/index.html`;
       const italicResponses = new Map();
+      const expectedPart7ImageURL=new URL('/'+PART7_IMAGE.src,localOrigin).href;
+      const part7Resource=recordPart7ImageResource(page,expectedPart7ImageURL);
+      let part7LoadEvidence=null,part7ResourceSettled=null;
       page.on('response', (response) => {
         const name = response.url().split('/').pop()?.split('?')[0];
         if (['56font.woff2', '76font.woff2'].includes(name)) italicResponses.set(name, response.status());
@@ -749,10 +809,27 @@ for (const [browserName, browserType] of browserMatrix) {
       await page.goto(`${base}/index.html`, { waitUntil: 'load', timeout: 30000 });
       await page.locator('.latest-card:not(.is-carousel-clone)').first()
         .waitFor({ state: 'visible', timeout: 10000 });
-      await page.locator('.latest-card:not(.is-carousel-clone)[data-publication="divide-and-rule-inside-the-company"]')
-        .scrollIntoViewIfNeeded();
-      await page.locator('.latest-card:not(.is-carousel-clone)[data-publication="divide-and-rule-inside-the-company"] .latest-card-image img')
-        .evaluateAll(images => Promise.all(images.map(image => image.decode())));
+      const part7ImageSelector='.latest-card:not(.is-carousel-clone)[data-publication="divide-and-rule-inside-the-company"] .latest-card-image img';
+      try {
+        await page.locator('.latest-card:not(.is-carousel-clone)[data-publication="divide-and-rule-inside-the-company"]')
+          .scrollIntoViewIfNeeded();
+        const originalImage=page.locator(part7ImageSelector);
+        assert.equal(await originalImage.count(),1,'Exactly one original Part7 image enters native load/decode');
+        part7LoadEvidence=await originalImage.evaluate(waitForOriginalPart7Image,{url:expectedPart7ImageURL,width:PART7_IMAGE.width,height:PART7_IMAGE.height,boundMs:10000});
+        assert.equal(part7LoadEvidence.loaded,true,'Original Part7 image completes its native load with exact source/dimensions');
+        await originalImage.evaluateAll(images => Promise.all(images.map(image => image.decode())));
+        part7ResourceSettled=await settlePart7ImageResource(part7Resource);
+        assertPart7ImageResource(part7Resource.evidence,part7ResourceSettled,expectedPart7ImageURL,part7ImagePin);
+        console.log('ACTUAL_PART7_IMAGE_LOAD_RESOURCE '+JSON.stringify({browserName,width:viewport.width,load:part7LoadEvidence,resource:part7Resource.evidence,resourceReads:part7ResourceSettled}));
+      } catch(originalError) {
+        if(!part7ResourceSettled)part7ResourceSettled=await settlePart7ImageResource(part7Resource);
+        const read=page.locator(part7ImageSelector).evaluateAll(images=>images.map(image=>({src:(image.getAttribute('src')||'').slice(0,500),currentSrc:String(image.currentSrc||'').slice(0,500),complete:image.complete,naturalWidth:image.naturalWidth,naturalHeight:image.naturalHeight,connected:image.isConnected,documentURL:image.ownerDocument.URL,readyState:image.ownerDocument.readyState,visibilityState:image.ownerDocument.visibilityState}))).then(images=>({status:'CAPTURED',images}),error=>({status:'READ_ERROR',error:String(error)}));
+        const freshImage=await boundedPart7Evidence(read,2000);
+        const failure={browserName,width:viewport.width,originalError:{name:originalError.name,message:originalError.message,stack:originalError.stack},load:part7LoadEvidence,freshImage,resource:part7Resource.evidence,resourceReads:part7ResourceSettled};
+        try{fs.writeFileSync(path.join(out,'part7-image-failure-'+browserName+'-'+viewport.width+'.json'),JSON.stringify(failure,null,2)+'\n');}catch(evidenceWriteError){failure.evidenceWriteError=String(evidenceWriteError);}
+        try{console.error('ACTUAL_PART7_IMAGE_LOAD_DECODE_FAILURE '+JSON.stringify(failure));}catch{}
+        throw originalError;
+      }
       const currentMotif = await page.evaluate(async () => {
         await Promise.all([
           document.fonts.load('italic 400 16px "Neue Haas Grotesk"'),

@@ -5,7 +5,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {inflateSync} from 'node:zlib';
 import {execFileSync} from 'node:child_process';
-export const FIXTURE_SHA256='ef16e8cc057028742922851e2090a278a7e99fdef5e2ba9d4c352c426f1f1a73';
+export const FIXTURE_SHA256='132600d52e5fc1d48c3db3adf596d51aa30e3a56470096cdf164e08757e247b2';
 const root=path.resolve(import.meta.dirname,'..');
 const sha=b=>createHash('sha256').update(b).digest('hex');
 const raw=fs.readFileSync(new URL('./fixtures/divide-rule-publication-20261025.json',import.meta.url));
