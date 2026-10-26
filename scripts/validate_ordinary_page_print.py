@@ -18,10 +18,13 @@ logging.getLogger("pdfminer").setLevel(logging.ERROR)
 
 ROOT = Path(os.environ.get("ORDINARY_PRINT_OUT", "/tmp/monderman-ordinary-print"))
 MANIFEST = ROOT / "manifest.json"
+# October 25 Part 7 publication: matched-font/viewport Letter prints add one
+# substantive page to each catalogue (approved baseline 11/8; current 12/9).
+# Every per-page density, contamination and all other surface bounds remain.
 PAGE_CEILINGS = {
-    "index.html": 11,
+    "index.html": 12,
     "about.html": 3,
-    "research.html": 8,
+    "research.html": 9,
     "platform-services.html": 11,
     "from-tokens-to-outcomes.html": 30,
 }

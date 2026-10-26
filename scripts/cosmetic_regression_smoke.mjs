@@ -1,8 +1,10 @@
+import {assertPart7ImageControls,placeholderCoverBeforePart7} from './divide_rule_publication_20261025_browser_contract.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 
+assertPart7ImageControls();
 const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8765';
@@ -747,7 +749,9 @@ for (const [browserName, browserType] of browserMatrix) {
       await page.goto(`${base}/index.html`, { waitUntil: 'load', timeout: 30000 });
       await page.locator('.latest-card:not(.is-carousel-clone)').first()
         .waitFor({ state: 'visible', timeout: 10000 });
-      const motif = await page.evaluate(async () => {
+      await page.locator('.latest-card:not(.is-carousel-clone)[data-publication="divide-and-rule-inside-the-company"] .latest-card-image img')
+        .evaluateAll(images => Promise.all(images.map(image => image.decode())));
+      const currentMotif = await page.evaluate(async () => {
         await Promise.all([
           document.fonts.load('italic 400 16px "Neue Haas Grotesk"'),
           document.fonts.load('italic 700 16px "Neue Haas Grotesk"'),
@@ -758,6 +762,19 @@ for (const [browserName, browserType] of browserMatrix) {
           clientWidth: document.documentElement.clientWidth,
           scrollWidth: document.documentElement.scrollWidth,
           cardCount: cards.length,
+          part7ImageCover: {
+            totalCards: cards.length,
+            part7Cards: cards.filter(card => card.getAttribute('data-publication') === 'divide-and-rule-inside-the-company').length,
+            placeholderCards: cards.filter(card => card.querySelector('.latest-card-image--placeholder')).length,
+            images: cards.filter(card => card.getAttribute('data-publication') === 'divide-and-rule-inside-the-company')
+              .flatMap(card => [...card.querySelectorAll('.latest-card-image img')].map(image => {
+                const box = image.getBoundingClientRect(), cover = image.closest('.latest-card-image').getBoundingClientRect();
+                return {src:image.getAttribute('src'),alt:image.getAttribute('alt'),width:Number(image.getAttribute('width')),height:Number(image.getAttribute('height')),
+                  complete:image.complete,naturalWidth:image.naturalWidth,naturalHeight:image.naturalHeight,
+                  top:box.top,bottom:box.bottom,left:box.left,right:box.right,
+                  imageTop:cover.top,imageBottom:cover.bottom,imageLeft:cover.left,imageRight:cover.right};
+              })),
+          },
           visibleMotifCount: motifs.filter((svg) => {
             const box = svg.getBoundingClientRect();
             const style = getComputedStyle(svg);
@@ -783,6 +800,8 @@ for (const [browserName, browserType] of browserMatrix) {
           italic700: document.fonts.check('italic 700 16px "Neue Haas Grotesk"'),
         };
       });
+      console.log('ACTUAL_CURRENT22_PART7_IMAGE_COVER '+JSON.stringify({browserName,width:viewport.width,observation:currentMotif.part7ImageCover}));
+      const motif = placeholderCoverBeforePart7(currentMotif);
       noPageOverflow(motif, `${label}/motif`);
       assert.ok(motif.cardCount >= 3, `${label}: editorial carousel inventory is incomplete`);
       assert.equal(motif.visibleMotifCount, 0, `${label}: an unintentional category motif is visible`);

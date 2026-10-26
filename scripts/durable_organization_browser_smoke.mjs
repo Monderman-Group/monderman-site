@@ -1,3 +1,4 @@
+import {homepageInputsBeforePart7,homepageResponseBeforePart7,assertPart7HomepageInputs,assertPart7HomepageBindingControls,assertCurrentPart7Catalogue,assertPart7CatalogueControls} from './divide_rule_publication_20261025_browser_contract.mjs';
 import {chromium, webkit} from 'playwright';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
@@ -45,11 +46,14 @@ for(const test of syntheticCatalogueCases){
  assert.throws(()=>assertCurrentHiringCatalogue(mutant),error=>error.name==='AssertionError'&&error.message.includes('Current21 catalogue: '+test.expected),'Synthetic census case must fail its own predicate: '+test.name);checks++;
 }
 console.log('SYNTHETIC_CURRENT21_CATALOGUE_CONTROLS '+JSON.stringify({passed:true,negativeControls:16,scope:'Fabricated pure arrays only; no observed browser or production data.'}));
+checks+=assertPart7CatalogueControls(syntheticCatalogueBaseline,assertCurrentHiringCatalogue);
 const homepageSha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const sourceHomepageBytes=fs.readFileSync(new URL('../index.html',import.meta.url));
 const buildHomepageBytes=fs.readFileSync(new URL('../.render-public/index.html',import.meta.url));
 const actualHomepageInputs={source:{bytes:sourceHomepageBytes.length,sha256:homepageSha(sourceHomepageBytes)},build:{bytes:buildHomepageBytes.length,sha256:homepageSha(buildHomepageBytes)}};
-assert.deepEqual(actualHomepageInputs,approvedHomepageInputs,'Source/build homepage inputs are the exact separately approved bytes');checks++;
+checks+=assertPart7HomepageInputs(actualHomepageInputs);
+assert.deepEqual(homepageInputsBeforePart7(sourceHomepageBytes,buildHomepageBytes),approvedHomepageInputs,'Source/build homepage inputs are the exact separately approved bytes');checks++;
+checks+=assertPart7HomepageBindingControls(sourceHomepageBytes,buildHomepageBytes,approvedHomepageInputs);
 
 for (const [engine,type] of Object.entries({chromium,webkit})) {
   const browser = await type.launch({headless:true});
@@ -86,7 +90,7 @@ for (const [engine,type] of Object.entries({chromium,webkit})) {
       ok(page.url().endsWith('/durable-organization.html'),'Research article link works');
       const homepageResponse=await page.goto(base+'/');
       await page.waitForSelector('#latestViewport.is-ready');
-      // Observe the actual current21 catalogue; no routed historical homepage.
+      // Observe the actual current22 catalogue; exact Part7 subtraction is used only by the original21 predicates.
       const currentCards=page.locator('.latest-card:not(.is-carousel-clone)');
       const currentRows=await currentCards.evaluateAll(nodes=>nodes.map(node=>({
        id:node.getAttribute('data-publication'),
@@ -103,11 +107,12 @@ for (const [engine,type] of Object.entries({chromium,webkit})) {
       const actualHomepageResponse={url:homepageResponse.url(),status:homepageResponse.status(),bytes:homepageResponseBytes.length,sha256:homepageSha(homepageResponseBytes)};
       const currentObservation={engine,width,rowCount:currentRows.length,rows:currentRows,homepageResponse:actualHomepageResponse,inputBindings:actualHomepageInputs};
       actualCatalogueObservations.push(currentObservation);
-      console.log('ACTUAL_CURRENT21_CATALOGUE_OBSERVATION '+JSON.stringify(currentObservation));
+      console.log('ACTUAL_CURRENT22_CATALOGUE_OBSERVATION '+JSON.stringify(currentObservation));
       assert.equal(actualHomepageResponse.status,200,'Actual current homepage document response is HTTP200');checks++;
-      assert.deepEqual({bytes:actualHomepageResponse.bytes,sha256:actualHomepageResponse.sha256},approvedHomepageInputs.build,'Actual homepage document is the approved complete built body');checks++;
-      checks+=assertCurrentHiringCatalogue(currentRows);
-      const previousCards = page.locator('.latest-card:not(.is-carousel-clone):not([data-publication="hiring-blind-spot"]):not([data-publication="posting-has-outgrown-the-job"])');
+      assert.deepEqual(homepageResponseBeforePart7(homepageResponseBytes),approvedHomepageInputs.build,'Actual homepage document is the approved complete built body');checks++;
+   assert.deepEqual({bytes:actualHomepageResponse.bytes,sha256:actualHomepageResponse.sha256},actualHomepageInputs.build,'Actual current homepage document matches the exact current built body');checks++;
+      checks+=assertCurrentPart7Catalogue(currentRows,assertCurrentHiringCatalogue);
+      const previousCards = page.locator('.latest-card:not(.is-carousel-clone):not([data-publication="hiring-blind-spot"]):not([data-publication="posting-has-outgrown-the-job"]):not([data-publication="divide-and-rule-inside-the-company"])');
       ok(await previousCards.count()===19,'Every original homepage publication remains');
       ok(JSON.stringify(await previousCards.locator('.latest-card-link').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href'))))===JSON.stringify(["durable-organization.html","hold-collide-come-apart.html","trenches-not-silos.html","nothing-stays-tuned.html","we-gave-bureaucracy-the-fastest-tools.html","the-unmeasured-layer.html","merit-after-the-machine.html","every-node-for-itself.html","built-to-please.html","terminal-fidelity.html","accumulated-drag-department-of-war.html","quarter-trillion-friction-us-healthcare.html","from-tokens-to-outcomes.html","compensatory-systems.html","when-bureaucracy-became-the-obstacle.html","the-culture-trap-brief.html","the-art-of-interior-reasoning.html","governing-complexity.html","designing-for-decision-velocity.html"]),'All original19 destinations and relative order remain');
       const first = previousCards.first();
@@ -118,5 +123,5 @@ for (const [engine,type] of Object.entries({chromium,webkit})) {
     }
   } finally {await browser.close();}
 }
-console.log('ACTUAL_CURRENT21_CATALOGUE_SUCCESS '+JSON.stringify({passed:true,syntheticNegativeControls:16,observations:actualCatalogueObservations}));
+console.log('ACTUAL_CURRENT22_CATALOGUE_SUCCESS '+JSON.stringify({passed:true,syntheticNegativeControls:32,observations:actualCatalogueObservations}));
 console.log(JSON.stringify({passed:true,checks,engines:['chromium','webkit'],widths:[390,820,1440],base,output},null,2));
