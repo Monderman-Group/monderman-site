@@ -132,7 +132,7 @@ def build_html(data, pages):
 <meta property="og:title" content="{TITLE} | Monderman"><meta property="og:description" content="{escape(SUBTITLE)}">
 <meta property="og:image" content="https://www.monderman.com/assets/research/{SLUG}-social.png">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="{TITLE} — Governance and Performance, Part 7">
+<meta property="og:image:alt" content="{TITLE} | Governance and Performance, Part 7">
 <meta property="article:published_time" content="2026-10-25"><meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{TITLE} | Monderman"><meta name="twitter:description" content="{escape(SUBTITLE)}">
 <meta name="twitter:image" content="https://www.monderman.com/assets/research/{SLUG}-social.png">

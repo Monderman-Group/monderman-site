@@ -3,7 +3,7 @@ import base64, hashlib, json, subprocess, zlib
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
-FIXTURE_SHA256='3fea24042a4a3b936977d4af0dead7aa02457b9f09167e4682519153396df47a'
+FIXTURE_SHA256='415384ea77f96040e3722a2228a0cef91112d852017fafa5a3dde849673276ac'
 raw=(ROOT/'scripts/fixtures/divide-rule-publication-20261025.json').read_bytes()
 assert hashlib.sha256(raw).hexdigest()==FIXTURE_SHA256,'Exact reviewed Part7 fixture'
 publication_delta=json.loads(raw)
