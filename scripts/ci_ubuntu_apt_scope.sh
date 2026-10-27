@@ -18,6 +18,18 @@ if [[ ! -s "$ci_ubuntu_keyring" || ! -r "$ci_ubuntu_keyring" ]]; then
   exit 1
 fi
 
+# Only the native jobs opt in to the official US HTTPS archive transport.
+# Default only when unset; an explicitly empty or unsupported URI must fail.
+ci_ubuntu_archive_uri=${CI_UBUNTU_ARCHIVE_URI-https://archive.ubuntu.com/ubuntu}
+case "$ci_ubuntu_archive_uri" in
+  https://archive.ubuntu.com/ubuntu|https://us.archive.ubuntu.com/ubuntu) ;;
+  *)
+    echo 'Unsupported Ubuntu archive URI; expected canonical or official US HTTPS archive.' >&2
+    exit 1
+    ;;
+esac
+printf 'Ubuntu dependency archive: %s\n' "$ci_ubuntu_archive_uri"
+
 # RUNNER_TEMP can have a private parent that APT's _apt user cannot traverse.
 ci_apt_dir=$(mktemp -d /tmp/monderman-ci-apt.XXXXXX)
 if [[ "$ci_apt_dir" == *[!a-zA-Z0-9_./-]* ]]; then
@@ -30,7 +42,7 @@ chmod 755 "$ci_apt_dir/empty-sourceparts" "$ci_apt_dir/lists"
 ci_ubuntu_sources="$ci_apt_dir/ubuntu.sources"
 cat > "$ci_ubuntu_sources" <<EOF
 Types: deb
-URIs: https://archive.ubuntu.com/ubuntu
+URIs: $ci_ubuntu_archive_uri
 Suites: noble noble-updates noble-backports
 Components: main restricted universe multiverse
 Signed-By: $ci_ubuntu_keyring

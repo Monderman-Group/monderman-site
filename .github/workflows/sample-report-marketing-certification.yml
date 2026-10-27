@@ -725,6 +725,8 @@ jobs:
       - name: Admit exact current article audio before historical projections
         run: python scripts/article_audio_20261026_contract.py
       - name: Install pinned native-browser test tooling
+        env:
+          CI_UBUNTU_ARCHIVE_URI: https://us.archive.ubuntu.com/ubuntu
         run: |
           npm install --no-save --package-lock=false --ignore-scripts playwright@1.55.0
           bash scripts/install_ci_browsers.sh
