@@ -39,9 +39,19 @@ class Bounds(HTMLParser):
   super().__init__(convert_charrefs=False);self.lines=[0];self.source=source
   for m in re.finditer('\n',source):self.lines.append(m.end())
   self.hero_depth=None;self.section_depth=0;self.heroes=[];self.heads=[];self.bodies=[]
+  self.in_head=False;self.head_styles=[];self.brands=[]
  def at(self):
   line,col=self.getpos();return self.lines[line-1]+col
  def handle_starttag(self,tag,attrs):
+  if tag=='head':
+   check(not self.in_head,'Nested head is forbidden');self.in_head=True
+  a=dict(attrs)
+  if self.in_head and (tag=='style' or tag=='link' and a.get('rel')=='stylesheet'):
+   self.head_styles.append(self.at())
+  if tag=='link' and any(k=='href' and isinstance(v,str) and v.startswith('brand-surfaces.css') for k,v in attrs):
+   check(self.in_head,'Shared brand stylesheet must be inside the head')
+   check(len(attrs)==2 and set(a)=={'rel','href'} and a.get('rel')=='stylesheet' and re.fullmatch(r'brand-surfaces\.css(?:\?v=[0-9.]+)?',a.get('href','')),'Unexpected shared brand stylesheet anchor')
+   self.brands.append(self.at())
   if tag=='section':
    if 'publication-hero' in dict(attrs).get('class','').split():
     check(self.hero_depth is None,'Nested publication hero is forbidden')
@@ -52,7 +62,7 @@ class Bounds(HTMLParser):
    self.section_depth-=1
    if self.hero_depth==self.section_depth:
     end=self.source.index('>',self.at())+1;self.heroes.append(end);self.hero_depth=None
-  if tag=='head':self.heads.append(self.at())
+  if tag=='head':self.heads.append(self.at());self.in_head=False
   if tag=='body':self.bodies.append(self.at())
 
 HEAD=block('head',f'<link rel="stylesheet" href="article-audio.css?v={RELEASE}">')
@@ -72,7 +82,9 @@ def transform(source,entry):
  p=Bounds(source);p.feed(source);p.close()
  check(len(p.heroes)==len(p.heads)==len(p.bodies)==1,'Exactly one complete hero/head/body required')
  check(p.heads[0]<p.heroes[0]<p.bodies[0],'Expected document reading order')
- additions=[(p.heads[0],HEAD),(p.heroes[0],player(entry)),(p.bodies[0],SCRIPT)]
+ check(len(p.brands)==1 and p.head_styles and p.brands[0]==p.head_styles[-1],'Exactly one shared brand stylesheet must be last in the head')
+ check(p.brands[0]<p.heads[0],'Shared brand stylesheet must precede the head end')
+ additions=[(p.brands[0],HEAD),(p.heroes[0],player(entry)),(p.bodies[0],SCRIPT)]
  result=source
  for offset,value in sorted(additions,reverse=True):result=result[:offset]+value+result[offset:]
  check(recover(result,entry)==source,'Insertion must preserve every original byte')
