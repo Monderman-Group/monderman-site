@@ -9,5 +9,9 @@ source "$(dirname "${BASH_SOURCE[0]}")/ci_ubuntu_apt_scope.sh"
 echo 'Installing browser OS dependencies from signed official Ubuntu HTTPS repositories only.'
 sudo env APT_CONFIG="$ci_apt_config" \
   "$(command -v node)" "$PWD/node_modules/playwright/cli.js" install-deps chromium webkit
+if [[ "$ci_ubuntu_apt_index_mode" == package-install ]]; then
+  ci_verify_package_install_indexes
+fi
+
 # Keep browser downloads in the ordinary runner account, not root's cache.
 node node_modules/playwright/cli.js install chromium webkit

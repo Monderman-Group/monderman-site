@@ -727,6 +727,7 @@ jobs:
       - name: Install pinned native-browser test tooling
         env:
           CI_UBUNTU_ARCHIVE_URI: https://us.archive.ubuntu.com/ubuntu
+          CI_UBUNTU_APT_INDEX_MODE: package-install
         run: |
           npm install --no-save --package-lock=false --ignore-scripts playwright@1.55.0
           bash scripts/install_ci_browsers.sh
