@@ -63,11 +63,13 @@ const currentSourceNames=Object.keys(currentPublication?.source_files||{});
 for(const name of currentSourceNames)assert.ok(name&&!path.isAbsolute(name)&&!name.split(/[\\/]/).includes('..'),'unsafe reviewed source path');
 const names=[...new Set([artifactName,manifestName,adapterName,...adapterDependencies,...sourceNames,...overviewSources,...currentSourceNames,...pdfNames])];
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
-// These two adapted helpers run in an intentionally historical partial copy.
+// These four adapted helpers run in an intentionally historical partial copy.
 // Stage their complete303e bytes only after the full current source admits.
 const isolatedHistoricalDependencyPins=Object.freeze({
   'scripts/divide_rule_publication_20261025_inverse.mjs':'17a38f07746f113d0f89f3361514b34f71b9a52ea439073b15821e6c81318d56',
   'scripts/hiring_work_design_series_20261017_inverse.mjs':'246cb0c1983407bc10b9fa93e5767fb22bca803ad6504c039a5a2c89901ccc7b',
+  'scripts/scope_beta_20261014_inverse.mjs':'13deb191e4f5fd3d571a2d56874cc0ee5290a0fe1792b98df7a3e5d8d8a61a00',
+  'scripts/hiring_blind_spot_publication_20261015_inverse.mjs':'0133c2b5c7d2a726ea5f4d34656811fb0e8e81f5649d36f4015a8cfb007ffe14',
 });
 function isolatedDependencyBytes(name,bytes){
   if(!Object.hasOwn(isolatedHistoricalDependencyPins,name))return bytes;
