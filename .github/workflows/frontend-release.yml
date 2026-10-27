@@ -141,25 +141,63 @@ jobs:
                   check(type(n) is int and 0 < n <= len(value) - at, 'Complete bounded write')
                   at += n
 
-          def context():
+          def observe_xdg():
+              present = 'XDG_CONFIG_HOME' in os.environ
+              value = os.environ.get('XDG_CONFIG_HOME') if present else None
+              raw = os.fsencode(value) if present else b''
+              report['observed_XDG'] = {'present': present, 'value': value if len(raw) <= 1024 else os.fsdecode(raw[:1024]),
+                                        'raw_bytes': len(raw), 'value_complete': len(raw) <= 1024}
+              return present, value, len(raw)
+
+          def context(state):
+              present, value, raw_bytes = observe_xdg()
+              check(raw_bytes <= 1024, 'Bounded actual XDG value; oversized observation is incomplete')
               check(os.geteuid() == 0, 'Original sudo child must be UID0')
               check(pwd.getpwuid(0).pw_dir == '/root' and os.environ.get('HOME') == '/root',
                     'Supported actual root HOME and passwd home')
-              for name in ['CURL_HOME', 'XDG_CONFIG_HOME', 'BASH_ENV', 'ENV']:
+              for name in ['CURL_HOME', 'BASH_ENV', 'ENV']:
                   check(name not in os.environ, 'Unsupported root environment key: ' + name)
               check(not any(key.startswith('BASH_FUNC_') for key in os.environ),
                     'Unsupported exported Bash function environment')
               check(bool(os.environ.get('PATH')), 'Original root PATH must be present')
               root = os.lstat('/root')
               check(stat.S_ISDIR(root.st_mode) and root.st_uid == 0, 'Actual nonfollowing root home')
-              return {'euid': os.geteuid(), 'HOME': os.environ.get('HOME'), 'passwd_home': pwd.getpwuid(0).pw_dir,
-                      'absent_environment_keys': ['CURL_HOME', 'XDG_CONFIG_HOME', 'BASH_ENV', 'ENV'],
-                      'exported_bash_functions_absent': True,
-                      'root_dev_ino_mode': [root.st_dev, root.st_ino, root.st_mode]}
+              candidates = [CONFIG, ALTERNATE]
+              higher = value + '/.curlrc' if present and value else None
+              report['XDG_candidate'] = higher
+              if higher is not None:
+                  check(os.path.isabs(value) and os.path.normpath(value) == value and not value.startswith('//'),
+                        'XDG directory must already be canonical absolute without dot or separator aliases')
+                  for owned_file in [CONFIG, state]:
+                      check(value != owned_file and not value.startswith(owned_file + '/'),
+                            'XDG directory must not equal or descend from a known owned file')
+                  prefix = '/'
+                  check(stat.S_ISDIR(os.lstat(prefix).st_mode), 'Nonfollowing XDG root directory prefix')
+                  for part in value.split('/')[1:]:
+                      if not part: continue
+                      prefix = prefix + part if prefix == '/' else prefix + '/' + part
+                      try: current = os.lstat(prefix)
+                      except FileNotFoundError: break
+                      check(stat.S_ISDIR(current.st_mode), 'Existing XDG prefixes must be nonfollowing directories')
+                  if higher not in candidates: candidates.append(higher)
+              result = {'euid': os.geteuid(), 'HOME': os.environ.get('HOME'), 'passwd_home': pwd.getpwuid(0).pw_dir,
+                        'absent_environment_keys': ['CURL_HOME', 'BASH_ENV', 'ENV'],
+                        'exported_bash_functions_absent': True, 'root_dev_ino_mode': [root.st_dev, root.st_ino, root.st_mode],
+                        'XDG': {'present': present, 'value': value}, 'refusal_candidates': candidates,
+                        'higher_priority_XDG_candidate': higher}
+              report['root_context'] = result
+              return result
+
+          def context_hash(value):
+              return sha(json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=True).encode('ascii'))
+
+          def candidates_absent(value):
+              for file in value['refusal_candidates']: absent(file)
 
           try:
               check(len(sys.argv) == 3 and sys.argv[1] in ['setup', 'cleanup'], 'Finite helper action')
               action, state = sys.argv[1:]; report['action'] = action
+              observe_xdg()
               check(os.path.isabs(state) and os.path.basename(state) == 'owner.json' and
                     os.path.dirname(os.path.dirname(state)) == '/tmp' and os.path.normpath(state) == state and
                     os.path.basename(os.path.dirname(state)).startswith('monderman-chrome-http1.'), 'Owned outside-checkout state path')
@@ -170,9 +208,11 @@ jobs:
                   check(type(getattr(os, flag, None)) is int and getattr(os, flag) > 0, 'Required native open flag')
               check(os.geteuid() == 0, 'Owned policy requires actual UID0')
               if action == 'setup':
-                  report['root_context'] = context()
+                  admitted_context = context(state)
+                  admitted_context_sha256 = context_hash(admitted_context)
+                  report['context_sha256'] = admitted_context_sha256
                   # Refuse existing policies before invoking even the version-only curl diagnostic.
-                  absent(CONFIG); absent(ALTERNATE)
+                  candidates_absent(admitted_context)
                   for package in ['playwright', 'playwright-core']:
                       raw, _ = read_file('node_modules/' + package + '/package.json', 65536)
                       check(json.loads(raw)['version'] == '1.55.0', 'Pinned original Playwright package')
@@ -197,18 +237,27 @@ jobs:
                   report['curl'] = {'command_path': program, 'resolved_path': '/usr/bin/curl', 'sha256': sha(binary),
                                     'signature': signature(binary_stat), 'version': observed.stdout.decode('utf8')}
                   report['vendor_sha256'] = sha(vendor)
-                  absent(CONFIG); absent(ALTERNATE)
+                  current_context = context(state)
+                  check(context_hash(current_context) == admitted_context_sha256, 'Unchanged actual root context before creation')
+                  candidates_absent(current_context)
                   fd = os.open(CONFIG, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
                   report['owned_created'] = True
                   created = os.fstat(fd)
                   owned = {'dev': created.st_dev, 'ino': created.st_ino, 'uid': created.st_uid,
-                           'gid': created.st_gid, 'mode': stat.S_IMODE(created.st_mode), 'policy_sha256': sha(POLICY)}
+                           'gid': created.st_gid, 'mode': stat.S_IMODE(created.st_mode), 'policy_sha256': sha(POLICY),
+                           'context_sha256': admitted_context_sha256}
                   report['owned'] = owned
+                  # Fixed seven-field state is at most302 bytes under these native bounds (read limit4096).
+                  check(all(type(owned[k]) is int and 0 <= owned[k] <= 2**64 - 1 for k in ['dev', 'ino', 'uid', 'gid']),
+                        'Bounded native ownership integers')
+                  check(type(owned['mode']) is int and 0 <= owned['mode'] <= 0o7777, 'Bounded native ownership mode')
+                  state_raw = json.dumps(owned, sort_keys=True).encode() + b'\n'
+                  check(len(state_raw) <= 4096, 'Bounded complete state before its write')
                   # Persist the exclusive-created inode BEFORE any configuration write.
                   state_fd = os.open(state, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
                   state_error = None
                   try:
-                      write_all(state_fd, json.dumps(owned, sort_keys=True).encode() + b'\n'); os.fsync(state_fd)
+                      write_all(state_fd, state_raw); os.fsync(state_fd)
                   except BaseException as e:
                       state_error = e; raise
                   finally:
@@ -225,9 +274,11 @@ jobs:
                   raw, state_stat = read_file(state, 4096)
                   check(state_stat.st_uid == 0 and stat.S_IMODE(state_stat.st_mode) == 0o600, 'Owned root state mode0600')
                   owned = json.loads(raw)
-                  check(set(owned) == {'dev', 'ino', 'uid', 'gid', 'mode', 'policy_sha256'}, 'Finite original ownership record')
+                  check(set(owned) == {'dev', 'ino', 'uid', 'gid', 'mode', 'policy_sha256', 'context_sha256'}, 'Finite bound ownership record')
                   check(all(type(owned[k]) is int for k in ['dev', 'ino', 'uid', 'gid', 'mode']), 'Native ownership integers')
                   check(owned['uid'] == 0 and owned['mode'] == 0o600 and owned['policy_sha256'] == sha(POLICY), 'Approved recorded policy')
+                  current_context = context(state)
+                  check(owned['context_sha256'] == context_hash(current_context), 'Unchanged bound actual root context before unlink')
                   value, current = read_file(CONFIG, len(POLICY))
                   report['owned'] = owned
                   check([current.st_dev, current.st_ino, current.st_uid, current.st_gid, stat.S_IMODE(current.st_mode)] ==
@@ -235,8 +286,9 @@ jobs:
                   check(value == POLICY, 'Only complete approved policy is removable; partial or foreign bytes stay untouched')
                   check(signature(os.lstat(CONFIG)) == signature(current), 'Immediate observed pathname identity before unlink')
                   os.unlink(CONFIG); report['owned_removed'] = True
-                  absent(CONFIG); absent(ALTERNATE); report['absence_proved'] = True
-                  report['root_context'] = context()
+                  final_context = context(state)
+                  check(owned['context_sha256'] == context_hash(final_context), 'Unchanged bound actual root context after cleanup')
+                  candidates_absent(final_context); report['absence_proved'] = True
           except BaseException as e:
               report['primary'] = error(e)
           finally:
