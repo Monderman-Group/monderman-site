@@ -38,7 +38,231 @@ jobs:
           npm install --no-save --package-lock=false --ignore-scripts playwright@1.55.0
           bash scripts/install_ci_browsers.sh
       - name: Install official Chrome stable for native AAC playback
-        run: npx --no-install playwright install chrome
+        run: |
+          set -eu
+          ci_chrome_tmp=''
+          ci_chrome_setup_started=0
+          ci_chrome_setup_terminal=0
+          ci_chrome_npx_started=0
+          ci_chrome_npx_terminal=0
+          ci_chrome_finish() {
+            ci_chrome_status=$?
+            trap '' PIPE
+            trap - EXIT INT TERM
+            set +e
+            ci_chrome_cleanup_status=0
+            if [[ "$ci_chrome_setup_started" -eq 0 ]]; then
+              printf 'CI_CHROME_POLICY no privileged setup was started; no owned policy is claimed.\n' >&2 || :
+            elif [[ "$ci_chrome_setup_terminal" -ne 1 || ( "$ci_chrome_npx_started" -eq 1 && "$ci_chrome_npx_terminal" -ne 1 ) ]]; then
+              printf 'CI_CHROME_POLICY process terminal state unknown; owned state is retained, cleanup/absence UNPROVED: %s\n' "$ci_chrome_tmp" >&2 || :
+              ci_chrome_cleanup_status=1
+            else
+              sudo -- sh -c 'exec /usr/bin/python3 -I -B "$1" cleanup "$2"' sh "$ci_chrome_tmp/root-curl-policy.py" "$ci_chrome_tmp/owner.json"
+              ci_chrome_cleanup_status=$?
+            fi
+            ci_chrome_report_status=0
+            printf 'CI_CHROME_POLICY original_step_status=%s cleanup_status=%s setup_terminal=%s npx_terminal=%s evidence=%s\n' "$ci_chrome_status" "$ci_chrome_cleanup_status" "$ci_chrome_setup_terminal" "$ci_chrome_npx_terminal" "$ci_chrome_tmp" || ci_chrome_report_status=$?
+            if [[ "$ci_chrome_report_status" -ne 0 ]]; then
+              printf 'CI_CHROME_POLICY secondary summary-write error=%s\n' "$ci_chrome_report_status" >&2 || :
+            fi
+            if [[ "$ci_chrome_status" -eq 0 && "$ci_chrome_cleanup_status" -ne 0 ]]; then
+              ci_chrome_status=$ci_chrome_cleanup_status
+            fi
+            if [[ "$ci_chrome_status" -eq 0 && "$ci_chrome_report_status" -ne 0 ]]; then
+              ci_chrome_status=$ci_chrome_report_status
+            fi
+            exit "$ci_chrome_status"
+          }
+          trap ci_chrome_finish EXIT
+          trap 'exit 130' INT
+          trap 'exit 143' TERM
+          [[ "$EUID" -ne 0 ]] || { printf 'CI_CHROME_POLICY outer root runner is unsupported.\n' >&2 || :; exit 1; }
+          ci_chrome_tmp=$(mktemp -d /tmp/monderman-chrome-http1.XXXXXX)
+          cat > "$ci_chrome_tmp/root-curl-policy.py" <<'PY_CHROME_ROOT_POLICY'
+          import hashlib, json, os, pwd, shutil, stat, subprocess, sys
+
+          POLICY = b'http1.1\nwrite-out = "\\nCI_CHROME_CURL_HTTP_VERSION=%{http_version}\\nCI_CHROME_CURL_EFFECTIVE_URL=%{url_effective}\\n"\n'
+          CONFIG = '/root/.curlrc'
+          ALTERNATE = '/root/.config/curlrc'
+          VENDOR = 'node_modules/playwright-core/bin/reinstall_chrome_stable_linux.sh'
+          VENDOR_SHA = '8b578baa16f286f17d6a29cc8998a7a16f2635b7fb018f9473d5c498e0be450f'
+          sha = lambda b: hashlib.sha256(b).hexdigest()
+          report = {'action': None, 'primary': None, 'secondary': [], 'owned_created': False,
+                    'owned_removed': False, 'absence_proved': False, 'policy_sha256': sha(POLICY)}
+          fd = None
+
+          def check(value, label):
+              if not value: raise AssertionError(label)
+
+          def error(error):
+              try: message = str(error)
+              except BaseException: message = '<unprintable error>'
+              return {'type': type(error).__name__, 'message': message[:1200]}
+
+          def signature(s):
+              return [s.st_dev, s.st_ino, s.st_mode, s.st_uid, s.st_gid,
+                      s.st_size, s.st_mtime_ns, s.st_ctime_ns]
+
+          def absent(file):
+              try: os.lstat(file)
+              except FileNotFoundError: return
+              raise AssertionError('Existing curl configuration is unsupported: ' + file)
+
+          def read_file(file, limit):
+              s = os.lstat(file)
+              check(stat.S_ISREG(s.st_mode), 'A nonfollowing regular file is required')
+              check(s.st_size <= limit, 'Bounded file size')
+              f = os.open(file, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+              primary = None
+              try:
+                  check(signature(os.fstat(f)) == signature(s), 'Unchanged opened file identity')
+                  chunks = []; remaining = limit + 1
+                  while remaining:
+                      b = os.read(f, remaining)
+                      if not b: break
+                      chunks.append(b); remaining -= len(b)
+                  value = b''.join(chunks)
+                  check(len(value) <= limit, 'Bounded complete file bytes')
+                  check(signature(os.fstat(f)) == signature(s), 'Unchanged read identity')
+                  check(signature(os.lstat(file)) == signature(s), 'Unchanged pathname identity')
+                  return value, s
+              except BaseException as e:
+                  primary = e; raise
+              finally:
+                  try: os.close(f)
+                  except BaseException as e:
+                      if primary is None: raise
+                      report['secondary'].append({'file_close': error(e)})
+
+          def write_all(f, value):
+              at = 0
+              while at < len(value):
+                  n = os.write(f, value[at:])
+                  check(type(n) is int and 0 < n <= len(value) - at, 'Complete bounded write')
+                  at += n
+
+          def context():
+              check(os.geteuid() == 0, 'Original sudo child must be UID0')
+              check(pwd.getpwuid(0).pw_dir == '/root' and os.environ.get('HOME') == '/root',
+                    'Supported actual root HOME and passwd home')
+              for name in ['CURL_HOME', 'XDG_CONFIG_HOME', 'BASH_ENV', 'ENV']:
+                  check(name not in os.environ, 'Unsupported root environment key: ' + name)
+              check(not any(key.startswith('BASH_FUNC_') for key in os.environ),
+                    'Unsupported exported Bash function environment')
+              check(bool(os.environ.get('PATH')), 'Original root PATH must be present')
+              root = os.lstat('/root')
+              check(stat.S_ISDIR(root.st_mode) and root.st_uid == 0, 'Actual nonfollowing root home')
+              return {'euid': os.geteuid(), 'HOME': os.environ.get('HOME'), 'passwd_home': pwd.getpwuid(0).pw_dir,
+                      'absent_environment_keys': ['CURL_HOME', 'XDG_CONFIG_HOME', 'BASH_ENV', 'ENV'],
+                      'exported_bash_functions_absent': True,
+                      'root_dev_ino_mode': [root.st_dev, root.st_ino, root.st_mode]}
+
+          try:
+              check(len(sys.argv) == 3 and sys.argv[1] in ['setup', 'cleanup'], 'Finite helper action')
+              action, state = sys.argv[1:]; report['action'] = action
+              check(os.path.isabs(state) and os.path.basename(state) == 'owner.json' and
+                    os.path.dirname(os.path.dirname(state)) == '/tmp' and os.path.normpath(state) == state and
+                    os.path.basename(os.path.dirname(state)).startswith('monderman-chrome-http1.'), 'Owned outside-checkout state path')
+              directory = os.lstat(os.path.dirname(state))
+              check(stat.S_ISDIR(directory.st_mode) and stat.S_IMODE(directory.st_mode) == 0o700 and directory.st_uid != 0,
+                    'Original nonroot caller owns the exclusive runtime directory')
+              for flag in ['O_NOFOLLOW', 'O_NONBLOCK', 'O_EXCL', 'O_CLOEXEC']:
+                  check(type(getattr(os, flag, None)) is int and getattr(os, flag) > 0, 'Required native open flag')
+              check(os.geteuid() == 0, 'Owned policy requires actual UID0')
+              if action == 'setup':
+                  report['root_context'] = context()
+                  # Refuse existing policies before invoking even the version-only curl diagnostic.
+                  absent(CONFIG); absent(ALTERNATE)
+                  for package in ['playwright', 'playwright-core']:
+                      raw, _ = read_file('node_modules/' + package + '/package.json', 65536)
+                      check(json.loads(raw)['version'] == '1.55.0', 'Pinned original Playwright package')
+                  vendor, _ = read_file(VENDOR, 16384)
+                  check(sha(vendor) == VENDOR_SHA, 'Original vendor program stays byte exact')
+                  report['registry'] = {}
+                  for name, expected in [('index.js', 'c79e676c73ca11f0cc69954bdb5c3a9ba797449ae1600d500e70f8baf23c5351'),
+                                         ('dependencies.js', 'e1da2edeb0ce13b3828501ee92b980cacbe7956521544b3bc68a350ad40df2dd')]:
+                      raw, _ = read_file('node_modules/playwright-core/lib/server/registry/' + name, 2 * 1024 * 1024)
+                      check(sha(raw) == expected, 'Original sudo constructor and registry bytes')
+                      report['registry'][name] = sha(raw)
+                  program = shutil.which('curl')
+                  check(program is not None and os.path.realpath(program) == '/usr/bin/curl', 'Audited root curl path')
+                  binary, binary_stat = read_file('/usr/bin/curl', 4 * 1024 * 1024)
+                  observed = subprocess.run([program, '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=5)
+                  check(observed.returncode == 0 and not observed.stderr and len(observed.stdout) <= 16384,
+                        'Bounded actual curl version diagnostic')
+                  check(observed.stdout.startswith(b'curl 8.5.0 ') and b'libcurl/8.5.0 ' in observed.stdout.splitlines()[0],
+                        'Only the reviewed curl8.5.0 CLI/config behavior is supported')
+                  again, again_stat = read_file('/usr/bin/curl', 4 * 1024 * 1024)
+                  check(signature(again_stat) == signature(binary_stat) and again == binary, 'Stable actual curl program')
+                  report['curl'] = {'command_path': program, 'resolved_path': '/usr/bin/curl', 'sha256': sha(binary),
+                                    'signature': signature(binary_stat), 'version': observed.stdout.decode('utf8')}
+                  report['vendor_sha256'] = sha(vendor)
+                  absent(CONFIG); absent(ALTERNATE)
+                  fd = os.open(CONFIG, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
+                  report['owned_created'] = True
+                  created = os.fstat(fd)
+                  owned = {'dev': created.st_dev, 'ino': created.st_ino, 'uid': created.st_uid,
+                           'gid': created.st_gid, 'mode': stat.S_IMODE(created.st_mode), 'policy_sha256': sha(POLICY)}
+                  report['owned'] = owned
+                  # Persist the exclusive-created inode BEFORE any configuration write.
+                  state_fd = os.open(state, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
+                  state_error = None
+                  try:
+                      write_all(state_fd, json.dumps(owned, sort_keys=True).encode() + b'\n'); os.fsync(state_fd)
+                  except BaseException as e:
+                      state_error = e; raise
+                  finally:
+                      try: os.close(state_fd)
+                      except BaseException as e:
+                          if state_error is None: raise
+                          report['secondary'].append({'ownership_record_close': error(e)})
+                  check(stat.S_ISREG(created.st_mode) and created.st_uid == 0 and stat.S_IMODE(created.st_mode) == 0o600,
+                        'Owned exclusive root regular file mode0600')
+                  write_all(fd, POLICY); os.fsync(fd)
+                  check(os.fstat(fd).st_size == len(POLICY), 'Complete approved policy bytes')
+                  report['policy_write_complete'] = True
+              else:
+                  raw, state_stat = read_file(state, 4096)
+                  check(state_stat.st_uid == 0 and stat.S_IMODE(state_stat.st_mode) == 0o600, 'Owned root state mode0600')
+                  owned = json.loads(raw)
+                  check(set(owned) == {'dev', 'ino', 'uid', 'gid', 'mode', 'policy_sha256'}, 'Finite original ownership record')
+                  check(all(type(owned[k]) is int for k in ['dev', 'ino', 'uid', 'gid', 'mode']), 'Native ownership integers')
+                  check(owned['uid'] == 0 and owned['mode'] == 0o600 and owned['policy_sha256'] == sha(POLICY), 'Approved recorded policy')
+                  value, current = read_file(CONFIG, len(POLICY))
+                  report['owned'] = owned
+                  check([current.st_dev, current.st_ino, current.st_uid, current.st_gid, stat.S_IMODE(current.st_mode)] ==
+                        [owned['dev'], owned['ino'], owned['uid'], owned['gid'], owned['mode']], 'Same owned regular inode/owner/mode')
+                  check(value == POLICY, 'Only complete approved policy is removable; partial or foreign bytes stay untouched')
+                  check(signature(os.lstat(CONFIG)) == signature(current), 'Immediate observed pathname identity before unlink')
+                  os.unlink(CONFIG); report['owned_removed'] = True
+                  absent(CONFIG); absent(ALTERNATE); report['absence_proved'] = True
+                  report['root_context'] = context()
+          except BaseException as e:
+              report['primary'] = error(e)
+          finally:
+              if fd is not None:
+                  try:
+                      os.close(fd); report['configuration_close_observed'] = True
+                  except BaseException as e:
+                      report['secondary'].append({'configuration_close': error(e)})
+              try: print('CI_CHROME_ROOT_POLICY ' + json.dumps(report, sort_keys=True), flush=True)
+              except BaseException as e: report['secondary'].append({'report_write': error(e)})
+          sys.exit(1 if report['primary'] is not None or report['secondary'] else 0)
+          PY_CHROME_ROOT_POLICY
+          ci_chrome_setup_started=1
+          set +e
+          sudo -- sh -c 'exec /usr/bin/python3 -I -B "$1" setup "$2"' sh "$ci_chrome_tmp/root-curl-policy.py" "$ci_chrome_tmp/owner.json"
+          ci_chrome_setup_status=$?
+          ci_chrome_setup_terminal=1
+          set -e
+          [[ "$ci_chrome_setup_status" -eq 0 ]] || exit "$ci_chrome_setup_status"
+          ci_chrome_npx_started=1
+          set +e
+          npx --no-install playwright install chrome
+          ci_chrome_npx_status=$?
+          ci_chrome_npx_terminal=1
+          set -e
+          exit "$ci_chrome_npx_status"
       - name: Verify both genuine questionnaire builds with all29 audio players
         run: |
           for audio_channel in legacy current; do

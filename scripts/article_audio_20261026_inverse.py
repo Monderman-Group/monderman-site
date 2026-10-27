@@ -6,7 +6,7 @@ from pathlib import Path
 from collections import OrderedDict
 import base64,hashlib,json,re,stat,subprocess,zlib
 ROOT=Path(__file__).resolve().parents[1]
-FIXTURE_SHA256='16277a1cd51dcf76ef87abf15396aa11ede2a78f20d620e3ffc6f590576d7927'
+FIXTURE_SHA256='ac37c4320d52f00d7df95780f277918fb0e3d1ba5497a55dc0882f664fe907ba'
 SCHEMA='article-audio-20261026-v1'
 GUARDS=['scripts/article_audio_20261026_inverse.py','scripts/article_audio_20261026_inverse.mjs','scripts/fixtures/article-audio-20261026.json']
 HASH=re.compile(r'[a-f0-9]{64}\Z')
