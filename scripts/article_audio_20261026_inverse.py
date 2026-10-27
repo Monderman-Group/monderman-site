@@ -4,9 +4,9 @@ A final fixture pin is mandatory. This module never imports any older layer.
 """
 from pathlib import Path
 from collections import OrderedDict
-import base64,hashlib,json,re,subprocess,zlib
+import base64,hashlib,json,re,stat,subprocess,zlib
 ROOT=Path(__file__).resolve().parents[1]
-FIXTURE_SHA256='03ef9c10708164258be1abb57d0ce58e3af880dc9925ac7b0f7c4aa03e8074f0'
+FIXTURE_SHA256='fc57e2f10fc9ebb51c55aa09c58c03990762f6d9f826e3fa16abbf4cd725cfe7'
 SCHEMA='article-audio-20261026-v1'
 GUARDS=['scripts/article_audio_20261026_inverse.py','scripts/article_audio_20261026_inverse.mjs','scripts/fixtures/article-audio-20261026.json']
 HASH=re.compile(r'[a-f0-9]{64}\Z')
@@ -65,11 +65,14 @@ class FiniteAudioLayer:
    assert sorted(e['files'])==sorted(a['path'] for a in d['articles'])
  def digest(self,p):
   p=Path(p)
-  if not p.is_file() or p.is_symlink():return None
-  before=p.stat();key=fingerprint(before);cached=self._digests.get(p)
+  try:before=p.lstat()
+  except OSError:return None
+  if not stat.S_ISREG(before.st_mode):return None
+  key=fingerprint(before);cached=self._digests.get(p)
   if cached and cached[0]==key:self._digests.move_to_end(p);return cached[1]
-  b=p.read_bytes()
-  if fingerprint(p.stat())!=key:return None
+  try:b=p.read_bytes();after=p.lstat()
+  except OSError:return None
+  if not stat.S_ISREG(after.st_mode) or fingerprint(after)!=key:return None
   result={'bytes':len(b),'sha256':sha(b),'mode':'100755' if before.st_mode&0o111 else '100644'}
   self._digests[p]=(key,result)
   if len(self._digests)>4096:self._digests.popitem(last=False)
@@ -92,8 +95,8 @@ class FiniteAudioLayer:
   return True
  def row_exact(self,root,row):
   p=Path(root)/row['path']
-  if not p.is_file() or p.is_symlink():return False
   if row.get('kind')=='release_revision':
+   if not p.is_file() or p.is_symlink():return False
    b=p.read_bytes();return len(b)==56 and bool(REV.fullmatch(b))
   result=self.digest(p)
   return bool(result and result['bytes']==row['bytes'] and result['sha256']==row['sha256'] and ('mode' not in row or result['mode']==row['mode']))

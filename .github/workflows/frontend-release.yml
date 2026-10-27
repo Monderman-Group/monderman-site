@@ -68,6 +68,12 @@ jobs:
           done
           cat "${{ runner.temp }}/article-audio-http.log"
           exit 1
+      - name: Preflight three fixed Gold navigation observations
+        env:
+          SITE_BASE: http://127.0.0.1:8086
+          GOLD_ACCENT_MODE: preflight
+          GOLD_ACCENT_OUT: ${{ runner.temp }}/gold-accent-preflight
+        run: node scripts/public_gold_accent_smoke.mjs
       - name: Verify current native playback, no-JS and no media prefetch
         env:
           SITE_BASE_URL: http://127.0.0.1:8086
@@ -83,6 +89,7 @@ jobs:
             ${{ runner.temp }}/article-audio-native
             ${{ runner.temp }}/article-audio-http.log
             ${{ runner.temp }}/article-audio-http-errors.log
+            ${{ runner.temp }}/gold-accent-preflight
           if-no-files-found: ignore
   validate:
     runs-on: ubuntu-latest
