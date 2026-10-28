@@ -10,6 +10,7 @@ import {pathToFileURL} from 'node:url';
 import {buildPublicSamplePreviewSections as buildCurrentPublicSamplePreviewSections,refreshPublicSamplePreviews} from './refresh_public_sample_previews.mjs';
 import {evidenceDigest,compactPreviewBeforeSodiDisplayOrder} from './public_sample_fixture.mjs';
 import {sourceBeforeHomepageReportQuad20260925} from './homepage_report_quad_20260925_inverse.mjs';
+import {sourceAtReleaseBaseline} from './ai_middle_release_20261028_contract.mjs';
 
 const root=path.resolve(import.meta.dirname,'..'),args=process.argv.slice(2);
 const deterministicOnly=args.includes('--deterministic-only'),candidateArgs=args.filter(arg=>arg!=='--deterministic-only');
@@ -24,7 +25,7 @@ const protectedFiles=['index.html','Monderman_Platform_Brief.html','scripts/temp
 const hash=value=>createHash('sha256').update(value).digest('hex');
 const generatorUrl=new URL('./refresh_public_sample_previews.mjs',import.meta.url);
 const currentGenerator=fs.readFileSync(generatorUrl,'utf8');
-const historicalGenerator=sourceBeforeHomepageReportQuad20260925('scripts/refresh_public_sample_previews.mjs',currentGenerator);
+const historicalGenerator=sourceBeforeHomepageReportQuad20260925('scripts/refresh_public_sample_previews.mjs',sourceAtReleaseBaseline('scripts/refresh_public_sample_previews.mjs',currentGenerator));
 // Resolve only this exactly pinned historical module's relative dependencies
 // and import.meta URL so it can execute from an in-memory test module.
 const executableHistorical=historicalGenerator.replace(/from '(\.[^']+)'/g,(_,specifier)=>'from '+JSON.stringify(new URL(specifier,generatorUrl).href)).replaceAll('import.meta.url',JSON.stringify(generatorUrl.href));

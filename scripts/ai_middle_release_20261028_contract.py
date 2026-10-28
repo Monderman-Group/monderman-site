@@ -22,7 +22,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = 'c76fb3d01606b277ec2b5e0708ee1c0de9c82f00'
 FIXTURE = 'scripts/fixtures/ai-middle-release-20261028.json'
-FIXTURE_SHA256='08f5d9dcf9239bd53da768c0fc684ccd7ee9d6cc369c86176a3044ea2f45ed3d'
+FIXTURE_SHA256='651aa3ffa1a97c1b574b4f08fed1c8bc1b16bc3dd1a7dcb769000ea65da73710'
 SCHEMA = 'ai-middle-release-20261028-v1'
 GUARDS = ['scripts/ai_middle_release_20261028_contract.py',
           'scripts/ai_middle_release_20261028_contract.mjs', FIXTURE]
@@ -43,6 +43,7 @@ HISTORICAL_SCRIPTS = {
     'scripts/runtime_asset_release_build_smoke.mjs',
     'scripts/public_status_copy_smoke.mjs',
     'scripts/public_copy_clarity_smoke.mjs',
+    'scripts/validate_durable_organization_publication.py',
 }
 
 
@@ -324,10 +325,17 @@ def historical(data, command):
     script = command[1]
     allowed = script in HISTORICAL_SCRIPTS or re.fullmatch(r'scripts/[a-z0-9_]+_contract\.(?:mjs|py)',script)
     assert allowed and script in data['baselinePaths'], 'Only named baseline historical contracts'
-    assert all(a in ['--built','.render-public','--channel','current','legacy','--deterministic-only'] for a in command[2:]), 'Finite historical argument shapes'
-    channel = command[command.index('--channel')+1] if '--channel' in command else os.environ.get('MONDERMAN_QUESTIONNAIRE_RELEASE','current')
-    assert channel in ['current','legacy']
+    ordinary_args = all(a in ['--built','.render-public','--channel','current','legacy','--deterministic-only'] for a in command[2:])
+    checked_manifest = script == 'scripts/public_sample_manifest_sensitivity_smoke.mjs' and command[2:] == ['--check']
+    assert ordinary_args or checked_manifest, 'Finite historical argument shapes'
     built = '--built' in command
+    if '--channel' in command:
+        channel = command[command.index('--channel')+1]
+    elif built:
+        channel = json.loads((ROOT/'.render-public/.well-known/monderman-questionnaire-release.json').read_bytes())['channel']
+    else:
+        channel = os.environ.get('MONDERMAN_QUESTIONNAIRE_RELEASE','current')
+    assert channel in ['current','legacy']
     if built: audit_public(data, ROOT/'.render-public', channel)
     base, env = projection(channel,built)
     print('AI_MIDDLE_HISTORICAL_PROJECTION '+json.dumps({'actual_candidate':git(ROOT,'rev-parse','HEAD').decode().strip(),'reviewed_baseline':BASELINE,'command':command,'built':built}),flush=True)
