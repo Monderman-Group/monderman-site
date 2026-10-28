@@ -22,7 +22,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = 'c76fb3d01606b277ec2b5e0708ee1c0de9c82f00'
 FIXTURE = 'scripts/fixtures/ai-middle-release-20261028.json'
-FIXTURE_SHA256='b0bfe6b4b90f06aec51289933578f567b49fef27dbf2fb22d2f41dfbb0686afe'
+FIXTURE_SHA256='8f6690cba01e948a8da6ecc3a4cd6dabda3ce6795aaae3732ff3f547a006cb6b'
 SCHEMA = 'ai-middle-release-20261028-v1'
 GUARDS = ['scripts/ai_middle_release_20261028_contract.py',
           'scripts/ai_middle_release_20261028_contract.mjs', FIXTURE]
@@ -311,7 +311,7 @@ def audit_public(data, root, channel):
 
 def projection(channel, built):
     """Physical immutable prior checkout; no current fixture is rewritten."""
-    base = Path(os.environ.get('RUNNER_TEMP',tempfile.gettempdir())) / ('monderman-ai-middle-history-'+sha(str(ROOT))[:8]+'-'+FIXTURE_SHA256[:12])
+    base = Path(os.environ.get('RUNNER_TEMP',tempfile.gettempdir())).resolve() / ('monderman-ai-middle-history-'+sha(str(ROOT))[:8]+'-'+FIXTURE_SHA256[:12])
     if not base.exists():
         subprocess.run(['git','clone','--quiet','--shared','--no-checkout',str(ROOT),str(base)],check=True)
         subprocess.run(['git','checkout','--quiet','--detach',BASELINE],cwd=base,check=True)
@@ -362,10 +362,21 @@ def main():
     parser.add_argument('--channel',choices=['current','legacy'])
     parser.add_argument('--historical',action='store_true')
     parser.add_argument('--browser-history',choices=['scope','design'])
+    parser.add_argument('--source-predicate',choices=['homepage-refinement'])
     parser.add_argument('--read-baseline-public',choices=baseline_public_text_paths())
     parser.add_argument('command',nargs=argparse.REMAINDER)
     args = parser.parse_args(); data = fixture()
     result = {'source':audit_source(data,not args.worktree)}
+    if args.source_predicate:
+        assert not args.built and not args.channel and not args.historical and not args.command and not args.browser_history and not args.read_baseline_public
+        base, env = projection('current',False)
+        program = "import fs from'node:fs';import{isCurrentHomepageRefinementSource as check}from'./scripts/homepage_refinement_20261014_inverse.mjs';console.log(JSON.stringify(check(fs.readFileSync('index.html'))));"
+        value = subprocess.check_output(['node','--input-type=module','-e',program],cwd=base,env=env)
+        assert type(json.loads(value)) is bool and len(value) <= 6, 'One finite historical boolean'
+        assert not git(base,'status','--porcelain','--untracked-files=all').strip(), 'Historical predicate preserved its source'
+        audit_source(data,not args.worktree)
+        sys.stdout.buffer.write(value)
+        return
     if args.built:
         assert args.channel; result['public'] = audit_public(data,args.built,args.channel)
     if args.browser_history or args.read_baseline_public:
