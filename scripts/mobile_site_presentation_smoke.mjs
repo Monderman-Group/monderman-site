@@ -85,7 +85,7 @@ assert.ok(immutableLegalPages.has('privacy-2026-09-12-ai-source-evidence-v2.html
 // exact shared shell. This rejects accidental Finder-style duplicate files and
 // proves that page-family markup cannot drift at build time.
 const publishDirectory = path.resolve('.render-public');
-if(publicationPages.length){const channel=JSON.parse(fs.readFileSync(path.join(publishDirectory,'.well-known/monderman-questionnaire-release.json'),'utf8')).channel;for(const file of publicationPages){assertSeriesPublicationSurface(file,fs.readFileSync(path.join(publishDirectory,file)),channel);assert.ok(canonicalPages.includes(file)&&footerPages.includes(file),'Every exact current publication joins the original actual canonical/footer sweep');}}
+if(publicationPages.length){const channel=JSON.parse(fs.readFileSync(path.join(publishDirectory,'.well-known/monderman-questionnaire-release.json'),'utf8')).channel;for(const file of publicationPages){assertSeriesPublicationSurface(file,fs.readFileSync(path.join(publishDirectory,file)),channel,publishDirectory);assert.ok(canonicalPages.includes(file)&&footerPages.includes(file),'Every exact current publication joins the original actual canonical/footer sweep');}}
 const sourceHtmlNames = fs.readdirSync(process.cwd()).filter((name) => name.endsWith('.html')).sort();
 const publishedHtmlNames = fs.readdirSync(publishDirectory).filter((name) => name.endsWith('.html')).sort();
 assert.deepEqual(publishedHtmlNames, sourceHtmlNames, 'published HTML inventory differs from source');

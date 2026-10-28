@@ -26,17 +26,54 @@ export function scanPublicDirectory(directory,{workingTree=false}={}){
   }}
   visit(root);return checked;
 }
+// Batch framing is checked against independent git metadata before any payload
+// is scanned. This keeps the complete index gate bounded as reviewed audio grows.
+export const INDEX_BATCH_TARGET = 32 * 1024 * 1024;
+export const INDEX_BLOB_MAX = 128 * 1024 * 1024;
+export function indexObjectBatches(metadata) {
+  const batches=[];let batch=[],framedBytes=0;
+  for(const row of metadata){
+    assert.ok(Number.isSafeInteger(row.size)&&row.size>=0&&row.size<=INDEX_BLOB_MAX,'Indexed blob exceeds bounded scan limit: '+row.oid);
+    const bytes=Buffer.byteLength(`${row.oid} blob ${row.size}\n`)+row.size+1;
+    if(batch.length&&framedBytes+bytes>INDEX_BATCH_TARGET){batches.push({rows:batch,framedBytes});batch=[];framedBytes=0;}
+    batch.push(row);framedBytes+=bytes;
+  }
+  if(batch.length)batches.push({rows:batch,framedBytes});
+  return batches;
+}
 export function scanPublicIndex(root=SITE){
   const entries=execFileSync('git',['ls-files','--stage','-z'],{cwd:root}).toString().split('\0').filter(Boolean).map(line=>{
     const match=line.match(/^([0-7]+) ([a-f0-9]+) ([0-3])\t([\s\S]+)$/);assert.ok(match,'Unexpected index entry');
     const [,mode,oid,stage,name]=match;assert.equal(stage,'0','Unresolved index conflict: '+name);
     assertNoPrivateSourcePayload(name,Buffer.alloc(0));assert.notEqual(mode,'120000','Symlink in public index: '+name);return {oid,name};
   });
-  const objects=[...new Set(entries.map(e=>e.oid))];
-  const packed=execFileSync('git',['cat-file','--batch'],{cwd:root,input:objects.join('\n')+'\n',maxBuffer:256*1024*1024});
-  let offset=0;const bytesById=new Map();
-  for(const oid of objects){const end=packed.indexOf(10,offset);assert.ok(end>=offset);const header=packed.subarray(offset,end).toString().split(' ');assert.equal(header[0],oid);assert.equal(header[1],'blob');const size=Number(header[2]);assert.ok(Number.isSafeInteger(size)&&size>=0);offset=end+1;bytesById.set(oid,packed.subarray(offset,offset+size));offset+=size+1;}
-  for(const entry of entries)assertNoPrivateSourcePayload(entry.name,bytesById.get(entry.oid));
+  const objects=[...new Set(entries.map(e=>e.oid))],namesById=new Map(objects.map(oid=>[oid,[]]));
+  for(const entry of entries)namesById.get(entry.oid).push(entry.name);
+  if(!objects.length)return 0;
+  const metadataLines=execFileSync('git',['cat-file','--batch-check'],{cwd:root,input:objects.join('\n')+'\n',maxBuffer:Math.max(1024*1024,objects.length*256)}).toString().trimEnd().split('\n');
+  assert.equal(metadataLines.length,objects.length,'Every unique indexed object has one metadata row');
+  const metadata=metadataLines.map((line,index)=>{
+    const match=line.match(/^([a-f0-9]+) blob ([0-9]+)$/);assert.ok(match,'Expected indexed blob metadata');
+    assert.equal(match[1],objects[index],'Metadata object order and identity');
+    const size=Number(match[2]);assert.ok(Number.isSafeInteger(size)&&size>=0&&size<=INDEX_BLOB_MAX,'Indexed blob exceeds bounded scan limit: '+match[1]);
+    return {oid:match[1],size};
+  });
+  const scanned=new Set();
+  for(const batch of indexObjectBatches(metadata)){
+    const packed=execFileSync('git',['cat-file','--batch'],{cwd:root,input:batch.rows.map(row=>row.oid).join('\n')+'\n',maxBuffer:batch.framedBytes+1});
+    assert.equal(packed.length,batch.framedBytes,'Complete bounded batch framing length');let offset=0;
+    for(const row of batch.rows){
+      const end=packed.indexOf(10,offset);assert.ok(end>=offset,'Complete git object header');
+      assert.equal(packed.subarray(offset,end).toString(),`${row.oid} blob ${row.size}`,'Exact independently declared indexed blob header');offset=end+1;
+      const bytes=packed.subarray(offset,offset+row.size);assert.equal(bytes.length,row.size,'Complete indexed payload');offset+=row.size;
+      assert.equal(packed[offset],10,'Complete git blob delimiter');offset++;
+      assert.ok(!scanned.has(row.oid),'No indexed object scanned twice');
+      for(const name of namesById.get(row.oid))assertNoPrivateSourcePayload(name,bytes);
+      scanned.add(row.oid);
+    }
+    assert.equal(offset,packed.length,'No unread or trailing indexed blob bytes');
+  }
+  assert.deepEqual([...scanned],objects,'Every unique indexed blob scanned once, in original order');
   return entries.length;
 }
 export function sourceAbsenceGuardSelfTest(){

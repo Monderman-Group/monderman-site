@@ -1,3 +1,4 @@
+import {capturedAudioIO,assertCapturedAudioFixture} from './article_audio_20261026_inverse.mjs';
 import {sourceAtSeriesBaseline,publicSourceAtSeriesBaseline,sourcePathsAtSeriesBaseline,publicPathsAtSeriesBaseline} from './hiring_work_design_series_20261017_inverse.mjs';
 // Exact article-only transition. Unknown complete bytes and path sets stay visible.
 import assert from 'node:assert/strict';
@@ -39,6 +40,13 @@ for(const edition of Object.values(hiringOwnerDelta.publicEditions)){
  assert.ok(Object.keys(edition.files).every(file=>hiringPublicationDelta.currentPublicPaths.includes(file)&&file!=='.well-known/monderman-release.json'), 'Only closed non-marker owner public entries');
 }
 
+function freezeCapturedData(value){if(value&&typeof value==='object'){for(const child of Object.values(value))freezeCapturedData(child);Object.freeze(value);}return value;}
+const privateCombined=freezeCapturedData(JSON.parse(raw)),privateOwner=privateCombined.ownerDelta,privateHiring=freezeCapturedData(JSON.parse(Buffer.from(privateCombined.publicationSublayer.originalFixtureBase64,'base64')));
+function capturedAuthority(edition){if(edition!==undefined)assertCapturedAudioFixture(edition,root,'scripts/fixtures/hiring-blind-spot-publication-20261015.json',HIRING_PUBLICATION_FIXTURE_SHA256);}
+function ownerData(edition){capturedAuthority(edition);return edition===undefined?hiringOwnerDelta:privateOwner;}
+function hiringData(edition){capturedAuthority(edition);return edition===undefined?hiringPublicationDelta:privateHiring;}
+const editionIO=edition=>edition===undefined?fs:capturedAudioIO(edition,root);
+
 function ownerReverse(entry, file, source) {
   assert.ok(typeof source === 'string' || Buffer.isBuffer(source), 'Owner exact text/bytes type');
   if (entry.encoding === 'base64') assert.ok(Buffer.isBuffer(source), file + ': finite binary input stays bytes');
@@ -59,20 +67,20 @@ function ownerView(entries, file, source, strict = false) {
   if (entry.encoding === 'base64') assert.ok(Buffer.isBuffer(source), file + ': finite binary input stays bytes');
   return strict || sha(source) === entry.after_sha256 ? ownerReverse(entry, file, source) : source;
 }
-export const sourceAtOwnerDeltaBaseline = (file, source) => ownerView(hiringOwnerDelta.files, file, sourceAtSeriesBaseline(file, source));
-export const sourceBeforeOwnerDelta = (file, source) => ownerView(hiringOwnerDelta.files, file, sourceAtSeriesBaseline(file, source), true);
-export function publicSourceAtOwnerDeltaBaseline(file, source) {
-  source = publicSourceAtSeriesBaseline(file, source);
+export const sourceAtOwnerDeltaBaseline = (file, source, edition) => ownerView(ownerData(edition).files, file, sourceAtSeriesBaseline(file, source, edition));
+export const sourceBeforeOwnerDelta = (file, source, edition) => ownerView(ownerData(edition).files, file, sourceAtSeriesBaseline(file, source, edition), true);
+export function publicSourceAtOwnerDeltaBaseline(file, source, captured) {
+  const hiringOwnerDelta=ownerData(captured);source = publicSourceAtSeriesBaseline(file, source, captured);
   for (const edition of Object.values(hiringOwnerDelta.publicEditions)) {const result = ownerView(edition.files, file, source);if (result !== source) return result;}
   return source;
 }
-export function publicSourceBeforeOwnerDelta(file, source, channel) {assert.ok(Object.hasOwn(hiringOwnerDelta.publicEditions, channel), 'Known exact owner channel');return ownerView(hiringOwnerDelta.publicEditions[channel].files, file, publicSourceAtSeriesBaseline(file, source), true);}
-export function ownerSourceExact() {
-  return hiringOwnerDelta.nonGuardSourceRows.every(row => {const p = path.join(root, row.path);if (!fs.existsSync(p) || !fs.lstatSync(p).isFile() || fs.lstatSync(p).isSymbolicLink()) return false;const stat = fs.lstatSync(p), b = sourceAtSeriesBaseline(row.path, fs.readFileSync(p));return b.length === row.bytes && sha(b) === row.sha256 && (stat.mode & 0o111 ? '100755' : '100644') === row.mode && createHash('sha1').update(Buffer.from('blob ' + b.length + '\0')).update(b).digest('hex') === row.gitBlobSha1;});
+export function publicSourceBeforeOwnerDelta(file, source, channel, edition) {const hiringOwnerDelta=ownerData(edition);if(edition!==undefined)assert.equal(channel,capturedAudioIO(edition,root).channel,'Captured exact channel binding');assert.ok(Object.hasOwn(hiringOwnerDelta.publicEditions, channel), 'Known exact owner channel');return ownerView(hiringOwnerDelta.publicEditions[channel].files, file, publicSourceAtSeriesBaseline(file, source, edition), true);}
+export function ownerSourceExact(edition) {
+  const hiringOwnerDelta=ownerData(edition),io=editionIO(edition);return hiringOwnerDelta.nonGuardSourceRows.every(row => {const p = path.join(root, row.path);if (!io.existsSync(p) || !io.lstatSync(p).isFile() || io.lstatSync(p).isSymbolicLink()) return false;const stat = io.lstatSync(p), b = sourceAtSeriesBaseline(row.path, io.readFileSync(p),edition);return b.length === row.bytes && sha(b) === row.sha256 && (stat.mode & 0o111 ? '100755' : '100644') === row.mode && createHash('sha1').update(Buffer.from('blob ' + b.length + '\0')).update(b).digest('hex') === row.gitBlobSha1;});
 }
-export function ownerPublicExact(publishRoot, channel) {
-  if (!Object.hasOwn(hiringOwnerDelta.publicEditions, channel)) return false;
-  return hiringOwnerDelta.publicEditions[channel].currentMap.every(row => {const p = path.join(publishRoot, row.path);if (!fs.existsSync(p) || !fs.lstatSync(p).isFile() || fs.lstatSync(p).isSymbolicLink()) return false;const b = publicSourceAtSeriesBaseline(row.path,fs.readFileSync(p));if (row.path === '.well-known/monderman-release.json') {const marker = JSON.parse(b);return Object.keys(marker).length === 1 && /^[a-f0-9]{40}$/.test(marker.revision);}return b.length === row.bytes && sha(b) === row.sha256;});
+export function ownerPublicExact(publishRoot, channel, edition) {
+  const hiringOwnerDelta=ownerData(edition),io=editionIO(edition);if(edition!==undefined)assert.equal(channel,capturedAudioIO(edition,root,publishRoot).channel,'Captured exact channel binding');if (!Object.hasOwn(hiringOwnerDelta.publicEditions, channel)) return false;
+  return hiringOwnerDelta.publicEditions[channel].currentMap.every(row => {const p = path.join(publishRoot, row.path);if (!io.existsSync(p) || !io.lstatSync(p).isFile() || io.lstatSync(p).isSymbolicLink()) return false;const b = publicSourceAtSeriesBaseline(row.path,io.readFileSync(p),edition);if (row.path === '.well-known/monderman-release.json') {const marker = JSON.parse(b);return Object.keys(marker).length === 1 && /^[a-f0-9]{40}$/.test(marker.revision);}return b.length === row.bytes && sha(b) === row.sha256;});
 }
 
 function reverse(entry, source) {
@@ -92,44 +100,44 @@ function view(entries, file, source) {
   assert.ok(typeof source === 'string' || Buffer.isBuffer(source));
   return sha(source) === entry.after_sha256 ? reverse(entry, source) : source;
 }
-export const sourceAtHiringPublicationBaseline = (file, source) => view(hiringPublicationDelta.files, file, sourceAtOwnerDeltaBaseline(file, source));
-export function publicSourceAtHiringPublicationBaseline(file, source) {
-  source = publicSourceAtOwnerDeltaBaseline(file, source);
+export const sourceAtHiringPublicationBaseline = (file, source, edition) => view(hiringData(edition).files, file, sourceAtOwnerDeltaBaseline(file, source,edition));
+export function publicSourceAtHiringPublicationBaseline(file, source, captured) {
+  const hiringPublicationDelta=hiringData(captured);source = publicSourceAtOwnerDeltaBaseline(file, source, captured);
   for (const edition of Object.values(hiringPublicationDelta.publicEditions)) {
     const result = view(edition.files, file, source);
     if (result !== source) return result;
   }
   return source;
 }
-function exact(rootPath, entries) {
-  return Object.entries(entries).every(([file, entry]) => {
+function exact(rootPath, entries, edition) {
+  const io=editionIO(edition);return Object.entries(entries).every(([file, entry]) => {
     const filePath = path.join(rootPath, file);
-    if (!fs.existsSync(filePath) || !fs.lstatSync(filePath).isFile() || fs.lstatSync(filePath).isSymbolicLink()) return false;
-    const bytes = publicSourceAtSeriesBaseline(file,sourceAtSeriesBaseline(file,fs.readFileSync(filePath)));
+    if (!io.existsSync(filePath) || !io.lstatSync(filePath).isFile() || io.lstatSync(filePath).isSymbolicLink()) return false;
+    const bytes = publicSourceAtSeriesBaseline(file,sourceAtSeriesBaseline(file,io.readFileSync(filePath),edition),edition);
     return bytes.length === entry.bytes && sha(bytes) === entry.sha256;
   });
 }
-function sourceExact() {
-  return ownerSourceExact() && exact(root, hiringPublicationDelta.additions) && Object.entries(hiringPublicationDelta.files).every(([file, entry]) => {
+function sourceExact(edition) {
+  const hiringPublicationDelta=hiringData(edition),io=editionIO(edition);return ownerSourceExact(edition) && exact(root, hiringPublicationDelta.additions,edition) && Object.entries(hiringPublicationDelta.files).every(([file, entry]) => {
     const filePath = path.join(root, file);
-    return fs.existsSync(filePath) && fs.lstatSync(filePath).isFile() && !fs.lstatSync(filePath).isSymbolicLink() && sha(sourceAtOwnerDeltaBaseline(file, fs.readFileSync(filePath))) === entry.after_sha256;
+    return io.existsSync(filePath) && io.lstatSync(filePath).isFile() && !io.lstatSync(filePath).isSymbolicLink() && sha(sourceAtOwnerDeltaBaseline(file, io.readFileSync(filePath),edition)) === entry.after_sha256;
   });
 }
 function paths(names, current, prior, exactMatch) {
   assert.ok(Array.isArray(names) && names.every(name => typeof name === 'string'));
   return names.length === new Set(names).size && JSON.stringify([...names].sort()) === JSON.stringify(current) && exactMatch ? [...prior] : names;
 }
-export const sourcePathsAtHiringPublicationBaseline = names => paths(sourcePathsAtSeriesBaseline(names), hiringPublicationDelta.currentSourcePaths, hiringPublicationDelta.baselineSourcePaths, sourceExact());
-export function publicPathsAtHiringPublicationBaseline(names, publishRoot = process.env.SCOPE_BETA_BUILD_ROOT || process.env.SITE_DESIGN_BUILD_ROOT || path.join(root, '.render-public')) {
-  names = publicPathsAtSeriesBaseline(names,publishRoot);
+export const sourcePathsAtHiringPublicationBaseline = (names,edition) => {const hiringPublicationDelta=hiringData(edition);return paths(sourcePathsAtSeriesBaseline(names,edition), hiringPublicationDelta.currentSourcePaths, hiringPublicationDelta.baselineSourcePaths, sourceExact(edition));};
+export function publicPathsAtHiringPublicationBaseline(names, publishRoot = process.env.SCOPE_BETA_BUILD_ROOT || process.env.SITE_DESIGN_BUILD_ROOT || path.join(root, '.render-public'), captured) {
+  const hiringPublicationDelta=hiringData(captured),io=editionIO(captured);names = publicPathsAtSeriesBaseline(names,publishRoot,captured);
   const marker = path.join(publishRoot, '.well-known/monderman-questionnaire-release.json');
-  if (!fs.existsSync(marker)) return names;
-  const channel = JSON.parse(fs.readFileSync(marker)).channel;
+  if (!io.existsSync(marker)) return names;
+  const channel = JSON.parse(io.readFileSync(marker)).channel;
   if (!Object.hasOwn(hiringPublicationDelta.publicEditions, channel)) return names;
   const edition = hiringPublicationDelta.publicEditions[channel];
-  const exactMatch = ownerPublicExact(publishRoot, channel) && exact(publishRoot, edition.additions) && Object.entries(edition.files).every(([file, entry]) => {
+  const exactMatch = ownerPublicExact(publishRoot, channel, captured) && exact(publishRoot, edition.additions,captured) && Object.entries(edition.files).every(([file, entry]) => {
     const filePath = path.join(publishRoot, file);
-    return fs.existsSync(filePath) && fs.lstatSync(filePath).isFile() && !fs.lstatSync(filePath).isSymbolicLink() && sha(publicSourceAtOwnerDeltaBaseline(file, fs.readFileSync(filePath))) === entry.after_sha256;
+    return io.existsSync(filePath) && io.lstatSync(filePath).isFile() && !io.lstatSync(filePath).isSymbolicLink() && sha(publicSourceAtOwnerDeltaBaseline(file, io.readFileSync(filePath),captured)) === entry.after_sha256;
   });
   return paths(names, hiringPublicationDelta.currentPublicPaths, hiringPublicationDelta.baselinePublicPaths, exactMatch);
 }

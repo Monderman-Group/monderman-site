@@ -26,6 +26,7 @@ jobs:
         env:
           RENDER_GIT_COMMIT: ${{ github.sha }}
           MONDERMAN_QUESTIONNAIRE_RELEASE: current
+          PILOT_RETRY_OUTPUT: ${{ runner.temp }}/monderman-pilot-safe-browser
         run: |
           bash scripts/render-static-build.sh
           node scripts/first_run_entry_smoke.mjs
@@ -37,5 +38,5 @@ jobs:
         with:
           name: pilot-retry-local-evidence
           path: |
-            output/pilot-safe-browser
+            ${{ runner.temp }}/monderman-pilot-safe-browser
             output/evaluation-pool-browser

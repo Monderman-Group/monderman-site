@@ -1,5 +1,6 @@
 // Exact post-1858 article-series layer. Only complete approved bytes project.
 import {publicationDelta,sourceAtPublicationBaseline,publicSourceAtPublicationBaseline,sourcePathsAtPublicationBaseline,publicPathsAtPublicationBaseline,publicationSourceExact,publicationPublicExact} from './divide_rule_publication_20261025_inverse.mjs';
+import {sourceAtAudioBaseline,publicSourceAtAudioBaseline,capturedAudioIO,assertCapturedAudioFixture} from './article_audio_20261026_inverse.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -15,7 +16,13 @@ assert.equal(seriesDelta.schema, 'hiring-work-design-post1858-v1');
 assert.equal(seriesDelta.baseline, '1858c1bfef88e9407b7cd900fb840f230de8bed7');
 assert.equal(seriesDelta.baselineTree, '52ff88a9b2ee877fa9c8afc75b2a11cf3b112a78');
 export const seriesPublicationPages = Object.freeze(['hiring-blind-spot.html', 'posting-has-outgrown-the-job.html', 'research-topics.html', 'careers.html', 'careers-privacy.html', 'divide-and-rule-inside-the-company.html']);
-function before(entry, file, value) {
+
+function freezeCapturedData(value){if(value&&typeof value==='object'){for(const child of Object.values(value))freezeCapturedData(child);Object.freeze(value);}return value;}
+const privateSeries=freezeCapturedData(JSON.parse(raw));
+function seriesData(edition){if(edition===undefined)return seriesDelta;assertCapturedAudioFixture(edition,root,'scripts/fixtures/hiring-work-design-series-20261017.json',SERIES_FIXTURE_SHA256);return privateSeries;}
+const editionIO=edition=>edition===undefined?fs:capturedAudioIO(edition,root);
+function before(entry, file, value, edition) {
+ const seriesDelta=seriesData(edition);
  assert.ok(typeof value === 'string' || Buffer.isBuffer(value), 'Exact text/bytes type');
  const b = Buffer.isBuffer(value) ? value : Buffer.from(value);
  assert.equal(b.length, entry.after_bytes, file + ': complete current length');
@@ -28,34 +35,35 @@ function before(entry, file, value) {
  if (typeof value === 'string') { assert.ok(Buffer.from(prior.toString('utf8')).equals(prior), 'Lossless prior UTF8'); return prior.toString('utf8'); }
  return prior;
 }
-function view(entries, file, value) {
+function view(entries, file, value, edition) {
  if (typeof file !== 'string' || !Object.hasOwn(entries, file)) return value;
  assert.ok(typeof value === 'string' || Buffer.isBuffer(value), 'Exact text/bytes type');
  const entry = entries[file];
- return sha(value) === entry.after_sha256 ? before(entry, file, value) : value;
+ return sha(value) === entry.after_sha256 ? before(entry, file, value, edition) : value;
 }
-export const sourceAtSeriesBaseline = (file, value) => view(seriesDelta.files, file, sourceAtPublicationBaseline(file,value));
-export function publicSourceAtSeriesBaseline(file, value) {
- value=publicSourceAtPublicationBaseline(file,value);
- for (const edition of Object.values(seriesDelta.publicEditions)) {const out = view(edition.files, file, value); if (out !== value) return out;}
+export const sourceAtSeriesBaseline = (file, value, edition) => view(seriesData(edition).files, file, sourceAtPublicationBaseline(file,value,edition),edition);
+export function publicSourceAtSeriesBaseline(file, value, edition) {
+ const seriesDelta=seriesData(edition);value=publicSourceAtPublicationBaseline(file,value,undefined,edition);
+ for (const rowEdition of Object.values(seriesDelta.publicEditions)) {const out = view(rowEdition.files, file, value, edition); if (out !== value) return out;}
  return value;
 }
-export const sourceBeforeSeries = (file, value) => {value=sourceAtPublicationBaseline(file,value);return Object.hasOwn(seriesDelta.files,file) ? before(seriesDelta.files[file],file,value) : value;};
+export const sourceBeforeSeries = (file, value, edition) => {const seriesDelta=seriesData(edition);value=sourceAtPublicationBaseline(file,value,edition);return Object.hasOwn(seriesDelta.files,file) ? before(seriesDelta.files[file],file,value,edition) : value;};
 function rowExact(file, row, value) {return value.length === row.bytes && sha(value) === row.sha256;}
-export function seriesSourceExact() {
- if(!publicationSourceExact())return false;
- return seriesDelta.nonGuardSourceRows.every(row => {const file=path.join(root,row.path); if(!fs.existsSync(file)||!fs.lstatSync(file).isFile()||fs.lstatSync(file).isSymbolicLink())return false;const b=sourceAtPublicationBaseline(row.path,fs.readFileSync(file));return rowExact(file,row,b)&&(fs.statSync(file).mode&0o111?'100755':'100644')===row.mode&&createHash('sha1').update(Buffer.from('blob '+b.length+'\0')).update(b).digest('hex')===row.gitBlobSha1;});
+export function seriesSourceExact(edition) {
+ const seriesDelta=seriesData(edition),io=editionIO(edition);if(!publicationSourceExact(edition))return false;
+ return seriesDelta.nonGuardSourceRows.every(row => {const file=path.join(root,row.path); if(!io.existsSync(file)||!io.lstatSync(file).isFile()||io.lstatSync(file).isSymbolicLink())return false;const b=sourceAtPublicationBaseline(row.path,io.readFileSync(file),edition);return rowExact(file,row,b)&&(io.statSync(file).mode&0o111?'100755':'100644')===row.mode&&createHash('sha1').update(Buffer.from('blob '+b.length+'\0')).update(b).digest('hex')===row.gitBlobSha1;});
 }
-export function seriesPublicExact(publishRoot, channel) {
- if(!publicationPublicExact(publishRoot,channel))return false;
+export function seriesPublicExact(publishRoot, channel, edition) {
+ const seriesDelta=seriesData(edition),io=editionIO(edition);if(edition!==undefined)assert.equal(channel,capturedAudioIO(edition,root,publishRoot).channel,'Captured exact channel binding');if(!publicationPublicExact(publishRoot,channel,edition))return false;
  if(!Object.hasOwn(seriesDelta.publicEditions,channel))return false;
- return seriesDelta.publicEditions[channel].currentMap.every(row=>{const file=path.join(publishRoot,row.path);if(!fs.existsSync(file)||!fs.lstatSync(file).isFile()||fs.lstatSync(file).isSymbolicLink())return false;const b=publicSourceAtPublicationBaseline(row.path,fs.readFileSync(file));if(row.path==='.well-known/monderman-release.json'){const m=JSON.parse(b);return Object.keys(m).length===1&&/^[a-f0-9]{40}$/.test(m.revision);}return rowExact(file,row,b);});
+ return seriesDelta.publicEditions[channel].currentMap.every(row=>{const file=path.join(publishRoot,row.path);if(!io.existsSync(file)||!io.lstatSync(file).isFile()||io.lstatSync(file).isSymbolicLink())return false;const b=publicSourceAtPublicationBaseline(row.path,io.readFileSync(file),edition===undefined?undefined:publishRoot,edition);if(row.path==='.well-known/monderman-release.json'){const m=JSON.parse(b);return Object.keys(m).length===1&&/^[a-f0-9]{40}$/.test(m.revision);}return rowExact(file,row,b);});
 }
 function paths(names,current,prior,exact){assert.ok(Array.isArray(names)&&names.every(f=>typeof f==='string'));return names.length===new Set(names).size&&JSON.stringify([...names].sort())===JSON.stringify(current)&&exact?[...prior]:names;}
-export const sourcePathsAtSeriesBaseline = names => paths(sourcePathsAtPublicationBaseline(names),seriesDelta.currentSourcePaths,seriesDelta.baselineSourcePaths,seriesSourceExact());
-export function publicPathsAtSeriesBaseline(names,publishRoot) {names=publicPathsAtPublicationBaseline(names,publishRoot);const file=path.join(publishRoot,'.well-known/monderman-questionnaire-release.json');if(!fs.existsSync(file))return names;const c=JSON.parse(fs.readFileSync(file)).channel;return paths(names,seriesDelta.currentPublicPaths,seriesDelta.baselinePublicPaths,seriesPublicExact(publishRoot,c));}
-export function assertSeriesPublicationSurface(file, bytes, channel=null) {
+export const sourcePathsAtSeriesBaseline = (names,edition) => {const seriesDelta=seriesData(edition);return paths(sourcePathsAtPublicationBaseline(names,edition),seriesDelta.currentSourcePaths,seriesDelta.baselineSourcePaths,seriesSourceExact(edition));};
+export function publicPathsAtSeriesBaseline(names,publishRoot,edition) {const seriesDelta=seriesData(edition),io=editionIO(edition);names=publicPathsAtPublicationBaseline(names,publishRoot,edition);const file=path.join(publishRoot,'.well-known/monderman-questionnaire-release.json');if(!io.existsSync(file))return names;const c=JSON.parse(io.readFileSync(file)).channel;return paths(names,seriesDelta.currentPublicPaths,seriesDelta.baselinePublicPaths,seriesPublicExact(publishRoot,c,edition));}
+export function assertSeriesPublicationSurface(file, bytes, channel=null, publishRoot=path.join(root,'.render-public')) {
  assert.ok(seriesPublicationPages.includes(file), 'Closed series surface');
+ bytes=channel===null?sourceAtAudioBaseline(file,bytes):publicSourceAtAudioBaseline(file,bytes,publishRoot);
  const rows=channel===null?publicationDelta.sourceRows:publicationDelta.publicEditions[channel]?.currentMap;
  assert.ok(rows,'Known channel');const row=rows.find(r=>r.path===file);assert.ok(row&&rowExact(file,row,bytes),file+': complete current publication surface');return row;
 }

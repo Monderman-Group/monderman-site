@@ -3,8 +3,9 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
-const root = path.resolve('.render-public'), out = path.resolve('output/pilot-safe-browser');
+const root = path.resolve('.render-public'), out = path.resolve(process.env.PILOT_RETRY_OUTPUT || path.join(os.tmpdir(),'monderman-pilot-safe-browser'));
 fs.mkdirSync(out, { recursive: true });
 const base = 'http://127.0.0.1:4199';
 const mime = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.woff2': 'font/woff2', '.woff': 'font/woff', '.json': 'application/json', '.ico': 'image/x-icon' };

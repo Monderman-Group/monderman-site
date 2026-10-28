@@ -1,0 +1,20 @@
+/* Article-only audio control. Normal flow; no media preloading or floating UI. */
+.mond-article-audio { width: min(100% - 48px, 820px); margin: 18px auto 0; color: #0e3a44; font: inherit; }
+.mond-article-audio__summary { display: flex; align-items: center; gap: 9px; min-height: 44px; padding: 3px 0; cursor: pointer; list-style: none; font-size: .9rem; line-height: 1.45; font-weight: 600; }
+.mond-article-audio__summary::-webkit-details-marker { display: none; }
+.mond-article-audio__summary:focus-visible { outline: 2px solid #0c6e78; outline-offset: 4px; border-radius: 2px; }
+.mond-article-audio__icon { width: 18px; height: 18px; flex: 0 0 18px; }
+.mond-article-audio__meta { color: #5f6568; font-size: .78rem; font-weight: 400; }
+.mond-article-audio__chevron { margin-left: auto; font-size: 1.05rem; transition: transform .15s; }
+.mond-article-audio[open] .mond-article-audio__chevron { transform: rotate(180deg); }
+.mond-article-audio__body { display: grid; gap: 12px; padding: 10px 0 14px; }
+.mond-article-audio audio { display: block; width: 100%; max-width: 100%; min-width: 0; height: 44px; }
+.mond-article-audio__options { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; font-size: .8rem; }
+.mond-article-audio__speed { display: inline-flex; align-items: center; gap: 8px; }
+.mond-article-audio__options select { min-height: 36px; padding: 3px 8px; border: 1px solid #c6d2d4; border-radius: 3px; background: #fff; color: #0e3a44; font: inherit; }
+.mond-article-audio__options a { min-height: 36px; display: inline-flex; align-items: center; color: #0c6e78; text-underline-offset: 3px; }
+.mond-article-audio__note, .mond-article-audio__error { color: #5f6568; font-size: .78rem; line-height: 1.5; }
+.mond-article-audio [hidden] { display: none !important; }
+@media (max-width:640px) { .mond-article-audio { width: calc(100% - 40px); margin-top: 12px; } }
+@media (prefers-reduced-motion:reduce) { .mond-article-audio .mond-article-audio__chevron { transition: none !important; } }
+@media print { .mond-article-audio { display: none !important; } }

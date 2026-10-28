@@ -3,6 +3,7 @@ import {seriesPublicationPages,assertSeriesPublicationSurface} from './hiring_wo
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import os from 'node:os';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {chromium, webkit} from 'playwright';
@@ -15,7 +16,7 @@ const built = path.resolve(process.env.SITE_SOURCE_DIR || path.join(root, '.rend
 const currentScope = isCurrentScopeBeta();
 if (currentScope) assertScopeBetaBuiltEdition(built);
 const currentProductPages = ['q2-sodi.html', 'scope.html'];
-const output = path.resolve(process.env.FOOTER_MEMBERSHIP_OUTPUT || 'output/acmp-footer');
+const output = path.resolve(process.env.FOOTER_MEMBERSHIP_OUTPUT || path.join(os.tmpdir(),'monderman-acmp-footer'));
 const baseline = 'e9efd479cc4b19e9753aeb814fb30f280f8171a9';
 const credential = 'https://www.credly.com/badges/36d80452-ae21-4208-b5c6-f1bcf45fb23a';
 const badgePath = 'assets/brand/acmp-member-badge.png';
@@ -90,7 +91,7 @@ for (const file of (await fs.readdir(built)).filter(file => file.endsWith('.html
 }
 eq([...scopePages.keys()], currentScope ? currentProductPages : [], 'Only the whole-source and whole-build approved canonical product page and alias are separate');
 const hiringArticle = 'hiring-blind-spot.html';
-{const channel=JSON.parse(await fs.readFile(path.join(built,'.well-known/monderman-questionnaire-release.json'),'utf8')).channel;for(const file of seriesPublicationPages){ok(pages.has(file),'Each exact current publication joins footer coverage');assertSeriesPublicationSurface(file,await fs.readFile(path.join(built,file)),channel);}}
+{const channel=JSON.parse(await fs.readFile(path.join(built,'.well-known/monderman-questionnaire-release.json'),'utf8')).channel;for(const file of seriesPublicationPages){ok(pages.has(file),'Each exact current publication joins footer coverage');assertSeriesPublicationSurface(file,await fs.readFile(path.join(built,file)),channel,built);}}
 eq([...pages.keys()].filter(file => !seriesPublicationPages.includes(file)).length, 74, 'All original public footer pages receive the membership');
 const browserPages = new Map([...pages, ...scopePages]);
 const tracked = execFileSync('git', ['ls-tree', '-r', '--name-only', baseline], {cwd:root, encoding:'utf8'}).trim().split('\n');
@@ -151,6 +152,156 @@ async function persistProgress(phase, detail = {}) {
   progressTail = write.catch(error => harnessFailure('harness/progress', error, phase));
   await progressTail;
 }
+// WebKit's public server owns exactly this worker's browser process. The connected
+// Browser is only a client: Browser.close() would not prove process termination.
+const ownedWebKitTeardown = [];
+const ownerStamp = () => ({at:new Date().toISOString(), monotonicNs:process.hrtime.bigint().toString()});
+const ownerError = error => error?.stack || String(error);
+function ownerSignal() {
+  let resolve;
+  const promise = new Promise(done => { resolve = done; });
+  return {promise, resolve};
+}
+function registerWebKitOwner(ownership, server) {
+  ownership.server = server; // Retain the owner even if process capture or connect fails.
+  const processClosed = ownerSignal(), serverClosed = ownerSignal(), clientDisconnected = ownerSignal();
+  let rejectFailure;
+  const failure = new Promise((_, reject) => { rejectFailure = reject; });
+  failure.catch(() => {}); // Observe creation-time errors without replacing the original promise.
+  const record = {engineName:'webkit', workerIndex:ownership.workerIndex, teardownMode:'owned-server-kill',
+    acquired:ownerStamp(), nodeVersion:process.version, events:{}, errors:[], errorCount:0,
+    killAttempted:false, outcome:'PENDING',
+    qualification:'Forceful owned-process teardown. Public kill completion includes the library cleanup attempt, not independent temporary-folder absence or HTTP-listener-closure proof.'};
+  const state = {server, processClosed, serverClosed, clientDisconnected, failure, record,
+    killStarted:false, hasError:false, rejectFailure};
+  ownership.webkit = state;
+  ownedWebKitTeardown.push(record);
+  const fail = (phase, error) => {
+    const first = !state.hasError;
+    if (first) { state.hasError = true; state.firstError = error; rejectFailure(error); }
+    record.outcome = 'FAIL';
+    ownership.worker.status = 'FAIL';ownership.worker.browserClosed = false;
+    // Observed late errors invalidate the CLI even after an earlier snapshot or
+    // final assertion. This does not promise observation after process exit.
+    if (process.exitCode === undefined || process.exitCode === 0) process.exitCode = 1;
+    try {
+      record.errorCount++;
+      if (record.errors.length < 8) record.errors.push({phase, ...ownerStamp(), error:ownerError(error)});
+    } catch { record.observerEvidenceUnavailable = true; }
+    if (first) {
+      const before = failures.length;
+      try { harnessFailure(`webkit/worker-${ownership.workerIndex}`, error, 'owned-server-observer/' + phase); }
+      catch {
+        // Reporting must not throw from an EventEmitter or skip other owners.
+        if (failures.length === before) failures.push({label:`webkit/worker-${ownership.workerIndex}`,
+          error:'Owned server error observed; original error formatting unavailable', phase:'owned-server-observer/' + phase});
+        record.observerReportingUnavailable = true;
+      }
+    }
+  };
+  state.fail = fail;
+  const terminal = (name, detail, signal) => {
+    const event = {...ownerStamp(), ...detail};
+    record.events[name] = event;
+    if (!state.killStarted) fail('unexpected-before-owned-kill', new Error('WebKit owned ' + name + ' occurred before teardown'));
+    signal?.resolve(event);
+  };
+  server.once('close', (exitCode, signal) => terminal('serverClose', {exitCode, signal}, serverClosed));
+  server.on('error', error => fail('server-error', error));
+  const child = server.process();
+  state.child = child;
+  if (!child || !Number.isSafeInteger(child.pid) || child.pid <= 0) {
+    const error = new Error('WebKit BrowserServer did not expose its owned process');
+    fail('process-unavailable', error); throw error;
+  }
+  record.pid = child.pid;
+  record.processAtAcquisition = {exitCode:child.exitCode, signalCode:child.signalCode};
+  child.once('exit', (exitCode, signal) => terminal('processExit', {exitCode, signal}));
+  child.once('close', (exitCode, signal) => terminal('processClose', {exitCode, signal}, processClosed));
+  child.on('error', error => fail('process-error', error));
+  if (child.exitCode !== null || child.signalCode !== null)
+    fail('process-already-terminal', new Error('WebKit owned process was already terminal at acquisition'));
+  return state;
+}
+function registerWebKitClient(ownership, browser) {
+  const state = ownership.webkit;
+  browser.once('disconnected', () => {
+    const event = ownerStamp();
+    state.record.events.clientDisconnected = event;
+    if (!state.killStarted) state.fail('unexpected-before-owned-kill', new Error('WebKit client disconnected before teardown'));
+    state.clientDisconnected.resolve(event);
+  });
+  state.record.browserVersion = browser.version();
+  if (!browser.isConnected()) state.fail('client-already-disconnected', new Error('WebKit client was already disconnected at acquisition'));
+}
+async function terminateWebKitOwner(ownership, label) {
+  const state = ownership.webkit;
+  if (!state || !ownership.server) throw new Error(label + ': no returned BrowserServer owner; termination is unproved');
+  if (state.killStarted) throw new Error(label + ': owned kill was already attempted');
+  const start = process.hrtime.bigint(), deadline = start + BigInt(operationLimit) * 1000000n;
+  const timeoutError = () => new Error(label + ': cleanup exceeded existing 30000ms operation limit');
+  state.record.teardownStarted = {at:new Date().toISOString(), monotonicNs:start.toString()};
+  state.record.deadlineMonotonicNs = deadline.toString();
+  state.record.clientObservationRequired = !!ownership.browser;
+  state.record.clientObservationQualification = ownership.browser ? 'Connected client must emit disconnected.' : 'Connect did not return a client; its original worker failure remains FAIL.';
+  // Endpoint observations are not an atomic native-process history. Even when a
+  // listener missed a terminal event, an already observable death must not pass.
+  const beforeKill = {observed:ownerStamp(), priorError:state.hasError,
+    capturedTerminalEvents:['processExit','processClose','serverClose','clientDisconnected'].filter(name => state.record.events[name]),
+    qualification:'ChildProcess terminal properties and cached client state at this observation, not an atomic native-process history.'};
+  state.record.beforeKill = beforeKill;
+  try {
+    const child = state.child;
+    beforeKill.process = child ? {pid:child.pid, exitCode:child.exitCode, signalCode:child.signalCode} : {available:false};
+    if (!child || child.pid !== state.record.pid || child.exitCode !== null || child.signalCode !== null)
+      state.fail('pre-kill-process-not-live', new Error(label + ': owned process is missing, changed or already terminal'));
+    beforeKill.client = ownership.browser ? {available:true, isConnected:ownership.browser.isConnected()} : {available:false};
+    if (ownership.browser && !beforeKill.client.isConnected)
+      state.fail('pre-kill-client-disconnected', new Error(label + ': client already reports disconnected'));
+    if (beforeKill.capturedTerminalEvents.length)
+      state.fail('pre-kill-terminal-event', new Error(label + ': a terminal event was already captured before kill'));
+  } catch (error) { state.fail('pre-kill-state-unavailable', error); }
+  beforeKill.hasErrorAfterHealthCheck = state.hasError;
+  // Retain the first failure, but still attempt this exact owner's one kill.
+  state.killStarted = true;
+  state.record.killAttempted = true;
+  let kill;
+  try { kill = Promise.resolve(state.server.kill()); }
+  catch (error) { kill = Promise.reject(error); }
+  const killObserved = kill.then(() => {
+    state.record.events.killFulfilled = ownerStamp();
+  }, error => {
+    state.record.events.killRejected = {...ownerStamp(), error:ownerError(error)};
+    state.fail('kill-rejected', error); throw error;
+  });
+  killObserved.catch(() => {});
+  const terminal = Promise.all([killObserved, state.processClosed.promise, state.serverClosed.promise,
+    ...(ownership.browser ? [state.clientDisconnected.promise] : [])]);
+  terminal.catch(() => {});
+  let timer;
+  try {
+    await Promise.race([terminal, state.failure, new Promise((_, reject) => {
+      const remaining = Math.max(0, Math.floor(Number(deadline - process.hrtime.bigint()) / 1000000));
+      timer = setTimeout(() => reject(timeoutError()), remaining);
+    })]);
+    if (process.hrtime.bigint() >= deadline) throw timeoutError(); // A late fulfilled promise cannot widen the deadline.
+    for (const name of ['killFulfilled','processClose','serverClose', ...(ownership.browser ? ['clientDisconnected'] : [])]) {
+      const event = state.record.events[name];
+      if (!event || BigInt(event.monotonicNs) >= deadline) throw timeoutError();
+    }
+    if (state.hasError) throw state.firstError;
+    if (ownership.browser && ownership.browser.isConnected()) throw new Error(label + ': client still reports connected after terminal observations');
+    state.record.outcome = 'PASS';
+    state.record.completed = ownerStamp();
+  } catch (error) {
+    state.record.outcome = 'FAIL';
+    state.record.failure = {...ownerStamp(), error:ownerError(error)};
+    throw error;
+  } finally { clearTimeout(timer); }
+}
+function webKitTeardownSnapshot() {
+  return ownedWebKitTeardown.map(record => ({...record, events:{...record.events}, errors:record.errors.map(error => ({...error}))}));
+}
 for (const [engineName, engine] of Object.entries({chromium, webkit})) {
     const queue = representatives.flatMap(file => [320, 390, 768, 1440].map(width => ({file, width})));
     for (const file of scopePages.keys()) queue.push(...[320, 390, 768, 1440].map(width => ({file, width})));
@@ -170,8 +321,16 @@ for (const [engineName, engine] of Object.entries({chromium, webkit})) {
     ownedWorkers.push(ownership);
     await persistProgress('worker-browser-launch', {engineName, workerIndex});
     try {
+      if (engineName === 'webkit') {
+        const server = await engine.launchServer({headless:true, host:'127.0.0.1'});
+        registerWebKitOwner(ownership, server);
+        browser = await engine.connect(server.wsEndpoint(), {timeout:operationLimit});
+        ownership.browser = browser;
+        registerWebKitClient(ownership, browser);
+      } else {
       browser = await engine.launch({headless:true});
       ownership.browser = browser;
+      }
       await persistProgress('worker-browser-ready', {engineName, workerIndex});
       while (queue.length) {
         const {file, width} = queue.shift();
@@ -316,8 +475,27 @@ for (const [engineName, engine] of Object.entries({chromium, webkit})) {
     // Every worker body, including its cases' page/context cleanup, has joined before teardown.
     // Attempts are serial; a timed-out close stays FAIL/pending while remaining owned browsers are attempted once.
     const closeSettlements = [];
-    for (const {workerIndex, worker, browser} of ownedWorkers.sort((a, b) => a.workerIndex - b.workerIndex)) {
+    for (const ownership of ownedWorkers.sort((a, b) => a.workerIndex - b.workerIndex)) {
+      const {workerIndex, worker, browser} = ownership;
       const [result] = await Promise.allSettled([(async () => {
+      if (engineName === 'webkit') {
+        await persistProgress('worker-browser-close', {engineName, workerIndex, teardownMode:'owned-server-kill'});
+        try {
+          if (!ownership.server) {
+            ownedWebKitTeardown.push({engineName, workerIndex, teardownMode:'owned-server-kill', outcome:'FAIL',
+              ownerAvailable:false, termination:'UNPROVED_NO_RETURNED_OWNER', observed:ownerStamp()});
+          }
+          await terminateWebKitOwner(ownership, `${engineName}/worker-${workerIndex}: owned server kill`);
+          if (ownership.webkit.hasError) throw ownership.webkit.firstError;
+          worker.browserClosed = true;
+          worker.teardownMode = 'owned-server-kill';
+        } catch (error) {
+          worker.status = 'FAIL';worker.browserClosed = false;
+          worker.teardownMode = 'owned-server-kill';
+          harnessFailure(`${engineName}/worker-${workerIndex}`, error, 'browser-close');
+          await persistProgress('browser-close-failure', {engineName, workerIndex, teardownMode:'owned-server-kill', error:ownerError(error)});
+        }
+      } else {
       if (browser) {
         await persistProgress('worker-browser-close', {engineName, workerIndex});
         let browserClosePromise;
@@ -358,6 +536,7 @@ for (const [engineName, engine] of Object.entries({chromium, webkit})) {
           await persistProgress('browser-close-failure', {engineName, workerIndex, error:error.stack});
         }
       }
+      }
       await persistProgress('worker-complete', {engineName, workerIndex, status:worker.status, browserClosed:worker.browserClosed ?? null});
       })()]);
       closeSettlements.push({workerIndex, worker, result});
@@ -375,6 +554,7 @@ const missingLabels = expectedLabels.filter(label => !completedLabels.has(label)
 if (missingLabels.length || startedLabels.size !== expectedLabels.length || completedLabels.size !== expectedLabels.length) harnessFailure('harness/incomplete-coverage', new Error(JSON.stringify({expected:expectedLabels.length, started:startedLabels.size, completed:completedLabels.size, missingLabels})), 'final-coverage');
 const receipt = {status:failures.length ? 'FAIL' : 'PASS', checks, footerPages:pages.size, scopeFooterPages:scopePages.size, browserCases:results.length, baseline, protectedFiles:protectedFiles.length,
   badgeSha256, originalChecked, failures, results, providerCalls:0, published:false, browserOwnership:'one-per-existing-worker', operationLimit, workerOutcomes, caseOutcomes, expectedCaseCount:expectedLabels.length, completedCaseCount:completedLabels.size, missingLabels, incomplete:missingLabels.length > 0 || caseOutcomes.some(row => !row.cleanupPassed) || workerOutcomes.some(worker => worker.browserClosed !== true), progressPath,
+  ownedWebKitTeardownSnapshotAt:new Date().toISOString(), ownedWebKitTeardown:webKitTeardownSnapshot(),
   ...(browserCloseFailureObservations.length || browserCloseEvidenceErrors.length ? {
     browserCloseFailureObservationSnapshotAt:new Date().toISOString(),
     browserCloseFailureObservations:browserCloseFailureObservations.map(record => ({...record})), browserCloseEvidenceErrors} : {})};
@@ -424,6 +604,8 @@ if (failures.length) {
   evidence.closePromiseObservationSnapshotAt = new Date().toISOString();
   evidence.closePromiseObservations = browserCloseFailureObservations.map(record => ({...record}));
   evidence.closeEvidenceErrors = browserCloseEvidenceErrors;
+  evidence.ownedWebKitTeardownSnapshotAt = new Date().toISOString();
+  evidence.ownedWebKitTeardown = webKitTeardownSnapshot();
   try { console.log(JSON.stringify(evidence)); }
   catch (logError) { try { console.error('FOOTER_OWNED_FAILURE_EVIDENCE_UNAVAILABLE ' + String(logError)); } catch {} }
 }

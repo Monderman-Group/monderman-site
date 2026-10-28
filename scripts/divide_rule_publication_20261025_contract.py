@@ -7,6 +7,7 @@ missing files, duplicate paths and mutated content are rejected or left visible.
 import base64, hashlib, json, os, re, subprocess, sys
 from pathlib import Path
 from html import unescape
+from article_audio_20261026_inverse import audio_git,source_at_audio_baseline
 from divide_rule_publication_20261025_inverse import (
  ROOT, publication_delta as D, sha, source_at_publication_baseline as source_view,
  public_source_at_publication_baseline as public_view,
@@ -28,7 +29,7 @@ def check(value,label):
  global CHECKS
  assert value,label
  CHECKS+=1
-def raw_git(*args):return subprocess.check_output(['git',*args],cwd=ROOT)
+def raw_git(*args):return audio_git(*args)
 def text(value):return re.sub(r'\s+',' ',unescape(re.sub(r'<[^>]+>','',value))).strip()
 def row(path,value,mode=None):
  out={'path':path,'bytes':len(value),'sha256':sha(value)}
@@ -82,14 +83,14 @@ def audit_publication():
   check(sorted(heads)==sorted(names),'Complete committed physical source closure')
   for name in names:
    p=ROOT/name;check(p.is_file() and not p.is_symlink(),'No source symlinks '+name)
-   b=p.read_bytes();m= '100755' if p.stat().st_mode&0o111 else '100644'
+   b=source_at_audio_baseline(name,p.read_bytes());m= '100755' if p.stat().st_mode&0o111 else '100644'
    check(heads[name]==(m,hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest(),len(b)),'Current bytes/mode equal committed blob '+name)
  check(source_paths(names)==D['baselineSourcePaths'],'Only complete approved source inventory projects')
  for mutant in [names+['UNKNOWN.js'],names+[names[0]],names[:-1]]:
   check(source_paths(mutant)==mutant,'Unknown/missing/duplicate source stays visible');NEGATIVES+=1
  parity=[]
  for file,e in D['files'].items():
-  b=(ROOT/file).read_bytes();prior=source_view(file,b)
+  b=source_at_audio_baseline(file,(ROOT/file).read_bytes());prior=source_view(file,b)
   check(prior==raw_git('show',BASE+':'+file),'Exact authoritative prior bytes '+file)
   check(source_view(file,prior)==prior,'No double inverse '+file)
   parity.append(['source',file,base64.b64encode(b).decode(),sha(prior)])
@@ -136,7 +137,7 @@ def audit_publication():
   for mutant in [names+['UNKNOWN.js'],names+[names[0]],names[:-1]]:
    check(public_paths(mutant,build)==mutant,'Unknown/missing/duplicate compiled paths stay visible');NEGATIVES+=1
   for file,e in D['publicEditions'][channel]['files'].items():
-   b=(build/file).read_bytes();prior=public_view(file,b)
+   b=(build/file).read_bytes();prior=public_view(file,b,build)
    check(len(prior)==e['before_bytes'] and sha(prior)==e['before_sha256'],'Complete exact prior compiled channel '+file)
    parity.append(['public',file,base64.b64encode(b).decode(),sha(prior)])
    for mutant in [b+b'\n',b'UNAPPROVED'+b,b[1:]]:
