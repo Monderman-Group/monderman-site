@@ -22,7 +22,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = 'c76fb3d01606b277ec2b5e0708ee1c0de9c82f00'
 FIXTURE = 'scripts/fixtures/ai-middle-release-20261028.json'
-FIXTURE_SHA256='651aa3ffa1a97c1b574b4f08fed1c8bc1b16bc3dd1a7dcb769000ea65da73710'
+FIXTURE_SHA256='b0bfe6b4b90f06aec51289933578f567b49fef27dbf2fb22d2f41dfbb0686afe'
 SCHEMA = 'ai-middle-release-20261028-v1'
 GUARDS = ['scripts/ai_middle_release_20261028_contract.py',
           'scripts/ai_middle_release_20261028_contract.mjs', FIXTURE]
@@ -132,8 +132,11 @@ class Prose(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.paragraphs = {}; self.references = {}; self.key = None; self.parts = []
+        self.metadata = []; self.images = []
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
+        if tag == 'meta': self.metadata.append(a)
+        if tag == 'img': self.images.append(a.get('src'))
         if tag == 'p' and ('data-source-paragraph' in a or 'data-source-reference' in a):
             self.key = ('p', a['data-source-paragraph']) if 'data-source-paragraph' in a else ('r', a['data-source-reference'])
             self.parts = []
@@ -166,7 +169,16 @@ def audit_content(root):
     assert parser.references == {str(n): text(value) for n, value in enumerate(model['references'], 1)}, 'Every authorized reference'
     assert 'AI and Institutions · Part 5' in html and 'Jason Adamson' in html
     assert 'https://www.monderman.com/'+ARTICLE in html
-    assert 'og:image' not in html and 'twitter:image' not in html, 'No OBT cover/social artwork'
+    social = 'https://www.monderman.com/assets/brand/monderman-social-card.png?v=20260907-wordmark2'
+    for attribute, name, value in [
+        ('property','og:image',social), ('property','og:image:width','1200'),
+        ('property','og:image:height','630'), ('property','og:image:alt','Monderman'),
+        ('name','twitter:card','summary_large_image'), ('name','twitter:image',social),
+        ('name','twitter:image:alt','Monderman'),
+    ]:
+        assert [m.get('content') for m in parser.metadata if m.get(attribute)==name] == [value], 'Exact canonical wordmark social metadata: '+name
+    assert parser.images[:2] == ['assets/research/'+SLUG+'-figure-1.png','assets/research/'+SLUG+'-figure-2.png'], 'The two approved figures'
+    assert len(parser.images) == 3 and sha(parser.images[2]) == '3fad49ff103e10ccb4940485b6b889c851d64baaa1af6b3703003bc6f64d02f1', 'Unchanged canonical footer image; no illustrative cover'
     assert 'monderman-article-audio:' not in html, 'Source HTML remains unnarrated'
     research = (root/'research.html').read_text()
     series = {'ai-institutions-title': [5,4,3,2,1], 'hiring-work-design-title': [2,1],

@@ -110,8 +110,8 @@ with tempfile.TemporaryDirectory(prefix="monderman-cert-sensitivity-") as temp:
             lambda: rewrite(fixture / footer_page, lambda value: value.replace("</main>", "<p>Other—copy.</p></main>", 1)),
             [footer_page],
         )
-    # Scope pages and the October 16 publication each permit only their one exact canonical footer statement.
-    for footer_page in ["scope.html", "q2-sodi.html", "hiring-blind-spot.html", "posting-has-outgrown-the-job.html", "research-topics.html", "divide-and-rule-inside-the-company.html"]:
+    # Scope pages and these publications permit only their one exact canonical footer statement.
+    for footer_page in ["scope.html", "q2-sodi.html", "hiring-blind-spot.html", "posting-has-outgrown-the-job.html", "research-topics.html", "divide-and-rule-inside-the-company.html", "ai-wont-land-in-the-middle.html"]:
         expect_rejection(
             fixture,
             footer_page + ": changed canonical footer brand wording",
@@ -230,20 +230,21 @@ with tempfile.TemporaryDirectory(prefix="monderman-cert-sensitivity-") as temp:
         ["nothing-stays-tuned.html"],
     )
 
-    expect_rejection(
-        fixture,
-        "commented social metadata",
-        "real social-card metadata missing",
-        lambda: rewrite(
-            fixture / "about.html",
-            lambda value: re.sub(
-                r'(<meta (?:property="og:image"|name="twitter:card")[^>]*>)',
-                r'<!-- \1 -->',
-                value,
+    for social_page in ["about.html", "ai-wont-land-in-the-middle.html"]:
+        expect_rejection(
+            fixture,
+            social_page + ": commented social metadata",
+            "real social-card metadata missing",
+            lambda: rewrite(
+                fixture / social_page,
+                lambda value: re.sub(
+                    r'(<meta (?:property="og:image"|name="twitter:card")[^>]*>)',
+                    r'<!-- \1 -->',
+                    value,
+                ),
             ),
-        ),
-        ["about.html"],
-    )
+            [social_page],
+        )
     expect_rejection(
         fixture,
         "changed canonical social card",

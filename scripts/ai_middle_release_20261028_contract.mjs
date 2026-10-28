@@ -11,7 +11,7 @@ import {sourceBeforePublicCopyClarity as oldPublicCopy} from './public_copy_clar
 import {assertSeriesPublicationSurface as oldSeriesSurface} from './hiring_work_design_series_20261017_inverse.mjs';
 import {sourceBeforeOverviewSiteCompatibility as oldOverviewSite} from './report_overview_site_compatibility_inverse.mjs';
 const ROOT=path.resolve(import.meta.dirname,'..');
-export const FIXTURE_SHA256='651aa3ffa1a97c1b574b4f08fed1c8bc1b16bc3dd1a7dcb769000ea65da73710';
+export const FIXTURE_SHA256='b0bfe6b4b90f06aec51289933578f567b49fef27dbf2fb22d2f41dfbb0686afe';
 const FILE='scripts/fixtures/ai-middle-release-20261028.json';
 const BASELINE='c76fb3d01606b277ec2b5e0708ee1c0de9c82f00';
 const SOURCE_TEXT_PRECONDITIONS=Object.freeze(['index.html','research.html','research-topics.html','sitemap.xml','public-search-index.json','scripts/public_sample_fixture.mjs','scripts/refresh_public_sample_previews.mjs','accumulated-drag-department-of-war.html','built-to-please.html','every-node-for-itself.html','from-tokens-to-outcomes.html','the-art-of-interior-reasoning.html','we-gave-bureaucracy-the-fastest-tools.html']);

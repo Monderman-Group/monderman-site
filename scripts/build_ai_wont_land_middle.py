@@ -67,9 +67,12 @@ def build_html(data, pages):
 <link rel="canonical" href="https://www.monderman.com/{SLUG}.html">
 <meta property="og:type" content="article"><meta property="og:url" content="https://www.monderman.com/{SLUG}.html">
 <meta property="og:title" content="{meta_title} | Monderman"><meta property="og:description" content="{deck}">
+<meta property="og:image" content="https://www.monderman.com/assets/brand/monderman-social-card.png?v=20260907-wordmark2">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Monderman">
 <meta property="article:published_time" content="2026-10-28"><meta property="article:author" content="Jason Adamson">
-<meta name="twitter:card" content="summary"><meta name="twitter:title" content="{meta_title} | Monderman">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{meta_title} | Monderman">
 <meta name="twitter:description" content="{deck}">
+<meta name="twitter:image" content="https://www.monderman.com/assets/brand/monderman-social-card.png?v=20260907-wordmark2"><meta name="twitter:image:alt" content="Monderman">
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260906-enterprise1">
 <link rel="icon" type="image/x-icon" sizes="any" href="favicon.ico?v=20260906-enterprise1">
 <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=20260906-enterprise1">
