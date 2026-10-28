@@ -1,4 +1,4 @@
-// Current-only raw admission for native browser tests. No historical projection.
+// Raw successor admission and finite historical textual preconditions.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -9,10 +9,12 @@ import {sourceAtMarketingRefreshBaseline as oldMarketingBaseline} from './market
 import {sourceAtScopeBetaBaseline as oldScopeBaseline} from './scope_beta_20261014_inverse.mjs';
 import {sourceBeforePublicCopyClarity as oldPublicCopy} from './public_copy_clarity_inverse.mjs';
 import {assertSeriesPublicationSurface as oldSeriesSurface} from './hiring_work_design_series_20261017_inverse.mjs';
+import {sourceBeforeOverviewSiteCompatibility as oldOverviewSite} from './report_overview_site_compatibility_inverse.mjs';
 const ROOT=path.resolve(import.meta.dirname,'..');
-export const FIXTURE_SHA256='717909ebb38e4154a3d985e04a8ffad08107cdb273e427180b8e5a926453f85a';
+export const FIXTURE_SHA256='08f5d9dcf9239bd53da768c0fc684ccd7ee9d6cc369c86176a3044ea2f45ed3d';
 const FILE='scripts/fixtures/ai-middle-release-20261028.json';
 const BASELINE='c76fb3d01606b277ec2b5e0708ee1c0de9c82f00';
+const SOURCE_TEXT_PRECONDITIONS=Object.freeze(['index.html','research.html','research-topics.html','sitemap.xml','public-search-index.json','scripts/public_sample_fixture.mjs','scripts/refresh_public_sample_previews.mjs','accumulated-drag-department-of-war.html','built-to-please.html','every-node-for-itself.html','from-tokens-to-outcomes.html','the-art-of-interior-reasoning.html','we-gave-bureaucracy-the-fastest-tools.html']);
 const sha=b=>createHash('sha256').update(b).digest('hex');
 const git=(...args)=>execFileSync('git',['-c','core.fsmonitor=false',...args],{cwd:ROOT}).toString();
 function names(root){const out=[];function walk(dir){for(const e of fs.readdirSync(dir,{withFileTypes:true})){const f=path.join(dir,e.name);assert.ok(!e.isSymbolicLink());if(e.isDirectory())walk(f);else{assert.ok(e.isFile());out.push(path.relative(root,f).split(path.sep).join('/'));}}}walk(root);return out.sort();}
@@ -36,7 +38,7 @@ export function assertCurrentRelease(publicRoot=path.join(ROOT,'.render-public')
 }
 
 export function sourceAtReleaseBaseline(file,value){
- if(!['index.html','research-topics.html','sitemap.xml'].includes(file))return value;
+ if(!SOURCE_TEXT_PRECONDITIONS.includes(file))return value;
  assert.ok(typeof value==='string'||Buffer.isBuffer(value));
  const data=JSON.parse(fs.readFileSync(path.join(ROOT,FILE))),row=data.sourceRows.find(r=>r.path===file);
  if(!row||sha(value)!==row.sha256||!releaseLayer().sourceExact())return value;
@@ -45,7 +47,9 @@ export function sourceAtReleaseBaseline(file,value){
 }
 
 export function publicAtReleaseBaseline(file,value,publicRoot=path.join(ROOT,'.render-public')){
- if(!['index.html','research-topics.html','sitemap.xml'].includes(file))return value;
+ // Frozen 29-article inventory; the new article has no historical text view.
+ const priorArticles=JSON.parse(git('show',BASELINE+':article-audio-manifest.json')).articles.map(a=>a.path);
+ if(!['index.html','research-topics.html','sitemap.xml','careers.html','careers-privacy.html',...priorArticles].includes(file))return value;
  assert.ok(typeof value==='string'||Buffer.isBuffer(value));
  const data=JSON.parse(fs.readFileSync(path.join(ROOT,FILE))),layer=releaseLayer(),root=path.resolve(publicRoot),channel=layer.channel(root),row=data.publicEditions[channel]?.find(r=>r.path===file);
  if(!row||sha(value)!==row.sha256||!layer.sourceExact()||!layer.publicExact(root,channel))return value;
@@ -69,6 +73,7 @@ export const sourceAtHomepageRefinementBaselineAtRelease=(file,value)=>oldRefine
 export const sourceAtMarketingRefreshBaselineAtRelease=(file,value)=>oldMarketingBaseline(file,sourceAtReleaseBaseline(file,value));
 export const sourceAtScopeBetaBaselineAtRelease=(file,value)=>oldScopeBaseline(file,sourceAtReleaseBaseline(file,value));
 export const sourceBeforePublicCopyClarityAtRelease=(file,value)=>oldPublicCopy(file,sourceAtReleaseBaseline(file,value));
+export const sourceBeforeOverviewSiteCompatibilityAtRelease=(file,value)=>oldOverviewSite(file,sourceAtReleaseBaseline(file,value));
 export function assertSeriesPublicationSurfaceAtRelease(file,value,channel=null,root=path.join(ROOT,'.render-public')){
  if(file==='ai-wont-land-in-the-middle.html'){
   const data=JSON.parse(fs.readFileSync(path.join(ROOT,FILE)));assert.ok(releaseLayer().sourceExact());

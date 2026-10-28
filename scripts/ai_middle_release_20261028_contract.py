@@ -22,7 +22,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = 'c76fb3d01606b277ec2b5e0708ee1c0de9c82f00'
 FIXTURE = 'scripts/fixtures/ai-middle-release-20261028.json'
-FIXTURE_SHA256='717909ebb38e4154a3d985e04a8ffad08107cdb273e427180b8e5a926453f85a'
+FIXTURE_SHA256='08f5d9dcf9239bd53da768c0fc684ccd7ee9d6cc369c86176a3044ea2f45ed3d'
 SCHEMA = 'ai-middle-release-20261028-v1'
 GUARDS = ['scripts/ai_middle_release_20261028_contract.py',
           'scripts/ai_middle_release_20261028_contract.mjs', FIXTURE]
@@ -42,6 +42,7 @@ HISTORICAL_SCRIPTS = {
     'scripts/public_sample_manifest_sensitivity_smoke.mjs',
     'scripts/runtime_asset_release_build_smoke.mjs',
     'scripts/public_status_copy_smoke.mjs',
+    'scripts/public_copy_clarity_smoke.mjs',
 }
 
 
@@ -303,13 +304,19 @@ def projection(channel, built):
         subprocess.run(['git','checkout','--quiet','--detach',BASELINE],cwd=base,check=True)
     assert not base.is_symlink() and git(base,'rev-parse','HEAD').decode().strip() == BASELINE
     assert not git(base,'status','--porcelain','--untracked-files=all').strip(), 'Clean immutable historical projection'
-    if (ROOT/'node_modules').is_dir() and not (base/'node_modules').exists(): (base/'node_modules').symlink_to(ROOT/'node_modules',target_is_directory=True)
     env = os.environ.copy(); env['RENDER_GIT_COMMIT'] = BASELINE; env['MONDERMAN_QUESTIONNAIRE_RELEASE'] = channel
     for key in ['SCOPE_BETA_BUILD_ROOT','SITE_DESIGN_BUILD_ROOT','HIRING_PUBLICATION_BUILD_ROOT']:
         if key in env: env[key] = str(base/'.render-public')
     if built:
         subprocess.run(['bash','scripts/render-static-build.sh'],cwd=base,env=env,check=True,stdout=subprocess.DEVNULL)
     return base, env
+
+
+def baseline_public_text_paths():
+    """Only the frozen 29 articles and five existing textual preconditions."""
+    articles = json.loads(git(ROOT,'show',BASELINE+':article-audio-manifest.json'))['articles']
+    assert len(articles) == 29
+    return ['index.html','research-topics.html','sitemap.xml','careers.html','careers-privacy.html'] + [a['path'] for a in articles]
 
 
 def historical(data, command):
@@ -335,7 +342,7 @@ def main():
     parser.add_argument('--channel',choices=['current','legacy'])
     parser.add_argument('--historical',action='store_true')
     parser.add_argument('--browser-history',choices=['scope','design'])
-    parser.add_argument('--read-baseline-public',choices=['index.html','research-topics.html','sitemap.xml'])
+    parser.add_argument('--read-baseline-public',choices=baseline_public_text_paths())
     parser.add_argument('command',nargs=argparse.REMAINDER)
     args = parser.parse_args(); data = fixture()
     result = {'source':audit_source(data,not args.worktree)}
@@ -345,7 +352,11 @@ def main():
         assert args.built and args.channel and not args.historical and not args.command
         base, env = projection(args.channel,True)
         if args.read_baseline_public:
-            value = (base/'.render-public'/args.read_baseline_public).read_bytes()
+            # Legacy pure assertions predate narration. Apply the unchanged
+            # reviewed audio inverse inside the complete physical c76 artifact.
+            file = args.read_baseline_public
+            program = "import fs from'node:fs';import{publicSourceAtAudioBaseline as before}from'./scripts/article_audio_20261026_inverse.mjs';const file="+json.dumps(file)+",root="+json.dumps(str(base/'.render-public'))+";process.stdout.write(before(file,fs.readFileSync(root+'/'+file),root));"
+            value = subprocess.check_output(['node','--input-type=module','-e',program],cwd=base,env=env)
         else:
             module, function = ('scope_beta_20261014_inverse.mjs','historicalScopeBetaBrowserBodies') if args.browser_history == 'scope' else ('site_design_coherence_20261014_inverse.mjs','historicalSiteDesignBrowserBodies')
             program = "import{createHash}from'node:crypto';import{"+function+" as bodies}from'./scripts/"+module+"';const rows=bodies("+json.dumps(str(base/'.render-public'))+");console.log(JSON.stringify([...rows].map(([p,b])=>[p,b.toString('base64')])));"

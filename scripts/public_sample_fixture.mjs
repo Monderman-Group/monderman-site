@@ -12,6 +12,7 @@ import {sourceBeforeHomepagePreviewAnchor20260924} from './homepage_preview_anch
 import {sourceBeforeHomepageReportQuad20260925} from './homepage_report_quad_20260925_inverse.mjs';
 import {CHANGE_WORDING_VERSION,sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
 import {SINGLE_LENS_OVERVIEW_VERSION,sourceAtSingleLensOverviewBaseline} from './single_lens_overview_20260929_inverse.mjs';
+import {sourceAtReleaseBaseline} from './ai_middle_release_20261028_contract.mjs';
 
 // Exact presentation-only adapter for comparisons against preserved pre-SODI markup.
 // Generation remains current SODI; every caller still compares the complete historical aside.
@@ -581,7 +582,7 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
   assert.deepEqual(Object.keys(manifest.outputs||{}).sort(),keys,'all six approved output pins required');
   for(const filename of REQUIRED_SOURCE_FILES) {
     assert.ok(validHash(manifest.source_files?.[filename]),'missing reviewed source pin: '+filename);
-    assert.equal(sha(sourceBeforeHomepageReportQuad20260925(filename,sourceAtChangeWordingBaseline(filename,fs.readFileSync(path.join(root,filename))))),manifest.source_files[filename],'reviewed source changed: '+filename);
+    assert.equal(sha(sourceBeforeHomepageReportQuad20260925(filename,sourceAtChangeWordingBaseline(filename,sourceAtReleaseBaseline(filename,fs.readFileSync(path.join(root,filename)))))),manifest.source_files[filename],'reviewed source changed: '+filename);
   }
   // The additive pure homepage presenter has its own exact current-source pin.
   // Its empty predecessor cannot masquerade as an original publication input.
@@ -598,7 +599,7 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
       assert.ok(filename&&!path.isAbsolute(filename)&&!filename.split(/[\\/]/).includes('..')&&validHash(digest),'unsafe comparison source pin');
       // Exact presentation layers reconstruct the original homepage sources
       // and this reader; sample evidence, renderer and publication pins stay intact.
-      assert.equal(sha(sourceBeforeHomepagePreviewAnchor20260924(filename,sourceBeforeHomepageReportQuad20260925(filename,sourceAtChangeWordingBaseline(filename,fs.readFileSync(path.join(root,filename)))))),digest,'reviewed comparison source changed: '+filename);
+      assert.equal(sha(sourceBeforeHomepagePreviewAnchor20260924(filename,sourceBeforeHomepageReportQuad20260925(filename,sourceAtChangeWordingBaseline(filename,sourceAtReleaseBaseline(filename,fs.readFileSync(path.join(root,filename))))))),digest,'reviewed comparison source changed: '+filename);
     }
     assertPublicSampleHtmlBindings(artifact,historicalReview,{root});
     if(manifest.sodi_presentation_review){
@@ -611,7 +612,7 @@ export function readPublicSampleFixture({root=DEFAULT_ROOT,manifestPath=process.
       assert.ok(validHash(review.source_files?.[filename]),'missing overview source pin: '+filename);
       // Only reviewed surrounding HTML copy changed on the homepage. Its
       // pinned inverse preserves the certified report preview unchanged.
-      assert.equal(sha(sourceBeforePublicCopyClarity(filename,fs.readFileSync(path.join(root,filename)))),review.source_files[filename],'reviewed overview source changed: '+filename);
+      assert.equal(sha(sourceBeforePublicCopyClarity(filename,sourceAtReleaseBaseline(filename,fs.readFileSync(path.join(root,filename))))),review.source_files[filename],'reviewed overview source changed: '+filename);
     }
   }
   const entries=[],runs={};

@@ -14,6 +14,7 @@ import {assertThreeBenefitSourceContract} from './three_benefit_source_contract.
 import {sourceBeforeOverviewSiteCompatibility} from './report_overview_site_compatibility_inverse.mjs';
 import {sourceBeforeSigninSessionRefresh} from './signin_session_refresh_inverse.mjs';
 import {sourceBeforeSampleDesktopShell} from './sample_desktop_shell_20260924_inverse.mjs';
+import {sourceAtReleaseBaseline} from './ai_middle_release_20261028_contract.mjs';
 export const EVALUATION_BASELINE='0fb1980b4f7dca37c6823e3ae47386215b2834d9';
 export const APPROVED_INTERFACE_PINS=Object.freeze({
   // DV: close the public-first-run flag and update legacy invitation/result copy.
@@ -42,7 +43,7 @@ export const APPROVED_INTERFACE_PINS=Object.freeze({
 export function assertInvitedEvaluationSourceContract(root=path.resolve(import.meta.dirname,'..')){
   // Historical comparison only: invert the separately reviewed, whole-file-
   // pinned September 23 site changes before applying every original guard.
-  const read=f=>sourceBeforeSigninSessionRefresh(f,sourceBeforeOverviewSiteCompatibility(f,fs.readFileSync(path.join(root,f),'utf8')));
+  const read=f=>sourceBeforeSigninSessionRefresh(f,sourceBeforeOverviewSiteCompatibility(f,sourceAtReleaseBaseline(f,fs.readFileSync(path.join(root,f),'utf8'))));
   const prior=f=>execFileSync('git',['show',`${EVALUATION_BASELINE}:${f}`],{cwd:root,encoding:'utf8',maxBuffer:16*1024*1024});
   const sha=value=>createHash('sha256').update(value).digest('hex');
   const teaserCopy=[
@@ -162,7 +163,7 @@ export function assertInvitedEvaluationSourceContract(root=path.resolve(import.m
   ]);
   const baselineFiles=execFileSync('git',['ls-tree','-r','--name-only',EVALUATION_BASELINE],{cwd:root,encoding:'utf8'}).trim().split('\n');
   const protectedPublicFiles=baselineFiles.filter(file=>!file.includes('/')&&/\.(?:html|css|js|json|woff2?)$/.test(file)&&!changedPublicFiles.has(file));
-  for(const file of protectedPublicFiles)assert.equal(sha(sourceBeforeOverviewSiteCompatibility(file,sourceBeforeSampleDesktopShell(file,fs.readFileSync(path.join(root,file))))),sha(execFileSync('git',['show',EVALUATION_BASELINE+':'+file],{cwd:root,maxBuffer:16*1024*1024})),file+': unrelated public source bytes unchanged');
+  for(const file of protectedPublicFiles)assert.equal(sha(sourceBeforeOverviewSiteCompatibility(file,sourceBeforeSampleDesktopShell(file,sourceAtReleaseBaseline(file,fs.readFileSync(path.join(root,file)))))),sha(execFileSync('git',['show',EVALUATION_BASELINE+':'+file],{cwd:root,maxBuffer:16*1024*1024})),file+': unrelated public source bytes unchanged');
   return {protectedPublicFiles:protectedPublicFiles.length,baseline:EVALUATION_BASELINE,unchangedFiles:immutable.length,approvedInterfaceFiles:Object.keys(APPROVED_INTERFACE_PINS).length,copyOnlyInstruments:3,unchangedMarketingScripts:3};
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===path.resolve(import.meta.filename))console.log(JSON.stringify({status:'PASS',...assertInvitedEvaluationSourceContract()}));

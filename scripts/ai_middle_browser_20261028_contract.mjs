@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
 import {assertCurrentRelease} from './ai_middle_release_20261028_contract.mjs';
+import {PART7_IMAGE} from './divide_rule_publication_20261025_browser_contract.mjs';
 
 const root=new URL('../',import.meta.url);
 const built=new URL('../.render-public/',import.meta.url);
@@ -65,6 +66,32 @@ export function assertCurrentCatalogueControls(){
  let checks=assertCurrentCatalogue(structuredClone(CURRENT_CATALOGUE));
  const changes=[rows=>rows.shift(),rows=>rows.push({...rows.at(-1)}),rows=>{[rows[0],rows[1]]=[rows[1],rows[0]];},rows=>{[rows[10],rows[11]]=[rows[11],rows[10]];},rows=>rows[1].href=rows[0].href,rows=>rows[0].label='AI and Institutions · Part 4',rows=>rows[0].title='Changed title',rows=>rows[0].coverTitle=null,rows=>rows[0].titleCount=2];
  for(const mutate of changes){const rows=structuredClone(CURRENT_CATALOGUE);mutate(rows);assert.notDeepEqual(rows,CURRENT_CATALOGUE);assert.throws(()=>assertCurrentCatalogue(rows),error=>error.name==='AssertionError','Unknown actual23 catalogue mutation rejected');checks++;}
+ return checks;
+}
+export function assertCurrent23ImageCover(current){
+ const cover=current.part7ImageCover;
+ assert.equal(current.cardCount,23,'Actual23 raw carousel inventory');
+ assert.equal(cover.totalCards,23,'Actual23 image-cover inventory');
+ assert.equal(cover.part7Cards,1,'One actual Part7 image card');
+ assert.equal(cover.placeholderCards,22,'All22 actual typographic cards remain');
+ assert.equal(cover.placeholderCards+cover.part7Cards,cover.totalCards,'Actual cover forms account for all23 cards');
+ assert.equal(current.coverFit.length,22,'All22 actual typographic cover stacks observed');
+ assert.equal(cover.images.length,1,'One actual original Part7 image');
+ const image=cover.images[0];
+ for(const key of ['src','alt','width','height'])assert.equal(image[key],PART7_IMAGE[key],'Current original Part7 image '+key);
+ assert.equal(image.complete,true,'Actual Part7 image has loaded');
+ assert.ok(image.naturalWidth>0&&image.naturalHeight>0,'Actual Part7 image has decoded');
+ for(const key of ['top','bottom','left','right','imageTop','imageBottom','imageLeft','imageRight'])assert.ok(Number.isFinite(image[key]),'Finite actual Part7 image '+key);
+ assert.ok(image.bottom>image.top&&image.right>image.left,'Positive actual Part7 image geometry');
+ assert.ok(image.top>=image.imageTop-1&&image.bottom<=image.imageBottom+1&&image.left>=image.imageLeft-1&&image.right<=image.imageRight+1,'Actual Part7 image remains inside its cover');
+ return 1;
+}
+export function assertCurrent23ImageCoverControls(){
+ const image={...PART7_IMAGE,complete:true,naturalWidth:1672,naturalHeight:941,top:1,bottom:101,left:1,right:201,imageTop:0,imageBottom:102,imageLeft:0,imageRight:202};
+ const baseline={cardCount:23,coverFit:Array.from({length:22},()=>({})),part7ImageCover:{totalCards:23,part7Cards:1,placeholderCards:22,images:[image]}};
+ let checks=assertCurrent23ImageCover(baseline);
+ const changes=[o=>o.cardCount=22,o=>o.part7ImageCover.totalCards=22,o=>o.part7ImageCover.part7Cards=2,o=>o.part7ImageCover.placeholderCards=21,o=>o.coverFit.pop(),o=>o.part7ImageCover.images.pop(),o=>o.part7ImageCover.images.push({...image}),o=>o.part7ImageCover.images[0].src='UNAPPROVED.png',o=>o.part7ImageCover.images[0].alt='UNAPPROVED',o=>o.part7ImageCover.images[0].width=1,o=>o.part7ImageCover.images[0].height=1,o=>o.part7ImageCover.images[0].complete=false,o=>o.part7ImageCover.images[0].naturalWidth=0,o=>o.part7ImageCover.images[0].top=NaN,o=>o.part7ImageCover.images[0].left=-10,o=>o.part7ImageCover.images[0].right=0];
+ for(const mutate of changes){const o=structuredClone(baseline);mutate(o);assert.notDeepEqual(o,baseline);assert.throws(()=>assertCurrent23ImageCover(o),error=>error.name==='AssertionError','Unknown actual23 cover mutation rejected');checks++;}
  return checks;
 }
 export async function assertCurrentCatalogueLayout(page,width){

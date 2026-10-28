@@ -11,13 +11,13 @@ import {APPROVED_INTERFACE_PINS} from './invited_evaluation_source_contract.mjs'
 import {sourceBeforeHomepageCompactJourney20260924} from './homepage_compact_journey_20260924_inverse.mjs';
 import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 import {sourceAtBrandRefreshBaseline} from './brand_refresh_20261007_inverse.mjs';
-import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
+import {sourceAtMarketingRefreshBaselineAtRelease as sourceAtMarketingRefreshBaseline,sourceAtReleaseBaseline} from './ai_middle_release_20261028_contract.mjs';
 import {sourceAtMarketingPhotoPresentationBaseline} from './marketing_photo_presentation_20261013_inverse.mjs';
 import {publicationDelta,sourceAtPublicationBaseline} from './divide_rule_publication_20261025_inverse.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 // Audit every committed current source before inspecting any historical view.
-execFileSync(process.env.PYTHON||'python3',['scripts/hiring_work_design_series_20261017_contract.py'],{cwd:root,stdio:'pipe'});
+execFileSync(process.env.PYTHON||'python3',['scripts/ai_middle_release_20261028_contract.py',...(process.env.AI_MIDDLE_WORKTREE_REVIEW==='1'?['--worktree']:[]),'--historical','--','python3','scripts/hiring_work_design_series_20261017_contract.py'],{cwd:root,stdio:'pipe'});
 const {artifact}=readPublicSampleFixture({root});
 const previewGroups=artifact.outputs.cross_lens_synthesis.source.source_groups;
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
@@ -406,7 +406,7 @@ for(const file of sourceFiles)check(!/What sits beneath performance\?|How much w
 for(const file of ['roi.html','platform-services.html','plan-signal.html','plan-pattern.html']){
   const html=read(file).replace('canonical-site-shell.js?v=20260915.consistency1','canonical-site-shell.js?v=20260915.annual1'),prior=execFileSync('git',['show',`${approvedPresentationBase}:${file}`],{cwd:root,encoding:'utf8'});
   {
-    const html=sourceAtMarketingPhotoPresentationBaseline(file,read(file)).replace('canonical-site-shell.js?v=20260915.consistency1','canonical-site-shell.js?v=20260915.annual1');
+    const html=sourceAtMarketingPhotoPresentationBaseline(file,sourceAtReleaseBaseline(file,read(file))).replace('canonical-site-shell.js?v=20260915.consistency1','canonical-site-shell.js?v=20260915.annual1');
   for(const tag of ['script','style',...(file==='roi.html'?[]:['svg'])])eq(html.match(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`,'g')),
     prior.match(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`,'g')),file+': existing behavior and graphics unchanged');
   }
