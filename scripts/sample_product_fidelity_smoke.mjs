@@ -1,7 +1,8 @@
+import {isCurrentReleaseSource as isCurrentScopeBeta} from './ai_middle_release_20261028_contract.mjs';
 import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
-import {isCurrentScopeBeta} from './scope_beta_20261014_inverse.mjs';
+
 
 const base = process.env.SAMPLE_BASE || 'http://127.0.0.1:8080';
 const out = process.env.SAMPLE_OUT || '/tmp/sample-product-fidelity-smoke';

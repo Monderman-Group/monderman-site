@@ -1,6 +1,7 @@
+import {isCurrentReleaseSource as isCurrentScopeBeta} from './ai_middle_release_20261028_contract.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
-import {isCurrentScopeBeta} from './scope_beta_20261014_inverse.mjs';
+
 import {readPublicSampleFixture,publicResult} from './public_sample_fixture.mjs';
 import {currentSynthesisPdfReview,SODI_PRESENTATION_VERSION} from './public_sample_fixture.mjs';
 

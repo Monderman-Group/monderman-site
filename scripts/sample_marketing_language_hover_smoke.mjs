@@ -1,3 +1,4 @@
+import {historicalScopeBetaBrowserBodiesAtRelease as historicalScopeBetaBrowserBodies,isCurrentHomepageRefinementSourceAtRelease as isCurrentHomepageRefinementSource,sourceAtHomepageRefinementBaselineAtRelease as sourceAtHomepageRefinementBaseline,sourceAtMarketingRefreshBaselineAtRelease as sourceAtMarketingRefreshBaseline} from './ai_middle_release_20261028_contract.mjs';
 // Local display regression, not current-sample publication or AI-quality proof.
 // Actual page/CSS/JS bytes are served by interception; no remote request escapes.
 import assert from 'node:assert/strict';
@@ -11,9 +12,9 @@ if(scopeHistoricalBodies.size)console.log('SCOPE_PRESERVED_PHYSICAL_EDITION f2a8
 const {chromium,webkit}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
 import {buildPublicSamplePreviewSections} from './refresh_public_sample_previews.mjs';
-import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
-import {isCurrentHomepageRefinementSource,sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014_inverse.mjs';
-import {historicalScopeBetaBrowserBodies} from './scope_beta_20261014_inverse.mjs';
+
+
+
 
 const root=path.resolve(import.meta.dirname,'..');
 const homepageSource=fs.readFileSync(path.join(root,'index.html'),'utf8');

@@ -9,10 +9,10 @@ import argparse, hashlib, html, json, math, re, shutil
 from html.parser import HTMLParser
 from pathlib import Path
 
-RELEASE='20261026.1'
+RELEASE='20261028.1'
 SCHEMA='monderman-article-audio-v1'
 EXPECTED_ARTICLES=(
- 'accumulated-drag-department-of-war.html','built-to-please.html','compensatory-systems.html',
+ 'accumulated-drag-department-of-war.html','ai-wont-land-in-the-middle.html','built-to-please.html','compensatory-systems.html',
  'decision-velocity-article.html','designing-for-decision-velocity.html','divide-and-rule-inside-the-company.html',
  'durable-organization.html','every-node-for-itself.html','fast-to-cut-slow-to-build.html',
  'from-tokens-to-outcomes.html','governing-complexity.html','hiring-blind-spot.html',
@@ -101,7 +101,15 @@ def validate_manifest(manifest,source_root):
  check(manifest['schema']==SCHEMA and manifest['release']==RELEASE,'Exact manifest schema/release')
  check(manifest.get('status')=='passed','Final complete narration review required')
  entries=manifest['articles'];paths=[e['path'] for e in entries]
- check(len(paths)==len(set(paths))==29 and tuple(sorted(paths))==EXPECTED_ARTICLES,'Exact29 closed article inventory')
+ check(len(paths)==len(set(paths))==len(EXPECTED_ARTICLES) and tuple(sorted(paths))==EXPECTED_ARTICLES,'Exact30 closed article inventory')
+ receipt_path=source_root/'article-audio-year-receipt.json'
+ check(manifest.get('calendar_year_receipt_path')==receipt_path.name and receipt_path.is_file() and not receipt_path.is_symlink(),'Tracked calendar pronunciation receipt')
+ check(sha(receipt_path.read_bytes())==manifest.get('calendar_year_receipt_sha256'),'Exact calendar pronunciation receipt')
+ receipt=json.loads(receipt_path.read_text())
+ check(receipt.get('release')==RELEASE and receipt.get('voice_identity_sha256')==manifest['voice_identity_sha256'],'Calendar receipt release and approved voice')
+ check(receipt.get('normalizer_path')=='scripts/spoken_years.py' and sha((source_root/'scripts/spoken_years.py').read_bytes())==receipt.get('normalizer_sha256'),'Exact source-bound calendar normalizer')
+ reviewed={a['path']:a for a in receipt['articles']}
+ check(len(reviewed)==len(entries) and tuple(sorted(reviewed))==EXPECTED_ARTICLES,'Calendar receipt covers all30 articles')
  for entry in entries:
   path=entry['path'];slug=Path(path).stem
   check(entry['audio_path']==f'assets/audio/{slug}.m4a','Exact matching encoded audio path')
@@ -115,6 +123,12 @@ def validate_manifest(manifest,source_root):
   check(page.is_file() and not page.is_symlink() and sha(page.read_bytes())==entry['source_sha256'],'Exact authored source '+path)
   check(asset.is_file() and not asset.is_symlink(),'Exact regular audio asset '+path)
   raw=asset.read_bytes();check(len(raw)==entry['bytes'] and sha(raw)==entry['audio_sha256'],'Exact reviewed encoded media '+path)
+  evidence=reviewed[path]
+  check(all(evidence.get(k)==entry[k] for k in ['source_sha256','script_sha256','audio_sha256']),'Source/script/audio-bound calendar evidence '+path)
+  check(evidence.get('status') in {'verified-existing-calendar-reading','no-calendar-years','normalized-new-recording'},'Truthful calendar verification status '+path)
+  if evidence['status']!='normalized-new-recording':
+   check(evidence.get('audio_reused_byte_exact') is True and evidence.get('previous_audio_sha256')==entry['audio_sha256'] and not evidence.get('changed_native_chunks'),'Existing correctly pronounced recording retained '+path)
+   check(all(y.get('existing_calendar_reading_verified') is True for y in evidence['reviewed_calendar_years']),'Actual existing native year pronunciation verified '+path)
  check(manifest['total_audio_bytes']==sum(e['bytes'] for e in entries),'Exact aggregate encoded size')
  return entries
 

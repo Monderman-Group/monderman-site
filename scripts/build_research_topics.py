@@ -133,7 +133,12 @@ def apply_article(text, article, topics, articles):
     if not clean[line_start:position].strip():
         position = line_start
     result = clean[:position] + '\n' + article_navigation(article, topics, articles) + '\n' + clean[position:]
-    result = result.replace('</head>', STYLE + '\n</head>', 1)
+    # Keep the shared brand layer last when a publication declares it explicitly.
+    brand = re.search(r'<link rel="stylesheet" href="brand-surfaces\.css(?:\?v=[0-9.]+)?">', result)
+    if brand:
+        result = result[:brand.start()] + STYLE + '\n' + result[brand.start():]
+    else:
+        result = result.replace('</head>', STYLE + '\n</head>', 1)
     # Exact authored bytes remain after removing the two finite generated additions.
     assert strip_generated(result) == clean
     return result

@@ -64,7 +64,7 @@ jobs:
         run: node scripts/report_cross_lens_extrema_smoke.mjs --deterministic-only
 
       - name: Run general frontend release validator
-        run: python scripts/validate_frontend_release.py
+        run: python scripts/ai_middle_release_20261028_contract.py --historical -- python scripts/validate_frontend_release.py
 
       - name: Verify diff integrity
         run: git diff --check

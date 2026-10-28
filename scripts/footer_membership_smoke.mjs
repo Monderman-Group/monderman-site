@@ -1,4 +1,6 @@
-import {seriesPublicationPages,assertSeriesPublicationSurface} from './hiring_work_design_series_20261017_inverse.mjs';
+const releasePublicationPages=[...seriesPublicationPages,'ai-wont-land-in-the-middle.html'];
+import {assertCurrentReleaseChannel as assertScopeBetaBuiltEdition,assertSeriesPublicationSurfaceAtRelease as assertSeriesPublicationSurface,isCurrentReleaseSource as isCurrentScopeBeta} from './ai_middle_release_20261028_contract.mjs';
+import {seriesPublicationPages} from './hiring_work_design_series_20261017_inverse.mjs';
 // Local built-footer check. All page scripts and external/service requests are blocked.
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -8,7 +10,7 @@ import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {chromium, webkit} from 'playwright';
 import {sourceAtEvaluationPoolBaseline} from './single_lens_overview_20260929_inverse.mjs';
-import {isCurrentScopeBeta, assertScopeBetaBuiltEdition} from './scope_beta_20261014_inverse.mjs';
+
 import {hiringPublicationDelta} from './hiring_blind_spot_publication_20261015_inverse.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
@@ -92,7 +94,7 @@ for (const file of (await fs.readdir(built)).filter(file => file.endsWith('.html
 eq([...scopePages.keys()], currentScope ? currentProductPages : [], 'Only the whole-source and whole-build approved canonical product page and alias are separate');
 const hiringArticle = 'hiring-blind-spot.html';
 {const channel=JSON.parse(await fs.readFile(path.join(built,'.well-known/monderman-questionnaire-release.json'),'utf8')).channel;for(const file of seriesPublicationPages){ok(pages.has(file),'Each exact current publication joins footer coverage');assertSeriesPublicationSurface(file,await fs.readFile(path.join(built,file)),channel,built);}}
-eq([...pages.keys()].filter(file => !seriesPublicationPages.includes(file)).length, 74, 'All original public footer pages receive the membership');
+eq([...pages.keys()].filter(file => !releasePublicationPages.includes(file)).length, 74, 'All original public footer pages receive the membership');
 const browserPages = new Map([...pages, ...scopePages]);
 const tracked = execFileSync('git', ['ls-tree', '-r', '--name-only', baseline], {cwd:root, encoding:'utf8'}).trim().split('\n');
 const protectedFiles = tracked.filter(file => (!file.includes('/') && /\.(?:js|css)$/.test(file))

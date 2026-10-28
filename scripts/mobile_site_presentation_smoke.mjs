@@ -1,11 +1,13 @@
-import {seriesPublicationPages,assertSeriesPublicationSurface} from './hiring_work_design_series_20261017_inverse.mjs';
+const releasePublicationPages=[...seriesPublicationPages,'ai-wont-land-in-the-middle.html'];
+import {assertCurrentReleaseChannel as assertScopeBetaBuiltEdition,assertSeriesPublicationSurfaceAtRelease as assertSeriesPublicationSurface,isCurrentHomepageRefinementSourceAtRelease as isCurrentHomepageRefinementSource,isCurrentReleaseSource as isCurrentScopeBeta,isCurrentReleaseSource as isCurrentSiteDesignCoherence} from './ai_middle_release_20261028_contract.mjs';
+import {seriesPublicationPages} from './hiring_work_design_series_20261017_inverse.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
-import {isCurrentHomepageRefinementSource} from './homepage_refinement_20261014_inverse.mjs';
-import {isCurrentSiteDesignCoherence} from './site_design_coherence_20261014_inverse.mjs';
-import {isCurrentScopeBeta,scopeBetaDelta,assertScopeBetaBuiltEdition} from './scope_beta_20261014_inverse.mjs';
+
+
+import {scopeBetaDelta} from './scope_beta_20261014_inverse.mjs';
 import {hiringPublicationDelta} from './hiring_blind_spot_publication_20261015_inverse.mjs';
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
@@ -18,10 +20,10 @@ const allCurrentPages = fs.readdirSync(process.cwd()).filter(name=>name.endsWith
 const currentScopeBeta=isCurrentScopeBeta();
 const currentProductPages=['q2-sodi.html','scope.html'];
 const hiringArticle='hiring-blind-spot.html';
-const publicationPages=allCurrentPages.filter(name=>seriesPublicationPages.includes(name));
+const publicationPages=allCurrentPages.filter(name=>releasePublicationPages.includes(name));
 for(const file of publicationPages)assertSeriesPublicationSurface(file,fs.readFileSync(file));
 const pages=allCurrentPages.filter(name=>!currentScopeBeta||!currentProductPages.includes(name));
-if(currentScopeBeta){assert.deepEqual(allCurrentPages.filter(name=>!seriesPublicationPages.includes(name)), [...scopeBetaDelta.baselineSourcePaths.filter(f=>!f.includes('/')&&f.endsWith('.html')&&!f.startsWith('google')), ...currentProductPages].sort(),'All original89 and only the approved canonical product page and retained alias exist beside the exact publication');assert.deepEqual(allCurrentPages.filter(name=>currentProductPages.includes(name)),currentProductPages,'Exactly both approved product routes join the separate mandatory current matrix');}
+if(currentScopeBeta){assert.deepEqual(allCurrentPages.filter(name=>!releasePublicationPages.includes(name)), [...scopeBetaDelta.baselineSourcePaths.filter(f=>!f.includes('/')&&f.endsWith('.html')&&!f.startsWith('google')), ...currentProductPages].sort(),'All original89 and only the approved canonical product page and retained alias exist beside the exact publication');assert.deepEqual(allCurrentPages.filter(name=>currentProductPages.includes(name)),currentProductPages,'Exactly both approved product routes join the separate mandatory current matrix');}
 
 const sourceByPage = new Map(pages.map((name) => [name, fs.readFileSync(name, 'utf8')]));
 const currentHomepageRefinement = isCurrentHomepageRefinementSource(sourceByPage.get('index.html'));
@@ -63,9 +65,9 @@ const immutableLegalPages = new Set(pages.filter((name) => /^(?:terms|privacy)-\
 
 // September 19 adds evaluation and invitation-access editions without removing history.
 // Preserve every previous legal edition in the full viewport sweep.
-assert.equal(pages.filter(name=>!seriesPublicationPages.includes(name)).length, 89, 'rendered historical inventory retains every prior page and adds the separate outreach notice');
-assert.equal(canonicalPages.filter(name=>!seriesPublicationPages.includes(name)).length, 70, 'historical canonical header + footer inventory includes all six Governance parts');
-assert.equal(footerPages.filter(name=>!seriesPublicationPages.includes(name)).length, 74, 'historical footer inventory includes all six Governance parts');
+assert.equal(pages.filter(name=>!releasePublicationPages.includes(name)).length, 89, 'rendered historical inventory retains every prior page and adds the separate outreach notice');
+assert.equal(canonicalPages.filter(name=>!releasePublicationPages.includes(name)).length, 70, 'historical canonical header + footer inventory includes all six Governance parts');
+assert.equal(footerPages.filter(name=>!releasePublicationPages.includes(name)).length, 74, 'historical footer inventory includes all six Governance parts');
 for (const legalEdition of ['terms-2026-09-08-beta.html', 'privacy-2026-09-08-beta.html', 'terms-2026-09-09-beta.html', 'privacy-2026-09-09-beta.html', 'privacy-2026-09-10-beta.html']) {
   assert.ok(canonicalPages.includes(legalEdition), `${legalEdition}: archived legal page missing from canonical sweep`);
 }

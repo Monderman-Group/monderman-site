@@ -1,9 +1,10 @@
+import {historicalSiteDesignBrowserBodiesAtRelease as historicalSiteDesignBrowserBodies,isCurrentReleaseSource as isCurrentSiteDesignCoherence,sourceAtScopeBetaBaselineAtRelease as sourceAtScopeBetaBaseline} from './ai_middle_release_20261028_contract.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
-import {isCurrentSiteDesignCoherence,historicalSiteDesignBrowserBodies,sourceAtSiteDesignCoherenceBaseline} from './site_design_coherence_20261014_inverse.mjs';
-import {sourceAtScopeBetaBaseline} from './scope_beta_20261014_inverse.mjs';
+import {sourceAtSiteDesignCoherenceBaseline} from './site_design_coherence_20261014_inverse.mjs';
+
 const {chromium, webkit} = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = path.resolve(import.meta.dirname, '..');
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';

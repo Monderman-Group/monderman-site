@@ -1,4 +1,5 @@
-import {homepageInputsBeforePart7,homepageResponseBeforePart7,assertPart7HomepageInputs,assertPart7HomepageBindingControls,assertCurrentPart7Catalogue,assertPart7CatalogueControls} from './divide_rule_publication_20261025_browser_contract.mjs';
+import {assertPart7CatalogueControls} from './divide_rule_publication_20261025_browser_contract.mjs';
+import {assertReleaseHomepageInputs,assertReleaseHomepageResponse,assertReleaseHomepageBindingControls,assertReleaseUnchanged,assertCurrentCatalogue,assertCurrentCatalogueControls,assertCurrentCatalogueLayout,assertNewArticleNavigation,CURRENT_OLD_DESTINATIONS} from './ai_middle_browser_20261028_contract.mjs';
 import {chromium, webkit} from 'playwright';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
@@ -11,7 +12,6 @@ const ok = (value, label) => {assert.ok(value,label); checks++;};
 // Clearly fabricated pure census controls are separate from real DOM observations.
 const originalCatalogueDestinations=Object.freeze(["durable-organization.html", "hold-collide-come-apart.html", "trenches-not-silos.html", "nothing-stays-tuned.html", "we-gave-bureaucracy-the-fastest-tools.html", "the-unmeasured-layer.html", "merit-after-the-machine.html", "every-node-for-itself.html", "built-to-please.html", "terminal-fidelity.html", "accumulated-drag-department-of-war.html", "quarter-trillion-friction-us-healthcare.html", "from-tokens-to-outcomes.html", "compensatory-systems.html", "when-bureaucracy-became-the-obstacle.html", "the-culture-trap-brief.html", "the-art-of-interior-reasoning.html", "governing-complexity.html", "designing-for-decision-velocity.html"]);
 const expectedCurrentNewCards=Object.freeze([{"id": "posting-has-outgrown-the-job", "title": "The Posting Has Outgrown the Job", "coverTitle": "The Posting Has Outgrown the Job", "label": "Hiring and Work Design · Part 2", "href": "posting-has-outgrown-the-job.html"}, {"id": "hiring-blind-spot", "title": "The Hiring Blind Spot", "coverTitle": "The Hiring Blind Spot", "label": "Hiring and Work Design · Part 1", "href": "hiring-blind-spot.html"}]);
-const approvedHomepageInputs=Object.freeze({"source": {"bytes": 299665, "sha256": "a74aa80d41fddf34995532269b37d29bbbe45b3ac3d4770856dfd9d4750ae671"}, "build": {"bytes": 299879, "sha256": "ff1f0aabd1397a126080024c1a74385d6e9843b92b781048f77f7c2e6e0da8b0"}});
 const actualCatalogueObservations=[];
 function assertCurrentHiringCatalogue(rows){
  let passed=0;
@@ -47,13 +47,13 @@ for(const test of syntheticCatalogueCases){
 }
 console.log('SYNTHETIC_CURRENT21_CATALOGUE_CONTROLS '+JSON.stringify({passed:true,negativeControls:16,scope:'Fabricated pure arrays only; no observed browser or production data.'}));
 checks+=assertPart7CatalogueControls(syntheticCatalogueBaseline,assertCurrentHiringCatalogue);
+checks+=assertCurrentCatalogueControls();
 const homepageSha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const sourceHomepageBytes=fs.readFileSync(new URL('../index.html',import.meta.url));
 const buildHomepageBytes=fs.readFileSync(new URL('../.render-public/index.html',import.meta.url));
 const actualHomepageInputs={source:{bytes:sourceHomepageBytes.length,sha256:homepageSha(sourceHomepageBytes)},build:{bytes:buildHomepageBytes.length,sha256:homepageSha(buildHomepageBytes)}};
-checks+=assertPart7HomepageInputs(actualHomepageInputs);
-assert.deepEqual(homepageInputsBeforePart7(sourceHomepageBytes,buildHomepageBytes),approvedHomepageInputs,'Source/build homepage inputs are the exact separately approved bytes');checks++;
-checks+=assertPart7HomepageBindingControls(sourceHomepageBytes,buildHomepageBytes,approvedHomepageInputs);
+checks+=assertReleaseHomepageInputs(actualHomepageInputs);
+checks+=assertReleaseHomepageBindingControls(sourceHomepageBytes,buildHomepageBytes);
 
 for (const [engine,type] of Object.entries({chromium,webkit})) {
   const browser = await type.launch({headless:true});
@@ -90,7 +90,7 @@ for (const [engine,type] of Object.entries({chromium,webkit})) {
       ok(page.url().endsWith('/durable-organization.html'),'Research article link works');
       const homepageResponse=await page.goto(base+'/');
       await page.waitForSelector('#latestViewport.is-ready');
-      // Observe the actual current22 catalogue; exact Part7 subtraction is used only by the original21 predicates.
+      // Observe the actual current23 catalogue directly; older21/22 predicates above use only synthetic controls.
       const currentCards=page.locator('.latest-card:not(.is-carousel-clone)');
       const currentRows=await currentCards.evaluateAll(nodes=>nodes.map(node=>({
        id:node.getAttribute('data-publication'),
@@ -107,21 +107,24 @@ for (const [engine,type] of Object.entries({chromium,webkit})) {
       const actualHomepageResponse={url:homepageResponse.url(),status:homepageResponse.status(),bytes:homepageResponseBytes.length,sha256:homepageSha(homepageResponseBytes)};
       const currentObservation={engine,width,rowCount:currentRows.length,rows:currentRows,homepageResponse:actualHomepageResponse,inputBindings:actualHomepageInputs};
       actualCatalogueObservations.push(currentObservation);
-      console.log('ACTUAL_CURRENT22_CATALOGUE_OBSERVATION '+JSON.stringify(currentObservation));
+      console.log('ACTUAL_CURRENT23_CATALOGUE_OBSERVATION '+JSON.stringify(currentObservation));
       assert.equal(actualHomepageResponse.status,200,'Actual current homepage document response is HTTP200');checks++;
-      assert.deepEqual(homepageResponseBeforePart7(homepageResponseBytes),approvedHomepageInputs.build,'Actual homepage document is the approved complete built body');checks++;
+      checks+=assertReleaseHomepageResponse(homepageResponseBytes);
    assert.deepEqual({bytes:actualHomepageResponse.bytes,sha256:actualHomepageResponse.sha256},actualHomepageInputs.build,'Actual current homepage document matches the exact current built body');checks++;
-      checks+=assertCurrentPart7Catalogue(currentRows,assertCurrentHiringCatalogue);
-      const previousCards = page.locator('.latest-card:not(.is-carousel-clone):not([data-publication="hiring-blind-spot"]):not([data-publication="posting-has-outgrown-the-job"]):not([data-publication="divide-and-rule-inside-the-company"])');
+      checks+=assertCurrentCatalogue(currentRows);
+   checks+=await assertCurrentCatalogueLayout(page,width);
+      const previousCards = page.locator('.latest-card:not(.is-carousel-clone):not([data-publication="hiring-blind-spot"]):not([data-publication="posting-has-outgrown-the-job"]):not([data-publication="divide-and-rule-inside-the-company"]):not([data-publication="ai-wont-land-in-the-middle"])');
       ok(await previousCards.count()===19,'Every original homepage publication remains');
-      ok(JSON.stringify(await previousCards.locator('.latest-card-link').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href'))))===JSON.stringify(["durable-organization.html","hold-collide-come-apart.html","trenches-not-silos.html","nothing-stays-tuned.html","we-gave-bureaucracy-the-fastest-tools.html","the-unmeasured-layer.html","merit-after-the-machine.html","every-node-for-itself.html","built-to-please.html","terminal-fidelity.html","accumulated-drag-department-of-war.html","quarter-trillion-friction-us-healthcare.html","from-tokens-to-outcomes.html","compensatory-systems.html","when-bureaucracy-became-the-obstacle.html","the-culture-trap-brief.html","the-art-of-interior-reasoning.html","governing-complexity.html","designing-for-decision-velocity.html"]),'All original19 destinations and relative order remain');
-      const first = previousCards.first();
-      ok((await first.innerText()).includes('The Durable Organization'),'Newest homepage publication');
+      ok(JSON.stringify(await previousCards.locator('.latest-card-link').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href'))))===JSON.stringify(CURRENT_OLD_DESTINATIONS),'All original19 destinations retain their current descending series order');
+      const first = previousCards.filter({hasText:'The Durable Organization'});ok(await first.count()===1,'Durable remains unique in actual descending catalogue');
+      ok((await first.innerText()).includes('The Durable Organization'),'Durable remains in actual current catalogue');
       ok((await first.locator('.latest-card-kicker').textContent())==='Governance and Performance · Part 5','Current homepage Part 5');
+      checks+=await assertNewArticleNavigation(page);
       ok(errors.length===0,engine+' browser errors: '+errors.join('; '));
       await page.close();
     }
   } finally {await browser.close();}
 }
-console.log('ACTUAL_CURRENT22_CATALOGUE_SUCCESS '+JSON.stringify({passed:true,syntheticNegativeControls:32,observations:actualCatalogueObservations}));
+checks+=assertReleaseUnchanged();
+console.log('ACTUAL_CURRENT23_CATALOGUE_SUCCESS '+JSON.stringify({passed:true,historicalSyntheticNegativeControls:32,currentSyntheticNegativeControls:9,observations:actualCatalogueObservations}));
 console.log(JSON.stringify({passed:true,checks,engines:['chromium','webkit'],widths:[390,820,1440],base,output},null,2));

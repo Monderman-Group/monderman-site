@@ -1,13 +1,14 @@
+import {historicalScopeBetaBrowserBodiesAtRelease as historicalScopeBetaBrowserBodies,sourceAtHomepageRefinementBaselineAtRelease as sourceAtHomepageRefinementBaseline,sourceAtMarketingRefreshBaselineAtRelease as sourceAtMarketingRefreshBaseline,sourceAtScopeBetaBaselineAtRelease as sourceAtScopeBetaBaseline} from './ai_middle_release_20261028_contract.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
-import {sourceAtHomepageRefinementBaseline} from './homepage_refinement_20261014_inverse.mjs';
-import {sourceAtScopeBetaBaseline} from './scope_beta_20261014_inverse.mjs';
-import {historicalScopeBetaBrowserBodies} from './scope_beta_20261014_inverse.mjs';
+
+
+
+
 // Every old physical assertion runs on its exact approved f2a edition; the separate Scope matrix certifies current layout.
 const scopeHistoricalBodies=historicalScopeBetaBrowserBodies(decodeURIComponent(new URL('../.render-public/',import.meta.url).pathname));
 const scopeHistoricalResponse=route=>{const u=new URL(route.request().url()),b=scopeHistoricalBodies.get(u.pathname);assert.ok(b,'Exact compiled historical input');return route.fulfill({status:200,contentType:u.pathname.endsWith('.pdf')?'application/pdf':u.pathname.endsWith('.png')?'image/png':u.pathname.endsWith('.webp')?'image/webp':u.pathname.endsWith('.jpg')?'image/jpeg':u.pathname.endsWith('.html')?'text/html':u.pathname.endsWith('.css')?'text/css':u.pathname.endsWith('.json')?'application/json':'application/javascript',body:b});};

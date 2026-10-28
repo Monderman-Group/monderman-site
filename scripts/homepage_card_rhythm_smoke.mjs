@@ -1,8 +1,9 @@
+import {historicalScopeBetaBrowserBodiesAtRelease as historicalScopeBetaBrowserBodies,sourceAtMarketingRefreshBaselineAtRelease as sourceAtMarketingRefreshBaseline,sourceBeforePublicCopyClarityAtRelease as sourceBeforePublicCopyClarity} from './ai_middle_release_20261028_contract.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
-import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
-import {historicalScopeBetaBrowserBodies} from './scope_beta_20261014_inverse.mjs';
+
+
+
 
 // The exact reviewed copy delta retired the four measurement-loop cards, not
 // the three proof cards or four diagnostic cards exercised below. Preserve the

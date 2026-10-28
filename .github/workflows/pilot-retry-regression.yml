@@ -12,6 +12,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -31,7 +33,7 @@ jobs:
           bash scripts/render-static-build.sh
           node scripts/first_run_entry_smoke.mjs
           node scripts/pilot_retry_browser_smoke.mjs
-          node scripts/evaluation_pool_compatibility_smoke.mjs
+          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/evaluation_pool_compatibility_smoke.mjs
           node scripts/evaluation_pool_browser_smoke.mjs
       - uses: actions/upload-artifact@v4
         if: always()

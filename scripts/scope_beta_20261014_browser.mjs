@@ -1,9 +1,11 @@
+import {assertCurrentRelease} from './ai_middle_release_20261028_contract.mjs';
+import {assertCurrentReleaseChannel as assertScopeBetaBuiltEdition,isCurrentReleaseSource as isCurrentScopeBeta} from './ai_middle_release_20261028_contract.mjs';
 // Bounded actual-current Q²-SODI matrix; all older matrices retain their original historical editions.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
-import {isCurrentScopeBeta,scopeBetaDelta,assertScopeBetaBuiltEdition} from './scope_beta_20261014_inverse.mjs';
+import {scopeBetaDelta} from './scope_beta_20261014_inverse.mjs';
 const {chromium,webkit}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 const root=path.resolve(import.meta.dirname,'..'),base=process.env.SITE_BASE||'http://127.0.0.1:8080',origin=new URL(base).origin;
 assert.ok(['127.0.0.1','localhost'].includes(new URL(base).hostname),'Loopback only');assert.ok(isCurrentScopeBeta(),'Only exact frozen current Scope source enters this matrix');assertScopeBetaBuiltEdition(path.join(root,'.render-public'));
@@ -14,7 +16,7 @@ const displayedProduct='Q²-SODI',canonicalProductPage='q2-sodi.html',productRou
 const receipt={status:'IN_PROGRESS',startedAt:new Date().toISOString(),sourceHashes:Object.fromEntries(Object.keys(scopeBetaDelta.files).map(f=>[f,sha(fs.readFileSync(path.join(root,f)))])),states:[],screenshots:[],writes:[],forms:[],blocked:[],errors:[],checks:0};
 const save=()=>fs.writeFileSync(path.join(out,'RECEIPT.json'),JSON.stringify(receipt,null,2)+'\n');save();const check=(v,l)=>{receipt.checks++;assert.ok(v,l);},equal=(a,b,l)=>{receipt.checks++;assert.deepEqual(a,b,l);};
 const lenses=['clarity','systems','velocity','performance'],stages=['Request','Review','Decision','Completion'];
-const approvedPublicPaths=new Set(scopeBetaDelta.currentPublicPaths.map(f=>'/'+f));approvedPublicPaths.add('/');
+const approvedPublicPaths=new Set(assertCurrentRelease(path.join(root,'.render-public')).publicPaths.map(f=>'/'+f));approvedPublicPaths.add('/');
 // Exact Part 7 homepage assets; the existing origin/method/API/socket gates remain.
 approvedPublicPaths.add('/divide-rule-publication.css');
 approvedPublicPaths.add('/assets/research/divide-and-rule-inside-the-company-figure-2.png');

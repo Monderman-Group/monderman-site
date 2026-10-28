@@ -1,10 +1,11 @@
-import {seriesPublicationPages,assertSeriesPublicationSurface} from './hiring_work_design_series_20261017_inverse.mjs';
+import {assertCurrentReleaseChannel as assertScopeBetaBuiltEdition,assertSeriesPublicationSurfaceAtRelease as assertSeriesPublicationSurface,isCurrentReleaseSource as isCurrentScopeBeta} from './ai_middle_release_20261028_contract.mjs';
+import {seriesPublicationPages} from './hiring_work_design_series_20261017_inverse.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import { chromium, webkit } from 'playwright';
-import {isCurrentScopeBeta, assertScopeBetaBuiltEdition} from './scope_beta_20261014_inverse.mjs';
+
 import {hiringPublicationDelta} from './hiring_blind_spot_publication_20261015_inverse.mjs';
 
 const base = process.env.SITE_BASE || 'http://127.0.0.1:8080';
@@ -55,6 +56,7 @@ for (const file of pages) assert(fs.existsSync(path.join(root, file)), `Missing 
 const hiringArticle='hiring-blind-spot.html';
 for(const file of seriesPublicationPages){assertSeriesPublicationSurface(file,fs.readFileSync(path.join(root,file)));pages.push(file);expectedHeroCount++;expectedFooterCount++;}
 
+pages.push('ai-wont-land-in-the-middle.html');expectedHeroCount++;expectedFooterCount++;
 const publishedSurfaces = fs.readdirSync(root).filter(file => file.endsWith('.html')).filter(file => {
   const html = fs.readFileSync(path.join(root, file), 'utf8');
   const siteFooter = /<footer\b[^>]*\bclass=["'][^"']*\bmond-footer\b/.test(html);

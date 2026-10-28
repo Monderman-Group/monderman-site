@@ -1,11 +1,13 @@
-import {seriesPublicationPages,assertSeriesPublicationSurface} from './hiring_work_design_series_20261017_inverse.mjs';
+const releasePublicationPages=[...seriesPublicationPages,'ai-wont-land-in-the-middle.html'];
+import {assertSeriesPublicationSurfaceAtRelease as assertSeriesPublicationSurface,historicalScopeBetaBrowserBodiesAtRelease as historicalScopeBetaBrowserBodies,isCurrentReleaseSource as isCurrentScopeBeta,sourceAtMarketingRefreshBaselineAtRelease as sourceAtMarketingRefreshBaseline,sourceAtScopeBetaBaselineAtRelease as sourceAtScopeBetaBaseline} from './ai_middle_release_20261028_contract.mjs';
+import {seriesPublicationPages} from './hiring_work_design_series_20261017_inverse.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import { chromium, webkit } from 'playwright';
-import {sourceAtMarketingRefreshBaseline} from './marketing_refresh_20261012_inverse.mjs';
-import {historicalScopeBetaBrowserBodies,isCurrentScopeBeta,scopeBetaDelta,sourceAtScopeBetaBaseline} from './scope_beta_20261014_inverse.mjs';
+
+import {scopeBetaDelta} from './scope_beta_20261014_inverse.mjs';
 import {hiringPublicationDelta} from './hiring_blind_spot_publication_20261015_inverse.mjs';
 
 // Every old physical assertion runs on its exact approved f2a edition; the separate Scope matrix certifies current layout.
@@ -18,7 +20,7 @@ assert.ok(['127.0.0.1', 'localhost'].includes(new URL(base).hostname), 'Visual v
 const currentScopeBeta=isCurrentScopeBeta(),currentProductPages=['q2-sodi.html','scope.html'];
 const hiringArticle='hiring-blind-spot.html',hasHiringArticle=fs.existsSync(hiringArticle);
 for(const file of seriesPublicationPages){assertSeriesPublicationSurface(file,fs.readFileSync(file));const channel=JSON.parse(fs.readFileSync('.render-public/.well-known/monderman-questionnaire-release.json')).channel;assertSeriesPublicationSurface(file,fs.readFileSync(path.join('.render-public',file)),channel,path.resolve('.render-public'));}
-if(currentScopeBeta){const actual=fs.readdirSync('.').filter(f=>f.endsWith('.html')&&!f.startsWith('google')&&!seriesPublicationPages.includes(f)).sort();assert.deepEqual(actual,[...scopeBetaDelta.baselineSourcePaths.filter(f=>!f.includes('/')&&f.endsWith('.html')&&!f.startsWith('google')),...currentProductPages].sort(),'Exact original source inventory plus only the separately certified canonical product page and retained alias beside the exact publication');}
+if(currentScopeBeta){const actual=fs.readdirSync('.').filter(f=>f.endsWith('.html')&&!f.startsWith('google')&&!releasePublicationPages.includes(f)).sort();assert.deepEqual(actual,[...scopeBetaDelta.baselineSourcePaths.filter(f=>!f.includes('/')&&f.endsWith('.html')&&!f.startsWith('google')),...currentProductPages].sort(),'Exact original source inventory plus only the separately certified canonical product page and retained alias beside the exact publication');}
 const inventorySource=(file,source)=>currentScopeBeta?sourceAtScopeBetaBaseline(file,source):source;
 const homepageSource = fs.readFileSync('index.html','utf8');
 const marketingBaselineHomepage = sourceAtMarketingRefreshBaseline('index.html',homepageSource);
@@ -93,7 +95,7 @@ const sitemapHeroPages = [...inventorySource('sitemap.xml',fs.readFileSync('site
   .filter(hasPageHero);
 const repositoryHeroPages = fs.readdirSync('.')
   .filter((pageName) => pageName.endsWith('.html'))
-  .filter((pageName) => !seriesPublicationPages.includes(pageName))
+  .filter((pageName) => !releasePublicationPages.includes(pageName))
   .filter((pageName) => !currentScopeBeta || !currentProductPages.includes(pageName))
   .filter((pageName) => !legalPresentationExclusions.has(pageName))
   .filter((pageName) => fs.readFileSync(pageName, 'utf8').includes('enterprise-site.css?'))

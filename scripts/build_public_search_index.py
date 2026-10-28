@@ -64,6 +64,7 @@ PAGES = {
     "we-gave-bureaucracy-the-fastest-tools.html": "Research",
     "accumulated-drag-department-of-war.html": "Research",
     "built-to-please.html": "Research",
+    "ai-wont-land-in-the-middle.html": "Research",
     "compensatory-systems.html": "Research",
     "every-node-for-itself.html": "Research",
     "from-tokens-to-outcomes.html": "Research",
