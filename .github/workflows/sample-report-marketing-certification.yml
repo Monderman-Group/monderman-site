@@ -1103,7 +1103,65 @@ jobs:
           node scripts/homepage_report_quad_20260925_contract.mjs
           ecosystem_artifact_sha="$(node -e 'const r=require("./sample-data/production-sample-release.json"); if(r.contract!=="monderman-public-sample-release/v1"||r.status!=="reviewed"||!/^[a-f0-9]{64}$/.test(r.artifact_file_sha256))throw Error("reviewed_artifact_pin_required"); process.stdout.write(r.artifact_file_sha256)')"
           python scripts/validate_six_product_ecosystem_test.py --artifact sample-data/production-diagnostic-samples.json --sha256 "$ecosystem_artifact_sha"
+          # Keep the original prelude serial; only the fixed independent cut overlaps.
+          (
+          set -e
+          set -m
+          contracts_joined=0
+          contracts_cleanup() {
+            contracts_cleanup_status=$?
+            # Preserve the captured primary even if diagnostic output raises EPIPE.
+            trap '' PIPE
+            trap - EXIT INT TERM
+            set +e
+            # This subshell owns only the two lane process groups below.
+            contracts_owned_groups="$(jobs -pr)"
+            for contracts_pid in $contracts_owned_groups; do
+              kill -TERM -- "-$contracts_pid" 2>/dev/null || true
+            done
+            # Preserve the existing bounded Node/browser signal-cleanup grace.
+            contracts_retained_groups="$contracts_owned_groups"
+            contracts_cleanup_started=$SECONDS
+            while :; do
+              contracts_still_existing_groups=""
+              for contracts_pid in $contracts_retained_groups; do
+                if kill -0 -- "-$contracts_pid" 2>/dev/null; then
+                  contracts_still_existing_groups="$contracts_still_existing_groups $contracts_pid"
+                fi
+              done
+              # Once observed gone, an owned group is never rediscovered or re-added.
+              contracts_retained_groups="$contracts_still_existing_groups"
+              test -n "$contracts_retained_groups" || break
+              test "$((SECONDS - contracts_cleanup_started))" -lt 2 || break
+              sleep 0.05
+            done
+            for contracts_pid in $contracts_retained_groups; do
+              if kill -0 -- "-$contracts_pid" 2>/dev/null; then
+                kill -KILL -- "-$contracts_pid" 2>/dev/null || true
+              fi
+            done
+            wait
+            if [ "$contracts_joined" -ne 1 ]; then
+              contracts_abort_manifest_log_status=0
+              test ! -f /tmp/report-presentation-smoke/step7-manifest.log || cat /tmp/report-presentation-smoke/step7-manifest.log || contracts_abort_manifest_log_status=$?
+              contracts_abort_remaining_log_status=0
+              test ! -f /tmp/report-presentation-smoke/step7-remaining.log || cat /tmp/report-presentation-smoke/step7-remaining.log || contracts_abort_remaining_log_status=$?
+              printf 'STATIC_CONTRACTS_PARALLEL_ABORT primary=%s manifest_log=%s remaining_log=%s\n' "$contracts_cleanup_status" "$contracts_abort_manifest_log_status" "$contracts_abort_remaining_log_status"
+            fi
+            exit "$contracts_cleanup_status"
+          }
+          trap contracts_cleanup EXIT
+          trap 'exit 130' INT
+          trap 'exit 143' TERM
+          # Step7 precedes the report/browser output setup; logs stay outside SourceRoot.
+          mkdir -p /tmp/report-presentation-smoke
+          (
+          set -e
           node scripts/public_sample_manifest_sensitivity_smoke.mjs --check
+          ) >/tmp/report-presentation-smoke/step7-manifest.log 2>&1 &
+          contracts_manifest_pid=$!
+          (
+          set -e
           node scripts/refresh_public_sample_previews.mjs --check
           node scripts/report_overview_contract.mjs
           node scripts/single_lens_overview_contract.mjs
@@ -1187,6 +1245,31 @@ jobs:
           python scripts/publication_copy_regression.py
           python scripts/validate_production_cosmetic_certification.py
           python scripts/certification_guard_sensitivity_smoke.py
+          ) >/tmp/report-presentation-smoke/step7-remaining.log 2>&1 &
+          contracts_remaining_pid=$!
+          set +e
+          wait "$contracts_manifest_pid"
+          contracts_manifest_status=$?
+          wait "$contracts_remaining_pid"
+          contracts_remaining_status=$?
+          set -e
+          contracts_joined=1
+          # Both original lane waits complete before this scoped PIPE disposition.
+          trap '' PIPE
+          contracts_manifest_log_status=0
+          cat /tmp/report-presentation-smoke/step7-manifest.log || contracts_manifest_log_status=$?
+          contracts_remaining_log_status=0
+          cat /tmp/report-presentation-smoke/step7-remaining.log || contracts_remaining_log_status=$?
+          contracts_result_log_status=0
+          printf 'STATIC_CONTRACTS_PARALLEL_RESULT manifest=%s remaining=%s manifest_log=%s remaining_log=%s\n' "$contracts_manifest_status" "$contracts_remaining_status" "$contracts_manifest_log_status" "$contracts_remaining_log_status" || contracts_result_log_status=$?
+          # The original manifest command precedes every suffix command.
+          if [ "$contracts_manifest_status" -ne 0 ]; then exit "$contracts_manifest_status"; fi
+          if [ "$contracts_remaining_status" -ne 0 ]; then exit "$contracts_remaining_status"; fi
+          if [ "$contracts_manifest_log_status" -ne 0 ]; then exit "$contracts_manifest_log_status"; fi
+          if [ "$contracts_remaining_log_status" -ne 0 ]; then exit "$contracts_remaining_log_status"; fi
+          if [ "$contracts_result_log_status" -ne 0 ]; then exit "$contracts_result_log_status"; fi
+          trap - EXIT INT TERM
+          )
 
       - name: Install browser tooling
         run: |
@@ -1480,9 +1563,104 @@ jobs:
           SITE_BASE: http://127.0.0.1:8080
           WORKSPACE_LAYOUT_OUT: /tmp/report-presentation-smoke/workspace-layout
         run: |
+          # All three original Step35 commands read the frozen candidate.
+          # Keep every command and its full matrix; join all before Step36.
+          (
+          set -e
+          set -m
+          step35_joined=0
+          step35_cleanup() {
+            step35_cleanup_status=$?
+            # Diagnostics must not replace the captured primary if an output pipe closes.
+            trap '' PIPE
+            trap - EXIT INT TERM
+            set +e
+            # This subshell owns only the three lane process groups below.
+            step35_owned_groups="$(jobs -pr)"
+            for step35_pid in $step35_owned_groups; do
+              kill -TERM -- "-$step35_pid" 2>/dev/null || true
+            done
+            # Preserve the existing bounded Node/browser signal-cleanup grace.
+            step35_retained_groups="$step35_owned_groups"
+            step35_cleanup_started=$SECONDS
+            while :; do
+              step35_still_existing_groups=""
+              for step35_pid in $step35_retained_groups; do
+                if kill -0 -- "-$step35_pid" 2>/dev/null; then
+                  step35_still_existing_groups="$step35_still_existing_groups $step35_pid"
+                fi
+              done
+              # Once observed gone, an owned group is never rediscovered or re-added.
+              step35_retained_groups="$step35_still_existing_groups"
+              test -n "$step35_retained_groups" || break
+              test "$((SECONDS - step35_cleanup_started))" -lt 2 || break
+              sleep 0.05
+            done
+            for step35_pid in $step35_retained_groups; do
+              if kill -0 -- "-$step35_pid" 2>/dev/null; then
+                kill -KILL -- "-$step35_pid" 2>/dev/null || true
+              fi
+            done
+            wait
+            if [ "$step35_joined" -ne 1 ]; then
+              step35_abort_brand_log_status=0
+              test ! -f /tmp/report-presentation-smoke/step35-brand.log || cat /tmp/report-presentation-smoke/step35-brand.log || step35_abort_brand_log_status=$?
+              step35_abort_public_log_status=0
+              test ! -f /tmp/report-presentation-smoke/step35-public.log || cat /tmp/report-presentation-smoke/step35-public.log || step35_abort_public_log_status=$?
+              step35_abort_workspace_log_status=0
+              test ! -f /tmp/report-presentation-smoke/step35-workspace.log || cat /tmp/report-presentation-smoke/step35-workspace.log || step35_abort_workspace_log_status=$?
+              printf 'STEP35_PARALLEL_ABORT primary=%s brand_log=%s public_log=%s workspace_log=%s\n' "$step35_cleanup_status" "$step35_abort_brand_log_status" "$step35_abort_public_log_status" "$step35_abort_workspace_log_status"
+            fi
+            exit "$step35_cleanup_status"
+          }
+          trap step35_cleanup EXIT
+          trap 'exit 130' INT
+          trap 'exit 143' TERM
+          (
+          set -e
           node scripts/brand_surface_consistency_smoke.mjs
+          ) >/tmp/report-presentation-smoke/step35-brand.log 2>&1 &
+          step35_brand_pid=$!
+          (
+          set -e
           node scripts/public_surface_consistency_smoke.mjs
+          ) >/tmp/report-presentation-smoke/step35-public.log 2>&1 &
+          step35_public_pid=$!
+          (
+          set -e
           node scripts/workspace_layout_audit_smoke.mjs
+          ) >/tmp/report-presentation-smoke/step35-workspace.log 2>&1 &
+          step35_workspace_pid=$!
+          set +e
+          wait "$step35_brand_pid"
+          step35_brand_status=$?
+          wait "$step35_public_pid"
+          step35_public_status=$?
+          wait "$step35_workspace_pid"
+          step35_workspace_status=$?
+          set -e
+          step35_joined=1
+          # All original Node waits are complete before this scoped output disposition.
+          trap '' PIPE
+          step35_brand_log_status=0
+          cat /tmp/report-presentation-smoke/step35-brand.log || step35_brand_log_status=$?
+          step35_public_log_status=0
+          cat /tmp/report-presentation-smoke/step35-public.log || step35_public_log_status=$?
+          step35_workspace_log_status=0
+          cat /tmp/report-presentation-smoke/step35-workspace.log || step35_workspace_log_status=$?
+          step35_result_log_status=0
+          printf 'STEP35_PARALLEL_RESULT brand=%s public=%s workspace=%s brand_log=%s public_log=%s workspace_log=%s\n' "$step35_brand_status" "$step35_public_status" "$step35_workspace_status" "$step35_brand_log_status" "$step35_public_log_status" "$step35_workspace_log_status" || step35_result_log_status=$?
+          # Preserve original command priority and its real nonzero status before log errors.
+          if [ "$step35_brand_status" -ne 0 ]; then exit "$step35_brand_status"; fi
+          if [ "$step35_public_status" -ne 0 ]; then exit "$step35_public_status"; fi
+          if [ "$step35_workspace_status" -ne 0 ]; then exit "$step35_workspace_status"; fi
+          if [ "$step35_brand_log_status" -ne 0 ]; then exit "$step35_brand_log_status"; fi
+          if [ "$step35_public_log_status" -ne 0 ]; then exit "$step35_public_log_status"; fi
+          if [ "$step35_workspace_log_status" -ne 0 ]; then exit "$step35_workspace_log_status"; fi
+          if [ "$step35_result_log_status" -ne 0 ]; then exit "$step35_result_log_status"; fi
+          # Every wait and output read succeeded; no early cleanup trap survives the barrier.
+          trap - EXIT INT TERM
+          )
 
       - name: Render and verify customer report surfaces
         env:
