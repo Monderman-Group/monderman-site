@@ -14,7 +14,7 @@ import {assertThreeBenefitSourceContract} from './three_benefit_source_contract.
 import {sourceBeforeOverviewSiteCompatibility} from './report_overview_site_compatibility_inverse.mjs';
 import {sourceBeforeSigninSessionRefresh} from './signin_session_refresh_inverse.mjs';
 import {sourceBeforeSampleDesktopShell} from './sample_desktop_shell_20260924_inverse.mjs';
-import {sourceAtReleaseBaseline} from './ai_middle_release_20261028_contract.mjs';
+import {sourceAtReleaseBaseline} from './companies_culture_release_20261028_contract.mjs';
 export const EVALUATION_BASELINE='0fb1980b4f7dca37c6823e3ae47386215b2834d9';
 export const APPROVED_INTERFACE_PINS=Object.freeze({
   // DV: close the public-first-run flag and update legacy invitation/result copy.

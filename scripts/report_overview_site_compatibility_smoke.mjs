@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {OVERVIEW_SITE_FILES,OVERVIEW_SITE_PRIOR_COMMIT,OVERVIEW_SITE_REVIEWED_COMMIT} from './report_overview_site_compatibility_inverse.mjs';
-import {sourceBeforeOverviewSiteCompatibilityAtRelease as sourceBeforeOverviewSiteCompatibility} from './ai_middle_release_20261028_contract.mjs';
+import {sourceBeforeOverviewSiteCompatibilityAtRelease as sourceBeforeOverviewSiteCompatibility} from './companies_culture_release_20261028_contract.mjs';
 import {HOMEPAGE_REPORT_QUAD_FILES} from './homepage_report_quad_20260925_inverse.mjs';
 import {CHANGE_WORDING_FILES} from './change_wording_20260925_inverse.mjs';
 const root=path.resolve(import.meta.dirname,'..');

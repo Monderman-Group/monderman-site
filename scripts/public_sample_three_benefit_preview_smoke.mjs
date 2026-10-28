@@ -10,7 +10,7 @@ import {pathToFileURL} from 'node:url';
 import {buildPublicSamplePreviewSections as buildCurrentPublicSamplePreviewSections,refreshPublicSamplePreviews} from './refresh_public_sample_previews.mjs';
 import {evidenceDigest,compactPreviewBeforeSodiDisplayOrder} from './public_sample_fixture.mjs';
 import {sourceBeforeHomepageReportQuad20260925} from './homepage_report_quad_20260925_inverse.mjs';
-import {sourceAtReleaseBaseline} from './ai_middle_release_20261028_contract.mjs';
+import {sourceAtReleaseBaseline} from './companies_culture_release_20261028_contract.mjs';
 
 const root=path.resolve(import.meta.dirname,'..'),args=process.argv.slice(2);
 const deterministicOnly=args.includes('--deterministic-only'),candidateArgs=args.filter(arg=>arg!=='--deterministic-only');

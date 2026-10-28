@@ -1,4 +1,4 @@
-import {historicalScopeBetaBrowserBodiesAtRelease as historicalScopeBetaBrowserBodies,isCurrentHomepageRefinementSourceAtRelease as isCurrentHomepageRefinementSource,sourceAtHomepageRefinementBaselineAtRelease as sourceAtHomepageRefinementBaseline,sourceAtMarketingRefreshBaselineAtRelease as sourceAtMarketingRefreshBaseline} from './ai_middle_release_20261028_contract.mjs';
+import {historicalScopeBetaBrowserBodiesAtRelease as historicalScopeBetaBrowserBodies,isCurrentHomepageRefinementSourceAtRelease as isCurrentHomepageRefinementSource,sourceAtHomepageRefinementBaselineAtRelease as sourceAtHomepageRefinementBaseline,sourceAtMarketingRefreshBaselineAtRelease as sourceAtMarketingRefreshBaseline} from './companies_culture_release_20261028_contract.mjs';
 // Local display regression, not current-sample publication or AI-quality proof.
 // Actual page/CSS/JS bytes are served by interception; no remote request escapes.
 import assert from 'node:assert/strict';

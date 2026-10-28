@@ -1,4 +1,4 @@
-import {historicalScopeBetaBrowserBodiesAtRelease as historicalScopeBetaBrowserBodies,sourceAtMarketingRefreshBaselineAtRelease as sourceAtMarketingRefreshBaseline} from './ai_middle_release_20261028_contract.mjs';
+import {historicalScopeBetaBrowserBodiesAtRelease as historicalScopeBetaBrowserBodies,sourceAtMarketingRefreshBaselineAtRelease as sourceAtMarketingRefreshBaseline} from './companies_culture_release_20261028_contract.mjs';
 // Current compact four-step journey. Historical five-choice source is protected
 // independently by homepage_compact_journey_20260924_contract.mjs.
 import assert from 'node:assert/strict';

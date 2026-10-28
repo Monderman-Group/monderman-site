@@ -11,7 +11,7 @@ import {APPROVED_INTERFACE_PINS} from './invited_evaluation_source_contract.mjs'
 import {sourceBeforeHomepageCompactJourney20260924} from './homepage_compact_journey_20260924_inverse.mjs';
 import {sourceBeforePublicCopyClarity} from './public_copy_clarity_inverse.mjs';
 import {sourceAtBrandRefreshBaseline} from './brand_refresh_20261007_inverse.mjs';
-import {sourceAtMarketingRefreshBaselineAtRelease as sourceAtMarketingRefreshBaseline,sourceAtReleaseBaseline} from './ai_middle_release_20261028_contract.mjs';
+import {sourceAtMarketingRefreshBaselineAtRelease as sourceAtMarketingRefreshBaseline,sourceAtReleaseBaseline} from './companies_culture_release_20261028_contract.mjs';
 import {sourceAtMarketingPhotoPresentationBaseline} from './marketing_photo_presentation_20261013_inverse.mjs';
 import {publicationDelta,sourceAtPublicationBaseline} from './divide_rule_publication_20261025_inverse.mjs';
 

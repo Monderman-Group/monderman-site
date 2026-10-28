@@ -1,4 +1,4 @@
-import {historicalScopeBetaBrowserBodiesAtRelease as historicalScopeBetaBrowserBodies,sourceAtMarketingRefreshBaselineAtRelease as sourceAtMarketingRefreshBaseline,sourceBeforePublicCopyClarityAtRelease as sourceBeforePublicCopyClarity} from './ai_middle_release_20261028_contract.mjs';
+import {historicalScopeBetaBrowserBodiesAtRelease as historicalScopeBetaBrowserBodies,sourceAtMarketingRefreshBaselineAtRelease as sourceAtMarketingRefreshBaseline,sourceBeforePublicCopyClarityAtRelease as sourceBeforePublicCopyClarity} from './companies_culture_release_20261028_contract.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 

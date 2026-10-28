@@ -1,5 +1,5 @@
 const releasePublicationPages=[...seriesPublicationPages,'ai-wont-land-in-the-middle.html'];
-import {assertSeriesPublicationSurfaceAtRelease as assertSeriesPublicationSurface,historicalScopeBetaBrowserBodiesAtRelease as historicalScopeBetaBrowserBodies,isCurrentReleaseSource as isCurrentScopeBeta,sourceAtMarketingRefreshBaselineAtRelease as sourceAtMarketingRefreshBaseline,sourceAtScopeBetaBaselineAtRelease as sourceAtScopeBetaBaseline} from './ai_middle_release_20261028_contract.mjs';
+import {assertSeriesPublicationSurfaceAtRelease as assertSeriesPublicationSurface,historicalScopeBetaBrowserBodiesAtRelease as historicalScopeBetaBrowserBodies,isCurrentReleaseSource as isCurrentScopeBeta,sourceAtMarketingRefreshBaselineAtRelease as sourceAtMarketingRefreshBaseline,sourceAtScopeBetaBaselineAtRelease as sourceAtScopeBetaBaseline} from './companies_culture_release_20261028_contract.mjs';
 import {seriesPublicationPages} from './hiring_work_design_series_20261017_inverse.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';

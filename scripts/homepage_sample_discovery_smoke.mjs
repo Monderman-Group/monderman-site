@@ -1,4 +1,4 @@
-import {historicalScopeBetaBrowserBodiesAtRelease as historicalScopeBetaBrowserBodies,isCurrentHomepageRefinementSourceAtRelease as isCurrentHomepageRefinementSource} from './ai_middle_release_20261028_contract.mjs';
+import {historicalScopeBetaBrowserBodiesAtRelease as historicalScopeBetaBrowserBodies,isCurrentHomepageRefinementSourceAtRelease as isCurrentHomepageRefinementSource} from './companies_culture_release_20261028_contract.mjs';
 // Authored for a separately authorized browser run; this script is not an
 // offline contract check. Set SITE_BASE to a server serving this checkout.
 import assert from 'node:assert/strict';

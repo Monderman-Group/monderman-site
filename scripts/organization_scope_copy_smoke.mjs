@@ -7,7 +7,7 @@ import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {assertInvitedEvaluationSourceContract,EVALUATION_BASELINE} from './invited_evaluation_source_contract.mjs';
 import {readPublicSampleFixture} from './public_sample_fixture.mjs';
-import {sourceBeforeOverviewSiteCompatibilityAtRelease as sourceBeforeOverviewSiteCompatibility,sourceBeforePublicCopyClarityAtRelease as sourceBeforePublicCopyClarity} from './ai_middle_release_20261028_contract.mjs';
+import {sourceBeforeOverviewSiteCompatibilityAtRelease as sourceBeforeOverviewSiteCompatibility,sourceBeforePublicCopyClarityAtRelease as sourceBeforePublicCopyClarity} from './companies_culture_release_20261028_contract.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const baseline = '80bf58384c641f1614280a34532bfcd8ec03d951';

@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {readPublicSampleFixture,evidenceDigest,compactPreviewBeforeSodiDisplayOrder} from './public_sample_fixture.mjs';
 import {buildHomepageReportQuad} from './homepage_report_quad_20260925.mjs';
-import {sourceAtHomepageRefinementBaselineAtRelease as sourceAtHomepageRefinementBaseline} from './ai_middle_release_20261028_contract.mjs';
+import {sourceAtHomepageRefinementBaselineAtRelease as sourceAtHomepageRefinementBaseline} from './companies_culture_release_20261028_contract.mjs';
 
 // Extract only the engine's saved score distribution. The caller first checks
 // the full publication manifest; this additional boundary rejects missing,

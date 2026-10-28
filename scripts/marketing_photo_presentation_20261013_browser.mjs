@@ -1,4 +1,4 @@
-import {historicalSiteDesignBrowserBodiesAtRelease as historicalSiteDesignBrowserBodies,isCurrentReleaseSource as isCurrentSiteDesignCoherence,sourceAtScopeBetaBaselineAtRelease as sourceAtScopeBetaBaseline} from './ai_middle_release_20261028_contract.mjs';
+import {historicalSiteDesignBrowserBodiesAtRelease as historicalSiteDesignBrowserBodies,isCurrentReleaseSource as isCurrentSiteDesignCoherence,sourceAtScopeBetaBaselineAtRelease as sourceAtScopeBetaBaseline} from './companies_culture_release_20261028_contract.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';

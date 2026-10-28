@@ -36,7 +36,7 @@ on:
       - 'assets/audio/we-gave-bureaucracy-the-fastest-tools.m4a'
       - 'assets/audio/when-bureaucracy-became-the-obstacle.m4a'
       - 'scripts/article_audio_20261026_contract.py'
-      - 'scripts/ai_middle_release_20261028_contract.py'
+      - 'scripts/companies_culture_release_20261028_contract.py'
       - 'scripts/ai_middle_release_20261028_contract.mjs'
       - 'scripts/fixtures/ai-middle-release-20261028.json'
       - 'scripts/test_ai_middle_release_boundary.py'
@@ -390,7 +390,7 @@ on:
       - 'assets/audio/we-gave-bureaucracy-the-fastest-tools.m4a'
       - 'assets/audio/when-bureaucracy-became-the-obstacle.m4a'
       - 'scripts/article_audio_20261026_contract.py'
-      - 'scripts/ai_middle_release_20261028_contract.py'
+      - 'scripts/companies_culture_release_20261028_contract.py'
       - 'scripts/ai_middle_release_20261028_contract.mjs'
       - 'scripts/fixtures/ai-middle-release-20261028.json'
       - 'scripts/test_ai_middle_release_boundary.py'
@@ -734,8 +734,8 @@ jobs:
           node-version: '22'
       - name: Admit exact current article audio before historical projections
         run: |
-          python scripts/ai_middle_release_20261028_contract.py
-          python scripts/ai_middle_release_20261028_contract.py --historical -- python scripts/article_audio_20261026_contract.py
+          python scripts/companies_culture_release_20261028_contract.py
+          python scripts/companies_culture_release_20261028_contract.py --historical -- python scripts/article_audio_20261026_contract.py
       - name: Install pinned native-browser test tooling
         env:
           CI_UBUNTU_ARCHIVE_URI: https://us.archive.ubuntu.com/ubuntu
@@ -1025,8 +1025,8 @@ jobs:
         run: |
           for audio_channel in legacy current; do
             MONDERMAN_QUESTIONNAIRE_RELEASE="$audio_channel" RENDER_GIT_COMMIT="$GITHUB_SHA" bash scripts/render-static-build.sh
-            python scripts/ai_middle_release_20261028_contract.py --built .render-public --channel "$audio_channel"
-            python scripts/ai_middle_release_20261028_contract.py --historical -- python scripts/article_audio_20261026_contract.py --built .render-public --channel "$audio_channel"
+            python scripts/companies_culture_release_20261028_contract.py --built .render-public --channel "$audio_channel"
+            python scripts/companies_culture_release_20261028_contract.py --historical -- python scripts/article_audio_20261026_contract.py --built .render-public --channel "$audio_channel"
           done
       - name: Serve exact candidate for current native playback
         run: |
@@ -1103,7 +1103,7 @@ jobs:
 
       - name: Static report contracts
         run: |
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/homepage_report_first_20260927_contract.mjs
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/homepage_report_first_20260927_contract.mjs
           node --check monderman-report.js
           node --check sample-report-production.js
           node --check public-sample-model.js
@@ -1111,9 +1111,9 @@ jobs:
           node scripts/public_sample_preview_data_smoke.mjs
           node scripts/public_sample_projection_version_smoke.mjs
           node scripts/public_sample_fixture.mjs --check
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/homepage_preview_anchor_20260924_contract.mjs
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/homepage_report_quad_20260925_compatibility_contract.mjs
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/homepage_report_quad_20260925_contract.mjs
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/homepage_preview_anchor_20260924_contract.mjs
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/homepage_report_quad_20260925_compatibility_contract.mjs
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/homepage_report_quad_20260925_contract.mjs
           ecosystem_artifact_sha="$(node -e 'const r=require("./sample-data/production-sample-release.json"); if(r.contract!=="monderman-public-sample-release/v1"||r.status!=="reviewed"||!/^[a-f0-9]{64}$/.test(r.artifact_file_sha256))throw Error("reviewed_artifact_pin_required"); process.stdout.write(r.artifact_file_sha256)')"
           python scripts/validate_six_product_ecosystem_test.py --artifact sample-data/production-diagnostic-samples.json --sha256 "$ecosystem_artifact_sha"
           # Keep the original prelude serial; only the fixed independent cut overlaps.
@@ -1170,34 +1170,34 @@ jobs:
           mkdir -p /tmp/report-presentation-smoke
           (
           set -e
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/public_sample_manifest_sensitivity_smoke.mjs --check
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/public_sample_manifest_sensitivity_smoke.mjs --check
           ) >/tmp/report-presentation-smoke/step7-manifest.log 2>&1 &
           contracts_manifest_pid=$!
           (
           set -e
           node scripts/refresh_public_sample_previews.mjs --check
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/report_overview_contract.mjs
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/single_lens_overview_contract.mjs
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/report_overview_contract.mjs
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/single_lens_overview_contract.mjs
           node scripts/report_overview_site_compatibility_smoke.mjs
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/report_unified_sankey_contract.mjs
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/scope_beta_20261014_contract.mjs
-          python scripts/ai_middle_release_20261028_contract.py --historical -- python scripts/scope_beta_20261014_contract.py
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/site_design_coherence_20261014_contract.mjs
-          python scripts/ai_middle_release_20261028_contract.py --historical -- python scripts/site_design_coherence_20261014_contract.py
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/homepage_refinement_20261014_contract.mjs
-          python scripts/ai_middle_release_20261028_contract.py --historical -- python scripts/homepage_refinement_20261014_contract.py
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/marketing_photo_presentation_20261013_contract.mjs
-          python scripts/ai_middle_release_20261028_contract.py --historical -- python scripts/marketing_photo_presentation_20261013_contract.py
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/marketing_completion_20261013_contract.mjs
-          python scripts/ai_middle_release_20261028_contract.py --historical -- python scripts/marketing_completion_20261013_contract.py
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/marketing_refresh_20261012_contract.mjs
-          python scripts/ai_middle_release_20261028_contract.py --historical -- python scripts/marketing_refresh_20261012_contract.py
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/book_publication_date_20261011_contract.mjs
-          python scripts/ai_middle_release_20261028_contract.py --historical -- python scripts/book_publication_date_20261011_contract.py
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/homepage_invitation_focus_20261011_contract.mjs
-          python scripts/ai_middle_release_20261028_contract.py --historical -- python scripts/homepage_invitation_focus_20261011_contract.py
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/homepage_sample_entry_20261011_contract.mjs
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/homepage_sample_discovery_contract.mjs
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/report_unified_sankey_contract.mjs
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/scope_beta_20261014_contract.mjs
+          python scripts/companies_culture_release_20261028_contract.py --historical -- python scripts/scope_beta_20261014_contract.py
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/site_design_coherence_20261014_contract.mjs
+          python scripts/companies_culture_release_20261028_contract.py --historical -- python scripts/site_design_coherence_20261014_contract.py
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/homepage_refinement_20261014_contract.mjs
+          python scripts/companies_culture_release_20261028_contract.py --historical -- python scripts/homepage_refinement_20261014_contract.py
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/marketing_photo_presentation_20261013_contract.mjs
+          python scripts/companies_culture_release_20261028_contract.py --historical -- python scripts/marketing_photo_presentation_20261013_contract.py
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/marketing_completion_20261013_contract.mjs
+          python scripts/companies_culture_release_20261028_contract.py --historical -- python scripts/marketing_completion_20261013_contract.py
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/marketing_refresh_20261012_contract.mjs
+          python scripts/companies_culture_release_20261028_contract.py --historical -- python scripts/marketing_refresh_20261012_contract.py
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/book_publication_date_20261011_contract.mjs
+          python scripts/companies_culture_release_20261028_contract.py --historical -- python scripts/book_publication_date_20261011_contract.py
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/homepage_invitation_focus_20261011_contract.mjs
+          python scripts/companies_culture_release_20261028_contract.py --historical -- python scripts/homepage_invitation_focus_20261011_contract.py
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/homepage_sample_entry_20261011_contract.mjs
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/homepage_sample_discovery_contract.mjs
           node --check scripts/generate_production_sample_outputs.mjs
           node --check scripts/authenticated_report_engine_fixture.mjs
           node --check scripts/report_presentation_smoke.mjs
@@ -1248,13 +1248,13 @@ jobs:
           python scripts/validate_fast_to_cut.py
           python scripts/validate_trenches_not_silos.py
           python scripts/validate_hold_collide_publication.py
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/durable_organization_publication_20261007_contract.mjs
-          python scripts/ai_middle_release_20261028_contract.py --historical -- python scripts/validate_durable_organization_publication.py
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/durable_organization_publication_20261007_contract.mjs
+          python scripts/companies_culture_release_20261028_contract.py --historical -- python scripts/validate_durable_organization_publication.py
           node --check scripts/durable_organization_browser_smoke.mjs
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/hold_collide_publication_20261001_contract.mjs
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/trenches_homepage_carousel_20260929_contract.mjs
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/trenches_research_20260928_contract.mjs
-          python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/governance_research_20260925_contract.mjs
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/hold_collide_publication_20261001_contract.mjs
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/trenches_homepage_carousel_20260929_contract.mjs
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/trenches_research_20260928_contract.mjs
+          python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/governance_research_20260925_contract.mjs
           python scripts/publication_copy_regression.py
           python scripts/validate_production_cosmetic_certification.py
           python scripts/certification_guard_sensitivity_smoke.py
@@ -1628,8 +1628,8 @@ jobs:
           # Both waits are complete; no early cleanup trap survives this barrier.
           trap - EXIT INT TERM
           )
-          RENDER_GIT_COMMIT="$GITHUB_SHA" python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/site_design_coherence_20261014_contract.mjs --built
-          RENDER_GIT_COMMIT="$GITHUB_SHA" python scripts/ai_middle_release_20261028_contract.py --historical -- python scripts/site_design_coherence_20261014_contract.py --built
+          RENDER_GIT_COMMIT="$GITHUB_SHA" python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/site_design_coherence_20261014_contract.mjs --built
+          RENDER_GIT_COMMIT="$GITHUB_SHA" python scripts/companies_culture_release_20261028_contract.py --historical -- python scripts/site_design_coherence_20261014_contract.py --built
           HOMEPAGE_REFINEMENT_OUT=/tmp/report-presentation-smoke/homepage-refinement node scripts/homepage_refinement_20261014_browser.mjs
           # The independent workspace and accent suites retain their own full commands,
           # logs and exit statuses; both finish before this unchanged 60-minute job advances.
@@ -1644,8 +1644,8 @@ jobs:
           # The new pure compiled Scope guards and current matrix share only immutable input.
           (
           set -e
-          RENDER_GIT_COMMIT="$GITHUB_SHA" python scripts/ai_middle_release_20261028_contract.py --historical -- node scripts/scope_beta_20261014_contract.mjs --built
-          RENDER_GIT_COMMIT="$GITHUB_SHA" python scripts/ai_middle_release_20261028_contract.py --historical -- python scripts/scope_beta_20261014_contract.py --built
+          RENDER_GIT_COMMIT="$GITHUB_SHA" python scripts/companies_culture_release_20261028_contract.py --historical -- node scripts/scope_beta_20261014_contract.mjs --built
+          RENDER_GIT_COMMIT="$GITHUB_SHA" python scripts/companies_culture_release_20261028_contract.py --historical -- python scripts/scope_beta_20261014_contract.py --built
           SCOPE_BETA_OUT=/tmp/report-presentation-smoke/scope-beta node scripts/scope_beta_20261014_browser.mjs
           ) >/tmp/report-presentation-smoke/scope-beta.log 2>&1 &
           scope_beta_pid=$!

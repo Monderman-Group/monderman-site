@@ -12,7 +12,7 @@ import {sourceBeforeHomepagePreviewAnchor20260924} from './homepage_preview_anch
 import {sourceBeforeHomepageReportQuad20260925} from './homepage_report_quad_20260925_inverse.mjs';
 import {CHANGE_WORDING_VERSION,sourceAtChangeWordingBaseline} from './change_wording_20260925_inverse.mjs';
 import {SINGLE_LENS_OVERVIEW_VERSION,sourceAtSingleLensOverviewBaseline} from './single_lens_overview_20260929_inverse.mjs';
-import {sourceAtReleaseBaseline} from './ai_middle_release_20261028_contract.mjs';
+import {sourceAtReleaseBaseline} from './companies_culture_release_20261028_contract.mjs';
 
 // Exact presentation-only adapter for comparisons against preserved pre-SODI markup.
 // Generation remains current SODI; every caller still compares the complete historical aside.

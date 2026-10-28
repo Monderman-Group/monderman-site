@@ -1,4 +1,4 @@
-import {isCurrentReleaseSource as isCurrentScopeBeta} from './ai_middle_release_20261028_contract.mjs';
+import {isCurrentReleaseSource as isCurrentScopeBeta} from './companies_culture_release_20261028_contract.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 

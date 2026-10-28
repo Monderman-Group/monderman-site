@@ -1,5 +1,5 @@
 const releasePublicationPages=[...seriesPublicationPages,'ai-wont-land-in-the-middle.html'];
-import {assertCurrentReleaseChannel as assertScopeBetaBuiltEdition,assertSeriesPublicationSurfaceAtRelease as assertSeriesPublicationSurface,isCurrentReleaseSource as isCurrentScopeBeta} from './ai_middle_release_20261028_contract.mjs';
+import {assertCurrentReleaseChannel as assertScopeBetaBuiltEdition,assertSeriesPublicationSurfaceAtRelease as assertSeriesPublicationSurface,isCurrentReleaseSource as isCurrentScopeBeta} from './companies_culture_release_20261028_contract.mjs';
 import {seriesPublicationPages} from './hiring_work_design_series_20261017_inverse.mjs';
 // Local built-footer check. All page scripts and external/service requests are blocked.
 import assert from 'node:assert/strict';

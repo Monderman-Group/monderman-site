@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import {sourceAtScopeBetaBaselineAtRelease as sourceAtScopeBetaBaseline} from './ai_middle_release_20261028_contract.mjs';
+import {sourceAtScopeBetaBaselineAtRelease as sourceAtScopeBetaBaseline} from './companies_culture_release_20261028_contract.mjs';
 import {assertInvitedEvaluationSourceContract} from './invited_evaluation_source_contract.mjs';
 const root=path.resolve(import.meta.dirname,'..');
 const read=f=>fs.readFileSync(path.join(root,f),'utf8');

@@ -1,5 +1,5 @@
-import {assertCurrentRelease} from './ai_middle_release_20261028_contract.mjs';
-import {assertCurrentReleaseChannel as assertScopeBetaBuiltEdition,isCurrentReleaseSource as isCurrentScopeBeta} from './ai_middle_release_20261028_contract.mjs';
+import {assertCurrentRelease} from './companies_culture_release_20261028_contract.mjs';
+import {assertCurrentReleaseChannel as assertScopeBetaBuiltEdition,isCurrentReleaseSource as isCurrentScopeBeta} from './companies_culture_release_20261028_contract.mjs';
 // Bounded actual-current Q²-SODI matrix; all older matrices retain their original historical editions.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
