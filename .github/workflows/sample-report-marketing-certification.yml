@@ -1277,57 +1277,153 @@ jobs:
           bash scripts/install_ci_browsers.sh
       - name: Prepare genuine candidate build for early source-bound browser checks
         run: RENDER_GIT_COMMIT="$GITHUB_SHA" bash scripts/render-static-build.sh
-      - name: Verify source attribution in screen and print markup without PDFs
+      - name: Verify all early report contracts in two owned lanes
         run: |
+          (
+          set -e
+          set -m
+          early_reports_joined=0
+          early_reports_cleanup() {
+            early_reports_cleanup_status=$?
+            # Preserve the captured primary even if diagnostic output raises EPIPE.
+            trap '' PIPE
+            trap - EXIT INT TERM
+            set +e
+            # This subshell owns only the two lane process groups below.
+            early_reports_owned_groups="$(jobs -pr)"
+            for early_reports_pid in $early_reports_owned_groups; do
+              kill -TERM -- "-$early_reports_pid" 2>/dev/null || true
+            done
+            # Preserve the existing bounded Node/browser signal-cleanup grace.
+            early_reports_retained_groups="$early_reports_owned_groups"
+            early_reports_cleanup_started=$SECONDS
+            while :; do
+              early_reports_still_existing_groups=""
+              for early_reports_pid in $early_reports_retained_groups; do
+                if kill -0 -- "-$early_reports_pid" 2>/dev/null; then
+                  early_reports_still_existing_groups="$early_reports_still_existing_groups $early_reports_pid"
+                fi
+              done
+              # Once observed gone, an owned group is never rediscovered or re-added.
+              early_reports_retained_groups="$early_reports_still_existing_groups"
+              test -n "$early_reports_retained_groups" || break
+              test "$((SECONDS - early_reports_cleanup_started))" -lt 2 || break
+              sleep 0.05
+            done
+            for early_reports_pid in $early_reports_retained_groups; do
+              if kill -0 -- "-$early_reports_pid" 2>/dev/null; then
+                kill -KILL -- "-$early_reports_pid" 2>/dev/null || true
+              fi
+            done
+            wait
+            if [ "$early_reports_joined" -ne 1 ]; then
+              early_reports_abort_lane_a_log_status=0
+              test ! -f /tmp/report-presentation-smoke/early-report-A.log || cat /tmp/report-presentation-smoke/early-report-A.log || early_reports_abort_lane_a_log_status=$?
+              early_reports_abort_lane_b_log_status=0
+              test ! -f /tmp/report-presentation-smoke/early-report-B.log || cat /tmp/report-presentation-smoke/early-report-B.log || early_reports_abort_lane_b_log_status=$?
+              printf 'EARLY_REPORTS_PARALLEL_ABORT primary=%s lane_a_log=%s lane_b_log=%s\n' "$early_reports_cleanup_status" "$early_reports_abort_lane_a_log_status" "$early_reports_abort_lane_b_log_status"
+            fi
+            exit "$early_reports_cleanup_status"
+          }
+          trap early_reports_cleanup EXIT
+          trap 'exit 130' INT
+          trap 'exit 143' TERM
+          # Both early report logs stay outside SourceRoot.
+          mkdir -p /tmp/report-presentation-smoke
+          (
+          set -e
+          # Original logical step10: exact environment scope.
+          (
           node scripts/report_source_attribution_smoke.mjs
           node scripts/report_campaign_attribution_smoke.mjs
           node scripts/report_sample_copy_smoke.mjs
           node scripts/report_customer_metadata_smoke.mjs
           node scripts/sample_marketing_language_hover_smoke.mjs
-      - name: Verify authored evidence alignment and callout pagination with MOCK text
-        env:
-          REPORT_PRINT_OUT: /tmp/report-presentation-smoke/authored-print
-        run: node scripts/report_authored_print_smoke.mjs
-      - name: Preserve exact shared next-step conditions on screen and in print media without PDFs
-        run: node scripts/report_shared_action_conditions_smoke.mjs
-      - name: Preserve complete question and experience blocks with MOCK screen and PDF fixtures
-        run: |
+          )
+          # Original logical step11: exact environment scope.
+          (
+          export REPORT_PRINT_OUT=/tmp/report-presentation-smoke/authored-print
+          node scripts/report_authored_print_smoke.mjs
+          )
+          # Original logical step12: exact environment scope.
+          (
+          node scripts/report_shared_action_conditions_smoke.mjs
+          )
+          # Original logical step13: exact environment scope.
+          (
           node scripts/report_question_blocks_smoke.mjs
           node scripts/report_experiential_blocks_smoke.mjs
-      - name: Preserve unavailable scores and Synthesis chart labels on all display sizes
-        run: |
+          )
+          # Original logical step14: exact environment scope.
+          (
           node scripts/report_synthesis_display_smoke.mjs
           node scripts/report_reader_copy_smoke.mjs
           node scripts/report_identity_display_smoke.mjs
           node scripts/report_focus_label_smoke.mjs
-      - name: Preserve presentation correction provenance in HTML and PDF
-        env:
-          REPORT_OUT: /tmp/report-presentation-smoke/presentation-provenance
-        run: node scripts/report_presentation_provenance_smoke.mjs
-      - name: Keep facts-only AI report controls and disclosures truthful
-        env:
-          REPORT_OUT: /tmp/report-presentation-smoke/empty-ai-actions
-        run: node scripts/report_empty_ai_actions_smoke.mjs
-      - name: Verify responsive Synthesis charts and print label containment
-        env:
-          REPORT_OUT: /tmp/report-presentation-smoke/synthesis-charts
-        run: node scripts/report_synthesis_chart_smoke.mjs
-      - name: Verify evidence-bound operational Sankeys in real and sample HTML and PDF
-        env:
-          REPORT_SANKEY_OUT: /tmp/report-presentation-smoke/operational-sankeys
-        run: node scripts/report_operational_sankey_smoke.mjs --print
-      - name: Verify Cross-Lens phone and print readability
-        run: node scripts/report_cross_lens_phone_smoke.mjs
-
-      - name: Verify overview navigation and case controls in Chromium and WebKit with and without scripts
-        run: |
+          )
+          # Original logical step15: exact environment scope.
+          (
+          export REPORT_OUT=/tmp/report-presentation-smoke/presentation-provenance
+          node scripts/report_presentation_provenance_smoke.mjs
+          )
+          # Original logical step16: exact environment scope.
+          (
+          export REPORT_OUT=/tmp/report-presentation-smoke/empty-ai-actions
+          node scripts/report_empty_ai_actions_smoke.mjs
+          )
+          # Original logical step17: exact environment scope.
+          (
+          export REPORT_OUT=/tmp/report-presentation-smoke/synthesis-charts
+          node scripts/report_synthesis_chart_smoke.mjs
+          )
+          ) >/tmp/report-presentation-smoke/early-report-A.log 2>&1 &
+          early_reports_lane_a_pid=$!
+          (
+          set -e
+          # Original logical step18: exact environment scope.
+          (
+          export REPORT_SANKEY_OUT=/tmp/report-presentation-smoke/operational-sankeys
+          node scripts/report_operational_sankey_smoke.mjs --print
+          )
+          # Original logical step19: exact environment scope.
+          (
+          node scripts/report_cross_lens_phone_smoke.mjs
+          )
+          # Original logical step20: exact environment scope.
+          (
           node scripts/report_overview_browser_smoke.mjs /tmp/report-presentation-smoke/report-overview
           node scripts/single_lens_overview_browser.mjs /tmp/report-presentation-smoke/single-lens-overview
-
-      - name: Verify unified money and time flows with maximum-input and print fixtures
-        env:
-          REPORT_THREE_BENEFIT_OUT: /tmp/report-presentation-smoke/unified-benefit-flows
-        run: node scripts/report_three_benefit_smoke.mjs --print
+          )
+          # Original logical step21: exact environment scope.
+          (
+          export REPORT_THREE_BENEFIT_OUT=/tmp/report-presentation-smoke/unified-benefit-flows
+          node scripts/report_three_benefit_smoke.mjs --print
+          )
+          ) >/tmp/report-presentation-smoke/early-report-B.log 2>&1 &
+          early_reports_lane_b_pid=$!
+          set +e
+          wait "$early_reports_lane_a_pid"
+          early_reports_lane_a_status=$?
+          wait "$early_reports_lane_b_pid"
+          early_reports_lane_b_status=$?
+          set -e
+          early_reports_joined=1
+          # Both original lane waits complete before this scoped PIPE disposition.
+          trap '' PIPE
+          early_reports_lane_a_log_status=0
+          cat /tmp/report-presentation-smoke/early-report-A.log || early_reports_lane_a_log_status=$?
+          early_reports_lane_b_log_status=0
+          cat /tmp/report-presentation-smoke/early-report-B.log || early_reports_lane_b_log_status=$?
+          early_reports_result_log_status=0
+          printf 'EARLY_REPORTS_PARALLEL_RESULT lane_a=%s lane_b=%s lane_a_log=%s lane_b_log=%s\n' "$early_reports_lane_a_status" "$early_reports_lane_b_status" "$early_reports_lane_a_log_status" "$early_reports_lane_b_log_status" || early_reports_result_log_status=$?
+          # Every original lane-A command precedes every original lane-B command.
+          if [ "$early_reports_lane_a_status" -ne 0 ]; then exit "$early_reports_lane_a_status"; fi
+          if [ "$early_reports_lane_b_status" -ne 0 ]; then exit "$early_reports_lane_b_status"; fi
+          if [ "$early_reports_lane_a_log_status" -ne 0 ]; then exit "$early_reports_lane_a_log_status"; fi
+          if [ "$early_reports_lane_b_log_status" -ne 0 ]; then exit "$early_reports_lane_b_log_status"; fi
+          if [ "$early_reports_result_log_status" -ne 0 ]; then exit "$early_reports_result_log_status"; fi
+          trap - EXIT INT TERM
+          )
 
       - name: Serve candidate
         run: |
