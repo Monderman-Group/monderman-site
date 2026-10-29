@@ -1,4 +1,4 @@
-const releasePublicationPages=[...seriesPublicationPages,'ai-wont-land-in-the-middle.html'];
+const releasePublicationPages=[...seriesPublicationPages,'ai-wont-land-in-the-middle.html','companies-dont-have-a-culture.html'];
 import {assertCurrentReleaseChannel as assertScopeBetaBuiltEdition,assertSeriesPublicationSurfaceAtRelease as assertSeriesPublicationSurface,isCurrentReleaseSource as isCurrentScopeBeta} from './companies_culture_release_20261028_contract.mjs';
 import {seriesPublicationPages} from './hiring_work_design_series_20261017_inverse.mjs';
 // Published HTML/CSS: isolated support fixture by default, or every real page

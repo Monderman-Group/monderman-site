@@ -56,7 +56,7 @@ for (const file of pages) assert(fs.existsSync(path.join(root, file)), `Missing 
 const hiringArticle='hiring-blind-spot.html';
 for(const file of seriesPublicationPages){assertSeriesPublicationSurface(file,fs.readFileSync(path.join(root,file)));pages.push(file);expectedHeroCount++;expectedFooterCount++;}
 
-pages.push('ai-wont-land-in-the-middle.html');expectedHeroCount++;expectedFooterCount++;
+for(const file of ['ai-wont-land-in-the-middle.html','companies-dont-have-a-culture.html']){assertSeriesPublicationSurface(file,fs.readFileSync(path.join(root,file)));pages.push(file);expectedHeroCount++;expectedFooterCount++;}
 const publishedSurfaces = fs.readdirSync(root).filter(file => file.endsWith('.html')).filter(file => {
   const html = fs.readFileSync(path.join(root, file), 'utf8');
   const siteFooter = /<footer\b[^>]*\bclass=["'][^"']*\bmond-footer\b/.test(html);

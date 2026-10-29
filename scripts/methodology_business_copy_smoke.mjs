@@ -17,7 +17,7 @@ import {publicationDelta,sourceAtPublicationBaseline} from './divide_rule_public
 
 const root=path.resolve(import.meta.dirname,'..');
 // Audit every committed current source before inspecting any historical view.
-execFileSync(process.env.PYTHON||'python3',['scripts/ai_middle_release_20261028_contract.py',...(process.env.AI_MIDDLE_WORKTREE_REVIEW==='1'?['--worktree']:[]),'--historical','--','python3','scripts/hiring_work_design_series_20261017_contract.py'],{cwd:root,stdio:'pipe'});
+execFileSync(process.env.PYTHON||'python3',['scripts/companies_culture_release_20261028_contract.py',...(process.env.COMPANIES_CULTURE_WORKTREE_REVIEW==='1'?['--worktree']:[]),'--historical','--','python3','scripts/hiring_work_design_series_20261017_contract.py'],{cwd:root,stdio:'pipe'});
 const {artifact}=readPublicSampleFixture({root});
 const previewGroups=artifact.outputs.cross_lens_synthesis.source.source_groups;
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
