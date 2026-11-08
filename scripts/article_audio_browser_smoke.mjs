@@ -10,7 +10,8 @@ const root=path.resolve(import.meta.dirname,'..');
 const built=path.resolve(process.env.ARTICLE_AUDIO_BUILD_ROOT||path.join(root,'.render-public'));
 const channel=JSON.parse(fs.readFileSync(path.join(built,'.well-known/monderman-questionnaire-release.json'))).channel;
 assert.equal(channel,'current','Native playback must use the actual current questionnaire edition');
-execFileSync('python3',[path.join(root,'scripts/companies_conduct_release_20261108_contract.py'),'--built',built,'--channel',channel],{cwd:root,stdio:'inherit'});
+const auditCurrent=()=>execFileSync('python3',[path.join(root,'scripts/companies_conduct_release_20261108_contract.py'),'--built',built,'--channel',channel],{cwd:root,stdio:'inherit'});
+auditCurrent();
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'article-audio-manifest.json')));
 assert.equal(manifest.status,'passed');assert.equal(manifest.articles.length,31);assert.equal(new Set(manifest.articles.map(a=>a.path)).size,31);
 const entries=[...manifest.articles].sort((a,b)=>a.path.localeCompare(b.path));
@@ -159,7 +160,7 @@ async function recordNoJsFailure(test,label,error){
 }
 async function nativePlay(page,entry,evidence,{scripts=true}={}){
  const audio=page.locator('[data-article-audio] audio');
- await audio.focus();if(evidence.engine==='webkit')await page.keyboard.press('Tab');await page.keyboard.press('Space');
+ await audio.focus();await page.keyboard.press('Space');
  if(scripts)await page.waitForFunction(()=>{const a=document.querySelector('[data-article-audio] audio');return a&&!a.paused&&a.currentTime>0.15&&!a.error;},null,{timeout:10000});
  else await waitForNoJsMedia(page,s=>!s.paused&&s.currentTime>0.15&&!s.error,10000,'playback');
  const playing=await audioState(page);ok(playing.currentTime>0.15&&!playing.paused,'Native keyboard playback advances actual media');eq(playing.error,null,'Actual AAC decodes without media error');ok(playing.canAAC.length>0,'Browser advertises AAC support');
@@ -343,5 +344,5 @@ for(const{engine,type,channel:browserChannel}of nativeBrowsers){
 }
 // Bind the served candidate revision and representative successful response bytes.
 const api=await chromium.launch({headless:true,channel:'chrome'});try{const page=await api.newPage();const marker=await page.request.get(base+'/.well-known/monderman-release.json');eq(marker.status(),200,'Served candidate marker');eq(await marker.json(),expectedMarker,'Served candidate is the actual checked revision');for(const a of representatives){const response=await page.request.get(base+'/'+a.audio_path);eq(response.status(),200,'Actual representative complete audio GET');const b=await response.body();eq(b.length,a.bytes,'Actual served media size');eq(sha(b),a.audio_sha256,'Actual served complete bytes equal reviewed asset');}}finally{await api.close();}
-assert.equal(layer.sourceExact(),true,'Browser tests did not mutate frozen source');assert.equal(layer.publicExact(built,channel),true,'Browser tests did not mutate checked public artifact');
+auditCurrent();
 const result={status:'PASS',checkedAt:new Date().toISOString(),revision:expectedMarker.revision,channel,checks,engines:['chromium','webkit'],browserBuilds,censusPagesPerEngine:31,representativePlaybackStates:16,globalScriptsOffNativePlaybackStates:1,authorScriptsBlockedNativePlaybackStates:1,globalScriptsOffDownloadFallbackStates:1,mockedMissingAudioStates:2,preGestureArrivalObservation:{rawAttemptCount:arrivalWindows.reduce((n,w)=>n+w.rawAttemptCount,0),deferredNonHttpEventCount:arrivalWindows.reduce((n,w)=>n+w.deferredNonHttpEventCount,0),originAudioRequestCount:arrivalWindows.reduce((n,w)=>n+w.originAudioRequestCount,0),actualHttpMediaResponseCount:arrivalWindows.reduce((n,w)=>n+w.actualHttpResponseCount,0),webkitObservationMs:2000,chromeObservationMs:100,qualification:'Counts cover complete bounded arrival windows before gestures; API status0/reported body0 are synthetic or fallback metrics, not measured physical byte counts.',windows:arrivalWindows},providerCalls:0,actualUserRecordsTouched:false,receipts};fs.writeFileSync(path.join(output,'RECEIPT.json'),JSON.stringify(result,null,2)+'\n');console.log('ARTICLE_AUDIO_BROWSER_PASS '+JSON.stringify({checks,browserBuilds,censusPagesPerEngine:31,representativePlaybackStates:16,globalScriptsOffNativePlaybackStates:1,authorScriptsBlockedNativePlaybackStates:1,globalScriptsOffDownloadFallbackStates:1,mockedMissingAudioStates:2,output}));
