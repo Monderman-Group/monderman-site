@@ -232,11 +232,19 @@ def audit_public(root: Path, channel: str) -> dict[str, object]:
 
 
 def prior_checkout(
-    channel: str, built: bool, revision: str = PRIOR_RELEASE
+    channel: str,
+    built: bool,
+    revision: str = PRIOR_RELEASE,
+    context: str = "default",
 ) -> tuple[Path, dict[str, str]]:
     suffix = hashlib.sha256(str(ROOT).encode()).hexdigest()[:8]
     base = Path(os.environ.get("RUNNER_TEMP", tempfile.gettempdir())).resolve() / (
-        "monderman-companies-conduct-history-" + revision[:8] + "-" + suffix
+        "monderman-companies-conduct-history-"
+        + revision[:8]
+        + "-"
+        + context
+        + "-"
+        + suffix
     )
     if not base.exists():
         subprocess.run(
@@ -288,7 +296,8 @@ def delegate_prior(argv: list[str], channel: str) -> None:
         and command[0] == "node"
         and command[1] in HISTORICAL_BROWSER_SCRIPTS
     )
-    base, env = prior_checkout(channel, built, reviewed_release)
+    checkout_context = hashlib.sha256("\0".join(command).encode()).hexdigest()[:8]
+    base, env = prior_checkout(channel, built, reviewed_release, checkout_context)
     print(
         "COMPANIES_CONDUCT_HISTORICAL_PROJECTION "
         + json.dumps(
@@ -351,7 +360,11 @@ def delegate_prior(argv: list[str], channel: str) -> None:
         playwright = ROOT / "node_modules/playwright/index.mjs"
         if command[:1] == ["node"] and playwright.is_file():
             loader = Path(os.environ.get("RUNNER_TEMP", tempfile.gettempdir())) / (
-                "monderman-historical-playwright-loader-" + hashlib.sha256(str(ROOT).encode()).hexdigest()[:8] + ".mjs"
+                "monderman-historical-playwright-loader-"
+                + checkout_context
+                + "-"
+                + hashlib.sha256(str(ROOT).encode()).hexdigest()[:8]
+                + ".mjs"
             )
             loader.write_text(
                 "import {pathToFileURL} from 'node:url';\n"
@@ -369,6 +382,9 @@ def delegate_prior(argv: list[str], channel: str) -> None:
             "scripts/hold_collide_browser_smoke.mjs": "SITE_BASE_URL",
             "scripts/durable_organization_browser_smoke.mjs": "SITE_BASE_URL",
             "scripts/cosmetic_regression_smoke.mjs": "SITE_BASE",
+            "scripts/marketing_refresh_browser_smoke.mjs": "SITE_BASE",
+            "scripts/marketing_photo_presentation_20261013_browser.mjs": "SITE_BASE",
+            "scripts/marketing_completion_browser_smoke.mjs": "SITE_BASE",
         }
         server: http.server.ThreadingHTTPServer | None = None
         server_thread: threading.Thread | None = None
