@@ -257,6 +257,10 @@ def delegate_prior(argv: list[str], channel: str) -> None:
         ("node", "scripts/public_sample_three_benefit_preview_smoke.mjs"),
         ("node", "scripts/report_overview_site_compatibility_smoke.mjs"),
         ("python3", "scripts/validate_report_presentation.py"),
+        ("python3", "scripts/validate_sample_product_fidelity.py"),
+        ("python3", "scripts/validate_six_product_ecosystem.py"),
+        ("python3", "scripts/validate_production_cosmetic_certification.py"),
+        ("python3", "scripts/certification_guard_sensitivity_smoke.py"),
     }
     if tuple(command) in direct_prior_commands:
         subprocess.run([sys.executable, PRIOR_CONTRACT], cwd=base, env=env, check=True)
