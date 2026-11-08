@@ -2,14 +2,15 @@
 // Run in CI against its genuine loopback candidate server, after the raw gate.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';import path from 'node:path';import{createHash}from'node:crypto';
+import{execFileSync}from'node:child_process';
 import{chromium,webkit}from'playwright';
 import{setTimeout as hostDelay}from'node:timers/promises';
 import{setTimeout as hostSetTimeout,clearTimeout as hostClearTimeout}from'node:timers';
-import{releaseLayer as audioLayer}from'./companies_culture_release_20261028_contract.mjs';
-const root=path.resolve(import.meta.dirname,'..'),layer=audioLayer();
-assert.equal(layer.sourceExact(),true,'Actual closed current narration source');
+const root=path.resolve(import.meta.dirname,'..');
 const built=path.resolve(process.env.ARTICLE_AUDIO_BUILD_ROOT||path.join(root,'.render-public'));
-const channel=layer.channel(built);assert.equal(channel,'current','Native playback must use the actual current questionnaire edition');assert.equal(layer.publicExact(built,channel),true,'Actual complete current public edition');
+const channel=JSON.parse(fs.readFileSync(path.join(built,'.well-known/monderman-questionnaire-release.json'))).channel;
+assert.equal(channel,'current','Native playback must use the actual current questionnaire edition');
+execFileSync('python3',[path.join(root,'scripts/companies_conduct_release_20261108_contract.py'),'--built',built,'--channel',channel],{cwd:root,stdio:'inherit'});
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'article-audio-manifest.json')));
 assert.equal(manifest.status,'passed');assert.equal(manifest.articles.length,31);assert.equal(new Set(manifest.articles.map(a=>a.path)).size,31);
 const entries=[...manifest.articles].sort((a,b)=>a.path.localeCompare(b.path));
