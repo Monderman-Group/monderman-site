@@ -214,14 +214,19 @@ def prior_checkout(channel: str, built: bool) -> tuple[Path, dict[str, str]]:
     env = os.environ.copy()
     env["RENDER_GIT_COMMIT"] = PRIOR_RELEASE
     env["MONDERMAN_QUESTIONNAIRE_RELEASE"] = channel
-    if built and not (base / ".render-public/.well-known/monderman-release.json").exists():
-        subprocess.run(
-            ["bash", "scripts/render-static-build.sh"],
-            cwd=base,
-            env=env,
-            check=True,
-            stdout=subprocess.DEVNULL,
-        )
+    if built:
+        questionnaire = base / ".render-public/.well-known/monderman-questionnaire-release.json"
+        built_channel = None
+        if questionnaire.exists():
+            built_channel = json.loads(questionnaire.read_bytes()).get("channel")
+        if built_channel != channel:
+            subprocess.run(
+                ["bash", "scripts/render-static-build.sh"],
+                cwd=base,
+                env=env,
+                check=True,
+                stdout=subprocess.DEVNULL,
+            )
     return base, env
 
 
@@ -233,6 +238,7 @@ def delegate_prior(argv: list[str], channel: str) -> None:
             argv[command_at] = "python3"
     built = "--built" in argv
     base, env = prior_checkout(channel, built)
+    command = argv[argv.index("--") + 1 :] if "--" in argv else []
     print(
         "COMPANIES_CONDUCT_HISTORICAL_PROJECTION "
         + json.dumps(
@@ -245,7 +251,11 @@ def delegate_prior(argv: list[str], channel: str) -> None:
         ),
         flush=True,
     )
-    subprocess.run([sys.executable, PRIOR_CONTRACT, *argv], cwd=base, env=env, check=True)
+    if command == ["node", "scripts/public_sample_fixture.mjs", "--check"]:
+        subprocess.run([sys.executable, PRIOR_CONTRACT], cwd=base, env=env, check=True)
+        subprocess.run(command, cwd=base, env=env, check=True)
+    else:
+        subprocess.run([sys.executable, PRIOR_CONTRACT, *argv], cwd=base, env=env, check=True)
     assert not git(base, "status", "--porcelain", "--untracked-files=all")
 
 
