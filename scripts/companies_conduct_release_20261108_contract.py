@@ -30,6 +30,24 @@ FIGURES = [
     "assets/research/companies-culture-who-pays.png",
     "assets/research/companies-culture-four-questions.png",
 ]
+HISTORICAL_BROWSER_SCRIPTS = {
+    "scripts/brand_surface_consistency_smoke.mjs",
+    "scripts/homepage_assistant_smoke.mjs",
+    "scripts/homepage_card_rhythm_smoke.mjs",
+    "scripts/homepage_refinement_20261014_browser.mjs",
+    "scripts/homepage_sample_discovery_smoke.mjs",
+    "scripts/homepage_workspace_demo_smoke.mjs",
+    "scripts/marketing_completion_browser_smoke.mjs",
+    "scripts/marketing_photo_presentation_20261013_browser.mjs",
+    "scripts/marketing_refresh_browser_smoke.mjs",
+    "scripts/methodology_business_copy_smoke.mjs",
+    "scripts/mobile_site_presentation_smoke.mjs",
+    "scripts/report_presentation_smoke.mjs",
+    "scripts/sample_marketing_language_hover_smoke.mjs",
+    "scripts/sample_tile_smoke.mjs",
+    "scripts/scope_beta_20261014_browser.mjs",
+    "scripts/site_system_visual_smoke.mjs",
+}
 RELEASE_FILES = {
     ARTICLE: "e6e7afc1dea88e3ccd9514709927e36681cf381096d97ebc86eda2f09e2a0081",
     PDF: "890f48d16665103134b9fbbc6be2da30312df9b1c1f72006dd6b41d24fc1667f",
@@ -238,9 +256,10 @@ def delegate_prior(argv: list[str], channel: str) -> None:
         if command_at < len(argv) and argv[command_at] == "python":
             argv[command_at] = "python3"
     command = argv[argv.index("--") + 1 :] if "--" in argv else []
-    built = "--built" in argv or tuple(command) == (
-        "node",
-        "scripts/sample_marketing_language_hover_smoke.mjs",
+    built = "--built" in argv or (
+        len(command) >= 2
+        and command[0] == "node"
+        and command[1] in HISTORICAL_BROWSER_SCRIPTS
     )
     base, env = prior_checkout(channel, built)
     print(
@@ -267,6 +286,9 @@ def delegate_prior(argv: list[str], channel: str) -> None:
         ("python3", "scripts/validate_sample_product_fidelity.py"),
         ("python3", "scripts/validate_six_product_ecosystem.py"),
     }
+    direct_prior_commands.update(
+        ("node", script) for script in HISTORICAL_BROWSER_SCRIPTS
+    )
     cosmetic_commands = {
         ("python3", "scripts/validate_production_cosmetic_certification.py"),
         ("python3", "scripts/certification_guard_sensitivity_smoke.py"),

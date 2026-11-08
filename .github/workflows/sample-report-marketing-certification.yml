@@ -1458,7 +1458,7 @@ jobs:
         env:
           SITE_BASE: http://127.0.0.1:8080
           HOMEPAGE_DISCOVERY_OUT: /tmp/report-presentation-smoke/homepage-sample-discovery
-        run: node scripts/homepage_sample_discovery_smoke.mjs
+        run: python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/homepage_sample_discovery_smoke.mjs
 
       - name: Verify visible header entry text after scroll and interaction
         run: node scripts/header_entry_visibility_smoke.mjs
@@ -1495,7 +1495,7 @@ jobs:
       - name: Enforce homepage card rhythm at responsive seams
         env:
           SITE_BASE: http://127.0.0.1:8080
-        run: node scripts/homepage_card_rhythm_smoke.mjs
+        run: python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/homepage_card_rhythm_smoke.mjs
 
       - name: Verify Governance Parts 5 and 6 publication and discovery
         env:
@@ -1600,13 +1600,13 @@ jobs:
           trap 'exit 143' TERM
           (
           set -e
-          MARKETING_REFRESH_OUT=/tmp/report-presentation-smoke/marketing-refresh node scripts/marketing_refresh_browser_smoke.mjs
-          MARKETING_PHOTO_PRESENTATION_OUT=/tmp/report-presentation-smoke/photo-presentation node scripts/marketing_photo_presentation_20261013_browser.mjs
+          MARKETING_REFRESH_OUT=/tmp/report-presentation-smoke/marketing-refresh python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/marketing_refresh_browser_smoke.mjs
+          MARKETING_PHOTO_PRESENTATION_OUT=/tmp/report-presentation-smoke/photo-presentation python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/marketing_photo_presentation_20261013_browser.mjs
           ) >/tmp/report-presentation-smoke/historical-refresh-photo.log 2>&1 &
           historical_refresh_photo_pid=$!
           (
           set -e
-          MARKETING_COMPLETION_OUT=/tmp/report-presentation-smoke/marketing-completion node scripts/marketing_completion_browser_smoke.mjs
+          MARKETING_COMPLETION_OUT=/tmp/report-presentation-smoke/marketing-completion python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/marketing_completion_browser_smoke.mjs
           ) >/tmp/report-presentation-smoke/historical-completion.log 2>&1 &
           historical_completion_pid=$!
           set +e
@@ -1630,11 +1630,11 @@ jobs:
           )
           RENDER_GIT_COMMIT="$GITHUB_SHA" python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/site_design_coherence_20261014_contract.mjs --built
           RENDER_GIT_COMMIT="$GITHUB_SHA" python scripts/companies_conduct_release_20261108_contract.py --historical -- python scripts/site_design_coherence_20261014_contract.py --built
-          HOMEPAGE_REFINEMENT_OUT=/tmp/report-presentation-smoke/homepage-refinement node scripts/homepage_refinement_20261014_browser.mjs
+          HOMEPAGE_REFINEMENT_OUT=/tmp/report-presentation-smoke/homepage-refinement python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/homepage_refinement_20261014_browser.mjs
           # The independent workspace and accent suites retain their own full commands,
           # logs and exit statuses; both finish before this unchanged 60-minute job advances.
           (
-          node scripts/homepage_workspace_demo_smoke.mjs
+          python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/homepage_workspace_demo_smoke.mjs
           ) >/tmp/report-presentation-smoke/coherence-workspace.log 2>&1 &
           coherence_workspace_pid=$!
           (
@@ -1646,7 +1646,7 @@ jobs:
           set -e
           RENDER_GIT_COMMIT="$GITHUB_SHA" python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/scope_beta_20261014_contract.mjs --built
           RENDER_GIT_COMMIT="$GITHUB_SHA" python scripts/companies_conduct_release_20261108_contract.py --historical -- python scripts/scope_beta_20261014_contract.py --built
-          SCOPE_BETA_OUT=/tmp/report-presentation-smoke/scope-beta node scripts/scope_beta_20261014_browser.mjs
+          SCOPE_BETA_OUT=/tmp/report-presentation-smoke/scope-beta python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/scope_beta_20261014_browser.mjs
           ) >/tmp/report-presentation-smoke/scope-beta.log 2>&1 &
           scope_beta_pid=$!
           set +e
@@ -1727,7 +1727,7 @@ jobs:
           trap 'exit 143' TERM
           (
           set -e
-          node scripts/brand_surface_consistency_smoke.mjs
+          python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/brand_surface_consistency_smoke.mjs
           ) >/tmp/report-presentation-smoke/step35-brand.log 2>&1 &
           step35_brand_pid=$!
           (
@@ -1774,7 +1774,7 @@ jobs:
       - name: Render and verify customer report surfaces
         env:
           REPORT_OUT: /tmp/report-presentation-smoke
-        run: node scripts/report_presentation_smoke.mjs
+        run: python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/report_presentation_smoke.mjs
 
       - name: Verify generated PDF geometry and remedy pagination
         run: python scripts/validate_generated_pdf_layout.py /tmp/report-presentation-smoke
@@ -1834,7 +1834,7 @@ jobs:
           export SITE_BASE='http://127.0.0.1:8080'
           export MOBILE_OUT='/tmp/report-presentation-smoke/mobile-site'
           # ORIGINAL_UNIT_43_VISUAL_RUN_START
-          node scripts/site_system_visual_smoke.mjs
+          python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/site_system_visual_smoke.mjs
           # ORIGINAL_UNIT_43_VISUAL_RUN_END
           ) >/tmp/report-presentation-smoke/hero-phone-visual.log 2>&1 &
           report_completion_visual_pid=$!
@@ -1843,7 +1843,7 @@ jobs:
           export SITE_BASE='http://127.0.0.1:8080'
           export MOBILE_OUT='/tmp/report-presentation-smoke/mobile-site'
           # ORIGINAL_UNIT_43_MOBILE_RUN_START
-          node scripts/mobile_site_presentation_smoke.mjs
+          python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/mobile_site_presentation_smoke.mjs
           # ORIGINAL_UNIT_43_MOBILE_RUN_END
           ) >/tmp/report-presentation-smoke/hero-phone-mobile.log 2>&1 &
           report_completion_mobile_pid=$!
@@ -1891,7 +1891,7 @@ jobs:
           )
           (
           # ORIGINAL_UNIT_45_RUN_START
-          node scripts/homepage_assistant_smoke.mjs
+          python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/homepage_assistant_smoke.mjs
           # ORIGINAL_UNIT_45_RUN_END
           )
           (
@@ -1914,7 +1914,7 @@ jobs:
           (
           export TILE_OUT='/tmp/report-presentation-smoke/sample-tiles'
           # ORIGINAL_UNIT_49_RUN_START
-          node scripts/sample_tile_smoke.mjs
+          python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/sample_tile_smoke.mjs
           # ORIGINAL_UNIT_49_RUN_END
           )
           (
