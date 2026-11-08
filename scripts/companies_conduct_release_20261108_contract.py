@@ -237,9 +237,12 @@ def delegate_prior(argv: list[str], channel: str) -> None:
         command_at = argv.index("--") + 1
         if command_at < len(argv) and argv[command_at] == "python":
             argv[command_at] = "python3"
-    built = "--built" in argv
-    base, env = prior_checkout(channel, built)
     command = argv[argv.index("--") + 1 :] if "--" in argv else []
+    built = "--built" in argv or tuple(command) == (
+        "node",
+        "scripts/sample_marketing_language_hover_smoke.mjs",
+    )
+    base, env = prior_checkout(channel, built)
     print(
         "COMPANIES_CONDUCT_HISTORICAL_PROJECTION "
         + json.dumps(
