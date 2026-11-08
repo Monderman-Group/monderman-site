@@ -8,20 +8,26 @@ successor contract then projects each older release into its reviewed context.
 from __future__ import annotations
 
 import argparse
+import functools
 import hashlib
 from html.parser import HTMLParser
+import http.server
 import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 
 
 ROOT = Path(__file__).resolve().parents[1]
 PRIOR_RELEASE = "a76ad4ff80562a69dcff5bce6ce0551855ec4631"
 PRIOR_CONTRACT = "scripts/companies_culture_release_20261028_contract.py"
+AI_MIDDLE_RELEASE = "d06ef7f3e77f9e904900be2d8007f6875e4951f7"
+AI_MIDDLE_CONTRACT = "scripts/ai_middle_release_20261028_contract.py"
 COSMETIC_RELEASE = "a344cf9ba4c263d381fb4f94c77ca16b3f6a5f8f"
 ARTICLE = "companies-cant-buy-a-culture.html"
 PDF = "Monderman_Insight_Companies_Cant_Buy_a_Culture_2026-11-08.pdf"
@@ -33,6 +39,9 @@ FIGURES = [
 HISTORICAL_BROWSER_SCRIPTS = {
     "scripts/authored_report_experience_smoke.mjs",
     "scripts/brand_surface_consistency_smoke.mjs",
+    "scripts/cosmetic_regression_smoke.mjs",
+    "scripts/durable_organization_browser_smoke.mjs",
+    "scripts/hold_collide_browser_smoke.mjs",
     "scripts/homepage_assistant_smoke.mjs",
     "scripts/homepage_card_rhythm_smoke.mjs",
     "scripts/homepage_refinement_20261014_browser.mjs",
@@ -61,6 +70,11 @@ RELEASE_FILES = {
     "assets/research/companies-culture-four-questions.png": "69b9481acb2e866220a7f527530c5d05937ac4c7c01933999891097bd4f6ba9c",
     "assets/research/companies-culture-four-questions.svg": "2b7e1b03e52f654f51234ac533eb907bf129ec753e8ac583cdb9c975a52dfff3",
 }
+
+
+class QuietStaticHandler(http.server.SimpleHTTPRequestHandler):
+    def log_message(self, format: str, *args: object) -> None:
+        pass
 
 
 def sha256(path: Path) -> str:
@@ -217,10 +231,12 @@ def audit_public(root: Path, channel: str) -> dict[str, object]:
     return {"channel": channel, "native_audio_players": 31, "part_9_audio_player": False}
 
 
-def prior_checkout(channel: str, built: bool) -> tuple[Path, dict[str, str]]:
+def prior_checkout(
+    channel: str, built: bool, revision: str = PRIOR_RELEASE
+) -> tuple[Path, dict[str, str]]:
     suffix = hashlib.sha256(str(ROOT).encode()).hexdigest()[:8]
     base = Path(os.environ.get("RUNNER_TEMP", tempfile.gettempdir())).resolve() / (
-        "monderman-companies-conduct-history-" + suffix
+        "monderman-companies-conduct-history-" + revision[:8] + "-" + suffix
     )
     if not base.exists():
         subprocess.run(
@@ -228,13 +244,13 @@ def prior_checkout(channel: str, built: bool) -> tuple[Path, dict[str, str]]:
             check=True,
         )
         subprocess.run(
-            ["git", "checkout", "--quiet", "--detach", PRIOR_RELEASE], cwd=base, check=True
+            ["git", "checkout", "--quiet", "--detach", revision], cwd=base, check=True
         )
-    assert git(base, "rev-parse", "HEAD") == PRIOR_RELEASE
+    assert git(base, "rev-parse", "HEAD") == revision
     assert not git(base, "status", "--porcelain", "--untracked-files=all")
 
     env = os.environ.copy()
-    env["RENDER_GIT_COMMIT"] = PRIOR_RELEASE
+    env["RENDER_GIT_COMMIT"] = revision
     env["MONDERMAN_QUESTIONNAIRE_RELEASE"] = channel
     if built:
         questionnaire = base / ".render-public/.well-known/monderman-questionnaire-release.json"
@@ -259,18 +275,26 @@ def delegate_prior(argv: list[str], channel: str) -> None:
         if command_at < len(argv) and argv[command_at] == "python":
             argv[command_at] = "python3"
     command = argv[argv.index("--") + 1 :] if "--" in argv else []
+    script_name = command[1] if len(command) > 1 else ""
+    ai_middle_scripts = {
+        "scripts/hold_collide_browser_smoke.mjs",
+        "scripts/durable_organization_browser_smoke.mjs",
+        "scripts/cosmetic_regression_smoke.mjs",
+    }
+    reviewed_release = AI_MIDDLE_RELEASE if script_name in ai_middle_scripts else PRIOR_RELEASE
+    reviewed_contract = AI_MIDDLE_CONTRACT if script_name in ai_middle_scripts else PRIOR_CONTRACT
     built = "--built" in argv or (
         len(command) >= 2
         and command[0] == "node"
         and command[1] in HISTORICAL_BROWSER_SCRIPTS
     )
-    base, env = prior_checkout(channel, built)
+    base, env = prior_checkout(channel, built, reviewed_release)
     print(
         "COMPANIES_CONDUCT_HISTORICAL_PROJECTION "
         + json.dumps(
             {
                 "candidate": git(ROOT, "rev-parse", "HEAD"),
-                "reviewed_part_8_release": PRIOR_RELEASE,
+                "reviewed_release": reviewed_release,
                 "arguments": argv,
             },
             sort_keys=True,
@@ -321,7 +345,7 @@ def delegate_prior(argv: list[str], channel: str) -> None:
         subprocess.run(command, cwd=cosmetic_base, env=cosmetic_env, check=True)
         assert not git(cosmetic_base, "status", "--porcelain", "--untracked-files=all")
     elif tuple(command) in direct_prior_commands or tuple(command[:2]) in direct_prior_prefixes:
-        subprocess.run([sys.executable, PRIOR_CONTRACT], cwd=base, env=env, check=True)
+        subprocess.run([sys.executable, reviewed_contract], cwd=base, env=env, check=True)
         loader: Path | None = None
         projected_command = list(command)
         playwright = ROOT / "node_modules/playwright/index.mjs"
@@ -337,13 +361,61 @@ def delegate_prior(argv: list[str], channel: str) -> None:
                 + "return nextResolve(specifier,context);}\n"
             )
             projected_command = ["node", "--experimental-loader=" + str(loader), *command[1:]]
+        research_artifacts = {
+            "scripts/hold_collide_browser_smoke.mjs": "hold-collide-browser",
+            "scripts/durable_organization_browser_smoke.mjs": "durable-organization-browser",
+        }
+        historical_server_env = {
+            "scripts/hold_collide_browser_smoke.mjs": "SITE_BASE_URL",
+            "scripts/durable_organization_browser_smoke.mjs": "SITE_BASE_URL",
+            "scripts/cosmetic_regression_smoke.mjs": "SITE_BASE",
+        }
+        server: http.server.ThreadingHTTPServer | None = None
+        server_thread: threading.Thread | None = None
+        exclude_path: Path | None = None
+        exclude_bytes: bytes | None = None
+        command_env = env.copy()
+        if script_name in research_artifacts:
+            raw_exclude_path = Path(git(base, "rev-parse", "--git-path", "info/exclude"))
+            exclude_path = raw_exclude_path if raw_exclude_path.is_absolute() else base / raw_exclude_path
+            exclude_bytes = exclude_path.read_bytes()
+            if b"tmp/\n" not in exclude_bytes.splitlines(keepends=True):
+                exclude_path.write_bytes(exclude_bytes + b"\ntmp/\n")
+        server_env_name = historical_server_env.get(script_name)
+        if server_env_name:
+            handler = functools.partial(
+                QuietStaticHandler,
+                directory=str(base / ".render-public"),
+            )
+            server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler)
+            server_thread = threading.Thread(target=server.serve_forever, daemon=True)
+            server_thread.start()
+            command_env[server_env_name] = f"http://127.0.0.1:{server.server_port}"
         try:
-            subprocess.run(projected_command, cwd=base, env=env, check=True)
+            subprocess.run(projected_command, cwd=base, env=command_env, check=True)
+            artifact_name = research_artifacts.get(script_name)
+            if artifact_name:
+                source = base / "tmp" / artifact_name
+                destination_parent = ROOT / "tmp"
+                destination = destination_parent / artifact_name
+                assert source.is_dir() and not source.is_symlink()
+                assert not destination.exists() and not destination.is_symlink()
+                destination_parent.mkdir(exist_ok=True)
+                assert destination_parent.is_dir() and not destination_parent.is_symlink()
+                shutil.move(str(source), str(destination))
+                source.parent.rmdir()
         finally:
+            if server:
+                server.shutdown()
+                server.server_close()
+            if server_thread:
+                server_thread.join()
+            if exclude_path is not None and exclude_bytes is not None:
+                exclude_path.write_bytes(exclude_bytes)
             if loader:
                 loader.unlink(missing_ok=True)
     else:
-        subprocess.run([sys.executable, PRIOR_CONTRACT, *argv], cwd=base, env=env, check=True)
+        subprocess.run([sys.executable, reviewed_contract, *argv], cwd=base, env=env, check=True)
     assert not git(base, "status", "--porcelain", "--untracked-files=all")
 
 
