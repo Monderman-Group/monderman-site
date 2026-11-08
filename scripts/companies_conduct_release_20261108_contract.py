@@ -22,6 +22,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 PRIOR_RELEASE = "a76ad4ff80562a69dcff5bce6ce0551855ec4631"
 PRIOR_CONTRACT = "scripts/companies_culture_release_20261028_contract.py"
+COSMETIC_RELEASE = "a344cf9ba4c263d381fb4f94c77ca16b3f6a5f8f"
 ARTICLE = "companies-cant-buy-a-culture.html"
 PDF = "Monderman_Insight_Companies_Cant_Buy_a_Culture_2026-11-08.pdf"
 FIGURES = [
@@ -260,7 +261,32 @@ def delegate_prior(argv: list[str], channel: str) -> None:
         ("python3", "scripts/validate_sample_product_fidelity.py"),
         ("python3", "scripts/validate_six_product_ecosystem.py"),
     }
-    if tuple(command) in direct_prior_commands:
+    cosmetic_commands = {
+        ("python3", "scripts/validate_production_cosmetic_certification.py"),
+        ("python3", "scripts/certification_guard_sensitivity_smoke.py"),
+    }
+    if tuple(command) in cosmetic_commands:
+        suffix = hashlib.sha256(str(ROOT).encode()).hexdigest()[:8]
+        cosmetic_base = Path(os.environ.get("RUNNER_TEMP", tempfile.gettempdir())).resolve() / (
+            "monderman-companies-conduct-cosmetic-history-" + suffix
+        )
+        if not cosmetic_base.exists():
+            subprocess.run(
+                ["git", "clone", "--quiet", "--shared", "--no-checkout", str(ROOT), str(cosmetic_base)],
+                check=True,
+            )
+            subprocess.run(
+                ["git", "checkout", "--quiet", "--detach", COSMETIC_RELEASE],
+                cwd=cosmetic_base,
+                check=True,
+            )
+        assert git(cosmetic_base, "rev-parse", "HEAD") == COSMETIC_RELEASE
+        assert not git(cosmetic_base, "status", "--porcelain", "--untracked-files=all")
+        cosmetic_env = os.environ.copy()
+        cosmetic_env["RENDER_GIT_COMMIT"] = COSMETIC_RELEASE
+        subprocess.run(command, cwd=cosmetic_base, env=cosmetic_env, check=True)
+        assert not git(cosmetic_base, "status", "--porcelain", "--untracked-files=all")
+    elif tuple(command) in direct_prior_commands:
         subprocess.run([sys.executable, PRIOR_CONTRACT], cwd=base, env=env, check=True)
         loader: Path | None = None
         projected_command = list(command)
