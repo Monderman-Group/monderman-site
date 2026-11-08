@@ -259,6 +259,7 @@ def delegate_prior(argv: list[str], channel: str) -> None:
         ("node", "scripts/report_overview_site_compatibility_smoke.mjs"),
         ("node", "scripts/site_consistency_copy_smoke.mjs"),
         ("node", "scripts/organization_scope_copy_smoke.mjs"),
+        ("node", "scripts/sample_marketing_language_hover_smoke.mjs"),
         ("python3", "scripts/validate_report_presentation.py"),
         ("python3", "scripts/validate_sample_product_fidelity.py"),
         ("python3", "scripts/validate_six_product_ecosystem.py"),
