@@ -1476,7 +1476,7 @@ jobs:
       - name: Verify 48 reviewed public sample reading states without private engine source
         env:
           SAMPLE_OUT: /tmp/report-presentation-smoke/authored-experience
-        run: node scripts/authored_report_experience_smoke.mjs
+        run: python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/authored_report_experience_smoke.mjs
 
       - name: Verify campaign UI with explicitly MOCK display data only
         env:
@@ -1665,7 +1665,7 @@ jobs:
           test "$coherence_gold_status" -eq 0
           test "$scope_beta_status" -eq 0
           node scripts/workspace_product_design_smoke.mjs
-          REPORT_OUT=/tmp/report-presentation-smoke/report-screen-experience node scripts/report_screen_experience_smoke.mjs
+          REPORT_OUT=/tmp/report-presentation-smoke/report-screen-experience python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/report_screen_experience_smoke.mjs
 
       - name: Reject public and populated Workspace presentation regressions
         env:
@@ -1920,7 +1920,7 @@ jobs:
           (
           export SAMPLE_OUT='/tmp/report-presentation-smoke/sample-product-fidelity'
           # ORIGINAL_UNIT_50_RUN_START
-          node scripts/sample_product_fidelity_smoke_v2.mjs
+          python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/sample_product_fidelity_smoke_v2.mjs
           # ORIGINAL_UNIT_50_RUN_END
           )
           (

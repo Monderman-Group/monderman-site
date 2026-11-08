@@ -31,6 +31,7 @@ FIGURES = [
     "assets/research/companies-culture-four-questions.png",
 ]
 HISTORICAL_BROWSER_SCRIPTS = {
+    "scripts/authored_report_experience_smoke.mjs",
     "scripts/brand_surface_consistency_smoke.mjs",
     "scripts/homepage_assistant_smoke.mjs",
     "scripts/homepage_card_rhythm_smoke.mjs",
@@ -43,7 +44,9 @@ HISTORICAL_BROWSER_SCRIPTS = {
     "scripts/methodology_business_copy_smoke.mjs",
     "scripts/mobile_site_presentation_smoke.mjs",
     "scripts/report_presentation_smoke.mjs",
+    "scripts/report_screen_experience_smoke.mjs",
     "scripts/sample_marketing_language_hover_smoke.mjs",
+    "scripts/sample_product_fidelity_smoke_v2.mjs",
     "scripts/sample_tile_smoke.mjs",
     "scripts/scope_beta_20261014_browser.mjs",
     "scripts/site_system_visual_smoke.mjs",
