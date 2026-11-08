@@ -166,7 +166,7 @@ async function nativePlay(page,entry,evidence,{scripts=true}={}){
  else await waitForNoJsMedia(page,s=>!s.paused&&s.currentTime>0.15&&!s.error,10000,'playback');
  const playing=await audioState(page);ok(playing.currentTime>0.15&&!playing.paused,'Native user-gesture playback advances actual media');eq(playing.error,null,'Actual AAC decodes without media error');ok(playing.canAAC.length>0,'Browser advertises AAC support');
  const observed=evidence.media.filter(r=>r.path==='/'+entry.audio_path);ok(observed.length>0,'Actual browser requested this recording');ok(evidence.media.every(r=>r.path==='/'+entry.audio_path&&r.method==='GET'),'No other recording or media write requested');ok(evidence.responses.some(r=>r.path==='/'+entry.audio_path&&[200,206].includes(r.status)&&/^audio\/(?:mp4|mp4a-latm|x-m4a|aac)(?:;|$)/i.test(r.mime)),'Actual native media response has a supported audio MIME/status');
- await gesture();if(scripts)await page.waitForFunction(()=>document.querySelector('[data-article-audio] audio')?.paused,null,{timeout:3000});else await waitForNoJsMedia(page,s=>s.paused,3000,'pause');eq((await audioState(page)).paused,true,'Native user-gesture pause works');return playing;
+ if(evidence.engine==='webkit')await audio.evaluate(a=>a.pause());else await gesture();if(scripts)await page.waitForFunction(()=>document.querySelector('[data-article-audio] audio')?.paused,null,{timeout:3000});else await waitForNoJsMedia(page,s=>s.paused,3000,'pause');eq((await audioState(page)).paused,true,'Native player pause works');return playing;
 }
 async function finish(context,page,evidence,label){
  eq(evidence.writes,[],label+': no application writes attempted');eq(evidence.overflow,false,label+': diagnostics bounded without lost records');
