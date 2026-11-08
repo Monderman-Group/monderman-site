@@ -619,7 +619,7 @@ jobs:
       - name: Check synthetic preview financial policy without changing public samples
         run: node scripts/public_sample_preview_financial_policy_smoke.mjs --browser --out ${{ runner.temp }}/financial-preview-mock
       - name: Verify three-benefit previews against recorded calculator fixtures
-        run: node scripts/public_sample_three_benefit_preview_smoke.mjs
+        run: python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/public_sample_three_benefit_preview_smoke.mjs
       - name: Verify published methodology copy and settled browser presentation
         run: node scripts/methodology_business_copy_smoke.mjs --output=${{ runner.temp }}/methodology-copy
       - name: Preserve bounded financial and methodology browser evidence

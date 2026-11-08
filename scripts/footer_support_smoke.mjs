@@ -1,5 +1,4 @@
-const releasePublicationPages=[...seriesPublicationPages,'ai-wont-land-in-the-middle.html','companies-dont-have-a-culture.html'];
-import {assertCurrentReleaseChannel as assertScopeBetaBuiltEdition,assertSeriesPublicationSurfaceAtRelease as assertSeriesPublicationSurface,isCurrentReleaseSource as isCurrentScopeBeta} from './companies_culture_release_20261028_contract.mjs';
+const releasePublicationPages=[...seriesPublicationPages,'ai-wont-land-in-the-middle.html','companies-dont-have-a-culture.html','companies-cant-buy-a-culture.html'];
 import {seriesPublicationPages} from './hiring_work_design_series_20261017_inverse.mjs';
 // Published HTML/CSS: isolated support fixture by default, or every real page
 // script with FOOTER_FULL_SCRIPTS=1. Only hash-verified public SDKs may load;
@@ -9,12 +8,12 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import { createHash } from 'node:crypto';
+import {execFileSync} from 'node:child_process';
 import { chromium, webkit } from 'playwright';
 
 import {hiringPublicationDelta} from './hiring_blind_spot_publication_20261015_inverse.mjs';
 const root = path.resolve(process.env.SITE_SOURCE_DIR || '.render-public');
-const currentScope = isCurrentScopeBeta();
-if (currentScope) assertScopeBetaBuiltEdition(root);
+const currentScope = true;
 const currentProductPages = ['q2-sodi.html', 'scope.html'];
 const output = path.resolve(process.env.FOOTER_TEST_OUTPUT || path.join(os.tmpdir(),'monderman-floating-support'));
 const fullScripts = process.env.FOOTER_FULL_SCRIPTS === '1';
@@ -43,7 +42,7 @@ if (currentScope) for (const page of scopePages) assert.equal(page.shell, true, 
 const browserPages = [...pages, ...scopePages];
 const hiringArticle = 'hiring-blind-spot.html';
 const publicationPages = pages.filter(p => releasePublicationPages.includes(p.file));
-if(publicationPages.length){const channel=JSON.parse(await fs.readFile(path.join(root,'.well-known/monderman-questionnaire-release.json'),'utf8')).channel;for(const page of publicationPages){assertSeriesPublicationSurface(page.file,await fs.readFile(path.join(root,page.file)),channel,root);assert.equal(page.shell,true,'Every exact current publication keeps the canonical shell');}}
+if(publicationPages.length){const channel=JSON.parse(await fs.readFile(path.join(root,'.well-known/monderman-questionnaire-release.json'),'utf8')).channel;execFileSync('python3',[path.join(path.resolve(import.meta.dirname,'..'),'scripts/companies_conduct_release_20261108_contract.py'),'--worktree','--built',root,'--channel',channel],{cwd:path.resolve(import.meta.dirname,'..'),stdio:'inherit'});for(const page of publicationPages){assert.equal(page.shell,true,'Every exact current publication keeps the canonical shell');}}
 const historicalPages = pages.filter(p => !releasePublicationPages.includes(p.file));
 const evaluationArchives = ['terms-2026-09-19-invited-evaluation.html', 'privacy-2026-09-19-invited-evaluation.html', 'terms-2026-09-19-invitation-access.html', 'privacy-2026-09-19-invitation-access.html'];
 assert.deepEqual(pages.filter(p => evaluationArchives.includes(p.file)).map(p => p.file).sort(), [...evaluationArchives].sort());

@@ -254,11 +254,31 @@ def delegate_prior(argv: list[str], channel: str) -> None:
     direct_prior_commands = {
         ("node", "scripts/public_sample_fixture.mjs", "--check"),
         ("node", "scripts/refresh_public_sample_previews.mjs", "--check"),
+        ("node", "scripts/public_sample_three_benefit_preview_smoke.mjs"),
         ("node", "scripts/report_overview_site_compatibility_smoke.mjs"),
     }
     if tuple(command) in direct_prior_commands:
         subprocess.run([sys.executable, PRIOR_CONTRACT], cwd=base, env=env, check=True)
-        subprocess.run(command, cwd=base, env=env, check=True)
+        loader: Path | None = None
+        projected_command = list(command)
+        playwright = ROOT / "node_modules/playwright/index.mjs"
+        if command[:1] == ["node"] and playwright.is_file():
+            loader = Path(os.environ.get("RUNNER_TEMP", tempfile.gettempdir())) / (
+                "monderman-historical-playwright-loader-" + hashlib.sha256(str(ROOT).encode()).hexdigest()[:8] + ".mjs"
+            )
+            loader.write_text(
+                "import {pathToFileURL} from 'node:url';\n"
+                + "const entry=" + json.dumps(playwright.as_uri()) + ";\n"
+                + "export async function resolve(specifier,context,nextResolve){"
+                + "if(specifier==='playwright')return {url:entry,shortCircuit:true};"
+                + "return nextResolve(specifier,context);}\n"
+            )
+            projected_command = ["node", "--experimental-loader=" + str(loader), *command[1:]]
+        try:
+            subprocess.run(projected_command, cwd=base, env=env, check=True)
+        finally:
+            if loader:
+                loader.unlink(missing_ok=True)
     else:
         subprocess.run([sys.executable, PRIOR_CONTRACT, *argv], cwd=base, env=env, check=True)
     assert not git(base, "status", "--porcelain", "--untracked-files=all")

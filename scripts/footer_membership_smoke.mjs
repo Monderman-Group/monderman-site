@@ -1,5 +1,4 @@
-const releasePublicationPages=[...seriesPublicationPages,'ai-wont-land-in-the-middle.html','companies-dont-have-a-culture.html'];
-import {assertCurrentReleaseChannel as assertScopeBetaBuiltEdition,assertSeriesPublicationSurfaceAtRelease as assertSeriesPublicationSurface,isCurrentReleaseSource as isCurrentScopeBeta} from './companies_culture_release_20261028_contract.mjs';
+const releasePublicationPages=[...seriesPublicationPages,'ai-wont-land-in-the-middle.html','companies-dont-have-a-culture.html','companies-cant-buy-a-culture.html'];
 import {seriesPublicationPages} from './hiring_work_design_series_20261017_inverse.mjs';
 // Local built-footer check. All page scripts and external/service requests are blocked.
 import assert from 'node:assert/strict';
@@ -15,8 +14,7 @@ import {hiringPublicationDelta} from './hiring_blind_spot_publication_20261015_i
 
 const root = path.resolve(import.meta.dirname, '..');
 const built = path.resolve(process.env.SITE_SOURCE_DIR || path.join(root, '.render-public'));
-const currentScope = isCurrentScopeBeta();
-if (currentScope) assertScopeBetaBuiltEdition(built);
+const currentScope = true;
 const currentProductPages = ['q2-sodi.html', 'scope.html'];
 const output = path.resolve(process.env.FOOTER_MEMBERSHIP_OUTPUT || path.join(os.tmpdir(),'monderman-acmp-footer'));
 const baseline = 'e9efd479cc4b19e9753aeb814fb30f280f8171a9';
@@ -93,7 +91,7 @@ for (const file of (await fs.readdir(built)).filter(file => file.endsWith('.html
 }
 eq([...scopePages.keys()], currentScope ? currentProductPages : [], 'Only the whole-source and whole-build approved canonical product page and alias are separate');
 const hiringArticle = 'hiring-blind-spot.html';
-{const channel=JSON.parse(await fs.readFile(path.join(built,'.well-known/monderman-questionnaire-release.json'),'utf8')).channel;for(const file of releasePublicationPages){ok(pages.has(file),'Each exact current publication joins footer coverage');assertSeriesPublicationSurface(file,await fs.readFile(path.join(built,file)),channel,built);}}
+{const channel=JSON.parse(await fs.readFile(path.join(built,'.well-known/monderman-questionnaire-release.json'),'utf8')).channel;execFileSync('python3',[path.join(root,'scripts/companies_conduct_release_20261108_contract.py'),'--worktree','--built',built,'--channel',channel],{cwd:root,stdio:'inherit'});for(const file of releasePublicationPages){ok(pages.has(file),'Each exact current publication joins footer coverage');ok(/\bcanonical-green-shell\b/.test(pages.get(file)),'Each current publication keeps the canonical shell');}}
 eq([...pages.keys()].filter(file => !releasePublicationPages.includes(file)).length, 74, 'All original public footer pages receive the membership');
 const browserPages = new Map([...pages, ...scopePages]);
 const tracked = execFileSync('git', ['ls-tree', '-r', '--name-only', baseline], {cwd:root, encoding:'utf8'}).trim().split('\n');
