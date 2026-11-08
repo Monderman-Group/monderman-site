@@ -436,8 +436,8 @@ jobs:
           python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/homepage_report_quad_20260925_compatibility_contract.mjs
           python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/homepage_report_quad_20260925_contract.mjs
           node scripts/trust_security_center_smoke.mjs
-          node scripts/site_consistency_copy_smoke.mjs
-          node scripts/organization_scope_copy_smoke.mjs
+          python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/site_consistency_copy_smoke.mjs
+          python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/organization_scope_copy_smoke.mjs
           python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/public_status_copy_smoke.mjs
       - name: Preserve exact prior admission sources and reject unknown changes
         run: python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/evaluation_pool_compatibility_smoke.mjs
@@ -621,7 +621,7 @@ jobs:
       - name: Verify three-benefit previews against recorded calculator fixtures
         run: python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/public_sample_three_benefit_preview_smoke.mjs
       - name: Verify published methodology copy and settled browser presentation
-        run: node scripts/methodology_business_copy_smoke.mjs --output=${{ runner.temp }}/methodology-copy
+        run: python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/methodology_business_copy_smoke.mjs --output=${{ runner.temp }}/methodology-copy
       - name: Preserve bounded financial and methodology browser evidence
         if: always()
         uses: actions/upload-artifact@v4

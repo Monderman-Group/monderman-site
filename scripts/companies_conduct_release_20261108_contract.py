@@ -257,6 +257,8 @@ def delegate_prior(argv: list[str], channel: str) -> None:
         ("node", "scripts/refresh_public_sample_previews.mjs", "--check"),
         ("node", "scripts/public_sample_three_benefit_preview_smoke.mjs"),
         ("node", "scripts/report_overview_site_compatibility_smoke.mjs"),
+        ("node", "scripts/site_consistency_copy_smoke.mjs"),
+        ("node", "scripts/organization_scope_copy_smoke.mjs"),
         ("python3", "scripts/validate_report_presentation.py"),
         ("python3", "scripts/validate_sample_product_fidelity.py"),
         ("python3", "scripts/validate_six_product_ecosystem.py"),
@@ -264,6 +266,9 @@ def delegate_prior(argv: list[str], channel: str) -> None:
     cosmetic_commands = {
         ("python3", "scripts/validate_production_cosmetic_certification.py"),
         ("python3", "scripts/certification_guard_sensitivity_smoke.py"),
+    }
+    direct_prior_prefixes = {
+        ("node", "scripts/methodology_business_copy_smoke.mjs"),
     }
     if tuple(command) in cosmetic_commands:
         suffix = hashlib.sha256(str(ROOT).encode()).hexdigest()[:8]
@@ -286,7 +291,7 @@ def delegate_prior(argv: list[str], channel: str) -> None:
         cosmetic_env["RENDER_GIT_COMMIT"] = COSMETIC_RELEASE
         subprocess.run(command, cwd=cosmetic_base, env=cosmetic_env, check=True)
         assert not git(cosmetic_base, "status", "--porcelain", "--untracked-files=all")
-    elif tuple(command) in direct_prior_commands:
+    elif tuple(command) in direct_prior_commands or tuple(command[:2]) in direct_prior_prefixes:
         subprocess.run([sys.executable, PRIOR_CONTRACT], cwd=base, env=env, check=True)
         loader: Path | None = None
         projected_command = list(command)
