@@ -1175,7 +1175,7 @@ jobs:
           contracts_manifest_pid=$!
           (
           set -e
-          node scripts/refresh_public_sample_previews.mjs --check
+          python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/refresh_public_sample_previews.mjs --check
           python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/report_overview_contract.mjs
           python scripts/companies_conduct_release_20261108_contract.py --historical -- node scripts/single_lens_overview_contract.mjs
           node scripts/report_overview_site_compatibility_smoke.mjs
