@@ -201,11 +201,25 @@ def audit_source(require_clean: bool) -> dict[str, object]:
     assert section and [int(n) for n in re.findall(r"Part\s+(\d+)", section[1])] == list(
         range(9, 0, -1)
     )
+    assert research.count("Nine essays") == 1
+    assert "Eight essays" not in section[1]
 
     homepage = (ROOT / "index.html").read_text()
     cards = re.findall(r'<article class="latest-card\b[\s\S]*?</article>', homepage)
     assert cards and f'data-publication="{ARTICLE.removesuffix(".html")}"' in cards[0]
     assert "<img" not in cards[0]
+    part_7 = [
+        card
+        for card in cards
+        if 'data-publication="divide-and-rule-inside-the-company"' in card
+    ]
+    assert len(part_7) == 1
+    assert "<img" not in part_7[0]
+    assert 'latest-card-image latest-card-image--placeholder' in part_7[0]
+    assert '<h3 class="placeholder-cover-title">Divide and Rule Inside the Company</h3>' in part_7[0]
+    assert '<span class="placeholder-cover-chip">Series, Part 7</span>' in part_7[0]
+    assert '<span class="placeholder-cover-type">Insight</span>' in part_7[0]
+    assert 'divide-rule-publication.css' not in homepage
 
     topics = json.loads((ROOT / "research-topics.json").read_bytes())
     assert sum(row.get("path") == ARTICLE for row in topics["articles"]) == 1
