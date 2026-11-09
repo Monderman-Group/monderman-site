@@ -8,6 +8,7 @@ successor contract then projects each older release into its reviewed context.
 from __future__ import annotations
 
 import argparse
+import fcntl
 import functools
 import hashlib
 from html.parser import HTMLParser
@@ -60,6 +61,10 @@ HISTORICAL_BROWSER_SCRIPTS = {
     "scripts/scope_beta_20261014_browser.mjs",
     "scripts/site_system_visual_smoke.mjs",
 }
+NESTED_HISTORY_PREFIXES = (
+    "monderman-ai-middle-history-",
+    "monderman-companies-culture-history-",
+)
 RELEASE_FILES = {
     ARTICLE: "e6e7afc1dea88e3ccd9514709927e36681cf381096d97ebc86eda2f09e2a0081",
     PDF: "890f48d16665103134b9fbbc6be2da30312df9b1c1f72006dd6b41d24fc1667f",
@@ -85,6 +90,24 @@ def git(root: Path, *args: str) -> str:
     return subprocess.check_output(
         ["git", "-c", "core.fsmonitor=false", *args], cwd=root, text=True
     ).strip()
+
+
+def cleanup_nested_history_chain(temp_root: Path, source_root: Path) -> int:
+    removed = 0
+    root_hash = hashlib.sha256(str(source_root.resolve()).encode()).hexdigest()[:8]
+    prefixes = tuple(prefix + root_hash + "-" for prefix in NESTED_HISTORY_PREFIXES)
+    matches = [
+        path
+        for path in temp_root.iterdir()
+        if path.name.startswith(prefixes)
+    ]
+    for path in matches:
+        assert path.parent == temp_root
+        assert path.is_dir() and not path.is_symlink()
+        removed += cleanup_nested_history_chain(temp_root, path)
+        shutil.rmtree(path)
+        removed += 1
+    return removed
 
 
 class ArticleParser(HTMLParser):
@@ -266,14 +289,92 @@ def prior_checkout(
         if questionnaire.exists():
             built_channel = json.loads(questionnaire.read_bytes()).get("channel")
         if built_channel != channel:
-            subprocess.run(
-                ["bash", "scripts/render-static-build.sh"],
-                cwd=base,
-                env=env,
-                check=True,
-                stdout=subprocess.DEVNULL,
+            temp_root = Path(
+                os.environ.get("RUNNER_TEMP", tempfile.gettempdir())
+            ).resolve()
+            operation_lock = temp_root / (
+                "monderman-companies-conduct-history-operations.lock"
             )
+            with operation_lock.open("a+b") as lock:
+                fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+                build_temp = temp_root / (base.name + ".build")
+                assert not build_temp.exists()
+                build_temp.mkdir()
+                build_env = env.copy()
+                build_env["RUNNER_TEMP"] = str(build_temp)
+                try:
+                    subprocess.run(
+                        ["bash", "scripts/render-static-build.sh"],
+                        cwd=base,
+                        env=build_env,
+                        check=True,
+                        stdout=subprocess.DEVNULL,
+                    )
+                finally:
+                    assert build_temp.parent == temp_root
+                    shutil.rmtree(build_temp)
     return base, env
+
+
+def certify_reviewed_release_once(
+    base: Path,
+    env: dict[str, str],
+    reviewed_contract: str,
+    revision: str,
+    channel: str,
+) -> None:
+    contract = base / reviewed_contract
+    fingerprint = hashlib.sha256(
+        (revision + "\0" + channel + "\0" + sha256(contract)).encode()
+    ).hexdigest()
+    temp_root = Path(
+        os.environ.get("RUNNER_TEMP", tempfile.gettempdir())
+    ).resolve()
+    cache = temp_root / "monderman-companies-conduct-certifications"
+    cache.mkdir(exist_ok=True)
+    lock_path = cache / (fingerprint + ".lock")
+    marker = cache / (fingerprint + ".json")
+    expected = {
+        "channel": channel,
+        "contract": reviewed_contract,
+        "contract_sha256": sha256(contract),
+        "revision": revision,
+    }
+    with lock_path.open("a+b") as lock:
+        fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+        if marker.exists():
+            assert json.loads(marker.read_bytes()) == expected
+            print(
+                "COMPANIES_CONDUCT_CERTIFICATION_CACHE_HIT "
+                + json.dumps({"revision": revision}),
+                flush=True,
+            )
+            return
+        validation_temp = cache / (fingerprint + ".work")
+        if validation_temp.exists():
+            assert validation_temp.parent == cache
+            shutil.rmtree(validation_temp)
+        validation_temp.mkdir()
+        validation_env = env.copy()
+        validation_env["RUNNER_TEMP"] = str(validation_temp)
+        operation_lock = temp_root / (
+            "monderman-companies-conduct-history-operations.lock"
+        )
+        with operation_lock.open("a+b") as operation:
+            fcntl.flock(operation.fileno(), fcntl.LOCK_EX)
+            try:
+                subprocess.run(
+                    [sys.executable, reviewed_contract],
+                    cwd=base,
+                    env=validation_env,
+                    check=True,
+                )
+            finally:
+                assert validation_temp.parent == cache
+                shutil.rmtree(validation_temp)
+        pending = cache / (fingerprint + "." + str(os.getpid()) + ".tmp")
+        pending.write_text(json.dumps(expected, sort_keys=True) + "\n")
+        os.replace(pending, marker)
 
 
 def delegate_prior(argv: list[str], channel: str) -> None:
@@ -296,8 +397,13 @@ def delegate_prior(argv: list[str], channel: str) -> None:
         and command[0] == "node"
         and command[1] in HISTORICAL_BROWSER_SCRIPTS
     )
-    checkout_context = hashlib.sha256("\0".join(command).encode()).hexdigest()[:8]
+    checkout_context = "shared"
+    if built:
+        checkout_context = hashlib.sha256(
+            ("\0".join(command) + "\0" + str(os.getpid())).encode()
+        ).hexdigest()[:8]
     base, env = prior_checkout(channel, built, reviewed_release, checkout_context)
+    base_removed = False
     print(
         "COMPANIES_CONDUCT_HISTORICAL_PROJECTION "
         + json.dumps(
@@ -354,7 +460,13 @@ def delegate_prior(argv: list[str], channel: str) -> None:
         subprocess.run(command, cwd=cosmetic_base, env=cosmetic_env, check=True)
         assert not git(cosmetic_base, "status", "--porcelain", "--untracked-files=all")
     elif tuple(command) in direct_prior_commands or tuple(command[:2]) in direct_prior_prefixes:
-        subprocess.run([sys.executable, reviewed_contract], cwd=base, env=env, check=True)
+        certify_reviewed_release_once(
+            base,
+            env,
+            reviewed_contract,
+            reviewed_release,
+            channel,
+        )
         loader: Path | None = None
         projected_command = list(command)
         playwright = ROOT / "node_modules/playwright/index.mjs"
@@ -407,6 +519,7 @@ def delegate_prior(argv: list[str], channel: str) -> None:
             server_thread = threading.Thread(target=server.serve_forever, daemon=True)
             server_thread.start()
             command_env[server_env_name] = f"http://127.0.0.1:{server.server_port}"
+        command_ok = False
         try:
             subprocess.run(projected_command, cwd=base, env=command_env, check=True)
             artifact_name = research_artifacts.get(script_name)
@@ -420,6 +533,7 @@ def delegate_prior(argv: list[str], channel: str) -> None:
                 assert destination_parent.is_dir() and not destination_parent.is_symlink()
                 shutil.move(str(source), str(destination))
                 source.parent.rmdir()
+            command_ok = True
         finally:
             if server:
                 server.shutdown()
@@ -430,9 +544,32 @@ def delegate_prior(argv: list[str], channel: str) -> None:
                 exclude_path.write_bytes(exclude_bytes)
             if loader:
                 loader.unlink(missing_ok=True)
+            if built and base.exists():
+                temp_root = Path(
+                    os.environ.get("RUNNER_TEMP", tempfile.gettempdir())
+                ).resolve()
+                command_history_removed = cleanup_nested_history_chain(
+                    temp_root, base
+                )
+                print(
+                    "COMPANIES_CONDUCT_COMMAND_HISTORY_CLEANUP "
+                    + json.dumps(
+                        {
+                            "removed": command_history_removed,
+                            "script": script_name,
+                        }
+                    ),
+                    flush=True,
+                )
+                if command_ok:
+                    assert not git(base, "status", "--porcelain", "--untracked-files=all")
+                assert base.parent == temp_root
+                shutil.rmtree(base)
+                base_removed = True
     else:
         subprocess.run([sys.executable, reviewed_contract, *argv], cwd=base, env=env, check=True)
-    assert not git(base, "status", "--porcelain", "--untracked-files=all")
+    if not base_removed:
+        assert not git(base, "status", "--porcelain", "--untracked-files=all")
 
 
 def main() -> None:
