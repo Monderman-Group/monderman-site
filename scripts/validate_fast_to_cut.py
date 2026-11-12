@@ -8,6 +8,7 @@ import json
 import re
 import pdfplumber
 from pypdf import PdfReader
+from acmp_five_year_footer_20261112_inverse import source_before_acmp_five_year_footer
 
 ROOT = Path(__file__).resolve().parents[1]
 FILENAME = 'Monderman_Insight_Fast_to_Cut_Slow_to_Build_2026-09-25.pdf'
@@ -41,7 +42,7 @@ def validate(source=None):
             source_body=norm(' '.join(' '.join(l['text'] for l in p.extract_text_lines() if l['top']<720) for p in original.pages[1:6]))
         source_body=source_body.replace('“'+data['pullquote']+'”','')
         check(norm(source_body)==norm(' '.join(data['source_paragraphs'])),'independent extraction matches all source body text in order')
-    html=(ROOT/'fast-to-cut-slow-to-build.html').read_text()
+    html=source_before_acmp_five_year_footer('fast-to-cut-slow-to-build.html', (ROOT/'fast-to-cut-slow-to-build.html').read_text())
     parser=Visible();parser.feed(html)
     visible=norm(''.join(parser.text))
     with pdfplumber.open(ROOT/FILENAME) as pdf:

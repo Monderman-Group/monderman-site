@@ -15,6 +15,7 @@ import logging
 import pdfplumber
 from pypdf import PdfReader
 from durable_publication_20261007_inverse import source_at_durable_publication_baseline
+from acmp_five_year_footer_20261112_inverse import source_before_acmp_five_year_footer
 
 ROOT=Path(__file__).resolve().parents[1]
 PDF='Monderman_Insight_Hold_Collide_Come_Apart_2026-10-01.pdf'
@@ -33,7 +34,7 @@ class Text(HTMLParser):
 def validate(source=None):
     data=json.loads((ROOT/'pdf-src/hold-collide-come-apart.json').read_text())
     figures=json.loads((ROOT/'pdf-src/hold-collide-figures.json').read_text())
-    html=source_at_durable_publication_baseline(SLUG,(ROOT/SLUG).read_text());text=Text();text.feed(html)
+    html=source_at_durable_publication_baseline(SLUG,source_before_acmp_five_year_footer(SLUG,(ROOT/SLUG).read_text()));text=Text();text.feed(html)
     visible=compact(' '.join(text.text)); checks=[]
     def check(v,label): assert v,label;checks.append(label)
     check(len(data['paragraphs'])==61 and len(data['references'])==9,'61 paragraphs including 5 captions, 9 references')
