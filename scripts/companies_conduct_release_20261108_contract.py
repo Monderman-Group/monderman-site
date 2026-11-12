@@ -23,6 +23,11 @@ import sys
 import tempfile
 import threading
 
+from acmp_five_year_footer_20261112_inverse import (
+    acmp_five_year_footer_delta,
+    source_before_acmp_five_year_footer,
+)
+
 
 ROOT = Path(__file__).resolve().parents[1]
 PRIOR_RELEASE = "a76ad4ff80562a69dcff5bce6ce0551855ec4631"
@@ -164,7 +169,10 @@ def audit_source(require_clean: bool) -> dict[str, object]:
     for name, expected in RELEASE_FILES.items():
         path = ROOT / name
         assert path.is_file() and not path.is_symlink(), f"Regular release file: {name}"
-        assert sha256(path) == expected, f"Reviewed release bytes: {name}"
+        reviewed_bytes = path.read_bytes()
+        if name == ARTICLE:
+            reviewed_bytes = source_before_acmp_five_year_footer(name, reviewed_bytes)
+        assert hashlib.sha256(reviewed_bytes).hexdigest() == expected, f"Reviewed release bytes: {name}"
         git(ROOT, "ls-files", "--error-unmatch", name)
 
     if require_clean:
@@ -175,7 +183,25 @@ def audit_source(require_clean: bool) -> dict[str, object]:
     source = (ROOT / ARTICLE).read_text()
     parsed = parse_article(ROOT / ARTICLE)
     assert len(parsed.paragraphs) == 58 and len(parsed.references) == 12
-    assert parsed.images[:3] == FIGURES and len(parsed.images) == 4
+    assert parsed.images[:3] == FIGURES and len(parsed.images) == 5
+    prior_article = ArticleParser()
+    prior_article.feed(source_before_acmp_five_year_footer(ARTICLE, source))
+    prior_article.close()
+    assert parsed.images[:4] == prior_article.images, "All original article and membership artwork retained"
+    assert parsed.images[4] == "assets/brand/acmp-member-5-years.svg"
+    footer = re.search(
+        r'<footer\b(?=[^>]*\bclass=["\'][^"\']*\bmond-footer\b[^"\']*["\'])[^>]*>[\s\S]*?</footer>',
+        source,
+    )
+    assert footer and hashlib.sha256(footer[0].encode()).hexdigest() == acmp_five_year_footer_delta["new_footer_sha256"], (
+        "Exact current two-credential footer"
+    )
+    assert footer[0].count('href="https://www.credly.com/badges/23526cfe-246e-40dc-a234-9dc51f469e3f"') == 1
+    assert footer[0].count('src="assets/brand/acmp-member-5-years.svg"') == 1
+    for suffix in ("png", "svg"):
+        assert sha256(ROOT / f"assets/brand/acmp-member-5-years.{suffix}") == acmp_five_year_footer_delta[f"badge_{suffix}_sha256"], (
+            f"Exact supplied five-year badge artwork: {suffix}"
+        )
     assert "Governance and Performance · Part 9" in source
     assert '<meta name="author" content="Jason Adamson">' in source
     assert "https://www.monderman.com/" + ARTICLE in source

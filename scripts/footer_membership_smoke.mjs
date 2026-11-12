@@ -9,6 +9,7 @@ import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {chromium, webkit} from 'playwright';
 import {sourceAtEvaluationPoolBaseline} from './single_lens_overview_20260929_inverse.mjs';
+import {sourceBeforeAcmpFiveYearFooter} from './acmp_five_year_footer_20261112_inverse.mjs';
 
 import {hiringPublicationDelta} from './hiring_blind_spot_publication_20261015_inverse.mjs';
 
@@ -20,6 +21,11 @@ const output = path.resolve(process.env.FOOTER_MEMBERSHIP_OUTPUT || path.join(os
 const baseline = 'e9efd479cc4b19e9753aeb814fb30f280f8171a9';
 const credential = 'https://www.credly.com/badges/36d80452-ae21-4208-b5c6-f1bcf45fb23a';
 const badgePath = 'assets/brand/acmp-member-badge.png';
+const tenureCredential = 'https://www.credly.com/badges/23526cfe-246e-40dc-a234-9dc51f469e3f';
+const tenureBadgePath = 'assets/brand/acmp-member-5-years.svg';
+const tenurePngPath = 'assets/brand/acmp-member-5-years.png';
+const tenurePngSha256 = '7571ffdf98f1bddb53e4ccf7676fad3c95dcc43846c047824ccfbcad018e698c';
+const tenureSvgSha256 = 'd29c6584898d8df096cdcab1b32228022b3cfaab417ec0985a73c8a993de5c89';
 const badgeSha256 = '0967036e795e927c9ef1bdd3c68a6de1283608476bcbf3dac725c6be67425136';
 const origin = 'http://acmp-footer.test';
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -40,8 +46,8 @@ try {
   originalChecked = true;
 } catch (error) { if (error.code !== 'ENOENT') throw error; }
 eq(await fs.readFile(path.join(built, 'footer-membership.css'), 'utf8'), await fs.readFile(path.join(root, 'footer-membership.css'), 'utf8'), 'Build copies the exact membership stylesheet');
-ok(footer.includes('href="footer-membership.css?v=20261001.1"'), 'The shared footer loads the versioned membership stylesheet');
-eq((footer.match(/class="mf-membership"/g) || []).length, 1, 'One individual membership link in the shared footer');
+ok(footer.includes('href="footer-membership.css?v=20261112.1"'), 'The shared footer loads the versioned membership stylesheet');
+eq((footer.match(/class="mf-membership"/g) || []).length, 2, 'Both independently linked individual membership badges in the shared footer');
 ok(footer.includes('href="' + credential + '"'), 'Exact public individual credential');
 ok(!/Jason|Adamson|mf-membership-label/i.test(footer), 'Badge-only footer contains no personal name or caption');
 const originalBadgeBytes = await fs.readFile(path.join(root, badgePath));
@@ -50,9 +56,20 @@ eq(originalBadgeBytes.subarray(0, 8).toString('hex'), '89504e470d0a1a0a', 'Origi
 eq([originalBadgeBytes.readUInt32BE(16), originalBadgeBytes.readUInt32BE(20)], [600, 600], 'Original PNG dimensions');
 const originalBadgeInline = 'data:image/png;base64,' + originalBadgeBytes.toString('base64');
 const inlineBadgeTag = '<img src="' + originalBadgeInline + '" width="600" height="600" loading="lazy" decoding="async" alt="ACMP Member Badge">';
+const tenureBadgeTag = '<img src="assets/brand/acmp-member-5-years.svg" width="2048" height="2048" loading="lazy" decoding="async" alt="ACMP Member — 5+ Years">';
+const tenurePng = await fs.readFile(path.join(root, tenurePngPath));
+const tenureSvg = await fs.readFile(path.join(root, tenureBadgePath), 'utf8');
+eq(sha(tenurePng), tenurePngSha256, 'Exact owner-supplied five-year original PNG');
+eq(tenurePng.length, 459431, 'Owner-supplied PNG byte count');
+eq([tenurePng.readUInt32BE(16), tenurePng.readUInt32BE(20)], [2048, 2048], 'Owner-supplied PNG original dimensions');
+eq(sha(tenureSvg), tenureSvgSha256, 'Exact static SVG container');
+eq(tenureSvg, '<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="2048" viewBox="0 0 2048 2048"><image width="2048" height="2048" href="data:image/png;base64,' + tenurePng.toString('base64') + '"/></svg>\n', 'SVG embeds every original PNG byte with no filters, scripts or external image');
+for (const file of [tenureBadgePath, tenurePngPath]) eq(await fs.readFile(path.join(built, file)), await fs.readFile(path.join(root, file)), 'Official build retains exact new badge asset: ' + file);
+ok(footer.includes('href="' + tenureCredential + '"'), 'Exact five-year public credential');
 function assertOriginalBadgeInline(source) {
   const images = [...source.matchAll(/<img\b[^>]*>/gi)];
-  assert.equal(images.length, 1, 'Exactly one footer image; no duplicate or unrecognized image URL');
+  assert.equal(images.length, 2, 'Exactly two registered footer images; no duplicate or unrecognized image URL');
+  assert.equal(images[1][0], tenureBadgeTag, 'Exact five-year badge source and original image attributes');
   assert.equal(images[0][0], inlineBadgeTag, 'Exact original PNG data URI and every unchanged non-src image attribute');
   const payload = images[0][0].match(/^<img src="data:image\/png;base64,([A-Za-z0-9+/]+={0,2})" width="600" height="600" loading="lazy" decoding="async" alt="ACMP Member Badge">$/)?.[1];
   assert.ok(payload, 'Exact PNG MIME, canonical base64 alphabet, and original 600 by 600 image tag');
@@ -102,7 +119,7 @@ function assertProtectedSource(file, source) {
   // Restore only the separately pinned, finite admission-flow delta. Compare
   // every protected file with the same immutable footer-release baseline.
   // Unknown edits pass through the adapter and still fail exact equality.
-  eq(Buffer.from(sourceAtEvaluationPoolBaseline(file, source)),
+  eq(Buffer.from(sourceAtEvaluationPoolBaseline(file, sourceBeforeAcmpFiveYearFooter(file, source))),
     execFileSync('git', ['show', baseline + ':' + file], {cwd:root, maxBuffer:32e6}),
     file + ': Existing shared scripts/styles, instruments, Workspace pages, and injector are unchanged outside the exact reviewed admission delta');
 }
@@ -369,7 +386,8 @@ for (const [engineName, engine] of Object.entries({chromium, webkit})) {
             eq(await page.locator('.mond-footer a[href="q2-sodi.html"]').getAttribute('href'), 'q2-sodi.html', label + ': actual current product footer destination');
             eq(await page.locator('link[rel="canonical"]').getAttribute('href'), 'https://www.monderman.com/q2-sodi.html', label + ': product page and retained alias identify the canonical product URL');
           }
-          const link = page.locator('.mf-membership');
+          const link = page.locator('.mf-membership').first();
+          eq(await page.locator('.mf-membership').count(), 2, label + ': both membership links are present');
           phase = 'badge-decode-and-scroll'; await persistProgress(phase, {engineName, workerIndex, label});
           await link.scrollIntoViewIfNeeded();
           await page.waitForFunction(() => {
@@ -428,6 +446,43 @@ for (const [engineName, engine] of Object.entries({chromium, webkit})) {
           eq(geometry.objectFit, 'contain', label + ': entire image remains visible');
           ok(geometry.link.left >= 0 && geometry.link.right <= width + 1, label + ': badge fits the viewport');
           ok(!missingAssets.includes('/' + badgePath) && !missingAssets.includes('/footer-membership.css'), label + ': badge asset and stylesheet load');
+          const tenureLink = page.locator('.mf-membership').nth(1);
+          await page.waitForFunction(() => {
+            const image = document.querySelectorAll('.mf-membership img')[1];
+            return image?.complete && image.naturalWidth === 2048 && image.naturalHeight === 2048;
+          });
+          eq(await tenureLink.getAttribute('href'), tenureCredential, label + ': five-year credential URL');
+          eq(await tenureLink.getAttribute('aria-label'), 'Verify five-year ACMP membership on Credly (opens in a new tab)', label + ': five-year accessible label');
+          eq(await tenureLink.getAttribute('target'), '_blank', label + ': five-year external target');
+          eq((await tenureLink.textContent()).trim(), '', label + ': no five-year visible caption');
+          for (const token of ['noopener', 'noreferrer']) ok((await tenureLink.getAttribute('rel')).split(/\s+/).includes(token), label + ': five-year safe external link ' + token);
+          await page.keyboard.press(engineName === 'webkit' && process.platform === 'darwin' ? 'Alt+Tab' : 'Tab');
+          ok(await tenureLink.evaluate(node => node === document.activeElement), label + ': five-year badge follows original in keyboard order');
+          await page.waitForFunction(() => {
+            const node = document.querySelectorAll('.mf-membership')[1];
+            if (!node || node !== document.activeElement || !node.matches(':focus-visible')) return false;
+            const style = getComputedStyle(node);
+            return style.outlineStyle !== 'none' && parseFloat(style.outlineWidth) >= 2;
+          }, null, {timeout:5000, polling:'raf'});
+          await tenureLink.click({trial:true});
+          const tenure = await tenureLink.evaluate(node => {
+            const box = element => {const r=element.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height};};
+            const image=node.querySelector('img'), style=getComputedStyle(image), rect=box(node);
+            const hit=document.elementFromPoint(rect.left+rect.width/2,rect.top+rect.height/2);
+            return {link:rect,image:box(image),filter:style.filter,opacity:style.opacity,objectFit:style.objectFit,hit:hit===node||node.contains(hit)};
+          });
+          ok(tenure.link.width >= 44 && tenure.link.height >= 44, label + ': five-year touch target');
+          ok(tenure.hit, label + ': five-year target unobstructed');
+          ok(contained(tenure.link, geometry.footer) && contained(tenure.image, tenure.link), label + ': five-year artwork contained');
+          ok(!overlaps(tenure.link, geometry.motif) && !overlaps(tenure.link, geometry.link), label + ': badges and motif do not overlap');
+          ok(tenure.link.left > geometry.link.left && Math.abs(tenure.link.top-geometry.link.top) <= 1, label + ': five-year badge sits beside original');
+          ok(Math.abs(tenure.image.width-tenure.image.height) <= 1 && tenure.image.width >= 44 && tenure.image.width <= 120, label + ': compact five-year square image');
+          eq(tenure.filter, 'none', label + ': five-year original unfiltered');
+          eq(tenure.opacity, '1', label + ': five-year artwork fully opaque');
+          eq(tenure.objectFit, 'contain', label + ': entire five-year artwork visible');
+          ok(tenure.link.left >= 0 && tenure.link.right <= width + 1, label + ': five-year badge fits viewport');
+          ok(!missingAssets.includes('/' + tenureBadgePath), label + ': five-year SVG loaded');
+          geometry.tenure = tenure;
           if (representatives.includes(file)) { phase = 'success-screenshot'; await persistProgress(phase, {engineName, workerIndex, label}); }
           if (representatives.includes(file)) await page.locator('.mond-footer').screenshot({path:path.join(output, `${engineName}-${file}-${width}.png`)});
           results.push({label, passed:true, blockedRequests, missingAssets, geometry});
