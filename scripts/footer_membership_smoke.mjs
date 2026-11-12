@@ -148,6 +148,13 @@ const progressPath = path.join(output, 'worker-progress.jsonl');
 const workerOutcomes = [], caseOutcomes = [], expectedLabels = [], completedLabels = new Set(), startedLabels = new Set();
 const browserCloseFailureObservations = [], browserCloseEvidenceErrors = [];
 let progressTail = Promise.resolve();
+async function withinExistingOperation(promise, label) {
+  let timer;
+  try { return await Promise.race([promise, new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(label + ': exceeded existing 30000ms operation limit')), operationLimit);
+  })]); }
+  finally { clearTimeout(timer); }
+}
 async function boundedCleanup(promise, label) {
   let timer;
   try { return await Promise.race([promise, new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(label + ': cleanup exceeded existing 30000ms operation limit')), operationLimit); })]); }
@@ -447,10 +454,57 @@ for (const [engineName, engine] of Object.entries({chromium, webkit})) {
           ok(geometry.link.left >= 0 && geometry.link.right <= width + 1, label + ': badge fits the viewport');
           ok(!missingAssets.includes('/' + badgePath) && !missingAssets.includes('/footer-membership.css'), label + ': badge asset and stylesheet load');
           const tenureLink = page.locator('.mf-membership').nth(1);
+          phase = 'tenure-vector-decode'; await persistProgress(phase, {engineName, workerIndex, label});
           await page.waitForFunction(() => {
             const image = document.querySelectorAll('.mf-membership img')[1];
-            return image?.complete && image.naturalWidth === 2048 && image.naturalHeight === 2048;
+            return image?.complete && image.naturalWidth > 0 && image.naturalHeight > 0;
           });
+          eq(await tenureLink.locator('img').getAttribute('src'), tenureBadgePath, label + ': actual SVG source is not replaced by the reference PNG');
+          // A vector image's reported natural size depends on its renderer in
+          // WebKit26.0. Keep the supplied bitmap's2048px identity and compare
+          // every actual rendered RGBA byte instead of treating that SVG API as
+          // the bitmap's dimensions. The reference never replaces the SVG.
+          phase = 'tenure-exact-pixels'; await persistProgress(phase, {engineName, workerIndex, label});
+          const tenurePixelIntegrity = await withinExistingOperation(page.evaluate(async ({originalPng}) => {
+            const actualImage = document.querySelectorAll('.mf-membership img')[1];
+            await actualImage.decode();
+            const reference = new Image();
+            reference.src = originalPng;
+            await reference.decode();
+            const draw = image => {
+              const canvas = document.createElement('canvas');
+              canvas.width = 2048; canvas.height = 2048;
+              const context = canvas.getContext('2d', {willReadFrequently:true});
+              if (!context) throw new Error('Owned canvas2D context unavailable');
+              context.drawImage(image, 0, 0, 2048, 2048);
+              return context.getImageData(0, 0, 2048, 2048).data;
+            };
+            const actual = draw(actualImage), expected = draw(reference);
+            let differingBytes = 0, differingPixels = 0, differingAlpha = 0, nonTransparentPixels = 0;
+            for (let p = 0; p < actual.length; p += 4) {
+              let different = false;
+              for (let c = 0; c < 4; c++) if (actual[p+c] !== expected[p+c]) { differingBytes++; different = true; }
+              if (different) differingPixels++;
+              if (actual[p+3] !== expected[p+3]) differingAlpha++;
+              if (expected[p+3] > 0) nonTransparentPixels++;
+            }
+            return {actualNatural:[actualImage.naturalWidth, actualImage.naturalHeight],
+              referenceNatural:[reference.naturalWidth, reference.naturalHeight],
+              actualBytes:actual.length, referenceBytes:expected.length,
+              differingBytes, differingPixels, differingAlpha, nonTransparentPixels,
+              source:actualImage.getAttribute('src'),
+              qualification:'Actual SVG canvas pixels versus a separately decoded exact-original PNG reference; SVG source and pixels are not replaced or filled from the reference.'};
+          }, {originalPng:'data:image/png;base64,' + tenurePng.toString('base64')}), label + ': full five-year artwork pixel comparison');
+          await persistProgress('tenure-exact-pixels-observed', {engineName, workerIndex, label, tenurePixelIntegrity});
+          eq(tenurePixelIntegrity.referenceNatural, [2048,2048], label + ': reference bitmap retains original dimensions');
+          eq(tenurePixelIntegrity.actualBytes, 16777216, label + ': full actual2048x2048 RGBA canvas');
+          eq(tenurePixelIntegrity.referenceBytes, 16777216, label + ': full original2048x2048 RGBA reference');
+          ok(tenurePixelIntegrity.actualNatural[0] > 0 && tenurePixelIntegrity.actualNatural[0] === tenurePixelIntegrity.actualNatural[1], label + ': decoded SVG reports a nonempty square intrinsic size');
+          eq(tenurePixelIntegrity.differingBytes, 0, label + ': every actual artwork RGBA byte equals original');
+          eq(tenurePixelIntegrity.differingPixels, 0, label + ': no changed artwork pixel');
+          eq(tenurePixelIntegrity.differingAlpha, 0, label + ': original alpha retained for every pixel');
+          ok(tenurePixelIntegrity.nonTransparentPixels > 0, label + ': original artwork is not an empty canvas');
+          geometry.tenurePixelIntegrity = tenurePixelIntegrity;
           eq(await tenureLink.getAttribute('href'), tenureCredential, label + ': five-year credential URL');
           eq(await tenureLink.getAttribute('aria-label'), 'Verify five-year ACMP membership on Credly (opens in a new tab)', label + ': five-year accessible label');
           eq(await tenureLink.getAttribute('target'), '_blank', label + ': five-year external target');
