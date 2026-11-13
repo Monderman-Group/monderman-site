@@ -537,6 +537,7 @@ def delegate_prior(argv: list[str], channel: str) -> None:
             "scripts/marketing_refresh_browser_smoke.mjs": "SITE_BASE",
             "scripts/marketing_photo_presentation_20261013_browser.mjs": "SITE_BASE",
             "scripts/marketing_completion_browser_smoke.mjs": "SITE_BASE",
+            "scripts/scope_beta_20261014_browser.mjs": "SITE_BASE",
         }
         server: http.server.ThreadingHTTPServer | None = None
         server_thread: threading.Thread | None = None
