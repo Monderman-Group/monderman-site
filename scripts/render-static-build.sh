@@ -48,6 +48,8 @@ cp -- \
   assets/brand/monderman-mark-v2-small.svg \
   assets/brand/monderman-social-card.png \
   assets/brand/acmp-member-badge.png \
+  assets/brand/acmp-member-5-years.png \
+  assets/brand/acmp-member-5-years.svg \
   assets/brand/scope-symbol.svg \
   assets/brand/scope-symbol-reversed.svg \
   "$publish_dir/assets/brand/"

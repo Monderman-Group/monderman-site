@@ -4,6 +4,7 @@ import json
 import re
 from outreach_image_notice_20261008_inverse import source_at_outreach_image_notice_baseline
 from scope_beta_20261014_inverse import source_before_scope_beta_20261014
+from acmp_five_year_footer_20261112_inverse import source_before_acmp_five_year_footer
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -99,6 +100,7 @@ LEGAL_PRESENTATION_ORIGINAL_HASHES = {'privacy.html': 'b6425860f43039b0af638a11f
 
 
 def legal_presentation_historical_read(name, text):
+    text = source_before_acmp_five_year_footer(name, text)
     if name in LEGAL_PRESENTATION_FILES or name == "legal-document-manifest.json":
         return source_before_scope_beta_20261014(name, text)
     return text
@@ -119,7 +121,7 @@ def validate_legal_presentation_current():
     original_fields = {key: original[key] for key in ["privacy_notice_content_sha256", "published_privacy_notice_content_sha256"]}
     original_fields["documents"] = {}
     for name in LEGAL_PRESENTATION_FILES:
-        text = (ROOT / name).read_text(errors="strict")
+        text = source_before_acmp_five_year_footer(name, (ROOT / name).read_text(errors="strict"))
         row = record["files"][name]
         assert set(row) == {"original_source_sha256", "presented_source_sha256", "original_source_bytes", "presented_source_bytes", "original_marked_content_sha256", "presented_marked_content_sha256", "replacements"}
         assert sha256(text) == row["presented_source_sha256"] and len(text.encode()) == row["presented_source_bytes"]
@@ -163,7 +165,7 @@ def validate_legal_presentation_current():
 
 def validate():
     validate_legal_presentation_current()
-    terms = (ROOT / "terms.html").read_text(errors="strict")
+    terms = source_before_acmp_five_year_footer("terms.html", (ROOT / "terms.html").read_text(errors="strict"))
     signin = (ROOT / "signin.html").read_text(errors="strict")
     trial = (ROOT / "pattern-trial.html").read_text(errors="strict")
     privacy = source_at_outreach_image_notice_baseline("privacy.html", legal_presentation_historical_read("privacy.html", (ROOT / "privacy.html").read_text(errors="strict")))

@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse, hashlib, html, json, math, re, shutil
 from html.parser import HTMLParser
 from pathlib import Path
+from acmp_five_year_footer_20261112_inverse import source_before_acmp_five_year_footer
 
 RELEASE='20261028.2'
 SCHEMA='monderman-article-audio-v1'
@@ -120,7 +121,7 @@ def validate_manifest(manifest,source_root):
   check(type(entry['duration_seconds']) in {int,float} and math.isfinite(entry['duration_seconds']) and entry['duration_seconds']>0,'Finite positive decoded duration')
   check(type(entry['title']) is str and bool(entry['title'].strip()),'Actual article title')
   page=source_root/path;asset=source_root/entry['audio_path']
-  check(page.is_file() and not page.is_symlink() and sha(page.read_bytes())==entry['source_sha256'],'Exact authored source '+path)
+  check(page.is_file() and not page.is_symlink() and sha(source_before_acmp_five_year_footer(path,page.read_bytes()))==entry['source_sha256'],'Exact authored source '+path)
   check(asset.is_file() and not asset.is_symlink(),'Exact regular audio asset '+path)
   raw=asset.read_bytes();check(len(raw)==entry['bytes'] and sha(raw)==entry['audio_sha256'],'Exact reviewed encoded media '+path)
   evidence=reviewed[path]

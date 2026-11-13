@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import {sourceAtOutreachImageNoticeBaseline} from './outreach_image_notice_20261008_inverse.mjs';
 import {sourceBeforeScopeBeta20261014 as originalLegalSource} from './scope_beta_20261014_inverse.mjs';
+import {sourceBeforeAcmpFiveYearFooter} from './acmp_five_year_footer_20261112_inverse.mjs';
 import {createHash} from 'node:crypto';
 import {sourceBeforeTrustSecurityCenter20260924} from './trust_security_center_20260924_inverse.mjs';
 const root=new URL('../',import.meta.url),readRaw=name=>fs.readFileSync(new URL(name,root),'utf8');
@@ -29,7 +30,7 @@ function verifyLegalPresentation(rawManifestSource, rawSources) {
   for(const file of legalPresentationFiles.filter(f=>f!=='privacy.html')){const version=file.slice(8,-5);originalFields.documents[version]={privacy_notice_file_sha256:original.documents[version].privacy_notice_file_sha256};assert.equal(actual.documents[version].privacy_notice_file_sha256,record.files[file].presented_source_sha256);}
   assert.deepEqual(record.original_manifest_fields,originalFields);
   for(const file of legalPresentationFiles){
-    const text=rawSources[file],row=record.files[file];
+    const text=sourceBeforeAcmpFiveYearFooter(file,rawSources[file]),row=record.files[file];
     assert.deepEqual(Object.keys(row).sort(),['original_marked_content_sha256','original_source_bytes','original_source_sha256','presented_marked_content_sha256','presented_source_bytes','presented_source_sha256','replacements']);
     assert.equal(legalPresentationSha(text),row.presented_source_sha256);assert.equal(Buffer.byteLength(text),row.presented_source_bytes);
     assert.equal(row.original_source_sha256,legalPresentationOriginalHashes[file]);
@@ -52,7 +53,9 @@ function verifyLegalPresentation(rawManifestSource, rawSources) {
 }
 
 const legalPresentationProof=verifyLegalPresentation(readRaw('legal-document-manifest.json'),Object.fromEntries(legalPresentationFiles.map(file=>[file,readRaw(file)])));
-const read=name=>legalPresentationFiles.includes(name)||name==='legal-document-manifest.json'?originalLegalSource(name,readRaw(name)):readRaw(name);
+// Exact registered source-footer view only; no legal content or manifest is replaced.
+const legalFooterSourceFiles=new Set(['terms.html','subprocessors.html',...legalPresentationFiles,...Object.values(JSON.parse(readRaw('legal-document-manifest.json')).documents).flatMap(row=>[row.terms_file,row.privacy_notice_file].filter(Boolean))]);
+const read=name=>{const raw=readRaw(name),priorFooter=legalFooterSourceFiles.has(name)?sourceBeforeAcmpFiveYearFooter(name,raw):raw;return legalPresentationFiles.includes(name)||name==='legal-document-manifest.json'?originalLegalSource(name,priorFooter):priorFooter;};
 const sha=value=>createHash('sha256').update(value).digest('hex');
 const version='2026-09-12-ai-source-evidence-v2',archive='privacy-'+version+'.html';
 const currentVersion='2026-09-19-invitation-access',currentArchive='privacy-'+currentVersion+'.html';
