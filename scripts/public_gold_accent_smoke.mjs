@@ -136,17 +136,46 @@ async function waitChromeState(page, original, mobile, phase, index, timeout) {
       && scrollX === original.scroll.x && scrollY === original.scroll.y && original.scroll.nodes.every(({node, left, top}) => node.scrollLeft === left && node.scrollTop === top);
   }, {original, mobile, phase, index}, {timeout});
 }
+// Native input belongs to one foreground page at a time. All activation and
+// readiness work stays inside the original per-operation three-second guard.
+function recordChromePrimeStep(progress, substep) {
+  progress.substep = substep;
+  (progress.events ??= []).push({substep, at: new Date().toISOString(), monotonicMs: performance.now()});
+}
+async function activateChromeForPrime(page, guard, progress) {
+  recordChromePrimeStep(progress, 'activation-start');
+  await guard.step(() => page.bringToFront());
+  recordChromePrimeStep(progress, 'activation-settled');
+  const focused = await guard.step(timeout => page.waitForFunction(() => document.hasFocus(), null, {timeout}));
+  await guard.step(() => focused.dispose());
+  recordChromePrimeStep(progress, 'foreground-state-settled');
+}
 async function primeChrome(page, originState, mobile, progress) {
   const {original, info} = originState;
-  if (mobile) await chromeDeadline(async guard => { progress.phase = 'open-navigation'; await guard.step(timeout => page.locator('#siteHeader .site-menu-button').click({timeout})); await guard.step(timeout => waitChromeState(page, original, mobile, 'nav-open', -1, timeout)); await guard.step(() => settle(page)); }, 3000, 'Native navigation open');
+  if (mobile) await chromeDeadline(async guard => {
+    progress.phase = 'open-navigation';
+    await activateChromeForPrime(page, guard, progress);
+    recordChromePrimeStep(progress, 'button-click-start');
+    await guard.step(timeout => page.locator('#siteHeader .site-menu-button').click({timeout}));
+    recordChromePrimeStep(progress, 'button-click-settled');
+    await guard.step(timeout => waitChromeState(page, original, mobile, 'nav-open', -1, timeout));
+    recordChromePrimeStep(progress, 'nav-open-state-settled');
+    await guard.step(() => settle(page));
+    recordChromePrimeStep(progress, 'nav-open-frames-settled');
+  }, 3000, 'Native navigation open');
   for (let index = 0; index < info.menus; index++) {
     await chromeDeadline(async guard => {
       progress.phase = 'prime-menu'; progress.menu = index;
+      await activateChromeForPrime(page, guard, progress);
       const parent = page.locator('#siteHeader .nav-menu .nav-parent').nth(index);
+      recordChromePrimeStep(progress, 'menu-input-start');
       if (mobile) await guard.step(timeout => parent.click({timeout}));
       else await guard.step(timeout => parent.hover({timeout}));
+      recordChromePrimeStep(progress, 'menu-input-settled');
       await guard.step(timeout => waitChromeState(page, original, mobile, 'dropdown', index, timeout));
+      recordChromePrimeStep(progress, 'dropdown-state-settled');
       await guard.step(() => settle(page));
+      recordChromePrimeStep(progress, 'dropdown-frames-settled');
       assert.equal(page.url(), info.url, 'Native menu preparation retains its URL');
       progress.primed.push(index);
     }, 3000, 'Native dropdown ' + index);
@@ -292,8 +321,19 @@ async function comparePreparedChrome(page, prior, width, label) {
   try {
     [actualOrigin, priorOrigin] = await chromeDeadline(guard => Promise.all([captureChromeOrigin(page, guard), captureChromeOrigin(prior, guard)]), 3000, 'Original menu inventory');
     equal(actualOrigin.info.menus, priorOrigin.info.menus, label + ': matching original menu inventories');
-    const priming = await Promise.allSettled([primeChrome(page, actualOrigin, width <= 1180, observation.progress.actual), primeChrome(prior, priorOrigin, width <= 1180, observation.progress.prior)]);
+    const priming = [];
+    for (const [target, originState, progress] of [[page, actualOrigin, observation.progress.actual], [prior, priorOrigin, observation.progress.prior]]) {
+      try {
+        await primeChrome(target, originState, width <= 1180, progress);
+        priming.push({status: 'fulfilled'});
+      } catch (reason) {
+        priming.push({status: 'rejected', reason});
+        // Do not issue another page's native inputs after a failed deadline.
+        break;
+      }
+    }
     observation.preparation = priming.map((result, index) => ({mode: index ? 'prior' : 'actual', status: result.status, error: result.status === 'rejected' ? String(result.reason) : null}));
+    if (priming.length < 2) observation.preparation.push({mode: 'prior', status: 'unstarted', error: 'Paired native input stopped after the original failure'});
     for (const result of priming) if (result.status === 'rejected') throw result.reason;
     // All menus are primed first; foreground inputs and snapshots are sequential.
     for (const phase of ['all-menus-primed-final-visible', 'restored-original-closed']) {
